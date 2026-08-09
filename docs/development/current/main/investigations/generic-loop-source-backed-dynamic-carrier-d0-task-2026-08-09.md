@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C closed; former L0-I0 is NoSafeSlice; full-body D0 next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C closed; former L0-I0 is NoSafeSlice; full-body D0 closed and source inventory I0 next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -979,7 +979,10 @@ R0 exact Enter-definition handoff
 -> P2B predecessor close / PHI patch
 -> P2C discard canary
 -> GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0
--> full-body / Recipe / After / multi-return / DraftSeal prerequisite ladder
+-> GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0
+-> source-bound Dynamic member target D0/I0
+-> V2 Dynamic Recipe / JoinSig-authorized If+Return / common physical control
+-> After+Tail / set-aware multi-return Completion / DraftSeal prerequisite ladder
 -> L0-I0 VM canary only after one CompletedFunctionDraft exists
 ```
 
@@ -998,9 +1001,10 @@ P2C leaves the child unpublished and does not own `substring`, `ch`,
 Completion, DraftSeal, collector, or module publication.  Passive backend
 metadata cannot turn that carrier-only proof into an executable module.
 
-The exact prerequisite ladder and production switch boundary are now owned by
+The D0 census is closed. The exact prerequisite ladder and production switch boundary are now owned by
 `generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.  Dynamic
-Recipe D0/I0, complete physical After, multi-return Completion, and
+source inventory, source-bound Dynamic member targets, V2 Recipe/JoinSig,
+complete physical control/After, multi-return Completion, and
 DraftSeal/collector must close before this VM row reopens.  The production
 `skip_while/4` source remains unchanged; compiler acceptance is widened.
 

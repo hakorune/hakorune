@@ -23,17 +23,24 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. Dynamic source/origin, complete Loop source
+Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
 closed as unpublished-session carrier proofs for the unmodified production
 `skip_while/4` source. A top-down audit found that the former direct VM row
-cannot yet execute the complete method. The next compiler-side row is:
+cannot yet execute the complete method and closed the missing-authority
+inventory. The next bounded compiler-side row is:
 
 ```text
-GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0
+GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0
 ```
+
+It issues only the AST-free exact source inventory for the unchanged method.
+The following design row adds a route-disjoint source-bound Dynamic member
+target instead of fabricating an exact declaration target. V2 Dynamic
+value/call relations, JoinSig-authorized If/Return transfers, and multi-return
+Completion merge then precede DraftSeal/collector/backend/VM activation.
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
 Compare/Add from Enter, so a PHI created afterward would not have been the
@@ -59,7 +66,8 @@ discard the complete child, restore the caller once, and permit only a fresh
 session replay. The direct VM canary is `NoSafeSlice`: the real body still
 requires exact `substring`/`indexOf` calls, local `ch`, inner If/early return,
 zero/fallthrough After, final return, multi-return Completion, DraftSeal, and
-collector ownership. Dynamic Recipe now precedes VM activation. Compiler
+collector ownership. `ch` remains an exact iteration-local source relation,
+not a carrier. Dynamic Recipe now precedes VM activation. Compiler
 acceptance is widened while raw incoming vectors, route-local whole-body
 lowerers, production selection, retry/fallback, and source rewrites remain
 closed. The

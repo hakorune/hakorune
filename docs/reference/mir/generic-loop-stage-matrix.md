@@ -21,6 +21,20 @@ callable closure now precede backend activation. The executable order is
 owned by
 `docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.
 
+The D0 census is closed. The first safe implementation is an AST-free exact
+source inventory only. The two calls use source-backed Dynamic receivers, so
+the compiler must add a route-disjoint source-bound Dynamic member target;
+it must not fabricate an exact declaration target or classify the receiver by
+the spellings `substring` / `indexOf`. `ch` is an exact iteration-local
+source/local-value relation, not a carrier. Source Completion already owns the
+two Return sites; the missing terminal authority is their physical single-exit
+merge and one set-aware Completion consumption.
+
+V2 currently provides only the logical `CallSlot` / `If` / `Exit(Return)`
+wire. Dynamic values/operations, V2 source relations and JoinSig/Core,
+JoinSig-authorized physical If/Return transfers, and a V2 physical consumer
+remain prerequisites. V1 layout must not be widened around these gaps.
+
 This correction widens compiler acceptance. It does not authorize source
 annotations, a copied/narrowed fixture, a second whole-body lowerer, raw-loop
 fallback, or backend metadata inferred from incomplete MIR.

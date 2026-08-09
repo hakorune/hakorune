@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic source through canonical carrier PHI close and whole-session discard P2C are closed as unpublished-session proofs. The former direct VM canary is NoSafeSlice: the unchanged skip_while/4 body still needs complete Call/local/If/early-return source coverage, Dynamic Recipe, Loop After, multi-return Completion, DraftSeal, collector, and backend capability before execution. Compiler acceptance must widen; source rewrite and narrowed fixtures are forbidden."
+status = "Dynamic source through canonical carrier PHI close and whole-session discard P2C are closed as unpublished-session proofs. The full-body D0 census is also closed: the unchanged skip_while/4 first needs one AST-free exact source inventory, then source-bound Dynamic member targets, V2 Dynamic Recipe/call relations, JoinSig-authorized If/Return physical transfer, multi-return Completion merge, DraftSeal, collector, and backend capability. Compiler acceptance widens; source rewrite and narrowed fixtures are forbidden."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0"
-work_mode = "design_stop"
-current_execution_row = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0"
-current_blocker_token = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0: inventory and seal the complete unchanged skip_while/4 source boundary before any Builder effect; identify canonical CallSlot target, local, If/early-return, After/Tail, and two-return Completion owners; widen compiler acceptance and stop NoSafeSlice where an issuer is absent"
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0"
+current_blocker_token = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0: issue one AST-free exact source inventory for unchanged skip_while/4 (formals/i/ch/two calls/If/two returns/rebind) with total coverage and zero Builder effect; target, Recipe, and physical lowering remain closed"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -88,6 +88,8 @@ hako_parser_rich_body_result_h2_s2_s1_r0_task = "docs/development/current/main/i
 hako_parser_rich_body_result_h2_s2_s1_r1_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
 general_static_call_exact_box_result_i1_d0_task = "docs/development/current/main/investigations/general-static-call-exact-box-result-i1-d0-task-2026-08-09.md"
 generic_loop_source_backed_dynamic_carrier_d0_task = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md"
+generic_loop_dynamic_full_body_closure_task = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
+source_bound_dynamic_method_dispatch_design_task = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md"
 hako_parser_numeric_scan_carrier_source_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md"
 hako_parser_numeric_scan_carrier_parameter_i0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md"
 hako_parser_numeric_scan_parameter_carriage_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-parameter-carriage-d0-consultation-2026-08-09.md"
@@ -689,13 +691,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "generic-loop-dynamic-full-body-closure-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
-next_design_card = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0"
-next_design_card_path = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0"
+next_design_card_path = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md"
+next_execution_card = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "P2A/P1R/P2B/P2C are closed as canonical carrier-cycle and whole-session-discard proofs. Direct VM activation is NoSafeSlice because the unchanged skip_while/4 body still lacks complete Call/local/If/early-return/After/multi-return Completion/DraftSeal/collector ownership. The current design stop inventories and seals the full compiler acceptance boundary before Dynamic Recipe implementation."
+latest_card_summary = "The full-body D0 census is closed. The next bounded implementation issues an AST-free exact source inventory for unchanged skip_while/4 only. It is followed by source-bound Dynamic member target D0/I0, V2 Dynamic value/call relations, JoinSig-authorized If/Return physical transfer, multi-return Completion merge, DraftSeal/collector, backend capability, and finally the VM canary. Source rewrite/narrowing and legacy fallback are forbidden."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
