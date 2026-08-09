@@ -146,7 +146,7 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
     let header_current = opened.header_current_value();
     let placement = opened.placement();
 
-    let completed = DynamicLoopOperationExecutionV1::execute(opened, &mut state, builder).unwrap();
+    let completed = DynamicLoopOperationExecutionV1::execute(opened, builder).unwrap();
 
     assert_eq!(completed.predicate().block(), placement.header());
     assert_eq!(
@@ -161,22 +161,10 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
     assert_ne!(carrier.enter(), header_current);
     assert_eq!(carrier.header_current(), header_current);
     assert_eq!(carrier.header(), placement.header());
-    assert_eq!(carrier.current().previous(), local_value);
-    assert_eq!(carrier.current().current(), carrier.backedge());
-    assert_eq!(carrier.current().binding(), carrier.binding());
-    assert_eq!(carrier.current().origin(), carrier.origin());
     assert_eq!(carrier.definition_block(), placement.terminal_backedge());
     assert_eq!(
         builder.function_state.type_ctx.get_type(carrier.backedge()),
         None
-    );
-    assert_eq!(
-        state.dynamic_current_origin_for_test(carrier.binding(), carrier.backedge()),
-        Some(carrier.origin())
-    );
-    assert_eq!(
-        state.dynamic_value_origin_for_test(carrier.backedge()),
-        Some(carrier.origin())
     );
     assert!(builder
         .function_state
@@ -227,6 +215,9 @@ fn operation_terminal_source_has_no_phi_or_fallback_authority() {
         "comparison_block: BasicBlockId",
         "add_block: BasicBlockId",
         "lhs: carrier.entry()",
+        "CallableSemanticLoweringState",
+        "prepare_source_backed_dynamic_rebind",
+        "commit_source_backed_dynamic_rebind",
         "fallback",
         "retry",
     ] {

@@ -1,10 +1,10 @@
 //! Exact-once physical terminal for the first source-backed Dynamic Loop.
 //!
 //! This owner consumes the whole prepared ingress. It delegates instruction
-//! insertion to the existing Builder/Compare/Const writers, commits one
-//! atomic callable-current transition, and returns a move-only handoff for the
-//! canonical Binding SSA / PHI transaction owner. It is not a route or a
-//! PHI writer.
+//! insertion to the existing Builder/Compare/Const writers and returns a
+//! move-only handoff for the canonical Binding SSA / PHI transaction owner.
+//! It does not claim the source assignment or update a second reaching-value
+//! map. It is not a route or a PHI writer.
 
 use crate::mir::builder::emission::{compare, constant};
 use crate::mir::resolved_semantics::{
@@ -16,8 +16,6 @@ use super::normal_callable_dynamic_loop_prepare::PreparedLoopIncomingRoleV1;
 use super::normal_callable_dynamic_operation_source::{
     DynamicLoopComparisonKindV1, DynamicLoopOperationResultClassV1,
 };
-use super::normal_callable_dynamic_origin::CurrentDynamicBindingReceiptV1;
-use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::resolved_lowering::dynamic_loop_phi::OpenSourceBackedDynamicLoopCarrierPhiV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -48,7 +46,6 @@ pub(super) struct ReadySourceBackedDynamicLoopCarrierForPhiV1 {
     backedge: ValueId,
     assignment: SourceExprSiteV1,
     definition_block: BasicBlockId,
-    current: CurrentDynamicBindingReceiptV1,
 }
 
 impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
@@ -78,10 +75,6 @@ impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
 
     pub(super) const fn assignment(&self) -> &SourceExprSiteV1 {
         &self.assignment
-    }
-
-    pub(super) const fn current(&self) -> &CurrentDynamicBindingReceiptV1 {
-        &self.current
     }
 
     pub(super) const fn header_current(&self) -> ValueId {
@@ -118,7 +111,6 @@ pub(super) struct DynamicLoopOperationExecutionV1;
 impl DynamicLoopOperationExecutionV1 {
     pub(super) fn execute(
         opened: OpenSourceBackedDynamicLoopCarrierPhiV1,
-        state: &mut CallableSemanticLoweringState,
         builder: &mut MirBuilder,
     ) -> Result<CompletedSourceBackedDynamicLoopOperationsV1, String> {
         let placement = opened.placement();
@@ -173,14 +165,6 @@ impl DynamicLoopOperationExecutionV1 {
             return Err(freeze("add-contract"));
         }
         let add_result = builder.next_value_id();
-        let prepared_rebind = state.prepare_source_backed_dynamic_rebind(
-            add.target().node(),
-            carrier.binding(),
-            carrier.entry(),
-            add_result,
-            origin,
-        )?;
-
         let predicate_result = builder.next_value_id();
         compare::emit_to_at(
             builder,
@@ -214,14 +198,12 @@ impl DynamicLoopOperationExecutionV1 {
             return Err(freeze("dynamic-add-published-integer"));
         }
         let assignment = add.target().clone();
-        let current = state.commit_source_backed_dynamic_rebind(prepared_rebind);
         let carrier = ReadySourceBackedDynamicLoopCarrierForPhiV1 {
             opened,
             origin,
             backedge: add_result,
             assignment,
             definition_block: add_block,
-            current,
         };
         Ok(CompletedSourceBackedDynamicLoopOperationsV1 { predicate, carrier })
     }

@@ -889,9 +889,9 @@ Closeout:
   Compare and Add both use the sole canonical Header PHI destination as lhs;
   that value differs from Enter. The Add result stays physically unknown and
   is co-sealed with the exact assignment, Dynamic origin, and terminal
-  Backedge definition block. The legacy callable-current projection advances
-  from Enter to the Add result only as migration evidence and is not a second
-  reaching-value authority.
+  Backedge definition block. P1R does not consume the assignment or update the
+  legacy callable-current projection. P2B's canonical identity boundary is
+  the only source-assignment claimant and reaching-value writer.
 
   The unmodified production `skip_while/4` fixture verifies the exact MIR
   operands, Dynamic lineage, role-distinct placement, late-failure

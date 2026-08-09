@@ -1780,8 +1780,9 @@ physically unknown while its exact assignment site, Dynamic origin, and
 terminal-Backedge definition block are retained for P2B.
 
 The P1R output keeps the P2A open product intact, so later closure cannot pair
-the Backedge with a different Header/PHI session. The callable-current update
-from Enter to Add result is migration evidence only; canonical Binding SSA is
-the sole reaching-value authority. No operand rewrite, raw Unknown admission,
-actual Backedge edge, canonical assignment definition, PHI patch, After,
-backend, retry/fallback, or production activation is claimed. P2B is next.
+the Backedge with a different Header/PHI session. P1R neither consumes the
+source assignment nor updates the legacy callable-current projection;
+canonical Binding SSA in P2B is the sole assignment claimant and
+reaching-value authority. No operand rewrite, raw Unknown admission, actual
+Backedge edge, canonical assignment definition, PHI patch, After, backend,
+retry/fallback, or production activation is claimed. P2B is next.

@@ -229,10 +229,11 @@ that whole open product. It derives its Header and terminal-Backedge blocks
 from the sealed placement, emits both Compare and Add from the canonical
 Header current, and retains the same open product with the source-backed
 Dynamic Backedge receipt. It has no caller-chosen block/value seam and never
-rewrites an emitted operand. P2B must next define the assignment through
-canonical Binding SSA, complete the Backedge edge, seal Header, and let the
-existing `PhiTxn` patch the provisional PHI. After publication, DraftSeal,
-backend activation, retry, and fallback remain closed.
+rewrites an emitted operand. It also does not consume the source assignment or
+advance the legacy callable-current map. P2B must define the assignment once
+through canonical Binding SSA, complete the Backedge edge, seal Header, and
+let the existing `PhiTxn` patch the provisional PHI. After publication,
+DraftSeal, backend activation, retry, and fallback remain closed.
 
 ## 原則（SSOT / Box-First）
 
