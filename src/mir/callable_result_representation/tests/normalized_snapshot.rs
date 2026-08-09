@@ -11,7 +11,8 @@ use crate::mir::source_core_receiver::SourceCoreReceiverFactV1;
 
 use super::super::{
     CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
-    VerifiedCallableResultEvidenceV1, VerifiedSameModuleCallableResultCatalogV1,
+    VerifiedCallableResultEvidenceV1, VerifiedCallableResultRepresentationV1,
+    VerifiedSameModuleCallableResultCatalogV1,
 };
 use super::support::{
     declarations, extend_current_owner_targets, key, qualified_targets, seal_with_targets, site,
@@ -29,13 +30,21 @@ struct NormalizedCallableKeyV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum NormalizedResultDispositionV1 {
     ExactI64 { required_arguments: Vec<u32> },
+    ExactNominalBox { box_name: String },
     Unavailable(CallableResultUnavailableReasonV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum NormalizedResultRepresentationV1 {
+    ExactI64,
+    ExactNominalBox { box_name: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum NormalizedCallEvidenceV1 {
     SameModuleStatic {
         target: NormalizedCallableKeyV1,
+        result: NormalizedResultRepresentationV1,
         callee_required_arguments: Vec<u32>,
     },
     CoreStringMethod {
@@ -77,9 +86,11 @@ fn normalize(
             evidence: match row.evidence() {
                 VerifiedCallableResultEvidenceV1::SameModuleStatic {
                     source_target,
+                    result_representation,
                     callee_required_i64_arguments,
                 } => NormalizedCallEvidenceV1::SameModuleStatic {
                     target: normalize_key(source_target.target()),
+                    result: normalize_representation(result_representation),
                     callee_required_arguments: callee_required_i64_arguments.to_vec(),
                 },
                 VerifiedCallableResultEvidenceV1::CoreStringMethod {
@@ -116,8 +127,28 @@ fn normalize_disposition(
         } => NormalizedResultDispositionV1::ExactI64 {
             required_arguments: required_i64_arguments.to_vec(),
         },
+        VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
+            NormalizedResultDispositionV1::ExactNominalBox {
+                box_name: box_name.clone(),
+            }
+        }
         VerifiedCallableResultDispositionV1::Unavailable(reason) => {
             NormalizedResultDispositionV1::Unavailable(reason.clone())
+        }
+    }
+}
+
+fn normalize_representation(
+    representation: &VerifiedCallableResultRepresentationV1,
+) -> NormalizedResultRepresentationV1 {
+    match representation {
+        VerifiedCallableResultRepresentationV1::ExactI64 => {
+            NormalizedResultRepresentationV1::ExactI64
+        }
+        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
+            NormalizedResultRepresentationV1::ExactNominalBox {
+                box_name: box_name.clone(),
+            }
         }
     }
 }

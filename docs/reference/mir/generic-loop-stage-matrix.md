@@ -1223,6 +1223,24 @@ result publisher. The actual unmodified `StringHelpers` source now lowers
 first GenericLoop carrier verifier. No source annotation, by-name inference,
 local/Loop default, Completion meaning, retry, or fallback was added.
 
+## Exact nominal Box static-call result I1 receipt (2026-08-09)
+
+`GENERAL-STATIC-CALL-EXACT-BOX-RESULT-I1` widens the existing source-bound
+result representation owner, not GenericLoop. A complete same-module static
+body that returns `new ProductV1(...)` now seals
+`ExactNominalBox(ProductV1)`. Identical Box facts propagate through locals,
+branches, returns, and exact source-target call rows. Constructor arguments
+are traversed so nested call evidence remains complete.
+
+The existing move-only publication owner retains that representation through
+its handoff and, only after a successful generic physical Call receipt,
+projects it to `MirType::Box("ProductV1")`. `ExactI64` continues to project to
+`MirType::Integer` through the same publisher. Different nominal Box classes,
+or Box/`i64` return mixtures in either source order, remain an explicit
+`ConflictingReturnRepresentations` failure. No source annotation, class-name
+table, MIR-body inference, GenericLoop default, second publisher, retry, or
+fallback was added.
+
 ## Callable-semantic Loop handoff S0 receipt (2026-08-07)
 
 `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-S0` is now closed as a pre-effect

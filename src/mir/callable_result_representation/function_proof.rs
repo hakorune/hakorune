@@ -21,6 +21,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum FunctionProofOutcomeV1 {
     Exact(RequirementSetV1),
+    ExactNominalBox(String),
     Unavailable(CallableResultUnavailableReasonV1),
     PendingDependency,
 }
@@ -362,11 +363,29 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
     let mut requirements = BTreeSet::new();
     let mut saw_exact = false;
     let mut saw_non_i64 = false;
+    let mut exact_box: Option<String> = None;
     for fact in returns {
         match fact {
             I64ExpressionFactV1::Exact(current) => {
+                if exact_box.is_some() {
+                    return FunctionProofOutcomeV1::Unavailable(
+                        CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
+                    );
+                }
                 saw_exact = true;
                 requirements = union_requirements(&requirements, &current);
+            }
+            I64ExpressionFactV1::ExactNominalBox(box_name) => {
+                if saw_exact
+                    || exact_box
+                        .as_ref()
+                        .is_some_and(|existing| existing != &box_name)
+                {
+                    return FunctionProofOutcomeV1::Unavailable(
+                        CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
+                    );
+                }
+                exact_box = Some(box_name);
             }
             I64ExpressionFactV1::KnownNonI64 => saw_non_i64 = true,
             I64ExpressionFactV1::Unknown(reason) => {
@@ -381,11 +400,14 @@ fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV
         }
     }
     if saw_non_i64 {
-        return FunctionProofOutcomeV1::Unavailable(if saw_exact {
+        return FunctionProofOutcomeV1::Unavailable(if saw_exact || exact_box.is_some() {
             CallableResultUnavailableReasonV1::ConflictingReturnRepresentations
         } else {
             CallableResultUnavailableReasonV1::KnownNonI64Return
         });
+    }
+    if let Some(box_name) = exact_box {
+        return FunctionProofOutcomeV1::ExactNominalBox(box_name);
     }
     FunctionProofOutcomeV1::Exact(requirements)
 }

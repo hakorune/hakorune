@@ -1,5 +1,5 @@
 ---
-Status: accepted design — I0 selected
+Status: implementation in progress — semantic/unit slice landed in worktree
 Date: 2026-08-09
 Row: `GENERAL-STATIC-CALL-EXACT-BOX-RESULT-I1-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -81,7 +81,8 @@ the exact `New(class)` source expression. Physical projection to
 2. generalize expression/local/branch/return facts without creating a second
    solver;
 3. issue `ExactNominalBox` from exact `ASTNode::New` and propagate identical
-   nominal Box facts through same-module static calls;
+   nominal Box facts through same-module static calls; constructor arguments
+   must still be traversed for complete nested-call evidence;
 4. retain representation in the existing call row and move-only publication
    handoff;
 5. make the existing publication commit project I64 or nominal Box exactly
@@ -113,6 +114,9 @@ negative:
   foreign/duplicate/mismatch publication -> existing fail-fast
   failed physical emission     -> no publication
 ```
+
+The mixed I64/Box negative is checked in both source orders. Result reduction
+must not depend on return traversal order.
 
 Required gates include focused unit tests, a minimal executable exact-Box Loop
 carrier canary, and the resumed parser R1 fixture.

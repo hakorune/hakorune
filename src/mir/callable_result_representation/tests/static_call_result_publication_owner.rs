@@ -2,7 +2,7 @@ use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::super::{
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
-    VerifiedStaticCallResultPublicationOwnerV1,
+    VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
 use super::support::{
     declarations, extend_current_owner_targets, key, qualified_targets, seal_with_targets, site,
@@ -28,6 +28,13 @@ fn digit_call_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
         SourcePathSegmentV1::Body(12),
         SourcePathSegmentV1::LoopBody(2),
         SourcePathSegmentV1::Initializer(0),
+    ])
+}
+
+fn return_call_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
+    site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
     ])
 }
 
@@ -130,6 +137,50 @@ fn issuer_projects_actual_string_helpers_general_row_into_the_same_owner() {
     assert_eq!(handoff.caller(), &caller);
     assert_eq!(handoff.target(), &target);
     assert!(handoff.required_i64_arguments().is_empty());
+}
+
+#[test]
+fn exact_nominal_box_row_reaches_the_owned_publication_handoff() {
+    let source = r#"
+        box ProductV1 { birth() {} }
+        static box ProductFactoryV1 {
+            make() { return new ProductV1() }
+            forward() { return me.make() }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "ProductFactoryV1",
+            caller_name: "forward",
+            caller_arity: 0,
+            site: return_call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "ProductFactoryV1", "forward", 0);
+    let target = key(&declarations, "ProductFactoryV1", "make", 0);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("exact Box row must issue through the existing owner");
+
+    let StaticCallResultPublicationTakeV1::Selected(handoff) = owner
+        .take(&declarations, &caller, &return_call_site(), &target)
+        .expect("exact Box row must select")
+    else {
+        panic!("exact Box row must not become unselected")
+    };
+    let (demand, required_i64_arguments) = handoff.consume();
+    assert_eq!(
+        demand.representation(),
+        &VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            box_name: "ProductV1".to_owned(),
+        }
+    );
+    assert!(required_i64_arguments.is_empty());
 }
 
 #[test]

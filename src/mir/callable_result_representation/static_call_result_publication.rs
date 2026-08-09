@@ -8,13 +8,17 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
-use super::{VerifiedCallableResultCallSiteV1, VerifiedStaticExactI64RequirementV1};
+use super::{
+    VerifiedCallableResultCallSiteV1, VerifiedCallableResultRepresentationV1,
+    VerifiedStaticExactI64RequirementV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedStaticCallResultPublicationDemandV1 {
     caller: CanonicalSameModuleCallableKeyV1,
     site: SourceExprSiteV1,
     target: CanonicalSameModuleCallableKeyV1,
+    representation: VerifiedCallableResultRepresentationV1,
     _seal: VerifiedStaticCallResultPublicationDemandSealV1,
 }
 
@@ -29,6 +33,7 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
             caller: requirement.caller().clone(),
             site: requirement.site().clone(),
             target: requirement.target().clone(),
+            representation: VerifiedCallableResultRepresentationV1::ExactI64,
             _seal: VerifiedStaticCallResultPublicationDemandSealV1,
         }
     }
@@ -43,6 +48,10 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
 
     pub(crate) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.target
+    }
+
+    pub(crate) const fn representation(&self) -> &VerifiedCallableResultRepresentationV1 {
+        &self.representation
     }
 }
 
@@ -90,6 +99,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
                 caller: caller.clone(),
                 site: site.clone(),
                 target,
+                representation: result.result_representation(),
                 _seal: VerifiedStaticCallResultPublicationDemandSealV1,
             },
             required_i64_arguments: result.required_i64_arguments().to_vec().into_boxed_slice(),
@@ -154,6 +164,7 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
             caller,
             site,
             target,
+            representation: VerifiedCallableResultRepresentationV1::ExactI64,
             _seal: VerifiedStaticCallResultPublicationDemandSealV1,
         }
     }

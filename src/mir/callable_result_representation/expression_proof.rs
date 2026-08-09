@@ -17,6 +17,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
+    ExactNominalBox(String),
     KnownNonI64,
     Unknown(CallableResultUnavailableReasonV1),
     PendingDependency,
@@ -32,6 +33,9 @@ impl I64ExpressionFactV1 {
         match (left, right) {
             (Self::PendingDependency, _) | (_, Self::PendingDependency) => Self::PendingDependency,
             (Self::Exact(left), Self::Exact(right)) => Self::Exact(union_requirements(left, right)),
+            (Self::ExactNominalBox(left), Self::ExactNominalBox(right)) if left == right => {
+                Self::ExactNominalBox(left.clone())
+            }
             (Self::KnownNonI64, Self::KnownNonI64) => Self::KnownNonI64,
             (Self::Unknown(left), Self::Unknown(right)) if left == right => {
                 Self::Unknown(left.clone())
@@ -304,8 +308,13 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 tail_expr,
                 &Self::child_path(expression, path, ExprChildRoleV1::BlockExprTail),
             ),
-            ASTNode::New { .. }
-            | ASTNode::ArrayLiteral { .. }
+            ASTNode::New {
+                class, arguments, ..
+            } => {
+                let _ = self.prove_arguments(expression, arguments, path)?;
+                Ok(I64ExpressionFactV1::ExactNominalBox(class.clone()))
+            }
+            ASTNode::ArrayLiteral { .. }
             | ASTNode::MapLiteral { .. }
             | ASTNode::RecordLiteral { .. }
             | ASTNode::RecordUpdate { .. } => Ok(I64ExpressionFactV1::KnownNonI64),

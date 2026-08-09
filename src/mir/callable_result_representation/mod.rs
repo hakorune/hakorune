@@ -26,6 +26,7 @@ mod static_exact_i64_requirement;
 pub(crate) use call_row::{VerifiedCallableResultCallSiteV1, VerifiedCallableResultEvidenceV1};
 pub(crate) use disposition::{
     CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
+    VerifiedCallableResultRepresentationV1,
 };
 pub(crate) use error::CallableResultCatalogErrorV1;
 pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;

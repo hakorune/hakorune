@@ -7,8 +7,18 @@
 
 use crate::mir::builder::calls::unified_emitter::CompletedUnifiedValueCallEmissionV1;
 use crate::mir::builder::{MirBuilder, ValueId};
+use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationDemandV1;
 use crate::mir::MirType;
+
+fn exact_physical_result_type(representation: &VerifiedCallableResultRepresentationV1) -> MirType {
+    match representation {
+        VerifiedCallableResultRepresentationV1::ExactI64 => MirType::Integer,
+        VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
+            MirType::Box(box_name.clone())
+        }
+    }
+}
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedStaticCallResultPublicationV1 {
@@ -52,10 +62,11 @@ impl PreparedStaticCallResultPublicationV1 {
         {
             return Err("[freeze:contract][static-call-result-publication/duplicate]".to_owned());
         }
+        let exact_type = exact_physical_result_type(self.demand.representation());
         builder
             .function_state
             .type_ctx
-            .set_type(self.destination, MirType::Integer);
+            .set_type(self.destination, exact_type);
         Ok(())
     }
 }
@@ -115,6 +126,16 @@ mod tests {
                 Some(&MirType::Integer)
             );
         });
+    }
+
+    #[test]
+    fn exact_nominal_box_representation_projects_to_the_matching_mir_type() {
+        assert_eq!(
+            exact_physical_result_type(&VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                box_name: "ParserNodeProductV1".to_owned(),
+            },),
+            MirType::Box("ParserNodeProductV1".to_owned())
+        );
     }
 
     #[test]

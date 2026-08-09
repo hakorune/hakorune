@@ -15,7 +15,7 @@ use super::call_substitution::{exact_requirements, substitute_required_arguments
 use super::expression_proof::I64ExpressionFactV1;
 use super::{
     CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1,
-    VerifiedCallableResultDispositionV1,
+    VerifiedCallableResultDispositionV1, VerifiedCallableResultRepresentationV1,
 };
 
 /// Read-only composition context for one caller's exact source call sites.
@@ -65,6 +65,7 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                     let row = exact_requirements(&fact).map(|requirements| {
                         VerifiedCallableResultCallSiteV1::same_module_static(
                             source_target,
+                            VerifiedCallableResultRepresentationV1::ExactI64,
                             required_i64_arguments.clone(),
                             requirements
                                 .iter()
@@ -74,6 +75,19 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                         )
                     });
                     CallProofOutcomeV1 { fact, row }
+                }
+                VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
+                    CallProofOutcomeV1 {
+                        fact: I64ExpressionFactV1::ExactNominalBox(box_name.clone()),
+                        row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
+                            source_target,
+                            VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                                box_name: box_name.clone(),
+                            },
+                            Box::new([]),
+                            Box::new([]),
+                        )),
+                    }
                 }
                 VerifiedCallableResultDispositionV1::Unavailable(reason) => {
                     let fact = if *reason == CallableResultUnavailableReasonV1::RecursiveDependency

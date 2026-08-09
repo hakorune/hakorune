@@ -84,6 +84,7 @@ fn substitutes_only_callee_required_arguments_and_retains_target_evidence() {
     match row.evidence() {
         VerifiedCallableResultEvidenceV1::SameModuleStatic {
             source_target,
+            result_representation,
             callee_required_i64_arguments,
         } => {
             let target = match source_target {
@@ -91,12 +92,107 @@ fn substitutes_only_callee_required_arguments_and_retains_target_evidence() {
                 VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(target) => target.target(),
             };
             assert_eq!(target.owner(), "ProviderV1");
+            assert_eq!(
+                result_representation,
+                &super::super::VerifiedCallableResultRepresentationV1::ExactI64
+            );
             assert_eq!(callee_required_i64_arguments.as_ref(), &[1]);
         }
         VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => {
             panic!("expected same-module evidence")
         }
     }
+}
+
+#[test]
+fn exact_nominal_box_result_propagates_through_the_exact_static_target_row() {
+    let source = r#"
+        box ProductV1 { birth() {} }
+        static box ProviderV1 {
+            make() { return new ProductV1() }
+        }
+        static box ConsumerV1 {
+            forward() { return ProviderV1.make() }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "ConsumerV1",
+            caller_name: "forward",
+            caller_arity: 0,
+            site: return_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "ConsumerV1", "forward", 0);
+
+    assert_eq!(
+        results.disposition(&caller),
+        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
+            box_name: "ProductV1".to_owned(),
+        })
+    );
+    let row = results
+        .call_result(&caller, &return_site())
+        .expect("exact static Box call row");
+    assert_eq!(
+        row.result_representation(),
+        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            box_name: "ProductV1".to_owned(),
+        }
+    );
+    assert!(row.required_i64_arguments().is_empty());
+}
+
+#[test]
+fn constructed_box_traverses_arguments_and_retains_nested_static_call_evidence() {
+    let source = r#"
+        box ProductV1 { birth() {} }
+        box WrapperV1 { birth(product) {} }
+        static box ProviderV1 {
+            make() { return new ProductV1() }
+        }
+        static box ConsumerV1 {
+            wrap() { return new WrapperV1(ProviderV1.make()) }
+        }
+    "#;
+    let declarations = declarations(source);
+    let inner = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::Argument(0),
+    ]);
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "ConsumerV1",
+            caller_name: "wrap",
+            caller_arity: 0,
+            site: inner.clone(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "ConsumerV1", "wrap", 0);
+
+    assert_eq!(
+        results.disposition(&caller),
+        Some(&VerifiedCallableResultDispositionV1::ExactNominalBox {
+            box_name: "WrapperV1".to_owned(),
+        })
+    );
+    assert_eq!(
+        results
+            .call_result(&caller, &inner)
+            .expect("nested constructor argument call row")
+            .result_representation(),
+        super::super::VerifiedCallableResultRepresentationV1::ExactNominalBox {
+            box_name: "ProductV1".to_owned(),
+        }
+    );
 }
 
 #[test]

@@ -1,12 +1,15 @@
 # Same-module callable result representation
 
-This module seals one exact-`i64` sufficient-condition catalog from the exact
-same-module callable declaration and source-target catalogs.
+This module seals one bounded exact result-representation catalog from the
+same-module callable declaration and source-target catalogs. The currently
+admitted representations are exact `i64` and an exact nominal Box constructed
+by source.
 
 The S0b substrate owns:
 
 - one result disposition for every static declaration key;
-- exact parameter ordinals required to be `i64` at a call site;
+- exact parameter ordinals required to be `i64` at an exact-`i64` call site;
+- exact nominal Box identity for constructed-Box results;
 - exact source-site call-result evidence;
 - bounded String receiver composition with generated Core result rows;
 - deterministic construction-local dependency solving;
@@ -21,7 +24,10 @@ a second target authority.
 Canonical `SourcePathV1` is the only expression-site vocabulary. Nested call
 arguments are proved child-before-parent. Required callee argument ordinals are
 substituted through the caller's ordered facts, while non-required non-`i64`
-arguments do not invalidate an otherwise exact result.
+arguments do not invalidate an otherwise exact result. Constructor arguments
+are still traversed so nested exact call rows cannot disappear from coverage.
+Only identical nominal Box results merge; mixed Box classes and Box/`i64`
+returns become `ConflictingReturnRepresentations` independent of source order.
 
 Qualified and current-owner `MethodCall` sites may consume the exact source
 target catalog. A call without such a row may use only the bounded
@@ -37,8 +43,9 @@ dependency, callee-first lowering, retry, fallback, re-lowering, or SCC
 inference is introduced.
 
 This proof is representation-only. It does not claim call totality, purity,
-termination, general String interpretation, general non-`i64` result typing,
-or recursive result inference. It stores no `ValueId`, `MirType`, Builder,
+termination, general String interpretation, Box subtyping/common-supertype
+inference, parameter-dependent Box typing, or recursive result inference. It
+stores no `ValueId`, `MirType`, Builder,
 final MIR metadata, physical-symbol parsing, runtime tag, or HMI-specific fact.
 
 The normal module lifecycle now projects both exact general
@@ -46,9 +53,10 @@ The normal module lifecycle now projects both exact general
 one `VerifiedStaticCallResultPublicationOwnerV1`. General evidence wins when
 present; the same caller/site cannot receive both rows. The raw terminal
 consumes a selected handoff once, requires a successful generic physical Call
-receipt, and commits `MirType::Integer` through the sole source-bound
-publisher. Its receipt emitter suppresses the legacy signature annotation, so
-the two result authorities cannot double-write the destination. Selected
+receipt, and commits either `MirType::Integer` or the exact
+`MirType::Box(class)` through the sole source-bound publisher. Its receipt
+emitter suppresses the legacy signature annotation, so the two result
+authorities cannot double-write the destination. Selected
 missing/consumed/foreign/target-mismatch rows freeze; only genuinely
 unselected source calls retain the ordinary terminal.
 

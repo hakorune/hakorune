@@ -10,6 +10,12 @@ fn exact(requirements: &[u32]) -> VerifiedCallableResultDispositionV1 {
     }
 }
 
+fn exact_box(name: &str) -> VerifiedCallableResultDispositionV1 {
+    VerifiedCallableResultDispositionV1::ExactNominalBox {
+        box_name: name.to_owned(),
+    }
+}
+
 #[test]
 fn literals_parameters_locals_arithmetic_and_declared_seed_are_exact() {
     let source = r#"
@@ -47,6 +53,75 @@ fn literals_parameters_locals_arithmetic_and_declared_seed_are_exact() {
     assert_eq!(
         disposition(source, "ScalarProofV1", "declared", 0),
         exact(&[])
+    );
+}
+
+#[test]
+fn constructed_nominal_box_result_is_exact_without_name_or_mir_inference() {
+    let source = r#"
+        box ProductV1 { birth() {} }
+        static box ProductFactoryV1 {
+            make() { return new ProductV1() }
+            local_copy() {
+                local product = new ProductV1()
+                return product
+            }
+            branch(flag) {
+                if flag == 0 { return new ProductV1() }
+                return new ProductV1()
+            }
+        }
+    "#;
+
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "make", 0),
+        exact_box("ProductV1")
+    );
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "local_copy", 0),
+        exact_box("ProductV1")
+    );
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "branch", 1),
+        exact_box("ProductV1")
+    );
+}
+
+#[test]
+fn mixed_nominal_box_results_fail_fast_instead_of_selecting_a_type() {
+    let source = r#"
+        box LeftV1 { birth() {} }
+        box RightV1 { birth() {} }
+        static box ProductFactoryV1 {
+            mixed_boxes(flag) {
+                if flag == 0 { return new LeftV1() }
+                return new RightV1()
+            }
+            mixed_scalar(flag) {
+                if flag == 0 { return new LeftV1() }
+                return 1
+            }
+            mixed_scalar_reversed(flag) {
+                if flag == 0 { return 1 }
+                return new LeftV1()
+            }
+        }
+    "#;
+    let conflict = VerifiedCallableResultDispositionV1::Unavailable(
+        CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
+    );
+
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "mixed_boxes", 1),
+        conflict
+    );
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "mixed_scalar", 1),
+        conflict
+    );
+    assert_eq!(
+        disposition(source, "ProductFactoryV1", "mixed_scalar_reversed", 1),
+        conflict
     );
 }
 

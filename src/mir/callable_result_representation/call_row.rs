@@ -4,6 +4,8 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetV1;
 use crate::mir::source_core_receiver::SourceCoreReceiverFactV1;
 
+use super::VerifiedCallableResultRepresentationV1;
+
 /// Exact evidence retained by one disconnected source-call result row.
 ///
 /// Same-module targets are borrowed from the sealed target catalog rather
@@ -13,6 +15,7 @@ use crate::mir::source_core_receiver::SourceCoreReceiverFactV1;
 pub(crate) enum VerifiedCallableResultEvidenceV1<'target> {
     SameModuleStatic {
         source_target: &'target VerifiedSourceStaticCallTargetV1,
+        result_representation: VerifiedCallableResultRepresentationV1,
         callee_required_i64_arguments: Box<[u32]>,
     },
     CoreStringMethod {
@@ -30,12 +33,14 @@ pub(crate) struct VerifiedCallableResultCallSiteV1<'target> {
 impl<'target> VerifiedCallableResultCallSiteV1<'target> {
     pub(super) fn same_module_static(
         source_target: &'target VerifiedSourceStaticCallTargetV1,
+        result_representation: VerifiedCallableResultRepresentationV1,
         callee_required_i64_arguments: Box<[u32]>,
         required_i64_arguments: Box<[u32]>,
     ) -> Self {
         Self {
             evidence: VerifiedCallableResultEvidenceV1::SameModuleStatic {
                 source_target,
+                result_representation,
                 callee_required_i64_arguments,
             },
             required_i64_arguments,
@@ -72,6 +77,18 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
         }
     }
 
+    pub(crate) fn result_representation(&self) -> VerifiedCallableResultRepresentationV1 {
+        match &self.evidence {
+            VerifiedCallableResultEvidenceV1::SameModuleStatic {
+                result_representation,
+                ..
+            } => result_representation.clone(),
+            VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => {
+                VerifiedCallableResultRepresentationV1::ExactI64
+            }
+        }
+    }
+
     /// Borrowed exact target evidence for consumers that must co-seal this
     /// source result row with one target-catalog allocation.
     pub(super) fn same_module_static_evidence(
@@ -81,6 +98,7 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
             VerifiedCallableResultEvidenceV1::SameModuleStatic {
                 source_target,
                 callee_required_i64_arguments,
+                ..
             } => Some((source_target, callee_required_i64_arguments)),
             VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => None,
         }
@@ -92,13 +110,19 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
                 (
                     VerifiedCallableResultEvidenceV1::SameModuleStatic {
                         source_target: left_target,
+                        result_representation: left_representation,
                         callee_required_i64_arguments: left_required,
                     },
                     VerifiedCallableResultEvidenceV1::SameModuleStatic {
                         source_target: right_target,
+                        result_representation: right_representation,
                         callee_required_i64_arguments: right_required,
                     },
-                ) => std::ptr::eq(*left_target, *right_target) && left_required == right_required,
+                ) => {
+                    std::ptr::eq(*left_target, *right_target)
+                        && left_representation == right_representation
+                        && left_required == right_required
+                }
                 (
                     VerifiedCallableResultEvidenceV1::CoreStringMethod {
                         receiver_fact: left_fact,
