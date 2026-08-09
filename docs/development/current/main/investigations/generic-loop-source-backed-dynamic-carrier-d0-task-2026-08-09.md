@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, and canonical PHI close P2B closed; P2C next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C closed; L0-I0 next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -954,6 +954,21 @@ Done:
 
 Stop:
   No same-session retry, MIR repair, suffix route, or fallback.
+
+Closeout:
+  Closed in the P2C test/docs slice without adding a production failure flag.
+  The canary harness injects failures after Header open, after operation
+  emission, after an exact assignment definition followed by a duplicate
+  claim, and after the completed PHI patch. Every path consumes the whole
+  `CanonicalFunctionLoweringSessionV1`, restores the exact caller function
+  and block once, and publishes no child draft.
+
+  A post-patch failure followed by two fresh child sessions produces the same
+  semantic instruction/CFG shape and exact two-input PHI while deliberately
+  ignoring numeric `ValueId`/`BasicBlockId` allocation. Pending-PHI rollback
+  remains best-effort hygiene only; whole-session discard is the atomicity
+  owner. No same-session retry, repair, suffix route, fallback, After,
+  backend, or production selection opened.
 
 Implementation order after this D0 closes:
 

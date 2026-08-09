@@ -40,6 +40,8 @@ mod callable_module_transaction_tests;
 #[cfg(test)]
 mod completion_tests;
 #[cfg(test)]
+mod dynamic_loop_discard_tests;
+#[cfg(test)]
 mod dynamic_loop_phi_tests;
 #[cfg(test)]
 mod dynamic_loop_rebind_tests;

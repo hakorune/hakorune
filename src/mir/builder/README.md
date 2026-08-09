@@ -237,8 +237,16 @@ terminal Backedge, then Header through canonical CFG. The Header witness is
 exactly Enter plus terminal Backedge, and canonical Binding SSA uses it to
 patch the existing provisional PHI to `(Enter, entry)` and `(Backedge, Add)`.
 The resulting move-only close receipt contains no PHI token or predecessor
-authority. After publication,
-DraftSeal, backend activation, retry, and fallback remain closed.
+authority. Loop After, publication, DraftSeal, backend activation, retry, and
+fallback remain closed.
+
+`dynamic_loop_discard_tests.rs` closes the P2C atomicity proof without a
+test branch in production code. Failures injected after open, after operation
+emission, after duplicate canonical assignment definition, and after PHI
+patch all discard the complete unpublished child and restore the exact caller
+once. Two later fresh sessions reproduce the same semantic CFG/instruction
+shape without comparing allocator IDs. Local PHI rollback is diagnostic
+hygiene; whole-session discard remains the correctness owner.
 
 ## 原則（SSOT / Box-First）
 

@@ -25,13 +25,13 @@ CURRENT_STATE.toml
 
 Current mode is `fast`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
-operation/rebind P1, Header-current P2A, corrected Header-based P1R, and
-canonical PHI close P2B are
+operation/rebind P1, Header-current P2A, corrected Header-based P1R,
+canonical PHI close P2B, and whole-session discard P2C are
 closed for the unmodified production `skip_while/4` source. The next
 compiler-side row is:
 
 ```text
-DYNAMIC-LOOP-PHI-DISCARD-P2C
+GENERIC-LOOP-DYNAMIC-VM-CANARY-I0
 ```
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
@@ -52,10 +52,13 @@ that whole open product: Compare and Add both use the Header PHI destination,
 and the exact source-backed Dynamic Add result is retained. P2B now claims the
 assignment only through canonical Binding SSA, creates the reachable
 Header/body/terminal-Backedge cycle, seals Header from exactly Enter plus
-Backedge, and patches the existing PHI through the session `PhiTxn`. P2C must
-now prove whole-session discard at every post-effect boundary and fresh
-session repeatability. After, raw incoming vectors, route-local PHI writers,
-backend activation, retry/fallback, and source rewrites remain closed. The
+Backedge, and patches the existing PHI through the session `PhiTxn`. P2C now
+proves that failures at open, operation, definition, and post-patch points
+discard the complete child, restore the caller once, and permit only a fresh
+session replay. L0-I0 must connect this bounded compiler path to one VM canary
+while unsupported backends fail before effects. After, raw incoming vectors,
+route-local PHI writers, production selection, retry/fallback, and source
+rewrites remain closed. The
 parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
 compiler-side slice.
 

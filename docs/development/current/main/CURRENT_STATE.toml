@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic source S0, origin P0, callable Loop source-coverage R0, Dynamic operation-source S0, Dynamic Loop prepare P0/R0, bounded operation/rebind P1, canonical Header-current P2A, Header-based P1R, and canonical PHI close P2B are closed. P2B claims the assignment only through canonical Binding SSA, completes the reachable Header/body/terminal-Backedge cycle, seals Header from exactly Enter plus Backedge, and patches the sole provisional PHI through the session PhiTxn. P2C must prove whole-session discard and fresh-session repeatability. Raw Unknown admission, After completion, backend metadata, retry/fallback, and route activation remain closed."
+status = "Dynamic source S0, origin P0, callable Loop source-coverage R0, Dynamic operation-source S0, Dynamic Loop prepare P0/R0, bounded operation/rebind P1, canonical Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C are closed. Failure injection at open, operation, duplicate definition, and post-patch points proves whole unpublished-session discard, exact caller restoration, and fresh-session semantic-shape replay. L0-I0 must connect the bounded compiler path to one VM canary with shared pre-effect backend rejection. Raw Unknown admission, After completion, retry/fallback, and production selection remain closed."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 work_mode = "fast"
-current_execution_row = "DYNAMIC-LOOP-PHI-DISCARD-P2C"
-current_blocker_token = "DYNAMIC-LOOP-PHI-DISCARD-P2C: prove whole unpublished-session discard at open, operation, definition, and post-patch failure points, restore caller exactly once, and repeat the same semantic program in a fresh session without same-session repair, retry, or fallback"
+current_execution_row = "GENERIC-LOOP-DYNAMIC-VM-CANARY-I0"
+current_blocker_token = "GENERIC-LOOP-DYNAMIC-VM-CANARY-I0: wire the bounded prepared Dynamic Loop compiler path to one tracked VM canary, publish passive backend capability metadata, reject unsupported backends at shared preflight before effects, and keep the production skip_while/4 source unchanged"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

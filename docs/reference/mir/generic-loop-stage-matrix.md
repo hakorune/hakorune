@@ -1802,3 +1802,18 @@ Add result)`. No raw predecessor vector, PHI token, route-local writer,
 legacy current synchronization, source rewrite, retry, fallback, backend, or
 production authority is introduced. After and whole-session finish remain
 closed for later rows. P2C whole-session discard proof is next.
+
+## Dynamic Loop whole-session discard P2C receipt (2026-08-10)
+
+The caller-zero harness injects failures after Header open, after Dynamic
+Compare/Add emission, after an exact assignment definition followed by a
+duplicate claim, and after the canonical PHI patch. Each path consumes the
+entire unpublished function session, restores the exact caller function and
+block once, and publishes no child draft.
+
+A post-patch failure followed by two fresh sessions reproduces the same block,
+seal, PHI-input, Compare, Add, Branch, and Jump counts without comparing
+numeric IDs. Pending-PHI rollback is best-effort diagnostic hygiene only;
+whole-session discard is the atomicity owner. Same-session retry/repair,
+fallback, After, backend, and production selection remain closed. L0-I0 is
+next.

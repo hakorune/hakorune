@@ -51,3 +51,9 @@ sealed last from the canonical witness `{Enter, terminal Backedge}`; the
 existing MIR adapter verifies definition dominance and patches the sole
 provisional PHI to the exact entry and Add-result inputs. P2B does not expose
 the PHI token, select After, or finish/commit the whole function session.
+
+P2C injects failures with the PHI pending, with operations emitted, after a
+duplicate exact assignment claim, and after a successful patch. Correctness
+never depends on repairing the local SSA/PHI state: the whole unpublished
+function is discarded, the caller is restored once, and only a fresh session
+may repeat the semantic program.
