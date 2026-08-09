@@ -27,6 +27,7 @@ mod if_region;
 mod home_abi;
 mod instance_method_declaration;
 mod home_relation;
+mod query_behavior;
 mod loop_family_window;
 #[cfg(test)]
 mod loop_family_window_tests;
@@ -110,6 +111,10 @@ pub(crate) use home_relation::{
 pub(crate) use home_abi::{
     CallableHomeAbiIssuerV1, HomeAbiIssueV1, ResolverHomeCapabilityEnvironmentV1,
     VerifiedDeclaredInstanceMethodHomeCatalogV1, VerifiedHomeAbiV1,
+};
+pub(crate) use query_behavior::{
+    DeclaredQueryBehaviorIssuerV1, DeclaredQueryBehaviorV1, QueryBehaviorIssueV1,
+    VerifiedDeclaredQueryBehaviorCatalogV1, VerifiedDeclaredQueryBehaviorV1,
 };
 pub(crate) use loop_family_window::{
     LoopFamilyWindowLeaseIssueV1, VerifiedLoopFamilyWindowLeaseV1,
@@ -216,6 +221,8 @@ pub(crate) mod generic_resolved_carrier_provenance;
 pub(crate) mod generic_resolved_carrier_source_lease;
 #[cfg(test)]
 mod if_region_tests;
+#[cfg(test)]
+mod query_behavior_tests;
 #[cfg(test)]
 mod loop_region_tests;
 #[cfg(test)]

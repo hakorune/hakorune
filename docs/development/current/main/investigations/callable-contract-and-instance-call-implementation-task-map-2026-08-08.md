@@ -386,15 +386,14 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current execution row:
+Current design stop:
 
 ```text
-RESOLVER-DECLARED-QUERY-BEHAVIOR-I0
-  implement the accepted typed Query behavior catalog; emit only the exact
-  non-empty Query subset and never duplicate Home ABI relations.
+DECLARED-QUERY-HOME-AGGREGATE-D0
+  define the sole co-seal for declaration identity, the Query subset, and
+  the landed Home ABI catalog; no body conformance, target, Recipe/CallSlot,
+  Builder/MIR, or production work.
   Task:
-  `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`
-  Next design stop:
   `docs/development/current/main/investigations/own-home-declared-query-home-aggregate-d0-design-task-2026-08-09.md`
 ```
 
@@ -731,14 +730,16 @@ Rejected > Unresolved > Declined > Candidate
    - `Handle`/empty-parameter/`Trivial` must come from the Home classifier and
      same declaration brand/site, never from fixture defaults or Query text;
    - no Query behavior or aggregate may restate or fabricate this axis.
-14. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0`
+14. `RESOLVER-DECLARED-QUERY-BEHAVIOR-I0` (closed 2026-08-09)
     - independently consume typed `CallableContractSyntaxV1::Query` plus the
       semantic declaration;
     - issue the behavioral read/effect/control obligation;
     - emit a non-empty Query subset catalog in declaration order;
     - no Home or physical ABI issuance;
     - implementation task:
-      `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`.
+      `docs/development/current/main/investigations/own-home-query-behavior-i0-implementation-task-2026-08-09.md`;
+    - receipt: `src/mir/resolved_semantics/query_behavior.rs` and focused
+      Query/Home tests; next stop is the aggregate co-seal D0.
 15. `RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0`
     - co-seal declaration, semantic signature, Query behavior, and the exact
       same-declaration `VerifiedHomeAbi`;

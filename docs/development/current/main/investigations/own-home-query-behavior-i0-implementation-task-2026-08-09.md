@@ -1,5 +1,5 @@
 ---
-Status: active — bounded implementation
+Status: closed — bounded implementation landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-query-behavior-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -164,3 +164,8 @@ git diff --check
 After this row closes, stop at the parked
 `own-home-declared-query-home-aggregate-d0-design-task-2026-08-09.md`; do not
 start target, Recipe/CallSlot, body lowering, or production work.
+
+Receipt: `src/mir/resolved_semantics/query_behavior.rs` plus four focused
+Query/Home tests. The next design stop is the declared Query/Home aggregate
+co-seal; target, Recipe/CallSlot, body conformance, and production remain
+closed.

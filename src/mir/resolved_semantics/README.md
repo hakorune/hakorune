@@ -69,8 +69,11 @@ parameter/result classes (`I64` or `Unit`). Parser invocation provenance is
 retained as provenance; it is not reused as nominal type identity. The issuer
 does not clone rows through the parser inspection API or issue partial
 receipts. `CallableContractSyntaxV1` is carried as typed syntax only; the
-Query D0 behavior boundary is closed and Query I0 is the current
-resolver-only implementation row. Query behavior, body conformance,
+Query D0 behavior boundary and bounded Query I0 issuer are closed. The
+non-`Clone` `VerifiedDeclaredQueryBehaviorCatalogV1` contains only the exact
+non-empty typed Query subset, resolver/declaration identity, normalized
+behavior, and optional rune provenance. It never copies Home demands/results,
+relation brands, body facts, `EffectMask`, or physical ABI. Body conformance,
 resolver targets, Recipe/CallSlot, Builder/MIR, and physical ABI remain
 separate unopened boundaries.
 
@@ -79,7 +82,8 @@ path. `OWN-HOME-ABI0-S0` now issues the bounded semantic Home catalog through
 one non-`Clone` co-seal. The Home relation batch brand remains provenance only;
 the resolver catalog brand, nominal type, and exact source site remain the
 declaration identity. Query behavior, body conformance, targets, Recipe, and
-physical lowering remain unopened.
+physical lowering remain unopened. The next design stop is the one
+same-brand/site Query/Home aggregate co-seal.
 
 ## Home relation vocabulary S0
 
@@ -539,13 +543,13 @@ profile, and duplicate keys reject with both source sites before any
 does not resolve bodies, create the immutable owned catalog, or connect a
 production caller.
 
-## Typed instance-call contract frontier (design stop)
+## Typed instance-call contract frontier (aggregate design stop)
 
 The typed LoopRecipe V2 row is intentionally separate from callable target
 resolution. The current `VerifiedCallableIndexV1` is FreeStatic-only and the
 header source unit is function-header-only; it is not an instance-method
-target issuer. MIR `FunctionSignature`/`EffectMask` and the documented but not
-yet issued `VerifiedHomeAbi` are not interchangeable resolver contracts.
+target issuer. MIR `FunctionSignature`/`EffectMask` and the resolver semantic
+Home/Query products are not interchangeable resolver contracts.
 
 Before adding `ResolvedInstanceMethodRefV1`, the resolver must consume the
 bounded ordinary-top-level Rust parser's non-Clone `ParserBoxSourceSealV1`
@@ -556,10 +560,11 @@ must then issue the exact nominal receiver plus a semantic parameter/result
 signature. It may not treat the selected/generated inventory ordinal as a
 method source site or use `ExactTrivial*Abi`/`MirType` as semantic type truth.
 
-The declared instance contract then co-seals typed
-`CallableContractSyntaxV1::Query` behavior with the same-declaration
-`VerifiedHomeAbi`. Query does not issue a second receiver Handle axis; the
-Home ABI alone owns receiver/parameter demands and the result relation.
+The next aggregate design must co-seal the landed
+`VerifiedDeclaredQueryBehaviorCatalogV1` with the same-declaration
+`VerifiedDeclaredInstanceMethodHomeCatalogV1`. Query does not issue a second
+receiver Handle axis; the Home ABI alone owns receiver/parameter demands and
+the result relation.
 Physical call ABI is deliberately downstream. The parser handoff is already
 closed for the bounded Rust cohort; a missing resolver semantic signature,
 nominal type authority, typed Query behavior, or Home ABI is `NoSafeSlice`, not
