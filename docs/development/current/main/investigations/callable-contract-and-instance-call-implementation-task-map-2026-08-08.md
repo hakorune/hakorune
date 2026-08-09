@@ -389,17 +389,22 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
 Current design stop:
 
 ```text
-CALLABLE-CONFORMANCE-CATALOG-D0
-  define complete body-conformance coverage for the already co-sealed
-  declaration/Query/Home catalog; no target, Recipe/CallSlot, Builder/MIR, or
-  production work.
+CALLABLE-BODY-SOURCE-AUTHORITY-D0
+  define the missing parser/resolver body-source authority that binds an
+  instance-method body to the exact declaration/Query/Home identity. The
+  current parser handoff is intentionally AST-free and does not carry a body;
+  no body conformance, target, Recipe/CallSlot, Builder/MIR, or production
+  work is open.
   Task:
-  `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`
+  `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 ```
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   complete same-brand declared-contract + body-conformance set
   Lower/publication consumes only VerifiedConformantCallableCatalogV1
+  Prerequisite:
+  `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0` and
+  `CALLABLE-BODY-FACTS-QUERY-D0/I0`
 
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection

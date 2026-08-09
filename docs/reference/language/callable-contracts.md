@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; body-source authority is the current design stop, so body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -159,13 +159,18 @@ co-seal must use the same selected declaration subset and the landed
 `VerifiedHomeAbi` catalog.
 
 Declaration contracts may be cataloged before bodies are verified so recursive
-and mutually recursive calls can resolve. After body verification, the sealed
-declared catalog and one complete same-brand conformance set are atomically
-co-sealed into one publishable callable catalog. Missing, duplicate, foreign,
-or rejected conformance prevents that product from being issued. Module
-publication consumes the publishable catalog and performs no new semantic
-decision. The body verifier checks the declared meaning; it never infers or
-substitutes a public contract.
+and mutually recursive calls can resolve. The current parser→resolver
+handoff, however, intentionally carries no instance-method body, and the
+declaration catalog is not co-sealed with a `VerifiedResolvedFunctionV1`
+owner. Therefore body conformance is not yet open: the separate
+`CALLABLE-BODY-SOURCE-AUTHORITY-D0` row must first issue an exact,
+same-source body capability and body-facts product. After that source/body
+path exists, the sealed declared catalog and one complete same-brand
+conformance set are atomically co-sealed into one publishable callable
+catalog. Missing, duplicate, foreign, or rejected conformance prevents that
+product from being issued. Module publication consumes the publishable
+catalog and performs no new semantic decision. The body verifier checks the
+declared meaning; it never infers or substitutes a public contract.
 
 ## Receiver Home rule
 

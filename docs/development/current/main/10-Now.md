@@ -31,7 +31,7 @@ declared Query behavior D0/I0, aggregate D0/I0 are closed. The current design
 row is:
 
 ```text
-CALLABLE-CONFORMANCE-CATALOG-D0
+CALLABLE-BODY-SOURCE-AUTHORITY-D0
 ```
 
 The preceding I0 deleted the audited caller-zero body-inferred
@@ -47,8 +47,9 @@ only the typed non-empty Query subset and never duplicates Home relations.
 Aggregate I0 implements only their same-brand/site/order relational co-seal;
 Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
-retirement remain closed. The current stop defines body conformance without
-re-inferring declared Home/Query meaning.
+retirement remain closed. The current stop defines the missing
+parser/resolver body-source authority; body conformance must not pair by name,
+inventory ordinal, or MIR facts.
 
 The explicit LoopRecipe V2 wire (`I64|Bool|Unit|Text`, local `CallSlot`, and
 `TextEq`) is implemented and its seven-test focused closeout is green. No

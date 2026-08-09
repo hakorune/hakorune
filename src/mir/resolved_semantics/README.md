@@ -85,8 +85,11 @@ declaration identity. Query behavior, body conformance, targets, Recipe, and
 physical lowering remain unopened. The declared Query/Home aggregate I0 is
 now landed in `declared_instance_contract.rs`: it consumes the Home catalog
 (the declaration owner) and the selected Query catalog by value, then seals
-only same-brand/site/order coverage. The next design stop is separate complete
-body conformance.
+only same-brand/site/order coverage. The next design stop is
+`CALLABLE-BODY-SOURCE-AUTHORITY-D0`: the current AST-free parser handoff does
+not carry an instance-method body, and the declaration catalog has no exact
+body/function-owner co-seal. Body conformance must wait for that source
+authority; it must not pair by name, inventory ordinal, or MIR facts.
 
 ## Home relation vocabulary S0
 
