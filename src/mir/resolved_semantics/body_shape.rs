@@ -33,6 +33,9 @@ pub(crate) enum BodyExpressionShapeV1 {
         site: SourceExprSiteV1,
         resolved: ResolvedLexicalRefV1,
     },
+    /// Bare receiver name proven absent from the lexical environment.
+    /// Source-call routing may later bind it as a qualified static owner.
+    QualifiedReceiver { site: SourceExprSiteV1 },
     Me {
         site: SourceExprSiteV1,
         receiver: BodyMeReceiverV1,
@@ -176,10 +179,24 @@ pub(crate) struct VerifiedResolvedMethodCallSourceV1 {
     owner: FunctionOwnerIdV1,
     site: SourceExprSiteV1,
     receiver_site: SourceExprSiteV1,
+    receiver: ResolvedMethodCallReceiverSourceV1,
     arguments: Box<[ResolvedMethodCallArgumentSourceV1]>,
     result_site: SourceExprSiteV1,
     selector: Box<str>,
     arity: u32,
+}
+
+/// Resolver-sealed source disposition of one method receiver.
+///
+/// This is not a dispatch decision. It records only whether the exact
+/// receiver expression is lexical, proven outside the lexical environment,
+/// current-owner syntax, or another expression shape.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedMethodCallReceiverSourceV1 {
+    Lexical(ResolvedLexicalRefV1),
+    QualifiedUnbound,
+    CurrentOwner,
+    Other,
 }
 
 impl VerifiedResolvedMethodCallSourceV1 {
@@ -193,6 +210,10 @@ impl VerifiedResolvedMethodCallSourceV1 {
 
     pub(crate) const fn receiver_site(&self) -> &SourceExprSiteV1 {
         &self.receiver_site
+    }
+
+    pub(crate) const fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
+        self.receiver
     }
 
     pub(crate) fn arguments(&self) -> &[ResolvedMethodCallArgumentSourceV1] {
@@ -365,6 +386,24 @@ fn issue_resolved_method_call_sources_from_rows_v1(
         if !expression_sites.contains(&receiver) {
             return Err(ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(receiver));
         }
+        let receiver_source = expressions
+            .iter()
+            .find(|expression| expression_shape_site(expression) == receiver)
+            .map(|expression| match expression {
+                BodyExpressionShapeV1::Variable { resolved, .. } => {
+                    ResolvedMethodCallReceiverSourceV1::Lexical(*resolved)
+                }
+                BodyExpressionShapeV1::QualifiedReceiver { .. } => {
+                    ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                }
+                BodyExpressionShapeV1::Me { .. } => {
+                    ResolvedMethodCallReceiverSourceV1::CurrentOwner
+                }
+                _ => ResolvedMethodCallReceiverSourceV1::Other,
+            })
+            .ok_or_else(|| {
+                ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(receiver.clone())
+            })?;
 
         let argument_rows = relations
             .iter()
@@ -433,6 +472,7 @@ fn issue_resolved_method_call_sources_from_rows_v1(
             owner,
             site: site.clone(),
             receiver_site: receiver,
+            receiver: receiver_source,
             arguments: arguments.into_boxed_slice(),
             result_site: site.clone(),
             selector: method.clone(),
@@ -462,6 +502,7 @@ pub(crate) fn issue_resolved_method_call_sources_with_relations_for_test(
 fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
     match expression {
         BodyExpressionShapeV1::Variable { site, .. }
+        | BodyExpressionShapeV1::QualifiedReceiver { site }
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
         | BodyExpressionShapeV1::MethodCall { site, .. }
@@ -537,17 +578,34 @@ pub(crate) fn seal_shadow_body_shape(
         .collect::<Vec<_>>()
         .into_boxed_slice();
 
+    let method_call_parents = draft
+        .expressions
+        .values()
+        .filter_map(|row| match row {
+            ShadowExpressionShapeV0::MethodCall { site, .. } => Some(site.node().clone()),
+            _ => None,
+        })
+        .collect::<BTreeSet<_>>();
+    let method_receiver_sites = draft
+        .relations
+        .iter()
+        .filter_map(|row| {
+            (row.role == SourcePathSegmentV1::Receiver && method_call_parents.contains(&row.parent))
+                .then(|| row.child.clone())
+        })
+        .collect::<BTreeSet<_>>();
+
     let expressions = draft
         .expressions
         .into_values()
         .map(|row| match row {
-            ShadowExpressionShapeV0::Variable { site } => {
-                let resolved = variable_refs
-                    .get(&site)
-                    .copied()
-                    .ok_or("body variable shape lacks lexical resolution")?;
-                Ok(BodyExpressionShapeV1::Variable { site, resolved })
-            }
+            ShadowExpressionShapeV0::Variable { site } => match variable_refs.get(&site).copied() {
+                Some(resolved) => Ok(BodyExpressionShapeV1::Variable { site, resolved }),
+                None if method_receiver_sites.contains(&site) => {
+                    Ok(BodyExpressionShapeV1::QualifiedReceiver { site })
+                }
+                None => Err("body variable shape lacks lexical resolution"),
+            },
             ShadowExpressionShapeV0::Me { site } => {
                 let receiver = match variable_refs.get(&site).copied() {
                     Some(ResolvedLexicalRefV1::Local(receiver)) => {

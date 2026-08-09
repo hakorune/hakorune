@@ -7,8 +7,9 @@ use crate::mir::builder::{
 use super::{
     QualifiedReceiverAdmissionV1, QualifiedStaticCallTargetErrorV1, QualifiedStaticReceiverV1,
     StaticImportAliasViewErrorV1, VerifiedQualifiedCallRouteFactsV1,
-    VerifiedQualifiedStaticCallTargetV1, VerifiedSourceStaticCallTargetCatalogV1,
-    VerifiedSourceStaticCallTargetV1, VerifiedStaticImportAliasViewV1,
+    VerifiedQualifiedStaticCallTargetV1, VerifiedSourceCallTargetV1,
+    VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
+    VerifiedStaticImportAliasViewV1,
 };
 
 impl<'catalog> VerifiedStaticImportAliasViewV1<'catalog> {
@@ -124,8 +125,10 @@ impl<'catalog> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
 
             rows.insert(
                 row_key,
-                VerifiedSourceStaticCallTargetV1::QualifiedStatic(
-                    VerifiedQualifiedStaticCallTargetV1::new(receiver, target.key().clone()),
+                VerifiedSourceCallTargetV1::Static(
+                    VerifiedSourceStaticCallTargetV1::QualifiedStatic(
+                        VerifiedQualifiedStaticCallTargetV1::new(receiver, target.key().clone()),
+                    ),
                 ),
             );
         }

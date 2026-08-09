@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -36,19 +36,23 @@ two-site Completion product with zero Builder effect. The Dynamic dispatch D0
 audit is also closed. The general AST-free MethodCall source row is now
 landed in the durable resolved function product: exact receiver/result sites,
 checked arity, and complete ordered arguments are available without profile
-roles or AST loans. The current implementation row is:
+roles or AST loans. The source-bound Dynamic target I0 is also closed: the
+single route-neutral target catalog now consumes an exact branded callable
+source link and issues `substring/2` plus `indexOf/1` for the unchanged full
+production fixture. Qualified helper receivers remain valid unselected rows;
+the compiler acceptance was widened instead of rewriting or narrowing the
+source. The current design consultation row is:
 
 ```text
-SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-I0
+DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0
 ```
 
-It consumes those neutral rows plus the exact source-backed Dynamic receiver
-origin and generalizes the existing target catalog in place with one
-route-disjoint DynamicMember arm. It does not classify by `substring` or
-`indexOf`. Message identity remains separate from a
-selector-independent execution envelope. Dynamic result Home/lifetime is the
-hard design stop before V2 CallSlot/Recipe; no Pure, Trivial, NonSuspending,
-or other permissive default is allowed. JoinSig-authorized If/Return and
+Message identity remains separate from a selector-independent execution
+envelope. This design row must fix the source/language authority and exact
+failure boundary for effect, terminal Fault, suspension, and Dynamic
+Home/lifetime before V2 CallSlot/Recipe. No implementation, selector-specific
+Pure/Trivial/NonSuspending default, `MirType::Unknown` reverse inference,
+provider plan, retry, or fallback is allowed. JoinSig-authorized If/Return and
 multi-return Completion still precede DraftSeal/collector/backend/VM.
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted

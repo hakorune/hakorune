@@ -3,9 +3,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableDeclarationCatalogErrorV1,
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1,
-    SelectedTopLevelFunctionKeyV1, VerifiedSelectedNormalCallableSourceInventoryV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
+    SameModuleCallableDeclarationCatalogErrorV1, SameModuleCallableNamespaceV1,
+    SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
+    VerifiedSelectedNormalCallableSourceInventoryV1,
 };
 
 #[derive(Debug)]
@@ -53,6 +54,7 @@ impl VerifiedSameModuleCallableDeclarationV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
+    brand: SameModuleCallableCatalogBrandV1,
     rows_by_key:
         BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1>,
     static_keys_by_method_and_arity:
@@ -90,6 +92,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         statements: &[ASTNode],
         collect_selected_program_sources: bool,
     ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
+        let brand = SameModuleCallableCatalogBrandV1::fresh();
         let mut rows_by_key = BTreeMap::new();
         let mut static_keys_by_method_and_arity =
             BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
@@ -240,13 +243,19 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             })
             .collect();
         Ok(Self {
+            brand: brand.clone(),
             rows_by_key,
             static_keys_by_method_and_arity,
             selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1::seal(
+                brand,
                 selected_source_rows,
                 selected_semantic_blockers,
             ),
         })
+    }
+
+    pub(in crate::mir) const fn brand(&self) -> &SameModuleCallableCatalogBrandV1 {
+        &self.brand
     }
 
     pub(crate) fn len(&self) -> usize {
@@ -257,7 +266,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         self.rows_by_key.is_empty()
     }
 
-    pub(in crate::mir::builder) const fn selected_source_inventory(
+    pub(in crate::mir) const fn selected_source_inventory(
         &self,
     ) -> &VerifiedSelectedNormalCallableSourceInventoryV1 {
         &self.selected_source_inventory

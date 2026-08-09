@@ -7,6 +7,7 @@
 
 mod callable_receiver_policy;
 mod current_owner;
+mod dynamic_member;
 mod error;
 mod model;
 mod qualified;
@@ -21,6 +22,12 @@ mod whole_source_inventory_error;
 #[allow(unused_imports)]
 pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
 #[allow(unused_imports)]
+pub(crate) use dynamic_member::{
+    DynamicMemberArgumentSourceV1, DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1,
+    DynamicMemberSourceRejectV1, DynamicMemberSourceUnresolvedV1,
+    VerifiedSourceBoundDynamicMemberCallV1,
+};
+#[allow(unused_imports)]
 pub(crate) use error::{
     CurrentOwnerStaticCallTargetErrorV1, QualifiedCallRouteFactsErrorV1,
     QualifiedReceiverLexicalDispositionErrorV1, QualifiedStaticCallTargetErrorV1,
@@ -30,6 +37,7 @@ pub(crate) use error::{
 pub(crate) use model::{
     CurrentOwnerStaticReceiverV1, QualifiedStaticReceiverV1,
     VerifiedCurrentOwnerStaticCallTargetV1, VerifiedQualifiedStaticCallTargetV1,
+    VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1,
     VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
     VerifiedStaticImportAliasViewV1,
 };
@@ -62,6 +70,8 @@ pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventor
 mod callable_receiver_policy_tests;
 #[cfg(test)]
 mod current_owner_tests;
+#[cfg(test)]
+mod dynamic_member_tests;
 #[cfg(test)]
 mod qualified_receiver_lexical_tests;
 #[cfg(test)]

@@ -119,7 +119,7 @@ impl VerifiedDynamicLoopSourceV1 {
 /// constructors, so later stages cannot combine a formal from one callable
 /// with a local or Loop from another.
 #[derive(Debug)]
-pub(super) struct VerifiedSourceBackedDynamicCallableV1 {
+pub(in crate::mir) struct VerifiedSourceBackedDynamicCallableV1 {
     owner: FunctionOwnerIdV1,
     formals: Box<[VerifiedDynamicFormalSourceV1]>,
     local_initializations: Box<[VerifiedDynamicLocalInitializationSourceV1]>,
@@ -127,8 +127,23 @@ pub(super) struct VerifiedSourceBackedDynamicCallableV1 {
 }
 
 impl VerifiedSourceBackedDynamicCallableV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
+    }
+
+    /// Returns the exact source formal from which one Dynamic binding derives.
+    ///
+    /// A formal is its own origin. A supported local copy retains the formal
+    /// sealed by the source product. No type, MIR value, or method name is
+    /// consulted here.
+    pub(in crate::mir) fn origin_for_binding(&self, binding: BindingRefV1) -> Option<BindingRefV1> {
+        if self.formals.iter().any(|row| row.binding() == binding) {
+            return Some(binding);
+        }
+        self.local_initializations
+            .iter()
+            .find(|row| row.local() == binding)
+            .map(VerifiedDynamicLocalInitializationSourceV1::formal)
     }
 
     pub(super) fn formals(&self) -> &[VerifiedDynamicFormalSourceV1] {
@@ -145,6 +160,13 @@ impl VerifiedSourceBackedDynamicCallableV1 {
 }
 
 pub(super) struct SourceBackedDynamicCallableIssuerV1;
+
+pub(in crate::mir) fn issue_source_backed_dynamic_callable_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<VerifiedSourceBackedDynamicCallableV1, String> {
+    SourceBackedDynamicCallableIssuerV1::issue_from_resolved_input(input)
+        .map_err(|error| format!("{error:?}"))
+}
 
 impl SourceBackedDynamicCallableIssuerV1 {
     pub(super) fn issue(

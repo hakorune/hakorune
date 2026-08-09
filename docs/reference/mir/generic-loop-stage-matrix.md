@@ -40,23 +40,28 @@ sites equal the bounded full-body profile sites. Missing, duplicate, or
 reordered argument relations reject before Builder effects. No source rewrite
 or selector-specific admission was used.
 
-The two calls use source-backed Dynamic receivers, so
-the compiler must add a route-disjoint source-bound Dynamic member target;
-it must not fabricate an exact declaration target or classify the receiver by
-the spellings `substring` / `indexOf`. `ch` is an exact iteration-local
-source/local-value relation, not a carrier. Source Completion already owns the
-two Return sites; the missing terminal authority is their physical single-exit
-merge and one set-aware Completion consumption.
+The two calls use source-backed Dynamic receivers. The route-disjoint
+source-bound Dynamic member target I0 is now landed in the single neutral
+source-call target catalog; it does not fabricate an exact declaration target
+or classify the receiver by the spellings `substring` / `indexOf`. The
+unchanged full production fixture issues exact `substring/2` and `indexOf/1`
+rows. Qualified helper receivers remain fully observed unselected source rows,
+so acceptance was widened in the compiler rather than by changing the source.
+`ch` is an exact iteration-local source/local-value relation, not a carrier.
+Source Completion already owns the two Return sites; the missing terminal
+authority is their physical single-exit merge and one set-aware Completion
+consumption.
 
 V2 currently provides only the logical `CallSlot` / `If` / `Exit(Return)`
 wire. Dynamic values/operations, V2 source relations and JoinSig/Core,
 JoinSig-authorized physical If/Return transfers, and a V2 physical consumer
 remain prerequisites. V1 layout must not be widened around these gaps.
 
-The Dynamic-dispatch D0 audit adds two prerequisites. The first prerequisite,
-the neutral resolver-owned AST-free MethodCall source row, is now landed; the
-bounded full-body role map is not the universal authority. The second remains:
-message target/source identity is not an
+The Dynamic-dispatch D0 audit added two prerequisites. The neutral
+resolver-owned AST-free MethodCall source row and the source-bound Dynamic
+message target/source identity are now landed; the bounded full-body role map
+is not the universal authority. The remaining prerequisite is that message
+target/source identity is not an
 execution contract. A selector-independent execution-envelope issuer must
 close conservative effects, normal-result versus terminal Fault, suspension,
 and exact Dynamic Home/lifetime before any CallSlot becomes Recipe-ready.

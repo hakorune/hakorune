@@ -5,6 +5,8 @@ use crate::mir::builder::{
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
+use super::VerifiedSourceBoundDynamicMemberCallV1;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum QualifiedStaticReceiverV1 {
     ImportedAlias {
@@ -88,6 +90,13 @@ pub(crate) enum VerifiedSourceStaticCallTargetV1 {
     CurrentOwnerStatic(VerifiedCurrentOwnerStaticCallTargetV1),
 }
 
+/// One route-disjoint source target selected before Builder effects.
+#[derive(Debug)]
+pub(crate) enum VerifiedSourceCallTargetV1 {
+    Static(VerifiedSourceStaticCallTargetV1),
+    DynamicMember(VerifiedSourceBoundDynamicMemberCallV1),
+}
+
 impl VerifiedSourceStaticCallTargetV1 {
     /// Returns the canonical callable selected by the already-sealed route.
     ///
@@ -125,15 +134,18 @@ impl VerifiedStaticImportAliasViewV1<'_> {
 }
 
 #[derive(Debug)]
-pub(crate) struct VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
+pub(crate) struct VerifiedSourceCallTargetCatalogV1<'catalog> {
     pub(super) declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
-    pub(super) rows: BTreeMap<
-        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
-        VerifiedSourceStaticCallTargetV1,
-    >,
+    pub(super) rows:
+        BTreeMap<(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1), VerifiedSourceCallTargetV1>,
 }
 
-impl VerifiedSourceStaticCallTargetCatalogV1<'_> {
+/// Temporary static-facing name retained while legacy static consumers are
+/// migrated to the route-neutral catalog API.
+pub(crate) type VerifiedSourceStaticCallTargetCatalogV1<'catalog> =
+    VerifiedSourceCallTargetCatalogV1<'catalog>;
+
+impl VerifiedSourceCallTargetCatalogV1<'_> {
     /// Tests whether this catalog retains the exact declaration authority.
     ///
     /// Key equality is insufficient: equal declarations from another source
@@ -150,6 +162,17 @@ impl VerifiedSourceStaticCallTargetCatalogV1<'_> {
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
     ) -> Option<&VerifiedSourceStaticCallTargetV1> {
+        match self.rows.get(&(caller.clone(), site.clone()))? {
+            VerifiedSourceCallTargetV1::Static(target) => Some(target),
+            VerifiedSourceCallTargetV1::DynamicMember(_) => None,
+        }
+    }
+
+    pub(crate) fn route_target(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedSourceCallTargetV1> {
         self.rows.get(&(caller.clone(), site.clone()))
     }
 
@@ -161,10 +184,28 @@ impl VerifiedSourceStaticCallTargetCatalogV1<'_> {
             &VerifiedSourceStaticCallTargetV1,
         ),
     > {
+        self.rows.iter().filter_map(|(key, target)| match target {
+            VerifiedSourceCallTargetV1::Static(target) => Some((key, target)),
+            VerifiedSourceCallTargetV1::DynamicMember(_) => None,
+        })
+    }
+
+    pub(crate) fn all_rows(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+            &VerifiedSourceCallTargetV1,
+        ),
+    > {
         self.rows.iter()
     }
 
     pub(crate) fn len(&self) -> usize {
         self.rows.len()
+    }
+
+    pub(crate) fn static_len(&self) -> usize {
+        self.rows().count()
     }
 }

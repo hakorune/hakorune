@@ -364,6 +364,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
 
         if !self.observes_all_method_calls() {
+            // A bare variable in receiver position is deliberately ambiguous
+            // until source-call routing: it may be a lexical value or a
+            // qualified static owner. Record the exact lexical disposition
+            // here instead of rejecting an unbound qualified owner as an
+            // ordinary unresolved variable.
+            if self.accepts_implicit_qualified_receivers()
+                && matches!(object, ASTNode::Variable { .. })
+            {
+                self.request_qualified_receiver(receiver_path.expr());
+            }
             return self.resolve_expr(object, receiver_path);
         }
 

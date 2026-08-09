@@ -143,7 +143,11 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
     }
 
     pub(crate) fn target_len(&self) -> usize {
-        self.targets.len()
+        self.targets.static_len()
+    }
+
+    pub(crate) fn into_targets(self) -> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
+        self.targets
     }
 
     pub(crate) fn noncandidate_len(&self) -> usize {

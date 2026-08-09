@@ -1,5 +1,5 @@
 ---
-Status: queued after Dynamic target/source I0
+Status: design consultation required; implementation closed
 Date: 2026-08-10
 Row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
@@ -7,6 +7,11 @@ Mode: design stop / language-runtime-Home boundary
 ---
 
 # Dynamic dispatch execution envelope D0
+
+The prerequisite Dynamic target/source I0 is landed. This card is now the
+active design stop. Do not implement an envelope until every axis below names
+one source/language authority and one canonical issuer; a conservative name
+without an issuer is not authority.
 
 ## Why this row exists
 
@@ -45,6 +50,26 @@ VerifiedDynamicDispatchExecutionEnvelopeV1
 
 If any axis lacks a canonical issuer, Recipe CallSlot co-seal remains
 `NoSafeSlice`.  Do not add empty `Verified*` products or permissive defaults.
+
+## Consultation output required
+
+The design review must return one owner table and one typed failure matrix for:
+
+```text
+declared language contract
+runtime Dynamic message semantics
+effect upper bound
+normal result versus terminal Fault
+suspension/control
+receiver/argument Home demand
+runtime-tagged result Home/lifetime
+physical projection
+```
+
+It must also decide whether the envelope is one language-wide immutable
+contract or a co-seal of independently issued axes. Whichever form is chosen,
+callers may not construct partial receipts and pair them later. Explicitly
+list the smallest implementation row and everything it still cannot claim.
 
 ## Runtime execution invariant
 

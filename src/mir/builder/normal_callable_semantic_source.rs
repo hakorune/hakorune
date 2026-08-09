@@ -11,8 +11,8 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::callable_declaration_catalog::{
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1,
-    VerifiedSelectedNormalCallableSourceInventoryV1,
+    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SelectedNormalCallableSourceSiteV1, VerifiedSelectedNormalCallableSourceInventoryV1,
 };
 
 #[derive(Debug)]
@@ -24,8 +24,9 @@ struct VerifiedNormalCallableSemanticSourceRowV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticSourceV1<'source> {
+pub(in crate::mir) struct VerifiedNormalCallableSemanticSourceV1<'source> {
     program: &'source ASTNode,
+    catalog_brand: SameModuleCallableCatalogBrandV1,
     rows: Box<[VerifiedNormalCallableSemanticSourceRowV1]>,
 }
 
@@ -33,10 +34,11 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticSourceV1<'sourc
 #[path = "normal_callable_prepared_ingress_tests.rs"]
 mod normal_callable_prepared_ingress_tests;
 
-pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
-    lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
+pub(in crate::mir) struct VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
+    pub(super) lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
+    pub(super) catalog_brand: SameModuleCallableCatalogBrandV1,
     _function: &'source ASTNode,
-    source_ingress: VerifiedNormalCallableSourceIngressReceiptV1<'loan>,
+    pub(super) source_ingress: VerifiedNormalCallableSourceIngressReceiptV1<'loan>,
 }
 
 /// Exact source-only ingress carried by an already-issued callable loan.
@@ -46,7 +48,7 @@ pub(in crate::mir::builder) struct VerifiedNormalCallableSemanticLoanV1<'source,
 /// the future ingress may consume it once, while the current raw host simply
 /// drops it after preserving its existing behavior.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct VerifiedNormalCallableSourceIngressReceiptV1<'source> {
+pub(in crate::mir) struct VerifiedNormalCallableSourceIngressReceiptV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     ledger: CallableSemanticSourceLedgerView<'source>,
 }
@@ -81,15 +83,15 @@ pub(in crate::mir::builder) enum PreparedCallableLoopIngressRejectV1 {
 }
 
 impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
-    pub(in crate::mir::builder) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'_> {
+    pub(in crate::mir) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'_> {
         self.input
     }
 
-    pub(in crate::mir::builder) const fn ledger(&self) -> &CallableSemanticSourceLedgerView<'_> {
+    pub(in crate::mir) const fn ledger(&self) -> &CallableSemanticSourceLedgerView<'_> {
         &self.ledger
     }
 
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.input.owner()
     }
 
@@ -109,13 +111,13 @@ impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) enum NormalCallableSemanticAdmissionV1<'source> {
+pub(in crate::mir) enum NormalCallableSemanticAdmissionV1<'source> {
     Complete(VerifiedNormalCallableSemanticSourceV1<'source>),
     Deferred,
 }
 
 impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
-    pub(in crate::mir::builder) fn seal(
+    pub(in crate::mir) fn seal(
         program: &'source ASTNode,
         inventory: &VerifiedSelectedNormalCallableSourceInventoryV1,
         is_app_mode: bool,
@@ -168,11 +170,12 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         }
         Ok(NormalCallableSemanticAdmissionV1::Complete(Self {
             program,
+            catalog_brand: inventory.brand().clone(),
             rows: rows.into_boxed_slice(),
         }))
     }
 
-    pub(in crate::mir::builder) fn loan<'loan>(
+    pub(in crate::mir) fn loan<'loan>(
         &'loan self,
         key: &SelectedNormalCallableKeyV1,
     ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source, 'loan>, String> {
@@ -224,14 +227,13 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         };
         Ok(VerifiedNormalCallableSemanticLoanV1 {
             lineage,
+            catalog_brand: self.catalog_brand.clone(),
             _function: function,
             source_ingress,
         })
     }
 
-    pub(in crate::mir::builder) fn keys(
-        &self,
-    ) -> impl Iterator<Item = &SelectedNormalCallableKeyV1> {
+    pub(in crate::mir) fn keys(&self) -> impl Iterator<Item = &SelectedNormalCallableKeyV1> {
         self.rows.iter().map(|row| &row.key)
     }
 }

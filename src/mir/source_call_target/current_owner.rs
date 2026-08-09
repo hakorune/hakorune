@@ -3,8 +3,9 @@ use crate::mir::builder::SameModuleCallableNamespaceV1;
 
 use super::{
     CurrentOwnerStaticCallTargetErrorV1, CurrentOwnerStaticReceiverV1,
-    VerifiedCurrentOwnerStaticCallTargetV1, VerifiedSourceMethodCallSiteV1,
-    VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
+    VerifiedCurrentOwnerStaticCallTargetV1, VerifiedSourceCallTargetV1,
+    VerifiedSourceMethodCallSiteV1, VerifiedSourceStaticCallTargetCatalogV1,
+    VerifiedSourceStaticCallTargetV1,
 };
 
 impl<'catalog> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
@@ -69,10 +70,12 @@ impl<'catalog> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
 
             self.rows.insert(
                 row_key,
-                VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(
-                    VerifiedCurrentOwnerStaticCallTargetV1::new(
-                        CurrentOwnerStaticReceiverV1::CanonicalMe,
-                        target.key().clone(),
+                VerifiedSourceCallTargetV1::Static(
+                    VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(
+                        VerifiedCurrentOwnerStaticCallTargetV1::new(
+                            CurrentOwnerStaticReceiverV1::CanonicalMe,
+                            target.key().clone(),
+                        ),
                     ),
                 ),
             );

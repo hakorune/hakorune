@@ -1,5 +1,5 @@
 ---
-Status: ready
+Status: closed
 Date: 2026-08-10
 Row: `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-I0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
@@ -61,6 +61,12 @@ equal-looking numeric identity. The target issuer consumes this link; callers
 cannot supply the two identities independently. Migrating the catalog itself
 to an owner key is outside this I0 and must be a separate all-static-row
 cutover if chosen later.
+
+The landed link also owns the exact source ingress. The Dynamic target issuer
+derives the resolver ledger, neutral MethodCall rows, and source-backed Dynamic
+origin internally from that ingress. Supplying those products independently
+was rejected during implementation review because it would reopen a
+post-verification re-pairing seam.
 
 ## DynamicMember product
 
@@ -153,3 +159,38 @@ no retry/fallback
 After this I0, stop at
 `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`. Recipe work remains closed until the
 selector-independent execution envelope has an accepted canonical issuer.
+
+## Landed receipt
+
+The production normal/default lifecycle now extends the existing static
+target catalog in place when the callable semantic batch is complete. Every
+cataloged callable consumes one exact catalog/owner/source-ingress link; the
+issuer walks the neutral MethodCall rows internally and publishes only
+route-disjoint `DynamicMember` rows. Existing static consumers receive a
+temporary static projection from the same catalog.
+
+The unchanged full
+`lang/src/compiler/parser/scan/parser_scan_loop_box.hako` source is the positive
+acceptance fixture. `ParserScanLoopBox.skip_while/4` publishes exact
+`substring/2` and `indexOf/1` rows without selector classification or source
+narrowing. This exposed and repaired one compiler-wide acceptance gap: an
+unbound bare MethodCall receiver is now sealed as a neutral
+`QualifiedUnbound` receiver source rather than rejected as an ordinary
+unresolved variable. Lexical receivers retain their exact resolver relation;
+the qualified/static observer's explicitly requested coverage remains
+unchanged.
+
+Focused evidence:
+
+```text
+source_call_target::dynamic_member_tests             5/5
+source_call_target::*                               60/60
+resolved_semantics::body_shape_tests                  5/5
+builder::normal_callable_semantic_source::tests       9/9
+cargo check --lib                                    green
+```
+
+The root-lifecycle focused suite is classified red only in the pre-existing
+duplicate-Box parser fixture: the current parser rejects that source before
+the lifecycle test can assert its older CatalogSeal-stage expectation. This
+row does not change that parser boundary.

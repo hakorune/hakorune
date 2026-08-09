@@ -227,3 +227,42 @@ effects, runtime tags, or method spelling. Runtime later combines actual
 receiver class with selector/arity and one immutable registry snapshot, selects
 one executable plan, and invokes once. Missing or failed selection does not
 retry a legacy or provider route.
+
+## Landed source-bound Dynamic member target (I0)
+
+The production normal-callable lifecycle now extends the same
+`VerifiedSourceCallTargetCatalogV1` used by static routes. For each exact
+catalog callable it consumes one branded semantic-source loan and the exact
+declaration catalog through `VerifiedCatalogCallableOwnerLinkV1`; the link
+owns the source ingress, so a caller cannot independently re-pair an owner,
+resolved body, or Dynamic-origin ledger.
+
+The issuer derives all MethodCall rows and Dynamic origins internally. A
+lexical local with an exact source-backed Dynamic origin yields one
+`DynamicMember` row containing:
+
+```text
+caller + call site
+receiver site + BindingRef + Dynamic origin
+ordered argument sites
+result site
+selector + arity
+```
+
+Fully observed static/current-owner/qualified receivers and typed non-Dynamic
+locals are valid unselected rows. Foreign brands, owner mismatches, malformed
+argument/result relations, and static/Dynamic collisions reject the entire
+unpublished catalog extension. There is no partial catalog publication.
+
+The unchanged `parser_scan_loop_box.hako` production fixture is the positive
+acceptance boundary. Its qualified helper receivers remain neutral
+`QualifiedUnbound` MethodCall evidence, while the local
+`s.substring(...).indexOf(...)` chain issues exact `substring/2` and
+`indexOf/1` Dynamic rows. The compiler acceptance was widened at the
+resolved-expression boundary; the source and fixture were not rewritten or
+narrowed.
+
+This I0 still owns message/source identity only. Result class, effects, Fault,
+suspension, Home/lifetime, Recipe CallSlot, physical execution, provider
+selection, retry, and fallback remain absent. The next row is the explicit
+`DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0` design stop.

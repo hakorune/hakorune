@@ -4,10 +4,10 @@
 //! owners, MIR symbols, or lowering policy. Program work planning borrows it
 //! instead of independently issuing top-level declaration identities.
 
-use super::CanonicalSameModuleCallableKeyV1;
+use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir::builder) struct SelectedTopLevelFunctionKeyV1 {
+pub(in crate::mir) struct SelectedTopLevelFunctionKeyV1 {
     statement_index: usize,
     declared_name: Box<str>,
     declared_arity: usize,
@@ -36,7 +36,7 @@ impl SelectedTopLevelFunctionKeyV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir::builder) enum SelectedNormalCallableKeyV1 {
+pub(in crate::mir) enum SelectedNormalCallableKeyV1 {
     TopLevel(SelectedTopLevelFunctionKeyV1),
     Cataloged(CanonicalSameModuleCallableKeyV1),
 }
@@ -63,14 +63,16 @@ pub(in crate::mir::builder) enum SelectedCallableSemanticBlockerV1 {
     NonPlainInstanceBox { statement_index: usize },
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub(crate) struct VerifiedSelectedNormalCallableSourceInventoryV1 {
+    brand: SameModuleCallableCatalogBrandV1,
     rows: Box<[SelectedNormalCallableSourceRowV1]>,
     blockers: Box<[SelectedCallableSemanticBlockerV1]>,
 }
 
 impl VerifiedSelectedNormalCallableSourceInventoryV1 {
     pub(super) fn seal(
+        brand: SameModuleCallableCatalogBrandV1,
         rows: Vec<(
             SelectedNormalCallableKeyV1,
             SelectedNormalCallableSourceSiteV1,
@@ -83,9 +85,14 @@ impl VerifiedSelectedNormalCallableSourceInventoryV1 {
             .collect::<Vec<_>>();
         rows.sort_by(|left, right| left.key.cmp(&right.key));
         Self {
+            brand,
             rows: rows.into_boxed_slice(),
             blockers: blockers.into_boxed_slice(),
         }
+    }
+
+    pub(in crate::mir) const fn brand(&self) -> &SameModuleCallableCatalogBrandV1 {
+        &self.brand
     }
 
     pub(in crate::mir::builder) fn top_level_function(

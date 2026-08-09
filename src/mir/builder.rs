@@ -27,6 +27,7 @@ mod callable_declaration_catalog; // Complete same-module callable declaration a
 mod literal_postemit_retirement_tests;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
+mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
 mod normal_callable_dynamic_loop_prepare; // pre-effect Dynamic Loop ingress co-seal
 mod normal_callable_dynamic_loop_rebind; // exact-once Dynamic Add/rebind terminal
 mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop operation relations
@@ -41,6 +42,14 @@ mod normal_cataloged_box_method_lowering;
 pub(crate) use callable_declaration_catalog::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
+};
+pub(in crate::mir) use normal_callable_catalog_owner_link::{
+    issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
+    VerifiedCatalogCallableOwnerLinkV1,
+};
+pub(in crate::mir) use normal_callable_dynamic_source::issue_source_backed_dynamic_callable_v1;
+pub(in crate::mir) use normal_callable_semantic_source::{
+    NormalCallableSemanticAdmissionV1, VerifiedNormalCallableSemanticSourceV1,
 };
 mod calls; // Call system modules (refactored from builder_calls)
 #[allow(dead_code)]

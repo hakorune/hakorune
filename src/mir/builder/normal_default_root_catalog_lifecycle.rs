@@ -210,7 +210,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         format!("[mir/callable-semantic/owner] {error:?}").into(),
                     )
                 })?;
-                let callable_mode = match VerifiedNormalCallableSemanticSourceV1::seal(
+                let callable_admission = VerifiedNormalCallableSemanticSourceV1::seal(
                     source.source_ast(),
                     catalog.selected_source_inventory(),
                     expansion.is_app_mode(),
@@ -218,14 +218,7 @@ impl ModuleBuilderInvocationSessionV1 {
                 )
                 .map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(error.into())
-                })? {
-                    NormalCallableSemanticAdmissionV1::Complete(source) => {
-                        NormalCallableSemanticSourceMode::Complete(source)
-                    }
-                    NormalCallableSemanticAdmissionV1::Deferred => {
-                        NormalCallableSemanticSourceMode::Deferred
-                    }
-                };
+                })?;
                 let work = PreparedProgramRootWorkPlanV1::prepare(
                     lowering_statements,
                     expansion.is_app_mode(),
@@ -306,19 +299,34 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/targets] {error:?}").into(),
                             )
                         })?;
-                let results = VerifiedSameModuleCallableResultCatalogV1::verify(
-                    declarations,
-                    inventory.targets(),
-                )
-                .map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                        format!("[mir/static-result-owner/results] {error:?}").into(),
-                    )
-                })?;
+                let targets = inventory.into_targets();
+                let (targets, callable_mode) = match callable_admission {
+                    NormalCallableSemanticAdmissionV1::Complete(source) => {
+                        let targets =
+                            targets
+                                .extend_complete_dynamic_sources(&source)
+                                .map_err(|error| {
+                                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                        format!("[mir/dynamic-member-targets] {error:?}").into(),
+                                    )
+                                })?;
+                        (targets, NormalCallableSemanticSourceMode::Complete(source))
+                    }
+                    NormalCallableSemanticAdmissionV1::Deferred => {
+                        (targets, NormalCallableSemanticSourceMode::Deferred)
+                    }
+                };
+                let results =
+                    VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                format!("[mir/static-result-owner/results] {error:?}").into(),
+                            )
+                        })?;
                 let static_result_publication_owner =
                     VerifiedStaticCallResultPublicationOwnerV1::issue(
                         declarations,
-                        inventory.targets(),
+                        &targets,
                         &results,
                     )
                     .map_err(|error| {

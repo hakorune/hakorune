@@ -73,6 +73,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
         BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
     receiver_policy: ReceiverPolicyV1,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
+    implicit_qualified_receivers: bool,
     traversal_profile: ShadowTraversalProfileV1,
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
     pub(super) record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
@@ -153,6 +154,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::Disabled,
+        false,
     )
     .map(|resolver| resolver.finish_owner(profile).function)
 }
@@ -177,6 +179,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::Disabled,
+        false,
     )
     .map(|resolver| resolver.finish_owner(profile))
 }
@@ -209,6 +212,7 @@ fn resolve_shadow_view_with_profile<'ast>(
         ancestor_names,
         BTreeSet::new(),
         method_call_observation_mode,
+        true,
     )
     .map(|resolver| resolver.finish_owner(root_profile))
 }
@@ -224,6 +228,7 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
         BTreeSet::new(),
         requested_sites,
         ShadowMethodCallObservationModeV0::Disabled,
+        false,
     )?
     .finish_qualified_receiver_observations()
 }
@@ -237,6 +242,7 @@ pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::All,
+        false,
     )?
     .finish_method_call_observations()
 }
@@ -247,6 +253,7 @@ fn traverse_shadow_root_v1<'ast, 'schema>(
     ancestor_names: BTreeSet<Box<str>>,
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
+    implicit_qualified_receivers: bool,
 ) -> Result<ShadowResolverV0<'ast, 'schema>, ShadowResolveErrorV0> {
     let receiver_policy = input.receiver_policy();
 
@@ -256,6 +263,7 @@ fn traverse_shadow_root_v1<'ast, 'schema>(
         qualified_receiver_requests,
         receiver_policy,
         method_call_observation_mode,
+        implicit_qualified_receivers,
         input.traversal_profile(),
         input.record_schema_demand(),
         input.enum_variant_demand(),
@@ -314,6 +322,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
         receiver_policy: ReceiverPolicyV1,
         method_call_observation_mode: ShadowMethodCallObservationModeV0,
+        implicit_qualified_receivers: bool,
         traversal_profile: ShadowTraversalProfileV1,
         record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
         enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
@@ -373,6 +382,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             qualified_receiver_dispositions: BTreeMap::new(),
             receiver_policy,
             method_call_observation_mode,
+            implicit_qualified_receivers,
             traversal_profile,
             method_call_observations: BTreeMap::new(),
             record_schema_demand,
@@ -535,6 +545,10 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
 
     pub(super) fn observes_all_method_calls(&self) -> bool {
         self.method_call_observation_mode == ShadowMethodCallObservationModeV0::All
+    }
+
+    pub(super) const fn accepts_implicit_qualified_receivers(&self) -> bool {
+        self.implicit_qualified_receivers
     }
 
     pub(super) const fn receiver_policy(&self) -> ReceiverPolicyV1 {
