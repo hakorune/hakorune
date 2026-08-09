@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, and declared Query/Home aggregate I0 landed; general body-source authority is the current design stop, followed by a separate Query body-source projection, so body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, and borrowed Query body-source projection I0 landed; body-conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -37,8 +37,11 @@ Home ABI0, Query behavior I0, and the declared Query/Home aggregate I0 are now
 closed as resolver-only internal boundaries. The aggregate consumes the Home
 catalog (which owns declarations) and the selected Query catalog by value and
 seals only same-brand/site/order coverage. The general direct body-source I0
-is now landed; the next design stop is the separate Query body-source
-projection, followed by owner binding and complete body conformance. Target,
+and the separate borrowed Query body-source projection I0 are now landed. The
+projection consumes the aggregate-owned selected-contract view, preserves
+sparse source order, checks parser provenance and resolver brand, and retains
+the general all-row catalog for future observers. The next design stop is
+owner binding and complete body conformance. Target,
 Recipe/CallSlot, and physical ABI remain production zero.
 
 The R4 AST-side atomic reconstruction product and strict recursive JSON v2
@@ -163,10 +166,11 @@ Declaration contracts may be cataloged before bodies are verified so recursive
 and mutually recursive calls can resolve. The current parser→resolver
 handoff, however, intentionally carries no instance-method body, and the
 declaration catalog is not co-sealed with a `VerifiedResolvedFunctionV1`
-owner. Therefore body conformance is not yet open: the separate
-the body-source row must first issue a general exact same-source body catalog,
+owner. Therefore body conformance is not yet open: the body-source row must
+first issue a general exact same-source body catalog,
 then a separate Query projection must borrow the aggregate's already sealed
-selected view, and only then may owner binding/body facts open. Missing,
+selected view, and only then may owner binding/body facts open. That borrowed
+projection is now landed. Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and
 performs no new semantic decision. The body verifier checks the declared

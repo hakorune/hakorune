@@ -70,7 +70,7 @@ retained as provenance; it is not reused as nominal type identity. The issuer
 does not clone rows through the parser inspection API or issue partial
 receipts. `CallableContractSyntaxV1` is carried as typed syntax only; the
 declared Query behavior D0 and bounded Query behavior I0 issuer are closed.
-The separate Query body-source projection is not yet opened. The
+The separate Query body-source projection is now landed. The
 non-`Clone` `VerifiedDeclaredQueryBehaviorCatalogV1` contains only the exact
 non-empty typed Query subset, resolver/declaration identity, normalized
 behavior, and optional rune provenance. It never copies Home demands/results,
@@ -106,10 +106,14 @@ brand plus parser provenance; a bare ordinal, name, selected inventory
 placement, or map order cannot pair a body.
 Its resolver result is AST-free and borrows the already landed declaration
 catalog; it never consumes Home/Query again or mints a
-`FunctionOwnerIdV1`. The current next row is a separate Query projection that
-borrows the declared aggregate's selected view and requires one row per
-selected declaration, with no default non-Query row. A separate
-`CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
+`FunctionOwnerIdV1`. `DeclaredInstanceMethodContractRefV1` is the
+aggregate-owned borrowed declaration/Home/Query relation view.
+`DeclaredQueryBodySourceIssuerV1` projects the general body catalog through
+that view into a borrowed
+`VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>`, preserving
+sparse source order and retaining the all-row catalog for future observers.
+It checks parser provenance and resolver brand once and emits no default
+non-Query row. A separate `CALLABLE-BODY-OWNER-BINDING-D0/I0` must co-seal that body source
 with the exact `VerifiedResolvedFunctionV1` before body facts can use
 lexical/control facts. Missing carrier/owner link is `NoSafeSlice`, not a
 default body receipt. Body modules must be dedicated and must not grow

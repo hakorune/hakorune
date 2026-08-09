@@ -23,24 +23,25 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
-body-source I0 is also closed. The current execution row is:
+body-source I0 and borrowed Query body-source projection I0 are also closed.
+The current execution row is:
 
 ```text
-CALLABLE-QUERY-BODY-SELECTION-I0
+CALLABLE-BODY-OWNER-BINDING-D0
 ```
 
-The D0 design is accepted and the explicit I0 transition is open. The first
-operation is the aggregate-owned borrowed selected-Query view; only after its
-focused tests are green does the borrowed `<'body,'contract>` sparse
-projection open. It checks parser provenance and resolver brand, preserves
-sparse source order, keeps the general catalog reusable, and emits no default
-non-Query row. No body owner, facts, conformance, target, Recipe/CallSlot,
-Builder/MIR, or production work is open.
+The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
+selected-Query view and borrowed `<'body,'contract>` sparse projection check
+parser provenance and resolver brand, preserve sparse source order, keep the
+general catalog reusable, and emit no default non-Query row. The current
+design stop is the exact body-source/`VerifiedResolvedFunctionV1` owner
+co-seal. No body facts, conformance, target, Recipe/CallSlot, Builder/MIR, or
+production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
@@ -55,10 +56,9 @@ only the typed non-empty Query subset and never duplicates Home relations.
 Aggregate I0 implements only their same-brand/site/order relational co-seal;
 Home remains the declaration owner. Resolver targets, source-bound CallSlot
 relations, ScanWithInit, physical lowering, production selection, and legacy
-retirement remain closed. The current stop defines the separate Query
-projection over the general parser/resolver body-source authority. The
-one-shot parser transaction/provenance bridge and general direct-cohort body
-cardinality are landed; the later FunctionOwner co-seal remains parked. Body
+retirement remain closed. The one-shot parser transaction/provenance bridge,
+general direct-cohort body cardinality, and borrowed Query projection are
+landed; the FunctionOwner co-seal is the current design stop. Body
 conformance must not pair by name, inventory ordinal, Query re-selection, or
 MIR facts.
 
@@ -82,7 +82,7 @@ typed syntax carriage (closed)
 -> old instance-result/target retirement (closed bounded I0)
 -> declaration / Home ABI / declared Query aggregate (closed)
 -> body-source transaction / general AST-free body catalog (closed I0)
--> declared Query body-source projection (current D0)
+-> declared Query body-source projection (closed I0)
 -> body-owner co-seal
 -> body facts / conformance catalog
 -> target / source-bound relation / Recipe CallSlot

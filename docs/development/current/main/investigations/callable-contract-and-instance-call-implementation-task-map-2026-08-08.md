@@ -849,7 +849,7 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`;
     - implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`.
-17. `CALLABLE-QUERY-BODY-SELECTION-D0/I0` (current design stop)
+17. `CALLABLE-QUERY-BODY-SELECTION-D0/I0` (closed 2026-08-09)
     - project the already validated general body-source catalog through the
       declared aggregate's selected Query view;
     - require exactly one borrowed body row per selected Query declaration,
@@ -860,18 +860,21 @@ Rejected > Unresolved > Declined > Candidate
       vector positions;
     - D0 task:
       `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`;
-    - parked I0 task:
+    - I0 implementation receipt:
       `docs/development/current/main/investigations/own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`;
-    - I0 may open only after the aggregate exposes one borrowed
-      `selected_contracts()`-style view; it must compare parser provenance and
-      resolver brand without copying/reissuing Home or Query receipts.
-18. `CALLABLE-BODY-OWNER-BINDING-D0/I0`
+    - landed output is a borrowed `<'body,'contract>` sparse projection. It
+      compares parser provenance and resolver brand without copying/reissuing
+      Home or Query receipts, and leaves the general all-row body catalog
+      reusable.
+18. `CALLABLE-BODY-OWNER-BINDING-D0/I0` (current design stop)
     - co-seal the AST-free body-source catalog with the exact
       `VerifiedResolvedFunctionV1` and declaration/catalog identity;
     - `FunctionSemanticResolverSessionV1` remains the sole FunctionOwner
       issuer; equal numbers, names, ordinals, or compilation brands are not
       enough;
-    - no body facts or conformance in this row.
+    - no body facts or conformance in this row;
+    - D0 must consume the selected Query body projection and must not repeat
+      Query selection or issue a second FunctionOwner.
 19. `CALLABLE-BODY-FACTS-QUERY-D0/I0`
     - observe the bounded receiver-read/return body through the branded
       body-owner link;

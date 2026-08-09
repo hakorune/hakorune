@@ -1,5 +1,5 @@
 ---
-Status: parked — implementation opens only after Query projection I0 and accepted owner-binding D0
+Status: accepted design stop — current after Query projection I0; implementation not opened
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`

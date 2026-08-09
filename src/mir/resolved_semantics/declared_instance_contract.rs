@@ -32,6 +32,29 @@ struct SelectedDeclarationPairV1 {
     query_index: usize,
 }
 
+/// Borrowed relational view of one already co-sealed declaration/Home/Query
+/// row.  This view issues no semantic axis and exposes no mutable indices.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct DeclaredInstanceMethodContractRefV1<'a> {
+    declaration: &'a VerifiedInstanceMethodDeclarationV1,
+    home_abi: &'a VerifiedHomeAbiV1,
+    query: &'a VerifiedDeclaredQueryBehaviorV1,
+}
+
+impl<'a> DeclaredInstanceMethodContractRefV1<'a> {
+    pub(crate) fn declaration(&self) -> &'a VerifiedInstanceMethodDeclarationV1 {
+        self.declaration
+    }
+
+    pub(crate) fn home_abi(&self) -> &'a VerifiedHomeAbiV1 {
+        self.home_abi
+    }
+
+    pub(crate) fn query(&self) -> &'a VerifiedDeclaredQueryBehaviorV1 {
+        self.query
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct VerifiedDeclaredInstanceMethodContractCatalogV1 {
     home_catalog: VerifiedDeclaredInstanceMethodHomeCatalogV1,
@@ -62,6 +85,21 @@ impl VerifiedDeclaredInstanceMethodContractCatalogV1 {
 
     pub(crate) fn selected_pair_count(&self) -> usize {
         self.selected_pairs.len()
+    }
+
+    pub(crate) fn selected_contracts(
+        &self,
+    ) -> impl ExactSizeIterator<Item = DeclaredInstanceMethodContractRefV1<'_>> + '_ {
+        let declarations = self.home_catalog.declarations();
+        let home_abis = self.home_catalog.home_abis();
+        let query_behaviors = self.query_catalog.rows();
+        self.selected_pairs.iter().map(move |pair| {
+            DeclaredInstanceMethodContractRefV1 {
+                declaration: &declarations[pair.declaration_index],
+                home_abi: &home_abis[pair.home_index],
+                query: &query_behaviors[pair.query_index],
+            }
+        })
     }
 }
 

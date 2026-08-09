@@ -1,11 +1,43 @@
 ---
-Status: in progress after explicit D0-to-I0 transition
+Status: closed — implementation landed 2026-08-09
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
 ---
 
 # CALLABLE-QUERY-BODY-SELECTION-I0
+
+## Implementation receipt
+
+The bounded I0 is landed. `VerifiedDeclaredInstanceMethodContractCatalogV1`
+now exposes the aggregate-owned borrowed `selected_contracts()` view, and
+`DeclaredQueryBodySourceIssuerV1` issues the borrowed
+`VerifiedDeclaredQueryBodySourceCatalogV1<'body, 'contract>` projection.
+The projection checks parser provenance and resolver brand once, preserves
+the general body catalog's sparse source order, retains borrowed declaration/
+Home/Query relations, and does not reselect Query rows from syntax, names,
+ordinals, or vector positions.
+
+Landed implementation:
+
+```text
+src/mir/resolved_semantics/declared_instance_contract.rs
+src/mir/resolved_semantics/declared_query_body_source.rs
+src/mir/resolved_semantics/declared_query_body_source_tests.rs
+```
+
+Focused receipt:
+
+```text
+3/3 declared_query_body_source tests green
+  sparse Query/non-Query/Query projection
+  aggregate selected-view relation/order
+  cross-catalog resolver-brand rejection
+general body catalog remains reusable after projection
+```
+
+The next design stop is `CALLABLE-BODY-OWNER-BINDING-D0/I0`; body facts,
+conformance, targets, Recipe/CallSlot, and physical lowering remain closed.
 
 ## Purpose
 
