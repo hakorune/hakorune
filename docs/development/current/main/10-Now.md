@@ -33,7 +33,7 @@ The bounded Query body-facts implementation is closed. The current design
 stop is:
 
 ```text
-CALLABLE-CONTRACT-CONFORMANCE-D0
+CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -59,8 +59,9 @@ ordinary returns. The carrier keeps that shape from the same owner-tree walk
 and co-seals it with the declaration catalog's parser provenance and resolver
 brand. Direct field/state authority remains closed. The shape I0 and bounded
 Query body-facts I0 are now closed. The next design must define the complete
-same-brand declared-contract/body-conformance set. No target, Recipe/CallSlot,
-Builder/MIR, or production work is open.
+statement/expression/effect/control/Home-escape evidence receipt. The `return
+me` facts catalog is not sufficient for complete conformance. No target,
+Recipe/CallSlot, Builder/MIR, or production work is open.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,

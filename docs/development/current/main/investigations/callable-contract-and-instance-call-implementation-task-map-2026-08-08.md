@@ -1052,11 +1052,27 @@ Rejected > Unresolved > Declined > Candidate
       `docs/development/current/main/investigations/own-home-callable-body-facts-query-i0-implementation-task-2026-08-09.md`.
     - focused evidence: 4 Query facts, 3 body-shape, 3 owner-link, and 4
       resolver tests passed; current pointer guard passed.
-22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
-    - verify direct receiver-read footprint, no writes/Home escape/allocation/
-      IO/FFI/failure escape/suspension/non-local control;
-    - publish one complete same-brand conformance set;
-    - never infer a replacement public contract from the body.
+22. `CALLABLE-CONTRACT-CONFORMANCE-D0` (accepted architecture; I0 parked)
+    - keep declared Query/Home/signature authority separate from body facts;
+    - define one per-row behavioral conformance product and one same-brand,
+      full-coverage conformant catalog;
+    - body facts alone do not prove complete absence of writes/Home escape,
+      allocation, IO/FFI, failure, suspension, or non-local control;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
+22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (current design stop)
+    - define the single complete statement/expression/effect/control/Home-
+      escape evidence receipt required before conformance I0;
+    - decide whether the existing body-shape traversal can issue complete
+      coverage or a sibling resolver-owned issuer is required;
+    - no conformance code, empty/default receipt, target, Recipe, or MIR;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`.
+22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked behind 22A)
+    - consume declared contract + bounded Query facts + complete evidence;
+    - issue one accepted row per selected declaration and reject any
+      missing/duplicate/foreign/nonconforming row;
+    - never infer or replace public contract meaning from the body.
 23. `CALLABLE-PUBLISHABLE-CATALOG-COSEAL-I0`
     - co-seal the declared catalog with exactly one accepted conformance per
       body-bearing declaration;

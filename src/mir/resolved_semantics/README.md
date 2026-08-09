@@ -141,8 +141,12 @@ opaque evidence is `Unresolved`, and identity/coverage mismatches are
 `Rejected`. The neutral shape issuer runs during the existing parser-private
 syntax lease and returns one AST-free inventory co-sealed to the exact
 owner/body root and source coverage; the carrier row co-seals parser
-provenance and resolver brand. Direct field/state authority, conformance,
-target, Recipe/CallSlot, Builder, MIR, and production remain separate.
+provenance and resolver brand. Direct field/state authority and conformance
+remain separate. The current design stop is
+`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0`: the facts catalog is shape evidence,
+not a complete proof of no writes/Home escape/allocation/IO/FFI/failure/
+suspension/non-local control. Target, Recipe/CallSlot, Builder, MIR, and
+production remain separate.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
