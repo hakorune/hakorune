@@ -12,14 +12,13 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{BasicBlockId, BinaryOp, CompareOp, MirBuilder, MirInstruction, MirType, ValueId};
 
-use super::normal_callable_dynamic_loop_prepare::{
-    PreparedLoopIncomingRoleV1, PreparedSourceBackedDynamicLoopIngressV1,
-};
+use super::normal_callable_dynamic_loop_prepare::PreparedLoopIncomingRoleV1;
 use super::normal_callable_dynamic_operation_source::{
     DynamicLoopComparisonKindV1, DynamicLoopOperationResultClassV1,
 };
 use super::normal_callable_dynamic_origin::CurrentDynamicBindingReceiptV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
+use super::resolved_lowering::dynamic_loop_phi::OpenSourceBackedDynamicLoopCarrierPhiV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CompletedDynamicLoopCompareBoolReceiptV1 {
@@ -44,21 +43,17 @@ impl CompletedDynamicLoopCompareBoolReceiptV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct ReadySourceBackedDynamicLoopCarrierForPhiV1 {
-    owner: FunctionOwnerIdV1,
-    loop_site: SourceNodeSiteV1,
-    binding: BindingRefV1,
+    opened: OpenSourceBackedDynamicLoopCarrierPhiV1,
     origin: BindingRefV1,
-    enter: ValueId,
     backedge: ValueId,
     assignment: SourceExprSiteV1,
     definition_block: BasicBlockId,
-    expected_roles: [PreparedLoopIncomingRoleV1; 2],
     current: CurrentDynamicBindingReceiptV1,
 }
 
 impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
     pub(super) const fn binding(&self) -> BindingRefV1 {
-        self.binding
+        self.opened.binding()
     }
 
     pub(super) const fn origin(&self) -> BindingRefV1 {
@@ -66,7 +61,7 @@ impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
     }
 
     pub(super) const fn enter(&self) -> ValueId {
-        self.enter
+        self.opened.entry()
     }
 
     pub(super) const fn backedge(&self) -> ValueId {
@@ -78,7 +73,7 @@ impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
     }
 
     pub(super) const fn expected_roles(&self) -> [PreparedLoopIncomingRoleV1; 2] {
-        self.expected_roles
+        self.opened.ingress().carrier().expected_roles()
     }
 
     pub(super) const fn assignment(&self) -> &SourceExprSiteV1 {
@@ -87,6 +82,18 @@ impl ReadySourceBackedDynamicLoopCarrierForPhiV1 {
 
     pub(super) const fn current(&self) -> &CurrentDynamicBindingReceiptV1 {
         &self.current
+    }
+
+    pub(super) const fn header_current(&self) -> ValueId {
+        self.opened.header_current_value()
+    }
+
+    pub(super) const fn header(&self) -> BasicBlockId {
+        self.opened.placement().header()
+    }
+
+    pub(super) const fn opened(&self) -> &OpenSourceBackedDynamicLoopCarrierPhiV1 {
+        &self.opened
     }
 }
 
@@ -110,15 +117,21 @@ pub(super) struct DynamicLoopOperationExecutionV1;
 
 impl DynamicLoopOperationExecutionV1 {
     pub(super) fn execute(
-        ingress: PreparedSourceBackedDynamicLoopIngressV1,
+        opened: OpenSourceBackedDynamicLoopCarrierPhiV1,
         state: &mut CallableSemanticLoweringState,
         builder: &mut MirBuilder,
-        comparison_block: BasicBlockId,
-        add_block: BasicBlockId,
     ) -> Result<CompletedSourceBackedDynamicLoopOperationsV1, String> {
+        let placement = opened.placement();
+        let comparison_block = placement.header();
+        let add_block = placement.terminal_backedge();
         require_block(builder, comparison_block)?;
         require_block(builder, add_block)?;
 
+        let header_current = opened.header_current_value();
+        if opened.header_current_block() != comparison_block {
+            return Err(freeze("header-current-block"));
+        }
+        let ingress = opened.ingress();
         let comparison = ingress.operations().comparison();
         if comparison.kind() != DynamicLoopComparisonKindV1::Less
             || comparison.result() != DynamicLoopOperationResultClassV1::Bool
@@ -145,6 +158,13 @@ impl DynamicLoopOperationExecutionV1 {
         {
             return Err(freeze("comparison-lineage"));
         }
+        if opened.owner() != ingress.owner()
+            || opened.loop_site() != ingress.loop_site()
+            || opened.binding() != carrier.binding()
+            || header_current == carrier.entry()
+        {
+            return Err(freeze("header-current-relation"));
+        }
 
         let add = ingress.operations().add_rebind();
         if add.carrier() != carrier.binding()
@@ -167,7 +187,7 @@ impl DynamicLoopOperationExecutionV1 {
             comparison_block,
             predicate_result,
             CompareOp::Lt,
-            comparison_carrier.current(),
+            header_current,
             comparison_operand.current(),
         )?;
         let predicate = CompletedDynamicLoopCompareBoolReceiptV1 {
@@ -175,7 +195,7 @@ impl DynamicLoopOperationExecutionV1 {
             loop_site: ingress.loop_site().clone(),
             operation: comparison.operation().clone(),
             block: comparison_block,
-            lhs: comparison_carrier.current(),
+            lhs: header_current,
             rhs: comparison_operand.current(),
             result: predicate_result,
         };
@@ -186,24 +206,21 @@ impl DynamicLoopOperationExecutionV1 {
             MirInstruction::BinOp {
                 dst: add_result,
                 op: BinaryOp::Add,
-                lhs: carrier.entry(),
+                lhs: header_current,
                 rhs: delta,
             },
         )?;
         if builder.function_state.type_ctx.get_type(add_result) == Some(&MirType::Integer) {
             return Err(freeze("dynamic-add-published-integer"));
         }
+        let assignment = add.target().clone();
         let current = state.commit_source_backed_dynamic_rebind(prepared_rebind);
         let carrier = ReadySourceBackedDynamicLoopCarrierForPhiV1 {
-            owner: ingress.owner(),
-            loop_site: ingress.loop_site().clone(),
-            binding: carrier.binding(),
+            opened,
             origin,
-            enter: carrier.entry(),
             backedge: add_result,
-            assignment: add.target().clone(),
+            assignment,
             definition_block: add_block,
-            expected_roles: carrier.expected_roles(),
             current,
         };
         Ok(CompletedSourceBackedDynamicLoopOperationsV1 { predicate, carrier })
@@ -225,7 +242,3 @@ fn require_block(builder: &MirBuilder, block: BasicBlockId) -> Result<(), String
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][dynamic-loop-rebind/{reason}]")
 }
-
-#[cfg(test)]
-#[path = "normal_callable_dynamic_loop_rebind_tests.rs"]
-mod tests;

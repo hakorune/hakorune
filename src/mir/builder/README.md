@@ -222,9 +222,17 @@ Enter/Header/body/terminal-Backedge/After placement through canonical CFG,
 and reads the still-unsealed Header through canonical Binding SSA. That read
 creates the sole provisional PHI before Compare/Add emission. The opaque
 result exposes no PHI token, raw predecessor vector, route-local writer, or
-second SSA owner. P1R must next consume this Header current; PHI patching,
-After publication, DraftSeal, backend activation, retry, and fallback remain
-closed.
+second SSA owner.
+
+The corrected `normal_callable_dynamic_loop_rebind.rs` P1R terminal consumes
+that whole open product. It derives its Header and terminal-Backedge blocks
+from the sealed placement, emits both Compare and Add from the canonical
+Header current, and retains the same open product with the source-backed
+Dynamic Backedge receipt. It has no caller-chosen block/value seam and never
+rewrites an emitted operand. P2B must next define the assignment through
+canonical Binding SSA, complete the Backedge edge, seal Header, and let the
+existing `PhiTxn` patch the provisional PHI. After publication, DraftSeal,
+backend activation, retry, and fallback remain closed.
 
 ## 原則（SSOT / Box-First）
 

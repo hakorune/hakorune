@@ -13,7 +13,7 @@ mod direct_accum_adapter;
 mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
-mod dynamic_loop_phi;
+pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod flow_consumption;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
@@ -40,6 +40,8 @@ mod callable_module_transaction_tests;
 mod completion_tests;
 #[cfg(test)]
 mod dynamic_loop_phi_tests;
+#[cfg(test)]
+mod dynamic_loop_rebind_tests;
 #[cfg(test)]
 mod flow_consumption_tests;
 #[cfg(test)]

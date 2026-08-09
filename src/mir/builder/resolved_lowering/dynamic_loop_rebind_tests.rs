@@ -5,6 +5,8 @@ use crate::mir::builder::normal_callable_dynamic_source::SourceBackedDynamicCall
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
+use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
+use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
     CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
     ResolveSelectedCallableForestsOutcomeV1, SourceBindingSiteV1, SourcePathSegmentV1,
@@ -13,11 +15,12 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, MirInstruction, MirType};
 use crate::parser::NyashParser;
 
-use super::DynamicLoopOperationExecutionV1;
+use super::super::normal_callable_dynamic_loop_rebind::DynamicLoopOperationExecutionV1;
+use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
 
 fn parsed_skip_while() -> ASTNode {
     let program = NyashParser::parse_from_string(include_str!(
-        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+        "../../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
     ))
     .unwrap();
     let ASTNode::Program { statements, .. } = program else {
@@ -131,19 +134,21 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
             schedule, operations, &parent, &condition, &body_root,
         )
         .unwrap();
-    let comparison_block = builder.push_block_for_test().unwrap();
-    let add_block = builder.push_block_for_test().unwrap();
+    let completion = verify_function_completion_v1(input()).unwrap();
+    let if_control =
+        VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile(input(), &parent)
+            .unwrap();
+    let mut canonical =
+        CanonicalSsaFunctionSessionV2::new(input(), if_control, completion, 0).unwrap();
+    let opened = canonical
+        .open_source_backed_dynamic_loop_header(builder, ingress)
+        .unwrap();
+    let header_current = opened.header_current_value();
+    let placement = opened.placement();
 
-    let completed = DynamicLoopOperationExecutionV1::execute(
-        ingress,
-        &mut state,
-        builder,
-        comparison_block,
-        add_block,
-    )
-    .unwrap();
+    let completed = DynamicLoopOperationExecutionV1::execute(opened, &mut state, builder).unwrap();
 
-    assert_eq!(completed.predicate().block(), comparison_block);
+    assert_eq!(completed.predicate().block(), placement.header());
     assert_eq!(
         builder
             .function_state
@@ -153,11 +158,14 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
     );
     let carrier = completed.carrier();
     assert_eq!(carrier.enter(), local_value);
+    assert_ne!(carrier.enter(), header_current);
+    assert_eq!(carrier.header_current(), header_current);
+    assert_eq!(carrier.header(), placement.header());
     assert_eq!(carrier.current().previous(), local_value);
     assert_eq!(carrier.current().current(), carrier.backedge());
     assert_eq!(carrier.current().binding(), carrier.binding());
     assert_eq!(carrier.current().origin(), carrier.origin());
-    assert_eq!(carrier.definition_block(), add_block);
+    assert_eq!(carrier.definition_block(), placement.terminal_backedge());
     assert_eq!(
         builder.function_state.type_ctx.get_type(carrier.backedge()),
         None
@@ -175,13 +183,33 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
         .current_function
         .as_ref()
         .unwrap()
-        .get_block(add_block)
+        .get_block(placement.terminal_backedge())
         .unwrap()
         .instructions
         .iter()
         .any(|instruction| matches!(
             instruction,
             MirInstruction::BinOp { dst, .. } if *dst == carrier.backedge()
+        )));
+    let mir = builder.function_state.current_function.as_ref().unwrap();
+    assert!(mir
+        .get_block(placement.header())
+        .unwrap()
+        .instructions
+        .iter()
+        .any(|instruction| matches!(
+            instruction,
+            MirInstruction::Compare { lhs, .. } if *lhs == header_current
+        )));
+    assert!(mir
+        .get_block(placement.terminal_backedge())
+        .unwrap()
+        .instructions
+        .iter()
+        .any(|instruction| matches!(
+            instruction,
+            MirInstruction::BinOp { dst, lhs, .. }
+                if *dst == carrier.backedge() && *lhs == header_current
         )));
 
     let injected_after_emission: Result<(), &str> = Err("injected-after-dynamic-add");
@@ -192,8 +220,16 @@ fn prepared_dynamic_operations_emit_atomic_backedge_and_late_failure_discards_se
 
 #[test]
 fn operation_terminal_source_has_no_phi_or_fallback_authority() {
-    let source = include_str!("normal_callable_dynamic_loop_rebind.rs");
-    for forbidden in ["PhiTxn", "MirInstruction::Phi", "fallback", "retry"] {
+    let source = include_str!("../normal_callable_dynamic_loop_rebind.rs");
+    for forbidden in [
+        "PhiTxn",
+        "MirInstruction::Phi",
+        "comparison_block: BasicBlockId",
+        "add_block: BasicBlockId",
+        "lhs: carrier.entry()",
+        "fallback",
+        "retry",
+    ] {
         assert!(
             !source.contains(forbidden),
             "operation terminal must not contain {forbidden}"

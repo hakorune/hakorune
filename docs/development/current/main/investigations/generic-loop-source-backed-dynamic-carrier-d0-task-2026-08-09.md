@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1 and Header-current P2A closed; P1R next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, and Header-based P1R closed; P2B next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -880,6 +880,25 @@ Done:
 Stop:
   No operand rewrite after emission, raw-Unknown admission, After publication,
   or second current-value owner.
+
+Closeout:
+  Closed in the P1R implementation slice. The old P1 terminal no longer
+  accepts an ingress plus caller-chosen physical blocks. It consumes the
+  move-only P2A open product, derives Header and terminal-Backedge placement
+  from that product, and retains the same open product in its P2B handoff.
+  Compare and Add both use the sole canonical Header PHI destination as lhs;
+  that value differs from Enter. The Add result stays physically unknown and
+  is co-sealed with the exact assignment, Dynamic origin, and terminal
+  Backedge definition block. The legacy callable-current projection advances
+  from Enter to the Add result only as migration evidence and is not a second
+  reaching-value authority.
+
+  The unmodified production `skip_while/4` fixture verifies the exact MIR
+  operands, Dynamic lineage, role-distinct placement, late-failure
+  whole-session discard, and absence of PHI/fallback authority in the
+  operation terminal. No operand rewrite, raw-Unknown admission, CFG
+  Backedge, canonical assignment definition, PHI patch, After, backend,
+  retry/fallback, or production route opened.
 
 ##### L0-P2B — `DYNAMIC-LOOP-PHI-CLOSE-P2B`
 

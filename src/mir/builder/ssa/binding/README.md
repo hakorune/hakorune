@@ -43,5 +43,7 @@ Dynamic Loop P2A exercises the same temporal rule in a migration-private
 caller-zero session: after exact Enter declaration adoption, the first read of
 the unsealed Header creates the sole provisional PHI before Compare/Add. The
 opaque P2A receipt does not expose the PHI lifecycle token or become a second
-reaching-value owner. P1R consumes the Header current; P2B alone may later
-seal and patch it from canonical predecessor truth.
+reaching-value owner. P1R now consumes that whole receipt and emits Compare
+and Add from its Header current while retaining it in the Backedge handoff.
+P2B alone may later define the assignment, seal Header, and patch the PHI from
+canonical predecessor truth.

@@ -24,18 +24,19 @@ CURRENT_STATE.toml
 ```
 
 Current mode is `fast`. Dynamic source/origin, complete Loop source
-coverage, operation-source co-seal, prepared ingress/Enter handoff, and a bounded
-one-iteration operation/rebind P1 canary are closed for the unmodified
-production `skip_while/4` source. The PHI temporal-order correction and P2A
-Header-current opening are closed. The next compiler-side row is:
+coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
+operation/rebind P1, Header-current P2A, and corrected Header-based P1R are
+closed for the unmodified production `skip_while/4` source. The next
+compiler-side row is:
 
 ```text
-DYNAMIC-LOOP-HEADER-REBIND-P1R
+DYNAMIC-LOOP-PHI-CLOSE-P2B
 ```
 
-The previous post-P1-only PHI plan is rejected: landed P1 currently emits
-Compare/Add from Enter, so a PHI created afterward would not be the value used
-by the Loop. Seal one canonical-session sequence instead:
+The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
+Compare/Add from Enter, so a PHI created afterward would not have been the
+value used by the Loop. P1R now follows the accepted canonical-session
+sequence:
 
 ```text
 P2A Header read / provisional PHI
@@ -45,13 +46,14 @@ P2A Header read / provisional PHI
 ```
 
 P2A consumes the R0 exact Enter relation inside one canonical function
-session, creates the bounded physical placement through canonical CFG, adopts
-the existing local value as Enter, and reads the unsealed Header to obtain its
-provisional-PHI current before any Compare/Add. P1R must now consume that
-opaque Header current for Compare/Add and issue one source-backed Dynamic
-Backedge receipt. PHI patching and After remain closed until P2B. Raw incoming
-vectors, route-local PHI writers, backend activation, retry/fallback, and
-source rewrites remain closed. The
+session and opens the provisional Header PHI before operations. P1R consumes
+that whole open product: Compare and Add both use the Header PHI destination,
+and the exact source-backed Dynamic Add result is retained as the terminal
+Backedge definition. P2B must now define that assignment through canonical
+Binding SSA, complete the actual Backedge edge, seal Header, and patch the
+existing PHI from canonical predecessor truth. After, raw incoming vectors,
+route-local PHI writers, backend activation, retry/fallback, and source
+rewrites remain closed. The
 parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
 compiler-side slice.
 

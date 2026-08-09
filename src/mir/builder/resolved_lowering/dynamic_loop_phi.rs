@@ -14,7 +14,7 @@ use crate::mir::{BasicBlockId, ValueId};
 use super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct DynamicLoopPhysicalPlacementV1 {
+pub(in crate::mir::builder) struct DynamicLoopPhysicalPlacementV1 {
     enter: BasicBlockId,
     header: BasicBlockId,
     body_path: BasicBlockId,
@@ -23,49 +23,49 @@ pub(super) struct DynamicLoopPhysicalPlacementV1 {
 }
 
 impl DynamicLoopPhysicalPlacementV1 {
-    pub(super) const fn enter(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn enter(self) -> BasicBlockId {
         self.enter
     }
 
-    pub(super) const fn header(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn header(self) -> BasicBlockId {
         self.header
     }
 
-    pub(super) const fn body_path(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn body_path(self) -> BasicBlockId {
         self.body_path
     }
 
-    pub(super) const fn terminal_backedge(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn terminal_backedge(self) -> BasicBlockId {
         self.terminal_backedge
     }
 
-    pub(super) const fn after(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn after(self) -> BasicBlockId {
         self.after
     }
 }
 
 /// Move-only proof that canonical Binding SSA owns the Dynamic Header current.
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct OpenSourceBackedDynamicLoopCarrierPhiV1 {
+pub(in crate::mir::builder) struct OpenSourceBackedDynamicLoopCarrierPhiV1 {
     ingress: PreparedSourceBackedDynamicLoopIngressV1,
     placement: DynamicLoopPhysicalPlacementV1,
     header_current: CanonicalBindingReadReceiptV1,
 }
 
 impl OpenSourceBackedDynamicLoopCarrierPhiV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.ingress.owner()
     }
 
-    pub(super) const fn loop_site(&self) -> &SourceNodeSiteV1 {
+    pub(in crate::mir::builder) const fn loop_site(&self) -> &SourceNodeSiteV1 {
         self.ingress.loop_site()
     }
 
-    pub(super) const fn binding(&self) -> BindingRefV1 {
+    pub(in crate::mir::builder) const fn binding(&self) -> BindingRefV1 {
         self.header_current.binding()
     }
 
-    pub(super) const fn entry(&self) -> ValueId {
+    pub(in crate::mir::builder) const fn entry(&self) -> ValueId {
         self.ingress.carrier().entry()
     }
 
@@ -73,7 +73,21 @@ impl OpenSourceBackedDynamicLoopCarrierPhiV1 {
         self.header_current
     }
 
-    pub(super) const fn placement(&self) -> DynamicLoopPhysicalPlacementV1 {
+    pub(in crate::mir::builder) const fn header_current_value(&self) -> ValueId {
+        self.header_current.physical_value()
+    }
+
+    pub(in crate::mir::builder) const fn header_current_block(&self) -> BasicBlockId {
+        self.header_current.physical_block()
+    }
+
+    pub(in crate::mir::builder) const fn ingress(
+        &self,
+    ) -> &PreparedSourceBackedDynamicLoopIngressV1 {
+        &self.ingress
+    }
+
+    pub(in crate::mir::builder) const fn placement(&self) -> DynamicLoopPhysicalPlacementV1 {
         self.placement
     }
 

@@ -1768,3 +1768,20 @@ still closed with an explicit fail-fast boundary. The P2A receipt exposes no
 PHI token, raw predecessor list, route-local writer, Compare/Add, PHI patch,
 After value, retry/fallback, backend, or production authority. P1R is the next
 row and must emit Compare/Add from the opaque canonical Header current.
+
+## Dynamic Loop Header-based rebind P1R receipt (2026-08-10)
+
+The migration-private operation terminal now consumes the whole P2A open
+product rather than accepting a prepared ingress and caller-chosen blocks.
+Header and terminal-Backedge placement come only from the canonical physical
+receipt. Both Compare and Add use the same provisional Header PHI destination
+as lhs, and that value is distinct from Enter. The Add result remains
+physically unknown while its exact assignment site, Dynamic origin, and
+terminal-Backedge definition block are retained for P2B.
+
+The P1R output keeps the P2A open product intact, so later closure cannot pair
+the Backedge with a different Header/PHI session. The callable-current update
+from Enter to Add result is migration evidence only; canonical Binding SSA is
+the sole reaching-value authority. No operand rewrite, raw Unknown admission,
+actual Backedge edge, canonical assignment definition, PHI patch, After,
+backend, retry/fallback, or production activation is claimed. P2B is next.
