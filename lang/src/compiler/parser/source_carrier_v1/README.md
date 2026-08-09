@@ -96,9 +96,13 @@ module. H2-S1 is also closed: one atomic parser-private product owns ordered
 and omits transfer syntax. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
 only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
-split. The current S0 adds private numeric lexical parts plus exact
-unsuffixed-decimal admission to the existing scanner while keeping the live
-`JSON@pos` result as a compatibility projection of the same traversal.
+split. S0 is parked because a clean-HEAD direct call to the existing numeric
+scanner already reaches GenericLoop with a carrier whose final ValueId lacks
+an exact transient type. The current carrier-source D0 must identify the exact
+initializer producer before one producer-specific publication row is opened.
+After that canary is green, S0 may add private numeric lexical parts plus exact
+unsuffixed-decimal admission while keeping the live `JSON@pos` result as a
+compatibility projection of the same traversal.
 It does not connect an expression, Return, body, or method product. Later rows
 add the sole return statement product and sole block product. H2-S3 temporarily
 co-owns exact method site, parameter

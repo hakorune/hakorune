@@ -1,5 +1,5 @@
 ---
-Status: ready implementation task
+Status: parked — blocked by exact carrier-source census
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0`
@@ -140,3 +140,37 @@ retry or fallback
 Implementation, focused fixture/guard, scan-owner README/reference receipt,
 current pointers, commit, and push close together. The next row is
 `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`, the sole same-pass Return product.
+
+## Implementation probe receipt
+
+The first implementation probe was intentionally not committed. A direct VM
+fixture calling the existing loop-bearing numeric scanner froze before the new
+lexical product could be exercised:
+
+```text
+[plan/freeze:contract]
+generic_loop_v1 skeleton failed:
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(3) }
+```
+
+The same failure reproduces on clean HEAD with a direct call to the existing
+`ParserNumberScanBox.scan_int("42}", 0)`. It is therefore a pre-existing
+carrier type-publication gap, not evidence against the lexical-parts design.
+
+The selected carrier reaches GenericLoop as `ValueId(3)`, but the exact
+initializer producer is not yet proven. A formal parameter alias, a local
+copy/concatenation result, and other initializer producers must be
+distinguished before choosing the publication owner. `GenericLoop` correctly
+refuses to invent the missing transient type.
+
+The failed implementation is preserved only as:
+
+```text
+stash@{0}: wip/h2-s2-s0 numeric lexical parts
+           (fails generic loop carrier type gate)
+```
+
+Do not resume it until
+`HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0` identifies the exact producer,
+and the resulting producer-specific executable prerequisite is green.
