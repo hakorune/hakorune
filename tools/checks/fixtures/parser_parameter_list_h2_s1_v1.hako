@@ -1,0 +1,98 @@
+using lang.compiler.parser.source_carrier_v1.parser_source_session_v1 as ParserSourceSessionV1Box
+using lang.compiler.parser.source_carrier_v1.source_declaration_refs_v1 as ParserDeclarationRefsV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as ParserParameterSyntaxRecordsV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_list_builder_v1 as ParserParameterListBuilderV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_list_sealer_v1 as ParserParameterListSealerV1Box
+
+static box ParserParameterListH2S1FixtureV1Box {
+  method_source(session) {
+    local box_site = session.next_box_site()
+    local cursor = session.open_member_cursor(box_site)
+    local member_site = cursor.next_direct_member_site()
+    session.finish_member_cursor(cursor)
+    return ParserDeclarationRefsV1Box.method_source(member_site)
+  }
+
+  empty_exact_list() {
+    local session = ParserSourceSessionV1Box.open()
+    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    local result = builder.finish()
+    if result.status() != "Ready" || result.product().parameter_count() != 0 { return 1 }
+    return 0
+  }
+
+  ordered_ordinary_rows() {
+    local session = ParserSourceSessionV1Box.open()
+    local source = me.method_source(session)
+    local builder = ParserParameterListBuilderV1Box.open(source)
+    if builder.add_ordinary("left", "Node") == false { return 11 }
+    if builder.add_ordinary("count", "i64") == false { return 12 }
+    if builder.add_ordinary("right", "Node") == false { return 13 }
+    local result = builder.finish()
+    if result.status() != "Ready" { return 14 }
+    local product = result.product()
+    if product.parameter_count() != 3 { return 15 }
+    local i = 0
+    loop(i < 3) {
+      if product.row(i).site().ordinal() != i { return 16 }
+      if product.row(i).transfer().kind() != "Ordinary" { return 17 }
+      if product.neutral_parameter(i).name() != product.row(i).name() { return 18 }
+      if product.neutral_parameter(i).declared_type_token() != product.row(i).declared_type_token() { return 19 }
+      i = i + 1
+    }
+    if product.method_site().same(source) == false { return 20 }
+    return 0
+  }
+
+  duplicate_and_empty_reject() {
+    local session = ParserSourceSessionV1Box.open()
+    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    if builder.add_ordinary("same", "Node") == false { return 21 }
+    if builder.add_ordinary("same", "Node") != false { return 22 }
+    if builder.row_count() != 1 || builder.state() != "Poisoned" { return 23 }
+    if builder.finish().status() != "InternalCarrierContractViolation" { return 24 }
+
+    local empty_name = ParserParameterListBuilderV1Box.open(me.method_source(ParserSourceSessionV1Box.open()))
+    if empty_name.add_ordinary("", "Node") != false { return 25 }
+    local empty_type = ParserParameterListBuilderV1Box.open(me.method_source(ParserSourceSessionV1Box.open()))
+    if empty_type.add_ordinary("node", "") != false { return 26 }
+    return 0
+  }
+
+  foreign_and_ordinal_reject() {
+    local first_session = ParserSourceSessionV1Box.open()
+    local second_session = ParserSourceSessionV1Box.open()
+    local first = me.method_source(first_session)
+    local second = me.method_source(second_session)
+    local rows = new ArrayBox()
+    local site = ParserParameterSyntaxRecordsV1Box.site(second, 1)
+    local transfer = ParserParameterSyntaxRecordsV1Box.ordinary_transfer()
+    rows.push(ParserParameterSyntaxRecordsV1Box.row(site, "node", "Node", transfer))
+    local result = ParserParameterListSealerV1Box.finish(first, rows, first_session)
+    if result.status() != "InternalCarrierContractViolation" { return 31 }
+    return 0
+  }
+
+  closed_state_rejects() {
+    local session = ParserSourceSessionV1Box.open()
+    local builder = ParserParameterListBuilderV1Box.open(me.method_source(session))
+    builder.add_ordinary("node", "Node")
+    if builder.finish().status() != "Ready" { return 41 }
+    if builder.finish().status() != "InternalCarrierContractViolation" { return 42 }
+    if builder.add_ordinary("late", "Node") != false { return 43 }
+    if builder.state() != "Sealed" || builder.row_count() != 1 { return 44 }
+    return 0
+  }
+
+  run() {
+    local rc = me.empty_exact_list() if rc != 0 { return rc }
+    rc = me.ordered_ordinary_rows() if rc != 0 { return rc }
+    rc = me.duplicate_and_empty_reject() if rc != 0 { return rc }
+    rc = me.foreign_and_ordinal_reject() if rc != 0 { return rc }
+    return me.closed_state_rejects()
+  }
+}
+
+static box Main {
+  main() { return ParserParameterListH2S1FixtureV1Box.run() }
+}

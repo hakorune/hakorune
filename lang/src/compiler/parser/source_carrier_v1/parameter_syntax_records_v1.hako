@@ -1,0 +1,87 @@
+// Parser-only parameter syntax. These records carry no resolver type, Home
+// demand, ABI, or callable behavior meaning.
+box ParserParameterTransferSyntaxV1 {
+  _kind: String
+  birth(kind) { me._kind = kind }
+  kind() { return me._kind }
+}
+
+box ParserParameterSourceSiteV1 {
+  _method_site
+  _ordinal: Integer
+  birth(method_site, ordinal) { me._method_site = method_site me._ordinal = ordinal }
+  method_site() { return me._method_site }
+  ordinal() { return me._ordinal }
+  same(other) {
+    return other != null && me._ordinal == other.ordinal() && me._method_site.same(other.method_site())
+  }
+}
+
+box ParserParameterSyntaxRowV1 {
+  _site
+  _name: String
+  _declared_type_token: String
+  _transfer
+  birth(site, name, declared_type_token, transfer) {
+    me._site = site me._name = name
+    me._declared_type_token = declared_type_token me._transfer = transfer
+  }
+  site() { return me._site }
+  name() { return me._name }
+  declared_type_token() { return me._declared_type_token }
+  transfer() { return me._transfer }
+}
+
+// One-way compatibility view. It borrows one sealed row and deliberately
+// omits transfer syntax and source identity.
+box ParserNeutralParameterDeclV1 {
+  _row
+  birth(row) { me._row = row }
+  name() { return me._row.name() }
+  declared_type_token() { return me._row.declared_type_token() }
+}
+
+box ParserParameterListProductV1 {
+  _method_site
+  _rows: ArrayBox
+  _neutral: ArrayBox
+  _sealed_token
+  birth(method_site, rows, neutral, sealed_token) {
+    me._method_site = method_site me._rows = rows
+    me._neutral = neutral me._sealed_token = sealed_token
+  }
+  method_site() { return me._method_site }
+  parameter_count() { return me._rows.size() }
+  row(index) { return me._rows.get(index) }
+  neutral_parameter(index) { return me._neutral.get(index) }
+  sealed_token() { return me._sealed_token }
+}
+
+box ParserParameterListFinishV1 {
+  _status: String
+  _product
+  _issue: String
+  birth(status, product, issue) {
+    me._status = status me._product = product me._issue = issue
+  }
+  status() { return me._status }
+  product() { return me._product }
+  issue() { return me._issue }
+}
+
+static box ParserParameterSyntaxRecordsV1Box {
+  ordinary_transfer() { return new ParserParameterTransferSyntaxV1("Ordinary") }
+  site(method_site, ordinal) {
+    if method_site == null || ordinal < 0 { return null }
+    return new ParserParameterSourceSiteV1(method_site, ordinal)
+  }
+  row(site, name, declared_type_token, transfer) {
+    return new ParserParameterSyntaxRowV1(site, name, declared_type_token, transfer)
+  }
+  neutral(row) { return new ParserNeutralParameterDeclV1(row) }
+  product(method_site, rows, neutral, sealed_token) {
+    return new ParserParameterListProductV1(method_site, rows, neutral, sealed_token)
+  }
+  ready(product) { return new ParserParameterListFinishV1("Ready", product, "") }
+  failed(issue) { return new ParserParameterListFinishV1("InternalCarrierContractViolation", null, issue) }
+}

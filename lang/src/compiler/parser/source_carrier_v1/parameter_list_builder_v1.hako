@@ -1,0 +1,65 @@
+using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as ParserParameterSyntaxRecordsV1Box
+using lang.compiler.parser.source_carrier_v1.parameter_list_sealer_v1 as ParserParameterListSealerV1Box
+
+box ParserParameterListBuilderV1 {
+  _method_site
+  _rows: ArrayBox
+  _state: String
+  _issue: String
+
+  birth(method_site) {
+    me._method_site = method_site me._rows = new ArrayBox()
+    me._state = "Open" me._issue = ""
+  }
+
+  state() { return me._state }
+  issue() { return me._issue }
+  row_count() { return me._rows.size() }
+
+  add_ordinary(name, declared_type_token) {
+    if me._open() == false { return false }
+    if name == "" { return me._poison("parser.parameter_list.empty_name") }
+    if declared_type_token == "" { return me._poison("parser.parameter_list.empty_type") }
+    if me._duplicate(name) { return me._poison("parser.parameter_list.duplicate_name") }
+    local site = ParserParameterSyntaxRecordsV1Box.site(me._method_site, me._rows.size())
+    local transfer = ParserParameterSyntaxRecordsV1Box.ordinary_transfer()
+    me._rows.push(ParserParameterSyntaxRecordsV1Box.row(site, name, declared_type_token, transfer))
+    return true
+  }
+
+  finish() {
+    if me._state == "Sealed" {
+      return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.double_finish")
+    }
+    if me._state == "Poisoned" { return ParserParameterSyntaxRecordsV1Box.failed(me._issue) }
+    local result = ParserParameterListSealerV1Box.finish(me._method_site, me._rows, me)
+    if result.status() != "Ready" {
+      me._state = "Poisoned" me._issue = result.issue()
+      return result
+    }
+    me._state = "Sealed"
+    return result
+  }
+
+  _duplicate(name) {
+    local i = 0
+    loop(i < me._rows.size()) {
+      if me._rows.get(i).name() == name { return true }
+      i = i + 1
+    }
+    return false
+  }
+  _open() {
+    if me._state == "Open" { return true }
+    if me._issue == "" { me._issue = "parser.parameter_list.mutation_after_close" }
+    return false
+  }
+  _poison(issue) { me._state = "Poisoned" me._issue = issue return false }
+}
+
+static box ParserParameterListBuilderV1Box {
+  open(method_site) {
+    if method_site == null { return null }
+    return new ParserParameterListBuilderV1(method_site)
+  }
+}

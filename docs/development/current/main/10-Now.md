@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`, bounded by the active BoxShape implementation card.
+Current mode is `design_stop`, bounded by the active rich-body consultation.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -35,7 +35,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -52,10 +52,11 @@ use one parser-private atomic parameter product, retain the body result from
 the same parse, and publish only through the existing H3 seal. The current
 H2-S0 is now closed: one program-owned parser source session owns the
 invocation brand/Box order and one fresh member cursor owns each exact Box's
-member order starting at zero. The current H2-S1 adds only one disconnected
-atomic ordinary parameter-list product with exact source rows and one-way
-neutral projections. There is still no parser connection or language
-activation.
+member order starting at zero. H2-S1 is also closed with one disconnected
+atomic ordinary parameter-list product, exact source rows, and one-way neutral
+projections. The current H2-S2 is a design stop: select a same-pass rich body
+result from the existing live grammar without source rescan or JSON
+reconstruction. There is still no parser connection or language activation.
 Home capability and Home Flow remain closed; target,
 Recipe/CallSlot, Builder/MIR, publication, fallback, and production remain
 closed.
@@ -141,8 +142,8 @@ typed syntax carriage (closed)
 -> take declaration syntax preflight (closed NoSafeSlice)
 -> Hako H2/H3 parameter carriage design consultation (closed)
 -> H2-S0 program source session + Box-scoped member cursor (closed)
--> H2-S1 atomic parameter-list product (current)
--> H2-S2 same-pass rich body result
+-> H2-S1 atomic parameter-list product (closed)
+-> H2-S2 same-pass rich body result design (current stop)
 -> H2-I0 bounded ordinary Box direct-method transaction
 -> H3-I0 sole final source seal
 -> take parser/source implementation + Home-demand rows

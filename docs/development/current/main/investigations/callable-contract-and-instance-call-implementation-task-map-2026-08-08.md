@@ -546,12 +546,19 @@ HAKO-PARSER-BOX-SOURCE-SESSION-H2-S0 (closed)
   Task:
   `docs/development/current/main/investigations/hako-parser-box-source-session-h2-s0-implementation-task-2026-08-09.md`
 
-HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1 (current implementation)
+HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1 (closed)
   add one disconnected atomic ordinary parameter-list product with exact
   method-site/ordinal rows and one-way neutral projections; no Take syntax,
   parser connection, resolver, or Home meaning.
   Task:
   `docs/development/current/main/investigations/hako-parser-parameter-list-product-h2-s1-implementation-task-2026-08-09.md`
+
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0 (current design stop)
+  select the existing live grammar owner and one same-pass
+  `ParserNodeProductV1` result before connecting an ordinary method; JSON is
+  projection only and rescan/FuncScanner are forbidden.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1207,13 +1214,20 @@ Rejected > Unresolved > Declined > Candidate
       grammar registry, resolver, Home, and language acceptance closed;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-box-source-session-h2-s0-implementation-task-2026-08-09.md`.
-22A-HOME-TAKE-H2-S1. `HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1` (current)
+22A-HOME-TAKE-H2-S1. `HAKO-PARSER-PARAMETER-LIST-PRODUCT-H2-S1` (closed)
     - issue ordered Ordinary parameter rows from one exact method source site;
     - neutral parameter projection is one-way and carries no transfer meaning;
     - no Take constructor, parser connection, rich body, H3 seal change,
       resolver, Home, or language activation;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-parameter-list-product-h2-s1-implementation-task-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-D0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0` (current design stop)
+    - audit the existing live stmt/block grammar and select one same-pass
+      rich body result plus one-way JSON projection;
+    - no source rescan, FuncScanner/StageB authority, JSON reconstruction,
+      fabricated Typed row, parser connection, or H3 publication;
+    - consultation card:
+      `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

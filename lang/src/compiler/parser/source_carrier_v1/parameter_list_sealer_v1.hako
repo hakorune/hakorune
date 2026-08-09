@@ -1,0 +1,41 @@
+using lang.compiler.parser.source_carrier_v1.parameter_syntax_records_v1 as ParserParameterSyntaxRecordsV1Box
+
+// The only parameter-list product issuer. It defensively validates the full
+// row set before publishing an immutable product.
+static box ParserParameterListSealerV1Box {
+  finish(method_site, rows, sealed_token) {
+    if method_site == null || rows == null || sealed_token == null {
+      return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.seal_input_invalid")
+    }
+    local copied = new ArrayBox() local neutral = new ArrayBox() local i = 0
+    loop(i < rows.size()) {
+      local row = rows.get(i)
+      if me._valid_row(method_site, row, i) == false {
+        return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.row_invalid")
+      }
+      if me._duplicate_before(rows, i, row.name()) {
+        return ParserParameterSyntaxRecordsV1Box.failed("parser.parameter_list.duplicate_name")
+      }
+      copied.push(row)
+      neutral.push(ParserParameterSyntaxRecordsV1Box.neutral(row))
+      i = i + 1
+    }
+    local product = ParserParameterSyntaxRecordsV1Box.product(method_site, copied, neutral, sealed_token)
+    return ParserParameterSyntaxRecordsV1Box.ready(product)
+  }
+
+  _valid_row(method_site, row, expected_ordinal) {
+    if row == null || row.site() == null || row.name() == "" || row.declared_type_token() == "" { return false }
+    if row.site().method_site().same(method_site) == false || row.site().ordinal() != expected_ordinal { return false }
+    return row.transfer() != null && row.transfer().kind() == "Ordinary"
+  }
+
+  _duplicate_before(rows, end, name) {
+    local i = 0
+    loop(i < end) {
+      if rows.get(i).name() == name { return true }
+      i = i + 1
+    }
+    return false
+  }
+}

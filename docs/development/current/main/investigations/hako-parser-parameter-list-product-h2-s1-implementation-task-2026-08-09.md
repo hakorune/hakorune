@@ -1,5 +1,5 @@
 ---
-Status: ready; implementation 0
+Status: closed implementation
 Date: 2026-08-09
 Decision: BoxShape only; add one atomic parser-private ordinary parameter-list product
 Parent: `HAKO-PARSER-TAKE-PARAMETER-CARRIAGE-H2-D0`
@@ -119,10 +119,47 @@ new accepted language shape
 
 ## Done
 
-- [ ] one atomic ordered ordinary parameter-list product exists;
-- [ ] neutral projection is one-way and not a second authority;
-- [ ] missing/duplicate/foreign/closed-state cases fail fast;
-- [ ] parser branches remain disconnected;
-- [ ] focused guard and README are updated;
-- [ ] all touched Hako files remain below 800 lines;
-- [ ] next pointer advances only to H2-S2 after closeout.
+- [x] one atomic ordered ordinary parameter-list product exists;
+- [x] neutral projection is one-way and not a second authority;
+- [x] missing/duplicate/foreign/closed-state cases fail fast;
+- [x] parser branches remain disconnected;
+- [x] focused guard and README are updated;
+- [x] all touched Hako files remain below 800 lines;
+- [x] next pointer advances only to H2-S2 after closeout.
+
+## Implementation receipt
+
+The landed product is split by responsibility:
+
+```text
+parameter_syntax_records_v1.hako
+  immutable syntax rows, source site, neutral borrowed projection, product
+
+parameter_list_builder_v1.hako
+  unpublished ordered mutation; automatic ordinal assignment
+
+parameter_list_sealer_v1.hako
+  full validation and the only product issuance
+```
+
+The first cohort constructs `Ordinary` rows only. Product identity is exact
+method source site plus parameter ordinal; names and type tokens are payload.
+The neutral view borrows a sealed row and cannot carry or reconstruct transfer
+syntax. Empty lists are exact zero coverage, while duplicate/empty/foreign/
+ordinal/lifecycle failures publish no product.
+
+Focused evidence:
+
+```text
+bash tools/checks/hako_parser_parameter_list_h2_s1_guard.sh
+  -> parser_branch_connection=0
+  -> take_syntax_construction=0
+  -> resolver_home_semantics=0
+  -> parameter_ordinals_source_ordered=1
+  -> neutral_projection_one_way=1
+  -> partial_product_publication=0
+  -> source_files_below_800=1
+```
+
+No contextual token, parser branch, method draft, body product, H3 seal,
+resolver relation, or Home meaning landed.

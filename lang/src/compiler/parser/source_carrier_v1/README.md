@@ -88,8 +88,9 @@ H2-S0 is closed: `ParserProgramSourceSessionV1` now owns its invocation brand
 and Box statement order, while each `ParserBoxMemberSourceCursorV1` restarts
 member ordinal at zero for one exact Box. The invocation-wide member-ordinal
 issuer is removed, and the H1 guard limits raw site factories to the session
-module. H2-S1 keeps Clone `ParamDecl` neutral and carries exact
-parameter source rows in a parser-private non-Clone product. H2-S2 must retain
+module. H2-S1 is also closed: one atomic parser-private product owns ordered
+`Ordinary` parameter rows, while its neutral projection borrows sealed rows
+and omits transfer syntax. H2-S2 must retain
 `ParserNodeProductV1` from the same parse; ProgramJSON is only a projection.
 
 `FuncScannerBox`, saved-source rescans, JSON reconstruction, caller-supplied
