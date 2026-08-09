@@ -574,17 +574,32 @@ HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0 (closed)
   Task:
   `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md`
 
-HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0 (parked)
-  declare only `scan_int` formal `i` as `i64`; keep `src` untyped and reuse
-  the existing signature, parameter, local-copy, and GenericLoop owners.
+HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0 (retired as acceptance repair)
+  the source annotation probe was preempted by an earlier `sh_core` Loop and
+  must not be resumed merely to widen the current compiler acceptance.
   Task:
   `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md`
 
-HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0 (current design census)
-  trace exact source `i: i64` through the active imported-static-method path
-  and identify the first owner that drops or ignores the ParamDecl.
+HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0 (parked)
+  no scanner parameter-carriage loss is proven until the earlier dependency
+  blocker is removed.
   Task:
   `docs/development/current/main/investigations/hako-parser-numeric-scan-parameter-carriage-d0-consultation-2026-08-09.md`
+
+HAKO-PARSER-RICH-BODY-S0-DEPENDENCY-CARRIER-D0 (closed)
+  identify the first exact `sh_core` Loop carrier and why the existing
+  verified exact-I64 source-bound result publication does not reach it;
+  select only a compiler-side repair, never a source annotation or Loop
+  default.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-rich-body-s0-dependency-carrier-d0-consultation-2026-08-09.md`
+
+GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0 (current)
+  project exact general SameModuleStatic result rows into the existing sole
+  post-success publication owner; selected missing/duplicate rows freeze and
+  ordinary unselected calls retain their existing terminal.
+  Task:
+  `docs/development/current/main/investigations/general-static-call-result-publication-i0-task-2026-08-09.md`
 
 HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0 (parked)
   add one private numeric lexical-parts result to the existing scanner, admit
@@ -1281,18 +1296,27 @@ Rejected > Unresolved > Declined > Candidate
     - select no publication fix until that producer is proven;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md`.
-22A-HOME-TAKE-H2-S2-CARRIER-I0. `HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0` (parked)
-    - declare only the exact cursor input `i: i64`;
-    - preserve untyped/null-compatible `src`;
-    - prove the existing parameter/local-copy chain reaches GenericLoop;
+22A-HOME-TAKE-H2-S2-CARRIER-I0. `HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0` (retired as acceptance repair)
+    - the probe was preempted by an earlier dependency Loop;
+    - do not change source merely to fit a narrow compiler route;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md`.
-22A-HOME-TAKE-H2-S2-PARAM-CARRIAGE-D0. `HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0` (current)
-    - trace source ParamDecl through the exact active imported-static route;
-    - identify the first loss/ignore boundary before parameter publication;
-    - open no second type publisher or GenericLoop fallback;
+22A-HOME-TAKE-H2-S2-PARAM-CARRIAGE-D0. `HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0` (parked)
+    - no scanner ParamDecl loss is proven while an earlier dependency freezes;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-numeric-scan-parameter-carriage-d0-consultation-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-DEPENDENCY-CARRIER-D0. `HAKO-PARSER-RICH-BODY-S0-DEPENDENCY-CARRIER-D0` (closed)
+    - prove the first exact `sh_core` carrier and source-bound call site;
+    - reuse the existing semantic exact-I64 proof and post-success publisher;
+    - reject source annotation, by-name inference, and GenericLoop defaults;
+    - consultation card:
+      `docs/development/current/main/investigations/hako-parser-rich-body-s0-dependency-carrier-d0-consultation-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-GENERAL-RESULT-I0. `GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0` (current)
+    - consume exact general rows through the existing publication owner;
+    - publish only after one physical Call receipt;
+    - distinguish selected-missing from genuinely unselected calls;
+    - implementation card:
+      `docs/development/current/main/investigations/general-static-call-result-publication-i0-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

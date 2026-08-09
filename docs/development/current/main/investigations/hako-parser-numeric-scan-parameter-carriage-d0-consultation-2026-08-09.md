@@ -1,5 +1,5 @@
 ---
-Status: design census required
+Status: parked — no active-path loss proven; dependency blocker comes first
 Date: 2026-08-09
 Row: `HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0`
 Blocks: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0`
@@ -10,8 +10,8 @@ Mode: BoxShape / exact declaration-carriage census
 
 ## Proven premise
 
-The source-declared `scan_int(src, i: i64)` probe still reaches GenericLoop
-with `MissingTransientType { init: ValueId(3) }`. The local carrier chain is
+The source-declared `scan_int(src, i: i64)` probe reported
+`MissingTransientType { init: ValueId(3) }`. The local carrier chain is
 already known:
 
 ```text
@@ -23,8 +23,12 @@ formal i
   -> GenericLoop
 ```
 
-The open question is now narrower: where does the exact `i64` parameter
-declaration disappear before `setup_function_params` publishes entry facts?
+However, import bisection proved the same freeze with `sh_core` alone. The
+probe therefore did not reach a point where loss of `scan_int`'s parameter
+declaration can be asserted. This D0 is parked, not rejected. It does not
+resume merely because the dependency blocker is removed; a compiler-side
+canary must first prove an actual parameter-carriage loss on the unmodified
+valid source path.
 
 ## Sole census
 

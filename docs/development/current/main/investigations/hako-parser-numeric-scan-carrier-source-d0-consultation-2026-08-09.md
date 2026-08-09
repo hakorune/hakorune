@@ -1,5 +1,5 @@
 ---
-Status: closed — exact source-declared carrier parameter selected
+Status: closed source census — executable blocker attribution corrected later
 Date: 2026-08-09
 Row: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
@@ -120,9 +120,11 @@ truth, not a scanner-name special case or body inference. The existing
 header projection and parameter identity commit may publish it before body
 lowering; the existing local Copy may then propagate it to `j`.
 
-Decision: open exactly one source-declared carrier-parameter I0. Do not add a
-new GenericLoop rule, post-hoc local override, FreeStatic widening, or generic
-header/session abstraction in this bounded fix.
+Historical decision at this source-local census: open one source-declared
+carrier-parameter probe. The later dependency bisection supersedes that
+selection as an acceptance repair. Do not add a new GenericLoop rule,
+post-hoc local override, FreeStatic widening, or generic header/session
+abstraction.
 
 ## Acceptance
 
@@ -138,17 +140,26 @@ H2-S2-S0 remains parked
 one and only one follow-up implementation row named
 ```
 
-All acceptance items are closed by the census above. The follow-up is
-`HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0`.
+This closes the source-local `scan_int` chain only. A later import bisection
+proved that the executable fixture freezes earlier while lowering the
+`sh_core` dependency, so this result must not be cited as the first active
+blocker. The scanner parameter I0 is retired as an acceptance repair;
+reaching `scan_int` later does not reactivate it automatically.
+
+The earlier selection of a source `i: i64` annotation is superseded as an
+acceptance repair. If a later executable reaches `scan_int` and exposes a
+missing semantic/type edge, repair that compiler edge first. Source syntax is
+changed only when the language-level callable contract requires it.
 
 ## Task order after this Decision
 
 ```text
-D0  exact carrier-source/producer census (closed)
-I0  declare exact `i: i64`; reuse existing parameter/copy publication owners
-C0  same I0 slice: clean existing scan_int direct-call exits GenericLoop
+D0  exact scanner-local carrier-source/producer census (closed)
+I0  source annotation probe (retired as acceptance repair)
+D1  first sh_core dependency semantic-result/publication census (closed)
+C0  general exact call-result publication I0 (current)
 R0  resume the stashed H2-S2-S0 lexical-parts implementation
 ```
 
 Each implementation row must update its owner README/reference in the same
-slice. The stashed S0 must not be reapplied until C0 is green.
+slice. The stashed S0 must not be reapplied until compiler-side C0 is green.

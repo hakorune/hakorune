@@ -23,9 +23,11 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The typed integer lexical-parts row and cursor
-parameter I0 are parked while one bounded census traces why source
-`i: i64` does not reach the active parameter TypeContext publication path.
+Current mode is `fast`. The typed integer lexical-parts row and scanner
+cursor annotation row are parked because import bisection proved that the
+fixture freezes earlier in `sh_core`. The closed census proved that the
+semantic result, exact source target, and physical publisher already exist;
+the selected row now connects general exact rows to that one publisher.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -37,7 +39,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-NUMERIC-SCAN-PARAMETER-CARRIAGE-D0
+GENERAL-STATIC-CALL-RESULT-PUBLICATION-I0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -62,11 +64,14 @@ typed `SourceBody[Return(Present, LiteralInt)]` tree and compatibility JSON.
 R0 is closed: `ParserBox` now delegates only compatibility JSON escaping to a
 stateless support owner and is 754 lines. The carrier census proved that
 `local j = i` creates one fresh local Copy and that its owner correctly
-propagates only an existing source type. The current I0 declares only formal
-`i` as `i64`; `src` remains untyped because the compatibility scanner accepts
-`null`. That exact annotation probe still produced the same
-`MissingTransientType`, so the current D0 traces parser/module/header/entry
-carriage to its first loss boundary. Both I0 and S0 stay parked. There is
+propagates only an existing source type. Import bisection then proved that the
+same `MissingTransientType` occurs while lowering `sh_core`, before
+`scan_int` is reached. The scanner source-annotation row is retired as an
+acceptance repair. The closed D0 identified the missing compiler edge between
+the existing semantic result proof and the sole source-bound publication
+owner. The current I0 connects exact general rows to that owner; local Copy
+and GenericLoop remain verifier-only consumers.
+Both the scanner row and S0 stay parked. There is
 still no typed
 expression/Return/body product, method
 connection, Take activation, or language activation.
@@ -159,8 +164,10 @@ typed syntax carriage (closed)
 -> H2-S2 same-pass rich body result design (closed)
 -> H2-S2-R0 ParserBox facade split (closed)
 -> numeric-scan carrier-source D0 (closed)
--> exact carrier parameter I0 (parked after failed probe)
--> parameter-carriage D0 (current design census)
+-> exact carrier parameter I0 (retired as acceptance repair)
+-> parameter-carriage D0 (parked; no loss proven)
+-> first sh_core dependency carrier D0 (closed)
+-> general static call-result publication I0 (current)
 -> H2-S2-S0 private typed integer lexical parts (parked until canary green)
 -> H2-S3 unpublished direct-method transaction
 -> H2-I0 bounded ordinary Box direct-method parser connection

@@ -97,14 +97,17 @@ and omits transfer syntax. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
 only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
 split. S0 is parked because a clean-HEAD direct call to the existing numeric
-scanner already reaches GenericLoop with a carrier whose final ValueId lacks
-an exact transient type. The carrier-source D0 proved that `local j = i`
-creates one fresh local Copy and that formal `i` lacks source type truth. The
-first I0 declared only `i: i64`, kept null-compatible `src` untyped, and
-attempted to reuse the existing parameter/copy owners. The same missing-type
-failure remained, so that I0 is parked while the current carriage D0 traces
-the exact parser/module/header/entry loss boundary. After its canary is green,
-S0 may add private numeric lexical parts plus exact
+scanner reaches GenericLoop with a carrier whose final ValueId lacks an exact
+transient type. The carrier-source D0 proved that `local j = i` creates one
+fresh local Copy. A source `i: i64` probe reported the same failure, but import
+bisection proved that `sh_core` freezes before `scan_int` is lowered. The
+annotation row is retired as an acceptance repair and the parameter-carriage
+D0 is parked without a loss conclusion. The dependency-carrier D0 proved that
+the exact general result row exists but is skipped by the production
+publication owner. The current general-result I0 connects that row to the
+existing sole post-success publisher. No source annotation workaround, local
+type override, or GenericLoop inference is permitted. After the compiler-side
+canary is green, S0 may add private numeric lexical parts plus exact
 unsuffixed-decimal admission while keeping the live `JSON@pos` result as a
 compatibility projection of the same traversal.
 It does not connect an expression, Return, body, or method product. Later rows
