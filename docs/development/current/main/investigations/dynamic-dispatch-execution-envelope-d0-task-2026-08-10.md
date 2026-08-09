@@ -51,7 +51,7 @@ receiver/arguments:
   BorrowedNoEscapeForInvocation
 
 normal result:
-  SelfContainedDynamicCarrierToCaller
+  EndExactlyOnceUnlessForwarded
 ```
 
 `SynchronousNonDetached` and `MaySuspend` are compatible: the next source

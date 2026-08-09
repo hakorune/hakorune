@@ -111,8 +111,8 @@ fn unchanged_full_fixture_issues_one_complete_envelope_per_dynamic_target() {
             DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
         );
         assert_eq!(
-            contract.result_home(),
-            DynamicInvocationResultHomeV1::SelfContainedDynamicCarrierToCaller
+            contract.result_lifecycle(),
+            DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
         );
         let address = contract as *const _;
         if let Some(expected) = contract_address {

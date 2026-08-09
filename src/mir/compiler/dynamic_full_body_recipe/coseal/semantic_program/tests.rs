@@ -7,7 +7,12 @@ use super::{
     fault_cut_points::{
         verify_recipe_fault_cut_points_for_test_v2, DynamicFullLoopFaultCutPointRejectV2,
     },
-    issue_dynamic_full_loop_semantic_program_v2, DynamicFullLoopFaultFamilyV2,
+    invocation_carrier_lifecycle::{
+        verify_recipe_invocation_lifecycle_for_test_v1, DynamicInvocationCarrierLifecycleRejectV1,
+    },
+    issue_dynamic_full_loop_semantic_program_v2,
+    issue_dynamic_invocation_carrier_lifecycle_program_v1, DynamicFullLoopFaultFamilyV2,
+    DynamicInvocationCarrierDestinationRefV1, DynamicInvocationCarrierPublicationV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
     issue_dynamic_full_loop_source_recipe_envelope_v2, tests::fixture,
@@ -64,6 +69,11 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
         local.consumer(),
         crate::mir::loop_recipe_contract::LoopItemKeyV1::new(7)
     );
+    let local_binding = local.binding();
+    let local_scope = local.scope_region();
+    let local_declaration = local.declaration().clone();
+    let local_declaration_statement = local.declaration_statement().clone();
+    let local_read = local.read().clone();
 
     let fault_rows = program.fault_cut_points();
     assert_eq!(
@@ -105,6 +115,63 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
             ),
         ]
     );
+
+    let lifecycle = issue_dynamic_invocation_carrier_lifecycle_program_v1(program)
+        .expect("complete Dynamic invocation-result lifecycle");
+    let rows = lifecycle.invocation_lifecycle();
+    let rows = rows.rows().collect::<Vec<_>>();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].producer(), LoopItemKeyV1::new(6));
+    assert_eq!(rows[0].result(), LoopValueKeyV1::new(10));
+    assert_eq!(
+        rows[0].publication(),
+        DynamicInvocationCarrierPublicationV1::OnNormalResultPublication
+    );
+    match rows[0].destination() {
+        DynamicInvocationCarrierDestinationRefV1::LoopBodyLocal {
+            declaration,
+            declaration_statement,
+            binding,
+            scope_region,
+            read,
+            borrowed_by,
+            input_contract,
+        } => {
+            assert_eq!(declaration, &local_declaration);
+            assert_eq!(declaration_statement, &local_declaration_statement);
+            assert_eq!(binding, local_binding);
+            assert_eq!(scope_region, local_scope);
+            assert_eq!(read, &local_read);
+            assert_eq!(borrowed_by, LoopItemKeyV1::new(7));
+            assert_eq!(
+                input_contract,
+                crate::mir::dynamic_invocation_contract::DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
+            );
+        }
+        other => panic!("unexpected local destination: {other:?}"),
+    }
+    assert_eq!(rows[1].producer(), LoopItemKeyV1::new(7));
+    assert_eq!(rows[1].result(), LoopValueKeyV1::new(11));
+    assert_eq!(
+        rows[1].publication(),
+        DynamicInvocationCarrierPublicationV1::OnNormalResultPublication
+    );
+    match rows[1].destination() {
+        DynamicInvocationCarrierDestinationRefV1::FullExpressionTemporary {
+            boundary_source,
+            boundary_item,
+        } => {
+            assert_eq!(boundary_item, LoopItemKeyV1::new(9));
+            assert_ne!(boundary_source, rows[1].producer_source());
+        }
+        other => panic!("unexpected temporary destination: {other:?}"),
+    }
+    assert!(rows.iter().all(|row| {
+        row.lifecycle()
+            == crate::mir::dynamic_invocation_contract::DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
+    }));
+    assert_eq!(lifecycle.after().loop_key(), LoopNodeKeyV1::new(0));
+    assert_eq!(lifecycle.fault_cut_points().rows().len(), 6);
 }
 
 #[test]
@@ -126,6 +193,62 @@ fn missing_dynamic_envelopes_reject_before_semantic_program_issuance() {
     assert!(
         issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.catalog)
             .is_err()
+    );
+}
+
+#[test]
+fn invocation_lifecycle_recipe_relations_reject_duplicates_and_wrong_boundaries() {
+    let fixture = fixture(true);
+    let recipe = fixture.candidate.artifact.recipe().as_recipe();
+    assert_eq!(
+        verify_recipe_invocation_lifecycle_for_test_v1(
+            recipe,
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(10)),
+            (LoopItemKeyV1::new(7), LoopValueKeyV1::new(11)),
+            LoopValueKeyV1::new(10),
+            LoopItemKeyV1::new(9),
+        ),
+        Ok(())
+    );
+    assert_eq!(
+        verify_recipe_invocation_lifecycle_for_test_v1(
+            recipe,
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(10)),
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(11)),
+            LoopValueKeyV1::new(10),
+            LoopItemKeyV1::new(9),
+        ),
+        Err(DynamicInvocationCarrierLifecycleRejectV1::InvocationCoverage)
+    );
+    assert_eq!(
+        verify_recipe_invocation_lifecycle_for_test_v1(
+            recipe,
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(10)),
+            (LoopItemKeyV1::new(7), LoopValueKeyV1::new(12)),
+            LoopValueKeyV1::new(10),
+            LoopItemKeyV1::new(9),
+        ),
+        Err(DynamicInvocationCarrierLifecycleRejectV1::RecipeRelation)
+    );
+    assert_eq!(
+        verify_recipe_invocation_lifecycle_for_test_v1(
+            recipe,
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(10)),
+            (LoopItemKeyV1::new(7), LoopValueKeyV1::new(11)),
+            LoopValueKeyV1::new(10),
+            LoopItemKeyV1::new(8),
+        ),
+        Err(DynamicInvocationCarrierLifecycleRejectV1::TemporaryBoundary)
+    );
+    assert_eq!(
+        verify_recipe_invocation_lifecycle_for_test_v1(
+            recipe,
+            (LoopItemKeyV1::new(6), LoopValueKeyV1::new(10)),
+            (LoopItemKeyV1::new(7), LoopValueKeyV1::new(11)),
+            LoopValueKeyV1::new(9),
+            LoopItemKeyV1::new(9),
+        ),
+        Err(DynamicInvocationCarrierLifecycleRejectV1::RecipeRelation)
     );
 }
 
@@ -173,4 +296,26 @@ fn semantic_program_surface_has_one_input_and_no_split_or_physical_escape() {
             "Fault catalog must not contain {forbidden}"
         );
     }
+
+    let lifecycle_source = include_str!("invocation_carrier_lifecycle.rs");
+    for forbidden in [
+        "HomeRoot",
+        "HomeDemand",
+        "HomeResultRelation",
+        "BasicBlockId",
+        "ValueId",
+        "into_parts",
+        "runtime tag",
+        "selector ==",
+    ] {
+        assert!(
+            !lifecycle_source.contains(forbidden),
+            "invocation lifecycle must not contain {forbidden}"
+        );
+    }
+    assert!(!lifecycle_source.contains("struct DynamicInvocationCarrierLifecycleRowV1 {\n    pub"));
+    assert!(!lifecycle_source.contains(
+        "derive(Debug, Clone, Copy, PartialEq, Eq)]\nstruct DynamicInvocationCarrierLifecycleRowV1"
+    ));
+    assert!(!lifecycle_source.contains("fn into_parts"));
 }

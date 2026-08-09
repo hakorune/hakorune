@@ -21,9 +21,14 @@ complete resolver source inventory
   one borrow-scoped neutral view. It owns no Home or cleanup meaning.
 - `coseal/semantic_program/` consumes the whole exact envelope, derives one
   non-splittable JoinSig/root-carrier-After closure and the private complete
-  six-site Fault authorization catalog, and lends only borrow-scoped views of
-  those rows plus the existing iteration-local relation. It accepts no raw
-  owner, Recipe, JoinSig, After, Continuation, Fault row, or Completion input.
+  six-site Fault authorization catalog. Its next consuming wrapper derives the
+  complete two-row invocation-result lifecycle catalog: I6/V10 local and
+  I7/V11 temporary, both activated on exact Normal publication and borrowing
+  `EndExactlyOnceUnlessForwarded` from the canonical Dynamic envelope. The
+  views retain exact local/call/boundary source sites and I7's
+  `BorrowedNoEscapeForInvocation` contract. It lends only borrow-scoped views and
+  accepts no raw owner, Recipe, JoinSig, After, Continuation, lifecycle row,
+  Fault row, or Completion input.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
@@ -107,3 +112,18 @@ The full exit transaction remains `NoSafeSlice` until complete Dynamic carrier
 flow, cleanup projection, and the two-Return Completion consumer exist. The
 Home-capability census closed separately as `NoSafeSlice`; no Home is inferred
 from the logical `Dynamic` class or a runtime tag.
+
+## Invocation-result lifecycle (I0)
+
+The semantic program now moves once into
+`VerifiedDynamicInvocationCarrierLifecycleProgramV1`. The private issuer
+rechecks the two exact invocation envelopes, derives the two CallSlot results
+in Recipe order, binds V10 to the existing Loop-body `ch` relation, and binds
+V11 to the exact I9 inner-condition boundary. The two static rows authorize
+lifecycle creation only on Normal result publication; Fault creates no runtime
+carrier instance.
+
+This is complete only for the Dynamic invocation result family. V9/V17
+`DynamicAdd`, callable ingress/rebind/Return, CFG-complete carrier flow,
+physical End, Home, cleanup execution, Completion, and production remain
+unclaimed.

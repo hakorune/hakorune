@@ -54,7 +54,7 @@ Fault/Tail boundaries, and internal After issuance. The behavior-neutral
 common engine R0 is closed. The current executable row is:
 
 ```text
-DYNAMIC-INVOCATION-RESULT-LIFECYCLE-I0
+DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-D0
 ```
 
 The Dynamic local Home-capability census is closed as `NoSafeSlice`: the
@@ -63,8 +63,11 @@ no source-backed `Trivial`/`Unique`/`Shared`/`Weak` classifier. A separate
 accepted carrier-lifecycle Decision now requires every normal
 `SelfContainedDynamicCarrier` to be forwarded or ended exactly once without
 claiming Home. The current bounded I0 retains exact I6/V10 local and I7/V11
-temporary obligations; V9/V17, full carrier flow, Home, cleanup execution,
-Completion, and physical lowering remain closed.
+temporary obligations. That I0 is now closed with
+OnNormalResultPublication authorization and
+the old ResultHome vocabulary removed. The current design stop must select the
+language-wide DynamicAdd lifecycle for V9/V17; full carrier flow, Home,
+cleanup execution, Completion, and physical lowering remain closed.
 
 Message identity remains separate from the atomic semantic envelope. Recipe
 V2 has one honest logical `Dynamic` class, while an external item/source

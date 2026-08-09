@@ -33,8 +33,8 @@ pub(crate) enum DynamicInvocationInputHomeV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicInvocationResultHomeV1 {
-    SelfContainedDynamicCarrierToCaller,
+pub(crate) enum DynamicInvocationResultLifecycleV1 {
+    EndExactlyOnceUnlessForwarded,
 }
 
 /// The one language-wide Dynamic invocation contract.
@@ -75,8 +75,8 @@ impl VerifiedDynamicInvocationExecutionEnvelopeV1 {
         DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
     }
 
-    pub(crate) const fn result_home(&self) -> DynamicInvocationResultHomeV1 {
-        DynamicInvocationResultHomeV1::SelfContainedDynamicCarrierToCaller
+    pub(crate) const fn result_lifecycle(&self) -> DynamicInvocationResultLifecycleV1 {
+        DynamicInvocationResultLifecycleV1::EndExactlyOnceUnlessForwarded
     }
 }
 

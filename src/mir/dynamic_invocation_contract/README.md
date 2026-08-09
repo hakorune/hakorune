@@ -23,8 +23,13 @@ SynchronousNonDetached
 MaySuspend
 CallableBounded Normal(SelfContainedDynamicCarrier) | Fault
 BorrowedNoEscapeForInvocation inputs
-SelfContainedDynamicCarrierToCaller result
+EndExactlyOnceUnlessForwarded result lifecycle
 ```
+
+Every normal result carries one opaque `EndExactlyOnceUnlessForwarded`
+obligation. This is not a Home claim: runtime payload kind selects only the
+physical end mechanism, while source-visible Home classification remains a
+separate resolver/Home Flow authority.
 
 This owner must not import or infer from Recipe, Builder mutation, MIR effects,
 providers, ABI, runtime tags, executable plans, or fallback routes. It issues

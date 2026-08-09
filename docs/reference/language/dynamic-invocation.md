@@ -49,7 +49,10 @@ receiver and arguments:
   BorrowedNoEscapeForInvocation
 
 normal result:
-  SelfContainedDynamicCarrierToCaller
+  SelfContainedDynamicCarrier
+
+result lifecycle:
+  EndExactlyOnceUnlessForwarded
 ```
 
 `OpaqueObservable` is an optimization boundary, not a capability grant. The
@@ -114,6 +117,23 @@ fresh runtime carrier in each iteration. Dynamic carrier flow must prove
 Live carrier across the backedge. End occurs at the exact lexical scope exit,
 not automatically at the last read. A distinct Home Flow is required only
 when an explicit source contract classifies the destination as a Home.
+
+### Landed bounded compiler receipt
+
+The current caller-zero Dynamic full-loop proof consumes its complete semantic
+program and retains exactly two invocation-result lifecycle rows:
+
+```text
+I6 Normal -> V10 -> exact Loop-body local ch
+I7 Normal -> V11 -> exact inner-condition temporary
+I6/I7 Fault -> static authorization remains, no runtime carrier is instantiated
+```
+
+Both static rows authorize lifecycle creation only on exact Normal result
+publication and borrow `EndExactlyOnceUnlessForwarded` from the language-wide
+envelope. A Fault instantiates no runtime carrier. This receipt does not
+cover Dynamic operator results, complete callable carrier flow, Home, physical
+End emission, or production activation.
 
 On `Fault`, no result is published and caller input Homes remain unchanged.
 Effects that happened before the Fault are not rolled back. The invocation is

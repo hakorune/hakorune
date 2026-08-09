@@ -4,6 +4,7 @@
 //! caller-supplied owner, Recipe, JoinSig, After, Continuation, or Completion.
 
 mod fault_cut_points;
+mod invocation_carrier_lifecycle;
 
 #[cfg(test)]
 mod tests;
@@ -21,11 +22,24 @@ pub(in crate::mir) use fault_cut_points::{
     DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
     DynamicFullLoopFaultFamilyV2,
 };
+use invocation_carrier_lifecycle::{
+    issue_invocation_carrier_lifecycle_v1, DynamicInvocationCarrierLifecycleRejectV1,
+    VerifiedDynamicInvocationCarrierLifecycleCatalogV1,
+};
+pub(in crate::mir) use invocation_carrier_lifecycle::{
+    DynamicInvocationCarrierDestinationRefV1, DynamicInvocationCarrierLifecycleCatalogRefV1,
+    DynamicInvocationCarrierLifecycleRowRefV1, DynamicInvocationCarrierPublicationV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicFullLoopSemanticProgramRejectV2 {
     FaultCutPoints,
     JoinClosure(LoopJoinClosureRejectV2),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum DynamicInvocationCarrierLifecycleProgramRejectV1 {
+    Lifecycle(DynamicInvocationCarrierLifecycleRejectV1),
 }
 
 /// Borrow-only view of the exact After retained by the semantic program.
@@ -58,6 +72,30 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl> 
     envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>,
     fault_cut_points: VerifiedDynamicFullLoopFaultCutPointCatalogV2,
     control: VerifiedLoopJoinClosureV2,
+}
+
+/// The complete Dynamic semantic program plus the complete invocation-result
+/// lifecycle family. It stays non-splittable and owns no Home/physical state.
+#[derive(Debug)]
+pub(in crate::mir) struct VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl> {
+    program: VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
+    invocation_lifecycle: VerifiedDynamicInvocationCarrierLifecycleCatalogV1,
+}
+
+impl VerifiedDynamicInvocationCarrierLifecycleProgramV1<'_, '_> {
+    pub(in crate::mir) fn invocation_lifecycle(
+        &self,
+    ) -> DynamicInvocationCarrierLifecycleCatalogRefV1<'_> {
+        self.invocation_lifecycle.borrow()
+    }
+
+    pub(in crate::mir) fn after(&self) -> DynamicFullLoopAfterRefV2<'_> {
+        self.program.after()
+    }
+
+    pub(in crate::mir) fn fault_cut_points(&self) -> DynamicFullLoopFaultCutPointCatalogRefV2<'_> {
+        self.program.fault_cut_points()
+    }
 }
 
 impl VerifiedDynamicFullLoopSemanticProgramV2<'_, '_> {
@@ -95,5 +133,19 @@ pub(in crate::mir) fn issue_dynamic_full_loop_semantic_program_v2<'env, 'decl>(
         envelope,
         fault_cut_points,
         control,
+    })
+}
+
+pub(in crate::mir) fn issue_dynamic_invocation_carrier_lifecycle_program_v1<'env, 'decl>(
+    program: VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
+) -> Result<
+    VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl>,
+    DynamicInvocationCarrierLifecycleProgramRejectV1,
+> {
+    let invocation_lifecycle = issue_invocation_carrier_lifecycle_v1(&program)
+        .map_err(DynamicInvocationCarrierLifecycleProgramRejectV1::Lifecycle)?;
+    Ok(VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
+        program,
+        invocation_lifecycle,
     })
 }
