@@ -23,16 +23,16 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The current design stop is:
+The current bounded implementation row is:
 
 ```text
-CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -48,14 +48,15 @@ owner-bearing forest/function, root/body receipt, and body coverage. Owner-
 binding D0/I0 is closed: the non-`Clone` owner-link consumes only the selected
 Query body projection and existing resolver-issued carrier/catalog; the carrier
 root is the exact resolved-function input and no second owner issuer exists.
-The owner-link I0 is closed, but the body-facts audit is `NoSafeSlice`:
-`VerifiedResolvedFunctionV1` and its source-site inventory lack neutral
-expression/statement kind, field/method identity, return-value relation, and
-complete effect/control evidence. The next row must define one AST-free
-resolver body-shape inventory during the existing parser-private syntax lease.
-Only after that issuer lands may the bounded Query body observer open. No
-conformance, target, Recipe/CallSlot, Builder/MIR, or production work is open.
-
+The owner-link I0 is closed, and the resolved-shape D0 is accepted. The body-
+facts audit found that `VerifiedResolvedFunctionV1` and its source-site
+inventory lack neutral expression/statement kind, field/method identity,
+return-value relation, and complete effect/control evidence. The current I0
+extends the existing parser-private syntax lease and shadow traversal with
+one neutral AST-free shape inventory, bounded to receiver lexical reads and
+ordinary returns. Direct field/state authority remains closed. Only after
+this I0 lands may the bounded Query body observer open. No conformance,
+target, Recipe/CallSlot, Builder/MIR, or production work is open.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,

@@ -1,5 +1,5 @@
 ---
-Status: current design stop; NoSafeSlice resolved into issuer design
+Status: accepted design; I0 implementation not landed
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -15,9 +15,10 @@ identity, bindings, assignments, calls, exits, and coverage membership, but
 they do not expose enough neutral body meaning to distinguish the bounded
 receiver-read/ordinary-return shape without reopening AST or guessing by
 name/ordinal. The result is development `NoSafeSlice`, not a source
-disposition.
+disposition. This D0 now closes the missing issuer boundary and opens one
+bounded I0; it does not claim that body facts or conformance are implemented.
 
-The next row is a separate resolver-side issuer design:
+The next row is the resolver-side issuer implementation:
 
 ```text
 same parser-private syntax lease / canonical resolver traversal
@@ -31,6 +32,25 @@ same parser-private syntax lease / canonical resolver traversal
 The owner link remains unchanged. This row must not reopen the parser
 transaction, add a second owner issuer, or make Query the owner of general
 body source meaning.
+
+## Canonical issuer and product
+
+The only public issuer is a resolver-session operation that extends the
+existing shadow traversal and seals neutral shape rows at the same time as
+the exact `VerifiedResolvedFunctionV1` root:
+
+```text
+FunctionSemanticResolverSessionV1::resolve_with_body_shape(view)
+  -> ResolvedFunctionBodyShapeProductV1
+       - exact owner-bearing VerifiedResolvedFunctionV1
+       - VerifiedResolvedBodyShapeInventoryV1
+```
+
+The shadow traversal records private rows while it owns the borrowed
+`FunctionSyntaxViewV1`; canonicalization converts them into one non-`Clone`
+body-shape catalog branded by the same owner, body root, parser provenance,
+resolver brand, and ordered source coverage. A second AST walker, caller map,
+or post-seal `Verified*::new` constructor is not allowed.
 
 ## Authority split
 
@@ -85,6 +105,33 @@ bounded Query cohort is narrowed to receiver lexical reads only, record that
 explicitly. If direct receiver state reads remain required, add a separate
 field/state declaration issuer D0; do not use Builder-only field declarations
 as resolver authority.
+
+The neutral rows are fixed at this level for I0; they are not a second Recipe:
+
+```text
+BodyStatementShapeV1:
+  SequenceItem { site }
+  Return { site, value: Option<SourceExprSiteV1> }
+
+BodyExpressionShapeV1:
+  Variable { site, resolved: ResolvedLexicalRefV1 }
+  Me { site, receiver: BindingRefV1 }
+  FieldAccess { site, object: SourceExprSiteV1, field: Box<str> }
+  MethodCall { site, object: SourceExprSiteV1, method: Box<str>, arity: u32 }
+  Other { site, kind: BodyExpressionKindV1 }
+
+BodyEffectShapeV1:
+  Write | Allocation | Call | Await | QMark | Throw | NonLocalControl
+
+BodyShapeRelationV1:
+  parent statement/expression site -> exact child site + role
+```
+
+The first I0 cohort is explicitly narrowed to receiver lexical reads (`Me` /
+resolved receiver binding) and ordinary return value relations. Direct
+receiver field/state reads remain outside I0 until a separate resolver-owned
+field/state declaration issuer D0 exists; Builder-only field declarations are
+never resolver authority.
 
 ## Required product shape
 
@@ -147,18 +194,18 @@ empty/default verified inventory
 ## Implementation order after this D0
 
 ```text
-1. inventory existing resolver/syntax evidence and field-state authority
-2. fix the neutral vocabulary and canonical issuer boundary in this D0
-3. implement one bounded AST-free shape-inventory issuer
-4. add exact positive/negative coverage tests and module/reference receipts
+1. implement the resolver-session shape ledger and canonical conversion
+2. add the bounded receiver-lexical-read/ordinary-return positive fixture
+3. add exact negative coverage and same-session/provenance guards
+4. update module/reference receipts in the same I0 commit
 5. reopen CALLABLE-BODY-FACTS-QUERY-I0 as a private projection only
-6. keep body conformance, publishable catalog, target, Recipe/CallSlot, MIR,
-   and production closed
+6. keep direct field/state authority, body conformance, publishable catalog,
+   target, Recipe/CallSlot, MIR, and production closed
 ```
 
-No implementation, fixture, or `CURRENT_STATE` fast-mode transition is
-authorized by this design row. The next implementation may open only after
-the issuer has a complete source authority and the fast gate is specified.
+This D0 authorizes only the bounded I0 above. It does not authorize direct
+field/state reads, generic body facts, conformance, target, Recipe/CallSlot,
+MIR, or production.
 
 ## Non-claims
 

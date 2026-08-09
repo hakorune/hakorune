@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, and catalog-level body-owner binding I0 landed; the current body-facts frontier is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0` because the existing resolved function product lacks neutral expression/statement/effect evidence; body facts/conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, catalog-level body-owner binding I0, and resolved body-shape issuer D0 landed; the current bounded implementation is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0` for receiver lexical reads and ordinary returns; direct field/state authority, body facts/conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -177,7 +177,8 @@ landed. Body facts remain closed until a separate resolver-side, profile-neutral
 AST-free body-shape inventory is issued during the existing syntax lease. The
 current `VerifiedResolvedFunctionV1` has no expression/statement kind,
 field/method identity, return-value relation, or complete effect/control
-vocabulary, so the body-shape issuer is a required `NoSafeSlice` design row.
+vocabulary, so the resolved-shape D0 fixed a canonical issuer and the current
+bounded I0 is limited to receiver lexical reads and ordinary returns.
 Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and
@@ -240,12 +241,14 @@ carrier/catalog. The carrier root is the exact resolved-function input; the
 link accepts no second function array, re-resolves nothing, and issues no
 owner. It compares parser provenance, resolver brand, nominal/source site,
 diagnostic name agreement, and exact ordered body coverage; empty coverage is
-valid and non-Query carrier rows remain unselected extras. The next design
-stop is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0`: the current resolved
-function product lacks neutral expression/statement/effect/control evidence,
-so body facts remain parked until one AST-free resolver shape inventory is
-issued during the existing syntax lease. Conformance, target, Recipe/CallSlot,
-and physical lowering remain closed.
+valid and non-Query carrier rows remain unselected extras. The resolved-shape
+D0 is accepted and its current implementation row is
+`CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0`: the existing shadow traversal must
+issue one neutral AST-free inventory for receiver lexical reads and ordinary
+returns, co-sealed to the exact owner/body root and source provenance. Direct
+field/state authority remains a separate design row. Body facts remain parked
+until this inventory lands. Conformance, target, Recipe/CallSlot, and physical
+lowering remain closed.
 
 ## Receiver Home rule
 

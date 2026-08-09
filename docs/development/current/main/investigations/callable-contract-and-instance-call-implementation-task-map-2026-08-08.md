@@ -555,15 +555,24 @@ CALLABLE-BODY-OWNER-BINDING-I0 (closed 2026-08-09)
   foreign brand/provenance, missing/duplicate exact carrier identity,
   site/nominal mismatch, and coverage mismatch. No body facts or conformance.
 
-CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0 (current design stop after owner binding)
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0 (accepted design; I0 ready)
   the current `VerifiedResolvedFunctionV1` lacks the neutral expression,
   statement, return-value, field/method, and effect/control evidence needed by
-  the bounded Query observer. Define one AST-free resolver issuer during the
-  existing parser-private syntax lease; no parser transport reopening, second
-  owner issuer, body facts, conformance, target, Recipe/CallSlot, Builder, MIR,
-  or production.
+  the bounded Query observer. The accepted correction is one AST-free
+  resolver-session issuer during the existing parser-private syntax lease;
+  its neutral inventory is co-sealed with the exact resolved function/body
+  root, parser provenance, resolver brand, source sites, and coverage. No
+  parser transport reopening or second owner issuer.
 
-CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind resolved-shape issuer)
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0 (current bounded implementation)
+  issue the neutral inventory for receiver lexical `Me`/receiver-binding reads
+  and ordinary return value relations. Direct field/state authority,
+  conformance, target, Recipe/CallSlot, Builder, MIR, and production remain
+  closed.
+  Task:
+  `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`
+
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind resolved-shape issuer I0)
   observe the bounded receiver-read/return body through the branded owner link
   only after the neutral shape inventory exists; no public contract
   re-inference, target, Recipe, or MIR.
@@ -1000,7 +1009,7 @@ Rejected > Unresolved > Declined > Candidate
       function product; focused tests cover sparse Query rows, empty body,
       non-Query extras, and foreign parser provenance;
     - no body facts or conformance.
-21. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0` (current design stop)
+21. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0` (accepted design; 2026-08-09)
     - the current `VerifiedResolvedFunctionV1` lacks expression/statement
       kind, field/method identity, return-value relation, and complete
       effect/control evidence;
@@ -1013,7 +1022,15 @@ Rejected > Unresolved > Declined > Candidate
       Builder, MIR, or production;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md`.
-21A. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (parked behind resolved-shape issuer)
+21A. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-I0` (current implementation)
+    - extend the existing resolver shadow traversal with one neutral,
+      profile-free AST-free shape inventory; first cohort is receiver lexical
+      `Me`/receiver-binding reads plus ordinary return value relations;
+    - co-seal exact function/body root, parser provenance, resolver brand,
+      source sites, and complete coverage; no second owner issuer;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md`.
+21B. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (parked behind resolved-shape issuer)
     - project the general neutral body-shape inventory through the branded
       owner link and the aggregate-owned selected Query view;
     - issue source-derived facts only; no replacement Query/Home/signature,
