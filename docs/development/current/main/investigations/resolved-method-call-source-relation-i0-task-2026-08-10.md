@@ -1,5 +1,5 @@
 ---
-Status: ready after Dynamic dispatch D0
+Status: landed
 Date: 2026-08-10
 Row: `RESOLVED-METHOD-CALL-SOURCE-RELATION-I0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
@@ -73,3 +73,30 @@ no name-based classification or fallback
 
 Implementation and focused tests update `src/mir/resolved_semantics/README.md`
 and the public Generic Loop stage reference in the same commit.
+
+## Implementation receipt
+
+Landed on 2026-08-10.
+
+```text
+shadow MethodCall traversal
+  -> exact Receiver relation
+  -> exact Argument(0..arity) relations
+
+body-shape seal
+  -> checked u32 arity
+  -> complete child expression inventory
+
+resolved function seal
+  -> VerifiedResolvedMethodCallSourceV1 map
+  -> CallableSemanticSourceLedgerView::method_calls()
+```
+
+Focused coverage proves:
+
+```text
+ordinary two-argument MethodCall exact receiver/argument/result rows
+missing / duplicate / reordered argument rejection
+unchanged production skip_while/4 substring/2 + indexOf/1 parity
+zero target / Recipe / Builder / runtime activation
+```

@@ -94,7 +94,7 @@ pub(crate) struct ShadowBodyShapeDraftV0 {
     pub(crate) statements: BTreeMap<SourceStmtSiteV1, ShadowStatementShapeV0>,
     pub(crate) expressions: BTreeMap<SourceExprSiteV1, ShadowExpressionShapeV0>,
     pub(crate) effects: BTreeSet<(SourceExprSiteV1, BodyEffectKindV1)>,
-    pub(crate) relations: BTreeSet<BodyShapeRelationV0>,
+    pub(crate) relations: Vec<BodyShapeRelationV0>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -125,7 +125,7 @@ pub(crate) enum ShadowExpressionShapeV0 {
         site: SourceExprSiteV1,
         object: SourceExprSiteV1,
         method: Box<str>,
-        arity: u32,
+        arity: usize,
     },
     Other {
         site: SourceExprSiteV1,
@@ -148,6 +148,93 @@ pub(crate) struct VerifiedResolvedBodyShapeInventoryV1 {
     expressions: Box<[BodyExpressionShapeV1]>,
     effects: Box<[BodyEffectShapeV1]>,
     relations: Box<[BodyShapeRelationV1]>,
+}
+
+/// One ordered source argument belonging to an exact resolved MethodCall.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedMethodCallArgumentSourceV1 {
+    ordinal: u32,
+    site: SourceExprSiteV1,
+}
+
+impl ResolvedMethodCallArgumentSourceV1 {
+    pub(crate) const fn ordinal(&self) -> u32 {
+        self.ordinal
+    }
+
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+}
+
+/// Reusable AST-free source relation for one ordinary MethodCall expression.
+///
+/// This relation deliberately owns no dispatch family, target, ABI, effect,
+/// Home, Recipe, or physical value classification.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedResolvedMethodCallSourceV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceExprSiteV1,
+    receiver_site: SourceExprSiteV1,
+    arguments: Box<[ResolvedMethodCallArgumentSourceV1]>,
+    result_site: SourceExprSiteV1,
+    selector: Box<str>,
+    arity: u32,
+}
+
+impl VerifiedResolvedMethodCallSourceV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+
+    pub(crate) fn arguments(&self) -> &[ResolvedMethodCallArgumentSourceV1] {
+        &self.arguments
+    }
+
+    pub(crate) const fn result_site(&self) -> &SourceExprSiteV1 {
+        &self.result_site
+    }
+
+    pub(crate) fn selector(&self) -> &str {
+        &self.selector
+    }
+
+    pub(crate) const fn arity(&self) -> u32 {
+        self.arity
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ResolvedMethodCallSourceIssueV1 {
+    MissingReceiverRelation(SourceExprSiteV1),
+    DuplicateReceiverRelation(SourceExprSiteV1),
+    ReceiverSourceMismatch(SourceExprSiteV1),
+    MissingArgumentRelation {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
+    DuplicateArgumentRelation {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
+    ArgumentSourceMismatch {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
+    UnexpectedArgumentRelation {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
+    ChildOutsideExpressionInventory(SourceExprSiteV1),
+    DuplicateCallSite(SourceExprSiteV1),
 }
 
 /// One resolver-issued function plus its neutral body-shape authority.
@@ -213,6 +300,205 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
     pub(crate) fn relations(&self) -> &[BodyShapeRelationV1] {
         &self.relations
     }
+}
+
+pub(crate) fn issue_resolved_method_call_sources_v1(
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+) -> Result<
+    BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    ResolvedMethodCallSourceIssueV1,
+> {
+    issue_resolved_method_call_sources_from_rows_v1(
+        shape.owner(),
+        shape.expressions(),
+        shape.relations(),
+    )
+}
+
+fn issue_resolved_method_call_sources_from_rows_v1(
+    owner: FunctionOwnerIdV1,
+    expressions: &[BodyExpressionShapeV1],
+    relations: &[BodyShapeRelationV1],
+) -> Result<
+    BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    ResolvedMethodCallSourceIssueV1,
+> {
+    let expression_sites = expressions
+        .iter()
+        .map(expression_shape_site)
+        .collect::<BTreeSet<_>>();
+    let mut issued = BTreeMap::new();
+
+    for expression in expressions {
+        let BodyExpressionShapeV1::MethodCall {
+            site,
+            object,
+            method,
+            arity,
+        } = expression
+        else {
+            continue;
+        };
+
+        let receiver_rows = relations
+            .iter()
+            .filter(|row| row.parent == *site.node() && row.role == SourcePathSegmentV1::Receiver)
+            .collect::<Vec<_>>();
+        let receiver = match receiver_rows.as_slice() {
+            [] => {
+                return Err(ResolvedMethodCallSourceIssueV1::MissingReceiverRelation(
+                    site.clone(),
+                ))
+            }
+            [row] => row.child.clone(),
+            _ => {
+                return Err(ResolvedMethodCallSourceIssueV1::DuplicateReceiverRelation(
+                    site.clone(),
+                ))
+            }
+        };
+        if receiver != *object {
+            return Err(ResolvedMethodCallSourceIssueV1::ReceiverSourceMismatch(
+                site.clone(),
+            ));
+        }
+        if !expression_sites.contains(&receiver) {
+            return Err(ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(receiver));
+        }
+
+        let argument_rows = relations
+            .iter()
+            .filter_map(|row| {
+                (row.parent == *site.node())
+                    .then_some(&row.role)
+                    .and_then(|role| match role {
+                        SourcePathSegmentV1::Argument(ordinal) => Some((*ordinal, &row.child)),
+                        _ => None,
+                    })
+            })
+            .collect::<Vec<_>>();
+        for (ordinal, _) in &argument_rows {
+            if *ordinal >= *arity {
+                return Err(
+                    ResolvedMethodCallSourceIssueV1::UnexpectedArgumentRelation {
+                        site: site.clone(),
+                        ordinal: *ordinal,
+                    },
+                );
+            }
+        }
+
+        let mut arguments = Vec::with_capacity(*arity as usize);
+        for ordinal in 0..*arity {
+            let rows = argument_rows
+                .iter()
+                .filter(|(actual, _)| *actual == ordinal)
+                .collect::<Vec<_>>();
+            let argument_site = match rows.as_slice() {
+                [] => {
+                    return Err(ResolvedMethodCallSourceIssueV1::MissingArgumentRelation {
+                        site: site.clone(),
+                        ordinal,
+                    })
+                }
+                [(_, child)] => (*child).clone(),
+                _ => {
+                    return Err(ResolvedMethodCallSourceIssueV1::DuplicateArgumentRelation {
+                        site: site.clone(),
+                        ordinal,
+                    })
+                }
+            };
+            let expected = super::source_site::SourcePathV1::from_node(site.node())
+                .child(SourcePathSegmentV1::Argument(ordinal))
+                .expr();
+            if argument_site != expected {
+                return Err(ResolvedMethodCallSourceIssueV1::ArgumentSourceMismatch {
+                    site: site.clone(),
+                    ordinal,
+                });
+            }
+            if !expression_sites.contains(&argument_site) {
+                return Err(
+                    ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(argument_site),
+                );
+            }
+            arguments.push(ResolvedMethodCallArgumentSourceV1 {
+                ordinal,
+                site: argument_site,
+            });
+        }
+
+        let relation = VerifiedResolvedMethodCallSourceV1 {
+            owner,
+            site: site.clone(),
+            receiver_site: receiver,
+            arguments: arguments.into_boxed_slice(),
+            result_site: site.clone(),
+            selector: method.clone(),
+            arity: *arity,
+        };
+        if issued.insert(site.clone(), relation).is_some() {
+            return Err(ResolvedMethodCallSourceIssueV1::DuplicateCallSite(
+                site.clone(),
+            ));
+        }
+    }
+
+    Ok(issued)
+}
+
+#[cfg(test)]
+pub(crate) fn issue_resolved_method_call_sources_with_relations_for_test(
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+    relations: &[BodyShapeRelationV1],
+) -> Result<
+    BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    ResolvedMethodCallSourceIssueV1,
+> {
+    issue_resolved_method_call_sources_from_rows_v1(shape.owner(), shape.expressions(), relations)
+}
+
+fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
+    match expression {
+        BodyExpressionShapeV1::Variable { site, .. }
+        | BodyExpressionShapeV1::Me { site, .. }
+        | BodyExpressionShapeV1::FieldAccess { site, .. }
+        | BodyExpressionShapeV1::MethodCall { site, .. }
+        | BodyExpressionShapeV1::Other { site, .. } => site.clone(),
+    }
+}
+
+fn seal_shadow_body_shape_relations(
+    rows: Vec<BodyShapeRelationV0>,
+) -> Result<Box<[BodyShapeRelationV1]>, &'static str> {
+    let mut exact_relations = BTreeSet::new();
+    for relation in rows {
+        if !exact_relations.insert(relation) {
+            return Err("duplicate body-shape source relation");
+        }
+    }
+    Ok(exact_relations
+        .into_iter()
+        .map(|row| BodyShapeRelationV1 {
+            parent: row.parent,
+            role: row.role,
+            child: row.child,
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice())
+}
+
+#[cfg(test)]
+pub(crate) fn duplicate_shadow_body_shape_relation_rejects_for_test(
+    row: &BodyShapeRelationV1,
+) -> bool {
+    let row = BodyShapeRelationV0 {
+        parent: row.parent.clone(),
+        role: row.role.clone(),
+        child: row.child.clone(),
+    };
+    seal_shadow_body_shape_relations(vec![row.clone(), row]).is_err()
 }
 
 pub(crate) fn seal_shadow_body_shape(
@@ -295,12 +581,16 @@ pub(crate) fn seal_shadow_body_shape(
                 object,
                 method,
                 arity,
-            } => Ok(BodyExpressionShapeV1::MethodCall {
-                site,
-                object,
-                method,
-                arity,
-            }),
+            } => {
+                let arity = u32::try_from(arity)
+                    .map_err(|_| "method-call arity exceeds resolver source identity")?;
+                Ok(BodyExpressionShapeV1::MethodCall {
+                    site,
+                    object,
+                    method,
+                    arity,
+                })
+            }
             ShadowExpressionShapeV0::Other { site, kind } => {
                 Ok(BodyExpressionShapeV1::Other { site, kind })
             }
@@ -314,16 +604,7 @@ pub(crate) fn seal_shadow_body_shape(
         .map(|(site, kind)| BodyEffectShapeV1 { site, kind })
         .collect::<Vec<_>>()
         .into_boxed_slice();
-    let relations = draft
-        .relations
-        .into_iter()
-        .map(|row| BodyShapeRelationV1 {
-            parent: row.parent,
-            role: row.role,
-            child: row.child,
-        })
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
+    let relations = seal_shadow_body_shape_relations(draft.relations)?;
 
     Ok(VerifiedResolvedBodyShapeInventoryV1 {
         owner,
@@ -382,7 +663,7 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                     .child(SourcePathSegmentV1::Receiver)
                     .expr(),
                 method: method.clone().into_boxed_str(),
-                arity: arguments.len() as u32,
+                arity: arguments.len(),
             },
             _ => ShadowExpressionShapeV0::Other {
                 site: site.clone(),
@@ -422,7 +703,7 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         role: SourcePathSegmentV1,
         child: SourceExprSiteV1,
     ) {
-        self.body_shape.relations.insert(BodyShapeRelationV0 {
+        self.body_shape.relations.push(BodyShapeRelationV0 {
             parent,
             role,
             child,

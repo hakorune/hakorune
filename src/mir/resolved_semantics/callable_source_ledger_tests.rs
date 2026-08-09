@@ -37,6 +37,15 @@ fn variable(name: &str) -> ASTNode {
     }
 }
 
+fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::MethodCall {
+        object: Box::new(object),
+        method: method.into(),
+        arguments,
+        span: Span::unknown(),
+    }
+}
+
 fn local(name: &str, value: ASTNode) -> ASTNode {
     ASTNode::Local {
         variables: vec![name.into()],
@@ -97,7 +106,7 @@ fn ledger_exposes_typed_rows_and_resolver_identity_without_a_copy() {
     assert!(view.family_count(CallableSourceRowFamilyV1::Declaration) > 0);
     assert!(view.family_count(CallableSourceRowFamilyV1::AssignmentTarget) > 0);
     assert!(view.family_count(CallableSourceRowFamilyV1::LoopMembership) > 0);
-    assert_eq!(CallableSourceRowFamilyV1::ALL.len(), 7);
+    assert_eq!(CallableSourceRowFamilyV1::ALL.len(), 8);
     for family in CallableSourceRowFamilyV1::ALL {
         let disposition = view.family_disposition(family);
         assert_eq!(disposition.count(), view.family_count(family));
@@ -114,11 +123,59 @@ fn ledger_exposes_typed_rows_and_resolver_identity_without_a_copy() {
         view.family_disposition(CallableSourceRowFamilyV1::DirectCall),
         CallableSourceRowDispositionV1::Empty
     ));
+    assert!(matches!(
+        view.family_disposition(CallableSourceRowFamilyV1::MethodCall),
+        CallableSourceRowDispositionV1::Empty
+    ));
     assert_eq!(
         view.family_disposition(CallableSourceRowFamilyV1::Declaration)
             .count(),
         1
     );
+}
+
+#[test]
+fn ledger_seals_method_call_receiver_arguments_and_result_without_ast_borrows() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Return {
+            value: Some(Box::new(method_call(
+                variable("text"),
+                "slice",
+                vec![literal(1), literal(2)],
+            ))),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let rows = view.method_calls().collect::<Vec<_>>();
+
+    assert_eq!(rows.len(), 1);
+    let (site, row) = rows[0];
+    assert_eq!(row.owner(), owner);
+    assert_eq!(row.site(), site);
+    assert_eq!(row.result_site(), site);
+    assert_eq!(row.selector(), "slice");
+    assert_eq!(row.arity(), 2);
+    assert_eq!(
+        row.arguments()
+            .iter()
+            .map(|argument| argument.ordinal())
+            .collect::<Vec<_>>(),
+        vec![0, 1]
+    );
+    assert!(view
+        .source_site_inventory()
+        .contains_expression(row.receiver_site()));
+    assert!(row.arguments().iter().all(|argument| view
+        .source_site_inventory()
+        .contains_expression(argument.site())));
+    assert_eq!(view.family_count(CallableSourceRowFamilyV1::MethodCall), 1);
 }
 
 #[test]

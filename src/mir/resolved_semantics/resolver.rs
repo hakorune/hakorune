@@ -6,7 +6,8 @@ use std::sync::Arc;
 use hakorune_mir_core::BindingId;
 
 use super::body_shape::{
-    seal_shadow_body_shape, ResolvedFunctionBodyShapeProductV1,
+    issue_resolved_method_call_sources_v1, seal_shadow_body_shape,
+    ResolvedFunctionBodyShapeProductV1, ResolvedMethodCallSourceIssueV1,
     VerifiedResolvedBodyShapeInventoryV1,
 };
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
@@ -51,6 +52,7 @@ pub(crate) enum ResolveFunctionErrorV1 {
     Syntax(ShadowResolveErrorV0),
     ScriptInvariant(ShadowResolveErrorV0),
     DraftInvariant(&'static str),
+    MethodCallSource(ResolvedMethodCallSourceIssueV1),
     Verification(ResolvedFunctionVerificationErrorV1),
     CallableLookup(CallableLookupErrorV1),
 }
@@ -427,6 +429,8 @@ fn canonicalize_draft(
         &draft.expression_sites,
     )
     .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
+    let method_calls = issue_resolved_method_call_sources_v1(&body_shape)
+        .map_err(ResolveFunctionErrorV1::MethodCallSource)?;
     let assignment_targets = draft
         .assignment_targets
         .iter()
@@ -544,6 +548,7 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         direct_call_targets,
+        method_calls,
         resolved_exits,
     };
     let mut source_sites = ResolvedSourceSiteInventoryDraftV1::default();

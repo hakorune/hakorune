@@ -472,10 +472,19 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         for (index, argument) in arguments.iter().enumerate() {
-            self.resolve_expr(
-                argument,
-                &Self::expr_child_path(parent, path, ExprChildRoleV1::CallArgument(index as u32)),
-            )?;
+            let ordinal =
+                u32::try_from(index).map_err(|_| ShadowResolveErrorV0::UnsupportedExpression {
+                    kind: "CallArityOverflow",
+                    site: path.expr(),
+                })?;
+            let argument_path =
+                Self::expr_child_path(parent, path, ExprChildRoleV1::CallArgument(ordinal));
+            self.record_relation(
+                path.node(),
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal),
+                argument_path.expr(),
+            );
+            self.resolve_expr(argument, &argument_path)?;
         }
         Ok(())
     }

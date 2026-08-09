@@ -3,6 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
+use super::body_shape::VerifiedResolvedMethodCallSourceV1;
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::enum_variant_demand::EnumVariantAdmissionV1;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
@@ -40,6 +41,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
+    pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
 
@@ -289,6 +291,12 @@ impl VerifiedResolvedFunctionV1 {
             .direct_call_targets
             .iter()
             .map(|(site, target)| (site, *target))
+    }
+
+    pub(crate) fn method_calls(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
+        self.core.data.method_calls.iter()
     }
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {

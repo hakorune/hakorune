@@ -608,6 +608,37 @@ owner spelling, or another dynamic expression.  It does not resolve targets,
 infer result types, allocate canonical bindings, or publish MIR state.
 Production callable-result consumers remain zero through PATH0.
 
+## Resolver-owned MethodCall source relation
+
+`RESOLVED-METHOD-CALL-SOURCE-RELATION-I0` seals every resolved ordinary
+`MethodCall` into one reusable AST-free row owned by the existing function
+product:
+
+```text
+VerifiedResolvedMethodCallSourceV1
+  owner
+  exact call site
+  exact receiver site
+  ordered arguments 0..arity
+  result site = call expression site
+  selector spelling
+  checked arity
+```
+
+The shadow traversal records receiver and argument child relations once. The
+resolver issuer verifies complete/gap-free argument coverage and exact child
+membership before publishing the row through
+`CallableSemanticSourceLedgerView::method_calls()`. Missing, duplicate, or
+reordered rows fail before Builder effects. Result identity and owner identity
+cannot be supplied separately from the sealed function.
+
+This is source authority only. It does not classify Static versus Dynamic,
+issue a target, infer a value class, declare effects/Home/suspension, create a
+Recipe/CallSlot, or select a runtime route. The unchanged production
+`skip_while/4` source now exposes neutral `substring/2` and `indexOf/1` rows;
+their profile-specific roles remain projections rather than a second source
+truth.
+
 ## P0c callable-header boundary
 
 `CallableHeaderSyntaxViewV1` is a separate body-free view over one

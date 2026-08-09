@@ -106,13 +106,14 @@ source call site
 -> one verified Dynamic dispatch relation
 ```
 
-The audit also found that no reusable AST-free arbitrary MethodCall row owns
+The audit also found that no reusable AST-free arbitrary MethodCall row owned
 receiver, ordered arguments, result site, selector, and arity together.
 `VerifiedSourceMethodCallSiteV1` borrows AST and a Builder declaration catalog;
-the bounded full-body inventory is profile-specific. Therefore
-`RESOLVED-METHOD-CALL-SOURCE-RELATION-I0` must land before the Dynamic target
-I0. It adds the neutral row to the resolved function/ledger rather than
-promoting profile roles into universal authority.
+the bounded full-body inventory is profile-specific. The landed
+`RESOLVED-METHOD-CALL-SOURCE-RELATION-I0` now supplies that neutral row from the
+resolved function/ledger. The AST-borrowed static seam is compatibility debt,
+not a second source authority, and must be consumed or retired by the target
+catalog cutover.
 
 ## One target catalog
 
@@ -121,7 +122,7 @@ existing static-only names to the route-neutral vocabulary:
 
 ```text
 VerifiedSourceCallTargetCatalogV1
-  key = exact caller + exact call site
+  key = CanonicalSameModuleCallableKeyV1 + exact call site
 
 VerifiedSourceCallTargetV1
   Static(existing qualified/current-owner target)
@@ -132,6 +133,22 @@ Existing static sealing semantics remain unchanged. Static and Dynamic arms
 for the same caller/site are a typed duplicate rejection. Temporary static
 projection adapters must state their removal condition; equal names or keys
 from a foreign catalog/function owner are not authority.
+
+The neutral resolved row uses `FunctionOwnerIdV1`, so the I0 first co-seals the
+two existing identity systems rather than asking a caller to pair them:
+
+```text
+cataloged VerifiedNormalCallableSemanticLoanV1
++ exact resolved function product
+    -> VerifiedCatalogCallableOwnerLinkV1
+         CanonicalSameModuleCallableKeyV1 <-> FunctionOwnerIdV1
+```
+
+The issuer uses exact catalog allocation and exact callable source identity.
+Symbol/name/arity reconstruction and numeric-owner equality are forbidden.
+The target issuer consumes the link. Migrating every static catalog row to an
+owner-keyed catalog is a separate all-row cutover, not an implicit part of the
+Dynamic arm.
 
 The issuer belongs in a neutral pre-Builder source/semantic layer. Builder
 modules may consume the product later but must not become its semantic owner.

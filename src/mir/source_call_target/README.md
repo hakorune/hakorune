@@ -80,19 +80,27 @@ re-scanning or matching by name; the default raw route remains unchanged.
 
 ## AST-BIND0-S0 exact source site
 
-`VerifiedSourceMethodCallSiteV1` is the sole exact caller/body/site co-seal.
-Its constructor accepts only the complete declaration catalog, one canonical
-caller key, and one function-relative `SourceExprSiteV1`. The catalog supplies
-the body; the shared resolved-semantics projector supplies the exact borrowed
-node; only `ASTNode::MethodCall` is admitted. Receiver, method, arguments,
-receiver site, and checked arity are derived from that node and can never be
-supplied independently.
+`VerifiedSourceMethodCallSiteV1` is the legacy static-catalog AST-borrowed
+caller/body/site co-seal. Its constructor accepts only the complete declaration
+catalog, one canonical caller key, and one function-relative
+`SourceExprSiteV1`. The catalog supplies the body; the shared
+resolved-semantics projector supplies the exact borrowed node; only
+`ASTNode::MethodCall` is admitted. Receiver, method, arguments, receiver site,
+and checked arity are derived from that node and can never be supplied
+independently.
+
+It is **not** the route-neutral MethodCall source authority. That authority is
+the AST-free `VerifiedResolvedMethodCallSourceV1` retained by the resolved
+function product. New Dynamic/source-bound work must consume that neutral row;
+it must not reopen AST through this compatibility seam. The route-neutral
+target-catalog cutover must either adapt this static row from the neutral
+relation or retire it, and must leave no second `sole` source authority.
 
 Sites that cross a nested `FunctionDeclaration` or `Lambda` callable boundary
 reject before projection. The top-level catalog key must never be paired with
 a nested callable body that has its own semantic owner.
 
-The product is lifetime-bound and non-Clone. It owns no AST, body, lexical
+The compatibility product is lifetime-bound and non-Clone. It owns no AST, body, lexical
 fact, import alias, reserved-route decision, target, ABI, effect, result
 representation, MIR, or runtime authority. S0 remains disconnected with zero
 production consumers. Lexical Bound/ProvenUnbound observation belongs to the

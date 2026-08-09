@@ -30,17 +30,19 @@ pub(crate) enum CallableSourceRowFamilyV1 {
     LexicalRef,
     AssignmentTarget,
     DirectCall,
+    MethodCall,
     Exit,
     LambdaCapture,
     LoopMembership,
 }
 
 impl CallableSourceRowFamilyV1 {
-    pub(crate) const ALL: [Self; 7] = [
+    pub(crate) const ALL: [Self; 8] = [
         Self::Declaration,
         Self::LexicalRef,
         Self::AssignmentTarget,
         Self::DirectCall,
+        Self::MethodCall,
         Self::Exit,
         Self::LambdaCapture,
         Self::LoopMembership,
@@ -191,6 +193,17 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.direct_call_targets()
     }
 
+    pub(crate) fn method_calls(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SourceExprSiteV1,
+            &super::body_shape::VerifiedResolvedMethodCallSourceV1,
+        ),
+    > {
+        self.function.method_calls()
+    }
+
     pub(crate) fn resolved_exits(
         &self,
     ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
@@ -208,6 +221,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
             CallableSourceRowFamilyV1::LexicalRef => self.variable_refs().count(),
             CallableSourceRowFamilyV1::AssignmentTarget => self.assignment_targets().count(),
             CallableSourceRowFamilyV1::DirectCall => self.direct_call_targets().count(),
+            CallableSourceRowFamilyV1::MethodCall => self.method_calls().count(),
             CallableSourceRowFamilyV1::Exit => self.resolved_exits().count(),
             CallableSourceRowFamilyV1::LambdaCapture => self.capture_demands().len(),
             CallableSourceRowFamilyV1::LoopMembership => self.function.loop_region_bundle_count(),

@@ -33,17 +33,19 @@ cannot yet execute the complete method and closed the missing-authority
 inventory. That I0 is now closed: the unchanged method seals six exact
 binding roles, twenty-eight exact statement/expression roles, and the existing
 two-site Completion product with zero Builder effect. The Dynamic dispatch D0
-audit is also closed. It found that the durable resolver product still lacks
-one general AST-free MethodCall source row. The current implementation row is:
+audit is also closed. The general AST-free MethodCall source row is now
+landed in the durable resolved function product: exact receiver/result sites,
+checked arity, and complete ordered arguments are available without profile
+roles or AST loans. The current implementation row is:
 
 ```text
-RESOLVED-METHOD-CALL-SOURCE-RELATION-I0
+SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-I0
 ```
 
-It seals exact call/receiver/result sites, selector/arity syntax, and complete
-ordered argument sites without Dynamic classification or target issuance.
-Next, the existing target catalog is generalized in place with one
-route-disjoint DynamicMember arm. Message identity remains separate from a
+It consumes those neutral rows plus the exact source-backed Dynamic receiver
+origin and generalizes the existing target catalog in place with one
+route-disjoint DynamicMember arm. It does not classify by `substring` or
+`indexOf`. Message identity remains separate from a
 selector-independent execution envelope. Dynamic result Home/lifetime is the
 hard design stop before V2 CallSlot/Recipe; no Pure, Trivial, NonSuspending,
 or other permissive default is allowed. JoinSig-authorized If/Return and

@@ -215,6 +215,7 @@ fn if_data(owner: FunctionOwnerIdV1, with_else: bool) -> ResolvedFunctionDataV1 
         variable_uses: BTreeMap::new(),
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
+        method_calls: BTreeMap::new(),
         resolved_exits: BTreeMap::new(),
     }
 }

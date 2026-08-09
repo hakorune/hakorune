@@ -154,3 +154,120 @@ fn resolved_shape_keeps_empty_body_as_complete_empty_inventory() {
     assert!(product.body_shape().expressions().is_empty());
     assert!(product.body_shape().relations().is_empty());
 }
+
+#[test]
+fn method_call_source_issuer_rejects_incomplete_or_reordered_argument_relations() {
+    let tree = function(
+        vec![return_value(Some(ASTNode::MethodCall {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            method: "slice".into(),
+            arguments: vec![int(1), int(2)],
+            span: Span::unknown(),
+        }))],
+        false,
+    );
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let shape = product.body_shape();
+    assert!(
+        super::body_shape::duplicate_shadow_body_shape_relation_rejects_for_test(
+            shape.relations().first().expect("MethodCall relation"),
+        ),
+        "the production shadow seal must reject duplicates before publication",
+    );
+    let call_site = shape
+        .expressions()
+        .iter()
+        .find_map(|row| match row {
+            BodyExpressionShapeV1::MethodCall { site, .. } => Some(site.clone()),
+            _ => None,
+        })
+        .unwrap();
+
+    let mut missing = shape.relations().to_vec();
+    missing.retain(|row| {
+        !(row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Argument(1))
+    });
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            shape, &missing,
+        ),
+        Err(
+            super::body_shape::ResolvedMethodCallSourceIssueV1::MissingArgumentRelation {
+                site: call_site.clone(),
+                ordinal: 1,
+            }
+        )
+    );
+
+    let mut duplicate = shape.relations().to_vec();
+    let argument_zero = duplicate
+        .iter()
+        .find(|row| row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Argument(0))
+        .unwrap()
+        .clone();
+    duplicate.push(argument_zero);
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            shape, &duplicate,
+        ),
+        Err(
+            super::body_shape::ResolvedMethodCallSourceIssueV1::DuplicateArgumentRelation {
+                site: call_site.clone(),
+                ordinal: 0,
+            }
+        )
+    );
+
+    let mut reordered = shape.relations().to_vec();
+    let argument_zero = reordered
+        .iter()
+        .position(|row| {
+            row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Argument(0)
+        })
+        .unwrap();
+    let argument_one = reordered
+        .iter()
+        .position(|row| {
+            row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Argument(1)
+        })
+        .unwrap();
+    let zero_site = reordered[argument_zero].child.clone();
+    reordered[argument_zero].child = reordered[argument_one].child.clone();
+    reordered[argument_one].child = zero_site;
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            shape, &reordered,
+        ),
+        Err(
+            super::body_shape::ResolvedMethodCallSourceIssueV1::ArgumentSourceMismatch {
+                site: call_site.clone(),
+                ordinal: 0,
+            }
+        )
+    );
+
+    let mut wrong_receiver = shape.relations().to_vec();
+    let argument_site = wrong_receiver
+        .iter()
+        .find(|row| row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Argument(0))
+        .unwrap()
+        .child
+        .clone();
+    wrong_receiver
+        .iter_mut()
+        .find(|row| row.parent == *call_site.node() && row.role == SourcePathSegmentV1::Receiver)
+        .unwrap()
+        .child = argument_site;
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            shape,
+            &wrong_receiver,
+        ),
+        Err(super::body_shape::ResolvedMethodCallSourceIssueV1::ReceiverSourceMismatch(call_site,))
+    );
+}

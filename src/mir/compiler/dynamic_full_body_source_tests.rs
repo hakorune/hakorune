@@ -5,7 +5,8 @@ use crate::parser::NyashParser;
 
 use super::dynamic_full_body_source::{
     DynamicFullBodyBindingRoleV1, DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1,
-    DynamicFullBodySourceRoleV1, VerifiedDynamicLoopFullBodySourceInventoryV1,
+    DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
+    VerifiedDynamicLoopFullBodySourceInventoryV1,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -95,6 +96,74 @@ fn unchanged_skip_while_issues_complete_ast_free_source_inventory() {
             1
         );
     }
+}
+
+#[test]
+fn unchanged_skip_while_profile_call_sites_match_the_neutral_method_call_ledger() {
+    let input = input_for(production_skip_while());
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("source ledger");
+    let calls = ledger
+        .method_calls()
+        .map(|(_, row)| row)
+        .collect::<Vec<_>>();
+    let product = issue(production_skip_while()).expect("full source inventory");
+
+    assert_eq!(calls.len(), 2);
+    for (selector, arity, call_role, receiver_role, argument_roles) in [
+        (
+            "substring",
+            2,
+            DynamicFullBodySourceRoleV1::SubstringCall,
+            DynamicFullBodySourceRoleV1::SubstringReceiverSrc,
+            vec![
+                DynamicFullBodySourceRoleV1::SubstringStartI,
+                DynamicFullBodySourceRoleV1::SubstringEndAdd,
+            ],
+        ),
+        (
+            "indexOf",
+            1,
+            DynamicFullBodySourceRoleV1::IndexOfCall,
+            DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
+            vec![DynamicFullBodySourceRoleV1::IndexOfArgumentCh],
+        ),
+    ] {
+        let call_site = profile_expr_site(&product, call_role);
+        let neutral = calls
+            .iter()
+            .find(|row| row.site() == call_site)
+            .expect("neutral MethodCall row");
+        assert_eq!(neutral.selector(), selector);
+        assert_eq!(neutral.arity(), arity);
+        assert_eq!(neutral.arguments().len(), arity as usize);
+        assert_eq!(call_site, neutral.result_site());
+        assert_eq!(
+            profile_expr_site(&product, receiver_role),
+            neutral.receiver_site()
+        );
+        for (argument, role) in neutral.arguments().iter().zip(argument_roles) {
+            assert_eq!(profile_expr_site(&product, role), argument.site());
+        }
+    }
+}
+
+fn profile_expr_site(
+    product: &VerifiedDynamicLoopFullBodySourceInventoryV1,
+    role: DynamicFullBodySourceRoleV1,
+) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
+    product
+        .rows()
+        .iter()
+        .find_map(|row| {
+            (row.role() == role).then(|| match row.site() {
+                DynamicFullBodySourceSiteV1::Expression(site) => site,
+                DynamicFullBodySourceSiteV1::Statement(_) => {
+                    panic!("expected expression role: {role:?}")
+                }
+            })
+        })
+        .expect("profile expression site")
 }
 
 #[test]
