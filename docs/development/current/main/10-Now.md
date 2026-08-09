@@ -23,15 +23,16 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
-closed for the unmodified production `skip_while/4` source. The next
-compiler-side row is:
+closed as unpublished-session carrier proofs for the unmodified production
+`skip_while/4` source. A top-down audit found that the former direct VM row
+cannot yet execute the complete method. The next compiler-side row is:
 
 ```text
-GENERIC-LOOP-DYNAMIC-VM-CANARY-I0
+GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0
 ```
 
 The previous post-P1-only PHI plan is rejected: the pre-correction P1 emitted
@@ -55,10 +56,13 @@ Header/body/terminal-Backedge cycle, seals Header from exactly Enter plus
 Backedge, and patches the existing PHI through the session `PhiTxn`. P2C now
 proves that failures at open, operation, definition, and post-patch points
 discard the complete child, restore the caller once, and permit only a fresh
-session replay. L0-I0 must connect this bounded compiler path to one VM canary
-while unsupported backends fail before effects. After, raw incoming vectors,
-route-local PHI writers, production selection, retry/fallback, and source
-rewrites remain closed. The
+session replay. The direct VM canary is `NoSafeSlice`: the real body still
+requires exact `substring`/`indexOf` calls, local `ch`, inner If/early return,
+zero/fallthrough After, final return, multi-return Completion, DraftSeal, and
+collector ownership. Dynamic Recipe now precedes VM activation. Compiler
+acceptance is widened while raw incoming vectors, route-local whole-body
+lowerers, production selection, retry/fallback, and source rewrites remain
+closed. The
 parser H2-S2-S1-R1 worktree is preserved and must not be mixed into this
 compiler-side slice.
 

@@ -248,6 +248,13 @@ once. Two later fresh sessions reproduce the same semantic CFG/instruction
 shape without comparing allocator IDs. Local PHI rollback is diagnostic
 hygiene; whole-session discard remains the correctness owner.
 
+The P2 series remains an unpublished-session carrier proof. It cannot be
+used as an executable `skip_while/4` route: that method's calls, iteration
+local, inner If/early return, Loop After, final return, Completion, DraftSeal,
+and collector are not yet consumed. The direct VM canary is `NoSafeSlice`.
+The compiler must first issue a complete source-bound Dynamic Recipe and close
+the full callable; production source must not be narrowed or rewritten.
+
 ## 原則（SSOT / Box-First）
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。

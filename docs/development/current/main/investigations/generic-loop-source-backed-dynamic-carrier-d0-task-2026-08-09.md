@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C closed; L0-I0 next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1, Header-current P2A, Header-based P1R, canonical PHI close P2B, and whole-session discard P2C closed; former L0-I0 is NoSafeSlice; full-body D0 next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -978,7 +978,9 @@ R0 exact Enter-definition handoff
 -> P1R operation correction
 -> P2B predecessor close / PHI patch
 -> P2C discard canary
--> L0-I0 bounded ownership switch or caller-zero-only status
+-> GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0
+-> full-body / Recipe / After / multi-return / DraftSeal prerequisite ladder
+-> L0-I0 VM canary only after one CompletedFunctionDraft exists
 ```
 
 The implementation slice must update
@@ -988,6 +990,19 @@ The implementation slice must update
 source files remain below 800 lines.
 
 ##### L0-I0 — `GENERIC-LOOP-DYNAMIC-VM-CANARY-I0`
+
+Audit correction (2026-08-10): **NoSafeSlice as currently ordered.**
+
+P2C leaves the child unpublished and does not own `substring`, `ch`,
+`indexOf`, the inner If/early return, Loop After, final Tail/return,
+Completion, DraftSeal, collector, or module publication.  Passive backend
+metadata cannot turn that carrier-only proof into an executable module.
+
+The exact prerequisite ladder and production switch boundary are now owned by
+`generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.  Dynamic
+Recipe D0/I0, complete physical After, multi-return Completion, and
+DraftSeal/collector must close before this VM row reopens.  The production
+`skip_while/4` source remains unchanged; compiler acceptance is widened.
 
 Change:
   Wire the bounded legacy GenericLoop adapter to consume only the prepared
@@ -1008,11 +1023,11 @@ Stop:
   parity. The production `skip_while` source must not be copied, annotated, or
   rewritten.
 
-##### Post-L0 — `LOOP-RECIPE-DYNAMIC-SEMANTICS-D0/I0`
+##### Pre-L0 correction — `LOOP-RECIPE-DYNAMIC-SEMANTICS-D0/I0`
 
-Before production activation, add an explicit Recipe Decision for Dynamic
+Before VM activation, add an explicit Recipe Decision for Dynamic
 value class, Add/Compare semantics, source-operation coverage, and JoinSig
-carrier compatibility. Then switch one named caller and delete its legacy
+carrier compatibility as part of the full-body ladder. Then switch one named caller and delete its legacy
 carrier inference, route-local PHI, retry/fallback, and fixed-read schedule in
 the same cutover series.
 

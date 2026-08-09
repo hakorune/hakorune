@@ -7,6 +7,24 @@ This page documents the current test-only evidence boundary for Generic Loop
 V0/V1 post-effect debt. It is not a production route policy, Recipe contract,
 PHI owner, scheduler, or backend lowering specification.
 
+## Dynamic carrier P2 close and VM prerequisite correction (2026-08-10)
+
+The source-backed Dynamic P2A/P1R/P2B/P2C series proves one canonical Header
+PHI cycle plus whole unpublished-session discard. It is not a complete
+`skip_while/4` lowering and cannot be connected directly to a VM canary.
+
+The unchanged method also requires exact coverage and physical ownership for
+two instance calls, one iteration-local, inner If/early return, Loop After,
+the final return, two-return Completion, DraftSeal, and collector publication.
+The direct VM row is therefore `NoSafeSlice`; Dynamic Recipe and complete
+callable closure now precede backend activation. The executable order is
+owned by
+`docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.
+
+This correction widens compiler acceptance. It does not authorize source
+annotations, a copied/narrowed fixture, a second whole-body lowerer, raw-loop
+fallback, or backend metadata inferred from incomplete MIR.
+
 ## Authorities
 
 The design authority is

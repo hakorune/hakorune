@@ -271,6 +271,14 @@ session discard, and fresh-session reuse. No G0 physical allocation,
 production selection, retry/fallback retirement, publication change, or broad
 legacy deletion is claimed.
 
+The source-backed Dynamic carrier P2 close does not yet produce this After
+receipt. P2 seals only Header/Backedge and is deliberately discarded in its
+tests. Reuse of recursive After is permitted only after a complete Dynamic
+Recipe/full-program physical input covers the unchanged callable body. The
+single-Tail completion canary is not a substitute for the method's inner and
+final returns; those must merge into one function exit before the sole
+Completion claim and DraftSeal Return.
+
 ## Common Predicate/carrier I0 (2026-08-08)
 
 `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is closed. The neutral After receipt
