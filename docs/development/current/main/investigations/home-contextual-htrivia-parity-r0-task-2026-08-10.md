@@ -2,7 +2,8 @@
 
 Status: parked P0; required before Take/Share parser activation
 Date: 2026-08-10
-Depends on: active Dynamic JoinSig lane yields the workstream
+Scheduling: parked behind the current Dynamic execution lane; required before
+Take/Share parser activation
 
 ## Goal
 

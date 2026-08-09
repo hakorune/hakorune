@@ -1,6 +1,6 @@
 # OWN-HOME parser cleanliness reconciliation
 
-Status: accepted parked task map; active JoinSig lane unchanged
+Status: accepted parked task map; current Dynamic execution lane unchanged
 Date: 2026-08-10
 Source: external review reconciled against current Rust/Hako parser code
 
@@ -12,9 +12,10 @@ line terminator, while the live bounded Release I0 reference deliberately
 narrows that row to space/tab `HSPACE`. This is not silent drift, but it is an
 unfinished parity boundary that must close before Take or Share activates.
 
-The parser cleanup is parked behind the active Dynamic JoinSig lane. It does
-not authorize edits to the current user-owned Hako parser worktree and does not
-change ownership semantics.
+The parser cleanup does not preempt the current Dynamic execution lane. It
+opens before Take/Share parser activation, does not authorize edits to the
+current user-owned Hako parser worktree, and does not change ownership
+semantics.
 
 ## Confirmed findings
 
