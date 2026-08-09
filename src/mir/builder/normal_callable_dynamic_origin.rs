@@ -54,6 +54,42 @@ struct DynamicLocalExpectationV1 {
     declaration: SourceBindingSiteV1,
 }
 
+/// Exact completed-local relation retained for a later canonical SSA handoff.
+///
+/// This row allocates no value and owns no reaching-value decision. It keeps
+/// the existing local terminal's source/materialization relation intact until
+/// the canonical identity owner can adopt the same entry value.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct PreparedDynamicLocalEntryV1 {
+    declaration: SourceBindingSiteV1,
+    formal: BindingRefV1,
+    binding: BindingRefV1,
+    initializer: ValueId,
+    local: ValueId,
+}
+
+impl PreparedDynamicLocalEntryV1 {
+    pub(super) const fn declaration(&self) -> &SourceBindingSiteV1 {
+        &self.declaration
+    }
+
+    pub(super) const fn formal(&self) -> BindingRefV1 {
+        self.formal
+    }
+
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(super) const fn initializer(&self) -> ValueId {
+        self.initializer
+    }
+
+    pub(super) const fn local(&self) -> ValueId {
+        self.local
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct CallableDynamicOriginLoweringStateV1 {
     owner: FunctionOwnerIdV1,
@@ -62,6 +98,7 @@ pub(super) struct CallableDynamicOriginLoweringStateV1 {
     local_expectations: BTreeMap<BindingRefV1, DynamicLocalExpectationV1>,
     active_origins: BTreeMap<BindingRefV1, (ValueId, BindingRefV1)>,
     value_origins: BTreeMap<ValueId, BindingRefV1>,
+    local_entries: BTreeMap<BindingRefV1, PreparedDynamicLocalEntryV1>,
     completed_locals: BTreeSet<BindingRefV1>,
     entry_installed: bool,
 }
@@ -159,6 +196,7 @@ impl CallableDynamicOriginLoweringStateV1 {
             local_expectations,
             active_origins: BTreeMap::new(),
             value_origins: BTreeMap::new(),
+            local_entries: BTreeMap::new(),
             completed_locals: BTreeSet::new(),
             entry_installed: false,
         })
@@ -174,6 +212,13 @@ impl CallableDynamicOriginLoweringStateV1 {
 
     pub(super) fn current_binding(&self, binding: BindingRefV1) -> Option<(ValueId, BindingRefV1)> {
         self.active_origins.get(&binding).copied()
+    }
+
+    pub(super) fn local_entry(
+        &self,
+        binding: BindingRefV1,
+    ) -> Option<&PreparedDynamicLocalEntryV1> {
+        self.local_entries.get(&binding)
     }
 
     pub(super) fn install_entry(
@@ -267,6 +312,18 @@ impl CallableDynamicOriginLoweringStateV1 {
             }
             self.active_origins
                 .insert(binding, (physical.local(), source_formal));
+            let entry = PreparedDynamicLocalEntryV1 {
+                declaration: expected.declaration.clone(),
+                formal: expected.formal,
+                binding,
+                initializer: physical.initializer(),
+                local: physical.local(),
+            };
+            if self.local_entries.insert(binding, entry).is_some() {
+                return Err(CallableDynamicOriginErrorV1::DuplicateLocalCompletion(
+                    binding,
+                ));
+            }
         }
         Ok(())
     }

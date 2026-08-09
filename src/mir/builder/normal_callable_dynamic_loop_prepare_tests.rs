@@ -77,6 +77,7 @@ fn production_skip_while_prepares_dynamic_ingress_before_loop_effects() {
     };
     let local_binding = local.local();
     let local_formal = local.formal();
+    let local_declaration = local.declaration().clone();
     let local_statement = statement.node().clone();
     let local_ordinal = *ordinal;
     let mut origins = CallableDynamicOriginLoweringStateV1::from_source(source).unwrap();
@@ -215,6 +216,14 @@ fn production_skip_while_prepares_dynamic_ingress_before_loop_effects() {
     assert_eq!(prepared.entry_bindings().len(), 4);
     assert_eq!(prepared.carrier().binding(), local_binding);
     assert_eq!(prepared.carrier().entry(), local_value);
+    assert_eq!(
+        prepared.enter_definition().declaration(),
+        &local_declaration
+    );
+    assert_eq!(prepared.enter_definition().binding(), local_binding);
+    assert_eq!(prepared.enter_definition().initializer(), initializer);
+    assert_eq!(prepared.enter_definition().entry(), local_value);
+    assert_eq!(prepared.enter_definition().origin(), local_formal);
     assert!(prepared
         .carrier()
         .representation()

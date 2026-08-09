@@ -186,10 +186,14 @@ consumes the exact Loop schedule and operation-source set, borrows the
 existing current-origin owner, and returns one move-only prepared ingress.
 Carrier and read-only entry bindings carry existing `ValueId`s plus opaque
 source-backed Dynamic representation receipts; iteration locals wait for
-their own materialization. The carrier also retains exact Enter/Backedge
-expectations. The issuer has no Builder/CFG handle, no raw Unknown
-representation arm, and no operation, PHI, backend, retry, fallback, or route
-authority.
+their own materialization. The R0 extension also retains the selected
+carrier's exact local declaration site, completed initializer/local ValueIds,
+and Dynamic formal origin as one prepared Enter-definition row. This preserves
+the existing local terminal's relation for later canonical SSA adoption; it
+does not publish a value or declaration itself. The carrier also retains exact
+Enter/Backedge expectations. The issuer has no Builder/CFG handle, no raw
+Unknown representation arm, and no operation, PHI, backend, retry, fallback,
+or route authority.
 
 The P1 compiler-acceptance prerequisite is conservative at both common type
 owners: ordinary Add completion and final BinOp re-propagation require exact

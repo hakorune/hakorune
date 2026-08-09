@@ -1,5 +1,5 @@
 ---
-Status: S0/P0 and L0 R0/S0/P0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 accepted; Enter handoff R0 next
+Status: S0/P0 and L0 R0/S0/P0/R0 closed; bounded Dynamic operation/rebind P1 canary closed; PHI temporal-order D0 accepted; Header-current P2A next
 Date: 2026-08-09
 Row: `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -811,6 +811,18 @@ Same-slice docs:
   Update `src/mir/builder/README.md` and
   `docs/reference/mir/generic-loop-stage-matrix.md`. Keep every source file
   below 800 lines.
+
+Closeout:
+  Closed in the R0 implementation slice. The Dynamic origin owner retains one
+  exact completed-local entry row after validating ordinal, initializer,
+  destination, declaration, and source formal origin. P0 ingress co-seals that
+  row with the selected Loop carrier and exposes one move-only
+  `PreparedDynamicLoopEnterDefinitionV1`. The production `skip_while/4`
+  fixture proves exact declaration/BindingRef/initializer/local/origin
+  correspondence with zero Builder effect. Existing origin negatives cover
+  wrong ordinal, initializer, destination, duplicate completion, stale origin,
+  and foreign binding boundaries. No canonical declaration, block, PHI,
+  operation, backend, retry/fallback, or source rewrite opened.
 
 ##### L0-P2A — `DYNAMIC-LOOP-PHI-OPEN-P2A`
 

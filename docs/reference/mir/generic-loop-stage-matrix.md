@@ -1699,6 +1699,17 @@ without changing the current function's block count or value allocator.
 There is no Builder/CFG handle, operation emission, PHI, backend lookup,
 retry, fallback, or production route in this row.
 
+`DYNAMIC-LOOP-ENTER-HANDOFF-R0` extends only that pre-effect transport. The
+Dynamic origin owner now retains the existing completed-local relation, and
+the prepared ingress co-seals the selected carrier's exact local declaration
+site, BindingRef, initializer ValueId, local entry ValueId, Dynamic formal
+origin, and Loop membership. For `skip_while/4`, this is exactly the existing
+`pos -> local i` materialization. No value, block, type, declaration, or PHI is
+published. Foreign/stale/mismatched local evidence rejects before Builder
+mutation. The next canonical row may adopt this existing entry value through
+the resolved declaration identity; raw `(BindingRef, ValueId)` adoption and
+name reconstruction remain forbidden.
+
 ## Dynamic Loop atomic rebind P1 receipt (2026-08-09)
 
 The first P1 prerequisite repairs a common compiler over-inference rather

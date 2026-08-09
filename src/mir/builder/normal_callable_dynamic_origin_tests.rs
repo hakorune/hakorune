@@ -142,6 +142,20 @@ fn exact_entry_and_local_copy_preserve_source_backed_origin() {
         Some(formal)
     );
     assert_eq!(fixture.state.value_origin(local_value), Some(formal));
+    let retained = fixture.state.local_entry(local).expect("exact local entry");
+    assert_eq!(
+        retained.declaration(),
+        &SourceBindingSiteV1::Local {
+            statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
+                statement.clone(),
+            ),
+            ordinal,
+        }
+    );
+    assert_eq!(retained.formal(), formal);
+    assert_eq!(retained.binding(), local);
+    assert_eq!(retained.initializer(), initializer);
+    assert_eq!(retained.local(), local_value);
     fixture.state.finish().unwrap();
 }
 

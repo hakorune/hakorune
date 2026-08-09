@@ -92,6 +92,42 @@ pub(super) struct PreparedDynamicLoopCarrierV1 {
     expected_roles: [PreparedLoopIncomingRoleV1; 2],
 }
 
+/// Exact existing local value that the canonical SSA owner may later adopt as
+/// the Loop Enter definition.
+///
+/// This product is Builder-free. It preserves the completed-local relation;
+/// it does not publish the declaration or allocate a replacement value.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct PreparedDynamicLoopEnterDefinitionV1 {
+    declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
+    binding: BindingRefV1,
+    initializer: ValueId,
+    entry: ValueId,
+    origin: BindingRefV1,
+}
+
+impl PreparedDynamicLoopEnterDefinitionV1 {
+    pub(super) const fn declaration(&self) -> &crate::mir::resolved_semantics::SourceBindingSiteV1 {
+        &self.declaration
+    }
+
+    pub(super) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(super) const fn initializer(&self) -> ValueId {
+        self.initializer
+    }
+
+    pub(super) const fn entry(&self) -> ValueId {
+        self.entry
+    }
+
+    pub(super) const fn origin(&self) -> BindingRefV1 {
+        self.origin
+    }
+}
+
 impl PreparedDynamicLoopCarrierV1 {
     pub(super) const fn binding(self) -> BindingRefV1 {
         self.binding
@@ -119,6 +155,7 @@ pub(super) struct PreparedSourceBackedDynamicLoopIngressV1 {
     operations: VerifiedDynamicLoopOperationSourceSetV1,
     entry_bindings: Box<[PreparedDynamicLoopEntryBindingV1]>,
     carrier: PreparedDynamicLoopCarrierV1,
+    enter_definition: PreparedDynamicLoopEnterDefinitionV1,
 }
 
 impl PreparedSourceBackedDynamicLoopIngressV1 {
@@ -146,6 +183,10 @@ impl PreparedSourceBackedDynamicLoopIngressV1 {
         &self.carrier
     }
 
+    pub(super) const fn enter_definition(&self) -> &PreparedDynamicLoopEnterDefinitionV1 {
+        &self.enter_definition
+    }
+
     pub(super) fn entry_binding(
         &self,
         binding: BindingRefV1,
@@ -165,6 +206,8 @@ pub(super) enum DynamicLoopPrepareIssueV1 {
     MissingCurrentDynamicOrigin(BindingRefV1),
     ForeignDynamicOrigin(BindingRefV1),
     DuplicateCurrentValue(ValueId),
+    MissingCarrierLocalEntry(BindingRefV1),
+    CarrierLocalEntryMismatch(BindingRefV1),
     SourceCoverage(String),
 }
 
@@ -239,6 +282,28 @@ impl DynamicLoopPrepareIssuerV1 {
                 PreparedLoopIncomingRoleV1::Backedge,
             ],
         };
+        let local_entry = origins.local_entry(carrier_binding).ok_or(
+            DynamicLoopPrepareIssueV1::MissingCarrierLocalEntry(carrier_binding),
+        )?;
+        let carrier_origin = carrier.representation().dynamic_origin().ok_or(
+            DynamicLoopPrepareIssueV1::CarrierLocalEntryMismatch(carrier_binding),
+        )?;
+        if local_entry.binding() != carrier_binding
+            || local_entry.local() != carrier.entry()
+            || local_entry.formal() != carrier_origin
+            || local_entry.initializer() == local_entry.local()
+        {
+            return Err(DynamicLoopPrepareIssueV1::CarrierLocalEntryMismatch(
+                carrier_binding,
+            ));
+        }
+        let enter_definition = PreparedDynamicLoopEnterDefinitionV1 {
+            declaration: local_entry.declaration().clone(),
+            binding: carrier_binding,
+            initializer: local_entry.initializer(),
+            entry: local_entry.local(),
+            origin: local_entry.formal(),
+        };
         let source_coverage = schedule
             .consume_pre_effect(parent_site, condition_site, body_site)
             .map_err(DynamicLoopPrepareIssueV1::SourceCoverage)?;
@@ -249,6 +314,7 @@ impl DynamicLoopPrepareIssuerV1 {
             operations,
             entry_bindings: entry_bindings.into_boxed_slice(),
             carrier,
+            enter_definition,
         })
     }
 }
