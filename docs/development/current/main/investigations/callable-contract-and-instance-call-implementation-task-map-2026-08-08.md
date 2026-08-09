@@ -1114,7 +1114,11 @@ Rejected > Unresolved > Declined > Candidate
       boundary, while its I0 implementation remains closed;
     - the next bounded decision is `OWN-HOME-SYNTAX-D0`: choose the canonical
       declaration-side `take` form, expression-side `share` form/precedence,
-      and record rejected alternatives before parser I0;
+      and record rejected alternatives before parser I0.  Worker audit
+      proposal: `take` is parameter-position contextual only; `share expr` is
+      an expression prefix, while `adopt(share expr)` is ordinary-call
+      composition and `share(...)` remains an ordinary call.  This proposal
+      is not accepted until the language Decision is recorded;
     - keep `release(value)`, `obj.release()`, callable/binding names,
       `drop`, `unbox`, and `unhome` out of Home ownership authority;
     - the future typed parser carrier must be issued only by that parser

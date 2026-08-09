@@ -75,6 +75,46 @@ in this card; only its I0 implementation waits behind the syntax decision.
 Until this question is answered, the current source-event card remains a
 design stop and no parser carrier or Home issuer is implemented.
 
+## Worker syntax audit — proposal, not yet accepted
+
+The independent parser/EBNF audit recommends the following bounded choice.
+This is a design candidate only; it does not activate the language grammar.
+
+```text
+take:
+  declaration-side parameter modifier only
+  take_param := TAKE_CTX IDENT ':' TYPE_REF
+  param      := take_param | ordinary_param
+  TAKE_CTX is a parameter-position lookahead for IDENT("take") IDENT ':'
+
+  `take: Node` remains an ordinary parameter named `take`.
+  `take` in an expression, `return take x`, `foo(take x)`,
+  `take place_expr`, and consuming-receiver syntax are outside this cohort.
+
+share:
+  expression-level contextual prefix, not a wrapper declaration
+  `adopt(share node)` means an ordinary call whose argument is `share node`.
+  `share(...)` remains an ordinary call because the following `(` is the
+  ordinary-call disambiguator.
+  postfix binds tighter: `share obj.field()` means `share (obj.field())`.
+  `share (obj)` remains the ordinary call `share(obj)` in this cohort;
+  grouped ownership operands require a separate language D0.
+
+reservation:
+  neither `take` nor `share` is globally reserved; declarations/bindings and
+  ordinary calls keep their existing meaning outside the contextual positions.
+```
+
+The audit also recommends that the first parser cohort allow only the bounded
+prefix/parameter shapes above.  Resolver/Home capability remains responsible
+for rejecting unsupported field, index, composite, generic, or unknown Home
+roots; parser acceptance must not imply semantic ownership.
+
+If this proposal is accepted, the language reference must explicitly state
+that `adopt(share expr)` is composition, not a second ownership grammar, and
+must publish the FIRST/precedence table plus the negative matrix before
+`OWN-HOME-SOURCE-EVENT-I0` opens.
+
 ## Source carrier boundary
 
 The future parser row may issue one typed, AST-free source carrier after the
