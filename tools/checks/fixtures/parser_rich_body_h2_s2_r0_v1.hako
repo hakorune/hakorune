@@ -1,0 +1,16 @@
+using lang.compiler.parser.support.parser_compat_text_box
+
+static box Main {
+  main(args) {
+    if ParserCompatTextBox.escape_json(null) != "" { return 1 }
+    if ParserCompatTextBox.escape_json("plain") != "plain" { return 2 }
+    if ParserCompatTextBox.escape_json("a\nb") != "a\\nb" { return 3 }
+    if ParserCompatTextBox.escape_json("a\\b") != "a\\\\b" { return 4 }
+    if ParserCompatTextBox.escape_json("a\"b") != "a\\\"b" { return 5 }
+    if ParserCompatTextBox.escape_json("a\rb") != "a\\rb" { return 6 }
+    if ParserCompatTextBox.escape_json("a\tb") != "a\\tb" { return 7 }
+    if ParserCompatTextBox.escape_json("\\\"\n\t\r") != "\\\\\\\"\\n\\t\\r" { return 8 }
+    if ParserCompatTextBox.escape_json(42) != "42" { return 9 }
+    return 0
+  }
+}

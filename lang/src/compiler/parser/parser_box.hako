@@ -14,6 +14,7 @@ using lang.compiler.parser.stmt.parser_stmt_box
 using lang.compiler.parser.stmt.parser_control_box
 using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 using lang.compiler.parser.program.parser_program_box
+using lang.compiler.parser.support.parser_compat_text_box
 
 box ParserBox {
   gpos
@@ -113,41 +114,7 @@ box ParserBox {
 
   // === JSON utilities ===
   esc_json(s) {
-    // Defensive: accept null/void and normalize to string once
-    if s == null { return "" }
-    local str = "" + s
-    local out = ""
-    local i = 0
-    local n = str.length()
-    loop(i < n) {
-      local ch = str.substring(i, i+1)
-      local handled = 0
-      if ch == "\\" {
-        out = out + "\\\\"
-        handled = 1
-      }
-      if handled == 0 && ch == "\"" {
-        out = out + "\\\""
-        handled = 1
-      }
-      if handled == 0 && ch == "\n" {
-        out = out + "\\n"
-        handled = 1
-      }
-      if handled == 0 && ch == "\r" {
-        out = out + "\\r"
-        handled = 1
-      }
-      if handled == 0 && ch == "\t" {
-        out = out + "\\t"
-        handled = 1
-      }
-      if handled == 0 {
-        out = out + ch
-      }
-      i = i + 1
-    }
-    return out
+    return ParserCompatTextBox.escape_json(s)
   }
 
   // === Phase 71-SSA: Removed delegation methods to avoid SSA undef ===

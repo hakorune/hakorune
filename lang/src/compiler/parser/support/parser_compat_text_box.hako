@@ -1,0 +1,8 @@
+// Behavior-neutral text projections used by the stateful ParserBox facade.
+// This box does not own grammar, parser position, or source identity.
+static box ParserCompatTextBox {
+  escape_json(value) {
+    if value == null { return "" }
+    return ("" + value).replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+  }
+}

@@ -1,5 +1,5 @@
 ---
-Status: ready implementation task
+Status: closed
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0`
@@ -84,7 +84,7 @@ At minimum:
 bash tools/checks/hako_parser_box_declaration_h1_guard.sh
 bash tools/checks/hako_parser_parameter_list_h2_s1_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
-bash tools/checks/task_name_naming_guard.sh
+bash tools/checks/naming_charter_guard.sh
 ```
 
 Also run the narrowest existing parser regression named by
@@ -97,3 +97,21 @@ Implementation, focused tests/guard, module README, landed receipt, current
 pointers, commit, and push close together. The next row is
 `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`, the typed integer lexical-parts
 product; it remains closed until this behavior-neutral refactor is green.
+
+## Landed receipt
+
+R0 moved only compatibility JSON string escaping from the stateful
+`ParserBox` facade to the stateless `ParserCompatTextBox` support owner.
+`trim` and every grammar/state owner remain in `ParserBox`.
+
+```text
+ParserBox lines:              787 -> 754
+grammar change:               0
+rich-result activation:       0
+parser-state duplication:     0
+new compatibility-text owner: 1
+```
+
+The focused R0 fixture covers null, ordinary text, and newline escaping. The
+R0, H1, H2-S1, current-pointer, and naming guards are green. S0 may now open;
+statement/body/method connection remains closed.

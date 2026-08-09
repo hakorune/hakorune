@@ -95,9 +95,13 @@ module. H2-S1 is also closed: one atomic parser-private product owns ordered
 `Ordinary` parameter rows, while its neutral projection borrows sealed rows
 and omits transfer syntax. H2-S2 must retain
 `ParserNodeProductV1` and its sealed tree from the same parse; ProgramJSON is
-only a projection. H2-S2 first opens a behavior-neutral ParserBox facade split,
-then typed integer lexical parts, the sole return statement product, and the
-sole block product. H2-S3 temporarily co-owns exact method site, parameter
+only a projection. H2-S2 first closed a behavior-neutral ParserBox facade
+split. The current S0 adds private numeric lexical parts plus exact
+unsuffixed-decimal admission to the existing scanner while keeping the live
+`JSON@pos` result as a compatibility projection of the same traversal.
+It does not connect an expression, Return, body, or method product. Later rows
+add the sole return statement product and sole block product. H2-S3 temporarily
+co-owns exact method site, parameter
 product, and method-bound body result but does not seal or publish; H3 remains
 the only final source seal.
 

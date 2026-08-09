@@ -560,12 +560,20 @@ HAKO-PARSER-RICH-BODY-RESULT-H2-S2-D0 (closed accepted Decision)
   Task:
   `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`
 
-HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0 (current)
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0 (closed)
   split the 787-line ParserBox facade behavior-neutrally before adding a tiny
   rich-result delegation; no typed emission, parser acceptance, or language
   activation.
   Task:
   `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md`
+
+HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0 (current)
+  add one private numeric lexical-parts result to the existing scanner, admit
+  exact unsuffixed decimal integers, and derive compatibility `JSON@pos` from
+  the same traversal; no expression, Return, body, method, Take/Home,
+  resolver, Recipe, or MIR activation.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s0-integer-lexical-parts-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)
@@ -1237,11 +1245,17 @@ Rejected > Unresolved > Declined > Candidate
       remain forbidden;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md`.
-22A-HOME-TAKE-H2-S2-R0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0` (current)
+22A-HOME-TAKE-H2-S2-R0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0` (closed)
     - behavior-neutrally split the ParserBox facade below the source-size limit;
     - do not add typed products, syntax acceptance, or parser connection;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-S0. `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0` (current)
+    - add private numeric lexical parts behind the existing scanner;
+    - typed admission is exact unsuffixed decimal digits only;
+    - preserve compatibility projection without JSON decode or source rescan;
+    - implementation card:
+      `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s0-integer-lexical-parts-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

@@ -401,7 +401,8 @@ H1     disconnected typed transaction/source-site substrate   closed
 H2-S0  program session + Box-scoped member cursor              closed
 H2-S1  atomic ordered parameter-list product                   closed
 H2-S2  same-pass rich body result Decision                     closed
-H2-S2-R0 behavior-neutral ParserBox facade split               current
+H2-S2-R0 behavior-neutral ParserBox facade split               closed
+H2-S2-S0 private typed integer lexical parts                   current
 H2-S3  unpublished method-bound parameter/body transaction     after H2-S2
 H2-I0  bounded ordinary Box direct-method parser connection    after H2-S3
 H3-I0  atomic inventory + parser source seal                   after H2-I0
