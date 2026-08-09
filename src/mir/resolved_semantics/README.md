@@ -91,6 +91,16 @@ not carry an instance-method body, and the declaration catalog has no exact
 body/function-owner co-seal. Body conformance must wait for that source
 authority; it must not pair by name, inventory ordinal, or MIR facts.
 
+The next body-source D0 fixes the parser-side boundary before any conformance
+issuer opens. The existing declaration handoff remains body-free. A private
+one-shot parser body envelope must pair the exact direct method source site,
+body root, and ordered body coverage in the same rich parse transaction. Its
+resolver result is AST-free and borrows the already landed declared
+contract aggregate; it never consumes Home/Query again or mints a
+`FunctionOwnerIdV1`. A body owner link and body-facts observer are later
+boundaries. Missing carrier/owner link is `NoSafeSlice`, not a default body
+receipt.
+
 ## Home relation vocabulary S0
 
 `home_relation.rs` is the passive next-step vocabulary for that issuer. It

@@ -81,6 +81,69 @@ matching declaration catalog. It may not rescan a program, reconstruct a
 method from `Box`/method names, or use selected/generated inventory ordinals as
 source identity.
 
+## Body carrier decision
+
+The body carrier is a parser-side, one-shot envelope created by the same rich
+parse transaction that issues the declaration handoff. It is not a second
+parser authority and it does not change the existing declaration-only
+`ParserBoxResolverSourceHandoffV1`:
+
+```text
+ParserBoxBodySourceEnvelopeV1   (private parser side, non-Clone)
+  parser invocation brand
+  declaration-only resolver handoff
+  exact direct SourceBoxMethodSiteV1 rows
+  exact body root for each row
+  ordered body-item source paths/cardinality
+  private syntax arena/view used only by one observer callback
+```
+
+The envelope is the only legal way to pair the returned AST/body syntax with
+the AST-free declaration handoff. An API that returns an AST and a body-free
+handoff as independent values and later pairs them by name, ordinal, or
+`ASTNode` search is not a body-source authority. The existing declaration-only
+API remains for declaration/signature consumers; the body envelope is a new
+parser-private ingress for this row.
+
+The resolver-facing result is a fresh non-`Clone`
+`VerifiedInstanceMethodBodySourceCatalogV1`. It contains only the exact
+resolver/catalog brand, direct method source identity, body-root identity, and
+complete ordered-body coverage. It does not contain an `ASTNode`, a
+`FunctionOwnerIdV1`, body effects, Query, Home, semantic types, target,
+Recipe, or MIR. The private observer callback may borrow the syntax arena while
+the envelope is alive; the callback must finish before the envelope is dropped.
+
+The first cohort is deliberately limited to an ordinary top-level Rust Box
+with explicit direct instance methods. Selected-gate, Hako, interface, static,
+record, mixed, generated, and compatibility rows remain `NoSafeSlice` until a
+separate source-path decision supplies their exact body coordinates.
+
+## Function-owner binding is a later boundary
+
+`FunctionSemanticResolverSessionV1` is the sole issuer of
+`FunctionOwnerIdV1`/`VerifiedResolvedFunctionV1`. Body-source I0 never mints,
+copies, or reinterprets that owner. A later
+`InstanceMethodBodyOwnerBindingIssuer` must co-seal:
+
+```text
+VerifiedInstanceMethodBodySourceCatalogV1
++ exact resolved function product
++ declaration/catalog identity
+  -> one branded instance-method body-owner link
+```
+
+Equal-looking owner numbers, source ordinals, method names, or compilation
+brands are insufficient. Until this link issuer exists, body facts that need
+resolved lexical/control facts remain `NoSafeSlice`.
+
+## Input ownership
+
+The body-source issuer borrows the already landed
+`VerifiedDeclaredInstanceMethodContractCatalogV1`; it does not consume or
+clone the Home catalog, Query catalog, or declaration catalog. The aggregate
+remains available for the later conformance co-seal. The one-shot move belongs
+to the parser body envelope, not to the semantic aggregate.
+
 The exact public type names above are design names until the implementation
 row closes. The ownership and ordering are normative.
 
@@ -194,11 +257,14 @@ performs no semantic re-check.
 ```text
 1. CALLABLE-BODY-SOURCE-AUTHORITY-D0
    source authority census, exact identity tuple, body-root/order contract,
-   parser/resolver handoff shape, fail-fast matrix (this row)
+   parser body envelope, resolver borrow boundary, owner-link stop line, and
+   fail-fast matrix (this row)
 
 2. CALLABLE-BODY-SOURCE-AUTHORITY-I0
    one bounded `length(): i64` instance-method body source capability;
-   resolver-only, AST-free after handoff, no conformance yet
+   resolver-only, AST-free after handoff, no conformance yet. This row stays
+   `NoSafeSlice` until the parser body envelope and its one-shot callback are
+   implemented; do not add a test-only constructor.
 
 3. CALLABLE-BODY-FACTS-QUERY-D0
    exact receiver-read/return observation and body-facts owner
@@ -217,4 +283,3 @@ performs no semantic re-check.
 Every implementation row must update its focused tests, owner README, and the
 callable-contracts reference in the same commit. No row may add a public
 `Verified*` constructor without its canonical issuer and negative matrix.
-

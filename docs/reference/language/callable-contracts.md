@@ -172,6 +172,23 @@ product from being issued. Module publication consumes the publishable
 catalog and performs no new semantic decision. The body verifier checks the
 declared meaning; it never infers or substitutes a public contract.
 
+The body source path is intentionally separate from the declaration handoff:
+
+```text
+parser rich transaction
+  -> private one-shot ParserBoxBodySourceEnvelopeV1
+  -> AST-free VerifiedInstanceMethodBodySourceCatalogV1
+  -> private body observer / body facts
+  -> conformance Verify product
+```
+
+The envelope is the only legal pairing of body syntax with the existing
+AST-free declaration handoff. It is bounded to ordinary direct Rust Box
+methods in the first cohort, does not mint `FunctionOwnerIdV1`, and does not
+consume the declared Home/Query aggregate. Missing body carrier or a missing
+declaration/body owner link is development `NoSafeSlice`, never an empty
+verified body product.
+
 ## Receiver Home rule
 
 The canonical ownership word is `Handle`:

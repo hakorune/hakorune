@@ -406,6 +406,14 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0
   `CALLABLE-BODY-SOURCE-AUTHORITY-D0/I0` and
   `CALLABLE-BODY-FACTS-QUERY-D0/I0`
 
+CALLABLE-BODY-SOURCE-AUTHORITY-I0 (parked behind D0)
+  issue only the AST-free, non-Clone body-source capability for one ordinary
+  direct Rust Box method. The parser body envelope is the sole pairing point
+  for body syntax and the existing declaration handoff. No FunctionOwnerId,
+  body facts, conformance, target, Recipe/CallSlot, Builder/MIR, or fallback.
+  Task:
+  `docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md`
+
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
   semantic I64 -> one-way physical ABI projection
   no ExactTrivial*Abi/MirType reverse inference
