@@ -45,8 +45,8 @@ legacy deletion belongs to this receipt.
 
 ## Accepted Dynamic value boundary — V2 only
 
-Decision: accepted — the source-backed Dynamic invocation result is represented
-honestly as `LoopValueClassV2::Dynamic`. It is a logical Recipe class, not
+Decision: accepted and schema I0 landed — the source-backed Dynamic invocation
+result is represented honestly as `LoopValueClassV2::Dynamic`. It is a logical Recipe class, not
 `Unknown`, `Any`, a runtime tag, provider identity, Home state, or physical
 representation. V1 remains unchanged.
 
@@ -80,6 +80,13 @@ catalog rows. Fixture reduction, selector-based filtering, source rewriting,
 and fallback are forbidden. The ordered implementation starts with the
 behavior-neutral V2 operand-definition guard, then Dynamic value schema,
 source-value relations, and exact CallSlot/envelope co-seal.
+
+The landed caller-zero V2 golden covers one consistent Dynamic input, binding,
+ReadBinding result, carrier, CallSlot normal result, WriteBinding, and Return.
+Eighteen focused schema tests reject forward/undefined/duplicate values,
+Dynamic predicates, I64/Text domain confusion, mixed carrier classes, and V1
+decode. The unchanged envelope regression retains all seven source rows. No
+source-value relation or semantic-program publication is claimed yet.
 
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).

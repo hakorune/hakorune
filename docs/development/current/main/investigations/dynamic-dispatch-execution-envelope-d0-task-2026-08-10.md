@@ -1,11 +1,11 @@
 ---
-Status: operand-definition guard R0 closed; Dynamic value I0 next
+Status: Dynamic value I0 closed; source-value relation D0 design stop
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
 Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-RECIPE-V2-DYNAMIC-VALUE-I0`
+Next row: `LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: BoxCount / typed Recipe V2 value vocabulary
+Mode: design stop / Dynamic source-to-Recipe relation
 ---
 
 # Dynamic dispatch execution envelope
@@ -492,3 +492,36 @@ The row changes no V1 wire, source relation, Recipe operation, JoinSig,
 Builder/MIR path, provider/runtime route, retry, fallback, or production
 caller. `LOOP-RECIPE-V2-DYNAMIC-VALUE-I0` is the next bounded compiler
 acceptance row.
+
+## Dynamic value I0 closeout
+
+`LOOP-RECIPE-V2-DYNAMIC-VALUE-I0` is closed. V2 now serializes and verifies
+one exact `LoopValueClassV2::Dynamic` member. The structural golden covers a
+Dynamic input, binding, ReadBinding result, carrier entry, CallSlot normal
+result, WriteBinding, and Return value with one consistent logical class.
+
+Focused negatives reject Dynamic predicates, Dynamic operands in I64/Text
+operation domains, mixed carrier classes, and V1 decoding. The prerequisite
+definition guard still rejects forward/undefined/duplicate values.
+
+```text
+focused schema tests:
+  cargo test -q loop_recipe_contract::typed_schema_v2_tests --lib
+  18 passed
+
+unchanged envelope regression:
+  cargo test -q dynamic_invocation_contract::tests --lib
+  5 passed
+  complete module catalog = 7
+```
+
+This is still a structural V2 wire receipt. It issues no source-value row,
+target/envelope co-seal, Dynamic Add/Less operation, local Home, V2 JoinSig,
+Fault edge, Builder/MIR value, provider/runtime plan, retry, fallback, or
+production caller.
+
+The next row is the design-only
+`LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0`. It must decide the minimal
+source-issued relation from exact receiver/argument/result sites and roles to
+producer-issued Recipe keys without copying target/envelope truth. No relation
+code is allowed before that decision is accepted.

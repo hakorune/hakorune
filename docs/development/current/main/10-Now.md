@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -46,7 +46,7 @@ semantic-envelope catalog are now closed. The Dynamic Recipe consultation is
 also closed. The current executable row is:
 
 ```text
-LOOP-RECIPE-V2-DYNAMIC-VALUE-I0
+LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0
 ```
 
 Message identity remains separate from the atomic semantic envelope. Recipe
@@ -55,10 +55,12 @@ relation retains the exact target and indivisible envelope. V1 remains
 unchanged and Fault is not a Recipe value or exit. The unchanged module
 catalog remains seven rows: three Loop-owned and four valid non-Loop; the
 first `skip_while/4` relation will select exact two while retaining all seven.
-The prerequisite R0 now closes V2 operand use-before-definition and
-Return-value validation through one common checked-use path. The current I0
-adds only the honest V2 Dynamic logical class and structural tests. If a valid
-row is unsupported, widen the compiler
+The prerequisite R0 closes V2 operand use-before-definition and Return-value
+validation. Dynamic value I0 is also closed: V2 now has one honest logical
+Dynamic class across type-consistent structural domains, with exact I64/Text/
+Bool domains unchanged. The current design stop decides the one AST-free
+source receiver/argument/result relation to producer-issued Recipe keys. If a
+valid row is unsupported, widen the compiler
 or stop at a named design question; never narrow or rewrite source. Physical
 projection, provider plan, retry, and fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede

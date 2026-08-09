@@ -166,6 +166,7 @@ pub(crate) enum LoopValueClassV2 {
     Bool,
     Unit,
     Text,
+    Dynamic,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

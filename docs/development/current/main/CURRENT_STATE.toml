@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C through semantic-envelope I0 and LOOP-V2-OPERAND-DEFINITION-GUARD-R0 are closed. V2 now rejects use before definition and unknown Return keys through one common checked-use path. LOOP-RECIPE-DYNAMIC-VALUE-D0 is accepted: the next bounded row adds one honest V2 Dynamic logical class while V1, source/envelope co-seal, Fault, physical/provider/runtime routes, retry, and fallback remain unchanged."
+status = "Dynamic carrier P2C through semantic-envelope I0, the V2 operand-definition guard R0, and LOOP-RECIPE-V2-DYNAMIC-VALUE-I0 are closed. V2 now has one honest Dynamic logical class across type-consistent structural domains; V1 remains unchanged and the full envelope regression retains all 7 rows. The next design stop owns the exact source receiver/argument/result relation to producer-issued Recipe keys; target/envelope copying, selector refinement, Fault-as-value, physical/provider/runtime plans, retry, fallback, and fixture narrowing remain forbidden."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "LOOP-RECIPE-V2-DYNAMIC-VALUE-I0"
-current_blocker_token = "LOOP-RECIPE-V2-DYNAMIC-VALUE-I0: add only LoopValueClassV2::Dynamic plus structural verifier/tests; retain full 7-row envelope regression, V1 unchanged, exact I64/Text/Bool domains, no source/envelope co-seal, selector refinement, physical/provider/runtime plan, retry, fallback, or fixture narrowing"
+current_design_stop = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0"
+work_mode = "design_stop"
+current_execution_row = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0"
+current_blocker_token = "LOOP-V2-DYNAMIC-CALL-SOURCE-VALUE-RELATION-D0: decide one AST-free exact receiver/ordered-argument/result source relation to producer-issued Recipe keys, preserving the full 7-row envelope catalog without copying target/envelope truth; no relation code, selector refinement, Fault/value fusion, physical/provider/runtime plan, retry, fallback, or fixture narrowing before consultation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"

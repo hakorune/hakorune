@@ -150,8 +150,8 @@ source disposition. Every landed typed schema/observer/producer commit must
 update `docs/reference/mir/loop-recipe-contract.md`, this README, and the
 source Facts README with its focused tests.
 
-The next V2 extension is designed but not implemented. Its accepted logical
-class is `Dynamic`; it is never selector-refined to `Text`/`I64` and never
+The V2 `Dynamic` value extension is landed as a caller-zero structural wire
+receipt. It is never selector-refined to `Text`/`I64` and never
 means runtime `Unknown`, Home, or ABI. One external item/source relation must
 bind each Dynamic CallSlot to the exact borrowed target/envelope. The wire
 does not store that target or envelope.
@@ -168,6 +168,12 @@ and Return operands without adding an accepted source shape. The later order
 is Dynamic value I0, source-value
 relation, CallSlot/envelope co-seal, explicit Dynamic operations, local Home,
 then any required V2 JoinSig/After work. V1 remains unchanged.
+
+The focused golden covers type-consistent Dynamic input, binding, carrier,
+CallSlot normal result, WriteBinding, and Return domains. It does not issue the
+external source-value or target/envelope relation. That relation is the next
+design stop and must retain all seven module envelope rows while selecting
+only exact callable/Loop source sites.
 
 ## Generic G0 S4 producer
 
