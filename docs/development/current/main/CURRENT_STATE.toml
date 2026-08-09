@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic carrier P2C, unchanged skip_while/4 full-body source I0, the neutral resolved MethodCall source relation I0, and source-bound Dynamic member target I0 are closed. The selector-independent Dynamic invocation language contract is now accepted: OpaqueObservable, SynchronousNonDetached, MaySuspend, CallableBounded Normal(self-contained carrier)|Fault, borrowed-no-escape inputs, and one self-contained result carrier. The bounded complete-envelope catalog I0 is active before Recipe. Valid source rows must widen the compiler boundary rather than narrow or rewrite the fixture; fabricated targets, permissive defaults, retry, and fallback are forbidden."
+status = "Dynamic carrier P2C, unchanged skip_while/4 full-body source I0, the neutral MethodCall source relation I0, source-bound Dynamic target I0, and the complete caller-zero Dynamic semantic-envelope catalog I0 are closed. The envelope owns the route-neutral target catalog and derives one selector-independent view per Dynamic arm without a second row truth; Static arms remain retained. Recipe v2 still lacks an accepted Dynamic value-carriage relation, so LOOP-RECIPE-DYNAMIC-VALUE-D0 is the current design stop. Valid source rows widen the compiler rather than narrow or rewrite the fixture; selector refinement, fabricated targets, permissive defaults, retry, and fallback are forbidden."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0"
-current_blocker_token = "DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0: issue one complete selector-independent semantic-envelope catalog from the exact route-neutral Dynamic target catalog over the unchanged full fixture; retain valid non-Dynamic rows unselected, widen the compiler rather than narrow source, and add no Recipe, Builder/MIR, provider/runtime plan, retry, or fallback"
+current_design_stop = "LOOP-RECIPE-DYNAMIC-VALUE-D0"
+work_mode = "design_stop"
+current_execution_row = "LOOP-RECIPE-DYNAMIC-VALUE-D0"
+current_blocker_token = "LOOP-RECIPE-DYNAMIC-VALUE-D0: decide whether and where the landed self-contained Dynamic result carrier enters typed Recipe v2, how CallSlot retains the exact target plus indivisible envelope, and how terminal Fault remains outside lexical/value control; no schema code, selector refinement, v1 widening, physical/provider/runtime plan, retry, or fallback before consultation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -210,7 +210,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The unchanged full production fixture binds neutral MethodCall rows to exact source-backed Dynamic origins and issues substring/2 plus indexOf/1 through one route-neutral target catalog. D0 now fixes one selector-independent language contract and the next bounded I0 issues only its complete atomic semantic-envelope catalog. Recipe, physical projection, provider plan, runtime invocation, retry, and fallback remain closed."
+current_execution_summary = "The unchanged full fixture now issues exact substring/2 and indexOf/1 targets and one complete language-wide semantic envelope per Dynamic arm. The envelope catalog retains the original route-neutral target catalog, so it creates no second coverage truth. Its issuer is caller-zero and has no Recipe or physical/runtime consumer. The next hard question is the typed Recipe v2 Dynamic value/carrier boundary."
 current_execution_design = "docs/development/current/main/investigations/dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -694,13 +694,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-dispatch-execution-envelope-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md"
-next_design_card = "none"
+next_design_card = "LOOP-RECIPE-DYNAMIC-VALUE-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The Dynamic execution-envelope D0 is accepted. The next I0 issues one complete selector-independent semantic row for every exact Dynamic target in the unchanged full fixture, with borrowed-no-escape inputs, one self-contained result carrier, OpaqueObservable effect, MaySuspend synchronous completion, and Normal-or-Fault outcome; no Recipe or physical/runtime activation."
+latest_card_summary = "Dynamic execution-envelope I0 is closed with one complete target-owning catalog, exact substring/2 and indexOf/1 views, one selector-independent contract, retained Static rows, and zero Recipe/physical/runtime consumers. LOOP-RECIPE-DYNAMIC-VALUE-D0 is the next consultation stop."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

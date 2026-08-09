@@ -23,7 +23,7 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
@@ -41,21 +41,23 @@ single route-neutral target catalog now consumes an exact branded callable
 source link and issues `substring/2` plus `indexOf/1` for the unchanged full
 production fixture. Qualified helper receivers remain valid unselected rows;
 the compiler acceptance was widened instead of rewriting or narrowing the
-source. The selector-independent language Decision is now accepted, and the
-current bounded implementation row is:
+source. The selector-independent language Decision and caller-zero complete
+semantic-envelope catalog are now closed. The current consultation row is:
 
 ```text
-DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0
+LOOP-RECIPE-DYNAMIC-VALUE-D0
 ```
 
-Message identity remains separate from the atomic semantic envelope. D0 fixes
-one language-wide contract: `OpaqueObservable`, synchronous non-detached
-completion that may suspend, callable-bounded `Normal(one self-contained
-Dynamic carrier) | Fault`, and borrowed-no-escape receiver/arguments. I0 may
-only issue the complete envelope catalog from the exact target catalog over
-the unchanged full fixture. If a valid row is unsupported, widen the compiler
-or stop at a named design question; do not narrow or rewrite source. Recipe,
-physical projection, provider plan, retry, and fallback remain closed.
+Message identity remains separate from the atomic semantic envelope. The
+landed I0 owns the complete route-neutral target catalog and derives one
+language-wide envelope view for each Dynamic arm without copying rows into a
+second truth. The unchanged fixture yields exact `substring/2` and `indexOf/1`
+views; Static arms remain retained. The issuer is caller-zero. Recipe v2 still
+lacks an accepted Dynamic value-carriage boundary, so no schema code or
+CallSlot result is allowed before the current consultation. If a valid row is
+unsupported, widen the compiler or stop at a named design question; do not
+narrow or rewrite source. Physical projection, provider plan, retry, and
+fallback remain closed.
 JoinSig-authorized If/Return and multi-return Completion still precede
 DraftSeal/collector/backend/VM.
 

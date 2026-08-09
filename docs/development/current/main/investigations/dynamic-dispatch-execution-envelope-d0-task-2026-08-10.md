@@ -1,10 +1,11 @@
 ---
-Status: Decision accepted; implementation pending
+Status: D0 and semantic-envelope I0 closed; next Recipe value design stop
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
-Next row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
+Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
+Next row: `LOOP-RECIPE-DYNAMIC-VALUE-D0`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: bounded semantic implementation
+Mode: design stop / Recipe value boundary
 ---
 
 # Dynamic dispatch execution envelope
@@ -216,3 +217,68 @@ Every implementation row updates its landed status in the owning reference
 and module README in the same commit. Future claims must distinguish accepted
 language target, semantic issuer activation, Recipe activation, physical
 canary, and production cutover. This D0 does not make any of them live.
+
+## I0 closeout
+
+`DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0` landed on 2026-08-10.
+
+```text
+src/mir/dynamic_invocation_contract/
+  README.md
+  mod.rs
+  model.rs
+  catalog.rs
+  tests.rs
+```
+
+The implementation owns the complete route-neutral target catalog. It does
+not copy keys into a second envelope map; every Dynamic arm projects one
+borrow-scoped `VerifiedDynamicInvocationEnvelopeRefV1`, and every Static arm
+remains retained and unselected. This makes missing/duplicate envelope rows
+structurally impossible after successful issue.
+
+Acceptance evidence:
+
+```text
+unchanged parser_scan_loop_box.hako:
+  complete Dynamic target/envelope rows = 7
+  skip_while/4 substring/2 envelope = 1
+  skip_while/4 indexOf/1 envelope = 1
+  selector-specific contract variants = 0
+
+focused tests:
+  cargo test -q dynamic_invocation_contract::tests --lib
+  cargo test -q source_call_target::dynamic_member_tests --lib
+
+crate check:
+  cargo check -q --lib
+
+source file maximum in new owner:
+  227 lines
+```
+
+The issuer has no Recipe, Builder mutation, MIR effect, provider, runtime,
+retry, or fallback consumer. Production envelope consumer count remains zero.
+
+## Next design stop — Recipe Dynamic value
+
+`LOOP-RECIPE-DYNAMIC-VALUE-D0` must be reviewed before code changes. It owns
+only the logical value-carriage question between the landed envelope and the
+existing typed Recipe v2 schema.
+
+The consultation must decide:
+
+1. whether `Dynamic` is one new `LoopValueClassV2` member or a distinct
+   source-bound carrier relation kept outside the semantic value-class enum;
+2. whether Dynamic is admitted for operation results only or also for Recipe
+   inputs, bindings, carriers, joins, and After payloads;
+3. how one CallSlot retains the exact source target and indivisible envelope
+   without copying selector, Home, effect, or Fault truth;
+4. how `Normal(carrier) | Fault` relates to Recipe control without turning
+   Fault into lexical Return/Break/Continue or an ordinary value;
+5. whether v1 remains unchanged and the extension is v2-only;
+6. the smallest full-fixture caller-zero golden and its negative matrix.
+
+Until that Decision is accepted, do not add `Dynamic` to either Recipe schema,
+invent a generic Unknown class, map it to Text/I64 from selectors, add a
+CallSlot result, or open physical/provider/runtime work.

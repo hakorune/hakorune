@@ -1,7 +1,7 @@
 # Dynamic Invocation Contract
 
-Status: Language semantics SSOT; accepted target, semantic-envelope
-production 0.
+Status: Language semantics SSOT; accepted target and caller-zero semantic
+envelope issuer live, production consumer 0.
 
 Decision: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0` accepted on 2026-08-10.
 
@@ -124,7 +124,12 @@ second plan, or result-carrier fabrication.
 
 ## Activation Boundary
 
-The language Decision is accepted. The canonical semantic issuer, Recipe
-value/CallSlot support, physical projection, provider admission, executable
-plan, and runtime cutover remain inactive until their separately named rows
-land.
+The language Decision is accepted. The canonical caller-zero semantic issuer
+is live in `src/mir/dynamic_invocation_contract`: it owns the complete
+route-neutral target catalog and derives exactly one indivisible envelope view
+for every Dynamic arm without a second row map. Static arms remain retained
+and unselected.
+
+Recipe value/CallSlot support, a production envelope consumer, physical
+projection, provider admission, executable plan, and runtime cutover remain
+inactive until their separately named rows land.

@@ -262,7 +262,9 @@ acceptance boundary. Its qualified helper receivers remain neutral
 resolved-expression boundary; the source and fixture were not rewritten or
 narrowed.
 
-This I0 still owns message/source identity only. Result class, effects, Fault,
-suspension, Home/lifetime, Recipe CallSlot, physical execution, provider
-selection, retry, and fallback remain absent. The next row is the explicit
-`DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0` design stop.
+This I0 still owns message/source identity only. The sibling
+`dynamic_invocation_contract` module now owns the landed caller-zero complete
+semantic-envelope catalog; it does not move envelope meaning back into this
+target owner. Recipe CallSlot, physical execution, provider selection, retry,
+and fallback remain absent. The next row is the explicit
+`LOOP-RECIPE-DYNAMIC-VALUE-D0` design stop.
