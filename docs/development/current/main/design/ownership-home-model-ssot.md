@@ -164,14 +164,28 @@ Do not call every record Trivial. Identity-free structure can still contain a
 Box owner. `Option<Box>`, `Result<Box, E>`, and Box-bearing enum variants are
 owner-bearing until a recursive classifier proves otherwise.
 
-### Callable Home ABI
+### Callable parameter demand and Home ABI
 
-One sealed product is the only call-site authority:
+Declaration-side parameter demand is issued once by a common callable axis:
+
+```text
+VerifiedCallableParameterDemandCatalog
+  exact callable declaration identity
+  complete ordered parameter rows
+  Ordinary -> Handle
+  Take -> accepted Home-demand capability
+```
+
+This target authority is accepted but not yet implemented. Until the typed
+Rust/Hako transfer source seal and complete catalog exist, normal-callable
+parameter-demand consumers remain `NoSafeSlice`.
+
+One sealed callable Home ABI remains the only combined call-site authority:
 
 ```text
 VerifiedHomeAbi
   receiver demand
-  parameter demands
+  parameter-demand catalog or its exact same-declaration projection
   result relation
   profile/schema identity
   source/declaration provenance
@@ -181,6 +195,9 @@ The callable D0 also decides whether this ABI is part of callable identity,
 overload uniqueness, interface compatibility, and cache keys. Method spelling
 alone is never enough.
 
+The common parameter catalog owns parameter demands; it owns no receiver,
+result, Recipe, carrier, or physical meaning. A callable Home ABI consumes or
+projects those exact rows and must not restate them through a second issuer.
 The callable Home ABI design stop is now closed by
 [`OWN-HOME-CALLABLE-ABI-D0`](../investigations/own-home-callable-abi-d0-design-task-2026-08-09.md).
 The next design/implementation sequence consumes the landed resolver
@@ -198,7 +215,8 @@ receipt. Unknown/generic/composite capability remains `Unresolved`.
 
 ClosedCallable bodies may infer a candidate result relation and local Home
 Flow. They may not invent parameter/receiver Home demand: a plain parameter is
-Handle, and only the resolved declaration supplies a consuming demand. Body
+Handle, the common declaration parameter catalog owns that demand, and only
+the resolved declaration supplies a consuming demand. Body
 analysis verifies that declaration. ContractBoundary callables must declare or
 import the exact ABI. A body does not make an exported API implicit.
 
@@ -442,10 +460,11 @@ The callable-contract lane reuses this model rather than inventing a second
 receiver capability. `CallableContract(query)` requires the ordinary receiver
 `Handle` boundary: no Home transfer, addition, end, or escape. The Query
 behavioral receipt does not issue or restate that axis. The same-declaration
-`VerifiedHomeAbi` alone owns receiver/parameter demands and the result
-relation, and the declared callable contract merely co-seals it with Query and
-the semantic signature. Its declared behavior, body conformance, and physical
-ABI are separate owners; see
+`VerifiedHomeAbi` owns the combined receiver/result relation and consumes the
+common parameter-demand rows; it does not issue a parallel parameter truth.
+The declared callable contract merely co-seals it with Query and the semantic
+signature. Its declared behavior, body conformance, and physical ABI are
+separate owners; see
 `docs/reference/language/callable-contracts.md`.
 
 HomeV1 is product-ready only when:

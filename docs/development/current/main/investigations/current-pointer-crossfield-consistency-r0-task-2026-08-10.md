@@ -1,6 +1,6 @@
 # CURRENT-POINTER-CROSSFIELD-CONSISTENCY-R0
 
-Status: parked P0; run at the next docs/guard hygiene seam
+Status: pointer/mirror repair closed; guard implementation parked P0
 Date: 2026-08-10
 Owner: `docs/development/current/main/CURRENT_STATE.toml`
 
@@ -39,6 +39,13 @@ mode, row, or landed chronology from `CURRENT_STATE.toml`.
 - no compiler, parser, Recipe, Home, Fault, or runtime behavior changes;
 - do not add a per-row shell guard; extend
   `tools/checks/current_state_pointer_guard.sh` and its existing fixture owner.
+
+## Landed docs subset
+
+The live state now points `current_execution_design` at the active rolling
+card, and `10-Now.md` contains field names only. The remaining P0 is the
+cross-field guard plus its table-driven fixtures; do not rewrite the mirror or
+move the compiler lane again when implementing it.
 
 ## Parked follow-up
 
