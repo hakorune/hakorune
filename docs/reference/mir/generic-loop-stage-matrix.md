@@ -21,8 +21,15 @@ callable closure now precede backend activation. The executable order is
 owned by
 `docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`.
 
-The D0 census is closed. The first safe implementation is an AST-free exact
-source inventory only. The two calls use source-backed Dynamic receivers, so
+The D0 census and the first AST-free exact source-inventory I0 are closed.
+`VerifiedDynamicLoopFullBodySourceInventoryV1` consumes the canonical Loop
+membership and existing Completion product, and retains six exact binding
+roles plus twenty-eight ordered statement/expression roles for the unchanged
+production method. Focused tests accept that file and reject an extra body
+statement, a different selector shape, and a foreign Completion owner before
+any Builder effect.
+
+The two calls use source-backed Dynamic receivers, so
 the compiler must add a route-disjoint source-bound Dynamic member target;
 it must not fabricate an exact declaration target or classify the receiver by
 the spellings `substring` / `indexOf`. `ch` is an exact iteration-local

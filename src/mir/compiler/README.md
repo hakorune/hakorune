@@ -23,6 +23,28 @@ Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
 to atomic SA3-B.
 
+## Dynamic full-body source inventory (I0)
+
+`dynamic_full_body_source.rs` owns the first compiler-side acceptance repair
+for the unchanged `ParserScanLoopBox.skip_while/4` method. Its sole issuer
+consumes one canonical `ResolvedFunctionLoweringInputV1`, the exact resolver
+Loop membership, and the existing function Completion product, then seals one
+non-`Clone`, AST-free `VerifiedDynamicLoopFullBodySourceInventoryV1`.
+
+The inventory contains exactly six source bindings and twenty-eight ordered
+statement/expression roles covering the prelude, Loop, both Dynamic method-call
+syntax sites, iteration-local `ch`, inner If/Return, induction rebind, and
+outer Return. `ch` is source identity only: it is neither a carrier nor a
+second Binding-SSA owner. Completion remains the unique authority for the
+two Return sites and is moved into the inventory rather than recreated.
+
+The spellings `substring` and `indexOf` are checked only as the bounded
+unchanged-source shape for this I0. They do not classify receiver type,
+result type, declaration target, provider, ABI, or physical route. Those
+meanings remain closed until the route-disjoint source-bound Dynamic dispatch
+contract is designed. This module owns no Recipe keys, Builder/MIR effects,
+fallback, source rewrite, or narrowed fixture.
+
 ## Callable single-loop logical issuer (S0)
 
 The accepted `CALLABLE-LOOP-PRODUCTION-LOGICAL-ISSUER-D0` is closed by the

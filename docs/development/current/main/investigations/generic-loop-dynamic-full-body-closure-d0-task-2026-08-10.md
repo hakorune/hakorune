@@ -1,5 +1,5 @@
 ---
-Status: design inventory closed; full-body source I0 next
+Status: full-body source I0 closed; Dynamic dispatch D0 next
 Date: 2026-08-10
 Row: `GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-D0`
 Parent: `generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md`
@@ -266,13 +266,32 @@ method-call writer is used as fallback.
 This census fixes every existing/missing owner, the `ch` local-value rule, the
 Dynamic dispatch prerequisite, and the physical Return-consumption gap.
 
-### 2. `GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0`
+### 2. `GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0` — closed
 
 Issue one non-`Clone`, AST-free source inventory for the unchanged method:
 formals, `i`, `ch`, both call sites, If, both returns, rebind, and exact total
 source coverage. This row owns source identity only; target, Recipe, and
 Builder remain nonclaims. Missing/duplicate/foreign rows reject with zero
 Builder effect.
+
+Implementation receipt (2026-08-10):
+
+```text
+src/mir/compiler/dynamic_full_body_source.rs
+src/mir/compiler/dynamic_full_body_source_tests.rs
+
+6 exact binding roles
+28 exact statement/expression roles
+2 Return sites retained through the existing Completion product
+0 Recipe keys
+0 Builder/MIR effects
+```
+
+The focused matrix accepts the unchanged production file, rejects an added
+Loop statement instead of narrowing the source, rejects a different selector
+instead of reclassifying it as this canary shape, and rejects a foreign
+Completion owner. Selector spelling is source-shape evidence only; it issues
+no semantic target or result type.
 
 ### 3. `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0`
 
@@ -409,15 +428,15 @@ VM:
   zero-iteration / inner-return / fallthrough results are correct
 ```
 
-## Nonclaims at the current D0
+## Nonclaims after source I0
 
 ```text
 no source rewrite or narrowing
 no copied simplified skip_while
-no Dynamic Recipe implementation
+no Dynamic semantic target or Recipe implementation
 no CallSlot target invention
 no Builder / MIR mutation
-no After / Completion / DraftSeal / collector
+no After consumption / DraftSeal / collector
 no backend metadata
 no VM execution
 no production switch

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Dynamic source through canonical carrier PHI close and whole-session discard P2C are closed as unpublished-session proofs. The full-body D0 census is also closed: the unchanged skip_while/4 first needs one AST-free exact source inventory, then source-bound Dynamic member targets, V2 Dynamic Recipe/call relations, JoinSig-authorized If/Return physical transfer, multi-return Completion merge, DraftSeal, collector, and backend capability. Compiler acceptance widens; source rewrite and narrowed fixtures are forbidden."
+status = "Dynamic carrier P2C and the unchanged skip_while/4 full-body source-inventory I0 are closed. The compiler now accepts and seals all exact source roles with zero Builder effect. The current design stop must define one route-disjoint source-bound Dynamic member target before V2 Dynamic Recipe/call relations or physical work. Source rewrite, narrowed fixtures, fabricated nominal targets, name-based semantic classification, retry, and fallback are forbidden."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0"
-current_blocker_token = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0: issue one AST-free exact source inventory for unchanged skip_while/4 (formals/i/ch/two calls/If/two returns/rebind) with total coverage and zero Builder effect; target, Recipe, and physical lowering remain closed"
+current_design_stop = "SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0"
+work_mode = "design_stop"
+current_execution_row = "SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0"
+current_blocker_token = "SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0: define the route-disjoint Dynamic member target and exact source-bound dispatch relation for the two preserved call sites; do not fabricate a nominal declaration target, classify semantics by selector spelling, or fall back to a legacy writer"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -689,15 +689,15 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "generic-loop-dynamic-full-body-closure-d0"
-latest_card_path = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
+latest_card = "source-bound-dynamic-method-dispatch-d0"
+latest_card_path = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md"
 next_design_card = "SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0"
 next_design_card_path = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md"
-next_execution_card = "GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The full-body D0 census is closed. The next bounded implementation issues an AST-free exact source inventory for unchanged skip_while/4 only. It is followed by source-bound Dynamic member target D0/I0, V2 Dynamic value/call relations, JoinSig-authorized If/Return physical transfer, multi-return Completion merge, DraftSeal/collector, backend capability, and finally the VM canary. Source rewrite/narrowing and legacy fallback are forbidden."
+latest_card_summary = "The full-body source I0 is closed: unchanged skip_while/4 yields one non-Clone AST-free inventory with six binding roles, twenty-eight exact source roles, and the existing two-site Completion authority, with zero Builder effect. Work stops at SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0 before any target, Recipe, or physical claim."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

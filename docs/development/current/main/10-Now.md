@@ -23,22 +23,24 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `fast`. Dynamic source/origin, complete Loop source
+Current mode is `design_stop`. Dynamic source/origin, complete Loop source
 coverage, operation-source co-seal, prepared ingress/Enter handoff, bounded
 operation/rebind P1, Header-current P2A, corrected Header-based P1R,
 canonical PHI close P2B, and whole-session discard P2C are
 closed as unpublished-session carrier proofs for the unmodified production
 `skip_while/4` source. A top-down audit found that the former direct VM row
 cannot yet execute the complete method and closed the missing-authority
-inventory. The next bounded compiler-side row is:
+inventory. That I0 is now closed: the unchanged method seals six exact
+binding roles, twenty-eight exact statement/expression roles, and the existing
+two-site Completion product with zero Builder effect. The current boundary is:
 
 ```text
-GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0
+SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0
 ```
 
-It issues only the AST-free exact source inventory for the unchanged method.
-The following design row adds a route-disjoint source-bound Dynamic member
-target instead of fabricating an exact declaration target. V2 Dynamic
+It must define a route-disjoint source-bound Dynamic member target instead of
+fabricating an exact declaration target or treating selector spelling as a
+semantic classifier. V2 Dynamic
 value/call relations, JoinSig-authorized If/Return transfers, and multi-return
 Completion merge then precede DraftSeal/collector/backend/VM activation.
 

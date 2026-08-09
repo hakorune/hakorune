@@ -1,5 +1,5 @@
 ---
-Status: queued after full-body source I0
+Status: active design stop after full-body source I0
 Date: 2026-08-10
 Row: `SOURCE-BOUND-DYNAMIC-METHOD-DISPATCH-D0`
 Parent: `generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`
@@ -9,6 +9,12 @@ Mode: BoxShape / compiler acceptance repair
 # Source-bound Dynamic method dispatch contract
 
 ## Decision boundary
+
+The prerequisite `GENERIC-LOOP-DYNAMIC-FULL-BODY-COVERAGE-I0` is closed. Its
+source inventory retains both exact MethodCall syntax rows without assigning
+receiver/result semantics. This D0 is now the only open boundary; no Recipe
+or physical implementation proceeds until the five questions below are
+closed.
 
 The unchanged production `ParserScanLoopBox.skip_while/4` contains:
 

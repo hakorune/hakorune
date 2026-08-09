@@ -252,8 +252,9 @@ The P2 series remains an unpublished-session carrier proof. It cannot be
 used as an executable `skip_while/4` route: that method's calls, iteration
 local, inner If/early return, Loop After, final return, Completion, DraftSeal,
 and collector are not yet consumed. The direct VM canary is `NoSafeSlice`.
-The compiler must first issue a complete AST-free source inventory, add the
-route-disjoint source-bound Dynamic member target, then close V2 Dynamic
+The compiler now issues the complete AST-free source inventory for the exact
+unchanged method. It must next add the route-disjoint source-bound Dynamic
+member target, then close V2 Dynamic
 Recipe/call relations, JoinSig-authorized If/Return transfers, set-aware
 multi-return Completion, and the full callable. The Builder must not infer a
 nominal receiver from method spelling. `ch` is iteration-local, not a carrier;
