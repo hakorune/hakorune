@@ -363,6 +363,16 @@ The neutral `VerifiedLoopSemanticContextV1` and
 Generic G0 move existing resolver/JoinSig evidence into them exactly once; no
 After reissue, clone, source-name lookup, or route-local context is allowed.
 
+The accepted V2 Dynamic design does not copy this V1 flow owner. V1 and V2
+provide private borrowed Recipe views to one common JoinSig engine, while
+their typed seals preserve each exact schema value class. V2 adds no
+Dynamic-profile transfer owner: its only new logical case is a one-sided If
+whose terminal arm targets `FunctionExit` and whose other arm falls through.
+The exact source/Recipe aggregate later invokes the engine and requests After
+internally; callers never pass JoinSig or Continuation into that co-seal.
+`V10/ch`, Dynamic Fault, Callable Tail, Completion, Home, and physical layout
+remain outside this module boundary until their separately named rows land.
+
 ## Generic legacy corpus inventory
 
 The pre-production legacy inventory is intentionally outside this portable

@@ -253,6 +253,42 @@ JoinSig:
   logical transfer role, source/target ports, carrier payload, and exit/After
 Physical Layout:
   operation-to-segment placement and verified-transfer-to-segment binding
+
+### V2 Dynamic JoinSig decision (2026-08-10)
+
+Decision: accepted. The complete unchanged Dynamic Recipe V2 does not create
+a profile-specific JoinSig owner and is not converted to V1. V1 and V2 expose
+private borrowed Recipe views to one common flow engine. The engine owns
+binding-current state, value availability, carrier visibility, branch
+disposition, and logical transfer; versioned seals retain the exact Recipe
+class without copying the algorithm.
+
+The exact Dynamic golden is:
+
+```text
+Preheader -> Header       Enter          [B0=V1:Dynamic]
+Header    -> Body         PredicateTrue  [B0=V1:Dynamic]
+Header    -> After        PredicateFalse [B0=V1:Dynamic]
+Body      -> FunctionExit Return         [B0=V1:Dynamic]
+Body      -> Header       Backedge       [B0=V17:Dynamic]
+
+I10 then: Exit(I12, Return, FunctionExit, [B0=V1:Dynamic])
+I10 else: Fallthrough([B0=V1:Dynamic])
+```
+
+Return uses a typed `FunctionExit` target; it never receives a fabricated Loop
+target. The Return operand remains Recipe-owned `E0 -> V14` and is not a
+carrier payload. `V10/ch` is not a binding/carrier and therefore crosses no
+JoinSig edge or port. The outer Return remains Callable Tail plus Completion.
+Dynamic Fault remains outside Recipe values/exits, JoinSig, and Completion and
+is later owned by a separate exit transaction.
+
+The V2 semantic-program issuer consumes the exact source/Recipe/envelope
+aggregate, elaborates JoinSig internally, and requests `After(L0,B0,Dynamic)`
+from that same JoinSig. Callers do not supply owner, root key, JoinSig, After,
+or Continuation. Ordered execution is neutral-engine R0, Dynamic JoinSig I0,
+then atomic semantic-program co-seal. Physical transfer/layout, Fault, Home,
+Tail consumption, and publication remain closed.
 Canonical CFG:
   BasicBlock, edge, terminator, predecessor, and seal
 ```

@@ -194,6 +194,16 @@ Three focused tests are green. No envelope co-seal, JoinSigV2, physical route,
 fallback, or production caller is introduced. The next row is the atomic
 source-bound Recipe/envelope co-seal design.
 
+Accepted target (`LOOP-RECIPE-V2-JOINSIG-DYNAMIC-D0`, implementation 0): V1
+and V2 Recipe wires feed one private common JoinSig flow engine through exact
+borrowed views. The V2 seal preserves `Dynamic` and a typed `FunctionExit`
+branch target. The unchanged Recipe must produce Enter, PredicateTrue,
+PredicateFalse, inner Return, and Backedge edges with carrier payload values
+`V1/V1/V1/V1/V17` for `B0`. `V10/ch` and Return operand `V14` are not carrier
+payloads. The outer source Return remains Callable Tail/Completion and Dynamic
+Fault remains outside Recipe/JoinSig. No V2 JoinSig implementation or semantic
+continuation is claimed by this Decision receipt.
+
 Decision: accepted — `LOOP-RECIPE-PRODUCER-ID-S0` (building on
 `JOINIR-LOOP-TRUE-REFERENCE-CLOSEOUT0-M7-S3-S3`).
 

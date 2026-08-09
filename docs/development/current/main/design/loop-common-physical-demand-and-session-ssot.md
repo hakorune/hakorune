@@ -156,6 +156,14 @@ same Recipe inputs. Raw `VerifiedLoopSemanticContextV1::from_parts`, external
 continuation `from_after`, and the three-argument physical-demand issue path
 are compatibility debt and reach zero callers in the co-seal migration.
 
+For Recipe V2 Dynamic, the same rule is stronger: the caller passes only the
+exact source/Recipe/envelope aggregate. A common JoinSig engine is invoked
+inside the issuer, and `After(L0,B0,Dynamic)` is requested from that exact
+JoinSig before `VerifiedLoopSemanticProgramV2` exists. A V2 caller cannot pass
+owner, root key, JoinSig, After, or Continuation separately. `V10/ch`, Dynamic
+Fault, Callable Tail, and the two-site Completion remain external to the Loop
+carrier/continuation identity.
+
 Second, current `physical_layout.rs` does not consume JoinSig transfers. It
 reconstructs Predicate true/false, body backedge, nested entry, and child-After
 resume from Recipe; `segment_allocator.rs` also rereads Recipe condition roles,
