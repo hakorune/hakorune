@@ -126,9 +126,18 @@ parser/resolver brands, nominal Box, owner-bearing forest/function, root/body
 receipt, and exact body coverage. The owner-link I0 is now closed: it consumes
 only the selected Query projection and existing carrier/catalog, borrows the
 exact carrier-root function, and issues no owner or second function product.
-The current design stop is `CALLABLE-BODY-FACTS-QUERY-D0`; body facts and
-conformance remain unopened. Missing carrier/owner link is `NoSafeSlice`, not
-a default body receipt. Body modules must be dedicated and must not grow
+The owner-link I0 is closed, but the next body-facts row is a `NoSafeSlice`:
+`VerifiedResolvedFunctionV1` and its source-site inventory do not expose
+expression/statement kind, field/method identity, return-value relation, or
+complete effect/control evidence. The current design stop is therefore
+`CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0`. That issuer must run during the
+existing parser-private syntax lease and return one neutral AST-free body-shape
+inventory co-sealed to the exact owner/body root, parser provenance, resolver
+brand, source sites, and complete coverage. It must not reopen parser
+transport or add a second owner issuer. Only after that inventory lands may a
+private Query observer issue body facts; conformance remains unopened.
+Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
+modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line
 split trigger.
 
@@ -146,7 +155,7 @@ owner, and does not re-resolve. It checks parser provenance, resolver brand,
 nominal/source site, diagnostic name agreement, and exact ordered body
 coverage. Empty coverage is valid; non-Query carrier rows remain unselected
 extras. Body facts, conformance, targets, Recipe, and MIR remain closed behind
-the next `CALLABLE-BODY-FACTS-QUERY-D0` design stop.
+the resolved-shape issuer design stop and its later Query projection.
 
 ## Home relation vocabulary S0
 

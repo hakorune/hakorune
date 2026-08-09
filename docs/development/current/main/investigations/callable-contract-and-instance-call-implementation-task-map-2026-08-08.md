@@ -22,6 +22,7 @@ cloneable ordered Box method inventory
   -> declared Query body-source projection
   -> resolver-issued instance-method function carrier
   -> exact resolved-function owner binding
+  -> neutral AST-free resolved body-shape inventory
   -> body facts
   -> complete body conformance set
   -> publishable callable catalog
@@ -225,8 +226,12 @@ CALLABLE-BODY-OWNER-BINDING-D0/I0
   co-seal selected Query body source + carrier/catalog + exact resolved
   functions into a one-to-one body-owner catalog
 
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0
+  define the neutral AST-free expression/statement/effect/control inventory
+  that the current resolved function product does not yet expose
+
 CALLABLE-BODY-FACTS-QUERY-D0/I0
-  only after the owner catalog is sealed
+  only after the owner catalog and neutral body-shape inventory are sealed
 ```
 
 The carrier must mirror the existing resolved callable function-unit pattern,
@@ -550,9 +555,18 @@ CALLABLE-BODY-OWNER-BINDING-I0 (closed 2026-08-09)
   foreign brand/provenance, missing/duplicate exact carrier identity,
   site/nominal mismatch, and coverage mismatch. No body facts or conformance.
 
-CALLABLE-BODY-FACTS-QUERY-D0/I0 (current design stop after owner binding)
-  observe only the bounded receiver-read/return body through the branded
-  owner link; no public contract re-inference, target, Recipe, or MIR.
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0 (current design stop after owner binding)
+  the current `VerifiedResolvedFunctionV1` lacks the neutral expression,
+  statement, return-value, field/method, and effect/control evidence needed by
+  the bounded Query observer. Define one AST-free resolver issuer during the
+  existing parser-private syntax lease; no parser transport reopening, second
+  owner issuer, body facts, conformance, target, Recipe/CallSlot, Builder, MIR,
+  or production.
+
+CALLABLE-BODY-FACTS-QUERY-D0/I0 (parked behind resolved-shape issuer)
+  observe the bounded receiver-read/return body through the branded owner link
+  only after the neutral shape inventory exists; no public contract
+  re-inference, target, Recipe, or MIR.
 
 CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
   complete same-brand declared-contract + body-conformance set
@@ -562,6 +576,7 @@ CALLABLE-CONFORMANCE-CATALOG-COSEAL-D0/I0 (parked behind body facts)
   `CALLABLE-QUERY-BODY-SELECTION-D0/I0`,
   `CALLABLE-BODY-OWNER-CARRIER-D0/I0`,
   `CALLABLE-BODY-OWNER-BINDING-D0/I0`, and
+  `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0`, then
   `CALLABLE-BODY-FACTS-QUERY-D0/I0`.
 
 CALLABLE-SEMANTIC-PHYSICAL-TYPE-SPLIT-D0
@@ -985,11 +1000,25 @@ Rejected > Unresolved > Declined > Candidate
       function product; focused tests cover sparse Query rows, empty body,
       non-Query extras, and foreign parser provenance;
     - no body facts or conformance.
-21. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (current design stop)
-    - observe the bounded receiver-read/return body through the branded
-      body-owner link;
+21. `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0` (current design stop)
+    - the current `VerifiedResolvedFunctionV1` lacks expression/statement
+      kind, field/method identity, return-value relation, and complete
+      effect/control evidence;
+    - define one resolver-side, profile-neutral, AST-free body-shape
+      inventory issued during the existing parser-private syntax lease and
+      co-sealed to the exact owner/body root, parser provenance, resolver
+      brand, source sites, and complete coverage;
+    - no parser transport reopening, second owner issuer, Query/Home/
+      signature inference, body facts, conformance, target, Recipe/CallSlot,
+      Builder, MIR, or production;
+    - task:
+      `docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md`.
+21A. `CALLABLE-BODY-FACTS-QUERY-D0/I0` (parked behind resolved-shape issuer)
+    - project the general neutral body-shape inventory through the branded
+      owner link and the aggregate-owned selected Query view;
     - issue source-derived facts only; no replacement Query/Home/signature,
-      target, Recipe, or MIR meaning.
+      target, Recipe, or MIR meaning;
+    - current result is development `NoSafeSlice`, not a source disposition.
 22. `CALLABLE-CONTRACT-CONFORMANCE-D0/I0`
     - verify direct receiver-read footprint, no writes/Home escape/allocation/
       IO/FFI/failure escape/suspension/non-local control;
@@ -1030,7 +1059,7 @@ Rejected > Unresolved > Declined > Candidate
     - project semantic signature plus target capability one way into physical
       ABI and `FunctionSignature`;
     - no `MirType`/physical ABI reverse inference into resolver semantics.
-27. Named production activation
+29. Named production activation
     - one selected caller switches to the verified route;
     - delete that caller's old lookup/retry/fallback in the same commit.
 

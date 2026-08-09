@@ -32,7 +32,7 @@ body-source I0 and borrowed Query body-source projection I0 are also closed.
 The current design stop is:
 
 ```text
-CALLABLE-BODY-FACTS-QUERY-D0
+CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -48,7 +48,12 @@ owner-bearing forest/function, root/body receipt, and body coverage. Owner-
 binding D0/I0 is closed: the non-`Clone` owner-link consumes only the selected
 Query body projection and existing resolver-issued carrier/catalog; the carrier
 root is the exact resolved-function input and no second owner issuer exists.
-The current design stop is the owner-link-bounded body observer; no
+The owner-link I0 is closed, but the body-facts audit is `NoSafeSlice`:
+`VerifiedResolvedFunctionV1` and its source-site inventory lack neutral
+expression/statement kind, field/method identity, return-value relation, and
+complete effect/control evidence. The next row must define one AST-free
+resolver body-shape inventory during the existing parser-private syntax lease.
+Only after that issuer lands may the bounded Query body observer open. No
 conformance, target, Recipe/CallSlot, Builder/MIR, or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred

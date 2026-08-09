@@ -1,5 +1,5 @@
 ---
-Status: design stop after owner-binding I0
+Status: closed as NoSafeSlice; superseded by resolved-shape issuer D0
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-body-owner-binding-i0-implementation-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`
@@ -72,7 +72,11 @@ If `VerifiedResolvedFunctionV1` plus its carried body-root/coverage receipt
 does not expose enough resolved expression/statement information to observe
 this shape without AST re-scan, the result is development `NoSafeSlice`. Add
 the missing resolver issuer as a separate D0/I0 instead of reopening parser
-transport or manufacturing an empty facts receipt.
+transport or manufacturing an empty facts receipt. The audit found exactly
+this case: the current resolved product has no expression/statement kind,
+field/method identity, return-value relation, or complete effect/control
+vocabulary. The next design task is
+`own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md`.
 
 ## Forbidden in this row
 
@@ -99,3 +103,14 @@ ordinary return vs error/failure escape distinction
 
 After D0, open only a bounded I0 and stop before
 `CALLABLE-CONTRACT-CONFORMANCE-D0`.
+
+## Closeout receipt (2026-08-09)
+
+The owner-link-bounded Facts I0 was not opened. A top-down code audit and an
+independent worker audit confirmed that `VerifiedResolvedFunctionV1`,
+`VerifiedResolvedSourceSiteInventoryV1`, and the normalized graph cannot prove
+the required receiver-read/ordinary-return shape without AST re-scan or
+body-meaning guesses. The correct next step is the dedicated neutral
+`CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0`; the owner link remains closed and
+unchanged. No code, fixture, conformance, target, Recipe/CallSlot, Builder,
+MIR, or production activation was opened by this row.

@@ -1,6 +1,6 @@
 # Callable Contracts
 
-Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, and catalog-level body-owner binding I0 landed; body facts/conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass cutover D0 accepted.
+Status: accepted language target; typed parser carriage, parser→resolver source handoff I0, bounded resolver declaration/signature I0, bounded internal Home ABI0 S0, bounded declared Query behavior I0, declared Query/Home aggregate I0, general body-source authority I0, borrowed Query body-source projection I0, resolver-owned instance-method carrier I0, and catalog-level body-owner binding I0 landed; the current body-facts frontier is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0` because the existing resolved function product lacks neutral expression/statement/effect evidence; body facts/conformance, resolver target, Recipe/CallSlot, and production remain 0; R6-S3B-C-S1 private parser target-index and C-I0 parser-private batch receipts closed; R6-S3B-D-D0/D-I0 bounded final-seal implementation closed; broad public AST postpass D0 accepted.
 
 Decision: `LANGUAGE-TYPED-CALLABLE-PROFILE-D0` (2026-08-08).
 
@@ -172,8 +172,13 @@ declaration catalog is not co-sealed with a `VerifiedResolvedFunctionV1`
 owner. Therefore body conformance is not yet open: the body-source row must
 first issue a general exact same-source body catalog,
 then a separate Query projection must borrow the aggregate's already sealed
-selected view, and only then may owner binding/body facts open. That borrowed
-projection is now landed. Missing,
+selected view, and only then may owner binding open. The owner binding is now
+landed. Body facts remain closed until a separate resolver-side, profile-neutral
+AST-free body-shape inventory is issued during the existing syntax lease. The
+current `VerifiedResolvedFunctionV1` has no expression/statement kind,
+field/method identity, return-value relation, or complete effect/control
+vocabulary, so the body-shape issuer is a required `NoSafeSlice` design row.
+Missing,
 duplicate, foreign, or rejected conformance prevents the publishable catalog
 from being issued. Module publication consumes the publishable catalog and
 performs no new semantic decision. The body verifier checks the declared
@@ -192,6 +197,7 @@ parser rich transaction
   -> transaction-scoped parser-private syntax lease/callback
   -> resolver-issued instance-method function carrier/catalog
   -> catalog-level body-owner co-seal
+  -> VerifiedResolvedBodyShapeInventoryV1 (neutral, AST-free, resolver-issued)
   -> private body observer / body facts
   -> conformance Verify product
 ```
@@ -234,9 +240,12 @@ carrier/catalog. The carrier root is the exact resolved-function input; the
 link accepts no second function array, re-resolves nothing, and issues no
 owner. It compares parser provenance, resolver brand, nominal/source site,
 diagnostic name agreement, and exact ordered body coverage; empty coverage is
-valid and non-Query carrier rows remain unselected extras. Body facts,
-conformance, target, Recipe/CallSlot, and physical lowering remain behind the
-current `CALLABLE-BODY-FACTS-QUERY-D0` design stop.
+valid and non-Query carrier rows remain unselected extras. The next design
+stop is `CALLABLE-BODY-RESOLVED-SHAPE-ISSUER-D0`: the current resolved
+function product lacks neutral expression/statement/effect/control evidence,
+so body facts remain parked until one AST-free resolver shape inventory is
+issued during the existing syntax lease. Conformance, target, Recipe/CallSlot,
+and physical lowering remain closed.
 
 ## Receiver Home rule
 
