@@ -96,17 +96,24 @@ may choose storage and drop mechanics only after the semantic contract is
 fixed; they never choose the ownership meaning.
 
 `SelfContainedDynamicCarrier` is not an unconditional claim that every result
-installs one Home. It is a closed carrier category spanning trivial,
-owner-bearing, and weak payloads. A local destination needs a separate neutral
-destination classification and CFG-complete Home Flow proof before it may
-issue install or cleanup obligations. Neither the Recipe `Dynamic` class nor a
-runtime tag can perform that classification.
+installs one Home. It is a closed opaque carrier category spanning trivial,
+owner-bearing, and weak payloads. Every normal publication nevertheless owns
+one representation-neutral carrier-lifecycle obligation: forward the carrier
+exactly once or end it exactly once. Runtime payload kind chooses only the
+physical end mechanism (including a no-op for a trivial carrier); it never
+chooses whether the semantic obligation exists.
 
-For a Loop-local carrier, one static source `BindingRef` may denote a fresh
-runtime carrier in each iteration. The future flow must prove
-`Absent -> Available -> Absent` per iteration and must not carry an Available
-carrier across the backedge. Cleanup occurs at the exact lexical scope exit,
-not automatically at the last read.
+This opaque carrier lifecycle is separate from source-visible Home semantics.
+A local Home still needs a source-backed value/destination classification and
+CFG-complete Home Flow proof. Recipe `Dynamic`, runtime tags, selector text,
+and provider identity cannot issue that Home classification.
+
+For a Loop-local opaque carrier, one static source `BindingRef` may denote a
+fresh runtime carrier in each iteration. Dynamic carrier flow must prove
+`Absent -> Live -> Ended` (or `Forwarded`) per iteration and must not carry a
+Live carrier across the backedge. End occurs at the exact lexical scope exit,
+not automatically at the last read. A distinct Home Flow is required only
+when an explicit source contract classifies the destination as a Home.
 
 On `Fault`, no result is published and caller input Homes remain unchanged.
 Effects that happened before the Fault are not rolled back. The invocation is

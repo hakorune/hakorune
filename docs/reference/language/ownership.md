@@ -453,16 +453,23 @@ Home Flow must not synthesize an owner PHI or repair a conflict with hidden
 sharing.
 
 A self-contained Dynamic call result is not automatically one Home. It may be
-a trivial, owner-bearing, or weak carrier. Recipe `Dynamic`, runtime tags, and
-physical result decoding cannot choose among those meanings. A neutral local
-destination classifier and CFG-complete Home Flow proof are required before a
-local install/cleanup receipt exists.
+a trivial, owner-bearing, or weak payload inside one opaque carrier. Recipe
+`Dynamic`, runtime tags, and physical result decoding cannot choose a Home
+meaning. The carrier itself has a separate forward-or-end-exactly-once
+lifecycle; this is not a Home root and does not issue `Available`.
+
+A source-visible Dynamic Home still requires a neutral value/destination
+classifier and CFG-complete Home Flow. Without that stronger source contract,
+Dynamic carrier flow tracks `Absent -> Live -> Ended | Forwarded` and stays
+separate from Home Flow.
 
 For a Loop-local Dynamic carrier, the same source binding may receive a fresh
-carrier on each iteration. The flow must prove `Absent -> Available -> Absent`
-per iteration. Fault before normal result publication installs nothing;
-Fault, Return, or fallthrough after installation must discharge the lexical
-scope cleanup exactly once before propagation/backedge.
+carrier on each iteration. Dynamic carrier flow proves
+`Absent -> Live -> Ended | Forwarded` per iteration. Fault before normal result
+publication creates no lifecycle obligation; Fault, Return, or fallthrough
+after publication must discharge the lexical carrier exactly once before
+propagation/backedge. Home `Available` is issued only by the separate stronger
+Home classification path.
 
 Home transfer also has an exact temporal boundary. Argument expressions are
 prepared in source order; a later argument failure must not leave an earlier

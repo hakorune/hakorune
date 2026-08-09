@@ -235,18 +235,21 @@ It consumes Binding SSA identities and CFG edges; it must not become a second
 reaching-value map.
 
 A source-bound Dynamic normal result described as a self-contained carrier is
-not, by itself, a Home-root receipt. The carrier may be trivial,
-owner-bearing, or weak. A neutral destination classifier must first admit the
-exact local destination; Home Flow then owns normal-only installation,
-borrow-preserving use, and lexical cleanup obligations. Recipe value class,
-runtime tag, provider result decoder, and physical ValueId are non-authorities.
+not, by itself, a Home-root receipt. The payload may be trivial, owner-bearing,
+or weak. The opaque carrier has its own representation-neutral
+forward-or-end-exactly-once obligation; that obligation is not Home
+`Available` and does not authorize source `take`/`share`/`release`.
 
-For a Loop-local destination, the source `BindingRef` is stable while runtime
-carrier instances are per iteration. The required state shape is
-`Absent -> Available -> Absent` on every normal iteration. Fault before result
-publication leaves the destination Absent; Fault after installation and every
-normal/Return exit must discharge the same lexical cleanup obligation exactly
-once. An Available state may not reach the backedge.
+A neutral value/destination classifier must still admit any source-visible
+Home relation. Recipe value class, runtime tag, provider result decoder, and
+physical ValueId are non-authorities for both Home classification and semantic
+lifecycle coverage.
+
+For a Loop-local Dynamic carrier destination, the source `BindingRef` is stable
+while runtime carrier instances are per iteration. Dynamic carrier flow owns
+`Absent -> Live -> Ended | Forwarded`; a Live carrier may not reach the
+backedge. A separate Home Flow may own `Available` only after a stronger
+source-backed Home classifier succeeds.
 
 Loop legality is a data-flow property, not a syntax ban. A consume that reaches
 a backedge without a fresh replacement Home is rejected. A loop-local fresh

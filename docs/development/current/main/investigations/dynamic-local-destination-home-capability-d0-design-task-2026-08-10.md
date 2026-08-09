@@ -1,81 +1,118 @@
 # DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0
 
-Status: design consultation required; implementation 0
+Status: accepted census; Home-capability implementation is `NoSafeSlice`
 Date: 2026-08-10
 Depends on: `DYNAMIC-FAULT-CUTPOINT-CATALOG-I0` closed
 Parent Decision:
 `dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md`
 
-## Goal
+## Decision
 
-Select the one neutral source-backed capability that may classify the exact
-V10-to-`ch` destination relation before CFG-complete Home Flow.  The result
-must distinguish a self-contained trivial, owner-bearing, or weak Dynamic
-carrier without inferring ownership from Recipe `Dynamic`, a runtime tag, a
-selector, or a physical representation.
+Three independent audits agree that the unchanged `skip_while/4` source does
+not have a canonical source-backed classifier for the normal I6 result. The
+existing source/Recipe relation proves exact V10-to-`ch` identity, Loop-body
+scope, one borrowed I7 use, and zero rebind/capture. It does not prove whether
+the opaque carrier is `Trivial`, `Unique`, `Shared`, or `Weak`.
 
-## Existing input boundary
+Therefore this row closes with:
+
+```text
+Home capability for unchanged V10/ch:
+  NoSafeSlice
+
+HomeRoot / Available / cleanup issuance:
+  0
+```
+
+`Dynamic`, `SelfContainedDynamicCarrier`, selector `substring`, runtime Box
+tags, provider metadata, `MirType`, and physical `ValueId` are explicit
+non-authorities. No `VerifiedChHomeV1` or unconditional owner-bearing receipt
+may be introduced.
+
+## Existing exact input
 
 ```text
 VerifiedDynamicFullLoopSemanticProgramV2
-  -> borrow exact V10 producer I6
-  -> borrow exact ch declaration / BindingRef / Loop-body scope
-  -> borrow exact I7 read
-  -> retain complete Dynamic invocation envelope
+  -> exact I6 producer / normal V10 key
+  -> exact ch declaration / BindingRef / Loop-body scope
+  -> exact I7 borrowed read
+  -> complete Dynamic invocation envelope
 ```
 
-This is a neutral lifetime/source relation only.  It proves no Home install,
+This is a neutral lifetime/source relation only. It proves no Home install,
 availability, release, cleanup, terminality, or field ownership.
 
-## Required census
+## Authority census
 
-Before selecting a type or issuer, inspect all existing owners for:
+| Existing owner | Source-backed | Classifies one Dynamic result | Decision |
+|---|---:|---:|---|
+| source-bound Dynamic target | yes | no | exact call/result-site identity only |
+| Dynamic execution envelope | yes | no | closed three-category carrier set |
+| iteration-local V10/ch view | yes | no | destination/source identity only |
+| resolver semantic value type | yes | no | current cohort is I64/Unit only |
+| passive Home relation vocabulary | partial | no | not a classifier |
+| Query Home ABI | yes | no | declaration-level I64/Unit cohort only |
+| MIR/runtime/provider representation | no | physical only | forbidden authority |
 
-```text
-semantic value capability / nominal type classification
-Dynamic carrier representation-independent result relation
-local destination declaration and initializer/assignment relation
-Home ABI result relation
-Home root/destination branding
-weak/self-contained carrier semantics
-CFG Home Flow input and disposition
-```
+## Missing general Home boundary
 
-For every candidate, record whether it is source-backed, reusable outside this
-Loop profile, and able to represent all three Dynamic carrier categories
-without runtime inspection.
-
-## Design questions
-
-1. Which source/semantic owner can distinguish owner-bearing from trivial/weak
-   before physical lowering?
-2. Is the capability attached to the produced value, the local destination,
-   or an atomic value-to-destination relation?
-3. How is the exact I6 normal-only publication distinguished from I6 Fault?
-4. What does the capability lend to Home Flow without itself claiming
-   `Available`?
-5. How are foreign owner/frame/scope/declaration/value relations rejected?
-6. Is the first unchanged-source cohort actually classifiable, or must this
-   remain `NoSafeSlice` until a more general callable result contract lands?
-
-## Required Decision output
+A future source-visible Home path requires three separate authorities:
 
 ```text
-owner/non-owner table
-one canonical issuer and exact inputs
-typed carrier-category vocabulary
-source/value/destination co-seal rule
-Candidate/Declined/Unresolved/Rejected matrix
-normal-only publication relation
-borrow/move API and lifetime boundary
-first implementation slice or explicit NoSafeSlice
-negative tests and guards
-reference/README/task order
+source/import-backed normal-result value capability
+  Trivial | Unique | Shared | Weak | Unknown
+
+source-backed local destination capability
+  HandleOnly | OwningHome | SharedHome | WeakSlot | TrivialSlot | Unknown
+
+atomic normal-only value-to-destination publication relation
+  exact invocation/result/source/local/frame/scope
 ```
 
-`NoSafeSlice` is the correct result when the repository lacks a source-backed
-classifier.  It must not be converted into an unconditional owner-bearing
-test receipt.
+Only a later CFG-complete Home Flow may turn an admitted owner-bearing
+publication into `Available`. Trivial and Weak results create no Home state.
+The unchanged untyped Dynamic call has no such result contract today.
+
+## Normal/Fault boundary
+
+```text
+I6 Normal:
+  V10 is published, but no Home classification is available
+
+I6 Fault:
+  V10 is not published
+  destination install = 0
+```
+
+## Disposition
+
+```text
+repository development state:
+  NoSafeSlice (canonical classifier absent)
+
+future issuer, exact shape but missing result capability:
+  Unresolved(MissingDynamicNormalResultCapability)
+
+foreign/duplicate/cross-wired source relation:
+  Rejected
+
+fully observed non-local destination family:
+  Declined
+```
+
+## Separate alternative
+
+Every self-contained carrier may have a representation-neutral structural
+`forward-or-end exactly once` obligation even when it is not a source-visible
+Home. That is not a repair for this Home row and must not be smuggled into
+Home Flow. It is evaluated by the separate
+`DYNAMIC-CARRIER-LEXICAL-DISPOSITION-D0` Decision.
+
+## Closeout
+
+This D0 opens no Home implementation row. If a future source/imported Dynamic
+message contract supplies an exact result capability, the general taxonomy
+and value-to-destination relation are reopened outside this profile.
 
 ## Nonclaims
 

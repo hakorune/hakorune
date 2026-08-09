@@ -56,7 +56,8 @@ Function, Script, selected source-entry, physical-entry, and process-exit
 boundaries consume these Outcomes according to
 `function-exit-and-entry-result.md`. That topic does not add or redefine an
 Outcome variant. Result propagation uses the ordinary Return boundary after the
-verified exit transaction drains cleanup and remaining local Homes.
+verified exit transaction drains cleanup, opaque carrier-lifecycle
+obligations, and remaining source-visible Homes.
 
 ## Evaluated Place
 

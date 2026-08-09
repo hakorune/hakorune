@@ -128,10 +128,12 @@ ordinary values handled through `match`/`guard let`. Exact Result-only postfix
 `Result<U,E>` with identical `E`; Option `?`, custom Try protocols, and
 implicit error conversion are rejected.
 
-Cleanup runs after the body outcome becomes pending and before remaining local
-Homes are released. The first Fault in time remains primary; later cleanup or
-terminal-finalization Faults are suppressed diagnostics while teardown
-continues best effort. `Result::Err` never becomes a cleanup Fault implicitly.
+Cleanup runs after the body outcome becomes pending. The coordinator drains
+opaque carrier-lifecycle obligations and source-visible Home obligations from
+separate verified ledgers before publication. The first Fault in time remains
+primary; later cleanup or terminal-finalization Faults are suppressed
+diagnostics while teardown continues best effort. `Result::Err` never becomes
+a cleanup Fault implicitly.
 
 ## Dynamic Invocation
 
@@ -148,7 +150,7 @@ arguments/results, and execution failure are terminal Faults. They do not
 publish a result and are not repaired by another route, arity, provider, or
 legacy writer. Earlier observable effects are not rolled back. See
 `dynamic-invocation.md` for the complete selector-independent effect,
-suspension, and Home contract.
+suspension, opaque carrier-lifecycle, and separate Home boundary.
 
 ## Uninitialized Locals
 

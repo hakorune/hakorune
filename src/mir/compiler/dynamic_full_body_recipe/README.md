@@ -68,10 +68,13 @@ envelope lends that relation only as `DynamicIterationLocalValueRefV2`, a
 borrow-scoped view over the retained declaration/read rows plus V10/I6/I7.
 There is no standalone `VerifiedCh*` product or copied source authority.
 
-Local Home installation is not yet available. A self-contained Dynamic
-carrier may be trivial, owner-bearing, or weak; Recipe `Dynamic` and runtime
-tags cannot classify it. JoinSig/Fault/exit authority and the general Home
-destination/flow owners must land before any install or cleanup receipt.
+Local Home installation is not available. A self-contained Dynamic carrier
+may contain a trivial, owner-bearing, or weak payload; Recipe `Dynamic` and
+runtime tags cannot classify it as a Home. The accepted separate carrier
+lifecycle requires every normal opaque carrier publication to be forwarded or
+ended exactly once without issuing a Home root. Invocation-result lifecycle is
+the next bounded child; full carrier flow, exit cleanup, and any stronger Home
+classification remain later owners.
 
 ## Atomic semantic program (I0)
 
@@ -100,8 +103,7 @@ product also lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7
 local relation. It owns no Completion consumption, Dynamic Fault transaction,
 Home, physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
 
-The full exit transaction remains `NoSafeSlice` until a neutral Dynamic local
-destination capability, CFG-complete Home Flow, cleanup projection, and the
-two-Return Completion consumer exist. The next Decision is
-`DYNAMIC-LOCAL-DESTINATION-HOME-CAPABILITY-D0`; it must not infer Home from the
-logical `Dynamic` class or a runtime tag.
+The full exit transaction remains `NoSafeSlice` until complete Dynamic carrier
+flow, cleanup projection, and the two-Return Completion consumer exist. The
+Home-capability census closed separately as `NoSafeSlice`; no Home is inferred
+from the logical `Dynamic` class or a runtime tag.
