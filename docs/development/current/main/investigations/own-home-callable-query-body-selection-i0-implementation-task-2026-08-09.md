@@ -1,5 +1,5 @@
 ---
-Status: ready after explicit D0-to-I0 transition; implementation not yet opened
+Status: in progress after explicit D0-to-I0 transition
 Date: 2026-08-09
 Parent: `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`
 Authority: `docs/reference/language/callable-contracts.md`

@@ -433,19 +433,20 @@ RESOLVER-INSTANCE-DECLARATION-SIGNATURE-I0 (closed 2026-08-09)
   `src/mir/resolved_semantics/instance_method_declaration.rs` plus focused
   declaration/handoff/source-seal tests.
 
-Current design stop (body-source I0 landed; external review synchronized
+Current execution row (D0 accepted; explicit I0 transition synchronized
 2026-08-09):
 
 ```text
-CALLABLE-QUERY-BODY-SELECTION-D0
-  project the already landed general AST-free body-source catalog through the
-  declared aggregate's sealed Query view. Preserve sparse branded source
-  order, reject missing/duplicate/foreign rows, and emit no default row for
+CALLABLE-QUERY-BODY-SELECTION-I0
+  add the aggregate-owned borrowed selected-contract view first, then project
+  the already landed general AST-free body-source catalog through the
+  borrowed <'body,'contract> Query view. Preserve sparse normalized source
+  order, keep the general catalog reusable, and emit no default row for
   non-Query methods. The parser handoff remains AST-free; no body facts,
   conformance, target, Recipe/CallSlot, Builder/MIR, or production work is
   open.
   Task:
-  `docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md`
+  `docs/development/current/main/investigations/own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`
 ```
 
 CALLABLE-BODY-SOURCE-AUTHORITY-I0 (closed 2026-08-09)

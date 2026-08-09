@@ -23,27 +23,24 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The parser public-AST/postpass, V2 schema, typed
+Current mode is `fast`. The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
-body-source I0 is also closed. The current design row is:
+body-source I0 is also closed. The current execution row is:
 
 ```text
-CALLABLE-QUERY-BODY-SELECTION-D0
+CALLABLE-QUERY-BODY-SELECTION-I0
 ```
 
-This design stop has one explicit implementation boundary: the declared
-contract aggregate must expose one borrowed selected-Query view. The
-projection then checks both parser provenance and resolver brand, preserves
-sparse source order, and emits no default non-Query body row. No body owner,
-facts, conformance, target, Recipe/CallSlot, Builder/MIR, or production work
-is open.
-
-The parked implementation card is
-`own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md`;
-it is not an execution pointer until this D0 is accepted.
+The D0 design is accepted and the explicit I0 transition is open. The first
+operation is the aggregate-owned borrowed selected-Query view; only after its
+focused tests are green does the borrowed `<'body,'contract>` sparse
+projection open. It checks parser provenance and resolver brand, preserves
+sparse source order, keeps the general catalog reusable, and emits no default
+non-Query row. No body owner, facts, conformance, target, Recipe/CallSlot,
+Builder/MIR, or production work is open.
 
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
