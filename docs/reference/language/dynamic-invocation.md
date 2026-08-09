@@ -135,6 +135,11 @@ envelope. A Fault instantiates no runtime carrier. This receipt does not
 cover Dynamic operator results, complete callable carrier flow, Home, physical
 End emission, or production activation.
 
+Dynamic operators use a separate semantic envelope defined in
+`dynamic-operators.md`. Invocation and operators share only the neutral
+`EndExactlyOnceUnlessForwarded` carrier vocabulary. The invocation envelope
+cannot authorize Add/Less operand, non-aliasing, result, or Fault meaning.
+
 On `Fault`, no result is published and caller input Homes remain unchanged.
 Effects that happened before the Fault are not rolled back. The invocation is
 not retried through another provider, arity, route, or compatibility writer.

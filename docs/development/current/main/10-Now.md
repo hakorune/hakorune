@@ -51,10 +51,11 @@ borrow view. The Dynamic JoinSig D0 is now accepted after three independent
 audits. It fixes one common borrowed flow engine, a typed FunctionExit Return,
 the exact five-edge/one-branch payload golden, V10/ch exclusion, external
 Fault/Tail boundaries, and internal After issuance. The behavior-neutral
-common engine R0 is closed. The current executable row is:
+common engine R0 is closed. The executable row is owned by
+`CURRENT_STATE.toml`; at this lane-change closeout it is:
 
 ```text
-DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-D0
+DYNAMIC-CARRIER-LIFECYCLE-VOCABULARY-R0
 ```
 
 The Dynamic local Home-capability census is closed as `NoSafeSlice`: the
@@ -65,9 +66,11 @@ accepted carrier-lifecycle Decision now requires every normal
 claiming Home. The current bounded I0 retains exact I6/V10 local and I7/V11
 temporary obligations. That I0 is now closed with
 OnNormalResultPublication authorization and
-the old ResultHome vocabulary removed. The current design stop must select the
-language-wide DynamicAdd lifecycle for V9/V17; full carrier flow, Home,
-cleanup execution, Completion, and physical lowering remain closed.
+the old ResultHome vocabulary removed. The DynamicAdd lifecycle Decision is
+now accepted. The selected behavior-neutral row moves the shared lifecycle
+vocabulary out of the invocation-specific module; the operator issuer, exact
+V9/V17 rows, full carrier flow, Home, cleanup execution, Completion, and
+physical lowering remain closed.
 
 Message identity remains separate from the atomic semantic envelope. Recipe
 V2 has one honest logical `Dynamic` class, while an external item/source

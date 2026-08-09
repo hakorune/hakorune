@@ -31,6 +31,8 @@ Current canonical surface:
 - Failure/Outcome relations: [failure-outcome-relations.md](failure-outcome-relations.md)
 - Selector-independent Dynamic invocation contract:
   [dynamic-invocation.md](dynamic-invocation.md)
+- Profile-neutral Dynamic operator contracts:
+  [dynamic-operators.md](dynamic-operators.md)
 - Rune declaration metadata: [runes.md](runes.md)
 - Declared whole-call query contracts: [callable-contracts.md](callable-contracts.md)
 - Build conditional `gate`: [build-conditional-gate.md](build-conditional-gate.md)

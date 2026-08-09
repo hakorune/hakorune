@@ -129,6 +129,11 @@ and a normal result is one self-contained Dynamic carrier published to the
 caller. The selector-independent contract and failure boundary are defined in
 `dynamic-invocation.md`.
 
+Dynamic operators have a separate envelope. `DynamicAdd` borrows both
+operands without escape and publishes a self-contained non-aliasing carrier
+only on Normal; `DynamicLess` publishes a trivial Bool. The shared carrier
+lifecycle vocabulary is not Home. See `dynamic-operators.md`.
+
 ### Value capability is separate
 
 Home is not a value type and not a runtime handle. The compiler separately
@@ -470,6 +475,11 @@ publication creates no lifecycle obligation; Fault, Return, or fallthrough
 after publication must discharge the lexical carrier exactly once before
 propagation/backedge. Home `Available` is issued only by the separate stronger
 Home classification path.
+
+In the bounded current target, V9 remains live through the exact I6 invocation
+borrow and ends after the I6 Normal/Fault outcome. V17 is forwarded through
+I16 into B0 and remains live on the JoinSig Backedge. Neither chronology may be
+derived from ValueKey last use.
 
 Home transfer also has an exact temporal boundary. Argument expressions are
 prepared in source order; a later argument failure must not leave an earlier

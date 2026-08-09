@@ -394,7 +394,10 @@ This is intentionally fail-fast: “any object is truthy” is **not** assumed b
 
 ### 4.1 `+` (BinaryOp::Add)
 
-Runtime semantics are defined in the Rust VM (`eval_binop` in `src/backend/mir_interpreter/helpers.rs`):
+The normative Dynamic operand/outcome/lifecycle boundary is defined in
+[dynamic-operators.md](dynamic-operators.md). The Rust VM (`eval_binop` in
+`src/backend/mir_interpreter/helpers.rs`) is implementation evidence and must
+conform to that contract; it is not the semantic authority.
 
 - Numeric addition:
   - `Integer + Integer` → `Integer`
@@ -414,7 +417,9 @@ Dev-only note:
 
 ### 4.2 `< <= > >=` (CompareOp)
 
-Runtime semantics (`eval_cmp` in `src/backend/mir_interpreter/helpers.rs`):
+The profile-neutral Dynamic comparison contract is defined in
+[dynamic-operators.md](dynamic-operators.md). Runtime behavior in `eval_cmp`
+is conformance evidence:
 
 - `Integer <=> Integer`
 - `Float <=> Float`
@@ -463,7 +468,9 @@ MIR has a lightweight type vocabulary (`MirType` in `src/mir/types.rs`) and per-
 Important rule:
 - These facts are for **optimization/routing** (e.g., Known-only rewrite, callee resolution) and must not be treated as semantic truth.
 
-If you need semantics, define it at the runtime layer (VM) and then optionally optimize by using these facts.
+If a semantic row is missing, define it in the owning language contract and
+then verify runtime/backend conformance. Do not infer language meaning from MIR
+facts or the VM implementation.
 
 ---
 
