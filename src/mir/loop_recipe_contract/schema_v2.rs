@@ -154,6 +154,58 @@ pub(crate) enum LoopOperationV2 {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopOperationFaultFamilyV2 {
+    DynamicAdd,
+    DynamicLess,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopOperationExecutionClassV2 {
+    NonFaulting,
+    FaultBeforeNormalResult {
+        family: LoopOperationFaultFamilyV2,
+        normal_result: LoopValueKeyV1,
+    },
+    ExternallyBoundOutcome {
+        normal_result: Option<LoopValueKeyV1>,
+    },
+}
+
+impl LoopOperationV2 {
+    /// Exhaustive semantic execution-family projection.
+    ///
+    /// Adding an operation variant must update this match. Runtime/provider
+    /// behavior is never consulted here.
+    pub(crate) const fn execution_class_v2(&self) -> LoopOperationExecutionClassV2 {
+        match self {
+            Self::ReadBinding { .. }
+            | Self::ConstI64 { .. }
+            | Self::BinaryI64 { .. }
+            | Self::CompareI64 { .. }
+            | Self::WriteBinding { .. }
+            | Self::TextEq { .. } => LoopOperationExecutionClassV2::NonFaulting,
+            Self::DynamicAdd { result, .. } => {
+                LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                    family: LoopOperationFaultFamilyV2::DynamicAdd,
+                    normal_result: *result,
+                }
+            }
+            Self::DynamicLess { result, .. } => {
+                LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                    family: LoopOperationFaultFamilyV2::DynamicLess,
+                    normal_result: *result,
+                }
+            }
+            Self::CallSlot { result, .. } => {
+                LoopOperationExecutionClassV2::ExternallyBoundOutcome {
+                    normal_result: *result,
+                }
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum LoopBinaryI64OpV2 {

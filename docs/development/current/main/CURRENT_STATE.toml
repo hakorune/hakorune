@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The neutral Dynamic carrier lifecycle vocabulary R0 is closed: one shared EndExactlyOnceUnlessForwarded obligation now serves the unchanged invocation envelope and lifecycle rows, with the old invocation-specific type absent. The next row implements the accepted atomic Add/Less operator execution contract; V9/V17 co-seal, rebind, Home, cleanup, and physicalization remain zero."
+status = "The profile-neutral Dynamic operator execution contract I0 is closed: exact Add/Less domains borrow operands, Add publishes one self-contained non-aliasing carrier only on Normal with the shared lifecycle, Less publishes trivial Bool, and Fault publishes no result/rebind. The V2 Fault projection is exhaustive. The selected row co-seals exact V9/V17 destination lifecycle with the complete existing semantic program."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-D0 accepted"
 work_mode = "fast"
-current_execution_row = "DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0"
-current_blocker_token = "DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0: issue one atomic profile-neutral Add/Less execution envelope from verified operator domains, including borrowed operands, non-aliasing Add result, Normal/Fault, and the shared carrier obligation; add no source/Recipe co-seal, V9/V17 destination row, Home, CFG/MIR, physical projection, runtime/provider inference, retry/fallback, or partial-axis constructor"
+current_execution_row = "DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-I0"
+current_blocker_token = "DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-I0: consume the complete existing invocation-lifecycle program once and co-seal exactly private V9-after-I6-outcome and V17-forward-to-B0/backedge rows; accept no caller-supplied key/site/contract and add no displaced-B0 end/install ordering, Home, cleanup execution, CFG/MIR, Completion, retry/fallback, or source narrowing"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -233,7 +233,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The shared lifecycle vocabulary move is closed with one neutral owner and unchanged invocation behavior. The selected I0 adds the canonical atomic Dynamic Add/Less semantic issuer before exact V9/V17 destination co-seal."
+current_execution_summary = "The atomic Dynamic Add/Less issuer and exhaustive V2 execution classification are closed. The selected I0 binds that contract to exact V9 and V17 destinations while leaving rebind ordering and physical cleanup closed."
 current_execution_design = "docs/development/current/main/investigations/dynamic-operator-carrier-lifecycle-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -715,15 +715,15 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "dynamic-operator-execution-contract-i0"
-latest_card_path = "docs/development/current/main/investigations/dynamic-operator-execution-contract-i0-task-2026-08-10.md"
+latest_card = "dynamic-operator-carrier-lifecycle-i0"
+latest_card_path = "docs/development/current/main/investigations/dynamic-operator-carrier-lifecycle-i0-task-2026-08-10.md"
 next_design_card = "DYNAMIC-CARRIER-REBIND-TRANSACTION-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-rebind-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-operator-execution-contract-i0-task-2026-08-10.md"
+next_execution_card = "DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/dynamic-operator-carrier-lifecycle-i0-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The neutral Dynamic carrier lifecycle vocabulary R0 is closed. The canonical Add/Less execution issuer is selected; V9/V17 co-seal, rebind, Home, cleanup, Completion, and physical activation remain zero."
+latest_card_summary = "The canonical Add/Less execution issuer and exhaustive V2 execution classification are closed. Exact V9/V17 lifecycle co-seal is selected; rebind, Home, cleanup, Completion, and physical activation remain zero."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

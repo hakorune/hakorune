@@ -191,9 +191,10 @@ pub(crate) use schema::{
 #[allow(unused_imports)]
 pub(crate) use schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
-    LoopOperationV2, LoopRecipeArtifactV2, LoopRecipeBindingV2, LoopRecipeBlockV2,
-    LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2,
-    LoopRecipeValueV2, LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
+    LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopOperationV2,
+    LoopRecipeArtifactV2, LoopRecipeBindingV2, LoopRecipeBlockV2, LoopRecipeCarrierV2,
+    LoopRecipeExitV2, LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2,
+    LoopValueClassV2, LOOP_RECIPE_SCHEMA_VERSION_V2,
 };
 #[allow(unused_imports)]
 pub(crate) use semantic_context::VerifiedLoopSemanticContextV1;

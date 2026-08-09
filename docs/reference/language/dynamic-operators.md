@@ -1,6 +1,7 @@
 # Dynamic operators
 
-Status: accepted language Decision; canonical semantic issuer not yet landed
+Status: accepted language Decision; canonical semantic issuer landed;
+source/Recipe consumer 0
 Date: 2026-08-10
 
 ## Authority
@@ -83,7 +84,8 @@ transaction Decision.
 
 ## Activation boundary
 
-The language Decision is accepted, but production activation remains zero.
+The language Decision and profile-neutral issuer are live, but source/Recipe
+co-seal and production activation remain zero.
 Implementation order is:
 
 ```text

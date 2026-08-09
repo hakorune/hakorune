@@ -128,7 +128,7 @@ then one atomic source/Recipe/CallSlot/envelope co-seal. No durable intermediate
 `Verified*` key relation is published. The module-wide seven-row envelope
 catalog is borrowed, never consumed by one Recipe.
 
-The Dynamic operation Decision is now accepted. V2 will add exact
+The Dynamic operation Decision is accepted. V2 uses exact
 `DynamicAdd` and `DynamicLess` variants instead of widening `BinaryI64` /
 `CompareI64` or adding an unconstrained Dynamic operator family. The first
 domain table is:
@@ -149,7 +149,7 @@ equal literal `1` sites and the literal `0` site remain three separate
 proof is migration evidence, not complete four-row authority.
 
 These operations follow the language operator contract in
-`docs/reference/language/types.md`: normal Add publishes one Dynamic value,
+`docs/reference/language/dynamic-operators.md`: normal Add publishes one Dynamic value,
 normal Less publishes one Bool, and unsupported runtime operand kinds produce
 TypeError/Fault with no result. Fault is not a Recipe value, resultless
 operation, false predicate, Exit, JoinSig edge, Return, or Completion. The
@@ -163,6 +163,13 @@ dedicated four-operation golden preserves two Add, two Less, and three distinct
 complete twenty-six-test V2 schema suite pass. V1 decoding remains unchanged.
 No source relation, full producer, physical writer, or production activation
 is introduced by this receipt.
+
+The profile-neutral operator issuer is now also live. Beside the V2 operation
+schema, `LoopOperationExecutionClassV2` exhaustively classifies every current
+variant as non-Faulting, Fault-before-normal-result, or externally bound
+outcome. The bounded Fault catalog consumes that projection and has no wildcard
+skip, so a future operation variant must update the canonical classification.
+This adds no Fault value/edge, source relation, Home, or physical behavior.
 
 Complete-producer preflight (`LOOP-V2-DYNAMIC-FULL-PRODUCER-D0`, 2026-08-10):
 the unchanged `skip_while/4` source is fully expressible with the existing V2

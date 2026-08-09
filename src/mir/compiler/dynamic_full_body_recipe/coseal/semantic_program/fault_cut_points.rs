@@ -4,7 +4,8 @@
 //! create a runtime Fault, outcome, cleanup obligation, or control-flow edge.
 
 use crate::mir::loop_recipe_contract::{
-    LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueKeyV1,
+    LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopRecipeItemV2,
+    LoopValueKeyV1,
 };
 
 use super::super::VerifiedDynamicFullLoopSourceRecipeEnvelopeV2;
@@ -103,22 +104,26 @@ fn verify_recipe_fault_cut_points_v2(
         let LoopRecipeItemV2::Operation { operation } = &row.item else {
             continue;
         };
-        let (family, normal_result) = match operation {
-            LoopOperationV2::DynamicAdd { result, .. } => {
-                (DynamicFullLoopFaultFamilyV2::DynamicAdd, *result)
-            }
-            LoopOperationV2::DynamicLess { result, .. } => {
-                (DynamicFullLoopFaultFamilyV2::DynamicLess, *result)
-            }
-            LoopOperationV2::CallSlot { result, .. } if invocation_items.contains(&row.key) => {
-                let result = result
+        let (family, normal_result) = match operation.execution_class_v2() {
+            LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                family: LoopOperationFaultFamilyV2::DynamicAdd,
+                normal_result,
+            } => (DynamicFullLoopFaultFamilyV2::DynamicAdd, normal_result),
+            LoopOperationExecutionClassV2::FaultBeforeNormalResult {
+                family: LoopOperationFaultFamilyV2::DynamicLess,
+                normal_result,
+            } => (DynamicFullLoopFaultFamilyV2::DynamicLess, normal_result),
+            LoopOperationExecutionClassV2::ExternallyBoundOutcome { normal_result }
+                if invocation_items.contains(&row.key) =>
+            {
+                let result = normal_result
                     .ok_or(DynamicFullLoopFaultCutPointRejectV2::ResultlessDynamicInvocation)?;
                 (DynamicFullLoopFaultFamilyV2::DynamicInvocation, result)
             }
-            LoopOperationV2::CallSlot { .. } => {
+            LoopOperationExecutionClassV2::ExternallyBoundOutcome { .. } => {
                 return Err(DynamicFullLoopFaultCutPointRejectV2::UnexpectedDynamicInvocation)
             }
-            _ => continue,
+            LoopOperationExecutionClassV2::NonFaulting => continue,
         };
         rows.push(DynamicFullLoopFaultCutPointV2 {
             item: row.key,

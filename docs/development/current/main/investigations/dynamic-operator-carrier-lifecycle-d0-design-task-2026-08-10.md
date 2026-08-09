@@ -246,10 +246,11 @@ authority:
 0a. CURRENT-POINTER-CROSSFIELD-CONSISTENCY-R0
     docs/guard hygiene seam; does not change this compiler lane
 0b. DYNAMIC-FAULT-CATALOG-EXHAUSTIVE-R0
-    required before a new V2 operation family
+    exhaustive projection closed; reject/visibility hardening parked P1
 1.  DYNAMIC-CARRIER-LIFECYCLE-VOCABULARY-R0
     closed; one neutral vocabulary owner, behavior unchanged
 2.  DYNAMIC-OPERATOR-EXECUTION-CONTRACT-I0
+    closed; one atomic Add/Less issuer and no wildcard Fault classification
 3.  DYNAMIC-OPERATOR-CARRIER-LIFECYCLE-I0
 4.  DYNAMIC-CARRIER-REBIND-TRANSACTION-D0
 5.  DYNAMIC-CARRIER-REBIND-TRANSACTION-I0

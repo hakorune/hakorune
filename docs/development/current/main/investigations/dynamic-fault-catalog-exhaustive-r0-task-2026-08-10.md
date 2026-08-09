@@ -1,6 +1,6 @@
 # DYNAMIC-FAULT-CATALOG-EXHAUSTIVE-R0
 
-Status: parked P0; required before a new V2 operation family
+Status: classification half closed; reject/visibility hardening parked P1
 Date: 2026-08-10
 Depends on: `DYNAMIC-FAULT-CUTPOINT-CATALOG-I0` closed
 
@@ -45,3 +45,16 @@ no CFG/MIR/Completion/physicalization
 
 This BoxShape row changes classification ownership only. It must not be folded
 into a new Dynamic operator semantic Decision or source-family expansion.
+
+## Landed subset
+
+The exhaustive `LoopOperationExecutionClassV2` projection and Fault-catalog
+consumer are closed with the operator-contract I0. The remaining row is only:
+
+```text
+typed reject category preservation
+caller-zero Fault view visibility narrowing
+```
+
+Do not reopen the already-closed operation classification or create a second
+faultability table when finishing those two items.
