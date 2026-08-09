@@ -142,11 +142,13 @@ opaque evidence is `Unresolved`, and identity/coverage mismatches are
 syntax lease and returns one AST-free inventory co-sealed to the exact
 owner/body root and source coverage; the carrier row co-seals parser
 provenance and resolver brand. Direct field/state authority and conformance
-remain separate. The current design stop is
-`CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0`: the facts catalog is shape evidence,
-not a complete proof of no writes/Home escape/allocation/IO/FFI/failure/
-suspension/non-local control. Target, Recipe/CallSlot, Builder, MIR, and
-production remain separate.
+remain separate. The complete-evidence design stop is accepted. The current
+implementation row is `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0`, limited to
+exact `return me` structural safety and a sibling Query Home no-transfer
+receipt. The facts catalog is shape evidence, not a general proof of no
+writes/Home escape/allocation/IO/FFI/failure/suspension/non-local control; any
+incomplete axis remains `NoSafeSlice`. Target, Recipe/CallSlot, Builder, MIR,
+and production remain separate.
 Missing issuer/evidence is `NoSafeSlice`, not a default body receipt. Body
 modules must be dedicated and must not grow
 `source_seal.rs`, `source_authority.rs`, or `parser/mod.rs` over the 760-line

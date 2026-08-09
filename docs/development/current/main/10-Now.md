@@ -29,11 +29,11 @@ source-handoff D0/I0, resolver declaration/signature I0, and Home callable ABI
 D0 design, passive Home relation vocabulary S0, bounded Home ABI0 S0, and
 declared Query behavior D0/I0, aggregate D0/I0 are closed. The general
 body-source I0 and borrowed Query body-source projection I0 are also closed.
-The bounded Query body-facts implementation is closed. The current design
-stop is:
+The bounded Query body-facts implementation and the complete-evidence design
+stop are closed. The current implementation row is:
 
 ```text
-CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0
+CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0
 ```
 
 The Query body-selection D0/I0 is closed. Its aggregate-owned borrowed
@@ -58,10 +58,11 @@ one neutral AST-free shape inventory, bounded to receiver lexical reads and
 ordinary returns. The carrier keeps that shape from the same owner-tree walk
 and co-seals it with the declaration catalog's parser provenance and resolver
 brand. Direct field/state authority remains closed. The shape I0 and bounded
-Query body-facts I0 are now closed. The next design must define the complete
-statement/expression/effect/control/Home-escape evidence receipt. The `return
-me` facts catalog is not sufficient for complete conformance. No target,
-Recipe/CallSlot, Builder/MIR, or production work is open.
+Query body-facts I0 are now closed. The accepted evidence design opens only
+the exact `return me` structural-safety receipt and its sibling Query Home
+no-transfer receipt. Any incomplete effect/control/Home axis remains
+`NoSafeSlice`; the facts catalog is not a complete conformance proof. No
+target, Recipe/CallSlot, Builder/MIR, or production work is open.
 The preceding I0 deleted the audited caller-zero body-inferred
 instance-result/target family and preserved only neutral source-view
 primitives. The rich parser now owns a non-Clone ordinary-Rust-Box source seal,

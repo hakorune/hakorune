@@ -1060,7 +1060,7 @@ Rejected > Unresolved > Declined > Candidate
       allocation, IO/FFI, failure, suspension, or non-local control;
     - task:
       `docs/development/current/main/investigations/own-home-callable-conformance-catalog-d0-design-task-2026-08-09.md`.
-22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (current design stop)
+22A. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-D0` (accepted bounded design)
     - define the single complete statement/expression/effect/control/Home-
       escape evidence receipt required before conformance I0;
     - decide whether the existing body-shape traversal can issue complete
@@ -1068,7 +1068,13 @@ Rejected > Unresolved > Declined > Candidate
     - no conformance code, empty/default receipt, target, Recipe, or MIR;
     - task:
       `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-d0-design-task-2026-08-09.md`.
-22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked behind 22A)
+22A-I0. `CALLABLE-BODY-CONFORMANCE-EVIDENCE-I0` (current implementation row)
+    - issue only the exact `return me` structural safety receipt and the
+      sibling Query Home no-transfer receipt;
+    - stop at `NoSafeSlice` for incomplete effect/control/Home coverage;
+    - implementation:
+      `docs/development/current/main/investigations/own-home-callable-body-conformance-evidence-i0-implementation-task-2026-08-09.md`.
+22B. `CALLABLE-CONTRACT-CONFORMANCE-I0` (parked behind 22A-I0)
     - consume declared contract + bounded Query facts + complete evidence;
     - issue one accepted row per selected declaration and reject any
       missing/duplicate/foreign/nonconforming row;
