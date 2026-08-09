@@ -1,5 +1,5 @@
 ---
-Status: design census required
+Status: closed — exact source-declared carrier parameter selected
 Date: 2026-08-09
 Row: `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0`
 Blocks: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0`
@@ -86,6 +86,44 @@ widen VerifiedCallableIndexV1 without its own semantic Decision
 publish a type before the real producer succeeds
 ```
 
+## Census closeout
+
+The clean source and lowering owners establish this exact chain:
+
+```text
+ParserNumberScanBox.scan_int(src, i)
+  -> local j = i
+  -> Variable(i) returns the formal parameter ValueId
+  -> local declaration allocates one fresh ValueId for j
+  -> one Copy { dst: j, src: i } commits
+  -> metadata propagation copies only an existing source type
+  -> variable_map publishes j
+  -> GenericLoop selects j and requires its exact transient type
+```
+
+The local declaration/copy is the final carrier producer and already has the
+correct success order: instruction commit, metadata propagation, then named
+publication. It must not invent a type.
+
+The missing upstream truth is the declaration of formal `i`. The source
+currently declares both parameters without types, so the function signature
+contains no exact Integer authority for `i`. The source also deliberately
+accepts `null` for `src`; therefore the earlier `(String, i64)` assumption is
+too strong. The bounded truthful declaration is:
+
+```hako
+scan_int(src, i: i64)
+```
+
+`src` remains untyped in this row. `i: i64` is ordinary source signature
+truth, not a scanner-name special case or body inference. The existing
+header projection and parameter identity commit may publish it before body
+lowering; the existing local Copy may then propagate it to `j`.
+
+Decision: open exactly one source-declared carrier-parameter I0. Do not add a
+new GenericLoop rule, post-hoc local override, FreeStatic widening, or generic
+header/session abstraction in this bounded fix.
+
 ## Acceptance
 
 ```text
@@ -100,13 +138,15 @@ H2-S2-S0 remains parked
 one and only one follow-up implementation row named
 ```
 
+All acceptance items are closed by the census above. The follow-up is
+`HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0`.
+
 ## Task order after this Decision
 
 ```text
-D0  exact carrier-source/producer census (this row)
-P0  disconnected receipt/API for the selected producer, if needed
-I0  one success-only exact transient-type publication
-C0  clean existing scan_int direct-call canary exits GenericLoop
+D0  exact carrier-source/producer census (closed)
+I0  declare exact `i: i64`; reuse existing parameter/copy publication owners
+C0  same I0 slice: clean existing scan_int direct-call exits GenericLoop
 R0  resume the stashed H2-S2-S0 lexical-parts implementation
 ```
 

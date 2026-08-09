@@ -567,12 +567,18 @@ HAKO-PARSER-RICH-BODY-RESULT-H2-S2-R0 (closed)
   Task:
   `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md`
 
-HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0 (current design census)
+HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0 (closed)
   trace the clean existing numeric scanner carrier to its exact initializer,
   final ValueId producer, and missing success-only type-publication owner;
   do not choose parameter ingress or another producer by guess.
   Task:
   `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md`
+
+HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0 (current)
+  declare only `scan_int` formal `i` as `i64`; keep `src` untyped and reuse
+  the existing signature, parameter, local-copy, and GenericLoop owners.
+  Task:
+  `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md`
 
 HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S0 (parked)
   add one private numeric lexical-parts result to the existing scanner, admit
@@ -1263,12 +1269,18 @@ Rejected > Unresolved > Declined > Candidate
     - preserve compatibility projection without JSON decode or source rescan;
     - implementation card:
       `docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s0-integer-lexical-parts-task-2026-08-09.md`.
-22A-HOME-TAKE-H2-S2-CARRIER-D0. `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0` (current)
+22A-HOME-TAKE-H2-S2-CARRIER-D0. `HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0` (closed)
     - reproduce the clean existing scanner failure;
     - identify the exact loop carrier initializer and final ValueId producer;
     - select no publication fix until that producer is proven;
     - consultation card:
       `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md`.
+22A-HOME-TAKE-H2-S2-CARRIER-I0. `HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0` (current)
+    - declare only the exact cursor input `i: i64`;
+    - preserve untyped/null-compatible `src`;
+    - prove the existing parameter/local-copy chain reaches GenericLoop;
+    - implementation card:
+      `docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md`.
 22A-HOME-D0. `CALLABLE-BODY-HOME-FLOW-D0` (parked after release/take/Home-demand rows)
     - keep `VerifiedHomeAbiV1` declaration-only and the bounded Query
       no-transfer receipt unchanged;

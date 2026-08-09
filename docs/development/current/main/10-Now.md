@@ -23,9 +23,9 @@ CURRENT_STATE.toml
   -> current_design_stop / current_execution_design
 ```
 
-Current mode is `design_stop`. The typed integer lexical-parts row is parked
-while one bounded census identifies the existing numeric scanner Loop
-carrier's exact initializer producer and missing type-publication owner.
+Current mode is `fast`. The typed integer lexical-parts row is parked while
+one bounded canary declares the existing numeric scanner cursor parameter as
+`i64` and proves the existing parameter/local-copy publication chain.
 The parser public-AST/postpass, V2 schema, typed
 callable syntax carriage, old instance-result/target retirement,
 source-handoff D0/I0, resolver declaration/signature I0, Home callable ABI
@@ -37,7 +37,7 @@ bounded Call+Return effect/control I0, focused Home source-event D0, and the
 minimal contextual Home syntax D0 are closed. The current bounded row is:
 
 ```text
-HAKO-PARSER-NUMERIC-SCAN-CARRIER-SOURCE-D0
+HAKO-PARSER-NUMERIC-SCAN-CARRIER-PARAMETER-I0
 ```
 
 The Call+Return row landed one private borrowed receipt from one
@@ -60,11 +60,12 @@ projections. The H2-S2 Decision is closed: the existing live grammar will
 parse exact `return <unsuffixed decimal integer>` once and project both a
 typed `SourceBody[Return(Present, LiteralInt)]` tree and compatibility JSON.
 R0 is closed: `ParserBox` now delegates only compatibility JSON escaping to a
-stateless support owner and is 754 lines. S0 is parked because a clean-HEAD
-direct call to the existing numeric scanner already freezes at GenericLoop
-with a missing transient type. The current D0 traces the exact source
-initializer, final ValueId producer, and missing success-only publication
-owner before selecting a fix. There is still no typed
+stateless support owner and is 754 lines. The carrier census proved that
+`local j = i` creates one fresh local Copy and that its owner correctly
+propagates only an existing source type. The current I0 declares only formal
+`i` as `i64`; `src` remains untyped because the compatibility scanner accepts
+`null`. S0 stays parked until this direct scanner canary is green. There is
+still no typed
 expression/Return/body product, method
 connection, Take activation, or language activation.
 Home capability and Home Flow remain closed; target,
@@ -155,8 +156,8 @@ typed syntax carriage (closed)
 -> H2-S1 atomic parameter-list product (closed)
 -> H2-S2 same-pass rich body result design (closed)
 -> H2-S2-R0 ParserBox facade split (closed)
--> numeric-scan carrier-source D0 (current design census)
--> producer-specific publication I0 + clean scan_int canary
+-> numeric-scan carrier-source D0 (closed)
+-> exact carrier parameter I0 + clean scan_int canary (current)
 -> H2-S2-S0 private typed integer lexical parts (parked until canary green)
 -> H2-S3 unpublished direct-method transaction
 -> H2-I0 bounded ordinary Box direct-method parser connection
