@@ -592,7 +592,7 @@ parser direct-method observation test: green
 cargo check --lib: green
 callable semantic batch tests: green
 normal callable semantic package tests: green
-hako_parser_rich_body_h2_s2_s1_r1_guard.sh: green
+h2_compile_front_owner_handoff_i0_guard.sh: green
 selected member-gate observation exclusion test: green
 ```
 

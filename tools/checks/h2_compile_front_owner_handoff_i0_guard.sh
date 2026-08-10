@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-TAG="hako-parser-rich-body-h2-s2-s1-r1"
+TAG="h2-compile-front-owner-handoff-i0"
 LOAN="$ROOT/src/parser/normal_callable_program_source/semantic_syntax_loan.rs"
 BATCH="$ROOT/src/mir/callable_semantic_batch/issuer.rs"
 BATCH_MODEL="$ROOT/src/mir/callable_semantic_batch/model.rs"
