@@ -1138,6 +1138,91 @@ no parser fixture narrowing
 no provider/runtime execution
 ```
 
+### Consumer census closeout (2026-08-11): `NoSafeSlice`
+
+The current code audit confirms that this is a real consumer gap, not a
+missing Dynamic producer:
+
+```text
+package-held program:
+  VerifiedDynamicExitTransactionCoSealV1
+  -> SelectedCallableSemanticRefV1::Dynamic
+  -> selected Builder adapter (source seed only)
+
+physical demand:
+  issue_dynamic_full_loop_operation_physical_demand_v2
+  -> test-only exit-transaction callers
+  -> no production physical consumer
+
+local materialization:
+  PreparedDynamicLocalEntryV1
+  -> retained inside CallableDynamicOriginLoweringStateV1
+  -> no located-Loop consumer surface
+
+located Loop:
+  PreparedLocatedRawLoopChildEntryV1
+  -> method/admission observations are discarded
+  -> legacy lower_loop_or_freeze_v1 route
+```
+
+The worker audit also found that `SelectedCallableSemanticRefV1::Dynamic`
+has no production consumer of its `program` field yet: the selected adapter
+currently consumes only the retained source seed. The nearest V1 canary,
+`CanonicalSsaFunctionSessionV2::open_source_backed_dynamic_loop_header`, is
+test-only and owns a disconnected hard-coded Dynamic operation/PHI route; it
+cannot be promoted as the V2 consumer. The V2 physical demand itself has only
+the semantic-program tests as callers and deliberately emits no Builder,
+CFG, `ValueId`, ABI, or Completion fact.
+
+There is also no Dynamic result/ABI/Tail owner at this boundary:
+`DynamicCallableFunctionExitTargetV1` records only Value/Unit, while the
+existing exact return ABI publisher is static-family-only. This makes the
+bootstrap cycle a genuine authority gap, not a missing adapter. Keep the D0
+at `NoSafeSlice` until one bounded consumer and its result/ABI contract are
+named and co-sealed.
+
+Therefore the missing owner is the sole selected-Dynamic physical consumer
+and its bootstrap contract. The existing physical-input/demand products are
+valid upstream evidence, but they do not by themselves lower a Loop or bind
+the request-local initializer/local values. The D0 remains `NoSafeSlice`.
+
+Do not make the test-only physical-demand issuer production merely to close
+the graph, promote `GenericLoopAdmissionObservationV1` to semantic authority,
+or add a disconnected `Prepared*` receipt. The next design question remains
+exactly one: whether the existing outer callable terminal can consume the
+package program, local materialization, and located Loop in one bounded V2
+route without a second pipeline, fallback, or retry.
+
+### D0 decision closeout: `NoSafeSlice` (2026-08-11)
+
+```text
+Decision:
+  REVISE / NoSafeSlice; do not open an implementation row.
+
+Source authority:
+  installed package's VerifiedDynamicExitTransactionCoSealV1
+
+Existing physical fact:
+  PreparedDynamicLocalEntryV1 inside request-local origin state
+
+Missing canonical issuer:
+  selected Dynamic Loop physical consumer plus Dynamic result/ABI/Tail/
+  Completion relation
+
+Fail-fast boundary:
+  no sole consumer, no exact co-seal, foreign/duplicate materialization,
+  or missing result/ABI contract
+
+Non-claims:
+  no GenericLoop change, MirType backfill, V1-canary promotion, V2 demand
+  production activation, fallback, retry, or disconnected admission receipt
+```
+
+The current pointer intentionally remains this D0. A later implementation
+row may be opened only after the missing consumer/result contract is accepted;
+the already-landed full producer is not reopened and no new prerequisite row
+is invented to disguise this gap.
+
 ### Ordered execution ladder
 
 The selected-admission D0 and its behavior-neutral R0 are closed. The

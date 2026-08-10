@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 is closed as a behavior-neutral authority refactor. The package now retains the source-backed Dynamic seed and the selected-callable adapter consumes it instead of reissuing Dynamic semantics. H2 is now stopped at the sole-consumer/bootstrap boundary; GenericLoop remains an exact-MirType verifier."
+status = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 is closed as a behavior-neutral authority refactor. A consumer census confirms that the package-held Dynamic program and local materialization are present, but the physical-demand issuer has no production consumer and the located Loop still discards its observations. H2 remains NoSafeSlice at the sole-consumer/bootstrap boundary; GenericLoop remains an exact-MirType verifier."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
@@ -726,7 +726,7 @@ next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "H2 selected initializer admission is closed. R0 retains the source-backed Dynamic seed in the installed package, loans it through SelectedCallableSemanticRefV1, and removes Dynamic source reclassification from the selected-callable adapter without changing the route or GenericLoop. The next design stop is the sole-consumer/bootstrap question."
+latest_card_summary = "H2 selected initializer admission is closed. R0 retains the source-backed Dynamic seed in the installed package, loans it through SelectedCallableSemanticRefV1, and removes Dynamic source reclassification from the selected-callable adapter without changing the route or GenericLoop. The consumer census found no production caller for the bounded Dynamic physical demand and no located-Loop bridge, so the sole-consumer/bootstrap D0 remains NoSafeSlice."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
