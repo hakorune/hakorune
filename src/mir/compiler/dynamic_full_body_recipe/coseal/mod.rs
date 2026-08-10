@@ -3,6 +3,7 @@
 mod calls;
 mod coverage;
 mod local;
+mod physical_evidence;
 mod semantic_program;
 
 #[cfg(test)]
@@ -22,28 +23,38 @@ use coverage::{
 };
 pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
 use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
+use physical_evidence::issue_physical_evidence_v2;
+use physical_evidence::issue_recipe_relations;
+pub(in crate::mir) use physical_evidence::{
+    DynamicFullLoopOperationEffectV2, DynamicFullLoopOperationPhysicalRefV2,
+    DynamicFullLoopOperationSourceEffectV2, DynamicFullLoopPhysicalEvidenceRejectV2,
+    DynamicFullLoopPhysicalItemKindV2, DynamicFullLoopPhysicalItemPlacementV2,
+    DynamicFullLoopPhysicalRecipeRelationsViewV2, DynamicLoopPhysicalArmV2,
+    DynamicLoopPhysicalBranchControlV2, DynamicLoopPhysicalControlRowV2,
+    VerifiedDynamicFullLoopPhysicalEvidenceV2, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
+    DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
+};
 pub(in crate::mir) use semantic_program::{
-    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_exit_transaction_coseal_i0,
-    issue_dynamic_carrier_flow_program_v1, issue_dynamic_carrier_ingress_lifecycle_program_v1,
-    issue_dynamic_carrier_rebind_transaction_program_v1,
+    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
+    issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    issue_dynamic_carrier_rebind_transaction_program_v1, issue_dynamic_exit_transaction_coseal_i0,
     issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_operator_carrier_lifecycle_program_v1,
-    DynamicCarrierCleanupProjectionRejectV1, DynamicExitTransactionCoSealRejectV1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicCarrierCleanupProjectionRejectV1,
     DynamicCarrierCurrentDispositionV1, DynamicCarrierFlowProgramRejectV1,
     DynamicCarrierIngressLifecycleProgramRejectV1, DynamicCarrierRebindTransactionRejectV1,
-    DynamicFullLoopAfterRefV2, DynamicFullLoopFaultCutPointCatalogRefV2,
-    DynamicFullLoopFaultCutPointV2, DynamicFullLoopFaultFamilyV2,
-    DynamicFullLoopSemanticProgramRejectV2, DynamicInvocationCarrierDestinationRefV1,
-    DynamicInvocationCarrierLifecycleCatalogRefV1,
+    DynamicExitTransactionCoSealRejectV1, DynamicFullLoopAfterRefV2,
+    DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
+    DynamicFullLoopFaultFamilyV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicInvocationCarrierDestinationRefV1, DynamicInvocationCarrierLifecycleCatalogRefV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
     DynamicInvocationCarrierPublicationV1, DynamicOperatorCarrierDestinationRefV1,
     DynamicOperatorCarrierLifecycleCatalogRefV1, DynamicOperatorCarrierLifecycleProgramRejectV1,
     DynamicOperatorCarrierLifecycleRowRefV1, DynamicOperatorCarrierPublicationV1,
-    VerifiedDynamicCarrierCleanupProjectionV1, VerifiedDynamicExitTransactionCoSealV1,
-    VerifiedDynamicCarrierFlowProgramV1, VerifiedDynamicCarrierIngressLifecycleProgramV1,
-    VerifiedDynamicCarrierRebindTransactionProgramV1, VerifiedDynamicFullLoopSemanticProgramV2,
-    VerifiedDynamicInvocationCarrierLifecycleProgramV1,
+    VerifiedDynamicCarrierCleanupProjectionV1, VerifiedDynamicCarrierFlowProgramV1,
+    VerifiedDynamicCarrierIngressLifecycleProgramV1,
+    VerifiedDynamicCarrierRebindTransactionProgramV1, VerifiedDynamicExitTransactionCoSealV1,
+    VerifiedDynamicFullLoopSemanticProgramV2, VerifiedDynamicInvocationCarrierLifecycleProgramV1,
     VerifiedDynamicOperatorCarrierLifecycleProgramV1,
 };
 
@@ -52,6 +63,7 @@ pub(in crate::mir) enum DynamicFullLoopSourceRecipeEnvelopeRejectV2 {
     Coverage(DynamicFullLoopCoverageRejectV2),
     Calls(DynamicFullLoopCallRelationRejectV2),
     IterationLocal,
+    PhysicalEvidence(DynamicFullLoopPhysicalEvidenceRejectV2),
 }
 
 /// Bounded source-bound Recipe product.
@@ -66,11 +78,25 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
     coverage: VerifiedDynamicFullLoopClaimCoverageV2,
     calls: VerifiedDynamicFullLoopCallRelationsV2,
     iteration_local: DynamicIterationLocalRelationV2,
+    physical_evidence: VerifiedDynamicFullLoopPhysicalEvidenceV2,
 }
 
 impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
     pub(in crate::mir) fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
         self.iteration_local.borrow(&self.source)
+    }
+
+    pub(in crate::mir) fn physical_evidence(&self) -> &VerifiedDynamicFullLoopPhysicalEvidenceV2 {
+        &self.physical_evidence
+    }
+
+    pub(in crate::mir) fn physical_recipe_relations(
+        &self,
+    ) -> Result<
+        DynamicFullLoopPhysicalRecipeRelationsViewV2<'_>,
+        DynamicFullLoopPhysicalEvidenceRejectV2,
+    > {
+        issue_recipe_relations(&self.physical_evidence, self.artifact.recipe(), &self.calls)
     }
 
     #[cfg(test)]
@@ -108,11 +134,14 @@ pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2(
         .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls)?;
     let iteration_local = verify_iteration_local_relation_v2(&source, &coverage, &calls)
         .ok_or(DynamicFullLoopSourceRecipeEnvelopeRejectV2::IterationLocal)?;
+    let physical_evidence = issue_physical_evidence_v2(&source, &artifact, &coverage, &calls)
+        .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::PhysicalEvidence)?;
     Ok(VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
         source,
         artifact,
         coverage,
         calls,
         iteration_local,
+        physical_evidence,
     })
 }

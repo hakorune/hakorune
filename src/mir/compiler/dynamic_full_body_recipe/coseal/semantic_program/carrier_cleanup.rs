@@ -73,6 +73,15 @@ pub(in crate::mir) struct VerifiedDynamicCarrierCleanupProjectionV1 {
 }
 
 impl VerifiedDynamicCarrierCleanupProjectionV1 {
+    pub(in crate::mir) fn with_semantic_program<R>(
+        &self,
+        callback: impl for<'program> FnOnce(
+            &'program super::super::VerifiedDynamicFullLoopSemanticProgramV2,
+        ) -> R,
+    ) -> R {
+        self.flow.with_semantic_program(callback)
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> super::DynamicCarrierCurrentDispositionV1 {
         self.flow.current()

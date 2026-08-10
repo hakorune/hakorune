@@ -18,6 +18,7 @@ use super::super::super::dynamic_full_body_source::DynamicFullBodySourceIssuerV1
 use super::super::claims::DynamicFullLoopRecipeClaimsV2;
 use super::super::{produce_dynamic_full_loop_recipe_v2, DynamicFullLoopRecipeCandidateV2};
 use super::coverage::{verify_complete_claim_coverage_v2, DynamicFullLoopCoverageRejectV2};
+use super::DynamicFullLoopOperationEffectV2;
 use super::{
     issue_dynamic_full_loop_source_recipe_envelope_v2, DynamicFullLoopCallRelationRejectV2,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2,
@@ -112,6 +113,60 @@ fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
     assert_eq!(local.declaration_statement(), statement);
     assert_eq!(local.binding().owner(), product.source().owner);
     assert_ne!(local.read().node(), local.declaration_statement().node());
+}
+
+#[test]
+fn physical_evidence_coseals_exact_placement_operation_and_effect_coverage() {
+    let fixture = fixture(true);
+    let product =
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
+            .expect("atomic source/Recipe/envelope co-seal");
+    let evidence = product.physical_evidence();
+
+    assert_eq!(evidence.placements().len(), 17);
+    assert_eq!(evidence.operations().len(), 15);
+    assert_eq!(
+        evidence
+            .operations()
+            .iter()
+            .filter(|row| row.effect() == DynamicFullLoopOperationEffectV2::BindingRead)
+            .count(),
+        5
+    );
+    assert_eq!(
+        evidence
+            .operations()
+            .iter()
+            .filter(|row| row.effect() == DynamicFullLoopOperationEffectV2::BindingWrite)
+            .count(),
+        1
+    );
+    assert_eq!(
+        evidence
+            .operations()
+            .iter()
+            .filter(|row| row.effect() == DynamicFullLoopOperationEffectV2::ExternalCall)
+            .count(),
+        2
+    );
+    assert_eq!(
+        evidence
+            .operations()
+            .iter()
+            .filter(|row| {
+                row.effect() == DynamicFullLoopOperationEffectV2::ExpressionEvaluation
+            })
+            .count(),
+        7
+    );
+    assert_eq!(
+        evidence
+            .operations()
+            .iter()
+            .filter(|row| row.call_role().is_some())
+            .count(),
+        2
+    );
 }
 
 #[test]

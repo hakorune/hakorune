@@ -70,6 +70,12 @@ impl VerifiedDynamicFullLoopClaimCoverageV2 {
             .find(|row| row.role == role)
             .map(|row| row.target)
     }
+
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal) fn source_claims(
+        &self,
+    ) -> &[DynamicFullLoopSourceClaimV2] {
+        &self.sources
+    }
 }
 
 pub(super) fn verify_complete_claim_coverage_v2(

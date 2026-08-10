@@ -9,6 +9,7 @@ mod fault_cut_points;
 mod ingress;
 mod invocation_carrier_lifecycle;
 mod operator_carrier_lifecycle;
+mod physical_input;
 
 #[cfg(test)]
 mod carrier_rebind_tests;
@@ -58,6 +59,9 @@ pub(in crate::mir) use operator_carrier_lifecycle::{
     DynamicOperatorCarrierDestinationRefV1, DynamicOperatorCarrierLifecycleCatalogRefV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1, DynamicOperatorCarrierLifecycleRowRefV1,
     DynamicOperatorCarrierPublicationV1,
+};
+pub(in crate::mir) use physical_input::{
+    DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,6 +125,13 @@ pub(in crate::mir) struct VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
 }
 
 impl VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
+    pub(in crate::mir) fn with_semantic_program<R>(
+        &self,
+        callback: impl for<'program> FnOnce(&'program VerifiedDynamicFullLoopSemanticProgramV2) -> R,
+    ) -> R {
+        self.invocation_program.with_semantic_program(callback)
+    }
+
     pub(in crate::mir) fn operator_lifecycle(
         &self,
     ) -> DynamicOperatorCarrierLifecycleCatalogRefV1<'_> {
@@ -143,6 +154,13 @@ impl VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
 }
 
 impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
+    pub(in crate::mir) fn with_semantic_program<R>(
+        &self,
+        callback: impl for<'program> FnOnce(&'program VerifiedDynamicFullLoopSemanticProgramV2) -> R,
+    ) -> R {
+        callback(&self.program)
+    }
+
     pub(in crate::mir) fn invocation_lifecycle(
         &self,
     ) -> DynamicInvocationCarrierLifecycleCatalogRefV1<'_> {

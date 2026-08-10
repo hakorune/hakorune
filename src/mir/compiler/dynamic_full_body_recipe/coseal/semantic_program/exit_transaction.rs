@@ -12,6 +12,7 @@
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
 use super::carrier_rebind::VerifiedDynamicCarrierCleanupProjectionV1;
+use super::{DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicExitTransactionCoSealRejectV1 {
@@ -54,6 +55,14 @@ pub(in crate::mir) struct VerifiedDynamicExitTransactionCoSealV1 {
 }
 
 impl VerifiedDynamicExitTransactionCoSealV1 {
+    pub(in crate::mir) fn with_physical_input<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicFullLoopPhysicalInputViewV2<'program>) -> R,
+    ) -> Result<R, DynamicFullLoopPhysicalInputRejectV2> {
+        self.cleanup
+            .with_semantic_program(|semantic| super::physical_input::issue(semantic, callback))
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> super::DynamicCarrierCurrentDispositionV1 {
         self.cleanup.current()
@@ -77,10 +86,7 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
 
 pub(in crate::mir) fn issue_dynamic_exit_transaction_coseal_i0(
     cleanup: VerifiedDynamicCarrierCleanupProjectionV1,
-) -> Result<
-    VerifiedDynamicExitTransactionCoSealV1,
-    DynamicExitTransactionCoSealRejectV1,
-> {
+) -> Result<VerifiedDynamicExitTransactionCoSealV1, DynamicExitTransactionCoSealRejectV1> {
     let sites = cleanup.completion_sites();
     if sites[0] == sites[1] {
         return Err(DynamicExitTransactionCoSealRejectV1::CompletionCoverage);
@@ -195,6 +201,28 @@ mod tests {
                 "forbidden term in exit transaction co-seal: {forbidden}"
             );
         }
+    }
+
+    #[test]
+    fn final_exit_coseal_lends_one_complete_physical_input_view() {
+        let transaction = exact_coseal();
+        transaction
+            .with_physical_input(|input| {
+                assert_eq!(input.placements().len(), 17);
+                assert_eq!(input.operations().len(), 15);
+                assert_eq!(
+                    input
+                        .operations()
+                        .iter()
+                        .filter(|row| row.call().is_some())
+                        .count(),
+                    2
+                );
+                assert_eq!(input.control().rows().len(), 1);
+                assert_eq!(input.control().logical().branches().len(), 1);
+                assert_eq!(input.faults().rows().len(), 6);
+            })
+            .expect("final exit co-seal physical input");
     }
 
     impl DynamicExitTransactionRouteV1 {

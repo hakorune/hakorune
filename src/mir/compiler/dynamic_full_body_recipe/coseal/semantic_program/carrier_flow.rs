@@ -122,6 +122,15 @@ pub(in crate::mir) struct VerifiedDynamicCarrierFlowProgramV1 {
 }
 
 impl VerifiedDynamicCarrierFlowProgramV1 {
+    pub(in crate::mir) fn with_semantic_program<R>(
+        &self,
+        callback: impl for<'program> FnOnce(
+            &'program super::super::VerifiedDynamicFullLoopSemanticProgramV2,
+        ) -> R,
+    ) -> R {
+        self.rebind.with_semantic_program(callback)
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> DynamicCarrierCurrentDispositionV1 {
         self.rebind.current()

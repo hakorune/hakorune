@@ -678,28 +678,29 @@ Evidence:
 - `RUSTFLAGS=-Awarnings cargo test -q --lib join_sig` (31 passed)
 - `cargo check --lib` (pass)
 
-Next: `DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`.
+Landed next: `DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`.
 
-#### DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
+#### DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0 (CLOSED)
 
-Change:
-- add the private 17-placement/15-operation physical-evidence co-seal;
-- co-seal JoinSig logical flow with verified Recipe control;
-- lend the final HRTB physical input from VerifiedDynamicExitTransactionCoSealV1.
+Landed:
+- the existing envelope now owns one private 17-placement/15-operation
+  source/effect co-seal; I16 uses `StepTargetI` as primary and retains the
+  statement claim only as auxiliary coverage;
+- `VerifiedDynamicExitTransactionCoSealV1` lends one HRTB physical-input
+  view combining the JoinSig logical view, verified Recipe control/placement,
+  exact CallSlot/Fault rows, and owner/frame/scope/provenance;
+- the bounded cohort exposes four actionable Loop boundaries and one
+  branch-owned Return; the Loop Return summary is integrity-only.
 
-Contract:
-- existing source/claim/Recipe/CallSlot/Fault authorities are only related;
-- owner/frame/scope/region/provenance and all exact counts close atomically;
-- raw semantic parts never escape.
-
-Done:
-- 17/15/2/6 coverage and 5/1/2/7 source-effect counts pass;
-- execution 9/4/2, Return de-duplication, I16 primary anchor, and foreign
-  relation negatives pass.
+Evidence:
+- exact 17/15/2/6 and 5/1/2/7 counts pass in envelope tests;
+- `RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction` (3 passed);
+- `RUSTFLAGS=-Awarnings cargo test -q --lib dynamic_full_body_recipe` (8 passed);
+- `cargo check --lib`, current-state guard, and `git diff --check` pass.
 
 Stop:
 - no physical schedule, block, CFG, PHI, ABI, Completion consumption, or
-  session.
+  session. Next: `PHYSICAL-OPERATION-DEMAND-I0`.
 
 #### PHYSICAL-OPERATION-DEMAND-I0
 

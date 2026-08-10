@@ -49,6 +49,15 @@ pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program)
 }
 
 impl VerifiedDynamicCarrierIngressLifecycleProgramV1 {
+    pub(in crate::mir) fn with_semantic_program<R>(
+        &self,
+        callback: impl for<'program> FnOnce(
+            &'program super::VerifiedDynamicFullLoopSemanticProgramV2,
+        ) -> R,
+    ) -> R {
+        self.program.with_semantic_program(callback)
+    }
+
     pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) fn relation(
         &self,
     ) -> BorrowedIngressNoEndV1 {

@@ -5,7 +5,7 @@ Loop lowering.
 
 ## Authority
 
-### V2 physical-transfer boundary (accepted design; logical view I0 landed)
+### V2 physical-transfer boundary (logical view and Dynamic physical-input I0 landed)
 
 The verified V2 Recipe and JoinSig remain separate logical authorities. The
 JoinSig subtree issues one borrowed
@@ -17,6 +17,12 @@ The Dynamic semantic-program owner will co-seal that logical view with verified
 Recipe control and placement. The final package-held
 `VerifiedDynamicExitTransactionCoSealV1`, not a raw inner semantic program,
 will lend the resulting complete physical-input view through one HRTB callback.
+
+That bounded child is now landed. Its source/Recipe envelope owns the private
+17-placement/15-operation operation-effect ledger, while the exit transaction
+is the sole HRTB entry for the complete physical-input view. The view carries
+exact CallSlot/Fault rows and owner/frame/scope/provenance; it does not create a
+physical schedule or expose raw Recipe/JoinSig access.
 
 Loop boundary rows never invent an ItemKey for Enter or Backedge. Branch rows
 retain exact `if_item` and `exit_item`. For the bounded Dynamic cohort, the
