@@ -141,21 +141,35 @@ none of these rows may use compatibility fallback:
 HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
   accepted: bridge owner/parity/batch relation and prerequisite audit
 
-H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
-  closed: package-loaned Dynamic program + completed local materialization +
-  exact located Loop; no source-semantic reissue or GenericLoop repair
+H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0
+  current design stop: co-seal the package-loaned Dynamic program with the
+  existing completed local materialization and exact located Loop; no
+  source-semantic reissue or GenericLoop repair
 
 H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
-  current: consume package semantic authority in the existing selected-callable
-  scope; retain request-local ValueIds but remove package-path reclassification
+  closed: consume package semantic authority in the selected-callable scope;
+  retain request-local ValueIds but remove package-path reclassification
 
-H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0
-  close the bootstrap cycle and identify one bounded V2 physical consumer;
-  if result/ABI or consumer authority is absent, remain NoSafeSlice
+HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
+  source-backed declared result contract for the selected :i64 cohort;
+  do not infer result from body, MIR, runtime tag, or ABI
+
+DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
+  issue the exact selected Dynamic result relation from the source contract
+
+GENERIC-LOOP-DYNAMIC-MULTI-RETURN-COMPLETION-D0/I0
+  reuse VerifiedFunctionCompletionV1 as the logical source owner and add one
+  Dynamic adapter that consumes inner/outer returns into exactly one physical
+  Completion/DraftSeal Return
+
+DYNAMIC-LOOP-PHYSICAL-CONSUMER-I0
+  consume package program + initializer admission + result/Completion through
+  one bounded V2 physical route; otherwise remain NoSafeSlice
 
 H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-  issue and consume the admission in one named production replacement cell;
-  delete the selected legacy GenericLoop edge with fallback/retry zero
+  only after the bridge, result, Completion, ABI/Tail, and physical consumer
+  are accepted; one named production replacement cell and old-edge deletion
+  with fallback/retry zero
 
 H2-S2-S1-R1-REOPEN-AUDIT
   only after the bounded Dynamic dependency cutover; apply the existing
