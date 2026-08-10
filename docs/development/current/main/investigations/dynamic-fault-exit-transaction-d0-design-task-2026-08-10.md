@@ -172,7 +172,8 @@ and exposes no `into_parts` escape.
    per-iteration Absent -> Live -> EndAuthorized/Forwarded and every exit cut
 
 7. DYNAMIC-EXIT-CLEANUP-PLAN-I0
-   private obligations derived from carrier flow and any separate Home Flow
+   CLOSED: private carrier-only obligations derived from the complete flow;
+   no Home Flow was available or inferred
 
 8. MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0
    inner Recipe Return + outer Tail -> one FunctionExit/DraftSeal Return
@@ -252,6 +253,40 @@ cleanup execution, Return/After forwarding, Completion consumption, CFG/MIR,
 physical source-ledger progress, retry, or fallback.  The next bounded owner
 is the cleanup projection/exit transaction lane.
 
+## Carrier cleanup projection (D0/I0 closeout)
+
+`DYNAMIC-EXIT-CLEANUP-PLAN-I0` is closed as a bounded carrier-only
+projection. `issue_dynamic_carrier_cleanup_projection_i0` consumes the whole
+verified flow product and atomically retains eight private cut-point rows:
+
+```text
+I1/I5        -> NoLiveLocalCarrier
+I6           -> NoLiveLocalCarrier + delegated V9 publication
+I7           -> EndAuthorized(V10)
+I9           -> delegated V11 publication + EndAuthorized(V10)
+I15          -> EndAuthorized(V10), no replacement/backedge
+inner Return -> EndAuthorized(V10)
+Backedge     -> DischargeBeforeBackedge at the exact I16 write
+```
+
+V9 and V11 remain owned by the existing operator/invocation lifecycle
+products; this projection does not duplicate their End authority. The Return
+partition borrows the exact inner/outer source sites from retained Completion
+coverage and does not consume or extend `VerifiedFunctionCompletionV1`.
+No `ResolvedCleanupObligationsV1` extension, Home capability, physical End,
+CFG/PHI/MIR, DraftSeal, collector, retry, or fallback is introduced.
+
+Focused closeout gates:
+
+```text
+RUSTFLAGS=-Awarnings cargo test -q --lib carrier_cleanup
+RUSTFLAGS=-Awarnings cargo test -q --lib normal_callable_semantic_package
+RUSTFLAGS=-Awarnings cargo test -q --lib semantic_program
+RUSTFLAGS=-Awarnings cargo check -q --lib
+```
+
+The next bounded owner is `MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0`.
+
 ## Hard stops
 
 ```text
@@ -272,12 +307,13 @@ no test-only semantic/Home constructor
 dynamic_full_body_recipe/coseal/semantic_program/
   mod.rs
   fault_cut_points.rs
+  carrier_flow.rs
+  carrier_cleanup.rs
   tests.rs
 
 future exit_transaction/
   mod.rs
   completion_partition.rs
-  cleanup_projection.rs
   tests/{golden,negative,api_guard}.rs
 ```
 

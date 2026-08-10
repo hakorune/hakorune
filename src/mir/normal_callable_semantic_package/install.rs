@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 use crate::mir::builder::{
     CompilationContext, SameModuleCallableCatalogBrandV1, SelectedNormalCallableKeyV1,
 };
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicCarrierFlowProgramV1;
+use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicCarrierCleanupProjectionV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingRefV1, HomeDemandV1};
 
@@ -43,7 +43,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
 pub(crate) enum SelectedCallableSemanticRefV1<'loan> {
     Ordinary,
     Dynamic {
-        program: &'loan VerifiedDynamicCarrierFlowProgramV1,
+        program: &'loan VerifiedDynamicCarrierCleanupProjectionV1,
     },
 }
 

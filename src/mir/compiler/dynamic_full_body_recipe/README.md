@@ -53,6 +53,30 @@ and its invocation-local resolver owner. Tests and production integration must
 obtain the candidate from that same source authority; equal-looking source
 resolved in another session is foreign.
 
+## Carrier cleanup projection (D0/I0)
+
+`VerifiedDynamicCarrierCleanupProjectionV1` consumes the whole carrier-flow
+product and records only the bounded carrier obligations at six Fault sites,
+the exact inner Return, and the Backedge. The eight rows are source/Recipe
+cut-point evidence, not physical cleanup instructions:
+
+```text
+I1/I5        -> no live local carrier
+I6           -> no local carrier + delegate existing V9 publication
+I7           -> existing V10 end authorization
+I9           -> delegate existing V11 publication + V10 end authorization
+I15          -> V10 end authorization, no replacement/backedge
+inner Return -> V10 end authorization
+Backedge     -> discharge before the exact I16 write/backedge
+```
+
+V9 and V11 remain owned by their existing operator/invocation lifecycle
+products; the cleanup projection does not issue duplicate End authority. The
+Return partition borrows the exact inner/outer source sites already covered by
+the retained Completion product and does not consume or extend Completion.
+There is no `ResolvedCleanupObligationsV1` extension, Home capability, physical
+End, CFG/PHI/MIR, DraftSeal, collector, retry, or fallback in this boundary.
+
 ## Acceptance rule
 
 The current fixture has seven Dynamic envelope rows. Exactly two are selected

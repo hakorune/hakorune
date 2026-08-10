@@ -17,11 +17,20 @@ use crate::mir::loop_recipe_contract::{
 use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceStmtSiteV1};
 
 use super::operator_carrier_lifecycle::DynamicOperatorCarrierDestinationRefV1;
-use super::{DynamicFullLoopFaultFamilyV2, VerifiedDynamicCarrierIngressLifecycleProgramV1};
+use super::{
+    DynamicFullLoopFaultCutPointV2, DynamicFullLoopFaultFamilyV2,
+    VerifiedDynamicCarrierIngressLifecycleProgramV1,
+};
 
+#[path = "carrier_cleanup.rs"]
+mod carrier_cleanup;
 #[path = "carrier_flow.rs"]
 mod carrier_flow;
 
+pub(in crate::mir) use carrier_cleanup::{
+    issue_dynamic_carrier_cleanup_projection_i0, DynamicCarrierCleanupProjectionRejectV1,
+    VerifiedDynamicCarrierCleanupProjectionV1,
+};
 pub(in crate::mir) use carrier_flow::{
     issue_dynamic_carrier_flow_program_v1, DynamicCarrierFlowProgramRejectV1,
     VerifiedDynamicCarrierFlowProgramV1,

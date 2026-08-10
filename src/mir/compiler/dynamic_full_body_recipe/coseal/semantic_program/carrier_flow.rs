@@ -7,6 +7,7 @@
 
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 use crate::mir::loop_recipe_contract::{LoopBindingKeyV1, LoopItemKeyV1, LoopValueKeyV1};
+use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
 use super::super::{
     DynamicCarrierCurrentDispositionV1, DynamicInvocationCarrierDestinationRefV1,
@@ -57,12 +58,30 @@ enum DynamicCarrierFlowCurrentInputV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct DynamicCarrierFlowPublicationRuleV1 {
+pub(super) struct DynamicCarrierFlowPublicationRuleV1 {
     producer: LoopItemKeyV1,
     result: LoopValueKeyV1,
     publication: DynamicCarrierFlowStateV1,
     boundary: DynamicCarrierFlowBoundaryV1,
     terminal: DynamicCarrierFlowStateV1,
+}
+
+impl DynamicCarrierFlowPublicationRuleV1 {
+    pub(super) const fn producer(&self) -> LoopItemKeyV1 {
+        self.producer
+    }
+
+    pub(super) const fn result(&self) -> LoopValueKeyV1 {
+        self.result
+    }
+
+    pub(super) const fn boundary(&self) -> DynamicCarrierFlowBoundaryV1 {
+        self.boundary
+    }
+
+    pub(super) const fn terminal(&self) -> DynamicCarrierFlowStateV1 {
+        self.terminal
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -108,9 +127,48 @@ impl VerifiedDynamicCarrierFlowProgramV1 {
         self.rebind.current()
     }
 
-    #[cfg(test)]
-    pub(in crate::mir) fn publications(&self) -> &[DynamicCarrierFlowPublicationRuleV1; 4] {
+    pub(super) fn publications(&self) -> &[DynamicCarrierFlowPublicationRuleV1; 4] {
         &self.publications
+    }
+
+    pub(super) fn backedge(
+        &self,
+    ) -> (
+        crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+        LoopItemKeyV1,
+    ) {
+        (self.rebind.commit.backedge_loop, self.normal.write)
+    }
+
+    pub(super) fn return_partition(&self) -> Option<[SourceStmtSiteV1; 2]> {
+        use crate::mir::compiler::dynamic_full_body_source::{
+            DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
+        };
+        let semantic = &self.rebind.ingress.program().invocation_program.program;
+        let source = &semantic.envelope.source;
+        let statement = |role| {
+            source.rows.iter().find_map(|row| {
+                (row.role() == role).then(|| match row.site() {
+                    DynamicFullBodySourceSiteV1::Statement(site) => Some(site.clone()),
+                    DynamicFullBodySourceSiteV1::Expression(_) => None,
+                })?
+            })
+        };
+        let inner = statement(DynamicFullBodySourceRoleV1::InnerReturn)?;
+        let outer = statement(DynamicFullBodySourceRoleV1::OuterReturn)?;
+        let completion = source
+            .completion
+            .explicit_sites()
+            .iter()
+            .collect::<std::collections::BTreeSet<_>>();
+        (completion == std::collections::BTreeSet::from([&inner, &outer])).then_some([inner, outer])
+    }
+
+    pub(super) fn fault_cut_points(
+        &self,
+    ) -> crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program::DynamicFullLoopFaultCutPointCatalogRefV2<'_>
+    {
+        self.rebind.ingress.program().fault_cut_points()
     }
 
     #[cfg(test)]
