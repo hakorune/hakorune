@@ -429,6 +429,23 @@ current local descent exposes only a ValueId/site without a producer relation.
 The future I0 may open only after both source-aware hooks and their
 missing/foreign/duplicate fail-fast cases are fixed in a design Decision.
 
+The source census is concrete:
+
+```text
+raw_invocation_source_transport.rs::RawInvocationRootLineageV1
+  Cataloged(key) carries a callable key, not an exact declaration site
+
+normal_callable_catalog_owner_link.rs
+  verifies catalog/owner pairing but does not issue a method-site receipt
+
+stmts/local_statement_descent.rs::CompletedLocalStatementV1
+  retains result/binding ValueIds only
+
+normal_callable_semantic_lowering_state.rs::record_completed_local
+  matches an existing local site to bindings, but does not retain the
+  initializer expression producer relation
+```
+
 Until this D0 is accepted, `ValueId`, method name, import order, AST shape,
 and `TypeContext` alone remain non-authorities. The GenericLoop carrier stays
 verifier-only, and the existing Dynamic/transient-publication owners remain
