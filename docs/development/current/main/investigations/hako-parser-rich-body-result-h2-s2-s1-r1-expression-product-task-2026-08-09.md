@@ -1052,7 +1052,7 @@ authority guards:
   Dynamic receipt entering legacy GenericLoop
 ```
 
-## `H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0` (current design stop)
+## `H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0` (superseded broad design stop)
 
 R0 proved only the authority transport. This D0 must decide whether the
 transport can be consumed by one real bounded Dynamic Loop physical route.
@@ -1218,17 +1218,175 @@ Non-claims:
   production activation, fallback, retry, or disconnected admission receipt
 ```
 
-The current pointer intentionally remains this D0. A later implementation
-row may be opened only after the missing consumer/result contract is accepted;
-the already-landed full producer is not reopened and no new prerequisite row
-is invented to disguise this gap.
+This broad stop is retained as historical audit evidence. The current pointer
+now moves to the narrower selected-initializer admission bridge below; the
+already-landed full producer is not reopened and no hidden prerequisite row is
+invented to disguise the remaining relation.
 
-### Ordered execution ladder
+### Consumer audit refinement (2026-08-11): narrow the stop, do not reopen the producer
 
-The selected-admission D0 and its behavior-neutral R0 are closed. The
-consumer D0 above is the current design stop; later rows are fixed gates, not
-permission to cross an unresolved design stop. No new prerequisite row may be
-inserted between the consumer decision and the named cutover.
+The follow-up worker audit confirms that the earlier consumer stop was correctly
+conservative, but its wording was still broader than the actual missing seam.
+The complete bounded Dynamic producer and package-held
+`VerifiedDynamicExitTransactionCoSealV1` are already landed. The missing work
+is not another producer or another physical-demand inventory; it is the
+selected-callable lowering bridge that relates the package semantic loan to
+the request-local values and the located Loop.
+
+Existing owners were checked and are not silently reusable:
+
+```text
+VerifiedFunctionCompletionV1
+  = sole logical completion owner
+  = explicit return-site set / declared result relation
+
+ResolvedFunctionCompletionConsumptionV1
+  = outer physical terminal
+  = currently single explicit return + physical BasicBlock/ValueId only
+
+VerifiedCallableTerminalCompatibilityV1
+ReadyCallableTailCompletionV1
+VerifiedCallableTailV1
+  = static or caller-zero profile-specific contracts
+
+Dynamic exit transaction / V2 physical demand
+  = logical chronology and complete semantic input only
+  = no Builder ValueId, ABI, Tail, Completion, DraftSeal, or physical caller
+```
+
+The H2 `skip_while` cohort has two explicit returns and no source-backed
+Dynamic result/ABI contract, so promoting the existing static terminal or the
+test-only V1 Dynamic canary would create a second authority. The correct
+disposition is to close the broad consumer wording as an audit result and move
+the pointer to the narrower design stop below.
+
+## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0` (current design stop)
+
+This is a successor boundary, not a new Dynamic producer task. It owns one
+question only:
+
+> Can the selected-callable lowering boundary issue exactly one move-only
+> relation between the package-loaned Dynamic semantic program, the existing
+> completed-local materialization, and the exact located Loop admission?
+
+The intended shape is:
+
+```text
+SelectedCallableLoweringInputRefV1
+  semantic = Ordinary | Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
+  exact callable/source owner and method observation
+                 |
+                 | narrow HRTB borrow, no raw Recipe/JoinSig exposure
+                 v
+DynamicInitializerAdmissionViewV1
+  selected callable identity
+  owner / frame / Scope / Region provenance
+  parameter #1 source BindingRef
+  prelude initializer source/ordinal
+  local induction declaration/binding
+  root Loop/carrier/entry relation
+  authorized Dynamic representation
+                 +
+PreparedDynamicLocalEntryV1
+  initializer ValueId
+  local destination ValueId
+  local BindingRef
+                 +
+PreparedLocatedRawLoopChildEntryV1
+  exact method/Loop/condition/body source
+  exact binding schedule
+                 v
+PreparedInitializerProducerAdmissionV1<'program>
+  = Static(PreparedStaticInitializerAdmissionV1)
+  | Dynamic(PreparedDynamicInitializerAdmissionV1<'program>)
+```
+
+The closed sum is a lowering-boundary product, not a new parser/resolver
+authority. The package remains the only Dynamic semantic classifier; request-
+local state only binds that meaning to Values created by this Lower. The
+diagnostic `LocalInitializerObservationV1` remains non-semantic. Missing,
+foreign, duplicate, or ambiguous relations fail fast as `NoSafeSlice`.
+
+### Bridge acceptance
+
+This D0 can move to implementation only when all of the following are named
+and co-sealed:
+
+```text
+selected package program is consumed (not merely retained)
+exact method/callable identity and parser provenance
+exact frame / Scope / Region / Loop relation
+initializer source + ordinal
+local declaration / BindingRef
+initializer ValueId -> local destination ValueId
+exact binding schedule
+Static xor Dynamic family selection
+Dynamic never enters exact-MirType GenericLoop
+no source/Recipe/JoinSig reissue, fallback, or retry
+```
+
+This bridge does not itself solve Dynamic result ABI, multi-return
+Completion, Tail, DraftSeal, CFG, PHI, or publication. Those are later owners;
+claiming them here would hide the actual bootstrap cycle.
+
+### Required downstream ladder (fixed; no hidden prerequisite rows)
+
+```text
+1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0
+   close the exact selected semantic/local/Loop relation
+
+2. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-I0
+   only after D0 acceptance; one private move-only bridge, no route switch
+
+3. H2-S2-S1-R1-REOPEN-AUDIT
+   unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards
+
+4. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
+   close parser expression/body/header/final-source/parity substrate
+
+5. HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
+   source-backed declared result contract (selected :i64 cohort first)
+
+6. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
+   selected Dynamic result relation from source contract, not runtime tags
+
+7. PHYSICAL-INPUT-AUTHORITY-I0
+   source-backed Dynamic physical input/demand consumer; no Builder fact yet
+
+8. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+   multi-return Completion adapter, Tail/ABI projection, DraftSeal Return
+   exactly once; existing VerifiedFunctionCompletionV1 remains the logical
+   completion owner
+
+9. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+   one named production caller, fresh session, old edge deletion, no fallback
+
+10. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
+    remove Recipe-derived transfer inference/evidence rescans, keep Callable
+    profile ownership out of the common physicalizer, then retire the fixed-
+    role topology only after segment callers are zero
+
+11. MIRBUILDER-FIRST-PRODUCTION-CUTOVER
+    prove one real production method through Resolve -> Observe -> Facts ->
+    Recipe -> Verify -> Lower -> Seal -> Collect -> Atomic Publish
+
+12. SELFHOST-MIRBUILDER-HANDOFF-PERF-GATE
+    after the new MIRBuilder is production-green and before selfhosting,
+    compile the `.hako` mimalloc implementation with the new builder and
+    record C-vs-AOT performance/assembly evidence; no selfhost claim without
+    this canary
+```
+
+No row in this ladder may be skipped by reopening the already-landed full
+producer or by routing Dynamic through a fabricated `MirType::Unknown` or a
+static exact-type receipt.
+
+### Historical ordered execution ladder (superseded at the consumer boundary)
+
+The selected-admission D0 and its behavior-neutral R0 are closed. This ladder
+records the pre-refinement consumer stop; the successor ladder above is the
+current pointer. Later rows remain fixed gates, not permission to cross an
+unresolved design stop.
 
 ```text
 1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 is closed as a behavior-neutral authority refactor. A consumer census confirms that the package-held Dynamic program and local materialization are present, but the physical-demand issuer has no production consumer and the located Loop still discards its observations. H2 remains NoSafeSlice at the sole-consumer/bootstrap boundary; GenericLoop remains an exact-MirType verifier."
+status = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 and the broad consumer census are closed. The complete bounded Dynamic producer and package-held final semantic program are already landed. H2 remains NoSafeSlice at the narrower selected initializer admission bridge: package semantic loan, exact completed-local materialization, and located Loop provenance are not yet co-sealed; existing Dynamic result/ABI/Tail/Completion owners are static-only or single-return. GenericLoop remains an exact-MirType verifier."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0"
+current_design_stop = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0"
 work_mode = "design_stop"
-current_execution_row = "H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0"
-current_blocker_token = "Decide whether the installed-package Dynamic semantic program, existing PreparedDynamicLocalEntryV1, and located Loop observations have one bounded V2 physical consumer/bootstrap route. If no sole consumer or source-backed result/ABI contract exists, remain NoSafeSlice. Do not add a disconnected admission receipt, modify GenericLoop, infer MirType, open CFG/PHI/session, add fallback/retry, or return to the already-landed full producer."
+current_execution_row = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0"
+current_blocker_token = "Close one exact move-only relation between the installed-package SelectedCallableSemanticRefV1::Dynamic program, PreparedDynamicLocalEntryV1 initializer/local ValueIds, and located method/Loop/frame/Scope/Region/binding observations. Package semantics is the only Dynamic classifier; missing, foreign, duplicate, or ambiguous Static/Dynamic family facts remain NoSafeSlice. Do not reopen the full producer, modify GenericLoop, fabricate MirType, promote the static terminal or test-only canary, open CFG/PHI/DraftSeal, add fallback/retry, or create a disconnected receipt."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "hako-parser-rich-body-result-h2-s2-s1-r1-expression-product"
 latest_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_design_card = "H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0"
+next_design_card = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0"
 next_design_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_execution_card = "none until H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0 is accepted"
+next_execution_card = "none until H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0 is accepted"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "H2 selected initializer admission is closed. R0 retains the source-backed Dynamic seed in the installed package, loans it through SelectedCallableSemanticRefV1, and removes Dynamic source reclassification from the selected-callable adapter without changing the route or GenericLoop. The consumer census found no production caller for the bounded Dynamic physical demand and no located-Loop bridge, so the sole-consumer/bootstrap D0 remains NoSafeSlice."
+latest_card_summary = "The broad H2 consumer census is closed. The bounded Dynamic producer, package-held final semantic program, and request-local initializer/local materialization already exist, but selected lowering still drops the semantic program and located Loop observations before the legacy route. Static Completion/ABI/Tail owners are not reusable for the two-return Dynamic cohort. Current stop: H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0; no producer reopen, GenericLoop change, fabricated MirType, fallback, or retry."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
