@@ -40,6 +40,23 @@ fn exact_static_callable_set_survives_one_transform() {
 }
 
 #[test]
+fn direct_instance_method_carries_one_co_sealed_source_observation() {
+    let final_source =
+        transform(parse("box Scan { run(x) { return x } }"), |_| {}).expect("exact transform");
+    final_source
+        .with_callable_semantic_syntax(|loan| {
+            let row = loan.rows().first().expect("method row");
+            let observation = row
+                .method_source_observation()
+                .expect("direct method observation");
+            assert_eq!(observation.source_site().box_statement_ordinal(), 0);
+            assert_eq!(observation.source_site().member_ordinal(), 0);
+            assert!(observation.identity().same_as(row.identity()));
+        })
+        .expect("semantic syntax loan");
+}
+
+#[test]
 fn selected_member_gate_retains_callable_anchors_without_forging_parameter_source() {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         "box Choice { gate Build.test { run(x) { return x } } else { run(x) { return x } } }",

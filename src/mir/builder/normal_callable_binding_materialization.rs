@@ -75,7 +75,10 @@ impl RawInvocationChildPortV1<'_, '_> {
         let completed = drive_local_statement_with_receipt_v1(
             builder,
             self,
-            RawLegacyLocalInputV1::new(input),
+            RawLegacyLocalInputV1::with_initializer_observer(
+                input,
+                self.local_initializer_observation_sink(),
+            ),
         )?;
         ledger
             .borrow_mut()

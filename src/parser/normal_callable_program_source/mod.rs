@@ -10,7 +10,8 @@ pub(crate) use model::{
     PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1,
 };
 pub(crate) use semantic_syntax_loan::{
-    FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
+    CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
+    FinalCallableSemanticSyntaxLoanErrorV1,
 };
 pub(crate) use transform::{
     issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,

@@ -4,7 +4,7 @@ use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
-use crate::parser::CallableDeclarationIdentityV1;
+use crate::parser::{CallableDeclarationIdentityV1, CallableMethodSourceObservationV1};
 use crate::parser::{FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,6 +24,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) function_origin: FunctionOriginV1,
     pub(super) forest: VerifiedSemanticOwnerForestV1,
     pub(super) projection: VerifiedSourceProjectionV1,
+    pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
 
 #[derive(Debug)]
@@ -74,6 +75,17 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         batch_slot: u32,
         callback: impl for<'source> FnOnce(ResolvedFunctionLoweringInputV1<'source>) -> R,
     ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
+        self.with_lowering_input_and_method_source(batch_slot, |input, _| callback(input))
+    }
+
+    pub(crate) fn with_lowering_input_and_method_source<R>(
+        &self,
+        batch_slot: u32,
+        callback: impl for<'source> FnOnce(
+            ResolvedFunctionLoweringInputV1<'source>,
+            Option<CallableMethodSourceObservationV1>,
+        ) -> R,
+    ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
         let index = usize::try_from(batch_slot)
             .map_err(|_| ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
         let semantic = self
@@ -98,7 +110,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                 if input.owner() != semantic.owner {
                     return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                 }
-                Ok(callback(input))
+                Ok(callback(input, semantic.method_source_observation.clone()))
             })
             .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
     }

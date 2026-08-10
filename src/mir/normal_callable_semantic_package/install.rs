@@ -8,6 +8,7 @@ use crate::mir::builder::{
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingRefV1, HomeDemandV1};
+use crate::parser::CallableMethodSourceObservationV1;
 
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterDemandDeclarationV1,
@@ -37,6 +38,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
     parameter_demands: &'loan [super::model::OwnedCallableParameterDemandV1],
     semantic: SelectedCallableSemanticRefV1<'loan>,
+    method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
 
 #[derive(Clone, Copy)]
@@ -148,13 +150,17 @@ impl InstalledNormalCallableSemanticPackageV1 {
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
         self.batch
-            .with_lowering_input(batch_slot, |source| {
-                callback(SelectedCallableLoweringInputRefV1 {
-                    source,
-                    parameter_demands: parameters,
-                    semantic,
-                })
-            })
+            .with_lowering_input_and_method_source(
+                batch_slot,
+                |source, method_source_observation| {
+                    callback(SelectedCallableLoweringInputRefV1 {
+                        source,
+                        parameter_demands: parameters,
+                        semantic,
+                        method_source_observation,
+                    })
+                },
+            )
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
     }
 }
@@ -202,5 +208,9 @@ impl SelectedCallableLoweringInputRefV1<'_> {
 
     pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'_> {
         self.semantic
+    }
+
+    pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
+        self.method_source_observation.as_ref()
     }
 }

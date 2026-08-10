@@ -44,6 +44,13 @@ pub(crate) struct ResolverBoxMethodSourceSiteV1 {
 }
 
 impl ResolverBoxMethodSourceSiteV1 {
+    pub(crate) const fn new(box_statement_ordinal: u32, member_ordinal: u32) -> Self {
+        Self {
+            box_statement_ordinal,
+            member_ordinal,
+        }
+    }
+
     pub(crate) fn box_statement_ordinal(self) -> u32 {
         self.box_statement_ordinal
     }
@@ -123,6 +130,10 @@ pub(crate) struct ParserBoxResolverSourceHandoffV1 {
 pub(crate) struct ResolverSourceInvocationProvenanceV1(ParserInvocationBrandV1);
 
 impl ResolverSourceInvocationProvenanceV1 {
+    pub(super) fn from_parser_brand(brand: &ParserInvocationBrandV1) -> Self {
+        Self(brand.clone())
+    }
+
     pub(crate) fn same_as(&self, other: &Self) -> bool {
         self.0.same_as(&other.0)
     }

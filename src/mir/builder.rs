@@ -84,6 +84,7 @@ mod function_lowering_state;
 #[allow(dead_code)]
 mod function_signature_lookup; // HEADERPORT0-S0 neutral header lookup surface
 mod function_state_transaction;
+mod generic_loop_admission_observation;
 mod instance_box_constructor_batch;
 mod instance_box_declaration_lifecycle;
 mod instance_box_declaration_metadata;

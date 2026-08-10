@@ -7,9 +7,13 @@
 //! inactive-subtree proof before using those direct legacy routes.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
+use crate::mir::builder::raw_structured_child_scope::{
+    PreparedRawChildSourceV1, RawStructuredChildScopePortV1,
+};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, ValueId};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
@@ -20,15 +24,59 @@ use super::variable_stmt::{
 
 pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
     statement: ASTNode,
+    initializer_observer: Option<LocalInitializerObservationSinkV1>,
 }
+
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) struct LocalInitializerObservationV1 {
+    ordinal: u32,
+    source: PreparedRawChildSourceV1,
+    value: ValueId,
+}
+
+pub(in crate::mir::builder) type LocalInitializerObservationSinkV1 =
+    Rc<RefCell<Vec<LocalInitializerObservationV1>>>;
 
 impl RawLegacyLocalInputV1 {
     pub(in crate::mir::builder) const fn new(statement: ASTNode) -> Self {
-        Self { statement }
+        Self {
+            statement,
+            initializer_observer: None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn with_initializer_observer(
+        statement: ASTNode,
+        initializer_observer: LocalInitializerObservationSinkV1,
+    ) -> Self {
+        Self {
+            statement,
+            initializer_observer: Some(initializer_observer),
+        }
     }
 
     pub(in crate::mir::builder) const fn statement(&self) -> &ASTNode {
         &self.statement
+    }
+
+    fn observe_initializer(
+        &self,
+        ordinal: usize,
+        source: PreparedRawChildSourceV1,
+        value: ValueId,
+    ) -> Result<(), String> {
+        let Some(observer) = self.initializer_observer.as_ref() else {
+            return Ok(());
+        };
+        let ordinal = u32::try_from(ordinal).map_err(|_| {
+            "[freeze:contract][local-descent/initializer-ordinal-overflow]".to_owned()
+        })?;
+        observer.borrow_mut().push(LocalInitializerObservationV1 {
+            ordinal,
+            source,
+            value,
+        });
+        Ok(())
     }
 }
 
@@ -134,10 +182,12 @@ where
             input.statement(),
             ExprChildRoleV1::LocalInitializer(index),
         )?;
+        let observation_source = source.clone();
         let initializer = take_initializer(input, index as usize)?;
         let mut scoped = RawStructuredChildScopePortV1::new(self, vec![source], Vec::new());
         let value = drive_legacy_expression_v1(builder, &mut scoped, initializer)?;
         scoped.complete_exact_demands_v1()?;
+        input.observe_initializer(index as usize, observation_source, value)?;
         Ok(value)
     }
 
@@ -155,6 +205,7 @@ where
             input.statement(),
             ExprChildRoleV1::LocalInitializer(local_initializer_index(index)?),
         )?;
+        let observation_source = initializer_source.clone();
         let sources = prepare_nested_expression_sources(
             &initializer_source,
             initializer,
@@ -167,6 +218,7 @@ where
         let mut scoped = RawStructuredChildScopePortV1::new(self, sources, Vec::new());
         let value = builder.build_typed_array_literal_with_port_v1(&mut scoped, elements)?;
         scoped.complete_exact_demands_v1()?;
+        input.observe_initializer(index, observation_source, value.0)?;
         Ok(value)
     }
 
@@ -185,6 +237,7 @@ where
             input.statement(),
             ExprChildRoleV1::LocalInitializer(local_initializer_index(index)?),
         )?;
+        let observation_source = initializer_source.clone();
         let sources = prepare_nested_expression_sources(
             &initializer_source,
             initializer,
@@ -201,6 +254,7 @@ where
             arguments,
         )?;
         scoped.complete_exact_demands_v1()?;
+        input.observe_initializer(index, observation_source, value)?;
         Ok(value)
     }
 }

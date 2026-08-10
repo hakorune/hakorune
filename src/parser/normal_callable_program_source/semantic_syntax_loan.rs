@@ -13,6 +13,10 @@ use super::super::callable_source_anchor::{
     CallableDeclarationIdentityV1, DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
 };
 use super::super::initial_callable_program_source::{declaration_at, InitialCallableFinalSlotV1};
+use super::super::source_path::SourceProgramCallablePathV1;
+use super::super::source_resolver_handoff::{
+    ResolverBoxMethodSourceSiteV1, ResolverSourceInvocationProvenanceV1,
+};
 use super::model::direct_source_matches_parameter_declaration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,6 +33,31 @@ pub(crate) struct FinalCallableParameterSourceRefV1<'source> {
     ordinary: bool,
 }
 
+/// Parser-issued, AST-free evidence that a final callable row is one exact
+/// direct Box method.  The three fields are issued together here; downstream
+/// code may compare them but may not repair a missing or foreign relation from
+/// names, ordinals, or AST navigation.
+#[derive(Debug, Clone)]
+pub(crate) struct CallableMethodSourceObservationV1 {
+    identity: CallableDeclarationIdentityV1,
+    parser_provenance: ResolverSourceInvocationProvenanceV1,
+    source_site: ResolverBoxMethodSourceSiteV1,
+}
+
+impl CallableMethodSourceObservationV1 {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.identity
+    }
+
+    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
+        &self.parser_provenance
+    }
+
+    pub(crate) const fn source_site(&self) -> ResolverBoxMethodSourceSiteV1 {
+        self.source_site
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     batch_slot: u32,
@@ -38,6 +67,7 @@ pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     declaration: &'source ASTNode,
     owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
+    method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
 
 #[derive(Debug)]
@@ -86,6 +116,10 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
 
     pub(crate) fn parameters(&self) -> Option<&[FinalCallableParameterSourceRefV1<'_>]> {
         self.parameters.as_deref()
+    }
+
+    pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
+        self.method_source_observation.as_ref()
     }
 }
 
@@ -145,10 +179,41 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
             declaration,
             owner_name: declaration_owner_name(ast, slot)?,
             parameters,
+            method_source_observation: issue_method_source_observation(source),
         });
     }
     Ok(FinalCallableSemanticSyntaxLoanV1 {
         rows: rows.into_boxed_slice(),
+    })
+}
+
+fn issue_method_source_observation(
+    source: &PreparedCallableSourceV1,
+) -> Option<CallableMethodSourceObservationV1> {
+    let direct = source.direct()?;
+    let SourceProgramCallablePathV1::BoxMethod {
+        declaration,
+        gate_path,
+        member_ordinal,
+    } = direct.path()
+    else {
+        return None;
+    };
+    // The bounded I0 observes only direct source methods.  Build-gate methods
+    // retain their own richer gate relation and are intentionally not
+    // collapsed into an ordinary Box source site here.
+    if !gate_path.is_empty() {
+        return None;
+    }
+    let box_statement_ordinal = declaration
+        .compatibility_box_path()
+        .root_statement_ordinal()?;
+    Some(CallableMethodSourceObservationV1 {
+        identity: source.anchor().identity(),
+        parser_provenance: ResolverSourceInvocationProvenanceV1::from_parser_brand(
+            source.parser_brand(),
+        ),
+        source_site: ResolverBoxMethodSourceSiteV1::new(box_statement_ordinal, *member_ordinal),
     })
 }
 

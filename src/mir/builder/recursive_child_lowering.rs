@@ -11,6 +11,7 @@ use std::rc::Rc;
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
+use super::generic_loop_admission_observation::GenericLoopAdmissionDiagnosticStateV1;
 use super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
 };
@@ -30,6 +31,7 @@ use super::raw_invocation_source_transport::{
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
+use crate::parser::CallableMethodSourceObservationV1;
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
@@ -299,6 +301,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(super) active_source: Option<RawInvocationSourceContextV1>,
     pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     pub(super) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(super) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     pub(super) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
@@ -325,6 +328,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: None,
             semantic_ledger: None,
             callable_ledger: None,
+            generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -340,6 +344,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: self.active_source.clone(),
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
+            generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -351,6 +356,28 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         observe: impl for<'header> FnOnce(&'header LoweringHeaderPortV1<'header>) -> R,
     ) -> R {
         self.module_port.with_headers(observe)
+    }
+
+    /// Transport one parser-issued method observation through the raw child
+    /// port for exactly one callable lowering scope.  This is diagnostic
+    /// provenance only; it never selects a route or repairs source identity.
+    pub(in crate::mir::builder) fn with_callable_method_source_observation<R>(
+        &mut self,
+        observation: Option<CallableMethodSourceObservationV1>,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        let previous = self
+            .generic_loop_diagnostic
+            .replace_method_source(observation);
+        let result = execute(self);
+        self.generic_loop_diagnostic.replace_method_source(previous);
+        result
+    }
+
+    pub(in crate::mir::builder) fn local_initializer_observation_sink(
+        &self,
+    ) -> super::stmts::LocalInitializerObservationSinkV1 {
+        self.generic_loop_diagnostic.local_initializer_sink()
     }
 
     pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(
@@ -705,8 +732,15 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
         })?;
         let callable_handoff = self.issue_callable_loop_binding_schedule_v1()?;
-        PreparedLocatedRawLoopChildEntryV1::prepare(source, loop_node, callable_handoff)?
-            .lower_with_existing_route_v1(builder)
+        let admission_observation = self.generic_loop_diagnostic.issue_for_loop(source);
+        PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
+            source,
+            loop_node,
+            callable_handoff,
+            self.generic_loop_diagnostic.method_source().cloned(),
+            admission_observation,
+        )?
+        .lower_with_existing_route_v1(builder)
     }
 }
 

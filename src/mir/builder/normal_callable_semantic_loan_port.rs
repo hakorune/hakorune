@@ -93,7 +93,9 @@ fn with_selected_source_scope<'port, 'collector, R>(
     let state = Rc::new(RefCell::new(state));
     let script_ledger = inner.semantic_ledger.take();
     let parent_callable = inner.callable_ledger.replace(state.clone());
-    let result = execute(inner, transport);
+    let observation = input.method_source_observation().cloned();
+    let result = inner
+        .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
     inner.callable_ledger = parent_callable;
     inner.semantic_ledger = script_ledger;
     match result {

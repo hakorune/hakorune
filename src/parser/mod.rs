@@ -51,10 +51,10 @@ mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
 pub(crate) use normal_callable_program_source::{
-    issue_final_callable_program_source_v1, FinalCallableDeclarationModeV1,
-    FinalCallableProgramSourceRejectV1, FinalCallableSemanticSyntaxLoanErrorV1,
-    NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
-    VerifiedFinalCallableProgramSourceV1,
+    issue_final_callable_program_source_v1, CallableMethodSourceObservationV1,
+    FinalCallableDeclarationModeV1, FinalCallableProgramSourceRejectV1,
+    FinalCallableSemanticSyntaxLoanErrorV1, NormalCallableParserCompatibilityV1,
+    ParsedNormalCallableProgramV1, VerifiedFinalCallableProgramSourceV1,
 };
 mod postpass_compatibility;
 mod postpass_envelope;

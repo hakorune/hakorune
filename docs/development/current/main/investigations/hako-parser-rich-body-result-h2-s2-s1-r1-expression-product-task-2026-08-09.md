@@ -563,7 +563,7 @@ no ValueId/name/order repair, type inference, fallback, or retry
 wrong initializer index and missing completion reject before admission
 ```
 
-The accepted I0 is now:
+The accepted I0 is now open and in implementation:
 
 ```text
 H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
@@ -572,5 +572,44 @@ H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
   -> unchanged GenericLoop failure
 ```
 
-Until then, the current `H2-S2-S1-R1-REOPEN-AUDIT` remains the sole active
-execution row and the parser R1 WIP remains parked.
+### I0 implementation receipt (2026-08-11, in progress)
+
+The parser-issued method observation now travels through the existing
+syntax-loan -> resolved semantic batch -> installed package -> raw callable
+port -> located loop-entry path. It is still one comparison-only diagnostic
+carrier; no GenericLoop semantic field or second source issuer was added.
+
+The local descent records the exact initializer source relation only after
+the initializer has produced its evaluated `ValueId`. The default-off
+admission observer retains that relation together with the co-sealed method
+provenance/anchor/site and rejects a missing or foreign pairing before the
+existing route is entered.
+
+Verified so far:
+
+```text
+parser direct-method observation test: green
+cargo check --lib: green
+callable semantic batch tests: green
+normal callable semantic package tests: green
+```
+
+Remaining in this row:
+
+```text
+focused default-off diagnostic coverage
+missing/foreign/duplicate/wrong-index negative coverage
+current-state/pointer/diff gates and one implementation commit
+```
+
+This row still does not authorize GenericLoop semantic changes, production
+route activation, fallback/retry, H2-S3, FuncScanner, Stage-B JSON, or Dynamic
+narrowing. After the I0 closeout, the parked post-Dynamic Loop BoxShape series
+remains the ordered cleanup path:
+
+```text
+LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+  -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
+```

@@ -11,8 +11,10 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{MirBuilder, ValueId};
 
+use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1;
 use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use crate::parser::CallableMethodSourceObservationV1;
 
 /// Exact child-entry result for one raw Loop syntax surface.
 ///
@@ -39,6 +41,8 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     body: Vec<ASTNode>,
     disposition: RawLoopChildEntryDispositionV1,
     callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+    method_source_observation: Option<CallableMethodSourceObservationV1>,
+    admission_observation: Option<GenericLoopAdmissionObservationV1>,
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
@@ -47,10 +51,49 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         loop_node: ASTNode,
         callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
     ) -> Result<Self, String> {
+        Self::prepare_with_method_source_observation(
+            parent_source,
+            loop_node,
+            callable_handoff,
+            None,
+            None,
+        )
+    }
+
+    pub(in crate::mir::builder) fn prepare_with_method_source_observation(
+        parent_source: &'source RawInvocationSourceContextV1,
+        loop_node: ASTNode,
+        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+        method_source_observation: Option<CallableMethodSourceObservationV1>,
+        admission_observation: Option<GenericLoopAdmissionObservationV1>,
+    ) -> Result<Self, String> {
         if !matches!(&parent_source, RawInvocationSourceContextV1::Located { .. }) {
             return Err(
                 "[freeze:contract][raw-loop-child-entry/requires-located-loop-source]".to_owned(),
             );
+        }
+        if let Some(admission) = admission_observation.as_ref() {
+            let Some(method) = method_source_observation.as_ref() else {
+                return Err(
+                    "[freeze:contract][raw-loop-child-entry/missing-method-source-observation]"
+                        .to_owned(),
+                );
+            };
+            if !admission
+                .method_source()
+                .identity()
+                .same_as(method.identity())
+                || !admission
+                    .method_source()
+                    .parser_provenance()
+                    .same_as(method.parser_provenance())
+                || admission.method_source().source_site() != method.source_site()
+            {
+                return Err(
+                    "[freeze:contract][raw-loop-child-entry/foreign-method-source-observation]"
+                        .to_owned(),
+                );
+            }
         }
 
         let condition_source =
@@ -74,6 +117,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             body,
             disposition,
             callable_handoff,
+            method_source_observation,
+            admission_observation,
         })
     }
 
@@ -89,6 +134,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             body,
             disposition,
             callable_handoff,
+            method_source_observation: _,
+            admission_observation: _,
         } = self;
         let _pre_effect_receipt = callable_handoff
             .map(|handoff| {
