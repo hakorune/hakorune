@@ -493,12 +493,37 @@ its physical ABI projection. Until that lands, no `Verified*`/`Prepared*`
 physical bridge, session, DraftSeal, Collector, `lower_loop`, retry, or
 fallback is allowed.
 
-Next bounded task after the Decision:
-`DYNAMIC-CALLABLE-RESULT-CONTRACT-D0` -> private callable-boundary evidence
-co-seal -> resume `PHYSICAL-INPUT-AUTHORITY-I0`.
+### DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 (accepted design)
 
-This row remains a design stop; the loop-unification task below stays parked
-until this result/ABI question is closed.
+Use the existing `name(args): TYPE_REF` surface; add no Rune or generic result
+disposition. The selected fixture becomes
+`ParserScanLoopBox.skip_while(src, pos, end, pred_chars): i64`. The source
+annotation is the sole semantic result authority; no loop/body/MIR/runtime
+inference is allowed.
+
+```text
+final parser source (: i64 + declaration identity)
+  + same-source resolved callable row (owner/mode/brand)
+  -> DeclaredCallableResultContractIssuerV1
+  -> VerifiedDeclaredExactI64CallableResultContractV1
+       semantic result = I64
+       representation  = ExactScalar
+```
+
+The physical ABI is a one-way projection from that receipt. Existing
+`DeclaredFunctionResultContractV1` and `ExactTrivialReturnAbiV1` remain
+completion/classifier or Lower projections, not this source issuer. The
+private boundary co-seal may relate Prelude/Tail/two-return Completion only
+after this result receipt exists; it may not publish an ABI-less input.
+
+I0 must include the fixture annotation, Rust/Hako normalized annotation parity
+and Hako owner census, canonical issuer, exact selected StaticBoxMethod row,
+positive/negative/API guards, language/reference and module docs. Missing Hako
+owner is `NoSafeSlice`, not Rust fallback. Unannotated/void/other types and
+foreign identity/owner are Declined or Rejected as appropriate. No new task
+card is created; after this I0, resume `PHYSICAL-INPUT-AUTHORITY-I0`.
+
+Next executable row: `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
@@ -650,83 +675,33 @@ owning implementation commit.
 
 Status: CLOSED (I0 landed)
 
-Change:
-- added one borrowed V2 logical transfer view under the JoinSig subtree;
-- lends loop boundary rows, branch rows, and the already co-sealed After.
-
-Contract:
-- JoinSig owns flow only;
-- no Recipe block/placement/Exit-kind interpretation;
-- Return summary is integrity-only; no synthetic ItemKey.
-
-Done:
-- `VerifiedLoopJoinClosureV2::logical_transfer_view()` is the sole downstream
-  entry and keeps raw `VerifiedLoopJoinSigV2` out of the Dynamic semantic test
-  surface;
-- exact four boundary rows (`Enter`, `PredicateTrue`, `PredicateFalse`,
-  `Backedge`), one I10 branch, one I12 Return, and one co-sealed After pass
-  `semantic_program` and `join_sig` focused tests;
-- the Loop Return summary is checked against the branch Return's role, target,
-  payload, and `Body` origin, then exposed only as summary evidence;
-- direct unbranched exits remain rejected by this bounded view.
-
-Stop:
-- no Dynamic physical control co-seal, physical demand, Builder, or session.
-
-Evidence:
-- `RUSTFLAGS=-Awarnings cargo test -q --lib semantic_program` (17 passed)
-- `RUSTFLAGS=-Awarnings cargo test -q --lib join_sig` (31 passed)
-- `cargo check --lib` (pass)
+Landed: one borrowed JoinSig-owned view with four boundary rows, one I10
+branch, one I12 Return, and one exact After. It keeps Recipe placement and
+Exit meaning outside JoinSig, treats the Loop Return as integrity-only, and
+creates no synthetic ItemKey. `semantic_program`, `join_sig`, and cargo-check
+gates are green; physical control, demand, Builder, and session remain closed.
 
 Landed next: `DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`.
 
 #### DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0 (CLOSED)
 
-Landed:
-- the existing envelope now owns one private 17-placement/15-operation
-  source/effect co-seal; I16 uses `StepTargetI` as primary and retains the
-  statement claim only as auxiliary coverage;
-- `VerifiedDynamicExitTransactionCoSealV1` lends one HRTB physical-input
-  view combining the JoinSig logical view, verified Recipe control/placement,
-  exact CallSlot/Fault rows, and owner/frame/scope/provenance;
-- the bounded cohort exposes four actionable Loop boundaries and one
-  branch-owned Return; the Loop Return summary is integrity-only.
-
-Evidence:
-- exact 17/15/2/6 and 5/1/2/7 counts pass in envelope tests;
-- `RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction` (3 passed);
-- `RUSTFLAGS=-Awarnings cargo test -q --lib dynamic_full_body_recipe` (8 passed);
-- `cargo check --lib`, current-state guard, and `git diff --check` pass.
-
-Stop:
-- no physical schedule, block, CFG, PHI, ABI, Completion consumption, or
-  session. Next: `PHYSICAL-OPERATION-DEMAND-I0`.
+Landed: the envelope owns the 17-placement/15-operation source/effect
+co-seal and lends the HRTB view with Recipe control, JoinSig, CallSlot/Fault,
+and owner/frame/scope evidence. Exact 17/15/2/6 and 5/1/2/7 tests plus
+`exit_transaction`, `dynamic_full_body_recipe`, cargo-check, and pointer gates
+are green. Physical schedule, ABI, Completion consumption, and session stay
+closed; next was `PHYSICAL-OPERATION-DEMAND-I0`.
 
 #### PHYSICAL-OPERATION-DEMAND-I0
 
 Status: CLOSED (I0 landed)
 
-Landed:
-- `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes only the complete
-  final-exit HRTB view and validates all 17 placements, 15 operations, one
-  control row, and six Fault rows before issuing a move-only demand;
-- `PreparedDynamicLoopOperationProgramV2::prepare_all()` retains the complete
-  Recipe-order operation array and exposes no single-item selector, V1 adapter,
-  raw Recipe/JoinSig/source lookup, or physical identity;
-- the implementation is a separate Dynamic V2 owner, not an extension of the
-  existing V1 operation demand.
-
-Evidence:
-- `RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction` passes the
-  complete HRTB demand test;
-- `RUSTFLAGS=-Awarnings cargo test -q --lib dynamic_full_body_recipe` passes;
-- `cargo check --lib`, physical-input authority guard, current-state guard,
-  and `git diff --check` pass.
-
-Stop:
-- no Prelude, Tail, ABI, physical Completion, CFG/PHI, function session,
-  DraftSeal, Collector, publication, provider/runtime route, retry, or fallback.
-  Next: `PHYSICAL-INPUT-AUTHORITY-I0`.
+Landed: `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes the complete
+HRTB view, validates 17 placements/15 operations/one control/six Fault rows,
+and retains whole Recipe-order arrays with no single-item selector, V1
+adapter, or raw lookup. Focused demand, dynamic-body, cargo-check, authority,
+pointer, and diff gates are green. Prelude, Tail, ABI, Completion, session,
+DraftSeal, publication, provider/runtime, retry, and fallback stay closed.
 
 ### LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
 

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 is accepted for the exact selected Dynamic cohort, and the physical-input plus whole-program physical-demand I0 rows are landed. PHYSICAL-INPUT-AUTHORITY-I0 is now a design stop: the selected skip_while/4 source has an unannotated result, so no source-backed result/ABI receipt can be issued. Generic all-V2 physical demand, direct unbranched exits, session, DraftSeal, publication, retry, and fallback remain closed."
+status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 is accepted: the selected skip_while/4 fixture will use the existing explicit : i64 source contract, with no inference or new syntax. The next row is its Rust/Hako-parity and canonical-issuer I0; physical session and publication remain closed."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PHYSICAL-INPUT-AUTHORITY-I0: result/ABI authority is missing for the unannotated selected Dynamic callable; decide the source-backed result contract before any physical-input co-seal"
-work_mode = "design_stop"
-current_execution_row = "PHYSICAL-INPUT-AUTHORITY-I0"
-current_blocker_token = "PHYSICAL-INPUT-AUTHORITY-I0: NoSafeSlice on result/ABI—skip_while/4 is unannotated and ExactTrivialReturnAbiV1 accepts only explicit i64; decide a source-backed result contract before Prelude/Tail/ABI/Completion co-seal; no inference from loop shape, return variable, MIR type, runtime tag, session, DraftSeal, Collector, retry, or fallback"
+current_design_stop = "none; DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 is accepted and its bounded I0 is ready"
+work_mode = "fast"
+current_execution_row = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0"
+current_blocker_token = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0: add explicit skip_while(...): i64, prove Rust/Hako normalized annotation parity and Hako owner availability, issue one source-backed exact-I64 result receipt, then resume PHYSICAL-INPUT-AUTHORITY-I0; no MIR/runtime inference, fallback, or retry"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -718,14 +718,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "PHYSICAL-INPUT-AUTHORITY-I0"
+next_design_card = "none; DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 is accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none until PHYSICAL-INPUT-AUTHORITY-I0 result/ABI Decision is accepted"
+next_execution_card = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The bounded Dynamic physical-operation authority is accepted without a second source, Recipe, JoinSig, or physical planner. The JoinSig logical view, final-exit HRTB physical-input I0, and distinct Dynamic V2 whole-program physical-demand I0 are landed. PHYSICAL-INPUT-AUTHORITY-I0 is a design stop because selected skip_while/4 is unannotated and no source-backed result/ABI receipt exists; loop unification remains parked after this Decision."
+latest_card_summary = "The bounded Dynamic physical-operation authority is accepted without a second source, Recipe, JoinSig, or physical planner. DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 is accepted on the existing : i64 syntax; its I0 now owns fixture annotation, Rust/Hako parity, canonical source result receipt, and guards. Loop unification remains parked until result/ABI and physical-input authority close."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
