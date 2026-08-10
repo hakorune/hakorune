@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0 is closed: the named execute_mir_mode caller carries VerifiedFinalCallableProgramSourceV1 atomically through the NormalCompile request/root, and its old bare-AST parse/macro/reconstruction edge is absent. JSON/minimal/REPL remain typed compatibility. The current bounded series now establishes one resolver allocation and deletes the selected Builder-owned second-resolver Dynamic authority."
+status = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 has landed its owned Dynamic package checkpoint. The recovered coverage audit is accepted: one complete final-anchor semantic batch owns top-level plus direct callable resolution, while parser parameter demand is an exact partial projection onto that batch. This correction must land before the old Builder semantic seal is deleted."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; the source-carrier premise correction and the two bounded cutover series are accepted in the rolling ingress card"
+current_design_stop = "none; the all-callable complete-batch plus partial parameter-demand projection correction is accepted in section 3H of the rolling ingress card"
 work_mode = "fast"
 current_execution_row = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
-current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0: first co-seal the same-parser callable parameter source into VerifiedFinalCallableProgramSourceV1, then issue one final callable semantic package with one resolver allocation for parameter demand and Dynamic source/Recipe/JoinSig projections, delete the selected Builder-owned second-resolver source authority, and close ingress as owned private rows; no AST absence inference, name/ordinal/ID repair, Home, CFG, Completion, retry, or fallback"
+current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0: recut VerifiedResolvedCallableSemanticBatchV1 to cover every final callable anchor in one resolver allocation, project parser direct-method parameter demand onto exact private batch slots, prove mixed top-level plus Dynamic coverage, then continue catalog-neutral relations and delete the old Builder seal/loan edges; no inferred Ordinary, name/ordinal/ID repair, silent row loss, retry, or fallback"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -718,13 +718,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_design_card = "none; source-carrier and semantic-Dynamic cutover recut accepted"
+next_design_card = "none; complete-batch coverage correction accepted in the active rolling card"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 next_execution_card = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The normal callable source-carrier cutover is closed: execute_mir_mode carries the final callable source product through one request/root, with its bare-AST source-backed edge deleted and a stable guard preventing restoration. The current semantic/Dynamic series must establish one resolver allocation and delete the selected Builder-owned second-resolver authority; ingress closes inside that series."
+latest_card_summary = "The normal callable source-carrier cutover and the first owned Dynamic package checkpoint are closed. The recovered correction is accepted: final callable anchors define one complete resolver batch, direct-method parameter rows form an exact partial projection, and the old Builder seal may be deleted only after mixed top-level plus Dynamic coverage is proved."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

@@ -1160,6 +1160,97 @@ input or demand catalog.  Catalog-neutral invocation relations, JoinSig, and
 the production edge replacement remain the next half of this same bounded
 series; this checkpoint does not close the row.
 
+#### Recovered all-callable coverage stop after the owned-package checkpoint
+
+The checkpoint exposed one authority mismatch that must be closed before the
+old Builder seal is deleted:
+
+```text
+VerifiedFinalCallableProgramSourceV1
+  sources / slots:
+    all exact callable anchors
+
+VerifiedResolvedCallableSemanticBatchV1
+  current membership driver:
+    direct Box-method parameter-source rows only
+
+old VerifiedSelectedNormalCallableSourceInventoryV1
+  selected semantic membership:
+    top-level functions + cataloged Box methods
+```
+
+Therefore the existing structural closeout requirement of globally zero
+production calls to `VerifiedNormalCallableSemanticSourceV1::seal` is not yet
+authorized. Deleting that call while the new batch cardinality is defined by
+the parameter catalog could silently remove top-level callable semantic
+authority from a mixed Program. The exact `ParserScanLoopBox` fixture alone
+does not prove that this cannot happen.
+
+Repository audit confirms that top-level callables and the Dynamic candidate
+can coexist in one source-backed Program. The accepted correction is:
+
+```text
+final callable anchors / slots
+  -> one all-callable semantic batch and resolver allocation
+
+exact direct-method parameter-source rows
+  -> exact partial projection onto matching batch slots
+
+private Dynamic admission
+  -> one exact selected row from that same batch
+```
+
+The final anchors/slots, not the parameter catalog, own whole-batch membership.
+Every final callable is resolved exactly once. The parameter catalog joins
+only the exact direct-method subset to issuer-private batch slots. Top-level,
+gated, or generated rows without such source evidence receive no inferred
+`Ordinary` demand. The selected Dynamic row must have every parameter demand
+required by its ingress relation or issuance rejects before Builder/module
+effect.
+
+`source_row_index` in the current parameter catalog is not a complete callable
+identity and must not be reused as the new batch identity. The co-seal uses an
+exact final callable anchor plus an issuer-private batch slot. Missing,
+duplicate, foreign, or extra callable mapping rejects; there is no legacy
+fallback.
+
+The next bounded correction therefore is:
+
+1. lend complete callable syntax from the final source without exposing AST
+   references outside a higher-ranked callback;
+2. resolve every final callable anchor in one batch/allocation;
+3. project direct-method parameter rows onto exact batch slots and remove the
+   general batch-length equality assumption;
+4. admit the Dynamic candidate and its owned parameter/ingress relations from
+   the same batch; and
+5. only then replace the production loan and delete the old seal.
+
+The final cutover deletes these exact production edges together:
+
+- the sole `VerifiedNormalCallableSemanticSourceV1::seal` call in
+  `normal_default_root_catalog_lifecycle.rs`;
+- `extend_complete_dynamic_sources(&source)` and the old Complete-source
+  pairing in that owner; and
+- the old source-backed `NormalCallableSemanticLoanPortV1` construction in
+  `program_root_lowering.rs`.
+
+Acceptance adds a mixed top-level plus `ParserScanLoopBox` fixture. Final
+callable count must equal complete batch count; top-level lowering input must
+be loanable from the batch; parameter-demand rows remain an exact Box-method
+subset; and the Dynamic candidate remains tied to its exact anchor. Negative
+coverage includes a missing selected top-level row, duplicate/foreign final
+anchor, foreign partial-projection slot, inferred `Ordinary`, missing required
+Dynamic demand, and missing/extra/duplicate selected-inventory mapping.
+
+The structural guard requires zero old production seal, Dynamic extension,
+and loan-port construction only after those mixed-coverage tests exist. It
+also fixes one final-package batch issuance and forbids parameter-catalog
+length as the general batch cardinality contract.
+
+The already-landed direct-method package remains a valid bounded checkpoint,
+not a production replacement. Code may now resume with the complete-batch
+coverage correction; it must not widen the checkpoint by inference.
+
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
 
