@@ -1,0 +1,86 @@
+use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourceBindingSiteV1};
+use crate::parser::{NyashParser, ParserBuildConfig};
+
+use super::{
+    issue_resolved_callable_semantic_batch_v1, ResolvedCallableDeclarationModeV1,
+    ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
+};
+
+fn batch(source: &str) -> VerifiedResolvedCallableSemanticBatchV1 {
+    let source = NyashParser::parse_from_string_with_callable_parameter_source(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .unwrap()
+    .into_retained_source();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(71).unwrap();
+    issue_resolved_callable_semantic_batch_v1(&mut resolver, source).unwrap()
+}
+
+#[test]
+fn mixed_direct_methods_resolve_once_in_exact_source_order() {
+    let batch = batch(
+        "static box StaticApi { run(value) { return value } }\n\
+         box InstanceApi { read() { return 1 } }",
+    );
+    let rows = batch.declarations().collect::<Vec<_>>();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].source_row_index(), 0);
+    assert_eq!(
+        rows[0].mode(),
+        ResolvedCallableDeclarationModeV1::StaticBoxMethod
+    );
+    assert_eq!(rows[0].parameter_count(), 1);
+    assert_eq!(rows[1].source_row_index(), 1);
+    assert_eq!(
+        rows[1].mode(),
+        ResolvedCallableDeclarationModeV1::InstanceBoxMethod
+    );
+    assert_eq!(rows[1].parameter_count(), 0);
+    assert_ne!(rows[0].owner(), rows[1].owner());
+    assert_eq!(
+        rows[0].owner().compilation_brand(),
+        rows[1].owner().compilation_brand()
+    );
+}
+
+#[test]
+fn lowering_input_borrows_the_same_forest_owner_and_parameter_binding() {
+    let batch = batch("static box Api { run(value) { return value } }");
+    let row = batch.declarations().next().unwrap();
+    batch
+        .with_lowering_input(0, |input| {
+            assert_eq!(input.owner(), row.owner());
+            assert_eq!(input.function().function_origin(), row.function_origin());
+            let binding = input
+                .function()
+                .declaration_binding(&SourceBindingSiteV1::Parameter { index: 0 })
+                .expect("parameter binding");
+            assert_eq!(binding.owner(), row.owner());
+            assert_eq!(input.forest().roots(), [row.owner()]);
+        })
+        .unwrap();
+}
+
+#[test]
+fn unchanged_parser_scan_loop_box_is_a_complete_four_row_batch() {
+    let batch = batch(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ));
+    assert_eq!(
+        batch
+            .declarations()
+            .map(|row| row.parameter_count())
+            .collect::<Vec<_>>(),
+        [4, 3, 4, 4]
+    );
+}
+
+#[test]
+fn missing_row_rejects_before_any_lowering_input_is_lent() {
+    let batch = batch("static box Api { run() { return 1 } }");
+    assert!(matches!(
+        batch.with_lowering_input(1, |_| ()),
+        Err(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)
+    ));
+}

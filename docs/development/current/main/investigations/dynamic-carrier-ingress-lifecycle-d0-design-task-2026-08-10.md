@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: parser retention R0 closed; resolved semantic batch I0 selected
+Status: resolved semantic batch I0 closed; parameter-demand projection R0 selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `RESOLVED-CALLABLE-SEMANTIC-BATCH-I0`
+Current implementation row: `CALLABLE-PARAMETER-DEMAND-PROJECTION-R0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -394,7 +394,7 @@ Closeout:
   unchanged. Focused tests and `cargo check --lib` are green; the new owner and
   tests are 47/55 lines, and `parser/mod.rs` remains 757 lines.
 
-### 3C. `RESOLVED-CALLABLE-SEMANTIC-BATCH-I0` — selected
+### 3C. `RESOLVED-CALLABLE-SEMANTIC-BATCH-I0` — closed
 
 Change:
   Consume the retained parser source, resolve its complete declaration loan
@@ -417,13 +417,45 @@ Stop:
   If the batch needs a second resolver call, cloned parser source, caller-made
   owner/BindingRef, or Builder-selected keys, return to design.
 
-### 3D. Follow-on order
+Closeout:
+  `VerifiedResolvedCallableSemanticBatchV1` now consumes the retained parser
+  source, takes one complete scoped declaration loan, calls the resolver once,
+  and retains the exact ordered forest/source-projection rows. Borrow-scoped
+  lowering inputs reconstruct from the retained source and the same forest;
+  the batch has no split, Clone, name lookup, demand, Home, Recipe, or physical
+  authority. Mixed static/instance rows, exact forest/BindingRef reuse,
+  unchanged four-row `ParserScanLoopBox`, and missing-row rejection are green.
+  The focused four-test suite and `cargo check --lib` pass; all new source files
+  and the existing parser/MIR facades remain below 800 lines.
+
+### 3D. `CALLABLE-PARAMETER-DEMAND-PROJECTION-R0` — selected
+
+Change:
+  Project the complete ordinary parameter-demand catalog from one borrowed
+  `VerifiedResolvedCallableSemanticBatchV1` view.
+
+Contract:
+  The projection reuses the batch-owned owner forest and BindingRefs. Delete
+  the demand issuer's resolver argument, independent forest resolution, forest
+  storage, and `resolved_forest()` authority. Preserve exact source order and
+  complete Ordinary-to-Handle rows; do not add Take, Home Flow, Dynamic
+  lifecycle, Recipe, Builder/MIR, retry, or fallback.
+
+Done:
+  Existing zero/multi-parameter fixtures use the same batch owner and exact
+  parameter BindingRefs; missing, duplicate, foreign, or incomplete rows fail
+  before a demand catalog is published. The old resolver call and owning
+  forest surface are structurally absent, focused tests and `cargo check --lib`
+  are green, and all touched files stay below 800 lines.
+
+Stop:
+  If the projection must resolve syntax again, own a second forest, compare
+  numeric owner/BindingRef values across allocations, or accept caller-paired
+  products, return to design.
+
+### 3E. Follow-on order
 
 ```text
-CALLABLE-PARAMETER-DEMAND-PROJECTION-R0
-  -> demand becomes a complete batch view
-  -> old demand resolver call/forest ownership deleted
-
 NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0
   -> existing Builder facade borrows the batch
   -> old normal-source resolver/forest ownership deleted
