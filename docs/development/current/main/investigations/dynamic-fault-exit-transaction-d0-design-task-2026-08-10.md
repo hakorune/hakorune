@@ -712,28 +712,44 @@ prepared physical layout; complete operation ledger -> physical demand.
 Required authority cleanup (BoxShape, Builder effect 0):
 
 ```text
-physical_layout/recursive_after: consume prepared JoinSig transfers;
-  no LoopConditionV1 transfer reconstruction or raw as_recipe control read
-segment_allocator: consume segment-role receipt;
-  no Recipe condition rescan
-common physicalizer: stop at ReadyLoopAfterContinuationV1;
+physical_layout/recursive_after:
+  consume prepared JoinSig logical transfers;
+  do not rebuild Predicate/Jump/Backedge from LoopConditionV1 or as_recipe()
+segment_allocator:
+  consume segment-role/placement receipt;
+  do not rescan Recipe conditions to decide Header/Body
+common physicalizer:
+  stop at ReadyLoopAfterContinuationV1;
   Callable profile-close, Tail, ABI, and Completion stay outside
-V1 physical demand: replace repeated Recipe/evidence find scans later with
-  a complete-ledger protocol; never add a V2->V1 adapter
+V1 physical demand:
+  later replace repeated Recipe/evidence find scans with one complete ledger;
+  never add a V2->V1 adapter
+```
+
+The parked follow-up is one bounded BoxShape series, not a new execution lane:
+
+```text
+LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+  common loop core owns placement/JoinSig/physical-input only
+  ReadyLoopAfterContinuationV1 is the common stop line
+  ReadyCallableLoopProfileCloseV1, Tail, ABI, Completion move to callable owner
+  recursive_after.rs must not carry callable counts or symbols
+
+LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
+  census old fixed-role receipts versus segment receipts;
+  delete only after old production/test callers reach zero
 ```
 
 Keep source observers, Prelude/entry, Tail/result, Home, ABI, Completion,
-provider, and runtime separate. The old block-role topology versus segment
-topology is a separate caller-zero census, not a deletion in this D0. No new
-accepted shape, production switch, legacy deletion, raw rescan, name/order
-repair, or profile callback. Worker review is required if ownership is open;
-accept one common boundary or explicit `NoSafeSlice`, keep files below 800,
-and leave the current executable row unchanged.
-
-Follow-up after this D0: `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0`, then
-one bounded `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` only after the
-result/ABI boundary is closed. Its guards require zero raw Recipe transfer or
-role inference in layout/allocator and zero synthetic ItemKey/Step creation.
+provider, and runtime separate. No new accepted shape, production switch,
+legacy deletion, raw rescan, name/order repair, or profile callback is allowed
+in this parked D0. The bounded implementation may proceed only after the
+result/ABI and physical-input rows close, and must keep files below 800 lines.
+Its guards require zero raw Recipe transfer/role inference in layout and
+allocator, zero callable-profile hardcoded counts in common physicalizer, and
+zero synthetic ItemKey/Step creation. A later
+`LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` may consume the common boundary;
+otherwise stop with `NoSafeSlice`. The current executable row is unchanged.
 
 ## Hard stops
 
