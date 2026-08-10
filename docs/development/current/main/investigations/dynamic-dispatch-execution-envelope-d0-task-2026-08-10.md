@@ -1,11 +1,13 @@
 ---
-Status: Dynamic operation schema/verifier I0 closed; full producer D0 next
+Status: bounded Dynamic target/envelope, full V2 producer, semantic-program,
+exit-transaction, physical-input view, and operation-demand chain closed;
+later full physical session remains parked
 Date: 2026-08-10
 Decision row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-D0`
-Closed row: `DYNAMIC-DISPATCH-EXECUTION-ENVELOPE-I0`
-Next row: `LOOP-V2-DYNAMIC-FULL-PRODUCER-D0`
+Closed through: `PHYSICAL-OPERATION-DEMAND-I0`
+Current pointer: `docs/development/current/main/CURRENT_STATE.toml`
 Parent: `source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md`
-Mode: design stop / complete unchanged-source V2 producer boundary
+Mode: historical rolling owner / no current execution permission
 ---
 
 # Dynamic dispatch execution envelope

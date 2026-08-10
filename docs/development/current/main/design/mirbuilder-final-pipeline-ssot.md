@@ -133,6 +133,34 @@ demand/session境界は`loop-common-physical-demand-and-session-ssot.md`が
 所有する。現在実行中のbounded profileとexact rowは
 `CURRENT_STATE.toml`の`current_execution_design`へ辿り、ここへ複製しない。
 
+### Selected initializer materialization seam
+
+pre-Builder semantic packageとLowerで初めて割り当てられる物理値は、互いを
+再発行しない兄弟authorityである。selected callableがLoopへ入るときだけ、
+次のrelationを一度co-sealする。
+
+```text
+installed-package selected semantic loan
+  + request-local completed local materialization
+  + exact located Loop source/schedule
+  -> one scoped initializer admission
+     Static exact type | Dynamic authorized representation
+```
+
+packageはcallable/Recipe/lifecycle意味を所有し、request-local stateは
+`BindingRef -> ValueId`投影だけを所有する。located Loop boundaryは両者を
+co-sealしてsole consumerへ渡すが、source semantics、Recipe、JoinSig、型を
+再発行しない。Staticは唯一のpost-success TypeContext publicationを経て既存の
+exact-MirType routeへ入り、Dynamicはpackage-loaned programからbounded V2
+routeへ入る。両方成立、どちらも不成立、foreign/duplicate relationはeffect前に
+rejectする。Dynamicを`MirType::Unknown`やlegacy GenericLoopで偽装しない。
+
+admissionだけをcaller-zero productとして先行発行してはならない。最終co-seal
+はnamed consumerと同じproduction replacement cellでissue/consumeし、旧selected
+edgeを同時に削除する。selfhost header-result carrierとのbootstrap循環で
+source-backed result/ABIが不足する場合は`NoSafeSlice`で停止し、body/Loop/MIR
+inference、compatibility retry、fixture narrowingで越えない。
+
 ### Bounded loop unification boundary
 
 Dynamic full-body cohortがphysical-input/demandまで閉じた後も、common

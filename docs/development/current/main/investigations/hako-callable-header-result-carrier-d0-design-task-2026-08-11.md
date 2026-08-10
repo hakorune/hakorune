@@ -1,5 +1,6 @@
 ---
-Status: accepted design; next executable row is `H2-S2-S1-R1-REOPEN-AUDIT`
+Status: accepted result-carrier design; H2 reopen is blocked at the selected
+initializer admission/consumer boundary
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
 Related:
@@ -138,15 +139,27 @@ none of these rows may use compatibility fallback:
 
 ```text
 HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
-  current design stop: bridge owner/parity/batch relation and prerequisite audit
+  accepted: bridge owner/parity/batch relation and prerequisite audit
 
-H2-S2-S1-R1
-  re-audit its recorded GenericLoop blocker before reopening the expression
-  product; do not repair the compatibility guard as a shortcut
+H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
+  current: package-loaned Dynamic program + completed local materialization +
+  exact located Loop; no source-semantic reissue or GenericLoop repair
+
+H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
+  consume package semantic authority in the existing selected-callable scope;
+  retain request-local ValueIds but remove package-path Dynamic reclassification
+
+H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0
+  close the bootstrap cycle and identify one bounded V2 physical consumer;
+  if result/ABI or consumer authority is absent, remain NoSafeSlice
+
+H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+  issue and consume the admission in one named production replacement cell;
+  delete the selected legacy GenericLoop edge with fallback/retry zero
 
 H2-S2-S1-R1-REOPEN-AUDIT
-  apply the existing parser-only product WIP, register its guard, and prove
-  predecessor/gate parity before opening H2-S2-S1-I0
+  only after the bounded Dynamic dependency cutover; apply the existing
+  parser-only product WIP and prove predecessor/gate parity
 
 H2-S2-S1-I0
   close only after the prerequisite is genuinely green

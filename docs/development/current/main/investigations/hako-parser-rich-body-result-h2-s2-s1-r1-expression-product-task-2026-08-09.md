@@ -1,9 +1,10 @@
 ---
-Status: compile-front handoff I0 and the read-only GenericLoop
-producer-publication audit are closed without an exact producer owner. The
-initializer producer co-seal split is design-accepted, but its implementation
-remains NoSafeSlice; the parser-only product WIP still reaches the existing
-GenericLoop representation blocker before fixture execution.
+Status: the initializer producer-family split is accepted and closed. The
+bounded Dynamic V2 producer and installed-package final semantic program are
+already live. The current design stop is the missing selected-callable
+lowering relation between that package-loaned program, the exact completed
+local materialization, and the located Loop admission. The parser-only product
+WIP remains parked; GenericLoop stays an exact-MirType verifier.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -863,12 +864,233 @@ The Dynamic family has exact formal/local/Loop source lineage, but it owns no
 the H2 initializer still has no one-to-one producer co-seal and remains
 `NoSafeSlice`.
 
-The neutral source-bound MethodCall relation in that ladder is already landed;
-the next missing Dynamic owner is the existing design row
-`LOOP-V2-DYNAMIC-FULL-PRODUCER-D0` in
-`dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`. It must issue an
-exact source-backed lineage/producer receipt before this H2 row can reopen for
-implementation. Do not move the current pointer or create a second H2
-producer/source authority; when that receipt lands, return here and perform
-the exact co-seal audit again. The static publication owner may be reused only
-if a real selected direct-call initializer row is independently observed.
+The complete Dynamic producer is already landed. The installed normal-callable
+package owns the entire bounded chain through
+`VerifiedDynamicExitTransactionCoSealV1`, and its selected lowering loan can
+lend that exact program. The previous claim that
+`LOOP-V2-DYNAMIC-FULL-PRODUCER-D0` was the next missing owner is therefore
+superseded.
+
+The actual missing relation is later and narrower:
+
+```text
+installed-package selected semantic loan
+  + exact completed local materialization
+  + exact located Loop source/schedule
+  -> selected initializer admission
+```
+
+The current Builder adapter does not consume the package-loaned Dynamic
+program. It reconstructs a request-local Dynamic source state from the
+resolved input, while the located raw-Loop terminal later discards the method
+and admission observations before entering the legacy route. The completed
+local materialization itself is not missing: the request-local state already
+retains exact initializer/local `ValueId`s and their `BindingRef` relation.
+The next row must relate those existing facts to the package owner; it must not
+turn diagnostic `LocalInitializerObservationV1` into semantic authority.
+
+## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0` (current)
+
+Decision question: can the selected-callable lowering boundary issue one
+move-only admission from already-owned semantic and physical facts without
+reissuing source semantics or modifying GenericLoop?
+
+```text
+SelectedCallableLoweringInputRefV1
+  semantic = Ordinary | Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
+  exact resolved callable source/owner
+  exact method source observation
+                 |
+                 | HRTB-bounded Dynamic initializer-admission view
+                 v
+request-local completed local materialization
+  initializer ValueId
+  local destination ValueId
+  local declaration / BindingRef
+                 +
+located Loop admission
+  callable identity/provenance
+  owner / frame / Scope / Region
+  Loop / condition / body sites
+  exact binding schedule
+                 v
+PreparedInitializerProducerAdmissionV1<'program>
+  = Static(PreparedStaticInitializerAdmissionV1)
+  | Dynamic(PreparedDynamicInitializerAdmissionV1<'program>)
+```
+
+The request-local Dynamic arm reuses the existing
+`PreparedDynamicLocalEntryV1`; it does not introduce another local
+materialization product. The closed admission sum is scoped to the sole
+consumer and must not be published as a disconnected caller-zero receipt.
+
+The final Dynamic co-seal may lend only the narrow prelude relation needed by
+this boundary: selected callable identity, owner/frame/scope provenance,
+parameter #1 source binding, prelude initializer source, local induction
+declaration/binding, root Loop/carrier/entry, and authorized Dynamic
+representation. It does not lend raw Recipe, JoinSig, batch slot, target,
+Fault, cleanup, or a freely pairable ingress product.
+
+The request-local state may retain physical `ValueId` projection and
+exactly-once consumption, but it may no longer classify the selected Dynamic
+callable by rerunning `SourceBackedDynamicCallableIssuerV1`. Package semantics
+is the classifier; request-local state only binds that meaning to values
+created by this Lower.
+
+### Family rule
+
+```text
+Static only:
+  exact selected direct-call source
+  + successful emission destination
+  + sole post-success TypeContext publication
+  -> existing exact-MirType GenericLoop route
+
+Dynamic only:
+  package-loaned exact Dynamic program
+  + exact local materialization
+  + exact located Loop admission
+  -> existing Dynamic V2 physical path
+
+Static && Dynamic:
+  reject as ambiguous producer
+
+neither:
+  NoSafeSlice
+```
+
+Dynamic never fabricates or publishes `MirType::Unknown`, a nominal Dynamic
+type, or a TypeContext backfill. It does not enter legacy GenericLoop.
+
+### Required negative matrix
+
+```text
+identity:
+  foreign parser provenance / declaration identity / selected callable
+  wrong owner / frame / Scope / Region
+  wrong Loop, condition, body, or method source
+
+materialization:
+  wrong initializer ordinal/site
+  wrong local declaration or BindingRef
+  wrong initializer or local destination ValueId
+  missing initializer -> local relation
+  stale/foreign formal origin
+  duplicate local completion or double receipt consumption
+
+family:
+  Ordinary selected semantic offered as Dynamic
+  foreign package/program or wrong program owner
+  Dynamic local copy offered as Static
+  Static result offered as Dynamic
+  both families or neither family
+
+authority guards:
+  diagnostic LocalInitializerObservation as semantic input
+  source reissue from the selected Builder adapter
+  name/arity/ValueId/route/runtime-tag repair
+  raw batch-slot getter, public from_parts/into_parts, Clone authority
+  Dynamic receipt entering legacy GenericLoop
+```
+
+### Ordered execution ladder
+
+Only the first row below is current. Later rows are fixed gates, not permission
+to cross an unresolved design stop.
+
+```text
+1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
+   fix the HRTB view, exact co-seal identity, XOR family rule, and stop line
+
+2. H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
+   the only non-cutover BoxShape implementation row:
+     the adapter consumes input.semantic() exactly once
+     final package program lends the narrow Dynamic admission view
+     request-local state retains values but stops reissuing Dynamic semantics
+     package path SourceBackedDynamicCallableIssuerV1 re-execution = 0
+   route, fixture, GenericLoop, CFG, and physical behavior remain unchanged
+
+3. H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0
+   close the bootstrap cycle and identify the sole consumer explicitly:
+     H2 needs the imported Dynamic Loop to compile
+     full Dynamic physical input needs a source-backed result/ABI contract
+     the selfhost result carrier is itself downstream of H2/H3
+   prove that final program + existing PreparedDynamicLocalEntryV1 + located
+   Loop can enter one bounded V2 consumer; otherwise remain NoSafeSlice
+
+4. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+   only after row 3 is accepted:
+     issue and consume the private Static | Dynamic admission in this cell
+     one named selected production caller
+     fresh unpublished function session
+     existing complete Dynamic physical input/demand
+     same-slice deletion of the selected source-reissue and legacy Loop edge
+     fallback/retry = 0
+
+5. H2-S2-S1-R1-REOPEN-AUDIT
+   rerun the unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards;
+   no fixture narrowing or debug-only acceptance
+
+6. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
+   close the parser expression/body/header/final-source/parity substrate in
+   the existing order
+
+7. HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
+   connect the H3-sealed typed result row to the existing resolved batch
+
+8. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
+   issue the exact selected semantic result contract
+
+9. PHYSICAL-INPUT-AUTHORITY-I0 -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+   close Prelude/Tail/ABI/Completion and the durable full physical session
+
+10. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
+    remove Recipe-derived transfer inference, repeated evidence scans,
+    Callable profile ownership from the common physicalizer, and finally the
+    caller-zero fixed-role topology
+```
+
+There is exactly one permitted non-cutover implementation row between the
+current Decision and the consumer Decision. If R0 discovers another missing
+semantic authority, it returns to design instead of inserting a new adapter
+or disconnected receipt row. Rows 4 and later must name their production
+caller and same-slice old-authority deletion before implementation.
+
+### Structure and file budget for the R0/cutover series
+
+The implementation must extend the existing owner subtrees instead of adding
+logic to the already-large adapters:
+
+```text
+dynamic_full_body_recipe/coseal/semantic_program/exit_transaction/
+  initializer_admission.rs       HRTB final-program view; target <= 250 lines
+
+builder/selected_initializer_admission/
+  model.rs                       move-only closed sum; target <= 220 lines
+  issuer.rs                      exact co-seal; target <= 350 lines
+  route.rs                       sole bounded consumer; target <= 300 lines
+  tests.rs                       positive/negative matrix
+```
+
+`normal_callable_semantic_loan_port.rs`, `raw_loop_child_entry.rs`, and
+`normal_callable_semantic_lowering_state.rs` remain thin integration surfaces;
+do not append the co-seal implementation to them. Split before 760 lines and
+keep every source file below 800 lines. Prefer focused Rust tests plus the
+existing H2/normal-package lane guards; do not create a one-off shell guard
+unless an existing reusable guard cannot enforce caller-zero/no-reissue.
+`recursive_child_lowering.rs` is already 785 lines and is an explicit
+no-addition surface; route new ownership through the dedicated child module.
+
+### Current nonclaims
+
+```text
+no code implementation while this D0 is current
+no GenericLoop change or new carrier variant
+no Dynamic Recipe/source/envelope/JoinSig reimplementation
+no CFG / PHI / session / DraftSeal / Collector / publication
+no result/ABI inference or TypeContext backfill
+no provider/runtime execution
+no production cutover
+no parser fixture/source narrowing
+no fallback or retry
+```
