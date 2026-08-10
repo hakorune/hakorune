@@ -592,14 +592,14 @@ parser direct-method observation test: green
 cargo check --lib: green
 callable semantic batch tests: green
 normal callable semantic package tests: green
+hako_parser_rich_body_h2_s2_s1_r1_guard.sh: green
+selected member-gate observation exclusion test: green
 ```
 
 Remaining in this row:
 
 ```text
-focused default-off diagnostic coverage
-missing/foreign/duplicate/wrong-index negative coverage
-current-state/pointer/diff gates and one implementation commit
+current-state/pointer/diff gates and one closeout commit
 ```
 
 This row still does not authorize GenericLoop semantic changes, production

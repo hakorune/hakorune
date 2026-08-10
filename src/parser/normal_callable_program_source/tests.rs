@@ -72,6 +72,12 @@ fn selected_member_gate_retains_callable_anchors_without_forging_parameter_sourc
         .with_callable_parameter_syntax(|_, _| ())
         .expect("typed unavailable disposition")
         .is_none());
+    final_source
+        .with_callable_semantic_syntax(|loan| {
+            assert_eq!(loan.rows().len(), 1);
+            assert!(loan.rows()[0].method_source_observation().is_none());
+        })
+        .expect("semantic syntax loan");
 }
 
 #[test]
