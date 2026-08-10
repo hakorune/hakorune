@@ -1,6 +1,8 @@
 # DYNAMIC-FAULT-EXIT-TRANSACTION-D0
 
-Status: accepted with revised boundary; full transaction remains `NoSafeSlice`
+Status: logical/fault/flow/operation-demand foundation landed. The current
+executable row is the explicit source-backed Dynamic callable result contract;
+full physical input/session remains `NoSafeSlice` until that row lands.
 Date: 2026-08-10
 Depends on: `LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0` closed
 Authority:
@@ -183,19 +185,20 @@ and exposes no `into_parts` escape.
    bounded co-seal; no standalone wrapper or copied authority was added
 
 10. LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
-    NEXT: JoinSig-owned borrowed logical flow/After view only
+    CLOSED: JoinSig-owned borrowed logical flow/After view only
 
 11. DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
-    pending: 17/15 source/control evidence plus final-co-seal HRTB view
+    CLOSED: 17/15 source/control evidence plus final-co-seal HRTB view
 
 12. PHYSICAL-OPERATION-DEMAND-I0
-    pending: whole-program Builder-free demand/prepare
+    CLOSED: whole-program Builder-free demand/prepare
 
 13. PHYSICAL-INPUT-AUTHORITY-I0
-    parked: later Prelude/Tail/ABI/physical Completion co-seal
+    parked until the explicit source-backed result/ABI row is green
 
 14. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-    parked until rows 10-13 are green
+    parked until row 13 is green; owns multi-site Completion consumption,
+    DraftSeal Return emission, and unpublished-session discard
 ```
 
 Each implementation row updates its code, focused tests, module README,
@@ -464,18 +467,20 @@ fallback, raw `lower_loop` entry, and AST/MIR re-matching are forbidden.
 ### Remaining task ladder after this Decision
 
 ```text
-LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
-  -> DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
-  -> PHYSICAL-OPERATION-DEMAND-I0
+DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
+  -> explicit `: i64` source + current Rust normalized producer
   -> PHYSICAL-INPUT-AUTHORITY-I0
-  -> zero-effect complete callable physical-input co-seal
   -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-  -> fresh session, common physicalizer, finish/DraftSeal canary
+  -> LOOP-UNIFICATION-AFTER-DYNAMIC-D0
+  -> H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+  -> H2 reopen / H2-H3-H5
+  -> HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
 ```
 
-The three operation-demand rows add no Builder effect. The broader callable
-physical-input/session rows remain closed until this result/ABI stop is
-accepted; Home, runtime Fault, retry, and fallback are non-claims.
+The JoinSig logical view, Dynamic physical-input view, and complete operation
+demand are already closed and add no Builder effect. The broader callable
+physical-input/session rows remain closed until the source-backed result/ABI
+row lands; Home, runtime Fault, retry, and fallback are nonclaims.
 
 ## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: result/ABI NoSafeSlice)
 
@@ -493,7 +498,7 @@ its physical ABI projection. Until that lands, no `Verified*`/`Prepared*`
 physical bridge, session, DraftSeal, Collector, `lower_loop`, retry, or
 fallback is allowed.
 
-### DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 (accepted design)
+### DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 (revised accepted)
 
 Use the existing `name(args): TYPE_REF` surface; add no Rune or generic result
 disposition. The selected fixture becomes
@@ -502,7 +507,7 @@ annotation is the sole semantic result authority; no loop/body/MIR/runtime
 inference is allowed.
 
 ```text
-final parser source (: i64 + declaration identity)
+selected frontend normalized source row (: i64 + declaration identity)
   + same-source resolved callable row (owner/mode/brand)
   -> DeclaredCallableResultContractIssuerV1
   -> VerifiedDeclaredExactI64CallableResultContractV1
@@ -516,16 +521,110 @@ completion/classifier or Lower projections, not this source issuer. The
 private boundary co-seal may relate Prelude/Tail/two-return Completion only
 after this result receipt exists; it may not publish an ABI-less input.
 
-I0 must include the fixture annotation, Rust/Hako normalized annotation parity
-and Hako owner census, canonical issuer, exact selected StaticBoxMethod row,
-positive/negative/API guards, language/reference and module docs. The owner
-census found no connected canonical Hako header-result carrier under
-`lang/src/compiler/parser/**`; therefore this I0 is currently `NoSafeSlice`.
-`FuncScannerBox`, Stage-B JSON, and the compatibility guard are informational
-only and cannot close the row. The design stop and next owner task are tracked
-in `hako-callable-header-result-carrier-d0-design-task-2026-08-11.md`.
-After the H2/H3 source substrate, H5 parity, and this bridge I0 land, resume
-`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`, then `PHYSICAL-INPUT-AUTHORITY-I0`.
+The bootstrap I0 is implementable now. It must include the canonical production
+annotation, the existing Rust final-source typed row, the same opaque
+declaration identity and selected batch mapping, one frontend-neutral result
+issuer, positive/negative/API guards, and language/module docs. Hako parity is
+explicitly a later nonclaim: after H2/H3/H5, `source_carrier_v1` emits the same
+normalized row and one atomic producer cutover retires the Rust frontend from
+selfhost production. Both frontend producers are never admitted in one
+compilation and there is no retry or fallback between them.
+
+`FuncScannerBox`, compatibility JSON/metadata, body returns,
+`MirType`, `FunctionSignature`, ABI, runtime tags, and method names are never
+result authority. Missing/non-i64 annotation, foreign provenance/declaration/
+batch/owner, duplicate selected producer, or source-Completion mismatch reject
+before a function session opens.
+
+#### DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 (CURRENT)
+
+This is one bounded BoxCount/source-contract slice, not a physical cutover.
+
+```text
+canonical production declaration
+  skip_while(src, pos, end, pred_chars): i64
+        |
+        v
+FinalCallableSemanticSyntaxRowRefV1
+  existing opaque declaration identity
+  existing mode/final slot/method observation
+  new typed borrowed result spelling
+        +
+VerifiedResolvedCallableSemanticBatchV1 row
+  same identity / private batch slot / selected mapping
+        |
+        v
+VerifiedDeclaredExactI64CallableResultContractV1
+```
+
+The syntax loan obtains the typed result while navigating the already co-sealed
+final source; the result issuer does not rescan the AST or retain an AST
+reference. The semantic receipt is frontend-neutral, non-Clone, has no public
+parts API, and owns no ABI, Completion consumption, physical block, ValueId,
+or Return instruction.
+
+Implementation scope:
+
+```text
+lang/src/compiler/parser/scan/parser_scan_loop_box.hako
+  explicit `: i64` on the canonical method
+
+src/parser/normal_callable_program_source/semantic_syntax_loan.rs
+  typed result spelling on the existing row/loan
+
+src/mir/normal_callable_semantic_package/
+  small result_contract/ owner and package retention
+  no additions to a file approaching the 800-line limit
+```
+
+Required tests:
+
+```text
+positive:
+  selected skip_while row -> exact one I64 contract
+  two explicit Completion sites remain exact and unchanged
+  catalog order != batch order still maps by opaque identity
+  valid unselected annotated row remains unselected
+
+negative:
+  missing / void / non-i64 result
+  foreign parser provenance or declaration identity
+  foreign selected batch row or owner
+  duplicate identity, slot, or selected result row
+  source Completion declares a different result
+  body/MirType/signature/runtime/name/ordinal repair attempt
+  Rust failure -> Hako/JSON/FuncScanner retry
+```
+
+Structural guards fix one result issuer, no frontend-specific semantic receipt,
+no raw AST/result rescan in the issuer, no ABI/Return writer, and zero Hako
+production producer callers in this row. Focused parser final-source, semantic
+package, resolved Completion, cargo-check, pointer, formatting, and diff gates
+must be green in the same commit.
+
+### Multi-site terminal law (one owner chain)
+
+`VerifiedFunctionCompletionV1::ExplicitReturns` remains the sole logical
+source-site owner. No Dynamic-specific Completion, Return, or Tail truth is
+introduced.
+
+```text
+declared semantic result contract
+  -> one-way ABI projection
+  + exact ordered Completion return sites
+  + exact BindingRef operand at every return expression
+  -> one move-only return-operand set
+  -> site-keyed physical completion claims
+  -> existing canonical finish terminal
+  -> PreparedFunctionDraftSealV1::commit
+       writes one Return in every claimed exit block
+```
+
+Missing, duplicate, foreign, ABI-incompatible, or unconsumed site claims reject
+before commit. Profile lowerers write zero Return instructions. DraftSeal does
+not invent a canonical return-join or PHI merely to merge exits; multiple exact
+Return terminators are canonical unless a separately verified backend/MIR
+constraint later proves a join is required.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
@@ -796,14 +895,15 @@ not a hidden second authority. A missing JoinSig capability or an unavoidable
 row re-pairing is a design stop (`NoSafeSlice`), not a reason to add a lookup,
 fallback, or fixture-specific branch.
 
-Open only after the Hako result/ABI and physical-input rows close (and before
-production selection). This is one bounded refactor series: no accepted shape,
+Open only after the current selected-frontend result/ABI and physical-input
+rows close (and before production selection). Hako producer parity/cutover is
+later. This is one bounded refactor series: no accepted shape,
 BoxCount, selector, production switch, legacy deletion, fallback/retry, source
 rescan, profile callback, or new public plan may enter it. Guards require zero
 Recipe transfer/role inference in layout or allocator, zero callable-profile
 counts in the common physicalizer, zero repeated V1 ledger scans, and zero
 synthetic placement keys. Any missing JoinSig capability returns to design with
-`NoSafeSlice`; the current Hako result-carrier stop still owns the active lane.
+`NoSafeSlice`; the current explicit result-contract I0 owns the active lane.
 ## Hard stops
 
 ```text

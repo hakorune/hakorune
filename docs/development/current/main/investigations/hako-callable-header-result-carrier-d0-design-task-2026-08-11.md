@@ -1,6 +1,7 @@
 ---
-Status: accepted result-carrier design; selected initializer admission is
-closed and the current behavior-neutral lowering-authority R0 is active
+Status: accepted future Hako frontend producer and parity design. The current
+bootstrap producer is the Rust final-source row; the Hako producer activates
+only after H2/H3/H5 parity and atomically retires the Rust frontend authority.
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
 Related:
@@ -15,11 +16,17 @@ Related:
 
 ## Decision
 
-`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` cannot close yet. The canonical Hako
-owner is fixed as the existing `source_carrier_v1` lifecycle. This D0 now fixes
-the downstream bridge contract; it does not claim that the bridge or parser
-substrate is implemented. The existing H2/H3 sequence is the parser substrate;
-it does not replace this bridge.
+The semantic authority is the explicit source annotation, not a particular
+frontend implementation. The selected frontend emits one normalized callable-
+header row; one frontend-neutral result-contract issuer consumes it together
+with the existing opaque declaration identity and resolved batch row.
+
+During bootstrap the Rust final-source producer is the only production
+producer. After H2/H3/H5, `source_carrier_v1` emits the same normalized row as
+offline parity evidence; one atomic selfhost cutover activates the Hako
+producer and removes the Rust frontend producer from that production path.
+Both producers are never admitted in one compilation and there is no retry or
+fallback between them.
 
 The next design question is:
 
@@ -44,10 +51,11 @@ allowed.
 
 ## Authority boundary
 
-The canonical owner is the Hako parser source-carrier/session path under
-`lang/src/compiler/parser/source_carrier_v1/**`, next to the existing typed
-callable declaration/source handoff. It must be issued during the same parse
-transaction as the callable declaration identity and final source slots.
+The normalized row contract is frontend-neutral. Its current production owner
+is `VerifiedFinalCallableProgramSourceV1`; its future selfhost producer is the
+Hako parser source-carrier/session path under
+`lang/src/compiler/parser/source_carrier_v1/**`. Each producer must issue the
+row in the same parse transaction as callable identity and final source slots.
 
 The following are explicitly not canonical owners:
 
@@ -88,29 +96,26 @@ bounded `ExactScalar` representation contract). It is not a body-conformance
 proof, MIR `MirType`, physical ABI, return writer, Completion, or publication
 receipt.
 
-## Accepted bridge contract
+## Accepted normalized producer contract
 
 The bridge is a single downstream projection, not a second Hako parser and not
 a compatibility provider:
 
 ```text
-H3-sealed source_carrier_v1 row
-  -> normalized Rust/Hako parity row (H5 evidence)
-  -> existing VerifiedFinalCallableProgramSourceV1 row
-       same parser provenance + CallableDeclarationIdentityV1
-  -> existing issue_resolved_callable_semantic_batch_v1
-       same declaration identity -> one batch slot
-  -> DeclaredCallableResultContractIssuerV1
+selected frontend normalized header row
+  + same parser provenance + CallableDeclarationIdentityV1
+  + existing resolved callable batch row
+  -> sole DeclaredCallableResultContractIssuerV1
+  -> frontend-neutral exact-I64 result receipt
 ```
 
-`source_carrier_v1` owns the Hako syntax row and parser provenance. The Rust
-final-source product owns the resolver-facing syntax loan and opaque identity;
-the resolved callable batch owns owner/forest/projection and exposes only the
-identity-to-batch relation. The result issuer consumes that existing batch row
-and may not infer from method name, body, `MirType`, `FunctionSignature`, ABI,
-runtime tag, or inventory ordinal. H5 parity is test evidence, not a semantic
-issuer. If any bridge edge is unavailable, stop with `NoSafeSlice` rather than
-adding JSON, FuncScanner, a text rescan, or a second batch.
+The selected frontend owns syntax and parser provenance. The resolved callable
+batch owns owner/forest/projection and exposes only the identity-to-batch
+relation. The result issuer consumes that row and may not infer from method
+name, body, `MirType`, `FunctionSignature`, ABI, runtime tag, or inventory
+ordinal. H5 parity is test evidence, not a semantic issuer. If any edge is
+unavailable, stop with `NoSafeSlice` rather than adding JSON, FuncScanner, a
+text rescan, a second batch, or a frontend-specific result receipt.
 
 ## Acceptance criteria
 
@@ -139,37 +144,37 @@ none of these rows may use compatibility fallback:
 
 ```text
 HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
-  accepted: bridge owner/parity/batch relation and prerequisite audit
+  accepted: normalized row, producer staging, parity and cutover law
 
 H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0
-  current design stop: co-seal the package-loaned Dynamic program with the
-  existing completed local materialization and exact located Loop; no
-  source-semantic reissue or GenericLoop repair
+  accepted and parked: no standalone bridge I0; issue+consume in the selected
+  Dynamic cutover cell
 
 H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
-  closed: consume package semantic authority in the selected-callable scope;
-  retain request-local ValueIds but remove package-path reclassification
-
-HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
-  source-backed declared result contract for the selected :i64 cohort;
-  do not infer result from body, MIR, runtime tag, or ABI
+  closed historical row: package is the sole Dynamic classifier
 
 DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  issue the exact selected Dynamic result relation from the source contract
+  CURRENT: add `: i64` to the canonical production declaration; transport the
+  Rust final-source typed result row through the same declaration identity and
+  batch mapping; issue one frontend-neutral exact-I64 contract
 
-GENERIC-LOOP-DYNAMIC-MULTI-RETURN-COMPLETION-D0/I0
-  reuse VerifiedFunctionCompletionV1 as the logical source owner and add one
-  Dynamic adapter that consumes inner/outer returns into exactly one physical
-  Completion/DraftSeal Return
+PHYSICAL-INPUT-AUTHORITY-I0
+  project one ABI and co-seal Prelude/Tail with the exact multi-site
+  Completion/operand set before Builder effects
 
-DYNAMIC-LOOP-PHYSICAL-CONSUMER-I0
-  consume package program + initializer admission + result/Completion through
-  one bounded V2 physical route; otherwise remain NoSafeSlice
+DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  consume exact multi-site Completion claims in one unpublished session;
+  DraftSeal emits one Return per claimed exit block; no synthetic
+  return-join/PHI
+
+LOOP-UNIFICATION-AFTER-DYNAMIC-D0
+  remove Recipe-derived transfer inference and repeated V1 evidence scans;
+  keep Callable Tail/ABI/Completion outside the common physicalizer
 
 H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-  only after the bridge, result, Completion, ABI/Tail, and physical consumer
-  are accepted; one named production replacement cell and old-edge deletion
-  with fallback/retry zero
+  package program + local materialization + located Loop are co-sealed and
+  consumed in one bounded V2 route; same-slice selected legacy-edge deletion;
+  this row is the first-production-cutover milestone
 
 H2-S2-S1-R1-REOPEN-AUDIT
   only after the bounded Dynamic dependency cutover; apply the existing
@@ -191,27 +196,20 @@ H3-I0
 H5
   test-only normalized Rust/Hako parity
 
-HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
-  consume the H3-sealed row, prove normalized parity, and connect one row to
-  the existing resolved batch/result issuer; parser reimplementation forbidden
-
-DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  resume only after H2/H3/H5 are green; selected skip_while remains outside
-  this bounded body cohort until its full source/body transaction exists
-  issue one source-backed exact-I64 result receipt
-
-PHYSICAL-INPUT-AUTHORITY-I0
-  resume only after the result/ABI boundary is closed
+HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
+  consume the H3-sealed normalized row after H5 parity, activate the Hako
+  producer, and retire the Rust frontend producer with fallback/retry zero
 ```
 
-The earlier Rust-only receipt work is retained in a reversible stash and is not
-an active production or selfhost claim. Rebase it only after H3/H5 provide the
-same Hako source product and the bridge I0 is accepted.
+Any earlier disconnected Rust-only receipt work remains non-authoritative. The
+active bootstrap row must use the current final-source identity/batch path and
+must not rebase an AST-rescan or frontend-specific result receipt.
 
-H2/H3 are lower parser-carrier rows, not a substitute for the bridge. The
-first H2 fixture may be `length(): i64 { return 0 }`; it cannot claim
-`skip_while/4` parity because locals, loops, conditionals, calls, and multiple
-returns require a later complete body cohort.
+H2/H3 are the selfhost parser-carrier implementation, not a prerequisite for
+the Rust-fronted bootstrap cutover. The first H2 fixture may be
+`length(): i64 { return 0 }`; it cannot claim `skip_while/4` parity because
+locals, loops, conditionals, calls, and multiple returns require the later
+complete body cohort.
 
 ## Dynamic loop unification parked lane
 

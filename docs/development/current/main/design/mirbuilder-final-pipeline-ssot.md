@@ -158,8 +158,11 @@ rejectする。Dynamicを`MirType::Unknown`やlegacy GenericLoopで偽装しな�
 admissionだけをcaller-zero productとして先行発行してはならない。最終co-seal
 はnamed consumerと同じproduction replacement cellでissue/consumeし、旧selected
 edgeを同時に削除する。selfhost header-result carrierとのbootstrap循環で
-source-backed result/ABIが不足する場合は`NoSafeSlice`で停止し、body/Loop/MIR
-inference、compatibility retry、fixture narrowingで越えない。
+source-backed result/ABIが不足する場合、正本sourceへ明示result annotationを
+置き、現在選択中のfrontendがnormalized header rowを一件だけ発行する。現在は
+Rust final-source producer、selfhost parity後はHako producerをatomic cutoverで
+選ぶ。同一compileで両方をadmitせず、frontend固有result receipt、body/Loop/MIR
+inference、compatibility retry、fixture narrowingで循環を越えない。
 
 ### Bounded loop unification boundary
 
@@ -216,6 +219,15 @@ lowering productだけを受け取る。名称が将来`LoweredRecipe`などへ�
 canonical function pathでは、Body Loweringはexit operandとexact exit blockを
 準備するが、physical `Return`の唯一writerは
 `PreparedFunctionDraftSealV1::commit(self)`である。
+
+multiple source Returnでもこのownerは増えない。
+`VerifiedFunctionCompletionV1::ExplicitReturns`のexact ordered sitesと、同じ
+semantic result contractから一方向に得たABI、各siteの`BindingRef` operandを
+一つのmove-only setへco-sealし、既存Completion consumptionがsite-keyedな
+physical claimをexactly onceで閉じる。DraftSealは各claimed exit blockへ一つの
+Returnを書き、profile lowererはReturnを書かない。単に複数exitを一つへ集める
+ためだけのsynthetic return-join/PHIは作らない。backend/MIR制約が別のverified
+ownerとして要求した場合だけ、独立Decisionで開く。
 
 `CanonicalSsaFunctionSessionV2`経路における`ReadyFunctionDraftSealV1`の
 issuerは、target `finish_for_draft_seal`だけに集約する。各V2 profile
@@ -307,6 +319,12 @@ legacy JoinModuleを第二planner、第二acceptance truth、または最終pipe
 4. 同じcommitで削除するold authorityはどれか
 5. cutover後のfallback / retry / reselectionが0か
 ```
+
+最初のproduction replacement rowは
+`H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`である。
+`MIRBUILDER-FIRST-PRODUCTION-CUTOVER`はそのrowが満たすmilestone名であって、
+第二のswitch taskや別authorityではない。成功時は同じcellでselected legacy
+Loop edgeを削除し、fallback/retryを0にする。
 
 次はreplacement cellとして数えない。
 

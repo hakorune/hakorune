@@ -22,9 +22,10 @@ This task is deliberately parked until:
 MIRBUILDER-FIRST-PRODUCTION-CUTOVER
 ```
 
-has a named production caller, the old route is deleted, and retry/fallback
-are zero. It must not become a prerequisite for the current Dynamic semantic
-lane.
+is the milestone closed by `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`, not a second
+switch task. That row must have a named production caller, delete the selected
+old route, and leave retry/fallback at zero. This gate must not become a
+prerequisite for the current Dynamic semantic lane.
 
 ## Execution contract
 

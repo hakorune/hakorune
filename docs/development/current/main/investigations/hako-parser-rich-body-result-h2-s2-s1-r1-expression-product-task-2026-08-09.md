@@ -1,10 +1,10 @@
 ---
-Status: the initializer producer-family split is accepted and closed. The
-bounded Dynamic V2 producer and installed-package final semantic program are
-already live. The current design stop is the missing selected-callable
-lowering relation between that package-loaned program, the exact completed
-local materialization, and the located Loop admission. The parser-only product
-WIP remains parked; GenericLoop stays an exact-MirType verifier.
+Status: the selected initializer relation is accepted but has no standalone
+implementation row. It will be issued and consumed atomically by the first
+selected Dynamic physical replacement cell. The immediate executable row is
+the explicit source-backed Dynamic result contract; the parser-only product
+WIP remains parked until that physical cutover. GenericLoop stays an
+exact-MirType verifier.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -1260,7 +1260,7 @@ test-only V1 Dynamic canary would create a second authority. The correct
 disposition is to close the broad consumer wording as an audit result and move
 the pointer to the narrower design stop below.
 
-## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0` (current design stop)
+## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0` (accepted; parked)
 
 This is a successor boundary, not a new Dynamic producer task. It owns one
 question only:
@@ -1359,9 +1359,9 @@ PreparedLocatedRawLoopChildEntryV1
   -> must receive the private selected admission before any route decision
 ```
 
-Therefore the D0 design is accepted as a bounded owner split, but the
-implementation row remains closed until the bridge has a real consumer. The
-I0 must add one dedicated private module/entry point that:
+Therefore the D0 design is accepted as a bounded owner split. It does not open
+a standalone bridge I0. The first selected Dynamic physical replacement cell
+must add one dedicated private module/entry point that:
 
 ```text
 borrows the package Dynamic program through its HRTB boundary
@@ -1374,14 +1374,14 @@ passes the move-only relation to the selected Loop consumer
 
 It must not store a raw program reference in the general raw invocation port,
 promote diagnostic observations, or emit a receipt that is immediately
-dropped. If no route can consume the move-only relation in the same slice,
-remain `NoSafeSlice` and do not add an adapter-only product.
+dropped. If the physical consumer cannot consume the relation in the same
+slice, remain `NoSafeSlice` and do not add an adapter-only product.
 
-### I0 implementation guardrails
+### Atomic consumer guardrails
 
 ```text
-new module: builder/selected_initializer_admission/
-  owner/co-seal only; no GenericLoop or physical planner code
+new module: builder/selected_dynamic_callable_physical/
+  selected consumer/co-seal only; no GenericLoop semantic changes
 
 allowed inputs:
   package HRTB Dynamic loan
@@ -1400,116 +1400,67 @@ forbidden inputs:
 ### Required downstream ladder (fixed; no hidden prerequisite rows)
 
 ```text
-1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0
-   close the exact selected semantic/local/Loop relation
+0. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0 (accepted)
+   no standalone receipt; issue and consume only in row 4
 
-2. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-I0
-   only after D0 acceptance; one private move-only bridge, no route switch
+1. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
+   annotate the canonical production source with `: i64`; the current Rust
+   final-source producer issues one frontend-neutral semantic result contract
+   through the existing declaration identity and selected batch mapping
 
-3. H2-S2-S1-R1-REOPEN-AUDIT
-   unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards
+2. PHYSICAL-INPUT-AUTHORITY-I0
+   co-seal the already-landed whole Dynamic demand with Prelude/result/ABI,
+   Tail, and the exact multi-site Completion/operand set
 
-4. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
-   close parser expression/body/header/final-source/parity substrate
+3. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+   extend existing Completion consumption and DraftSeal to site-keyed physical
+   claims in one unpublished function session, without a synthetic
+   return-join/PHI or a second Return writer
 
-5. HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
-   source-backed declared result contract (selected :i64 cohort first)
+4. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
+   remove Recipe-derived transfer inference/evidence rescans, keep Callable
+   profile ownership out of the common physicalizer, and retire the fixed-role
+   topology only after segment callers are zero
 
-6. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-   selected Dynamic result relation from source contract, not runtime tags
+5. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+   issue+consume the private initializer admission in one named production
+   consumer, delete the selected legacy Loop edge, fallback/retry = 0; this
+   row is the `MIRBUILDER-FIRST-PRODUCTION-CUTOVER` milestone
 
-7. PHYSICAL-INPUT-AUTHORITY-I0
-   source-backed Dynamic physical input/demand consumer; no Builder fact yet
+6. H2-S2-S1-R1-REOPEN-AUDIT
+   rerun the unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards
 
-8. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-   multi-return Completion adapter, Tail/ABI projection, DraftSeal Return
-   exactly once; existing VerifiedFunctionCompletionV1 remains the logical
-   completion owner
+7. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
+   close parser expression/body/header/final-source and normalized parity
 
-9. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-   one named production caller, fresh session, old edge deletion, no fallback
+8. HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
+   activate the Hako normalized result-row producer and retire the Rust
+   frontend producer from selfhost production; never run both or retry between
+   them in one compilation
 
-10. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
-    remove Recipe-derived transfer inference/evidence rescans, keep Callable
-    profile ownership out of the common physicalizer, then retire the fixed-
-    role topology only after segment callers are zero
-
-11. MIRBUILDER-FIRST-PRODUCTION-CUTOVER
-    prove one real production method through Resolve -> Observe -> Facts ->
-    Recipe -> Verify -> Lower -> Seal -> Collect -> Atomic Publish
-
-12. SELFHOST-MIRBUILDER-HANDOFF-PERF-GATE
+9. MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
     after the new MIRBuilder is production-green and before selfhosting,
     compile the `.hako` mimalloc implementation with the new builder and
     record C-vs-AOT performance/assembly evidence; no selfhost claim without
     this canary
+
+10. SELFHOST-MIRBUILDER/PARSER-MIGRATION
+    move one normalized producer at a time after parity; Rust and Hako never
+    compete and there is no fallback to the retired producer
 ```
 
 No row in this ladder may be skipped by reopening the already-landed full
 producer or by routing Dynamic through a fabricated `MirType::Unknown` or a
 static exact-type receipt.
 
-### Historical ordered execution ladder (superseded at the consumer boundary)
+### Historical rows (closed; not restart pointers)
 
-The selected-admission D0 and its behavior-neutral R0 are closed. This ladder
-records the pre-refinement consumer stop; the successor ladder above is the
-current pointer. Later rows remain fixed gates, not permission to cross an
-unresolved design stop.
-
-```text
-1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
-   fix the HRTB view, exact co-seal identity, XOR family rule, and stop line
-
-2. H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 (closed 2026-08-11)
-   package-owned Dynamic source seed is retained and consumed by the
-   selected-callable adapter; package-path source reclassification is zero.
-   Route, fixture, GenericLoop, CFG, and physical behavior remain unchanged.
-
-3. H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0 (current design stop)
-   close the bootstrap cycle and identify the sole consumer explicitly:
-     H2 needs the imported Dynamic Loop to compile
-     full Dynamic physical input needs a source-backed result/ABI contract
-     the selfhost result carrier is itself downstream of H2/H3
-   prove that final program + existing PreparedDynamicLocalEntryV1 + located
-   Loop can enter one bounded V2 consumer; otherwise remain NoSafeSlice
-
-4. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-   only after row 3 is accepted:
-     issue and consume the private Static | Dynamic admission in this cell
-     one named selected production caller
-     fresh unpublished function session
-     existing complete Dynamic physical input/demand
-     same-slice deletion of the selected source-reissue and legacy Loop edge
-     fallback/retry = 0
-
-5. H2-S2-S1-R1-REOPEN-AUDIT
-   rerun the unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards;
-   no fixture narrowing or debug-only acceptance
-
-6. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
-   close the parser expression/body/header/final-source/parity substrate in
-   the existing order
-
-7. HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
-   connect the H3-sealed typed result row to the existing resolved batch
-
-8. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-   issue the exact selected semantic result contract
-
-9. PHYSICAL-INPUT-AUTHORITY-I0 -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-   close Prelude/Tail/ABI/Completion and the durable full physical session
-
-10. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
-    remove Recipe-derived transfer inference, repeated evidence scans,
-    Callable profile ownership from the common physicalizer, and finally the
-    caller-zero fixed-role topology
-```
-
-There is exactly one permitted non-cutover implementation row between the
-current Decision and the consumer Decision. If R0 discovers another missing
-semantic authority, it returns to design instead of inserting a new adapter
-or disconnected receipt row. Rows 4 and later must name their production
-caller and same-slice old-authority deletion before implementation.
+`H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0` and
+`H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0` established the source/local
+relation and removed package-path semantic reclassification. The later
+`H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0` name is retired: its accepted decision
+is folded into the cutover replacement cell above. No historical row may be
+reopened to add an adapter, disconnected receipt, or test-only route.
 
 ### Structure and file budget for the R0/cutover series
 
@@ -1520,10 +1471,10 @@ logic to the already-large adapters:
 dynamic_full_body_recipe/coseal/semantic_program/exit_transaction/
   initializer_admission.rs       HRTB final-program view; target <= 250 lines
 
-builder/selected_initializer_admission/
-  model.rs                       move-only closed sum; target <= 220 lines
-  issuer.rs                      exact co-seal; target <= 350 lines
-  route.rs                       sole bounded consumer; target <= 300 lines
+builder/selected_dynamic_callable_physical/
+  model.rs                       scoped input only; target <= 220 lines
+  admission.rs                   exact co-seal; target <= 350 lines
+  consumer.rs                    sole bounded consumer; target <= 350 lines
   tests.rs                       positive/negative matrix
 ```
 
@@ -1539,7 +1490,7 @@ no-addition surface; route new ownership through the dedicated child module.
 ### Current nonclaims
 
 ```text
-no code implementation while this D0 is current
+no standalone bridge implementation; issue+consume only in the cutover cell
 no GenericLoop change or new carrier variant
 no Dynamic Recipe/source/envelope/JoinSig reimplementation
 no CFG / PHI / session / DraftSeal / Collector / publication
