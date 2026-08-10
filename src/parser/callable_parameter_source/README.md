@@ -12,7 +12,11 @@ Current I0 boundary:
 - `session.rs` binds those rows to the parser invocation and exact direct
   Box-method source site, rejecting foreign/duplicate/partial coverage;
 - `catalog.rs` owns the complete non-Clone static/instance sibling catalog;
-- `product.rs` pairs that catalog with the completed total parser postpass;
+- `product.rs` pairs that catalog with the completed total parser postpass and
+  moves the pair atomically into the retained source owner;
+- `retained.rs` keeps the completed postpass and complete catalog non-Clone
+  and non-splittable while lending repeatable callback-scoped declaration
+  syntax to the future sole resolved semantic batch;
 - `syntax_loan.rs` consumes that pair into one callback-scoped exact
   declaration loan using only sealed statement/inventory placement; the loan
   cannot escape and never searches by name;
@@ -42,13 +46,18 @@ never replace the source site as identity or authorize name-based repair. Its
 only downstream purpose is to let a parser-owned loan locate the already
 committed declaration without reconstructing source order.
 
-The consuming loan moves the whole catalog into the same callback that
-borrows the exact AST declarations. It validates Box kind, explicit/direct
-provenance, method identity, parameter order/name/type coverage, and static
-mode before lending syntax. It publishes no reusable AST handle, bare
-placement lookup, or partial catalog projection.
+The retained source keeps the completed parser postpass and parameter catalog
+together. Its scoped loan validates Box kind, explicit/direct provenance,
+method identity, parameter order/name/type coverage, and static mode before
+lending syntax. The same retained owner may lend the exact rows again, but no
+AST reference can escape and there is no AST/catalog `into_parts` surface.
+
+The older consuming callback remains only for the already-landed standalone
+parameter-demand path. It retires when the demand becomes a borrowed projection
+of `VerifiedResolvedCallableSemanticBatchV1`; new semantic owners must use the
+retained source instead of consuming and independently resolving the catalog.
 
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
-Recipe key, MIR value, fallback, or production activation. The next owner must
-consume the whole catalog together with exact resolved callable declarations
-to issue the complete parameter-demand catalog.
+Recipe key, MIR value, fallback, or production activation. The next owner
+retains this whole source, resolves its declarations exactly once, and owns the
+only forest/projection batch used by normal-source and parameter-demand views.

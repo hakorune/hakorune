@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: shared semantic-source Decision accepted; parser retention R0A selected
+Status: parser retention R0 closed; resolved semantic batch I0 selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `PARSER-CALLABLE-SOURCE-RETENTION-R0`
+Current implementation row: `RESOLVED-CALLABLE-SEMANTIC-BATCH-I0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -365,7 +365,7 @@ The final ingress issuer retains the whole semantic batch and internally
 derives both the demand and Dynamic lifecycle relations. It never accepts a
 caller-paired demand catalog plus lifecycle product.
 
-### 3B. `PARSER-CALLABLE-SOURCE-RETENTION-R0` — selected
+### 3B. `PARSER-CALLABLE-SOURCE-RETENTION-R0` — closed
 
 Change:
   Keep `CompletedParserPostpassV1` and the complete callable-parameter source
@@ -386,16 +386,47 @@ Stop:
   If retention requires cloning the AST/catalog, exposing raw parts, or adding
   resolver/Home/Recipe meaning, return to design.
 
-### 3C. Follow-on BoxShape order
+Closeout:
+  `RetainedParserCallableSemanticSourceV1` now atomically owns the completed
+  postpass and parameter catalog. Repeated callback-scoped loans retain the
+  exact declaration pointers and parser identity; equal source text from a
+  foreign invocation remains distinct. Existing consuming callers remain
+  unchanged. Focused tests and `cargo check --lib` are green; the new owner and
+  tests are 47/55 lines, and `parser/mod.rs` remains 757 lines.
+
+### 3C. `RESOLVED-CALLABLE-SEMANTIC-BATCH-I0` — selected
+
+Change:
+  Consume the retained parser source, resolve its complete declaration loan
+  exactly once, and retain one verified forest/source projection per row in
+  `VerifiedResolvedCallableSemanticBatchV1`.
+
+Contract:
+  The batch is the sole resolver/forest/projection owner for this lane. It
+  lends exact `ResolvedFunctionLoweringInputV1` rows by the already-sealed
+  source row identity; it does not issue parameter demand, Home, Recipe, or
+  physical facts and has no name lookup or split API.
+
+Done:
+  Static and instance direct methods, zero-parameter rows, and unchanged
+  `ParserScanLoopBox` resolve in exact source order. Missing/duplicate/foreign
+  rows, deferred resolution, wrong root profile, and projection mismatch fail
+  before publication. All files stay below 800 lines.
+
+Stop:
+  If the batch needs a second resolver call, cloned parser source, caller-made
+  owner/BindingRef, or Builder-selected keys, return to design.
+
+### 3D. Follow-on order
 
 ```text
-RESOLVED-CALLABLE-SEMANTIC-BATCH-R0
-  -> one resolver call; forests/projections retained once
-  -> normal semantic source becomes a batch view
-
 CALLABLE-PARAMETER-DEMAND-PROJECTION-R0
   -> demand becomes a complete batch view
   -> old demand resolver call/forest ownership deleted
+
+NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0
+  -> existing Builder facade borrows the batch
+  -> old normal-source resolver/forest ownership deleted
 
 DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
   -> whole batch retained; demand/lifecycle derived internally

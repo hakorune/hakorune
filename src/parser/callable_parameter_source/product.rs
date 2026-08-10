@@ -1,4 +1,5 @@
 use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::retained::RetainedParserCallableSemanticSourceV1;
 use super::syntax_loan::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableSyntaxLoanErrorV1,
@@ -33,6 +34,15 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         catalog: ParserCallableParameterSourceCatalogV1,
     ) -> Self {
         Self { completed, catalog }
+    }
+
+    /// Move the atomic parser result into the retained source owner used by
+    /// the future sole callable semantic batch.
+    ///
+    /// This transition exposes neither the AST nor the parameter catalog as
+    /// independently movable parts.
+    pub(crate) fn into_retained_source(self) -> RetainedParserCallableSemanticSourceV1 {
+        RetainedParserCallableSemanticSourceV1::new(self.completed, self.catalog)
     }
 
     /// Borrow exact callable declarations while consuming the parser product.

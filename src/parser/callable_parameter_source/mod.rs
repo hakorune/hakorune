@@ -9,6 +9,7 @@ mod issuer;
 mod model;
 mod parse_product;
 mod product;
+mod retained;
 mod session;
 mod syntax_loan;
 
@@ -18,7 +19,10 @@ pub(in crate::parser) use model::ParserCallableDeclarationKindV1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
 pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
+pub(crate) use retained::RetainedParserCallableSemanticSourceV1;
 pub(in crate::parser) use session::ParserCallableParameterSourceSessionV1;
 pub(crate) use syntax_loan::ParserCallableSyntaxLoanErrorV1;
+#[cfg(test)]
+mod retained_tests;
 #[cfg(test)]
 mod tests;
