@@ -146,12 +146,16 @@ regression:
   Return/SourceBody/parser-node connection = 0
 ```
 
-## Verification
+## Verification (historical R1 product WIP)
 
-Add/register `hako_parser_rich_body_h2_s2_s1_r1_guard.sh` and run:
+The originally planned `hako_parser_rich_body_h2_s2_s1_r1_guard.sh` was never
+registered and must not be treated as a live gate. The implemented handoff
+surface is guarded by `h2_compile_front_owner_handoff_i0_guard.sh`; the
+following existing predecessor/parity guards remain the only runnable checks
+for this parked WIP:
 
 ```bash
-bash tools/checks/hako_parser_rich_body_h2_s2_s1_r1_guard.sh
+bash tools/checks/h2_compile_front_owner_handoff_i0_guard.sh
 bash tools/checks/hako_parser_source_carrier_p0_guard.sh
 bash tools/checks/hako_parser_rich_body_h2_s2_s0_guard.sh
 bash tools/checks/hako_parser_rich_body_h2_s2_r0_guard.sh
