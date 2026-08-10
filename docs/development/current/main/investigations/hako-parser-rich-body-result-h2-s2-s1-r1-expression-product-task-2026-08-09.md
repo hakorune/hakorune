@@ -284,6 +284,31 @@ admission. The trace therefore cannot select `ParserNumberScanBox`,
 force; no fixture narrowing, by-name repair, or second publication owner is
 authorized.
 
+### Dynamic-owner caller census (read-only, 2026-08-11)
+
+The existing source-backed Dynamic products were checked separately from the
+static-call result publication family:
+
+```text
+SourceBackedDynamicCallableIssuerV1::issue_from_resolved_input
+  -> CallableSemanticLoweringState::from_exact_source
+  -> package-backed callable scope
+
+CallableSemanticLoweringState::prepare_source_backed_dynamic_loop_ingress
+  -> declaration + focused Dynamic tests only
+  -> no non-test raw Loop production caller
+```
+
+This proves a missing production bridge, not which source site owns the
+reported `ValueId(210)`. The Dynamic issuer owns source-backed Dynamic
+lineage and ingress authorization; it must not invent a `MirType` from a
+runtime tag or selector. The physical producer/publication owner remains the
+only authority allowed to publish an exact transient type after a successful
+emission receipt. The next audit must classify the exact admission as either
+an existing exact-result publication row or a source-backed Dynamic lineage
+row before opening an implementation task. These two families must not be
+merged by name, ValueId, route, or fallback.
+
 ## Compile-front owner census D0 (2026-08-11)
 
 Task: `H2-S2-S1-R1-COMPILE-FRONT-OWNER-CENSUS-D0`
