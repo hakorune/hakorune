@@ -29,7 +29,7 @@ fn selected_top_level_and_member_rows_are_pruned_in_one_transaction() {
             ..ParserBuildConfig::default()
         },
     );
-    let rows = product.source_session.direct_callable_rows();
+    let rows = product.source_session.callable_rows();
     assert_eq!(rows.len(), 2);
     assert!(rows
         .iter()
@@ -40,7 +40,8 @@ fn selected_top_level_and_member_rows_are_pruned_in_one_transaction() {
     let member = rows
         .iter()
         .find(|row| row.diagnostic_name() == "run")
-        .expect("selected member row");
+        .and_then(|row| row.direct())
+        .expect("selected direct member row");
     assert!(matches!(
         member.path(),
         SourceProgramCallablePathV1::BoxMethod { gate_path, .. }
@@ -58,10 +59,10 @@ fn nested_member_selection_keeps_the_full_selected_path_only() {
          }\n",
         ParserBuildConfig::default(),
     );
-    let rows = product.source_session.direct_callable_rows();
+    let rows = product.source_session.callable_rows();
     assert_eq!(rows.len(), 1);
     assert!(matches!(
-        rows[0].path(),
+        rows[0].direct().unwrap().path(),
         SourceProgramCallablePathV1::BoxMethod { gate_path, .. }
             if gate_path.len() == 2
                 && gate_path[0].branch() == SourceBuildGateBranchV1::Else
@@ -78,10 +79,12 @@ fn top_level_else_and_nested_top_level_leaf_are_selected_exactly() {
          }\n",
         ParserBuildConfig::default(),
     );
-    let rows = product.source_session.direct_callable_rows();
+    let rows = product.source_session.callable_rows();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].diagnostic_name(), "inner_else");
     let segments = rows[0]
+        .direct()
+        .unwrap()
         .path()
         .declaration()
         .compatibility_box_path()
@@ -112,10 +115,10 @@ fn inactive_outer_member_branch_does_not_demand_its_nested_receipt() {
          }\n",
         ParserBuildConfig::default(),
     );
-    let rows = product.source_session.direct_callable_rows();
+    let rows = product.source_session.callable_rows();
     assert_eq!(rows.len(), 1);
     assert!(matches!(
-        rows[0].path(),
+        rows[0].direct().unwrap().path(),
         SourceProgramCallablePathV1::BoxMethod { gate_path, .. }
             if gate_path.len() == 1
                 && gate_path[0].branch() == SourceBuildGateBranchV1::Else
@@ -154,7 +157,7 @@ fn compatibility_finish_retains_selected_callable_rows_privately() {
         .finish_total_s0(&parser, PostpassDemandV1::default())
         .unwrap();
     let names = completed
-        .direct_callable_rows()
+        .callable_rows()
         .iter()
         .map(|row| row.diagnostic_name())
         .collect::<Vec<_>>();

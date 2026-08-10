@@ -103,6 +103,16 @@ pub(super) struct SourceBoxGateSelectionV1 {
     branch_member_ordinal: u32,
 }
 
+impl SourceBoxGateSelectionV1 {
+    pub(super) fn gate_member_ordinal(self) -> u32 {
+        self.gate_member_ordinal
+    }
+
+    pub(super) fn branch_member_ordinal(self) -> u32 {
+        self.branch_member_ordinal
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SourceBoxMethodSiteV1 {
     Direct {
@@ -121,6 +131,17 @@ impl SourceBoxMethodSiteV1 {
 
     pub(super) fn source_member_ordinal(&self) -> u32 {
         self.member().member_ordinal()
+    }
+
+    pub(super) fn member_site(&self) -> &SourceBoxMemberSiteV1 {
+        self.member()
+    }
+
+    pub(super) fn selected_gate_path(&self) -> Option<&[SourceBoxGateSelectionV1]> {
+        match self {
+            Self::Direct { .. } => None,
+            Self::SelectedBuildGate { path, .. } => Some(path),
+        }
     }
 
     pub(super) fn is_direct(&self) -> bool {
@@ -252,9 +273,8 @@ impl ExplicitMethodSourceRelationV1 {
 pub(super) enum MethodSourceRelationV1 {
     Explicit(ExplicitMethodSourceRelationV1),
     GeneratedProperty {
-        source_member: SourceBoxMemberSiteV1,
-        inventory_ordinal: BoxMethodInventoryOrdinalV1,
-        name: Box<str>,
+        source_site: SourceBoxMethodSiteV1,
+        placement: BoxMethodInventoryPlacementReceiptV1,
     },
 }
 
@@ -262,16 +282,14 @@ impl MethodSourceRelationV1 {
     pub(super) fn inventory_ordinal(&self) -> BoxMethodInventoryOrdinalV1 {
         match self {
             Self::Explicit(relation) => relation.inventory_ordinal(),
-            Self::GeneratedProperty {
-                inventory_ordinal, ..
-            } => *inventory_ordinal,
+            Self::GeneratedProperty { placement, .. } => placement.inventory_ordinal(),
         }
     }
 
     pub(super) fn name(&self) -> &str {
         match self {
             Self::Explicit(relation) => relation.name(),
-            Self::GeneratedProperty { name, .. } => name,
+            Self::GeneratedProperty { placement, .. } => placement.name(),
         }
     }
 
@@ -292,7 +310,7 @@ impl MethodSourceRelationV1 {
     fn source_member_ordinal(&self) -> u32 {
         match self {
             Self::Explicit(relation) => relation.source_site().source_member_ordinal(),
-            Self::GeneratedProperty { source_member, .. } => source_member.member_ordinal(),
+            Self::GeneratedProperty { source_site, .. } => source_site.source_member_ordinal(),
         }
     }
 
@@ -301,10 +319,8 @@ impl MethodSourceRelationV1 {
             Self::Explicit(relation) => relation
                 .source_site
                 .prepend_selected_gate(gate_member_ordinal, branch_member_ordinal),
-            Self::GeneratedProperty { .. } => {
-                // Generated property source identity remains its originating
-                // member. Its selected path is carried by the AST provenance;
-                // the relation only needs the exact member site here.
+            Self::GeneratedProperty { source_site, .. } => {
+                source_site.prepend_selected_gate(gate_member_ordinal, branch_member_ordinal)
             }
         }
     }
@@ -527,7 +543,9 @@ impl OpenBoxMethodSourceTransactionV1 {
         &mut self,
         batch: PreparedGeneratedBoxMethodBatchV1,
     ) -> Result<Box<[BoxMethodInventoryPlacementReceiptV1]>, ParseError> {
-        let source_member = self.current_member_site();
+        let source_site = SourceBoxMethodSiteV1::Direct {
+            member: self.current_member_site(),
+        };
         let names = batch
             .names_in_order()
             .map(str::to_owned)
@@ -543,11 +561,16 @@ impl OpenBoxMethodSourceTransactionV1 {
             });
         }
         for (name, placement) in names.into_iter().zip(placements.iter()) {
+            if placement.name() != name {
+                return Err(ParseError::BuildCfg {
+                    message: "generated property placement/name mismatch".to_owned(),
+                    line: 0,
+                });
+            }
             self.method_relations
                 .push(MethodSourceRelationV1::GeneratedProperty {
-                    source_member: source_member.clone(),
-                    inventory_ordinal: placement.inventory_ordinal(),
-                    name: name.into_boxed_str(),
+                    source_site: source_site.clone(),
+                    placement: placement.clone(),
                 });
         }
         Ok(placements)
@@ -594,17 +617,25 @@ impl OpenBoxMethodSourceTransactionV1 {
         &self.delegate_source_declarations
     }
 
-    pub(super) fn finish(self) -> PreparedBoxSourceSealV1 {
+    pub(super) fn finish(self) -> Result<PreparedBoxSourceSealV1, ParseError> {
         let (brand, box_site) = self.cursor.into_parts();
-        PreparedBoxSourceSealV1 {
+        let generated_property_callable_rows =
+            super::generated_callable_anchor::issue_property_callable_rows(
+                &brand,
+                &self.inventory,
+                &self.method_relations,
+                &self.member_gate_selection_receipts,
+            )?;
+        Ok(PreparedBoxSourceSealV1 {
             brand,
             box_site,
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
             delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),
             member_gate_selection_receipts: self.member_gate_selection_receipts.into_boxed_slice(),
+            generated_property_callable_rows,
             generated_delegate_source_relations: Box::new([]),
-        }
+        })
     }
 }
 

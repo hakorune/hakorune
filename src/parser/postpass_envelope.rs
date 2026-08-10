@@ -7,7 +7,7 @@
 
 use crate::ast::ASTNode;
 
-use super::callable_source_anchor::PreparedDirectCallableSourceV1;
+use super::callable_source_anchor::PreparedCallableSourceV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
 
@@ -89,7 +89,7 @@ pub(super) struct CompletedParserPostpassV1 {
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
     box_coverage: ParserBoxPostpassCoverageV1,
-    direct_callable_rows: Box<[PreparedDirectCallableSourceV1]>,
+    callable_rows: Box<[PreparedCallableSourceV1]>,
 }
 
 impl CompletedParserPostpassV1 {
@@ -101,7 +101,7 @@ impl CompletedParserPostpassV1 {
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
-        let (ast, seals, direct_callable_rows, final_box_ordinals, metadata) =
+        let (ast, seals, callable_rows, final_box_ordinals, metadata) =
             product.into_postpass_parts();
         if seals.len() != final_box_ordinals.len() {
             return Err(ParserPostpassEnvelopeErrorV1::SourceCoverageMismatch {
@@ -135,7 +135,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
-            direct_callable_rows,
+            callable_rows,
         })
     }
 
@@ -143,7 +143,7 @@ impl CompletedParserPostpassV1 {
         ast: ASTNode,
         metadata: ParserMetadata,
         explain: Option<BuildGateExplainReport>,
-        direct_callable_rows: Box<[PreparedDirectCallableSourceV1]>,
+        callable_rows: Box<[PreparedCallableSourceV1]>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(&ast);
         if program_cohort.is_ordinary() {
@@ -159,7 +159,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
-            direct_callable_rows,
+            callable_rows,
         })
     }
 
@@ -193,8 +193,8 @@ impl CompletedParserPostpassV1 {
         &self.box_coverage
     }
 
-    pub(super) fn direct_callable_rows(&self) -> &[PreparedDirectCallableSourceV1] {
-        &self.direct_callable_rows
+    pub(super) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
+        &self.callable_rows
     }
 }
 

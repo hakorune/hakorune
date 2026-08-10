@@ -73,6 +73,48 @@ impl MemberGateSelectionReceiptV1 {
     pub(super) fn brand_matches(&self, brand: &ParserInvocationBrandV1) -> bool {
         self.brand.same_as(brand) && self.declaration.brand().same_as(brand)
     }
+
+    pub(super) fn exact_selected_path_for(
+        &self,
+        declaration: &SourceProgramDeclarationPathV1,
+        selection: &crate::ast::BoxMethodSourceSelectionV1,
+    ) -> Option<&[SourceProgramMemberGateStepV1]> {
+        let crate::ast::BoxMethodSourceSelectionV1::SelectedBuildGate { path } = selection else {
+            return None;
+        };
+        self.exact_selected_path_for_gate_ordinals(
+            declaration,
+            path.iter()
+                .map(|step| step.gate_site().box_member_ordinal()),
+        )
+    }
+
+    pub(super) fn exact_selected_path_for_method_site(
+        &self,
+        declaration: &SourceProgramDeclarationPathV1,
+        source_site: &super::source_authority::SourceBoxMethodSiteV1,
+    ) -> Option<&[SourceProgramMemberGateStepV1]> {
+        let path = source_site.selected_gate_path()?;
+        self.exact_selected_path_for_gate_ordinals(
+            declaration,
+            path.iter().map(|step| step.gate_member_ordinal()),
+        )
+    }
+
+    fn exact_selected_path_for_gate_ordinals(
+        &self,
+        declaration: &SourceProgramDeclarationPathV1,
+        gate_ordinals: impl ExactSizeIterator<Item = u32>,
+    ) -> Option<&[SourceProgramMemberGateStepV1]> {
+        (self.declaration == *declaration
+            && self.selected_path.len() == gate_ordinals.len()
+            && self
+                .selected_path
+                .iter()
+                .zip(gate_ordinals)
+                .all(|(source, gate_ordinal)| source.gate_member_ordinal() == gate_ordinal))
+        .then_some(&self.selected_path)
+    }
 }
 
 pub(super) fn prune_direct_callable_rows(

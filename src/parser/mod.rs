@@ -41,6 +41,7 @@ mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
 mod from_transport_boundary;
+mod generated_callable_anchor;
 mod grammar_contract;
 mod items;
 mod lifecycle;

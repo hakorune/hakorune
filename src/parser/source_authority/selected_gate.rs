@@ -72,20 +72,25 @@ impl OpenBoxMethodSourceTransactionV1 {
             )
             .map_err(inventory_error_to_parse_error)?;
         for (relation, placement) in rebased.into_iter().zip(placements.iter()) {
+            let relation_name = relation.name().to_owned();
             self.method_relations.push(match relation {
                 MethodSourceRelationV1::Explicit(mut relation) => {
                     relation.inventory_ordinal = placement.inventory_ordinal();
                     MethodSourceRelationV1::Explicit(relation)
                 }
-                MethodSourceRelationV1::GeneratedProperty {
-                    source_member,
-                    name,
-                    ..
-                } => MethodSourceRelationV1::GeneratedProperty {
-                    source_member,
-                    inventory_ordinal: placement.inventory_ordinal(),
-                    name,
-                },
+                MethodSourceRelationV1::GeneratedProperty { source_site, .. } => {
+                    if placement.name() != relation_name {
+                        return Err(ParseError::BuildCfg {
+                            message: "selected generated property placement/name mismatch"
+                                .to_owned(),
+                            line: 0,
+                        });
+                    }
+                    MethodSourceRelationV1::GeneratedProperty {
+                        source_site,
+                        placement: placement.clone(),
+                    }
+                }
             });
         }
         self.delegate_source_declarations.extend(declarations);

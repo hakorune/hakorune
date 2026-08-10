@@ -66,6 +66,26 @@ private staging. This row publishes no generated anchor, verified resolver
 Program, resolver identity, Home/Recipe fact, Builder input, retry, fallback,
 or production route.
 
+## Parser-private generated callable anchors (`PARSER-CALLABLE-GENERATED-ANCHOR-R0` landed)
+
+`generated_callable_anchor.rs` is the only parser owner that turns exact
+property/delegate generator evidence into fresh callable anchors. Property
+rows consume the originating `SourceBoxMethodSiteV1`, the generated inventory
+placement receipt, and the exact member-gate selection receipt. Delegate rows
+consume `GeneratedDelegateSourceRelationV1` plus the same exact gate receipt;
+they never inherit the wrapped target method's anchor.
+
+Direct and generated rows meet only in the private
+`PreparedCallableSourceV1` transport. They are pruned and carried through the
+existing source-aware postpass as one complete staging set. Then/Else is taken
+from parser-issued receipts, not reconstructed from names, final inventory,
+AST provenance ordinals, or a second predicate evaluation.
+
+`MacroOrImport` and `CompatibilityOnly` still have no generated-anchor issuer.
+This row publishes no verified Program, resolver identity, Home/Recipe fact,
+Builder input, retry, fallback, or production route. Those boundaries remain
+owned by the following atomic Program co-seal.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

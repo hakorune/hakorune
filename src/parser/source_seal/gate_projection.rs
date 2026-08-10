@@ -4,7 +4,9 @@ use crate::parser::{NyashParser, ParserMetadata};
 use super::super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
 use super::super::build_cfg::project_build_gates;
 use super::super::callable_gate_projection::prune_direct_callable_rows;
-use super::super::callable_source_anchor::PreparedDirectCallableSourceV1;
+use super::super::callable_source_anchor::{
+    PreparedCallableSourceV1, PreparedDirectCallableSourceV1,
+};
 use super::super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use super::super::source_gate_receipt::{selection_matches_path, BuildGateSelectionReceiptV1};
@@ -26,7 +28,10 @@ impl ParserSourceSessionV1 {
             prepared_source_seals,
             gate_records,
             selection_receipts: Vec::new(),
-            direct_callable_rows,
+            callable_rows: direct_callable_rows
+                .into_iter()
+                .map(PreparedCallableSourceV1::Direct)
+                .collect(),
         }
     }
 
@@ -69,20 +74,41 @@ impl ParserSourceSessionV1 {
                 retained.push(seal);
             }
         }
-        let direct_callable_rows =
-            prune_direct_callable_rows(self.direct_callable_rows, &retained, |declaration| {
-                declaration_path_survives(
-                    declaration.compatibility_box_path(),
-                    &self.gate_records,
-                    &receipts,
-                    Some(declaration.brand()),
-                )
-            })?;
+        let direct_rows = self
+            .callable_rows
+            .into_iter()
+            .map(|row| match row {
+                PreparedCallableSourceV1::Direct(row) => Ok(row),
+                PreparedCallableSourceV1::Generated(_) => {
+                    Err("generated callable row entered pre-prune direct staging".to_owned())
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let direct_rows = prune_direct_callable_rows(direct_rows, &retained, |declaration| {
+            declaration_path_survives(
+                declaration.compatibility_box_path(),
+                &self.gate_records,
+                &receipts,
+                Some(declaration.brand()),
+            )
+        })?;
+        let mut callable_rows = direct_rows
+            .into_iter()
+            .map(PreparedCallableSourceV1::Direct)
+            .collect::<Vec<_>>();
+        for seal in &mut retained {
+            callable_rows.extend(
+                std::mem::take(&mut seal.generated_property_callable_rows)
+                    .into_vec()
+                    .into_iter()
+                    .map(PreparedCallableSourceV1::Generated),
+            );
+        }
         Ok(PreparedParserSourcePruneV1 {
             prepared_source_seals: retained,
             gate_records: self.gate_records,
             selection_receipts: receipts,
-            direct_callable_rows,
+            callable_rows,
         })
     }
 
@@ -91,21 +117,18 @@ impl ParserSourceSessionV1 {
             prepared_source_seals: prepared.prepared_source_seals,
             gate_records: prepared.gate_records,
             selection_receipts: prepared.selection_receipts,
-            direct_callable_rows: prepared.direct_callable_rows,
+            callable_rows: prepared.callable_rows,
         }
     }
 
     pub(in crate::parser) fn into_parts(
         self,
-    ) -> (
-        Vec<PreparedBoxSourceSealV1>,
-        Vec<PreparedDirectCallableSourceV1>,
-    ) {
-        (self.prepared_source_seals, self.direct_callable_rows)
+    ) -> (Vec<PreparedBoxSourceSealV1>, Vec<PreparedCallableSourceV1>) {
+        (self.prepared_source_seals, self.callable_rows)
     }
 
-    pub(in crate::parser) fn direct_callable_rows(&self) -> &[PreparedDirectCallableSourceV1] {
-        &self.direct_callable_rows
+    pub(in crate::parser) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
+        &self.callable_rows
     }
 }
 
@@ -280,6 +303,17 @@ impl OpenParserPostpassProductV1 {
         for (path, relations) in relation_batches {
             source_session.attach_generated_delegate_relations(&path, relations)?;
         }
+        let generated_rows =
+            super::super::generated_callable_anchor::issue_covered_delegate_callable_rows(
+                &ast,
+                &self.final_box_paths,
+                &source_session.prepared_source_seals,
+            )?;
+        source_session.callable_rows.extend(
+            generated_rows
+                .into_iter()
+                .map(PreparedCallableSourceV1::Generated),
+        );
         Ok(Self {
             ast,
             source_session,

@@ -941,6 +941,8 @@ Closeout receipt:
 
 #### `PARSER-CALLABLE-GENERATED-ANCHOR-R0`
 
+Status: **closed**
+
 Property and delegate generator owners issue fresh callable anchors in the
 same source-aware postpass transaction.  A property row consumes its exact
 originating member plus generated placement receipt.  A delegate row consumes
@@ -952,6 +954,28 @@ they are never inferred from final inventory.
 Acceptance includes missing/duplicate/foreign generator receipt rejection,
 positive property/delegate coverage, and selected-gate generated origins.
 Generated anchors are never inherited from the source method they wrap.
+
+Closeout receipt:
+
+- property and delegate generator owners issue a fresh non-Clone
+  `CallableDeclarationAnchorV1` per exact generated placement; neither origin
+  inherits the direct source/target method anchor;
+- property origin consumes its exact `SourceBoxMethodSiteV1`, generated
+  placement receipt, and parser-issued member-gate selection receipt;
+- delegate origin consumes the complete `GeneratedDelegateSourceRelationV1`
+  and the exact host member-gate receipt after existing final-inventory
+  coverage validation;
+- selected Then/Else is retained as an exact structural source path for both
+  property and delegate rows without AST ordinal inference or predicate
+  re-evaluation;
+- direct and generated rows join only in private
+  `PreparedCallableSourceV1` staging and move through the existing atomic
+  source-aware postpass;
+- tests cover fresh/independent anchors, positive property/delegate coverage,
+  selected property/delegate origins, and missing/duplicate/foreign evidence;
+- `MacroOrImport`, `CompatibilityOnly`, verified Program publication,
+  resolver, Builder, Home, Recipe, retry, fallback, and production activation
+  remain zero.
 
 #### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
 

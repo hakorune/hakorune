@@ -94,7 +94,7 @@ for struct_name in ("CallableDeclarationAnchorV1", "PreparedDirectCallableSource
         raise SystemExit(f"{struct_name} must remain non-Clone")
 
 for needle in (
-    "direct_callable_rows: Vec<PreparedDirectCallableSourceV1>",
+    "callable_rows: Vec<PreparedCallableSourceV1>",
     "member_gate_selection_receipts: Box<[MemberGateSelectionReceiptV1]>",
 ):
     if needle not in model:
@@ -105,9 +105,9 @@ if ".prepare_prune(projection.receipts)" not in gate:
     raise SystemExit("top-level selection receipts must move into the atomic prune")
 
 for text, label in ((finalize, "finalizer"), (envelope, "postpass envelope")):
-    if "direct_callable_rows" not in text:
+    if "callable_rows" not in text:
         raise SystemExit(f"{label} must retain selected callable rows")
-if "from_compatibility" not in envelope or "direct_callable_rows" not in envelope:
+if "from_compatibility" not in envelope or "callable_rows" not in envelope:
     raise SystemExit("compatibility completion must retain selected callable rows privately")
 
 for needle in (
@@ -129,8 +129,8 @@ section = task.split("#### `PARSER-CALLABLE-GATE-PROJECTION-R0`", 1)[1].split(
 )[0]
 if "Status: **closed**" not in section:
     raise SystemExit("gate-projection row must be closed before pointer advancement")
-if 'current_execution_row = "PARSER-CALLABLE-GENERATED-ANCHOR-R0"' not in state:
-    raise SystemExit("current pointer must advance to generated callable anchors")
+if 'current_execution_row = "PARSER-CALLABLE-GATE-PROJECTION-R0"' in state:
+    raise SystemExit("current pointer must advance beyond the closed gate-projection row")
 if "parser_callable_gate_projection_r0_guard.sh" not in index:
     raise SystemExit("check index must list the callable gate projection guard")
 

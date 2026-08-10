@@ -29,7 +29,7 @@ fn transaction_co_seals_explicit_source_with_inventory_placement() {
         .unwrap();
     transaction.finish_member().unwrap();
 
-    let prepared = transaction.finish();
+    let prepared = transaction.finish().unwrap();
     assert_eq!(prepared.box_site().statement_ordinal(), 4);
     assert_eq!(prepared.inventory().len(), 1);
     assert_eq!(prepared.method_relations().len(), 1);

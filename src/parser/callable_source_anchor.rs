@@ -10,21 +10,172 @@ use std::sync::Arc;
 
 use super::common::ParserUtils;
 use super::declarations::box_def::members::pending_method::CommittedDirectExplicitMethodV1;
+use super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::source_authority::ParserInvocationBrandV1;
 use super::source_path::SourceProgramCallablePathV1;
 use super::{NyashParser, ParseError};
-use crate::ast::BoxMethodInventoryOrdinalV1;
+use crate::ast::{
+    BoxMethodGeneratedProvenanceV1, BoxMethodInventoryOrdinalV1,
+    BoxMethodInventoryPlacementReceiptV1,
+};
 
 #[derive(Debug)]
 pub(super) struct CallableDeclarationAnchorV1(Arc<()>);
 
 impl CallableDeclarationAnchorV1 {
-    fn issue() -> Self {
+    pub(super) fn issue() -> Self {
         Self(Arc::new(()))
     }
 
     pub(super) fn same_as(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct GeneratedPropertyCallableOriginV1 {
+    source_path: SourceProgramCallablePathV1,
+    placement: BoxMethodInventoryPlacementReceiptV1,
+    provenance: BoxMethodGeneratedProvenanceV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct GeneratedDelegateCallableOriginV1 {
+    source_path: SourceProgramCallablePathV1,
+    relation: GeneratedDelegateSourceRelationV1,
+}
+
+impl GeneratedDelegateCallableOriginV1 {
+    pub(super) fn new(
+        source_path: SourceProgramCallablePathV1,
+        relation: GeneratedDelegateSourceRelationV1,
+    ) -> Self {
+        Self {
+            source_path,
+            relation,
+        }
+    }
+
+    pub(super) fn source_path(&self) -> &SourceProgramCallablePathV1 {
+        &self.source_path
+    }
+
+    pub(super) fn relation(&self) -> &GeneratedDelegateSourceRelationV1 {
+        &self.relation
+    }
+}
+
+impl GeneratedPropertyCallableOriginV1 {
+    pub(super) fn new(
+        source_path: SourceProgramCallablePathV1,
+        placement: BoxMethodInventoryPlacementReceiptV1,
+        provenance: BoxMethodGeneratedProvenanceV1,
+    ) -> Self {
+        Self {
+            source_path,
+            placement,
+            provenance,
+        }
+    }
+
+    pub(super) fn source_path(&self) -> &SourceProgramCallablePathV1 {
+        &self.source_path
+    }
+
+    pub(super) fn placement(&self) -> &BoxMethodInventoryPlacementReceiptV1 {
+        &self.placement
+    }
+
+    pub(super) fn provenance(&self) -> &BoxMethodGeneratedProvenanceV1 {
+        &self.provenance
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum GeneratedCallableOriginV1 {
+    Property(GeneratedPropertyCallableOriginV1),
+    Delegate(GeneratedDelegateCallableOriginV1),
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedGeneratedCallableSourceV1 {
+    anchor: CallableDeclarationAnchorV1,
+    parser_brand: ParserInvocationBrandV1,
+    origin: GeneratedCallableOriginV1,
+    diagnostic_name: Box<str>,
+}
+
+impl PreparedGeneratedCallableSourceV1 {
+    pub(super) fn issue(
+        parser_brand: ParserInvocationBrandV1,
+        origin: GeneratedCallableOriginV1,
+        diagnostic_name: impl Into<Box<str>>,
+    ) -> Self {
+        Self {
+            anchor: CallableDeclarationAnchorV1::issue(),
+            parser_brand,
+            origin,
+            diagnostic_name: diagnostic_name.into(),
+        }
+    }
+
+    pub(super) fn anchor(&self) -> &CallableDeclarationAnchorV1 {
+        &self.anchor
+    }
+
+    pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
+        &self.parser_brand
+    }
+
+    pub(super) fn origin(&self) -> &GeneratedCallableOriginV1 {
+        &self.origin
+    }
+
+    pub(super) fn diagnostic_name(&self) -> &str {
+        &self.diagnostic_name
+    }
+}
+
+#[derive(Debug)]
+pub(super) enum PreparedCallableSourceV1 {
+    Direct(PreparedDirectCallableSourceV1),
+    Generated(PreparedGeneratedCallableSourceV1),
+}
+
+impl PreparedCallableSourceV1 {
+    pub(super) fn anchor(&self) -> &CallableDeclarationAnchorV1 {
+        match self {
+            Self::Direct(row) => row.anchor(),
+            Self::Generated(row) => row.anchor(),
+        }
+    }
+
+    pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
+        match self {
+            Self::Direct(row) => row.parser_brand(),
+            Self::Generated(row) => row.parser_brand(),
+        }
+    }
+
+    pub(super) fn diagnostic_name(&self) -> &str {
+        match self {
+            Self::Direct(row) => row.diagnostic_name(),
+            Self::Generated(row) => row.diagnostic_name(),
+        }
+    }
+
+    pub(super) fn direct(&self) -> Option<&PreparedDirectCallableSourceV1> {
+        match self {
+            Self::Direct(row) => Some(row),
+            Self::Generated(_) => None,
+        }
+    }
+
+    pub(super) fn generated(&self) -> Option<&PreparedGeneratedCallableSourceV1> {
+        match self {
+            Self::Direct(_) => None,
+            Self::Generated(row) => Some(row),
+        }
     }
 }
 
