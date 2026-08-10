@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The bounded Dynamic V2 producer and installed-package final semantic program are landed. The initializer producer-family split is accepted and closed. H2 remains NoSafeSlice at the selected-callable lowering boundary: the package-loaned Dynamic program, exact completed-local materialization, and located Loop admission are not yet co-sealed. GenericLoop remains an exact-MirType verifier. Loop unification remains parked until the bounded Dynamic dependency cutover and physical closure."
+status = "The selected initializer admission Decision is closed. The next behavior-neutral row is H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0: consume the installed-package Dynamic semantic loan in the selected-callable adapter and stop reissuing source semantics. H2 remains blocked at the later sole-consumer/bootstrap boundary; GenericLoop remains an exact-MirType verifier."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0"
-work_mode = "design_stop"
-current_execution_row = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0"
-current_blocker_token = "Consume only the installed-package selected semantic loan, existing request-local completed local materialization, and exact located method/Loop admission. Fix Static xor Dynamic and the sole consumer before code: Static uses the sole post-success exact-type publisher and existing GenericLoop; Dynamic uses the package-loaned final program and bounded V2 path. Do not reissue Dynamic source semantics, promote diagnostic observation, modify GenericLoop, infer from ValueId/name/AST/route/runtime tag/body/MIR, fabricate MirType, issue a disconnected receipt, open CFG/PHI/session, or add fallback/retry."
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0"
+current_blocker_token = "Behavior-neutral selected-callable authority refactor only: consume input.semantic() exactly once, seed request-local lowering from the package-loaned Dynamic program, and make SourceBackedDynamicCallableIssuerV1 re-execution zero on the package path. Preserve existing route, fixture, GenericLoop, ValueId, and error behavior. Do not issue an admission receipt, open CFG/PHI/session, modify GenericLoop, infer types, add fallback/retry, or widen accepted source."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -235,7 +235,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The full bounded Dynamic producer/package chain is landed. Builder production currently ignores the package-loaned Dynamic program, reissues request-local Dynamic source classification, then discards located method/admission observations before legacy Loop lowering. Exact initializer/local ValueIds are already retained. The current Decision fixes the one co-seal and sole consumer without changing GenericLoop or opening physical effects."
+current_execution_summary = "D0 is accepted and closed. R0 now narrows the selected-callable adapter: package semantic authority becomes the sole Dynamic classifier, while request-local state remains only a BindingRef-to-ValueId projection. The later located admission/consumer and H2 bootstrap cycle remain explicit design gates."
 current_execution_design = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "hako-parser-rich-body-result-h2-s2-s1-r1-expression-product"
 latest_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_design_card = "H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0"
+next_design_card = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0"
 next_design_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_execution_card = "none until H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0 is accepted"
+next_execution_card = "H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The full bounded Dynamic producer/package chain is already landed. H2 is now stopped at the selected initializer admission relation: package semantic program + existing completed local materialization + exact located Loop. The next implementation, only after this Decision, is one non-cutover authority R0; then a consumer/cutover Decision must either name the bounded V2 production replacement cell or remain NoSafeSlice. GenericLoop, result/ABI inference, fallback, and retry remain forbidden."
+latest_card_summary = "The selected initializer admission Decision is accepted. Current R0 consumes the package-loaned Dynamic semantic authority in the selected-callable adapter and removes package-path source reclassification without changing behavior. The next consumer D0 must either prove a bounded V2 consumer/bootstrap route or remain NoSafeSlice."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

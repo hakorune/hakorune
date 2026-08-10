@@ -1,6 +1,6 @@
 ---
-Status: accepted result-carrier design; H2 reopen is blocked at the selected
-initializer admission/consumer boundary
+Status: accepted result-carrier design; selected initializer admission is
+closed and the current behavior-neutral lowering-authority R0 is active
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
 Related:
@@ -142,12 +142,12 @@ HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
   accepted: bridge owner/parity/batch relation and prerequisite audit
 
 H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
-  current: package-loaned Dynamic program + completed local materialization +
+  closed: package-loaned Dynamic program + completed local materialization +
   exact located Loop; no source-semantic reissue or GenericLoop repair
 
 H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
-  consume package semantic authority in the existing selected-callable scope;
-  retain request-local ValueIds but remove package-path Dynamic reclassification
+  current: consume package semantic authority in the existing selected-callable
+  scope; retain request-local ValueIds but remove package-path reclassification
 
 H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0
   close the bootstrap cycle and identify one bounded V2 physical consumer;

@@ -891,6 +891,15 @@ turn diagnostic `LocalInitializerObservationV1` into semantic authority.
 
 ## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0` (current)
 
+### Decision closeout (2026-08-11)
+
+The worker-backed authority review accepts this boundary. The complete
+Dynamic producer remains the package owner, `PreparedDynamicLocalEntryV1`
+remains the existing local materialization owner, and the located Loop entry
+is the only place allowed to relate them. The D0 itself adds no receipt or
+code; the next executable row is the behavior-neutral
+`H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0` below.
+
 Decision question: can the selected-callable lowering boundary issue one
 move-only admission from already-owned semantic and physical facts without
 reissuing source semantics or modifying GenericLoop?
@@ -995,8 +1004,8 @@ authority guards:
 
 ### Ordered execution ladder
 
-Only the first row below is current. Later rows are fixed gates, not permission
-to cross an unresolved design stop.
+The D0 is closed. Only the first implementation row below is current. Later
+rows are fixed gates, not permission to cross an unresolved design stop.
 
 ```text
 1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
