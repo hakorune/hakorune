@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. The canonical Hako result owner is fixed as source_carrier_v1, but its H2-S2-S1-R1 prerequisite is recorded blocked and the Hako-to-resolved-batch bridge is not yet closed. Loop unification remains parked as post-physical-input BoxShape cleanup."
+status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. The Hako result-carrier bridge Decision is accepted. The parser-only H2-S2-S1-R1 reopen audit is at NoSafeSlice because its WIP reaches the existing GenericLoop representation blocker; Loop unification remains parked as post-physical-input BoxShape cleanup."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: fix the Hako-to-resolved-batch bridge and re-audit the blocked H2-S2-S1-R1 prerequisite before opening H2-S3"
+current_design_stop = "H2-S2-S1-R1-REOPEN-AUDIT"
 work_mode = "design_stop"
-current_execution_row = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0"
-current_blocker_token = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: keep source_carrier_v1 as the sole Hako owner, specify H3-sealed row -> Rust/Hako normalized parity -> resolved callable batch -> sole result issuer, and re-audit H2-S2-S1-R1 before code; no FuncScanner, Stage-B JSON, GenericLoop repair, or Dynamic narrowing"
+current_execution_row = "H2-S2-S1-R1-REOPEN-AUDIT"
+current_blocker_token = "H2-S2-S1-R1-REOPEN-AUDIT: existing GenericLoop representation failure occurs before parser fixture execution; park the parser-only WIP and route GenericLoop capability repair to its own owner; no H2-S3, result bridge implementation, FuncScanner, Stage-B JSON, fixture workaround, or Dynamic narrowing"
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "hako-callable-header-result-carrier-d0"
 latest_card_path = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
-next_design_card = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0"
+next_design_card = "H2-S2-S1-R1-REOPEN-AUDIT"
 next_design_card_path = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
-next_execution_card = "none until HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0 is accepted"
-next_execution_card_path = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The bounded Dynamic physical-operation authority is landed without a second source, Recipe, JoinSig, or physical planner. DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 remains a valid existing : i64 design, but its I0 is stopped at HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0 because the canonical Hako parser/session result owner is not connected. FuncScanner/Stage-B JSON is informational only. Loop unification remains parked as a post-physical-input BoxShape cleanup."
+latest_card_summary = "The bounded Dynamic physical-operation authority is landed without a second source, Recipe, JoinSig, or physical planner. The Hako source-carrier -> normalized parity -> existing final source/resolved batch -> sole result issuer bridge is now a fixed design contract; its parser-only prerequisite is H2-S2-S1-R1-REOPEN-AUDIT. FuncScanner/Stage-B JSON is informational only. Loop unification remains parked as a post-physical-input BoxShape cleanup."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

@@ -941,6 +941,9 @@ skip the After closure or reopen a Tail-only route.
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
 | 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | exact node/source/entry coverage + Core-owned continuation -> one semantic-program input; migrate callers and delete split issuance | BoxShape Refactor Series; no accepted-shape or production change |
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
+| 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
+| 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
+| 22c | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | census/design only; delete old topology only after production and test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
@@ -992,6 +995,27 @@ borrow one complete ordered operation/source-effect ledger instead of calling
 a V2-to-V1 adapter or a new source/effect authority. If the ledger cannot be
 borrowed without re-pairing rows, stop with `NoSafeSlice` and keep the current
 physical demand owner unchanged.
+
+`LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` is the next BoxShape slice in the same
+series. The common Loop physicalizer may consume only the neutral continuation
+boundary and complete physical layout/ledger products. It must not import or
+construct `ReadyCallableLoopProfileCloseV1`, inspect Callable-specific counts
+such as `Pure/Read/Write`, or own Tail, ABI, Completion, Return, DraftSeal, or
+callable symbols. `recursive_after.rs` stops at
+`ReadyLoopAfterContinuationV1`; the callable owner consumes that receipt in a
+separate adapter. A guard must prove zero Callable profile symbols and zero
+hard-coded profile cardinalities in the common physicalizer. Moving a file is
+not sufficient: the owner and import boundary must change together.
+
+`LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` is a census gate, not an eager
+deletion. It inventories production, test, and guard callers of the old
+fixed-role receipts (`LoopPhysicalBlockReceiptV1` / role-indexed boundary) and
+the newer segment receipts (`LoopPhysicalSegmentBlockReceiptV1`). The old path
+is removable only after the segment path is the sole production route and its
+remaining test callers are either migrated or explicitly allowlisted. Numeric
+role, current-block, name, ordinal, or Recipe-order repair is never an
+acceptable bridge. If the census cannot prove caller-zero ownership, leave the
+old type in place and return `NoSafeSlice`.
 
 The three structural-coverage I0 rows each use the same four-block contract:
 

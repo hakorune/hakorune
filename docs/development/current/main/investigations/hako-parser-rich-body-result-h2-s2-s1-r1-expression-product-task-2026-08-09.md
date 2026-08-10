@@ -1,6 +1,6 @@
 ---
-Status: reopen audit pending; prior GenericLoop blocker is closed, but this
-row still lacks its registered guard and green acceptance evidence
+Status: NoSafeSlice at reopen audit; the parser-only product WIP reaches the
+existing GenericLoop representation blocker before fixture execution
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -154,8 +154,20 @@ Home, resolver, Recipe, MIR, runtime
 
 ## Closeout
 
-Implementation, focused fixture/guard, expression owner docs, current pointers,
-commit, and push close together. First run the focused
-`H2-S2-S1-R1-REOPEN-AUDIT`; only after its guard and predecessor gates are green
-may `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-I0` open. This row remains
-parser-only and does not connect a method/result seal.
+The reopen audit was attempted with the existing parser-only expression product
+WIP and a fixture that contains no `loop` statement. The focused guard still
+reaches the existing GenericLoop representation failure while compiling the
+imported parser surface:
+
+```text
+[plan/freeze:contract] generic_loop_v1 skeleton failed:
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(113) }
+```
+
+This is a predecessor/compiler capability blocker, not evidence that the
+expression product is accepted. GenericLoop repair, a fixture workaround that
+changes the accepted shape, and compatibility fallback are explicitly out of
+scope. The product WIP, guard, and fixture remain parked as recoverable WIP;
+the row must not advance to `H2-S2-S1-I0` until the blocker is resolved by its
+own owner and the reopen audit is rerun with predecessor/parity gates green.

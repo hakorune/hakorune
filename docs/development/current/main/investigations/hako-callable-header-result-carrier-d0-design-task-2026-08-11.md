@@ -1,5 +1,5 @@
 ---
-Status: revise / design stop; bridge owner incomplete
+Status: accepted design; next executable row is `H2-S2-S1-R1-REOPEN-AUDIT`
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
 Related:
@@ -15,10 +15,10 @@ Related:
 ## Decision
 
 `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` cannot close yet. The canonical Hako
-owner is fixed as the existing `source_carrier_v1` lifecycle, but the bridge
-from its sealed row to normalized Rust/Hako parity, the resolved callable
-batch, and the sole result issuer is not yet closed. The existing H2/H3
-sequence is the parser substrate; it does not replace this bridge Decision.
+owner is fixed as the existing `source_carrier_v1` lifecycle. This D0 now fixes
+the downstream bridge contract; it does not claim that the bridge or parser
+substrate is implemented. The existing H2/H3 sequence is the parser substrate;
+it does not replace this bridge.
 
 The next design question is:
 
@@ -87,6 +87,30 @@ bounded `ExactScalar` representation contract). It is not a body-conformance
 proof, MIR `MirType`, physical ABI, return writer, Completion, or publication
 receipt.
 
+## Accepted bridge contract
+
+The bridge is a single downstream projection, not a second Hako parser and not
+a compatibility provider:
+
+```text
+H3-sealed source_carrier_v1 row
+  -> normalized Rust/Hako parity row (H5 evidence)
+  -> existing VerifiedFinalCallableProgramSourceV1 row
+       same parser provenance + CallableDeclarationIdentityV1
+  -> existing issue_resolved_callable_semantic_batch_v1
+       same declaration identity -> one batch slot
+  -> DeclaredCallableResultContractIssuerV1
+```
+
+`source_carrier_v1` owns the Hako syntax row and parser provenance. The Rust
+final-source product owns the resolver-facing syntax loan and opaque identity;
+the resolved callable batch owns owner/forest/projection and exposes only the
+identity-to-batch relation. The result issuer consumes that existing batch row
+and may not infer from method name, body, `MirType`, `FunctionSignature`, ABI,
+runtime tag, or inventory ordinal. H5 parity is test evidence, not a semantic
+issuer. If any bridge edge is unavailable, stop with `NoSafeSlice` rather than
+adding JSON, FuncScanner, a text rescan, or a second batch.
+
 ## Acceptance criteria
 
 The H2-S3/H2-I0/H3-I0 sequence may open only when all items below are fixed;
@@ -119,6 +143,10 @@ HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
 H2-S2-S1-R1
   re-audit its recorded GenericLoop blocker before reopening the expression
   product; do not repair the compatibility guard as a shortcut
+
+H2-S2-S1-R1-REOPEN-AUDIT
+  apply the existing parser-only product WIP, register its guard, and prove
+  predecessor/gate parity before opening H2-S2-S1-I0
 
 H2-S2-S1-I0
   close only after the prerequisite is genuinely green
