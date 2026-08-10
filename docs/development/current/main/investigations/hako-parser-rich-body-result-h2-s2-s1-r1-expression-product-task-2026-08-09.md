@@ -295,6 +295,47 @@ semantic behavior, this task returns `NoSafeSlice` and records the missing
 owner boundary. It must not be replaced with a parser-specific log, fixture
 narrowing, GenericLoop backfill, or by-name repair.
 
+### D0 audit receipt: `NoSafeSlice` (2026-08-11)
+
+The existing API was audited without code changes. It cannot produce the
+complete evidence row. The observable boundary is limited to:
+
+```text
+MirBuilder.current_function.signature.name / LoopRouteContext.func_name
+variable_map[loop_var] -> ValueId
+type_ctx.get_type(ValueId) -> Option<MirType>
+alloc_generic_loop_v0_skeleton
+  -> prepare_generic_loop_carrier_representation_v1
+  -> typed Missing/Unknown failure
+```
+
+The missing handoff is specific:
+
+```text
+RawInvocationChildPortV1.active_source
+  -> PreparedLocatedRawLoopChildEntryV1
+      (SourceNodeSite + callable schedule)
+  -> lower_with_existing_route_v1
+      (condition/body only)
+  -> GenericLoop admission
+      (source/site/schedule absent)
+```
+
+The GenericLoop route therefore has no method source site, opaque
+`FunctionOwnerId`, initializer producer, or first-admission path/index. The
+AST loop span is discarded at the raw-loop-child boundary, and the
+representation error can be reached from multiple composers. `value_origins`
+is diagnostic span/caller metadata, not a source-producer authority. Existing
+resolved callable/Dynamic schedule products are downstream owners and cannot
+be used to reconstruct this compile-front baseline.
+
+Decision: keep the design stop and return `NoSafeSlice`. Do not add a
+GenericLoop repair, parser-specific `Verified*`, candidate-method assumption,
+fixture narrowing, debug-mode baseline, or retry/fallback. A future diagnostic
+I0 may add one default-off, semantic-neutral owner/site handoff at the existing
+route boundary; until that handoff is designed and accepted, the parser R1 WIP
+remains parked and the Dynamic/static publication owners remain unchanged.
+
 The census closeout must be one bounded evidence row, not a new semantic
 product:
 
