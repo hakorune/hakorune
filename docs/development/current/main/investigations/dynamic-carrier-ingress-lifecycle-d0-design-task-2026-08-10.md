@@ -740,13 +740,29 @@ transaction that creates the callable; later stages may preserve or select an
 anchor only through an exact receipt.
 
 ```text
-PARSER-SOURCE-SEAL-MODULE-SPLIT-R0
+PARSER-CALLABLE-PARAMETER-SOURCE-PATH-IDENTITY-R0
+  -> PARSER-SOURCE-SEAL-MODULE-SPLIT-R0
   -> PARSER-CALLABLE-DIRECT-ANCHOR-R0
   -> PARSER-CALLABLE-GATE-PROJECTION-R0
   -> PARSER-CALLABLE-GENERATED-ANCHOR-R0
   -> PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0
   -> parent PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0 closeout
 ```
+
+#### `PARSER-CALLABLE-PARAMETER-SOURCE-PATH-IDENTITY-R0`
+
+Baseline audit exposed a lossy migration projection: the existing parameter
+source session de-duplicates method rows by `(root statement ordinal, source
+member ordinal)`.  Distinct then/else declarations inside one selected
+top-level gate therefore collide before the source-aware postpass can select a
+branch.  Replace that key with the exact parser-owned `SourceBoxMethodSiteV1`.
+
+This prerequisite is a BoxShape identity correction, not selected-gate
+admission for the legacy parameter catalog.  The exact same site still rejects
+as duplicate, the general source-seal gate fixture succeeds again, and the
+parameter-catalog finalizer continues to reject selected-gate rows until the
+complete callable source cutover.  No new callable source product or acceptance
+is opened.
 
 #### `PARSER-SOURCE-SEAL-MODULE-SPLIT-R0`
 
