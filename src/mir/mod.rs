@@ -39,6 +39,7 @@ pub mod builder;
 pub(crate) mod callable_parameter_demand;
 pub(crate) mod callable_result_representation;
 pub(crate) mod callable_semantic_batch;
+pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod canonical_direct_call;
 pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;

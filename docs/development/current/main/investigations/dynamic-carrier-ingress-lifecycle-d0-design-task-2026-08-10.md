@@ -1147,6 +1147,19 @@ member-gate parameter unavailability rejects instead of reopening parser
 authority.  Focused semantic-batch and parameter-demand tests, including the
 unchanged four-method `ParserScanLoopBox`, are green.
 
+The first owned package stage is also landed locally.  It consumes the final
+source into the sole resolved batch, copies the complete parameter-demand
+projection into owned private rows, applies an exhaustive private Dynamic
+`Candidate`/`Declined`/`Unresolved`/`Rejected` classification to every batch
+row, requires exactly one Candidate, and consumes that Candidate into the
+existing V2 Recipe producer.  The unchanged `ParserScanLoopBox` seals four
+declarations, fifteen Handle demands, and one Dynamic candidate without a
+method-name or ordinal selector; zero and duplicate candidates reject.  The
+package is non-Clone, has no parts projection, and stores no borrowed lowering
+input or demand catalog.  Catalog-neutral invocation relations, JoinSig, and
+the production edge replacement remain the next half of this same bounded
+series; this checkpoint does not close the row.
+
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
 
