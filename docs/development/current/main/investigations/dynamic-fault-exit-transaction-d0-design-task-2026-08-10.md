@@ -706,60 +706,60 @@ pointer, and diff gates are green. Prelude, Tail, ABI, Completion, session,
 DraftSeal, publication, provider/runtime, retry, and fallback stay closed.
 
 ### LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
-
-After `PHYSICAL-INPUT-AUTHORITY-I0`, audit one shared loop core for recursive
-Recipe/JoinSig, physical-input, and complete-demand boundaries. Candidate
-common protocol: verified Recipe placement + JoinSig logical transfer ->
-prepared physical layout; complete operation ledger -> physical demand.
-Required authority cleanup (BoxShape, Builder effect 0):
+Decision: the bounded Dynamic cohort can share the existing common Loop core,
+but this is a post-result/ABI BoxShape lane, not a new source authority or
+current execution row. The global task names and order remain owned by
+`loop-common-physical-demand-and-session-ssot.md`:
 
 ```text
-physical_layout/recursive_after:
-  consume prepared JoinSig logical transfers;
-  do not rebuild Predicate/Jump/Backedge from LoopConditionV1 or as_recipe()
-segment_allocator:
-  consume segment-role/placement receipt;
-  do not rescan Recipe conditions to decide Header/Body
-common physicalizer:
-  stop at ReadyLoopAfterContinuationV1;
-  Callable profile-close, Tail, ABI, and Completion stay outside
-V1 physical demand:
-  later replace repeated Recipe/evidence find scans with one complete ledger;
-  never add a V2->V1 adapter
+LOOP-SEMANTIC-PROGRAM-COSEAL-R0
+  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0
+  -> LOOP-PRECUTOVER-AUTHORITY-G0
 ```
-Bounded unification subtask (opens only after result/ABI and physical-input):
-```text
-LOOP-PHYSICAL-TRANSFER-AUTHORITY-CLEANUP-I0
-  layout/recursive_after consume JoinSig transfer; allocator consumes
-  segment placement; zero LoopConditionV1/as_recipe() transfer rebuild,
-  Recipe Header/Body rescan, or physical-side source/name/order repair
-```
-The parked follow-up is one bounded BoxShape series, not a new execution lane:
+The common protocol is deliberately small:
 
 ```text
+verified Recipe placement
+  + JoinSig-owned logical transfer view
+  -> prepared physical layout
+
+one complete operation/source-effect ledger
+  -> one complete physical demand
+```
+`LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` is the first implementation row. Its
+private traversal may derive item order and segment boundaries only. JoinSig
+issues the logical Predicate/Jump/Backedge/nested-resume transfer evidence;
+Layout binds that evidence to placement; Canonical CFG emits it once. Therefore
+`physical_layout.rs` and `recursive_after.rs` must not rebuild transfer meaning
+from `LoopConditionV1`/`as_recipe()`, and `segment_allocator.rs` must consume the
+segment placement receipt instead of rescanning Recipe conditions for Header or
+Body. Physical-side name, ordinal, source-order, and current-block repair are
+forbidden. No synthetic `ItemKey` or Step block is introduced.
+The same BoxShape series includes:
+
+```text
+LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+  V1/V2 consume a complete ordered ledger; repeated Recipe/evidence find scans
+  are removed; this is a consumer protocol, never a V2->V1 adapter
+
 LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
-  common loop core owns placement/JoinSig/physical-input only
-  ReadyLoopAfterContinuationV1 is the common stop line
-  ReadyCallableLoopProfileCloseV1, Tail, ABI, Completion move to callable owner
-  recursive_after.rs must not carry callable counts or symbols
+  common stop = ReadyLoopAfterContinuationV1; callable profile-close, Tail,
+  ABI, and Completion stay in the callable owner; recursive_after.rs has no
+  callable symbols or hard-coded profile counts
 
 LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
-  census old fixed-role receipts versus segment receipts;
-  delete only after old production/test callers reach zero
+  census fixed-role receipts versus segment receipts; delete old topology only
+  after production and test callers reach zero
 ```
-
-Keep source observers, Prelude/entry, Tail/result, Home, ABI, Completion,
-provider, and runtime separate. No new accepted shape, production switch,
-legacy deletion, raw rescan, name/order repair, or profile callback is allowed
-in this parked D0. The bounded implementation may proceed only after the
-result/ABI and physical-input rows close, and must keep files below 800 lines.
-Its guards require zero raw Recipe transfer/role inference in layout and
-allocator, zero callable-profile hardcoded counts in common physicalizer, and
-zero synthetic ItemKey/Step creation. A later
-`LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` may consume the common boundary;
-otherwise stop with `NoSafeSlice`. The current design stop remains the Hako
-callable-header result carrier; this parked lane does not select work.
-
+Open only after the Hako result/ABI and physical-input rows close (and before
+production selection). This is one bounded refactor series: no accepted shape,
+BoxCount, selector, production switch, legacy deletion, fallback/retry, source
+rescan, profile callback, or new public plan may enter it. Guards require zero
+Recipe transfer/role inference in layout or allocator, zero callable-profile
+counts in the common physicalizer, zero repeated V1 ledger scans, and zero
+synthetic placement keys. Any missing JoinSig capability returns to design with
+`NoSafeSlice`; the current Hako result-carrier stop still owns the active lane.
 ## Hard stops
 
 ```text

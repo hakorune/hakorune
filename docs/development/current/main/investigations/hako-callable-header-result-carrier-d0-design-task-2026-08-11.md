@@ -160,50 +160,34 @@ returns require a later complete body cohort.
 
 ## Dynamic loop unification parked lane
 
-The dynamic loop can share a common physical protocol after its bounded
-physical-input/demand products are complete. This is a BoxShape cleanup, not a
-new result or Hako authority:
+This Hako card only records the route; the canonical task text is the parked
+section in `dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md`, and
+the global order is owned by `loop-common-physical-demand-and-session-ssot.md`:
 
 ```text
-verified Recipe placement
-  + JoinSig logical transfer view
-  -> prepared physical layout
+LOOP-SEMANTIC-PROGRAM-COSEAL-R0
+  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0
+```
 
+The bounded common protocol is:
+
+```text
+verified Recipe placement + JoinSig logical transfer
+  -> prepared physical layout
 complete operation/source-effect ledger
   -> complete physical demand
 ```
 
-The following must be removed before that lane is called unified:
+The cleanup must remove Recipe-derived Predicate/Jump/Backedge transfer
+reconstruction, Recipe condition rescans in `segment_allocator`, repeated V1
+Recipe/evidence scans, and Callable profile counts from the common physicalizer.
+`ReadyLoopAfterContinuationV1` is the common stop line; Tail, ABI, Completion,
+and callable profile-close remain outside. No V2-to-V1 adapter, synthetic
+`ItemKey`, name/order repair, second JoinSig/Recipe, physical planner, or Hako
+authority is allowed. This card does not schedule the parked lane.
 
-```text
-physical_layout / recursive_after:
-  no Predicate/Jump/Backedge reconstruction from LoopConditionV1/as_recipe()
-
-segment_allocator:
-  no Recipe condition rescan to decide Header/Body
-
-common physicalizer:
-  stop at ReadyLoopAfterContinuationV1
-  no Callable profile counts/symbols, Tail, ABI, or Completion
-```
-
-The parked follow-ups remain bounded and separate:
-
-```text
-LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
-  move callable profile-close/Tail/ABI/Completion to callable owner
-
-LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
-  census fixed-role receipts versus segment receipts;
-  delete only after old production/test callers reach zero
-
-LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
-  consume the common transfer/placement boundary if the census proves one
-```
-
-No V2-to-V1 adapter, synthetic `ItemKey`, name/order repair, second JoinSig,
-second Recipe, or physical planner is allowed. The common compiler flow remains
-the existing:
+The common compiler flow remains the existing:
 
 ```text
 Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower

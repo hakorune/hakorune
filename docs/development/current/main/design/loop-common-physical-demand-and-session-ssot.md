@@ -985,6 +985,14 @@ Stop:
   is a different row and cannot enter this Refactor Series
 ```
 
+The same behavior-preserving series may include the ledger-bound consumer
+cleanup `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0`: V1 and V2 consumers must
+borrow one complete ordered operation/source-effect ledger instead of calling
+`find` over Recipe/evidence arrays repeatedly. This is a consumer protocol, not
+a V2-to-V1 adapter or a new source/effect authority. If the ledger cannot be
+borrowed without re-pairing rows, stop with `NoSafeSlice` and keep the current
+physical demand owner unchanged.
+
 The three structural-coverage I0 rows each use the same four-block contract:
 
 ```text
