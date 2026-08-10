@@ -24,8 +24,10 @@ use crate::mir::loop_recipe_contract::{
 
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
 pub(in crate::mir) use carrier_rebind::{
-    issue_dynamic_carrier_rebind_transaction_program_v1, DynamicCarrierCurrentDispositionV1,
-    DynamicCarrierRebindTransactionRejectV1, VerifiedDynamicCarrierRebindTransactionProgramV1,
+    issue_dynamic_carrier_flow_program_v1, issue_dynamic_carrier_rebind_transaction_program_v1,
+    DynamicCarrierCurrentDispositionV1, DynamicCarrierFlowProgramRejectV1,
+    DynamicCarrierRebindTransactionRejectV1, VerifiedDynamicCarrierFlowProgramV1,
+    VerifiedDynamicCarrierRebindTransactionProgramV1,
 };
 use fault_cut_points::{issue_fault_cut_points_v2, VerifiedDynamicFullLoopFaultCutPointCatalogV2};
 pub(in crate::mir) use fault_cut_points::{

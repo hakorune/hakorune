@@ -128,7 +128,7 @@ VerifiedDynamicFullLoopSemanticProgramV2
             +
 VerifiedDynamicCarrierFlowV1
   - normal-only publication
-  - exact Live/Ended/Forwarded at every cut point
+  - exact Live/EndAuthorized/Forwarded at every cut point
   - no Live carrier at Backedge/After
             |
             v  sole consuming issuer
@@ -169,7 +169,7 @@ and exposes no `into_parts` escape.
    complete V9/V17, ingress/rebind/Return relations
 
 6. DYNAMIC-CARRIER-FLOW-D0/I0
-   per-iteration Absent -> Live -> Ended/Forwarded and every exit cut
+   per-iteration Absent -> Live -> EndAuthorized/Forwarded and every exit cut
 
 7. DYNAMIC-EXIT-CLEANUP-PLAN-I0
    private obligations derived from carrier flow and any separate Home Flow
@@ -187,18 +187,70 @@ and exposes no `into_parts` escape.
 Each implementation row updates its code, focused tests, module README,
 landed reference receipt, active card, and guards in the same slice.
 
-## Current implementation boundary
+## Dynamic carrier-flow slice (D0/I0)
 
-`DYNAMIC-FAULT-CUTPOINT-CATALOG-I0` is closed. The selected next row,
-`DYNAMIC-INVOCATION-RESULT-LIFECYCLE-I0`, may claim only:
+This bounded slice is now implementation-ready.  Its readiness sentence is:
 
 ```text
-the exact semantic program internally derives both verified invocation-result
-obligations: I6/V10 local and I7/V11 temporary; Fault publishes neither.
+the whole VerifiedDynamicCarrierRebindTransactionProgramV1
+  -> one semantic iteration-flow product
+  -> fails before any physical End/Home/cleanup/Completion/CFG operation
 ```
 
-It may not claim V9/V17, complete function flow, issue or simulate a Fault,
-Home, physical cleanup, Completion claim, CFG edge, or MIR instruction.
+The sole source authority and issuer are:
+
+```text
+VerifiedDynamicCarrierRebindTransactionProgramV1
+  -> issue_dynamic_carrier_flow_program_v1(...)
+  -> VerifiedDynamicCarrierFlowProgramV1
+```
+
+The flow product owns only the opaque carrier-flow rules already issued by
+the invocation/operator/rebind products:
+
+```text
+initial current: BorrowedIngressNoEnd(V1/C0/B0)
+I6/V10: live Loop-body-local obligation
+I7/V11: live full-expression-temporary obligation
+I5/V9: end after the I6 normal-or-fault outcome
+I15/V17: live replacement forwarded at I16/B0/Backedge
+```
+
+The state vocabulary is semantic and private:
+
+```text
+Absent -> Live -> EndAuthorized | Forwarded
+```
+
+`EndAuthorized` and `Forwarded` are disposition rules, not runtime instructions or
+cleanup receipts.  The product does not choose an actual end operation, infer
+Home, consume Completion, publish a Return/Backedge, build CFG/MIR/PHI, or
+execute/retry/fallback.  Callable Return and outer Tail remain the later
+Completion owner.
+
+The I0 slice is intentionally bounded to the iteration recurrence and the
+four already-issued carrier publication rows (V9/V10/V11/V17).  I15 Fault is
+the typed preserve-current/no-replacement/no-Backedge transition.  Return,
+PredicateFalse/After forwarding, and callable-tail forwarding remain deferred
+to the later exit/Completion owner; this row does not silently issue those
+relations.
+
+The package will replace its selected Dynamic rebind field with this whole
+flow product.  No raw flow row, current slot, result ValueId, cleanup token,
+or standalone ingress is exposed to lowering.
+
+## Carrier-flow I0 closeout
+
+`DYNAMIC-CARRIER-FLOW-D0/I0` is closed as the bounded semantic iteration-flow
+projection.  `issue_dynamic_carrier_flow_program_v1` consumes exactly one
+whole `VerifiedDynamicCarrierRebindTransactionProgramV1` and package-selected
+Dynamic lowering now owns the resulting non-splittable flow product.
+
+The closeout proves the existing V9/V10/V11/V17 lifecycle destinations and the
+typed I15 normal/fault recurrence.  It does not claim an actual End, Home,
+cleanup execution, Return/After forwarding, Completion consumption, CFG/MIR,
+physical source-ledger progress, retry, or fallback.  The next bounded owner
+is the cleanup projection/exit transaction lane.
 
 ## Hard stops
 

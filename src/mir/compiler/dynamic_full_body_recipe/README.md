@@ -156,3 +156,25 @@ I15 result, commit I16 as the new B0 current, discharge the displaced current,
 then authorize the Backedge. An I15 Fault publishes no V17, I16, displaced
 receipt, or Backedge. Cleanup faults, Home, Completion, and actual execution
 remain later rows.
+
+## Carrier iteration flow (D0/I0)
+
+`VerifiedDynamicCarrierFlowProgramV1` consumes the whole sealed rebind
+transaction and records the semantic recurrence around it. It does not
+re-observe the AST/Recipe and does not duplicate the invocation/operator
+lifecycle catalogs. The retained projection is:
+
+```text
+initial current = BorrowedIngressNoEnd(V1/C0/B0)
+I5/V9   -> Live -> EndAuthorized after I6 normal-or-fault outcome
+I6/V10  -> Live local -> EndAuthorized at Loop-body exit
+I7/V11  -> Live temporary -> EndAuthorized at the exact I9 boundary
+I15/V17 -> Live -> Forwarded at I16/B0/Backedge
+```
+
+The normal recurrence is typed as `commit -> displaced end authorization -> Backedge`;
+an I15 Fault is typed as `preserve current / no replacement / no Backedge`.
+`EndAuthorized` and `Forwarded` are logical dispositions only. They are not
+physical End operations, cleanup receipts, Home facts, Return/Tail forwarding,
+Completion consumption, CFG/PHI/MIR, or runtime/provider routes. Callable
+Return and outer Tail remain the later exit/Completion owner.

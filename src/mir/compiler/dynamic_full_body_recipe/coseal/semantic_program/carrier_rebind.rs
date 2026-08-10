@@ -19,6 +19,14 @@ use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceStmtS
 use super::operator_carrier_lifecycle::DynamicOperatorCarrierDestinationRefV1;
 use super::{DynamicFullLoopFaultFamilyV2, VerifiedDynamicCarrierIngressLifecycleProgramV1};
 
+#[path = "carrier_flow.rs"]
+mod carrier_flow;
+
+pub(in crate::mir) use carrier_flow::{
+    issue_dynamic_carrier_flow_program_v1, DynamicCarrierFlowProgramRejectV1,
+    VerifiedDynamicCarrierFlowProgramV1,
+};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicCarrierRebindTransactionRejectV1 {
     Ingress,

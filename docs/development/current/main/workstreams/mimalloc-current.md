@@ -63,5 +63,8 @@ only in
 `design/selfhost-parser-mirbuilder-migration-order-ssot.md`; this workstream
 supplies the pinned `.hako` mimalloc workload and the existing benchmark ledger.
 
+Execution card (parked until that cutover):
+`investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md`.
+
 This is a compiler promotion check, not provider activation, hook installation,
 or process allocator replacement.
