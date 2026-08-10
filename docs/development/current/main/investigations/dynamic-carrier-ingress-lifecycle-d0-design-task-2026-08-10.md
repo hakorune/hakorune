@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: normal semantic-source projection R0 parked at NoSafeSlice; production source-carrier D0 selected
+Status: production source-carrier D0 accepted; parser final callable source coverage R0 selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current design row: `NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0`
+Current implementation row: `PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -505,7 +505,7 @@ Audit result:
   A behavior-preserving file split is independently safe, but it does not
   authorize projection cutover and must not be presented as semantic progress.
 
-### 3E-D0. `NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0` — selected design stop
+### 3E-D0. `NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0` — accepted
 
 Question:
   What single product owns the complete post-transform callable source truth
@@ -527,6 +527,111 @@ The Decision must fix:
    catalog brand, and a private batch slot; and
 7. callback-scoped lowering/target loans that cannot escape or create another
    forest/source owner.
+
+Decision:
+  Adopt a source-aware Program transform transaction. The parser postpass
+  issues the initial complete callable source product. Every owner that changes
+  the AST must consume that source-bearing product and atomically reissue the
+  transformed Program, complete callable rows, and exact preservation,
+  replacement, removal, and generation relations. Only the final product may
+  enter normal compilation.
+
+```text
+parser postpass
+  -> initial callable Program source
+  -> source-aware transform transaction(s)
+  -> VerifiedFinalCallableProgramSourceV1
+  -> NormalCompileRequestV1
+  -> normal callable semantic package
+```
+
+Rejected alternatives:
+
+- rescanning a bare post-macro AST to reconstruct source authority;
+- attaching a pre-transform parser catalog to an independently transformed
+  AST at `NormalCompileRequestV1` construction time; and
+- recovering identity by name, span, source/inventory ordinal, or numeric
+  resolver values.
+
+`VerifiedFinalCallableProgramSourceV1` alone owns the exact final Program,
+complete callable inventory, final Program source brand, opaque declaration
+identities, and transform lineage receipts. A bare AST can never regain this
+authority.
+
+Identity contract:
+
+```text
+CallableDeclarationAnchorV1
+  issued only by parser or exact generator owner
+
+CallableDeclarationIdV1
+  final Program source brand + opaque anchor
+```
+
+The fields and constructors remain private. A body-only rewrite or reorder may
+preserve an anchor only through an explicit transform receipt. Rename,
+signature change, receiver-kind change, replacement, or a new generated
+declaration receives a fresh anchor. Source sites and ordinals remain
+diagnostic/placement data, never identity.
+
+Complete membership and disposition:
+
+- direct top-level, static Box, and instance Box declarations are supported;
+- Main remains in the complete inventory and is excluded only by the typed
+  normal selected projection;
+- a selected BuildGate branch is supported only with its exact parser gate
+  selection receipt; an unselected branch is absent;
+- parser property/delegate and later macro derive/lift/test-generated rows are
+  supported only with exact generator/transform receipts and fresh anchors;
+- interface, record, sync, and declaration-only rows remain accounted typed
+  unselected rows rather than disappearing from coverage;
+- generic `CompatibilityOnly` provenance and arbitrary/public AST values never
+  become semantic source authority;
+- AST JSON and REPL paths become supported only after their decoder/rewriter
+  consumes and reissues the source transaction; their present bare-AST forms
+  are typed compatibility paths; and
+- legacy raw-AST macro/normalize output is typed compatibility until its
+  source-aware transform row lands.
+
+Compatibility is selected before resolver or Builder effects. A caller never
+tries source-backed issuance and then falls back to AST-only lowering.
+
+Request and package contract:
+
+`PreparedNormalDefaultProgramRootV1` ultimately owns the final source product;
+the AST is an internal borrow, not a sibling field. Source-backed constructors
+move that product atomically. Existing bare-AST constructors remain explicitly
+typed compatibility entrances during migration and cannot call the semantic
+issuer.
+
+One later issuer co-seals:
+
+```text
+VerifiedNormalCallableSemanticPackageV1
+  final callable Program source
+  + same-module callable catalog
+  + sole resolved semantic batch
+  + exact selected mapping
+```
+
+Each catalog/batch/selection row retains the same opaque declaration ID. The
+selected mapping seals declaration ID, `SelectedNormalCallableKeyV1`, catalog
+brand, and a private batch slot. The slot is only a cache. Main and other
+unselected rows receive explicit dispositions; missing, duplicate, or extra
+selected rows reject before publication. No caller may pair an arbitrary
+catalog and batch.
+
+The only final consumer surface is scoped:
+
+```text
+package.with_projection(|projection| {
+    projection.with_loan(key, |loan| { ... })
+})
+```
+
+The forest, source projection, lowering input, and source ledger cannot escape
+the callback. Dynamic target extension and root lowering complete within that
+scope. The sole semantic batch remains the only forest/projection owner.
 
 Authority target:
 
@@ -569,19 +674,55 @@ source/resolver authority.
 ### 3E follow-on order after the Decision
 
 ```text
-PARSER-NORMAL-CALLABLE-SOURCE-COVERAGE-R0/I0
+PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0
+  -> CALLABLE-SOURCE-TRANSFORM-TRANSACTION-R0
+  -> NORMAL-COMPILE-SOURCE-CARRIER-I0
   -> NORMAL-CALLABLE-SEMANTIC-SOURCE-SPLIT-R0
-  -> NORMAL-CALLABLE-SELECTION-BATCH-COSEAL-D0/I0
+  -> NORMAL-CALLABLE-SEMANTIC-PACKAGE-I0
   -> NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0
+  -> JSON/REPL origin-specific source transaction cutovers
   -> old resolver/source authority caller-zero guard closeout
 ```
 
-The split row is behavior invariant. The source-coverage row must transport
-the complete source product through production requests. The co-seal row alone
-may bind exact source identities to selected Builder keys. The final projection
-row deletes `VerifiedNormalCallableSemanticSourceV1::seal`, its forest/source
-projection ownership, `function_at_site`, `view_for_key`, and its resolver call,
-then converts production consumers to scoped loans.
+The parser row issues the complete initial inventory and callback loan for
+top-level plus direct static/instance declarations, retains Main, and admits
+generated/gate rows only through exact receipts. It adds no transform,
+resolver, Builder, Home, Recipe, or production activation.
+
+The transform row is a behavior-invariant Refactor Series over macro
+derive/test-harness and normalize/lift owners. Every AST-changing pass consumes
+and reissues the transaction; origin-specific REPL/JSON work may remain
+separate bounded rows. The request row first switches standard named
+source-backed callers and leaves bare-AST callers typed compatibility without
+retry. The split row is behavior invariant. The semantic-package row is the
+only catalog/batch/selection co-seal. The final projection row deletes
+`VerifiedNormalCallableSemanticSourceV1::seal`, its forest/source projection
+ownership, `function_at_site`, `view_for_key`, and resolver call, then converts
+production consumers to scoped loans.
+
+Required negative matrix:
+
+```text
+foreign final Program source brand
+preserved anchor without transform receipt
+missing / duplicate / extra declaration row
+rename, signature, or receiver-kind change retaining an anchor
+generated row without generator receipt
+selected compatibility, interface, declaration-only, or Main row
+gate row from an unselected branch
+source-backed catalog paired with a foreign batch
+duplicate private batch slot
+AST-only request entering the semantic issuer
+callback loan escape, split, or Clone
+macro/normalize returning a bare AST on a source-backed route
+second resolver, name lookup, ordinal repair, retry, or fallback
+```
+
+NoSafeSlice remains active for a production caller while any AST-changing pass
+between parser and request returns a bare AST, any selected executable origin
+lacks an exact source row, transform preservation/generation cannot be proven,
+the request carries the AST separately, catalog pairing uses name/order, or a
+consumer requires an escaping loan, second resolver, or fallback.
 
 ### 3F. Ingress follow-on order
 

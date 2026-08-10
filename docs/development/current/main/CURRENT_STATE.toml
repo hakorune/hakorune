@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Normal callable semantic-source projection R0 is parked at NoSafeSlice. The neutral batch currently covers only direct Box methods, while production normal lowering requires an exact post-transform source carrier for top-level, static, and instance callables plus a source-identity-to-selection co-seal. The current row is the design stop that must define that authority before cutover."
+status = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 is accepted: the final post-transform callable source is carried by a source-aware transform transaction, never reconstructed from a bare AST. The next row gives the parser's initial product complete top-level/method/generated/gate-aware callable coverage before transform and production cutover work."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0: choose the sole post-transform callable source authority, its complete production membership, exact source identity, request transport, and selection co-seal boundary before normal-source projection cutover"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0"
-current_blocker_token = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0: define one parser/transform-backed production source carrier covering top-level, static, and instance callables; decide generated/build-gate/compat disposition, macro/post-transform identity, NormalCompileRequest transport, and exact source-id-to-selected-key/catalog co-seal without AST reconstruction, name/ordinal repair, a second resolver, escaping loans, retry, or fallback"
+current_design_stop = "none; NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 accepted in the rolling ingress card"
+work_mode = "fast"
+current_execution_row = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0"
+current_blocker_token = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0: issue one complete parser-owned initial callable inventory for top-level, static, and instance direct declarations, retain Main for later typed exclusion, and model generated/gate origins only through exact receipts; keep the product non-Clone and callback-scoped, with no transform, resolver, Builder selection, Home, Recipe, physical effect, retry, fallback, or bare-AST authority"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -234,7 +234,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "Parser retention, the sole-resolver semantic batch, and parameter-demand projection are closed. A top-down caller audit found that direct-Box-only retained source cannot completely cover the AST-only production normal path, so the old normal-source projection R0 is parked until the production source carrier and exact selection co-seal are designed."
+current_execution_summary = "The source-carrier Decision now requires every syntax-changing owner to consume and reissue one source-bearing Program transaction. Bare AST reconstruction and request-time parser-catalog pairing are rejected. The selected parser R0 closes the initial complete callable inventory; transform, request, semantic-package, and Builder projection cutovers remain ordered follow-ons."
 current_execution_design = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -718,13 +718,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_design_card = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0"
+next_design_card = "none; NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_execution_card = "none until NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 is accepted"
+next_execution_card = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 remains BorrowedIngressNoEnd. Parser retention, the neutral sole-resolver batch, and parameter-demand projection are closed. Normal-source projection is NoSafeSlice until one complete post-transform production source carrier and exact source-id-to-selection co-seal are selected."
+latest_card_summary = "Initial V1/C0/B0 remains BorrowedIngressNoEnd. The source-aware transform transaction is accepted as the sole post-transform source authority. Parser complete callable coverage is selected; transform/request/package/projection cutovers follow without bare-AST reconstruction or fallback."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
