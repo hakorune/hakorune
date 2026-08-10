@@ -6,9 +6,25 @@ Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
 Predecessor: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R0` closed
 Mode: BoxShape / behavior-neutral in-place expression traversal
+PipelineSSOT: `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
 ---
 
 # HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1
+
+## Compiler-flow position
+
+The global compiler order is owned by
+`mirbuilder-final-pipeline-ssot.md`:
+
+```text
+Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower
+  -> Seal -> Collect -> Atomic Publish
+```
+
+This card is limited to a parser-side observation product. Its current
+`NoSafeSlice` boundary is before a complete source/owner handoff into the
+existing GenericLoop admission; it does not open a new Facts, Recipe, Lower,
+or publication authority.
 
 ## Goal
 
