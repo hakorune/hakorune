@@ -486,19 +486,28 @@ DYNAMIC-EXIT-PHYSICAL-SESSION-P0
 may not begin until the three rows are green. It must not promote the
 existing test canary or introduce Home, runtime Fault, retry, or fallback.
 
-## Parked full physical-input frontier (2026-08-10)
+## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: result/ABI NoSafeSlice)
 
-The parent owner census is accepted, but the full callable physical-input
-boundary remains parked because the existing products cannot yet form the
-required input without crossing later Prelude/Tail/ABI/Completion authority.
-This is not the current executable row.
+The installed-package physical-input boundary is not implementable yet for
+the selected `ParserScanLoopBox.skip_while/4` fixture. Its source declaration
+has no result annotation, so `VerifiedFunctionCompletionV1` reports
+`Unannotated`; `ExactTrivialReturnAbiV1` accepts only an explicit `i64` source
+spelling. Do not infer a result or ABI from loop shape, `return i`, `MirType`,
+`FunctionSignature`, runtime tags, or selector names.
 
-After PHYSICAL-OPERATION-DEMAND-I0, one installed-package scoped issuer must
-co-seal Prelude/entry, Tail/result, physical ABI, and exact Completion
-handoff. It may not reissue Recipe/JoinSig/After, re-verify Completion in
-Lower, or adapt V2 through the old V1 demand. Until then, `cfg(test)`
-promotion, session open, DraftSeal, Collector, raw `lower_loop`, retry, and
-fallback remain forbidden.
+Existing retained claims can later co-seal Prelude/entry, Tail, and the inner
+/ outer Completion sites. The missing prerequisite is a language/resolver
+Decision for a canonical source-backed callable result contract, followed by
+its physical ABI projection. Until that lands, no `Verified*`/`Prepared*`
+physical bridge, session, DraftSeal, Collector, `lower_loop`, retry, or
+fallback is allowed.
+
+Next bounded task after the Decision:
+`DYNAMIC-CALLABLE-RESULT-CONTRACT-D0` -> private callable-boundary evidence
+co-seal -> resume `PHYSICAL-INPUT-AUTHORITY-I0`.
+
+This row remains a design stop; the loop-unification task below stays parked
+until this result/ABI question is closed.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
