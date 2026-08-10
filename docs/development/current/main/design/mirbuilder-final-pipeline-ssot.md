@@ -6,6 +6,8 @@ Scope: canonical source ingressからatomic MIR publicationまでの唯一のglo
 Related:
   - docs/development/current/main/design/recipe-first-entry-contract-ssot.md
   - docs/development/current/main/design/recipe-tree-and-parts-ssot.md
+  - docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md
+  - docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
   - docs/development/current/main/design/compiler-pipeline-thinning-ssot.md
   - docs/reference/language/function-exit-and-entry-result.md
@@ -121,6 +123,15 @@ Function exit semanticsは`docs/reference/language/function-exit-and-entry-resul
 が持つ。DraftSeal、collector、module publicationの現行実装とaccepted
 evidenceはRelatedに列挙したsource owner／taskにある。この文書はそれらを
 結ぶ最終pipeline authorityを所有する。
+
+## Loop specialization navigation
+
+この文書は全compilerの順序だけを所有する。Loop固有の再帰
+Facts/Recipe/JoinSig/Verify/Lower順序は
+`joinir-loop-selfhost-recipe-pipeline-ssot.md`、post-Recipeのphysical
+demand/session境界は`loop-common-physical-demand-and-session-ssot.md`が
+所有する。現在実行中のbounded profileとexact rowは
+`CURRENT_STATE.toml`の`current_execution_design`へ辿り、ここへ複製しない。
 
 ## Non-negotiable laws
 

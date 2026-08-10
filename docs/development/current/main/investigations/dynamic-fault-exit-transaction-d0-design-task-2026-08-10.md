@@ -182,9 +182,20 @@ and exposes no `into_parts` escape.
    CLOSED: promoted the existing consuming Completion projection to the final
    bounded co-seal; no standalone wrapper or copied authority was added
 
-10. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-   parked as NoSafeSlice until `PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` closes the
-   missing source-backed physical-input authority
+10. LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
+    NEXT: JoinSig-owned borrowed logical flow/After view only
+
+11. DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
+    pending: 17/15 source/control evidence plus final-co-seal HRTB view
+
+12. PHYSICAL-OPERATION-DEMAND-I0
+    pending: whole-program Builder-free demand/prepare
+
+13. PHYSICAL-INPUT-AUTHORITY-I0
+    parked: later Prelude/Tail/ABI/physical Completion co-seal
+
+14. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+    parked until rows 10-13 are green
 ```
 
 Each implementation row updates its code, focused tests, module README,
@@ -315,14 +326,16 @@ Focused closeout gate:
 RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction
 ```
 
-The next bounded owner is `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`.
+That closeout originally named `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`. The later
+audit below inserted the missing Builder-free physical-input authority rows
+before any session may open.
 
-## Physical session P0 audit (2026-08-10)
+## Physical session P0 audit (parked parent)
 
-`DYNAMIC-EXIT-PHYSICAL-SESSION-P0` is a design stop, not an implementation
+`DYNAMIC-EXIT-PHYSICAL-SESSION-P0` remains parked, not an implementation
 permission. The existing `loop_physical_prepare.rs` and callable physical
-canary are `cfg(test)` helpers only; no production issuer currently supplies
-the complete physical input for the selected Dynamic package.
+canary are `cfg(test)` helpers only; no production issuer yet supplies the
+complete physical input for the selected Dynamic package.
 
 The package already supplies the exact logical source-backed input and the
 non-splittable `VerifiedDynamicExitTransactionCoSealV1`, but the physical
@@ -349,20 +362,21 @@ ModuleDraftCollectorV1
   -> later draft collection / publication
 ```
 
-The smallest next design slice is therefore:
+This audit first identified the parent bridge:
 
 ```text
-PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0
+PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0 (accepted parent)
   source authority census
   canonical issuer and co-seal boundary
   physical-input identity / owner / frame / scope checks
   fail-fast and NoSafeSlice matrix
 ```
 
-Until that Decision is accepted, do not remove `cfg(test)`, promote the static
-physical canary, call the raw `lower_loop` route from the package, open
-DraftSeal/Collector, or add a guessed `Verified*`/`Prepared*` receipt. After a
-fresh physical session opens, every failure must discard the unpublished
+The current child order is the JoinSig logical view, Dynamic physical-input
+view, and whole-program operation demand specified below. Until those and the
+later full callable physical-input row are green, do not remove `cfg(test)`,
+promote the static canary, call raw `lower_loop`, or open DraftSeal/Collector.
+After a fresh session eventually opens, every failure discards the unpublished
 function exactly once; same-session retry and fallback remain forbidden.
 
 Non-claims for this stop:
@@ -375,12 +389,14 @@ DraftSeal / Collector / publication
 provider or runtime dispatch
 ```
 
-## Physical-input authority bridge D0 (2026-08-10)
+## Physical-input authority bridge D0 (accepted parent boundary)
 
-`PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` is the current design stop.  The
+`PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` was the prior parent design stop. The
 logical package and its exit-transaction co-seal are complete enough to be
 borrowed by a later physical boundary, but they do not themselves prove that
-the callable can be materialized in a fresh MIR function session.
+the callable can be materialized in a fresh MIR function session. The
+operation-demand subchain below closes first; the broader physical/session
+bridge remains parked.
 
 The accepted boundary is therefore two consecutive, non-overlapping stages:
 
@@ -445,325 +461,261 @@ Once a fresh session opens, the sole failure policy remains whole unpublished
 function discard exactly once.  Same-session repair, retry, compatibility
 fallback, raw `lower_loop` entry, and AST/MIR re-matching are forbidden.
 
-### Smallest task ladder after this Decision
+### Remaining task ladder after this Decision
 
 ```text
-PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0   current design stop
-  -> source-owner/issuer census and accepted co-seal contract
-PHYSICAL-INPUT-AUTHORITY-I0
-  -> one bounded source-backed input co-seal, still before session emission
-DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
+  -> DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
+  -> PHYSICAL-OPERATION-DEMAND-I0
+  -> PHYSICAL-INPUT-AUTHORITY-I0
+  -> zero-effect complete callable physical-input co-seal
+  -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
   -> fresh session, common physicalizer, finish/DraftSeal canary
 ```
 
-`PHYSICAL-INPUT-AUTHORITY-I0` may not begin until this D0 is accepted and
-must not remove `cfg(test)` from the existing canary as a shortcut.  The I0
-must also carry a source-to-Facts-to-Recipe readiness sentence and a focused
-negative matrix; it must not introduce Home, runtime Fault, CFG/PHI,
-DraftSeal, Collector, provider dispatch, or a new fallback route.
-
-## Physical-input authority I0 design frontier (2026-08-10)
-
-The D0 owner census is accepted.  The next frontier is still a design stop,
-`PHYSICAL-INPUT-AUTHORITY-I0-D0`, because the existing products cannot yet
-form the required physical input without crossing an authority boundary.
-
-The concrete gaps are:
+The three operation-demand rows add no Builder effect. The broader
 
 ```text
-Dynamic semantic program = V2 Recipe / V2 JoinSig
-existing common physical demand = V1 Recipe/operation contract
-  -> no V2-to-V1 adapter is permitted
-
-VerifiedFunctionCompletionV1
-  -> consumed by source admission and reduced to logical summary
-  -> no exact physical Completion handoff exists
-
-ExactTrivialReturnAbiV1
-  -> source-spelling classification only
-  -> not physical FunctionSignature or entry ABI authority
-
-VerifiedCallablePreludeArgumentListV1 / physical canary
-  -> cfg(test) evidence only
-  -> not a production entry materialization issuer
+PHYSICAL-INPUT-AUTHORITY-I0
+  -> one bounded source-backed callable input co-seal
+     (Prelude / Tail / ABI / physical Completion)
+DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  -> fresh session and unpublished function canary
 ```
 
-Therefore the next design must choose a single package-to-physical boundary,
-not add a wrapper around the logical Dynamic exit co-seal:
+may not begin until the three rows are green. It must not promote the
+existing test canary or introduce Home, runtime Fault, retry, or fallback.
 
-```text
-installed package
-  -> selected scoped lowering loan
-  -> one private physical-input issuer
-       V2-aware Loop demand
-       Prelude/entry relation
-       Tail/result relation
-       exact physical ABI/result projection
-       exact Completion handoff
-  -> one non-splittable physical input
-```
+## Parked full physical-input frontier (2026-08-10)
 
-The logical package remains the owner of logical Recipe/JoinSig/After/Fault
-relations.  The physical issuer may consume a scoped package loan, but it may
-not expose the semantic program internals, reissue Recipe/JoinSig/After, or
-re-verify Completion later in the lowerer.  Completion must either be handed
-off from the source issuer at this boundary or the issuer must return
-`NoSafeSlice`; an empty or summary-only replacement is not evidence.
+The parent owner census is accepted, but the full callable physical-input
+boundary remains parked because the existing products cannot yet form the
+required input without crossing later Prelude/Tail/ABI/Completion authority.
+This is not the current executable row.
 
-The I0-D0 acceptance sentence is:
+After PHYSICAL-OPERATION-DEMAND-I0, one installed-package scoped issuer must
+co-seal Prelude/entry, Tail/result, physical ABI, and exact Completion
+handoff. It may not reissue Recipe/JoinSig/After, re-verify Completion in
+Lower, or adapt V2 through the old V1 demand. Until then, `cfg(test)`
+promotion, session open, DraftSeal, Collector, raw `lower_loop`, retry, and
+fallback remain forbidden.
 
-```text
-This selected package loan maps once to one physical-input product,
-and every missing/foreign/mismatched demand, entry, Tail, ABI, or Completion
-fails before a function session opens.
-```
+### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
-Required design evidence before implementation:
+Decision: accepted for the exact selected Dynamic full-body cohort after
+external review and repository-backed owner census. This does not activate a
+generic all-V2 physical path.
 
-```text
-one owner table for all five physical subcontracts
-one source-backed issuer per missing subcontract, or an explicit NoSafeSlice
-one package-to-physical co-seal boundary
-one V2-capable demand path (no V2 -> V1 coercion)
-one exact Completion handoff (no lower re-verification)
-one negative matrix for foreign owner/frame/scope/site/ABI/completion
-```
+The physical borrow begins at the final semantic owner already retained by the
+installed callable package, never at a raw inner semantic program:
 
-No code, `cfg(test)` promotion, physical receipt constructor, session open,
-DraftSeal, Collector, raw `lower_loop`, retry, or fallback is allowed at this
-frontier.  Once this design is accepted, the implementation slice is
-`PHYSICAL-INPUT-AUTHORITY-I0`; the next physical-session row remains parked
-until that slice is green.
+~~~text
+VerifiedDynamicExitTransactionCoSealV1
+  -> private HRTB borrow spine
+  -> VerifiedDynamicFullLoopSemanticProgramV2
+     + VerifiedDynamicFullLoopPhysicalEvidenceV2
+     + VerifiedLoopJoinClosureV2
+  -> DynamicFullLoopPhysicalInputViewV2<'program>
+  -> VerifiedDynamicLoopOperationPhysicalDemandV2<'program>
+  -> PreparedDynamicLoopOperationProgramV2<'program>
+~~~
 
-### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (design stop)
+The final exit co-seal remains non-Clone and non-splittable. Its
+with_physical_operation_input callback is the sole future physical ingress.
+No getter exposes the raw semantic program, Recipe, JoinSig, After, package
+batch slot, or exit/cleanup parts.
 
-The current Dynamic chain retains a verified V2 source/Recipe envelope and a
-V2 JoinSig/After relation, but no V2 operation/effect ledger or physical-demand
-issuer exists. `VerifiedLoopOperationPhysicalDemandV1` is not reusable by cast,
-Recipe reconstruction, or re-running its V1 source/effect issuer: it fixes V1
-Recipe/Core/JoinSig/value classes and cannot represent `DynamicAdd`,
-`DynamicLess`, `CallSlot`, `TextEq`, or `LoopValueClassV2::Dynamic`.
+#### Authority split
 
-The only acceptable future boundary is one private, V2-aware projection:
+~~~text
+JoinSig owner:
+  LoopJoinLogicalTransferViewV2
+  - loop boundary role / ports / payload
+  - branch if_item / condition / arm disposition / exit item / target / payload
+  - exact borrowed After
+  - no Recipe blocks, placement, Exit kind/value, or physical IDs
 
-```text
-VerifiedDynamicFullLoopSemanticProgramV2
-  -> V2 operation/effect/demand authority
-     - complete V2 Recipe item/placement coverage
-     - source/effect and CallSlot relations
-     - LoopOperationExecutionClassV2 classification
-     - V2 JoinSig/After normal-transfer relation
-  -> later physical-input co-seal
-```
+Recipe owner:
+  verified Loop condition/body/If/Exit structure
+  exact item-to-loop/block placement
+  - no transfer re-derivation
 
-The missing boundary is a borrowed, package-scoped view rather than a new
-public semantic product.  Its planned shape is:
+Dynamic semantic-program owner:
+  JoinSig logical view + Recipe control/placement
+    -> DynamicLoopPhysicalControlViewV2
+  - relation only; no second JoinSig or Recipe
 
-```text
-DynamicFullLoopPhysicalInputViewV2<'program>
-  operation_items: verified item -> owner loop/block/operation
-  source_effect:   complete claim/source rows for those items
-  calls:           retained private source-bound CallSlot rows
-  execution:       LoopOperationExecutionClassV2 per operation
-  faults:          borrowed six-row fault cut-point view
-  transfer:        private DynamicLoopJoinSigTransferViewV2, including After
-  context:         owner/frame/scope-region/source provenance
-```
-The view is issued only by the V2 semantic-program owner and is borrowed by
-the package-to-physical issuer.  `DynamicLoopJoinSigTransferViewV2` must be
-issued by the JoinSig owner.  It separates loop transfer rows
-`{loop_key, role, from, to, payload}` from branch rows
-`{if_item, disposition, target, payload}`; it never invents an ItemKey for
-Enter/Backedge, adds a physical block, or exposes raw `After`.  Recipe
-item-to-block placement is a separate exact relation co-sealed by the same
-view.  If the
-JoinSig owner cannot issue this item/control-keyed view without making the
-physical issuer interpret `as_sig()` or re-pairing `After`, the D0 remains
-`NoSafeSlice`.
+source/Recipe envelope owner:
+  existing retained source + claims + Recipe + exact CallSlot rows
+    -> VerifiedDynamicFullLoopPhysicalEvidenceV2
+  - one private co-seal; no new source observer
 
-Owner table:
+final exit co-seal:
+  physical control + physical evidence + execution/Fault/context
+    -> one HRTB-bounded DynamicFullLoopPhysicalInputViewV2
+~~~
 
-```text
-V2 Recipe / value class       = verified V2 Recipe artifact
-operation execution class     = schema_v2::execution_class_v2
-source/effect ledger          = not yet identified (NoSafeSlice)
-CallSlot target handoff       = private envelope relation (closed I0)
-V2 context/frame/scope        = retained source/envelope relation
-V2 JoinSig/After              = semantic-program control co-seal; planned
-  private item/control transfer view is missing
-physical schedule/projection  = not yet identified (NoSafeSlice)
-```
-The D0 acceptance sentence is:
+The source/effect ledger is issued inside the existing
+issue_dynamic_full_loop_source_recipe_envelope_v2 transaction. It relates
+already-verified source roles, claims, Recipe placement, and exact source-bound
+CallSlot rows. It does not re-observe AST, resolve names, infer targets, or own
+execution faultability.
 
-```text
-Exact Dynamic V2 semantic programから一度だけV2-aware operation/effect/demand
-projectionを発行し、全V2 operation・CallSlot・placement・JoinSig transferを
-coverage検証する。V1 coercion、Recipe再構築、source再観測、session開始は禁止。
-issuerが欠ければNoSafeSlice。
-```
+#### Exact bounded evidence
 
-The recommended sole issuer location is the package-to-physical boundary,
-for example `src/mir/normal_callable_semantic_package/physical_input/issuer.rs`;
-Dynamic-specific projection helpers remain private to
-`dynamic_full_body_recipe`. The issuer borrows one package-port scoped Dynamic
-view containing the V2 artifact/claims, private CallSlot rows, Fault view, and
-JoinSig item/control transfer view. It must not read raw `VerifiedLoopJoinSigV2`
-or re-pair `After` itself. A missing transfer view or scoped Dynamic view is
-`NoSafeSlice`, not a new partial receipt.
+~~~text
+retained binding rows        = 6
+retained source rows         = 28
+Recipe item placements       = 17
+operation-source/effect rows = 15
+control rows                 = I10 If, I12 Exit
+CallSlot rows                = I6, I7
+Fault rows                   = I1, I5, I6, I7, I9, I15
 
-Required negatives are foreign source provenance/owner/frame/scope/region, foreign V2
-Recipe/JoinSig/After, missing/duplicate/extra operation evidence, wrong block
-or loop placement, execution-class mismatch, CallSlot target mismatch, wrong
-JoinSig Enter/Backedge/After, key/name/order schedule repair, and any V1
-operation/effect/demand passed to this boundary. Completion, Prelude, Tail,
-ABI, session, DraftSeal, Collector, provider, runtime Fault, retry, and
-fallback remain explicit non-claims. No new `Verified*`/`Prepared*` receipt or
-code is authorized until this D0 is accepted.
+source effects:
+  BindingRead          = 5
+  BindingWrite         = 1
+  ExternalCall         = 2
+  ExpressionEvaluation = 7
 
-### CallSlot target handoff D0 (2026-08-10)
+execution classes:
+  NonFaulting             = 9
+  FaultBeforeNormalResult = 4
+  ExternallyBoundOutcome  = 2
+~~~
 
-The operation-demand audit found one narrower prerequisite which must be
-named before a physical-demand I0 can claim complete CallSlot coverage.  The
-current `VerifiedDynamicFullLoopCallRelationsV2` retains item/role relation,
-but the exact source-bound target object is not retained by the final Dynamic
-semantic program.  A future demand issuer must not repair that loss with
-method name, Box name, arity, catalog order, or runtime lookup.
+ExpressionEvaluation is a source-effect relation, not a Pure claim.
+execution_class_v2 remains the exhaustive operation execution owner. The Fault
+catalog remains the sole six-row fault authorization owner.
 
-The accepted boundary is:
+For every operation item, exactly one Expression source claim is the primary
+physical anchor. I16 is intentionally special only in evidence cardinality:
+StepAssignment remains auxiliary statement coverage while StepTargetI is the
+single expression anchor. I6/I7 additionally require that primary expression
+site to equal the retained exact CallSlot call site. No numeric item table,
+name, inventory ordinal, or catalog order may repair a mismatch.
 
-```text
-VerifiedSourceBoundDynamicMemberCallV1
-  -> one source-backed target handoff
-  -> private V2 CallSlot relation
-  -> operation/effect ledger
-  -> later physical demand projection
-```
+#### Transfer and Return rule
 
-This is a relation handoff, not a new target catalog and not a public
-`CallSlot`/function-pointer API.  The handoff must preserve the exact target,
-caller/receiver/argument/result source sites, resolver/source brand, owner,
-frame, scope/region, and the Recipe item identity.  It may be retained
-transitively inside the private V2 semantic program or co-sealed by the
-future physical-input bridge, but only one issuer may decide that relation.
+The actionable bounded transfer set is:
 
-Required negative evidence:
+~~~text
+Loop boundary:
+  Enter
+  PredicateTrue
+  PredicateFalse
+  Backedge
 
-```text
-missing/duplicate CallSlot target
-foreign source-bound target or resolver brand
-same name/arity with a different target
-same item/role with a different source site
-catalog-order or batch-slot repair
-target lookup after the logical co-seal
-raw function pointer or runtime dispatch handle
-```
+Branch:
+  I10 If
+    then -> I12 Return(V14) -> FunctionExit
+    else -> Fallthrough
 
-Until this handoff is sealed, `PHYSICAL-OPERATION-DEMAND-I0` remains parked.
-The smallest next design row is:
+After:
+  exact L0 / B0 / Dynamic relation
+~~~
 
-```text
-PHYSICAL-CALLSLOT-TARGET-HANDOFF-D0
-  -> one private source-bound target retention/co-seal decision
-  -> then PHYSICAL-OPERATION-DEMAND-I0
-```
+The existing Loop Return edge is an integrity-only summary of the branch
+Return. The JoinSig logical-view issuer verifies matching role, target, and
+payload, then excludes that summary from actionable physical rows. Publishing
+both the branch Return and the Loop summary as actions is rejected.
 
-No code, V2-to-V1 adapter, Recipe rebuild, public target catalog, physical
-session, DraftSeal, Collector, retry, or fallback is authorized in this row.
+Enter and Backedge are identified by loop key plus boundary role and never
+receive a synthetic ItemKey. Branch and Exit retain exact I10/I12 item
+identity. Direct unbranched Break/Continue/Return cannot retain an exact source
+item in the current JoinSig model, so they remain outside this bounded view.
+A language-wide all-V2 transfer view is still NoSafeSlice until that origin is
+modeled.
 
-### CallSlot target handoff D0 closeout (2026-08-10)
+#### Complete rejection boundary
 
-The independent source/target audit closes this design stop with one precise
-interpretation: `VerifiedSourceBoundDynamicMemberCallV1` is an exact
-source-bound Dynamic message relation, not an executable/provider target.
-It owns the resolver owner, call/receiver/result sites, receiver BindingRef and
-origin, ordered argument sites, and selector/arity dispatch identity. It must
-not be upgraded into a runtime target or a third callable catalog.
+Reject before Builder effects on any foreign owner/frame/scope/region/source
+provenance, foreign Recipe/JoinSig/After, missing/duplicate/extra placement,
+operation, CallSlot, execution, Fault, or transfer row, wrong block/loop/source
+anchor/BindingRef/result/target, summary Return action, direct unbranched exit,
+or V1 demand/class input.
 
-The accepted I0 boundary is:
+Structural guards forbid AST/MIR re-observation, raw Recipe or as_sig reads in
+physical modules, V2-to-V1 conversion, name/order/ordinal repair, synthetic
+ItemKey creation, single-operation extraction, package splitting,
+retry/fallback, and physical IDs before prepare.
 
-```text
-ResolvedFunctionLoweringInputV1
-  -> owned source-bound call rows (HRTB ends here)
-  -> consume Box<[VerifiedSourceBoundDynamicMemberCallV1]>
-  -> exact Dynamic source/Recipe envelope
-       private rows: { Recipe item, source role, source-bound call row }
-  -> semantic program retains the rows transitively
-  -> future physical-demand issuer borrows one scoped view
-```
+### Execution order
 
-The handoff is non-`Clone`, non-splittable, and has no `into_parts`, raw target
-getter, CallSlot getter, function pointer, provider handle, or runtime route.
-The retained source already owns the same owner/frame/scope-region relation;
-the handoff co-seals against it. A separate ResolverCatalogBrand is not
-invented: this row is a source-bound message relation, not a reusable
-declaration/executable target. If a later physical issuer requires a brand or
-an executable target, that is a separate `NoSafeSlice` axis.
+No new task card or prerequisite is added. The following three rows remain in
+this rolling card, and exhaustive positive/negative evidence lands with the
+owning implementation commit.
 
-I0 must add exact evidence for:
+#### LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
 
-```text
-two expected rows are consumed exactly once
-expected selector/arity matches each source role
-all supplied rows are consumed; extra rows reject
-owner/frame/scope-region/source-site equality
-call/receiver/result/ordered-argument equality
-Recipe CallSlot item/receiver/args/result/value-class equality
-missing, duplicate, foreign, reused, or mismatched target rejection
-```
+Change:
+- add one borrowed V2 logical transfer view under the JoinSig subtree;
+- lend loop boundary rows, branch rows, and the already co-sealed After.
 
-After this closeout, the live order is:
+Contract:
+- JoinSig owns flow only;
+- no Recipe block/placement/Exit-kind interpretation;
+- Return summary is integrity-only; no synthetic ItemKey.
 
-```text
-PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0
-  -> PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0
-  -> PHYSICAL-OPERATION-DEMAND-I0
-  -> PHYSICAL-INPUT-AUTHORITY-I0
-```
+Done:
+- exact 4 actionable boundary rows, one I10 branch, one I12 Return, and one
+  After relation pass focused tests;
+- wrong summary, target, payload, branch item, or direct exit rejects.
 
-The I0 remains pre-session and source-only. It may not open a Builder or
-physical session, issue ABI/Completion/DraftSeal/Collector products, or add a
-fallback/retry path.
+Stop:
+- no Dynamic physical control co-seal, physical demand, Builder, or session.
 
-### CallSlot target handoff I0 closeout (2026-08-10)
+#### DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
 
-The bounded I0 is now implemented at the source/Recipe envelope boundary.
-The issuer consumes `Box<[VerifiedSourceBoundDynamicMemberCallV1]>`; it does
-not borrow and later rediscover the rows. Each retained private relation now
-owns the exact Recipe item, source role, and source-bound message row. The
-issuer checks selector/arity, call/receiver/result/ordered-argument sites,
-owner, source binding/origin, and Recipe CallSlot/value-class relation before
-the envelope is constructed.
+Change:
+- add the private 17-placement/15-operation physical-evidence co-seal;
+- co-seal JoinSig logical flow with verified Recipe control;
+- lend the final HRTB physical input from VerifiedDynamicExitTransactionCoSealV1.
 
-The target handoff is complete-coverage and one-shot:
+Contract:
+- existing source/claim/Recipe/CallSlot/Fault authorities are only related;
+- owner/frame/scope/region/provenance and all exact counts close atomically;
+- raw semantic parts never escape.
 
-```text
-missing target       -> MissingTarget
-duplicate target     -> AmbiguousTarget / ReusedTarget
-extra target rows    -> TargetCountMismatch / UnexpectedTarget
-wrong selector/arity -> TargetDispatchMismatch
-foreign owner/site   -> typed source-relation rejection
-```
+Done:
+- 17/15/2/6 coverage and 5/1/2/7 source-effect counts pass;
+- execution 9/4/2, Return de-duplication, I16 primary anchor, and foreign
+  relation negatives pass.
 
-The source envelope retains the rows transitively, while the semantic program
-continues to keep them private. No executable target, provider/runtime
-handle, public target catalog, raw CallSlot getter, V2-to-V1 adapter, Recipe
-rebuild, physical session, DraftSeal, Collector, or fallback was added.
+Stop:
+- no physical schedule, block, CFG, PHI, ABI, Completion consumption, or
+  session.
 
-Evidence:
+#### PHYSICAL-OPERATION-DEMAND-I0
 
-```text
-cargo check -q --lib
-cargo test -q dynamic_full_body_recipe --lib
-bash tools/checks/normal_callable_complete_batch_guard.sh
-bash tools/checks/current_state_pointer_guard.sh
-git diff --check
-```
+Change:
+- consume only DynamicFullLoopPhysicalInputViewV2;
+- prepare the complete Dynamic operation program before Builder effects.
 
-The focused Recipe/co-seal suite passes with 35 tests. This closes
-`PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0`; the next design stop is the missing
-V2 operation/effect physical-demand authority. That row must not add a
-V2-to-V1 demand adapter or infer an executable target from these retained
-message relations.
+Contract:
+- whole-program coverage only;
+- verified Recipe order, no single-item selection;
+- no raw Recipe/JoinSig/source lookup and no V1 adapter.
+
+Done:
+- complete demand and prepare_all succeed for the exact selected cohort;
+- missing/duplicate/foreign rows fail before effects;
+- production caller remains zero until the later physical-session cutover.
+
+Stop:
+- no Prelude, Tail, ABI, physical Completion, CFG/PHI, function session,
+  DraftSeal, Collector, publication, provider/runtime route, retry, or fallback.
+
+### Landed prerequisite
+
+PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0 is closed. The source/Recipe envelope
+consumes exactly two VerifiedSourceBoundDynamicMemberCallV1 rows and retains
+their selector/arity, source sites, owner/frame/scope relation, and Recipe
+CallSlot operands/result privately. It issues no executable target, provider
+handle, runtime route, or public target catalog.
+
+The next executable row is
+LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0.
 
 ## Hard stops
 
@@ -782,18 +734,23 @@ no test-only semantic/Home constructor
 ## File-size plan
 
 ```text
-dynamic_full_body_recipe/coseal/semantic_program/
-  mod.rs
-  fault_cut_points.rs
-  carrier_flow.rs
-  carrier_cleanup.rs
-  tests.rs
+loop_recipe_contract/join_sig/
+  transfer_view_v2.rs
+  transfer_view_v2_tests.rs
 
-future exit_transaction/
+dynamic_full_body_recipe/coseal/
+  operation_source.rs
+  semantic_program/exit_transaction/
+    physical_input.rs
+    physical_input_tests.rs
+
+dynamic_full_body_recipe/physical_demand/
   mod.rs
-  completion_partition.rs
-  tests/{golden,negative,api_guard}.rs
+  model.rs
+  issuer.rs
+  tests.rs
 ```
 
 Split at roughly 650-700 lines, stop adding at 760, and keep 800 as the hard
-limit.  Do not create a standalone public `VerifiedCh*` product.
+limit. Do not add these relations to `typed_schema_v2.rs`, `join_sig/flow.rs`,
+or a standalone public `VerifiedCh*` product.

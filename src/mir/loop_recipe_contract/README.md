@@ -5,29 +5,30 @@ Loop lowering.
 
 ## Authority
 
-## V2 physical-transfer boundary (design stop)
+### V2 physical-transfer boundary (accepted design; implementation pending)
 
-The verified V2 Recipe and JoinSig remain logical products.  A future
-package-to-physical issuer may borrow one private projection only after the
-JoinSig owner issues an item/control-keyed transfer view:
+The verified V2 Recipe and JoinSig remain separate logical authorities. The
+JoinSig subtree will issue only one borrowed
+`LoopJoinLogicalTransferViewV2`: loop boundary role/ports/payload, exact
+branch item and arm disposition, plus the already co-sealed After. It does not
+issue Recipe blocks, item placement, Exit kind/value, or physical IDs.
 
-```text
-VerifiedDynamicFullLoopSemanticProgramV2
-  -> operation/placement + source/effect + CallSlot view
-  + execution_class_v2
-  + Fault cut-point view
-  + DynamicLoopJoinSigTransferViewV2 (including the co-sealed After)
-```
+The Dynamic semantic-program owner will co-seal that logical view with verified
+Recipe control and placement. The final package-held
+`VerifiedDynamicExitTransactionCoSealV1`, not a raw inner semantic program,
+will lend the resulting complete physical-input view through one HRTB callback.
 
-`DynamicLoopJoinSigTransferViewV2` is the sole owner of logical port/role/payload
-and loop/branch/exit anchors.  Loop rows do not invent an ItemKey for
-Enter/Backedge; branch rows retain their exact `if_item`.  Recipe item
-placement is a separate co-sealed relation.  The physical issuer must not read
-`VerifiedLoopJoinSigV2::as_sig()`, reconstruct an item from names/order, or
-re-pair `After`.  This is a private borrowed view, not a new Recipe, target,
-ABI, CFG, or `Verified*`/`Prepared*` public product.  Until the source/effect
-ledger and this transfer view have canonical issuers, the physical lane is
-`NoSafeSlice`; V1 physical demand and V2-to-V1 coercion are forbidden.
+Loop boundary rows never invent an ItemKey for Enter or Backedge. Branch rows
+retain exact `if_item` and `exit_item`. For the bounded Dynamic cohort, the
+Loop Return edge is an integrity summary of the exact branch Return and is
+never a second actionable physical transfer. Direct unbranched exits remain
+outside this bounded view because the current JoinSig summary does not retain
+their exact origin item.
+
+Physical modules must not read `VerifiedLoopJoinSigV2::as_sig()`, reconstruct
+items from names/order, re-pair After, or coerce V2 through V1 physical demand.
+The next row is `LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0`; no Builder,
+MIR/CFG/PHI, ABI, session, retry, or fallback is opened there.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.

@@ -96,6 +96,46 @@ copies the flow/cleanup rows. No runtime chronology, Home capability, result
 merge, physical Return, ABI projection, final function seal, collector, or
 publication is performed.
 
+## Physical-input child boundary (accepted design; implementation pending)
+
+The next physical handoff starts only from the package-held
+`VerifiedDynamicExitTransactionCoSealV1`. Private borrow delegation may reach
+the retained semantic program, but no raw semantic-program, Recipe, JoinSig,
+After, cleanup, or package-slot getter is added.
+
+```text
+VerifiedDynamicExitTransactionCoSealV1
+  -> HRTB DynamicFullLoopPhysicalInputViewV2
+     - 17 exact item placements
+     - 15 operation/source-effect rows
+     - 2 exact CallSlot relations
+     - exhaustive 9/4/2 execution classes
+     - 6 exact Fault relations
+     - JoinSig logical flow co-sealed with Recipe control
+  -> whole-program Dynamic physical demand
+```
+
+The planned `VerifiedDynamicFullLoopPhysicalEvidenceV2` is issued inside the
+existing source/Recipe envelope transaction. It relates retained source roles,
+claims, verified Recipe placement, and exact source-bound CallSlot rows; it is
+not a new AST observer or execution/faultability owner. Every operation item
+has exactly one Expression primary anchor. For I16, `StepTargetI` is primary
+and the statement `StepAssignment` remains auxiliary coverage.
+
+The JoinSig owner lends logical flow only. The Dynamic semantic-program owner
+adds Recipe condition/body/branch/Exit structure. In the current bounded
+cohort, Enter, PredicateTrue, PredicateFalse, and Backedge are actionable Loop
+boundaries; I10/I12 owns the one actionable Return. The Loop-level Return edge
+is integrity-only summary evidence and cannot be emitted again.
+
+Implementation order is fixed in the active rolling card:
+`LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0`, then
+`DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`, then
+`PHYSICAL-OPERATION-DEMAND-I0`. These rows remain Builder-free and do not
+claim Prelude, Tail, ABI, physical Completion, CFG/PHI, function session,
+DraftSeal, Collector, publication, provider/runtime selection, retry, or
+fallback.
+
 ## Acceptance rule
 
 The current fixture has seven Dynamic envelope rows. Exactly two are selected
