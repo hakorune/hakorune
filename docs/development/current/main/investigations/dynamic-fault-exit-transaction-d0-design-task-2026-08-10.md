@@ -556,6 +556,28 @@ VerifiedDynamicFullLoopSemanticProgramV2
   -> later physical-input co-seal
 ```
 
+The missing boundary is a borrowed, package-scoped view rather than a new
+public semantic product.  Its planned shape is:
+
+```text
+DynamicFullLoopPhysicalInputViewV2<'program>
+  operation_items: verified item -> owner loop/block/operation
+  source_effect:   complete claim/source rows for those items
+  calls:           retained private source-bound CallSlot rows
+  execution:       LoopOperationExecutionClassV2 per operation
+  faults:          borrowed six-row fault cut-point view
+  transfer:        private LoopJoinTransferViewV2, including After
+  context:         owner/frame/scope-region/source provenance
+```
+
+The view is issued only by the V2 semantic-program owner and is borrowed by
+the package-to-physical issuer.  `LoopJoinTransferViewV2` must be issued by
+the JoinSig owner; it carries logical role/port/payload and a verified
+loop/branch/exit anchor, but never a physical block or raw `After`.  If the
+JoinSig owner cannot issue this item/control-keyed view without making the
+physical issuer interpret `as_sig()` or re-pairing `After`, the D0 remains
+`NoSafeSlice`.
+
 Owner table:
 
 ```text
@@ -564,8 +586,8 @@ operation execution class     = schema_v2::execution_class_v2
 source/effect ledger          = not yet identified (NoSafeSlice)
 CallSlot target handoff       = private envelope relation (closed I0)
 V2 context/frame/scope        = retained source/envelope relation
-V2 JoinSig/After              = semantic-program control co-seal; physical
-                                item/control transfer view still missing
+V2 JoinSig/After              = semantic-program control co-seal; planned
+                                private item/control transfer view is missing
 physical schedule/projection  = not yet identified (NoSafeSlice)
 ```
 
