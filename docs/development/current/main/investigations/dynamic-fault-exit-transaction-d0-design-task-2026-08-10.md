@@ -575,6 +575,56 @@ missing/duplicate item coverage, wrong JoinSig transfer, and V1-family
 coercion.  If a source-backed V2 operation/effect issuer cannot be identified,
 this sub-question remains `NoSafeSlice`; no partial demand receipt is added.
 
+### CallSlot target handoff D0 (2026-08-10)
+
+The operation-demand audit found one narrower prerequisite which must be
+named before a physical-demand I0 can claim complete CallSlot coverage.  The
+current `VerifiedDynamicFullLoopCallRelationsV2` retains item/role relation,
+but the exact source-bound target object is not retained by the final Dynamic
+semantic program.  A future demand issuer must not repair that loss with
+method name, Box name, arity, catalog order, or runtime lookup.
+
+The accepted boundary is:
+
+```text
+VerifiedSourceBoundDynamicMemberCallV1
+  -> one source-backed target handoff
+  -> private V2 CallSlot relation
+  -> operation/effect ledger
+  -> later physical demand projection
+```
+
+This is a relation handoff, not a new target catalog and not a public
+`CallSlot`/function-pointer API.  The handoff must preserve the exact target,
+caller/receiver/argument/result source sites, resolver/source brand, owner,
+frame, scope/region, and the Recipe item identity.  It may be retained
+transitively inside the private V2 semantic program or co-sealed by the
+future physical-input bridge, but only one issuer may decide that relation.
+
+Required negative evidence:
+
+```text
+missing/duplicate CallSlot target
+foreign source-bound target or resolver brand
+same name/arity with a different target
+same item/role with a different source site
+catalog-order or batch-slot repair
+target lookup after the logical co-seal
+raw function pointer or runtime dispatch handle
+```
+
+Until this handoff is sealed, `PHYSICAL-OPERATION-DEMAND-I0` remains parked.
+The smallest next design row is:
+
+```text
+PHYSICAL-CALLSLOT-TARGET-HANDOFF-D0
+  -> one private source-bound target retention/co-seal decision
+  -> then PHYSICAL-OPERATION-DEMAND-I0
+```
+
+No code, V2-to-V1 adapter, Recipe rebuild, public target catalog, physical
+session, DraftSeal, Collector, retry, or fallback is authorized in this row.
+
 ## Hard stops
 
 ```text

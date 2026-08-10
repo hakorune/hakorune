@@ -68,3 +68,38 @@ then fails closed at the existing physical source-ledger consumption boundary.
 The package owns only semantic carrier flow, cleanup evidence, and the logical
 inner-Return/outer-Tail function-exit relation; actual rebind, End, Home,
 physical Return/ABI, and physicalization remain later owners.
+
+## Anchor/package audit reconciliation (2026-08-10)
+
+The selected-mapping boundary is closed and must not be reopened as a second
+catalog or batch authority. The accepted shape is:
+
+```text
+parser-issued anchor
+  -> cloneable comparison-only identity view
+  -> source-backed catalog row
+  + complete resolved semantic-batch row
+  -> one exact identity co-seal
+  -> selected key -> private batch slot
+```
+
+The HRTB syntax loan remains the only AST-borrowing boundary. The cloneable
+identity is comparison-only: it cannot be serialized, converted to a pointer
+or number, used as a key, or used to issue a resolver owner. The catalog and
+batch are sibling products from the same final source; neither is derived from
+the other. `prepare_install`/`commit` is the only catalog installation path,
+and `with_selected_lowering_input(key, callback)` is the only production
+lowering surface.
+
+Dynamic admission may observe every complete-batch row, but production
+selection is restricted to rows present in the sealed selected-map. A valid
+unselected row remains in the complete batch and cannot steal the selected
+route. Missing, duplicate, foreign, or repaired identity is terminal; the
+AST-only compatibility catalog is never a retry path.
+
+This audit does not authorize a new physical target catalog or a raw
+`CallSlot` getter. Exact source-bound target retention for a future V2
+operation/physical-demand bridge is a separate design stop; it must either be
+co-sealed in that bridge or be retained by an existing private semantic
+product. No package API, public selected key, batch slot, owner number, or
+standalone ingress relation may be added for that purpose.
