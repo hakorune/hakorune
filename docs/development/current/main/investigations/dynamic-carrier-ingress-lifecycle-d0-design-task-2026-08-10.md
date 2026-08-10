@@ -1,12 +1,12 @@
 # Dynamic carrier ingress lifecycle
 
-Status: production source-carrier D0 accepted; parser final callable source coverage R0 selected
+Status: generated callable anchors closed; initial callable Program co-seal selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0`
+Current implementation row: `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
-Exception: T2 source-authority boundary required before several implementation rows.
-ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
+Prerequisite terminal: initial co-seal, then parent closeout; no new parser row may be inserted.
+First production finish: `ParserScanLoopBox.skip_while/4` switches to the canonical pipeline, deletes the selected old Dynamic route, and retains zero retry/fallback.
 
 ## Decision
 
@@ -753,52 +753,15 @@ PARSER-CALLABLE-PARAMETER-SOURCE-PATH-IDENTITY-R0
 
 Status: **closed**.
 
-Baseline audit exposed a lossy migration projection: the existing parameter
-source session de-duplicates method rows by `(root statement ordinal, source
-member ordinal)`.  Distinct then/else declarations inside one selected
-top-level gate therefore collide before the source-aware postpass can select a
-branch.  Replace that key with the exact parser-owned `SourceBoxMethodSiteV1`.
-
-This prerequisite is a BoxShape identity correction, not selected-gate
-admission for the legacy parameter catalog.  The exact same site still rejects
-as duplicate, the general source-seal gate fixture succeeds again, and the
-parameter-catalog finalizer continues to reject selected-gate rows until the
-complete callable source cutover.  No new callable source product or acceptance
-is opened.
-
-Closeout receipt:
-
-- `ParserCallableParameterSourceSessionV1` now retains exact
-  `SourceBoxMethodSiteV1` rows for duplicate detection;
-- distinct then/else source paths no longer collide before build-gate
-  projection;
-- exact duplicate sites still reject, while the legacy parameter-catalog
-  finalizer still reports `SelectedBuildGateUnsupported`;
-- focused callable-parameter and source-seal suites are green.
+Exact `SourceBoxMethodSiteV1` identity replaced the lossy ordinal pair;
+distinct gate branches no longer collide and exact duplicates still reject.
 
 #### `PARSER-SOURCE-SEAL-MODULE-SPLIT-R0`
 
 Status: **closed**.
 
-Split the near-limit `source_seal.rs` into a directory owner before semantic
-growth.  The first commit is strictly behavior invariant and retains one
-facade.  Suggested private owners are `model`, `gate_projection`, `finalize`,
-and `tests`; no new acceptance, source vocabulary, or public API is introduced.
-All files must stay below the preferred 760 / hard 800 line limits and the
-existing source-seal/postpass test matrix must remain green.
-
-Closeout receipt:
-
-- the former 751-line owner is now a 36-line private facade over focused
-  `model`, `gate_projection`, and `finalize` modules;
-- every source file is below 300 lines and the facade exposes the same
-  parser-private surface;
-- the source-seal, postpass-envelope, and source-resolver-handoff suites plus
-  `cargo check --lib` are green;
-- guards which inspect this authority now require all focused files, search
-  their combined contract text, and apply the line limit to each file;
-- no callable anchor, source acceptance, resolver, Builder, Home, Recipe,
-  retry, fallback, or production path was added.
+The near-limit source seal is now a behavior-invariant private directory
+owner; focused files remain below the parser split threshold.
 
 #### `PARSER-CALLABLE-DIRECT-ANCHOR-R0`
 
@@ -909,73 +872,16 @@ Closeout receipt:
 
 Status: **closed**
 
-Make callable source rows a field of the existing source-aware postpass
-transaction.  Build-gate projection consumes the exact selection receipt and
-retains only selected callable rows.  No compatibility arm may discard source
-rows and later reconstruct them.  Unsupported origins produce a typed
-pre-publication reject.
-
-Acceptance includes selected top-level gate, selected member gate, nested gate
-path preservation, unselected-branch absence, and no missing/duplicate/extra
-row after prune.  This row remains behavior invariant and publishes no
-resolver-facing source product.
-
-Closeout receipt:
-
-- the non-Clone direct callable row set moves once into the existing
-  source-aware postpass transaction; a second open rejects before publication;
-- top-level gates consume the existing exact selection receipts, while member
-  gates issue parser-private receipts from the selected source transaction at
-  the merge owner without predicate re-evaluation or final-AST repair;
-- one atomic prune covers selected top-level, member, and nested rows; an
-  inactive outer branch does not demand an irrelevant nested receipt and
-  exact no-else creates no synthetic Else authority;
-- ordinary and compatibility completion both retain selected callable rows as
-  private staging;
-- focused tests cover missing/duplicate/foreign receipts, selected Then/Else,
-  nested paths, inactive outer branches, second-open rejection, and
-  compatibility retention; parser sources remain below 760 lines;
-- generated anchors, verified resolver-facing Program publication, resolver,
-  Builder, Home, Recipe, retry, fallback, and production activation remain
-  zero.
+The one-shot source-aware postpass now prunes direct callable rows with exact
+top-level/member receipts, preserving nested paths without predicate replay.
 
 #### `PARSER-CALLABLE-GENERATED-ANCHOR-R0`
 
 Status: **closed**
 
-Property and delegate generator owners issue fresh callable anchors in the
-same source-aware postpass transaction.  A property row consumes its exact
-originating member plus generated placement receipt.  A delegate row consumes
-the existing `GeneratedDelegateSourceRelationV1`, including
-host/target/placement and name provenance.  `MacroOrImport` and
-`CompatibilityOnly` remain unsupported unless an exact origin issuer exists;
-they are never inferred from final inventory.
-
-Acceptance includes missing/duplicate/foreign generator receipt rejection,
-positive property/delegate coverage, and selected-gate generated origins.
-Generated anchors are never inherited from the source method they wrap.
-
-Closeout receipt:
-
-- property and delegate generator owners issue a fresh non-Clone
-  `CallableDeclarationAnchorV1` per exact generated placement; neither origin
-  inherits the direct source/target method anchor;
-- property origin consumes its exact `SourceBoxMethodSiteV1`, generated
-  placement receipt, and parser-issued member-gate selection receipt;
-- delegate origin consumes the complete `GeneratedDelegateSourceRelationV1`
-  and the exact host member-gate receipt after existing final-inventory
-  coverage validation;
-- selected Then/Else is retained as an exact structural source path for both
-  property and delegate rows without AST ordinal inference or predicate
-  re-evaluation;
-- direct and generated rows join only in private
-  `PreparedCallableSourceV1` staging and move through the existing atomic
-  source-aware postpass;
-- tests cover fresh/independent anchors, positive property/delegate coverage,
-  selected property/delegate origins, and missing/duplicate/foreign evidence;
-- `MacroOrImport`, `CompatibilityOnly`, verified Program publication,
-  resolver, Builder, Home, Recipe, retry, fallback, and production activation
-  remain zero.
+Property/delegate owners now issue fresh anchors from exact source, placement,
+relation, and selected-gate receipts. `MacroOrImport` and
+`CompatibilityOnly` remain unsupported.
 
 #### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
 
@@ -1022,11 +928,12 @@ DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
   -> whole batch retained; demand/lifecycle derived internally
 ```
 
-The 755-line normal semantic source must be directory-split before semantic
-growth. Suggested ownership split is `model`, `loan`, `prepared_ingress`, and
-tests; the sole resolver implementation lives in the neutral batch module.
+If the 755-line normal semantic source requires a directory split, that split
+is the first behavior-invariant commit of the same ingress implementation
+series, not a new prerequisite row. The sole resolver implementation remains
+in the neutral batch module.
 
-### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — parked behind 3A/R0
+### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — next after parser closeout
 
 Consume the whole parameter-demand catalog and whole Dynamic lifecycle
 program. Seal parameter #1 through Pos/initializer/local/V1/C0/L0/B0 and the
@@ -1036,14 +943,21 @@ Required negatives include wrong initializer BindingRef, local binding,
 Recipe input, carrier owner/binding/class/entry, missing or duplicate Enter,
 extra root carrier, caller-selected disposition, Clone, and split API.
 
-### 5. Follow-on order
+### 5. First-production cutover order
 
 ```text
 DYNAMIC-CARRIER-REBIND-TRANSACTION-I0
 -> DYNAMIC-CARRIER-FLOW-D0/I0
 -> cleanup projection / Completion / exit transaction
 -> physicalization
+-> full skip_while/4 unpublished-session canary
+-> named production caller switch
+-> selected old Dynamic route deletion; retry/fallback = 0
 ```
+
+The initial co-seal is the fixed terminal of the accepted parser prerequisite
+series. After its parent closeout, infrastructure work is selected only when
+the unchanged `skip_while/4` production gate fails at that exact owner.
 
 ## Parked independent cleanup
 

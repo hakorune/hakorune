@@ -556,6 +556,39 @@ new production edge active
 It does not mean accumulating another disconnected proof before the
 production edge.
 
+### Production Cutover Convergence Budget
+
+Every active replacement workstream names one finite first-production finish
+line:
+
+```text
+named production caller
++ selected new authority
++ selected old authority deleted in the switch
++ fallback / retry after the switch = 0
++ focused production parity gate
+```
+
+Infrastructure receipts are prerequisites, not replacement progress. Each
+prerequisite row must record the named caller, the exact gate that cannot pass
+without it, the authority it creates, the old authority deleted (`none` when
+honest), and the next cutover-facing row. A row with `old authority: none` is
+active only when it is a direct prerequisite of that named gate; otherwise it
+is parked.
+
+The default budget is at most two consecutive implementation rows without a
+production consumer, caller switch, or old-edge deletion. A longer bounded
+Refactor Series requires one explicit T2 decision, one fixed terminal, and no
+new rows inserted after the series starts. When the terminal lands, the next
+row must return to the product-facing path. A newly found problem may preempt
+only when the unchanged production gate fails at that exact owner; record the
+return row instead of opening another general foundation.
+
+This budget does not weaken source authority, atomic co-seal, fail-fast, or
+full-coverage requirements. It changes task selection: correctness gaps stop
+the named cutover, while unrelated generalization, cleanup, and future-family
+support remain parked until after the first production replacement cell.
+
 Do not create a second consecutive docs-only card for the same blocker unless
 one of these is true:
 

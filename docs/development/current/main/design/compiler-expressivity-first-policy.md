@@ -29,6 +29,28 @@ does not widen the old Builder or add a new source shape. A missing behavior
 found during parity is either an existing-behavior responsibility gap in the
 current pack or a T2 stop, never permission for a `.hako` workaround.
 
+## Selfhost cutover application
+
+Rust-to-Hako migration uses the production cutover convergence budget in
+`current-docs-update-policy-ssot.md`. A Hako shadow, parity proof, generated
+artifact, or disconnected caller is not a replacement cell by itself.
+
+Each selected selfhost cell must name:
+
+```text
+production caller switched to the Hako owner
+Rust semantic authority deleted in the same cell
+retained Rust bridge responsibility, if any
+bridge retirement condition
+fallback / retry after the switch = 0
+```
+
+Retained Rust may own parsing transport, process/ABI bridging, diagnostics,
+and verification seams. It must not retain the migrated semantic decision,
+by-name dispatch, source workaround, or a fallback implementation. If the old
+Rust implementation cannot yet be deleted, the Hako work remains a canary or
+prerequisite and does not count as selfhost cutover progress.
+
 ## 結論
 
 selfhost（`.hako` 側の回避的対応）を優先せず、先に compiler 側（Facts 前段の正規化・loop 構造箱・analysis-only view）で表現力を増やす。
