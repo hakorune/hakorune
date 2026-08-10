@@ -724,6 +724,122 @@ lacks an exact source row, transform preservation/generation cannot be proven,
 the request carries the AST separately, catalog pairing uses name/order, or a
 consumer requires an escaping loan, second resolver, or fallback.
 
+### 3E-R0. Parser initial callable source Refactor Series
+
+`PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0` is the parent closeout row.  A
+premise audit found that implementing it as one post-hoc issuer over
+`CompletedParserPostpassV1::ast()` would create a second source authority:
+the attempted shape walked the final AST, issued anchors after parsing, paired
+methods through the direct-only parameter catalog, and rejected gate/property/
+delegate rows even when exact parser receipts already existed.  That shape is
+rejected and must not land.
+
+The parser source authority is instead recut as one behavior-invariant
+Refactor Series.  Anchors originate only at the declaration or generator
+transaction that creates the callable; later stages may preserve or select an
+anchor only through an exact receipt.
+
+```text
+PARSER-SOURCE-SEAL-MODULE-SPLIT-R0
+  -> PARSER-CALLABLE-DIRECT-ANCHOR-R0
+  -> PARSER-CALLABLE-GATE-PROJECTION-R0
+  -> PARSER-CALLABLE-GENERATED-ANCHOR-R0
+  -> PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0
+  -> parent PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0 closeout
+```
+
+#### `PARSER-SOURCE-SEAL-MODULE-SPLIT-R0`
+
+Split the near-limit `source_seal.rs` into a directory owner before semantic
+growth.  The first commit is strictly behavior invariant and retains one
+facade.  Suggested private owners are `model`, `gate_projection`, `finalize`,
+and `tests`; no new acceptance, source vocabulary, or public API is introduced.
+All files must stay below the preferred 760 / hard 800 line limits and the
+existing source-seal/postpass test matrix must remain green.
+
+#### `PARSER-CALLABLE-DIRECT-ANCHOR-R0`
+
+Add one parser-private callable source session.  The original top-level
+function parser and explicit static/instance method commit issue an opaque
+`CallableDeclarationAnchorV1` together with the exact parser invocation and
+structural source path.  `Main` is an ordinary retained top-level declaration.
+Selected-gate branch paths are recorded as written; this row neither selects a
+branch nor publishes a verified program product.
+
+Acceptance:
+
+- a mixed direct source records top-level, `Main`, static, and instance rows;
+- top-level/member gate children retain exact branch paths before selection;
+- duplicate/foreign parser paths reject before session publication;
+- anchor equality cannot be reconstructed from name, span, statement/member
+  ordinal, inventory placement, pointer identity, or arity;
+- no completed-AST walk, resolver, Builder, Home, Recipe, or production use.
+
+#### `PARSER-CALLABLE-GATE-PROJECTION-R0`
+
+Make callable source rows a field of the existing source-aware postpass
+transaction.  Build-gate projection consumes the exact selection receipt and
+retains only selected callable rows.  No compatibility arm may discard source
+rows and later reconstruct them.  Unsupported origins produce a typed
+pre-publication reject.
+
+Acceptance includes selected top-level gate, selected member gate, nested gate
+path preservation, unselected-branch absence, and no missing/duplicate/extra
+row after prune.  This row remains behavior invariant and publishes no
+resolver-facing source product.
+
+#### `PARSER-CALLABLE-GENERATED-ANCHOR-R0`
+
+Property and delegate generator owners issue fresh callable anchors in the
+same source-aware postpass transaction.  A property row consumes its exact
+originating member plus generated placement receipt.  A delegate row consumes
+the existing `GeneratedDelegateSourceRelationV1`, including
+host/target/placement and name provenance.  `MacroOrImport` and
+`CompatibilityOnly` remain unsupported unless an exact origin issuer exists;
+they are never inferred from final inventory.
+
+Acceptance includes missing/duplicate/foreign generator receipt rejection,
+positive property/delegate coverage, and selected-gate generated origins.
+Generated anchors are never inherited from the source method they wrap.
+
+#### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
+
+The sole parser finalizer co-seals the final parser Program with the complete
+callable row set and issues non-Clone
+`VerifiedInitialCallableProgramSourceV1`.  This name is deliberately distinct
+from `VerifiedFinalCallableProgramSourceV1`, which is reserved for the later
+post-transform transaction.  A private exact-slot cache may lend declarations
+inside a higher-ranked callback; it is placement only and never identity.
+
+Required positive matrix:
+
+```text
+mixed top-level + Main + static + instance
+selected top-level BuildGate
+selected member BuildGate
+generated property
+generated delegate
+repeatable callback-scoped syntax loan
+```
+
+Required negative matrix:
+
+```text
+foreign parser brand or source path
+missing / duplicate / extra declaration row
+unselected or foreign gate receipt
+missing / duplicate / foreign generator receipt
+CompatibilityOnly or arbitrary AST entering the semantic lane
+name / span / ordinal / pointer repair
+Clone, split, escaping AST loan, or post-hoc anchor issuer
+```
+
+The legacy direct-Box `ParserCallableParameterSourceCatalogV1` remains a
+migration projection during this series.  It is not the complete callable
+source SSOT and may not be used to issue anchors or decide membership.  It is
+retired or projected from the complete product in the later semantic-source
+split/cutover rows.
+
 ### 3F. Ingress follow-on order
 
 ```text

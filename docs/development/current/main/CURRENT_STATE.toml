@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 is accepted: the final post-transform callable source is carried by a source-aware transform transaction, never reconstructed from a bare AST. The next row gives the parser's initial product complete top-level/method/generated/gate-aware callable coverage before transform and production cutover work."
+status = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0 was premise-audited and recut as a five-row Refactor Series. The first row splits the near-limit parser source-seal owner without behavior change; later rows issue direct/gate/generated authority before the initial Program co-seal."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 accepted in the rolling ingress card"
 work_mode = "fast"
-current_execution_row = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0"
-current_blocker_token = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0: issue one complete parser-owned initial callable inventory for top-level, static, and instance direct declarations, retain Main for later typed exclusion, and model generated/gate origins only through exact receipts; keep the product non-Clone and callback-scoped, with no transform, resolver, Builder selection, Home, Recipe, physical effect, retry, fallback, or bare-AST authority"
+current_execution_row = "PARSER-SOURCE-SEAL-MODULE-SPLIT-R0"
+current_blocker_token = "PARSER-SOURCE-SEAL-MODULE-SPLIT-R0: split the near-limit parser source_seal owner into a directory facade plus focused model, gate_projection, and finalize owners while preserving behavior and every existing parser source-seal/postpass test; add no callable anchor, acceptance, source vocabulary, resolver, Builder, Home, Recipe, retry, fallback, or production activation"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -720,11 +720,11 @@ latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 next_design_card = "none; NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0 accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_execution_card = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0"
+next_execution_card = "PARSER-SOURCE-SEAL-MODULE-SPLIT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 remains BorrowedIngressNoEnd. The source-aware transform transaction is accepted as the sole post-transform source authority. Parser complete callable coverage is selected; transform/request/package/projection cutovers follow without bare-AST reconstruction or fallback."
+latest_card_summary = "Initial V1/C0/B0 remains BorrowedIngressNoEnd. Parser complete callable coverage is now a five-row Refactor Series: source-seal split, direct anchors, gate projection, generated anchors, then the non-Clone initial Program co-seal. Anchors may never be reconstructed from a completed AST."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
