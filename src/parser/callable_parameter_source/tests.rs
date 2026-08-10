@@ -1,4 +1,4 @@
-use crate::ast::ParamDecl;
+use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, ParamDecl};
 use crate::parser::source_authority::{
     ParserInvocationBrandV1, SourceBoxDeclarationSiteV1, SourceBoxMemberSiteV1,
     SourceBoxMethodSiteV1,
@@ -10,6 +10,23 @@ use super::model::ParserCallableDeclarationKindV1;
 use super::parse_product::ParsedCallableParameterListV1;
 use super::project_neutral_parameter_syntax_v1;
 use super::session::{CallableParameterSourceIssueV1, ParserCallableParameterSourceSessionV1};
+
+fn first_method_inventory_ordinal() -> BoxMethodInventoryOrdinalV1 {
+    let ASTNode::Program { statements, .. } =
+        NyashParser::parse_from_string("box Placement { run(value) { return value } }").unwrap()
+    else {
+        unreachable!("fixture parses as Program")
+    };
+    let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
+        unreachable!("fixture contains one Box")
+    };
+    let ordinal = methods
+        .iter_selected_declaration_order()
+        .next()
+        .expect("fixture method")
+        .site();
+    ordinal
+}
 
 #[test]
 fn preserves_typed_and_untyped_parameter_syntax_in_source_order() {
@@ -69,6 +86,7 @@ box InstanceApi {
     );
     assert_eq!(declarations[0].box_statement_ordinal(), 0);
     assert_eq!(declarations[0].source_member_ordinal(), 1);
+    assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
     assert_eq!(declarations[0].diagnostic_name(), "run");
     assert_eq!(declarations[0].parameters().len(), 2);
     assert_eq!(declarations[0].parameters()[0].name(), "source");
@@ -91,6 +109,7 @@ box InstanceApi {
     );
     assert_eq!(declarations[1].box_statement_ordinal(), 1);
     assert_eq!(declarations[1].source_member_ordinal(), 1);
+    assert_eq!(declarations[1].inventory_ordinal().inventory_ordinal(), 0);
     assert_eq!(declarations[1].parameters()[0].ordinal(), 0);
 }
 
@@ -168,6 +187,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
     let error = session
         .commit(
             site(foreign),
+            first_method_inventory_ordinal(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "run".to_owned(),
             list(),
@@ -181,6 +201,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
     session
         .commit(
             site(brand.clone()),
+            first_method_inventory_ordinal(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "run".to_owned(),
             list(),
@@ -189,6 +210,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
     let error = session
         .commit(
             site(brand),
+            first_method_inventory_ordinal(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "again".to_owned(),
             list(),

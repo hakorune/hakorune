@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use crate::ast::BoxMethodInventoryOrdinalV1;
 use crate::parser::source_authority::{ParserInvocationBrandV1, SourceBoxMethodSiteV1};
 use crate::parser::{NyashParser, ParseError};
 
@@ -28,6 +29,7 @@ impl ParserCallableParameterSourceSessionV1 {
     pub(super) fn commit(
         &mut self,
         source_site: SourceBoxMethodSiteV1,
+        inventory_ordinal: BoxMethodInventoryOrdinalV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: ParsedCallableParameterListV1,
@@ -62,6 +64,7 @@ impl ParserCallableParameterSourceSessionV1 {
         self.declarations
             .push(ParserCallableParameterDeclarationSourceV1::new(
                 source_site,
+                inventory_ordinal,
                 kind,
                 diagnostic_name,
                 rows,
@@ -96,6 +99,7 @@ impl NyashParser {
     pub(in crate::parser) fn commit_callable_parameter_source(
         &mut self,
         source_site: SourceBoxMethodSiteV1,
+        inventory_ordinal: BoxMethodInventoryOrdinalV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: ParsedCallableParameterListV1,
@@ -103,7 +107,13 @@ impl NyashParser {
         self.callable_parameter_source_session
             .as_mut()
             .ok_or_else(|| parameter_source_error(CallableParameterSourceIssueV1::SessionClosed))?
-            .commit(source_site, kind, diagnostic_name, parameters)
+            .commit(
+                source_site,
+                inventory_ordinal,
+                kind,
+                diagnostic_name,
+                parameters,
+            )
             .map_err(parameter_source_error)
     }
 

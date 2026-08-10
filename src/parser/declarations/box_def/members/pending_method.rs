@@ -72,9 +72,15 @@ pub(crate) struct CommittedExplicitMethodV1 {
 }
 
 impl CommittedExplicitMethodV1 {
-    pub(crate) fn into_parameter_source(self) -> Option<(String, ParsedCallableParameterListV1)> {
+    pub(crate) fn into_parameter_source(
+        self,
+    ) -> Option<(
+        BoxMethodInventoryOrdinalV1,
+        String,
+        ParsedCallableParameterListV1,
+    )> {
         self.parameter_source
-            .map(|source| (self.diagnostic_name, source))
+            .map(|source| (self.inventory_ordinal, self.diagnostic_name, source))
     }
 }
 

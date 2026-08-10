@@ -24,6 +24,21 @@ arity, raw strings, and the cloneable AST are not source identity. Selected
 build gates, interfaces, constructors, generated methods, top-level functions,
 and Lambdas remain outside this I0.
 
+Each declaration retains two deliberately different coordinates:
+
+```text
+source member ordinal
+  = parser source identity; fields and other members participate
+
+method inventory ordinal
+  = descriptive placement receipt; method inventory lookup only
+```
+
+The placement receipt comes from the same explicit-method commit. It must
+never replace the source site as identity or authorize name-based repair. Its
+only downstream purpose is to let a parser-owned loan locate the already
+committed declaration without reconstructing source order.
+
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner must
 consume the whole catalog together with exact resolved callable declarations

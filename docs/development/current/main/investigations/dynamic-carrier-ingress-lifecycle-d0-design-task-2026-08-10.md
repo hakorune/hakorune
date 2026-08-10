@@ -228,6 +228,25 @@ Closeout receipt:
 - `source_seal.rs` remains unchanged at 751 lines and every touched source is
   below the 800-line hard limit.
 
+### 2A. `CALLABLE-PARAMETER-DECLARATION-PLACEMENT-R0` — closed
+
+The Demand audit found one pre-semantic placement gap. A direct method's
+source-member ordinal counts fields and other source members, while
+`BoxMethodInventoryV1` contains method rows only. Static Boxes do not have a
+`ParserBoxSourceSealV1` relation, so a later resolver could not locate the
+exact committed method without falling back to its diagnostic name.
+
+The behavior-neutral correction retains the already-issued
+`BoxMethodInventoryOrdinalV1` beside each parameter declaration source row.
+Source identity remains the parser brand, Box path, and source-member
+ordinal; inventory placement is lookup-only and cannot authorize semantic
+pairing. Static and instance fixtures with a preceding field prove the two
+ordinals differ while the exact method remains addressable.
+
+This row issues no resolver owner, `BindingRef`, demand, Home meaning, Take,
+Recipe, or MIR fact. It is the final parser-side prerequisite for the selected
+Demand I0.
+
 ### 3. `CALLABLE-PARAMETER-DEMAND-I0` — selected
 
 Issue one complete `VerifiedCallableParameterDemandCatalogV1` from the sealed

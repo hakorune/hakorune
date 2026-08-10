@@ -1,4 +1,4 @@
-use crate::ast::ParamDecl;
+use crate::ast::{BoxMethodInventoryOrdinalV1, ParamDecl};
 
 use super::super::source_authority::SourceBoxMethodSiteV1;
 
@@ -98,6 +98,7 @@ pub(crate) enum ParserCallableDeclarationKindV1 {
 #[derive(Debug)]
 pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     source_site: SourceBoxMethodSiteV1,
+    inventory_ordinal: BoxMethodInventoryOrdinalV1,
     kind: ParserCallableDeclarationKindV1,
     diagnostic_name: Box<str>,
     parameters: Box<[ParserCallableParameterSourceRowV1]>,
@@ -106,12 +107,14 @@ pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
 impl ParserCallableParameterDeclarationSourceV1 {
     pub(super) fn new(
         source_site: SourceBoxMethodSiteV1,
+        inventory_ordinal: BoxMethodInventoryOrdinalV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: Box<[ParserCallableParameterSourceRowV1]>,
     ) -> Self {
         Self {
             source_site,
+            inventory_ordinal,
             kind,
             diagnostic_name: diagnostic_name.into_boxed_str(),
             parameters,
@@ -120,6 +123,15 @@ impl ParserCallableParameterDeclarationSourceV1 {
 
     pub(super) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
         &self.source_site
+    }
+
+    /// Descriptive placement inside the selected method inventory.
+    ///
+    /// Source identity remains `source_site`; this receipt exists only so a
+    /// later parser-owned loan can locate the already-committed declaration
+    /// without a name lookup.
+    pub(crate) const fn inventory_ordinal(&self) -> BoxMethodInventoryOrdinalV1 {
+        self.inventory_ordinal
     }
 
     pub(crate) const fn kind(&self) -> ParserCallableDeclarationKindV1 {

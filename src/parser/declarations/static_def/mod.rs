@@ -263,7 +263,8 @@ fn commit_pending_static_method(
         member: cursor.current_member_site(),
     };
     let committed = method.commit(methods)?;
-    let Some((diagnostic_name, parameters)) = committed.into_parameter_source() else {
+    let Some((inventory_ordinal, diagnostic_name, parameters)) = committed.into_parameter_source()
+    else {
         return Err(ParseError::GrammarContract {
             stable_reject_tag: "parser/callable-parameter-source",
             detail: "direct static method omitted its parameter source product".to_owned(),
@@ -272,6 +273,7 @@ fn commit_pending_static_method(
     };
     parser.commit_callable_parameter_source(
         source_site,
+        inventory_ordinal,
         crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
         diagnostic_name,
         parameters,
