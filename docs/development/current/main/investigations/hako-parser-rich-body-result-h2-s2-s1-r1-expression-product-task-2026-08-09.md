@@ -700,3 +700,74 @@ GenericLoop, infer from loop_var/name/AST/ValueId/route/runtime tag, copy from
 previous/PHI, publish after failure, or add debug/fixture/fallback/retry
 behavior. The parser expression-product WIP remains parked until this audit
 has a source-backed owner and the same predecessor/parity gate can be rerun.
+
+### Read-only producer/publication census closeout (2026-08-11)
+
+The reopened census is classified as **C: unowned/missing evidence**. The
+correct disposition remains `NoSafeSlice`; this is not a GenericLoop defect
+and it does not reopen the already-closed static result-publication row.
+
+The two existing candidate families were checked separately:
+
+```text
+Static result publication (existing, distinct family)
+  RawInvocationChildPortV1::try_emit_source_bound_static_call_result_v1
+    -> exact selected source-bound handoff
+    -> CompletedUnifiedValueCallEmissionV1
+    -> PreparedStaticCallResultPublicationV1::commit
+    -> type_ctx[final destination] = exact MirType
+
+Dynamic source owner (existing, currently disconnected)
+  SourceBackedDynamicCallableIssuerV1
+    -> CallableDynamicOriginLoweringStateV1
+    -> prepare_source_backed_dynamic_loop_ingress
+```
+
+The first family has a real successful-emission/publication receipt, but the
+H2 fixture's static-call trace only reaches names such as
+`ParserCommonUtilsBox.is_digit/1`, `ParserNumberScanBox.scan_parts/2`, and
+`scan_int/2`. It does not bind the failing GenericLoop initializer to an exact
+static source-site, call-emission receipt, or publication destination. The
+reported `ValueId(210)` is allocation evidence only and is not a source
+identity; reopening static result publication would therefore create a second
+authority without evidence.
+
+The second family is a plausible source lineage for the fixture: the imported
+parser methods use untyped formals and locals such as `local j = i`, followed by
+numeric loops. However, a production caller census found no non-test caller of
+`prepare_source_backed_dynamic_loop_ingress`. The Dynamic issuer also does not
+publish a `ValueId -> MirType` fact. It cannot be connected to this failure by
+method name, loop variable, route, or runtime tag.
+
+The only confirmed GenericLoop path is still verifier-only:
+
+```text
+variable_map[loop_var] -> init ValueId
+type_ctx.get_type(init)
+  None    -> MissingTransientType
+  Unknown -> UnknownTransientType
+  exact   -> carrier representation check
+```
+
+No producer, publication, default type, previous/PHI copy, or Dynamic
+authorization is issued at that boundary. This preserves the existing route,
+MIR type behavior, and failure category.
+
+Reopen criteria are now explicit and one-to-one:
+
+```text
+(method identity, loop source, initializer source, init ValueId)
+  + exact successful physical producer receipt
+    or exact Dynamic ingress receipt
+  + unique post-success TypeContext publication
+    or authorized Dynamic representation
+```
+
+Until that relation is observed, keep `H2-S2-S1-R1-REOPEN-AUDIT` at
+`NoSafeSlice`. Do not repair GenericLoop, reopen static I1, connect the
+Dynamic issuer in production, infer from ValueId/name/route/AST/runtime tag,
+narrow the fixture, add debug-only evidence, or introduce fallback/retry/a
+second publisher. A future bounded design may be named
+`H2-S2-S1-R1-EXACT-FIRST-ADMISSION-PRODUCER-CENSUS-D0`, but it is a read-only
+owner census, not an implementation task, and should not be opened until a
+new exact observation source exists.
