@@ -1,6 +1,8 @@
-use crate::ast::ASTNode;
-
 use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::syntax_loan::{
+    borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
+    ParserCallableSyntaxLoanErrorV1,
+};
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 use crate::parser::{NyashParser, ParseError, ParserBuildConfig};
 
@@ -33,7 +35,20 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         Self { completed, catalog }
     }
 
-    pub(crate) fn into_ast_and_catalog(self) -> (ASTNode, ParserCallableParameterSourceCatalogV1) {
-        (self.completed.into_ast(), self.catalog)
+    /// Borrow exact callable declarations while consuming the parser product.
+    ///
+    /// The loan cannot escape the callback. The owned catalog moves into the
+    /// same callback, so another AST or parser invocation cannot be paired
+    /// with its source rows after this boundary.
+    pub(crate) fn with_callable_declaration_syntax<R>(
+        self,
+        callback: impl for<'ast> FnOnce(
+            ParserCallableParameterSourceCatalogV1,
+            ParserCallableDeclarationSyntaxLoanV1<'ast>,
+        ) -> R,
+    ) -> Result<R, ParserCallableSyntaxLoanErrorV1> {
+        let Self { completed, catalog } = self;
+        let loan = borrow_callable_declaration_syntax_v1(completed.ast(), &catalog)?;
+        Ok(callback(catalog, loan))
     }
 }

@@ -76,41 +76,96 @@ box InstanceApi {
         ParserBuildConfig::default(),
     )
     .unwrap();
-    let (_, catalog) = parsed.into_ast_and_catalog();
-    let declarations = catalog.declarations();
+    parsed
+        .with_callable_declaration_syntax(|catalog, _| {
+            let declarations = catalog.declarations();
 
-    assert_eq!(declarations.len(), 2);
-    assert_eq!(
-        declarations[0].kind(),
-        ParserCallableDeclarationKindV1::StaticBoxMethod
-    );
-    assert_eq!(declarations[0].box_statement_ordinal(), 0);
-    assert_eq!(declarations[0].source_member_ordinal(), 1);
-    assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
-    assert_eq!(declarations[0].diagnostic_name(), "run");
-    assert_eq!(declarations[0].parameters().len(), 2);
-    assert_eq!(declarations[0].parameters()[0].name(), "source");
-    assert_eq!(
-        declarations[0].parameters()[0].declared_type().as_deref(),
-        None
-    );
-    assert_eq!(
-        declarations[0].parameters()[1].declared_type().as_deref(),
-        Some("i64")
-    );
-    assert!(declarations[0]
-        .parameters()
-        .iter()
-        .all(|row| row.transfer().is_ordinary()));
+            assert_eq!(declarations.len(), 2);
+            assert_eq!(
+                declarations[0].kind(),
+                ParserCallableDeclarationKindV1::StaticBoxMethod
+            );
+            assert_eq!(declarations[0].box_statement_ordinal(), 0);
+            assert_eq!(declarations[0].source_member_ordinal(), 1);
+            assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
+            assert_eq!(declarations[0].diagnostic_name(), "run");
+            assert_eq!(declarations[0].parameters().len(), 2);
+            assert_eq!(declarations[0].parameters()[0].name(), "source");
+            assert_eq!(
+                declarations[0].parameters()[0].declared_type().as_deref(),
+                None
+            );
+            assert_eq!(
+                declarations[0].parameters()[1].declared_type().as_deref(),
+                Some("i64")
+            );
+            assert!(declarations[0]
+                .parameters()
+                .iter()
+                .all(|row| row.transfer().is_ordinary()));
+
+            assert_eq!(
+                declarations[1].kind(),
+                ParserCallableDeclarationKindV1::InstanceBoxMethod
+            );
+            assert_eq!(declarations[1].box_statement_ordinal(), 1);
+            assert_eq!(declarations[1].source_member_ordinal(), 1);
+            assert_eq!(declarations[1].inventory_ordinal().inventory_ordinal(), 0);
+            assert_eq!(declarations[1].parameters()[0].ordinal(), 0);
+        })
+        .unwrap();
+}
+
+#[test]
+fn consuming_syntax_loan_binds_exact_static_and_instance_declarations() {
+    let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
+        r#"
+static box StaticApi {
+    field
+    run(source, count: i64) { return count }
+}
+box InstanceApi {
+    value
+    read(offset) { return offset }
+}
+"#,
+        ParserBuildConfig::default(),
+    )
+    .unwrap();
+
+    let observed = parsed
+        .with_callable_declaration_syntax(|catalog, loan| {
+            assert_eq!(catalog.declarations().len(), loan.declarations().len());
+            loan.declarations()
+                .iter()
+                .map(|row| {
+                    let ASTNode::FunctionDeclaration {
+                        name,
+                        param_decls,
+                        is_static,
+                        ..
+                    } = row.declaration()
+                    else {
+                        unreachable!("loan only retains exact function declarations")
+                    };
+                    (
+                        row.source_row_index(),
+                        name.clone(),
+                        param_decls.len(),
+                        *is_static,
+                    )
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap();
 
     assert_eq!(
-        declarations[1].kind(),
-        ParserCallableDeclarationKindV1::InstanceBoxMethod
+        observed,
+        [
+            (0, "run".to_owned(), 2, true),
+            (1, "read".to_owned(), 1, false),
+        ]
     );
-    assert_eq!(declarations[1].box_statement_ordinal(), 1);
-    assert_eq!(declarations[1].source_member_ordinal(), 1);
-    assert_eq!(declarations[1].inventory_ordinal().inventory_ordinal(), 0);
-    assert_eq!(declarations[1].parameters()[0].ordinal(), 0);
 }
 
 #[test]
@@ -120,32 +175,35 @@ fn unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows() {
         ParserBuildConfig::default(),
     )
     .unwrap();
-    let (_, catalog) = parsed.into_ast_and_catalog();
-    let declarations = catalog.declarations();
-    assert_eq!(
-        declarations
-            .iter()
-            .map(|row| (row.diagnostic_name(), row.parameters().len()))
-            .collect::<Vec<_>>(),
-        [
-            ("skip_while", 4),
-            ("scan_until_newline", 3),
-            ("scan_escape", 4),
-            ("scan_escape_piece_and_skip", 4),
-        ]
-    );
-    assert_eq!(
-        declarations
-            .iter()
-            .map(|row| row.parameters().len())
-            .sum::<usize>(),
-        15
-    );
-    assert_eq!(declarations[0].parameters()[1].name(), "pos");
-    assert_eq!(
-        declarations[0].parameters()[1].declared_type().as_deref(),
-        None
-    );
+    parsed
+        .with_callable_declaration_syntax(|catalog, _| {
+            let declarations = catalog.declarations();
+            assert_eq!(
+                declarations
+                    .iter()
+                    .map(|row| (row.diagnostic_name(), row.parameters().len()))
+                    .collect::<Vec<_>>(),
+                [
+                    ("skip_while", 4),
+                    ("scan_until_newline", 3),
+                    ("scan_escape", 4),
+                    ("scan_escape_piece_and_skip", 4),
+                ]
+            );
+            assert_eq!(
+                declarations
+                    .iter()
+                    .map(|row| row.parameters().len())
+                    .sum::<usize>(),
+                15
+            );
+            assert_eq!(declarations[0].parameters()[1].name(), "pos");
+            assert_eq!(
+                declarations[0].parameters()[1].declared_type().as_deref(),
+                None
+            );
+        })
+        .unwrap();
 }
 
 #[test]
@@ -156,8 +214,8 @@ fn parameter_catalogs_keep_parser_invocation_identity() {
             ParserBuildConfig::default(),
         )
         .unwrap()
-        .into_ast_and_catalog()
-        .1
+        .with_callable_declaration_syntax(|catalog, _| catalog)
+        .unwrap()
     };
     let first = parse();
     let second = parse();

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The complete Ordinary parameter-source authority and its exact committed-method placement receipt are closed for direct static and ordinary instance methods. The selected I0 co-seals the whole parser catalog with exact resolved callable declarations into one complete parameter-demand catalog."
+status = "The complete Ordinary parameter-source authority, exact committed-method placement, and callback-scoped declaration syntax loan are closed for direct static and ordinary instance methods. The selected I0 co-seals that whole parser input with exact resolved callable declarations into one complete parameter-demand catalog."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
@@ -724,7 +724,7 @@ next_execution_card = "CALLABLE-PARAMETER-DEMAND-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. The Hako/Rust Ordinary parameter-source catalog is closed for unchanged ParserScanLoopBox; the complete resolved parameter-demand catalog now precedes Dynamic ingress I0."
+latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. The Hako/Rust Ordinary parameter-source catalog and its exact callback-scoped declaration syntax loan are closed for unchanged ParserScanLoopBox; the complete resolved parameter-demand catalog now precedes Dynamic ingress I0."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

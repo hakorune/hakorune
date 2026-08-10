@@ -247,6 +247,26 @@ This row issues no resolver owner, `BindingRef`, demand, Home meaning, Take,
 Recipe, or MIR fact. It is the final parser-side prerequisite for the selected
 Demand I0.
 
+### 2B. `CALLABLE-PARAMETER-DECLARATION-SYNTAX-LOAN-R0` — closed
+
+The placement receipt is now consumed by one parser-private exact syntax
+loan. `ParsedProgramWithCallableParameterSourceV1` moves the complete catalog
+into a callback while lending only the exact committed function declarations
+from the same completed postpass. The loan cannot escape the callback and
+there is no AST-plus-catalog split API on this path.
+
+The issuer indexes the selected inventory by the already-sealed placement,
+then validates direct explicit provenance, static/instance kind, method
+identity, and complete parameter name/type/order equality. It never searches
+by Box or method name and never rebuilds source identity from the inventory
+ordinal. Focused negatives reject static/instance cross-wiring, diagnostic
+name repair, and parameter-type reconstruction.
+
+This remains unpublished parser transaction staging. Resolver owner,
+`BindingRef`, `HomeDemandV1`, Take, Recipe, MIR, and production activation are
+still zero; the selected Demand I0 must consume this loan rather than open a
+second AST lookup path.
+
 ### 3. `CALLABLE-PARAMETER-DEMAND-I0` — selected
 
 Issue one complete `VerifiedCallableParameterDemandCatalogV1` from the sealed

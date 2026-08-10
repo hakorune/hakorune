@@ -10,6 +10,7 @@ mod model;
 mod parse_product;
 mod product;
 mod session;
+mod syntax_loan;
 
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(in crate::parser) use model::ParserCallableDeclarationKindV1;
@@ -17,6 +18,5 @@ pub(crate) use model::ResolverMethodParameterSyntaxV1;
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
 pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
 pub(in crate::parser) use session::ParserCallableParameterSourceSessionV1;
-
 #[cfg(test)]
 mod tests;

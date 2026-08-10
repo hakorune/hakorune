@@ -13,6 +13,9 @@ Current I0 boundary:
   Box-method source site, rejecting foreign/duplicate/partial coverage;
 - `catalog.rs` owns the complete non-Clone static/instance sibling catalog;
 - `product.rs` pairs that catalog with the completed total parser postpass;
+- `syntax_loan.rs` consumes that pair into one callback-scoped exact
+  declaration loan using only sealed statement/inventory placement; the loan
+  cannot escape and never searches by name;
 - `model.rs` owns the closed `Ordinary | Take` vocabulary, explicit
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
 - only `Ordinary` has an issuer. `Take` remains vocabulary-only.
@@ -38,6 +41,12 @@ The placement receipt comes from the same explicit-method commit. It must
 never replace the source site as identity or authorize name-based repair. Its
 only downstream purpose is to let a parser-owned loan locate the already
 committed declaration without reconstructing source order.
+
+The consuming loan moves the whole catalog into the same callback that
+borrows the exact AST declarations. It validates Box kind, explicit/direct
+provenance, method identity, parameter order/name/type coverage, and static
+mode before lending syntax. It publishes no reusable AST handle, bare
+placement lookup, or partial catalog projection.
 
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner must

@@ -91,6 +91,10 @@ pub(super) struct CompletedParserPostpassV1 {
 }
 
 impl CompletedParserPostpassV1 {
+    pub(super) fn ast(&self) -> &ASTNode {
+        &self.ast
+    }
+
     pub(super) fn from_source_product(
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,
