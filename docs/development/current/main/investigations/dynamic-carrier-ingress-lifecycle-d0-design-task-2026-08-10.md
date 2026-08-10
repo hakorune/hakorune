@@ -961,7 +961,7 @@ This compact order supersedes the seven fine-grained 3E follow-on row names.
 It does not remove their contracts; it groups them by one production-cutover
 purpose and prevents another unbounded prerequisite chain.
 
-### 3G. `NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0` — current
+### 3G. `NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0` — closed
 
 Purpose: carry the final callable Program source through the real normal
 compile request before any resolver or Builder effect.
@@ -1007,7 +1007,30 @@ Acceptance:
 - JSON/REPL/all-origin coverage is not claimed; and
 - every touched source remains below 760 preferred / 800 hard lines.
 
-### 3H. `NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0` — next
+Closeout (2026-08-10):
+
+- the callable-aware parser and total macro transform retain one final
+  `VerifiedFinalCallableProgramSourceV1`, rejecting exact-source mutation
+  rather than retrying through a bare AST;
+- `NormalCompileRequestV1` and
+  `PreparedNormalDefaultProgramRootV1` now carry that product atomically;
+- `execute_mir_mode` is the named production caller and no longer performs
+  `parse_source -> maybe_expand_and_dump -> for_mir_mode(ast)` on its
+  source-backed arm;
+- the explicit Parser/default-derive/MacroBox compatibility arm remains typed
+  and does not act as issuer-failure fallback;
+- `normal_callable_source_carrier_cutover_guard.sh`, focused parser/macro and
+  request tests, and `cargo check --lib` are green; and
+- the release named-caller probe
+  `NYASH_MACRO_DISABLE=1 ./target/release/hakorune --backend mir
+  lang/src/compiler/parser/scan/parser_scan_loop_box.hako` crosses the new
+  source carrier and retains the expected next-row
+  `UnknownTransientType { init: ValueId(4) }` fail-fast boundary; it does not
+  retry through the removed source-backed AST edge; and
+- minimal MIR JSON, JSON artifact, REPL, resolver semantics, Dynamic meaning,
+  Home, Recipe, CFG, Completion, and physicalization remain unchanged.
+
+### 3H. `NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0` — current
 
 Purpose: establish one resolver allocation and delete the competing Builder
 resolver/source authority for the selected Dynamic production route.
