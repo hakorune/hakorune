@@ -1,5 +1,6 @@
 ---
-Status: implementation preserved; blocked by `GENERIC-LOOP-SOURCE-BACKED-DYNAMIC-CARRIER-D0`
+Status: reopen audit pending; prior GenericLoop blocker is closed, but this
+row still lacks its registered guard and green acceptance evidence
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -154,4 +155,7 @@ Home, resolver, Recipe, MIR, runtime
 ## Closeout
 
 Implementation, focused fixture/guard, expression owner docs, current pointers,
-commit, and push close together. Next is `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-I0`.
+commit, and push close together. First run the focused
+`H2-S2-S1-R1-REOPEN-AUDIT`; only after its guard and predecessor gates are green
+may `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-I0` open. This row remains
+parser-only and does not connect a method/result seal.
