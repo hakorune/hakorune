@@ -625,6 +625,59 @@ PHYSICAL-CALLSLOT-TARGET-HANDOFF-D0
 No code, V2-to-V1 adapter, Recipe rebuild, public target catalog, physical
 session, DraftSeal, Collector, retry, or fallback is authorized in this row.
 
+### CallSlot target handoff D0 closeout (2026-08-10)
+
+The independent source/target audit closes this design stop with one precise
+interpretation: `VerifiedSourceBoundDynamicMemberCallV1` is an exact
+source-bound Dynamic message relation, not an executable/provider target.
+It owns the resolver owner, call/receiver/result sites, receiver BindingRef and
+origin, ordered argument sites, and selector/arity dispatch identity. It must
+not be upgraded into a runtime target or a third callable catalog.
+
+The accepted I0 boundary is:
+
+```text
+ResolvedFunctionLoweringInputV1
+  -> owned source-bound call rows (HRTB ends here)
+  -> consume Box<[VerifiedSourceBoundDynamicMemberCallV1]>
+  -> exact Dynamic source/Recipe envelope
+       private rows: { Recipe item, source role, source-bound call row }
+  -> semantic program retains the rows transitively
+  -> future physical-demand issuer borrows one scoped view
+```
+
+The handoff is non-`Clone`, non-splittable, and has no `into_parts`, raw target
+getter, CallSlot getter, function pointer, provider handle, or runtime route.
+The retained source already owns the same owner/frame/scope-region relation;
+the handoff co-seals against it. A separate ResolverCatalogBrand is not
+invented: this row is a source-bound message relation, not a reusable
+declaration/executable target. If a later physical issuer requires a brand or
+an executable target, that is a separate `NoSafeSlice` axis.
+
+I0 must add exact evidence for:
+
+```text
+two expected rows are consumed exactly once
+expected selector/arity matches each source role
+all supplied rows are consumed; extra rows reject
+owner/frame/scope-region/source-site equality
+call/receiver/result/ordered-argument equality
+Recipe CallSlot item/receiver/args/result/value-class equality
+missing, duplicate, foreign, reused, or mismatched target rejection
+```
+
+After this closeout, the live order is:
+
+```text
+PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0
+  -> PHYSICAL-OPERATION-DEMAND-I0
+  -> PHYSICAL-INPUT-AUTHORITY-I0
+```
+
+The I0 remains pre-session and source-only. It may not open a Builder or
+physical session, issue ABI/Completion/DraftSeal/Collector products, or add a
+fallback/retry path.
+
 ## Hard stops
 
 ```text
