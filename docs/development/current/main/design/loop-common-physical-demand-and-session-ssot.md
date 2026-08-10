@@ -1017,6 +1017,24 @@ role, current-block, name, ordinal, or Recipe-order repair is never an
 acceptable bridge. If the census cannot prove caller-zero ownership, leave the
 old type in place and return `NoSafeSlice`.
 
+These three rows are the canonical post-Dynamic unification series. They are
+ordered as one BoxShape-only refactor boundary:
+
+```text
+LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+  -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
+```
+
+`LOOP-PHYSICALIZER-COMMON-OWNER-R0` in the portable-Recipe SSOT is a related
+but separate historical Accum-owner split. It may not absorb these rows or
+become a second authority for the Dynamic/Common physicalizer boundary. The
+post-Dynamic series owns transfer/evidence consumption and the Callable
+profile boundary; the older row owns only the behavior-neutral Accum service
+split. If an implementation touches both owners, keep the changes in separate
+refactor-series commits with independent guards.
+
 The three structural-coverage I0 rows each use the same four-block contract:
 
 ```text

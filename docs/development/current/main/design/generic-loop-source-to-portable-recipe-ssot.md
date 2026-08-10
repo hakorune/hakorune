@@ -1077,7 +1077,13 @@ LOOP-CALLER-ZERO-PARITY-G0-I0-R0
   split G0 After into neutral continuation and distinct tail capability
 
 LOOP-PHYSICALIZER-COMMON-OWNER-R0
-  behavior-neutral 2-5 commit split; accepted shapes unchanged
+  behavior-neutral 2-5 commit split for the historical Accum owner only;
+  accepted shapes unchanged. Post-Dynamic transfer/evidence consumption and
+  Callable profile-boundary cleanup are owned by the canonical rows in
+  `loop-common-physical-demand-and-session-ssot.md`:
+  `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`,
+  `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0`, and
+  `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0`. Do not merge those rows here.
 
 LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0
   disconnected common CFG/Binding-SSA physicalizer through root After capability
