@@ -1,7 +1,8 @@
 ---
-Status: compile-front handoff design accepted; the bounded diagnostic-only I0
-is the current execution row. The parser-only product WIP still reaches the
-existing GenericLoop representation blocker before fixture execution.
+Status: compile-front handoff I0 closed; the next execution boundary is the
+read-only GenericLoop producer-publication reopen audit. The parser-only
+product WIP still reaches the existing GenericLoop representation blocker
+before fixture execution.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -563,7 +564,7 @@ no ValueId/name/order repair, type inference, fallback, or retry
 wrong initializer index and missing completion reject before admission
 ```
 
-The accepted I0 is now open and in implementation:
+The accepted I0 is now closed:
 
 ```text
 H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
@@ -572,7 +573,7 @@ H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
   -> unchanged GenericLoop failure
 ```
 
-### I0 implementation receipt (2026-08-11, in progress)
+### I0 closeout receipt (2026-08-11)
 
 The parser-issued method observation now travels through the existing
 syntax-loan -> resolved semantic batch -> installed package -> raw callable
@@ -596,12 +597,6 @@ h2_compile_front_owner_handoff_i0_guard.sh: green
 selected member-gate observation exclusion test: green
 ```
 
-Remaining in this row:
-
-```text
-current-state/pointer/diff gates and one closeout commit
-```
-
 This row still does not authorize GenericLoop semantic changes, production
 route activation, fallback/retry, H2-S3, FuncScanner, Stage-B JSON, or Dynamic
 narrowing. After the I0 closeout, the parked post-Dynamic Loop BoxShape series
@@ -613,3 +608,42 @@ LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
   -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
   -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
 ```
+
+### `H2-S2-S1-R1-REOPEN-AUDIT` (next design stop)
+
+The predecessor S0/R1 fixture gate still fails at the unchanged compiler
+boundary:
+
+```text
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(...) }
+```
+
+This is not a GenericLoop admission defect. The next audit is read-only and
+must census the one canonical producer-publication chain:
+
+```text
+init ValueId
+  -> source initializer
+  -> actual physical producer
+  -> successful emission receipt
+  -> transient `ValueId -> MirType` publication
+  -> GenericLoop TypeContext read
+```
+
+Acceptance:
+
+```text
+one producer issuer for the selected ValueId
+known successful producer has one publication receipt
+missing/failed/foreign/duplicate producer or publication rejects
+default route, MIR type, ValueId, and GenericLoop error remain unchanged
+producer issuer remains separate from Dynamic carrier lifecycle
+```
+
+If the producer issuer cannot be identified from existing source/emission
+receipts, keep this row at `NoSafeSlice`. Do not insert a default type in
+GenericLoop, infer from loop_var/name/AST/ValueId/route/runtime tag, copy from
+previous/PHI, publish after failure, or add debug/fixture/fallback/retry
+behavior. The parser expression-product WIP remains parked until this audit
+has a source-backed owner and the same predecessor/parity gate can be rerun.
