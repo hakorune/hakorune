@@ -1035,6 +1035,30 @@ Closeout (2026-08-10):
 Purpose: establish one resolver allocation and delete the competing Builder
 resolver/source authority for the selected Dynamic production route.
 
+#### Recovered premise correction after source-carrier cutover
+
+`VerifiedFinalCallableProgramSourceV1` currently retains the final Program,
+exact callable anchors, final slots, and transform lineage, but it does **not**
+yet retain the parser-issued callable parameter-source catalog.  The named
+`parse_normal_callable_program` path therefore cannot issue parameter demand
+from the final source without either reopening parser authority or inferring
+transfer from AST absence.  Both are forbidden.
+
+The first responsibility boundary in this series is consequently:
+
+```text
+same Parser transaction
+  -> final callable anchors / slots
+  + exact callable parameter-source rows
+  -> atomic final callable Program source
+```
+
+The parameter rows survive every exact callable-preserving transform together
+with their callable anchor.  Missing, duplicate, foreign, or dropped rows
+reject.  Compatibility origins remain typed compatibility and do not acquire
+source authority.  Resolver code never reconstructs parameter transfer by
+method name, source ordinal, raw parameter text, or the absence of `take`.
+
 The final issuer consumes one whole final semantic package. It does not accept
 caller-paired demand and lifecycle products:
 
@@ -1064,16 +1088,24 @@ Fully-observed shape mismatch is `Declined`; missing navigation/evidence is
 Rejected rows. Method or Box names never select the candidate. Selector shape
 inside the verified body remains family semantics, not caller selection.
 
-One Refactor Series of 3--5 commits may:
+One Refactor Series of at most 5 commits owns the recovered delta:
 
 1. split the near-limit old normal semantic source by responsibility;
-2. issue the sole batch/package and exact selected declaration mapping;
-3. recut Dynamic target/invocation evidence as catalog-neutral, batch-owned
+2. co-seal and transform-carry exact callable parameter source in the final
+   callable Program source;
+3. issue the sole batch/package and exact anchor-to-batch-slot mapping;
+4. recut Dynamic target/invocation evidence as catalog-neutral, batch-owned
    source relations;
-4. replace/delete `VerifiedNormalCallableSemanticSourceV1::seal` and its
-   second resolver authority for the selected route; and
-5. derive parameter #1 Pos through initializer/local/V1/C0/L0/B0 and the exact
-   JoinSig Enter as owned private ingress rows.
+5. replace/delete `VerifiedNormalCallableSemanticSourceV1::seal`, its second
+   resolver authority, and caller pairing for the selected route while
+   deriving parameter #1 Pos through initializer/local/V1/C0/L0/B0 and the
+   exact JoinSig Enter as owned private ingress rows.
+
+The first commit is behavior-preserving BoxShape work.  The 755-line
+`normal_callable_semantic_source.rs` must be split before semantic behavior is
+added.  `parser/mod.rs` (758 lines), `normal_callable_loop_handoff.rs` (749),
+and `recursive_child_lowering.rs` (751) are no-addition surfaces; new owner
+logic belongs in sibling modules.  No new prerequisite card is opened.
 
 The final product owns the package/batch and owned relation rows. It never
 stores self-referential borrowed catalogs. Scoped views may exist only during
@@ -1085,6 +1117,15 @@ V1/C0/B0 and JoinSig Enter, plus rejection of foreign package/batch/transform,
 wrong initializer/local/carrier/Enter, missing/duplicate Dynamic Candidate,
 Clone, split, and forged constructors. Series end requires the selected old
 Builder resolver/source edge and caller pairing to be zero.
+
+Structural closeout guards require the package issuer to precede the first
+Builder/module effect, exactly zero production calls to
+`VerifiedNormalCallableSemanticSourceV1::seal`, no
+`extend_complete_dynamic_sources` input from the old source, and one whole
+package input for ingress.  Borrowed lowering inputs, ledger views, demand
+catalogs, target catalogs, and Dynamic envelope catalogs may exist only inside
+issuer callbacks; the final package stores owned relations and is neither
+Clone nor splittable.
 
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.

@@ -38,6 +38,7 @@ mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 mod normal_callable_semantic_loan_port; // Selected-only outer callable loan
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
+mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
 pub(crate) use callable_declaration_catalog::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
