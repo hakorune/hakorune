@@ -23,7 +23,8 @@ pub(in crate::parser) use model::{
 };
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
 pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
-pub(crate) use retained::RetainedParserCallableSemanticSourceV1;
+#[cfg(test)]
+pub(super) use retained::RetainedParserCallableSemanticSourceV1;
 pub(in crate::parser) use session::ParserCallableParameterSourceSessionV1;
 pub(in crate::parser) use syntax_loan::borrow_callable_declaration_syntax_v1;
 pub(crate) use syntax_loan::{

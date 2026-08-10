@@ -4,7 +4,7 @@ use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
-use crate::parser::{ParserCallableSyntaxLoanErrorV1, RetainedParserCallableSemanticSourceV1};
+use crate::parser::{ParserCallableSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedCallableDeclarationModeV1 {
@@ -25,7 +25,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
-    pub(super) source: RetainedParserCallableSemanticSourceV1,
+    pub(super) source: VerifiedFinalCallableProgramSourceV1,
     pub(super) rows: Box<[VerifiedResolvedCallableSemanticRowV1]>,
 }
 
@@ -76,7 +76,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
             .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
 
         self.source
-            .with_callable_declaration_syntax(|catalog, loan| {
+            .with_callable_parameter_syntax(|catalog, loan| {
                 let source = catalog
                     .declarations()
                     .get(index)
@@ -103,6 +103,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                 Ok(callback(input))
             })
             .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
+            .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::ParameterSourceUnavailable)?
     }
 
     pub(crate) fn with_declaration_semantics<R>(
@@ -110,7 +111,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         callback: impl for<'source> FnOnce(VerifiedResolvedCallableSemanticBatchRefV1<'source>) -> R,
     ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
         self.source
-            .with_callable_declaration_syntax(|catalog, loan| {
+            .with_callable_parameter_syntax(|catalog, loan| {
                 if catalog.declarations().len() != self.rows.len()
                     || loan.declarations().len() != self.rows.len()
                 {
@@ -161,6 +162,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                 }))
             })
             .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
+            .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::ParameterSourceUnavailable)?
     }
 }
 
@@ -234,6 +236,7 @@ impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
 
 #[derive(Debug)]
 pub(crate) enum ResolvedCallableSemanticBatchLoanErrorV1 {
+    ParameterSourceUnavailable,
     ParserSyntax(ParserCallableSyntaxLoanErrorV1),
     MissingSourceRow,
     SourceCoverage,

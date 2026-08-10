@@ -1138,6 +1138,15 @@ its stricter gate rejection, so this carriage neither narrows the normal
 callable source lane nor broadens the old API.  Focused normal-source, macro,
 and selected-gate tests are green.
 
+The resolved callable semantic batch now consumes that final source directly.
+It owns the final Program source plus ordered resolver forest/projection rows,
+and calls `resolve_selected_callable_forests` once.  Its lowering-input and
+declaration-semantic APIs remain higher-ranked callback loans.  The old
+`RetainedParserCallableSemanticSourceV1` is no longer a semantic-batch input;
+member-gate parameter unavailability rejects instead of reopening parser
+authority.  Focused semantic-batch and parameter-demand tests, including the
+unchanged four-method `ParserScanLoopBox`, are green.
+
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
 

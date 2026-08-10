@@ -7,14 +7,26 @@ use super::{
 };
 
 fn batch(source: &str) -> VerifiedResolvedCallableSemanticBatchV1 {
-    let source = NyashParser::parse_from_string_with_callable_parameter_source(
+    let source = final_source(source);
+    let mut resolver = FunctionSemanticResolverSessionV1::new(71).unwrap();
+    issue_resolved_callable_semantic_batch_v1(&mut resolver, source).unwrap()
+}
+
+fn final_source(source: &str) -> crate::parser::VerifiedFinalCallableProgramSourceV1 {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),
     )
-    .unwrap()
-    .into_retained_source();
-    let mut resolver = FunctionSemanticResolverSessionV1::new(71).unwrap();
-    issue_resolved_callable_semantic_batch_v1(&mut resolver, source).unwrap()
+    .expect("normal callable source");
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("fixture must remain source-backed")
+        };
+        source
+    })
 }
 
 #[test]

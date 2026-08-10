@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsOutcomeV1, SemanticOwnerRootProfileV1,
 };
-use crate::parser::{ParserCallableSyntaxLoanErrorV1, RetainedParserCallableSemanticSourceV1};
+use crate::parser::{ParserCallableSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 use super::model::{
     ResolvedCallableDeclarationModeV1, VerifiedResolvedCallableSemanticBatchV1,
@@ -18,6 +18,7 @@ use super::model::{
 #[derive(Debug)]
 pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ParserSyntax(ParserCallableSyntaxLoanErrorV1),
+    ParameterSourceUnavailable,
     SourceCoverage,
     Resolver(ResolveOwnerForestErrorV1),
     ResolverDeferred,
@@ -30,10 +31,10 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
 
 pub(crate) fn issue_resolved_callable_semantic_batch_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
-    source: RetainedParserCallableSemanticSourceV1,
+    source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let rows = source
-        .with_callable_declaration_syntax(|catalog, loan| {
+        .with_callable_parameter_syntax(|catalog, loan| {
             if catalog.declarations().len() != loan.declarations().len() {
                 return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
             }
@@ -131,7 +132,8 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
             }
             Ok(resolved.into_boxed_slice())
         })
-        .map_err(ResolvedCallableSemanticBatchIssueV1::ParserSyntax)??;
+        .map_err(ResolvedCallableSemanticBatchIssueV1::ParserSyntax)?
+        .ok_or(ResolvedCallableSemanticBatchIssueV1::ParameterSourceUnavailable)??;
 
     Ok(VerifiedResolvedCallableSemanticBatchV1 { source, rows })
 }

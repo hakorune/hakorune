@@ -4,10 +4,11 @@ This directory owns the single parser-backed resolver batch used by callable
 parameter demand and Dynamic source/lifecycle projections.
 
 ```text
-RetainedParserCallableSemanticSourceV1
+VerifiedFinalCallableProgramSourceV1
+  Program + callable anchors + exact parameter source
   -> issue_resolved_callable_semantic_batch_v1
   -> VerifiedResolvedCallableSemanticBatchV1
-       retained parser source
+       final parser source
        exact ordered forest/projection rows
 ```
 
@@ -16,6 +17,12 @@ The issuer traverses the complete declaration loan, calls
 projection, and only then publishes the non-Clone batch. Callers may borrow an
 exact `ResolvedFunctionLoweringInputV1` inside a scoped callback; they cannot
 move out syntax, the parameter catalog, a forest, or a projection.
+
+Selected member-gate source without a gate-aware parameter capability rejects
+as `ParameterSourceUnavailable`; the issuer never repairs it from names,
+ordinals, AST absence, or a second parser product. The older retained parser
+parameter product remains a disconnected parser test substrate and is not a
+semantic-batch input.
 
 Neutral child issuers may also borrow one complete declaration-semantic view.
 That view carries source-order parameter syntax and references to the same

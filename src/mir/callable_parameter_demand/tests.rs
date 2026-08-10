@@ -9,12 +9,20 @@ use crate::parser::{NyashParser, ParserBuildConfig};
 use super::{issue_callable_parameter_demands_v1, CallableParameterDeclarationModeV1};
 
 fn batch(source: &str, compilation: u32) -> VerifiedResolvedCallableSemanticBatchV1 {
-    let source = NyashParser::parse_from_string_with_callable_parameter_source(
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),
     )
-    .expect("callable parameter source parses")
-    .into_retained_source();
+    .expect("normal callable source parses");
+    let source = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("fixture must remain source-backed")
+        };
+        source
+    });
     let mut resolver =
         FunctionSemanticResolverSessionV1::new(compilation).expect("resolver session opens");
     issue_resolved_callable_semantic_batch_v1(&mut resolver, source)
