@@ -2,7 +2,9 @@ use crate::ast::BoxMethodInventoryOrdinalV1;
 use crate::parser::source_authority::{ParserInvocationBrandV1, SourceBoxMethodSiteV1};
 use crate::parser::{NyashParser, ParseError};
 
-use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::catalog::{
+    ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
+};
 use super::model::{ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1};
 use super::parse_product::ParsedCallableParameterListV1;
 
@@ -71,20 +73,31 @@ impl ParserCallableParameterSourceSessionV1 {
         Ok(())
     }
 
-    fn finish(
-        self,
-    ) -> Result<ParserCallableParameterSourceCatalogV1, CallableParameterSourceIssueV1> {
+    fn finish_for_normal(self) -> ParserCallableParameterSourceDispositionV1 {
         if self.unsupported_member_gate
             || self.declarations.iter().any(|declaration| {
                 declaration.source_site().box_site().path().segments().len() != 1
             })
         {
-            return Err(CallableParameterSourceIssueV1::SelectedBuildGateUnsupported);
+            return ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported;
         }
-        Ok(ParserCallableParameterSourceCatalogV1::new(
-            self.brand,
-            self.declarations.into_boxed_slice(),
-        ))
+        ParserCallableParameterSourceDispositionV1::Complete(
+            ParserCallableParameterSourceCatalogV1::new(
+                self.brand,
+                self.declarations.into_boxed_slice(),
+            ),
+        )
+    }
+
+    fn finish(
+        self,
+    ) -> Result<ParserCallableParameterSourceCatalogV1, CallableParameterSourceIssueV1> {
+        match self.finish_for_normal() {
+            ParserCallableParameterSourceDispositionV1::Complete(catalog) => Ok(catalog),
+            ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported => {
+                Err(CallableParameterSourceIssueV1::SelectedBuildGateUnsupported)
+            }
+        }
     }
 }
 
@@ -123,6 +136,15 @@ impl NyashParser {
             .take()
             .ok_or_else(|| parameter_source_error(CallableParameterSourceIssueV1::SessionClosed))
             .and_then(|session| session.finish().map_err(parameter_source_error))
+    }
+
+    pub(in crate::parser) fn finish_callable_parameter_source_for_normal(
+        &mut self,
+    ) -> Result<ParserCallableParameterSourceDispositionV1, ParseError> {
+        self.callable_parameter_source_session
+            .take()
+            .ok_or_else(|| parameter_source_error(CallableParameterSourceIssueV1::SessionClosed))
+            .map(ParserCallableParameterSourceSessionV1::finish_for_normal)
     }
 }
 

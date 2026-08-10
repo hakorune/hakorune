@@ -19,8 +19,9 @@ cursor only gives the later callable-parameter source issuer an exact source
 coordinate without reconstructing it from generated/selected inventory.
 
 `callable_parameter_source/` consumes that coordinate for the bounded direct
-method cohort. The one-shot sibling parse product carries the completed total
-postpass together with a complete non-Clone static/instance parameter catalog.
+method cohort. The historical one-shot sibling parse product still carries
+the completed total postpass together with a complete non-Clone
+static/instance parameter catalog.
 Every admitted row is issued by the same parameter parse that creates the
 neutral `ParamDecl`; missing AST metadata is never reclassified as
 `Ordinary`. `Take` is a closed vocabulary variant with no live issuer.
@@ -122,9 +123,20 @@ replacement rejects without compatibility retry.
 
 Parser compatibility cohorts are selected before the transform. Macro owns
 the transform-profile decision and execution; parser retains anchor identity
-and verifies the result. The final product remains non-Clone and retains the
-Program plus its opaque anchors atomically. Resolver, Builder, Recipe, Home,
-ABI, and physical lowering are still outside this boundary.
+and verifies the result. For the bounded direct Box-method cohort, the same
+parser transaction's exact parameter-source catalog is co-sealed against the
+callable anchors and AST declaration syntax before the transform, then carried
+through every exact callable-preserving transform. Missing, duplicate,
+foreign, or dropped direct rows reject; parameter transfer is never inferred
+from AST absence or raw text.
+
+Selected member-gate Programs retain their exact callable anchors but carry a
+typed unavailable parameter-source disposition until a gate-aware parameter
+issuer exists. They do not receive a forged empty catalog and do not narrow
+the existing callable-source carrier. The final product remains non-Clone and
+retains the Program, opaque anchors, and parameter-source disposition
+atomically. Resolver, Builder, Recipe, Home, ABI, and physical lowering are
+still outside this boundary.
 
 ## Home contextual syntax (`release` source I0 landed)
 

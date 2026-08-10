@@ -51,7 +51,7 @@ pub(crate) enum ParserCallableSyntaxLoanErrorV1 {
     SourceRowOrdinalOverflow,
 }
 
-pub(super) fn borrow_callable_declaration_syntax_v1<'ast>(
+pub(in crate::parser) fn borrow_callable_declaration_syntax_v1<'ast>(
     ast: &'ast ASTNode,
     catalog: &ParserCallableParameterSourceCatalogV1,
 ) -> Result<ParserCallableDeclarationSyntaxLoanV1<'ast>, ParserCallableSyntaxLoanErrorV1> {

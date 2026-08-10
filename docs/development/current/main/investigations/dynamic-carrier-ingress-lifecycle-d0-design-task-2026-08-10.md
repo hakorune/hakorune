@@ -1127,6 +1127,17 @@ catalogs, target catalogs, and Dynamic envelope catalogs may exist only inside
 issuer callbacks; the final package stores owned relations and is neither
 Clone nor splittable.
 
+Series checkpoint (2026-08-10): the final callable Program source now carries
+the same parser transaction's direct-method parameter catalog through the
+exact macro transform.  Initial co-seal validates parser brand, exact direct
+method coverage, source coordinate, declaration kind, parameter coverage, and
+AST syntax before the transform.  Selected member-gate Programs retain their
+callable anchors with a typed unavailable parameter-source disposition rather
+than a forged empty catalog.  The historical rich parameter-source API keeps
+its stricter gate rejection, so this carriage neither narrows the normal
+callable source lane nor broadens the old API.  Focused normal-source, macro,
+and selected-gate tests are green.
+
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
 

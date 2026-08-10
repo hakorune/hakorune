@@ -3,9 +3,10 @@
 mod model;
 mod transform;
 
+pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
     NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
-    VerifiedFinalCallableProgramSourceV1,
+    PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1,
 };
 pub(crate) use transform::{
     issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,

@@ -121,7 +121,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
         }
     }
 
-    pub(super) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
+    pub(in crate::parser) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
         &self.source_site
     }
 

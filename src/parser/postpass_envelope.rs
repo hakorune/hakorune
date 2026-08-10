@@ -204,14 +204,21 @@ impl CompletedParserPostpassV1 {
 
     pub(super) fn into_normal_callable_program(
         self,
-    ) -> super::normal_callable_program_source::ParsedNormalCallableProgramV1 {
+        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
+    ) -> Result<
+        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
+        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
+    > {
         use super::normal_callable_program_source::{
             NormalCallableParserCompatibilityV1 as Compatibility,
-            ParsedNormalCallableProgramV1 as Program,
+            ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
         };
 
         match self.program {
-            CompletedParserProgramV1::Initial(program) => Program::SourceBacked(program),
+            CompletedParserProgramV1::Initial(program) => {
+                PreparedNormalCallableProgramSourceV1::issue(program, parameter_source)
+                    .map(Program::SourceBacked)
+            }
             CompletedParserProgramV1::Compatibility { ast, .. } => {
                 let cohort = match self.box_coverage.program_cohort {
                     ParserPostpassProgramCohortV1::InterfaceBox => Compatibility::InterfaceBox,
@@ -229,7 +236,7 @@ impl CompletedParserPostpassV1 {
                         Compatibility::UnsupportedCallableSource
                     }
                 };
-                Program::Compatibility { ast, cohort }
+                Ok(Program::Compatibility { ast, cohort })
             }
         }
     }

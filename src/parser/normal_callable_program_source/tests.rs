@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::parser::{NyashParser, ParserBuildConfig};
+use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 
 use super::*;
 
@@ -28,6 +28,33 @@ fn exact_static_callable_set_survives_one_transform() {
     let final_source = transform(parse("static box Scan { run(x) { return x } }"), |_| {})
         .expect("exact transform");
     assert_eq!(final_source.callable_count(), 1);
+    let parameter_count = final_source
+        .with_callable_parameter_syntax(|catalog, loan| {
+            assert_eq!(catalog.declarations().len(), 1);
+            assert_eq!(loan.declarations().len(), 1);
+            catalog.declarations()[0].parameters().len()
+        })
+        .expect("exact parameter syntax")
+        .expect("direct method parameter source");
+    assert_eq!(parameter_count, 1);
+}
+
+#[test]
+fn selected_member_gate_retains_callable_anchors_without_forging_parameter_source() {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        "box Choice { gate Build.test { run(x) { return x } } else { run(x) { return x } } }",
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    )
+    .expect("selected member gate source");
+    let final_source = transform(parsed, |_| {}).expect("exact gate transform");
+    assert_eq!(final_source.callable_count(), 1);
+    assert!(final_source
+        .with_callable_parameter_syntax(|_, _| ())
+        .expect("typed unavailable disposition")
+        .is_none());
 }
 
 #[test]
