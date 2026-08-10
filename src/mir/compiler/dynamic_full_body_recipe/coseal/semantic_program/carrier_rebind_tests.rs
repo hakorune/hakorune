@@ -26,7 +26,7 @@ fn exact_rebind_program() -> super::VerifiedDynamicCarrierRebindTransactionProgr
         .expect("pos binding")
         .binding();
     let envelope =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("exact source/Recipe envelope");
     let semantic = issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");
     let invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(semantic)
@@ -82,7 +82,7 @@ fn missing_parameter_demand_rejects_before_rebind_program_exists() {
         .expect("pos binding")
         .binding();
     let envelope =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("exact source/Recipe envelope");
     let semantic = issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");
     let invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(semantic)

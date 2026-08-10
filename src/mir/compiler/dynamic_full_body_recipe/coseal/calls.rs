@@ -22,21 +22,25 @@ pub(super) enum DynamicFullLoopCallRelationRejectV2 {
     TargetSourceMismatch,
     TargetBindingMismatch,
     TargetArgumentMismatch,
+    TargetDispatchMismatch,
     RecipeCallSlotMismatch,
     RecipeValueClassMismatch,
     ReusedTarget,
+    TargetCountMismatch,
+    UnexpectedTarget,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct DynamicFullLoopCallRelationKeyV2 {
+#[derive(Debug)]
+pub(super) struct DynamicFullLoopCallRelationV2 {
     pub(super) item: LoopItemKeyV1,
     pub(super) call_role: DynamicFullBodySourceRoleV1,
+    pub(super) target: VerifiedSourceBoundDynamicMemberCallV1,
 }
 
 #[derive(Debug)]
 pub(super) struct VerifiedDynamicFullLoopCallRelationsV2 {
     owner: FunctionOwnerIdV1,
-    rows: [DynamicFullLoopCallRelationKeyV2; 2],
+    rows: [DynamicFullLoopCallRelationV2; 2],
 }
 
 impl VerifiedDynamicFullLoopCallRelationsV2 {
@@ -46,7 +50,7 @@ impl VerifiedDynamicFullLoopCallRelationsV2 {
     }
 
     #[cfg(test)]
-    pub(super) const fn rows(&self) -> &[DynamicFullLoopCallRelationKeyV2; 2] {
+    pub(super) const fn rows(&self) -> &[DynamicFullLoopCallRelationV2; 2] {
         &self.rows
     }
 
@@ -61,37 +65,64 @@ impl VerifiedDynamicFullLoopCallRelationsV2 {
 pub(super) fn verify_dynamic_call_relations_v2(
     source: &DynamicFullLoopRetainedSourceV1,
     recipe: &VerifiedLoopRecipeV2,
-    targets: &[VerifiedSourceBoundDynamicMemberCallV1],
+    targets: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
 ) -> Result<VerifiedDynamicFullLoopCallRelationsV2, DynamicFullLoopCallRelationRejectV2> {
-    let substring = verify_one(
+    if targets.len() > 2 {
+        return Err(DynamicFullLoopCallRelationRejectV2::TargetCountMismatch);
+    }
+    verify_one(
         source,
         recipe,
-        targets,
+        &targets,
         DynamicCallExpectationV2::substring(),
     )?;
-    let index_of = verify_one(
+    verify_one(
         source,
         recipe,
-        targets,
+        &targets,
         DynamicCallExpectationV2::index_of(),
     )?;
-    if substring.call_site() == index_of.call_site() {
-        return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
+
+    let substring_site = expr_site(source, DynamicFullBodySourceRoleV1::SubstringCall)?.clone();
+    let index_of_site = expr_site(source, DynamicFullBodySourceRoleV1::IndexOfCall)?.clone();
+    let mut substring_target = None;
+    let mut index_of_target = None;
+    for target in targets.into_vec() {
+        if target.owner() != source.owner {
+            return Err(DynamicFullLoopCallRelationRejectV2::DifferentOwner);
+        }
+        if target.call_site() == &substring_site {
+            if substring_target.replace(target).is_some() {
+                return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
+            }
+        } else if target.call_site() == &index_of_site {
+            if index_of_target.replace(target).is_some() {
+                return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
+            }
+        } else {
+            return Err(DynamicFullLoopCallRelationRejectV2::UnexpectedTarget);
+        }
     }
-    if substring.owner() != index_of.owner() || substring.owner() != source.owner {
-        return Err(DynamicFullLoopCallRelationRejectV2::DifferentOwner);
+    let substring_target =
+        substring_target.ok_or(DynamicFullLoopCallRelationRejectV2::MissingTarget)?;
+    let index_of_target =
+        index_of_target.ok_or(DynamicFullLoopCallRelationRejectV2::MissingTarget)?;
+    if substring_target.call_site() == index_of_target.call_site() {
+        return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
     }
 
     Ok(VerifiedDynamicFullLoopCallRelationsV2 {
-        owner: substring.owner(),
+        owner: source.owner,
         rows: [
-            DynamicFullLoopCallRelationKeyV2 {
+            DynamicFullLoopCallRelationV2 {
                 item: LoopItemKeyV1::new(6),
                 call_role: DynamicFullBodySourceRoleV1::SubstringCall,
+                target: substring_target,
             },
-            DynamicFullLoopCallRelationKeyV2 {
+            DynamicFullLoopCallRelationV2 {
                 item: LoopItemKeyV1::new(7),
                 call_role: DynamicFullBodySourceRoleV1::IndexOfCall,
+                target: index_of_target,
             },
         ],
     })
@@ -103,6 +134,8 @@ struct DynamicCallExpectationV2 {
     receiver_site: DynamicFullBodySourceRoleV1,
     receiver_binding: DynamicFullBodyBindingRoleV1,
     arguments: &'static [(u32, DynamicFullBodySourceRoleV1)],
+    selector: &'static str,
+    arity: u32,
     recipe_receiver: LoopValueKeyV1,
     recipe_arguments: &'static [u32],
     recipe_result: LoopValueKeyV1,
@@ -119,6 +152,8 @@ impl DynamicCallExpectationV2 {
                 (0, DynamicFullBodySourceRoleV1::SubstringStartI),
                 (1, DynamicFullBodySourceRoleV1::SubstringEndAdd),
             ],
+            selector: "substring",
+            arity: 2,
             recipe_receiver: LoopValueKeyV1::new(0),
             recipe_arguments: &[6, 9],
             recipe_result: LoopValueKeyV1::new(10),
@@ -132,6 +167,8 @@ impl DynamicCallExpectationV2 {
             receiver_site: DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
             receiver_binding: DynamicFullBodyBindingRoleV1::PredChars,
             arguments: &[(0, DynamicFullBodySourceRoleV1::IndexOfArgumentCh)],
+            selector: "indexOf",
+            arity: 1,
             recipe_receiver: LoopValueKeyV1::new(3),
             recipe_arguments: &[10],
             recipe_result: LoopValueKeyV1::new(11),
@@ -167,6 +204,11 @@ fn verify_one<'a>(
     if target.receiver_binding() != receiver_binding || target.dynamic_origin() != receiver_binding
     {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetBindingMismatch);
+    }
+    if target.dispatch().selector() != expected.selector
+        || target.dispatch().arity() != expected.arity
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch);
     }
     if target.arguments().len() != expected.arguments.len()
         || target
@@ -282,6 +324,18 @@ mod tests {
         assert_eq!(
             verify_recipe_call(&verified, &DynamicCallExpectationV2::substring()),
             Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch)
+        );
+    }
+
+    #[test]
+    fn dispatch_selector_and_arity_are_part_of_the_source_target_contract() {
+        let fixture = super::super::tests::fixture(true);
+        let (source, artifact, _claims) = fixture.candidate.into_parts();
+        let mut expectation = DynamicCallExpectationV2::substring();
+        expectation.selector = "not-substring";
+        assert_eq!(
+            verify_one(&source, artifact.recipe(), &fixture.calls, expectation),
+            Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch)
         );
     }
 }

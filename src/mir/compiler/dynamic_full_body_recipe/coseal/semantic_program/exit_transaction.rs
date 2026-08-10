@@ -142,7 +142,7 @@ mod tests {
             .expect("pos binding")
             .binding();
         let envelope =
-            issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+            issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
                 .expect("source/Recipe envelope");
         let semantic =
             issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");

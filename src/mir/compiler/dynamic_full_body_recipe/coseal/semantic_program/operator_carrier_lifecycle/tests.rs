@@ -25,7 +25,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 fn exact_program_issues_two_non_splittable_operator_lifecycle_rows() {
     let fixture = fixture(true);
     let envelope =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("exact source/Recipe envelope");
     let semantic = issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");
     let invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(semantic)

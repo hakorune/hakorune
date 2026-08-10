@@ -126,6 +126,24 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "issue_source_bound_dynamic_member_calls_v1" "$DYNAMIC_TARGET" \
   "route-neutral Dynamic source relation issuer is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "target: VerifiedSourceBoundDynamicMemberCallV1" "$DYNAMIC_CALLS" \
+  "CallSlot relation must retain the exact source-bound target"
+guard_expect_fixed_in_file "$TAG" \
+  "TargetDispatchMismatch" "$DYNAMIC_CALLS" \
+  "CallSlot handoff must verify selector and arity"
+guard_expect_fixed_in_file "$TAG" \
+  "TargetCountMismatch" "$DYNAMIC_CALLS" \
+  "CallSlot handoff must reject extra target rows"
+guard_expect_fixed_in_file "$TAG" \
+  "targets: Box<[VerifiedSourceBoundDynamicMemberCallV1]>" "$DYNAMIC_COSEAL" \
+  "CallSlot handoff must consume owned source-bound target rows"
+guard_expect_fixed_in_file "$TAG" \
+  "extra_source_bound_target_rows_reject_before_relation_issuance" "$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/tests.rs" \
+  "extra source-bound target negative is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "dispatch_selector_and_arity_are_part_of_the_source_target_contract" "$DYNAMIC_CALLS" \
+  "selector/arity negative is missing"
 reject_fixed_in_file \
   "CanonicalSameModuleCallableKeyV1" "$DYNAMIC_CALLS" \
   "Recipe call relations must not retain a callable-catalog key"

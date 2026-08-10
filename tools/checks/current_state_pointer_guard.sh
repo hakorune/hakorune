@@ -79,6 +79,10 @@ active_lane="$(require_scalar active_lane)"
 active_phase="$(require_scalar active_phase)"
 phase_status="$(require_scalar phase_status)"
 work_mode="$(require_scalar work_mode)"
+current_execution_row="$(require_scalar current_execution_row)"
+current_execution_design="$(require_scalar current_execution_design)"
+next_design_card="$(require_scalar next_design_card)"
+next_execution_card="$(require_scalar next_execution_card)"
 mirbuilder_north_star="$(require_scalar mirbuilder_north_star)"
 method_anchor="$(require_scalar method_anchor)"
 taskboard="$(require_scalar taskboard)"
@@ -130,6 +134,7 @@ if [[ -n "$latest_workstream_card" ]]; then
   fi
 fi
 require_repo_file "$latest_card_path" "latest_card_path"
+require_repo_file "$current_execution_design" "current_execution_design"
 require_repo_file "$current_update_policy" "current_update_policy"
 
 if ! landed_tail_rows="$(count_landed_tail_rows)"; then
@@ -142,6 +147,25 @@ fi
 if [[ "$latest_card_path" != *"$latest_card"* ]]; then
   guard_fail "$TAG" "latest_card_path does not contain latest_card: $latest_card -> $latest_card_path"
 fi
+
+if ! rg -F -q -- "$current_execution_row" "$ROOT_DIR/$latest_card_path"; then
+  guard_fail "$TAG" "current_execution_row is absent from latest_card_path: $current_execution_row -> $latest_card_path"
+fi
+case "$work_mode" in
+  design_stop)
+    if [[ "$next_design_card" != "$current_execution_row" ]]; then
+      guard_fail "$TAG" "design_stop next_design_card must equal current_execution_row: $next_design_card != $current_execution_row"
+    fi
+    if [[ "$next_execution_card" != none* ]]; then
+      guard_fail "$TAG" "design_stop next_execution_card must be none until the design stop is accepted: $next_execution_card"
+    fi
+    ;;
+  fast)
+    if [[ "$next_execution_card" != "$current_execution_row" ]]; then
+      guard_fail "$TAG" "fast next_execution_card must equal current_execution_row: $next_execution_card != $current_execution_row"
+    fi
+    ;;
+esac
 
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   guard_expect_fixed_in_file "$TAG" "docs/development/current/main/CURRENT_STATE.toml" "$doc" "$(realpath --relative-to="$ROOT_DIR" "$doc") missing CURRENT_STATE token: docs/development/current/main/CURRENT_STATE.toml"

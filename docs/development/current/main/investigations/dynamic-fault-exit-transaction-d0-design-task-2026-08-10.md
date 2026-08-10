@@ -678,6 +678,47 @@ The I0 remains pre-session and source-only. It may not open a Builder or
 physical session, issue ABI/Completion/DraftSeal/Collector products, or add a
 fallback/retry path.
 
+### CallSlot target handoff I0 closeout (2026-08-10)
+
+The bounded I0 is now implemented at the source/Recipe envelope boundary.
+The issuer consumes `Box<[VerifiedSourceBoundDynamicMemberCallV1]>`; it does
+not borrow and later rediscover the rows. Each retained private relation now
+owns the exact Recipe item, source role, and source-bound message row. The
+issuer checks selector/arity, call/receiver/result/ordered-argument sites,
+owner, source binding/origin, and Recipe CallSlot/value-class relation before
+the envelope is constructed.
+
+The target handoff is complete-coverage and one-shot:
+
+```text
+missing target       -> MissingTarget
+duplicate target     -> AmbiguousTarget / ReusedTarget
+extra target rows    -> TargetCountMismatch / UnexpectedTarget
+wrong selector/arity -> TargetDispatchMismatch
+foreign owner/site   -> typed source-relation rejection
+```
+
+The source envelope retains the rows transitively, while the semantic program
+continues to keep them private. No executable target, provider/runtime
+handle, public target catalog, raw CallSlot getter, V2-to-V1 adapter, Recipe
+rebuild, physical session, DraftSeal, Collector, or fallback was added.
+
+Evidence:
+
+```text
+cargo check -q --lib
+cargo test -q dynamic_full_body_recipe --lib
+bash tools/checks/normal_callable_complete_batch_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The focused Recipe/co-seal suite passes with 35 tests. This closes
+`PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0`; the next design stop is the missing
+V2 operation/effect physical-demand authority. That row must not add a
+V2-to-V1 demand adapter or infer an executable target from these retained
+message relations.
+
 ## Hard stops
 
 ```text

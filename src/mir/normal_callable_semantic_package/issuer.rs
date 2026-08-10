@@ -129,7 +129,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 return Err(NormalCallableSemanticPackageIssueV1::DynamicParameterDemandIdentity);
             }
             let dynamic_envelope =
-                issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, &dynamic_calls)
+                issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, dynamic_calls)
                     .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope)?;
             let dynamic_semantic = issue_dynamic_full_loop_semantic_program_v2(dynamic_envelope)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicSemanticProgram)?;

@@ -96,7 +96,7 @@ impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
 
 pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2(
     candidate: DynamicFullLoopRecipeCandidateV2,
-    targets: &[VerifiedSourceBoundDynamicMemberCallV1],
+    targets: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
 ) -> Result<
     VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2,

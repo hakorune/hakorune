@@ -90,7 +90,7 @@ pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
 fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
     let fixture = fixture(true);
     let product =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("atomic source/Recipe/envelope co-seal");
 
     assert_eq!(product.coverage().counts(), (6, 28, 25, 1, 2));
@@ -115,22 +115,19 @@ fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
 }
 
 #[test]
-fn owned_call_relations_are_reusable_after_the_product_is_dropped() {
+fn owned_call_relations_move_into_the_envelope_once() {
     let fixture = fixture(true);
-    {
-        let product =
-            issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
-                .expect("atomic co-seal");
-        assert_eq!(product.calls().rows().len(), 2);
-    }
-    assert_eq!(fixture.calls.len(), 2);
+    let product =
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
+            .expect("atomic co-seal");
+    assert_eq!(product.calls().rows().len(), 2);
 }
 
 #[test]
 fn missing_owner_envelopes_reject_before_any_partial_product() {
     let fixture = fixture(false);
     assert!(matches!(
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls),
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls),
         Err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls(_))
     ));
 }
@@ -140,9 +137,26 @@ fn equal_looking_source_from_a_foreign_resolver_owner_is_rejected() {
     let foreign = fixture(false);
     let canonical = fixture(true);
     assert!(matches!(
-        issue_dynamic_full_loop_source_recipe_envelope_v2(foreign.candidate, &canonical.calls,),
+        issue_dynamic_full_loop_source_recipe_envelope_v2(foreign.candidate, canonical.calls,),
         Err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls(
             DynamicFullLoopCallRelationRejectV2::MissingTarget
+        ))
+    ));
+}
+
+#[test]
+fn extra_source_bound_target_rows_reject_before_relation_issuance() {
+    let canonical = fixture(true);
+    let extra = fixture(true);
+    let mut targets = canonical.calls.into_vec();
+    targets.extend(extra.calls.into_vec());
+    assert!(matches!(
+        issue_dynamic_full_loop_source_recipe_envelope_v2(
+            canonical.candidate,
+            targets.into_boxed_slice(),
+        ),
+        Err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls(
+            DynamicFullLoopCallRelationRejectV2::TargetCountMismatch
         ))
     ));
 }

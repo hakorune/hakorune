@@ -22,7 +22,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
     let fixture = fixture(true);
     let envelope =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .expect("exact source/Recipe/envelope");
     let program = issue_dynamic_full_loop_semantic_program_v2(envelope)
         .expect("atomic Dynamic semantic program");
@@ -191,7 +191,7 @@ fn wrong_invocation_membership_rejects_the_private_catalog() {
 fn missing_dynamic_envelopes_reject_before_semantic_program_issuance() {
     let fixture = fixture(false);
     assert!(
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
             .is_err()
     );
 }
