@@ -474,3 +474,58 @@ This is a prerequisite consultation boundary, not an authorization to create
 a generic Hako result-type framework. Once the exact owner closes, rerun the
 same R1 guard and fixture from the parked WIP; do not change the accepted
 expression-product shape merely to avoid the compiler boundary.
+
+## Next design tasks (parked under this card)
+
+The missing inputs are split by authority. They are not two new semantic
+products and must not be implemented as GenericLoop fields.
+
+### `H2-CALLABLE-METHOD-SOURCE-SITE-HANDOFF-D0`
+
+Design the canonical source-carrier handoff for the exact callable declaration
+site. The parser/source session must issue the site together with the existing
+opaque declaration identity and final source slots; catalog keys, method names,
+arity, inventory ordinals, AST pointer equality, and `RawInvocationRootLineage`
+must remain navigation or lookup data only. The downstream catalog-owner link
+may borrow the site once, but it may not repair a missing or foreign identity.
+
+Acceptance:
+
+```text
+one parser/source owner
+same-session provenance and declaration identity
+exact declaration site survives to the diagnostic seam
+missing/foreign/duplicate site rejects
+no AST/text rescan and no GenericLoop semantic input
+```
+
+### `H2-LOCAL-INITIALIZER-PRODUCER-OBSERVATION-D0`
+
+Design the source-aware diagnostic observation for one
+`ExprChildRoleV1::LocalInitializer(index)`. The issuer remains the existing
+local/recursive descent owner and may lend a short-lived relation containing
+initializer source site, evaluated `ValueId`, and the statement/local ordinal.
+`CompletedLocalStatementV1` remains a completion receipt and does not gain
+producer semantics; the relation is consumed by the diagnostic seed only.
+
+Acceptance:
+
+```text
+one source-aware local descent hook
+exact initializer site + evaluated ValueId relation
+missing/foreign/duplicate producer rejects
+one-shot borrow; no semantic state retention
+no ValueId/name/order repair, type inference, fallback, or retry
+```
+
+Only after both D0 decisions are accepted may the diagnostic I0 be opened:
+
+```text
+H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
+  source/site/producer handoff
+  -> one default-off first-admission observation
+  -> unchanged GenericLoop failure
+```
+
+Until then, the current `H2-S2-S1-R1-REOPEN-AUDIT` remains the sole active
+execution row and the parser R1 WIP remains parked.
