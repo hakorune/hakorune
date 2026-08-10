@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: ingress meaning accepted; shared semantic-source issuer design stop selected
+Status: shared semantic-source Decision accepted; parser retention R0A selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current design stop: `CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0`
+Current implementation row: `PARSER-CALLABLE-SOURCE-RETENTION-R0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -291,7 +291,7 @@ Closeout receipt:
   cross-session identity tests are green; `Take`, Dynamic Home, Recipe, MIR,
   retry, and fallback remain zero.
 
-### 3A. `CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0` — selected design stop
+### 3A. `CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0` — accepted
 
 The ingress premise audit found that the two intended inputs cannot currently
 share canonical identity:
@@ -312,7 +312,21 @@ into one source authority. The consuming parser syntax loan also cannot escape
 its callback to repair the pairing later. Therefore the current ingress I0 is
 `NoSafeSlice`, not an implementation row.
 
-Select one parser-backed callable semantic-source owner that:
+The selected owner is a neutral resolved callable semantic batch:
+
+```text
+retained parser callable source
+  completed parser postpass + complete parameter source catalog
+        |
+        v
+VerifiedResolvedCallableSemanticBatchV1
+  sole resolver call
+  sole forest/projection ownership
+        |-- borrowed normal semantic source view
+        `-- borrowed complete parameter-demand view
+```
+
+It must:
 
 1. consumes the selected parser declaration source once;
 2. resolves every selected callable exactly once;
@@ -323,10 +337,17 @@ Select one parser-backed callable semantic-source owner that:
 6. keeps the final outer aggregate non-Clone and rejects foreign pairings
    before ingress publication.
 
-The selected design must state whether the existing normal callable semantic
-source becomes the sole batch owner or a new neutral sibling supersedes both
-current issuers. It must include the removal boundary for the demand catalog's
-independent forest ownership and resolver call.
+The existing Builder-owned `VerifiedNormalCallableSemanticSourceV1` is not the
+sole owner. It already combines Builder selection keys, same-module catalog
+branding, raw invocation lineage, and prepared-loop ingress in a 755-line file.
+Making it own neutral parameter semantics would preserve the AST-loan problem
+and require a second migration later. It becomes a compatibility facade/view
+over the neutral batch instead.
+
+The parameter-demand catalog also becomes a borrow projection. Its resolver
+argument, independent `resolve_selected_callable_forests()` call, forest
+storage, `resolved_forest()` surface, and owning constructor retire in the
+projection cutover row.
 
 Forbidden repairs:
 
@@ -340,9 +361,49 @@ test-only forged Verified products
 caller-supplied owner, binding, or disposition
 ```
 
-Acceptance is a docs-only Decision naming the sole issuer, its consuming input,
-the exact retained authority, projection APIs, fail-fast boundary, and the
-smallest behavior-neutral R0. No source implementation begins until accepted.
+The final ingress issuer retains the whole semantic batch and internally
+derives both the demand and Dynamic lifecycle relations. It never accepts a
+caller-paired demand catalog plus lifecycle product.
+
+### 3B. `PARSER-CALLABLE-SOURCE-RETENTION-R0` — selected
+
+Change:
+  Keep `CompletedParserPostpassV1` and the complete callable-parameter source
+  catalog in one non-Clone parser-owned retained source. Lend exact declaration
+  syntax without consuming or splitting that owner.
+
+Contract:
+  This is parser transaction staging only. The AST and parameter catalog have
+  no public `into_parts`, Clone, raw lookup, or arbitrary constructor. Existing
+  parse coverage and exact source coordinates do not change.
+
+Done:
+  Existing parser parameter tests remain green; repeated scoped syntax loans
+  return the same exact rows; foreign reconstruction and split APIs are absent;
+  parser source files remain below 800 lines.
+
+Stop:
+  If retention requires cloning the AST/catalog, exposing raw parts, or adding
+  resolver/Home/Recipe meaning, return to design.
+
+### 3C. Follow-on BoxShape order
+
+```text
+RESOLVED-CALLABLE-SEMANTIC-BATCH-R0
+  -> one resolver call; forests/projections retained once
+  -> normal semantic source becomes a batch view
+
+CALLABLE-PARAMETER-DEMAND-PROJECTION-R0
+  -> demand becomes a complete batch view
+  -> old demand resolver call/forest ownership deleted
+
+DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
+  -> whole batch retained; demand/lifecycle derived internally
+```
+
+The 755-line normal semantic source must be directory-split before semantic
+growth. Suggested ownership split is `model`, `loan`, `prepared_ingress`, and
+tests; the sole resolver implementation lives in the neutral batch module.
 
 ### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — parked behind 3A/R0
 
