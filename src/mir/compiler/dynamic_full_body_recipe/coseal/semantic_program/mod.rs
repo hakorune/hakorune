@@ -3,8 +3,8 @@
 //! The issuer consumes only the existing exact envelope. It never accepts a
 //! caller-supplied owner, Recipe, JoinSig, After, Continuation, or Completion.
 
-mod exit_transaction;
 mod carrier_rebind;
+mod exit_transaction;
 mod fault_cut_points;
 mod ingress;
 mod invocation_carrier_lifecycle;
@@ -16,24 +16,23 @@ mod carrier_rebind_tests;
 #[cfg(test)]
 mod tests;
 
-#[cfg(test)]
-use crate::mir::loop_recipe_contract::VerifiedLoopJoinSigV2;
 use crate::mir::loop_recipe_contract::{
     issue_sole_root_carrier_join_closure_v2, LoopBindingKeyV1, LoopJoinClosureRejectV2,
-    LoopNodeKeyV1, LoopValueClassV2, VerifiedLoopJoinClosureV2,
+    LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2, LoopNodeKeyV1,
+    LoopValueClassV2, VerifiedLoopJoinClosureV2,
 };
 
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
-pub(in crate::mir) use exit_transaction::{
-    issue_dynamic_exit_transaction_coseal_i0, DynamicExitTransactionCoSealRejectV1,
-    VerifiedDynamicExitTransactionCoSealV1,
-};
 pub(in crate::mir) use carrier_rebind::{
     issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
     issue_dynamic_carrier_rebind_transaction_program_v1, DynamicCarrierCleanupProjectionRejectV1,
     DynamicCarrierCurrentDispositionV1, DynamicCarrierFlowProgramRejectV1,
     DynamicCarrierRebindTransactionRejectV1, VerifiedDynamicCarrierCleanupProjectionV1,
     VerifiedDynamicCarrierFlowProgramV1, VerifiedDynamicCarrierRebindTransactionProgramV1,
+};
+pub(in crate::mir) use exit_transaction::{
+    issue_dynamic_exit_transaction_coseal_i0, DynamicExitTransactionCoSealRejectV1,
+    VerifiedDynamicExitTransactionCoSealV1,
 };
 use fault_cut_points::{issue_fault_cut_points_v2, VerifiedDynamicFullLoopFaultCutPointCatalogV2};
 pub(in crate::mir) use fault_cut_points::{
@@ -174,9 +173,10 @@ impl VerifiedDynamicFullLoopSemanticProgramV2 {
         self.fault_cut_points.borrow()
     }
 
-    #[cfg(test)]
-    fn join_sig(&self) -> &VerifiedLoopJoinSigV2 {
-        self.control.join_sig()
+    pub(in crate::mir) fn logical_transfer_view(
+        &self,
+    ) -> Result<LoopJoinLogicalTransferViewV2<'_>, LoopJoinLogicalTransferRejectV2> {
+        self.control.logical_transfer_view()
     }
 }
 

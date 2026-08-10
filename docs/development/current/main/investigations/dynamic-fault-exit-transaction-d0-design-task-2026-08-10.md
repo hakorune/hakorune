@@ -648,9 +648,11 @@ owning implementation commit.
 
 #### LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
 
+Status: CLOSED (I0 landed)
+
 Change:
-- add one borrowed V2 logical transfer view under the JoinSig subtree;
-- lend loop boundary rows, branch rows, and the already co-sealed After.
+- added one borrowed V2 logical transfer view under the JoinSig subtree;
+- lends loop boundary rows, branch rows, and the already co-sealed After.
 
 Contract:
 - JoinSig owns flow only;
@@ -658,12 +660,25 @@ Contract:
 - Return summary is integrity-only; no synthetic ItemKey.
 
 Done:
-- exact 4 actionable boundary rows, one I10 branch, one I12 Return, and one
-  After relation pass focused tests;
-- wrong summary, target, payload, branch item, or direct exit rejects.
+- `VerifiedLoopJoinClosureV2::logical_transfer_view()` is the sole downstream
+  entry and keeps raw `VerifiedLoopJoinSigV2` out of the Dynamic semantic test
+  surface;
+- exact four boundary rows (`Enter`, `PredicateTrue`, `PredicateFalse`,
+  `Backedge`), one I10 branch, one I12 Return, and one co-sealed After pass
+  `semantic_program` and `join_sig` focused tests;
+- the Loop Return summary is checked against the branch Return's role, target,
+  payload, and `Body` origin, then exposed only as summary evidence;
+- direct unbranched exits remain rejected by this bounded view.
 
 Stop:
 - no Dynamic physical control co-seal, physical demand, Builder, or session.
+
+Evidence:
+- `RUSTFLAGS=-Awarnings cargo test -q --lib semantic_program` (17 passed)
+- `RUSTFLAGS=-Awarnings cargo test -q --lib join_sig` (31 passed)
+- `cargo check --lib` (pass)
+
+Next: `DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`.
 
 #### DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0
 

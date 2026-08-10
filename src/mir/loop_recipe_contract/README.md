@@ -5,10 +5,10 @@ Loop lowering.
 
 ## Authority
 
-### V2 physical-transfer boundary (accepted design; implementation pending)
+### V2 physical-transfer boundary (accepted design; logical view I0 landed)
 
 The verified V2 Recipe and JoinSig remain separate logical authorities. The
-JoinSig subtree will issue only one borrowed
+JoinSig subtree issues one borrowed
 `LoopJoinLogicalTransferViewV2`: loop boundary role/ports/payload, exact
 branch item and arm disposition, plus the already co-sealed After. It does not
 issue Recipe blocks, item placement, Exit kind/value, or physical IDs.
@@ -27,8 +27,12 @@ their exact origin item.
 
 Physical modules must not read `VerifiedLoopJoinSigV2::as_sig()`, reconstruct
 items from names/order, re-pair After, or coerce V2 through V1 physical demand.
-The next row is `LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0`; no Builder,
-MIR/CFG/PHI, ABI, session, retry, or fallback is opened there.
+`VerifiedLoopJoinClosureV2::logical_transfer_view()` is the sole downstream
+entry for the landed logical view. It validates the branch-owned exit against
+the matching Loop summary and exposes that summary as integrity-only evidence;
+it is not a second physical action. The next row is
+`DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`; no Builder, MIR/CFG/PHI, ABI, session,
+retry, or fallback is opened there.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.

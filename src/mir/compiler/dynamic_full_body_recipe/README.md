@@ -96,7 +96,7 @@ copies the flow/cleanup rows. No runtime chronology, Home capability, result
 merge, physical Return, ABI projection, final function seal, collector, or
 publication is performed.
 
-## Physical-input child boundary (accepted design; implementation pending)
+## Physical-input child boundary (accepted design; logical view I0 landed)
 
 The next physical handoff starts only from the package-held
 `VerifiedDynamicExitTransactionCoSealV1`. Private borrow delegation may reach
@@ -122,11 +122,14 @@ not a new AST observer or execution/faultability owner. Every operation item
 has exactly one Expression primary anchor. For I16, `StepTargetI` is primary
 and the statement `StepAssignment` remains auxiliary coverage.
 
-The JoinSig owner lends logical flow only. The Dynamic semantic-program owner
-adds Recipe condition/body/branch/Exit structure. In the current bounded
-cohort, Enter, PredicateTrue, PredicateFalse, and Backedge are actionable Loop
-boundaries; I10/I12 owns the one actionable Return. The Loop-level Return edge
-is integrity-only summary evidence and cannot be emitted again.
+The JoinSig owner lends logical flow only. The landed
+`LoopJoinLogicalTransferViewV2` retains the four actionable Loop boundaries,
+the exact I10/I12 branch Return, and the co-sealed After. The Dynamic
+semantic-program owner will add Recipe condition/body/branch/Exit structure in
+the next child. In the current bounded cohort, Enter, PredicateTrue,
+PredicateFalse, and Backedge are actionable Loop boundaries; I10/I12 owns the
+one actionable Return. The Loop-level Return edge is integrity-only summary
+evidence and cannot be emitted again.
 
 Implementation order is fixed in the active rolling card:
 `LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0`, then

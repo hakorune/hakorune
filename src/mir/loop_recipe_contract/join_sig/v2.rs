@@ -34,6 +34,17 @@ pub(crate) struct VerifiedLoopJoinClosureV2 {
 }
 
 impl VerifiedLoopJoinClosureV2 {
+    /// Lend the JoinSig-owned logical transfer rows without exposing raw
+    /// JoinSig or After parts to downstream physical code.
+    pub(crate) fn logical_transfer_view(
+        &self,
+    ) -> Result<
+        super::transfer_view_v2::LoopJoinLogicalTransferViewV2<'_>,
+        super::transfer_view_v2::LoopJoinLogicalTransferRejectV2,
+    > {
+        super::transfer_view_v2::issue(self, &self.join_sig)
+    }
+
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV2 {
         &self.join_sig
     }

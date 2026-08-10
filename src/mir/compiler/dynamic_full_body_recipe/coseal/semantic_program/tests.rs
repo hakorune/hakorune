@@ -1,6 +1,6 @@
 use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, LoopItemKeyV1, LoopJoinEdgeRoleV1, LoopJoinPortV1, LoopNodeKeyV1,
-    LoopValueClassV2, LoopValueKeyV1,
+    LoopBindingKeyV1, LoopItemKeyV1, LoopJoinBranchArmTransferRefV2, LoopJoinEdgeRoleV1,
+    LoopJoinPortV1, LoopNodeKeyV1, LoopValueClassV2, LoopValueKeyV1,
 };
 
 use super::{
@@ -32,30 +32,68 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
     assert_eq!(after.binding(), LoopBindingKeyV1::new(0));
     assert_eq!(after.class(), LoopValueClassV2::Dynamic);
 
-    let signature = program.join_sig().as_sig();
-    assert_eq!(signature.loops.len(), 1);
-    assert_eq!(signature.loops[0].edges.len(), 5);
-    assert_eq!(signature.branches.len(), 1);
-    assert_eq!(signature.port_bindings.len(), 2);
+    let transfer = program
+        .logical_transfer_view()
+        .expect("JoinSig-owned logical transfer view");
+    assert_eq!(transfer.boundaries().len(), 4);
+    assert_eq!(transfer.summary_transfers().len(), 1);
+    assert_eq!(transfer.branches().len(), 1);
     assert_eq!(
-        signature
-            .loops
+        transfer.summary_transfers()[0].role,
+        LoopJoinEdgeRoleV1::Return
+    );
+    assert_eq!(transfer.summary_transfers()[0].from, LoopJoinPortV1::Body);
+    assert_eq!(
+        transfer.summary_transfers()[0].to,
+        LoopJoinPortV1::FunctionExit
+    );
+    assert_eq!(
+        transfer
+            .boundaries()
             .iter()
-            .flat_map(|row| row.edges.iter())
+            .map(|row| row.role)
+            .collect::<Vec<_>>(),
+        vec![
+            LoopJoinEdgeRoleV1::Enter,
+            LoopJoinEdgeRoleV1::PredicateTrue,
+            LoopJoinEdgeRoleV1::PredicateFalse,
+            LoopJoinEdgeRoleV1::Backedge,
+        ]
+    );
+    let branch = &transfer.branches()[0];
+    assert_eq!(branch.if_item, LoopItemKeyV1::new(10));
+    assert_eq!(branch.condition, LoopValueKeyV1::new(13));
+    let return_exit = match branch.then_arm {
+        LoopJoinBranchArmTransferRefV2::Exit(exit) => exit,
+        LoopJoinBranchArmTransferRefV2::Fallthrough { .. } => {
+            panic!("then arm must retain the exact Return exit")
+        }
+    };
+    assert_eq!(return_exit.exit_item, LoopItemKeyV1::new(12));
+    assert_eq!(return_exit.role, LoopJoinEdgeRoleV1::Return);
+    assert_eq!(
+        return_exit.target,
+        crate::mir::loop_recipe_contract::LoopJoinBranchExitTargetV2::FunctionExit
+    );
+    assert_eq!(return_exit.payload, transfer.summary_transfers()[0].payload);
+    assert!(matches!(
+        branch.else_arm,
+        LoopJoinBranchArmTransferRefV2::Fallthrough { .. }
+    ));
+    assert_eq!(transfer.after().loop_key(), LoopNodeKeyV1::new(0));
+    assert_eq!(transfer.after().binding(), LoopBindingKeyV1::new(0));
+    assert_eq!(transfer.after().class(), LoopValueClassV2::Dynamic);
+    assert_eq!(
+        transfer
+            .summary_transfers()
+            .iter()
             .filter(|edge| edge.role == LoopJoinEdgeRoleV1::Return)
             .count(),
         1
     );
-    assert!(signature.port_bindings.iter().all(|row| {
-        row.loop_key == LoopNodeKeyV1::new(0)
-            && row.binding == LoopBindingKeyV1::new(0)
-            && row.class == LoopValueClassV2::Dynamic
-            && matches!(row.port, LoopJoinPortV1::Header | LoopJoinPortV1::After)
-    }));
-    assert!(signature
-        .loops
+    assert!(transfer
+        .boundaries()
         .iter()
-        .flat_map(|row| row.edges.iter())
         .flat_map(|edge| edge.payload.iter())
         .all(|row| row.value != LoopValueKeyV1::new(10) && row.value != LoopValueKeyV1::new(14)));
 
