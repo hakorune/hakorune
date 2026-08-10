@@ -202,6 +202,38 @@ impl CompletedParserPostpassV1 {
         }
     }
 
+    pub(super) fn into_normal_callable_program(
+        self,
+    ) -> super::normal_callable_program_source::ParsedNormalCallableProgramV1 {
+        use super::normal_callable_program_source::{
+            NormalCallableParserCompatibilityV1 as Compatibility,
+            ParsedNormalCallableProgramV1 as Program,
+        };
+
+        match self.program {
+            CompletedParserProgramV1::Initial(program) => Program::SourceBacked(program),
+            CompletedParserProgramV1::Compatibility { ast, .. } => {
+                let cohort = match self.box_coverage.program_cohort {
+                    ParserPostpassProgramCohortV1::InterfaceBox => Compatibility::InterfaceBox,
+                    ParserPostpassProgramCohortV1::RecordBox => Compatibility::RecordBox,
+                    ParserPostpassProgramCohortV1::MixedProgram
+                    | ParserPostpassProgramCohortV1::StaticBox => Compatibility::MixedProgram,
+                    ParserPostpassProgramCohortV1::TopLevelBuildGate => {
+                        Compatibility::TopLevelBuildGate
+                    }
+                    ParserPostpassProgramCohortV1::NoBoxDeclarations => {
+                        Compatibility::NoBoxDeclarations
+                    }
+                    ParserPostpassProgramCohortV1::NonProgram => Compatibility::NonProgram,
+                    ParserPostpassProgramCohortV1::OrdinaryTopLevelBox => {
+                        Compatibility::UnsupportedCallableSource
+                    }
+                };
+                Program::Compatibility { ast, cohort }
+            }
+        }
+    }
+
     pub(super) fn into_ast_and_explain(
         self,
     ) -> Result<(ASTNode, BuildGateExplainReport), ParserPostpassEnvelopeErrorV1> {

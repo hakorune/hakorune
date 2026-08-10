@@ -54,7 +54,10 @@ impl<'syntax> InitialCallableProgramSyntaxLoanV1<'syntax> {
     }
 }
 
-fn declaration_at(ast: &ASTNode, slot: InitialCallableFinalSlotV1) -> &ASTNode {
+pub(in crate::parser) fn declaration_at(
+    ast: &ASTNode,
+    slot: InitialCallableFinalSlotV1,
+) -> &ASTNode {
     let ASTNode::Program { statements, .. } = ast else {
         unreachable!("verified initial callable source retains a Program")
     };

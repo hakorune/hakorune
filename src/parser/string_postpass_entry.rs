@@ -21,6 +21,15 @@ pub(super) fn parse(
     Ok(completed.into_ast())
 }
 
+pub(super) fn parse_normal_callable_program(
+    input: String,
+    fuel: Option<usize>,
+    build_config: ParserBuildConfig,
+) -> Result<super::normal_callable_program_source::ParsedNormalCallableProgramV1, ParseError> {
+    let mut parser = parser_from_string(input, fuel, build_config)?;
+    Ok(parser.parse_postpass_s0()?.into_normal_callable_program())
+}
+
 pub(super) fn parse_with_callable_parameter_source(
     input: String,
     fuel: Option<usize>,

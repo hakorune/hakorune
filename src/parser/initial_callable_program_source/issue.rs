@@ -123,7 +123,7 @@ pub(in crate::parser) fn compatibility_program_can_enter_initial_callable_lane_v
     })
 }
 
-fn expected_callable_slots(
+pub(in crate::parser) fn expected_callable_slots(
     ast: &ASTNode,
 ) -> Result<Vec<InitialCallableFinalSlotV1>, InitialCallableProgramSourceRejectV1> {
     let ASTNode::Program { statements, .. } = ast else {

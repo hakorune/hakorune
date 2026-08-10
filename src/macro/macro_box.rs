@@ -18,6 +18,13 @@ fn registry() -> &'static Mutex<Vec<&'static dyn MacroBox>> {
     REG.get_or_init(|| Mutex::new(Vec::new()))
 }
 
+pub(crate) fn has_registered_transform() -> bool {
+    !registry()
+        .lock()
+        .expect("macro registry poisoned")
+        .is_empty()
+}
+
 /// Register a MacroBox. Intended to be called at startup/init paths.
 pub fn register(m: &'static dyn MacroBox) {
     let reg = registry();

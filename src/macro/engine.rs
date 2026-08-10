@@ -1,6 +1,6 @@
 use nyash_rust::ast::Span;
 use nyash_rust::{
-    ast::{BinaryOperator, BoxMethodGeneratedProvenanceV1, LiteralValue},
+    ast::{BinaryOperator, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryV1, LiteralValue},
     ASTNode,
 };
 use std::time::Instant;
@@ -97,6 +97,22 @@ impl MacroEngine {
         (cur, patches)
     }
 
+    pub(crate) fn would_generate_default_callable(ast: &ASTNode) -> bool {
+        let ASTNode::Program { statements, .. } = ast else {
+            return false;
+        };
+        statements.iter().any(|statement| {
+            let ASTNode::BoxDeclaration {
+                methods, is_static, ..
+            } = statement
+            else {
+                return false;
+            };
+            let selection = default_derive_selection(*is_static, methods);
+            selection.equals || selection.to_string
+        })
+    }
+
     fn expand_node(&mut self, node: &ASTNode) -> ASTNode {
         match node.clone() {
             ASTNode::Program { statements, span } => {
@@ -162,11 +178,9 @@ impl MacroEngine {
                 }
                 // Default derives are instance methods. A static box has no
                 // receiver, so it cannot own receiver-based generated methods.
-                let receiver_based_default_derives_allowed = !is_static;
-                let want_equals = receiver_based_default_derives_allowed
-                    && (derive_all || derive_set.contains("Equals"));
-                let want_tostring = receiver_based_default_derives_allowed
-                    && (derive_all || derive_set.contains("ToString"));
+                let selection = default_derive_selection(is_static, &methods);
+                let want_equals = selection.equals;
+                let want_tostring = selection.to_string;
                 // Philosophy-2: respect box independence — operate on public interface only
                 let field_view: &Vec<String> = &public_fields;
                 if want_equals && methods.get_declaration("equals").is_none() {
@@ -236,6 +250,30 @@ impl MacroEngine {
             }
             other => other,
         }
+    }
+}
+
+#[derive(Clone, Copy)]
+struct DefaultDeriveSelectionV1 {
+    equals: bool,
+    to_string: bool,
+}
+
+fn default_derive_selection(
+    is_static: bool,
+    methods: &BoxMethodInventoryV1,
+) -> DefaultDeriveSelectionV1 {
+    let derive_all = crate::config::env::macro_derive_all();
+    let derive_set =
+        crate::config::env::macro_derive().unwrap_or_else(|| "Equals,ToString".to_string());
+    let receiver_based = !is_static;
+    DefaultDeriveSelectionV1 {
+        equals: receiver_based
+            && (derive_all || derive_set.contains("Equals"))
+            && methods.get_declaration("equals").is_none(),
+        to_string: receiver_based
+            && (derive_all || derive_set.contains("ToString"))
+            && methods.get_declaration("toString").is_none(),
     }
 }
 

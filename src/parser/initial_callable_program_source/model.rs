@@ -9,7 +9,7 @@ use super::syntax_loan::{
 ///
 /// Placement is private cache data, never callable identity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum InitialCallableFinalSlotV1 {
+pub(in crate::parser) enum InitialCallableFinalSlotV1 {
     TopLevel {
         statement: u32,
     },
@@ -47,7 +47,7 @@ impl VerifiedInitialCallableSourceRowV1 {
 /// The sole issuer is the parser finalizer.  There is intentionally no Clone,
 /// arbitrary constructor, or consuming parts projection.
 #[derive(Debug)]
-pub(in crate::parser) struct VerifiedInitialCallableProgramSourceV1 {
+pub(crate) struct VerifiedInitialCallableProgramSourceV1 {
     ast: ASTNode,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
@@ -68,7 +68,7 @@ impl VerifiedInitialCallableProgramSourceV1 {
         }
     }
 
-    pub(in crate::parser) fn ast(&self) -> &ASTNode {
+    pub(crate) fn ast(&self) -> &ASTNode {
         &self.ast
     }
 
@@ -76,8 +76,18 @@ impl VerifiedInitialCallableProgramSourceV1 {
         &self.sources
     }
 
-    pub(in crate::parser) fn into_ast(self) -> ASTNode {
+    pub(crate) fn into_ast(self) -> ASTNode {
         self.ast
+    }
+
+    pub(in crate::parser) fn into_transform_parts(
+        self,
+    ) -> (
+        ASTNode,
+        Box<[PreparedCallableSourceV1]>,
+        Box<[InitialCallableFinalSlotV1]>,
+    ) {
+        (self.ast, self.sources, self.slots)
     }
 
     /// Lend exact callable syntax without allowing an AST reference to escape.

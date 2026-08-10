@@ -111,6 +111,21 @@ Historical AST-only cohorts remain explicitly typed compatibility products;
 issuer failure never falls back to them. Resolver, Builder, Home, Recipe,
 retry, fallback, and production activation remain outside this boundary.
 
+## Normal callable Program transform source
+
+`normal_callable_program_source/` is the one-shot boundary between the
+initial parser co-seal and a whole-file transform. It consumes the initial
+product and issues `VerifiedFinalCallableProgramSourceV1` only when the final
+Program retains the exact callable slot set and exact declarations. Non-
+callable tail changes may coexist; callable addition, removal, reorder, or
+replacement rejects without compatibility retry.
+
+Parser compatibility cohorts are selected before the transform. Macro owns
+the transform-profile decision and execution; parser retains anchor identity
+and verifies the result. The final product remains non-Clone and retains the
+Program plus its opaque anchors atomically. Resolver, Builder, Recipe, Home,
+ABI, and physical lowering are still outside this boundary.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

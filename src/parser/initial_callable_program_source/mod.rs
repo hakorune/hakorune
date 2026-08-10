@@ -8,11 +8,14 @@ mod issue;
 mod model;
 mod syntax_loan;
 
+pub(in crate::parser) use issue::expected_callable_slots;
 pub(super) use issue::{
     compatibility_program_can_enter_initial_callable_lane_v1,
     issue_initial_callable_program_source_v1, InitialCallableProgramSourceRejectV1,
 };
-pub(super) use model::VerifiedInitialCallableProgramSourceV1;
+pub(in crate::parser) use model::InitialCallableFinalSlotV1;
+pub(crate) use model::VerifiedInitialCallableProgramSourceV1;
+pub(in crate::parser) use syntax_loan::declaration_at;
 
 #[cfg(test)]
 mod tests;
