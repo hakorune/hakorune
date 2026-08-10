@@ -1287,6 +1287,34 @@ Duplicate, unresolved, rejected, foreign, or repaired selections fail closed.
 The selected mapping may use neither name/arity lookup nor source/inventory
 ordinal repair. Only after this projection lands may the named production
 caller switch and the three old edges be deleted together.
+
+Valid-unselected checkpoint (2026-08-10): the package is now general over a
+complete normal callable batch. Its private Dynamic projection is exactly
+`ValidUnselected` or `Selected`; zero fully observed candidates no longer fail
+or trigger a fallback, while duplicate, unresolved, and rejected candidates
+still fail closed. The borrowed public projection exposes the selected program
+only. Owner and batch slot remain private cache/verification state.
+
+The next exact mapping cannot reuse the current bare-AST selected inventory as
+source authority. That inventory retains a fresh Builder catalog brand plus
+statement/method placement, but not the parser-issued callable anchor. The
+next bounded slice therefore reuses the existing opaque
+`CallableDeclarationAnchorV1` identity through a comparison-only view:
+
+```text
+same parser callable anchor
+  -> final semantic syntax / resolved batch row
+  -> source-backed selected catalog row
+  -> exact SelectedNormalCallableKeyV1 to private batch-slot map
+```
+
+The root package owns the source-backed catalog, batch, selected map,
+parameter projection, and Dynamic projection atomically. Its consumer surface
+is a scoped `with_selected_lowering_input(key, callback)` loan, not a raw slot
+or a catalog-plus-batch pair. The old AST-only catalog issuer remains a typed
+compatibility/migration path and cannot enter the new package. Equal names,
+arity, source/inventory ordinals, numeric owner IDs, AST pointers, and Builder
+catalog brand never repair identity.
 A selected-gate Dynamic fixture proves that missing parameter authority rejects
 instead of synthesizing `Ordinary`. Catalog-neutral Dynamic invocation
 relations and the production edge replacement remain open.

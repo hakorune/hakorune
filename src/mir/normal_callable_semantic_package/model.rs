@@ -16,31 +16,39 @@ pub(super) struct OwnedCallableParameterDemandDeclarationV1 {
     pub(super) parameters: Box<[OwnedCallableParameterDemandV1]>,
 }
 
-/// The sole owned pre-Builder semantic package for the bounded Dynamic lane.
+/// The sole owned pre-Builder semantic package for one complete callable batch.
 ///
 /// This product is deliberately non-`Clone` and has no consuming parts API.
 /// Later stages must transform it whole instead of pairing a foreign batch,
-/// parameter catalog, or Dynamic Recipe candidate.
+/// parameter catalog, Dynamic candidate, or private batch slot.
 #[derive(Debug)]
-pub(crate) struct VerifiedNormalCallableSemanticDynamicPackageV1 {
+pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
-    pub(super) dynamic_batch_slot: u32,
-    pub(super) dynamic_owner: FunctionOwnerIdV1,
-    pub(super) dynamic_program: VerifiedDynamicOperatorCarrierLifecycleProgramV1,
+    pub(super) dynamic: NormalCallableDynamicProjectionV1,
 }
 
-impl VerifiedNormalCallableSemanticDynamicPackageV1 {
+#[derive(Debug)]
+pub(super) enum NormalCallableDynamicProjectionV1 {
+    ValidUnselected,
+    Selected {
+        batch_slot: u32,
+        owner: FunctionOwnerIdV1,
+        program: VerifiedDynamicOperatorCarrierLifecycleProgramV1,
+    },
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
+    ValidUnselected,
+    Selected {
+        program: &'package VerifiedDynamicOperatorCarrierLifecycleProgramV1,
+    },
+}
+
+impl VerifiedNormalCallableSemanticPackageV1 {
     pub(crate) fn batch(&self) -> &VerifiedResolvedCallableSemanticBatchV1 {
         &self.batch
-    }
-
-    pub(crate) const fn dynamic_batch_slot(&self) -> u32 {
-        self.dynamic_batch_slot
-    }
-
-    pub(crate) const fn dynamic_owner(&self) -> FunctionOwnerIdV1 {
-        self.dynamic_owner
     }
 
     pub(crate) fn parameter_declaration_count(&self) -> usize {
@@ -54,7 +62,14 @@ impl VerifiedNormalCallableSemanticDynamicPackageV1 {
             .sum()
     }
 
-    pub(crate) fn dynamic_program(&self) -> &VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
-        &self.dynamic_program
+    pub(crate) fn dynamic_projection(&self) -> NormalCallableDynamicProjectionRefV1<'_> {
+        match &self.dynamic {
+            NormalCallableDynamicProjectionV1::ValidUnselected => {
+                NormalCallableDynamicProjectionRefV1::ValidUnselected
+            }
+            NormalCallableDynamicProjectionV1::Selected { program, .. } => {
+                NormalCallableDynamicProjectionRefV1::Selected { program }
+            }
+        }
     }
 }

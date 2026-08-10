@@ -1,9 +1,9 @@
 //! One owned semantic package for the final parser callable source.
 //!
 //! The issuer resolves the complete callable batch once, projects parameter
-//! demands, and admits the exact Dynamic full-body candidate before Builder
-//! effects begin.  It owns no CFG, Completion consumption, physical ABI, or
-//! fallback route.
+//! demands, and publishes either a valid-unselected or exact selected Dynamic
+//! projection before Builder effects begin. It owns no CFG, Completion
+//! consumption, physical ABI, or fallback route.
 
 mod dynamic_admission;
 mod issuer;
@@ -13,7 +13,8 @@ mod model;
 mod tests;
 
 pub(crate) use issuer::{
-    issue_normal_callable_semantic_dynamic_package_v1,
-    NormalCallableSemanticDynamicPackageIssueV1,
+    issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1,
 };
-pub(crate) use model::VerifiedNormalCallableSemanticDynamicPackageV1;
+pub(crate) use model::{
+    NormalCallableDynamicProjectionRefV1, VerifiedNormalCallableSemanticPackageV1,
+};

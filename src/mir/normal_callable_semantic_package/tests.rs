@@ -4,7 +4,8 @@ use crate::parser::{
 };
 
 use super::{
-    issue_normal_callable_semantic_dynamic_package_v1, NormalCallableSemanticDynamicPackageIssueV1,
+    issue_normal_callable_semantic_package_v1, NormalCallableDynamicProjectionRefV1,
+    NormalCallableSemanticPackageIssueV1,
 };
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
@@ -31,12 +32,9 @@ fn final_source_with_config(
 fn issue_with_config(
     source: &str,
     config: ParserBuildConfig,
-) -> Result<
-    super::VerifiedNormalCallableSemanticDynamicPackageV1,
-    NormalCallableSemanticDynamicPackageIssueV1,
-> {
+) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let mut resolver = FunctionSemanticResolverSessionV1::new(92).unwrap();
-    issue_normal_callable_semantic_dynamic_package_v1(
+    issue_normal_callable_semantic_package_v1(
         &mut resolver,
         final_source_with_config(source, config),
     )
@@ -44,12 +42,9 @@ fn issue_with_config(
 
 fn issue(
     source: &str,
-) -> Result<
-    super::VerifiedNormalCallableSemanticDynamicPackageV1,
-    NormalCallableSemanticDynamicPackageIssueV1,
-> {
+) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let mut resolver = FunctionSemanticResolverSessionV1::new(91).unwrap();
-    issue_normal_callable_semantic_dynamic_package_v1(&mut resolver, final_source(source))
+    issue_normal_callable_semantic_package_v1(&mut resolver, final_source(source))
 }
 
 #[test]
@@ -62,18 +57,12 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_demands() {
     assert_eq!(package.batch().declarations().len(), 4);
     assert_eq!(package.parameter_declaration_count(), 4);
     assert_eq!(package.parameter_count(), 15);
-    assert_eq!(package.dynamic_batch_slot(), 0);
+    let NormalCallableDynamicProjectionRefV1::Selected { program } = package.dynamic_projection()
+    else {
+        panic!("exact Dynamic row must remain selected")
+    };
     assert_eq!(
-        package.dynamic_owner(),
-        package
-            .batch()
-            .declarations()
-            .next()
-            .expect("Dynamic row remains in the owned batch")
-            .owner()
-    );
-    assert_eq!(
-        package.dynamic_program().after().loop_key(),
+        program.after().loop_key(),
         crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0)
     );
 }
@@ -87,7 +76,10 @@ fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
     assert_eq!(package.batch().declarations().len(), 5);
     assert_eq!(package.parameter_declaration_count(), 4);
     assert_eq!(package.parameter_count(), 15);
-    assert_eq!(package.dynamic_batch_slot(), 1);
+    assert!(matches!(
+        package.dynamic_projection(),
+        NormalCallableDynamicProjectionRefV1::Selected { .. }
+    ));
     assert_eq!(
         package
             .batch()
@@ -100,11 +92,15 @@ fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
 }
 
 #[test]
-fn zero_dynamic_candidates_reject_without_default_or_name_selection() {
+fn zero_dynamic_candidates_are_valid_unselected_without_default_or_name_selection() {
+    let package = issue("static box Api { run(value) { return value } }")
+        .expect("fully observed non-Dynamic package");
     assert!(matches!(
-        issue("static box Api { run(value) { return value } }"),
-        Err(NormalCallableSemanticDynamicPackageIssueV1::MissingDynamicCandidate)
+        package.dynamic_projection(),
+        NormalCallableDynamicProjectionRefV1::ValidUnselected
     ));
+    assert_eq!(package.batch().declarations().len(), 1);
+    assert_eq!(package.parameter_count(), 1);
 }
 
 #[test]
@@ -114,7 +110,7 @@ fn two_exact_dynamic_candidates_reject_without_ordinal_tiebreak() {
     let source = format!("{first}\n{second}");
     assert!(matches!(
         issue(&source),
-        Err(NormalCallableSemanticDynamicPackageIssueV1::DuplicateDynamicCandidate)
+        Err(NormalCallableSemanticPackageIssueV1::DuplicateDynamicCandidate)
     ));
 }
 
@@ -143,14 +139,13 @@ gate Build.test {
                 ..ParserBuildConfig::default()
             },
         ),
-        Err(NormalCallableSemanticDynamicPackageIssueV1::MissingDynamicParameterDemand)
+        Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterDemand)
     ));
 }
 
 #[test]
 fn package_has_no_clone_or_split_surface() {
     let model = include_str!("model.rs");
-    assert!(!model
-        .contains("Clone)]\npub(crate) struct VerifiedNormalCallableSemanticDynamicPackageV1"));
+    assert!(!model.contains("Clone)]\npub(crate) struct VerifiedNormalCallableSemanticPackageV1"));
     assert!(!model.contains("fn into_parts"));
 }

@@ -75,8 +75,11 @@ reject_fixed_in_file \
   "<'env, 'decl>" "$DYNAMIC_SEMANTIC" \
   "semantic program must not retain callable-catalog lifetimes"
 guard_expect_fixed_in_file "$TAG" \
-  "dynamic_program" "$PACKAGE_ISSUER" \
-  "whole package must own the completed Dynamic lifecycle program"
+  "NormalCallableDynamicProjectionV1::Selected" "$PACKAGE_ISSUER" \
+  "whole package must own the selected completed Dynamic lifecycle program"
+guard_expect_fixed_in_file "$TAG" \
+  "zero_dynamic_candidates_are_valid_unselected_without_default_or_name_selection" "$PACKAGE_TESTS" \
+  "fully observed zero-Dynamic package must remain typed valid-unselected"
 
 for file in \
   "$PARSER_LOAN" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
