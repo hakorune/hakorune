@@ -566,14 +566,17 @@ DynamicFullLoopPhysicalInputViewV2<'program>
   calls:           retained private source-bound CallSlot rows
   execution:       LoopOperationExecutionClassV2 per operation
   faults:          borrowed six-row fault cut-point view
-  transfer:        private LoopJoinTransferViewV2, including After
+  transfer:        private DynamicLoopJoinSigTransferViewV2, including After
   context:         owner/frame/scope-region/source provenance
 ```
-
 The view is issued only by the V2 semantic-program owner and is borrowed by
-the package-to-physical issuer.  `LoopJoinTransferViewV2` must be issued by
-the JoinSig owner; it carries logical role/port/payload and a verified
-loop/branch/exit anchor, but never a physical block or raw `After`.  If the
+the package-to-physical issuer.  `DynamicLoopJoinSigTransferViewV2` must be
+issued by the JoinSig owner.  It separates loop transfer rows
+`{loop_key, role, from, to, payload}` from branch rows
+`{if_item, disposition, target, payload}`; it never invents an ItemKey for
+Enter/Backedge, adds a physical block, or exposes raw `After`.  Recipe
+item-to-block placement is a separate exact relation co-sealed by the same
+view.  If the
 JoinSig owner cannot issue this item/control-keyed view without making the
 physical issuer interpret `as_sig()` or re-pairing `After`, the D0 remains
 `NoSafeSlice`.
@@ -587,10 +590,9 @@ source/effect ledger          = not yet identified (NoSafeSlice)
 CallSlot target handoff       = private envelope relation (closed I0)
 V2 context/frame/scope        = retained source/envelope relation
 V2 JoinSig/After              = semantic-program control co-seal; planned
-                                private item/control transfer view is missing
+  private item/control transfer view is missing
 physical schedule/projection  = not yet identified (NoSafeSlice)
 ```
-
 The D0 acceptance sentence is:
 
 ```text

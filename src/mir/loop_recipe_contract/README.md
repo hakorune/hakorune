@@ -16,11 +16,13 @@ VerifiedDynamicFullLoopSemanticProgramV2
   -> operation/placement + source/effect + CallSlot view
   + execution_class_v2
   + Fault cut-point view
-  + LoopJoinTransferViewV2 (including the co-sealed After)
+  + DynamicLoopJoinSigTransferViewV2 (including the co-sealed After)
 ```
 
-`LoopJoinTransferViewV2` is the sole owner of logical port/role/payload and
-loop/branch/exit anchors.  The physical issuer must not read
+`DynamicLoopJoinSigTransferViewV2` is the sole owner of logical port/role/payload
+and loop/branch/exit anchors.  Loop rows do not invent an ItemKey for
+Enter/Backedge; branch rows retain their exact `if_item`.  Recipe item
+placement is a separate co-sealed relation.  The physical issuer must not read
 `VerifiedLoopJoinSigV2::as_sig()`, reconstruct an item from names/order, or
 re-pair `After`.  This is a private borrowed view, not a new Recipe, target,
 ABI, CFG, or `Verified*`/`Prepared*` public product.  Until the source/effect
