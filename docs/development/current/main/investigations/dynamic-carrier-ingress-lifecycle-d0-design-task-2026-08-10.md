@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: parameter-demand projection R0 closed; normal semantic-source projection R0 selected
+Status: normal semantic-source projection R0 parked at NoSafeSlice; production source-carrier D0 selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0`
+Current design row: `NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -464,7 +464,7 @@ Closeout:
   The focused four-test suite, semantic-batch regression suite, and
   `cargo check --lib` pass; all touched Rust files remain below 800 lines.
 
-### 3E. `NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0` — selected
+### 3E. `NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0` — parked at NoSafeSlice
 
 Change:
   Convert the existing Builder-facing normal callable semantic source into a
@@ -491,7 +491,99 @@ Stop:
   numeric identities across allocations, or make Builder lineage the source
   truth, return to design.
 
-### 3F. Follow-on order
+Audit result:
+  The stop condition is active. The neutral retained parser source covers
+  direct Box methods only, whereas the production normal callable inventory
+  contains top-level, static, and instance rows. `NormalCompileRequestV1` and
+  `PreparedNormalDefaultProgramRootV1` carry only an AST, so they cannot convey
+  the retained parser authority or prove its relation to macro/post-transform
+  syntax. Batch rows also lack the exact source identity needed to co-seal a
+  Builder selected key and catalog brand without name, ordinal, or numeric-ID
+  repair. The existing escaping loan surface cannot be reproduced honestly
+  from the batch's callback-scoped source loan.
+
+  A behavior-preserving file split is independently safe, but it does not
+  authorize projection cutover and must not be presented as semantic progress.
+
+### 3E-D0. `NORMAL-CALLABLE-PRODUCTION-SOURCE-CARRIER-D0` — selected design stop
+
+Question:
+  What single product owns the complete post-transform callable source truth
+  transported from parser/macro processing into normal compilation, and how is
+  that truth co-sealed exactly once with normal callable selection?
+
+The Decision must fix:
+
+1. the canonical source owner after parser and whole-file macro/postpass work;
+2. complete membership for top-level functions, static Box methods, and
+   instance Box methods;
+3. explicit supported or typed fail-fast disposition for generated,
+   selected-build-gate, compatibility, JSON, REPL, and other AST-only origins;
+4. one opaque declaration source identity stable across the authorized
+   transform boundary;
+5. atomic transport through `NormalCompileRequestV1` and
+   `PreparedNormalDefaultProgramRootV1`, with no AST-only reconstruction;
+6. one co-seal from exact source identity to `SelectedNormalCallableKey`,
+   catalog brand, and a private batch slot; and
+7. callback-scoped lowering/target loans that cannot escape or create another
+   forest/source owner.
+
+Authority target:
+
+```text
+post-transform complete callable source
+  + sole resolved semantic batch
+  + normal selected callable catalog
+      -> exact normal callable selection projection
+          -> callback-scoped source/lowering loans
+```
+
+Non-authority:
+
+```text
+AST shape or name lookup
+source/inventory ordinal repair
+numeric owner or BindingRef comparison across allocations
+Builder catalog lineage as source truth
+second resolver or cloned forest
+fallback from unsupported source origins
+```
+
+Required Decision tests/guards:
+
+- mixed top-level/static/instance exact coverage and order-independent mapping;
+- Main exclusion and current Deferred/app behavior remain explicit;
+- generated/build-gate/compat rows are supported by capability or fail fast;
+- foreign parser/transform source, foreign catalog brand, missing relation,
+  duplicate relation, and extra relation reject;
+- lowering owner, BindingRefs, and forest are borrowed from the sole batch;
+- old normal-source issuer remains live until cutover, then reaches caller zero;
+- no production name lookup, ordinal repair, escaping loan, retry, or fallback;
+- all source files stay below 760 preferred / 800 hard lines.
+
+NoSafeSlice remains active if any of the complete production source carrier,
+post-transform identity, complete membership, exact selection co-seal, or
+callback-scoped consumer recut cannot be defined without creating a second
+source/resolver authority.
+
+### 3E follow-on order after the Decision
+
+```text
+PARSER-NORMAL-CALLABLE-SOURCE-COVERAGE-R0/I0
+  -> NORMAL-CALLABLE-SEMANTIC-SOURCE-SPLIT-R0
+  -> NORMAL-CALLABLE-SELECTION-BATCH-COSEAL-D0/I0
+  -> NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0
+  -> old resolver/source authority caller-zero guard closeout
+```
+
+The split row is behavior invariant. The source-coverage row must transport
+the complete source product through production requests. The co-seal row alone
+may bind exact source identities to selected Builder keys. The final projection
+row deletes `VerifiedNormalCallableSemanticSourceV1::seal`, its forest/source
+projection ownership, `function_at_site`, `view_for_key`, and its resolver call,
+then converts production consumers to scoped loans.
+
+### 3F. Ingress follow-on order
 
 ```text
 DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
