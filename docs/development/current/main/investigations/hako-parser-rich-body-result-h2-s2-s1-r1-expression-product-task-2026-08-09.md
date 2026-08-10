@@ -863,10 +863,11 @@ The Dynamic family has exact formal/local/Loop source lineage, but it owns no
 the H2 initializer still has no one-to-one producer co-seal and remains
 `NoSafeSlice`.
 
-The next Dynamic evidence owner is the existing ladder in
-`generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md` (source-bound
-MethodCall relation and the subsequent full V2 producer rows). It must issue
-an exact source-backed lineage receipt before this H2 row can reopen for
+The neutral source-bound MethodCall relation in that ladder is already landed;
+the next missing Dynamic owner is the existing design row
+`LOOP-V2-DYNAMIC-FULL-PRODUCER-D0` in
+`dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md`. It must issue an
+exact source-backed lineage/producer receipt before this H2 row can reopen for
 implementation. Do not move the current pointer or create a second H2
 producer/source authority; when that receipt lands, return here and perform
 the exact co-seal audit again. The static publication owner may be reused only
