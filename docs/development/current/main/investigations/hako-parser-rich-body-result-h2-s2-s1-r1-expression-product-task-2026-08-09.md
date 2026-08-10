@@ -211,34 +211,32 @@ publication owner.
 
 ## Bounded compile-front census (2026-08-11)
 
-The next read-only probe intentionally compared the parked R1 expression
-fixture with minimal inputs. With the existing release binary and
-`HAKO_JOINIR_DEBUG=1`, all of the following reached the same
-`generic_loop_v1` representation failure before producing an executable result:
+The read-only probe was rerun with the guard's default environment before
+classifying the source boundary:
 
 ```text
-parked H2-S2-S1-R1 expression fixture
-minimal source with ParserStringUtilsBox import
-minimal source with ParserNumberScanBox import
-minimal source with ParserBox/ParserExprBox import
-empty source with no parser import
+empty_script.hako                         -> RC: 0
+parser_rich_body_h2_s2_r0_v1.hako         -> RC: 0
+parser_rich_body_h2_s2_s0_v1.hako         -> GenericLoop MissingTransientType { init: ValueId(210) }
+parked H2-S2-S1-R1 guard run               -> GenericLoop MissingTransientType { init: ValueId(113) }
 ```
 
-The diagnostic shape was `UnknownTransientType { init: ValueId(31) }` for this
-probe (the earlier guard run reported `MissingTransientType { init: ValueId(113) }`).
-The differing ValueId is diagnostic allocation state only. The shared failure
-proves that the current binary reaches the GenericLoop boundary in its
-compile front before the input-specific parser fixture can identify an exact
-parser callable. It does **not** prove that `ParserStringUtilsBox`,
-`ParserNumberScanBox`, or `ParserScanLoopBox` owns the first failing loop.
+This establishes that the current default compile front is not a universal
+empty-input failure: the R0 surface remains green, while the S0/R1 parser
+surface reaches the existing GenericLoop representation boundary. A separate
+probe with `HAKO_JOINIR_DEBUG=1` made even an empty input reach
+`UnknownTransientType { init: ValueId(31) }`; that debug-mode perturbation is
+not a source-site baseline and must not be used to identify an owner. All
+ValueId numbers are diagnostic allocation state only.
 
-Therefore the census remains `NoSafeSlice` at the source-site level. Do not
-promote a candidate method name, narrow the fixture, or add parser-specific
-logging/repair in this row. The next safe diagnostic owner is a bounded
-compile-front source/owner inventory that can attach a function/source site to
-the first GenericLoop admission; until that exists, the existing Dynamic
-carrier/full-body ladder remains the only semantic owner and this R1 product
-stays parked.
+The exact first parser callable/loop is still unproven. The evidence does not
+justify promoting `ParserStringUtilsBox`, `ParserNumberScanBox`, or
+`ParserScanLoopBox` to the owner. Do not promote a candidate method name,
+narrow the fixture, or add parser-specific logging/repair in this row. The
+next safe diagnostic owner is a bounded compile-front source/owner inventory
+that can attach a function/source site to the first GenericLoop admission;
+until that exists, the existing Dynamic carrier/full-body ladder remains the
+only semantic owner and this R1 product stays parked.
 
 The census closeout must be one bounded evidence row, not a new semantic
 product:
@@ -253,10 +251,11 @@ compile front
   -> first failing admission index
 ```
 
-It must compare the empty-input baseline with the parser-import front and
-record the exact delta. Until that row exists, `ValueId`, method name, import
-order, and shape similarity remain diagnostics only and cannot select a
-Dynamic or parser owner.
+It must compare the default empty/R0 baseline with the S0/R1 parser front and
+record the exact delta. A debug-only failure is not an acceptable baseline.
+Until that row exists, `ValueId`, method name, import order, and shape
+similarity remain diagnostics only and cannot select a Dynamic or parser
+owner.
 
 This is a prerequisite consultation boundary, not an authorization to create
 a generic Hako result-type framework. Once the exact owner closes, rerun the
