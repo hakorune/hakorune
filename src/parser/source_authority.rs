@@ -9,6 +9,9 @@
 use std::sync::Arc;
 
 use super::callable_contract_syntax::CallableContractSyntaxV1;
+use super::source_member_cursor::{
+    ParserBoxMemberSourceCursorErrorV1, ParserBoxMemberSourceCursorV1,
+};
 use crate::ast::{
     ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1,
     BoxMethodInventoryPlacementReceiptV1, BoxMethodInventoryV1, DelegateDecl,
@@ -50,6 +53,10 @@ pub(super) struct SourceBoxDeclarationSiteV1 {
 }
 
 impl SourceBoxDeclarationSiteV1 {
+    pub(super) fn from_path(path: SourceBoxDeclarationPathV1) -> Self {
+        Self { path }
+    }
+
     pub(super) fn statement_ordinal(&self) -> u32 {
         self.path.root_statement_ordinal().unwrap_or_default()
     }
@@ -70,6 +77,13 @@ pub(super) struct SourceBoxMemberSiteV1 {
 }
 
 impl SourceBoxMemberSiteV1 {
+    pub(super) fn new(box_site: SourceBoxDeclarationSiteV1, member_ordinal: u32) -> Self {
+        Self {
+            box_site,
+            member_ordinal,
+        }
+    }
+
     pub(super) fn member_ordinal(&self) -> u32 {
         self.member_ordinal
     }
@@ -352,74 +366,65 @@ impl GeneratedPropertySink for BoxMethodInventoryV1 {
 
 #[derive(Debug)]
 pub(super) struct OpenBoxMethodSourceTransactionV1 {
-    brand: ParserInvocationBrandV1,
-    box_site: SourceBoxDeclarationSiteV1,
+    cursor: ParserBoxMemberSourceCursorV1,
     inventory: BoxMethodInventoryV1,
     method_relations: Vec<MethodSourceRelationV1>,
     delegate_source_declarations: Vec<DelegateSourceDeclarationV1>,
-    next_member_ordinal: u32,
 }
 
 impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn open(brand: ParserInvocationBrandV1, statement_ordinal: u32) -> Self {
-        Self::open_with_path(
-            brand.clone(),
-            SourceBoxDeclarationPathV1::root(brand, statement_ordinal),
-        )
+        Self {
+            cursor: ParserBoxMemberSourceCursorV1::open(brand, statement_ordinal),
+            inventory: BoxMethodInventoryV1::empty(),
+            method_relations: Vec::new(),
+            delegate_source_declarations: Vec::new(),
+        }
     }
 
     pub(super) fn open_with_path(
         brand: ParserInvocationBrandV1,
         path: SourceBoxDeclarationPathV1,
     ) -> Self {
-        debug_assert!(path.brand().same_as(&brand));
-        let box_site = SourceBoxDeclarationSiteV1 { path };
         Self {
-            brand,
-            box_site,
+            cursor: ParserBoxMemberSourceCursorV1::open_with_path(brand, path),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
-            next_member_ordinal: 0,
         }
     }
 
     pub(super) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        &self.box_site
+        self.cursor.box_site()
     }
 
     pub(super) fn current_member_site(&self) -> SourceBoxMemberSiteV1 {
-        SourceBoxMemberSiteV1 {
-            box_site: self.box_site.clone(),
-            member_ordinal: self.next_member_ordinal,
-        }
+        self.cursor.current_member_site()
     }
 
     pub(super) fn current_gate_site(&self) -> crate::ast::BoxMemberGateSiteV1 {
-        crate::ast::BoxMemberGateSiteV1::from_box_member_ordinal(self.next_member_ordinal)
+        self.cursor.current_gate_site()
     }
 
     pub(super) fn current_member_ordinal(&self) -> u32 {
-        self.next_member_ordinal
+        self.cursor.current_member_ordinal()
     }
 
     pub(super) fn branch(&self) -> Self {
         Self {
-            brand: self.brand.clone(),
-            box_site: self.box_site.clone(),
+            cursor: self.cursor.branch(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
-            next_member_ordinal: 0,
         }
     }
 
     pub(super) fn finish_member(&mut self) -> Result<(), SourceAuthorityErrorV1> {
-        self.next_member_ordinal = self
-            .next_member_ordinal
-            .checked_add(1)
-            .ok_or(SourceAuthorityErrorV1::MemberOrdinalOverflow)?;
-        Ok(())
+        self.cursor.finish_member().map_err(|error| match error {
+            ParserBoxMemberSourceCursorErrorV1::MemberOrdinalOverflow => {
+                SourceAuthorityErrorV1::MemberOrdinalOverflow
+            }
+        })
     }
 
     pub(super) fn commit_explicit_method(
@@ -429,9 +434,13 @@ impl OpenBoxMethodSourceTransactionV1 {
         declaration: ASTNode,
         diagnostic_span: Span,
     ) -> Result<BoxMethodInventoryOrdinalV1, SourceAuthorityErrorV1> {
-        if !source_site.validate_for(&self.brand, &self.box_site, self.next_member_ordinal) {
-            if source_site.member().box_site() == &self.box_site
-                && source_site.member().member_ordinal() != self.next_member_ordinal
+        if !source_site.validate_for(
+            self.cursor.brand(),
+            self.cursor.box_site(),
+            self.cursor.current_member_ordinal(),
+        ) {
+            if source_site.member().box_site() == self.cursor.box_site()
+                && source_site.member().member_ordinal() != self.cursor.current_member_ordinal()
             {
                 return Err(SourceAuthorityErrorV1::StaleMemberSite);
             }
@@ -610,9 +619,10 @@ impl OpenBoxMethodSourceTransactionV1 {
     }
 
     pub(super) fn finish(self) -> PreparedBoxSourceSealV1 {
+        let (brand, box_site) = self.cursor.into_parts();
         PreparedBoxSourceSealV1 {
-            brand: self.brand,
-            box_site: self.box_site,
+            brand,
+            box_site,
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
             delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),

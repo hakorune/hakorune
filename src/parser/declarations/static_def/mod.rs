@@ -5,6 +5,7 @@ use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::pending_method::{
     commit_pending_method, PendingExplicitMethodV1,
 };
+use crate::parser::source_member_cursor::ParserBoxMemberSourceCursorV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
@@ -20,6 +21,16 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     let (name, type_parameters, extends, implements) = header::parse_static_header(p)?;
 
     p.consume(TokenType::LBRACE)?;
+    let source_path =
+        p.active_source_declaration_path()
+            .cloned()
+            .ok_or_else(|| ParseError::BuildCfg {
+                message: "static Box member cursor requires an active parser source path"
+                    .to_owned(),
+                line: p.current_token().line,
+            })?;
+    let mut source_cursor =
+        ParserBoxMemberSourceCursorV1::open_with_path(p.source_invocation_brand(), source_path);
 
     let mut fields = Vec::new();
     let mut methods = BoxMethodInventoryV1::empty();
@@ -39,7 +50,11 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 continue;
             }
         }
+        let had_pending_method = pending_method.is_some();
         commit_pending_method(&mut pending_method, &mut methods)?;
+        if had_pending_method {
+            finish_static_source_member(&mut source_cursor)?;
+        }
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -62,6 +77,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         if let Some(body) = members::parse_static_initializer_if_any(p)? {
             p.ensure_no_pending_runes("static initializer")?;
             static_init = Some(body);
+            finish_static_source_member(&mut source_cursor)?;
             continue;
         } else if p.match_token(&TokenType::STATIC) {
             // 互換用の暫定ガード（既定OFF）: using テキスト結合の継ぎ目で誤って 'static' が入った場合に
@@ -81,6 +97,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             &mut weak_fields,
         )? {
             p.ensure_no_pending_runes("init block")?;
+            finish_static_source_member(&mut source_cursor)?;
             continue;
         }
 
@@ -142,7 +159,10 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 let field_or_method = field_or_method.clone();
                 p.advance();
                 match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
-                    members::ParsedStaticMemberV1::Field(field) => fields.push(field),
+                    members::ParsedStaticMemberV1::Field(field) => {
+                        fields.push(field);
+                        finish_static_source_member(&mut source_cursor)?;
+                    }
                     members::ParsedStaticMemberV1::Method(method) => pending_method = Some(method),
                 }
             }
@@ -156,7 +176,11 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         }
     }
 
+    let had_pending_method = pending_method.is_some();
     commit_pending_method(&mut pending_method, &mut methods)?;
+    if had_pending_method {
+        finish_static_source_member(&mut source_cursor)?;
+    }
 
     // Tolerate trailing NEWLINE(s) before the closing '}' of the static box
     while p.match_token(&TokenType::NEWLINE) {
@@ -223,4 +247,15 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         attrs,
         span: box_span,
     })
+}
+
+fn finish_static_source_member(
+    cursor: &mut ParserBoxMemberSourceCursorV1,
+) -> Result<(), ParseError> {
+    cursor
+        .finish_member()
+        .map_err(|error| ParseError::BuildCfg {
+            message: format!("static Box member source cursor failed: {error:?}"),
+            line: 0,
+        })
 }

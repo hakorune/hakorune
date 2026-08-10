@@ -4,6 +4,20 @@ The parser owns source syntax, ordered source coordinates, and parser-private
 transport products. It does not resolve callable targets, issue semantic
 contracts, build Recipe/CallSlot products, or emit MIR/runtime routes.
 
+## Shared Box-member source cursor
+
+`source_member_cursor.rs` is the parser-private owner of one Box declaration's
+parser invocation brand, exact source path, and next source-member ordinal.
+Both ordinary and static Box parsers advance this cursor exactly once after a
+source member is successfully parsed. Method inventory ordinals, names, and
+arity are never source identity.
+
+The cursor is unpublished transaction staging. It owns no method inventory,
+parameter row, source seal, resolver meaning, Take/Home authority, Recipe, or
+MIR fact. Static Boxes remain outside `ParserBoxSourceSealV1`; the shared
+cursor only gives the later callable-parameter source issuer an exact source
+coordinate without reconstructing it from generated/selected inventory.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

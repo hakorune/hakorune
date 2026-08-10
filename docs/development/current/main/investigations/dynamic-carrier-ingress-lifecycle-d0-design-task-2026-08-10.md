@@ -3,7 +3,7 @@
 Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a/R0b closed
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `PARSER-CALLABLE-PARAMETER-SOURCE-RECUT-R0`
+Current implementation row: `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -175,6 +175,29 @@ handoff only consumes that owner. No transfer row, parser brand, declaration
 identity, `Take`, Home demand, Recipe key, or MIR fact was added;
 `source_seal.rs` remains unchanged at 751 lines and every touched Rust source
 remains below 800 lines.
+
+### 1D. `PARSER-BOX-MEMBER-SOURCE-CURSOR-RECUT-R0` — closed
+
+Extract the parser brand, exact Box path, and source-member ordinal cursor
+from `OpenBoxMethodSourceTransactionV1`. Ordinary Box transactions retain the
+same behavior through that cursor; the static Box parser opens the same
+cursor and advances it exactly once for every successfully parsed source
+member.
+
+This is a behavior-neutral prerequisite. It emits no parameter rows and does
+not place static Boxes into `ParserBoxSourceSealV1`. Inventory ordinal, method
+name, Box name, and arity remain non-authorities. If every successful static
+member arm cannot close one exact cursor step, stop before parameter I0.
+
+Closeout receipt:
+
+- `ParserBoxMemberSourceCursorV1` is the single parser-private owner of the
+  parser brand, exact Box declaration path, and source-member ordinal;
+- `OpenBoxMethodSourceTransactionV1` embeds and delegates to that cursor;
+- the static Box parser advances the same cursor once after each successful
+  field, method, initializer, or init-block parse without publishing a seal;
+- focused cursor/source-authority tests are green and all touched Rust source
+  files remain below 800 lines.
 
 ### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0` — selected
 

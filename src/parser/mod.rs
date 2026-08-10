@@ -20,8 +20,8 @@
 mod body_source;
 mod build_cfg;
 mod build_gate_selection;
-mod callable_parameter_source;
 mod callable_contract_syntax;
+mod callable_parameter_source;
 mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
@@ -49,6 +49,7 @@ mod runes;
 mod source_authority;
 mod source_gate_ledger;
 mod source_gate_receipt;
+mod source_member_cursor;
 mod source_path;
 mod source_resolver_handoff;
 mod source_seal;
