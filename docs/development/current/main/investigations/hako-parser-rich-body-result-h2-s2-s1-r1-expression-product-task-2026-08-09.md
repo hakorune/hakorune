@@ -336,6 +336,54 @@ I0 may add one default-off, semantic-neutral owner/site handoff at the existing
 route boundary; until that handoff is designed and accepted, the parser R1 WIP
 remains parked and the Dynamic/static publication owners remain unchanged.
 
+## Next design boundary: source-handoff to GenericLoop admission
+
+Task: `H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-D0`
+
+Decision: keep this as a design stop. The existing source transport is not
+missing; it is consumed too early:
+
+```text
+RawInvocationChildPortV1.active_source
+  -> PreparedLocatedRawLoopChildEntryV1
+  -> exact source/owner/loop schedule validation
+  -> source consumed
+  -> lower_with_existing_route_v1
+      -> condition/body only
+  -> GenericLoop admission
+```
+
+The future diagnostic-only boundary may borrow, exactly once and without
+semantic mutation:
+
+```text
+source context / callable schedule
+  + current function/route context
+  + loop_var / init ValueId / transient type
+  -> first GenericLoop admission diagnostic
+```
+
+It must preserve `FunctionOwnerIdV1`, `SourceNodeSite`, and
+`VerifiedCallableSemanticLoopBindingScheduleV1` until the admission observation
+is complete, then release them. It must not make those products GenericLoop
+semantic inputs, create a new source observer, or infer a type. The legacy raw
+child path has no source context and remains outside this diagnostic cohort.
+
+Acceptance for the future I0 is limited to:
+
+```text
+default-off diagnostic handoff
+no route/planner/ValueId/type/publication behavior change
+complete owner/site/initializer/TypeContext/admission evidence row
+default empty/R0/S0/R1 baseline comparison remains reproducible
+source/schedule borrow is one-shot and cannot escape the route call
+```
+
+Until this D0 is accepted, `ValueId`, method name, import order, AST shape,
+and `TypeContext` alone remain non-authorities. The GenericLoop carrier stays
+verifier-only, and the existing Dynamic/transient-publication owners remain
+unchanged.
+
 The census closeout must be one bounded evidence row, not a new semantic
 product:
 
