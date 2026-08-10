@@ -535,45 +535,66 @@ frontier.  Once this design is accepted, the implementation slice is
 `PHYSICAL-INPUT-AUTHORITY-I0`; the next physical-session row remains parked
 until that slice is green.
 
-### First missing axis: operation-demand issuer D0
+### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (design stop)
 
-The first sub-question is deliberately narrower:
-`PHYSICAL-OPERATION-DEMAND-ISSUER-D0`.
+The current Dynamic chain retains a verified V2 source/Recipe envelope and a
+V2 JoinSig/After relation, but no V2 operation/effect ledger or physical-demand
+issuer exists. `VerifiedLoopOperationPhysicalDemandV1` is not reusable by cast,
+Recipe reconstruction, or re-running its V1 source/effect issuer: it fixes V1
+Recipe/Core/JoinSig/value classes and cannot represent `DynamicAdd`,
+`DynamicLess`, `CallSlot`, `TextEq`, or `LoopValueClassV2::Dynamic`.
 
-The current Dynamic chain retains the verified V2 source/Recipe envelope and
-the V2 JoinSig/After relation internally, but the final logical exit co-seal
-does not expose an operation/effect product or a physical demand.  The
-existing `VerifiedLoopOperationPhysicalDemandV1` cannot be reused by casting
-or reconstructing the V2 Recipe: it requires a V1 operation/effect product,
-V1 context, and V1 continuation, and it is not a Dynamic V2 source issuer.
-
-The design target is a one-way, private projection at the logical-to-physical
-boundary:
+The only acceptable future boundary is one private, V2-aware projection:
 
 ```text
-exact Dynamic V2 source/Recipe/JoinSig program
-  -> V2-aware operation/effect/demand projection
-     (Recipe order, complete item coverage, exact source/effect relations)
+VerifiedDynamicFullLoopSemanticProgramV2
+  -> V2 operation/effect/demand authority
+     - complete V2 Recipe item/placement coverage
+     - source/effect and CallSlot relations
+     - LoopOperationExecutionClassV2 classification
+     - V2 JoinSig/After normal-transfer relation
   -> later physical-input co-seal
 ```
 
-This projection must not:
+Owner table:
 
 ```text
-V2 -> V1 cast or shape adapter
-re-run Dynamic admission or AST observation
-rebuild Recipe keys from MIR/name/order
-expose the internal envelope/JoinSig/After
-become a second Recipe or a public selector
-open a Builder/session or allocate physical IDs
+V2 Recipe / value class       = verified V2 Recipe artifact
+operation execution class     = schema_v2::execution_class_v2
+source/effect ledger          = not yet identified (NoSafeSlice)
+CallSlot target handoff       = private envelope relation (closed I0)
+V2 context/frame/scope        = retained source/envelope relation
+V2 JoinSig/After              = semantic-program control co-seal; physical
+                                item/control transfer view still missing
+physical schedule/projection  = not yet identified (NoSafeSlice)
 ```
 
-The D0 acceptance evidence is an owner table for the V2 operation/effect
-source, a single issuer location, the exact consume boundary relative to the
-logical exit co-seal, and a negative matrix for foreign owner/frame/scope,
-missing/duplicate item coverage, wrong JoinSig transfer, and V1-family
-coercion.  If a source-backed V2 operation/effect issuer cannot be identified,
-this sub-question remains `NoSafeSlice`; no partial demand receipt is added.
+The D0 acceptance sentence is:
+
+```text
+Exact Dynamic V2 semantic programから一度だけV2-aware operation/effect/demand
+projectionを発行し、全V2 operation・CallSlot・placement・JoinSig transferを
+coverage検証する。V1 coercion、Recipe再構築、source再観測、session開始は禁止。
+issuerが欠ければNoSafeSlice。
+```
+
+The recommended sole issuer location is the package-to-physical boundary,
+for example `src/mir/normal_callable_semantic_package/physical_input/issuer.rs`;
+Dynamic-specific projection helpers remain private to
+`dynamic_full_body_recipe`. The issuer borrows one package-port scoped Dynamic
+view containing the V2 artifact/claims, private CallSlot rows, Fault view, and
+JoinSig item/control transfer view. It must not read raw `VerifiedLoopJoinSigV2`
+or re-pair `After` itself. A missing transfer view or scoped Dynamic view is
+`NoSafeSlice`, not a new partial receipt.
+
+Required negatives are foreign source provenance/owner/frame/scope/region, foreign V2
+Recipe/JoinSig/After, missing/duplicate/extra operation evidence, wrong block
+or loop placement, execution-class mismatch, CallSlot target mismatch, wrong
+JoinSig Enter/Backedge/After, key/name/order schedule repair, and any V1
+operation/effect/demand passed to this boundary. Completion, Prelude, Tail,
+ABI, session, DraftSeal, Collector, provider, runtime Fault, retry, and
+fallback remain explicit non-claims. No new `Verified*`/`Prepared*` receipt or
+code is authorized until this D0 is accepted.
 
 ### CallSlot target handoff D0 (2026-08-10)
 
@@ -670,6 +691,7 @@ After this closeout, the live order is:
 
 ```text
 PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0
+  -> PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0
   -> PHYSICAL-OPERATION-DEMAND-I0
   -> PHYSICAL-INPUT-AUTHORITY-I0
 ```
