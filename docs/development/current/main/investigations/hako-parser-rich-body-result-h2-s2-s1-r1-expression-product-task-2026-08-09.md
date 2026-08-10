@@ -1329,6 +1329,74 @@ This bridge does not itself solve Dynamic result ABI, multi-return
 Completion, Tail, DraftSeal, CFG, PHI, or publication. Those are later owners;
 claiming them here would hide the actual bootstrap cycle.
 
+### Implementation feasibility audit (2026-08-11)
+
+The second worker audit confirms the design boundary and identifies the exact
+implementation seam. The package loan already contains
+`SelectedCallableSemanticRefV1::Dynamic { program, source }`; the source seed's
+`VerifiedDynamicLoopSourceV1::membership()` carries the resolver-owned loop
+source, frame, and scope-region. The request-local origin ledger already keeps
+the exact `PreparedDynamicLocalEntryV1` relation
+(`initializer ValueId -> local ValueId -> BindingRef`).
+
+The missing pieces are deliberately not guessed:
+
+```text
+RawInvocationSourceContextV1
+  currently carries located root/site/body-kind only
+  -> cannot itself prove frame/scope/region
+
+GenericLoopAdmissionObservationV1
+  diagnostic/debug-only
+  -> cannot become semantic authority
+
+CallableDynamicOriginLoweringStateV1.local_entries
+  private ledger, one narrow accessor
+  -> needs an atomic selected-admission borrow/take surface
+
+PreparedLocatedRawLoopChildEntryV1
+  currently discards method/admission observations before legacy routing
+  -> must receive the private selected admission before any route decision
+```
+
+Therefore the D0 design is accepted as a bounded owner split, but the
+implementation row remains closed until the bridge has a real consumer. The
+I0 must add one dedicated private module/entry point that:
+
+```text
+borrows the package Dynamic program through its HRTB boundary
+matches the package source seed's exact loop membership
+borrows/takes one exact local materialization entry
+co-seals callable/method/Loop/frame/Scope/Region provenance
+enforces Static xor Dynamic exactly once
+passes the move-only relation to the selected Loop consumer
+```
+
+It must not store a raw program reference in the general raw invocation port,
+promote diagnostic observations, or emit a receipt that is immediately
+dropped. If no route can consume the move-only relation in the same slice,
+remain `NoSafeSlice` and do not add an adapter-only product.
+
+### I0 implementation guardrails
+
+```text
+new module: builder/selected_initializer_admission/
+  owner/co-seal only; no GenericLoop or physical planner code
+
+allowed inputs:
+  package HRTB Dynamic loan
+  source-seed loop membership
+  exact PreparedDynamicLocalEntryV1
+  exact located method/Loop observations
+
+forbidden inputs:
+  LocalInitializerObservationV1 as semantic fact
+  name/arity/ValueId/runtime-tag repair
+  raw Recipe/JoinSig scan
+  MirType::Unknown or nominal Dynamic publication
+  fallback/retry or test-only V1 canary promotion
+```
+
 ### Required downstream ladder (fixed; no hidden prerequisite rows)
 
 ```text
