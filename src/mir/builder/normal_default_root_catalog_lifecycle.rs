@@ -4,6 +4,7 @@
 //! root ordering without exposing mutable Builder access to the compiler.
 
 use crate::ast::ASTNode;
+use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
@@ -98,12 +99,18 @@ impl std::error::Error for NormalDefaultRootCatalogLifecycleErrorV1 {}
 
 #[derive(Debug)]
 pub(in crate::mir) struct PreparedNormalDefaultProgramRootV1 {
-    ast: ASTNode,
+    source: PreparedNormalDefaultProgramSourceV1,
     _seal: PreparedNormalDefaultProgramRootSealV1,
 }
 
 #[derive(Debug)]
 struct PreparedNormalDefaultProgramRootSealV1;
+
+#[derive(Debug)]
+enum PreparedNormalDefaultProgramSourceV1 {
+    Callable(VerifiedFinalCallableProgramSourceV1),
+    Compatibility(ASTNode),
+}
 
 impl PreparedNormalDefaultProgramRootV1 {
     pub(in crate::mir) fn seal(ast: ASTNode) -> Result<Self, ASTNode> {
@@ -111,20 +118,39 @@ impl PreparedNormalDefaultProgramRootV1 {
             return Err(ast);
         }
         Ok(Self {
-            ast,
+            source: PreparedNormalDefaultProgramSourceV1::Compatibility(ast),
             _seal: PreparedNormalDefaultProgramRootSealV1,
         })
     }
 
+    pub(in crate::mir) fn from_callable_source(
+        source: VerifiedFinalCallableProgramSourceV1,
+    ) -> Self {
+        Self {
+            source: PreparedNormalDefaultProgramSourceV1::Callable(source),
+            _seal: PreparedNormalDefaultProgramRootSealV1,
+        }
+    }
+
     pub(super) fn source_ast(&self) -> &ASTNode {
-        &self.ast
+        match &self.source {
+            PreparedNormalDefaultProgramSourceV1::Callable(source) => source.ast(),
+            PreparedNormalDefaultProgramSourceV1::Compatibility(ast) => ast,
+        }
     }
 
     pub(super) fn clone_lowering_statements(&self) -> Vec<ASTNode> {
-        match self.ast.clone() {
+        match self.source_ast().clone() {
             ASTNode::Program { statements, .. } => statements,
             _ => unreachable!("sealed normal/default root must remain Program"),
         }
+    }
+
+    pub(in crate::mir) fn is_callable_source_backed(&self) -> bool {
+        matches!(
+            &self.source,
+            PreparedNormalDefaultProgramSourceV1::Callable(_)
+        )
     }
 }
 
@@ -434,7 +460,7 @@ mod tests {
         );
         assert!(rejected.session.builder().current_module.is_none());
         assert!(matches!(
-            rejected._source.ast,
+            rejected._source.source_ast(),
             crate::ast::ASTNode::Program { .. }
         ));
     }
@@ -463,7 +489,7 @@ mod tests {
         );
         assert!(rejected.session.builder().current_module.is_some());
         assert!(matches!(
-            rejected._source.ast,
+            rejected._source.source_ast(),
             crate::ast::ASTNode::Program { .. }
         ));
     }

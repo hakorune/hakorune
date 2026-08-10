@@ -13,6 +13,7 @@ use crate::mir::builder::{
     ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
     PreparedNormalDefaultProgramRootV1,
 };
+use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
 
@@ -219,6 +220,21 @@ impl NormalCompileRequestV1 {
     ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         Self::new(
             ast,
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::MirMode,
+            ),
+        )
+    }
+
+    pub(crate) fn for_mir_mode_callable_source(
+        source: VerifiedFinalCallableProgramSourceV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_callable_source(source),
             source_file,
             imports,
             NormalCompileAdmissionV1::PreparedSourceWithImports(
