@@ -78,7 +78,7 @@ fn parse_box_declaration_after_box_keyword(
     let source_tx =
         OpenBoxMethodSourceTransactionV1::open_with_path(p.source_invocation_brand(), source_path);
     let mut state = BoxMemberState::with_source_transaction(source_tx);
-    parse_box_member_body(p, &mut state)?;
+    parse_box_member_body(p, &mut state, true)?;
     p.consume(TokenType::RBRACE)?;
     members::property_emit::apply_birth_once_constructor_prologues(
         &mut state.constructors,

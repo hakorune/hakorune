@@ -1,5 +1,6 @@
 //! Methods parsing (name(params){ body })
 use crate::ast::{ASTNode, Span};
+use crate::parser::callable_parameter_source::ParsedCallableParameterListV1;
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -10,15 +11,17 @@ pub(crate) fn try_parse_method(
     p: &mut NyashParser,
     method_name: String,
     is_override: bool,
-) -> Result<Option<ASTNode>, ParseError> {
+) -> Result<Option<(ASTNode, ParsedCallableParameterListV1)>, ParseError> {
     if !p.match_token(&TokenType::LPAREN) {
         return Ok(None);
     }
     let attrs = p.take_pending_runes_for_instance_method()?;
     p.advance(); // consume '('
 
-    let param_decls = crate::parser::common::params::parse_param_decl_list(p, "method")?;
-    let params = crate::ast::ParamDecl::names(&param_decls);
+    let parameter_source =
+        crate::parser::common::params::parse_param_decl_list_product(p, "method")?;
+    let param_decls = parameter_source.neutral().to_vec();
+    let params = crate::ast::ParamDecl::names(parameter_source.neutral());
     p.consume(TokenType::RPAREN)?;
     let return_type_name =
         crate::parser::common::params::parse_optional_return_type_annotation(p, "method")?;
@@ -38,5 +41,5 @@ pub(crate) fn try_parse_method(
         attrs,
         span: Span::unknown(),
     };
-    Ok(Some(method))
+    Ok(Some((method, parameter_source)))
 }

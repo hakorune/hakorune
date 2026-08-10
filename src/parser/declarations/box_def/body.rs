@@ -24,13 +24,29 @@ fn box_try_block_first_property(
 }
 
 fn commit_pending_ordinary_method(
+    p: &mut NyashParser,
     pending: &mut Option<PendingExplicitMethodV1>,
     state: &mut BoxMemberState,
+    admit_direct_parameter_source: bool,
 ) -> Result<bool, ParseError> {
     let Some(method) = pending.take() else {
         return Ok(false);
     };
-    let _ = method.commit(&mut state.source_tx)?;
+    let source_site = crate::parser::source_authority::SourceBoxMethodSiteV1::Direct {
+        member: state.source_tx.current_member_site(),
+    };
+    let committed = method.commit(&mut state.source_tx)?;
+    if let Some((diagnostic_name, parameters)) = committed
+        .into_parameter_source()
+        .filter(|_| admit_direct_parameter_source)
+    {
+        p.commit_callable_parameter_source(
+            source_site,
+            crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::InstanceBoxMethod,
+            diagnostic_name,
+            parameters,
+        )?;
+    }
     state.finish_source_member()?;
     Ok(true)
 }
@@ -180,9 +196,10 @@ fn parse_box_member_gate_block(
     p: &mut NyashParser,
     source_tx: &crate::parser::source_authority::OpenBoxMethodSourceTransactionV1,
 ) -> Result<BoxMemberState, ParseError> {
+    p.mark_callable_parameter_member_gate_unsupported();
     p.consume(TokenType::LBRACE)?;
     let mut state = BoxMemberState::with_source_transaction(source_tx.branch());
-    parse_box_member_body(p, &mut state)?;
+    parse_box_member_body(p, &mut state, false)?;
     p.consume(TokenType::RBRACE)?;
     Ok(state)
 }
@@ -251,6 +268,7 @@ fn parse_box_member_gate_group(
 pub(crate) fn parse_box_member_body(
     p: &mut NyashParser,
     state: &mut BoxMemberState,
+    admit_direct_parameter_source: bool,
 ) -> Result<(), ParseError> {
     let mut pending_method: Option<PendingExplicitMethodV1> = None;
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
@@ -261,7 +279,12 @@ pub(crate) fn parse_box_member_body(
                 continue;
             }
         }
-        commit_pending_ordinary_method(&mut pending_method, state)?;
+        commit_pending_ordinary_method(
+            p,
+            &mut pending_method,
+            state,
+            admit_direct_parameter_source,
+        )?;
 
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
@@ -406,7 +429,7 @@ pub(crate) fn parse_box_member_body(
             });
         }
     }
-    commit_pending_ordinary_method(&mut pending_method, state)?;
+    commit_pending_ordinary_method(p, &mut pending_method, state, admit_direct_parameter_source)?;
     Ok(())
 }
 
@@ -420,14 +443,21 @@ fn box_try_method_or_field(
     state: &mut BoxMemberState,
     pending_method: &mut Option<PendingExplicitMethodV1>,
 ) -> Result<bool, ParseError> {
-    if let Some(method) = crate::parser::declarations::box_def::members::methods::try_parse_method(
-        p,
-        name.clone(),
-        is_override,
-    )? {
+    if let Some((method, parameter_source)) =
+        crate::parser::declarations::box_def::members::methods::try_parse_method(
+            p,
+            name.clone(),
+            is_override,
+        )?
+    {
         let mut method = method;
         p.attach_pending_runes_to_declaration(&mut method)?;
-        *pending_method = Some(PendingExplicitMethodV1::new(name, method, declaration_span));
+        *pending_method = Some(PendingExplicitMethodV1::with_parameter_source(
+            name,
+            method,
+            declaration_span,
+            parameter_source,
+        ));
         return Ok(true);
     }
     let parsed = crate::parser::declarations::box_def::members::fields::try_parse_header_first_field_or_property(

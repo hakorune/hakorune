@@ -18,6 +18,13 @@ MIR fact. Static Boxes remain outside `ParserBoxSourceSealV1`; the shared
 cursor only gives the later callable-parameter source issuer an exact source
 coordinate without reconstructing it from generated/selected inventory.
 
+`callable_parameter_source/` consumes that coordinate for the bounded direct
+method cohort. The one-shot sibling parse product carries the completed total
+postpass together with a complete non-Clone static/instance parameter catalog.
+Every admitted row is issued by the same parameter parse that creates the
+neutral `ParamDecl`; missing AST metadata is never reclassified as
+`Ordinary`. `Take` is a closed vocabulary variant with no live issuer.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

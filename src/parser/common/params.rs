@@ -288,6 +288,16 @@ pub(crate) fn parse_param_decl_list(
     p: &mut NyashParser,
     context: &str,
 ) -> Result<Vec<crate::ast::ParamDecl>, ParseError> {
+    parse_param_decl_list_product(p, context).map(|product| product.neutral().to_vec())
+}
+
+/// Parse once into a neutral AST projection plus one-shot transfer source
+/// rows. Callers outside the admitted direct-method cohort discard the source
+/// rows; they may not reconstruct `Ordinary` from the neutral projection.
+pub(in crate::parser) fn parse_param_decl_list_product(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<crate::parser::callable_parameter_source::ParsedCallableParameterListV1, ParseError> {
     let mut params = Vec::new();
     let mut last_token_position: Option<(usize, usize)> = None;
 
@@ -353,5 +363,10 @@ pub(crate) fn parse_param_decl_list(
         }
     }
 
-    Ok(params)
+    crate::parser::callable_parameter_source::ParsedCallableParameterListV1::from_neutral(params)
+        .map_err(|error| ParseError::GrammarContract {
+            stable_reject_tag: "parser/callable-parameter-list",
+            detail: format!("callable parameter list rejected: {error:?}"),
+            line: p.current_token().line,
+        })
 }

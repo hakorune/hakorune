@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, Span};
+use crate::parser::callable_parameter_source::ParsedCallableParameterListV1;
 use crate::parser::source_authority::ExplicitMethodSink;
 use crate::parser::{NyashParser, ParseError};
 
@@ -8,6 +9,7 @@ pub(crate) struct PendingExplicitMethodV1 {
     name: String,
     declaration: ASTNode,
     diagnostic_span: Span,
+    parameter_source: Option<ParsedCallableParameterListV1>,
 }
 
 impl PendingExplicitMethodV1 {
@@ -16,6 +18,21 @@ impl PendingExplicitMethodV1 {
             name,
             declaration,
             diagnostic_span,
+            parameter_source: None,
+        }
+    }
+
+    pub(crate) fn with_parameter_source(
+        name: String,
+        declaration: ASTNode,
+        diagnostic_span: Span,
+        parameter_source: ParsedCallableParameterListV1,
+    ) -> Self {
+        Self {
+            name,
+            declaration,
+            diagnostic_span,
+            parameter_source: Some(parameter_source),
         }
     }
 
@@ -32,8 +49,32 @@ impl PendingExplicitMethodV1 {
     pub(crate) fn commit(
         self,
         sink: &mut impl ExplicitMethodSink,
-    ) -> Result<BoxMethodInventoryOrdinalV1, ParseError> {
-        sink.commit_explicit_method_at_current(self.name, self.declaration, self.diagnostic_span)
+    ) -> Result<CommittedExplicitMethodV1, ParseError> {
+        let diagnostic_name = self.name.clone();
+        let inventory_ordinal = sink.commit_explicit_method_at_current(
+            self.name,
+            self.declaration,
+            self.diagnostic_span,
+        )?;
+        Ok(CommittedExplicitMethodV1 {
+            inventory_ordinal,
+            diagnostic_name,
+            parameter_source: self.parameter_source,
+        })
+    }
+}
+
+pub(crate) struct CommittedExplicitMethodV1 {
+    #[allow(dead_code)]
+    inventory_ordinal: BoxMethodInventoryOrdinalV1,
+    diagnostic_name: String,
+    parameter_source: Option<ParsedCallableParameterListV1>,
+}
+
+impl CommittedExplicitMethodV1 {
+    pub(crate) fn into_parameter_source(self) -> Option<(String, ParsedCallableParameterListV1)> {
+        self.parameter_source
+            .map(|source| (self.diagnostic_name, source))
     }
 }
 
@@ -56,14 +97,4 @@ pub(crate) fn map_inventory_error(error: BoxMethodInventoryErrorV1) -> ParseErro
             line: 0,
         },
     }
-}
-
-pub(crate) fn commit_pending_method(
-    pending: &mut Option<PendingExplicitMethodV1>,
-    sink: &mut impl ExplicitMethodSink,
-) -> Result<(), ParseError> {
-    if let Some(method) = pending.take() {
-        let _ = method.commit(sink)?;
-    }
-    Ok(())
 }

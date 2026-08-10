@@ -2,9 +2,7 @@
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl};
 use crate::parser::common::ParserUtils;
-use crate::parser::declarations::box_def::members::pending_method::{
-    commit_pending_method, PendingExplicitMethodV1,
-};
+use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
 use crate::parser::source_member_cursor::ParserBoxMemberSourceCursorV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -50,11 +48,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 continue;
             }
         }
-        let had_pending_method = pending_method.is_some();
-        commit_pending_method(&mut pending_method, &mut methods)?;
-        if had_pending_method {
-            finish_static_source_member(&mut source_cursor)?;
-        }
+        commit_pending_static_method(p, &mut pending_method, &mut methods, &mut source_cursor)?;
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -176,11 +170,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         }
     }
 
-    let had_pending_method = pending_method.is_some();
-    commit_pending_method(&mut pending_method, &mut methods)?;
-    if had_pending_method {
-        finish_static_source_member(&mut source_cursor)?;
-    }
+    commit_pending_static_method(p, &mut pending_method, &mut methods, &mut source_cursor)?;
 
     // Tolerate trailing NEWLINE(s) before the closing '}' of the static box
     while p.match_token(&TokenType::NEWLINE) {
@@ -258,4 +248,33 @@ fn finish_static_source_member(
             message: format!("static Box member source cursor failed: {error:?}"),
             line: 0,
         })
+}
+
+fn commit_pending_static_method(
+    parser: &mut NyashParser,
+    pending: &mut Option<PendingExplicitMethodV1>,
+    methods: &mut BoxMethodInventoryV1,
+    cursor: &mut ParserBoxMemberSourceCursorV1,
+) -> Result<(), ParseError> {
+    let Some(method) = pending.take() else {
+        return Ok(());
+    };
+    let source_site = crate::parser::source_authority::SourceBoxMethodSiteV1::Direct {
+        member: cursor.current_member_site(),
+    };
+    let committed = method.commit(methods)?;
+    let Some((diagnostic_name, parameters)) = committed.into_parameter_source() else {
+        return Err(ParseError::GrammarContract {
+            stable_reject_tag: "parser/callable-parameter-source",
+            detail: "direct static method omitted its parameter source product".to_owned(),
+            line: 0,
+        });
+    };
+    parser.commit_callable_parameter_source(
+        source_site,
+        crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
+        diagnostic_name,
+        parameters,
+    )?;
+    finish_static_source_member(cursor)
 }

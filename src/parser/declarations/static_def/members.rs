@@ -84,8 +84,10 @@ pub(crate) fn try_parse_method_or_field(
     // Method
     let attrs = p.take_pending_runes_for_static_box_method()?;
     p.advance(); // consume '('
-    let param_decls = crate::parser::common::params::parse_param_decl_list(p, "static box method")?;
-    let params = crate::ast::ParamDecl::names(&param_decls);
+    let parameter_source =
+        crate::parser::common::params::parse_param_decl_list_product(p, "static box method")?;
+    let param_decls = parameter_source.neutral().to_vec();
+    let params = crate::ast::ParamDecl::names(parameter_source.neutral());
     p.consume(TokenType::RPAREN)?;
     let return_type_name = crate::parser::common::params::parse_optional_return_type_annotation(
         p,
@@ -119,9 +121,12 @@ pub(crate) fn try_parse_method_or_field(
     };
     let mut method = method;
     p.attach_pending_runes_to_declaration(&mut method)?;
-    Ok(ParsedStaticMemberV1::Method(PendingExplicitMethodV1::new(
-        name,
-        method,
-        declaration_span,
-    )))
+    Ok(ParsedStaticMemberV1::Method(
+        PendingExplicitMethodV1::with_parameter_source(
+            name,
+            method,
+            declaration_span,
+            parameter_source,
+        ),
+    ))
 }

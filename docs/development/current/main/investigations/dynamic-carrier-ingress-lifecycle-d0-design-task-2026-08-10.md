@@ -3,7 +3,7 @@
 Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a/R0b closed
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0`
+Current implementation row: `CALLABLE-PARAMETER-DEMAND-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -199,7 +199,7 @@ Closeout receipt:
 - focused cursor/source-authority tests are green and all touched Rust source
   files remain below 800 lines.
 
-### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0` — selected
+### 2. `CALLABLE-PARAMETER-TRANSFER-SOURCE-SEAL-I0` — closed
 
 Land the complete parser/resolver handoff and Rust/Hako parity. First active
 cohort issues exact `Ordinary` rows for direct static Box methods and direct
@@ -212,7 +212,23 @@ brand, raw `"Ordinary"` construction, builder token as identity, and
 line/context drift. Compiler acceptance must be widened if the unchanged
 source cannot be represented; source rewriting and fallback are forbidden.
 
-### 3. `CALLABLE-PARAMETER-DEMAND-I0`
+Closeout receipt:
+
+- one parameter parse co-issues the neutral `ParamDecl` projection and exact
+  ordered `Ordinary` source rows; no old-AST absence inference remains;
+- `ParserCallableParameterSourceCatalogV1` is a non-Clone sibling of
+  `ParserBoxSourceSealV1` and covers direct static plus ordinary instance
+  methods under one parser brand/source-coordinate authority;
+- `ParserScanLoopBox` is accepted unchanged as four methods and fifteen rows;
+  `skip_while` parameter #1 remains explicit untyped/`Absent` syntax;
+- foreign invocation, duplicate method site, selected build-gate, type/row
+  mismatch, and split/reissue surfaces fail before catalog publication;
+- Hako R0a/R0b remains the parity vocabulary/issuer receipt. No Hako source
+  was rewritten and no `Take` or Home meaning was activated;
+- `source_seal.rs` remains unchanged at 751 lines and every touched source is
+  below the 800-line hard limit.
+
+### 3. `CALLABLE-PARAMETER-DEMAND-I0` — selected
 
 Issue one complete `VerifiedCallableParameterDemandCatalogV1` from the sealed
 syntax and resolved declaration. First cohort maps `Ordinary -> Handle` only.

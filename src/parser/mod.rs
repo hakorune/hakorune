@@ -148,6 +148,8 @@ pub struct NyashParser {
     /// Fresh identity for one parser invocation. Source authority products
     /// must never be reconstructed from token positions or AST names.
     pub(super) source_invocation_brand: source_authority::ParserInvocationBrandV1,
+    callable_parameter_source_session:
+        Option<callable_parameter_source::ParserCallableParameterSourceSessionV1>,
     /// Top-level source statement cursor used to issue exact Box declaration
     /// sites. It is parser-session state only; no seal is issued here.
     pub(super) next_source_statement_ordinal: u32,
@@ -187,10 +189,16 @@ pub struct NyashParser {
 impl NyashParser {
     /// 新しいパーサーを作成
     pub fn new(tokens: Vec<Token>) -> Self {
+        let source_invocation_brand = source_authority::ParserInvocationBrandV1::issue();
         Self {
             tokens,
             current: 0,
-            source_invocation_brand: source_authority::ParserInvocationBrandV1::issue(),
+            callable_parameter_source_session: Some(
+                callable_parameter_source::ParserCallableParameterSourceSessionV1::open(
+                    source_invocation_brand.clone(),
+                ),
+            ),
+            source_invocation_brand,
             next_source_statement_ordinal: 0,
             active_source_statement_ordinal: None,
             active_source_declaration_path: None,
