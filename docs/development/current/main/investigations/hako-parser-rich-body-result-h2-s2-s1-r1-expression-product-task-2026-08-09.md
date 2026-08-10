@@ -171,3 +171,34 @@ changes the accepted shape, and compatibility fallback are explicitly out of
 scope. The product WIP, guard, and fixture remain parked as recoverable WIP;
 the row must not advance to `H2-S2-S1-I0` until the blocker is resolved by its
 own owner and the reopen audit is rerun with predecessor/parity gates green.
+
+## Dependency-owner audit (2026-08-11)
+
+The blocker is the existing transient-result publication family, not a new
+GenericLoop semantic rule and not an R1 parser defect. The canonical owner
+chain is already documented by:
+
+```text
+exact source call/result contract
+  + successful CompletedUnifiedValueCallEmissionV1
+  -> one non-Clone lowering-time result-publication receipt
+  -> type_ctx[final destination]
+  -> existing GenericLoop verifier
+```
+
+The GenericLoop carrier consumer remains verifier-only. The next design work
+must reopen or select the existing owners, in this order:
+
+1. `generic-raw-structured-generic-loop-carrier-representation-d0-task-2026-08-07.md`
+   confirms the consumer boundary and exact missing transient-type contract.
+2. `generic-raw-structured-static-call-result-publication-d0-task-2026-08-07.md`
+   owns the current-owner static-call source contract and success-only
+   publication bridge.
+3. The existing I1/source-bound handoff row must prove the exact parser call
+   site before any R1 reopen. It may not use method names, inferred Box types,
+   GenericLoop backfill, retry, or a second publication owner.
+
+This is a prerequisite consultation boundary, not an authorization to create
+a generic Hako result-type framework. Once the exact owner closes, rerun the
+same R1 guard and fixture from the parked WIP; do not change the accepted
+expression-product shape merely to avoid the compiler boundary.
