@@ -10,12 +10,13 @@ mod mapping;
 
 #[allow(unused_imports)]
 pub(in crate::mir) use coseal::{
-    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
-    issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    issue_dynamic_callable_completion_projection_i0, issue_dynamic_carrier_cleanup_projection_i0,
+    issue_dynamic_carrier_flow_program_v1, issue_dynamic_carrier_ingress_lifecycle_program_v1,
     issue_dynamic_carrier_rebind_transaction_program_v1,
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicCarrierCleanupProjectionRejectV1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1,
+    DynamicCallableCompletionProjectionRejectV1, DynamicCarrierCleanupProjectionRejectV1,
     DynamicCarrierCurrentDispositionV1, DynamicCarrierFlowProgramRejectV1,
     DynamicCarrierIngressLifecycleProgramRejectV1, DynamicCarrierRebindTransactionRejectV1,
     DynamicFullLoopAfterRefV2, DynamicFullLoopFaultCutPointCatalogRefV2,
@@ -24,8 +25,9 @@ pub(in crate::mir) use coseal::{
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicIterationLocalValueRefV2,
     DynamicOperatorCarrierDestinationRefV1, DynamicOperatorCarrierLifecycleCatalogRefV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1, DynamicOperatorCarrierLifecycleRowRefV1,
-    DynamicOperatorCarrierPublicationV1, VerifiedDynamicCarrierCleanupProjectionV1,
-    VerifiedDynamicCarrierFlowProgramV1, VerifiedDynamicCarrierIngressLifecycleProgramV1,
+    DynamicOperatorCarrierPublicationV1, VerifiedDynamicCallableCompletionProjectionV1,
+    VerifiedDynamicCarrierCleanupProjectionV1, VerifiedDynamicCarrierFlowProgramV1,
+    VerifiedDynamicCarrierIngressLifecycleProgramV1,
     VerifiedDynamicCarrierRebindTransactionProgramV1, VerifiedDynamicFullLoopSemanticProgramV2,
     VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     VerifiedDynamicOperatorCarrierLifecycleProgramV1,

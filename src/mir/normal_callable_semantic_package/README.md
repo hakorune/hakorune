@@ -57,8 +57,11 @@ seal, Dynamic target extension, Complete-source pairing, and semantic-loan port
 are absent from that production edge. Source-backed package failure is
 terminal; the AST-only compatibility catalog is not a retry route.
 
-This cutover does not claim Dynamic physical completion. In particular,
+The package now carries the bounded logical two-site Completion projection in
+the selected Dynamic row. This still does not claim Dynamic physical
+completion. In particular,
 `ParserScanLoopBox.skip_while/4` currently reaches the installed package and
 then fails closed at the existing physical source-ledger consumption boundary.
-The package owns only the semantic rebind relation; actual rebind, End, Home,
-cleanup, Completion, and physicalization remain later owners.
+The package owns only semantic carrier flow, cleanup evidence, and the logical
+inner-Return/outer-Tail function-exit relation; actual rebind, End, Home,
+physical Return/ABI, and physicalization remain later owners.

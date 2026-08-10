@@ -9,12 +9,13 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
-    issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    issue_dynamic_callable_completion_projection_i0, issue_dynamic_carrier_cleanup_projection_i0,
+    issue_dynamic_carrier_flow_program_v1, issue_dynamic_carrier_ingress_lifecycle_program_v1,
     issue_dynamic_carrier_rebind_transaction_program_v1,
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicCarrierCleanupProjectionRejectV1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1,
+    DynamicCallableCompletionProjectionRejectV1, DynamicCarrierCleanupProjectionRejectV1,
     DynamicCarrierFlowProgramRejectV1, DynamicCarrierIngressLifecycleProgramRejectV1,
     DynamicCarrierRebindTransactionRejectV1, DynamicFullLoopSemanticProgramRejectV2,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
@@ -56,6 +57,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     DynamicRebind(DynamicCarrierRebindTransactionRejectV1),
     DynamicFlow(DynamicCarrierFlowProgramRejectV1),
     DynamicCleanup(DynamicCarrierCleanupProjectionRejectV1),
+    DynamicCompletion(DynamicCallableCompletionProjectionRejectV1),
 }
 
 pub(crate) fn issue_normal_callable_semantic_package_v1(
@@ -160,6 +162,8 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 .map_err(|reject| NormalCallableSemanticPackageIssueV1::DynamicFlow(reject))?;
             let program = issue_dynamic_carrier_cleanup_projection_i0(program)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicCleanup)?;
+            let program = issue_dynamic_callable_completion_projection_i0(program)
+                .map_err(NormalCallableSemanticPackageIssueV1::DynamicCompletion)?;
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_batch_slot,
                 owner: dynamic_owner,

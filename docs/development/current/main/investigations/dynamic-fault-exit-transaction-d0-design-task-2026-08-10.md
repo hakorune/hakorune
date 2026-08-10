@@ -131,6 +131,11 @@ VerifiedDynamicCarrierFlowV1
   - exact Live/EndAuthorized/Forwarded at every cut point
   - no Live carrier at Backedge/After
             |
+            v
+VerifiedDynamicCallableCompletionProjectionV1
+  - inner Recipe Return + outer Callable Tail
+  - one logical FunctionExit target
+            |
             v  sole consuming issuer
 VerifiedDynamicExitTransactionV1
   - private cleanup projection
@@ -176,7 +181,8 @@ and exposes no `into_parts` escape.
    no Home Flow was available or inferred
 
 8. MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0
-   inner Recipe Return + outer Tail -> one FunctionExit/DraftSeal Return
+   CLOSED: inner Recipe Return + outer Tail -> one logical FunctionExit;
+   physical Return/DraftSeal remains later
 
 9. DYNAMIC-EXIT-TRANSACTION-COSEAL-I0
    consume program + carrier flow; derive cleanup and Completion partition
@@ -286,6 +292,32 @@ RUSTFLAGS=-Awarnings cargo check -q --lib
 ```
 
 The next bounded owner is `MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0`.
+
+## Callable Completion projection (D0/I0 closeout)
+
+`MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0` is closed as a logical
+two-route projection. `issue_dynamic_callable_completion_projection_i0`
+consumes the complete carrier-cleanup product and retains exactly:
+
+```text
+inner Recipe Return -> one function-exit target
+outer Callable Tail -> the same function-exit target
+```
+
+The existing `VerifiedFunctionCompletionV1` remains the sole owner of exact
+return-site coverage, owner/target closure, and common value/unit
+classification. The new product consumes that already-sealed evidence through
+the carrier chain and does not issue a second Completion contract. It does not
+create a result merge, physical Return, ABI representation, final function
+seal, DraftSeal, collector, or publication.
+
+Focused closeout gate:
+
+```text
+RUSTFLAGS=-Awarnings cargo test -q --lib carrier_completion
+```
+
+The next bounded owner is `DYNAMIC-EXIT-TRANSACTION-COSEAL-I0`.
 
 ## Hard stops
 

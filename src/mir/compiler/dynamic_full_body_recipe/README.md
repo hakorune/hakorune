@@ -77,6 +77,24 @@ the retained Completion product and does not consume or extend Completion.
 There is no `ResolvedCleanupObligationsV1` extension, Home capability, physical
 End, CFG/PHI/MIR, DraftSeal, collector, retry, or fallback in this boundary.
 
+## Callable Completion projection (D0/I0)
+
+`VerifiedDynamicCallableCompletionProjectionV1` consumes the complete
+carrier-cleanup projection and retains exactly two logical routes to one
+function-exit target:
+
+```text
+inner Recipe Return -> FunctionExit
+outer Callable Tail -> FunctionExit
+```
+
+The existing `VerifiedFunctionCompletionV1` remains the sole source owner of
+return coverage, owner/target closure, and value/unit classification. This
+child only consumes that already-sealed evidence through the carrier product;
+it does not create a second Completion contract. No result merge, physical
+Return, ABI projection, final function seal, collector, or publication is
+performed.
+
 ## Acceptance rule
 
 The current fixture has seven Dynamic envelope rows. Exactly two are selected
@@ -95,7 +113,7 @@ This directory does not own:
 - selector-specific type refinement;
 - any iteration-local `ch` Home/install/cleanup relation;
 - JoinSigV2, continuation, or Dynamic Fault compatibility;
-- Callable Tail, Completion consumption, or return ABI;
+- physical Callable Tail/Completion consumption, or return ABI;
 - Builder, MIR, CFG, PHI, provider selection, runtime invocation, retry, or
   fallback.
 
@@ -147,10 +165,10 @@ product also lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7
 local relation. It owns no Completion consumption, Dynamic Fault transaction,
 Home, physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
 
-The full exit transaction remains `NoSafeSlice` until complete Dynamic carrier
-flow, cleanup projection, and the two-Return Completion consumer exist. The
-Home-capability census closed separately as `NoSafeSlice`; no Home is inferred
-from the logical `Dynamic` class or a runtime tag.
+The full exit transaction remains `NoSafeSlice` until the logical Completion
+projection is co-sealed with the complete carrier flow and a later physical
+session. The Home-capability census closed separately as `NoSafeSlice`; no Home
+is inferred from the logical `Dynamic` class or a runtime tag.
 
 ## Invocation-result lifecycle (I0)
 

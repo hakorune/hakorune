@@ -87,6 +87,23 @@ impl VerifiedDynamicCarrierCleanupProjectionV1 {
     pub(in crate::mir) fn return_partition(&self) -> &DynamicCarrierReturnPartitionV1 {
         &self.return_partition
     }
+
+    pub(in crate::mir) fn completion_sites(&self) -> [SourceStmtSiteV1; 2] {
+        [
+            self.return_partition.inner.clone(),
+            self.return_partition.outer.clone(),
+        ]
+    }
+
+    pub(in crate::mir) fn completion_summary(
+        &self,
+    ) -> Option<(
+        crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        crate::mir::resolved_semantics::RegionId,
+        bool,
+    )> {
+        self.flow.completion_summary()
+    }
 }
 
 pub(in crate::mir) fn issue_dynamic_carrier_cleanup_projection_i0(

@@ -164,6 +164,24 @@ impl VerifiedDynamicCarrierFlowProgramV1 {
         (completion == std::collections::BTreeSet::from([&inner, &outer])).then_some([inner, outer])
     }
 
+    pub(super) fn completion_summary(
+        &self,
+    ) -> Option<(
+        crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        crate::mir::resolved_semantics::RegionId,
+        bool,
+    )> {
+        let semantic = &self.rebind.ingress.program().invocation_program.program;
+        let completion = &semantic.envelope.source.completion;
+        self.return_partition().map(|_| {
+            (
+                completion.owner(),
+                completion.target_function(),
+                completion.returns_value(),
+            )
+        })
+    }
+
     pub(super) fn fault_cut_points(
         &self,
     ) -> crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program::DynamicFullLoopFaultCutPointCatalogRefV2<'_>

@@ -1,6 +1,6 @@
 use crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicCarrierCleanupProjectionV1;
+use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicCallableCompletionProjectionV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, HomeDemandV1};
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
     Selected {
         batch_slot: u32,
         owner: FunctionOwnerIdV1,
-        program: VerifiedDynamicCarrierCleanupProjectionV1,
+        program: VerifiedDynamicCallableCompletionProjectionV1,
     },
 }
 
@@ -45,7 +45,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
 pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
     ValidUnselected,
     Selected {
-        program: &'package VerifiedDynamicCarrierCleanupProjectionV1,
+        program: &'package VerifiedDynamicCallableCompletionProjectionV1,
     },
 }
 
