@@ -6,12 +6,19 @@
 //! consumption, physical ABI, or fallback route.
 
 mod dynamic_admission;
+mod install;
 mod issuer;
 mod model;
+mod selected_mapping;
 
 #[cfg(test)]
 mod tests;
 
+pub(crate) use install::{
+    InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
+    NormalCallableSemanticPackagePortV1, SelectedCallableLoweringInputRefV1,
+    SelectedCallableSemanticRefV1,
+};
 pub(crate) use issuer::{
     issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1,
 };

@@ -1,5 +1,6 @@
+use crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicOperatorCarrierLifecycleProgramV1;
+use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicCarrierIngressLifecycleProgramV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, HomeDemandV1};
 
 #[derive(Debug)]
@@ -23,7 +24,9 @@ pub(super) struct OwnedCallableParameterDemandDeclarationV1 {
 /// parameter catalog, Dynamic candidate, or private batch slot.
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
+    pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
+    pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
 }
@@ -34,7 +37,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
     Selected {
         batch_slot: u32,
         owner: FunctionOwnerIdV1,
-        program: VerifiedDynamicOperatorCarrierLifecycleProgramV1,
+        program: VerifiedDynamicCarrierIngressLifecycleProgramV1,
     },
 }
 
@@ -42,19 +45,26 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
 pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
     ValidUnselected,
     Selected {
-        program: &'package VerifiedDynamicOperatorCarrierLifecycleProgramV1,
+        program: &'package VerifiedDynamicCarrierIngressLifecycleProgramV1,
     },
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
+        self.batch.source_ast()
+    }
+
+    #[cfg(test)]
     pub(crate) fn batch(&self) -> &VerifiedResolvedCallableSemanticBatchV1 {
         &self.batch
     }
 
+    #[cfg(test)]
     pub(crate) fn parameter_declaration_count(&self) -> usize {
         self.parameter_demands.len()
     }
 
+    #[cfg(test)]
     pub(crate) fn parameter_count(&self) -> usize {
         self.parameter_demands
             .iter()
@@ -62,6 +72,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             .sum()
     }
 
+    #[cfg(test)]
     pub(crate) fn dynamic_projection(&self) -> NormalCallableDynamicProjectionRefV1<'_> {
         match &self.dynamic {
             NormalCallableDynamicProjectionV1::ValidUnselected => {

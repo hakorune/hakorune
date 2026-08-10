@@ -3,9 +3,9 @@
 This module seals one complete, immutable view of same-module callable
 declarations before body lowering.
 
-It owns:
+The durable lookup catalog owns:
 
-- structured source identity: namespace, box owner, method name, arity;
+- canonical lookup keys: namespace, box owner, method name, arity;
 - ordered parameters and `ParamDecl` transport;
 - optional declared return spelling;
 - the source body paired with that identity;
@@ -22,12 +22,28 @@ static candidate lookup.
 
 It does not own:
 
+- parser declaration identity;
 - call-result representation;
 - body/type inference;
 - MIR symbols as semantic identity;
 - lowering or publication order;
 - runtime/backend behavior;
 - fallback resolution.
+
+For a `VerifiedFinalCallableProgramSourceV1`, `source_backed.rs` is the sole
+issuer. It borrows the final HRTB syntax loan and creates two inseparable
+pieces:
+
+```text
+installable lookup catalog
++ selected lookup key -> parser-issued opaque declaration identity
+```
+
+The key is selection/lookup vocabulary, never source identity. Final slots,
+statement indexes, method ordinals, names, arity, and AST addresses may
+navigate inside the same final-source loan, but cannot repair a missing or
+mismatched opaque identity. The legacy AST-only seal remains a compatibility
+origin and cannot enter the source-backed semantic package.
 
 CUT0 installs the catalog exactly once per legacy Builder root before the
 remaining declaration-index effects. Query-before-install and duplicate

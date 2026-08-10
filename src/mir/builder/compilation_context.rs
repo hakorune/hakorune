@@ -252,6 +252,19 @@ impl CompilationContext {
         Ok(())
     }
 
+    pub(crate) fn callable_declaration_catalog_vacant(&self) -> bool {
+        self.callable_declaration_catalog.is_none()
+    }
+
+    pub(crate) fn install_callable_declaration_catalog_preflighted(
+        &mut self,
+        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) {
+        debug_assert!(self.callable_declaration_catalog.is_none());
+        self.callable_declaration_catalog =
+            Some(CallableDeclarationCatalogStorageV1::Exclusive(catalog));
+    }
+
     pub(in crate::mir::builder) fn raw_root_environment_lanes_vacant(
         &self,
         route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,

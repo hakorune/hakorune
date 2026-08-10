@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 has landed the complete semantic package with typed Dynamic ValidUnselected or Selected lifecycle projection. The row now continues with exact selected callable-to-batch-slot mapping, parameter #1 ingress, and the selected production edge replacement."
+status = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 has completed Commit A: opaque parser declaration identity, source-backed catalog plus complete batch sibling issuance, exact selected key-to-private-slot mapping, selected-map Dynamic filtering, parameter #1 borrowed ingress, consuming catalog install, and exactly-once scoped lowering. Commit B is now the sole remaining slice: replace the source-backed production lifecycle and delete the selected old semantic edges with fallback/retry zero."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; the all-callable complete-batch plus partial parameter-demand projection correction is accepted in section 3H of the rolling ingress card"
 work_mode = "fast"
 current_execution_row = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
-current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0: from the landed complete package with typed Dynamic ValidUnselected/Selected projection, seal every selected callable anchor/key to its exact private batch slot without name/ordinal/ID repair, derive parameter #1 ingress inside the selected whole package, then replace/delete the selected old Builder seal, Dynamic extension, and loan port together; no Home, CFG, Completion, retry, or fallback"
+current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 Commit B: issue the completed source-backed semantic package before Builder effects in the existing normal/default production lifecycle, consume-install its catalog, lower selected callables only through the exactly-once package port, and delete the old semantic seal, Dynamic target extension, Complete-source pairing, and semantic loan-port production edges in the same commit; source-backed failure is terminal and fallback/retry stay zero"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -724,7 +724,7 @@ next_execution_card = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The source carrier, complete all-callable batch, partial parameter-demand projection, and typed Dynamic ValidUnselected/Selected lifecycle package are closed checkpoints. The current row must add exact selected anchor/key-to-batch-slot mapping and parameter #1 ingress before deleting the old Builder seal, Dynamic extension, and loan port together."
+latest_card_summary = "Commit A is closed: one final parser source now issues a source-backed catalog and complete semantic batch as siblings, co-seals selected keys to private batch slots by opaque declaration identity, filters Dynamic production selection through that map, seals parameter #1 borrowed ingress, and provides consuming install plus an exactly-once scoped lowering port. Commit B must replace the existing source-backed lifecycle and delete the selected old semantic edges without fallback or retry."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

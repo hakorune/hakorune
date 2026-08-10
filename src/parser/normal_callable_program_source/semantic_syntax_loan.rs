@@ -10,7 +10,7 @@ use super::super::callable_parameter_source::{
     ParserCallableParameterDeclarationSourceV1, ParserCallableParameterSourceDispositionV1,
 };
 use super::super::callable_source_anchor::{
-    DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
+    CallableDeclarationIdentityV1, DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
 };
 use super::super::initial_callable_program_source::{declaration_at, InitialCallableFinalSlotV1};
 use super::model::direct_source_matches_parameter_declaration;
@@ -32,8 +32,11 @@ pub(crate) struct FinalCallableParameterSourceRefV1<'source> {
 #[derive(Debug)]
 pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     batch_slot: u32,
+    identity: CallableDeclarationIdentityV1,
+    final_slot: InitialCallableFinalSlotV1,
     mode: FinalCallableDeclarationModeV1,
     declaration: &'source ASTNode,
+    owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
 }
 
@@ -61,12 +64,24 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
         self.batch_slot
     }
 
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.identity
+    }
+
+    pub(crate) const fn final_slot(&self) -> InitialCallableFinalSlotV1 {
+        self.final_slot
+    }
+
     pub(crate) const fn mode(&self) -> FinalCallableDeclarationModeV1 {
         self.mode
     }
 
     pub(crate) const fn declaration(&self) -> &ASTNode {
         self.declaration
+    }
+
+    pub(crate) const fn owner_name(&self) -> Option<&str> {
+        self.owner_name
     }
 
     pub(crate) fn parameters(&self) -> Option<&[FinalCallableParameterSourceRefV1<'_>]> {
@@ -124,14 +139,33 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
         });
         rows.push(FinalCallableSemanticSyntaxRowRefV1 {
             batch_slot,
+            identity: source.anchor().identity(),
+            final_slot: slot,
             mode: declaration_mode(ast, slot)?,
             declaration,
+            owner_name: declaration_owner_name(ast, slot)?,
             parameters,
         });
     }
     Ok(FinalCallableSemanticSyntaxLoanV1 {
         rows: rows.into_boxed_slice(),
     })
+}
+
+fn declaration_owner_name(
+    ast: &ASTNode,
+    slot: InitialCallableFinalSlotV1,
+) -> Result<Option<&str>, FinalCallableSemanticSyntaxLoanErrorV1> {
+    let InitialCallableFinalSlotV1::BoxMethod { statement, .. } = slot else {
+        return Ok(None);
+    };
+    let ASTNode::Program { statements, .. } = ast else {
+        return Err(FinalCallableSemanticSyntaxLoanErrorV1::DeclarationMissing);
+    };
+    let Some(ASTNode::BoxDeclaration { name, .. }) = statements.get(statement as usize) else {
+        return Err(FinalCallableSemanticSyntaxLoanErrorV1::DeclarationMissing);
+    };
+    Ok(Some(name))
 }
 
 fn exact_parameter_projection<'source>(

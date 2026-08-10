@@ -7,7 +7,7 @@
 use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir) struct SelectedTopLevelFunctionKeyV1 {
+pub(crate) struct SelectedTopLevelFunctionKeyV1 {
     statement_index: usize,
     declared_name: Box<str>,
     declared_arity: usize,
@@ -36,7 +36,7 @@ impl SelectedTopLevelFunctionKeyV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir) enum SelectedNormalCallableKeyV1 {
+pub(crate) enum SelectedNormalCallableKeyV1 {
     TopLevel(SelectedTopLevelFunctionKeyV1),
     Cataloged(CanonicalSameModuleCallableKeyV1),
 }

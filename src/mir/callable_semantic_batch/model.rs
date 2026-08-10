@@ -4,6 +4,7 @@ use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
+use crate::parser::CallableDeclarationIdentityV1;
 use crate::parser::{FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -16,6 +17,7 @@ pub(crate) enum ResolvedCallableDeclarationModeV1 {
 #[derive(Debug)]
 pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) batch_slot: u32,
+    pub(super) identity: CallableDeclarationIdentityV1,
     pub(super) mode: ResolvedCallableDeclarationModeV1,
     pub(super) parameter_count: u32,
     pub(super) owner: FunctionOwnerIdV1,
@@ -55,6 +57,10 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 }
 
 impl VerifiedResolvedCallableSemanticBatchV1 {
+    pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
+        self.source.ast()
+    }
+
     pub(crate) fn declarations(
         &self,
     ) -> impl ExactSizeIterator<Item = VerifiedResolvedCallableSemanticDeclarationRefV1<'_>> {
@@ -200,6 +206,13 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    pub(crate) fn same_declaration_identity(
+        self,
+        identity: &CallableDeclarationIdentityV1,
+    ) -> bool {
+        self.row.identity.same_as(identity)
+    }
+
     pub(crate) const fn batch_slot(self) -> u32 {
         self.row.batch_slot
     }

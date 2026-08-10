@@ -9,7 +9,7 @@ use super::syntax_loan::{
 ///
 /// Placement is private cache data, never callable identity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum InitialCallableFinalSlotV1 {
+pub(crate) enum InitialCallableFinalSlotV1 {
     TopLevel {
         statement: u32,
     },

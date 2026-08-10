@@ -41,8 +41,10 @@ mod normal_callable_semantic_source; // Co-sealed selected callable source autho
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
 pub(crate) use callable_declaration_catalog::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
+    issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
+    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSameModuleCallableDeclarationV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
@@ -61,6 +63,7 @@ mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixt
 mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
+pub(crate) use compilation_context::CompilationContext;
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
 #[allow(dead_code)]

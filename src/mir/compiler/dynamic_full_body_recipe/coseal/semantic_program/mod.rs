@@ -4,6 +4,7 @@
 //! caller-supplied owner, Recipe, JoinSig, After, Continuation, or Completion.
 
 mod fault_cut_points;
+mod ingress;
 mod invocation_carrier_lifecycle;
 mod operator_carrier_lifecycle;
 
@@ -22,6 +23,10 @@ use fault_cut_points::{issue_fault_cut_points_v2, VerifiedDynamicFullLoopFaultCu
 pub(in crate::mir) use fault_cut_points::{
     DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
     DynamicFullLoopFaultFamilyV2,
+};
+pub(in crate::mir) use ingress::{
+    issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    DynamicCarrierIngressLifecycleProgramRejectV1, VerifiedDynamicCarrierIngressLifecycleProgramV1,
 };
 use invocation_carrier_lifecycle::{
     issue_invocation_carrier_lifecycle_v1, DynamicInvocationCarrierLifecycleRejectV1,

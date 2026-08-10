@@ -9,10 +9,11 @@ mod error;
 mod key;
 mod recovery;
 mod selected_source_inventory;
+mod source_backed;
 
 // These are intentionally disconnected S0 exports. CUT0 supplies their first
 // production producer/consumer, so keep the public module surface stable now.
-pub(in crate::mir) use brand::SameModuleCallableCatalogBrandV1;
+pub(crate) use brand::SameModuleCallableCatalogBrandV1;
 #[allow(unused_imports)]
 pub(crate) use catalog::{
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
@@ -27,10 +28,14 @@ pub(crate) use recovery::{
     BareStaticRecoveryDecisionErrorV1, BareStaticRecoveryDecisionV1,
     BareStaticRecoveryNoRecoveryReasonV1,
 };
+pub(crate) use selected_source_inventory::SelectedNormalCallableKeyV1;
 pub(in crate::mir::builder) use selected_source_inventory::{
-    SelectedCallableSemanticBlockerV1, SelectedNormalCallableKeyV1,
-    SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
-    VerifiedSelectedNormalCallableSourceInventoryV1,
+    SelectedCallableSemanticBlockerV1, SelectedNormalCallableSourceSiteV1,
+    SelectedTopLevelFunctionKeyV1, VerifiedSelectedNormalCallableSourceInventoryV1,
+};
+pub(crate) use source_backed::{
+    issue_source_backed_same_module_callable_catalog_v1, SourceBackedCallableCatalogIssueV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 
 #[cfg(test)]

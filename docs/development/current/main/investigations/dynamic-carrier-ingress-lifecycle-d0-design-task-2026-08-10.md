@@ -1319,8 +1319,56 @@ A selected-gate Dynamic fixture proves that missing parameter authority rejects
 instead of synthesizing `Ordinary`. Catalog-neutral Dynamic invocation
 relations and the production edge replacement remain open.
 
-Non-claims: Home inference, rebind, CFG, Completion, physicalization,
-JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
+#### Final selected-mapping and cutover Decision — accepted
+
+The non-Clone parser anchor issues one cloneable comparison-only identity;
+construction/raw allocation remain parser-private and HRTB remains the sole
+AST boundary. One final source then issues sibling products:
+
+```text
+source-backed catalog + complete resolved batch
+  -> exact opaque-identity co-seal
+  -> selected key -> private batch slot
+```
+
+Slots/coordinates navigate only inside that loan; keys select/lookup only.
+Names, arity, order, coordinates, owners, pointers, and compatibility catalogs
+never repair identity. Dynamic admission observes every batch row, then only
+mapped Candidates participate in production selection:
+
+```text
+0 -> ValidUnselected; 1 -> Selected; 2+ -> reject
+```
+
+The non-Clone package atomically owns catalog, batch, mapping, parameter
+demands, and Dynamic ingress. Catalog install is consuming prepare/commit. The
+sole lowering surface is an exactly-once package port:
+
+```text
+with_selected_lowering_input(key, |input| { ... })
+```
+
+#### Commit A checkpoint — closed
+
+```text
+opaque identity + sibling catalog/batch + exact map
++ selected-map Dynamic + parameter #1 borrowed ingress
++ consuming install + exactly-once scoped port
+```
+
+```text
+cargo check -q --lib
+cargo test -q normal_callable_semantic_package --lib  # 10 passed
+cargo test -q callable_source_anchor --lib             # 9 passed
+bash tools/checks/normal_callable_complete_batch_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Commit B is the sole remaining slice: replace the source-backed normal/default
+lifecycle and delete old semantic seal, Dynamic extension, Complete pairing,
+and loan-port production edges together with fallback/retry zero. No new
+prerequisite row may intervene. Non-claims remain Home/rebind/CFG/Completion,
+physicalization, JSON/REPL/all-origin cutover, and provider activation.
 
 ### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — absorbed closeout
 

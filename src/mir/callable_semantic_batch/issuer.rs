@@ -68,6 +68,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                     FunctionSyntaxViewV1::from_borrowed_function_parts(params, body, receiver);
                 candidates.push((
                     batch_slot,
+                    syntax.identity().clone(),
                     mode,
                     parameter_count,
                     syntax.declaration(),
@@ -91,7 +92,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
 
             let mut owners = BTreeSet::new();
             let mut resolved = Vec::with_capacity(forests.len());
-            for ((batch_slot, mode, parameter_count, declaration, view), forest) in
+            for ((batch_slot, identity, mode, parameter_count, declaration, view), forest) in
                 candidates.into_iter().zip(forests)
             {
                 let [owner] = forest.roots() else {
@@ -119,6 +120,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 .map_err(ResolvedCallableSemanticBatchIssueV1::Projection)?;
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {
                     batch_slot,
+                    identity,
                     mode,
                     parameter_count,
                     owner: *owner,

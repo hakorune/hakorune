@@ -8,7 +8,7 @@ use std::sync::Arc;
 /// interchangeable.  The token is cloneable only so verified views can retain
 /// the same allocation identity; callers cannot construct a fresh token.
 #[derive(Clone, Debug)]
-pub(in crate::mir) struct SameModuleCallableCatalogBrandV1(Arc<()>);
+pub(crate) struct SameModuleCallableCatalogBrandV1(Arc<()>);
 
 impl SameModuleCallableCatalogBrandV1 {
     pub(super) fn fresh() -> Self {

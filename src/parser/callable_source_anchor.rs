@@ -22,12 +22,29 @@ use crate::ast::{
 #[derive(Debug)]
 pub(super) struct CallableDeclarationAnchorV1(Arc<()>);
 
+/// Cloneable comparison-only view of one parser-issued declaration anchor.
+///
+/// This value proves only same-anchor origin. It carries no syntax, source
+/// coordinate, callable key, resolver owner, or lowering authority.
+#[derive(Debug, Clone)]
+pub(crate) struct CallableDeclarationIdentityV1(Arc<()>);
+
 impl CallableDeclarationAnchorV1 {
     pub(super) fn issue() -> Self {
         Self(Arc::new(()))
     }
 
     pub(super) fn same_as(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+
+    pub(super) fn identity(&self) -> CallableDeclarationIdentityV1 {
+        CallableDeclarationIdentityV1(Arc::clone(&self.0))
+    }
+}
+
+impl CallableDeclarationIdentityV1 {
+    pub(crate) fn same_as(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
 }

@@ -12,13 +12,13 @@ use super::{
 #[derive(Debug)]
 #[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
-    key: CanonicalSameModuleCallableKeyV1,
-    params: Box<[String]>,
-    param_decls: Box<[ParamDecl]>,
-    return_type_name: Option<Box<str>>,
-    body: Box<[ASTNode]>,
-    uses: Box<[String]>,
-    attrs: DeclarationAttrs,
+    pub(super) key: CanonicalSameModuleCallableKeyV1,
+    pub(super) params: Box<[String]>,
+    pub(super) param_decls: Box<[ParamDecl]>,
+    pub(super) return_type_name: Option<Box<str>>,
+    pub(super) body: Box<[ASTNode]>,
+    pub(super) uses: Box<[String]>,
+    pub(super) attrs: DeclarationAttrs,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -54,12 +54,12 @@ impl VerifiedSameModuleCallableDeclarationV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
-    brand: SameModuleCallableCatalogBrandV1,
-    rows_by_key:
+    pub(super) brand: SameModuleCallableCatalogBrandV1,
+    pub(super) rows_by_key:
         BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1>,
-    static_keys_by_method_and_arity:
+    pub(super) static_keys_by_method_and_arity:
         BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
-    selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1,
+    pub(super) selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -346,7 +346,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
     }
 }
 
-fn validate_parameters(
+pub(super) fn validate_parameters(
     key: &CanonicalSameModuleCallableKeyV1,
     params: &[String],
     param_decls: &[ParamDecl],

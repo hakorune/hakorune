@@ -25,6 +25,8 @@ mod callable_gate_projection;
 mod callable_gate_projection_tests;
 mod callable_parameter_source;
 mod callable_source_anchor;
+pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
+pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;
 mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
