@@ -2,6 +2,17 @@ use crate::ast::{ASTNode, BoxMethodDeclarationTransformErrorV1, BuildPredicate, 
 use crate::parser::{NyashParser, ParseError};
 use std::collections::HashMap;
 
+use super::program_item_slots::{OpenProjectedProgramItemSlotsV1, ProjectedProgramItemSlotSetV1};
+use crate::parser::source_authority::{
+    ParserInvocationBrandV1, SourceBoxDeclarationPathV1, SourceBuildGateBranchV1,
+    SourceBuildGateIdV1, SourceProgramDeclarationPathV1,
+};
+
+pub(super) struct BuildGateProjectionDecisionV1 {
+    pub(super) selected_then: bool,
+    pub(super) source_gate_id: Option<SourceBuildGateIdV1>,
+}
+
 pub(super) trait BuildGateProjectionSelector {
     fn select(
         &mut self,
@@ -9,7 +20,7 @@ pub(super) trait BuildGateProjectionSelector {
         span: Span,
         has_else: bool,
         reachable: bool,
-    ) -> Result<bool, ParseError>;
+    ) -> Result<BuildGateProjectionDecisionV1, ParseError>;
 
     fn visit_inactive_branches(&self) -> bool;
 }
@@ -25,8 +36,11 @@ impl BuildGateProjectionSelector for LegacyBuildGateSelector<'_> {
         span: Span,
         _has_else: bool,
         _reachable: bool,
-    ) -> Result<bool, ParseError> {
-        self.parser.eval_build_predicate(predicate, span)
+    ) -> Result<BuildGateProjectionDecisionV1, ParseError> {
+        Ok(BuildGateProjectionDecisionV1 {
+            selected_then: self.parser.eval_build_predicate(predicate, span)?,
+            source_gate_id: None,
+        })
     }
 
     fn visit_inactive_branches(&self) -> bool {
@@ -41,13 +55,34 @@ pub(super) fn project_build_gate_program(
     let mut walker = ProjectionWalker {
         selector,
         emit: true,
+        source_slots: None,
     };
     walker.project_program(ast)
+}
+
+pub(super) fn project_build_gate_program_with_source_slots(
+    ast: ASTNode,
+    selector: &mut dyn BuildGateProjectionSelector,
+    brand: ParserInvocationBrandV1,
+) -> Result<(ASTNode, ProjectedProgramItemSlotSetV1), ParseError> {
+    let mut walker = ProjectionWalker {
+        selector,
+        emit: true,
+        source_slots: Some(OpenProjectedProgramItemSlotsV1::open(brand)),
+    };
+    let ast = walker.project_program(ast)?;
+    let slots = walker
+        .source_slots
+        .take()
+        .expect("source-aware projection retains its slot issuer")
+        .finish();
+    Ok((ast, slots))
 }
 
 struct ProjectionWalker<'a> {
     selector: &'a mut dyn BuildGateProjectionSelector,
     emit: bool,
+    source_slots: Option<OpenProjectedProgramItemSlotsV1>,
 }
 
 fn map_method_transform_error(
@@ -72,11 +107,122 @@ impl NyashParser {
 impl ProjectionWalker<'_> {
     fn project_program(&mut self, ast: ASTNode) -> Result<ASTNode, ParseError> {
         match ast {
-            ASTNode::Program { statements, span } => Ok(ASTNode::Program {
-                statements: self.prune_build_gate_items(statements)?,
-                span,
-            }),
+            ASTNode::Program { statements, span } => {
+                let statements = if let Some(slots) = &self.source_slots {
+                    let brand = slots.brand().clone();
+                    self.prune_source_program_items(statements, 0, &|ordinal| {
+                        SourceBoxDeclarationPathV1::root(brand.clone(), ordinal)
+                    })?
+                } else {
+                    self.prune_build_gate_items(statements)?
+                };
+                Ok(ASTNode::Program { statements, span })
+            }
             other => self.prune_build_gate_node(other),
+        }
+    }
+
+    fn prune_source_program_items(
+        &mut self,
+        items: Vec<ASTNode>,
+        final_slot_base: usize,
+        path_for: &dyn Fn(u32) -> SourceBoxDeclarationPathV1,
+    ) -> Result<Vec<ASTNode>, ParseError> {
+        let parent_emit = self.emit;
+        let mut out = Vec::new();
+        for (ordinal, item) in items.into_iter().enumerate() {
+            let ordinal = u32::try_from(ordinal).map_err(|_| ParseError::BuildCfg {
+                message: "top-level source item ordinal exceeds u32".to_owned(),
+                line: 0,
+            })?;
+            let path = path_for(ordinal);
+            match item {
+                ASTNode::BuildGate {
+                    predicate,
+                    then_items,
+                    else_items,
+                    span,
+                } => {
+                    if !parent_emit && !self.selector.visit_inactive_branches() {
+                        continue;
+                    }
+                    let decision = self.selector.select(
+                        &predicate,
+                        span,
+                        else_items.is_some(),
+                        parent_emit,
+                    )?;
+                    let gate_id = decision
+                        .source_gate_id
+                        .ok_or_else(|| ParseError::BuildCfg {
+                            message: "source-aware top-level BuildGate has no exact source id"
+                                .to_owned(),
+                            line: span.line,
+                        })?;
+                    self.emit = parent_emit && decision.selected_then;
+                    let child_slot_base = final_slot_base + out.len();
+                    let then_pruned =
+                        self.prune_source_program_items(then_items, child_slot_base, &|child| {
+                            path.child(gate_id, SourceBuildGateBranchV1::Then, child)
+                        })?;
+                    let else_pruned = if self.selector.visit_inactive_branches() {
+                        self.emit = parent_emit && !decision.selected_then;
+                        else_items
+                            .map(|items| {
+                                self.prune_source_program_items(items, child_slot_base, &|child| {
+                                    path.child(gate_id, SourceBuildGateBranchV1::Else, child)
+                                })
+                            })
+                            .transpose()?
+                    } else if !decision.selected_then {
+                        self.emit = parent_emit;
+                        else_items
+                            .map(|items| {
+                                self.prune_source_program_items(items, child_slot_base, &|child| {
+                                    path.child(gate_id, SourceBuildGateBranchV1::Else, child)
+                                })
+                            })
+                            .transpose()?
+                    } else {
+                        None
+                    };
+                    self.emit = parent_emit;
+                    if parent_emit {
+                        if decision.selected_then {
+                            out.extend(then_pruned);
+                        } else if let Some(else_pruned) = else_pruned {
+                            out.extend(else_pruned);
+                        }
+                    }
+                }
+                other => {
+                    let projected = self.prune_build_gate_node(other)?;
+                    if self.emit {
+                        let slots = self
+                            .source_slots
+                            .as_mut()
+                            .expect("source program traversal retains its slot issuer");
+                        slots
+                            .record(
+                                SourceProgramDeclarationPathV1::from_parser_path(path),
+                                final_slot_base + out.len(),
+                            )
+                            .map_err(|error| ParseError::BuildCfg {
+                                message: format!(
+                                    "projected Program item slot receipt failed: {error:?}"
+                                ),
+                                line: 0,
+                            })?;
+                        out.push(projected);
+                    }
+                }
+            }
+        }
+        self.emit = parent_emit;
+        if parent_emit {
+            Ok(out)
+        } else {
+            Ok(Vec::new())
         }
     }
 
@@ -95,12 +241,13 @@ impl ProjectionWalker<'_> {
                     if !parent_emit && !self.selector.visit_inactive_branches() {
                         continue;
                     }
-                    let selected_then = self.selector.select(
+                    let decision = self.selector.select(
                         &predicate,
                         span,
                         else_items.is_some(),
                         parent_emit,
                     )?;
+                    let selected_then = decision.selected_then;
                     self.emit = parent_emit && selected_then;
                     let then_pruned = self.prune_build_gate_items(then_items)?;
                     let else_pruned = if self.selector.visit_inactive_branches() {

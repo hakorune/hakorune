@@ -11,7 +11,11 @@ use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 use super::decision_set::{
     BuildGateDecisionRowV1, BuildGateReachabilityV1, PreparedBuildGateDecisionSetV1,
 };
-use super::prune::{project_build_gate_program, BuildGateProjectionSelector};
+use super::program_item_slots::ProjectedProgramItemSlotSetV1;
+use super::prune::{
+    project_build_gate_program_with_source_slots, BuildGateProjectionDecisionV1,
+    BuildGateProjectionSelector,
+};
 use crate::parser::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use crate::parser::source_gate_receipt::BuildGateSelectionReceiptV1;
 use crate::parser::{BuildGateExplainReport, NyashParser, ParseError};
@@ -24,6 +28,7 @@ mod projection_tests;
 pub(crate) struct BuildGateProjectionOutputV1 {
     pub(crate) ast: ASTNode,
     pub(crate) receipts: Vec<BuildGateSelectionReceiptV1>,
+    pub(crate) item_slots: ProjectedProgramItemSlotSetV1,
     pub(crate) explain: Option<BuildGateExplainReport>,
 }
 
@@ -40,8 +45,10 @@ pub(crate) fn project_build_gates(
         records,
         capture_explain,
     );
-    let ast = project_build_gate_program(ast, &mut selector)?;
-    selector.finish(ast)
+    let brand = selector.brand.clone();
+    let (ast, item_slots) =
+        project_build_gate_program_with_source_slots(ast, &mut selector, brand)?;
+    selector.finish(ast, item_slots)
 }
 
 struct DecisionProjectionSelector<'a> {
@@ -70,7 +77,11 @@ impl<'a> DecisionProjectionSelector<'a> {
         }
     }
 
-    fn finish(self, ast: ASTNode) -> Result<BuildGateProjectionOutputV1, ParseError> {
+    fn finish(
+        self,
+        ast: ASTNode,
+        item_slots: ProjectedProgramItemSlotSetV1,
+    ) -> Result<BuildGateProjectionOutputV1, ParseError> {
         if self.cursor != self.rows.len() {
             return Err(projection_error(
                 "BuildGate projection did not consume every decision row",
@@ -86,6 +97,7 @@ impl<'a> DecisionProjectionSelector<'a> {
         Ok(BuildGateProjectionOutputV1 {
             ast,
             receipts: self.receipts,
+            item_slots,
             explain: self.explain,
         })
     }
@@ -143,9 +155,12 @@ impl<'a> DecisionProjectionSelector<'a> {
         Ok(row)
     }
 
-    fn issue_source_receipt(&mut self, row: &BuildGateDecisionRowV1) -> Result<(), ParseError> {
+    fn issue_source_receipt(
+        &mut self,
+        row: &BuildGateDecisionRowV1,
+    ) -> Result<Option<crate::parser::source_authority::SourceBuildGateIdV1>, ParseError> {
         let Some(gate_id) = row.gate_id else {
-            return Ok(());
+            return Ok(None);
         };
         let Some(path) = row.source_path.as_ref() else {
             return Err(projection_error(
@@ -180,7 +195,7 @@ impl<'a> DecisionProjectionSelector<'a> {
                 &row.predicate,
                 row.selected_branch,
             ));
-        Ok(())
+        Ok(Some(gate_id))
     }
 }
 
@@ -191,11 +206,11 @@ impl BuildGateProjectionSelector for DecisionProjectionSelector<'_> {
         span: Span,
         has_else: bool,
         reachable: bool,
-    ) -> Result<bool, ParseError> {
+    ) -> Result<BuildGateProjectionDecisionV1, ParseError> {
         let row = self
             .current_row(predicate, span, has_else, reachable)?
             .clone();
-        self.issue_source_receipt(&row)?;
+        let source_gate_id = self.issue_source_receipt(&row)?;
         if reachable {
             if let Some(report) = self.explain.as_mut() {
                 report.conditional_group_count += 1;
@@ -217,10 +232,10 @@ impl BuildGateProjectionSelector for DecisionProjectionSelector<'_> {
             }
         }
         self.cursor += 1;
-        Ok(matches!(
-            row.selected_branch,
-            BuildGateSelectionOutcomeV1::Then
-        ))
+        Ok(BuildGateProjectionDecisionV1 {
+            selected_then: matches!(row.selected_branch, BuildGateSelectionOutcomeV1::Then),
+            source_gate_id,
+        })
     }
 
     fn visit_inactive_branches(&self) -> bool {

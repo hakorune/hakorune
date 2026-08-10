@@ -1,6 +1,7 @@
 use crate::ast::ASTNode;
 use crate::parser::build_gate_selection::BuildGateSelectionOutcomeV1;
 use crate::parser::postpass_envelope::{ExplainDemandV1, PostpassDemandV1};
+use crate::parser::source_authority::{SourceBoxPathSegmentV1, SourceBuildGateBranchV1};
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 use crate::tokenizer::NyashTokenizer;
 
@@ -58,4 +59,59 @@ fn shared_projection_emits_no_else_receipt_without_a_child_path() {
         output.ast,
         ASTNode::Program { statements, .. } if statements.is_empty()
     ));
+}
+
+fn projected_gate_slots(mode: BuildMode) -> super::BuildGateProjectionOutputV1 {
+    let tokens = NyashTokenizer::new(
+        "function before() {}\n\
+         gate Build.test { function chosen() {} } else { function chosen() {} }\n\
+         function after() {}\n",
+    )
+    .tokenize()
+    .unwrap();
+    let mut parser = NyashParser::new(tokens);
+    parser.build_config = ParserBuildConfig {
+        mode,
+        ..ParserBuildConfig::default()
+    };
+    let ast = parser.parse_program().unwrap();
+    let decisions = parser.issue_build_gate_decision_set(&ast).unwrap();
+    let records = parser.take_source_build_gate_records();
+    super::project_build_gates(&parser, ast, &decisions, &records, false).unwrap()
+}
+
+#[test]
+fn source_projection_records_exact_final_slots_for_then_and_else() {
+    for (mode, expected_branch) in [
+        (BuildMode::Test, SourceBuildGateBranchV1::Then),
+        (BuildMode::Release, SourceBuildGateBranchV1::Else),
+    ] {
+        let output = projected_gate_slots(mode);
+        let rows = output.item_slots.rows();
+        assert_eq!(rows.len(), 3);
+        assert_eq!(
+            rows.iter()
+                .map(|row| row.final_statement_slot())
+                .collect::<Vec<_>>(),
+            vec![0, 1, 2]
+        );
+        assert!(matches!(
+            rows[0].source_path().compatibility_box_path().segments(),
+            [SourceBoxPathSegmentV1::RootStatement { ordinal: 0 }]
+        ));
+        assert!(matches!(
+            rows[1]
+                .source_path()
+                .compatibility_box_path()
+                .segments(),
+            [
+                SourceBoxPathSegmentV1::RootStatement { ordinal: 1 },
+                SourceBoxPathSegmentV1::BuildGate { branch, child_ordinal: 0, .. }
+            ] if *branch == expected_branch
+        ));
+        assert!(matches!(
+            rows[2].source_path().compatibility_box_path().segments(),
+            [SourceBoxPathSegmentV1::RootStatement { ordinal: 2 }]
+        ));
+    }
 }
