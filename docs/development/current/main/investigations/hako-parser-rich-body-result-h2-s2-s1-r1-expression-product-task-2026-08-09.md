@@ -1,9 +1,9 @@
 ---
 Status: compile-front handoff I0 and the read-only GenericLoop
 producer-publication audit are closed without an exact producer owner. The
-active frontier is the design-only initializer producer co-seal split; the
-parser-only product WIP still reaches the existing GenericLoop representation
-blocker before fixture execution, so implementation remains NoSafeSlice.
+initializer producer co-seal split is design-accepted, but its implementation
+remains NoSafeSlice; the parser-only product WIP still reaches the existing
+GenericLoop representation blocker before fixture execution.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -837,3 +837,37 @@ rescan, ValueId/name repair, default type, fallback, retry, or second
 publisher is allowed. The current H2 failure has not yet supplied either
 family's exact row, so implementation remains closed until this D0 is
 accepted.
+
+### D0 design closeout (2026-08-11)
+
+The design is accepted with an explicit implementation stop. The two
+producer families remain separate and neither may be inferred from the H2
+`ValueId` or method/loop name:
+
+```text
+Static:
+  CompletedUnifiedValueCallEmissionV1
+    -> PreparedStaticCallResultPublicationV1::commit
+    -> post-success TypeContext fact
+
+Dynamic:
+  SourceBackedDynamicCallableIssuerV1
+    -> CallableDynamicOriginLoweringStateV1
+    -> PreparedSourceBackedDynamicLoopIngressV1
+```
+
+The existing static family is the sole lowering-time type publisher, but the
+H2 failing initializer has no exact selected static call-site/emission row.
+The Dynamic family has exact formal/local/Loop source lineage, but it owns no
+`MirType` fact and has no non-test production ingress for this failure. Thus
+the H2 initializer still has no one-to-one producer co-seal and remains
+`NoSafeSlice`.
+
+The next Dynamic evidence owner is the existing ladder in
+`generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md` (source-bound
+MethodCall relation and the subsequent full V2 producer rows). It must issue
+an exact source-backed lineage receipt before this H2 row can reopen for
+implementation. Do not move the current pointer or create a second H2
+producer/source authority; when that receipt lands, return here and perform
+the exact co-seal audit again. The static publication owner may be reused only
+if a real selected direct-call initializer row is independently observed.
