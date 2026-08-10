@@ -238,6 +238,63 @@ that can attach a function/source site to the first GenericLoop admission;
 until that exists, the existing Dynamic carrier/full-body ladder remains the
 only semantic owner and this R1 product stays parked.
 
+## Compile-front owner census D0 (2026-08-11)
+
+Task: `H2-S2-S1-R1-COMPILE-FRONT-OWNER-CENSUS-D0`
+
+Decision: design-only and read-only. This row shortens the diagnostic distance
+to the already-existing transient-result publication owner; it does not open
+the Hako expression product, GenericLoop representation, Dynamic carrier, or
+static-call result framework.
+
+The census may consume only existing compile-front observations and must emit
+one stable, default-off diagnostic receipt for the first failing admission:
+
+```text
+compile front
+  -> function owner
+  -> method source site
+  -> loop source site
+  -> initializer producer
+  -> TypeContext at GenericLoop entry
+  -> first failing admission index
+```
+
+The receipt is diagnostic evidence, not a semantic authority. It must not be
+used to select a method by name, assign a source identity from `ValueId`, infer
+a transient type, or create a parser/Dynamic `Verified*` product. The existing
+GenericLoop consumer remains verifier-only, and the existing Dynamic/static
+publication owners remain the only semantic owners.
+
+### Allowed boundary
+
+```text
+existing FunctionState / route context
+  -> diagnostic-only owner/site observation
+  -> stable one-line trace or test receipt
+```
+
+The diagnostic path must be default-off, use an existing trace toggle or a
+documented dev-only toggle, and update the debug contract before adding a new
+tag. It must not alter route selection, strictness, planner admission, ValueId
+allocation, type publication, fallback, retry, or error disposition.
+
+### Acceptance
+
+```text
+default empty baseline remains green
+default R0 baseline remains green
+default S0/R1 reproduce the same GenericLoop boundary
+the first failing admission includes the complete evidence row above
+debug-only perturbations are recorded separately and never treated as baseline
+no candidate parser method is promoted without exact source-site evidence
+```
+
+If the existing compile front cannot provide the complete row without changing
+semantic behavior, this task returns `NoSafeSlice` and records the missing
+owner boundary. It must not be replaced with a parser-specific log, fixture
+narrowing, GenericLoop backfill, or by-name repair.
+
 The census closeout must be one bounded evidence row, not a new semantic
 product:
 
