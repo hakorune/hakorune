@@ -166,10 +166,12 @@ product also lends exact `L0/B0/Dynamic` After and the existing V10/I6/I7
 local relation. It owns no Completion consumption, Dynamic Fault transaction,
 Home, physical layout, Builder/MIR/CFG/PHI, publication, retry, or fallback.
 
-The full exit transaction remains `NoSafeSlice` until the logical Completion
-projection is co-sealed with the complete carrier flow and a later physical
-session. The Home-capability census closed separately as `NoSafeSlice`; no Home
-is inferred from the logical `Dynamic` class or a runtime tag.
+The bounded semantic exit-transaction co-seal is now closed. The full runtime
+exit transaction remains `NoSafeSlice` until a source-backed physical-input
+authority can co-seal Loop demand, Prelude/entry materialization, Tail, ABI,
+and Completion relation before opening the existing fresh function session.
+The Home-capability census closed separately as `NoSafeSlice`; no Home is
+inferred from the logical `Dynamic` class or a runtime tag.
 
 ## Invocation-result lifecycle (I0)
 

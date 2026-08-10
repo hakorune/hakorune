@@ -183,7 +183,8 @@ and exposes no `into_parts` escape.
    bounded co-seal; no standalone wrapper or copied authority was added
 
 10. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-   session-bound sequencing, fault injection, whole-session discard; caller-zero
+   parked as NoSafeSlice until `PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` closes the
+   missing source-backed physical-input authority
 ```
 
 Each implementation row updates its code, focused tests, module README,
@@ -315,6 +316,64 @@ RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction
 ```
 
 The next bounded owner is `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`.
+
+## Physical session P0 audit (2026-08-10)
+
+`DYNAMIC-EXIT-PHYSICAL-SESSION-P0` is a design stop, not an implementation
+permission. The existing `loop_physical_prepare.rs` and callable physical
+canary are `cfg(test)` helpers only; no production issuer currently supplies
+the complete physical input for the selected Dynamic package.
+
+The package already supplies the exact logical source-backed input and the
+non-splittable `VerifiedDynamicExitTransactionCoSealV1`, but the physical
+boundary still lacks one source-backed co-seal for:
+
+```text
+Loop physical demand
+Prelude / entry materialization
+Callable Tail
+exact physical ABI / result representation
+physical Completion relation
+```
+
+The existing owners remain authoritative:
+
+```text
+CanonicalFunctionLoweringSessionV1
+  -> fresh unpublished function state and whole-session discard
+CanonicalSsaFunctionSessionV2
+  -> CFG / SSA / PHI and typed function finish
+OpenFunctionDraftSealV1 / PreparedFunctionDraftSealV1
+  -> DraftSeal prepare / commit
+ModuleDraftCollectorV1
+  -> later draft collection / publication
+```
+
+The smallest next design slice is therefore:
+
+```text
+PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0
+  source authority census
+  canonical issuer and co-seal boundary
+  physical-input identity / owner / frame / scope checks
+  fail-fast and NoSafeSlice matrix
+```
+
+Until that Decision is accepted, do not remove `cfg(test)`, promote the static
+physical canary, call the raw `lower_loop` route from the package, open
+DraftSeal/Collector, or add a guessed `Verified*`/`Prepared*` receipt. After a
+fresh physical session opens, every failure must discard the unpublished
+function exactly once; same-session retry and fallback remain forbidden.
+
+Non-claims for this stop:
+
+```text
+Home capability
+runtime Fault outcome / primary-suppressed chronology
+CFG / PHI / MIR emission
+DraftSeal / Collector / publication
+provider or runtime dispatch
+```
 
 ## Hard stops
 
