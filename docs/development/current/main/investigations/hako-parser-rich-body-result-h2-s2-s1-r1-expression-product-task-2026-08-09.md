@@ -209,6 +209,55 @@ owned by the Dynamic ladder before any R1 reopen; `ParserScanLoopBox` and
 names, inferred Box types, GenericLoop backfill, retry, or a second
 publication owner.
 
+## Bounded compile-front census (2026-08-11)
+
+The next read-only probe intentionally compared the parked R1 expression
+fixture with minimal inputs. With the existing release binary and
+`HAKO_JOINIR_DEBUG=1`, all of the following reached the same
+`generic_loop_v1` representation failure before producing an executable result:
+
+```text
+parked H2-S2-S1-R1 expression fixture
+minimal source with ParserStringUtilsBox import
+minimal source with ParserNumberScanBox import
+minimal source with ParserBox/ParserExprBox import
+empty source with no parser import
+```
+
+The diagnostic shape was `UnknownTransientType { init: ValueId(31) }` for this
+probe (the earlier guard run reported `MissingTransientType { init: ValueId(113) }`).
+The differing ValueId is diagnostic allocation state only. The shared failure
+proves that the current binary reaches the GenericLoop boundary in its
+compile front before the input-specific parser fixture can identify an exact
+parser callable. It does **not** prove that `ParserStringUtilsBox`,
+`ParserNumberScanBox`, or `ParserScanLoopBox` owns the first failing loop.
+
+Therefore the census remains `NoSafeSlice` at the source-site level. Do not
+promote a candidate method name, narrow the fixture, or add parser-specific
+logging/repair in this row. The next safe diagnostic owner is a bounded
+compile-front source/owner inventory that can attach a function/source site to
+the first GenericLoop admission; until that exists, the existing Dynamic
+carrier/full-body ladder remains the only semantic owner and this R1 product
+stays parked.
+
+The census closeout must be one bounded evidence row, not a new semantic
+product:
+
+```text
+compile front
+  -> function owner
+  -> method source site
+  -> loop source site
+  -> initializer producer
+  -> TypeContext at GenericLoop entry
+  -> first failing admission index
+```
+
+It must compare the empty-input baseline with the parser-import front and
+record the exact delta. Until that row exists, `ValueId`, method name, import
+order, and shape similarity remain diagnostics only and cannot select a
+Dynamic or parser owner.
+
 This is a prerequisite consultation boundary, not an authorization to create
 a generic Hako result-type framework. Once the exact owner closes, rerun the
 same R1 guard and fixture from the parked WIP; do not change the accepted
