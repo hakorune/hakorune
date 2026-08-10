@@ -66,8 +66,8 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_demands() {
         panic!("exact Dynamic row must remain selected")
     };
     assert_eq!(
-        program.program().after().loop_key(),
-        crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0)
+        program.current(),
+        crate::mir::compiler::dynamic_full_body_recipe::DynamicCarrierCurrentDispositionV1::BorrowedIngressNoEnd
     );
 }
 

@@ -10,11 +10,13 @@ use crate::mir::callable_semantic_batch::{
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    issue_dynamic_carrier_rebind_transaction_program_v1,
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
     issue_dynamic_operator_carrier_lifecycle_program_v1,
-    DynamicCarrierIngressLifecycleProgramRejectV1, DynamicFullLoopSemanticProgramRejectV2,
-    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
+    DynamicCarrierIngressLifecycleProgramRejectV1, DynamicCarrierRebindTransactionRejectV1,
+    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
+    DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -50,6 +52,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     DynamicInvocationLifecycle(DynamicInvocationCarrierLifecycleProgramRejectV1),
     DynamicOperatorLifecycle(DynamicOperatorCarrierLifecycleProgramRejectV1),
     DynamicIngress(DynamicCarrierIngressLifecycleProgramRejectV1),
+    DynamicRebind(DynamicCarrierRebindTransactionRejectV1),
 }
 
 pub(crate) fn issue_normal_callable_semantic_package_v1(
@@ -141,13 +144,15 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             if parameter_one_rows.next().is_some() {
                 return Err(NormalCallableSemanticPackageIssueV1::DynamicParameterDemandIdentity);
             }
-            let program = issue_dynamic_carrier_ingress_lifecycle_program_v1(
+            let ingress = issue_dynamic_carrier_ingress_lifecycle_program_v1(
                 program,
                 parameter_one.ordinal,
                 parameter_one.binding,
                 parameter_one.demand,
             )
             .map_err(NormalCallableSemanticPackageIssueV1::DynamicIngress)?;
+            let program = issue_dynamic_carrier_rebind_transaction_program_v1(ingress)
+                .map_err(NormalCallableSemanticPackageIssueV1::DynamicRebind)?;
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_batch_slot,
                 owner: dynamic_owner,

@@ -35,10 +35,13 @@ complete resolver source inventory
   carrier lifecycle: V9 ends after I6's Normal-or-Fault outcome; V17 is
   authorized only for the later exact B0 rebind commit backed by I16 and the
   JoinSig Backedge. It does not perform either effect.
-  Rebind implementation is still closed: the initial V1/C0/B0 current comes
-  from plain parameter `pos`, and this module has no authority to classify it
-  as borrowed-no-end or owner-bearing. A separate resolver/callable-backed
-  ingress lifecycle issuer must be consumed first.
+  The ingress wrapper now seals the initial V1/C0/B0 current from plain
+  parameter `pos` as `BorrowedIngressNoEnd`, retaining its exact source and
+  recipe relation. A consuming rebind wrapper then seals I13
+  `ReadBinding(B0)->V15`, I15 `DynamicAdd(V15,V16)->V17`, I16
+  `WriteBinding(B0,V17)`, the canonical I15 Fault contract, and the exact
+  JoinSig Backedge as one commit-before-end semantic relation. It performs no
+  rebind, End, cleanup, Home, CFG, PHI, or physical operation.
 - `dynamic_invocation_contract` remains the complete immutable envelope
   catalog owner. This directory borrows it and never copies targets or
   selector semantics.
@@ -136,6 +139,20 @@ lifecycle creation only on Normal result publication; Fault creates no runtime
 carrier instance.
 
 This is complete only for the Dynamic invocation result family. V9/V17
-`DynamicAdd`, callable ingress/rebind/Return, CFG-complete carrier flow,
-physical End, Home, cleanup execution, Completion, and production remain
-unclaimed.
+`DynamicAdd` is now semantically co-sealed through the ingress/rebind wrapper;
+callable Return, CFG-complete carrier flow, physical End, Home, cleanup
+execution, Completion, and production remain unclaimed.
+
+## Carrier rebind transaction (I0)
+
+`VerifiedDynamicCarrierRebindTransactionProgramV1` consumes exactly one whole
+`VerifiedDynamicCarrierIngressLifecycleProgramV1`. Its first current
+disposition is the typed `BorrowedIngressNoEnd` marker; the owned-forwarded
+disposition is vocabulary for the later carrier-flow owner and is not issued
+here. The product retains no raw Builder state and exposes no split
+`install_new`/`take_old` operation. It only proves the chronology needed by a
+future physical owner: evaluate the borrowed I13 value, preflight the normal
+I15 result, commit I16 as the new B0 current, discharge the displaced current,
+then authorize the Backedge. An I15 Fault publishes no V17, I16, displaced
+receipt, or Backedge. Cleanup faults, Home, Completion, and actual execution
+remain later rows.

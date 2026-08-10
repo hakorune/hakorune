@@ -1,6 +1,9 @@
 //! Exact callable-parameter to root-carrier ingress co-seal.
 
-use crate::mir::loop_recipe_contract::{LoopJoinEdgeRoleV1, LoopJoinPortV1, LoopValueClassV2};
+use crate::mir::loop_recipe_contract::{
+    LoopBindingKeyV1, LoopCarrierKeyV1, LoopJoinEdgeRoleV1, LoopJoinPortV1, LoopNodeKeyV1,
+    LoopValueClassV2, LoopValueKeyV1,
+};
 use crate::mir::resolved_semantics::{BindingRefV1, HomeDemandV1};
 
 use super::super::super::super::dynamic_full_body_source::{
@@ -24,10 +27,34 @@ pub(in crate::mir) struct VerifiedDynamicCarrierIngressLifecycleProgramV1 {
     _ingress: BorrowedIngressNoEndV1,
 }
 
-#[derive(Debug)]
-struct BorrowedIngressNoEndV1;
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) struct BorrowedIngressNoEndV1
+{
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) parameter_ordinal:
+        u32,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) parameter_binding:
+        BindingRefV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) demand:
+        HomeDemandV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) root:
+        LoopNodeKeyV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) carrier:
+        LoopCarrierKeyV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) recipe_binding:
+        LoopBindingKeyV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) source_binding:
+        BindingRefV1,
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) entry:
+        LoopValueKeyV1,
+}
 
 impl VerifiedDynamicCarrierIngressLifecycleProgramV1 {
+    pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) fn relation(
+        &self,
+    ) -> BorrowedIngressNoEndV1 {
+        self._ingress
+    }
+
     pub(in crate::mir) fn program(&self) -> &VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
         &self.program
     }
@@ -53,7 +80,8 @@ pub(in crate::mir) fn issue_dynamic_carrier_ingress_lifecycle_program_v1(
         .iter()
         .find(|row| row.role() == DynamicFullBodyBindingRoleV1::Pos)
         .ok_or(DynamicCarrierIngressLifecycleProgramRejectV1::SourceRelation)?;
-    if pos.binding() != parameter_binding {
+    let source_binding = pos.binding();
+    if source_binding != parameter_binding {
         return Err(DynamicCarrierIngressLifecycleProgramRejectV1::SourceRelation);
     }
     let induction_binding = match envelope
@@ -121,6 +149,15 @@ pub(in crate::mir) fn issue_dynamic_carrier_ingress_lifecycle_program_v1(
     }
     Ok(VerifiedDynamicCarrierIngressLifecycleProgramV1 {
         program,
-        _ingress: BorrowedIngressNoEndV1,
+        _ingress: BorrowedIngressNoEndV1 {
+            parameter_ordinal,
+            parameter_binding,
+            demand,
+            root,
+            carrier,
+            recipe_binding: induction_binding,
+            source_binding,
+            entry,
+        },
     })
 }

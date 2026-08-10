@@ -17,6 +17,7 @@ VerifiedFinalCallableProgramSourceV1
          owned catalog-neutral call relations
          Recipe / JoinSig / invocation lifecycle / operator lifecycle
          parameter #1 -> V1/C0/B0/Enter borrowed ingress
+         commit-before-end rebind relation (I13/I15/I16/Fault/Backedge)
        }
 ```
 
@@ -59,4 +60,5 @@ terminal; the AST-only compatibility catalog is not a retry route.
 This cutover does not claim Dynamic physical completion. In particular,
 `ParserScanLoopBox.skip_while/4` currently reaches the installed package and
 then fails closed at the existing physical source-ledger consumption boundary.
-Home, rebind, cleanup, Completion, and physicalization remain later owners.
+The package owns only the semantic rebind relation; actual rebind, End, Home,
+cleanup, Completion, and physicalization remain later owners.

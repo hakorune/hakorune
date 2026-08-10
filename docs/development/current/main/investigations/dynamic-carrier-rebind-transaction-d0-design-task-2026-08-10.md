@@ -1,8 +1,34 @@
 # DYNAMIC-CARRIER-REBIND-TRANSACTION-D0
 
-Status: revised Decision closed; I0 selected
+Status: revised Decision and semantic I0 closed; physical flow remains next
 Decision: commit-before-end accepted; borrowed ingress/current disposition landed
 Date: 2026-08-10
+
+## Semantic I0 closeout
+
+Landed as one package-owned semantic wrapper:
+
+```text
+VerifiedDynamicCarrierIngressLifecycleProgramV1
+  -> VerifiedDynamicCarrierRebindTransactionProgramV1
+```
+
+The wrapper retains the exact parser/resolver ingress relation and seals:
+
+```text
+BorrowedIngressNoEnd(V1/C0/B0)
+I13 ReadBinding(B0) -> V15
+I15 DynamicAdd(V15,V16) -> V17
+I15 canonical Fault contract
+I16 WriteBinding(B0,V17)
+JoinSig Backedge(B0=V17)
+```
+
+The normal callable semantic package now owns this whole wrapper for the
+selected Dynamic row. It remains non-Clone and non-splittable; no rebind,
+End, cleanup, Home, Completion, CFG, PHI, or physical operation is executed.
+Focused semantic/package tests and the normal-callable structural guards are
+green. The next active row is `DYNAMIC-CARRIER-FLOW-D0/I0`.
 
 ## Evidence correction
 
@@ -97,7 +123,7 @@ After ingress lifecycle is available, semantic I0 consumes exactly one whole
 input:
 
 ```text
-VerifiedDynamicOperatorCarrierLifecycleProgramV1
+VerifiedDynamicCarrierIngressLifecycleProgramV1
   -> VerifiedDynamicCarrierRebindTransactionProgramV1
 ```
 
