@@ -432,11 +432,18 @@ missing/foreign/duplicate fail-fast cases are fixed in a design Decision.
 The source census is concrete:
 
 ```text
+parser/source_resolver_handoff.rs::ResolverBoxMethodSourceRowV1
+  already owns the parser-issued box/member source site
+
+parser/callable_source_anchor.rs and the final callable syntax loan
+  already own the opaque declaration anchor
+
 raw_invocation_source_transport.rs::RawInvocationRootLineageV1
-  Cataloged(key) carries a callable key, not an exact declaration site
+  Cataloged(key) carries only a callable key; it does not transfer the
+  existing exact source site/anchor into the compile-front route
 
 normal_callable_catalog_owner_link.rs
-  verifies catalog/owner pairing but does not issue a method-site receipt
+  verifies catalog/owner pairing but does not transfer a method-site receipt
 
 stmts/local_statement_descent.rs::CompletedLocalStatementV1
   retains result/binding ValueIds only
@@ -445,6 +452,9 @@ normal_callable_semantic_lowering_state.rs::record_completed_local
   matches an existing local site to bindings, but does not retain the
   initializer expression producer relation
 ```
+
+Therefore `H2-CALLABLE-METHOD-SOURCE-SITE-HANDOFF-D0` is a transport/co-seal
+decision, not permission to create a second parser or resolver site issuer.
 
 Until this D0 is accepted, `ValueId`, method name, import order, AST shape,
 and `TypeContext` alone remain non-authorities. The GenericLoop carrier stays
@@ -483,8 +493,9 @@ products and must not be implemented as GenericLoop fields.
 ### `H2-CALLABLE-METHOD-SOURCE-SITE-HANDOFF-D0`
 
 Design the canonical source-carrier handoff for the exact callable declaration
-site. The parser/source session must issue the site together with the existing
-opaque declaration identity and final source slots; catalog keys, method names,
+site. The parser/source session already issues the site together with the
+opaque declaration identity and final source slots; this row carries that
+existing relation into the compile-front route. Catalog keys, method names,
 arity, inventory ordinals, AST pointer equality, and `RawInvocationRootLineage`
 must remain navigation or lookup data only. The downstream catalog-owner link
 may borrow the site once, but it may not repair a missing or foreign identity.
