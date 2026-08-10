@@ -195,6 +195,9 @@ the global order is owned by `loop-common-physical-demand-and-session-ssot.md`:
 ```text
 LOOP-SEMANTIC-PROGRAM-COSEAL-R0
   -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+  -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
   -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0
 ```
 
@@ -211,9 +214,10 @@ The cleanup must remove Recipe-derived Predicate/Jump/Backedge transfer
 reconstruction, Recipe condition rescans in `segment_allocator`, repeated V1
 Recipe/evidence scans, and Callable profile counts from the common physicalizer.
 `ReadyLoopAfterContinuationV1` is the common stop line; Tail, ABI, Completion,
-and callable profile-close remain outside. No V2-to-V1 adapter, synthetic
-`ItemKey`, name/order repair, second JoinSig/Recipe, physical planner, or Hako
-authority is allowed. This card does not schedule the parked lane.
+and callable profile-close remain outside. Fixed-role topology retirement waits
+for a caller-zero census after the segment route is proven. No V2-to-V1 adapter,
+synthetic `ItemKey`, name/order repair, second JoinSig/Recipe, physical planner,
+or Hako authority is allowed. This card does not schedule the parked lane.
 
 The common compiler flow remains the existing:
 
