@@ -1,5 +1,5 @@
 ---
-Status: DESIGN STOP / NoSafeSlice
+Status: revise / design stop; bridge owner incomplete
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
 Related:
@@ -14,14 +14,11 @@ Related:
 
 ## Decision
 
-`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` cannot close yet. The Rust final-source
-and resolved-batch path can observe an explicit `: i64` annotation, but the
-canonical Hako parser transaction does not currently retain that annotation in
-the typed callable-header/source seal that feeds resolver identity and the
-semantic batch.
-
-Therefore the Hako axis is `NoSafeSlice`. This is a design stop, not an
-invitation to repair the compatibility scanner or to infer a result downstream.
+`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` cannot close yet. The canonical Hako
+owner is fixed as the existing `source_carrier_v1` lifecycle, but the bridge
+from its sealed row to normalized Rust/Hako parity, the resolved callable
+batch, and the sole result issuer is not yet closed. The existing H2/H3
+sequence is the parser substrate; it does not replace this bridge Decision.
 
 The next design question is:
 
@@ -46,10 +43,10 @@ allowed.
 
 ## Authority boundary
 
-The canonical owner must live in the Hako parser source-carrier/session path
-under `lang/src/compiler/parser/**`, next to the existing typed callable
-declaration/source handoff. It must be issued during the same parse transaction
-as the callable declaration identity and final source slots.
+The canonical owner is the Hako parser source-carrier/session path under
+`lang/src/compiler/parser/source_carrier_v1/**`, next to the existing typed
+callable declaration/source handoff. It must be issued during the same parse
+transaction as the callable declaration identity and final source slots.
 
 The following are explicitly not canonical owners:
 
@@ -67,7 +64,7 @@ Those may remain compatibility/diagnostic probes. They cannot issue a
 ## Minimum product shape
 
 ```text
-ParserCallableHeaderResultSyntaxV1
+ParserMethodResultSyntaxV1
   declaration identity
   parameter/header source site
   optional declared TYPE_REF spelling
@@ -92,8 +89,8 @@ receipt.
 
 ## Acceptance criteria
 
-This D0 may move to I0 only when all items below are decided and the canonical
-owner is implementable without compatibility fallback:
+The H2-S3/H2-I0/H3-I0 sequence may open only when all items below are fixed;
+none of these rows may use compatibility fallback:
 
 1. The exact Hako parser/session owner is identified in `lang/src/compiler/parser/**`.
 2. The typed result row is issued in the same parser transaction as callable
@@ -117,22 +114,49 @@ owner is implementable without compatibility fallback:
 
 ```text
 HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0
-  design stop / owner census / no code
+  current design stop: bridge owner/parity/batch relation and prerequisite audit
+
+H2-S2-S1-R1
+  re-audit its recorded GenericLoop blocker before reopening the expression
+  product; do not repair the compatibility guard as a shortcut
+
+H2-S2-S1-I0
+  close only after the prerequisite is genuinely green
+
+H2-S3-I0
+  unpublished direct-method transaction:
+  exact method site + parameters + body + typed result syntax; no final seal
+
+H2-I0
+  bounded ordinary Box direct-method parser connection
+
+H3-I0
+  final atomic declaration/source seal and complete coverage
+
+H5
+  test-only normalized Rust/Hako parity
 
 HAKO-CALLABLE-HEADER-RESULT-CARRIER-I0
-  typed Hako source row + same-pass seal + Rust/Hako parity
+  consume the H3-sealed row, prove normalized parity, and connect one row to
+  the existing resolved batch/result issuer; parser reimplementation forbidden
 
 DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  resume only after Hako owner/parity is green
+  resume only after H2/H3/H5 are green; selected skip_while remains outside
+  this bounded body cohort until its full source/body transaction exists
   issue one source-backed exact-I64 result receipt
 
 PHYSICAL-INPUT-AUTHORITY-I0
   resume only after the result/ABI boundary is closed
 ```
 
-The Rust-only receipt work is retained in a reversible stash and is not an
-active production or selfhost claim. It may be rebased onto this task only
-after the Hako source product exists.
+The earlier Rust-only receipt work is retained in a reversible stash and is not
+an active production or selfhost claim. Rebase it only after H3/H5 provide the
+same Hako source product and the bridge I0 is accepted.
+
+H2/H3 are lower parser-carrier rows, not a substitute for the bridge. The
+first H2 fixture may be `length(): i64 { return 0 }`; it cannot claim
+`skip_while/4` parity because locals, loops, conditionals, calls, and multiple
+returns require a later complete body cohort.
 
 ## Dynamic loop unification parked lane
 
@@ -193,11 +217,12 @@ portable Recipe/JoinSig boundary.
 ## Non-claims / hard stops
 
 ```text
+no live ordinary parser branch claim before H2-I0/H3-I0
 no canonical Hako owner from FuncScanner/Stage-B JSON
 no GenericLoop fix just to make the compatibility guard green
 no Rust success as Hako parity
 no result receipt from source text, loop shape, body return, MirType,
   FunctionSignature, runtime tag, selector name, or physical ABI
-no PHYSICAL-INPUT-AUTHORITY-I0 resume
+no selected Dynamic result I0 or PHYSICAL-INPUT-AUTHORITY-I0 resume
 no physical session, DraftSeal, Collector, publication, retry, or fallback
 ```

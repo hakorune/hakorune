@@ -524,8 +524,8 @@ census found no connected canonical Hako header-result carrier under
 `FuncScannerBox`, Stage-B JSON, and the compatibility guard are informational
 only and cannot close the row. The design stop and next owner task are tracked
 in `hako-callable-header-result-carrier-d0-design-task-2026-08-11.md`.
-After that task lands, resume `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`, then
-`PHYSICAL-INPUT-AUTHORITY-I0`.
+After the H2/H3 source substrate, H5 parity, and this bridge I0 land, resume
+`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`, then `PHYSICAL-INPUT-AUTHORITY-I0`.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 remains accepted as a Rust/Hako source-contract design, but its I0 is stopped because no canonical Hako callable-header result owner is connected. Loop unification is parked as a post-physical-input BoxShape cleanup."
+status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. The canonical Hako result owner is fixed as source_carrier_v1, but its H2-S2-S1-R1 prerequisite is recorded blocked and the Hako-to-resolved-batch bridge is not yet closed. Loop unification remains parked as post-physical-input BoxShape cleanup."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: canonical Hako parser/session result annotation owner is not connected; do not use FuncScanner/Stage-B JSON or repair the compatibility probe"
+current_design_stop = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: fix the Hako-to-resolved-batch bridge and re-audit the blocked H2-S2-S1-R1 prerequisite before opening H2-S3"
 work_mode = "design_stop"
 current_execution_row = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0"
-current_blocker_token = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: decide and connect a typed callable-header result row in the canonical Hako parser transaction, with same-pass source identity/provenance and Rust/Hako normalized parity; no Stage-B fallback, GenericLoop probe repair, or Rust-only completion"
+current_blocker_token = "HAKO-CALLABLE-HEADER-RESULT-CARRIER-D0: keep source_carrier_v1 as the sole Hako owner, specify H3-sealed row -> Rust/Hako normalized parity -> resolved callable batch -> sole result issuer, and re-audit H2-S2-S1-R1 before code; no FuncScanner, Stage-B JSON, GenericLoop repair, or Dynamic narrowing"
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -235,7 +235,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The bounded JoinSig-owned logical transfer, Dynamic physical-input, and complete physical-demand rows are landed and tested. The current design stop is the missing canonical Hako callable-header result carrier; until its same-pass typed row and Rust/Hako parity exist, result/ABI, physical session, publication, retry, and fallback remain closed."
+current_execution_summary = "The bounded JoinSig-owned logical transfer, Dynamic physical-input, and complete physical-demand rows are landed and tested. The Hako source-carrier owner is fixed, but H2-S2-S1-R1 remains recorded blocked; the bridge to normalized Rust/Hako parity, resolved batch, and the sole result issuer must be designed before H2-S3 code opens."
 current_execution_design = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
