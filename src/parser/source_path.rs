@@ -27,6 +27,91 @@ pub(super) enum SourceBuildGateBranchV1 {
     Else,
 }
 
+/// Program-wide declaration path used by callable source products.
+///
+/// `SourceBoxDeclarationPathV1` predates callable coverage and remains the
+/// compatibility carrier used by Box source code.  This wrapper prevents that
+/// historical name from becoming the durable contract for free functions.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct SourceProgramDeclarationPathV1(SourceBoxDeclarationPathV1);
+
+impl SourceProgramDeclarationPathV1 {
+    pub(super) fn from_parser_path(path: SourceBoxDeclarationPathV1) -> Self {
+        Self(path)
+    }
+
+    pub(super) fn brand(&self) -> &ParserInvocationBrandV1 {
+        self.0.brand()
+    }
+
+    pub(super) fn compatibility_box_path(&self) -> &SourceBoxDeclarationPathV1 {
+        &self.0
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct SourceProgramMemberGateStepV1 {
+    gate_member_ordinal: u32,
+    branch: SourceBuildGateBranchV1,
+}
+
+impl SourceProgramMemberGateStepV1 {
+    pub(super) fn new(gate_member_ordinal: u32, branch: SourceBuildGateBranchV1) -> Self {
+        Self {
+            gate_member_ordinal,
+            branch,
+        }
+    }
+
+    pub(super) fn gate_member_ordinal(&self) -> u32 {
+        self.gate_member_ordinal
+    }
+
+    pub(super) fn branch(&self) -> SourceBuildGateBranchV1 {
+        self.branch
+    }
+}
+
+/// Exact as-written source coordinate for one direct callable declaration.
+/// Placement is intentionally distinct from the opaque callable anchor.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum SourceProgramCallablePathV1 {
+    TopLevel {
+        declaration: SourceProgramDeclarationPathV1,
+    },
+    BoxMethod {
+        declaration: SourceProgramDeclarationPathV1,
+        gate_path: Box<[SourceProgramMemberGateStepV1]>,
+        member_ordinal: u32,
+    },
+}
+
+impl SourceProgramCallablePathV1 {
+    pub(super) fn top_level(path: SourceBoxDeclarationPathV1) -> Self {
+        Self::TopLevel {
+            declaration: SourceProgramDeclarationPathV1::from_parser_path(path),
+        }
+    }
+
+    pub(super) fn box_method(
+        declaration: SourceProgramDeclarationPathV1,
+        gate_path: Box<[SourceProgramMemberGateStepV1]>,
+        member_ordinal: u32,
+    ) -> Self {
+        Self::BoxMethod {
+            declaration,
+            gate_path,
+            member_ordinal,
+        }
+    }
+
+    pub(super) fn declaration(&self) -> &SourceProgramDeclarationPathV1 {
+        match self {
+            Self::TopLevel { declaration } | Self::BoxMethod { declaration, .. } => declaration,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum SourceBuildGateScopeV1 {
     Closed,

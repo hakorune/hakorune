@@ -802,21 +802,107 @@ Closeout receipt:
 
 #### `PARSER-CALLABLE-DIRECT-ANCHOR-R0`
 
+Status: **closed**.
+
 Add one parser-private callable source session.  The original top-level
 function parser and explicit static/instance method commit issue an opaque
 `CallableDeclarationAnchorV1` together with the exact parser invocation and
-structural source path.  `Main` is an ordinary retained top-level declaration.
+structural source path. `Main.main` is an ordinary retained static Box method.
 Selected-gate branch paths are recorded as written; this row neither selects a
 branch nor publishes a verified program product.
 
+The durable boundary is:
+
+```text
+parser invocation
+  -> explicit declaration commit receipt
+  -> fresh CallableDeclarationAnchorV1 at that same commit boundary
+  -> PreparedDirectCallableSourceV1 {
+       anchor,
+       exact parser brand,
+       structural Program declaration path,
+       exact direct declaration kind,
+       diagnostic declaration name,
+     }
+  -> one parser-private callable source session
+```
+
+The structural path is Program-wide.  Existing Box-local code may retain a
+private compatibility alias while migrating, but a free/static callable row
+must not expose `SourceBoxDeclarationPathV1` as its durable contract name.
+Path coordinates prove placement and provenance; they do not define callable
+identity.  Identity is only the parser-issued opaque anchor within the exact
+parser invocation.
+
+The session records these direct origins before any gate selection:
+
+```text
+free function
+free static function
+static Box method
+ordinary instance Box method
+```
+
+`Main.main` is retained as an ordinary static Box method in this row.  Its
+entrypoint role is a later selected projection and must not be reconstructed
+here from the diagnostic spellings `Main` and `main`.
+
+For Box methods, the direct issuer consumes data produced by the explicit
+method commit receipt.  A generic `(path, kind, name)` constructor is not an
+admitted caller surface.  Generated property/delegate/compatibility rows do
+not possess that receipt and therefore cannot enter this session.  Callable
+anchor issuance is independent of the optional parameter-source projection;
+an explicit method without that sibling projection remains a valid direct
+callable row.
+
+The static-Box compatibility postpass does not authorize dropping `Main` or
+static method rows from this parser-private session.  Conversely, this row
+does not change postpass cohort classification or publish those rows to a
+resolver.  The existing callable-parameter catalog may remain a migration
+projection, but it is neither the source membership inventory nor an anchor
+issuer.
+
 Acceptance:
 
-- a mixed direct source records top-level, `Main`, static, and instance rows;
+- a mixed direct source records top-level, `Main`, other static, and instance
+  rows, with both `Main` and the other static method carrying the ordinary
+  static-method origin;
 - top-level/member gate children retain exact branch paths before selection;
 - duplicate/foreign parser paths reject before session publication;
 - anchor equality cannot be reconstructed from name, span, statement/member
-  ordinal, inventory placement, pointer identity, or arity;
+  ordinal, inventory placement, AST pointer identity, or arity;
 - no completed-AST walk, resolver, Builder, Home, Recipe, or production use.
+
+Required negative coverage:
+
+- a row from a foreign parser invocation is rejected;
+- the same anchor cannot be committed twice;
+- the same structural path cannot silently authorize two direct rows;
+- equal names, spans, arities, and numeric source coordinates in distinct
+  parser invocations still produce distinct anchors;
+- generated/property/delegate/compatibility origins cannot enter the direct
+  issuer through a catch-all arm.
+
+Closeout receipt:
+
+- one parser-private session issues fresh opaque anchors for free functions,
+  free static functions, static Box methods, and ordinary instance methods;
+- `Main.main` is retained as an ordinary static Box row with no by-name
+  entrypoint classification;
+- top-level and member-gate paths preserve both as-written branches before
+  selection, including nested branch prefixes;
+- one same-sink `DirectExplicitMethodSinkV1` commit receipt atomically retains
+  the explicit declaration and its exact Program path, while optional
+  parameter-source carriage remains a sibling projection;
+- generated property/delegate rows cannot construct the direct receipt;
+- focused tests cover five mixed rows across four direct kinds, generated
+  exclusion, top-level/member/nested gate paths, foreign parser rejection,
+  duplicate anchor/path rejection, and cross-parser opaque identity;
+- parser source files remain below the 760-line split trigger, and the focused
+  parser regressions plus `cargo check --lib` are green;
+- gate selection, generated anchors, verified final Program publication,
+  resolver, Builder, Home, Recipe, retry, fallback, and production activation
+  remain zero.
 
 #### `PARSER-CALLABLE-GATE-PROJECTION-R0`
 

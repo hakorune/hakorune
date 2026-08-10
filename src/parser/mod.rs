@@ -22,6 +22,7 @@ mod build_cfg;
 mod build_gate_selection;
 mod callable_contract_syntax;
 mod callable_parameter_source;
+mod callable_source_anchor;
 mod common;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
@@ -123,8 +124,6 @@ macro_rules! debug_fuel {
     };
 }
 
-// Two-phase parser structures are no longer needed - simplified to direct parsing
-
 pub use hakorune_frontend_parser::migration_transport::{
     parse_migration_transport_with_config, MigrationTransport, MigrationTransportBundle,
     MigrationTransportKind,
@@ -153,6 +152,7 @@ pub struct NyashParser {
     pub(super) source_invocation_brand: source_authority::ParserInvocationBrandV1,
     callable_parameter_source_session:
         Option<callable_parameter_source::ParserCallableParameterSourceSessionV1>,
+    callable_source_session: callable_source_anchor::ParserCallableSourceSessionV1,
     /// Top-level source statement cursor used to issue exact Box declaration
     /// sites. It is parser-session state only; no seal is issued here.
     pub(super) next_source_statement_ordinal: u32,
@@ -200,6 +200,9 @@ impl NyashParser {
                 callable_parameter_source::ParserCallableParameterSourceSessionV1::open(
                     source_invocation_brand.clone(),
                 ),
+            ),
+            callable_source_session: callable_source_anchor::ParserCallableSourceSessionV1::open(
+                source_invocation_brand.clone(),
             ),
             source_invocation_brand,
             next_source_statement_ordinal: 0,

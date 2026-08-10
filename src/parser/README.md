@@ -25,6 +25,29 @@ Every admitted row is issued by the same parameter parse that creates the
 neutral `ParamDecl`; missing AST metadata is never reclassified as
 `Ordinary`. `Take` is a closed vocabulary variant with no live issuer.
 
+## Parser-private direct callable anchors (`PARSER-CALLABLE-DIRECT-ANCHOR-R0` landed)
+
+`callable_source_anchor.rs` owns one parser-invocation-local session for
+direct callable declarations. A fresh opaque `CallableDeclarationAnchorV1`
+is issued at the exact free-function, free-static-function, static Box-method,
+or ordinary instance-method declaration commit. `Main.main` is retained as
+an ordinary static Box method; entrypoint selection is a later owner and is
+not inferred here from names.
+
+Top-level paths reuse the parser's Program declaration path. Box member-gate
+Then/Else prefixes remain owned by `OpenBoxMethodSourceTransactionV1`, so both
+as-written branches are recorded before selection without a second global path
+stack. Explicit Box commits use `DirectExplicitMethodSinkV1` to capture the
+commit and path from the same sink, then issue one non-Clone path-bearing
+receipt. Generated property/delegate/compatibility rows cannot construct that
+receipt. Optional parameter-source carriage does not gate anchor issuance.
+
+This is unpublished parser staging. It creates no selected gate, generated
+anchor, verified final Program, resolver identity, Home/Recipe fact, Builder
+input, retry, fallback, or production route. Names, spans, arity, inventory
+placement, numeric coordinates, and AST pointer identity remain diagnostic or
+placement facts and cannot reconstruct the opaque anchor.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

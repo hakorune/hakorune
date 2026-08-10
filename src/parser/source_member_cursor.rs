@@ -8,6 +8,7 @@ use super::source_authority::{
     ParserInvocationBrandV1, SourceBoxDeclarationSiteV1, SourceBoxMemberSiteV1,
 };
 use super::source_path::SourceBoxDeclarationPathV1;
+use super::source_path::{SourceProgramCallablePathV1, SourceProgramDeclarationPathV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ParserBoxMemberSourceCursorErrorV1 {
@@ -59,6 +60,14 @@ impl ParserBoxMemberSourceCursorV1 {
 
     pub(super) fn current_member_ordinal(&self) -> u32 {
         self.next_member_ordinal
+    }
+
+    pub(super) fn current_program_callable_path(&self) -> SourceProgramCallablePathV1 {
+        SourceProgramCallablePathV1::box_method(
+            SourceProgramDeclarationPathV1::from_parser_path(self.box_site.path().clone()),
+            Box::new([]),
+            self.next_member_ordinal,
+        )
     }
 
     pub(super) fn branch(&self) -> Self {

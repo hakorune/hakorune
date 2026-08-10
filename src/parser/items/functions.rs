@@ -41,6 +41,7 @@ impl NyashParser {
         // 関数本体をパース（共通ブロックヘルパー）
         let body = self.parse_block_statements()?;
 
+        let diagnostic_name = name.clone();
         let node = ASTNode::FunctionDeclaration {
             name,
             params,
@@ -54,6 +55,8 @@ impl NyashParser {
             attrs,
             span: Span::unknown(),
         };
+
+        self.issue_direct_free_function(diagnostic_name)?;
 
         self.wrap_with_pending_build_gate(node)
     }

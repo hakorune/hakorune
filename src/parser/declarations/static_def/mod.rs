@@ -1,15 +1,40 @@
 //! Static Box Definition (staged split)
 
-use crate::ast::{ASTNode, BoxMethodInventoryV1, FieldDecl};
+use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
+use crate::parser::source_authority::{DirectExplicitMethodSinkV1, ExplicitMethodSink};
 use crate::parser::source_member_cursor::ParserBoxMemberSourceCursorV1;
+use crate::parser::source_path::SourceProgramCallablePathV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 use std::collections::HashMap;
 
 pub mod header;
 pub mod members;
+
+struct StaticDirectMethodSinkV1<'a> {
+    methods: &'a mut BoxMethodInventoryV1,
+    cursor: &'a ParserBoxMemberSourceCursorV1,
+}
+
+impl ExplicitMethodSink for StaticDirectMethodSinkV1<'_> {
+    fn commit_explicit_method_at_current(
+        &mut self,
+        name: String,
+        declaration: ASTNode,
+        diagnostic_span: Span,
+    ) -> Result<BoxMethodInventoryOrdinalV1, ParseError> {
+        self.methods
+            .commit_explicit_method_at_current(name, declaration, diagnostic_span)
+    }
+}
+
+impl DirectExplicitMethodSinkV1 for StaticDirectMethodSinkV1<'_> {
+    fn current_program_callable_path(&self) -> SourceProgramCallablePathV1 {
+        self.cursor.current_program_callable_path()
+    }
+}
 
 /// Parse static box declaration: static box Name { ... }
 pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
@@ -262,21 +287,17 @@ fn commit_pending_static_method(
     let source_site = crate::parser::source_authority::SourceBoxMethodSiteV1::Direct {
         member: cursor.current_member_site(),
     };
-    let committed = method.commit(methods)?;
-    let Some((inventory_ordinal, diagnostic_name, parameters)) = committed.into_parameter_source()
-    else {
-        return Err(ParseError::GrammarContract {
-            stable_reject_tag: "parser/callable-parameter-source",
-            detail: "direct static method omitted its parameter source product".to_owned(),
-            line: 0,
-        });
-    };
-    parser.commit_callable_parameter_source(
-        source_site,
-        inventory_ordinal,
-        crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
-        diagnostic_name,
-        parameters,
-    )?;
+    let committed = method.commit_direct(&mut StaticDirectMethodSinkV1 { methods, cursor })?;
+    let (inventory_ordinal, diagnostic_name, parameter_source) =
+        parser.issue_committed_static_box_method(committed)?;
+    if let Some(parameters) = parameter_source {
+        parser.commit_callable_parameter_source(
+            source_site,
+            inventory_ordinal,
+            crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
+            diagnostic_name,
+            parameters,
+        )?;
+    }
     finish_static_source_member(cursor)
 }

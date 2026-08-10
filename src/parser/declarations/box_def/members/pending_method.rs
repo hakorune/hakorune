@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryOrdinalV1, Span};
 use crate::parser::callable_parameter_source::ParsedCallableParameterListV1;
-use crate::parser::source_authority::ExplicitMethodSink;
+use crate::parser::source_authority::{DirectExplicitMethodSinkV1, ExplicitMethodSink};
+use crate::parser::source_path::SourceProgramCallablePathV1;
 use crate::parser::{NyashParser, ParseError};
 
 /// An explicit method remains unpublished until its optional postfix syntax
@@ -62,6 +63,41 @@ impl PendingExplicitMethodV1 {
             parameter_source: self.parameter_source,
         })
     }
+
+    pub(in crate::parser) fn commit_direct(
+        self,
+        sink: &mut impl DirectExplicitMethodSinkV1,
+    ) -> Result<CommittedDirectExplicitMethodV1, ParseError> {
+        let path = sink.current_program_callable_path();
+        Ok(CommittedDirectExplicitMethodV1 {
+            committed: self.commit(sink)?,
+            path,
+        })
+    }
+}
+
+pub(in crate::parser) struct CommittedDirectExplicitMethodV1 {
+    committed: CommittedExplicitMethodV1,
+    path: SourceProgramCallablePathV1,
+}
+
+impl CommittedDirectExplicitMethodV1 {
+    pub(in crate::parser) fn into_parts(
+        self,
+    ) -> (
+        SourceProgramCallablePathV1,
+        BoxMethodInventoryOrdinalV1,
+        String,
+        Option<ParsedCallableParameterListV1>,
+    ) {
+        let (inventory_ordinal, diagnostic_name, parameter_source) = self.committed.into_parts();
+        (
+            self.path,
+            inventory_ordinal,
+            diagnostic_name,
+            parameter_source,
+        )
+    }
 }
 
 pub(crate) struct CommittedExplicitMethodV1 {
@@ -72,15 +108,20 @@ pub(crate) struct CommittedExplicitMethodV1 {
 }
 
 impl CommittedExplicitMethodV1 {
-    pub(crate) fn into_parameter_source(
+    /// Consume the explicit-commit receipt once.  Parameter syntax remains an
+    /// optional migration projection and never gates callable anchoring.
+    pub(crate) fn into_parts(
         self,
-    ) -> Option<(
+    ) -> (
         BoxMethodInventoryOrdinalV1,
         String,
-        ParsedCallableParameterListV1,
-    )> {
-        self.parameter_source
-            .map(|source| (self.inventory_ordinal, self.diagnostic_name, source))
+        Option<ParsedCallableParameterListV1>,
+    ) {
+        (
+            self.inventory_ordinal,
+            self.diagnostic_name,
+            self.parameter_source,
+        )
     }
 }
 

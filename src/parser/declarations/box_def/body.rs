@@ -35,11 +35,10 @@ fn commit_pending_ordinary_method(
     let source_site = crate::parser::source_authority::SourceBoxMethodSiteV1::Direct {
         member: state.source_tx.current_member_site(),
     };
-    let committed = method.commit(&mut state.source_tx)?;
-    if let Some((inventory_ordinal, diagnostic_name, parameters)) = committed
-        .into_parameter_source()
-        .filter(|_| admit_direct_parameter_source)
-    {
+    let committed = method.commit_direct(&mut state.source_tx)?;
+    let (inventory_ordinal, diagnostic_name, parameter_source) =
+        p.issue_committed_instance_box_method(committed)?;
+    if let Some(parameters) = parameter_source.filter(|_| admit_direct_parameter_source) {
         p.commit_callable_parameter_source(
             source_site,
             inventory_ordinal,
@@ -146,13 +145,27 @@ fn box_try_build_gate_members(
     p.consume_build_gate_head()?;
     let predicate = p.parse_build_predicate()?;
 
-    let then_state = parse_box_member_gate_block(p, &state.source_tx)?;
+    let then_state = parse_box_member_gate_block(
+        p,
+        &state.source_tx,
+        gate_site,
+        crate::parser::source_authority::SourceBuildGateBranchV1::Then,
+    )?;
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p, gate_site, &state.source_tx)?
+            let else_source = state.source_tx.branch_at(
+                gate_site,
+                crate::parser::source_authority::SourceBuildGateBranchV1::Else,
+            );
+            parse_box_member_gate_group(p, &else_source)?
         } else {
-            parse_box_member_gate_block(p, &state.source_tx)?
+            parse_box_member_gate_block(
+                p,
+                &state.source_tx,
+                gate_site,
+                crate::parser::source_authority::SourceBuildGateBranchV1::Else,
+            )?
         })
     } else {
         None
@@ -196,10 +209,12 @@ fn box_try_build_gate_members(
 fn parse_box_member_gate_block(
     p: &mut NyashParser,
     source_tx: &crate::parser::source_authority::OpenBoxMethodSourceTransactionV1,
+    gate_site: crate::ast::BoxMemberGateSiteV1,
+    branch: crate::parser::source_authority::SourceBuildGateBranchV1,
 ) -> Result<BoxMemberState, ParseError> {
     p.mark_callable_parameter_member_gate_unsupported();
     p.consume(TokenType::LBRACE)?;
-    let mut state = BoxMemberState::with_source_transaction(source_tx.branch());
+    let mut state = BoxMemberState::with_source_transaction(source_tx.branch_at(gate_site, branch));
     parse_box_member_body(p, &mut state, false)?;
     p.consume(TokenType::RBRACE)?;
     Ok(state)
@@ -207,7 +222,6 @@ fn parse_box_member_gate_block(
 
 fn parse_box_member_gate_group(
     p: &mut NyashParser,
-    gate_site: crate::ast::BoxMemberGateSiteV1,
     source_tx: &crate::parser::source_authority::OpenBoxMethodSourceTransactionV1,
 ) -> Result<BoxMemberState, ParseError> {
     if !p.is_build_gate_head() {
@@ -218,15 +232,30 @@ fn parse_box_member_gate_group(
         });
     }
     let line = p.current_token().line;
+    let gate_site = source_tx.current_gate_site();
     p.consume_build_gate_head()?;
     let predicate = p.parse_build_predicate()?;
-    let then_state = parse_box_member_gate_block(p, source_tx)?;
+    let then_state = parse_box_member_gate_block(
+        p,
+        source_tx,
+        gate_site,
+        crate::parser::source_authority::SourceBuildGateBranchV1::Then,
+    )?;
     let else_state = if p.match_token(&TokenType::ELSE) {
         p.advance();
         Some(if p.is_build_gate_head() {
-            parse_box_member_gate_group(p, gate_site, source_tx)?
+            let else_source = source_tx.branch_at(
+                gate_site,
+                crate::parser::source_authority::SourceBuildGateBranchV1::Else,
+            );
+            parse_box_member_gate_group(p, &else_source)?
         } else {
-            parse_box_member_gate_block(p, source_tx)?
+            parse_box_member_gate_block(
+                p,
+                source_tx,
+                gate_site,
+                crate::parser::source_authority::SourceBuildGateBranchV1::Else,
+            )?
         })
     } else {
         None

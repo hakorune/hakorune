@@ -44,7 +44,8 @@ impl Eq for ParserInvocationBrandV1 {}
 
 pub(super) use super::source_path::{
     SourceBoxDeclarationPathV1, SourceBoxPathCursorV1, SourceBoxPathSegmentV1,
-    SourceBuildGateBranchV1, SourceBuildGateIdV1,
+    SourceBuildGateBranchV1, SourceBuildGateIdV1, SourceProgramCallablePathV1,
+    SourceProgramDeclarationPathV1, SourceProgramMemberGateStepV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -327,6 +328,13 @@ pub(super) trait ExplicitMethodSink {
     ) -> Result<BoxMethodInventoryOrdinalV1, ParseError>;
 }
 
+/// Explicit declaration commit and callable path must come from one source
+/// transaction.  Generated/compatibility sinks intentionally do not implement
+/// this capability.
+pub(super) trait DirectExplicitMethodSinkV1: ExplicitMethodSink {
+    fn current_program_callable_path(&self) -> SourceProgramCallablePathV1;
+}
+
 pub(super) trait GeneratedPropertySink {
     fn commit_generated_property_batch_at_current(
         &mut self,
@@ -367,6 +375,7 @@ impl GeneratedPropertySink for BoxMethodInventoryV1 {
 #[derive(Debug)]
 pub(super) struct OpenBoxMethodSourceTransactionV1 {
     cursor: ParserBoxMemberSourceCursorV1,
+    written_gate_path: Vec<SourceProgramMemberGateStepV1>,
     inventory: BoxMethodInventoryV1,
     method_relations: Vec<MethodSourceRelationV1>,
     delegate_source_declarations: Vec<DelegateSourceDeclarationV1>,
@@ -376,6 +385,7 @@ impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn open(brand: ParserInvocationBrandV1, statement_ordinal: u32) -> Self {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open(brand, statement_ordinal),
+            written_gate_path: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
@@ -388,6 +398,7 @@ impl OpenBoxMethodSourceTransactionV1 {
     ) -> Self {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open_with_path(brand, path),
+            written_gate_path: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
@@ -413,10 +424,35 @@ impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn branch(&self) -> Self {
         Self {
             cursor: self.cursor.branch(),
+            written_gate_path: self.written_gate_path.clone(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
         }
+    }
+
+    /// Create one as-written member-gate branch transaction.  Selection is a
+    /// later projection and never participates in this path identity.
+    pub(super) fn branch_at(
+        &self,
+        gate_site: crate::ast::BoxMemberGateSiteV1,
+        branch: SourceBuildGateBranchV1,
+    ) -> Self {
+        let mut next = self.branch();
+        next.written_gate_path
+            .push(SourceProgramMemberGateStepV1::new(
+                gate_site.box_member_ordinal(),
+                branch,
+            ));
+        next
+    }
+
+    pub(super) fn current_program_callable_path(&self) -> SourceProgramCallablePathV1 {
+        SourceProgramCallablePathV1::box_method(
+            SourceProgramDeclarationPathV1::from_parser_path(self.cursor.box_site().path().clone()),
+            self.written_gate_path.clone().into_boxed_slice(),
+            self.cursor.current_member_ordinal(),
+        )
     }
 
     pub(super) fn finish_member(&mut self) -> Result<(), SourceAuthorityErrorV1> {
@@ -639,6 +675,12 @@ impl ExplicitMethodSink for OpenBoxMethodSourceTransactionV1 {
         diagnostic_span: Span,
     ) -> Result<BoxMethodInventoryOrdinalV1, ParseError> {
         self.commit_explicit_at_current(name, declaration, diagnostic_span)
+    }
+}
+
+impl DirectExplicitMethodSinkV1 for OpenBoxMethodSourceTransactionV1 {
+    fn current_program_callable_path(&self) -> SourceProgramCallablePathV1 {
+        OpenBoxMethodSourceTransactionV1::current_program_callable_path(self)
     }
 }
 
