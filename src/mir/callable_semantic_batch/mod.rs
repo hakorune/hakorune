@@ -11,5 +11,7 @@ pub(crate) use issuer::{
 };
 pub(crate) use model::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
+    VerifiedResolvedCallableParameterSourceRefV1, VerifiedResolvedCallableSemanticBatchRefV1,
     VerifiedResolvedCallableSemanticBatchV1, VerifiedResolvedCallableSemanticDeclarationRefV1,
+    VerifiedResolvedCallableSemanticRowRefV1,
 };

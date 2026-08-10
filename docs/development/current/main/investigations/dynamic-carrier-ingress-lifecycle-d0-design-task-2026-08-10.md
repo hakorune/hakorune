@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: resolved semantic batch I0 closed; parameter-demand projection R0 selected
+Status: parameter-demand projection R0 closed; normal semantic-source projection R0 selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `CALLABLE-PARAMETER-DEMAND-PROJECTION-R0`
+Current implementation row: `NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
@@ -428,7 +428,7 @@ Closeout:
   The focused four-test suite and `cargo check --lib` pass; all new source files
   and the existing parser/MIR facades remain below 800 lines.
 
-### 3D. `CALLABLE-PARAMETER-DEMAND-PROJECTION-R0` — selected
+### 3D. `CALLABLE-PARAMETER-DEMAND-PROJECTION-R0` — closed
 
 Change:
   Project the complete ordinary parameter-demand catalog from one borrowed
@@ -453,13 +453,47 @@ Stop:
   numeric owner/BindingRef values across allocations, or accept caller-paired
   products, return to design.
 
-### 3E. Follow-on order
+Closeout:
+  `issue_callable_parameter_demands_v1` now accepts only a borrowed
+  `VerifiedResolvedCallableSemanticBatchV1`. The demand catalog borrows that
+  batch and owns only projected rows; its resolver argument, independent
+  `resolve_selected_callable_forests()` call, forest storage, and
+  `resolved_forest()` API are absent. Exact static/instance/zero-parameter
+  coverage, all fifteen `ParserScanLoopBox` Handle demands, foreign-batch
+  identity separation, and a structural no-resolver/no-forest guard are green.
+  The focused four-test suite, semantic-batch regression suite, and
+  `cargo check --lib` pass; all touched Rust files remain below 800 lines.
+
+### 3E. `NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0` — selected
+
+Change:
+  Convert the existing Builder-facing normal callable semantic source into a
+  child projection/compatibility facade over the neutral resolved callable
+  semantic batch.
+
+Contract:
+  The facade borrows the batch-owned syntax, forest, source projection, owner,
+  and origin. Delete its independent resolver/forest issuance and prevent
+  Builder selection keys or raw invocation lineage from becoming neutral
+  semantic authority. Preserve existing prepared-ingress behavior and caller
+  shape; add no parameter demand, Home, Dynamic lifecycle, Recipe meaning,
+  physical effect, retry, or fallback.
+
+Done:
+  Existing normal-source focused tests consume the same batch-owned forest and
+  exact lowering input. The old resolver call and forest owner are structurally
+  absent. Split the current threshold file into responsibility-named children
+  before adding code so every source remains below 800 lines; focused tests,
+  `cargo check --lib`, and current guards are green.
+
+Stop:
+  If the facade must clone/move batch internals, re-resolve syntax, compare
+  numeric identities across allocations, or make Builder lineage the source
+  truth, return to design.
+
+### 3F. Follow-on order
 
 ```text
-NORMAL-CALLABLE-SEMANTIC-SOURCE-PROJECTION-R0
-  -> existing Builder facade borrows the batch
-  -> old normal-source resolver/forest ownership deleted
-
 DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
   -> whole batch retained; demand/lifecycle derived internally
 ```

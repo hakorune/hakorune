@@ -1,8 +1,9 @@
 //! Source-bound callable parameter demand authority.
 //!
-//! One parser transaction and one canonical resolver session produce one
-//! complete non-splittable demand catalog. This module does not own receiver,
-//! result, Recipe, CFG, MIR, or physical ABI meaning.
+//! One already-resolved callable semantic batch lends the exact owner and
+//! parameter bindings used to project one complete non-splittable demand
+//! catalog. This module owns no resolver forest, receiver, result, Recipe,
+//! CFG, MIR, or physical ABI meaning.
 
 mod issuer;
 mod model;

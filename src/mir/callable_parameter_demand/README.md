@@ -3,9 +3,7 @@
 This module owns one source-bound semantic relation:
 
 ```text
-complete parser callable-parameter source catalog
-+ exact parser declaration syntax loan
-+ canonical resolved callable owner forests
+borrowed VerifiedResolvedCallableSemanticBatchV1
   -> complete VerifiedCallableParameterDemandCatalogV1
 ```
 
@@ -14,14 +12,16 @@ The first cohort maps every parser-sealed `Ordinary` parameter to
 declaration rows, so downstream consumers cannot confuse an empty parameter
 list with a missing declaration.
 
-The final catalog retains both the parser catalog and the resolved forests.
-It is non-Clone and exposes borrow-scoped declaration views only; there is no
-`into_parts`, row selector, name lookup, or caller-supplied `BindingRef`.
+The final catalog borrows the sole semantic batch and owns only its projected
+demand rows. It does not retain, clone, issue, or expose a resolver forest.
+There is no `resolved_forest()`, `into_parts`, row selector, name lookup, or
+caller-supplied `BindingRef`.
 
 ## Boundary
 
-This module verifies exact declaration coverage, static/instance root mode,
-parameter ordinal, owner, binding kind, source origin, diagnostic name, and
+The semantic batch already owns declaration coverage, root mode, owner, and
+source projection. This module verifies parameter ordinal, exact batch-owned
+binding, binding kind, source origin, diagnostic name, transfer syntax, and
 duplicate-free `BindingRef` identity before issuing any demand.
 
 It does not own or infer:

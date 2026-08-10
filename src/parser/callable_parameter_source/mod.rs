@@ -13,7 +13,6 @@ mod retained;
 mod session;
 mod syntax_loan;
 
-pub(crate) use catalog::ParserCallableParameterSourceCatalogV1;
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(in crate::parser) use model::ParserCallableDeclarationKindV1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;

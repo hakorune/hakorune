@@ -1,3 +1,6 @@
+use crate::mir::callable_semantic_batch::{
+    issue_resolved_callable_semantic_batch_v1, VerifiedResolvedCallableSemanticBatchV1,
+};
 use crate::mir::resolved_semantics::{
     BindingKindV1, FunctionSemanticResolverSessionV1, HomeDemandV1, SourceBindingSiteV1,
 };
@@ -5,21 +8,22 @@ use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{issue_callable_parameter_demands_v1, CallableParameterDeclarationModeV1};
 
-fn issue(source: &str, compilation: u32) -> super::VerifiedCallableParameterDemandCatalogV1 {
-    let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
+fn batch(source: &str, compilation: u32) -> VerifiedResolvedCallableSemanticBatchV1 {
+    let source = NyashParser::parse_from_string_with_callable_parameter_source(
         source,
         ParserBuildConfig::default(),
     )
-    .expect("callable parameter source parses");
+    .expect("callable parameter source parses")
+    .into_retained_source();
     let mut resolver =
         FunctionSemanticResolverSessionV1::new(compilation).expect("resolver session opens");
-    issue_callable_parameter_demands_v1(&mut resolver, parsed)
-        .expect("complete callable parameter demand catalog")
+    issue_resolved_callable_semantic_batch_v1(&mut resolver, source)
+        .expect("complete resolved callable semantic batch")
 }
 
 #[test]
-fn seals_static_instance_and_zero_parameter_declarations_atomically() {
-    let catalog = issue(
+fn projects_static_instance_and_zero_parameter_demands_from_one_batch() {
+    let batch = batch(
         r#"
 static box StaticApi {
     run(source, count: i64) { return count }
@@ -31,6 +35,8 @@ box InstanceApi {
 "#,
         7,
     );
+    let catalog =
+        issue_callable_parameter_demands_v1(&batch).expect("complete parameter demand projection");
     let declarations = catalog.declarations().collect::<Vec<_>>();
 
     assert_eq!(declarations.len(), 3);
@@ -51,40 +57,48 @@ box InstanceApi {
     assert_eq!(declarations[2].parameters().len(), 1);
 
     for declaration in declarations {
-        let function = declaration
-            .resolved_forest()
-            .owner(declaration.owner())
-            .expect("catalog retains its resolved declaration");
-        assert_eq!(function.function_origin(), declaration.function_origin());
-        for parameter in declaration.parameters() {
-            assert_eq!(parameter.binding().owner(), declaration.owner());
-            assert_eq!(
-                function
-                    .declaration_binding(&SourceBindingSiteV1::Parameter {
-                        index: parameter.ordinal(),
-                    })
-                    .expect("exact parameter declaration binding"),
-                parameter.binding()
-            );
-            assert_eq!(
-                function
-                    .binding(parameter.binding())
-                    .expect("exact resolved parameter")
-                    .kind(),
-                BindingKindV1::Parameter {
-                    index: parameter.ordinal(),
+        batch
+            .with_lowering_input(declaration.source_row_index(), |input| {
+                assert_eq!(input.owner(), declaration.owner());
+                assert_eq!(
+                    input.function().function_origin(),
+                    declaration.function_origin()
+                );
+                for parameter in declaration.parameters() {
+                    assert_eq!(parameter.binding().owner(), declaration.owner());
+                    assert_eq!(
+                        input
+                            .function()
+                            .declaration_binding(&SourceBindingSiteV1::Parameter {
+                                index: parameter.ordinal(),
+                            })
+                            .expect("exact parameter declaration binding"),
+                        parameter.binding()
+                    );
+                    assert_eq!(
+                        input
+                            .function()
+                            .binding(parameter.binding())
+                            .expect("exact resolved parameter")
+                            .kind(),
+                        BindingKindV1::Parameter {
+                            index: parameter.ordinal(),
+                        }
+                    );
                 }
-            );
-        }
+            })
+            .expect("same-batch lowering loan");
     }
 }
 
 #[test]
-fn parser_scan_loop_box_seals_all_fifteen_ordinary_demands() {
-    let catalog = issue(
+fn parser_scan_loop_box_projects_all_fifteen_ordinary_demands() {
+    let batch = batch(
         include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),
         11,
     );
+    let catalog =
+        issue_callable_parameter_demands_v1(&batch).expect("complete parameter demand projection");
     let declarations = catalog.declarations().collect::<Vec<_>>();
 
     assert_eq!(
@@ -108,30 +122,56 @@ fn parser_scan_loop_box_seals_all_fifteen_ordinary_demands() {
 
     let skip_while = declarations[0];
     let position = &skip_while.parameters()[1];
-    let function = skip_while
-        .resolved_forest()
-        .owner(skip_while.owner())
-        .expect("skip_while resolved root");
-    assert_eq!(
-        function
-            .binding(position.binding())
-            .expect("position binding")
-            .diagnostic_name(),
-        "pos"
-    );
+    batch
+        .with_lowering_input(skip_while.source_row_index(), |input| {
+            assert_eq!(input.owner(), skip_while.owner());
+            assert_eq!(
+                input
+                    .function()
+                    .binding(position.binding())
+                    .expect("position binding")
+                    .diagnostic_name(),
+                "pos"
+            );
+        })
+        .expect("same-batch skip_while loan");
 }
 
 #[test]
-fn independent_resolver_sessions_cannot_reuse_parameter_identity() {
+fn foreign_semantic_batches_keep_distinct_parameter_identity() {
     let source = "static box Source { run(value) { return value } }";
-    let first = issue(source, 13);
-    let second = issue(source, 13);
-    let first_row = first.declarations().next().expect("first declaration");
-    let second_row = second.declarations().next().expect("second declaration");
+    let first = batch(source, 13);
+    let second = batch(source, 13);
+    let first_catalog = issue_callable_parameter_demands_v1(&first).unwrap();
+    let second_catalog = issue_callable_parameter_demands_v1(&second).unwrap();
+    let first_row = first_catalog
+        .declarations()
+        .next()
+        .expect("first declaration");
+    let second_row = second_catalog
+        .declarations()
+        .next()
+        .expect("second declaration");
 
     assert_ne!(first_row.owner(), second_row.owner());
     assert_ne!(
         first_row.parameters()[0].binding(),
         second_row.parameters()[0].binding()
     );
+}
+
+#[test]
+fn projection_has_no_resolver_or_forest_authority() {
+    let issuer = include_str!("issuer.rs");
+    let model = include_str!("model.rs");
+
+    for forbidden in [
+        "resolve_selected_callable_forests",
+        "FunctionSemanticResolverSessionV1",
+        "VerifiedSemanticOwnerForestV1",
+        "resolved_forest",
+    ] {
+        assert!(!issuer.contains(forbidden), "issuer retained {forbidden}");
+        assert!(!model.contains(forbidden), "model retained {forbidden}");
+    }
 }

@@ -1,7 +1,7 @@
+use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOriginV1, FunctionOwnerIdV1, HomeDemandV1, VerifiedSemanticOwnerForestV1,
+    BindingRefV1, FunctionOriginV1, FunctionOwnerIdV1, HomeDemandV1,
 };
-use crate::parser::ParserCallableParameterSourceCatalogV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CallableParameterDeclarationModeV1 {
@@ -66,21 +66,18 @@ impl VerifiedCallableParameterDemandDeclarationV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct VerifiedCallableParameterDemandCatalogV1 {
-    _source: ParserCallableParameterSourceCatalogV1,
-    forests: Box<[VerifiedSemanticOwnerForestV1]>,
+pub(crate) struct VerifiedCallableParameterDemandCatalogV1<'batch> {
+    _batch: &'batch VerifiedResolvedCallableSemanticBatchV1,
     declarations: Box<[VerifiedCallableParameterDemandDeclarationV1]>,
 }
 
-impl VerifiedCallableParameterDemandCatalogV1 {
+impl<'batch> VerifiedCallableParameterDemandCatalogV1<'batch> {
     pub(super) const fn new(
-        source: ParserCallableParameterSourceCatalogV1,
-        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        batch: &'batch VerifiedResolvedCallableSemanticBatchV1,
         declarations: Box<[VerifiedCallableParameterDemandDeclarationV1]>,
     ) -> Self {
         Self {
-            _source: source,
-            forests,
+            _batch: batch,
             declarations,
         }
     }
@@ -90,20 +87,13 @@ impl VerifiedCallableParameterDemandCatalogV1 {
     ) -> impl ExactSizeIterator<Item = VerifiedCallableParameterDemandDeclarationRefV1<'_>> {
         self.declarations
             .iter()
-            .zip(self.forests.iter())
-            .map(
-                |(declaration, forest)| VerifiedCallableParameterDemandDeclarationRefV1 {
-                    declaration,
-                    forest,
-                },
-            )
+            .map(|declaration| VerifiedCallableParameterDemandDeclarationRefV1 { declaration })
     }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct VerifiedCallableParameterDemandDeclarationRefV1<'a> {
     declaration: &'a VerifiedCallableParameterDemandDeclarationV1,
-    forest: &'a VerifiedSemanticOwnerForestV1,
 }
 
 impl<'a> VerifiedCallableParameterDemandDeclarationRefV1<'a> {
@@ -125,9 +115,5 @@ impl<'a> VerifiedCallableParameterDemandDeclarationRefV1<'a> {
 
     pub(crate) fn parameters(self) -> &'a [VerifiedCallableParameterDemandV1] {
         &self.declaration.parameters
-    }
-
-    pub(crate) const fn resolved_forest(self) -> &'a VerifiedSemanticOwnerForestV1 {
-        self.forest
     }
 }
