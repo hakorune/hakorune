@@ -775,3 +775,64 @@ second publisher. A future bounded design may be named
 `H2-S2-S1-R1-EXACT-FIRST-ADMISSION-PRODUCER-CENSUS-D0`, but it is a read-only
 owner census, not an implementation task, and should not be opened until a
 new exact observation source exists.
+
+### `H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0` (next design task)
+
+The independent design review separates the only two admissible producer
+families. This is a read-only design/census row; it does not add a GenericLoop
+field, a new type publisher, or a production route.
+
+```text
+Diagnostic-only admission observation
+  method identity/provenance
+  + loop source
+  + initializer ordinal/source/value
+  + exactly one producer family
+
+A. selected direct static-call initializer
+   LocalInitializerObservation
+     -> CompletedUnifiedValueCallEmissionV1.final_destination
+     -> PreparedStaticCallResultPublicationV1 demand/site/representation
+     -> successful commit
+     -> post-commit exact TypeContext fact
+
+B. source-backed Dynamic formal/local lineage
+   LocalInitializerObservation
+     -> exact Dynamic current-origin/ingress receipt
+     -> authorized Dynamic representation
+```
+
+For family A, the possible diagnostic carrier may retain only the existing
+source site, initializer `ValueId`, call demand site/caller/target, emission
+destination, admission index, and the exact post-success `MirType`. It must
+prove `initializer.value == emission.final_destination`, exact source-site
+and provenance equality, successful publication, and one-shot completion. The
+normal static publication owner remains the sole semantic publisher.
+
+Family B must not be simulated with a static receipt. The existing Dynamic
+issuer recognizes formal/local/carrier lineage, but its ingress preparation has
+no non-test raw-loop caller and it does not publish a `ValueId -> MirType`
+fact. Opening this family therefore requires a separate source-backed Dynamic
+lineage Decision; it cannot be inferred from a method name, loop variable,
+route, runtime tag, or `ValueId`.
+
+Acceptance for this D0:
+
+```text
+direct selected static path and Dynamic lineage path are distinct
+one producer receipt is paired with one initializer observation
+foreign/missing/duplicate/wrong-index/wrong-site rows reject
+static commit failure or missing post-commit type rejects
+unselected/ordinary/nested calls do not become static rows
+Dynamic formal/local without an exact lineage receipt remains NoSafeSlice
+GenericLoop route/error/type behavior is unchanged
+```
+
+Required negative cases include foreign method/loop provenance, initializer
+ordinal mismatch, `ValueId != final_destination`, unselected publication,
+double publication, failed emission, nested/non-direct static call, and a
+Dynamic/local-copy initializer presented as a static receipt. No AST/MIR
+rescan, ValueId/name repair, default type, fallback, retry, or second
+publisher is allowed. The current H2 failure has not yet supplied either
+family's exact row, so implementation remains closed until this D0 is
+accepted.

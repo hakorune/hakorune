@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. The Hako result-carrier bridge Decision is accepted. The parser compile-front handoff I0 is closed as a transport-only diagnostic seam; the next design stop is the read-only GenericLoop producer-publication reopen audit. Loop unification remains parked as post-physical-input BoxShape cleanup."
+status = "PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 and the bounded loop physical-input/demand rows are landed. The Hako result-carrier bridge Decision is accepted. The parser compile-front handoff I0 and the read-only GenericLoop producer-publication audit are closed without a source-backed producer owner; the next design stop splits selected static-call publication from source-backed Dynamic lineage co-seal. Loop unification remains parked as post-physical-input BoxShape cleanup."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "H2-S2-S1-R1-REOPEN-AUDIT"
+current_design_stop = "H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0"
 work_mode = "design_stop"
-current_execution_row = "H2-S2-S1-R1-REOPEN-AUDIT"
-current_blocker_token = "H2-S2-S1-R1-REOPEN-AUDIT: census init ValueId -> source initializer -> actual physical producer -> successful emission receipt -> transient ValueId-to-MirType publication -> GenericLoop TypeContext read; require exact-one source-backed producer issuer and missing/failed/foreign/duplicate rejection, otherwise keep NoSafeSlice; do not repair GenericLoop, infer from ValueId/name/AST/route/runtime tag, copy previous/PHI, publish after failure, or add debug/fixture/fallback/retry"
+current_execution_row = "H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0"
+current_blocker_token = "H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0: design-only split between selected direct static-call initializer receipt and source-backed Dynamic formal/local lineage receipt; require one exact producer relation plus unique post-success TypeContext publication or authorized Dynamic representation; otherwise keep NoSafeSlice; do not repair GenericLoop, infer from ValueId/name/AST/route/runtime tag, connect Dynamic by name, reopen static I1 without exact site, publish after failure, or add fallback/retry"
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -235,7 +235,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The bounded JoinSig-owned logical transfer, Dynamic physical-input, and complete physical-demand rows are landed and tested. The Hako source-carrier owner is fixed. The parser compile-front handoff D0 is accepted as a source-transport design; I0 is now limited to default-off diagnostic observation with no GenericLoop semantic change."
+current_execution_summary = "The bounded JoinSig-owned logical transfer, Dynamic physical-input, and complete physical-demand rows are landed and tested. The Hako source-carrier owner is fixed. The parser compile-front handoff D0 is accepted as a source-transport design; I0 and the producer-publication audit remain diagnostic-only with no exact producer owner and no GenericLoop semantic change."
 current_execution_design = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "hako-parser-rich-body-result-h2-s2-s1-r1-expression-product"
 latest_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_design_card = "H2-S2-S1-R1-REOPEN-AUDIT"
+next_design_card = "H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0"
 next_design_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_execution_card = "none until H2-S2-S1-R1-REOPEN-AUDIT design is accepted"
+next_execution_card = "none until H2-S2-S1-R1-INITIALIZER-PRODUCER-COSEAL-D0 design is accepted"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The bounded Dynamic physical-operation authority is landed without a second source, Recipe, JoinSig, or physical planner. The Hako source-carrier -> normalized parity -> existing final source/resolved batch -> sole result issuer bridge remains fixed. The parser compile-front handoff I0 is closed: the existing co-sealed method provenance/anchor/site and source-aware local initializer observation reach one default-off diagnostic seam without changing GenericLoop semantics. The next design stop is the read-only exact-one transient result publication census; the known S0/R1 fixture remains MissingTransientType. FuncScanner/Stage-B JSON is informational only. Loop unification remains parked as a post-physical-input BoxShape cleanup."
+latest_card_summary = "The bounded Dynamic physical-operation authority is landed without a second source, Recipe, JoinSig, or physical planner. The Hako source-carrier -> normalized parity -> existing final source/resolved batch -> sole result issuer bridge remains fixed. The parser compile-front handoff I0 and producer-publication reopen audit are closed without an exact producer owner. The next design stop separates selected direct static-call publication from source-backed Dynamic formal/local lineage co-seal; the known S0/R1 fixture remains MissingTransientType. FuncScanner/Stage-B JSON is informational only. Loop unification remains parked as a post-physical-input BoxShape cleanup."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
