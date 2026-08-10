@@ -51,6 +51,24 @@ fn mixed_direct_source_keeps_five_rows_across_four_direct_kinds() {
             .collect::<Vec<_>>(),
         vec!["free", "free_static", "main", "ping", "value"]
     );
+    let placements = parser
+        .callable_source_session
+        .as_ref()
+        .unwrap()
+        .rows()
+        .iter()
+        .map(PreparedDirectCallableSourceV1::commit_placement)
+        .collect::<Vec<_>>();
+    assert!(matches!(
+        placements.as_slice(),
+        [
+            DirectCallableCommitPlacementV1::TopLevel,
+            DirectCallableCommitPlacementV1::TopLevel,
+            DirectCallableCommitPlacementV1::BoxMethod { .. },
+            DirectCallableCommitPlacementV1::BoxMethod { .. },
+            DirectCallableCommitPlacementV1::BoxMethod { .. },
+        ]
+    ));
 }
 
 #[test]
@@ -171,6 +189,7 @@ fn foreign_parser_path_rejects_before_publication() {
         .prepare_direct(
             SourceProgramCallablePathV1::top_level(SourceBoxDeclarationPathV1::root(foreign, 0)),
             DirectCallableDeclarationKindV1::FreeFunction,
+            DirectCallableCommitPlacementV1::TopLevel,
             "same",
         )
         .unwrap_err();
@@ -188,6 +207,7 @@ fn duplicate_path_rejects_without_cloning_anchor_authority() {
         .prepare_direct(
             path(),
             DirectCallableDeclarationKindV1::FreeFunction,
+            DirectCallableCommitPlacementV1::TopLevel,
             "same",
         )
         .unwrap();
@@ -197,6 +217,7 @@ fn duplicate_path_rejects_without_cloning_anchor_authority() {
         .prepare_direct(
             path(),
             DirectCallableDeclarationKindV1::FreeFunction,
+            DirectCallableCommitPlacementV1::TopLevel,
             "same",
         )
         .unwrap();

@@ -921,6 +921,23 @@ source SSOT and may not be used to issue anchors or decide membership.  It is
 retired or projected from the complete product in the later semantic-source
 split/cutover rows.
 
+Premise audit closeout: all semantic anchor/gate/generator receipts already
+exist.  The co-seal may add only two placement carriers inside this row:
+
+```text
+source-aware top-level BuildGate projection
+  -> exact source Program declaration path -> final statement slot
+
+explicit Box method commit
+  -> committed inventory ordinal
+```
+
+Both are private placement caches, never callable identity.  A selected member
+gate may rebase its branch-local committed ordinal, so its final inventory slot
+must come from the retained exact method-source relation plus selected-member
+gate receipt.  The finalizer must not zip canonical order or repair placement
+by name, span, arity, numeric ordinal, or AST pointer.
+
 ### 3F. Ingress follow-on order
 
 ```text

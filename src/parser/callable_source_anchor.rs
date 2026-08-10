@@ -187,12 +187,27 @@ pub(super) enum DirectCallableDeclarationKindV1 {
     InstanceBoxMethod,
 }
 
+/// Placement captured by the declaration commit that issued the anchor.
+///
+/// This is never callable identity. A selected member-gate method may be
+/// rebased when its branch inventory is merged, so the final co-seal must use
+/// the exact gate/source relation for that case instead of trusting this
+/// branch-local commit ordinal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum DirectCallableCommitPlacementV1 {
+    TopLevel,
+    BoxMethod {
+        committed_inventory: BoxMethodInventoryOrdinalV1,
+    },
+}
+
 #[derive(Debug)]
 pub(super) struct PreparedDirectCallableSourceV1 {
     anchor: CallableDeclarationAnchorV1,
     parser_brand: ParserInvocationBrandV1,
     path: SourceProgramCallablePathV1,
     kind: DirectCallableDeclarationKindV1,
+    commit_placement: DirectCallableCommitPlacementV1,
     diagnostic_name: Box<str>,
 }
 
@@ -211,6 +226,10 @@ impl PreparedDirectCallableSourceV1 {
 
     pub(super) fn kind(&self) -> DirectCallableDeclarationKindV1 {
         self.kind
+    }
+
+    pub(super) fn commit_placement(&self) -> DirectCallableCommitPlacementV1 {
+        self.commit_placement
     }
 
     pub(super) fn diagnostic_name(&self) -> &str {
@@ -244,6 +263,7 @@ impl ParserCallableSourceSessionV1 {
         &self,
         path: SourceProgramCallablePathV1,
         kind: DirectCallableDeclarationKindV1,
+        commit_placement: DirectCallableCommitPlacementV1,
         diagnostic_name: impl Into<Box<str>>,
     ) -> Result<PreparedDirectCallableSourceV1, DirectCallableSourceIssueV1> {
         if !path.declaration().brand().same_as(&self.brand) {
@@ -254,6 +274,7 @@ impl ParserCallableSourceSessionV1 {
             parser_brand: self.brand.clone(),
             path,
             kind,
+            commit_placement,
             diagnostic_name: diagnostic_name.into(),
         })
     }
@@ -278,9 +299,10 @@ impl ParserCallableSourceSessionV1 {
         &mut self,
         path: SourceProgramCallablePathV1,
         kind: DirectCallableDeclarationKindV1,
+        commit_placement: DirectCallableCommitPlacementV1,
         diagnostic_name: impl Into<Box<str>>,
     ) -> Result<(), DirectCallableSourceIssueV1> {
-        let prepared = self.prepare_direct(path, kind, diagnostic_name)?;
+        let prepared = self.prepare_direct(path, kind, commit_placement, diagnostic_name)?;
         self.commit_direct(prepared)
     }
 
@@ -334,6 +356,7 @@ impl NyashParser {
             .issue_direct(
                 SourceProgramCallablePathV1::top_level(path),
                 kind,
+                DirectCallableCommitPlacementV1::TopLevel,
                 diagnostic_name,
             )
             .map_err(|error| map_issue(error, line))
@@ -377,7 +400,14 @@ impl NyashParser {
             .as_mut()
             .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
             .map_err(|error| map_issue(error, line))?
-            .issue_direct(path, kind, diagnostic_name.clone())
+            .issue_direct(
+                path,
+                kind,
+                DirectCallableCommitPlacementV1::BoxMethod {
+                    committed_inventory: inventory_ordinal,
+                },
+                diagnostic_name.clone(),
+            )
             .map_err(|error| map_issue(error, line))?;
         Ok((inventory_ordinal, diagnostic_name, parameter_source))
     }
