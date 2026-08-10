@@ -395,6 +395,40 @@ default empty/R0/S0/R1 baseline comparison remains reproducible
 source/schedule borrow is one-shot and cannot escape the route call
 ```
 
+### Handoff D0 refinement (worker audit, 2026-08-11)
+
+The smallest future diagnostic seam is a short-lived, non-semantic seed made
+at `PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1`:
+
+```text
+GenericLoopAdmissionObservationSeedV1   // diagnostic-only; not Verified*/Prepared*
+  existing FunctionOwnerId / loop site
+  parent / condition / body SourceNodeSite
+  loop_var / carrier role
+  init ValueId + transient TypeContext view
+  initializer producer observation (when the source-aware hook can provide it)
+  one route-local first-admission index
+```
+
+The seed is borrowed into one default-off observer at the existing
+`prepare_generic_loop_carrier_representation_v1` admission and then dropped.
+The callable schedule is still consumed exactly once by the existing
+`consume_pre_effect` path. Legacy/unlocated raw-child paths produce no row.
+No AST rescan, name/ordinal/ValueId repair, type inference, semantic state
+mutation, fallback, or retry is allowed.
+
+The audit found two missing canonical inputs, so this remains `NoSafeSlice`:
+
+```text
+exact method declaration source site
+initializer producer relation
+```
+
+The current `RawInvocationRootLineage` does not provide the former, and the
+current local descent exposes only a ValueId/site without a producer relation.
+The future I0 may open only after both source-aware hooks and their
+missing/foreign/duplicate fail-fast cases are fixed in a design Decision.
+
 Until this D0 is accepted, `ValueId`, method name, import order, AST shape,
 and `TypeContext` alone remain non-authorities. The GenericLoop carrier stays
 verifier-only, and the existing Dynamic/transient-publication owners remain
