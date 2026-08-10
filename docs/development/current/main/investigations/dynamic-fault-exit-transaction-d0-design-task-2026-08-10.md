@@ -518,12 +518,14 @@ after this result receipt exists; it may not publish an ABI-less input.
 
 I0 must include the fixture annotation, Rust/Hako normalized annotation parity
 and Hako owner census, canonical issuer, exact selected StaticBoxMethod row,
-positive/negative/API guards, language/reference and module docs. Missing Hako
-owner is `NoSafeSlice`, not Rust fallback. Unannotated/void/other types and
-foreign identity/owner are Declined or Rejected as appropriate. No new task
-card is created; after this I0, resume `PHYSICAL-INPUT-AUTHORITY-I0`.
-
-Next executable row: `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`.
+positive/negative/API guards, language/reference and module docs. The owner
+census found no connected canonical Hako header-result carrier under
+`lang/src/compiler/parser/**`; therefore this I0 is currently `NoSafeSlice`.
+`FuncScannerBox`, Stage-B JSON, and the compatibility guard are informational
+only and cannot close the row. The design stop and next owner task are tracked
+in `hako-callable-header-result-carrier-d0-design-task-2026-08-11.md`.
+After that task lands, resume `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0`, then
+`PHYSICAL-INPUT-AUTHORITY-I0`.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
@@ -725,7 +727,13 @@ V1 physical demand:
   later replace repeated Recipe/evidence find scans with one complete ledger;
   never add a V2->V1 adapter
 ```
-
+Bounded unification subtask (opens only after result/ABI and physical-input):
+```text
+LOOP-PHYSICAL-TRANSFER-AUTHORITY-CLEANUP-I0
+  layout/recursive_after consume JoinSig transfer; allocator consumes
+  segment placement; zero LoopConditionV1/as_recipe() transfer rebuild,
+  Recipe Header/Body rescan, or physical-side source/name/order repair
+```
 The parked follow-up is one bounded BoxShape series, not a new execution lane:
 
 ```text
@@ -749,7 +757,8 @@ Its guards require zero raw Recipe transfer/role inference in layout and
 allocator, zero callable-profile hardcoded counts in common physicalizer, and
 zero synthetic ItemKey/Step creation. A later
 `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` may consume the common boundary;
-otherwise stop with `NoSafeSlice`. The current executable row is unchanged.
+otherwise stop with `NoSafeSlice`. The current design stop remains the Hako
+callable-header result carrier; this parked lane does not select work.
 
 ## Hard stops
 

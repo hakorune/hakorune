@@ -133,6 +133,34 @@ demand/session境界は`loop-common-physical-demand-and-session-ssot.md`が
 所有する。現在実行中のbounded profileとexact rowは
 `CURRENT_STATE.toml`の`current_execution_design`へ辿り、ここへ複製しない。
 
+### Bounded loop unification boundary
+
+Dynamic full-body cohortがphysical-input/demandまで閉じた後も、common
+physicalizerはRecipeからtransferを再推論してはならない。統一する核は
+次の二つのcomplete protocolだけである。
+
+```text
+verified Recipe placement
+  + JoinSig-owned logical transfer view
+  -> prepared physical layout
+
+complete operation/source-effect ledger
+  -> complete physical demand
+```
+
+`physical_layout`/`recursive_after`は`LoopConditionV1`や`as_recipe()`から
+Predicate/Jump/Backedgeを再構築せず、`segment_allocator`はRecipe条件を再走査
+してHeader/Bodyを再分類しない。common physicalizerのstop lineは
+`ReadyLoopAfterContinuationV1`であり、Callable profile-close、Tail、ABI、
+Completionはcallable ownerが持つ。V1/V2を型変換するadapter、synthetic
+`ItemKey`、名前・順序によるrepair、第二JoinSig/Recipe/physical plannerは
+禁止する。
+
+このcleanupは現在のHako result-owner design stopとは独立したparked
+BoxShape laneであり、実行行を先取りしない。詳細なsubtaskとcaller-zeroの
+退役条件は、active Dynamic cardの
+`LOOP-UNIFICATION-AFTER-DYNAMIC-D0` sectionだけを参照する。
+
 ## Non-negotiable laws
 
 ### 1. Meaning is decided once
