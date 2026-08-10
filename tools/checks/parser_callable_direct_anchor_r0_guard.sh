@@ -55,7 +55,6 @@ for needle in (
     "CallableDeclarationAnchorV1",
     "PreparedDirectCallableSourceV1",
     "ParserCallableSourceSessionV1",
-    "DuplicateAnchor",
     "DuplicatePath",
     "ForeignParser",
 ):
@@ -80,6 +79,9 @@ if "commit_direct(" not in pending or "CommittedDirectExplicitMethodV1" not in p
     raise SystemExit("missing path-bearing explicit commit receipt")
 if re.search(r"derive\([^)]*Clone[^)]*\)\s*pub\([^)]*\) struct CommittedDirectExplicitMethodV1", pending):
     raise SystemExit("path-bearing explicit commit receipt must remain non-Clone")
+for struct_name in ("CallableDeclarationAnchorV1", "PreparedDirectCallableSourceV1"):
+    if re.search(rf"derive\([^)]*Clone[^)]*\)\s*pub\(super\) struct {struct_name}", anchor):
+        raise SystemExit(f"{struct_name} must remain non-Clone")
 if "SourceProgramCallablePathV1," in anchor.split(
     "fn issue_committed_explicit_box_method", 1
 )[1].split("impl", 1)[0]:
@@ -108,7 +110,7 @@ for needle in (
     "member_gate_children_keep_both_written_paths_before_selection",
     "nested_member_gate_keeps_the_full_written_branch_path",
     "foreign_parser_path_rejects_before_publication",
-    "duplicate_anchor_and_duplicate_path_are_distinct_rejects",
+    "duplicate_path_rejects_without_cloning_anchor_authority",
     "equal_diagnostics_and_coordinates_in_foreign_sessions_never_recreate_anchor",
 ):
     if needle not in tests:

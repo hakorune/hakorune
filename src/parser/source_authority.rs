@@ -6,9 +6,12 @@
 
 #![allow(dead_code)]
 
+mod selected_gate;
+
 use std::sync::Arc;
 
 use super::callable_contract_syntax::CallableContractSyntaxV1;
+use super::callable_gate_projection::MemberGateSelectionReceiptV1;
 use super::source_member_cursor::{
     ParserBoxMemberSourceCursorErrorV1, ParserBoxMemberSourceCursorV1,
 };
@@ -376,6 +379,7 @@ impl GeneratedPropertySink for BoxMethodInventoryV1 {
 pub(super) struct OpenBoxMethodSourceTransactionV1 {
     cursor: ParserBoxMemberSourceCursorV1,
     written_gate_path: Vec<SourceProgramMemberGateStepV1>,
+    member_gate_selection_receipts: Vec<MemberGateSelectionReceiptV1>,
     inventory: BoxMethodInventoryV1,
     method_relations: Vec<MethodSourceRelationV1>,
     delegate_source_declarations: Vec<DelegateSourceDeclarationV1>,
@@ -386,6 +390,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open(brand, statement_ordinal),
             written_gate_path: Vec::new(),
+            member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
@@ -399,6 +404,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open_with_path(brand, path),
             written_gate_path: Vec::new(),
+            member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
@@ -425,6 +431,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Self {
             cursor: self.cursor.branch(),
             written_gate_path: self.written_gate_path.clone(),
+            member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
@@ -575,73 +582,6 @@ impl OpenBoxMethodSourceTransactionV1 {
         Ok(())
     }
 
-    pub(super) fn try_merge_selected_gate(
-        &mut self,
-        selected: Self,
-        gate_site: crate::ast::BoxMemberGateSiteV1,
-    ) -> Result<(), ParseError> {
-        let mut entries = selected.inventory.into_selected_declaration_order();
-        let mut relations = selected.method_relations;
-        let mut delegate_source_declarations = selected.delegate_source_declarations;
-        if entries.len() != relations.len() {
-            return Err(ParseError::BuildCfg {
-                message: "selected Box source relation coverage is incomplete".to_owned(),
-                line: 0,
-            });
-        }
-        let gate_member_ordinal = gate_site.box_member_ordinal();
-        let mut rebased_relations = Vec::with_capacity(relations.len());
-        for (entry, relation) in entries.iter_mut().zip(relations.iter_mut()) {
-            if entry.site() != relation.inventory_ordinal() || entry.name() != relation.name() {
-                return Err(ParseError::BuildCfg {
-                    message: "selected Box source relation does not match inventory".to_owned(),
-                    line: 0,
-                });
-            }
-            let branch_member_ordinal = relation.source_member_ordinal();
-            entry
-                .prepend_selected_gate(gate_site, branch_member_ordinal)
-                .map_err(inventory_error_to_parse_error)?;
-            relation.prepend_selected_gate(gate_member_ordinal, branch_member_ordinal);
-            rebased_relations.push(relation.clone());
-        }
-        for declaration in &mut delegate_source_declarations {
-            declaration.prepend_selected_gate(
-                gate_member_ordinal,
-                declaration.source_site.source_member_ordinal(),
-            );
-        }
-
-        let placements = self
-            .inventory
-            .commit_prepared_append(
-                crate::ast::PreparedBoxMethodInventoryAppendV1::try_new(entries)
-                    .map_err(inventory_error_to_parse_error)?,
-            )
-            .map_err(inventory_error_to_parse_error)?;
-        for (relation, placement) in rebased_relations.into_iter().zip(placements.iter()) {
-            let relation = match relation {
-                MethodSourceRelationV1::Explicit(mut relation) => {
-                    relation.inventory_ordinal = placement.inventory_ordinal();
-                    MethodSourceRelationV1::Explicit(relation)
-                }
-                MethodSourceRelationV1::GeneratedProperty {
-                    source_member,
-                    name,
-                    ..
-                } => MethodSourceRelationV1::GeneratedProperty {
-                    source_member,
-                    inventory_ordinal: placement.inventory_ordinal(),
-                    name,
-                },
-            };
-            self.method_relations.push(relation);
-        }
-        self.delegate_source_declarations
-            .extend(delegate_source_declarations);
-        Ok(())
-    }
-
     pub(super) fn inventory(&self) -> &BoxMethodInventoryV1 {
         &self.inventory
     }
@@ -662,6 +602,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
             delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),
+            member_gate_selection_receipts: self.member_gate_selection_receipts.into_boxed_slice(),
             generated_delegate_source_relations: Box::new([]),
         }
     }

@@ -3,6 +3,8 @@ use crate::parser::{NyashParser, ParserMetadata};
 
 use super::super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
 use super::super::build_cfg::project_build_gates;
+use super::super::callable_gate_projection::prune_direct_callable_rows;
+use super::super::callable_source_anchor::PreparedDirectCallableSourceV1;
 use super::super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use super::super::source_gate_receipt::{selection_matches_path, BuildGateSelectionReceiptV1};
@@ -18,11 +20,13 @@ impl ParserSourceSessionV1 {
     pub(in crate::parser) fn from_prepared(
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
         gate_records: Vec<PreparedBuildGateSourceRecordV1>,
+        direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
     ) -> Self {
         Self {
             prepared_source_seals,
             gate_records,
             selection_receipts: Vec::new(),
+            direct_callable_rows,
         }
     }
 
@@ -50,43 +54,58 @@ impl ParserSourceSessionV1 {
     }
 
     pub(in crate::parser) fn prepare_prune(
-        &self,
-        receipts: &[BuildGateSelectionReceiptV1],
+        self,
+        receipts: Vec<BuildGateSelectionReceiptV1>,
     ) -> Result<PreparedParserSourcePruneV1, String> {
-        validate_gate_receipts(&self.gate_records, receipts)?;
+        validate_gate_receipts(&self.gate_records, &receipts)?;
         let mut retained = Vec::with_capacity(self.prepared_source_seals.len());
-        for seal in &self.prepared_source_seals {
-            if source_seal_survives(seal, &self.gate_records, receipts)? {
-                retained.push(clone_prepared_source_seal(seal));
+        for seal in self.prepared_source_seals {
+            if declaration_path_survives(
+                seal.box_site.path(),
+                &self.gate_records,
+                &receipts,
+                Some(&seal.brand),
+            )? {
+                retained.push(seal);
             }
         }
+        let direct_callable_rows =
+            prune_direct_callable_rows(self.direct_callable_rows, &retained, |declaration| {
+                declaration_path_survives(
+                    declaration.compatibility_box_path(),
+                    &self.gate_records,
+                    &receipts,
+                    Some(declaration.brand()),
+                )
+            })?;
         Ok(PreparedParserSourcePruneV1 {
             prepared_source_seals: retained,
-            selection_receipts: receipts.to_vec(),
+            gate_records: self.gate_records,
+            selection_receipts: receipts,
+            direct_callable_rows,
         })
     }
 
-    pub(in crate::parser) fn commit_prune(self, prepared: PreparedParserSourcePruneV1) -> Self {
+    pub(in crate::parser) fn commit_prune(prepared: PreparedParserSourcePruneV1) -> Self {
         Self {
             prepared_source_seals: prepared.prepared_source_seals,
-            gate_records: self.gate_records,
+            gate_records: prepared.gate_records,
             selection_receipts: prepared.selection_receipts,
+            direct_callable_rows: prepared.direct_callable_rows,
         }
     }
 
-    pub(in crate::parser) fn into_prepared(self) -> Vec<PreparedBoxSourceSealV1> {
-        self.prepared_source_seals
+    pub(in crate::parser) fn into_parts(
+        self,
+    ) -> (
+        Vec<PreparedBoxSourceSealV1>,
+        Vec<PreparedDirectCallableSourceV1>,
+    ) {
+        (self.prepared_source_seals, self.direct_callable_rows)
     }
-}
 
-fn clone_prepared_source_seal(seal: &PreparedBoxSourceSealV1) -> PreparedBoxSourceSealV1 {
-    PreparedBoxSourceSealV1 {
-        brand: seal.brand.clone(),
-        box_site: seal.box_site.clone(),
-        inventory: seal.inventory.clone(),
-        method_relations: seal.method_relations.clone(),
-        delegate_source_declarations: seal.delegate_source_declarations.clone(),
-        generated_delegate_source_relations: seal.generated_delegate_source_relations.clone(),
+    pub(in crate::parser) fn direct_callable_rows(&self) -> &[PreparedDirectCallableSourceV1] {
+        &self.direct_callable_rows
     }
 }
 
@@ -140,12 +159,12 @@ fn validate_gate_receipts(
     Ok(())
 }
 
-fn source_seal_survives(
-    seal: &PreparedBoxSourceSealV1,
+fn declaration_path_survives(
+    path: &SourceBoxDeclarationPathV1,
     records: &[PreparedBuildGateSourceRecordV1],
     receipts: &[BuildGateSelectionReceiptV1],
+    expected_brand: Option<&super::super::source_authority::ParserInvocationBrandV1>,
 ) -> Result<bool, String> {
-    let path = seal.box_site.path();
     for (segment_index, segment) in path.segments().iter().enumerate() {
         let SourceBoxPathSegmentV1::BuildGate {
             gate_id, branch, ..
@@ -159,8 +178,8 @@ fn source_seal_survives(
             .iter()
             .find(|record| record.gate_id == *gate_id && record.gate_path == gate_path)
             .ok_or_else(|| "Box source seal references an unknown build gate".to_owned())?;
-        if seal.brand != record.brand {
-            return Err("foreign parser brand in Box source seal gate relation".to_owned());
+        if expected_brand.is_some_and(|brand| !brand.same_as(&record.brand)) {
+            return Err("foreign parser brand in declaration gate relation".to_owned());
         }
         let receipt = receipts
             .iter()
@@ -185,6 +204,7 @@ impl OpenParserPostpassProductV1 {
         ast: ASTNode,
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
         gate_records: Vec<PreparedBuildGateSourceRecordV1>,
+        direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
         metadata: ParserMetadata,
         build_gate_decision_set: PreparedBuildGateDecisionSetV1,
     ) -> Self {
@@ -193,6 +213,7 @@ impl OpenParserPostpassProductV1 {
             source_session: ParserSourceSessionV1::from_prepared(
                 prepared_source_seals,
                 gate_records,
+                direct_callable_rows,
             ),
             final_box_paths: Vec::new(),
             build_gate_decision_set,
@@ -229,10 +250,10 @@ impl OpenParserPostpassProductV1 {
             capture_explain,
         )?;
         let prepared = source_session
-            .prepare_prune(&projection.receipts)
+            .prepare_prune(projection.receipts)
             .map_err(source_prune_error)?;
         let final_box_paths = prepared.retained_box_paths();
-        let source_session = source_session.commit_prune(prepared);
+        let source_session = ParserSourceSessionV1::commit_prune(prepared);
         Ok(Self {
             ast: projection.ast,
             source_session,

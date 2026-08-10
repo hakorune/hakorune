@@ -24,6 +24,8 @@ fn mixed_direct_source_keeps_five_rows_across_four_direct_kinds() {
     );
     let kinds = parser
         .callable_source_session
+        .as_ref()
+        .unwrap()
         .rows()
         .iter()
         .map(PreparedDirectCallableSourceV1::kind)
@@ -41,6 +43,8 @@ fn mixed_direct_source_keeps_five_rows_across_four_direct_kinds() {
     assert_eq!(
         parser
             .callable_source_session
+            .as_ref()
+            .unwrap()
             .rows()
             .iter()
             .map(PreparedDirectCallableSourceV1::diagnostic_name)
@@ -52,7 +56,12 @@ fn mixed_direct_source_keeps_five_rows_across_four_direct_kinds() {
 #[test]
 fn generated_property_does_not_enter_the_direct_anchor_session() {
     let parser = parse_rows("box Generated { once value: i64 => 1 }\n");
-    assert!(parser.callable_source_session.rows().is_empty());
+    assert!(parser
+        .callable_source_session
+        .as_ref()
+        .unwrap()
+        .rows()
+        .is_empty());
 }
 
 #[test]
@@ -64,7 +73,7 @@ fn generated_delegate_does_not_add_a_direct_anchor_row() {
            delegate target exposes { run as runAlias }\n\
          }\n",
     );
-    let rows = parser.callable_source_session.rows();
+    let rows = parser.callable_source_session.as_ref().unwrap().rows();
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].diagnostic_name(), "run");
     assert_eq!(
@@ -77,7 +86,7 @@ fn generated_delegate_does_not_add_a_direct_anchor_row() {
 fn top_level_gate_children_keep_both_written_paths_before_selection() {
     let parser =
         parse_rows("gate Build.test { function chosen() {} } else { function chosen() {} }\n");
-    let rows = parser.callable_source_session.rows();
+    let rows = parser.callable_source_session.as_ref().unwrap().rows();
     assert_eq!(rows.len(), 2);
     let branches = rows
         .iter()
@@ -104,7 +113,7 @@ fn member_gate_children_keep_both_written_paths_before_selection() {
            gate Build.test { run() {} } else { run() {} }\n\
          }\n",
     );
-    let rows = parser.callable_source_session.rows();
+    let rows = parser.callable_source_session.as_ref().unwrap().rows();
     assert_eq!(rows.len(), 2);
     let branches = rows
         .iter()
@@ -131,6 +140,8 @@ fn nested_member_gate_keeps_the_full_written_branch_path() {
     );
     let nested_then = parser
         .callable_source_session
+        .as_ref()
+        .unwrap()
         .rows()
         .iter()
         .find(|row| {
@@ -167,7 +178,7 @@ fn foreign_parser_path_rejects_before_publication() {
 }
 
 #[test]
-fn duplicate_anchor_and_duplicate_path_are_distinct_rejects() {
+fn duplicate_path_rejects_without_cloning_anchor_authority() {
     let brand = ParserInvocationBrandV1::issue();
     let mut session = ParserCallableSourceSessionV1::open(brand.clone());
     let path = || {
@@ -180,11 +191,7 @@ fn duplicate_anchor_and_duplicate_path_are_distinct_rejects() {
             "same",
         )
         .unwrap();
-    session.commit_direct(first.clone()).unwrap();
-    assert_eq!(
-        session.commit_direct(first).unwrap_err(),
-        DirectCallableSourceIssueV1::DuplicateAnchor
-    );
+    session.commit_direct(first).unwrap();
 
     let second_anchor_same_path = session
         .prepare_direct(
@@ -206,8 +213,12 @@ fn equal_diagnostics_and_coordinates_in_foreign_sessions_never_recreate_anchor()
     // AST shape. None of those descriptive facts recreate the anchor.
     let left_parser = parse_rows("function identical(value: i64) {}\n");
     let right_parser = parse_rows("function identical(value: i64) {}\n");
-    let left = &left_parser.callable_source_session.rows()[0];
-    let right = &right_parser.callable_source_session.rows()[0];
+    let left = &left_parser.callable_source_session.as_ref().unwrap().rows()[0];
+    let right = &right_parser
+        .callable_source_session
+        .as_ref()
+        .unwrap()
+        .rows()[0];
 
     assert_eq!(left.diagnostic_name(), right.diagnostic_name());
     assert!(!left.anchor().same_as(right.anchor()));

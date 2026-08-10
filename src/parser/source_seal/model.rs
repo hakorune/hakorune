@@ -2,6 +2,8 @@ use crate::ast::{ASTNode, BoxMethodInventoryErrorV1, BoxMethodInventoryV1};
 use crate::parser::ParserMetadata;
 
 use super::super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
+use super::super::callable_gate_projection::MemberGateSelectionReceiptV1;
+use super::super::callable_source_anchor::PreparedDirectCallableSourceV1;
 use super::super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::super::source_authority::{
     DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
@@ -35,6 +37,7 @@ pub(in crate::parser) struct PreparedBoxSourceSealV1 {
     pub(in crate::parser) inventory: BoxMethodInventoryV1,
     pub(in crate::parser) method_relations: Box<[MethodSourceRelationV1]>,
     pub(in crate::parser) delegate_source_declarations: Box<[DelegateSourceDeclarationV1]>,
+    pub(in crate::parser) member_gate_selection_receipts: Box<[MemberGateSelectionReceiptV1]>,
     pub(in crate::parser) generated_delegate_source_relations:
         Box<[GeneratedDelegateSourceRelationV1]>,
 }
@@ -61,6 +64,12 @@ impl PreparedBoxSourceSealV1 {
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.box_site
     }
+
+    pub(in crate::parser) fn member_gate_selection_receipts(
+        &self,
+    ) -> &[MemberGateSelectionReceiptV1] {
+        &self.member_gate_selection_receipts
+    }
 }
 
 /// Single typed owner for the AST/source handoff between parser postpasses.
@@ -80,12 +89,15 @@ pub(in crate::parser) struct ParserSourceSessionV1 {
     pub(in crate::parser) prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
     pub(in crate::parser) gate_records: Vec<PreparedBuildGateSourceRecordV1>,
     pub(in crate::parser) selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+    pub(in crate::parser) direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
 }
 
 #[derive(Debug)]
 pub(in crate::parser) struct PreparedParserSourcePruneV1 {
     pub(in crate::parser) prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+    pub(in crate::parser) gate_records: Vec<PreparedBuildGateSourceRecordV1>,
     pub(in crate::parser) selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+    pub(in crate::parser) direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
 }
 
 impl PreparedParserSourcePruneV1 {
@@ -128,6 +140,7 @@ impl ParserBoxSourceSealV1 {
 pub(in crate::parser) struct ParsedProgramWithSourceV1 {
     pub(in crate::parser) ast: ASTNode,
     pub(in crate::parser) source_seals: Box<[ParserBoxSourceSealV1]>,
+    pub(in crate::parser) direct_callable_rows: Box<[PreparedDirectCallableSourceV1]>,
     pub(in crate::parser) final_box_ordinals: Box<[usize]>,
     pub(in crate::parser) generated_delegate_source_relations:
         Box<[GeneratedDelegateSourceRelationV1]>,
@@ -158,12 +171,14 @@ impl ParsedProgramWithSourceV1 {
     ) -> (
         ASTNode,
         Box<[ParserBoxSourceSealV1]>,
+        Box<[PreparedDirectCallableSourceV1]>,
         Box<[usize]>,
         ParserMetadata,
     ) {
         (
             self.ast,
             self.source_seals,
+            self.direct_callable_rows,
             self.final_box_ordinals,
             self.metadata,
         )

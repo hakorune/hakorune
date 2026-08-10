@@ -125,7 +125,7 @@ impl ParserResolverBodyTransactionV1 {
         ),
         BodySourceTransactionErrorV1,
     > {
-        let (ast, seals, _, _) = self.product.into_postpass_parts();
+        let (ast, seals, _, _, _) = self.product.into_postpass_parts();
         let handoff = build_resolver_source_handoff(&ast, &seals)
             .map_err(BodySourceTransactionErrorV1::ResolverHandoff)?;
         let rows = collect_body_rows(&ast, &seals, &handoff)?;
@@ -149,7 +149,7 @@ impl ParserResolverBodyTransactionV1 {
             super::release_source::ParserReleaseStatementSourceCatalogV1,
         ) -> R,
     ) -> Result<R, BodySourceTransactionErrorV1> {
-        let (ast, seals, _, _) = self.product.into_postpass_parts();
+        let (ast, seals, _, _, _) = self.product.into_postpass_parts();
         let handoff = build_resolver_source_handoff(&ast, &seals)
             .map_err(BodySourceTransactionErrorV1::ResolverHandoff)?;
         let rows = collect_body_rows(&ast, &seals, &handoff)?;

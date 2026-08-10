@@ -16,11 +16,13 @@
  * - 機能ごとにモジュール分離で保守性向上
  */
 
-// サブモジュール宣言
 mod body_source;
 mod build_cfg;
 mod build_gate_selection;
 mod callable_contract_syntax;
+mod callable_gate_projection;
+#[cfg(test)]
+mod callable_gate_projection_tests;
 mod callable_parameter_source;
 mod callable_source_anchor;
 mod common;
@@ -45,6 +47,7 @@ mod lifecycle;
 pub(crate) mod log;
 mod postpass_compatibility;
 mod postpass_envelope;
+mod postpass_open;
 mod release_source;
 mod runes;
 mod source_authority;
@@ -152,7 +155,7 @@ pub struct NyashParser {
     pub(super) source_invocation_brand: source_authority::ParserInvocationBrandV1,
     callable_parameter_source_session:
         Option<callable_parameter_source::ParserCallableParameterSourceSessionV1>,
-    callable_source_session: callable_source_anchor::ParserCallableSourceSessionV1,
+    callable_source_session: Option<callable_source_anchor::ParserCallableSourceSessionV1>,
     /// Top-level source statement cursor used to issue exact Box declaration
     /// sites. It is parser-session state only; no seal is issued here.
     pub(super) next_source_statement_ordinal: u32,
@@ -201,8 +204,10 @@ impl NyashParser {
                     source_invocation_brand.clone(),
                 ),
             ),
-            callable_source_session: callable_source_anchor::ParserCallableSourceSessionV1::open(
-                source_invocation_brand.clone(),
+            callable_source_session: Some(
+                callable_source_anchor::ParserCallableSourceSessionV1::open(
+                    source_invocation_brand.clone(),
+                ),
             ),
             source_invocation_brand,
             next_source_statement_ordinal: 0,
@@ -301,20 +306,6 @@ impl NyashParser {
         let product = product.prune_build_gates(&parser)?;
         let product = product.lower_delegates()?;
         product.finalize().map_err(source_seal::map_error)
-    }
-
-    pub(super) fn open_postpass_product(
-        &mut self,
-        ast: ASTNode,
-    ) -> Result<source_seal::OpenParserPostpassProductV1, ParseError> {
-        let build_gate_decision_set = self.issue_build_gate_decision_set(&ast)?;
-        Ok(source_seal::OpenParserPostpassProductV1::new(
-            ast,
-            std::mem::take(&mut self.prepared_source_seals),
-            self.take_source_build_gate_records(),
-            self.take_metadata(),
-            build_gate_decision_set,
-        ))
     }
 
     pub(super) fn parse_postpass_s0(

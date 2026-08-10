@@ -61,6 +61,7 @@ impl PreparedBoxSourceSealV1 {
                 inventory: self.inventory,
                 method_relations: self.method_relations,
                 delegate_source_declarations: Box::new([]),
+                member_gate_selection_receipts: self.member_gate_selection_receipts,
                 generated_delegate_source_relations: self.generated_delegate_source_relations,
             },
         })
@@ -71,9 +72,11 @@ impl OpenParserPostpassProductV1 {
     pub(in crate::parser) fn finalize(
         self,
     ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
+        let (prepared, direct_callable_rows) = self.source_session.into_parts();
         finalize_program(
             self.ast,
-            self.source_session.into_prepared(),
+            prepared,
+            direct_callable_rows.into_boxed_slice(),
             self.final_box_paths,
             self.metadata,
         )
@@ -107,16 +110,30 @@ impl OpenParserPostpassProductV1 {
             .map_err(|error| error.into_parse_error());
         }
 
-        let (ast, metadata) = product.into_compatibility_parts();
+        let (ast, metadata, direct_callable_rows) = product.into_compatibility_parts();
         let ast = super::super::postpass_compatibility::lower(ast)?;
         super::super::postpass_envelope::CompletedParserPostpassV1::from_compatibility(
-            ast, metadata, explain,
+            ast,
+            metadata,
+            explain,
+            direct_callable_rows,
         )
         .map_err(|error| error.into_parse_error())
     }
 
-    fn into_compatibility_parts(self) -> (ASTNode, ParserMetadata) {
-        (self.ast, self.metadata)
+    fn into_compatibility_parts(
+        self,
+    ) -> (
+        ASTNode,
+        ParserMetadata,
+        Box<[super::super::callable_source_anchor::PreparedDirectCallableSourceV1]>,
+    ) {
+        let (_, direct_callable_rows) = self.source_session.into_parts();
+        (
+            self.ast,
+            self.metadata,
+            direct_callable_rows.into_boxed_slice(),
+        )
     }
 }
 
@@ -175,6 +192,9 @@ impl FinalizerCoveragePlanV1 {
 fn finalize_program(
     ast: ASTNode,
     prepared: Vec<PreparedBoxSourceSealV1>,
+    direct_callable_rows: Box<
+        [super::super::callable_source_anchor::PreparedDirectCallableSourceV1],
+    >,
     final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     metadata: ParserMetadata,
 ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
@@ -234,6 +254,7 @@ fn finalize_program(
     Ok(ParsedProgramWithSourceV1 {
         ast,
         source_seals,
+        direct_callable_rows,
         final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
         generated_delegate_source_relations,
         metadata,

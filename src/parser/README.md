@@ -48,6 +48,24 @@ input, retry, fallback, or production route. Names, spans, arity, inventory
 placement, numeric coordinates, and AST pointer identity remain diagnostic or
 placement facts and cannot reconstruct the opaque anchor.
 
+## Parser-private callable gate projection (`PARSER-CALLABLE-GATE-PROJECTION-R0` landed)
+
+The direct callable row set now moves exactly once into the existing
+source-aware postpass transaction. Top-level gates reuse the parser-issued
+`BuildGateSelectionReceiptV1`. Member gates issue one parser-private
+`MemberGateSelectionReceiptV1` from the exact selected source transaction at
+`OpenBoxMethodSourceTransactionV1::try_merge_selected_gate`; the projection
+never re-evaluates a predicate or reconstructs Then/Else from the final AST,
+names, inventory placement, or numeric coordinates.
+
+The same atomic prune retains only selected top-level, member, and nested rows.
+An inactive outer member branch stops traversal before demanding an irrelevant
+nested receipt, and an exact no-else merge issues no fake Else receipt. Both
+ordinary and compatibility postpass completions retain the selected rows as
+private staging. This row publishes no generated anchor, verified resolver
+Program, resolver identity, Home/Recipe fact, Builder input, retry, fallback,
+or production route.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

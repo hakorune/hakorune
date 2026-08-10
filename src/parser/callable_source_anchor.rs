@@ -15,7 +15,7 @@ use super::source_path::SourceProgramCallablePathV1;
 use super::{NyashParser, ParseError};
 use crate::ast::BoxMethodInventoryOrdinalV1;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(super) struct CallableDeclarationAnchorV1(Arc<()>);
 
 impl CallableDeclarationAnchorV1 {
@@ -36,7 +36,7 @@ pub(super) enum DirectCallableDeclarationKindV1 {
     InstanceBoxMethod,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(super) struct PreparedDirectCallableSourceV1 {
     anchor: CallableDeclarationAnchorV1,
     parser_brand: ParserInvocationBrandV1,
@@ -70,8 +70,8 @@ impl PreparedDirectCallableSourceV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum DirectCallableSourceIssueV1 {
     ForeignParser,
-    DuplicateAnchor,
     DuplicatePath,
+    SessionAlreadyMoved,
 }
 
 /// The sole parser-invocation owner for direct callable anchors.
@@ -116,13 +116,6 @@ impl ParserCallableSourceSessionV1 {
         {
             return Err(DirectCallableSourceIssueV1::ForeignParser);
         }
-        if self
-            .rows
-            .iter()
-            .any(|row| row.anchor.same_as(&prepared.anchor))
-        {
-            return Err(DirectCallableSourceIssueV1::DuplicateAnchor);
-        }
         if self.rows.iter().any(|row| row.path == prepared.path) {
             return Err(DirectCallableSourceIssueV1::DuplicatePath);
         }
@@ -143,6 +136,10 @@ impl ParserCallableSourceSessionV1 {
     pub(super) fn rows(&self) -> &[PreparedDirectCallableSourceV1] {
         &self.rows
     }
+
+    pub(super) fn into_rows(self) -> Vec<PreparedDirectCallableSourceV1> {
+        self.rows
+    }
 }
 
 pub(super) fn map_issue(error: DirectCallableSourceIssueV1, line: usize) -> ParseError {
@@ -150,11 +147,11 @@ pub(super) fn map_issue(error: DirectCallableSourceIssueV1, line: usize) -> Pars
         DirectCallableSourceIssueV1::ForeignParser => {
             "direct callable source belongs to another parser invocation"
         }
-        DirectCallableSourceIssueV1::DuplicateAnchor => {
-            "direct callable anchor was committed more than once"
-        }
         DirectCallableSourceIssueV1::DuplicatePath => {
             "direct callable source path was committed more than once"
+        }
+        DirectCallableSourceIssueV1::SessionAlreadyMoved => {
+            "direct callable source session was already moved into postpass"
         }
     };
     ParseError::GrammarContract {
@@ -180,6 +177,9 @@ impl NyashParser {
                 line,
             })?;
         self.callable_source_session
+            .as_mut()
+            .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
+            .map_err(|error| map_issue(error, line))?
             .issue_direct(
                 SourceProgramCallablePathV1::top_level(path),
                 kind,
@@ -223,6 +223,9 @@ impl NyashParser {
         let line = self.current_token().line;
         let (path, inventory_ordinal, diagnostic_name, parameter_source) = committed.into_parts();
         self.callable_source_session
+            .as_mut()
+            .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
+            .map_err(|error| map_issue(error, line))?
             .issue_direct(path, kind, diagnostic_name.clone())
             .map_err(|error| map_issue(error, line))?;
         Ok((inventory_ordinal, diagnostic_name, parameter_source))

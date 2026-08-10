@@ -7,6 +7,7 @@
 
 use crate::ast::ASTNode;
 
+use super::callable_source_anchor::PreparedDirectCallableSourceV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
 
@@ -88,6 +89,7 @@ pub(super) struct CompletedParserPostpassV1 {
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
     box_coverage: ParserBoxPostpassCoverageV1,
+    direct_callable_rows: Box<[PreparedDirectCallableSourceV1]>,
 }
 
 impl CompletedParserPostpassV1 {
@@ -99,7 +101,8 @@ impl CompletedParserPostpassV1 {
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
-        let (ast, seals, final_box_ordinals, metadata) = product.into_postpass_parts();
+        let (ast, seals, direct_callable_rows, final_box_ordinals, metadata) =
+            product.into_postpass_parts();
         if seals.len() != final_box_ordinals.len() {
             return Err(ParserPostpassEnvelopeErrorV1::SourceCoverageMismatch {
                 seals: seals.len(),
@@ -132,6 +135,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
+            direct_callable_rows,
         })
     }
 
@@ -139,6 +143,7 @@ impl CompletedParserPostpassV1 {
         ast: ASTNode,
         metadata: ParserMetadata,
         explain: Option<BuildGateExplainReport>,
+        direct_callable_rows: Box<[PreparedDirectCallableSourceV1]>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(&ast);
         if program_cohort.is_ordinary() {
@@ -154,6 +159,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
+            direct_callable_rows,
         })
     }
 
@@ -185,6 +191,10 @@ impl CompletedParserPostpassV1 {
 
     pub(super) fn box_coverage(&self) -> &ParserBoxPostpassCoverageV1 {
         &self.box_coverage
+    }
+
+    pub(super) fn direct_callable_rows(&self) -> &[PreparedDirectCallableSourceV1] {
+        &self.direct_callable_rows
     }
 }
 
@@ -359,9 +369,13 @@ mod tests {
     #[test]
     fn s0_compatibility_envelope_has_no_source_seal_row() {
         let ast = NyashParser::parse_from_string("static box StaticOnly {}\n").unwrap();
-        let envelope =
-            CompletedParserPostpassV1::from_compatibility(ast, ParserMetadata::default(), None)
-                .unwrap();
+        let envelope = CompletedParserPostpassV1::from_compatibility(
+            ast,
+            ParserMetadata::default(),
+            None,
+            Box::new([]),
+        )
+        .unwrap();
 
         assert_eq!(
             envelope.box_coverage().program_cohort(),
@@ -379,9 +393,13 @@ mod tests {
     #[test]
     fn s0_compatibility_constructor_rejects_ordinary_ast() {
         let ast = NyashParser::parse_from_string("box Plain {}\n").unwrap();
-        let error =
-            CompletedParserPostpassV1::from_compatibility(ast, ParserMetadata::default(), None)
-                .unwrap_err();
+        let error = CompletedParserPostpassV1::from_compatibility(
+            ast,
+            ParserMetadata::default(),
+            None,
+            Box::new([]),
+        )
+        .unwrap_err();
         assert_eq!(
             error,
             ParserPostpassEnvelopeErrorV1::CompatibilityForOrdinary

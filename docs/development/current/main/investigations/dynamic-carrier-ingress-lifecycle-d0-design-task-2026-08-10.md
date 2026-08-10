@@ -897,7 +897,8 @@ Closeout receipt:
 - generated property/delegate rows cannot construct the direct receipt;
 - focused tests cover five mixed rows across four direct kinds, generated
   exclusion, top-level/member/nested gate paths, foreign parser rejection,
-  duplicate anchor/path rejection, and cross-parser opaque identity;
+  non-Clone anchor carriage, duplicate path rejection, and cross-parser opaque
+  identity;
 - parser source files remain below the 760-line split trigger, and the focused
   parser regressions plus `cargo check --lib` are green;
 - gate selection, generated anchors, verified final Program publication,
@@ -905,6 +906,8 @@ Closeout receipt:
   remain zero.
 
 #### `PARSER-CALLABLE-GATE-PROJECTION-R0`
+
+Status: **closed**
 
 Make callable source rows a field of the existing source-aware postpass
 transaction.  Build-gate projection consumes the exact selection receipt and
@@ -916,6 +919,25 @@ Acceptance includes selected top-level gate, selected member gate, nested gate
 path preservation, unselected-branch absence, and no missing/duplicate/extra
 row after prune.  This row remains behavior invariant and publishes no
 resolver-facing source product.
+
+Closeout receipt:
+
+- the non-Clone direct callable row set moves once into the existing
+  source-aware postpass transaction; a second open rejects before publication;
+- top-level gates consume the existing exact selection receipts, while member
+  gates issue parser-private receipts from the selected source transaction at
+  the merge owner without predicate re-evaluation or final-AST repair;
+- one atomic prune covers selected top-level, member, and nested rows; an
+  inactive outer branch does not demand an irrelevant nested receipt and
+  exact no-else creates no synthetic Else authority;
+- ordinary and compatibility completion both retain selected callable rows as
+  private staging;
+- focused tests cover missing/duplicate/foreign receipts, selected Then/Else,
+  nested paths, inactive outer branches, second-open rejection, and
+  compatibility retention; parser sources remain below 760 lines;
+- generated anchors, verified resolver-facing Program publication, resolver,
+  Builder, Home, Recipe, retry, fallback, and production activation remain
+  zero.
 
 #### `PARSER-CALLABLE-GENERATED-ANCHOR-R0`
 
