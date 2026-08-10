@@ -62,6 +62,7 @@ pub(in crate::mir) use operator_carrier_lifecycle::{
 };
 pub(in crate::mir) use physical_input::{
     DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,
+    DynamicLoopPhysicalControlViewV2,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]

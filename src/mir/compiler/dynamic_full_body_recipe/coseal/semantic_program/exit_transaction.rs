@@ -134,6 +134,7 @@ mod tests {
         issue_dynamic_invocation_carrier_lifecycle_program_v1,
         issue_dynamic_operator_carrier_lifecycle_program_v1,
     };
+    use crate::mir::compiler::dynamic_full_body_recipe::issue_dynamic_full_loop_operation_physical_demand_v2;
     use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodyBindingRoleV1;
     use crate::mir::resolved_semantics::HomeDemandV1;
 
@@ -223,6 +224,28 @@ mod tests {
                 assert_eq!(input.faults().rows().len(), 6);
             })
             .expect("final exit co-seal physical input");
+    }
+
+    #[test]
+    fn physical_demand_consumes_the_complete_view_inside_the_htrb_loan() {
+        let transaction = exact_coseal();
+        transaction
+            .with_physical_input(|input| {
+                let prepared = issue_dynamic_full_loop_operation_physical_demand_v2(input)
+                    .expect("complete physical demand")
+                    .prepare_all()
+                    .expect("complete physical demand coverage");
+                let coverage = prepared.coverage();
+                assert_eq!(coverage.operation_count(), 15);
+                assert_eq!(coverage.placement_count(), 17);
+                assert_eq!(coverage.control_count(), 1);
+                assert_eq!(coverage.fault_count(), 6);
+                assert_eq!(prepared.operation_rows().len(), 15);
+                assert_eq!(prepared.placement_rows().len(), 17);
+                assert_eq!(prepared.control().rows().len(), 1);
+                assert_eq!(prepared.faults().rows().len(), 6);
+            })
+            .expect("physical demand HRTB loan");
     }
 
     impl DynamicExitTransactionRouteV1 {

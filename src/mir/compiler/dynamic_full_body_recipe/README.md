@@ -135,9 +135,19 @@ This I0 child is now landed. The source/Recipe envelope owns the private
 17-placement/15-operation ledger, and the final exit transaction is the sole
 HRTB entry for the complete physical-input view. Physical code receives only
 the co-sealed logical transfer plus Recipe control/placement; it does not
-rescan AST/source claims or read raw Recipe/JoinSig products. The next child
-consumes this complete view to prepare whole-program physical demand, still
-with no Builder effect.
+rescan AST/source claims or read raw Recipe/JoinSig products. The landed
+whole-program demand child consumes this complete view before any Builder
+effect.
+
+The whole-program Dynamic V2 demand is now a separate `physical_demand/` owner.
+It consumes the complete view in Recipe order, validates 17 placements, 15
+operations, one control row, and six Fault rows, then retains the complete
+operation array without exposing single-item selection, raw Recipe/JoinSig
+access, physical IDs, or a V1 adapter. This is the bounded Dynamic cohort only.
+The reusable loop core is planned separately: recursive Recipe/JoinSig,
+physical-input, and whole-program demand protocols may converge, while
+Prelude, Tail/result, Home, ABI, Completion, provider, and runtime owners stay
+family-specific until an explicit design stop accepts a shared boundary.
 
 Implementation order is fixed in the active rolling card:
 `LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0`, then

@@ -13,7 +13,7 @@ JoinSig subtree issues one borrowed
 branch item and arm disposition, plus the already co-sealed After. It does not
 issue Recipe blocks, item placement, Exit kind/value, or physical IDs.
 
-The Dynamic semantic-program owner will co-seal that logical view with verified
+The Dynamic semantic-program owner now co-seals that logical view with verified
 Recipe control and placement. The final package-held
 `VerifiedDynamicExitTransactionCoSealV1`, not a raw inner semantic program,
 will lend the resulting complete physical-input view through one HRTB callback.
@@ -23,6 +23,14 @@ That bounded child is now landed. Its source/Recipe envelope owns the private
 is the sole HRTB entry for the complete physical-input view. The view carries
 exact CallSlot/Fault rows and owner/frame/scope/provenance; it does not create a
 physical schedule or expose raw Recipe/JoinSig access.
+
+The following Dynamic V2 demand child is also landed outside this portable V1
+owner: `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes the complete
+HRTB view and exposes only whole-program Recipe-order rows. It is not a V1
+adapter and creates no physical IDs or Builder effects. Future loop cleanup
+may share the recursive Recipe/JoinSig kernel and neutral physical-demand
+boundary, but source observers, Prelude, Tail/result, Home, ABI, Completion,
+provider, and runtime remain separate authorities until a later Decision.
 
 Loop boundary rows never invent an ItemKey for Enter or Backedge. Branch rows
 retain exact `if_item` and `exit_item`. For the bounded Dynamic cohort, the
@@ -37,7 +45,7 @@ items from names/order, re-pair After, or coerce V2 through V1 physical demand.
 entry for the landed logical view. It validates the branch-owned exit against
 the matching Loop summary and exposes that summary as integrity-only evidence;
 it is not a second physical action. The next row is
-`DYNAMIC-V2-PHYSICAL-INPUT-VIEW-I0`; no Builder, MIR/CFG/PHI, ABI, session,
+`PHYSICAL-OPERATION-DEMAND-I0`; no Builder, MIR/CFG/PHI, ABI, session,
 retry, or fallback is opened there.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,

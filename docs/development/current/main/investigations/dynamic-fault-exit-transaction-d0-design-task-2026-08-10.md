@@ -704,23 +704,40 @@ Stop:
 
 #### PHYSICAL-OPERATION-DEMAND-I0
 
-Change:
-- consume only DynamicFullLoopPhysicalInputViewV2;
-- prepare the complete Dynamic operation program before Builder effects.
+Status: CLOSED (I0 landed)
 
-Contract:
-- whole-program coverage only;
-- verified Recipe order, no single-item selection;
-- no raw Recipe/JoinSig/source lookup and no V1 adapter.
+Landed:
+- `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes only the complete
+  final-exit HRTB view and validates all 17 placements, 15 operations, one
+  control row, and six Fault rows before issuing a move-only demand;
+- `PreparedDynamicLoopOperationProgramV2::prepare_all()` retains the complete
+  Recipe-order operation array and exposes no single-item selector, V1 adapter,
+  raw Recipe/JoinSig/source lookup, or physical identity;
+- the implementation is a separate Dynamic V2 owner, not an extension of the
+  existing V1 operation demand.
 
-Done:
-- complete demand and prepare_all succeed for the exact selected cohort;
-- missing/duplicate/foreign rows fail before effects;
-- production caller remains zero until the later physical-session cutover.
+Evidence:
+- `RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction` passes the
+  complete HRTB demand test;
+- `RUSTFLAGS=-Awarnings cargo test -q --lib dynamic_full_body_recipe` passes;
+- `cargo check --lib`, physical-input authority guard, current-state guard,
+  and `git diff --check` pass.
 
 Stop:
 - no Prelude, Tail, ABI, physical Completion, CFG/PHI, function session,
   DraftSeal, Collector, publication, provider/runtime route, retry, or fallback.
+  Next: `PHYSICAL-INPUT-AUTHORITY-I0`.
+
+### LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
+
+After `PHYSICAL-INPUT-AUTHORITY-I0`, audit one shared loop core for recursive
+Recipe/JoinSig, physical-input, and whole-program demand boundaries. Keep
+source observers, Prelude/entry, Tail/result, Home, ABI, Completion, provider,
+and runtime separate. No V2-to-V1 adapter, raw re-scan, name/order repair, new
+accepted shape, production switch, or legacy deletion. This is BoxShape-only;
+worker review is required if shared ownership is open. Accept one common
+boundary or explicit `NoSafeSlice`; keep files below 800 lines and leave the
+current executable row unchanged.
 
 ### Landed prerequisite
 
