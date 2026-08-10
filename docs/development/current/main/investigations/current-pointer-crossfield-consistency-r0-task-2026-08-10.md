@@ -22,6 +22,7 @@ fast:
 
 all modes:
   current_execution_design exists
+  current_execution_summary describes the selected row or is absent
   latest_card / latest_card_path agree
   active card contains current_execution_row
 ```
@@ -35,6 +36,8 @@ mode, row, or landed chronology from `CURRENT_STATE.toml`.
   and `closeout` to the existing pointer guard;
 - stale row, stale card, wrong mode pairing, and missing active-card token each
   fail with a stable one-line diagnostic;
+- stale `current_execution_summary` is rejected or the redundant field is
+  removed from the live pointer;
 - the current real state passes unchanged;
 - no compiler, parser, Recipe, Home, Fault, or runtime behavior changes;
 - do not add a per-row shell guard; extend

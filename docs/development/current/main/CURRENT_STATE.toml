@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The complete Ordinary parameter-demand catalog is closed for direct static and ordinary instance methods. The selected ingress I0 consumes that whole catalog with the whole Dynamic lifecycle program and exact parameter-to-JoinSig Enter chain."
+status = "The complete Ordinary parameter-demand catalog is closed, but the ingress premise audit found that it and the Dynamic lifecycle program are currently issued from distinct resolver forests. A shared one-shot semantic-source owner must be selected before ingress I0 can resume."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0 accepted"
-work_mode = "fast"
-current_execution_row = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0"
-current_blocker_token = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0: consume the whole VerifiedCallableParameterDemandCatalogV1 and whole VerifiedDynamicOperatorCarrierLifecycleProgramV1; co-seal exact parameter #1 Pos through initializer/local/V1/C0/L0/B0 and exact JoinSig Enter payload into one private BorrowedIngressNoEnd row; reject wrong or duplicate relations, extra root carriers, caller-selected disposition, Clone, and split APIs; do not activate Take, Dynamic Home classification, Home Flow, CFG, MIR, Completion, production lowering, retry, or fallback"
+current_design_stop = "CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0"
+work_mode = "design_stop"
+current_execution_row = "CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0"
+current_blocker_token = "CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0: select one parser-backed callable semantic-source owner that resolves each selected declaration exactly once and projects both the complete parameter-demand catalog and Dynamic lifecycle chain from the same retained forest allocation; forbid second resolver calls, coordinate/name repair, numeric owner equality, forged constructors, and split ownership; stop before ingress implementation, Take, Dynamic Home classification, Home Flow, CFG/MIR, Completion, physicalization, retry, or fallback"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -234,7 +234,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "Hako R0a/R0b are closed with raw transfer strings and builder-token authority removed. The next behavior-neutral Rust recut creates the dedicated callable_parameter_source owner boundary before the source-seal implementation row."
+current_execution_summary = "Ingress I0 is paused: the current parameter-demand and Dynamic lifecycle issuers resolve separate owner forests. The active Decision selects one parser-backed, single-resolution semantic-source owner before any ingress co-seal implementation."
 current_execution_design = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -718,13 +718,13 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-carrier-ingress-lifecycle-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_design_card = "none; DYNAMIC-CARRIER-INGRESS-LIFECYCLE-D0 accepted"
+next_design_card = "CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0"
+next_execution_card = "none until CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0 is accepted"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "Initial V1/C0/B0 is BorrowedIngressNoEnd. The Hako/Rust Ordinary parameter source and complete resolved Ordinary-to-Handle demand catalog are closed for unchanged ParserScanLoopBox; Dynamic ingress I0 now co-seals that demand with the exact prelude, Recipe carrier, and JoinSig Enter chain."
+latest_card_summary = "Initial V1/C0/B0 remains BorrowedIngressNoEnd, but ingress I0 is NoSafeSlice because the parameter-demand and Dynamic lifecycle products currently own separately resolved forests. Select one shared semantic-source issuer first; do not repair identity downstream."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

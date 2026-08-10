@@ -1,9 +1,10 @@
 # Dynamic carrier ingress lifecycle
 
-Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a/R0b closed
+Status: ingress meaning accepted; shared semantic-source issuer design stop selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
+Current design stop: `CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0`
+Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -290,7 +291,60 @@ Closeout receipt:
   cross-session identity tests are green; `Take`, Dynamic Home, Recipe, MIR,
   retry, and fallback remain zero.
 
-### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — selected
+### 3A. `CALLABLE-PARAMETER-DEMAND-SHARED-SEMANTIC-SOURCE-D0` — selected design stop
+
+The ingress premise audit found that the two intended inputs cannot currently
+share canonical identity:
+
+```text
+parameter-demand issuer
+  -> resolve_selected_callable_forests()
+  -> forest allocation A / owner A / BindingRef A
+
+normal Dynamic semantic-source issuer
+  -> resolve_selected_callable_forests()
+  -> forest allocation B / owner B / BindingRef B
+```
+
+Each resolver call issues fresh owners. Equal source coordinates, diagnostic
+names, ordinals, or numeric-looking IDs cannot turn these independent forests
+into one source authority. The consuming parser syntax loan also cannot escape
+its callback to repair the pairing later. Therefore the current ingress I0 is
+`NoSafeSlice`, not an implementation row.
+
+Select one parser-backed callable semantic-source owner that:
+
+1. consumes the selected parser declaration source once;
+2. resolves every selected callable exactly once;
+3. retains the sole verified forests and source projections;
+4. deterministically projects the complete parameter-demand catalog and the
+   existing Dynamic source/lifecycle chain from those same forests;
+5. prevents either projection from owning or issuing a second resolver forest;
+6. keeps the final outer aggregate non-Clone and rejects foreign pairings
+   before ingress publication.
+
+The selected design must state whether the existing normal callable semantic
+source becomes the sole batch owner or a new neutral sibling supersedes both
+current issuers. It must include the removal boundary for the demand catalog's
+independent forest ownership and resolver call.
+
+Forbidden repairs:
+
+```text
+second resolver call
+Box/method/parameter name lookup
+source-coordinate equality as semantic identity
+numeric owner or BindingRef comparison across allocations
+normalized-forest equality
+test-only forged Verified products
+caller-supplied owner, binding, or disposition
+```
+
+Acceptance is a docs-only Decision naming the sole issuer, its consuming input,
+the exact retained authority, projection APIs, fail-fast boundary, and the
+smallest behavior-neutral R0. No source implementation begins until accepted.
+
+### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — parked behind 3A/R0
 
 Consume the whole parameter-demand catalog and whole Dynamic lifecycle
 program. Seal parameter #1 through Pos/initializer/local/V1/C0/L0/B0 and the
