@@ -1017,6 +1017,44 @@ role, current-block, name, ordinal, or Recipe-order repair is never an
 acceptable bridge. If the census cannot prove caller-zero ownership, leave the
 old type in place and return `NoSafeSlice`.
 
+### Post-Dynamic audit additions (2026-08-11)
+
+The external review did not add a fifth Loop authority. It makes the existing
+four-row BoxShape series mechanically checkable. The following file-level
+responsibilities are part of the rows above, not independent execution cards:
+
+| Row | Existing surface | Required final owner | Forbidden bridge |
+| --- | --- | --- | --- |
+| `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | `physical_layout.rs`, `recursive_after.rs` | JoinSig-issued transfer view bound to private Recipe placement | rebuilding Predicate/Jump/Backedge/nested resume from `LoopConditionV1` or `as_recipe()` |
+| `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | `segment_allocator.rs` | verified segment-placement receipt | rereading Recipe condition roles to classify Header/Body, current-block repair |
+| `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | V1/V2 physical-demand consumers | one complete ordered operation/source-effect ledger borrowed by the consumer | per-access `find` over Recipe/evidence/effect arrays, zip-by-order, V2-to-V1 adapter |
+| `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | `recursive_after.rs`, `tail_completion.rs` | common stop at `ReadyLoopAfterContinuationV1`; Callable adapter owns profile close/Tail/ABI/Completion | `ReadyCallableLoopProfileCloseV1`, callable symbols, or hard-coded `Pure/Read/Write` counts in common code |
+| `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | `operation_target.rs` and fixed-role/segment receipts | one proven segment production route, then caller-zero deletion | keeping old and new topology issuers live without a census, or repairing by role/name/ordinal |
+
+The `tail_completion.rs` file location is itself part of the boundary audit:
+moving a file is insufficient if the common physicalizer still imports or
+constructs Callable profile products. The final common module may stop at the
+neutral continuation receipt; the outer Callable owner consumes it and owns
+Tail, ABI, Completion, Return, DraftSeal, and Callable symbols.
+
+The ledger row is a consumer-protocol refactor, not a new semantic authority.
+Each family may retain its own verified source/effect product and lend one
+complete ordered view. The view must be complete before physical preparation,
+must retain exact item/source/placement identity, and must make missing,
+duplicate, foreign, or extra rows reject before Builder effects. If this cannot
+be done without re-pairing rows, the row returns to design with `NoSafeSlice`.
+
+The topology census must include both the old role-indexed entry points and the
+new segment entry points, including the dual `operation_target.rs` issuers and
+their tests/guards. Deletion is allowed only after the segment route is the
+sole production route and all remaining tests are migrated or explicitly
+allowlisted. This keeps retirement reversible and prevents a second topology
+authority from surviving behind a compatibility wrapper.
+
+These are structural acceptance rules only. They do not authorize a new Loop
+shape, a production selector, a Builder/CFG change, a fallback/retry path, or
+the current H2 parser execution lane.
+
 These three rows are the canonical post-Dynamic unification series. They are
 ordered as one BoxShape-only refactor boundary:
 

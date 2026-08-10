@@ -752,6 +752,50 @@ LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
   census fixed-role receipts versus segment receipts; delete old topology only
   after production and test callers reach zero
 ```
+
+#### Post-Dynamic cleanup acceptance matrix
+
+The parked series is intentionally concrete about the old V1 surfaces it must
+retire. This is still one BoxShape-only series; it does not create another
+task family or change the current H2 parser blocker.
+
+```text
+physical_layout.rs / recursive_after.rs
+  consume JoinSig transfer evidence + verified placement
+  never rebuild Predicate/Jump/Backedge/nested resume from Recipe
+
+segment_allocator.rs
+  consume segment-placement receipt
+  never rescan Recipe condition roles for Header/Body
+
+V1/V2 physical consumers
+  borrow one complete ordered operation/source-effect ledger
+  never repeat Recipe/evidence find scans or zip rows by storage order
+
+common loop physicalizer
+  stops at ReadyLoopAfterContinuationV1
+  never imports ReadyCallableLoopProfileCloseV1
+  never owns Callable Tail/ABI/Completion/Return/DraftSeal
+  never hard-codes Pure/Read/Write profile counts
+
+operation_target.rs and topology receipts
+  remain in census until fixed-role callers are zero
+  segment route becomes the sole production route before deletion
+```
+
+The existing cleanup-retirement card remains the owner for unrelated parked
+cleanup such as route-neutral Recipe wrapper deduplication, trivial-analyzer
+policy-matrix deduplication, and the compact `CURRENT_STATE` migration. Those
+rows must not be mixed into this Loop transfer/physicalizer series.
+
+Acceptance for the series requires the corresponding guards and focused tests:
+zero Recipe transfer inference in layout/allocator, zero Callable profile
+symbols and hard-coded profile cardinalities in common physicalizer code, zero
+repeated V1 ledger scans, and a caller census proving the old topology route is
+not a hidden second authority. A missing JoinSig capability or an unavoidable
+row re-pairing is a design stop (`NoSafeSlice`), not a reason to add a lookup,
+fallback, or fixture-specific branch.
+
 Open only after the Hako result/ABI and physical-input rows close (and before
 production selection). This is one bounded refactor series: no accepted shape,
 BoxCount, selector, production switch, legacy deletion, fallback/retry, source
