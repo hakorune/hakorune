@@ -5,6 +5,7 @@
 //! local-statement terminals.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1};
 use crate::mir::ValueId;
@@ -93,7 +94,7 @@ impl PreparedDynamicLocalEntryV1 {
 #[derive(Debug)]
 pub(super) struct CallableDynamicOriginLoweringStateV1 {
     owner: FunctionOwnerIdV1,
-    source: VerifiedSourceBackedDynamicCallableV1,
+    source: Rc<VerifiedSourceBackedDynamicCallableV1>,
     formal_by_ordinal: BTreeMap<u32, BindingRefV1>,
     local_expectations: BTreeMap<BindingRefV1, DynamicLocalExpectationV1>,
     active_origins: BTreeMap<BindingRefV1, (ValueId, BindingRefV1)>,
@@ -140,6 +141,12 @@ impl CurrentDynamicBindingReceiptV1 {
 impl CallableDynamicOriginLoweringStateV1 {
     pub(super) fn from_source(
         source: VerifiedSourceBackedDynamicCallableV1,
+    ) -> Result<Self, CallableDynamicOriginErrorV1> {
+        Self::from_shared_source(Rc::new(source))
+    }
+
+    pub(super) fn from_shared_source(
+        source: Rc<VerifiedSourceBackedDynamicCallableV1>,
     ) -> Result<Self, CallableDynamicOriginErrorV1> {
         let owner = source.owner();
         let mut formal_by_ordinal = BTreeMap::new();
@@ -206,7 +213,7 @@ impl CallableDynamicOriginLoweringStateV1 {
         self.owner
     }
 
-    pub(super) const fn source(&self) -> &VerifiedSourceBackedDynamicCallableV1 {
+    pub(super) fn source(&self) -> &VerifiedSourceBackedDynamicCallableV1 {
         &self.source
     }
 

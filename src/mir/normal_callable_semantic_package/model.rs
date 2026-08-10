@@ -1,7 +1,10 @@
-use crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1;
+use crate::mir::builder::{
+    VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+};
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, HomeDemandV1};
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(super) struct OwnedCallableParameterDemandV1 {
@@ -37,6 +40,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
     Selected {
         batch_slot: u32,
         owner: FunctionOwnerIdV1,
+        source: Rc<VerifiedSourceBackedDynamicCallableV1>,
         program: VerifiedDynamicExitTransactionCoSealV1,
     },
 }

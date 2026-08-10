@@ -86,10 +86,19 @@ fn with_selected_source_scope<'port, 'collector, R>(
 ) -> Result<R, String> {
     let transport =
         super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
-    let state =
-        super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(
-            input.source(),
-        )?;
+    let dynamic_source = match input.semantic() {
+        crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic {
+            source,
+            ..
+        } => Some(std::rc::Rc::clone(source)),
+        crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Ordinary => {
+            None
+        }
+    };
+    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+        input.source(),
+        dynamic_source,
+    )?;
     let state = Rc::new(RefCell::new(state));
     let script_ledger = inner.semantic_ledger.take();
     let parent_callable = inner.callable_ledger.replace(state.clone());

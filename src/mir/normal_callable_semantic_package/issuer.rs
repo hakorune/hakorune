@@ -9,20 +9,21 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_exit_transaction_coseal_i0,
-    issue_dynamic_carrier_flow_program_v1, issue_dynamic_carrier_ingress_lifecycle_program_v1,
-    issue_dynamic_carrier_rebind_transaction_program_v1,
+    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
+    issue_dynamic_carrier_ingress_lifecycle_program_v1,
+    issue_dynamic_carrier_rebind_transaction_program_v1, issue_dynamic_exit_transaction_coseal_i0,
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_operator_carrier_lifecycle_program_v1,
-    DynamicCarrierCleanupProjectionRejectV1, DynamicExitTransactionCoSealRejectV1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicCarrierCleanupProjectionRejectV1,
     DynamicCarrierFlowProgramRejectV1, DynamicCarrierIngressLifecycleProgramRejectV1,
-    DynamicCarrierRebindTransactionRejectV1, DynamicFullLoopSemanticProgramRejectV2,
-    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
+    DynamicCarrierRebindTransactionRejectV1, DynamicExitTransactionCoSealRejectV1,
+    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
+    DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
+use std::rc::Rc;
 
 use super::dynamic_admission::{
     admit_dynamic_callable_v1, DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
@@ -101,6 +102,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             .map_err(|issue| NormalCallableSemanticPackageIssueV1::Dynamic { batch_slot, issue })?;
         if let DynamicCallableAdmissionV1::Candidate {
             owner,
+            source,
             recipe,
             calls,
         } = admission
@@ -109,7 +111,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 continue;
             }
             if candidate
-                .replace((batch_slot, owner, recipe, calls))
+                .replace((batch_slot, owner, source, recipe, calls))
                 .is_some()
             {
                 return Err(NormalCallableSemanticPackageIssueV1::DuplicateDynamicCandidate);
@@ -118,7 +120,13 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
     }
     let dynamic = match candidate {
         None => NormalCallableDynamicProjectionV1::ValidUnselected,
-        Some((dynamic_batch_slot, dynamic_owner, dynamic_recipe, dynamic_calls)) => {
+        Some((
+            dynamic_batch_slot,
+            dynamic_owner,
+            dynamic_source,
+            dynamic_recipe,
+            dynamic_calls,
+        )) => {
             let mut dynamic_demands = parameter_demands
                 .iter()
                 .filter(|declaration| declaration.batch_slot == dynamic_batch_slot);
@@ -167,6 +175,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_batch_slot,
                 owner: dynamic_owner,
+                source: Rc::new(dynamic_source),
                 program,
             }
         }

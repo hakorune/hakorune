@@ -7,6 +7,7 @@ LOAN="$ROOT/src/parser/normal_callable_program_source/semantic_syntax_loan.rs"
 BATCH="$ROOT/src/mir/callable_semantic_batch/issuer.rs"
 BATCH_MODEL="$ROOT/src/mir/callable_semantic_batch/model.rs"
 PACKAGE="$ROOT/src/mir/normal_callable_semantic_package/install.rs"
+ADMISSION="$ROOT/src/mir/normal_callable_semantic_package/dynamic_admission.rs"
 PORT="$ROOT/src/mir/builder/normal_callable_semantic_loan_port.rs"
 LOCAL="$ROOT/src/mir/builder/stmts/local_statement_descent.rs"
 DIAG="$ROOT/src/mir/builder/generic_loop_admission_observation.rs"
@@ -15,15 +16,15 @@ RAW_PORT="$ROOT/src/mir/builder/recursive_child_lowering.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$LOAN" "$BATCH" "$BATCH_MODEL" "$PACKAGE" "$PORT" \
+guard_require_files "$TAG" "$LOAN" "$BATCH" "$BATCH_MODEL" "$PACKAGE" "$ADMISSION" "$PORT" \
   "$LOCAL" "$DIAG" "$RAW_LOOP" "$RAW_PORT"
 
-python3 - "$LOAN" "$BATCH" "$BATCH_MODEL" "$PACKAGE" "$PORT" "$LOCAL" "$DIAG" "$RAW_LOOP" "$RAW_PORT" <<'PY'
+python3 - "$LOAN" "$BATCH" "$BATCH_MODEL" "$PACKAGE" "$ADMISSION" "$PORT" "$LOCAL" "$DIAG" "$RAW_LOOP" "$RAW_PORT" <<'PY'
 import sys
 from pathlib import Path
 
-loan, batch, batch_model, package, port, local, diag, raw_loop, raw_port = map(Path, sys.argv[1:])
-texts = {path: path.read_text(encoding="utf-8") for path in (loan, batch, batch_model, package, port, local, diag, raw_loop, raw_port)}
+loan, batch, batch_model, package, admission, port, local, diag, raw_loop, raw_port = map(Path, sys.argv[1:])
+texts = {path: path.read_text(encoding="utf-8") for path in (loan, batch, batch_model, package, admission, port, local, diag, raw_loop, raw_port)}
 
 for path, text in texts.items():
     lines = len(text.splitlines())
@@ -55,6 +56,15 @@ if "with_lowering_input_and_method_source" not in texts[package]:
     raise SystemExit("installed package must expose only the batch-backed observation loan")
 if "with_callable_method_source_observation" not in texts[port]:
     raise SystemExit("raw callable port must transport the observation exactly once")
+if "input.semantic()" not in texts[port]:
+    raise SystemExit("selected package port must consume the semantic loan")
+if "from_exact_source_with_dynamic_source" not in texts[port]:
+    raise SystemExit("selected package port must seed lowering from the semantic loan")
+for forbidden in ("SourceBackedDynamicCallableIssuerV1", "issue_source_backed_dynamic_callable_v1"):
+    if forbidden in texts[port]:
+        raise SystemExit(f"selected package adapter reissued Dynamic source semantics: {forbidden}")
+if "issue_source_backed_dynamic_callable_v1" not in texts[admission]:
+    raise SystemExit("package Dynamic admission must retain the source-backed seed")
 
 local_text = texts[local]
 if local_text.count("observe_initializer(") < 4:

@@ -72,6 +72,36 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_demands() {
 }
 
 #[test]
+fn selected_dynamic_loan_carries_the_package_source_seed() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| match input.semantic() {
+        SelectedCallableSemanticRefV1::Dynamic { source, .. } => {
+            assert_eq!(source.owner(), input.source().owner());
+        }
+        SelectedCallableSemanticRefV1::Ordinary => panic!("Dynamic row lost package seed"),
+    })
+    .expect("selected Dynamic loan");
+}
+
+#[test]
 fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
     let dynamic = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
     let source = format!("function helper(value) {{ return value }}\n{dynamic}");

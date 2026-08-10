@@ -4,6 +4,7 @@ use std::collections::BTreeSet;
 
 use crate::mir::builder::{
     CompilationContext, SameModuleCallableCatalogBrandV1, SelectedNormalCallableKeyV1,
+    VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -46,6 +47,7 @@ pub(crate) enum SelectedCallableSemanticRefV1<'loan> {
     Ordinary,
     Dynamic {
         program: &'loan VerifiedDynamicExitTransactionCoSealV1,
+        source: &'loan std::rc::Rc<VerifiedSourceBackedDynamicCallableV1>,
     },
 }
 
@@ -145,8 +147,11 @@ impl InstalledNormalCallableSemanticPackageV1 {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
                 program,
+                source,
                 ..
-            } if *dynamic_slot == batch_slot => SelectedCallableSemanticRefV1::Dynamic { program },
+            } if *dynamic_slot == batch_slot => {
+                SelectedCallableSemanticRefV1::Dynamic { program, source }
+            }
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
         self.batch

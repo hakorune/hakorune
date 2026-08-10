@@ -1,6 +1,7 @@
 //! Request-local physical projection for one resolved callable owner.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 use crate::mir::builder::stmts::CompletedLocalStatementV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -52,10 +53,26 @@ impl CallableSemanticLoweringState {
     pub(super) fn from_exact_source(
         input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, String> {
-        let dynamic_source = SourceBackedDynamicCallableIssuerV1::issue_from_resolved_input(input)
-            .map_err(|error| format!("[freeze:contract][callable-dynamic-source] {error:?}"))?;
-        let dynamic_origins = CallableDynamicOriginLoweringStateV1::from_source(dynamic_source)
-            .map_err(|error| error.to_string())?;
+        Self::from_exact_source_with_dynamic_source(input, None)
+    }
+
+    pub(super) fn from_exact_source_with_dynamic_source(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        dynamic_source: Option<
+            Rc<super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
+        >,
+    ) -> Result<Self, String> {
+        let dynamic_origins = match dynamic_source {
+            Some(source) => CallableDynamicOriginLoweringStateV1::from_shared_source(source),
+            None => {
+                let source = SourceBackedDynamicCallableIssuerV1::issue_from_resolved_input(input)
+                    .map_err(|error| {
+                        format!("[freeze:contract][callable-dynamic-source] {error:?}")
+                    })?;
+                CallableDynamicOriginLoweringStateV1::from_source(source)
+            }
+        }
+        .map_err(|error| error.to_string())?;
         let forest = input.forest();
         let [root] = forest.roots() else {
             return Err(freeze("root-cardinality"));

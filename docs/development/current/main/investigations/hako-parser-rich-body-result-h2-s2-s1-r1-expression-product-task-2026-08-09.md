@@ -889,7 +889,7 @@ retains exact initializer/local `ValueId`s and their `BindingRef` relation.
 The next row must relate those existing facts to the package owner; it must not
 turn diagnostic `LocalInitializerObservationV1` into semantic authority.
 
-## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0` (current)
+## `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0` (closed 2026-08-11)
 
 ### Decision closeout (2026-08-11)
 
@@ -971,6 +971,56 @@ neither:
 Dynamic never fabricates or publishes `MirType::Unknown`, a nominal Dynamic
 type, or a TypeContext backfill. It does not enter legacy GenericLoop.
 
+### `H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0` closeout (2026-08-11)
+
+R0 is closed as a behavior-neutral BoxShape refactor. The package-side
+Dynamic admission now retains the existing
+`VerifiedSourceBackedDynamicCallableV1` exactly once beside the final Dynamic
+exit-transaction program. `SelectedCallableSemanticRefV1::Dynamic` loans both
+products through the installed package, and the selected-callable adapter
+passes the retained source product into request-local origin state.
+
+The ordinary path keeps its existing local source issuance. On the selected
+Dynamic package path, `SourceBackedDynamicCallableIssuerV1` is no longer
+executed by the Builder adapter; the package seed is shared immutably through
+an `Rc` and consumed by the existing origin projection. No new admission
+receipt, `ValueId` publication, `MirType`, GenericLoop branch, CFG/PHI/session,
+fallback, or retry was added.
+
+The package test now proves that the selected Dynamic loan carries a source
+seed with the exact resolved owner, and
+`h2_compile_front_owner_handoff_i0_guard.sh` enforces:
+
+```text
+selected adapter consumes input.semantic() = 1
+selected adapter source reissue = 0
+package Dynamic admission retains the source-backed seed = 1
+GenericLoop semantic change = 0
+source files below 800 lines = 1
+```
+
+Verification receipt (2026-08-11):
+
+```text
+cargo check -q --lib                                      -> pass
+cargo test --lib normal_callable_semantic_package          -> 11 passed
+h2_compile_front_owner_handoff_i0_guard.sh                -> pass
+current_state_pointer_guard.sh                            -> pass
+git diff --check                                          -> pass
+```
+
+The focused legacy-origin test
+`normal_callable_scope_consumes_real_entry_and_local_terminal_receipts`
+still fails with
+`[freeze:contract][script-lexical/local-binding]`. The same failure is
+reproduced on the parent commit, so it is a pre-existing predecessor failure,
+not an R0 regression; it remains owned by the existing lexical/local-binding
+boundary and is not repaired in this authority-only row.
+
+R0 does not claim that the located Loop consumes this authority. The method
+and admission observations are still outside the physical route; that is the
+next design boundary.
+
 ### Required negative matrix
 
 ```text
@@ -1002,24 +1052,109 @@ authority guards:
   Dynamic receipt entering legacy GenericLoop
 ```
 
+## `H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0` (current design stop)
+
+R0 proved only the authority transport. This D0 must decide whether the
+transport can be consumed by one real bounded Dynamic Loop physical route.
+It is not a new Dynamic producer task: the complete V2 producer and the
+package-held `VerifiedDynamicExitTransactionCoSealV1` are already landed.
+
+### Exact question
+
+```text
+installed package Dynamic semantic loan
+  + existing PreparedDynamicLocalEntryV1
+  + located method/Loop source observation
+  + exact binding schedule
+        |
+        v
+one bounded selected Dynamic Loop consumer
+```
+
+The consumer must be named before implementation. It must either consume the
+package-owned semantic program directly or prove that a source-backed result
+and ABI contract already exists. A disconnected admission receipt is not a
+consumer and must not be created to make the graph look complete.
+
+### Bootstrap cycle to close explicitly
+
+```text
+H2 result carrier
+  -> needs the imported Dynamic Loop to compile
+
+Dynamic physical input
+  -> needs the H2 result carrier / source-backed result contract
+```
+
+The only acceptable resolution is a bounded in-place replacement of the
+selected Dynamic Loop responsibility inside the existing outer callable
+terminal. Do not add a second function pipeline, a temporary GenericLoop type,
+or a compatibility fallback. If the cycle has no sole consumer at this
+boundary, the result is `NoSafeSlice` and the H2 row remains blocked.
+
+### D0 acceptance
+
+`accepted` requires all of the following:
+
+```text
+one named production consumer
+package Dynamic program is the only semantic classifier
+PreparedDynamicLocalEntryV1 is the only existing local materialization fact
+method/Loop/frame/scope provenance has one exact relation
+Static xor Dynamic selection remains fail-fast
+Dynamic does not enter exact-MirType GenericLoop
+the consumer can reach the existing bounded V2 physical input/demand
+no source/Recipe/JoinSig reissue
+no fallback/retry/bootstrap shim
+```
+
+If any item is absent, record the exact missing owner and keep this D0 at
+`NoSafeSlice`; do not insert another prerequisite row between this D0 and the
+cutover.
+
+### Required negative cases
+
+```text
+foreign package/program/owner/frame/scope/region/Loop
+wrong initializer site/ordinal or local BindingRef/ValueId
+missing or duplicate local materialization
+ordinary semantic offered as Dynamic
+Dynamic offered as Static exact-type receipt
+both producer families or neither family
+Dynamic routed to GenericLoop
+package semantic program consumed twice
+source reissue by name/arity/ValueId/route/runtime tag
+unlocated compatibility route or fallback/retry
+```
+
+### Non-claims
+
+```text
+no new admission receipt before a sole consumer exists
+no GenericLoop change or Dynamic MirType
+no CFG/PHI/function session/DraftSeal/Collector/publication
+no result/ABI inference from runtime tags or ValueId
+no parser fixture narrowing
+no provider/runtime execution
+```
+
 ### Ordered execution ladder
 
-The D0 is closed. Only the first implementation row below is current. Later
-rows are fixed gates, not permission to cross an unresolved design stop.
+The selected-admission D0 and its behavior-neutral R0 are closed. The
+consumer D0 above is the current design stop; later rows are fixed gates, not
+permission to cross an unresolved design stop. No new prerequisite row may be
+inserted between the consumer decision and the named cutover.
 
 ```text
 1. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-COSEAL-D0
    fix the HRTB view, exact co-seal identity, XOR family rule, and stop line
 
-2. H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
-   the only non-cutover BoxShape implementation row:
-     the adapter consumes input.semantic() exactly once
-     final package program lends the narrow Dynamic admission view
-     request-local state retains values but stops reissuing Dynamic semantics
-     package path SourceBackedDynamicCallableIssuerV1 re-execution = 0
-   route, fixture, GenericLoop, CFG, and physical behavior remain unchanged
+2. H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0 (closed 2026-08-11)
+   package-owned Dynamic source seed is retained and consumed by the
+   selected-callable adapter; package-path source reclassification is zero.
+   Route, fixture, GenericLoop, CFG, and physical behavior remain unchanged.
 
-3. H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0
+3. H2-SELECTED-DYNAMIC-LOOP-CONSUMER-D0 (current design stop)
    close the bootstrap cycle and identify the sole consumer explicitly:
      H2 needs the imported Dynamic Loop to compile
      full Dynamic physical input needs a source-backed result/ABI contract

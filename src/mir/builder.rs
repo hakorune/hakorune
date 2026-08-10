@@ -50,7 +50,9 @@ pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,
 };
-pub(in crate::mir) use normal_callable_dynamic_source::issue_source_backed_dynamic_callable_v1;
+pub(in crate::mir) use normal_callable_dynamic_source::{
+    issue_source_backed_dynamic_callable_v1, VerifiedSourceBackedDynamicCallableV1,
+};
 pub(in crate::mir) use normal_callable_semantic_source::{
     NormalCallableSemanticAdmissionV1, VerifiedNormalCallableSemanticSourceV1,
 };
