@@ -8,8 +8,8 @@ mod semantic_program;
 #[cfg(test)]
 mod tests;
 
-use crate::mir::dynamic_invocation_contract::VerifiedDynamicInvocationEnvelopeCatalogV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopRecipeArtifactV2;
+use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::{DynamicFullLoopRecipeCandidateV2, DynamicFullLoopRetainedSourceV1};
 use calls::{
@@ -50,16 +50,15 @@ pub(in crate::mir) enum DynamicFullLoopSourceRecipeEnvelopeRejectV2 {
 /// `ch` Home, callable Tail/Completion consumption, and Fault remain later
 /// owners.
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl> {
+pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
     source: DynamicFullLoopRetainedSourceV1,
     artifact: VerifiedLoopRecipeArtifactV2,
     coverage: VerifiedDynamicFullLoopClaimCoverageV2,
     calls: VerifiedDynamicFullLoopCallRelationsV2,
     iteration_local: DynamicIterationLocalRelationV2,
-    catalog: &'env VerifiedDynamicInvocationEnvelopeCatalogV1<'decl>,
 }
 
-impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'_, '_> {
+impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
     pub(in crate::mir) fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
         self.iteration_local.borrow(&self.source)
     }
@@ -83,24 +82,19 @@ impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'_, '_> {
     fn calls(&self) -> &VerifiedDynamicFullLoopCallRelationsV2 {
         &self.calls
     }
-
-    #[cfg(test)]
-    fn catalog_len(&self) -> usize {
-        self.catalog.len()
-    }
 }
 
-pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2<'env, 'decl>(
+pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2(
     candidate: DynamicFullLoopRecipeCandidateV2,
-    catalog: &'env VerifiedDynamicInvocationEnvelopeCatalogV1<'decl>,
+    targets: &[VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<
-    VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>,
+    VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2,
 > {
     let (source, artifact, claims) = candidate.into_parts();
     let coverage = verify_complete_claim_coverage_v2(&source, artifact.recipe(), claims)
         .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Coverage)?;
-    let calls = verify_dynamic_call_relations_v2(&source, artifact.recipe(), catalog)
+    let calls = verify_dynamic_call_relations_v2(&source, artifact.recipe(), targets)
         .map_err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls)?;
     let iteration_local = verify_iteration_local_relation_v2(&source, &coverage, &calls)
         .ok_or(DynamicFullLoopSourceRecipeEnvelopeRejectV2::IterationLocal)?;
@@ -110,6 +104,5 @@ pub(in crate::mir) fn issue_dynamic_full_loop_source_recipe_envelope_v2<'env, 'd
         coverage,
         calls,
         iteration_local,
-        catalog,
     })
 }

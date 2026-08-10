@@ -72,7 +72,10 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_demands() {
             .expect("Dynamic row remains in the owned batch")
             .owner()
     );
-    let _ = package.dynamic_recipe();
+    assert_eq!(
+        package.dynamic_program().after().loop_key(),
+        crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0)
+    );
 }
 
 #[test]

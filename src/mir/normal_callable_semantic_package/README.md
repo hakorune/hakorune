@@ -9,6 +9,8 @@ VerifiedFinalCallableProgramSourceV1
   -> complete resolved callable batch
   -> exact owned direct-method parameter-demand subset
   -> exact one Dynamic full-body source/Recipe candidate
+  -> owned catalog-neutral Dynamic call relations
+  -> Recipe / JoinSig / invocation lifecycle / operator lifecycle
 ```
 
 Complete batch membership comes from final callable anchors, not the parameter
@@ -21,6 +23,13 @@ borrowed parameter-demand catalogs exist only inside the issuer. This module
 does not own callable-name selection, CFG, PHI, Completion consumption,
 physical ABI, runtime dispatch, retry, or fallback.
 
-The current bounded cutover will next add catalog-neutral Dynamic invocation
-relations and transform this package whole into the existing Recipe/JoinSig
-semantic program before replacing the selected production caller.
+Dynamic call relations are issued from the same batch-scoped lowering input as
+owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a
+callable catalog borrow, and the resulting semantic/lifecycle program carries
+no catalog lifetime. The old target catalog remains only as a migration
+adapter for the not-yet-replaced Builder caller.
+
+The bounded cutover must next make zero-Dynamic complete batches a typed valid
+unselected projection, seal the selected callable key to its exact private
+batch slot, and then replace the selected production caller while deleting the
+old Builder seal, Dynamic extension, and loan port together.

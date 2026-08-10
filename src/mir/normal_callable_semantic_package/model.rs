@@ -1,5 +1,5 @@
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
-use crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopRecipeCandidateV2;
+use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicOperatorCarrierLifecycleProgramV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, HomeDemandV1};
 
 #[derive(Debug)]
@@ -27,7 +27,7 @@ pub(crate) struct VerifiedNormalCallableSemanticDynamicPackageV1 {
     pub(super) parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
     pub(super) dynamic_batch_slot: u32,
     pub(super) dynamic_owner: FunctionOwnerIdV1,
-    pub(super) dynamic_recipe: DynamicFullLoopRecipeCandidateV2,
+    pub(super) dynamic_program: VerifiedDynamicOperatorCarrierLifecycleProgramV1,
 }
 
 impl VerifiedNormalCallableSemanticDynamicPackageV1 {
@@ -54,7 +54,7 @@ impl VerifiedNormalCallableSemanticDynamicPackageV1 {
             .sum()
     }
 
-    pub(crate) fn dynamic_recipe(&self) -> &DynamicFullLoopRecipeCandidateV2 {
-        &self.dynamic_recipe
+    pub(crate) fn dynamic_program(&self) -> &VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
+        &self.dynamic_program
     }
 }

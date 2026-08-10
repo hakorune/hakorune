@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 has landed the complete final-anchor semantic batch correction: top-level plus direct callables resolve in one allocation, parser parameter demand is an exact partial projection, and mixed top-level plus Dynamic coverage is fixed. The row now continues with catalog-neutral Dynamic relations and the selected production edge replacement."
+status = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0 has landed catalog-neutral owned Dynamic call relations and a lifetime-free Recipe/JoinSig/lifecycle program inside the whole semantic package. The row now continues with a typed zero-Dynamic valid-unselected projection, exact selected callable-to-batch-slot mapping, and then the selected production edge replacement."
 date = "2026-08-10"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; the all-callable complete-batch plus partial parameter-demand projection correction is accepted in section 3H of the rolling ingress card"
 work_mode = "fast"
 current_execution_row = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
-current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0: from the landed complete batch/package, recut Dynamic target and invocation evidence as owned catalog-neutral relations, derive the existing Recipe/JoinSig and parameter #1 ingress rows inside the whole package, then replace/delete the selected old Builder seal, Dynamic extension, and loan port together; no Home, CFG, Completion, name/ordinal/ID repair, retry, or fallback"
+current_blocker_token = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0: from the landed complete batch and catalog-neutral lifecycle package, make zero Dynamic candidates a typed ValidUnselected projection, seal the selected callable anchor/key to its exact private batch slot without name/ordinal/ID repair, derive parameter #1 ingress inside the selected whole package, then replace/delete the selected old Builder seal, Dynamic extension, and loan port together; no Home, CFG, Completion, retry, or fallback"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
 callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
@@ -724,7 +724,7 @@ next_execution_card = "NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The normal callable source carrier, owned Dynamic package, and complete-batch correction are closed checkpoints. Final anchors now define one all-callable resolver batch; direct-method parameter demand is an exact partial projection; mixed top-level plus Dynamic coverage is green. Catalog-neutral Dynamic relations and the old Builder edge deletion remain current."
+latest_card_summary = "The source carrier, complete all-callable batch, partial parameter-demand projection, and catalog-neutral Dynamic lifecycle package are closed checkpoints. The current row must add typed zero-Dynamic ValidUnselected plus exact selected anchor/key-to-batch-slot mapping before deleting the old Builder seal, Dynamic extension, and loan port together."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

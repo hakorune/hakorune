@@ -5,6 +5,13 @@ use crate::mir::callable_semantic_batch::{
     issue_resolved_callable_semantic_batch_v1, ResolvedCallableSemanticBatchIssueV1,
     ResolvedCallableSemanticBatchLoanErrorV1,
 };
+use crate::mir::compiler::dynamic_full_body_recipe::{
+    issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
+    issue_dynamic_invocation_carrier_lifecycle_program_v1,
+    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
+    DynamicOperatorCarrierLifecycleProgramRejectV1,
+};
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
@@ -29,6 +36,10 @@ pub(crate) enum NormalCallableSemanticDynamicPackageIssueV1 {
     DuplicateDynamicCandidate,
     MissingDynamicParameterDemand,
     DynamicParameterDemandIdentity,
+    DynamicRecipeEnvelope(DynamicFullLoopSourceRecipeEnvelopeRejectV2),
+    DynamicSemanticProgram(DynamicFullLoopSemanticProgramRejectV2),
+    DynamicInvocationLifecycle(DynamicInvocationCarrierLifecycleProgramRejectV1),
+    DynamicOperatorLifecycle(DynamicOperatorCarrierLifecycleProgramRejectV1),
 }
 
 pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
@@ -71,13 +82,21 @@ pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
             .map_err(
                 |issue| NormalCallableSemanticDynamicPackageIssueV1::Dynamic { batch_slot, issue },
             )?;
-        if let DynamicCallableAdmissionV1::Candidate { owner, recipe } = admission {
-            if candidate.replace((batch_slot, owner, recipe)).is_some() {
+        if let DynamicCallableAdmissionV1::Candidate {
+            owner,
+            recipe,
+            calls,
+        } = admission
+        {
+            if candidate
+                .replace((batch_slot, owner, recipe, calls))
+                .is_some()
+            {
                 return Err(NormalCallableSemanticDynamicPackageIssueV1::DuplicateDynamicCandidate);
             }
         }
     }
-    let Some((dynamic_batch_slot, dynamic_owner, dynamic_recipe)) = candidate else {
+    let Some((dynamic_batch_slot, dynamic_owner, dynamic_recipe, dynamic_calls)) = candidate else {
         return Err(NormalCallableSemanticDynamicPackageIssueV1::MissingDynamicCandidate);
     };
     let mut dynamic_demands = parameter_demands
@@ -89,12 +108,23 @@ pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
     if dynamic_demands.next().is_some() || dynamic_demand.owner != dynamic_owner {
         return Err(NormalCallableSemanticDynamicPackageIssueV1::DynamicParameterDemandIdentity);
     }
+    let dynamic_envelope =
+        issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, &dynamic_calls)
+            .map_err(NormalCallableSemanticDynamicPackageIssueV1::DynamicRecipeEnvelope)?;
+    let dynamic_semantic = issue_dynamic_full_loop_semantic_program_v2(dynamic_envelope)
+        .map_err(NormalCallableSemanticDynamicPackageIssueV1::DynamicSemanticProgram)?;
+    let dynamic_invocation =
+        issue_dynamic_invocation_carrier_lifecycle_program_v1(dynamic_semantic)
+            .map_err(NormalCallableSemanticDynamicPackageIssueV1::DynamicInvocationLifecycle)?;
+    let dynamic_program =
+        issue_dynamic_operator_carrier_lifecycle_program_v1(dynamic_invocation)
+            .map_err(NormalCallableSemanticDynamicPackageIssueV1::DynamicOperatorLifecycle)?;
 
     Ok(VerifiedNormalCallableSemanticDynamicPackageV1 {
         batch,
         parameter_demands,
         dynamic_batch_slot,
         dynamic_owner,
-        dynamic_recipe,
+        dynamic_program,
     })
 }

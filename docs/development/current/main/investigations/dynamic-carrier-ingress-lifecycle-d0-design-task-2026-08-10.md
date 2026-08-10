@@ -1251,7 +1251,7 @@ The already-landed direct-method package remains a valid bounded checkpoint,
 not a production replacement. Code may now resume with the complete-batch
 coverage correction; it must not widen the checkpoint by inference.
 
-Complete-batch checkpoint (2026-08-10): the correction is landed locally.
+Complete-batch checkpoint (2026-08-10): the correction is landed.
 `VerifiedFinalCallableProgramSourceV1` now lends every final callable through
 one higher-ranked syntax loan. `VerifiedResolvedCallableSemanticBatchV1`
 resolves that complete anchor set once and uses private batch slots as its
@@ -1263,6 +1263,30 @@ Handle demands, and one Dynamic candidate at batch slot one. The reusable
 `normal_callable_complete_batch_guard.sh` prevents parameter-catalog
 cardinality from becoming whole-batch authority, requires the selected Dynamic
 row to retain exact parameter authority, and enforces the 800-line boundary.
+
+Catalog-neutral checkpoint (2026-08-10): the exact resolved function input
+now issues owned Dynamic call rows keyed by resolver owner and exact source
+site. The legacy target catalog is a one-way migration adapter over those
+rows. The Recipe co-seal consumes the owned rows directly, and the semantic,
+invocation-lifecycle, and operator-lifecycle products no longer carry callable
+catalog lifetimes. The whole package owns the completed lifecycle program,
+not a caller-paired Recipe candidate or Dynamic envelope catalog.
+
+This checkpoint exposes the final activation premise: a complete normal
+Program with zero fully observed Dynamic candidates is valid and must not be
+rejected merely because the Dynamic projection is unselected. Before deleting
+the old Builder edge, the root package therefore needs one typed projection:
+
+```text
+Dynamic projection
+  ValidUnselected
+  Selected { exact callable anchor/key -> private batch slot -> program }
+```
+
+Duplicate, unresolved, rejected, foreign, or repaired selections fail closed.
+The selected mapping may use neither name/arity lookup nor source/inventory
+ordinal repair. Only after this projection lands may the named production
+caller switch and the three old edges be deleted together.
 A selected-gate Dynamic fixture proves that missing parameter authority rejects
 instead of synthesizing `Ordinary`. Catalog-neutral Dynamic invocation
 relations and the production edge replacement remain open.

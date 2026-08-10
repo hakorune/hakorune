@@ -77,8 +77,8 @@ impl DynamicFullLoopAfterRefV2<'_> {
 /// must consume it whole rather than pairing an equal-looking Recipe, JoinSig,
 /// After, or Completion from another source session.
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl> {
-    envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>,
+pub(in crate::mir) struct VerifiedDynamicFullLoopSemanticProgramV2 {
+    envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     fault_cut_points: VerifiedDynamicFullLoopFaultCutPointCatalogV2,
     control: VerifiedLoopJoinClosureV2,
 }
@@ -86,8 +86,8 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl> 
 /// The complete Dynamic semantic program plus the complete invocation-result
 /// lifecycle family. It stays non-splittable and owns no Home/physical state.
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl> {
-    program: VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
+pub(in crate::mir) struct VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
+    program: VerifiedDynamicFullLoopSemanticProgramV2,
     invocation_lifecycle: VerifiedDynamicInvocationCarrierLifecycleCatalogV1,
 }
 
@@ -95,12 +95,12 @@ pub(in crate::mir) struct VerifiedDynamicInvocationCarrierLifecycleProgramV1<'en
 /// lifecycle relations. It remains non-splittable and performs no rebind or
 /// physical cleanup.
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedDynamicOperatorCarrierLifecycleProgramV1<'env, 'decl> {
-    invocation_program: VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl>,
+pub(in crate::mir) struct VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
+    invocation_program: VerifiedDynamicInvocationCarrierLifecycleProgramV1,
     operator_lifecycle: VerifiedDynamicOperatorCarrierLifecycleCatalogV1,
 }
 
-impl VerifiedDynamicOperatorCarrierLifecycleProgramV1<'_, '_> {
+impl VerifiedDynamicOperatorCarrierLifecycleProgramV1 {
     pub(in crate::mir) fn operator_lifecycle(
         &self,
     ) -> DynamicOperatorCarrierLifecycleCatalogRefV1<'_> {
@@ -118,7 +118,7 @@ impl VerifiedDynamicOperatorCarrierLifecycleProgramV1<'_, '_> {
     }
 }
 
-impl VerifiedDynamicInvocationCarrierLifecycleProgramV1<'_, '_> {
+impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
     pub(in crate::mir) fn invocation_lifecycle(
         &self,
     ) -> DynamicInvocationCarrierLifecycleCatalogRefV1<'_> {
@@ -134,7 +134,7 @@ impl VerifiedDynamicInvocationCarrierLifecycleProgramV1<'_, '_> {
     }
 }
 
-impl VerifiedDynamicFullLoopSemanticProgramV2<'_, '_> {
+impl VerifiedDynamicFullLoopSemanticProgramV2 {
     pub(in crate::mir) fn after(&self) -> DynamicFullLoopAfterRefV2<'_> {
         DynamicFullLoopAfterRefV2 {
             control: &self.control,
@@ -155,12 +155,9 @@ impl VerifiedDynamicFullLoopSemanticProgramV2<'_, '_> {
     }
 }
 
-pub(in crate::mir) fn issue_dynamic_full_loop_semantic_program_v2<'env, 'decl>(
-    envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'env, 'decl>,
-) -> Result<
-    VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
-    DynamicFullLoopSemanticProgramRejectV2,
-> {
+pub(in crate::mir) fn issue_dynamic_full_loop_semantic_program_v2(
+    envelope: VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
+) -> Result<VerifiedDynamicFullLoopSemanticProgramV2, DynamicFullLoopSemanticProgramRejectV2> {
     let fault_cut_points = issue_fault_cut_points_v2(&envelope)
         .map_err(|_| DynamicFullLoopSemanticProgramRejectV2::FaultCutPoints)?;
     let control = issue_sole_root_carrier_join_closure_v2(envelope.artifact.recipe())
@@ -172,10 +169,10 @@ pub(in crate::mir) fn issue_dynamic_full_loop_semantic_program_v2<'env, 'decl>(
     })
 }
 
-pub(in crate::mir) fn issue_dynamic_invocation_carrier_lifecycle_program_v1<'env, 'decl>(
-    program: VerifiedDynamicFullLoopSemanticProgramV2<'env, 'decl>,
+pub(in crate::mir) fn issue_dynamic_invocation_carrier_lifecycle_program_v1(
+    program: VerifiedDynamicFullLoopSemanticProgramV2,
 ) -> Result<
-    VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl>,
+    VerifiedDynamicInvocationCarrierLifecycleProgramV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1,
 > {
     let invocation_lifecycle = issue_invocation_carrier_lifecycle_v1(&program)
@@ -186,10 +183,10 @@ pub(in crate::mir) fn issue_dynamic_invocation_carrier_lifecycle_program_v1<'env
     })
 }
 
-pub(in crate::mir) fn issue_dynamic_operator_carrier_lifecycle_program_v1<'env, 'decl>(
-    invocation_program: VerifiedDynamicInvocationCarrierLifecycleProgramV1<'env, 'decl>,
+pub(in crate::mir) fn issue_dynamic_operator_carrier_lifecycle_program_v1(
+    invocation_program: VerifiedDynamicInvocationCarrierLifecycleProgramV1,
 ) -> Result<
-    VerifiedDynamicOperatorCarrierLifecycleProgramV1<'env, 'decl>,
+    VerifiedDynamicOperatorCarrierLifecycleProgramV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1,
 > {
     let operator_lifecycle = issue_operator_carrier_lifecycle_v1(&invocation_program)?;

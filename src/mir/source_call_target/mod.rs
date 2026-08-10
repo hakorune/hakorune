@@ -23,9 +23,9 @@ mod whole_source_inventory_error;
 pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
 #[allow(unused_imports)]
 pub(crate) use dynamic_member::{
-    DynamicMemberArgumentSourceV1, DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1,
-    DynamicMemberSourceRejectV1, DynamicMemberSourceUnresolvedV1,
-    VerifiedSourceBoundDynamicMemberCallV1,
+    issue_source_bound_dynamic_member_calls_v1, DynamicMemberArgumentSourceV1,
+    DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1,
+    DynamicMemberSourceUnresolvedV1, VerifiedSourceBoundDynamicMemberCallV1,
 };
 #[allow(unused_imports)]
 pub(crate) use error::{

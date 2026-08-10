@@ -4,16 +4,13 @@ use crate::mir::builder::{
     SameModuleCallableNamespaceV1, VerifiedNormalCallableSemanticSourceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
 };
-use crate::mir::dynamic_invocation_contract::{
-    DynamicInvocationEnvelopeLookupV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
-};
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
     CallableSemanticSourceLedgerView, FunctionSemanticResolverSessionV1,
 };
 use crate::mir::source_call_target::{
-    VerifiedSourceCallTargetCatalogV1, VerifiedStaticImportAliasViewV1,
+    issue_source_bound_dynamic_member_calls_v1, VerifiedSourceBoundDynamicMemberCallV1,
 };
 use crate::parser::NyashParser;
 
@@ -35,7 +32,7 @@ fn production_program() -> ASTNode {
 
 pub(super) struct CosealFixtureV2 {
     pub(super) candidate: DynamicFullLoopRecipeCandidateV2,
-    pub(super) catalog: VerifiedDynamicInvocationEnvelopeCatalogV1<'static>,
+    pub(super) calls: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
 }
 
 pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
@@ -74,6 +71,11 @@ pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
         .expect("catalog callable owner link")
         .into_parts();
     let input = ingress.input();
+    let calls = if include_dynamic_targets {
+        issue_source_bound_dynamic_member_calls_v1(input).expect("owned Dynamic call relations")
+    } else {
+        Box::new([])
+    };
     let membership = ingress.ledger().only_loop_site().expect("one loop");
     let completion = verify_function_completion_v1(input).expect("completion");
     let source_inventory = DynamicFullBodySourceIssuerV1::issue(input, membership, completion)
@@ -81,35 +83,21 @@ pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
     let candidate =
         produce_dynamic_full_loop_recipe_v2(source_inventory).expect("complete candidate");
 
-    let imports = VerifiedStaticImportAliasViewV1::seal(declarations, std::iter::empty())
-        .expect("empty imports");
-    let targets = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, std::iter::empty())
-        .expect("empty targets");
-    let targets = if include_dynamic_targets {
-        targets
-            .extend_complete_dynamic_sources(&source)
-            .expect("complete Dynamic targets")
-    } else {
-        targets
-    };
-    let catalog = VerifiedDynamicInvocationEnvelopeCatalogV1::issue(targets, declarations)
-        .expect("envelope catalog");
-    CosealFixtureV2 { candidate, catalog }
+    CosealFixtureV2 { candidate, calls }
 }
 
 #[test]
-fn unchanged_source_coseals_all_claims_and_two_of_seven_envelopes() {
+fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
     let fixture = fixture(true);
     let product =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.catalog)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
             .expect("atomic source/Recipe/envelope co-seal");
 
-    assert_eq!(product.catalog_len(), 7);
     assert_eq!(product.coverage().counts(), (6, 28, 25, 1, 2));
     assert_eq!(product.calls().rows().len(), 2);
     assert_eq!(product.artifact().recipe().as_recipe().items.len(), 17);
     assert_eq!(product.source().completion.explicit_sites().len(), 2);
-    assert!(!product.calls().caller().name().is_empty());
+    assert_eq!(product.calls().owner(), product.source().owner);
     let local = product.iteration_local();
     assert_eq!(local.value(), LoopValueKeyV1::new(10));
     assert_eq!(local.producer(), LoopItemKeyV1::new(6));
@@ -127,23 +115,22 @@ fn unchanged_source_coseals_all_claims_and_two_of_seven_envelopes() {
 }
 
 #[test]
-fn catalog_is_borrowed_and_reusable_after_the_product_is_dropped() {
+fn owned_call_relations_are_reusable_after_the_product_is_dropped() {
     let fixture = fixture(true);
     {
         let product =
-            issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.catalog)
+            issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
                 .expect("atomic co-seal");
-        assert_eq!(product.catalog_len(), 7);
+        assert_eq!(product.calls().rows().len(), 2);
     }
-    assert_eq!(fixture.catalog.len(), 7);
-    assert_eq!(fixture.catalog.envelopes().count(), 7);
+    assert_eq!(fixture.calls.len(), 2);
 }
 
 #[test]
 fn missing_owner_envelopes_reject_before_any_partial_product() {
     let fixture = fixture(false);
     assert!(matches!(
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.catalog),
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls),
         Err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls(_))
     ));
 }
@@ -153,11 +140,9 @@ fn equal_looking_source_from_a_foreign_resolver_owner_is_rejected() {
     let foreign = fixture(false);
     let canonical = fixture(true);
     assert!(matches!(
-        issue_dynamic_full_loop_source_recipe_envelope_v2(foreign.candidate, &canonical.catalog,),
+        issue_dynamic_full_loop_source_recipe_envelope_v2(foreign.candidate, &canonical.calls,),
         Err(DynamicFullLoopSourceRecipeEnvelopeRejectV2::Calls(
-            DynamicFullLoopCallRelationRejectV2::Lookup(
-                DynamicInvocationEnvelopeLookupV1::Missing { .. }
-            )
+            DynamicFullLoopCallRelationRejectV2::MissingTarget
         ))
     ));
 }

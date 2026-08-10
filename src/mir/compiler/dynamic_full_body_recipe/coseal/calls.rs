@@ -1,15 +1,11 @@
-//! Exact CallSlot/source/envelope relation verification.
+//! Exact CallSlot/source/target relation verification.
 
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::dynamic_invocation_contract::{
-    DynamicInvocationEnvelopeLookupV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
-    VerifiedDynamicInvocationEnvelopeRefV1,
-};
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueClassV2, LoopValueKeyV1,
     VerifiedLoopRecipeV2,
 };
-use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceExprSiteV1};
+use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::super::super::dynamic_full_body_source::{
     DynamicFullBodyBindingRoleV1, DynamicFullBodySourceRoleV1, DynamicFullBodySourceSiteV1,
@@ -18,8 +14,9 @@ use super::super::DynamicFullLoopRetainedSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum DynamicFullLoopCallRelationRejectV2 {
-    Lookup(DynamicInvocationEnvelopeLookupV1),
-    DifferentCanonicalCaller,
+    MissingTarget,
+    AmbiguousTarget,
+    DifferentOwner,
     MissingSourceRole,
     MissingBindingRole,
     TargetSourceMismatch,
@@ -38,14 +35,14 @@ pub(super) struct DynamicFullLoopCallRelationKeyV2 {
 
 #[derive(Debug)]
 pub(super) struct VerifiedDynamicFullLoopCallRelationsV2 {
-    caller: CanonicalSameModuleCallableKeyV1,
+    owner: FunctionOwnerIdV1,
     rows: [DynamicFullLoopCallRelationKeyV2; 2],
 }
 
 impl VerifiedDynamicFullLoopCallRelationsV2 {
     #[cfg(test)]
-    pub(super) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.caller
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
     }
 
     #[cfg(test)]
@@ -64,29 +61,29 @@ impl VerifiedDynamicFullLoopCallRelationsV2 {
 pub(super) fn verify_dynamic_call_relations_v2(
     source: &DynamicFullLoopRetainedSourceV1,
     recipe: &VerifiedLoopRecipeV2,
-    catalog: &VerifiedDynamicInvocationEnvelopeCatalogV1<'_>,
+    targets: &[VerifiedSourceBoundDynamicMemberCallV1],
 ) -> Result<VerifiedDynamicFullLoopCallRelationsV2, DynamicFullLoopCallRelationRejectV2> {
     let substring = verify_one(
         source,
         recipe,
-        catalog,
+        targets,
         DynamicCallExpectationV2::substring(),
     )?;
     let index_of = verify_one(
         source,
         recipe,
-        catalog,
+        targets,
         DynamicCallExpectationV2::index_of(),
     )?;
-    if substring.site() == index_of.site() {
+    if substring.call_site() == index_of.call_site() {
         return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
     }
-    if substring.caller() != index_of.caller() {
-        return Err(DynamicFullLoopCallRelationRejectV2::DifferentCanonicalCaller);
+    if substring.owner() != index_of.owner() || substring.owner() != source.owner {
+        return Err(DynamicFullLoopCallRelationRejectV2::DifferentOwner);
     }
 
     Ok(VerifiedDynamicFullLoopCallRelationsV2 {
-        caller: substring.caller().clone(),
+        owner: substring.owner(),
         rows: [
             DynamicFullLoopCallRelationKeyV2 {
                 item: LoopItemKeyV1::new(6),
@@ -145,16 +142,21 @@ impl DynamicCallExpectationV2 {
 fn verify_one<'a>(
     source: &DynamicFullLoopRetainedSourceV1,
     recipe: &VerifiedLoopRecipeV2,
-    catalog: &'a VerifiedDynamicInvocationEnvelopeCatalogV1<'_>,
+    targets: &'a [VerifiedSourceBoundDynamicMemberCallV1],
     expected: DynamicCallExpectationV2,
-) -> Result<VerifiedDynamicInvocationEnvelopeRefV1<'a>, DynamicFullLoopCallRelationRejectV2> {
+) -> Result<&'a VerifiedSourceBoundDynamicMemberCallV1, DynamicFullLoopCallRelationRejectV2> {
     let call_site = expr_site(source, expected.call)?;
     let receiver_site = expr_site(source, expected.receiver_site)?;
     let receiver_binding = binding(source, expected.receiver_binding)?;
-    let envelope = catalog
-        .envelope_for_exact_source(source.owner, call_site)
-        .map_err(DynamicFullLoopCallRelationRejectV2::Lookup)?;
-    let target = envelope.target();
+    let mut matches = targets
+        .iter()
+        .filter(|target| target.owner() == source.owner && target.call_site() == call_site);
+    let Some(target) = matches.next() else {
+        return Err(DynamicFullLoopCallRelationRejectV2::MissingTarget);
+    };
+    if matches.next().is_some() {
+        return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
+    }
 
     if target.call_site() != call_site
         || target.result_site() != call_site
@@ -180,7 +182,7 @@ fn verify_one<'a>(
     }
 
     verify_recipe_call(recipe, &expected)?;
-    Ok(envelope)
+    Ok(target)
 }
 
 fn verify_recipe_call(

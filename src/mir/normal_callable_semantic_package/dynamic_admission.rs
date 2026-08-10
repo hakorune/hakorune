@@ -10,6 +10,10 @@ use crate::mir::resolved_control_flow::{
     verify_function_completion_v1, FunctionCompletionVerificationErrorV1,
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, ResolvedLoopRegionLookupErrorV1};
+use crate::mir::source_call_target::{
+    issue_source_bound_dynamic_member_calls_v1, DynamicMemberSourceIssueV1,
+    VerifiedSourceBoundDynamicMemberCallV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum DynamicCallableDeclineV1 {
@@ -25,6 +29,7 @@ pub(super) enum DynamicCallableAdmissionV1 {
     Candidate {
         owner: FunctionOwnerIdV1,
         recipe: DynamicFullLoopRecipeCandidateV2,
+        calls: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
     },
     Declined(DynamicCallableDeclineV1),
 }
@@ -35,6 +40,7 @@ pub(super) enum DynamicCallableAdmissionIssueV1 {
     Rejected(DynamicFullBodySourceIssueV1),
     Completion(FunctionCompletionVerificationErrorV1),
     Recipe(DynamicFullLoopRecipeProducerRejectV2),
+    Calls(DynamicMemberSourceIssueV1),
 }
 
 pub(super) fn admit_dynamic_callable_v1(
@@ -82,7 +88,13 @@ pub(super) fn admit_dynamic_callable_v1(
     let owner = source.owner();
     let recipe = produce_dynamic_full_loop_recipe_v2(source)
         .map_err(DynamicCallableAdmissionIssueV1::Recipe)?;
-    Ok(DynamicCallableAdmissionV1::Candidate { owner, recipe })
+    let calls = issue_source_bound_dynamic_member_calls_v1(input)
+        .map_err(DynamicCallableAdmissionIssueV1::Calls)?;
+    Ok(DynamicCallableAdmissionV1::Candidate {
+        owner,
+        recipe,
+        calls,
+    })
 }
 
 enum ClassifiedDynamicSourceIssueV1 {

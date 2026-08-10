@@ -25,7 +25,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 fn exact_program_issues_two_non_splittable_operator_lifecycle_rows() {
     let fixture = fixture(true);
     let envelope =
-        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.catalog)
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, &fixture.calls)
             .expect("exact source/Recipe envelope");
     let semantic = issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");
     let invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(semantic)
@@ -91,9 +91,9 @@ fn operator_lifecycle_surface_has_one_input_and_no_effect_owner() {
     let issuer = include_str!("issuer.rs");
     let model = include_str!("model.rs");
 
-    assert!(semantic.contains(
-        "issue_dynamic_operator_carrier_lifecycle_program_v1<'env, 'decl>(\n    invocation_program:"
-    ));
+    assert!(semantic
+        .contains("issue_dynamic_operator_carrier_lifecycle_program_v1(\n    invocation_program:"));
+    assert!(!semantic.contains("<'env, 'decl>"));
     for forbidden in [
         "into_parts",
         "MirBuilder",

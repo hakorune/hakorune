@@ -57,13 +57,13 @@ LoopValueClassV2::Dynamic
   = Recipe-local type consistency
 
 item/source Dynamic call relation
-  = exact source call + resolver target + indivisible invocation envelope
+  = exact source call + resolver-owned Dynamic origin relation
 ```
 
-The V2 wire stays target-free. A later item-keyed sibling co-seal borrows the
-complete Dynamic envelope catalog and relates one exact CallSlot to one exact
-source call without copying selector, Home, effect, suspension, Fault, or
-provider facts. Dynamic may appear in type-consistent V2 value/input/binding/
+The V2 wire stays target-free. The item-keyed sibling co-seal consumes an
+owned catalog-neutral Dynamic call relation set and relates one exact CallSlot
+to one exact source call without copying selector, Home, effect, suspension,
+Fault, or provider facts. Dynamic may appear in type-consistent V2 value/input/binding/
 carrier/CallSlot-result/Return positions, but semantic-program publication
 requires complete source relations. Loop/If predicates remain Bool; existing
 I64 and Text operations do not accept Dynamic. Dynamic JoinSig/After requires
@@ -81,13 +81,13 @@ and fallback are forbidden. The ordered implementation starts with the
 behavior-neutral V2 operand-definition guard, then Dynamic value schema,
 source-value relations, and exact CallSlot/envelope co-seal.
 
-The atomic source/Recipe/envelope co-seal is now landed. One consuming issuer
+The atomic source/Recipe relation co-seal is now landed. One consuming issuer
 validates the complete six-binding and twenty-eight-source role tables, then
-binds I6 and I7 through exact resolver owner plus exact call site against a
-borrowed complete envelope catalog. Candidate and catalog must derive from the
-same branded semantic-source authority; an equal-looking foreign resolver
-owner is rejected. The issuer does not require the callable owner to have only
-two Dynamic rows: additional valid rows remain unselected in the complete
+binds I6 and I7 through exact resolver owner plus exact call site against an
+owned route-neutral call relation set. Candidate and call rows must derive
+from the same resolver owner; an equal-looking foreign owner is rejected. The
+issuer does not require the callable owner to have only two Dynamic rows:
+additional valid rows remain unselected in the complete
 catalog. The current seven/two/five counts are regression evidence only, not a
 language acceptance limit.
 

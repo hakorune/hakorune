@@ -75,7 +75,7 @@ impl VerifiedDynamicFullLoopFaultCutPointCatalogV2 {
 }
 
 pub(super) fn issue_fault_cut_points_v2(
-    envelope: &VerifiedDynamicFullLoopSourceRecipeEnvelopeV2<'_, '_>,
+    envelope: &VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
 ) -> Result<VerifiedDynamicFullLoopFaultCutPointCatalogV2, DynamicFullLoopFaultCutPointRejectV2> {
     let substring = envelope
         .calls

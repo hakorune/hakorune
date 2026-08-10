@@ -3,11 +3,14 @@
 //! This module owns message/source identity only. It does not issue a result
 //! class, effect envelope, Home ABI, provider, Recipe item, or MIR value.
 
+use std::collections::BTreeSet;
+
 use crate::mir::builder::{
     issue_catalog_callable_owner_link_v1, issue_source_backed_dynamic_callable_v1,
     CanonicalSameModuleCallableKeyV1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1, VerifiedNormalCallableSemanticSourceV1,
 };
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
     SourceExprSiteV1,
@@ -31,6 +34,10 @@ pub(crate) enum DynamicMemberSourceRejectV1 {
     ArgumentResultRelationMismatch(SourceExprSiteV1),
     DuplicateOrCollidingTarget {
         caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    DuplicateSourceTarget {
+        owner: FunctionOwnerIdV1,
         site: SourceExprSiteV1,
     },
     CatalogCallableOwnerLink(CatalogCallableOwnerLinkIssueV1),
@@ -121,6 +128,103 @@ impl VerifiedSourceBoundDynamicMemberCallV1 {
     }
 }
 
+/// Issue owned route-neutral Dynamic call relations from one resolved owner.
+///
+/// The returned rows carry no callable-catalog key or borrow. A later catalog
+/// adapter may add placement, while the canonical Recipe co-seal consumes the
+/// same source relations directly.
+pub(crate) fn issue_source_bound_dynamic_member_calls_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<Box<[VerifiedSourceBoundDynamicMemberCallV1]>, DynamicMemberSourceIssueV1> {
+    let owner = input.owner();
+    let dynamic = issue_source_backed_dynamic_callable_v1(input).map_err(|error| {
+        DynamicMemberSourceIssueV1::Unresolved(
+            DynamicMemberSourceUnresolvedV1::DynamicOriginEvidenceUnavailable(error.into()),
+        )
+    })?;
+    let ledger = input
+        .forest()
+        .callable_source_ledger(owner)
+        .map_err(|error| {
+            DynamicMemberSourceIssueV1::Unresolved(
+                DynamicMemberSourceUnresolvedV1::DynamicOriginEvidenceUnavailable(
+                    format!("{error:?}").into(),
+                ),
+            )
+        })?;
+
+    let mut calls = ledger
+        .method_calls()
+        .map(|(_, call)| call)
+        .collect::<Vec<_>>();
+    calls.sort_by(|left, right| left.site().cmp(right.site()));
+
+    let mut seen = BTreeSet::new();
+    let mut rows = Vec::new();
+    for call in calls {
+        if call.owner() != owner {
+            return Err(owner_mismatch(owner, call.owner()));
+        }
+        if call.result_site() != call.site()
+            || call.arguments().len() != call.arity() as usize
+            || call
+                .arguments()
+                .iter()
+                .enumerate()
+                .any(|(ordinal, row)| row.ordinal() as usize != ordinal)
+        {
+            return Err(DynamicMemberSourceIssueV1::Rejected(
+                DynamicMemberSourceRejectV1::ArgumentResultRelationMismatch(call.site().clone()),
+            ));
+        }
+        let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
+            receiver_binding,
+        )) = call.receiver()
+        else {
+            continue;
+        };
+        if receiver_binding.owner() != owner {
+            return Err(DynamicMemberSourceIssueV1::Rejected(
+                DynamicMemberSourceRejectV1::ReceiverBindingOwnerMismatch(receiver_binding),
+            ));
+        }
+        let Some(dynamic_origin) = dynamic.origin_for_binding(receiver_binding) else {
+            continue;
+        };
+        if !seen.insert(call.site().clone()) {
+            return Err(DynamicMemberSourceIssueV1::Rejected(
+                DynamicMemberSourceRejectV1::DuplicateSourceTarget {
+                    owner,
+                    site: call.site().clone(),
+                },
+            ));
+        }
+        let arguments = call
+            .arguments()
+            .iter()
+            .map(|row| DynamicMemberArgumentSourceV1 {
+                ordinal: row.ordinal(),
+                site: row.site().clone(),
+            })
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        rows.push(VerifiedSourceBoundDynamicMemberCallV1 {
+            owner,
+            call_site: call.site().clone(),
+            receiver_site: call.receiver_site().clone(),
+            receiver_binding,
+            dynamic_origin,
+            arguments,
+            result_site: call.result_site().clone(),
+            dispatch: DynamicMemberDispatchKeyV1 {
+                selector: call.selector().into(),
+                arity: call.arity(),
+            },
+        });
+    }
+    Ok(rows.into_boxed_slice())
+}
+
 impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
     /// Extends the production catalog from every cataloged callable in one
     /// complete semantic-source batch. Top-level functions are deliberately
@@ -164,90 +268,18 @@ impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
                 DynamicMemberSourceRejectV1::ForeignCatalogCallable(caller),
             ));
         }
-        let owner = source.owner();
-        let dynamic = issue_source_backed_dynamic_callable_v1(source.input()).map_err(|error| {
-            DynamicMemberSourceIssueV1::Unresolved(
-                DynamicMemberSourceUnresolvedV1::DynamicOriginEvidenceUnavailable(error.into()),
-            )
-        })?;
-        let ledger = source.ledger();
-
-        let mut calls = ledger
-            .method_calls()
-            .map(|(_, call)| call)
-            .collect::<Vec<_>>();
-        calls.sort_by(|left, right| left.site().cmp(right.site()));
-
-        for call in calls {
-            if call.owner() != owner {
-                return Err(owner_mismatch(owner, call.owner()));
-            }
-            if call.result_site() != call.site()
-                || call.arguments().len() != call.arity() as usize
-                || call
-                    .arguments()
-                    .iter()
-                    .enumerate()
-                    .any(|(ordinal, row)| row.ordinal() as usize != ordinal)
-            {
-                return Err(DynamicMemberSourceIssueV1::Rejected(
-                    DynamicMemberSourceRejectV1::ArgumentResultRelationMismatch(
-                        call.site().clone(),
-                    ),
-                ));
-            }
-            let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
-                receiver_binding,
-            )) = call.receiver()
-            else {
-                // A completely observed non-local receiver belongs to an
-                // existing static/declared-instance route, not this one.
-                continue;
-            };
-            if receiver_binding.owner() != owner {
-                return Err(DynamicMemberSourceIssueV1::Rejected(
-                    DynamicMemberSourceRejectV1::ReceiverBindingOwnerMismatch(receiver_binding),
-                ));
-            }
-            let Some(dynamic_origin) = dynamic.origin_for_binding(receiver_binding) else {
-                // A typed or otherwise non-Dynamic local is a valid,
-                // completely observed non-candidate for this admission.
-                continue;
-            };
-            let row_key = (caller.clone(), call.site().clone());
+        for target in issue_source_bound_dynamic_member_calls_v1(source.input())? {
+            let row_key = (caller.clone(), target.call_site().clone());
             if self.rows.contains_key(&row_key) {
                 return Err(DynamicMemberSourceIssueV1::Rejected(
                     DynamicMemberSourceRejectV1::DuplicateOrCollidingTarget {
                         caller,
-                        site: call.site().clone(),
+                        site: target.call_site().clone(),
                     },
                 ));
             }
-            let arguments = call
-                .arguments()
-                .iter()
-                .map(|row| DynamicMemberArgumentSourceV1 {
-                    ordinal: row.ordinal(),
-                    site: row.site().clone(),
-                })
-                .collect::<Vec<_>>()
-                .into_boxed_slice();
-            self.rows.insert(
-                row_key,
-                VerifiedSourceCallTargetV1::DynamicMember(VerifiedSourceBoundDynamicMemberCallV1 {
-                    owner,
-                    call_site: call.site().clone(),
-                    receiver_site: call.receiver_site().clone(),
-                    receiver_binding,
-                    dynamic_origin,
-                    arguments,
-                    result_site: call.result_site().clone(),
-                    dispatch: DynamicMemberDispatchKeyV1 {
-                        selector: call.selector().into(),
-                        arity: call.arity(),
-                    },
-                }),
-            );
+            self.rows
+                .insert(row_key, VerifiedSourceCallTargetV1::DynamicMember(target));
         }
         Ok(self)
     }

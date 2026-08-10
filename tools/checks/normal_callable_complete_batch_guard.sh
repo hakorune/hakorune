@@ -11,12 +11,17 @@ DEMAND_ISSUER="$ROOT_DIR/src/mir/callable_parameter_demand/issuer.rs"
 PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
 BATCH_TESTS="$ROOT_DIR/src/mir/callable_semantic_batch/tests.rs"
 PACKAGE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/tests.rs"
+DYNAMIC_TARGET="$ROOT_DIR/src/mir/source_call_target/dynamic_member.rs"
+DYNAMIC_CALLS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/calls.rs"
+DYNAMIC_COSEAL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/mod.rs"
+DYNAMIC_SEMANTIC="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/mod.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
   "$PARSER_LOAN" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
-  "$PACKAGE_ISSUER" "$BATCH_TESTS" "$PACKAGE_TESTS"
+  "$PACKAGE_ISSUER" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC"
 
 reject_fixed_in_file() {
   local pattern="$1"
@@ -57,10 +62,26 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "selected_gate_dynamic_candidate_rejects_without_parameter_authority" "$PACKAGE_TESTS" \
   "missing Dynamic parameter-authority negative is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_source_bound_dynamic_member_calls_v1" "$DYNAMIC_TARGET" \
+  "route-neutral Dynamic source relation issuer is missing"
+reject_fixed_in_file \
+  "CanonicalSameModuleCallableKeyV1" "$DYNAMIC_CALLS" \
+  "Recipe call relations must not retain a callable-catalog key"
+reject_fixed_in_file \
+  "VerifiedDynamicInvocationEnvelopeCatalogV1" "$DYNAMIC_COSEAL" \
+  "Recipe co-seal must not retain the legacy Dynamic envelope catalog"
+reject_fixed_in_file \
+  "<'env, 'decl>" "$DYNAMIC_SEMANTIC" \
+  "semantic program must not retain callable-catalog lifetimes"
+guard_expect_fixed_in_file "$TAG" \
+  "dynamic_program" "$PACKAGE_ISSUER" \
+  "whole package must own the completed Dynamic lifecycle program"
 
 for file in \
   "$PARSER_LOAN" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
-  "$PACKAGE_ISSUER" "$BATCH_TESTS" "$PACKAGE_TESTS"; do
+  "$PACKAGE_ISSUER" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

@@ -46,6 +46,11 @@ pub(crate) struct VerifiedDynamicInvocationExecutionEnvelopeV1 {
 const LANGUAGE_WIDE_ENVELOPE: VerifiedDynamicInvocationExecutionEnvelopeV1 =
     VerifiedDynamicInvocationExecutionEnvelopeV1 { _sealed: () };
 
+pub(crate) const fn dynamic_invocation_execution_envelope_v1(
+) -> &'static VerifiedDynamicInvocationExecutionEnvelopeV1 {
+    &LANGUAGE_WIDE_ENVELOPE
+}
+
 impl VerifiedDynamicInvocationExecutionEnvelopeV1 {
     pub(crate) const fn effect(&self) -> DynamicInvocationEffectV1 {
         DynamicInvocationEffectV1::OpaqueObservable

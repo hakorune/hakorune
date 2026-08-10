@@ -249,6 +249,13 @@ result site
 selector + arity
 ```
 
+The canonical source relation is now also available as an owned,
+catalog-neutral batch from the exact resolved function input. It carries
+`FunctionOwnerIdV1` plus exact source sites and binding relations, but no
+same-module callable key or declaration-catalog borrow. The legacy catalog
+extension is a one-way adapter over those same rows; it no longer re-observes
+or reclassifies Dynamic calls.
+
 Fully observed static/current-owner/qualified receivers and typed non-Dynamic
 locals are valid unselected rows. Foreign brands, owner mismatches, malformed
 argument/result relations, and static/Dynamic collisions reject the entire
@@ -262,7 +269,7 @@ acceptance boundary. Its qualified helper receivers remain neutral
 resolved-expression boundary; the source and fixture were not rewritten or
 narrowed.
 
-This I0 still owns message/source identity only. The sibling
+This boundary still owns message/source identity only. The sibling
 `dynamic_invocation_contract` module now owns the landed caller-zero complete
 semantic-envelope catalog; it does not move envelope meaning back into this
 target owner. Recipe CallSlot, physical execution, provider selection, retry,

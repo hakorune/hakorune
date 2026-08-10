@@ -10,7 +10,8 @@ use crate::mir::compiler::{
 };
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 use crate::mir::dynamic_invocation_contract::{
-    DynamicInvocationInputHomeV1, DynamicInvocationOutcomeV1,
+    dynamic_invocation_execution_envelope_v1, DynamicInvocationInputHomeV1,
+    DynamicInvocationOutcomeV1,
 };
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueKeyV1,
@@ -166,7 +167,7 @@ impl VerifiedDynamicInvocationCarrierLifecycleCatalogV1 {
 }
 
 pub(super) fn issue_invocation_carrier_lifecycle_v1(
-    program: &VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    program: &VerifiedDynamicFullLoopSemanticProgramV2,
 ) -> Result<
     VerifiedDynamicInvocationCarrierLifecycleCatalogV1,
     DynamicInvocationCarrierLifecycleRejectV1,
@@ -259,33 +260,30 @@ struct DynamicInvocationEnvelopeContractV1 {
 }
 
 fn require_envelope_contract(
-    program: &VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    program: &VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodySourceRoleV1,
 ) -> Result<DynamicInvocationEnvelopeContractV1, DynamicInvocationCarrierLifecycleRejectV1> {
-    let site = expression_source(program, role)
+    let _site = expression_source(program, role)
         .ok_or(DynamicInvocationCarrierLifecycleRejectV1::EnvelopeContract)?;
-    let envelope = program
-        .envelope
-        .catalog
-        .envelope_for_exact_source(program.envelope.source.owner, site)
-        .map_err(|_| DynamicInvocationCarrierLifecycleRejectV1::EnvelopeContract)?;
-    if envelope.envelope().outcome()
-        != DynamicInvocationOutcomeV1::NormalSelfContainedDynamicCarrierOrFault
-        || envelope.envelope().input_home()
-            != DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
-        || envelope.envelope().result_lifecycle()
+    if program.envelope.calls.item_for(role).is_none() {
+        return Err(DynamicInvocationCarrierLifecycleRejectV1::EnvelopeContract);
+    }
+    let envelope = dynamic_invocation_execution_envelope_v1();
+    if envelope.outcome() != DynamicInvocationOutcomeV1::NormalSelfContainedDynamicCarrierOrFault
+        || envelope.input_home() != DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
+        || envelope.result_lifecycle()
             != DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     {
         return Err(DynamicInvocationCarrierLifecycleRejectV1::EnvelopeContract);
     }
     Ok(DynamicInvocationEnvelopeContractV1 {
-        input: envelope.envelope().input_home(),
-        lifecycle: envelope.envelope().result_lifecycle(),
+        input: envelope.input_home(),
+        lifecycle: envelope.result_lifecycle(),
     })
 }
 
 fn expression_source<'program>(
-    program: &'program VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    program: &'program VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodySourceRoleV1,
 ) -> Option<&'program SourceExprSiteV1> {
     program.envelope.source.rows.iter().find_map(|row| {
@@ -368,8 +366,6 @@ pub(super) fn verify_recipe_invocation_lifecycle_for_test_v1(
     borrowed_argument: LoopValueKeyV1,
     boundary_item: LoopItemKeyV1,
 ) -> Result<(), DynamicInvocationCarrierLifecycleRejectV1> {
-    require_call_result(recipe, local.0, local.1)?;
-    require_call_result(recipe, temporary.0, temporary.1)?;
-    require_call_argument(recipe, temporary.0, borrowed_argument)?;
-    verify_recipe_relations(recipe, local, temporary, boundary_item)
+    verify_recipe_relations(recipe, local, temporary, boundary_item)?;
+    require_call_argument(recipe, temporary.0, borrowed_argument)
 }

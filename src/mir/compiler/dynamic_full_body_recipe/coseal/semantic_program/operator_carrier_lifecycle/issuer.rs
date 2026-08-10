@@ -6,7 +6,8 @@ use crate::mir::compiler::{
 };
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 use crate::mir::dynamic_invocation_contract::{
-    DynamicInvocationInputHomeV1, DynamicInvocationOutcomeV1,
+    dynamic_invocation_execution_envelope_v1, DynamicInvocationInputHomeV1,
+    DynamicInvocationOutcomeV1,
 };
 use crate::mir::dynamic_operator_contract::{
     issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1, DynamicOperatorFamilyV1,
@@ -27,7 +28,7 @@ use super::model::{
 };
 
 pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program) fn issue_operator_carrier_lifecycle_v1(
-    program: &VerifiedDynamicInvocationCarrierLifecycleProgramV1<'_, '_>,
+    program: &VerifiedDynamicInvocationCarrierLifecycleProgramV1,
 ) -> Result<
     VerifiedDynamicOperatorCarrierLifecycleCatalogV1,
     DynamicOperatorCarrierLifecycleProgramRejectV1,
@@ -54,15 +55,11 @@ pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program)
     {
         return Err(DynamicOperatorCarrierLifecycleProgramRejectV1::InvocationRelation);
     }
-    let call_site = source_expr(semantic, DynamicFullBodySourceRoleV1::SubstringCall)?;
-    let invocation_envelope = semantic
-        .envelope
-        .catalog
-        .envelope_for_exact_source(semantic.envelope.source.owner, call_site)
-        .map_err(|_| DynamicOperatorCarrierLifecycleProgramRejectV1::InvocationRelation)?;
-    if invocation_envelope.envelope().input_home()
+    let _call_site = source_expr(semantic, DynamicFullBodySourceRoleV1::SubstringCall)?;
+    let invocation_envelope = dynamic_invocation_execution_envelope_v1();
+    if invocation_envelope.input_home()
         != DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
-        || invocation_envelope.envelope().outcome()
+        || invocation_envelope.outcome()
             != DynamicInvocationOutcomeV1::NormalSelfContainedDynamicCarrierOrFault
     {
         return Err(DynamicOperatorCarrierLifecycleProgramRejectV1::InvocationRelation);
@@ -128,7 +125,7 @@ pub(in crate::mir::compiler::dynamic_full_body_recipe::coseal::semantic_program)
                     DynamicOperatorCarrierDestinationV1::EndAfterInvocationNormalOrFaultOutcome {
                         invocation,
                         argument_ordinal: 1,
-                        input_contract: invocation_envelope.envelope().input_home(),
+                        input_contract: invocation_envelope.input_home(),
                     },
             },
             DynamicOperatorCarrierLifecycleRowV1 {
@@ -321,7 +318,7 @@ fn operation_result(
 }
 
 fn require_fault_cut_point(
-    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2,
     item: LoopItemKeyV1,
     result: LoopValueKeyV1,
     family: DynamicFullLoopFaultFamilyV2,
@@ -338,7 +335,7 @@ fn require_fault_cut_point(
 }
 
 fn source_item(
-    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodySourceRoleV1,
 ) -> Result<LoopItemKeyV1, DynamicOperatorCarrierLifecycleProgramRejectV1> {
     match semantic.envelope.coverage.source_target(role) {
@@ -348,7 +345,7 @@ fn source_item(
 }
 
 fn binding_target(
-    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    semantic: &super::super::VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodyBindingRoleV1,
 ) -> Result<
     crate::mir::loop_recipe_contract::LoopBindingKeyV1,
@@ -361,7 +358,7 @@ fn binding_target(
 }
 
 fn source_expr<'a>(
-    semantic: &'a super::super::VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    semantic: &'a super::super::VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodySourceRoleV1,
 ) -> Result<
     &'a crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -382,7 +379,7 @@ fn source_expr<'a>(
 }
 
 fn source_stmt<'a>(
-    semantic: &'a super::super::VerifiedDynamicFullLoopSemanticProgramV2<'_, '_>,
+    semantic: &'a super::super::VerifiedDynamicFullLoopSemanticProgramV2,
     role: DynamicFullBodySourceRoleV1,
 ) -> Result<
     &'a crate::mir::resolved_semantics::SourceStmtSiteV1,
