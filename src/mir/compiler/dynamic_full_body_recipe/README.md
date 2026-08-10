@@ -77,9 +77,9 @@ the retained Completion product and does not consume or extend Completion.
 There is no `ResolvedCleanupObligationsV1` extension, Home capability, physical
 End, CFG/PHI/MIR, DraftSeal, collector, retry, or fallback in this boundary.
 
-## Callable Completion projection (D0/I0)
+## Exit-transaction co-seal (D0/I0)
 
-`VerifiedDynamicCallableCompletionProjectionV1` consumes the complete
+`VerifiedDynamicExitTransactionCoSealV1` consumes the complete
 carrier-cleanup projection and retains exactly two logical routes to one
 function-exit target:
 
@@ -90,10 +90,11 @@ outer Callable Tail -> FunctionExit
 
 The existing `VerifiedFunctionCompletionV1` remains the sole source owner of
 return coverage, owner/target closure, and value/unit classification. This
-child only consumes that already-sealed evidence through the carrier product;
-it does not create a second Completion contract. No result merge, physical
-Return, ABI projection, final function seal, collector, or publication is
-performed.
+co-seal only consumes that already-sealed evidence through the carrier
+product; it does not create a second Completion contract or a wrapper that
+copies the flow/cleanup rows. No runtime chronology, Home capability, result
+merge, physical Return, ABI projection, final function seal, collector, or
+publication is performed.
 
 ## Acceptance rule
 

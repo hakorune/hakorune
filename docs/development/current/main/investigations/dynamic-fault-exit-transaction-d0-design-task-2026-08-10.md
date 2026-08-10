@@ -132,16 +132,10 @@ VerifiedDynamicCarrierFlowV1
   - no Live carrier at Backedge/After
             |
             v
-VerifiedDynamicCallableCompletionProjectionV1
-  - inner Recipe Return + outer Callable Tail
+VerifiedDynamicExitTransactionCoSealV1
+  - transitively owns semantic program, flow, cleanup, and two logical routes
   - one logical FunctionExit target
-            |
-            v  sole consuming issuer
-VerifiedDynamicExitTransactionV1
-  - private cleanup projection
-  - exact Return-site partition
-  - borrowed JoinSig authorization
-  - primary/suppressed chronology
+  - no copied JoinSig/Fault/cleanup authority
             |
             v
 PreparedCallableLoopPhysicalizationV1
@@ -185,7 +179,8 @@ and exposes no `into_parts` escape.
    physical Return/DraftSeal remains later
 
 9. DYNAMIC-EXIT-TRANSACTION-COSEAL-I0
-   consume program + carrier flow; derive cleanup and Completion partition
+   CLOSED: promoted the existing consuming Completion projection to the final
+   bounded co-seal; no standalone wrapper or copied authority was added
 
 10. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
    session-bound sequencing, fault injection, whole-session discard; caller-zero
@@ -256,8 +251,8 @@ Dynamic lowering now owns the resulting non-splittable flow product.
 The closeout proves the existing V9/V10/V11/V17 lifecycle destinations and the
 typed I15 normal/fault recurrence.  It does not claim an actual End, Home,
 cleanup execution, Return/After forwarding, Completion consumption, CFG/MIR,
-physical source-ledger progress, retry, or fallback.  The next bounded owner
-is the cleanup projection/exit transaction lane.
+physical source-ledger progress, retry, or fallback.  This flow now feeds the
+closed cleanup and exit-transaction co-seal chain.
 
 ## Carrier cleanup projection (D0/I0 closeout)
 
@@ -291,12 +286,13 @@ RUSTFLAGS=-Awarnings cargo test -q --lib semantic_program
 RUSTFLAGS=-Awarnings cargo check -q --lib
 ```
 
-The next bounded owner is `MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0`.
+The cleanup projection now feeds the closed exit-transaction co-seal.
 
-## Callable Completion projection (D0/I0 closeout)
+## Exit-transaction co-seal (D0/I0 closeout)
 
-`MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0` is closed as a logical
-two-route projection. `issue_dynamic_callable_completion_projection_i0`
+`MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0` and
+`DYNAMIC-EXIT-TRANSACTION-COSEAL-I0` are closed as one consuming logical
+two-route co-seal. `issue_dynamic_exit_transaction_coseal_i0`
 consumes the complete carrier-cleanup product and retains exactly:
 
 ```text
@@ -306,18 +302,19 @@ outer Callable Tail -> the same function-exit target
 
 The existing `VerifiedFunctionCompletionV1` remains the sole owner of exact
 return-site coverage, owner/target closure, and common value/unit
-classification. The new product consumes that already-sealed evidence through
-the carrier chain and does not issue a second Completion contract. It does not
-create a result merge, physical Return, ABI representation, final function
-seal, DraftSeal, collector, or publication.
+classification. The promoted co-seal consumes that already-sealed evidence
+through the carrier chain and does not issue a second Completion contract or
+copy the cleanup/JoinSig/Fault rows. It does not create a runtime chronology,
+Home capability, result merge, physical Return, ABI representation, final
+function seal, DraftSeal, collector, or publication.
 
 Focused closeout gate:
 
 ```text
-RUSTFLAGS=-Awarnings cargo test -q --lib carrier_completion
+RUSTFLAGS=-Awarnings cargo test -q --lib exit_transaction
 ```
 
-The next bounded owner is `DYNAMIC-EXIT-TRANSACTION-COSEAL-I0`.
+The next bounded owner is `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`.
 
 ## Hard stops
 

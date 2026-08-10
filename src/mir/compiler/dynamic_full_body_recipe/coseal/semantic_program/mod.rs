@@ -3,8 +3,7 @@
 //! The issuer consumes only the existing exact envelope. It never accepts a
 //! caller-supplied owner, Recipe, JoinSig, After, Continuation, or Completion.
 
-#[path = "carrier_completion.rs"]
-mod carrier_completion;
+mod exit_transaction;
 mod carrier_rebind;
 mod fault_cut_points;
 mod ingress;
@@ -25,9 +24,9 @@ use crate::mir::loop_recipe_contract::{
 };
 
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
-pub(in crate::mir) use carrier_completion::{
-    issue_dynamic_callable_completion_projection_i0, DynamicCallableCompletionProjectionRejectV1,
-    VerifiedDynamicCallableCompletionProjectionV1,
+pub(in crate::mir) use exit_transaction::{
+    issue_dynamic_exit_transaction_coseal_i0, DynamicExitTransactionCoSealRejectV1,
+    VerifiedDynamicExitTransactionCoSealV1,
 };
 pub(in crate::mir) use carrier_rebind::{
     issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,

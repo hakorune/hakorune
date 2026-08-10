@@ -42,7 +42,7 @@ The port never exposes a batch slot, rejects foreign catalog contexts and
 duplicate selected-key consumption, and closes only after complete selected
 coverage. Borrowed lowering inputs and parameter demands remain scoped to the
 callback. This module does not own callable-name selection, CFG, PHI,
-Completion consumption, physical ABI, runtime dispatch, retry, or fallback.
+runtime exit chronology, physical ABI, runtime dispatch, retry, or fallback.
 
 Dynamic call relations are issued from the same batch-scoped lowering input as
 owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a
@@ -57,8 +57,11 @@ seal, Dynamic target extension, Complete-source pairing, and semantic-loan port
 are absent from that production edge. Source-backed package failure is
 terminal; the AST-only compatibility catalog is not a retry route.
 
-The package now carries the bounded logical two-site Completion projection in
-the selected Dynamic row. This still does not claim Dynamic physical
+The package now carries the bounded `VerifiedDynamicExitTransactionCoSealV1`
+in the selected Dynamic row. This is the final semantic co-seal for the
+current bounded lane: it transitively owns the semantic program, carrier flow,
+carrier-only cleanup, and the exact logical inner-Return/outer-Tail route
+pair. It does not claim runtime exit chronology or Dynamic physical
 completion. In particular,
 `ParserScanLoopBox.skip_while/4` currently reaches the installed package and
 then fails closed at the existing physical source-ledger consumption boundary.

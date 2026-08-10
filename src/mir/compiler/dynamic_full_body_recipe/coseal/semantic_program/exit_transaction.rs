@@ -1,9 +1,11 @@
-//! Logical two-site Completion projection for the bounded Dynamic callable.
+//! Bounded exit-transaction co-seal for the Dynamic callable.
 //!
 //! The existing `VerifiedFunctionCompletionV1` remains the source-side owner
 //! of return coverage and result classification. This child consumes the
-//! carrier cleanup projection and seals only the relation from the exact inner
+//! carrier cleanup projection and seals the relation from the exact inner
 //! Recipe Return and outer Callable Tail to one logical function-exit target.
+//! The cleanup, flow, and semantic program remain transitively owned; this is
+//! the final semantic co-seal for the current lane, not a second wrapper.
 //! It does not write a Return, create merge/ABI facts, or invoke the final
 //! function-seal stage.
 
@@ -12,7 +14,7 @@ use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSite
 use super::carrier_rebind::VerifiedDynamicCarrierCleanupProjectionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum DynamicCallableCompletionProjectionRejectV1 {
+pub(in crate::mir) enum DynamicExitTransactionCoSealRejectV1 {
     CleanupPartition,
     CompletionCoverage,
 }
@@ -31,7 +33,7 @@ struct DynamicCallableFunctionExitTargetV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum DynamicCallableCompletionRouteV1 {
+enum DynamicExitTransactionRouteV1 {
     InnerRecipeReturn {
         site: SourceStmtSiteV1,
         target: DynamicCallableFunctionExitTargetV1,
@@ -42,23 +44,23 @@ enum DynamicCallableCompletionRouteV1 {
     },
 }
 
-const COMPLETION_ROUTE_COUNT_V1: usize = 2;
+const EXIT_TRANSACTION_ROUTE_COUNT_V1: usize = 2;
 
 #[derive(Debug)]
-pub(in crate::mir) struct VerifiedDynamicCallableCompletionProjectionV1 {
+pub(in crate::mir) struct VerifiedDynamicExitTransactionCoSealV1 {
     cleanup: VerifiedDynamicCarrierCleanupProjectionV1,
-    routes: [DynamicCallableCompletionRouteV1; COMPLETION_ROUTE_COUNT_V1],
+    routes: [DynamicExitTransactionRouteV1; EXIT_TRANSACTION_ROUTE_COUNT_V1],
     target: DynamicCallableFunctionExitTargetV1,
 }
 
-impl VerifiedDynamicCallableCompletionProjectionV1 {
+impl VerifiedDynamicExitTransactionCoSealV1 {
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> super::DynamicCarrierCurrentDispositionV1 {
         self.cleanup.current()
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn routes(&self) -> &[DynamicCallableCompletionRouteV1; 2] {
+    pub(in crate::mir) fn routes(&self) -> &[DynamicExitTransactionRouteV1; 2] {
         &self.routes
     }
 
@@ -73,18 +75,18 @@ impl VerifiedDynamicCallableCompletionProjectionV1 {
     }
 }
 
-pub(in crate::mir) fn issue_dynamic_callable_completion_projection_i0(
+pub(in crate::mir) fn issue_dynamic_exit_transaction_coseal_i0(
     cleanup: VerifiedDynamicCarrierCleanupProjectionV1,
 ) -> Result<
-    VerifiedDynamicCallableCompletionProjectionV1,
-    DynamicCallableCompletionProjectionRejectV1,
+    VerifiedDynamicExitTransactionCoSealV1,
+    DynamicExitTransactionCoSealRejectV1,
 > {
     let sites = cleanup.completion_sites();
     if sites[0] == sites[1] {
-        return Err(DynamicCallableCompletionProjectionRejectV1::CompletionCoverage);
+        return Err(DynamicExitTransactionCoSealRejectV1::CompletionCoverage);
     }
     let Some((owner, target, returns_value)) = cleanup.completion_summary() else {
-        return Err(DynamicCallableCompletionProjectionRejectV1::CleanupPartition);
+        return Err(DynamicExitTransactionCoSealRejectV1::CleanupPartition);
     };
     let result = if returns_value {
         DynamicCallableReturnKindV1::Value
@@ -97,16 +99,16 @@ pub(in crate::mir) fn issue_dynamic_callable_completion_projection_i0(
         result,
     };
     let routes = [
-        DynamicCallableCompletionRouteV1::InnerRecipeReturn {
+        DynamicExitTransactionRouteV1::InnerRecipeReturn {
             site: sites[0].clone(),
             target,
         },
-        DynamicCallableCompletionRouteV1::OuterCallableTail {
+        DynamicExitTransactionRouteV1::OuterCallableTail {
             site: sites[1].clone(),
             target,
         },
     ];
-    Ok(VerifiedDynamicCallableCompletionProjectionV1 {
+    Ok(VerifiedDynamicExitTransactionCoSealV1 {
         cleanup,
         routes,
         target,
@@ -129,7 +131,7 @@ mod tests {
     use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodyBindingRoleV1;
     use crate::mir::resolved_semantics::HomeDemandV1;
 
-    fn exact_projection() -> VerifiedDynamicCallableCompletionProjectionV1 {
+    fn exact_coseal() -> VerifiedDynamicExitTransactionCoSealV1 {
         let fixture = fixture(true);
         let parameter_binding = fixture
             .candidate
@@ -160,12 +162,12 @@ mod tests {
         let flow = issue_dynamic_carrier_flow_program_v1(rebind).expect("carrier flow");
         let cleanup =
             issue_dynamic_carrier_cleanup_projection_i0(flow).expect("cleanup projection");
-        issue_dynamic_callable_completion_projection_i0(cleanup).expect("completion projection")
+        issue_dynamic_exit_transaction_coseal_i0(cleanup).expect("exit transaction co-seal")
     }
 
     #[test]
-    fn exact_projection_seals_two_routes_to_one_function_exit() {
-        let projection = exact_projection();
+    fn exact_coseal_seals_two_routes_to_one_function_exit() {
+        let projection = exact_coseal();
         assert_eq!(projection.routes.len(), 2);
         assert_eq!(projection.routes[0].target(), projection.routes[1].target());
         assert_ne!(projection.routes[0].site(), projection.routes[1].site());
@@ -173,8 +175,8 @@ mod tests {
     }
 
     #[test]
-    fn projection_has_no_physical_completion_authority() {
-        let source = include_str!("carrier_completion.rs")
+    fn coseal_has_no_physical_or_runtime_authority() {
+        let source = include_str!("exit_transaction.rs")
             .split("#[cfg(test)]")
             .next()
             .expect("completion production source");
@@ -190,12 +192,12 @@ mod tests {
         ] {
             assert!(
                 !source.contains(forbidden),
-                "forbidden term in completion projection: {forbidden}"
+                "forbidden term in exit transaction co-seal: {forbidden}"
             );
         }
     }
 
-    impl DynamicCallableCompletionRouteV1 {
+    impl DynamicExitTransactionRouteV1 {
         fn target(&self) -> DynamicCallableFunctionExitTargetV1 {
             match self {
                 Self::InnerRecipeReturn { target, .. } | Self::OuterCallableTail { target, .. } => {
