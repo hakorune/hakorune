@@ -256,6 +256,34 @@ that can attach a function/source site to the first GenericLoop admission;
 until that exists, the existing Dynamic carrier/full-body ladder remains the
 only semantic owner and this R1 product stays parked.
 
+### Read-only call-trace census (2026-08-11)
+
+The existing `NYASH_STATIC_CALL_TRACE=1` toggle was used without changing the
+fixture or compiler route. It confirms that the failing compile front reaches
+the imported parser surface, including:
+
+```text
+ParserCommonUtilsBox.is_digit/1
+ParserNumberScanBox.scan_parts/2
+ParserNumberScanBox.scan_int/2
+```
+
+and then stops at the unchanged:
+
+```text
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(210) }
+```
+
+This trace is only a call-routing observation. It does not carry the exact
+function owner, Loop source site, initializer source row, successful physical
+producer receipt, or the `ValueId -> MirType` publication event for the failing
+admission. The trace therefore cannot select `ParserNumberScanBox`,
+`ParserScanLoopBox`, or any dependency as the semantic owner. The existing
+`NoSafeSlice` decision and the exact-one producer-publication census remain in
+force; no fixture narrowing, by-name repair, or second publication owner is
+authorized.
+
 ## Compile-front owner census D0 (2026-08-11)
 
 Task: `H2-S2-S1-R1-COMPILE-FRONT-OWNER-CENSUS-D0`
