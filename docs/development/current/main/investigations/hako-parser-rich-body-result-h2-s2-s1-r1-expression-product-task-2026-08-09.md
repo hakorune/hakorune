@@ -187,16 +187,27 @@ exact source call/result contract
 ```
 
 The GenericLoop carrier consumer remains verifier-only. The next design work
-must reopen or select the existing owners, in this order:
+must follow the existing Dynamic owner chain, not create a new parser-specific
+result-type task:
 
 1. `generic-raw-structured-generic-loop-carrier-representation-d0-task-2026-08-07.md`
    confirms the consumer boundary and exact missing transient-type contract.
-2. `generic-raw-structured-static-call-result-publication-d0-task-2026-08-07.md`
-   owns the current-owner static-call source contract and success-only
-   publication bridge.
-3. The existing I1/source-bound handoff row must prove the exact parser call
-   site before any R1 reopen. It may not use method names, inferred Box types,
-   GenericLoop backfill, retry, or a second publication owner.
+2. `generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md`
+   owns the untyped formal/local/carrier relation and the Dynamic ingress,
+   operation-result, and PHI authorization split. It explicitly blocks this
+   Hako R1 row until its source-backed coverage is ready.
+3. `generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md`
+   owns the complete source inventory and the next Dynamic body coverage row.
+   The existing static-call publication I0 is already closed and must not be
+   reopened for this different parser carrier failure without a separate exact
+   source-site census.
+
+The `ValueId(113)` number is diagnostic only and is not a source identity.
+The exact first parser callable/loop site must be proven by a read-only census
+owned by the Dynamic ladder before any R1 reopen; `ParserScanLoopBox` and
+`ParserNumberScanBox` are candidates, not assumptions. It may not use method
+names, inferred Box types, GenericLoop backfill, retry, or a second
+publication owner.
 
 This is a prerequisite consultation boundary, not an authorization to create
 a generic Hako result-type framework. Once the exact owner closes, rerun the
