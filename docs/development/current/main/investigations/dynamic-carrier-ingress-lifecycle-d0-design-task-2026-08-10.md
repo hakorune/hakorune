@@ -1,9 +1,9 @@
 # Dynamic carrier ingress lifecycle
 
-Status: generated callable anchors closed; initial callable Program co-seal selected
+Status: initial callable Program co-seal closed; parser source series closeout selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
+Current implementation row: `PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0`
 Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Prerequisite terminal: initial co-seal, then parent closeout; no new parser row may be inserted.
 First production finish: `ParserScanLoopBox.skip_while/4` switches to the canonical pipeline, deletes the selected old Dynamic route, and retains zero retry/fallback.
@@ -885,58 +885,34 @@ relation, and selected-gate receipts. `MacroOrImport` and
 
 #### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
 
-The sole parser finalizer co-seals the final parser Program with the complete
-callable row set and issues non-Clone
-`VerifiedInitialCallableProgramSourceV1`.  This name is deliberately distinct
-from `VerifiedFinalCallableProgramSourceV1`, which is reserved for the later
-post-transform transaction.  A private exact-slot cache may lend declarations
-inside a higher-ranked callback; it is placement only and never identity.
+Status: **closed**. Commit: the implementation commit containing this receipt.
 
-Required positive matrix:
+Change:
+  The sole parser finalizer now moves the final Program and complete selected
+  direct/property/delegate anchor set into non-Clone
+  `VerifiedInitialCallableProgramSourceV1`.
 
-```text
-mixed top-level + Main + static + instance
-selected top-level BuildGate
-selected member BuildGate
-generated property
-generated delegate
-repeatable callback-scoped syntax loan
-```
+Contract:
+  Opaque anchors remain identity. Source-aware top-level slots, explicit
+  commit placement, rebased member relations, gate receipts, and generator
+  receipts are private placement evidence only. Exact syntax is lent through
+  a repeatable higher-ranked callback; there is no Clone, split, or post-hoc
+  anchor issuer.
 
-Required negative matrix:
+Done:
+  Mixed top-level/Main/static/instance, selected top/member gates, generated
+  property/delegate, and repeatable syntax loans are green. Missing coverage,
+  foreign parser slots, arbitrary AST, and `CompatibilityOnly` reject.
+  `parser_initial_callable_program_source_guard.sh` owns the structural proof;
+  every touched parser source remains below the 760-line split trigger.
+  The focused row is 6/6 green. The broader parser filter is 306/315 green;
+  its remaining nine failures are orthogonal pre-existing grammar/profile,
+  BuildGate-signature, migration-transport, and rune-diagnostic expectations.
 
-```text
-foreign parser brand or source path
-missing / duplicate / extra declaration row
-unselected or foreign gate receipt
-missing / duplicate / foreign generator receipt
-CompatibilityOnly or arbitrary AST entering the semantic lane
-name / span / ordinal / pointer repair
-Clone, split, escaping AST loan, or post-hoc anchor issuer
-```
-
-The legacy direct-Box `ParserCallableParameterSourceCatalogV1` remains a
-migration projection during this series.  It is not the complete callable
-source SSOT and may not be used to issue anchors or decide membership.  It is
-retired or projected from the complete product in the later semantic-source
-split/cutover rows.
-
-Premise audit closeout: all semantic anchor/gate/generator receipts already
-exist.  The co-seal may add only two placement carriers inside this row:
-
-```text
-source-aware top-level BuildGate projection
-  -> exact source Program declaration path -> final statement slot
-
-explicit Box method commit
-  -> committed inventory ordinal
-```
-
-Both are private placement caches, never callable identity.  A selected member
-gate may rebase its branch-local committed ordinal, so its final inventory slot
-must come from the retained exact method-source relation plus selected-member
-gate receipt.  The finalizer must not zip canonical order or repair placement
-by name, span, arity, numeric ordinal, or AST pointer.
+Stop:
+  Resolver, Builder, Home, Recipe, retry, fallback, production activation,
+  and `VerifiedFinalCallableProgramSourceV1` remain outside this row. The
+  legacy parameter catalog is only a migration projection.
 
 ### 3F. Ingress follow-on order
 

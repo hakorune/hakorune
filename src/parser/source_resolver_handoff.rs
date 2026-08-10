@@ -192,9 +192,9 @@ impl ParsedProgramWithSourceV1 {
     pub(crate) fn into_ast_and_resolver_source_handoff(
         self,
     ) -> Result<(ASTNode, ParserBoxResolverSourceHandoffV1), ResolverSourceHandoffErrorV1> {
-        let (ast, seals, _, _, _) = self.into_postpass_parts();
-        let handoff = build_resolver_source_handoff(&ast, &seals)?;
-        Ok((ast, handoff))
+        let (program, seals, _, _) = self.into_postpass_parts();
+        let handoff = build_resolver_source_handoff(program.ast(), &seals)?;
+        Ok((program.into_ast(), handoff))
     }
 }
 

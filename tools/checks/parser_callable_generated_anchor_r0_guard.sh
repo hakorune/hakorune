@@ -129,8 +129,8 @@ section = task.split("#### `PARSER-CALLABLE-GENERATED-ANCHOR-R0`", 1)[1].split(
 )[0]
 if "Status: **closed**" not in section:
     raise SystemExit("generated-anchor row must be closed before pointer advancement")
-if 'current_execution_row = "PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0"' not in state:
-    raise SystemExit("current pointer must advance to initial callable source co-seal")
+if 'current_execution_row = "PARSER-CALLABLE-GENERATED-ANCHOR-R0"' in state:
+    raise SystemExit("current pointer must advance beyond the closed generated-anchor row")
 if "parser_callable_generated_anchor_r0_guard.sh" not in index:
     raise SystemExit("check index must list the generated callable anchor guard")
 
@@ -147,7 +147,7 @@ print("fresh_delegate_anchor=1")
 print("exact_selected_gate_origin=1")
 print("macro_or_import_support=0")
 print("compatibility_origin_support=0")
-print("verified_program_publication=0")
+print("generated_issuer_verified_program_publication=0")
 print("source_files_below_760=1")
 print("summary=ok")
 PY

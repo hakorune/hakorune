@@ -125,10 +125,11 @@ impl ParserResolverBodyTransactionV1 {
         ),
         BodySourceTransactionErrorV1,
     > {
-        let (ast, seals, _, _, _) = self.product.into_postpass_parts();
-        let handoff = build_resolver_source_handoff(&ast, &seals)
+        let (program, seals, _, _) = self.product.into_postpass_parts();
+        let ast = program.ast();
+        let handoff = build_resolver_source_handoff(ast, &seals)
             .map_err(BodySourceTransactionErrorV1::ResolverHandoff)?;
-        let rows = collect_body_rows(&ast, &seals, &handoff)?;
+        let rows = collect_body_rows(ast, &seals, &handoff)?;
         let envelope = ParserBoxBodySourceEnvelopeV1 {
             parser_provenance: handoff.parser_provenance(),
             rows: rows.into_boxed_slice(),
@@ -149,11 +150,12 @@ impl ParserResolverBodyTransactionV1 {
             super::release_source::ParserReleaseStatementSourceCatalogV1,
         ) -> R,
     ) -> Result<R, BodySourceTransactionErrorV1> {
-        let (ast, seals, _, _, _) = self.product.into_postpass_parts();
-        let handoff = build_resolver_source_handoff(&ast, &seals)
+        let (program, seals, _, _) = self.product.into_postpass_parts();
+        let ast = program.ast();
+        let handoff = build_resolver_source_handoff(ast, &seals)
             .map_err(BodySourceTransactionErrorV1::ResolverHandoff)?;
-        let rows = collect_body_rows(&ast, &seals, &handoff)?;
-        let syntax_lease = collect_syntax_lease(&ast, &seals, &handoff)?;
+        let rows = collect_body_rows(ast, &seals, &handoff)?;
+        let syntax_lease = collect_syntax_lease(ast, &seals, &handoff)?;
         let release_sources = super::release_source::collect_release_sources(&syntax_lease)?;
         let envelope = ParserBoxBodySourceEnvelopeV1 {
             parser_provenance: handoff.parser_provenance(),

@@ -86,6 +86,31 @@ This row publishes no verified Program, resolver identity, Home/Recipe fact,
 Builder input, retry, fallback, or production route. Those boundaries remain
 owned by the following atomic Program co-seal.
 
+## Initial callable Program source (`PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0` landed)
+
+`initial_callable_program_source/` is the sole parser final co-seal for
+callable source membership. It moves the final parser `Program` together with
+the complete selected direct/property/delegate anchor set into non-Clone
+`VerifiedInitialCallableProgramSourceV1`. The product has no arbitrary
+constructor, `Clone`, or consuming parts projection.
+
+Top-level BuildGate projection supplies an exact source declaration path to
+final statement-slot receipt. Explicit Box commits supply their inventory
+placement; selected member gates instead use the rebased method-source
+relation and exact selection receipt. Generated rows retain their original
+property/delegate placement and provenance receipts. These coordinates are
+private placement caches only; opaque `CallableDeclarationAnchorV1` remains
+the identity.
+
+The product lends exact declaration syntax only through a repeatable
+higher-ranked callback. `MacroOrImport`, `CompatibilityOnly`, interface/record
+methods, foreign brands, missing/duplicate/extra rows, and arbitrary ASTs
+cannot enter the semantic lane. Constructors are outside this callable-row
+family and may coexist in the retained Program without being reclassified.
+Historical AST-only cohorts remain explicitly typed compatibility products;
+issuer failure never falls back to them. Resolver, Builder, Home, Recipe,
+retry, fallback, and production activation remain outside this boundary.
+
 ## Home contextual syntax (`release` source I0 landed)
 
 The language target has exactly three ownership-changing source forms:

@@ -85,24 +85,36 @@ impl ParserBoxPostpassCoverageV1 {
 
 #[derive(Debug)]
 pub(super) struct CompletedParserPostpassV1 {
-    ast: ASTNode,
+    program: CompletedParserProgramV1,
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
     box_coverage: ParserBoxPostpassCoverageV1,
-    callable_rows: Box<[PreparedCallableSourceV1]>,
+}
+
+#[derive(Debug)]
+enum CompletedParserProgramV1 {
+    Initial(super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1),
+    Compatibility {
+        ast: ASTNode,
+        callable_rows: Box<[PreparedCallableSourceV1]>,
+    },
 }
 
 impl CompletedParserPostpassV1 {
     pub(super) fn ast(&self) -> &ASTNode {
-        &self.ast
+        match &self.program {
+            CompletedParserProgramV1::Initial(program) => program.ast(),
+            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
+        }
     }
 
     pub(super) fn from_source_product(
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
-        let (ast, seals, callable_rows, final_box_ordinals, metadata) =
+        let (initial_callable_source, seals, final_box_ordinals, metadata) =
             product.into_postpass_parts();
+        let ast = initial_callable_source.ast();
         if seals.len() != final_box_ordinals.len() {
             return Err(ParserPostpassEnvelopeErrorV1::SourceCoverageMismatch {
                 seals: seals.len(),
@@ -128,14 +140,13 @@ impl CompletedParserPostpassV1 {
             .collect::<Vec<_>>()
             .into_boxed_slice();
         Ok(Self {
-            ast,
+            program: CompletedParserProgramV1::Initial(initial_callable_source),
             metadata,
             explain,
             box_coverage: ParserBoxPostpassCoverageV1 {
                 program_cohort,
                 rows,
             },
-            callable_rows,
         })
     }
 
@@ -152,33 +163,70 @@ impl CompletedParserPostpassV1 {
         let cohort = program_cohort.compatibility();
         let rows = compatibility_rows(&ast, cohort);
         Ok(Self {
-            ast,
+            program: CompletedParserProgramV1::Compatibility { ast, callable_rows },
             metadata,
             explain,
             box_coverage: ParserBoxPostpassCoverageV1 {
                 program_cohort,
                 rows,
             },
-            callable_rows,
+        })
+    }
+
+    pub(super) fn from_initial_compatibility(
+        program: super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1,
+        metadata: ParserMetadata,
+        explain: Option<BuildGateExplainReport>,
+    ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
+        let program_cohort = classify_program(program.ast());
+        if program_cohort.is_ordinary() {
+            return Err(ParserPostpassEnvelopeErrorV1::CompatibilityForOrdinary);
+        }
+        let cohort = program_cohort.compatibility();
+        let rows = compatibility_rows(program.ast(), cohort);
+        Ok(Self {
+            program: CompletedParserProgramV1::Initial(program),
+            metadata,
+            explain,
+            box_coverage: ParserBoxPostpassCoverageV1 {
+                program_cohort,
+                rows,
+            },
         })
     }
 
     pub(super) fn into_ast(self) -> ASTNode {
-        self.ast
+        match self.program {
+            CompletedParserProgramV1::Initial(program) => program.into_ast(),
+            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
+        }
     }
 
     pub(super) fn into_ast_and_explain(
         self,
     ) -> Result<(ASTNode, BuildGateExplainReport), ParserPostpassEnvelopeErrorV1> {
-        let Self { ast, explain, .. } = self;
+        let Self {
+            program, explain, ..
+        } = self;
         let explain = explain.ok_or(ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady)?;
+        let ast = match program {
+            CompletedParserProgramV1::Initial(program) => program.into_ast(),
+            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
+        };
         Ok((ast, explain))
     }
 
     pub(super) fn into_ast_and_metadata(self) -> (ASTNode, ParserMetadata) {
         // This is the sole consuming pair projection. Metadata is moved from
         // the completed product; it is never reconstructed from AST nodes.
-        (self.ast, self.metadata)
+        let Self {
+            program, metadata, ..
+        } = self;
+        let ast = match program {
+            CompletedParserProgramV1::Initial(program) => program.into_ast(),
+            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
+        };
+        (ast, metadata)
     }
 
     pub(super) fn metadata(&self) -> &ParserMetadata {
@@ -194,7 +242,20 @@ impl CompletedParserPostpassV1 {
     }
 
     pub(super) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
-        &self.callable_rows
+        match &self.program {
+            CompletedParserProgramV1::Initial(program) => program.callable_rows(),
+            CompletedParserProgramV1::Compatibility { callable_rows, .. } => callable_rows,
+        }
+    }
+
+    pub(super) fn initial_callable_source(
+        &self,
+    ) -> Option<&super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1>
+    {
+        match &self.program {
+            CompletedParserProgramV1::Initial(program) => Some(program),
+            CompletedParserProgramV1::Compatibility { .. } => None,
+        }
     }
 }
 

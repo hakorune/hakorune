@@ -10,12 +10,10 @@ use super::model::{
 };
 
 impl PreparedBoxSourceSealV1 {
-    /// Consume the prepared payload only after the postpass has produced the
-    /// final inventory and generated-delegate relation coverage is exact.
-    pub(in crate::parser) fn finalize_against(
-        self,
+    fn validate_against(
+        &self,
         final_inventory: &BoxMethodInventoryV1,
-    ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
+    ) -> Result<(), SourceSealFinalizationErrorV1> {
         let prepared_entries = self.inventory.clone().into_selected_declaration_order();
         let final_entries = final_inventory.clone().into_selected_declaration_order();
         if final_entries.len() < prepared_entries.len() {
@@ -49,10 +47,19 @@ impl PreparedBoxSourceSealV1 {
         }
 
         super::super::source_seal_finalizer::validate_generated_delegate_coverage(
-            &self,
+            self,
             final_inventory,
         )
-        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)?;
+        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)
+    }
+
+    /// Consume the prepared payload only after the postpass has produced the
+    /// final inventory and generated-delegate relation coverage is exact.
+    pub(in crate::parser) fn finalize_against(
+        self,
+        final_inventory: &BoxMethodInventoryV1,
+    ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
+        self.validate_against(final_inventory)?;
 
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
@@ -73,13 +80,22 @@ impl OpenParserPostpassProductV1 {
     pub(in crate::parser) fn finalize(
         self,
     ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
-        let (prepared, callable_rows) = self.source_session.into_parts();
+        let OpenParserPostpassProductV1 {
+            ast,
+            source_session,
+            final_box_paths,
+            projected_program_item_slots,
+            metadata,
+            ..
+        } = self;
+        let (prepared, callable_rows) = source_session.into_parts();
         finalize_program(
-            self.ast,
+            ast,
             prepared,
             callable_rows.into_boxed_slice(),
-            self.final_box_paths,
-            self.metadata,
+            final_box_paths,
+            projected_program_item_slots,
+            metadata,
         )
     }
 
@@ -111,8 +127,27 @@ impl OpenParserPostpassProductV1 {
             .map_err(|error| error.into_parse_error());
         }
 
-        let (ast, metadata, callable_rows) = product.into_compatibility_parts();
+        let semantic_candidate = super::super::initial_callable_program_source::compatibility_program_can_enter_initial_callable_lane_v1(&product.ast);
+        let (ast, metadata, callable_rows, program_slots, prepared_seals) =
+            product.into_compatibility_parts();
         let ast = super::super::postpass_compatibility::lower(ast)?;
+        if semantic_candidate {
+            let program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
+                ast,
+                callable_rows,
+                program_slots,
+                &prepared_seals,
+            )
+            .map_err(|error| {
+                map_error(SourceSealFinalizationErrorV1::InitialCallableProgramSource(error))
+            })?;
+            return super::super::postpass_envelope::CompletedParserPostpassV1::from_initial_compatibility(
+                program,
+                metadata,
+                explain,
+            )
+            .map_err(|error| error.into_parse_error());
+        }
         super::super::postpass_envelope::CompletedParserPostpassV1::from_compatibility(
             ast,
             metadata,
@@ -128,9 +163,17 @@ impl OpenParserPostpassProductV1 {
         ASTNode,
         ParserMetadata,
         Box<[super::super::callable_source_anchor::PreparedCallableSourceV1]>,
+        Option<super::super::build_cfg::program_item_slots::ProjectedProgramItemSlotSetV1>,
+        Vec<PreparedBoxSourceSealV1>,
     ) {
-        let (_, callable_rows) = self.source_session.into_parts();
-        (self.ast, self.metadata, callable_rows.into_boxed_slice())
+        let (prepared_seals, callable_rows) = self.source_session.into_parts();
+        (
+            self.ast,
+            self.metadata,
+            callable_rows.into_boxed_slice(),
+            self.projected_program_item_slots,
+            prepared_seals,
+        )
     }
 }
 
@@ -191,15 +234,70 @@ fn finalize_program(
     prepared: Vec<PreparedBoxSourceSealV1>,
     callable_rows: Box<[super::super::callable_source_anchor::PreparedCallableSourceV1]>,
     final_box_paths: Vec<SourceBoxDeclarationPathV1>,
+    projected_program_item_slots: Option<
+        super::super::build_cfg::program_item_slots::ProjectedProgramItemSlotSetV1,
+    >,
     metadata: ParserMetadata,
 ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
-    let ASTNode::Program { ref statements, .. } = ast else {
+    let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
+    validate_ordinary_source_seals(&ast, &prepared, &coverage)?;
+    let generated_delegate_source_relations = prepared
+        .iter()
+        .flat_map(PreparedBoxSourceSealV1::generated_delegate_source_relations)
+        .cloned()
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+    let initial_callable_source =
+        super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
+            ast,
+            callable_rows,
+            projected_program_item_slots,
+            &prepared,
+        )
+        .map_err(SourceSealFinalizationErrorV1::InitialCallableProgramSource)?;
+    let final_inventories =
+        ordinary_final_inventories(initial_callable_source.ast(), prepared.len())?;
+    let source_seals = prepared
+        .into_iter()
+        .enumerate()
+        .map(|(prepared_index, prepared)| {
+            let final_index = coverage.prepared_to_final[prepared_index];
+            prepared.finalize_against(final_inventories[final_index])
+        })
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
+
+    Ok(ParsedProgramWithSourceV1 {
+        initial_callable_source,
+        source_seals,
+        final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
+        generated_delegate_source_relations,
+        metadata,
+    })
+}
+
+fn validate_ordinary_source_seals(
+    ast: &ASTNode,
+    prepared: &[PreparedBoxSourceSealV1],
+    coverage: &FinalizerCoveragePlanV1,
+) -> Result<(), SourceSealFinalizationErrorV1> {
+    let final_inventories = ordinary_final_inventories(ast, prepared.len())?;
+    for (prepared_index, seal) in prepared.iter().enumerate() {
+        seal.validate_against(final_inventories[coverage.prepared_to_final[prepared_index]])?;
+    }
+    Ok(())
+}
+
+fn ordinary_final_inventories(
+    ast: &ASTNode,
+    prepared_count: usize,
+) -> Result<Vec<&BoxMethodInventoryV1>, SourceSealFinalizationErrorV1> {
+    let ASTNode::Program { statements, .. } = ast else {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
-            prepared: prepared.len(),
+            prepared: prepared_count,
             final_ast: 0,
         });
     };
-
     if statements
         .iter()
         .any(|statement| matches!(statement, ASTNode::BuildGate { .. }))
@@ -222,38 +320,13 @@ fn finalize_program(
             _ => {}
         }
     }
-    if final_inventories.len() != prepared.len() {
+    if final_inventories.len() != prepared_count {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
-            prepared: prepared.len(),
+            prepared: prepared_count,
             final_ast: final_inventories.len(),
         });
     }
-
-    let generated_delegate_source_relations = prepared
-        .iter()
-        .flat_map(PreparedBoxSourceSealV1::generated_delegate_source_relations)
-        .cloned()
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
-    let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
-    let source_seals = prepared
-        .into_iter()
-        .enumerate()
-        .map(|(prepared_index, prepared)| {
-            let final_index = coverage.prepared_to_final[prepared_index];
-            prepared.finalize_against(final_inventories[final_index])
-        })
-        .collect::<Result<Vec<_>, _>>()?
-        .into_boxed_slice();
-
-    Ok(ParsedProgramWithSourceV1 {
-        ast,
-        source_seals,
-        callable_rows,
-        final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
-        generated_delegate_source_relations,
-        metadata,
-    })
+    Ok(final_inventories)
 }
 
 pub(in crate::parser) fn map_error(
@@ -304,6 +377,9 @@ pub(in crate::parser) fn map_error(
         ),
         SourceSealFinalizationErrorV1::GeneratedDelegateCoverage(error) => {
             format!("R6-S3B-D generated delegate relation coverage is invalid: {error:?}")
+        }
+        SourceSealFinalizationErrorV1::InitialCallableProgramSource(error) => {
+            format!("initial callable Program source co-seal rejected: {error:?}")
         }
         SourceSealFinalizationErrorV1::Inventory(error) => {
             format!("R6-S3A final Box inventory is invalid: {error}")

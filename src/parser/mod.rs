@@ -43,6 +43,7 @@ mod expressions;
 mod from_transport_boundary;
 mod generated_callable_anchor;
 mod grammar_contract;
+mod initial_callable_program_source;
 mod items;
 mod lifecycle;
 pub(crate) mod log;

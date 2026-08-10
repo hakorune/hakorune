@@ -19,16 +19,40 @@ use super::super::source_seal_finalizer::GeneratedDelegateCoverageErrorV1;
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
     TopLevelBuildGateUnsupported,
-    UnsupportedTopLevelBoxKind { ordinal: usize },
-    OrdinaryBoxCountMismatch { prepared: usize, final_ast: usize },
-    FinalInventoryShorter { prepared: usize, final_ast: usize },
-    InventoryPrefixMismatch { ordinal: usize },
-    UnexpectedGeneratedRow { ordinal: usize },
-    FinalAstBoxPathCoverageMismatch { prepared: usize, final_ast: usize },
-    DuplicateFinalAstBoxPath { final_index: usize },
-    PreparedBoxPathMissing { prepared_index: usize },
-    ForeignFinalAstBoxPath { final_index: usize },
+    UnsupportedTopLevelBoxKind {
+        ordinal: usize,
+    },
+    OrdinaryBoxCountMismatch {
+        prepared: usize,
+        final_ast: usize,
+    },
+    FinalInventoryShorter {
+        prepared: usize,
+        final_ast: usize,
+    },
+    InventoryPrefixMismatch {
+        ordinal: usize,
+    },
+    UnexpectedGeneratedRow {
+        ordinal: usize,
+    },
+    FinalAstBoxPathCoverageMismatch {
+        prepared: usize,
+        final_ast: usize,
+    },
+    DuplicateFinalAstBoxPath {
+        final_index: usize,
+    },
+    PreparedBoxPathMissing {
+        prepared_index: usize,
+    },
+    ForeignFinalAstBoxPath {
+        final_index: usize,
+    },
     GeneratedDelegateCoverage(GeneratedDelegateCoverageErrorV1),
+    InitialCallableProgramSource(
+        super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1,
+    ),
     Inventory(BoxMethodInventoryErrorV1),
 }
 
@@ -82,6 +106,8 @@ pub(in crate::parser) struct OpenParserPostpassProductV1 {
     pub(in crate::parser) ast: ASTNode,
     pub(in crate::parser) source_session: ParserSourceSessionV1,
     pub(in crate::parser) final_box_paths: Vec<SourceBoxDeclarationPathV1>,
+    pub(in crate::parser) projected_program_item_slots:
+        Option<super::super::build_cfg::program_item_slots::ProjectedProgramItemSlotSetV1>,
     pub(in crate::parser) build_gate_decision_set: PreparedBuildGateDecisionSetV1,
     pub(in crate::parser) explain: Option<super::super::BuildGateExplainReport>,
     pub(in crate::parser) metadata: ParserMetadata,
@@ -142,9 +168,9 @@ impl ParserBoxSourceSealV1 {
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParsedProgramWithSourceV1 {
-    pub(in crate::parser) ast: ASTNode,
+    pub(in crate::parser) initial_callable_source:
+        super::super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1,
     pub(in crate::parser) source_seals: Box<[ParserBoxSourceSealV1]>,
-    pub(in crate::parser) callable_rows: Box<[PreparedCallableSourceV1]>,
     pub(in crate::parser) final_box_ordinals: Box<[usize]>,
     pub(in crate::parser) generated_delegate_source_relations:
         Box<[GeneratedDelegateSourceRelationV1]>,
@@ -153,11 +179,11 @@ pub(in crate::parser) struct ParsedProgramWithSourceV1 {
 
 impl ParsedProgramWithSourceV1 {
     pub(in crate::parser) fn ast(&self) -> &ASTNode {
-        &self.ast
+        self.initial_callable_source.ast()
     }
 
     pub(in crate::parser) fn into_ast(self) -> ASTNode {
-        self.ast
+        self.initial_callable_source.into_ast()
     }
 
     pub(in crate::parser) fn source_seals(&self) -> &[ParserBoxSourceSealV1] {
@@ -171,22 +197,20 @@ impl ParsedProgramWithSourceV1 {
     }
 
     pub(in crate::parser) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
-        &self.callable_rows
+        self.initial_callable_source.callable_rows()
     }
 
     pub(in crate::parser) fn into_postpass_parts(
         self,
     ) -> (
-        ASTNode,
+        super::super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1,
         Box<[ParserBoxSourceSealV1]>,
-        Box<[PreparedCallableSourceV1]>,
         Box<[usize]>,
         ParserMetadata,
     ) {
         (
-            self.ast,
+            self.initial_callable_source,
             self.source_seals,
-            self.callable_rows,
             self.final_box_ordinals,
             self.metadata,
         )

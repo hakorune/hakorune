@@ -41,6 +41,10 @@ pub(in crate::parser) struct ProjectedProgramItemSlotSetV1 {
 }
 
 impl ProjectedProgramItemSlotSetV1 {
+    pub(in crate::parser) fn brand(&self) -> &ParserInvocationBrandV1 {
+        &self.brand
+    }
+
     pub(in crate::parser) fn rows(&self) -> &[ProjectedProgramItemSlotV1] {
         &self.rows
     }
