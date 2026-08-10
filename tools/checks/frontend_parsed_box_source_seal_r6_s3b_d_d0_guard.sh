@@ -11,18 +11,24 @@ REFERENCE="$ROOT/docs/reference/language/callable-contracts.md"
 TASKMAP="$ROOT/docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md"
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX"
+guard_require_files "$TAG" "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE"
 
-python3 - "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" <<'PY'
+python3 - "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" <<'PY'
 import sys
 from pathlib import Path
 
 design, implementation, ssot, readme, reference, taskmap, state, index = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:9]
 ]
+seal_paths = list(map(Path, sys.argv[9:13]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 
 for needle in (
     "Status: accepted design boundary; D-I0 implementation opened",
@@ -76,10 +82,11 @@ if not active_implementation:
 if "frontend_parsed_box_source_seal_r6_s3b_d_d0_guard.sh" not in index:
     raise SystemExit("check index must list the D0 guard")
 
-for relative in ("src/parser/source_seal.rs", "src/parser/delegate_batch.rs", "src/parser/source_authority.rs"):
-    lines = (Path.cwd() / relative).read_text(encoding="utf-8").splitlines()
+for path in (*seal_paths, Path("src/parser/delegate_batch.rs"), Path("src/parser/source_authority.rs")):
+    resolved = path if path.is_absolute() else Path.cwd() / path
+    lines = resolved.read_text(encoding="utf-8").splitlines()
     if len(lines) >= 800:
-        raise SystemExit(f"{relative} exceeds the 800-line boundary")
+        raise SystemExit(f"{path} exceeds the 800-line boundary")
 
 print("accepted_design=1")
 print("sole_final_seal_owner=1")

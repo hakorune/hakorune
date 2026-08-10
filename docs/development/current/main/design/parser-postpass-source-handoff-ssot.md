@@ -582,9 +582,11 @@ issue decisions once
 
 No second AST semantic walk, generic postpass re-evaluation, fallback, retry,
 reparse, member-gate redesign, resolver/Recipe/Builder/MIR/runtime work, or
-source identity reconstruction is opened by I0-C. The implementation must
-use dedicated parser modules because `src/parser/mod.rs` and
-`src/parser/source_seal.rs` are already past the 760-line split trigger.
+source identity reconstruction is opened by I0-C. The implementation uses
+dedicated parser modules. The former near-limit `src/parser/source_seal.rs`
+owner is now the `src/parser/source_seal/` facade with focused `model`,
+`gate_projection`, and `finalize` children; each child remains independently
+below the preferred 760-line split trigger and hard 800-line limit.
 
 I0-C-S0 receipt (2026-08-09): the parser-private issuer is implemented in
 `src/parser/build_cfg/decision_set.rs`. It consumes parser-issued observations,

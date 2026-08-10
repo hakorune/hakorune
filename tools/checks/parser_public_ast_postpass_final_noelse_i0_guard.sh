@@ -13,20 +13,25 @@ STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 SELECTION="$ROOT/src/parser/build_gate_selection.rs"
 RECEIPT="$ROOT/src/parser/source_gate_receipt.rs"
 PROJECTION="$ROOT/src/parser/build_cfg/projection.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$REFERENCE" "$README" "$TASKMAP" "$STATE" "$SELECTION" "$RECEIPT" "$PROJECTION" "$SEAL"
+guard_require_files "$TAG" "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$REFERENCE" "$README" "$TASKMAP" "$STATE" "$SELECTION" "$RECEIPT" "$PROJECTION" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE"
 
-python3 - "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$REFERENCE" "$README" "$TASKMAP" "$STATE" "$SELECTION" "$RECEIPT" "$PROJECTION" "$SEAL" <<'PY'
+python3 - "$DESIGN" "$IMPLEMENTATION" "$SSOT" "$REFERENCE" "$README" "$TASKMAP" "$STATE" "$SELECTION" "$RECEIPT" "$PROJECTION" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" <<'PY'
 import sys
 from pathlib import Path
 
 paths = list(map(Path, sys.argv[1:]))
-design, implementation, ssot, reference, readme, taskmap, state, selection, receipt, projection, seal = [
-    path.read_text(encoding="utf-8") for path in paths
+design, implementation, ssot, reference, readme, taskmap, state, selection, receipt, projection = [
+    path.read_text(encoding="utf-8") for path in paths[:10]
 ]
+seal_paths = paths[10:14]
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 
 if "FINAL-NOELSE-RECEIPT-D0" not in design:
     raise SystemExit("NoElse D0 design is missing")
@@ -73,7 +78,7 @@ if "selection_matches_path" not in seal:
     raise SystemExit("source seal must separate semantic outcome from path branch")
 if "SourceBuildGateBranchV1::NoElse" in selection + receipt + projection + seal:
     raise SystemExit("NoElse must not enter path segment authority")
-for path in (paths[-4], paths[-3], paths[-2], paths[-1]):
+for path in (*paths[7:10], *seal_paths):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 760:
         raise SystemExit(f"{path} reached the 760-line split trigger")
 print("semantic_outcome_shared=1")

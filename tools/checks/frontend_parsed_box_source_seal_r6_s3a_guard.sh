@@ -5,22 +5,28 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="frontend-parsed-box-source-seal-r6-s3a"
 PARSER="$ROOT/src/parser/mod.rs"
 AUTHORITY="$ROOT/src/parser/source_authority.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 BOX="$ROOT/src/parser/declarations/box_def/mod.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$PARSER" "$AUTHORITY" "$SEAL" "$BOX"
+guard_require_files "$TAG" "$PARSER" "$AUTHORITY" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$BOX"
 
-python3 - "$PARSER" "$AUTHORITY" "$SEAL" "$BOX" <<'PY'
+python3 - "$PARSER" "$AUTHORITY" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$BOX" <<'PY'
 import re
 import sys
 from pathlib import Path
 
-parser_path, authority_path, seal_path, box_path = map(Path, sys.argv[1:])
+parser_path = Path(sys.argv[1])
+authority_path = Path(sys.argv[2])
+seal_paths = list(map(Path, sys.argv[3:7]))
+box_path = Path(sys.argv[7])
 parser = parser_path.read_text(encoding="utf-8")
 authority = authority_path.read_text(encoding="utf-8")
-seal = seal_path.read_text(encoding="utf-8")
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 box = box_path.read_text(encoding="utf-8")
 
 for needle in (
@@ -34,8 +40,8 @@ for needle in (
         raise SystemExit(f"missing R6-S3A rich parse entry/finalizer: {needle}")
 
 for needle in (
-    "pub(super) struct ParserBoxSourceSealV1",
-    "pub(super) struct ParsedProgramWithSourceV1",
+    "pub(in crate::parser) struct ParserBoxSourceSealV1",
+    "pub(in crate::parser) struct ParsedProgramWithSourceV1",
     "fn finalize_program",
     "InventoryPrefixMismatch",
 ):
@@ -47,7 +53,7 @@ if "lower_delegate_exposes" not in parser:
 if re.search(r"derive\([^)]*Clone[^)]*\)\s*pub\(super\) struct ParserBoxSourceSealV1", seal):
     raise SystemExit("ParserBoxSourceSealV1 must remain non-Clone")
 if re.search(
-    r"impl\s+ParserBoxSourceSealV1\s*\{.*?pub(?:\(crate\)|\(super\))?\s+fn\s+new\s*\(",
+    r"impl\s+ParserBoxSourceSealV1\s*\{.*?pub(?:\(crate\)|\(super\)|\(in\s+crate::parser\))?\s+fn\s+new\s*\(",
     seal,
     re.S,
 ):
@@ -66,7 +72,7 @@ for forbidden in (
     if forbidden in (parser + authority + seal + box):
         raise SystemExit(f"R6-S3A forbidden legacy/semantic coupling remains: {forbidden}")
 
-for path in (parser_path, authority_path, seal_path, box_path):
+for path in (parser_path, authority_path, *seal_paths, box_path):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

@@ -778,12 +778,27 @@ Closeout receipt:
 
 #### `PARSER-SOURCE-SEAL-MODULE-SPLIT-R0`
 
+Status: **closed**.
+
 Split the near-limit `source_seal.rs` into a directory owner before semantic
 growth.  The first commit is strictly behavior invariant and retains one
 facade.  Suggested private owners are `model`, `gate_projection`, `finalize`,
 and `tests`; no new acceptance, source vocabulary, or public API is introduced.
 All files must stay below the preferred 760 / hard 800 line limits and the
 existing source-seal/postpass test matrix must remain green.
+
+Closeout receipt:
+
+- the former 751-line owner is now a 36-line private facade over focused
+  `model`, `gate_projection`, and `finalize` modules;
+- every source file is below 300 lines and the facade exposes the same
+  parser-private surface;
+- the source-seal, postpass-envelope, and source-resolver-handoff suites plus
+  `cargo check --lib` are green;
+- guards which inspect this authority now require all focused files, search
+  their combined contract text, and apply the line limit to each file;
+- no callable anchor, source acceptance, resolver, Builder, Home, Recipe,
+  retry, fallback, or production path was added.
 
 #### `PARSER-CALLABLE-DIRECT-ANCHOR-R0`
 

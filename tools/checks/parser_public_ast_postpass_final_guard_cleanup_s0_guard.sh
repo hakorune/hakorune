@@ -8,8 +8,13 @@ STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
+
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$TASK" "$STATE" "$INDEX" \
+guard_require_files "$TAG" "$TASK" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh" \
@@ -29,14 +34,16 @@ for guard in \
   bash "$ROOT/tools/checks/$guard"
 done
 
-python3 - "$TASK" "$STATE" "$INDEX" \
+python3 - "$TASK" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_b2_guard.sh" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_b3_guard.sh" \
   "$ROOT/tools/checks/frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh" <<'PY'
 import sys
 from pathlib import Path
 
-task_path, state_path, index_path, b2_path, b3_path, di0_path = map(Path, sys.argv[1:])
+task_path, state_path, index_path = map(Path, sys.argv[1:4])
+seal_paths = list(map(Path, sys.argv[4:8]))
+b2_path, b3_path, di0_path = map(Path, sys.argv[8:11])
 task = task_path.read_text(encoding="utf-8")
 state = state_path.read_text(encoding="utf-8")
 index = index_path.read_text(encoding="utf-8")
@@ -86,15 +93,15 @@ for needle in (
 if "parser_public_ast_postpass_final_guard_cleanup_s0_guard.sh" not in index:
     raise SystemExit("check index must list the cleanup guard")
 
-for relative, limit in (
-    ("src/parser/source_seal.rs", 760),
+for path, limit in (
+    *((path, 760) for path in seal_paths),
     ("src/parser/build_cfg/prune.rs", 800),
     ("src/parser/source_seal_finalizer.rs", 800),
     ("src/parser/source_seal_finalizer_tests.rs", 800),
 ):
-    path = Path.cwd() / relative
+    path = path if isinstance(path, Path) else Path.cwd() / path
     if len(path.read_text(encoding="utf-8").splitlines()) >= limit:
-        raise SystemExit(f"{relative} reached the {limit}-line boundary")
+        raise SystemExit(f"{path} reached the {limit}-line boundary")
 
 print("active_guard_set=1")
 print("retired_helper_absent_from_active_guards=1")

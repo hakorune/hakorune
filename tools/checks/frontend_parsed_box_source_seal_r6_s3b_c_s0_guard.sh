@@ -5,7 +5,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="frontend-parsed-box-source-seal-r6-s3b-c-s0"
 AUTHORITY="$ROOT/src/parser/source_authority.rs"
 BODY="$ROOT/src/parser/declarations/box_def/body.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 SOURCE_TESTS="$ROOT/src/parser/delegate_source_tests.rs"
 SEAL_TESTS="$ROOT/src/parser/source_seal_delegate_tests.rs"
 TASK="$ROOT/docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md"
@@ -15,14 +18,17 @@ INDEX="$ROOT/docs/tools/check-scripts-index.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$AUTHORITY" "$BODY" "$SEAL" "$SOURCE_TESTS" "$SEAL_TESTS" "$TASK" "$SSOT" "$REFERENCE" "$INDEX"
+guard_require_files "$TAG" "$AUTHORITY" "$BODY" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$SOURCE_TESTS" "$SEAL_TESTS" "$TASK" "$SSOT" "$REFERENCE" "$INDEX"
 
-python3 - "$AUTHORITY" "$BODY" "$SEAL" "$SOURCE_TESTS" "$SEAL_TESTS" "$TASK" "$SSOT" "$REFERENCE" "$INDEX" <<'PY'
+python3 - "$AUTHORITY" "$BODY" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$SOURCE_TESTS" "$SEAL_TESTS" "$TASK" "$SSOT" "$REFERENCE" "$INDEX" <<'PY'
 import sys
 from pathlib import Path
 
-authority, body, seal, source_tests, seal_tests, task, ssot, reference, index = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+authority, body = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:3]]
+seal_paths = list(map(Path, sys.argv[3:7]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+source_tests, seal_tests, task, ssot, reference, index = [
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[7:13]
 ]
 
 for needle in (
@@ -72,7 +78,7 @@ for forbidden in (
 if "frontend_parsed_box_source_seal_r6_s3b_c_s0_guard.sh" not in index:
     raise SystemExit("check index must list the S0 guard")
 
-for path in (Path(sys.argv[1]), Path(sys.argv[3])):
+for path in (Path(sys.argv[1]), *seal_paths):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

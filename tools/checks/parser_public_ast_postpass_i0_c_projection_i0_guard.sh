@@ -12,21 +12,27 @@ CALLABLE_REFERENCE="$ROOT/docs/reference/language/callable-contracts.md"
 PROJECTION="$ROOT/src/parser/build_cfg/projection.rs"
 PROJECTION_TESTS="$ROOT/src/parser/build_cfg/projection_tests.rs"
 PRUNE="$ROOT/src/parser/build_cfg/prune.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 ENTRY="$ROOT/src/parser/string_postpass_entry.rs"
 ENVELOPE="$ROOT/src/parser/postpass_envelope.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$TASK" "$DESIGN" "$SSOT" "$README" "$REFERENCE" "$CALLABLE_REFERENCE" "$PROJECTION" "$PROJECTION_TESTS" "$PRUNE" "$SEAL" "$ENTRY" "$ENVELOPE"
+guard_require_files "$TAG" "$TASK" "$DESIGN" "$SSOT" "$README" "$REFERENCE" "$CALLABLE_REFERENCE" "$PROJECTION" "$PROJECTION_TESTS" "$PRUNE" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$ENTRY" "$ENVELOPE"
 
-python3 - "$TASK" "$DESIGN" "$SSOT" "$README" "$REFERENCE" "$CALLABLE_REFERENCE" "$PROJECTION" "$PROJECTION_TESTS" "$PRUNE" "$SEAL" "$ENTRY" "$ENVELOPE" <<'PY'
+python3 - "$TASK" "$DESIGN" "$SSOT" "$README" "$REFERENCE" "$CALLABLE_REFERENCE" "$PROJECTION" "$PROJECTION_TESTS" "$PRUNE" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$ENTRY" "$ENVELOPE" <<'PY'
 import sys
 from pathlib import Path
 
-task, design, ssot, readme, reference, callable_reference, projection, projection_tests, prune, seal, entry, envelope = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+task, design, ssot, readme, reference, callable_reference, projection, projection_tests, prune = [
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:10]
 ]
+seal_paths = list(map(Path, sys.argv[10:14]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+entry, envelope = [Path(p).read_text(encoding="utf-8") for p in sys.argv[14:16]]
 
 if "Status: closed" not in task:
     raise SystemExit("I0-C projection implementation task must be closed")
@@ -56,8 +62,8 @@ if "BuildGateProjectionSelector" not in prune:
     raise SystemExit("generic BuildGate walker must expose the projection selector boundary")
 if "shared_projection_consumes_one_selected_source_gate" not in projection_tests:
     raise SystemExit("projection focused test is missing")
-for path in (projection, prune, seal):
-    lines = len(path.splitlines())
+for path, text in ((Path(sys.argv[7]), projection), (Path(sys.argv[9]), prune), *((path, path.read_text(encoding="utf-8")) for path in seal_paths)):
+    lines = len(text.splitlines())
     if lines >= 760:
         raise SystemExit(f"{path} reached the 760-line split trigger: {lines}")
 print("shared_projection=1")

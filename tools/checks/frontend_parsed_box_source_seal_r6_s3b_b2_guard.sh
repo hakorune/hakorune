@@ -7,20 +7,26 @@ PARSER="$ROOT/src/parser/mod.rs"
 LEDGER="$ROOT/src/parser/source_gate_ledger.rs"
 PATHS="$ROOT/src/parser/source_path.rs"
 PROJECTION="$ROOT/src/parser/build_cfg/prune.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 TESTS="$ROOT/src/parser/source_session_tests.rs"
 SEAL_TESTS="$ROOT/src/parser/source_seal_finalizer_tests.rs"
 TASK="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK"
+guard_require_files "$TAG" "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TESTS" "$SEAL_TESTS" "$TASK"
 
-python3 - "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL" "$TESTS" "$SEAL_TESTS" "$TASK" <<'PY'
+python3 - "$PARSER" "$LEDGER" "$PATHS" "$PROJECTION" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TESTS" "$SEAL_TESTS" "$TASK" <<'PY'
 import sys
 from pathlib import Path
 
-parser, ledger, paths, projection, seal, tests, seal_tests, task = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]]
+parser, ledger, paths, projection = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:5]]
+seal_paths = list(map(Path, sys.argv[5:9]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+tests, seal_tests, task = [Path(p).read_text(encoding="utf-8") for p in sys.argv[9:12]]
 
 for needle in ("source_build_gate_scope", "prepared_source_build_gate_records", "take_source_build_gate_records"):
     if needle not in parser:
@@ -53,7 +59,7 @@ for needle in ("R6-S3B-B2", "SourceBuildGatePathV1", "one selection receipt", "m
     if needle not in task:
         raise SystemExit(f"missing B2 SSOT boundary: {needle}")
 
-for path in map(Path, sys.argv[1:8]):
+for path in (*map(Path, sys.argv[1:5]), *seal_paths, *map(Path, sys.argv[9:11])):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

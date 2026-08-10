@@ -11,22 +11,28 @@ REFERENCE="$ROOT/docs/reference/language/callable-contracts.md"
 TASKMAP="$ROOT/docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md"
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
-SOURCE_SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 FINALIZER="$ROOT/src/parser/source_seal_finalizer.rs"
 RELATION="$ROOT/src/parser/delegate_source_relation.rs"
 TESTS="$ROOT/src/parser/source_seal_delegate_tests.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$DESIGN" "$TASK" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SOURCE_SEAL" "$FINALIZER" "$RELATION" "$TESTS"
+guard_require_files "$TAG" "$DESIGN" "$TASK" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$FINALIZER" "$RELATION" "$TESTS"
 
-python3 - "$DESIGN" "$TASK" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SOURCE_SEAL" "$FINALIZER" "$RELATION" "$TESTS" <<'PY'
+python3 - "$DESIGN" "$TASK" "$SSOT" "$README" "$REFERENCE" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$FINALIZER" "$RELATION" "$TESTS" <<'PY'
 import sys
 from pathlib import Path
 
-design, task, ssot, readme, reference, taskmap, state, index, source_seal, finalizer, relation, tests = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+design, task, ssot, readme, reference, taskmap, state, index = [
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:9]
 ]
+seal_paths = list(map(Path, sys.argv[9:13]))
+source_seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+finalizer, relation, tests = [Path(p).read_text(encoding="utf-8") for p in sys.argv[13:16]]
 
 if "Status: accepted design boundary; D-I0 implementation closed" not in design:
     raise SystemExit("D0 design must record the closed D-I0 boundary")
@@ -52,7 +58,7 @@ for needle in (
     "GeneratedDelegateCoverageErrorV1",
     "validate_generated_delegate_coverage",
     "generated_delegate_source_relations: self.generated_delegate_source_relations",
-    "pub(super) fn generated_delegate_source_relations",
+    "pub(in crate::parser) fn generated_delegate_source_relations",
 ):
     if needle not in source_seal + finalizer:
         raise SystemExit(f"D-I0 final-seal implementation missing: {needle}")
@@ -90,10 +96,11 @@ if not any(
     raise SystemExit("CURRENT_STATE is neither on D-I0 nor its explicit postpass successor")
 if "frontend_parsed_box_source_seal_r6_s3b_d_i0_guard.sh" not in index:
     raise SystemExit("check index must list the D-I0 guard")
-for relative in ("src/parser/source_seal.rs", "src/parser/source_seal_finalizer.rs", "src/parser/delegate_source_relation.rs"):
-    lines = (Path.cwd() / relative).read_text(encoding="utf-8").splitlines()
+for path in (*seal_paths, Path("src/parser/source_seal_finalizer.rs"), Path("src/parser/delegate_source_relation.rs")):
+    resolved = path if path.is_absolute() else Path.cwd() / path
+    lines = resolved.read_text(encoding="utf-8").splitlines()
     if len(lines) >= 800:
-        raise SystemExit(f"{relative} exceeds the 800-line boundary")
+        raise SystemExit(f"{path} exceeds the 800-line boundary")
 
 print("d_i0_receipt=1")
 print("final_seal_relation_coverage=1")

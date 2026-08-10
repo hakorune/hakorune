@@ -4,20 +4,25 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="frontend-parsed-box-source-seal-r6-s3b-a"
 PARSER="$ROOT/src/parser/mod.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 TASK="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$PARSER" "$SEAL" "$TASK"
+guard_require_files "$TAG" "$PARSER" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TASK"
 
-python3 - "$PARSER" "$SEAL" "$TASK" <<'PY'
+python3 - "$PARSER" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TASK" <<'PY'
 import sys
 from pathlib import Path
 
-parser_path, seal_path, task_path = map(Path, sys.argv[1:])
+parser_path = Path(sys.argv[1])
+seal_paths = list(map(Path, sys.argv[2:6]))
+task_path = Path(sys.argv[6])
 parser = parser_path.read_text(encoding="utf-8")
-seal = seal_path.read_text(encoding="utf-8")
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 task = task_path.read_text(encoding="utf-8")
 
 for needle in (
@@ -31,13 +36,13 @@ for needle in (
         raise SystemExit(f"missing S3B-A rich/product handoff: {needle}")
 
 for needle in (
-    "pub(super) struct OpenParserPostpassProductV1",
-    "pub(super) struct ParserSourceSessionV1",
-    "pub(super) fn prune_build_gates",
-    "pub(super) fn lower_delegates",
-    "pub(super) fn finalize(",
+    "pub(in crate::parser) struct OpenParserPostpassProductV1",
+    "pub(in crate::parser) struct ParserSourceSessionV1",
+    "pub(in crate::parser) fn prune_build_gates",
+    "pub(in crate::parser) fn lower_delegates",
+    "pub(in crate::parser) fn finalize(",
     "metadata: ParserMetadata",
-    "pub(super) fn metadata(&self)",
+    "pub(in crate::parser) fn metadata(&self)",
 ):
     if needle not in seal:
         raise SystemExit(f"missing S3B-A product contract: {needle}")
@@ -58,7 +63,7 @@ for forbidden in (
     if forbidden in (parser + seal):
         raise SystemExit(f"S3B-A forbidden legacy/semantic coupling remains: {forbidden}")
 
-for path in (parser_path, seal_path):
+for path in (parser_path, *seal_paths):
     if len(path.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 

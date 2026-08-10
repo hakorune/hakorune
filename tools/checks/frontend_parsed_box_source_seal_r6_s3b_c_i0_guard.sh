@@ -6,7 +6,10 @@ TAG="frontend-parsed-box-source-seal-r6-s3b-c-i0"
 MODULE="$ROOT/src/parser/delegate_batch.rs"
 RELATION="$ROOT/src/parser/delegate_source_relation.rs"
 TARGET="$ROOT/src/parser/delegate_target_index.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 TASK="$ROOT/docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-i0-implementation-task-2026-08-09.md"
 SSOT="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 README="$ROOT/src/parser/README.md"
@@ -17,14 +20,17 @@ STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$MODULE" "$RELATION" "$TARGET" "$SEAL" "$TASK" "$SSOT" "$README" "$REFERENCE" "$STATE" "$TASKMAP" "$INDEX"
+guard_require_files "$TAG" "$MODULE" "$RELATION" "$TARGET" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TASK" "$SSOT" "$README" "$REFERENCE" "$STATE" "$TASKMAP" "$INDEX"
 
-python3 - "$MODULE" "$RELATION" "$TARGET" "$SEAL" "$TASK" "$SSOT" "$README" "$REFERENCE" "$STATE" "$TASKMAP" "$INDEX" <<'PY'
+python3 - "$MODULE" "$RELATION" "$TARGET" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$TASK" "$SSOT" "$README" "$REFERENCE" "$STATE" "$TASKMAP" "$INDEX" <<'PY'
 import sys
 from pathlib import Path
 
-module, relation, target, seal, task, ssot, readme, reference, state, taskmap, index = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+module, relation, target = [Path(p).read_text(encoding="utf-8") for p in sys.argv[1:4]]
+seal_paths = list(map(Path, sys.argv[4:8]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+task, ssot, readme, reference, state, taskmap, index = [
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[8:15]
 ]
 
 for needle in (
@@ -107,10 +113,11 @@ for path in (
     Path("src/parser/delegate_batch.rs"),
     Path("src/parser/delegate_source_relation.rs"),
     Path("src/parser/delegate_target_index.rs"),
-    Path("src/parser/source_seal.rs"),
+    *seal_paths,
     Path("src/parser/source_authority.rs"),
 ):
-    if len((Path.cwd() / path).read_text(encoding="utf-8").splitlines()) >= 800:
+    resolved = path if path.is_absolute() else Path.cwd() / path
+    if len(resolved.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 
 print("all_host_expose_preflight=1")

@@ -8,21 +8,25 @@ TASKMAP="$ROOT/docs/development/current/main/investigations/callable-contract-an
 SSOT="$ROOT/docs/development/current/main/design/parser-postpass-source-handoff-ssot.md"
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 MOD="$ROOT/src/parser/mod.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 ENTRY="$ROOT/src/parser/string_postpass_entry.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$MOD" "$SEAL" "$ENTRY"
+guard_require_files "$TAG" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$MOD" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$ENTRY"
 
-python3 - "$ROOT" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$MOD" "$SEAL" "$ENTRY" <<'PY'
+python3 - "$ROOT" "$TASK" "$TASKMAP" "$SSOT" "$STATE" "$MOD" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$ENTRY" <<'PY'
 import sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
-task, taskmap, ssot, state, mod, seal, entry = [
-    Path(path).read_text(encoding="utf-8") for path in sys.argv[2:]
-]
+task, taskmap, ssot, state, mod = [Path(path).read_text(encoding="utf-8") for path in sys.argv[2:7]]
+seal_paths = list(map(Path, sys.argv[7:11]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
+entry = Path(sys.argv[11]).read_text(encoding="utf-8")
 
 if not any(
     status in task
@@ -73,7 +77,7 @@ if "parse_from_string_with_source_seal" not in mod:
     raise SystemExit("resolver-grade source-seal entry must remain available")
 for path in (
     root / "src/parser/mod.rs",
-    root / "src/parser/source_seal.rs",
+    *seal_paths,
     root / "src/parser/postpass_envelope.rs",
     root / "src/parser/build_cfg/projection.rs",
 ):

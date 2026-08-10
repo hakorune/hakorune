@@ -266,9 +266,10 @@ Projection I0 receipt (2026-08-09): `build_cfg/projection.rs` is now the one
 shared structural walker. It borrows the decision set, traverses selected and
 inactive branches for complete coverage, emits only the selected AST, and
 produces validated source receipts plus reachable-row v0 explain output.
-`source_seal.rs` consumes this aggregate and derives retained Box paths from
-prepared source seals; the old evaluator/generic-prune path is not used by the
-shared postpass. Public explain uses the same completed postpass product.
+`source_seal/gate_projection.rs` consumes this aggregate and derives retained
+Box paths from prepared source seals; the old evaluator/generic-prune path is
+not used by the shared postpass. Public explain uses the same completed
+postpass product.
 
 The post-closeout structural-gate correction is also part of this boundary:
 BuildGates inside method/function bodies remain decision-covered, but receive
@@ -305,6 +306,28 @@ remain separate owners; this retirement did not change receipt or path
 semantics.
 
 FINAL-GUARD-CLEANUP-S0 is the bounded closeout row: active B2/B3/D-I0 guards
-now validate `build_cfg/prune.rs`, `source_seal.rs`, and the private finalizer
-owners rather than the retired helper. The retired filename remains only in
+now validate `build_cfg/prune.rs`, the `source_seal/` facade and focused
+`model` / `gate_projection` / `finalize` owners, and the private delegate
+finalizer rather than the retired helper. The retired filename remains only in
 historical retirement evidence; it is not an active parser authority.
+
+`PARSER-SOURCE-SEAL-MODULE-SPLIT-R0` keeps that boundary behavior-invariant:
+
+```text
+source_seal/mod.rs
+  thin private facade and test routing
+
+source_seal/model.rs
+  prepared/open/final source products and accessors
+
+source_seal/gate_projection.rs
+  gate-receipt validation and atomic source-session pruning
+
+source_seal/finalize.rs
+  final inventory/coverage validation and total postpass close
+```
+
+The split creates no callable anchor, new source vocabulary, resolver-facing
+product, semantic admission, retry, or fallback. Guards inspect every focused
+owner and enforce the line limit per file rather than relying on a concatenated
+facade.

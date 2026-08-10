@@ -14,18 +14,24 @@ NEXT_IMPL="$ROOT/docs/development/current/main/investigations/frontend-parsed-bo
 TASKMAP="$ROOT/docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md"
 STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX"
+guard_require_files "$TAG" "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE"
 
-python3 - "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX" <<'PY'
+python3 - "$MODULE" "$AUTHORITY" "$README" "$SSOT" "$REFERENCE" "$TASK" "$NEXT" "$NEXT_IMPL" "$TASKMAP" "$STATE" "$INDEX" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" <<'PY'
 import sys
 from pathlib import Path
 
 module, authority, readme, ssot, reference, task, next_design, next_impl, taskmap, state, index = [
-    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:]
+    Path(p).read_text(encoding="utf-8") for p in sys.argv[1:12]
 ]
+seal_paths = list(map(Path, sys.argv[12:16]))
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 
 for needle in (
     "DelegateTargetIndexV1",
@@ -103,8 +109,9 @@ if "frontend_parsed_box_source_seal_r6_s3b_c_s1_guard.sh" not in index:
 if "C-S1 delegate target index" not in readme:
     raise SystemExit("parser README must record the C-S1 owner boundary")
 
-for path in (Path("src/parser/delegate_target_index.rs"), Path("src/parser/source_authority.rs"), Path("src/parser/source_seal.rs")):
-    if len((Path.cwd() / path).read_text(encoding="utf-8").splitlines()) >= 800:
+for path in (Path("src/parser/delegate_target_index.rs"), Path("src/parser/source_authority.rs"), *seal_paths):
+    resolved = path if path.is_absolute() else Path.cwd() / path
+    if len(resolved.read_text(encoding="utf-8").splitlines()) >= 800:
         raise SystemExit(f"source must remain below 800 lines: {path}")
 
 print("private_target_index=1")

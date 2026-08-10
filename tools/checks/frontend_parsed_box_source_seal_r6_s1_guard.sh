@@ -4,27 +4,34 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="frontend-parsed-box-source-seal-r6-s1"
 SOURCE="$ROOT/src/parser/source_authority.rs"
-SEAL="$ROOT/src/parser/source_seal.rs"
+SEAL_MOD="$ROOT/src/parser/source_seal/mod.rs"
+SEAL_MODEL="$ROOT/src/parser/source_seal/model.rs"
+SEAL_GATE="$ROOT/src/parser/source_seal/gate_projection.rs"
+SEAL_FINALIZE="$ROOT/src/parser/source_seal/finalize.rs"
 PARSER_MOD="$ROOT/src/parser/mod.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$SOURCE" "$SEAL" "$PARSER_MOD"
+guard_require_files "$TAG" "$SOURCE" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$PARSER_MOD"
 
-python3 - "$ROOT" "$SOURCE" "$SEAL" "$PARSER_MOD" <<'PY'
+python3 - "$ROOT" "$SOURCE" "$SEAL_MOD" "$SEAL_MODEL" "$SEAL_GATE" "$SEAL_FINALIZE" "$PARSER_MOD" <<'PY'
 import re
 import sys
 from pathlib import Path
 
-root, source_path, seal_path, parser_mod_path = map(Path, sys.argv[1:])
+root = Path(sys.argv[1])
+source_path = Path(sys.argv[2])
+seal_paths = list(map(Path, sys.argv[3:7]))
+parser_mod_path = Path(sys.argv[7])
 source = source_path.read_text(encoding="utf-8")
-seal = seal_path.read_text(encoding="utf-8")
+seal = "\n".join(path.read_text(encoding="utf-8") for path in seal_paths)
 parser_mod = parser_mod_path.read_text(encoding="utf-8")
 
 if len(source.splitlines()) >= 800:
     raise SystemExit(f"source must remain below 800 lines: {source_path}")
-if len(seal.splitlines()) >= 800:
-    raise SystemExit(f"source must remain below 800 lines: {seal_path}")
+for seal_path in seal_paths:
+    if len(seal_path.read_text(encoding="utf-8").splitlines()) >= 800:
+        raise SystemExit(f"source must remain below 800 lines: {seal_path}")
 if "mod source_authority;" not in parser_mod:
     raise SystemExit("parser-private source authority module is not declared")
 
