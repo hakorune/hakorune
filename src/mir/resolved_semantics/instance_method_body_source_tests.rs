@@ -1,10 +1,10 @@
 use super::*;
 
-use crate::parser::{NyashParser, ParserBuildConfig};
 use crate::mir::resolved_semantics::{
     ResolverNominalBoxDeclarationInputV1, ResolverNominalTypeEnvironmentV1,
     SemanticInstanceDeclarationIssuerV1,
 };
+use crate::parser::{NyashParser, ParserBuildConfig};
 
 fn body_parts() -> (
     crate::parser::ParserBoxResolverSourceHandoffV1,
@@ -22,12 +22,12 @@ fn body_parts() -> (
 fn declaration_catalog(
     handoff: crate::parser::ParserBoxResolverSourceHandoffV1,
 ) -> VerifiedInstanceMethodDeclarationCatalogV1 {
-    let nominal = ResolverNominalTypeEnvironmentV1::issue([
-        ResolverNominalBoxDeclarationInputV1::new(0, "TextLike"),
-    ])
-    .expect("nominal environment should issue");
-    SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal)
-        .expect("declaration should issue")
+    let nominal =
+        ResolverNominalTypeEnvironmentV1::issue([ResolverNominalBoxDeclarationInputV1::new(
+            0, "TextLike",
+        )])
+        .expect("nominal environment should issue");
+    SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal).expect("declaration should issue")
 }
 
 fn foreign_declaration_catalog() -> VerifiedInstanceMethodDeclarationCatalogV1 {

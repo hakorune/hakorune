@@ -112,13 +112,13 @@ impl VerifiedDeclaredInstanceMethodContractCatalogV1 {
         let declarations = self.home_catalog.declarations();
         let home_abis = self.home_catalog.home_abis();
         let query_behaviors = self.query_catalog.rows();
-        self.selected_pairs.iter().map(move |pair| {
-            DeclaredInstanceMethodContractRefV1 {
+        self.selected_pairs
+            .iter()
+            .map(move |pair| DeclaredInstanceMethodContractRefV1 {
                 declaration: &declarations[pair.declaration_index],
                 home_abi: &home_abis[pair.home_index],
                 query: &query_behaviors[pair.query_index],
-            }
-        })
+            })
     }
 }
 

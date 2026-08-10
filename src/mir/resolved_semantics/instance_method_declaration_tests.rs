@@ -11,10 +11,8 @@ fn parse_handoff(source: &str) -> ParserBoxResolverSourceHandoffV1 {
 }
 
 fn environment(name: &str) -> ResolverNominalTypeEnvironmentV1 {
-    ResolverNominalTypeEnvironmentV1::issue([ResolverNominalBoxDeclarationInputV1::new(
-        0, name,
-    )])
-    .expect("nominal environment should issue")
+    ResolverNominalTypeEnvironmentV1::issue([ResolverNominalBoxDeclarationInputV1::new(0, name)])
+        .expect("nominal environment should issue")
 }
 
 #[test]
@@ -45,10 +43,7 @@ box TextLike {
         declaration.nominal_box_type().brand(),
         catalog.resolver_brand()
     );
-    assert_eq!(
-        declaration.resolver_brand(),
-        catalog.resolver_brand()
-    );
+    assert_eq!(declaration.resolver_brand(), catalog.resolver_brand());
     let _ = catalog.parser_provenance();
 }
 

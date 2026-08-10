@@ -1,8 +1,7 @@
 use super::*;
 
 use crate::mir::resolved_semantics::{
-    CallableHomeAbiIssuerV1, DeclaredQueryBehaviorIssuerV1,
-    DeclaredInstanceMethodContractIssuerV1,
+    CallableHomeAbiIssuerV1, DeclaredInstanceMethodContractIssuerV1, DeclaredQueryBehaviorIssuerV1,
     InstanceMethodBodySourceIssuerV1, ResolverHomeCapabilityEnvironmentV1,
     ResolverNominalBoxDeclarationInputV1, ResolverNominalTypeEnvironmentV1,
     SemanticInstanceDeclarationIssuerV1,
@@ -22,16 +21,17 @@ fn issue_products(
     .expect("body transaction should issue")
     .into_parts()
     .expect("body transaction parts should issue");
-    let nominal = ResolverNominalTypeEnvironmentV1::issue([
-        ResolverNominalBoxDeclarationInputV1::new(0, "TextLike"),
-    ])
-    .expect("nominal environment should issue");
+    let nominal =
+        ResolverNominalTypeEnvironmentV1::issue([ResolverNominalBoxDeclarationInputV1::new(
+            0, "TextLike",
+        )])
+        .expect("nominal environment should issue");
     let declarations = SemanticInstanceDeclarationIssuerV1::issue(handoff, nominal)
         .expect("declaration catalog should issue");
     let body = InstanceMethodBodySourceIssuerV1::issue(envelope, &declarations)
         .expect("general body catalog should issue");
-    let query = DeclaredQueryBehaviorIssuerV1::issue(&declarations)
-        .expect("Query behavior should issue");
+    let query =
+        DeclaredQueryBehaviorIssuerV1::issue(&declarations).expect("Query behavior should issue");
     let environment = ResolverHomeCapabilityEnvironmentV1::issue(&declarations)
         .expect("Home environment should issue");
     let home = CallableHomeAbiIssuerV1::issue(declarations, environment)
@@ -54,9 +54,15 @@ fn projects_sparse_query_rows_without_consuming_general_catalog() {
     assert_eq!(projected.rows().len(), 2);
     assert_eq!(projected.rows()[0].body().method_member_ordinal(), 0);
     assert_eq!(projected.rows()[1].body().method_member_ordinal(), 2);
-    assert_eq!(projected.rows()[0].contract().declaration().name(), "length");
+    assert_eq!(
+        projected.rows()[0].contract().declaration().name(),
+        "length"
+    );
     assert_eq!(projected.rows()[1].contract().declaration().name(), "empty");
-    assert_eq!(projected.rows()[1].body().body_item_ordinals(), &[] as &[u32]);
+    assert_eq!(
+        projected.rows()[1].body().body_item_ordinals(),
+        &[] as &[u32]
+    );
 
     // The projection borrows the all-row authority; the non-Query row remains
     // available for a later non-Query observer.

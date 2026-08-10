@@ -119,9 +119,7 @@ impl HomeRelationBrandIssuerV1 {
         source_ordinal: u32,
     ) -> Result<HomeDestinationV1, HomeRelationRejectV1> {
         if !self.destinations.insert(source_ordinal) {
-            return Err(HomeRelationRejectV1::DuplicateDestinationSource {
-                source_ordinal,
-            });
+            return Err(HomeRelationRejectV1::DuplicateDestinationSource { source_ordinal });
         }
         Ok(HomeDestinationV1 {
             brand: self.brand,

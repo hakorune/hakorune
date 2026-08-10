@@ -11,8 +11,8 @@ use crate::parser::{
 };
 
 use super::{
-    ResolverCatalogBrandV1, ResolverNominalBoxTypeIdV1,
-    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
+    ResolverCatalogBrandV1, ResolverNominalBoxTypeIdV1, VerifiedInstanceMethodDeclarationCatalogV1,
+    VerifiedInstanceMethodDeclarationV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -168,10 +168,14 @@ fn issue_rows(
     }
 
     for declaration in declarations {
-        let key = (declaration.box_statement_ordinal(), declaration.method_member_ordinal());
-        if !normalized.iter().any(|row| {
-            row.box_statement_ordinal == key.0 && row.method_member_ordinal == key.1
-        }) {
+        let key = (
+            declaration.box_statement_ordinal(),
+            declaration.method_member_ordinal(),
+        );
+        if !normalized
+            .iter()
+            .any(|row| row.box_statement_ordinal == key.0 && row.method_member_ordinal == key.1)
+        {
             return Err(InstanceMethodBodySourceIssueV1::MissingBodyRow {
                 box_statement_ordinal: key.0,
                 member_ordinal: key.1,

@@ -106,10 +106,7 @@ impl DeclaredQueryBodySourceIssuerV1 {
                 continue;
             };
 
-            let key = (
-                body.box_statement_ordinal(),
-                body.method_member_ordinal(),
-            );
+            let key = (body.box_statement_ordinal(), body.method_member_ordinal());
             if !seen.insert(key) {
                 return Err(DeclaredQueryBodySourceIssueV1::DuplicateSelectedBodyRow {
                     box_statement_ordinal: key.0,

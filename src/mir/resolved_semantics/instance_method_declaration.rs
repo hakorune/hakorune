@@ -8,9 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::parser::{
-    CallableContractSyntaxV1, ParserBoxResolverSourceHandoffV1,
-    ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
-    ResolverSourceInvocationProvenanceV1,
+    CallableContractSyntaxV1, ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1,
+    ResolverBoxMethodSourceSiteV1, ResolverSourceInvocationProvenanceV1,
 };
 
 static NEXT_RESOLVER_CATALOG_BRAND: AtomicU64 = AtomicU64::new(1);
@@ -88,9 +87,11 @@ impl ResolverNominalTypeEnvironmentV1 {
         let mut names = BTreeMap::new();
         for (slot, input) in inputs.into_iter().enumerate() {
             if declarations.contains_key(&input.source_statement_ordinal) {
-                return Err(ResolverNominalTypeEnvironmentIssueV1::DuplicateSourceStatement {
-                    statement_ordinal: input.source_statement_ordinal,
-                });
+                return Err(
+                    ResolverNominalTypeEnvironmentIssueV1::DuplicateSourceStatement {
+                        statement_ordinal: input.source_statement_ordinal,
+                    },
+                );
             }
             if names
                 .insert(input.source_name.clone(), input.source_statement_ordinal)
@@ -100,9 +101,8 @@ impl ResolverNominalTypeEnvironmentV1 {
                     name: input.source_name,
                 });
             }
-            let slot = u32::try_from(slot).map_err(|_| {
-                ResolverNominalTypeEnvironmentIssueV1::BrandExhausted
-            })?;
+            let slot = u32::try_from(slot)
+                .map_err(|_| ResolverNominalTypeEnvironmentIssueV1::BrandExhausted)?;
             let type_id = ResolverNominalBoxTypeIdV1 { brand, slot };
             declarations.insert(
                 input.source_statement_ordinal,
@@ -112,7 +112,10 @@ impl ResolverNominalTypeEnvironmentV1 {
                 },
             );
         }
-        Ok(Self { brand, declarations })
+        Ok(Self {
+            brand,
+            declarations,
+        })
     }
 
     fn brand(&self) -> ResolverCatalogBrandV1 {
@@ -139,7 +142,6 @@ impl ResolverNominalTypeEnvironmentV1 {
         }
         Ok(declaration)
     }
-
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -251,10 +253,20 @@ pub(crate) enum InstanceMethodDeclarationIssueV1 {
     UnusedNominalBox {
         statement_ordinal: u32,
     },
-    StaticMethodUnsupported { name: Box<str> },
-    MissingParameterType { method: Box<str>, index: usize },
-    UnsupportedType { method: Box<str>, type_name: Box<str> },
-    DuplicateSourceBoxRow { statement_ordinal: u32 },
+    StaticMethodUnsupported {
+        name: Box<str>,
+    },
+    MissingParameterType {
+        method: Box<str>,
+        index: usize,
+    },
+    UnsupportedType {
+        method: Box<str>,
+        type_name: Box<str>,
+    },
+    DuplicateSourceBoxRow {
+        statement_ordinal: u32,
+    },
     MethodSourceBoxMismatch {
         box_statement_ordinal: u32,
         method_statement_ordinal: u32,
@@ -304,16 +316,14 @@ impl SemanticInstanceDeclarationIssuerV1 {
                     source_site.box_statement_ordinal(),
                     source_site.member_ordinal(),
                 )) {
-                    return Err(InstanceMethodDeclarationIssueV1::DuplicateSourceMethodSite {
-                        statement_ordinal,
-                        member_ordinal: source_site.member_ordinal(),
-                    });
+                    return Err(
+                        InstanceMethodDeclarationIssueV1::DuplicateSourceMethodSite {
+                            statement_ordinal,
+                            member_ordinal: source_site.member_ordinal(),
+                        },
+                    );
                 }
-                declarations.push(issue_method(
-                    resolver_brand,
-                    nominal.type_id,
-                    method,
-                )?);
+                declarations.push(issue_method(resolver_brand, nominal.type_id, method)?);
             }
         }
 
@@ -328,9 +338,7 @@ impl SemanticInstanceDeclarationIssuerV1 {
                 .find(|statement| !used_statements.contains_key(statement))
                 .copied()
                 .unwrap_or_default();
-            return Err(InstanceMethodDeclarationIssueV1::UnusedNominalBox {
-                statement_ordinal,
-            });
+            return Err(InstanceMethodDeclarationIssueV1::UnusedNominalBox { statement_ordinal });
         }
 
         Ok(VerifiedInstanceMethodDeclarationCatalogV1 {
