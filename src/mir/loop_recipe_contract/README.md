@@ -5,6 +5,28 @@ Loop lowering.
 
 ## Authority
 
+## V2 physical-transfer boundary (design stop)
+
+The verified V2 Recipe and JoinSig remain logical products.  A future
+package-to-physical issuer may borrow one private projection only after the
+JoinSig owner issues an item/control-keyed transfer view:
+
+```text
+VerifiedDynamicFullLoopSemanticProgramV2
+  -> operation/placement + source/effect + CallSlot view
+  + execution_class_v2
+  + Fault cut-point view
+  + LoopJoinTransferViewV2 (including the co-sealed After)
+```
+
+`LoopJoinTransferViewV2` is the sole owner of logical port/role/payload and
+loop/branch/exit anchors.  The physical issuer must not read
+`VerifiedLoopJoinSigV2::as_sig()`, reconstruct an item from names/order, or
+re-pair `After`.  This is a private borrowed view, not a new Recipe, target,
+ABI, CFG, or `Verified*`/`Prepared*` public product.  Until the source/effect
+ledger and this transfer view have canonical issuers, the physical lane is
+`NoSafeSlice`; V1 physical demand and V2-to-V1 coercion are forbidden.
+
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.
 - The source wire claim names one declared-function body by compilation-unit
