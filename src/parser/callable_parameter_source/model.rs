@@ -138,6 +138,10 @@ impl ParserCallableParameterDeclarationSourceV1 {
         self.kind
     }
 
+    pub(crate) const fn is_static(&self) -> bool {
+        matches!(self.kind, ParserCallableDeclarationKindV1::StaticBoxMethod)
+    }
+
     pub(crate) fn diagnostic_name(&self) -> &str {
         &self.diagnostic_name
     }

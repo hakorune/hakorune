@@ -354,10 +354,14 @@ result relation:
 
 The passive relation vocabulary for these demands/results is landed in the
 resolver as an internal, branded receipt, and the bounded `I64|Unit` Home ABI
-catalog is now issued through one same-declaration co-seal. The relation brand
-is batch provenance only, not resolver nominal identity. This does not make
-Home grammar or production ABI live: Query/body conformance, Home Flow,
-physical ownership, targets, and production remain separate gates.
+catalog is now issued through one same-declaration co-seal. In addition, the
+common direct-method parameter authority now consumes one complete parser
+source catalog and canonical resolved owner forests to issue every
+`Ordinary -> Handle` row atomically. It preserves zero-parameter declarations
+and exposes no split/name-lookup API. The relation brand is batch provenance
+only, not resolver nominal identity. This does not make `take`, Home grammar,
+or production ABI live: Query/body conformance, Home Flow, physical ownership,
+targets, and production remain separate gates.
 
 ### ClosedCallable
 

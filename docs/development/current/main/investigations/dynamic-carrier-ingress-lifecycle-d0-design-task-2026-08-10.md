@@ -3,7 +3,7 @@
 Status: ingress and parameter-transfer authority Decisions accepted; Hako R0a/R0b closed
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `CALLABLE-PARAMETER-DEMAND-I0`
+Current implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
 Exception: T2 source-authority boundary required before several implementation rows.
 ParentCurrentCard: this file is the rolling card for parameter demand through carrier ingress.
 
@@ -267,7 +267,7 @@ This remains unpublished parser transaction staging. Resolver owner,
 still zero; the selected Demand I0 must consume this loan rather than open a
 second AST lookup path.
 
-### 3. `CALLABLE-PARAMETER-DEMAND-I0` — selected
+### 3. `CALLABLE-PARAMETER-DEMAND-I0` — closed
 
 Issue one complete `VerifiedCallableParameterDemandCatalogV1` from the sealed
 syntax and resolved declaration. First cohort maps `Ordinary -> Handle` only.
@@ -275,7 +275,22 @@ Reject partial coverage, duplicate rows, foreign BindingRefs, and declaration
 arity mismatch. Do not refactor the existing instance Home ABI in this row;
 record its later convergence boundary and forbid duplicate new demand owners.
 
-### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
+Closeout receipt:
+
+- one consuming issuer borrows the exact parser declarations, resolves their
+  canonical owner forests, and atomically seals the complete demand catalog;
+- direct static and ordinary instance roots share the same issuer/catalog
+  boundary while retaining distinct owners and receiver profiles;
+- every parameter retains its exact ordinal, `BindingRefV1`, and
+  `HomeDemandV1::Handle`; zero-parameter declarations remain explicit empty
+  rows;
+- the final non-`Clone` product retains the parser catalog and resolved
+  forests and exposes borrow-scoped views only;
+- focused mixed-declaration, unchanged `ParserScanLoopBox` 4/15, and
+  cross-session identity tests are green; `Take`, Dynamic Home, Recipe, MIR,
+  retry, and fallback remain zero.
+
+### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — selected
 
 Consume the whole parameter-demand catalog and whole Dynamic lifecycle
 program. Seal parameter #1 through Pos/initializer/local/V1/C0/L0/B0 and the

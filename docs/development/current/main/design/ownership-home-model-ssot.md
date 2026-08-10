@@ -176,9 +176,13 @@ VerifiedCallableParameterDemandCatalog
   Take -> accepted Home-demand capability
 ```
 
-This target authority is accepted but not yet implemented. Until the typed
-Rust/Hako transfer source seal and complete catalog exist, normal-callable
-parameter-demand consumers remain `NoSafeSlice`.
+The first bounded authority is implemented for direct static Box methods and
+direct ordinary instance methods. One non-`Clone`
+`VerifiedCallableParameterDemandCatalogV1` retains the complete parser source
+catalog plus the canonical resolved owner forests and maps every sealed
+`Ordinary` row to `Handle`. Zero-parameter declarations remain present as
+empty declaration rows. `Take` and every owning demand remain unissued until
+their source-backed capability exists.
 
 One sealed callable Home ABI remains the only combined call-site authority:
 

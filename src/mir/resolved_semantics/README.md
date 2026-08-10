@@ -714,13 +714,14 @@ The next aggregate design must co-seal the landed
 `VerifiedDeclaredQueryBehaviorCatalogV1` with the same-declaration
 `VerifiedDeclaredInstanceMethodHomeCatalogV1`. Query does not issue a second
 receiver Handle axis. The current bounded Home ABI owns its combined
-receiver/parameter/result relation. The accepted convergence target moves the
-parameter subset to one common complete
-`VerifiedCallableParameterDemandCatalogV1`, which static and instance
-declarations share; Home ABI aggregates will consume or project those rows
-instead of reissuing parameter demand. That common catalog and its Rust/Hako
-typed transfer source seal are not implemented yet, so normal-callable
-consumers remain `NoSafeSlice`.
+receiver/parameter/result relation. The common complete
+`VerifiedCallableParameterDemandCatalogV1` is now issued for direct static and
+ordinary instance declarations from the Rust/Hako typed transfer source seal
+plus canonical resolved owner forests. It retains both authorities, maps only
+`Ordinary -> Handle`, and preserves zero-parameter declarations. Home ABI
+aggregates must consume or project those rows instead of reissuing parameter
+demand. `Take`, owning demands, and normal-callable production consumption
+remain closed.
 Physical call ABI is deliberately downstream. The parser handoff is already
 closed for the bounded Rust cohort; a missing resolver semantic signature,
 nominal type authority, typed Query behavior, or Home ABI is `NoSafeSlice`, not
