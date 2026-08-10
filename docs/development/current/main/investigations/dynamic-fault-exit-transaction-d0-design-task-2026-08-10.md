@@ -375,6 +375,93 @@ DraftSeal / Collector / publication
 provider or runtime dispatch
 ```
 
+## Physical-input authority bridge D0 (2026-08-10)
+
+`PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` is the current design stop.  The
+logical package and its exit-transaction co-seal are complete enough to be
+borrowed by a later physical boundary, but they do not themselves prove that
+the callable can be materialized in a fresh MIR function session.
+
+The accepted boundary is therefore two consecutive, non-overlapping stages:
+
+```text
+installed source-backed semantic package
+  + exact selected scoped lowering input
+  + existing source/resolver physical capability issuers
+    -> one future physical-input co-seal
+       (demand / Prelude-entry / Tail / ABI-result / Completion relation)
+    -> zero-effect physical preflight
+    -> fresh unpublished function session
+    -> common recursive physicalizer
+    -> finish_for_draft_seal
+    -> DraftSeal prepare/commit
+```
+
+The physical-input co-seal is a relation product, not a second Recipe, a
+second callable package, or a new semantic owner.  It must consume already
+verified products and publish only their same-owner/frame/scope/target
+compatibility.  Until its canonical issuer exists, no `Verified*` or
+`Prepared*` physical receipt is added merely to connect existing fields.
+
+### Owner census
+
+| physical concern | current owner / evidence | bridge status |
+| --- | --- | --- |
+| exact source/function input | installed package's scoped `ResolvedFunctionLoweringInputV1` view | available as a read-only source view; not a physical receipt |
+| logical Loop/Recipe/JoinSig/After | source-backed logical issuers and the selected Dynamic exit co-seal | available; never re-infer transfers here |
+| Loop physical demand | `VerifiedLoopOperationPhysicalDemandV1` in `loop_physical_prepare.rs` | caller-zero and `cfg(test)`; cannot be promoted without source-backed issuer |
+| Prelude / entry materialization | `VerifiedCallablePreludeV1` plus test-only argument/preparation helpers | semantic prelude exists; physical entry relation is not co-sealed |
+| Callable Tail | `VerifiedCallableTailV1` | source relation exists; physical tail/return materialization is not co-sealed |
+| ABI / result representation | `ExactTrivialReturnAbiV1` and existing result contracts | classification exists; exact physical result relation is not a production input |
+| function Completion | `VerifiedFunctionCompletionV1` and `CanonicalSsaFunctionSessionV2` consumption | semantic completion exists; physical two-site completion relation is not one source-backed input |
+| fresh function/session | `CanonicalFunctionLoweringSessionV1` and `CanonicalSsaFunctionSessionV2` | downstream sole owners; session remains unopened at this stop |
+| DraftSeal / collection | `OpenFunctionDraftSealV1` / `PreparedFunctionDraftSealV1` / `ModuleDraftCollectorV1` | downstream only; not part of the bridge issuer |
+
+The current `loop_physical_prepare.rs` (795 lines, `#![cfg(test)]`) and
+`callable_loop_physical_canary.rs` are evidence and contract fixtures, not
+production authorities.  They must not be enlarged to absorb the bridge;
+the eventual bridge should live in a new, narrowly owned module or in the
+existing package-to-physical boundary after its source issuer is identified.
+
+### Sole issuer and fail-fast contract
+
+The future bridge issuer must accept exactly one installed-package scoped
+input and the existing source-backed physical capability products.  It must
+reject before a session opens when any of these is missing, duplicated,
+foreign, or mismatched:
+
+```text
+source/catalog/session brand
+FunctionOwner / callable header
+Loop owner, frame, Scope/Region, and exact source site
+Recipe item/operation coverage and JoinSig transfer relation
+Prelude receiver/arguments and entry binding
+Tail statement/value site and function-exit target
+semantic result class and physical ABI/result projection
+Completion owner, return-site coverage, and terminal target
+```
+
+Once a fresh session opens, the sole failure policy remains whole unpublished
+function discard exactly once.  Same-session repair, retry, compatibility
+fallback, raw `lower_loop` entry, and AST/MIR re-matching are forbidden.
+
+### Smallest task ladder after this Decision
+
+```text
+PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0   current design stop
+  -> source-owner/issuer census and accepted co-seal contract
+PHYSICAL-INPUT-AUTHORITY-I0
+  -> one bounded source-backed input co-seal, still before session emission
+DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  -> fresh session, common physicalizer, finish/DraftSeal canary
+```
+
+`PHYSICAL-INPUT-AUTHORITY-I0` may not begin until this D0 is accepted and
+must not remove `cfg(test)` from the existing canary as a shortcut.  The I0
+must also carry a source-to-Facts-to-Recipe readiness sentence and a focused
+negative matrix; it must not introduce Home, runtime Fault, CFG/PHI,
+DraftSeal, Collector, provider dispatch, or a new fallback route.
+
 ## Hard stops
 
 ```text

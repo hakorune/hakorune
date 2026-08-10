@@ -105,6 +105,7 @@ loop_joinsig_neutral_engine_r0_task = "docs/development/current/main/investigati
 loop_recipe_v2_joinsig_dynamic_i0_task = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-i0-task-2026-08-10.md"
 loop_v2_semantic_program_coseal_i0_task = "docs/development/current/main/investigations/loop-v2-semantic-program-coseal-i0-task-2026-08-10.md"
 dynamic_fault_exit_transaction_d0_task = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+physical_input_authority_bridge_d0_task = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md#physical-input-authority-bridge-d0-2026-08-10"
 dynamic_fault_cutpoint_catalog_i0_task = "docs/development/current/main/investigations/dynamic-fault-cutpoint-catalog-i0-task-2026-08-10.md"
 dynamic_local_destination_home_capability_d0_task = "docs/development/current/main/investigations/dynamic-local-destination-home-capability-d0-design-task-2026-08-10.md"
 dynamic_carrier_lexical_disposition_d0_task = "docs/development/current/main/investigations/dynamic-carrier-lexical-disposition-d0-design-task-2026-08-10.md"
