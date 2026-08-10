@@ -1251,6 +1251,22 @@ The already-landed direct-method package remains a valid bounded checkpoint,
 not a production replacement. Code may now resume with the complete-batch
 coverage correction; it must not widen the checkpoint by inference.
 
+Complete-batch checkpoint (2026-08-10): the correction is landed locally.
+`VerifiedFinalCallableProgramSourceV1` now lends every final callable through
+one higher-ranked syntax loan. `VerifiedResolvedCallableSemanticBatchV1`
+resolves that complete anchor set once and uses private batch slots as its
+ordered identity. Direct-method parameter syntax is an optional exact
+projection on those slots, so parameter-demand issuance skips unprojected
+top-level rows without inventing `Ordinary`. A mixed top-level plus
+`ParserScanLoopBox` fixture seals five semantic rows, four demand rows, fifteen
+Handle demands, and one Dynamic candidate at batch slot one. The reusable
+`normal_callable_complete_batch_guard.sh` prevents parameter-catalog
+cardinality from becoming whole-batch authority, requires the selected Dynamic
+row to retain exact parameter authority, and enforces the 800-line boundary.
+A selected-gate Dynamic fixture proves that missing parameter authority rejects
+instead of synthesizing `Ordinary`. Catalog-neutral Dynamic invocation
+relations and the production edge replacement remain open.
+
 Non-claims: Home inference, rebind, CFG, Completion, physicalization,
 JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
 

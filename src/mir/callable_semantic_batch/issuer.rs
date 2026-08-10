@@ -8,7 +8,10 @@ use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsOutcomeV1, SemanticOwnerRootProfileV1,
 };
-use crate::parser::{ParserCallableSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
+use crate::parser::{
+    FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
+    VerifiedFinalCallableProgramSourceV1,
+};
 
 use super::model::{
     ResolvedCallableDeclarationModeV1, VerifiedResolvedCallableSemanticBatchV1,
@@ -17,8 +20,7 @@ use super::model::{
 
 #[derive(Debug)]
 pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
-    ParserSyntax(ParserCallableSyntaxLoanErrorV1),
-    ParameterSourceUnavailable,
+    ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
     SourceCoverage,
     Resolver(ResolveOwnerForestErrorV1),
     ResolverDeferred,
@@ -34,43 +36,38 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let rows = source
-        .with_callable_parameter_syntax(|catalog, loan| {
-            if catalog.declarations().len() != loan.declarations().len() {
-                return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
-            }
-            let mut candidates = Vec::with_capacity(loan.declarations().len());
-            let mut views = Vec::with_capacity(loan.declarations().len());
-            for (expected, (source_row, syntax)) in catalog
-                .declarations()
-                .iter()
-                .zip(loan.declarations())
-                .enumerate()
-            {
-                let source_row_index = u32::try_from(expected)
+        .with_callable_semantic_syntax(|loan| {
+            let mut candidates = Vec::with_capacity(loan.rows().len());
+            let mut views = Vec::with_capacity(loan.rows().len());
+            for (expected, syntax) in loan.rows().iter().enumerate() {
+                let batch_slot = u32::try_from(expected)
                     .map_err(|_| ResolvedCallableSemanticBatchIssueV1::SourceCoverage)?;
-                if syntax.source_row_index() != source_row_index {
+                if syntax.batch_slot() != batch_slot {
                     return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
                 }
                 let ASTNode::FunctionDeclaration { params, body, .. } = syntax.declaration() else {
                     return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
                 };
-                let (mode, receiver) = if source_row.is_static() {
-                    (
+                let (mode, receiver) = match syntax.mode() {
+                    FinalCallableDeclarationModeV1::TopLevel => (
+                        ResolvedCallableDeclarationModeV1::TopLevel,
+                        ReceiverPolicyV1::Absent,
+                    ),
+                    FinalCallableDeclarationModeV1::StaticBoxMethod => (
                         ResolvedCallableDeclarationModeV1::StaticBoxMethod,
                         ReceiverPolicyV1::StaticCurrentOwner,
-                    )
-                } else {
-                    (
+                    ),
+                    FinalCallableDeclarationModeV1::InstanceBoxMethod => (
                         ResolvedCallableDeclarationModeV1::InstanceBoxMethod,
                         ReceiverPolicyV1::DeclaredInstance,
-                    )
+                    ),
                 };
-                let parameter_count = u32::try_from(source_row.parameters().len())
+                let parameter_count = u32::try_from(params.len())
                     .map_err(|_| ResolvedCallableSemanticBatchIssueV1::ParameterCountOverflow)?;
                 let view =
                     FunctionSyntaxViewV1::from_borrowed_function_parts(params, body, receiver);
                 candidates.push((
-                    source_row_index,
+                    batch_slot,
                     mode,
                     parameter_count,
                     syntax.declaration(),
@@ -94,7 +91,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
 
             let mut owners = BTreeSet::new();
             let mut resolved = Vec::with_capacity(forests.len());
-            for ((source_row_index, mode, parameter_count, declaration, view), forest) in
+            for ((batch_slot, mode, parameter_count, declaration, view), forest) in
                 candidates.into_iter().zip(forests)
             {
                 let [owner] = forest.roots() else {
@@ -121,7 +118,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 )
                 .map_err(ResolvedCallableSemanticBatchIssueV1::Projection)?;
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {
-                    source_row_index,
+                    batch_slot,
                     mode,
                     parameter_count,
                     owner: *owner,
@@ -132,8 +129,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
             }
             Ok(resolved.into_boxed_slice())
         })
-        .map_err(ResolvedCallableSemanticBatchIssueV1::ParserSyntax)?
-        .ok_or(ResolvedCallableSemanticBatchIssueV1::ParameterSourceUnavailable)??;
+        .map_err(ResolvedCallableSemanticBatchIssueV1::ParserSyntax)??;
 
     Ok(VerifiedResolvedCallableSemanticBatchV1 { source, rows })
 }

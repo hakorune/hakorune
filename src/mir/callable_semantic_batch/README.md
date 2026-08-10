@@ -5,29 +5,31 @@ parameter demand and Dynamic source/lifecycle projections.
 
 ```text
 VerifiedFinalCallableProgramSourceV1
-  Program + callable anchors + exact parameter source
+  Program + complete callable anchors + parameter-source subset
   -> issue_resolved_callable_semantic_batch_v1
   -> VerifiedResolvedCallableSemanticBatchV1
        final parser source
+       every final callable exactly once
        exact ordered forest/projection rows
 ```
 
-The issuer traverses the complete declaration loan, calls
+The issuer traverses the complete final-anchor declaration loan, calls
 `resolve_selected_callable_forests` once, verifies every root/profile/source
 projection, and only then publishes the non-Clone batch. Callers may borrow an
 exact `ResolvedFunctionLoweringInputV1` inside a scoped callback; they cannot
 move out syntax, the parameter catalog, a forest, or a projection.
 
-Selected member-gate source without a gate-aware parameter capability rejects
-as `ParameterSourceUnavailable`; the issuer never repairs it from names,
-ordinals, AST absence, or a second parser product. The older retained parser
-parameter product remains a disconnected parser test substrate and is not a
-semantic-batch input.
+Parameter syntax is an exact partial projection onto private batch slots.
+Missing parameter-source evidence does not remove a top-level, selected-gate,
+or generated callable from the batch and does not synthesize `Ordinary`.
+Child issuers that require parameter demand must fail closed for a selected row
+without it. The older retained parser parameter product remains a disconnected
+parser test substrate and is not a semantic-batch input.
 
 Neutral child issuers may also borrow one complete declaration-semantic view.
-That view carries source-order parameter syntax and references to the same
-batch-owned resolved functions; it cannot escape its callback or own a second
-forest. Parameter demand is the first such child projection.
+That view carries optional source-order parameter syntax and references to the
+same batch-owned resolved functions; it cannot escape its callback or own a
+second forest. Parameter demand is the first partial child projection.
 
 This module owns no parameter demand, receiver/result Home ABI, Dynamic
 lifecycle, Recipe key, Builder state, MIR value, physical ABI, retry, or

@@ -40,7 +40,7 @@ impl VerifiedCallableParameterDemandV1 {
 
 #[derive(Debug)]
 pub(super) struct VerifiedCallableParameterDemandDeclarationV1 {
-    source_row_index: u32,
+    batch_slot: u32,
     owner: FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
     mode: CallableParameterDeclarationModeV1,
@@ -49,14 +49,14 @@ pub(super) struct VerifiedCallableParameterDemandDeclarationV1 {
 
 impl VerifiedCallableParameterDemandDeclarationV1 {
     pub(super) const fn new(
-        source_row_index: u32,
+        batch_slot: u32,
         owner: FunctionOwnerIdV1,
         function_origin: FunctionOriginV1,
         mode: CallableParameterDeclarationModeV1,
         parameters: Box<[VerifiedCallableParameterDemandV1]>,
     ) -> Self {
         Self {
-            source_row_index,
+            batch_slot,
             owner,
             function_origin,
             mode,
@@ -97,8 +97,8 @@ pub(crate) struct VerifiedCallableParameterDemandDeclarationRefV1<'a> {
 }
 
 impl<'a> VerifiedCallableParameterDemandDeclarationRefV1<'a> {
-    pub(crate) const fn source_row_index(self) -> u32 {
-        self.declaration.source_row_index
+    pub(crate) const fn batch_slot(self) -> u32 {
+        self.declaration.batch_slot
     }
 
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {

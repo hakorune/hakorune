@@ -12,6 +12,12 @@ Authority:
 - the verified final product owns the transformed Program and retained opaque
   anchors atomically.
 
+The final product lends one complete callable syntax batch from those anchors
+and slots. Direct-method parameter rows are joined as an exact optional
+projection on each batch slot; they never define total callable cardinality.
+Top-level, selected-gate, and generated callables remain batch members without
+receiving a fabricated `Ordinary` parameter source.
+
 Non-authority:
 
 - names, arity, spans, ordinals, and AST addresses never recreate identity;

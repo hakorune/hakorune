@@ -37,13 +37,13 @@ fn mixed_direct_methods_resolve_once_in_exact_source_order() {
     );
     let rows = batch.declarations().collect::<Vec<_>>();
     assert_eq!(rows.len(), 2);
-    assert_eq!(rows[0].source_row_index(), 0);
+    assert_eq!(rows[0].batch_slot(), 0);
     assert_eq!(
         rows[0].mode(),
         ResolvedCallableDeclarationModeV1::StaticBoxMethod
     );
     assert_eq!(rows[0].parameter_count(), 1);
-    assert_eq!(rows[1].source_row_index(), 1);
+    assert_eq!(rows[1].batch_slot(), 1);
     assert_eq!(
         rows[1].mode(),
         ResolvedCallableDeclarationModeV1::InstanceBoxMethod
@@ -54,6 +54,29 @@ fn mixed_direct_methods_resolve_once_in_exact_source_order() {
         rows[0].owner().compilation_brand(),
         rows[1].owner().compilation_brand()
     );
+}
+
+#[test]
+fn top_level_and_box_methods_share_one_complete_batch() {
+    let batch = batch(
+        "function helper(value) { return value }\n\
+         static box StaticApi { run(value) { return value } }\n\
+         box InstanceApi { read() { return 1 } }",
+    );
+    let rows = batch.declarations().collect::<Vec<_>>();
+    assert_eq!(rows.len(), 3);
+    assert_eq!(rows[0].batch_slot(), 0);
+    assert_eq!(rows[0].mode(), ResolvedCallableDeclarationModeV1::TopLevel);
+    assert_eq!(rows[0].parameter_count(), 1);
+    assert_eq!(rows[1].batch_slot(), 1);
+    assert_eq!(rows[2].batch_slot(), 2);
+
+    batch
+        .with_lowering_input(0, |input| {
+            assert_eq!(input.owner(), rows[0].owner());
+            assert_eq!(input.forest().roots(), [rows[0].owner()]);
+        })
+        .expect("top-level lowering input belongs to the complete batch");
 }
 
 #[test]

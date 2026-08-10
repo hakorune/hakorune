@@ -7,9 +7,14 @@ callable source batch.
 VerifiedFinalCallableProgramSourceV1
   -> one FunctionSemanticResolverSessionV1 allocation
   -> complete resolved callable batch
-  -> complete owned parameter demands
+  -> exact owned direct-method parameter-demand subset
   -> exact one Dynamic full-body source/Recipe candidate
 ```
+
+Complete batch membership comes from final callable anchors, not the parameter
+catalog. A mixed Program may therefore retain top-level rows while only its
+direct Box methods contribute parameter demands. The Dynamic candidate and its
+required demands must still resolve to the same private batch slot.
 
 The package is non-Clone and non-splittable. Borrowed lowering inputs and
 borrowed parameter-demand catalogs exist only inside the issuer. This module

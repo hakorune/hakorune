@@ -12,6 +12,10 @@ use super::super::initial_callable_program_source::{
     InitialCallableFinalSlotV1, VerifiedInitialCallableProgramSourceV1,
 };
 use super::super::source_path::SourceProgramCallablePathV1;
+use super::semantic_syntax_loan::{
+    build_final_callable_semantic_syntax_loan_v1, FinalCallableSemanticSyntaxLoanErrorV1,
+    FinalCallableSemanticSyntaxLoanV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableParserCompatibilityV1 {
@@ -149,6 +153,25 @@ impl VerifiedFinalCallableProgramSourceV1 {
         let loan = borrow_callable_declaration_syntax_v1(&self.ast, catalog)?;
         Ok(Some(callback(catalog, loan)))
     }
+
+    /// Lend every final callable plus the exact parameter-source subset.
+    ///
+    /// Complete callable membership comes from the co-sealed anchors/slots.
+    /// Parameter rows are only an exact partial projection and never define
+    /// batch cardinality. The higher-ranked callback prevents AST references
+    /// from escaping this final source owner.
+    pub(crate) fn with_callable_semantic_syntax<R>(
+        &self,
+        callback: impl for<'source> FnOnce(FinalCallableSemanticSyntaxLoanV1<'source>) -> R,
+    ) -> Result<R, FinalCallableSemanticSyntaxLoanErrorV1> {
+        let loan = build_final_callable_semantic_syntax_loan_v1(
+            &self.ast,
+            &self.sources,
+            &self.slots,
+            &self.parameter_source,
+        )?;
+        Ok(callback(loan))
+    }
 }
 
 fn validate_direct_parameter_coverage(
@@ -196,7 +219,7 @@ fn validate_direct_parameter_coverage(
     Ok(())
 }
 
-fn direct_source_matches_parameter_declaration(
+pub(super) fn direct_source_matches_parameter_declaration(
     source: &super::super::callable_source_anchor::PreparedDirectCallableSourceV1,
     declaration: &super::super::callable_parameter_source::ParserCallableParameterDeclarationSourceV1,
 ) -> bool {

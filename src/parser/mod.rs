@@ -49,7 +49,8 @@ mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
 pub(crate) use normal_callable_program_source::{
-    issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,
+    issue_final_callable_program_source_v1, FinalCallableDeclarationModeV1,
+    FinalCallableProgramSourceRejectV1, FinalCallableSemanticSyntaxLoanErrorV1,
     NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
     VerifiedFinalCallableProgramSourceV1,
 };
@@ -146,7 +147,6 @@ pub(crate) use body_source::{
     ParserBoxMethodBodySourceRowV1,
 };
 pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
-pub(crate) use callable_parameter_source::ParserCallableSyntaxLoanErrorV1;
 pub(crate) use source_resolver_handoff::{
     ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
     ResolverBoxSourceRowV1, ResolverMethodSignatureSyntaxV1, ResolverSourceInvocationProvenanceV1,

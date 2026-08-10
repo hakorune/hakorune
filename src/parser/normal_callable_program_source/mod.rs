@@ -1,12 +1,16 @@
 //! Callable-aware whole-Program source transport for normal compilation.
 
 mod model;
+mod semantic_syntax_loan;
 mod transform;
 
 pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
     NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
     PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1,
+};
+pub(crate) use semantic_syntax_loan::{
+    FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
 };
 pub(crate) use transform::{
     issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,

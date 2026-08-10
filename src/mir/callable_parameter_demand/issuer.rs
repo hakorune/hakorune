@@ -32,17 +32,20 @@ pub(crate) fn issue_callable_parameter_demands_v1(
             let mut bindings = BTreeSet::new();
             let mut declarations = Vec::with_capacity(semantic.declarations().len());
             for row in semantic.declarations() {
-                let declaration = row.source_row_index();
+                let Some(source_parameters) = row.parameters() else {
+                    continue;
+                };
+                let declaration = row.batch_slot();
                 let function = row.function();
                 let actual_parameter_count = function
                     .declaration_sites()
                     .filter(|site| matches!(site, SourceBindingSiteV1::Parameter { .. }))
                     .count();
-                if actual_parameter_count != row.parameters().len() {
+                if actual_parameter_count != source_parameters.len() {
                     return Err(CallableParameterDemandIssueV1::DeclarationCoverage);
                 }
-                let mut parameters = Vec::with_capacity(row.parameters().len());
-                for source_parameter in row.parameters() {
+                let mut parameters = Vec::with_capacity(source_parameters.len());
+                for source_parameter in source_parameters {
                     let parameter = source_parameter.ordinal();
                     if !source_parameter.is_ordinary() {
                         return Err(CallableParameterDemandIssueV1::UnsupportedTransfer {
@@ -95,6 +98,9 @@ pub(crate) fn issue_callable_parameter_demands_v1(
                     row.owner(),
                     row.function_origin(),
                     match row.mode() {
+                        ResolvedCallableDeclarationModeV1::TopLevel => {
+                            return Err(CallableParameterDemandIssueV1::DeclarationCoverage)
+                        }
                         ResolvedCallableDeclarationModeV1::StaticBoxMethod => {
                             CallableParameterDeclarationModeV1::StaticBoxMethod
                         }

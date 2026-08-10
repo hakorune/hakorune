@@ -66,7 +66,7 @@ box InstanceApi {
 
     for declaration in declarations {
         batch
-            .with_lowering_input(declaration.source_row_index(), |input| {
+            .with_lowering_input(declaration.batch_slot(), |input| {
                 assert_eq!(input.owner(), declaration.owner());
                 assert_eq!(
                     input.function().function_origin(),
@@ -131,7 +131,7 @@ fn parser_scan_loop_box_projects_all_fifteen_ordinary_demands() {
     let skip_while = declarations[0];
     let position = &skip_while.parameters()[1];
     batch
-        .with_lowering_input(skip_while.source_row_index(), |input| {
+        .with_lowering_input(skip_while.batch_slot(), |input| {
             assert_eq!(input.owner(), skip_while.owner());
             assert_eq!(
                 input
@@ -143,6 +143,23 @@ fn parser_scan_loop_box_projects_all_fifteen_ordinary_demands() {
             );
         })
         .expect("same-batch skip_while loan");
+}
+
+#[test]
+fn top_level_rows_remain_in_batch_without_inferred_parameter_demands() {
+    let batch = batch(
+        "function helper(value) { return value }\n\
+         static box StaticApi { run(value) { return value } }",
+        12,
+    );
+    assert_eq!(batch.declarations().len(), 2);
+
+    let catalog = issue_callable_parameter_demands_v1(&batch)
+        .expect("direct-method parameter source projects onto the batch");
+    let declarations = catalog.declarations().collect::<Vec<_>>();
+    assert_eq!(declarations.len(), 1);
+    assert_eq!(declarations[0].batch_slot(), 1);
+    assert_eq!(declarations[0].parameters().len(), 1);
 }
 
 #[test]

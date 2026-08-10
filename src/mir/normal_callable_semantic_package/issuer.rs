@@ -22,12 +22,13 @@ pub(crate) enum NormalCallableSemanticDynamicPackageIssueV1 {
     ParameterDemand(CallableParameterDemandIssueV1),
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     Dynamic {
-        source_row_index: u32,
+        batch_slot: u32,
         issue: DynamicCallableAdmissionIssueV1,
     },
     MissingDynamicCandidate,
     DuplicateDynamicCandidate,
-    ParameterCoverage,
+    MissingDynamicParameterDemand,
+    DynamicParameterDemandIdentity,
 }
 
 pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
@@ -45,7 +46,7 @@ pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
         catalog
             .declarations()
             .map(|declaration| OwnedCallableParameterDemandDeclarationV1 {
-                source_row_index: declaration.source_row_index(),
+                batch_slot: declaration.batch_slot(),
                 owner: declaration.owner(),
                 parameters: declaration
                     .parameters()
@@ -61,36 +62,38 @@ pub(crate) fn issue_normal_callable_semantic_dynamic_package_v1(
             .collect::<Vec<_>>()
             .into_boxed_slice()
     };
-    if parameter_demands.len() != batch.declarations().len() {
-        return Err(NormalCallableSemanticDynamicPackageIssueV1::ParameterCoverage);
-    }
-
     let mut candidate = None;
     for declaration in batch.declarations() {
-        let source_row_index = declaration.source_row_index();
+        let batch_slot = declaration.batch_slot();
         let admission = batch
-            .with_lowering_input(source_row_index, admit_dynamic_callable_v1)
+            .with_lowering_input(batch_slot, admit_dynamic_callable_v1)
             .map_err(NormalCallableSemanticDynamicPackageIssueV1::BatchLoan)?
-            .map_err(|issue| NormalCallableSemanticDynamicPackageIssueV1::Dynamic {
-                source_row_index,
-                issue,
-            })?;
+            .map_err(
+                |issue| NormalCallableSemanticDynamicPackageIssueV1::Dynamic { batch_slot, issue },
+            )?;
         if let DynamicCallableAdmissionV1::Candidate { owner, recipe } = admission {
-            if candidate.replace((source_row_index, owner, recipe)).is_some() {
-                return Err(
-                    NormalCallableSemanticDynamicPackageIssueV1::DuplicateDynamicCandidate,
-                );
+            if candidate.replace((batch_slot, owner, recipe)).is_some() {
+                return Err(NormalCallableSemanticDynamicPackageIssueV1::DuplicateDynamicCandidate);
             }
         }
     }
-    let Some((dynamic_source_row_index, dynamic_owner, dynamic_recipe)) = candidate else {
+    let Some((dynamic_batch_slot, dynamic_owner, dynamic_recipe)) = candidate else {
         return Err(NormalCallableSemanticDynamicPackageIssueV1::MissingDynamicCandidate);
     };
+    let mut dynamic_demands = parameter_demands
+        .iter()
+        .filter(|declaration| declaration.batch_slot == dynamic_batch_slot);
+    let Some(dynamic_demand) = dynamic_demands.next() else {
+        return Err(NormalCallableSemanticDynamicPackageIssueV1::MissingDynamicParameterDemand);
+    };
+    if dynamic_demands.next().is_some() || dynamic_demand.owner != dynamic_owner {
+        return Err(NormalCallableSemanticDynamicPackageIssueV1::DynamicParameterDemandIdentity);
+    }
 
     Ok(VerifiedNormalCallableSemanticDynamicPackageV1 {
         batch,
         parameter_demands,
-        dynamic_source_row_index,
+        dynamic_batch_slot,
         dynamic_owner,
         dynamic_recipe,
     })

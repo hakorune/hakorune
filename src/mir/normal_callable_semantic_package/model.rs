@@ -11,7 +11,7 @@ pub(super) struct OwnedCallableParameterDemandV1 {
 
 #[derive(Debug)]
 pub(super) struct OwnedCallableParameterDemandDeclarationV1 {
-    pub(super) source_row_index: u32,
+    pub(super) batch_slot: u32,
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) parameters: Box<[OwnedCallableParameterDemandV1]>,
 }
@@ -25,7 +25,7 @@ pub(super) struct OwnedCallableParameterDemandDeclarationV1 {
 pub(crate) struct VerifiedNormalCallableSemanticDynamicPackageV1 {
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
-    pub(super) dynamic_source_row_index: u32,
+    pub(super) dynamic_batch_slot: u32,
     pub(super) dynamic_owner: FunctionOwnerIdV1,
     pub(super) dynamic_recipe: DynamicFullLoopRecipeCandidateV2,
 }
@@ -35,8 +35,8 @@ impl VerifiedNormalCallableSemanticDynamicPackageV1 {
         &self.batch
     }
 
-    pub(crate) const fn dynamic_source_row_index(&self) -> u32 {
-        self.dynamic_source_row_index
+    pub(crate) const fn dynamic_batch_slot(&self) -> u32 {
+        self.dynamic_batch_slot
     }
 
     pub(crate) const fn dynamic_owner(&self) -> FunctionOwnerIdV1 {
