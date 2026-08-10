@@ -1,12 +1,13 @@
 # Dynamic carrier ingress lifecycle
 
-Status: parser callable-source series closed; Dynamic ingress lifecycle selected
+Status: parser callable-source series closed; normal source-carrier cutover selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
+Current implementation row: `NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0`
 Parked implementation row: none
-Prerequisite terminal: initial co-seal, then parent closeout; no new parser row may be inserted.
+Prerequisite terminal: initial parser co-seal is closed; no new parser row may be inserted.
 First production finish: `ParserScanLoopBox.skip_while/4` switches to the canonical pipeline, deletes the selected old Dynamic route, and retains zero retry/fallback.
+Post-cutover promotion gate: `MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` runs before .hako selfhost MirBuilder/parser migration resumes; its contract remains in the migration-order SSOT.
 
 ## Decision
 
@@ -925,27 +926,152 @@ co-seal. The reusable direct, gate, generated, and initial guards are green;
 diff checks are green. No additional parser prerequisite is admitted before
 Dynamic ingress lifecycle resumes.
 
-### 3F. Ingress follow-on order
+### 3F. Premise correction after parser closeout — accepted
+
+The parser closeout exposed a skipped authority boundary. The previous
+section 4 incorrectly allowed a caller to pair these independently-issued
+products:
 
 ```text
-DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0
-  -> whole batch retained; demand/lifecycle derived internally
+VerifiedCallableParameterDemandCatalogV1
++ VerifiedDynamicOperatorCarrierLifecycleProgramV1
 ```
 
-If the 755-line normal semantic source requires a directory split, that split
-is the first behavior-invariant commit of the same ingress implementation
-series, not a new prerequisite row. The sole resolver implementation remains
-in the neutral batch module.
+That API is withdrawn. The demand catalog borrows the neutral resolved batch,
+while the only current Dynamic lifecycle fixture is derived through the old
+Builder-owned normal semantic source and a second resolver allocation. Their
+`FunctionOwnerIdV1` and `BindingRefV1` values therefore cannot match without
+name, source-coordinate, ordinal, or numeric-ID repair. A final aggregate also
+cannot own a batch while storing products that borrow that same batch.
 
-### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — next after parser closeout
+This is not an ingress implementation bug. It is the consequence of advancing
+the current pointer past the accepted 3E production source-carrier follow-on.
+The correction keeps the parser series closed and restores the missing source
+transport and semantic-package cutover as at most two bounded Refactor Series.
 
-Consume the whole parameter-demand catalog and whole Dynamic lifecycle
-program. Seal parameter #1 through Pos/initializer/local/V1/C0/L0/B0 and the
-exact JoinSig Enter payload. Publish one private borrowed ingress row.
+```text
+PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0
+  -> NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0
+  -> NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0
+  -> DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0 closeout
+  -> DYNAMIC-CARRIER-REBIND-TRANSACTION-I0
+```
 
-Required negatives include wrong initializer BindingRef, local binding,
-Recipe input, carrier owner/binding/class/entry, missing or duplicate Enter,
-extra root carrier, caller-selected disposition, Clone, and split API.
+This compact order supersedes the seven fine-grained 3E follow-on row names.
+It does not remove their contracts; it groups them by one production-cutover
+purpose and prevents another unbounded prerequisite chain.
+
+### 3G. `NORMAL-CALLABLE-SOURCE-CARRIER-CUTOVER-R0` — current
+
+Purpose: carry the final callable Program source through the real normal
+compile request before any resolver or Builder effect.
+
+One behavior-preserving series of 2--4 commits may:
+
+1. introduce the source-aware transform transaction;
+2. make `NormalCompileRequestV1` and
+   `PreparedNormalDefaultProgramRootV1` atomically own the final callable
+   source product rather than a sibling bare AST;
+3. switch the named normal source-backed caller; and
+4. delete that caller's bare-AST source reconstruction edge.
+
+JSON and REPL remain typed compatibility origins and are parked. Selection is
+made before effects; issuer failure never retries through compatibility.
+
+Series ledger:
+
+```text
+named production caller:
+  standard named source-backed NormalCompile request
+
+new authority:
+  VerifiedFinalCallableProgramSourceV1 transported atomically
+
+old authority deleted at series end:
+  selected caller's bare-AST source-backed ingress/reconstruction edge
+
+fallback after commit:
+  zero
+
+distance to first production cutover:
+  one remaining semantic/Dynamic cutover series
+```
+
+Acceptance:
+
+- exact direct/gate/generated callable anchors survive only with transform
+  receipts;
+- foreign transform lineage, missing/duplicate/extra declaration rows, and
+  bare-AST entry into the semantic issuer reject;
+- the selected named caller switches without changing source behavior;
+- JSON/REPL/all-origin coverage is not claimed; and
+- every touched source remains below 760 preferred / 800 hard lines.
+
+### 3H. `NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0` — next
+
+Purpose: establish one resolver allocation and delete the competing Builder
+resolver/source authority for the selected Dynamic production route.
+
+The final issuer consumes one whole final semantic package. It does not accept
+caller-paired demand and lifecycle products:
+
+```text
+VerifiedFinalCallableProgramSourceV1
+  -> sole VerifiedResolvedCallableSemanticBatchV1
+  -> private callable-family admission
+  -> private parameter-demand / Dynamic-source / Recipe / JoinSig projections
+  -> owned co-sealed ingress rows
+  -> VerifiedDynamicCarrierIngressLifecycleProgramV1
+```
+
+Because the current Dynamic source issuer returns one undifferentiated error,
+batch-wide selection must first use a private typed disposition:
+
+```text
+DynamicFullBodySourceAttemptV1
+  Candidate { private_batch_slot, verified_source }
+  Declined
+  Unresolved
+  Rejected
+```
+
+Fully-observed shape mismatch is `Declined`; missing navigation/evidence is
+`Unresolved`; foreign owner/binding/completion or duplicate identity is
+`Rejected`. The package requires exactly one Candidate and zero Unresolved or
+Rejected rows. Method or Box names never select the candidate. Selector shape
+inside the verified body remains family semantics, not caller selection.
+
+One Refactor Series of 3--5 commits may:
+
+1. split the near-limit old normal semantic source by responsibility;
+2. issue the sole batch/package and exact selected declaration mapping;
+3. recut Dynamic target/invocation evidence as catalog-neutral, batch-owned
+   source relations;
+4. replace/delete `VerifiedNormalCallableSemanticSourceV1::seal` and its
+   second resolver authority for the selected route; and
+5. derive parameter #1 Pos through initializer/local/V1/C0/L0/B0 and the exact
+   JoinSig Enter as owned private ingress rows.
+
+The final product owns the package/batch and owned relation rows. It never
+stores self-referential borrowed catalogs. Scoped views may exist only during
+issuance or a callback loan.
+
+Acceptance includes the unchanged `ParserScanLoopBox.skip_while/4` source,
+one resolver call, exact parameter #1 BindingRef equality across Pos, prelude,
+V1/C0/B0 and JoinSig Enter, plus rejection of foreign package/batch/transform,
+wrong initializer/local/carrier/Enter, missing/duplicate Dynamic Candidate,
+Clone, split, and forged constructors. Series end requires the selected old
+Builder resolver/source edge and caller pairing to be zero.
+
+Non-claims: Home inference, rebind, CFG, Completion, physicalization,
+JSON/REPL/all-origin cutover, provider activation, retry, and fallback.
+
+### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — absorbed closeout
+
+The ingress semantic row is no longer a standalone prerequisite. It closes as
+the final commit of `NORMAL-CALLABLE-SEMANTIC-DYNAMIC-CUTOVER-I0`, after the
+whole package owns the sole batch and derives all private relations internally.
+No public API may recreate the withdrawn catalog-plus-lifecycle pairing.
 
 ### 5. First-production cutover order
 
