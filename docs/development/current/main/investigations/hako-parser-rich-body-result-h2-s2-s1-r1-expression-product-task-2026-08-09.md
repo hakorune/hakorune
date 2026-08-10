@@ -1,6 +1,7 @@
 ---
-Status: NoSafeSlice at reopen audit; the parser-only product WIP reaches the
-existing GenericLoop representation blocker before fixture execution
+Status: compile-front handoff design accepted; the bounded diagnostic-only I0
+is the current execution row. The parser-only product WIP still reaches the
+existing GenericLoop representation blocker before fixture execution.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
 Parent: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1`
@@ -490,6 +491,37 @@ expression-product shape merely to avoid the compiler boundary.
 The missing inputs are split by authority. They are not two new semantic
 products and must not be implemented as GenericLoop fields.
 
+### D0 decision closeout (2026-08-11)
+
+The worker audit accepts both prerequisite designs with one canonical-pairing
+condition. The parser source owner, not the Raw port, issues one co-sealed
+method observation containing:
+
+```text
+same parser provenance
++ CallableDeclarationIdentityV1
++ exact ResolverBoxMethodSourceSiteV1
+```
+
+The Raw port transports and compares this existing observation; it never joins
+an anchor and a site from independent fields. The observation is a
+comparison-only diagnostic carrier, not a `Verified*`/`Prepared*` semantic
+product, GenericLoop input, lookup key, or ownership authority.
+
+The local initializer observation uses the existing source-aware local descent
+owner. It reports one short-lived `LocalInitializer(index)` relation after the
+initializer has produced its evaluated `ValueId`, then joins that relation once
+with `CompletedLocalStatementV1` to obtain the local `ValueId`. It remains
+default-off diagnostic state; `CompletedLocalStatementV1` does not gain producer
+semantics.
+
+Both designs reject missing, foreign, duplicate, wrong-index, and missing
+completion relations before GenericLoop admission. Unlocated compatibility
+routes produce no observation. The existing GenericLoop error/category,
+route, ValueId, and type behavior must remain unchanged.
+
+Decision: **accepted design; open the bounded I0 below**.
+
 ### `H2-CALLABLE-METHOD-SOURCE-SITE-HANDOFF-D0`
 
 Design the canonical source-carrier handoff for the exact callable declaration
@@ -508,6 +540,7 @@ same-session provenance and declaration identity
 exact declaration site survives to the diagnostic seam
 missing/foreign/duplicate site rejects
 no AST/text rescan and no GenericLoop semantic input
+parser-side provenance/anchor/site co-seal is the sole issuer
 ```
 
 ### `H2-LOCAL-INITIALIZER-PRODUCER-OBSERVATION-D0`
@@ -527,9 +560,10 @@ exact initializer site + evaluated ValueId relation
 missing/foreign/duplicate producer rejects
 one-shot borrow; no semantic state retention
 no ValueId/name/order repair, type inference, fallback, or retry
+wrong initializer index and missing completion reject before admission
 ```
 
-Only after both D0 decisions are accepted may the diagnostic I0 be opened:
+The accepted I0 is now:
 
 ```text
 H2-S2-S1-R1-COMPILE-FRONT-OWNER-HANDOFF-I0
