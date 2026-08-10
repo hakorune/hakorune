@@ -53,3 +53,15 @@ back to them.
 - no winner claim
 - no global allocator claim
 - no source-history copyback into the restart mirrors
+
+## Parked compiler promotion consumer
+
+After `MIRBUILDER-FIRST-PRODUCTION-CUTOVER`, the selfhost migration order
+requires `MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` before the `.hako`
+MirBuilder/parser lane resumes.  The normative task and admission criteria live
+only in
+`design/selfhost-parser-mirbuilder-migration-order-ssot.md`; this workstream
+supplies the pinned `.hako` mimalloc workload and the existing benchmark ledger.
+
+This is a compiler promotion check, not provider activation, hook installation,
+or process allocator replacement.

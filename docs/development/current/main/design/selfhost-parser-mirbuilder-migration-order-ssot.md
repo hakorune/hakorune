@@ -38,6 +38,58 @@ new language semantics during replacement = forbidden
 Do not merge the `.hako` converter backlog into the Rust replacement ledger,
 and do not resume this task order from historical row text.
 
+## Resume admission: `.hako` mimalloc promotion gate
+
+Decision: accepted — parked required gate, not the current blocker.
+
+The `.hako` selfhost MirBuilder/parser lane must not resume immediately after
+the first production MirBuilder cutover.  The new canonical MirBuilder must
+first pass one application-sized promotion gate using the existing `.hako`
+mimalloc / `hako_alloc` implementation.
+
+```text
+MIRBUILDER-FIRST-PRODUCTION-CUTOVER
+  -> MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
+  -> .hako selfhost MirBuilder migration resume
+```
+
+`MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` owns this bounded task:
+
+1. Pin the exact `.hako` mimalloc entrypoint and matched workload from the
+   mimalloc workstream before measurement.  Do not select a convenient smaller
+   fixture after seeing a failure.
+2. Build the pinned program through the canonical new MirBuilder production
+   ingress with legacy retry, profile reselection, and fallback all disabled.
+3. Run allocator correctness and lifecycle smokes before performance
+   measurement.
+4. Measure the exact executable with the owner-first performance method.  Keep
+   the pre-cutover accepted artifact/measurement as the compiler-regression
+   baseline, and keep the matched C mimalloc run as an allocator reference;
+   these are different comparisons and must not be substituted for each other.
+5. Inspect the generated MIR and hot assembly for the measured front.  A
+   whole-program timing win alone does not excuse work explosion, a newly hot
+   helper, or a hidden compatibility route.
+6. Record the command, source revision, build mode, backend, workload,
+   correctness result, timing distribution, peak-memory observation, and
+   generated-code finding in the existing mimalloc benchmark ledger.
+
+Admission to selfhost migration requires all of the following:
+
+```text
+canonical new MirBuilder selected                         = yes
+legacy / retry / fallback observed                       = 0
+allocator correctness and lifecycle gates                = green
+active exact-front performance regression                = none unexplained
+generated MIR / assembly regression                      = none unexplained
+evidence recorded in the existing mimalloc benchmark SSOT = yes
+```
+
+If the gate fails, return to the MirBuilder owner identified by the first
+failing correctness or performance boundary.  Do not repair the result with a
+`.hako` source workaround, a mimalloc-specific lowering branch, or a legacy
+route.  This gate validates compiler readiness; it does not activate mimalloc
+as the process allocator and does not reopen allocator-provider selection.
+
 ## Goal
 
 `.hako` 移植を “順番迷子” にしない。  
