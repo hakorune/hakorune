@@ -1,10 +1,10 @@
 # Dynamic carrier ingress lifecycle
 
-Status: initial callable Program co-seal closed; parser source series closeout selected
+Status: parser callable-source series closed; Dynamic ingress lifecycle selected
 Date: 2026-08-10
 Parent: `DYNAMIC-CARRIER-REBIND-TRANSACTION-D0`
-Current implementation row: `PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0`
-Parked implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
+Current implementation row: `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0`
+Parked implementation row: none
 Prerequisite terminal: initial co-seal, then parent closeout; no new parser row may be inserted.
 First production finish: `ParserScanLoopBox.skip_while/4` switches to the canonical pipeline, deletes the selected old Dynamic route, and retains zero retry/fallback.
 
@@ -885,7 +885,7 @@ relation, and selected-gate receipts. `MacroOrImport` and
 
 #### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`
 
-Status: **closed**. Commit: the implementation commit containing this receipt.
+Status: **closed**. Commit: `6191e0c45e`.
 
 Change:
   The sole parser finalizer now moves the final Program and complete selected
@@ -913,6 +913,17 @@ Stop:
   Resolver, Builder, Home, Recipe, retry, fallback, production activation,
   and `VerifiedFinalCallableProgramSourceV1` remain outside this row. The
   legacy parameter catalog is only a migration projection.
+
+#### `PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0`
+
+Status: **closed**.
+
+The parser callable-source Refactor Series now has one authority chain from
+direct/gate/generated declaration transactions to the atomic initial Program
+co-seal. The reusable direct, gate, generated, and initial guards are green;
+`cargo check --lib`, the six focused co-seal tests, formatting, naming, and
+diff checks are green. No additional parser prerequisite is admitted before
+Dynamic ingress lifecycle resumes.
 
 ### 3F. Ingress follow-on order
 

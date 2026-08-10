@@ -100,8 +100,8 @@ for document, label in ((readme, "parser README"), (task, "active card")):
 section = task.split("#### `PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0`", 1)[1].split("### 3F.", 1)[0]
 if "Status: **closed**" not in section:
     raise SystemExit("initial callable source row must be closed")
-if 'current_execution_row = "PARSER-FINAL-CALLABLE-SOURCE-COVERAGE-R0"' not in state:
-    raise SystemExit("current pointer must advance to the parser series parent closeout")
+if 'current_execution_row = "PARSER-INITIAL-CALLABLE-SOURCE-COSEAL-I0"' in state:
+    raise SystemExit("current pointer must advance beyond the closed initial co-seal row")
 if "parser_initial_callable_program_source_guard.sh" not in index:
     raise SystemExit("check index must list the reusable initial callable source guard")
 
