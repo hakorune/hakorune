@@ -286,18 +286,21 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
 #[test]
 fn selected_build_gate_stays_outside_the_parameter_catalog_cohort() {
     let error = NyashParser::parse_from_string_with_callable_parameter_source(
-        "gate Build.test { box Enabled { run(value) { return value } } } else { box Disabled {} }",
+        "gate Build.test { box Enabled { run(value) { return value } } } else { box Disabled { run(value) { return value } } }",
         ParserBuildConfig {
             mode: BuildMode::Test,
             ..ParserBuildConfig::default()
         },
     )
     .unwrap_err();
-    assert!(matches!(
-        error,
-        crate::parser::ParseError::GrammarContract {
-            stable_reject_tag: "parser/callable-parameter-source",
-            ..
-        }
-    ));
+    let crate::parser::ParseError::GrammarContract {
+        stable_reject_tag,
+        detail,
+        ..
+    } = error
+    else {
+        panic!("expected parameter-source contract rejection");
+    };
+    assert_eq!(stable_reject_tag, "parser/callable-parameter-source");
+    assert!(detail.contains("SelectedBuildGateUnsupported"));
 }

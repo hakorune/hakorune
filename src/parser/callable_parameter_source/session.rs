@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use crate::ast::BoxMethodInventoryOrdinalV1;
 use crate::parser::source_authority::{ParserInvocationBrandV1, SourceBoxMethodSiteV1};
 use crate::parser::{NyashParser, ParseError};
@@ -12,7 +10,7 @@ use super::parse_product::ParsedCallableParameterListV1;
 pub(in crate::parser) struct ParserCallableParameterSourceSessionV1 {
     brand: ParserInvocationBrandV1,
     declarations: Vec<ParserCallableParameterDeclarationSourceV1>,
-    seen_sites: BTreeSet<(u32, u32)>,
+    seen_sites: Vec<SourceBoxMethodSiteV1>,
     unsupported_member_gate: bool,
 }
 
@@ -21,7 +19,7 @@ impl ParserCallableParameterSourceSessionV1 {
         Self {
             brand,
             declarations: Vec::new(),
-            seen_sites: BTreeSet::new(),
+            seen_sites: Vec::new(),
             unsupported_member_gate: false,
         }
     }
@@ -39,9 +37,10 @@ impl ParserCallableParameterSourceSessionV1 {
         }
         let statement = source_site.box_site().statement_ordinal();
         let member = source_site.source_member_ordinal();
-        if !self.seen_sites.insert((statement, member)) {
+        if self.seen_sites.iter().any(|seen| seen == &source_site) {
             return Err(CallableParameterSourceIssueV1::DuplicateMethodSite { statement, member });
         }
+        self.seen_sites.push(source_site.clone());
         let (neutral, rows) = parameters.into_parts();
         if neutral.len() != rows.len()
             || neutral

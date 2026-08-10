@@ -751,6 +751,8 @@ PARSER-CALLABLE-PARAMETER-SOURCE-PATH-IDENTITY-R0
 
 #### `PARSER-CALLABLE-PARAMETER-SOURCE-PATH-IDENTITY-R0`
 
+Status: **closed**.
+
 Baseline audit exposed a lossy migration projection: the existing parameter
 source session de-duplicates method rows by `(root statement ordinal, source
 member ordinal)`.  Distinct then/else declarations inside one selected
@@ -763,6 +765,16 @@ as duplicate, the general source-seal gate fixture succeeds again, and the
 parameter-catalog finalizer continues to reject selected-gate rows until the
 complete callable source cutover.  No new callable source product or acceptance
 is opened.
+
+Closeout receipt:
+
+- `ParserCallableParameterSourceSessionV1` now retains exact
+  `SourceBoxMethodSiteV1` rows for duplicate detection;
+- distinct then/else source paths no longer collide before build-gate
+  projection;
+- exact duplicate sites still reject, while the legacy parameter-catalog
+  finalizer still reports `SelectedBuildGateUnsupported`;
+- focused callable-parameter and source-seal suites are green.
 
 #### `PARSER-SOURCE-SEAL-MODULE-SPLIT-R0`
 

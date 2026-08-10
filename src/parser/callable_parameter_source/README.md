@@ -41,6 +41,14 @@ method inventory ordinal
   = descriptive placement receipt; method inventory lookup only
 ```
 
+Session duplicate detection compares the complete parser-owned
+`SourceBoxMethodSiteV1`, including its selected-gate branch path.  The lossy
+pair `(root statement ordinal, source member ordinal)` is diagnostic-only and
+must not collapse distinct branch declarations before postpass selection.
+This does not admit selected gates into the legacy parameter catalog: its
+finalizer still rejects that cohort until the complete callable source owner
+lands.
+
 The placement receipt comes from the same explicit-method commit. It must
 never replace the source site as identity or authorize name-based repair. Its
 only downstream purpose is to let a parser-owned loan locate the already
