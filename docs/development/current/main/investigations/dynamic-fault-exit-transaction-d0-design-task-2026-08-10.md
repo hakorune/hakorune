@@ -473,18 +473,9 @@ LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0
   -> fresh session, common physicalizer, finish/DraftSeal canary
 ```
 
-The three operation-demand rows add no Builder effect. The broader
-
-```text
-PHYSICAL-INPUT-AUTHORITY-I0
-  -> one bounded source-backed callable input co-seal
-     (Prelude / Tail / ABI / physical Completion)
-DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-  -> fresh session and unpublished function canary
-```
-
-may not begin until the three rows are green. It must not promote the
-existing test canary or introduce Home, runtime Fault, retry, or fallback.
+The three operation-demand rows add no Builder effect. The broader callable
+physical-input/session rows remain closed until this result/ABI stop is
+accepted; Home, runtime Fault, retry, and fallback are non-claims.
 
 ## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: result/ABI NoSafeSlice)
 
@@ -740,24 +731,34 @@ Stop:
 ### LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
 
 After `PHYSICAL-INPUT-AUTHORITY-I0`, audit one shared loop core for recursive
-Recipe/JoinSig, physical-input, and whole-program demand boundaries. Keep
-source observers, Prelude/entry, Tail/result, Home, ABI, Completion, provider,
-and runtime separate. No V2-to-V1 adapter, raw re-scan, name/order repair, new
-accepted shape, production switch, or legacy deletion. This is BoxShape-only;
-worker review is required if shared ownership is open. Accept one common
-boundary or explicit `NoSafeSlice`; keep files below 800 lines and leave the
-current executable row unchanged.
+Recipe/JoinSig, physical-input, and complete-demand boundaries. Candidate
+common protocol: verified Recipe placement + JoinSig logical transfer ->
+prepared physical layout; complete operation ledger -> physical demand.
+Required authority cleanup (BoxShape, Builder effect 0):
 
-### Landed prerequisite
+```text
+physical_layout/recursive_after: consume prepared JoinSig transfers;
+  no LoopConditionV1 transfer reconstruction or raw as_recipe control read
+segment_allocator: consume segment-role receipt;
+  no Recipe condition rescan
+common physicalizer: stop at ReadyLoopAfterContinuationV1;
+  Callable profile-close, Tail, ABI, and Completion stay outside
+V1 physical demand: replace repeated Recipe/evidence find scans later with
+  a complete-ledger protocol; never add a V2->V1 adapter
+```
 
-PHYSICAL-CALLSLOT-TARGET-HANDOFF-I0 is closed. The source/Recipe envelope
-consumes exactly two VerifiedSourceBoundDynamicMemberCallV1 rows and retains
-their selector/arity, source sites, owner/frame/scope relation, and Recipe
-CallSlot operands/result privately. It issues no executable target, provider
-handle, runtime route, or public target catalog.
+Keep source observers, Prelude/entry, Tail/result, Home, ABI, Completion,
+provider, and runtime separate. The old block-role topology versus segment
+topology is a separate caller-zero census, not a deletion in this D0. No new
+accepted shape, production switch, legacy deletion, raw rescan, name/order
+repair, or profile callback. Worker review is required if ownership is open;
+accept one common boundary or explicit `NoSafeSlice`, keep files below 800,
+and leave the current executable row unchanged.
 
-The next executable row is
-LOOP-JOINSIG-V2-LOGICAL-TRANSFER-VIEW-I0.
+Follow-up after this D0: `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0`, then
+one bounded `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` only after the
+result/ABI boundary is closed. Its guards require zero raw Recipe transfer or
+role inference in layout/allocator and zero synthetic ItemKey/Step creation.
 
 ## Hard stops
 
