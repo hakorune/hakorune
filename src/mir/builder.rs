@@ -35,7 +35,7 @@ mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physica
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
-mod normal_callable_semantic_loan_port; // Selected-only outer callable loan
+mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover

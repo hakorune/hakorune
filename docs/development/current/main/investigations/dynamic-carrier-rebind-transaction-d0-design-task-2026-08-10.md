@@ -1,7 +1,7 @@
 # DYNAMIC-CARRIER-REBIND-TRANSACTION-D0
 
-Status: revised Decision closed; implementation remains `NoSafeSlice`
-Decision: commit-before-end accepted; ingress/current disposition required first
+Status: revised Decision closed; I0 selected
+Decision: commit-before-end accepted; borrowed ingress/current disposition landed
 Date: 2026-08-10
 
 ## Evidence correction
@@ -23,11 +23,11 @@ local i = pos
   -> Recipe carrier C0 / B0 / entry V1
 ```
 
-No live canonical issuer currently binds that normal-callable parameter demand
-to the V1/B0 ingress. Recipe `Dynamic`, C0, JoinSig, runtime tags, `MirType`,
-ValueId, or the old `ReleaseStrong` cannot manufacture the missing lifecycle
-truth. Rebind I0 therefore remains `NoSafeSlice` until the ingress disposition
-is sealed.
+The semantic-package issuer now binds that normal-callable parameter demand to
+the V1/B0 ingress as `BorrowedIngressNoEnd`. Recipe `Dynamic`, C0, JoinSig,
+runtime tags, `MirType`, ValueId, or the old `ReleaseStrong` still cannot
+manufacture or replace that lifecycle truth. With the prerequisite sealed,
+rebind I0 is now the selected implementation row.
 
 ## Accepted transaction law
 
@@ -219,6 +219,7 @@ Split at 650-700 lines, stop adding at 760, and keep every source below 800.
 
 ## Nonclaims
 
-No rebind I0, carrier flow, end operation, Home, cleanup execution, Completion,
-CFG/MIR/PHI, runtime/provider route, retry, fallback, or production activation
-is opened by this Decision.
+I0 seals only the semantic rebind state-machine relation. Carrier flow, an end
+operation, Home, cleanup execution, Completion, CFG/MIR/PHI,
+runtime/provider route, retry, fallback, and production activation remain
+outside this row.

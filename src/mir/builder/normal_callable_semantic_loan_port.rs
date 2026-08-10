@@ -1,10 +1,9 @@
-//! Selected-only outer port that loans co-sealed callable semantic sources.
+//! Thin Builder adapter over the installed semantic-package port.
 //!
-//! Raw/reference ports remain unchanged. Deferred selected requests use the
-//! existing raw invocation port directly; only a Complete batch can construct
-//! this wrapper and select `callable_semantic_root`.
+//! Selection, exact source pairing, and exactly-once consumption stay in the
+//! package. This adapter owns only the scoped raw lineage and Builder-local
+//! lowering-state installation required by the existing physical route.
 
-use std::collections::BTreeSet;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
@@ -13,119 +12,103 @@ use crate::mir::{MirBuilder, ValueId};
 
 use super::callable_declaration_catalog::SelectedNormalCallableKeyV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
-use super::normal_callable_semantic_source::{
-    VerifiedNormalCallableSemanticLoanV1, VerifiedNormalCallableSemanticSourceV1,
-};
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
 };
+use crate::mir::normal_callable_semantic_package::{
+    NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
+    SelectedCallableLoweringInputRefV1,
+};
 
-pub(super) struct NormalCallableSemanticLoanPortV1<'loan, 'source, 'port, 'collector> {
+pub(super) struct NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector> {
     inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
-    source: &'loan VerifiedNormalCallableSemanticSourceV1<'source>,
-    consumption: CallableLoanConsumptionV1,
+    package: NormalCallableSemanticPackagePortV1<'package>,
 }
 
-struct CallableLoanConsumptionV1 {
-    expected: BTreeSet<SelectedNormalCallableKeyV1>,
-    consumed: BTreeSet<SelectedNormalCallableKeyV1>,
-}
-
-impl CallableLoanConsumptionV1 {
-    fn new(source: &VerifiedNormalCallableSemanticSourceV1<'_>) -> Self {
-        Self {
-            expected: source.keys().cloned().collect(),
-            consumed: BTreeSet::new(),
-        }
-    }
-
-    fn consume(&mut self, key: SelectedNormalCallableKeyV1) -> Result<(), String> {
-        if !self.expected.contains(&key) {
-            return Err("[freeze:contract][mir/callable-semantic/missing-loan]".to_owned());
-        }
-        if !self.consumed.insert(key) {
-            return Err("[freeze:contract][mir/callable-semantic/duplicate-loan]".to_owned());
-        }
-        Ok(())
-    }
-
-    fn complete(self) -> Result<(), String> {
-        if self.consumed != self.expected {
-            return Err("[freeze:contract][mir/callable-semantic/unconsumed-loan]".to_owned());
-        }
-        Ok(())
-    }
-}
-
-impl<'loan, 'source, 'port, 'collector>
-    NormalCallableSemanticLoanPortV1<'loan, 'source, 'port, 'collector>
+impl<'package, 'loan, 'port, 'collector>
+    NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector>
 {
     pub(super) fn new(
         inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
-        source: &'loan VerifiedNormalCallableSemanticSourceV1<'source>,
+        package: NormalCallableSemanticPackagePortV1<'package>,
     ) -> Self {
-        Self {
-            inner,
-            source,
-            consumption: CallableLoanConsumptionV1::new(source),
-        }
-    }
-
-    fn consume(
-        &mut self,
-        key: SelectedNormalCallableKeyV1,
-    ) -> Result<VerifiedNormalCallableSemanticLoanV1<'source, 'loan>, String> {
-        let loan = self.source.loan(&key)?;
-        self.consumption.consume(key)?;
-        Ok(loan)
+        Self { inner, package }
     }
 
     pub(super) fn complete(self) -> Result<(), String> {
-        self.consumption.complete()
+        self.package.complete().map_err(package_issue)
     }
 
     fn with_callable_source_scope<R>(
         &mut self,
-        loan: VerifiedNormalCallableSemanticLoanV1<'source, 'loan>,
+        key: SelectedNormalCallableKeyV1,
         execute: impl FnOnce(
             &mut RawInvocationChildPortV1<'port, 'collector>,
             super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
         ) -> Result<R, String>,
     ) -> Result<R, String> {
-        let transport = super::raw_invocation_source_transport::RawInvocationSourceTransportV1::
-            callable_semantic_root((), &loan);
-        let (_, source_ingress) = loan.into_parts();
-        let state =
-            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(
-                source_ingress.input(),
-            )?;
-        let state = Rc::new(RefCell::new(state));
-        let script_ledger = self.inner.semantic_ledger.take();
-        let parent_callable = self.inner.callable_ledger.replace(state.clone());
-        let result = execute(self.inner, transport);
-        self.inner.callable_ledger = parent_callable;
-        self.inner.semantic_ledger = script_ledger;
-        match result {
-            Ok(value) => {
-                Rc::try_unwrap(state)
-                    .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
-                    .into_inner()
-                    .finish()?;
-                Ok(value)
+        let lineage = match &key {
+            SelectedNormalCallableKeyV1::TopLevel(key) => {
+                super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
+                    key.clone(),
+                )
             }
-            Err(error) => Err(error),
-        }
+            SelectedNormalCallableKeyV1::Cataloged(key) => {
+                super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
+                    key.clone(),
+                )
+            }
+        };
+        let inner = &mut *self.inner;
+        self.package
+            .with_selected_lowering_input(&key, |input| {
+                with_selected_source_scope(inner, lineage, input, execute)
+            })
+            .map_err(package_issue)?
     }
 }
 
-#[cfg(test)]
-#[path = "normal_callable_semantic_loan_port_tests.rs"]
-mod tests;
+fn package_issue(error: NormalCallableSemanticPackageInstallIssueV1) -> String {
+    format!("[freeze:contract][mir/callable-semantic-package/port] {error:?}")
+}
 
-impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
+fn with_selected_source_scope<'port, 'collector, R>(
+    inner: &mut RawInvocationChildPortV1<'port, 'collector>,
+    lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
+    input: SelectedCallableLoweringInputRefV1<'_>,
+    execute: impl FnOnce(
+        &mut RawInvocationChildPortV1<'port, 'collector>,
+        super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    let transport =
+        super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
+    let state =
+        super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(
+            input.source(),
+        )?;
+    let state = Rc::new(RefCell::new(state));
+    let script_ledger = inner.semantic_ledger.take();
+    let parent_callable = inner.callable_ledger.replace(state.clone());
+    let result = execute(inner, transport);
+    inner.callable_ledger = parent_callable;
+    inner.semantic_ledger = script_ledger;
+    match result {
+        Ok(value) => {
+            Rc::try_unwrap(state)
+                .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
+                .into_inner()
+                .finish()?;
+            Ok(value)
+        }
+        Err(error) => Err(error),
+    }
+}
+
+impl RecursiveChildLoweringPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
@@ -202,7 +185,7 @@ impl RecursiveChildLoweringPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '
     }
 }
 
-impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
+impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
     fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,
@@ -221,7 +204,7 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_
     }
 }
 
-impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, '_> {
+impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
     #[allow(clippy::too_many_arguments)]
     fn lower_normal_instance_constructor(
         &mut self,
@@ -261,8 +244,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, 
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
         let key = SelectedNormalCallableKeyV1::TopLevel(admission.source_key().clone());
-        let loan = self.consume(key)?;
-        self.with_callable_source_scope(loan, |inner, transport| {
+        self.with_callable_source_scope(key, |inner, transport| {
             inner
                 .lower_normal_top_level_function_with_source_v1(
                     builder,
@@ -292,22 +274,24 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, 
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
         let source_key = admission.source_key().clone();
-        let loan = self.consume(SelectedNormalCallableKeyV1::Cataloged(source_key.clone()))?;
-        self.with_callable_source_scope(loan, |inner, transport| {
-            inner
-                .lower_normal_cataloged_static_box_method_with_source_v1(
-                    builder,
-                    admission,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                    transport,
-                )
-                .map_err(|error| error.to_string())
-        })
+        self.with_callable_source_scope(
+            SelectedNormalCallableKeyV1::Cataloged(source_key.clone()),
+            |inner, transport| {
+                inner
+                    .lower_normal_cataloged_static_box_method_with_source_v1(
+                        builder,
+                        admission,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                        transport,
+                    )
+                    .map_err(|error| error.to_string())
+            },
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -323,21 +307,23 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticLoanPortV1<'_, '_, '_, 
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
         let source_key = admission.source_key().clone();
-        let loan = self.consume(SelectedNormalCallableKeyV1::Cataloged(source_key.clone()))?;
-        self.with_callable_source_scope(loan, |inner, transport| {
-            inner
-                .lower_normal_cataloged_instance_box_method_with_source_v1(
-                    builder,
-                    admission,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                    transport,
-                )
-                .map_err(|error| error.to_string())
-        })
+        self.with_callable_source_scope(
+            SelectedNormalCallableKeyV1::Cataloged(source_key.clone()),
+            |inner, transport| {
+                inner
+                    .lower_normal_cataloged_instance_box_method_with_source_v1(
+                        builder,
+                        admission,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                        transport,
+                    )
+                    .map_err(|error| error.to_string())
+            },
+        )
     }
 }

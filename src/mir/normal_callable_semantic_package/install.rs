@@ -100,6 +100,10 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
+        self.batch.source_ast()
+    }
+
     pub(crate) fn installed_in(&self, context: &CompilationContext) -> bool {
         context
             .callable_declaration_catalog()

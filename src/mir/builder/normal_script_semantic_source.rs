@@ -55,6 +55,14 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         forest: VerifiedSemanticOwnerForestV1,
         window: &VerifiedScriptRootDemandWindowV1,
     ) -> Result<Self, String> {
+        Self::seal_ast_with_forest(source.source_ast(), forest, window)
+    }
+
+    pub(super) fn seal_ast_with_forest(
+        source: &'source crate::ast::ASTNode,
+        forest: VerifiedSemanticOwnerForestV1,
+        window: &VerifiedScriptRootDemandWindowV1,
+    ) -> Result<Self, String> {
         let [root] = forest.roots() else {
             return Err("[mir/script-semantic/forest] expected one Script root".to_owned());
         };
@@ -84,7 +92,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         })
     }
 
-    pub(super) fn source(&self) -> &PreparedNormalDefaultProgramRootV1 {
+    pub(super) fn source(&self) -> &crate::ast::ASTNode {
         self.core.source()
     }
 

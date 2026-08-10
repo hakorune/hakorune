@@ -1,6 +1,5 @@
 //! Typed Script boundaries which retain their existing operational terminal.
 
-use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ScriptDiagnosticBoundaryV1, ScriptRootRuntimeDispositionV1,
@@ -41,11 +40,11 @@ pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
 
 impl ScriptBoundaryReceiptPackV1 {
     pub(super) fn seal(
-        source: &PreparedNormalDefaultProgramRootV1,
+        source: &ASTNode,
         product: &VerifiedResolvedScriptV1,
         window: &VerifiedScriptRootDemandWindowV1,
     ) -> Result<Self, String> {
-        let ASTNode::Program { statements, .. } = source.source_ast() else {
+        let ASTNode::Program { statements, .. } = source else {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
         let mut static_const_completions = Vec::new();

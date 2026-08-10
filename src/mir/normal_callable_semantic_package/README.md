@@ -46,10 +46,17 @@ Completion consumption, physical ABI, runtime dispatch, retry, or fallback.
 Dynamic call relations are issued from the same batch-scoped lowering input as
 owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a
 callable catalog borrow, and the resulting semantic/lifecycle program carries
-no catalog lifetime. The old target catalog remains only as a migration
-adapter for the not-yet-replaced Builder caller.
+no catalog lifetime.
 
-The bounded cutover must next replace the production caller while deleting the
-old Builder seal, Dynamic extension, Complete-source pairing, and loan port in
-the same replacement cell. Source-backed package failure is terminal; the
-AST-only compatibility catalog is not a retry route.
+The normal/default source-backed lifecycle issues this package before Builder
+effects, consumes its catalog through one typed install transition, and lowers
+selected callables through the package port. The Builder-side adapter owns only
+raw source lineage and temporary lowering-state installation. The old semantic
+seal, Dynamic target extension, Complete-source pairing, and semantic-loan port
+are absent from that production edge. Source-backed package failure is
+terminal; the AST-only compatibility catalog is not a retry route.
+
+This cutover does not claim Dynamic physical completion. In particular,
+`ParserScanLoopBox.skip_while/4` currently reaches the installed package and
+then fails closed at the existing physical source-ledger consumption boundary.
+Home, rebind, cleanup, Completion, and physicalization remain later owners.

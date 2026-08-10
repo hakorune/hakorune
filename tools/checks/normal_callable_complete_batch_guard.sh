@@ -21,6 +21,10 @@ DYNAMIC_TARGET="$ROOT_DIR/src/mir/source_call_target/dynamic_member.rs"
 DYNAMIC_CALLS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/calls.rs"
 DYNAMIC_COSEAL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/mod.rs"
 DYNAMIC_SEMANTIC="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/mod.rs"
+PRODUCTION_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+PRODUCTION_LOWERING="$ROOT_DIR/src/mir/builder/program_root_lowering.rs"
+PACKAGE_PORT_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+RAW_SOURCE_TRANSPORT="$ROOT_DIR/src/mir/builder/raw_invocation_source_transport.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
@@ -28,7 +32,9 @@ guard_require_files "$TAG" \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
-  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC"
+  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
+  "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \
+  "$RAW_SOURCE_TRANSPORT"
 
 reject_fixed_in_file() {
   local pattern="$1"
@@ -135,12 +141,42 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "zero_dynamic_candidates_are_valid_unselected_without_default_or_name_selection" "$PACKAGE_TESTS" \
   "fully observed zero-Dynamic package must remain typed valid-unselected"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_normal_callable_semantic_package_v1(" "$PRODUCTION_LIFECYCLE" \
+  "normal/default production lifecycle must issue the source-backed package"
+guard_expect_fixed_in_file "$TAG" \
+  "NormalCallableSemanticPackageMode::Installed" "$PRODUCTION_LOWERING" \
+  "selected source-backed lowering must use the installed package"
+guard_expect_fixed_in_file "$TAG" \
+  "NormalCallableSemanticPackagePortAdapterV1" "$PACKAGE_PORT_ADAPTER" \
+  "Builder must retain only the thin package-port adapter"
+guard_expect_fixed_in_file "$TAG" \
+  "source_backed_selected_callable_uses_the_installed_package_port" "$PRODUCTION_LIFECYCLE" \
+  "source-backed production package positive is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "source_backed_package_failure_is_terminal_before_builder_effects" "$PRODUCTION_LIFECYCLE" \
+  "source-backed terminal failure negative is missing"
+
+for old_edge in \
+  "VerifiedNormalCallableSemanticSourceV1::seal" \
+  "extend_complete_dynamic_sources" \
+  "NormalCallableSemanticSourceMode::Complete" \
+  "NormalCallableSemanticLoanPortV1::new" \
+  "callable_semantic_root"; do
+  if rg -F -q -- "$old_edge" \
+    "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" \
+    "$PACKAGE_PORT_ADAPTER" "$RAW_SOURCE_TRANSPORT"; then
+    guard_fail "$TAG" "old production semantic edge remains: $old_edge"
+  fi
+done
 
 for file in \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
-  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC"; do
+  "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
+  "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \
+  "$RAW_SOURCE_TRANSPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

@@ -12,9 +12,7 @@ use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
-use super::normal_callable_semantic_loan_port::NormalCallableSemanticLoanPortV1;
-use super::normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
-use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
+use super::normal_callable_semantic_loan_port::NormalCallableSemanticPackagePortAdapterV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
@@ -28,6 +26,7 @@ use super::raw_invocation_source_transport::{
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
+use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -80,9 +79,9 @@ pub(super) enum NormalScriptRootLoweringMode<'source> {
     Deferred,
 }
 
-pub(super) enum NormalCallableSemanticSourceMode<'source> {
-    Complete(VerifiedNormalCallableSemanticSourceV1<'source>),
-    Deferred,
+pub(super) enum NormalCallableSemanticPackageMode<'package> {
+    Installed(&'package InstalledNormalCallableSemanticPackageV1),
+    Compatibility,
 }
 
 impl ProgramDeferredStaticBoxLifecycleV1 {
@@ -123,19 +122,19 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn lower_normal_default_program_root_after_catalog_install_v1(
         &mut self,
         work: PreparedProgramRootWorkPlanPartsV1,
-        source: &PreparedNormalDefaultProgramRootV1,
+        source_ast: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
-        callable_mode: NormalCallableSemanticSourceMode<'_>,
+        callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
-            source.source_ast(),
+            source_ast,
             expansion,
             materialization,
             runtime_inputs,
@@ -156,7 +155,7 @@ impl MirBuilder {
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
-        callable_mode: NormalCallableSemanticSourceMode<'_>,
+        callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
     ) -> Result<ValueId, String> {
@@ -223,12 +222,15 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
-        callable_mode: NormalCallableSemanticSourceMode<'_>,
+        callable_mode: NormalCallableSemanticPackageMode<'_>,
         port: &mut RawInvocationChildPortV1<'_, '_>,
     ) -> Result<ValueId, String> {
         match callable_mode {
-            NormalCallableSemanticSourceMode::Complete(source) => {
-                let mut loan = NormalCallableSemanticLoanPortV1::new(port, &source);
+            NormalCallableSemanticPackageMode::Installed(package) => {
+                let package_port = package.begin_lowering(&self.comp_ctx).map_err(|error| {
+                    format!("[freeze:contract][mir/callable-semantic-package/open] {error:?}")
+                })?;
+                let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(port, package_port);
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
                     work,
                     snapshot,
@@ -241,7 +243,7 @@ impl MirBuilder {
                 loan.complete()?;
                 Ok(result)
             }
-            NormalCallableSemanticSourceMode::Deferred => self
+            NormalCallableSemanticPackageMode::Compatibility => self
                 .lower_prepared_program_root_with_callable_port_v1(
                     work,
                     snapshot,

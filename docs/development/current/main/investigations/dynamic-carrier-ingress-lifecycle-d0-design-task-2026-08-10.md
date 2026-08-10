@@ -1364,10 +1364,26 @@ bash tools/checks/normal_callable_complete_batch_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-Commit B is the sole remaining slice: replace the source-backed normal/default
-lifecycle and delete old semantic seal, Dynamic extension, Complete pairing,
-and loan-port production edges together with fallback/retry zero. No new
-prerequisite row may intervene. Non-claims remain Home/rebind/CFG/Completion,
+#### Commit B checkpoint — closed
+
+The source-backed normal/default lifecycle now issues the package before
+Builder effects, consume-installs its catalog, and lowers selected callables
+through the exactly-once package port. The old semantic seal, Dynamic target
+extension, Complete pairing, callable-semantic root transport, and semantic
+loan-port construction are absent from that production edge. Source-backed
+failure is terminal and AST-only compatibility is not a retry.
+
+The production canary recovered one exact downstream blocker rather than
+hiding it: `ParserScanLoopBox.skip_while/4` reaches the installed package, then
+the existing Dynamic physical route leaves seven Loop-internal variable sites
+and one assignment site unconsumed in the callable source ledger. The package
+therefore rejects at `RootLower`; it does not fall back. This is evidence for
+the already-ordered rebind/flow/physicalization work, not a reason to weaken
+package close or add a semantic adapter.
+
+The next row is `DYNAMIC-CARRIER-REBIND-TRANSACTION-I0`. Its accepted
+commit-before-end Decision now has the required borrowed-ingress disposition.
+Non-claims remain Home/flow/cleanup/Completion, completed Dynamic
 physicalization, JSON/REPL/all-origin cutover, and provider activation.
 
 ### 4. `DYNAMIC-CARRIER-INGRESS-LIFECYCLE-I0` — absorbed closeout

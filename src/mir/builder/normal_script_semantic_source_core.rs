@@ -1,6 +1,6 @@
 //! Stable Script semantic source authority shared by every receipt family.
 
-use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
+use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{SemanticOwnerRootProfileV1, VerifiedSemanticOwnerForestV1};
 
@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::{SemanticOwnerRootProfileV1, VerifiedSemanti
 /// here: they only authorize exact lowering descendants around this core.
 #[derive(Debug)]
 pub(super) struct ScriptSemanticSourceCoreV1<'source> {
-    source: &'source PreparedNormalDefaultProgramRootV1,
+    source: &'source ASTNode,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     runtime_source_indices: Box<[usize]>,
@@ -16,12 +16,12 @@ pub(super) struct ScriptSemanticSourceCoreV1<'source> {
 
 impl<'source> ScriptSemanticSourceCoreV1<'source> {
     pub(super) fn seal(
-        source: &'source PreparedNormalDefaultProgramRootV1,
+        source: &'source ASTNode,
         forest: VerifiedSemanticOwnerForestV1,
         runtime_source_indices: Box<[usize]>,
     ) -> Result<Self, String> {
         let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
-            source.source_ast(),
+            source,
             &forest,
             SemanticOwnerRootProfileV1::Script,
         )
@@ -34,7 +34,7 @@ impl<'source> ScriptSemanticSourceCoreV1<'source> {
         })
     }
 
-    pub(super) fn source(&self) -> &PreparedNormalDefaultProgramRootV1 {
+    pub(super) fn source(&self) -> &ASTNode {
         self.source
     }
 

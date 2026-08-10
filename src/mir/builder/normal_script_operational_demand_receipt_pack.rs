@@ -1,6 +1,5 @@
 //! Verified Script receipts for structured lowering descendants.
 
-use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     project_source_node_v1, EnumVariantAdmissionV1, ScriptRootResolvedDemandV1,
@@ -56,18 +55,16 @@ pub(super) struct VerifiedScriptMatchControlDemandV1 {
 
 impl ScriptOperationalDemandReceiptPackV1 {
     pub(super) fn seal(
-        source: &PreparedNormalDefaultProgramRootV1,
+        source: &ASTNode,
         product: &VerifiedResolvedScriptV1,
         window: &VerifiedScriptRootDemandWindowV1,
     ) -> Result<Self, String> {
         let record_literal_demands = product
             .record_literal_demands()
             .map(|(site, explicit_field_count)| {
-                let projected = project_source_node_v1(source.source_ast(), site.node())
-                    .ok_or_else(|| {
-                        "[mir/script-semantic/record-projection] missing exact RecordLiteral"
-                            .to_owned()
-                    })?;
+                let projected = project_source_node_v1(source, site.node()).ok_or_else(|| {
+                    "[mir/script-semantic/record-projection] missing exact RecordLiteral".to_owned()
+                })?;
                 let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                     ASTNode::RecordLiteral { fields, .. },
                 ) = projected
@@ -88,11 +85,10 @@ impl ScriptOperationalDemandReceiptPackV1 {
         let enum_variant_demands = product
             .enum_variant_demands()
             .map(|(site, admission)| {
-                let projected = project_source_node_v1(source.source_ast(), site.node())
-                    .ok_or_else(|| {
-                        "[mir/script-semantic/enum-variant-projection] missing exact FromCall"
-                            .to_owned()
-                    })?;
+                let projected = project_source_node_v1(source, site.node()).ok_or_else(|| {
+                    "[mir/script-semantic/enum-variant-projection] missing exact FromCall"
+                        .to_owned()
+                })?;
                 let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                     ASTNode::FromCall { arguments, .. },
                 ) = projected
@@ -111,7 +107,7 @@ impl ScriptOperationalDemandReceiptPackV1 {
                         .child(SourcePathSegmentV1::Argument(index))
                         .expr();
                     if !matches!(
-                        project_source_node_v1(source.source_ast(), child_site.node()),
+                        project_source_node_v1(source, child_site.node()),
                         Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                             _
                         ))
@@ -131,11 +127,10 @@ impl ScriptOperationalDemandReceiptPackV1 {
         let enum_match_demands = product
             .enum_match_demands()
             .map(|site| {
-                let projected = project_source_node_v1(source.source_ast(), site.node())
-                    .ok_or_else(|| {
-                        "[mir/script-semantic/enum-match-projection] missing exact EnumMatchExpr"
-                            .to_owned()
-                    })?;
+                let projected = project_source_node_v1(source, site.node()).ok_or_else(|| {
+                    "[mir/script-semantic/enum-match-projection] missing exact EnumMatchExpr"
+                        .to_owned()
+                })?;
                 let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                     ASTNode::EnumMatchExpr { .. },
                 ) = projected
@@ -148,7 +143,7 @@ impl ScriptOperationalDemandReceiptPackV1 {
                     .child(SourcePathSegmentV1::EnumMatchScrutinee)
                     .expr();
                 if !matches!(
-                    project_source_node_v1(source.source_ast(), scrutinee_site.node()),
+                    project_source_node_v1(source, scrutinee_site.node()),
                     Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                         _
                     ))
@@ -178,10 +173,9 @@ impl ScriptOperationalDemandReceiptPackV1 {
                 {
                     return Err("[mir/script-semantic/qmark-window] source mismatch".to_owned());
                 }
-                let projected = project_source_node_v1(source.source_ast(), site.node())
-                    .ok_or_else(|| {
-                        "[mir/script-semantic/qmark-projection] missing QMark".to_owned()
-                    })?;
+                let projected = project_source_node_v1(source, site.node()).ok_or_else(|| {
+                    "[mir/script-semantic/qmark-projection] missing QMark".to_owned()
+                })?;
                 let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                     ASTNode::QMarkPropagate { .. },
                 ) = projected
@@ -194,7 +188,7 @@ impl ScriptOperationalDemandReceiptPackV1 {
                     .child(SourcePathSegmentV1::QMarkOperand)
                     .expr();
                 if !matches!(
-                    project_source_node_v1(source.source_ast(), operand_site.node()),
+                    project_source_node_v1(source, operand_site.node()),
                     Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                         _
                     ))
@@ -226,10 +220,9 @@ impl ScriptOperationalDemandReceiptPackV1 {
                 {
                     return Err("[mir/script-semantic/match-window] source mismatch".to_owned());
                 }
-                let projected = project_source_node_v1(source.source_ast(), site.node())
-                    .ok_or_else(|| {
-                        "[mir/script-semantic/match-projection] missing MatchExpr".to_owned()
-                    })?;
+                let projected = project_source_node_v1(source, site.node()).ok_or_else(|| {
+                    "[mir/script-semantic/match-projection] missing MatchExpr".to_owned()
+                })?;
                 let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                     ASTNode::MatchExpr { arms, .. },
                 ) = projected
@@ -245,7 +238,7 @@ impl ScriptOperationalDemandReceiptPackV1 {
                 for role in roles {
                     let child_site = SourcePathV1::from_node(site.node()).child(role).expr();
                     if !matches!(
-                        project_source_node_v1(source.source_ast(), child_site.node()),
+                        project_source_node_v1(source, child_site.node()),
                         Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
                             _
                         ))
