@@ -535,6 +535,46 @@ frontier.  Once this design is accepted, the implementation slice is
 `PHYSICAL-INPUT-AUTHORITY-I0`; the next physical-session row remains parked
 until that slice is green.
 
+### First missing axis: operation-demand issuer D0
+
+The first sub-question is deliberately narrower:
+`PHYSICAL-OPERATION-DEMAND-ISSUER-D0`.
+
+The current Dynamic chain retains the verified V2 source/Recipe envelope and
+the V2 JoinSig/After relation internally, but the final logical exit co-seal
+does not expose an operation/effect product or a physical demand.  The
+existing `VerifiedLoopOperationPhysicalDemandV1` cannot be reused by casting
+or reconstructing the V2 Recipe: it requires a V1 operation/effect product,
+V1 context, and V1 continuation, and it is not a Dynamic V2 source issuer.
+
+The design target is a one-way, private projection at the logical-to-physical
+boundary:
+
+```text
+exact Dynamic V2 source/Recipe/JoinSig program
+  -> V2-aware operation/effect/demand projection
+     (Recipe order, complete item coverage, exact source/effect relations)
+  -> later physical-input co-seal
+```
+
+This projection must not:
+
+```text
+V2 -> V1 cast or shape adapter
+re-run Dynamic admission or AST observation
+rebuild Recipe keys from MIR/name/order
+expose the internal envelope/JoinSig/After
+become a second Recipe or a public selector
+open a Builder/session or allocate physical IDs
+```
+
+The D0 acceptance evidence is an owner table for the V2 operation/effect
+source, a single issuer location, the exact consume boundary relative to the
+logical exit co-seal, and a negative matrix for foreign owner/frame/scope,
+missing/duplicate item coverage, wrong JoinSig transfer, and V1-family
+coercion.  If a source-backed V2 operation/effect issuer cannot be identified,
+this sub-question remains `NoSafeSlice`; no partial demand receipt is added.
+
 ## Hard stops
 
 ```text
