@@ -462,6 +462,79 @@ must also carry a source-to-Facts-to-Recipe readiness sentence and a focused
 negative matrix; it must not introduce Home, runtime Fault, CFG/PHI,
 DraftSeal, Collector, provider dispatch, or a new fallback route.
 
+## Physical-input authority I0 design frontier (2026-08-10)
+
+The D0 owner census is accepted.  The next frontier is still a design stop,
+`PHYSICAL-INPUT-AUTHORITY-I0-D0`, because the existing products cannot yet
+form the required physical input without crossing an authority boundary.
+
+The concrete gaps are:
+
+```text
+Dynamic semantic program = V2 Recipe / V2 JoinSig
+existing common physical demand = V1 Recipe/operation contract
+  -> no V2-to-V1 adapter is permitted
+
+VerifiedFunctionCompletionV1
+  -> consumed by source admission and reduced to logical summary
+  -> no exact physical Completion handoff exists
+
+ExactTrivialReturnAbiV1
+  -> source-spelling classification only
+  -> not physical FunctionSignature or entry ABI authority
+
+VerifiedCallablePreludeArgumentListV1 / physical canary
+  -> cfg(test) evidence only
+  -> not a production entry materialization issuer
+```
+
+Therefore the next design must choose a single package-to-physical boundary,
+not add a wrapper around the logical Dynamic exit co-seal:
+
+```text
+installed package
+  -> selected scoped lowering loan
+  -> one private physical-input issuer
+       V2-aware Loop demand
+       Prelude/entry relation
+       Tail/result relation
+       exact physical ABI/result projection
+       exact Completion handoff
+  -> one non-splittable physical input
+```
+
+The logical package remains the owner of logical Recipe/JoinSig/After/Fault
+relations.  The physical issuer may consume a scoped package loan, but it may
+not expose the semantic program internals, reissue Recipe/JoinSig/After, or
+re-verify Completion later in the lowerer.  Completion must either be handed
+off from the source issuer at this boundary or the issuer must return
+`NoSafeSlice`; an empty or summary-only replacement is not evidence.
+
+The I0-D0 acceptance sentence is:
+
+```text
+This selected package loan maps once to one physical-input product,
+and every missing/foreign/mismatched demand, entry, Tail, ABI, or Completion
+fails before a function session opens.
+```
+
+Required design evidence before implementation:
+
+```text
+one owner table for all five physical subcontracts
+one source-backed issuer per missing subcontract, or an explicit NoSafeSlice
+one package-to-physical co-seal boundary
+one V2-capable demand path (no V2 -> V1 coercion)
+one exact Completion handoff (no lower re-verification)
+one negative matrix for foreign owner/frame/scope/site/ABI/completion
+```
+
+No code, `cfg(test)` promotion, physical receipt constructor, session open,
+DraftSeal, Collector, raw `lower_loop`, retry, or fallback is allowed at this
+frontier.  Once this design is accepted, the implementation slice is
+`PHYSICAL-INPUT-AUTHORITY-I0`; the next physical-session row remains parked
+until that slice is green.
+
 ## Hard stops
 
 ```text
