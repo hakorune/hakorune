@@ -2705,7 +2705,7 @@ Canonical provider/runtime gaps:
   production I6 post-session receipt issuer = 0
   LLVM metadata preflight caller / selected hook = 0 / 0
   strict AOT runtime symbol / one-shot lease issuer = 0 / 0
-  neutral cross-boundary wire authority = unresolved
+  neutral cross-boundary wire authority = include/nyrt_dynamic_call_slot_v2.h
   Rust VM DynamicV2 issuer/caller = 0
   DynamicV2CallOut/WireValue runtime consumers = 0
 
@@ -2730,6 +2730,28 @@ provider registry or a runtime receipt issuer. This census is evidence for the
 stop, not permission to add an executable dispatch product without its named
 consumer.
 
+Wire-owner decision (2026-08-12, design-only):
+
+```text
+normative fixed-width ABI owner:
+  include/nyrt_dynamic_call_slot_v2.h
+
+projection-only consumers:
+  src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/call_slot_wire.rs
+  src/llvm_py/builders/dynamic_v2_callslot_wire.py
+
+owner excludes:
+  ProviderSlot, AdmissionSeal, BoxCallableRegistry, RoutePlan,
+  RuntimeExecutablePlan, selector/provider/image selection, runtime dispatch,
+  lease semantics, and all Rust VM meaning
+```
+
+The header is the sole byte-layout, revision, constant, and validity-vocabulary
+owner. Rust and Python may validate and project it, but may not introduce an
+independent ABI source. `DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0` remains a
+BoxShape follow-up for the mechanical parity guard and projection-only marker;
+it adds no runtime caller, provider, LLVM hook, receipt issuer, or VM lane.
+
 Implementation order after this D0 is accepted (same rolling card):
 
 ```text
@@ -2737,6 +2759,15 @@ DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0           BoxShape
   delete `backend/mir_interpreter/exec/a_prime_i64_entry.rs` and its module
   edge; extend the existing Dynamic V2 authority guard; VM provider/receipt/
   session symbols and production gates = 0; unsupported reference use rejects
+
+DYNAMIC-V2-CALLSLOT-PROVIDER-SPINE-R0              BoxShape
+  split mutable provider seeding from the consuming global admission:
+  Provider facts -> ProviderAdmissionSeal -> immutable, non-Clone admitted
+  BoxCallableRegistry -> semantic RoutePlan. Duplicate/collision and foreign
+  contract rows reject atomically. Keep PluginLoaderV2 snapshot/rebuild and
+  `ffi_bridge` as explicitly legacy compatibility projections; do not retarget
+  them or add call-time registry lookup. RuntimeExecutablePlan/image pin is a
+  later AOT owner, not a registry field.
 
 DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0             BoxShape
   move I0-A under the D0-selected neutral ABI owner; Rust/C/Python are
@@ -2765,6 +2796,13 @@ plan-only, runtime-symbol-only, or dormant-hook commits are forbidden. The
 LLVM hook belongs before generic method lowering; absent unselected metadata
 may return `NotSelected`, while malformed selected metadata is terminal.
 Every new source file stays below 800 lines (split near 650-700).
+
+The provider-spine refactor must not silently turn the legacy plugin route into
+the AOT provider consumer. `PluginLoaderV2::box_callable_registry_snapshot`,
+the legacy arity-0 compatibility key, `runtime_invoke_boundary` shim policy,
+and `ffi_bridge` remain a separately named compatibility lane until their
+caller-zero retirement task. The selected AOT cell may consume only the
+admitted global registry/RoutePlan/RuntimeExecutablePlan chain.
 
 ```text
 I0-B Done:
