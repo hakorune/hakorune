@@ -9,6 +9,7 @@ use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeSet;
 
 pub(crate) const A_PRIME_I64_PHYSICAL_RECEIPT_SCHEMA_VERSION: u32 = 1;
+pub(crate) const A_PRIME_I64_FORMAL_PARAMETER_COUNT: usize = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum APrimeI64BackendFamilyV1 {
@@ -48,6 +49,8 @@ pub(crate) struct APrimeI64ParameterReceiptV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct APrimeI64CallArgumentReceiptV1 {
+    pub(crate) ordinal: usize,
+    pub(crate) role: String,
     pub(crate) value_id: ValueId,
     pub(crate) lane: APrimeI64LaneV1,
 }
@@ -58,6 +61,9 @@ pub(crate) struct APrimeI64CallEdgeReceiptV1 {
     pub(crate) block: BasicBlockId,
     pub(crate) instruction_index: usize,
     pub(crate) target_fingerprint: String,
+    pub(crate) receiver_role: String,
+    pub(crate) receiver_value_id: ValueId,
+    pub(crate) receiver_lane: APrimeI64LaneV1,
     pub(crate) arguments: Vec<APrimeI64CallArgumentReceiptV1>,
     pub(crate) result_value_id: ValueId,
     pub(crate) result_lane: APrimeI64LaneV1,
@@ -77,6 +83,7 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
     UnsupportedBackend,
     MissingParameterRows,
     WrongParameterRows,
+    WrongFormalParameterCount,
     DuplicateParameterRole,
     DuplicateParameterIndex,
     DuplicateParameterValue,
@@ -89,11 +96,16 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
     CallRoleMismatch,
     EmptyCallTarget,
     EmptyCallArguments,
+    CallTargetFingerprintMismatch,
+    CallReceiverMismatch,
+    CallArgumentMismatch,
+    DuplicateCallResult,
     CallResultLaneMismatch,
     MissingReturnRows,
     WrongReturnRows,
     EmptyReturnSite,
     DuplicateReturnSite,
+    ReturnSiteMismatch,
     ReturnLaneMismatch,
 }
 
@@ -103,6 +115,7 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
 pub(crate) struct APrimeI64PhysicalReceiptV1 {
     schema_version: u32,
     backend_family: APrimeI64BackendFamilyV1,
+    formal_parameter_count: usize,
     parameters: Vec<APrimeI64ParameterReceiptV1>,
     call_edges: Vec<APrimeI64CallEdgeReceiptV1>,
     returns: Vec<APrimeI64ReturnReceiptV1>,
@@ -112,6 +125,7 @@ impl APrimeI64PhysicalReceiptV1 {
     /// Private issuer boundary for the canonical physical session.
     pub(crate) fn seal(
         backend_family: APrimeI64BackendFamilyV1,
+        formal_parameter_count: usize,
         parameters: Vec<APrimeI64ParameterReceiptV1>,
         call_edges: Vec<APrimeI64CallEdgeReceiptV1>,
         returns: Vec<APrimeI64ReturnReceiptV1>,
@@ -119,6 +133,7 @@ impl APrimeI64PhysicalReceiptV1 {
         let receipt = Self {
             schema_version: A_PRIME_I64_PHYSICAL_RECEIPT_SCHEMA_VERSION,
             backend_family,
+            formal_parameter_count,
             parameters,
             call_edges,
             returns,
@@ -135,6 +150,9 @@ impl APrimeI64PhysicalReceiptV1 {
         }
         if self.backend_family != APrimeI64BackendFamilyV1::Llvm {
             return Err(APrimeI64PhysicalReceiptRejectV1::UnsupportedBackend);
+        }
+        if self.formal_parameter_count != A_PRIME_I64_FORMAL_PARAMETER_COUNT {
+            return Err(APrimeI64PhysicalReceiptRejectV1::WrongFormalParameterCount);
         }
 
         if self.parameters.is_empty() {
@@ -183,6 +201,7 @@ impl APrimeI64PhysicalReceiptV1 {
         }
         let mut call_roles = BTreeSet::new();
         let mut call_sites = BTreeSet::new();
+        let mut call_results = BTreeSet::new();
         for row in &self.call_edges {
             if !matches!(row.role.as_str(), "substring" | "index_of") {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallRoleMismatch);
@@ -196,8 +215,41 @@ impl APrimeI64PhysicalReceiptV1 {
             if row.target_fingerprint.is_empty() {
                 return Err(APrimeI64PhysicalReceiptRejectV1::EmptyCallTarget);
             }
-            if row.arguments.is_empty() {
-                return Err(APrimeI64PhysicalReceiptRejectV1::EmptyCallArguments);
+            let (expected_target, expected_receiver, expected_arguments) = match row.role.as_str() {
+                "substring" => (
+                    "substring/3",
+                    "src",
+                    &[(0usize, "start"), (1usize, "end")][..],
+                ),
+                "index_of" => ("indexOf/2", "pred_chars", &[(0usize, "ch")][..]),
+                _ => unreachable!("call role checked above"),
+            };
+            if row.target_fingerprint != expected_target {
+                return Err(APrimeI64PhysicalReceiptRejectV1::CallTargetFingerprintMismatch);
+            }
+            if row.receiver_role != expected_receiver
+                || row.receiver_lane != APrimeI64LaneV1::OpaqueHandle
+            {
+                return Err(APrimeI64PhysicalReceiptRejectV1::CallReceiverMismatch);
+            }
+            if row.arguments.len() != expected_arguments.len()
+                || row.arguments.iter().zip(expected_arguments.iter()).any(
+                    |(actual, (ordinal, role))| {
+                        actual.ordinal != *ordinal
+                            || actual.role != *role
+                            || actual.lane
+                                != if row.role == "substring" {
+                                    APrimeI64LaneV1::ImmediateI64
+                                } else {
+                                    APrimeI64LaneV1::OpaqueHandle
+                                }
+                    },
+                )
+            {
+                return Err(APrimeI64PhysicalReceiptRejectV1::CallArgumentMismatch);
+            }
+            if !call_results.insert(row.result_value_id.as_u32()) {
+                return Err(APrimeI64PhysicalReceiptRejectV1::DuplicateCallResult);
             }
             if row.result_lane != APrimeI64LaneV1::OpaqueHandle {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallResultLaneMismatch);
@@ -222,6 +274,9 @@ impl APrimeI64PhysicalReceiptV1 {
                 return Err(APrimeI64PhysicalReceiptRejectV1::ReturnLaneMismatch);
             }
         }
+        if return_sites != BTreeSet::from(["inner", "outer"]) {
+            return Err(APrimeI64PhysicalReceiptRejectV1::ReturnSiteMismatch);
+        }
         Ok(())
     }
 
@@ -231,6 +286,10 @@ impl APrimeI64PhysicalReceiptV1 {
 
     pub(crate) fn backend_family(&self) -> APrimeI64BackendFamilyV1 {
         self.backend_family
+    }
+
+    pub(crate) fn formal_parameter_count(&self) -> usize {
+        self.formal_parameter_count
     }
 
     pub(crate) fn parameters(&self) -> &[APrimeI64ParameterReceiptV1] {
@@ -253,6 +312,7 @@ mod tests {
     fn valid_receipt() -> APrimeI64PhysicalReceiptV1 {
         APrimeI64PhysicalReceiptV1::seal(
             APrimeI64BackendFamilyV1::Llvm,
+            A_PRIME_I64_FORMAL_PARAMETER_COUNT,
             vec![
                 APrimeI64ParameterReceiptV1 {
                     role: "pos".to_string(),
@@ -273,10 +333,23 @@ mod tests {
                     block: BasicBlockId::new(1),
                     instruction_index: 3,
                     target_fingerprint: "substring/3".to_string(),
-                    arguments: vec![APrimeI64CallArgumentReceiptV1 {
-                        value_id: ValueId::new(12),
-                        lane: APrimeI64LaneV1::OpaqueHandle,
-                    }],
+                    receiver_role: "src".to_string(),
+                    receiver_value_id: ValueId::new(10),
+                    receiver_lane: APrimeI64LaneV1::OpaqueHandle,
+                    arguments: vec![
+                        APrimeI64CallArgumentReceiptV1 {
+                            ordinal: 0,
+                            role: "start".to_string(),
+                            value_id: ValueId::new(12),
+                            lane: APrimeI64LaneV1::ImmediateI64,
+                        },
+                        APrimeI64CallArgumentReceiptV1 {
+                            ordinal: 1,
+                            role: "end".to_string(),
+                            value_id: ValueId::new(13),
+                            lane: APrimeI64LaneV1::ImmediateI64,
+                        },
+                    ],
                     result_value_id: ValueId::new(20),
                     result_lane: APrimeI64LaneV1::OpaqueHandle,
                 },
@@ -285,7 +358,12 @@ mod tests {
                     block: BasicBlockId::new(1),
                     instruction_index: 4,
                     target_fingerprint: "indexOf/2".to_string(),
+                    receiver_role: "pred_chars".to_string(),
+                    receiver_value_id: ValueId::new(14),
+                    receiver_lane: APrimeI64LaneV1::OpaqueHandle,
                     arguments: vec![APrimeI64CallArgumentReceiptV1 {
+                        ordinal: 0,
+                        role: "ch".to_string(),
                         value_id: ValueId::new(20),
                         lane: APrimeI64LaneV1::OpaqueHandle,
                     }],
@@ -367,6 +445,37 @@ mod tests {
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::ParameterRoleIndexMismatch)
+        );
+    }
+
+    #[test]
+    fn rejects_transport_shape_drift() {
+        let mut receipt = valid_receipt();
+        receipt.formal_parameter_count = 3;
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::WrongFormalParameterCount)
+        );
+
+        let mut receipt = valid_receipt();
+        receipt.returns[1].site = "cleanup".to_string();
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::ReturnSiteMismatch)
+        );
+
+        let mut receipt = valid_receipt();
+        receipt.call_edges[0].target_fingerprint = "indexOf/2".to_string();
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::CallTargetFingerprintMismatch)
+        );
+
+        let mut receipt = valid_receipt();
+        receipt.call_edges[0].arguments[1].ordinal = 0;
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::CallArgumentMismatch)
         );
     }
 }

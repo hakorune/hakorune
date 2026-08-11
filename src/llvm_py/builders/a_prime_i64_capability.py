@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional, Sequence, Tuple
 
 SCHEMA_VERSION = 1
 CAPABILITY_KEY = "a_prime_i64_physical_receipt"
+FORMAL_PARAMETER_COUNT = 4
 
 
 class APrimeI64CapabilityError(ValueError):
@@ -32,12 +33,23 @@ class APrimeI64ParameterRow:
 
 
 @dataclass(frozen=True)
+class APrimeI64ArgumentRow:
+    ordinal: int
+    role: str
+    value_id: int
+    lane: str
+
+
+@dataclass(frozen=True)
 class APrimeI64CallEdgeRow:
     role: str
     block: int
     instruction_index: int
     target_fingerprint: str
-    arguments: Tuple[APrimeI64ValueRow, ...]
+    receiver_role: str
+    receiver_value_id: int
+    receiver_lane: str
+    arguments: Tuple[APrimeI64ArgumentRow, ...]
     result_value_id: int
     result_lane: str
 
@@ -125,8 +137,10 @@ def _load_value_row(row: Dict[str, Any], label: str) -> APrimeI64ValueRow:
 
 def _validate_func_params(func_data: Dict[str, Any], rows: Sequence[APrimeI64ParameterRow]) -> None:
     params = func_data.get("params")
-    if not isinstance(params, list) or not params:
-        raise APrimeI64CapabilityError("selected A-prime function requires explicit params")
+    if not isinstance(params, list) or len(params) != FORMAL_PARAMETER_COUNT:
+        raise APrimeI64CapabilityError(
+            "selected A-prime function requires exactly four formal params"
+        )
     if len(params) <= max(row.formal_parameter_index for row in rows):
         raise APrimeI64CapabilityError("parameter contract index is outside params")
     for row in rows:
@@ -158,6 +172,11 @@ def load_selected_a_prime_capability(
     backend_family = _required_string(raw.get("backend_family"), "backend_family")
     if backend_family != "llvm":
         raise APrimeI64CapabilityError(f"unsupported backend_family: {backend_family}")
+    formal_parameter_count = _required_int(
+        raw.get("formal_parameter_count"), "formal_parameter_count"
+    )
+    if formal_parameter_count != FORMAL_PARAMETER_COUNT:
+        raise APrimeI64CapabilityError("A-prime receipt requires four formal params")
     if raw.get("fallback", False) is not False or raw.get("retry", False) is not False:
         raise APrimeI64CapabilityError("fallback/retry are forbidden in A-prime receipt")
 
@@ -208,8 +227,21 @@ def load_selected_a_prime_capability(
                 target_fingerprint=_required_string(
                     row.get("target_fingerprint"), "call.target_fingerprint"
                 ),
+                receiver_role=_required_string(row.get("receiver_role"), "call.receiver_role"),
+                receiver_value_id=_required_int(
+                    row.get("receiver_value_id"), "call.receiver_value_id"
+                ),
+                receiver_lane=_required_string(row.get("receiver_lane"), "call.receiver_lane"),
                 arguments=tuple(
-                    _load_value_row(arg, "call.argument") for arg in args
+                    APrimeI64ArgumentRow(
+                        ordinal=_required_int(arg.get("ordinal"), "call.argument.ordinal"),
+                        role=_required_string(arg.get("role"), "call.argument.role"),
+                        value_id=_required_int(
+                            arg.get("value_id"), "call.argument.value_id"
+                        ),
+                        lane=_required_string(arg.get("lane"), "call.argument.lane"),
+                    )
+                    for arg in args
                 ),
                 result_value_id=_required_int(
                     row.get("result_value_id"), "call.result_value_id"
@@ -221,8 +253,32 @@ def load_selected_a_prime_capability(
         raise APrimeI64CapabilityError("call roles must be exactly substring/index_of")
     if len({(row.block, row.instruction_index) for row in calls}) != len(calls):
         raise APrimeI64CapabilityError("duplicate call site")
-    if any(row.result_lane != "opaque_handle" for row in calls):
-        raise APrimeI64CapabilityError("Dynamic call results must use opaque_handle")
+    call_results = set()
+    for row in calls:
+        expected_target = "substring/3" if row.role == "substring" else "indexOf/2"
+        expected_receiver = "src" if row.role == "substring" else "pred_chars"
+        expected_argument_roles = ("start", "end") if row.role == "substring" else ("ch",)
+        expected_argument_lanes = (
+            ("immediate_i64", "immediate_i64")
+            if row.role == "substring"
+            else ("opaque_handle",)
+        )
+        if row.target_fingerprint != expected_target:
+            raise APrimeI64CapabilityError("call target fingerprint does not match role")
+        if row.receiver_role != expected_receiver or row.receiver_lane != "opaque_handle":
+            raise APrimeI64CapabilityError("call receiver does not match role")
+        if len(row.arguments) != len(expected_argument_roles):
+            raise APrimeI64CapabilityError("call argument count does not match role")
+        for ordinal, (arg, expected_role, expected_lane) in enumerate(
+            zip(row.arguments, expected_argument_roles, expected_argument_lanes)
+        ):
+            if arg.ordinal != ordinal or arg.role != expected_role or arg.lane != expected_lane:
+                raise APrimeI64CapabilityError("call argument identity does not match role")
+        if row.result_lane != "opaque_handle":
+            raise APrimeI64CapabilityError("Dynamic call results must use opaque_handle")
+        if row.result_value_id in call_results:
+            raise APrimeI64CapabilityError("duplicate call result ValueId")
+        call_results.add(row.result_value_id)
 
     return_rows = _required_rows(raw.get("returns"), "returns")
     if len(return_rows) != 2:
@@ -236,6 +292,8 @@ def load_selected_a_prime_capability(
         )
         for row in return_rows
     )
+    if {row.site for row in returns} != {"inner", "outer"}:
+        raise APrimeI64CapabilityError("return sites must be exactly inner/outer")
     if len({row.site for row in returns}) != len(returns):
         raise APrimeI64CapabilityError("duplicate return site")
     if any(row.lane != "immediate_i64" for row in returns):

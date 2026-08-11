@@ -21,6 +21,7 @@ def _valid_function_data():
             "a_prime_i64_physical_receipt": {
                 "schema_version": 1,
                 "backend_family": "llvm",
+                "formal_parameter_count": 4,
                 "fallback": False,
                 "retry": False,
                 "parameters": [
@@ -33,7 +34,13 @@ def _valid_function_data():
                         "block": 1,
                         "instruction_index": 3,
                         "target_fingerprint": "substring/3",
-                        "arguments": [{"value_id": 12, "lane": "opaque_handle"}],
+                        "receiver_role": "src",
+                        "receiver_value_id": 10,
+                        "receiver_lane": "opaque_handle",
+                        "arguments": [
+                            {"ordinal": 0, "role": "start", "value_id": 12, "lane": "immediate_i64"},
+                            {"ordinal": 1, "role": "end", "value_id": 13, "lane": "immediate_i64"},
+                        ],
                         "result_value_id": 20,
                         "result_lane": "opaque_handle",
                     },
@@ -42,7 +49,12 @@ def _valid_function_data():
                         "block": 1,
                         "instruction_index": 4,
                         "target_fingerprint": "indexOf/2",
-                        "arguments": [{"value_id": 20, "lane": "opaque_handle"}],
+                        "receiver_role": "pred_chars",
+                        "receiver_value_id": 14,
+                        "receiver_lane": "opaque_handle",
+                        "arguments": [
+                            {"ordinal": 0, "role": "ch", "value_id": 20, "lane": "opaque_handle"}
+                        ],
                         "result_value_id": 21,
                         "result_lane": "opaque_handle",
                     },
@@ -92,6 +104,31 @@ class TestAPrimeI64Capability(unittest.TestCase):
         data = _valid_function_data()
         data["metadata"]["a_prime_i64_physical_receipt"]["parameters"][0][
             "formal_parameter_index"
+        ] = 0
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+    def test_transport_shape_mismatch_is_rejected(self):
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["formal_parameter_count"] = 3
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["returns"][1]["site"] = "cleanup"
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["call_edges"][0][
+            "target_fingerprint"
+        ] = "indexOf/2"
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["call_edges"][0]["arguments"][1][
+            "ordinal"
         ] = 0
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)

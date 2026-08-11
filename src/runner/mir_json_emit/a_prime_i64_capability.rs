@@ -17,6 +17,7 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
     let value = json!({
         "schema_version": receipt.schema_version(),
         "backend_family": receipt.backend_family().as_str(),
+        "formal_parameter_count": receipt.formal_parameter_count(),
         "fallback": false,
         "retry": false,
         "parameters": receipt.parameters().iter().map(|row| json!({
@@ -30,7 +31,12 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
             "block": row.block.as_u32(),
             "instruction_index": row.instruction_index,
             "target_fingerprint": &row.target_fingerprint,
+            "receiver_role": &row.receiver_role,
+            "receiver_value_id": row.receiver_value_id.as_u32(),
+            "receiver_lane": row.receiver_lane.as_str(),
             "arguments": row.arguments.iter().map(|arg| json!({
+                "ordinal": arg.ordinal,
+                "role": &arg.role,
                 "value_id": arg.value_id.as_u32(),
                 "lane": arg.lane.as_str(),
             })).collect::<Vec<_>>(),
@@ -69,6 +75,7 @@ mod tests {
     fn sealed_receipt_emits_strict_schema() {
         let receipt = APrimeI64PhysicalReceiptV1::seal(
             APrimeI64BackendFamilyV1::Llvm,
+            crate::mir::a_prime_i64_physical_receipt::A_PRIME_I64_FORMAL_PARAMETER_COUNT,
             vec![
                 APrimeI64ParameterReceiptV1 {
                     role: "pos".into(),
@@ -107,6 +114,7 @@ mod tests {
         let value = &obj["a_prime_i64_physical_receipt"];
         assert_eq!(value["schema_version"], 1);
         assert_eq!(value["backend_family"], "llvm");
+        assert_eq!(value["formal_parameter_count"], 4);
         assert_eq!(value["parameters"].as_array().unwrap().len(), 2);
         assert_eq!(value["call_edges"].as_array().unwrap().len(), 2);
         assert_eq!(value["returns"].as_array().unwrap().len(), 2);
@@ -119,12 +127,43 @@ mod tests {
             role: role.into(),
             block: BasicBlockId::new(3),
             instruction_index,
-            target_fingerprint: format!("{role}/2"),
-            arguments: vec![APrimeI64CallArgumentReceiptV1 {
-                value_id: ValueId::new(20),
-                lane: APrimeI64LaneV1::OpaqueHandle,
-            }],
-            result_value_id: ValueId::new(21),
+            target_fingerprint: if role == "substring" {
+                "substring/3".into()
+            } else {
+                "indexOf/2".into()
+            },
+            receiver_role: if role == "substring" {
+                "src"
+            } else {
+                "pred_chars"
+            }
+            .into(),
+            receiver_value_id: ValueId::new(if role == "substring" { 10 } else { 14 }),
+            receiver_lane: APrimeI64LaneV1::OpaqueHandle,
+            arguments: if role == "substring" {
+                vec![
+                    APrimeI64CallArgumentReceiptV1 {
+                        ordinal: 0,
+                        role: "start".into(),
+                        value_id: ValueId::new(12),
+                        lane: APrimeI64LaneV1::ImmediateI64,
+                    },
+                    APrimeI64CallArgumentReceiptV1 {
+                        ordinal: 1,
+                        role: "end".into(),
+                        value_id: ValueId::new(13),
+                        lane: APrimeI64LaneV1::ImmediateI64,
+                    },
+                ]
+            } else {
+                vec![APrimeI64CallArgumentReceiptV1 {
+                    ordinal: 0,
+                    role: "ch".into(),
+                    value_id: ValueId::new(20),
+                    lane: APrimeI64LaneV1::OpaqueHandle,
+                }]
+            },
+            result_value_id: ValueId::new(if role == "substring" { 20 } else { 21 }),
             result_lane: APrimeI64LaneV1::OpaqueHandle,
         }
     }
