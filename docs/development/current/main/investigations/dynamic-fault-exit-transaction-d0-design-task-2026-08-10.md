@@ -2508,6 +2508,30 @@ Builder-free V2-native plan/ledger contract.  The subsequent emitter canary,
 fresh session, production cutover, and old-route retirement remain separate
 rows and remain closed until their capability gates are green.
 
+#### DYNAMIC-V2-PHYSICAL-DEMAND-COSEAL-R0 — landed
+
+The A-prime issuer now consumes the complete V2 physical-input view once,
+issues `issue_dynamic_full_loop_operation_physical_demand_v2`, and calls
+`prepare_all()` exactly once before constructing the demand.  The demand owns
+the resulting non-`Clone` operation program and lends it only through
+`with_operation_program`; the previous raw physical-input accessor was
+removed.  Physical-demand rejection remains typed and terminal.
+
+The focused package proof checks the private program surface for all 17
+placements, all 15 operations, and the three selected Fault rows.  This slice
+does not add a Builder effect, fresh session, Dynamic operation emitter,
+cleanup emitter, production caller, fallback, or retry.
+
+The next execution row is:
+
+```text
+DYNAMIC-V2-PHYSICAL-EMITTER-I0
+```
+
+It is preflight-first: construct the move-only V2-native plan/ledger and
+reject before the first Builder effect when DynamicLess, CallSlot result, or
+temporary-cleanup capability receipts are unavailable.
+
 Until this row is accepted and implemented, the selected Dynamic fresh-session
 canary remains `NoSafeSlice`. Do not call the old raw JoinIR route a canary and
 do not promote the package adapter. This is a BoxShape/authority boundary,
