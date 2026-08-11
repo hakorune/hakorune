@@ -15,11 +15,13 @@ V1_DEMAND="$ROOT_DIR/src/mir/loop_recipe_contract/operation_physical_demand.rs"
 V1_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_dispatcher.rs"
 V1_SEGMENT_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs"
 V2_DEMAND="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
+PHYSICAL_INPUT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/physical_input.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
   "$LEDGER" "$V1_DEMAND" "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"
+guard_require_files "$TAG" "$PHYSICAL_INPUT"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -48,6 +50,12 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "ReadyCallableLoopProfileCloseV1" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/tail_completion.rs" \
   "Callable profile-close must live in the callable adapter"
+guard_expect_fixed_in_file "$TAG" \
+  "verify_arm" "$PHYSICAL_INPUT" \
+  "Dynamic physical input must validate both exact branch arms"
+guard_expect_fixed_in_file "$TAG" \
+  "expected_exit_kind" "$PHYSICAL_INPUT" \
+  "Dynamic physical input must validate the logical exit role/target and exact exit item"
 guard_expect_fixed_in_file "$TAG" \
   "mod tail_completion;" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs" \
   "callable tail adapter module must remain wired"
@@ -147,7 +155,7 @@ if rg -n -F -- '.zip(' "$V2_DEMAND" >/dev/null 2>&1; then
 fi
 
 for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_DEMAND" \
-  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"; do
+  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

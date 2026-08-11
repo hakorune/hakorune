@@ -1981,6 +1981,25 @@ the no-new-caller boundary. No topology type or old issuer is deleted here;
 hard deletion remains post-cutover `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0`.
 The next active selected-cohort row is `LOOP-PHYSICAL-IF-COVERAGE-I0`.
 
+#### LOOP-PHYSICAL-IF-COVERAGE-I0 (CLOSED — 2026-08-11)
+
+The selected Dynamic I10 branch is now fully co-sealed at the existing
+physical-input boundary. `issue_control` consumes the verified placement array,
+physical control rows, and JoinSig-owned logical branch view once. It rejects
+missing, duplicate, or foreign branch keys; mismatched owner/body/If placement;
+wrong condition; and either-arm disagreement. The exact bounded row is I10 in
+L0/B1 with condition V13, then B2 containing I12 `Return(V14)` to
+`FunctionExit`, and an omitted else represented only as logical/physical
+fallthrough. The Loop Return summary remains integrity-only and is never a
+second physical action.
+
+The physical-input module has no Recipe/JoinSig rescan, physical ID, CFG,
+Completion, ABI, fallback, or retry authority. Positive exact-row assertions
+and negative arm/placement/kind tests are green, as are the consolidated
+transfer guard, current-pointer guard, and Dynamic full-body test family. The
+next selected row is `LOOP-PHYSICAL-EXIT-COVERAGE-I0`; this commit does not
+open it.
+
 #### Post-Dynamic cleanup acceptance matrix
 
 The parked series is intentionally concrete about the old V1 surfaces it must

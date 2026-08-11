@@ -40,6 +40,21 @@ pub(in crate::mir) struct DynamicFullLoopPhysicalItemPlacementV2 {
 }
 
 impl DynamicFullLoopPhysicalItemPlacementV2 {
+    #[cfg(test)]
+    pub(in crate::mir) const fn for_test(
+        item: LoopItemKeyV1,
+        owner_loop: LoopNodeKeyV1,
+        block: LoopBlockKeyV1,
+        kind: DynamicFullLoopPhysicalItemKindV2,
+    ) -> Self {
+        Self {
+            item,
+            owner_loop,
+            block,
+            kind,
+        }
+    }
+
     pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
         self.item
     }
@@ -64,6 +79,15 @@ pub(in crate::mir) enum DynamicLoopPhysicalArmV2 {
         item: LoopItemKeyV1,
         kind: LoopExitKindV2,
     },
+}
+
+impl DynamicLoopPhysicalArmV2 {
+    pub(in crate::mir) const fn exit_kind(&self) -> Option<LoopExitKindV2> {
+        match self {
+            Self::Fallthrough => None,
+            Self::Exit { kind, .. } => Some(*kind),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

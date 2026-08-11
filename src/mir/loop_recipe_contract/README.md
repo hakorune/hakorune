@@ -40,9 +40,13 @@ runtime remain separate authorities until a later Decision.
 Loop boundary rows never invent an ItemKey for Enter or Backedge. Branch rows
 retain exact `if_item` and `exit_item`. For the bounded Dynamic cohort, the
 Loop Return edge is an integrity summary of the exact branch Return and is
-never a second actionable physical transfer. Direct unbranched exits remain
-outside this bounded view because the current JoinSig summary does not retain
-their exact origin item.
+never a second actionable physical transfer. The physical-input co-seal now
+validates the owner loop, body/arm placement, condition, both arm dispositions,
+exit kind/target, and the exact exit item against that existing logical view.
+The JoinSig payload remains the carrier-transfer summary; the Return operand is
+sealed by the verified Recipe exit row rather than being re-paired from that
+summary. Direct unbranched exits remain outside this bounded view because the current JoinSig
+summary does not retain their exact origin item.
 
 Physical modules must not read `VerifiedLoopJoinSigV2::as_sig()`, reconstruct
 items from names/order, re-pair After, or coerce V2 through V1 physical demand.

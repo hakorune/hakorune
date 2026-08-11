@@ -143,13 +143,14 @@ pub(crate) use input_source::{
 pub(crate) use join_sig::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
-    LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1, LoopJoinBranchExitV2, LoopJoinBranchV1,
-    LoopJoinBranchV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2,
-    LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferRejectV2,
-    LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2, LoopJoinLoopV1, LoopJoinLoopV2,
-    LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV1, LoopJoinPortBindingV2,
-    LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
-    LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
+    LoopJoinBranchExitRefV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1, LoopJoinBranchExitV2,
+    LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1,
+    LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV1,
+    LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV1,
+    LoopJoinLogicalTransferViewV2, LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1,
+    LoopJoinPayloadV2, LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1,
+    LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2,
+    VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
     VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]

@@ -158,6 +158,10 @@ mod tests {
         issue_dynamic_invocation_cleanup_projection_i0,
     };
     use crate::mir::compiler::dynamic_full_body_recipe::issue_dynamic_full_loop_operation_physical_demand_v2;
+    use crate::mir::loop_recipe_contract::{
+        LoopBlockKeyV1, LoopConditionV2, LoopExitKindV2, LoopItemKeyV1,
+        LoopJoinBranchArmTransferRefV2, LoopNodeKeyV1, LoopValueKeyV1,
+    };
 
     fn exact_coseal() -> VerifiedDynamicExitTransactionCoSealV1 {
         let fixture = fixture(true);
@@ -222,6 +226,41 @@ mod tests {
                 );
                 assert_eq!(input.control().rows().len(), 1);
                 assert_eq!(input.control().logical().branches().len(), 1);
+                let control = &input.control().rows()[0];
+                assert_eq!(control.loop_key(), LoopNodeKeyV1::new(0));
+                assert_eq!(control.body_block(), LoopBlockKeyV1::new(1));
+                assert_eq!(
+                    control.condition(),
+                    LoopConditionV2::Predicate {
+                        block: LoopBlockKeyV1::new(0),
+                        value: LoopValueKeyV1::new(5),
+                    }
+                );
+                assert_eq!(control.branches().len(), 1);
+                let branch = &control.branches()[0];
+                assert_eq!(branch.owner_block(), LoopBlockKeyV1::new(1));
+                assert_eq!(branch.if_item(), LoopItemKeyV1::new(10));
+                assert_eq!(branch.condition(), LoopValueKeyV1::new(13));
+                assert_eq!(branch.then_block(), LoopBlockKeyV1::new(2));
+                assert_eq!(branch.else_block(), None);
+                assert_eq!(
+                    branch.then_arm(),
+                    crate::mir::compiler::dynamic_full_body_recipe::coseal::DynamicLoopPhysicalArmV2::Exit {
+                        item: LoopItemKeyV1::new(12),
+                        kind: LoopExitKindV2::Return {
+                            value: Some(LoopValueKeyV1::new(14)),
+                        },
+                    }
+                );
+                assert!(matches!(
+                    branch.else_arm(),
+                    crate::mir::compiler::dynamic_full_body_recipe::coseal::DynamicLoopPhysicalArmV2::Fallthrough
+                ));
+                let logical = &input.control().logical().branches()[0];
+                assert!(matches!(
+                    logical.then_arm,
+                    LoopJoinBranchArmTransferRefV2::Exit(_)
+                ));
                 assert_eq!(input.faults().rows().len(), 3);
             })
             .expect("final exit co-seal physical input");
