@@ -2580,28 +2580,128 @@ This S1 slice is complete only for Builder-free evidence. It deliberately does
 not claim the emitter I0, a fresh session, a DynamicLess Bool capability, a
 temporary-discharge capability, or a production caller.
 
-#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — next design stop
+Before the capability I0 row, the ledger's move-only contract must be made
+literal: `DynamicV2NativePreflightLedgerV1` must not implement `Clone` in
+production. Tests may compare a separate borrowed coverage projection, but a
+physical sibling must not copy the evidence ledger and create a second
+emission authority.
+
+#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — design contract
 
 The semantic `DynamicLess` row and its Fault relation already have one owner.
-The missing physical owner must consume the exact I9 V2 operation row, its
-sealed operands/representation receipts, and the I9 Fault row, then issue one
-normal Bool receipt or a terminal pre-effect rejection. The backend matrix is
-`Direct | Checked | RejectBeforeEffect`: VM may use an exact immediate/checked
-lane; LLVM requires an explicit producer representation receipt or rejects.
-No `MirType` inference, V1 compare adapter, raw carrier inspection, fallback,
-or retry is permitted. This D0 must name the capability issuer and its
-negative matrix before session code resumes.
+The sole physical issuer is a child of the selected-lowering V2 ABI/emitter
+boundary; `dynamic_operator_contract` remains only the semantic owner. It must
+consume the exact I9 V2 operation row, its sealed operands/representation
+receipts, and the I9 Fault row, then issue one normal Bool receipt or a
+terminal pre-effect rejection. The backend matrix is `Direct | Checked |
+RejectBeforeEffect`: VM may use an exact immediate/checked lane; LLVM requires
+an explicit producer representation receipt or rejects. No `MirType`
+inference, V1 compare adapter, raw carrier inspection, Fault reissue, fallback,
+or retry is permitted. This D0 must name the I7/I8 producer receipt owners
+and its negative matrix before session code resumes.
 
-#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — next design stop
+#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — design contract
 
-The semantic cleanup owner remains `invocation_cleanup.rs`, with the exact six
-cutpoints for V10/V11: I6 fault, I7 fault, I9 fault, I9 normal boundary, inner
-Return, and Backedge. A physical capability must consume those rows together
-with exact producer representation receipts and issue an ordered discharge
-plan, or reject before effect when the physical end primitive is unavailable.
-It must not infer last use by name, attach Home to the I64 induction, skip a
-Dynamic temporary, or create a second Fault/exit authority. Primary/suppressed
-Fault chronology remains owned by the existing exit transaction.
+The two physical capability decisions remain separate issuers. They are
+deliberately not fused into a `DynamicLessAndCleanup` semantic product: the
+Bool result and temporary discharge have different timing, failure, and
+backend contracts. Both physical issuers are children of the selected-
+lowering boundary in
+`src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs`; semantic
+owners lend scoped rows, while backend modules provide only private Direct or
+Checked leaves.
+
+The DynamicLess issuer is the only physical issuer in the selected-lowering
+boundary's V2 ABI/emitter child. It consumes exactly one I9 operation row
+(`V11:Dynamic`, `V12:I64` -> `V13:Bool`), its existing I9 Fault row, the
+borrowed `DynamicOperatorExecutionEnvelopeV1`, and exact producer
+representation requirements for V11 and V12. The I7 `CallSlot` producer must
+be the only source of the V11 representation receipt; the I8 `ConstI64`
+producer must be the only source of the V12 receipt. If either producer has no
+Direct/Checked receipt owner yet, this gate remains `RejectBeforeEffect`.
+The issuer issues a private Builder-free normal-Bool capability demand. A
+session-local emitter may later consume producer receipts and issue one
+normal-Bool receipt plus the existing I9 Fault disposition handoff to the
+exit transaction. The issuer never reclassifies `DynamicLess`, creates a
+Fault row, or exposes a `ValueId`.
+
+The temporary-cleanup issuer consumes exactly the six rows already owned by
+`VerifiedDynamicInvocationCleanupProjectionV1` and the exact producer
+representation receipts for V10/V11. Its ordered rows are fixed and
+site-keyed:
+
+```text
+I6 Fault                  -> []
+I7 Fault                  -> End(V10)
+I9 Fault                  -> End(V11), End(V10)
+I9 normal boundary        -> End(V11)
+inner Return              -> End(V10)
+Backedge                  -> End(V10)
+```
+
+The physical End/discharge issuer is a separate child of the same selected V2
+ABI boundary (or the canonical session primitive once that primitive exists).
+It issues only a private ordered-discharge demand before a session and
+session-local discharge receipts after exact producer materialization. `V9`,
+`V17`, and the I64 induction carrier are explicitly outside this capability.
+It never owns Fault chronology, Completion, Home, or last-use inference.
+Primary/suppressed Fault ordering remains owned by the existing exit
+transaction.
+
+The two demands are joined only by a move-only, all-or-nothing admission
+gate, conceptually `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. This
+aggregate issues no semantic, Recipe, JoinSig, Fault, or Completion fact. A
+missing, foreign, duplicate, or backend-ineligible receipt from either side
+rejects before the first Builder effect; a later session failure discards the
+unpublished session without retry or fallback.
+
+The gate must also prove one package/program/frame/scope/provenance brand for
+both siblings. A DynamicLess receipt from one program and a cleanup receipt
+from another cannot be recombined, even when their item keys happen to match.
+The normal I9 sequence is fixed as `DynamicLess(V11, V12) -> Bool -> I9
+normal-boundary End(V11) -> If`; an I9 Fault hands cleanup to the existing
+transaction as `End(V11) -> End(V10)`, while I7 Fault is `End(V10)` and inner
+Return/Backedge are `End(V10)`.
+
+The backend contract is explicit:
+
+```text
+DynamicLess normal Bool:
+  VM    = Direct only with exact immediate producer lane, or Checked only
+          with a strict helper that distinguishes false from failure
+  LLVM  = Direct/Checked only with explicit producer representation receipt;
+          otherwise RejectBeforeEffect
+
+V10/V11 temporary discharge:
+  VM/LLVM = Direct/Checked only with an exact ordered End/discharge primitive
+             tied to the producer receipt; generic scope cleanup, Arc drop,
+             last-use/name inference, or `nyash.integer.get_h` is not enough
+  unsupported backend = RejectBeforeEffect
+```
+
+Required negatives are symmetric and terminal: missing/duplicate/foreign I9
+row or I7/I8 producer receipt, wrong operand/result class, missing execution
+envelope, six-row cleanup omission or reorder, wrong V10/V11 producer, absent
+End primitive, `V9`/`V17`/I64 induction cleanup, foreign
+program/frame/scope/provenance, capability double-consumption, and either
+half of the admission gate missing. Bare `i64`, `MirType`, generic
+`eval_cmp`, raw Recipe/AST/JoinIR, V1 adapters, sentinel-zero helpers,
+fallback, and retry cannot repair any of these cases.
+
+This closes the design contract only after the named I7/I8 producer receipt
+owners and the physical End issuer are present or explicitly classified as
+`RejectBeforeEffect`. Until then the current implementation remains
+`design_stop`/`NoSafeSlice`; no fresh session or production caller is claimed.
+
+#### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — downstream implementation gate
+
+This is the first implementation row after both D0 decisions are accepted.
+It may issue only the two Builder-free capability demands and the move-only
+all-or-nothing admission gate. It must not open a fresh session, allocate a
+`ValueId`/`BasicBlockId`, emit a helper, or add a production caller while an
+I7/I8 producer receipt or physical End primitive is unavailable. The gate is
+the only allowed handoff into the later V2 emitter session; a partial gate is
+not a canary and must reject before the first Builder effect.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

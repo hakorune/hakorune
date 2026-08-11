@@ -49,6 +49,20 @@ the invocation cleanup owner must issue ordered V10/V11 discharge receipts.
 If either capability is unavailable, the session rejects before its first
 Builder effect. The existing semantic rows remain evidence only.
 
+The physical issuers are separate children of this selected V2 boundary. The
+`DynamicLess` issuer consumes exact I9 (`V11:Dynamic`, `V12:I64` -> `V13:Bool`)
+plus the I7 CallSlot and I8 ConstI64 producer receipts and hands the existing
+I9 Fault disposition to the exit transaction. The cleanup issuer consumes the
+six scoped rows from `invocation_cleanup.rs` in their fixed order
+(`I6=[]`, `I7=End(V10)`, `I9 fault=End(V11),End(V10)`, `I9 normal=End(V11)`,
+inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, and the I64
+induction. A move-only admission gate co-seals only those two physical
+receipts; it is not a semantic, Fault, Completion, Recipe, or JoinSig owner.
+Missing/foreign/ambiguous producer receipts or an unavailable End primitive
+are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
+inference, `MirType` repair, `nyash.integer.get_h`, fallback, and retry are
+forbidden.
+
 ## Canonical V2 function finish
 
 The three canonical V2 profile lowerers (`trivial_ssa`, `direct_accum`, and
