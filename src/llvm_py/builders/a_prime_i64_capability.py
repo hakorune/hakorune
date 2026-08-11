@@ -13,6 +13,32 @@ SCHEMA_VERSION = 2
 CAPABILITY_KEY = "a_prime_i64_physical_receipt"
 FORMAL_PARAMETER_COUNT = 4
 
+_RECEIPT_KEYS = {
+    "schema_version",
+    "backend_family",
+    "formal_parameter_count",
+    "fallback",
+    "retry",
+    "parameters",
+    "call_edges",
+    "returns",
+}
+_PARAMETER_KEYS = {"role", "formal_parameter_index", "value_id", "lane"}
+_CALL_KEYS = {
+    "role",
+    "block",
+    "instruction_index",
+    "target_fingerprint",
+    "receiver_role",
+    "receiver_value_id",
+    "receiver_lane",
+    "arguments",
+    "result_value_id",
+    "result_lane",
+}
+_ARGUMENT_KEYS = {"ordinal", "role", "value_id", "lane"}
+_RETURN_KEYS = {"site", "block", "value_id", "lane"}
+
 
 class APrimeI64CapabilityError(ValueError):
     """Malformed, incomplete, or mismatched A-prime receipt."""
@@ -119,6 +145,14 @@ def _required_rows(value: Any, label: str) -> Sequence[Dict[str, Any]]:
     return value
 
 
+def _reject_unknown_keys(value: Dict[str, Any], allowed: set[str], label: str) -> None:
+    unknown = sorted(set(value) - allowed)
+    if unknown:
+        raise APrimeI64CapabilityError(
+            f"{label} contains unknown fields: {', '.join(unknown)}"
+        )
+
+
 def _validate_func_params(func_data: Dict[str, Any], rows: Sequence[APrimeI64ParameterRow]) -> None:
     params = func_data.get("params")
     if not isinstance(params, list) or len(params) != FORMAL_PARAMETER_COUNT:
@@ -149,6 +183,7 @@ def load_selected_a_prime_capability(
         return None
     if not isinstance(raw, dict):
         raise APrimeI64CapabilityError(f"{CAPABILITY_KEY} must be an object")
+    _reject_unknown_keys(raw, _RECEIPT_KEYS, CAPABILITY_KEY)
 
     schema_version = _required_int(raw.get("schema_version"), "schema_version")
     if schema_version != SCHEMA_VERSION:
@@ -161,12 +196,21 @@ def load_selected_a_prime_capability(
     )
     if formal_parameter_count != FORMAL_PARAMETER_COUNT:
         raise APrimeI64CapabilityError("A-prime receipt requires four formal params")
-    if raw.get("fallback", False) is not False or raw.get("retry", False) is not False:
+    if (
+        "fallback" not in raw
+        or type(raw["fallback"]) is not bool
+        or raw["fallback"] is not False
+        or "retry" not in raw
+        or type(raw["retry"]) is not bool
+        or raw["retry"] is not False
+    ):
         raise APrimeI64CapabilityError("fallback/retry are forbidden in A-prime receipt")
 
     parameter_rows = _required_rows(raw.get("parameters"), "parameters")
     if len(parameter_rows) != 2:
         raise APrimeI64CapabilityError("A-prime receipt requires exactly two parameters")
+    for row in parameter_rows:
+        _reject_unknown_keys(row, _PARAMETER_KEYS, "parameter")
     parameters = tuple(
         APrimeI64ParameterRow(
             role=_required_string(row.get("role"), "parameter.role"),
@@ -200,7 +244,10 @@ def load_selected_a_prime_capability(
         raise APrimeI64CapabilityError("A-prime receipt requires exactly two call edges")
     calls = []
     for row in call_rows:
+        _reject_unknown_keys(row, _CALL_KEYS, "call")
         args = _required_rows(row.get("arguments"), "call.arguments")
+        for arg in args:
+            _reject_unknown_keys(arg, _ARGUMENT_KEYS, "call.argument")
         calls.append(
             APrimeI64CallEdgeRow(
                 role=_required_string(row.get("role"), "call.role"),
@@ -267,6 +314,8 @@ def load_selected_a_prime_capability(
     return_rows = _required_rows(raw.get("returns"), "returns")
     if len(return_rows) != 2:
         raise APrimeI64CapabilityError("A-prime receipt requires exactly two returns")
+    for row in return_rows:
+        _reject_unknown_keys(row, _RETURN_KEYS, "return")
     returns = tuple(
         APrimeI64ReturnRow(
             site=_required_string(row.get("site"), "return.site"),

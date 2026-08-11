@@ -2890,6 +2890,17 @@ schema-2 loader policy must also be fixed in this child: `fallback` and
 either explicitly rejected or documented as a compatibility projection; it
 must not be an accidental `raw.get(..., false)` acceptance.
 
+The next leaves have an additional dependency boundary. I7 cannot be opened
+by routing through the generic `RuntimeDataBox`/legacy BoxCall path. First
+issue or explicitly reject the canonical physical Dynamic CallSlot ABI for
+I6 `substring` and its V10 result. I7 then consumes that exact move-only V10
+receipt and issues the V11 result receipt; it may not rescan source/Recipe or
+infer a call ABI from selector names. Physical End is a separate leaf and
+stays `NoSafeSlice` until a canonical backend/runtime discharge primitive is
+named; generic Drop/Arc cleanup, last-use inference, and `nyash.integer.get_h`
+are not substitutes. I9 and the all-or-nothing effectful session remain
+downstream of I6/V10, I7/V11, and End.
+
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 
 The fresh-session row remains downstream of the LLVM capability contract. It

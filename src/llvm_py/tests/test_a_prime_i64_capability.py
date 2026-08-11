@@ -140,6 +140,37 @@ class TestAPrimeI64Capability(unittest.TestCase):
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)
 
+    def test_schema2_requires_explicit_false_transport_flags(self):
+        for field in ("fallback", "retry"):
+            data = _valid_function_data()
+            del data["metadata"]["a_prime_i64_physical_receipt"][field]
+            with self.assertRaises(APrimeI64CapabilityError):
+                load_selected_a_prime_capability(data)
+
+    def test_schema2_rejects_unknown_nested_fields(self):
+        cases = [
+            ("receipt", "unexpected"),
+            ("parameters", "unexpected"),
+            ("call_edges", "unexpected"),
+            ("arguments", "unexpected"),
+            ("returns", "unexpected"),
+        ]
+        for section, field in cases:
+            data = _valid_function_data()
+            receipt = data["metadata"]["a_prime_i64_physical_receipt"]
+            if section == "receipt":
+                receipt[field] = True
+            elif section == "parameters":
+                receipt[section][0][field] = True
+            elif section == "call_edges":
+                receipt[section][0][field] = True
+            elif section == "arguments":
+                receipt["call_edges"][0]["arguments"][0][field] = True
+            else:
+                receipt[section][0][field] = True
+            with self.assertRaises(APrimeI64CapabilityError):
+                load_selected_a_prime_capability(data)
+
 
 if __name__ == "__main__":
     unittest.main()
