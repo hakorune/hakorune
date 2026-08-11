@@ -159,6 +159,10 @@ def _validate_func_params(func_data: Dict[str, Any], rows: Sequence[APrimeI64Par
         raise APrimeI64CapabilityError(
             "selected A-prime function requires exactly four formal params"
         )
+    for index, value in enumerate(params):
+        _required_int(value, f"params[{index}]")
+    if len(set(params)) != len(params):
+        raise APrimeI64CapabilityError("formal parameter ValueIds must be unique")
     if len(params) <= max(row.formal_parameter_index for row in rows):
         raise APrimeI64CapabilityError("parameter contract index is outside params")
     for row in rows:

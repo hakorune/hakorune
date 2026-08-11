@@ -10,7 +10,7 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
     obj: &mut serde_json::Map<String, serde_json::Value>,
     metadata: &FunctionMetadata,
 ) {
-    let Some(receipt) = metadata.a_prime_i64_physical_receipt.as_ref() else {
+    let Some(receipt) = metadata.a_prime_i64_physical_receipt() else {
         return;
     };
     debug_assert!(receipt.validate().is_ok());
@@ -73,7 +73,7 @@ mod tests {
 
     #[test]
     fn sealed_receipt_emits_strict_schema() {
-        let receipt = APrimeI64PhysicalReceiptV1::seal(
+        let receipt = APrimeI64PhysicalReceiptV1::seal_for_test(
             APrimeI64BackendFamilyV1::Llvm,
             crate::mir::a_prime_i64_physical_receipt::A_PRIME_I64_FORMAL_PARAMETER_COUNT,
             vec![
@@ -108,7 +108,9 @@ mod tests {
         )
         .expect("valid receipt");
         let mut metadata = FunctionMetadata::default();
-        metadata.a_prime_i64_physical_receipt = Some(receipt);
+        metadata
+            .install_a_prime_i64_physical_receipt_for_test(receipt)
+            .expect("receipt slot install");
         let mut obj = serde_json::Map::new();
         insert_a_prime_i64_physical_receipt_json(&mut obj, &metadata);
         let value = &obj["a_prime_i64_physical_receipt"];

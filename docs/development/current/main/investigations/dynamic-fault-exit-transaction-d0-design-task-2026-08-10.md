@@ -2622,13 +2622,14 @@ terminal pre-effect rejection. The backend matrix is `Direct | Checked |
 RejectBeforeEffect`: VM may use an exact immediate/checked lane; LLVM requires
 an explicit producer representation receipt or rejects. No `MirType`
 inference, V1 compare adapter, raw carrier inspection, Fault reissue, fallback,
-or retry is permitted. This D0 must name the I7/I8 producer receipt owners
+ or retry is permitted. This D0 must name the I6/V10, I7/V11, and I8/V12
+ producer receipt owners
 and its negative matrix before session code resumes.
 
 The implementation names are fixed for this cohort:
 
 ```text
-DynamicV2CallSlotResultReceiptV1       = I7 V10/V11 producer receipt
+DynamicV2CallSlotResultReceiptV1       = I6/V10 or I7/V11 CallSlot receipt
 DynamicV2I64ProducerReceiptV1          = I8/V12 exact immediate receipt
 DynamicV2LessBoolCapabilityDemandV1   = Builder-free I9 demand
 DynamicV2LessBoolEmissionReceiptV1    = session-local normal Bool + I9 handoff
@@ -2723,7 +2724,7 @@ V10/V11 temporary discharge:
 ```
 
 Required negatives are symmetric and terminal: missing/duplicate/foreign I9
-row or I7/I8 producer receipt, wrong operand/result class, missing execution
+row or I6/V10, I7/V11, or I8/V12 producer receipt, wrong operand/result class, missing execution
 envelope, six-row cleanup omission or reorder, wrong V10/V11 producer, absent
 End primitive, `V9`/`V17`/I64 induction cleanup, foreign
 program/frame/scope/provenance, capability double-consumption, and either
@@ -2732,7 +2733,7 @@ half of the admission gate missing. Bare `i64`, `MirType`, generic
 fallback, and retry cannot repair any of these cases.
 
 The two D0 contracts are now accepted. Their implementation must still emit
-`RejectBeforeEffect` when the named I7/I8 producer receipt owners or the
+`RejectBeforeEffect` when the named I6/V10, I7/V11, or I8/V12 producer receipt owners or the
 physical End leaf are unavailable; acceptance does not claim a fresh session
 or production caller. No capability may silently become a no-op, infer a raw
 value, or use fallback/retry.
@@ -2750,7 +2751,7 @@ not a canary and must reject before the first Builder effect.
 The first bounded I0 slice is landed and closed in `0ef252baf7`. It adds the
 private I9 demand, the exact six-row temporary-discharge demand, and the
 move-only admission aggregate. The aggregate has an explicit
-`RejectBeforeEffect` disposition because the I7/I8 producer receipt leaves and
+`RejectBeforeEffect` disposition because the I6/V10, I7/V11, and I8/V12 producer receipt leaves and
 the physical End leaf are not yet implemented. The focused package proof
 checks the I9 operands/result (`V11`, `V12`, `V13`), the six ordered cleanup
 rows, and the all-or-nothing rejection; it does not open a session, allocate a
@@ -2848,6 +2849,19 @@ must expose no raw block/value getter, and the opaque target set must be
 session-branded. Production callers remain zero until the complete I7/I8/End
 gate is available.
 
+Before the later I9/DynamicLess emitter can consume the I8 result, the
+session-branded `DynamicV2I64ProducerReceiptV1` must gain one non-test,
+scoped, one-shot consumer (for example `consume_for(expected_producer,
+expected_result, expected_brand, callback)`). The receipt must own or otherwise
+retain an opaque brand token across the handoff; a receipt borrowing the
+session mutably cannot be passed into the next emitter while the session is
+still being updated. The callback may lend the `ValueId`/representation witness
+only for the exact producer/result pair. No raw getter, `Clone`, name-based
+repair, or second receipt authority is allowed. I6/V10 must use the same
+pattern while keeping its value-use receipt separate from its cleanup/discharge
+token; I7/V11 then consumes the exact V10 value receipt, and I9 consumes V11
+plus V12. Until this handoff is closed, I9 remains `RejectBeforeEffect`.
+
 The consuming handoff must also co-seal the exact I8 evidence once, before
 the emitter runs: item `I8`, result `V12`, literal `0`, its verified placement,
 and its `Prelude` segment. The I8 emitter may not borrow the whole operation
@@ -2869,12 +2883,15 @@ is now landed as schema v2 in the Rust receipt, JSON encoder, and Python
 loader: formal count is exactly four, parameter roles retain `pos=1`/`end=2`,
 return sites are exactly `{inner, outer}`, and the two CallSlot rows require
 canonical role-specific target fingerprints, receiver roles, argument
-ordinals/roles, lanes, and unique result IDs. This is shape transport only:
-the receipt remains caller-zero and cloneable-through-`FunctionMetadata` for
-now, so consume-once/move-only ownership is still a pre-session blocker. The
-semantic value co-seal (including the `index_of` `ch` result-chain and source
-CallSlot relation) remains owned by the canonical session issuer; the
-transport loader does not re-resolve those values.
+ordinals/roles, lanes, and unique result IDs. The receipt is now non-Clone and
+stored behind a clone-scrubbing, one-shot metadata slot: `FunctionMetadata::clone()`
+cannot duplicate an occupied capability, JSON only borrows the canonical slot,
+and the future live consumer must use `take_once`. The slot must be installed
+after the final metadata snapshot/prepared-draft clone; otherwise the cloned
+snapshot intentionally loses the receipt. The semantic value co-seal (including
+the `index_of` `ch` result-chain and source CallSlot relation) remains owned by
+the canonical session issuer; the transport loader does not re-resolve those
+values.
 
 The same hardening child must close the remaining transport boundary before a
 live emitter: canonical issuer visibility/one-shot handoff, Rust/Python

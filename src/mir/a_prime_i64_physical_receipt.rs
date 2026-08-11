@@ -110,7 +110,7 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
 
 /// A complete, post-session capability.  No public constructor is provided;
 /// the canonical physical session will be the sole issuer.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct APrimeI64PhysicalReceiptV1 {
     schema_version: u32,
     backend_family: APrimeI64BackendFamilyV1,
@@ -122,7 +122,7 @@ pub(crate) struct APrimeI64PhysicalReceiptV1 {
 
 impl APrimeI64PhysicalReceiptV1 {
     /// Private issuer boundary for the canonical physical session.
-    pub(crate) fn seal(
+    pub(in crate::mir) fn seal(
         backend_family: APrimeI64BackendFamilyV1,
         formal_parameter_count: usize,
         parameters: Vec<APrimeI64ParameterReceiptV1>,
@@ -139,6 +139,23 @@ impl APrimeI64PhysicalReceiptV1 {
         };
         receipt.validate()?;
         Ok(receipt)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn seal_for_test(
+        backend_family: APrimeI64BackendFamilyV1,
+        formal_parameter_count: usize,
+        parameters: Vec<APrimeI64ParameterReceiptV1>,
+        call_edges: Vec<APrimeI64CallEdgeReceiptV1>,
+        returns: Vec<APrimeI64ReturnReceiptV1>,
+    ) -> Result<Self, APrimeI64PhysicalReceiptRejectV1> {
+        Self::seal(
+            backend_family,
+            formal_parameter_count,
+            parameters,
+            call_edges,
+            returns,
+        )
     }
 
     pub(crate) fn validate(&self) -> Result<(), APrimeI64PhysicalReceiptRejectV1> {
@@ -301,6 +318,106 @@ impl APrimeI64PhysicalReceiptV1 {
 
     pub(crate) fn returns(&self) -> &[APrimeI64ReturnReceiptV1] {
         &self.returns
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum APrimeI64PhysicalReceiptSlotState {
+    Empty,
+    Occupied(APrimeI64PhysicalReceiptV1),
+    Consumed,
+}
+
+/// Linear storage boundary for the post-session receipt.
+///
+/// `FunctionMetadata` remains cloneable for the broad MIR compatibility
+/// surface, but cloning metadata must never duplicate this capability. An
+/// occupied slot therefore becomes `Consumed` in the clone. The only live
+/// consumer will use `take_once`; JSON transport only borrows the receipt.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct APrimeI64PhysicalReceiptSlotV1 {
+    state: APrimeI64PhysicalReceiptSlotState,
+}
+
+impl Default for APrimeI64PhysicalReceiptSlotV1 {
+    fn default() -> Self {
+        Self {
+            state: APrimeI64PhysicalReceiptSlotState::Empty,
+        }
+    }
+}
+
+impl Clone for APrimeI64PhysicalReceiptSlotV1 {
+    fn clone(&self) -> Self {
+        Self {
+            state: match self.state {
+                APrimeI64PhysicalReceiptSlotState::Empty => {
+                    APrimeI64PhysicalReceiptSlotState::Empty
+                }
+                APrimeI64PhysicalReceiptSlotState::Occupied(_)
+                | APrimeI64PhysicalReceiptSlotState::Consumed => {
+                    APrimeI64PhysicalReceiptSlotState::Consumed
+                }
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum APrimeI64PhysicalReceiptSlotRejectV1 {
+    AlreadyOccupied,
+    AlreadyConsumed,
+    Missing,
+}
+
+impl APrimeI64PhysicalReceiptSlotV1 {
+    pub(crate) fn borrow(&self) -> Option<&APrimeI64PhysicalReceiptV1> {
+        match &self.state {
+            APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => Some(receipt),
+            APrimeI64PhysicalReceiptSlotState::Empty
+            | APrimeI64PhysicalReceiptSlotState::Consumed => None,
+        }
+    }
+
+    pub(in crate::mir) fn install(
+        &mut self,
+        receipt: APrimeI64PhysicalReceiptV1,
+    ) -> Result<(), APrimeI64PhysicalReceiptSlotRejectV1> {
+        match self.state {
+            APrimeI64PhysicalReceiptSlotState::Empty => {
+                self.state = APrimeI64PhysicalReceiptSlotState::Occupied(receipt);
+                Ok(())
+            }
+            APrimeI64PhysicalReceiptSlotState::Occupied(_) => {
+                Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyOccupied)
+            }
+            APrimeI64PhysicalReceiptSlotState::Consumed => {
+                Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)
+            }
+        }
+    }
+
+    pub(in crate::mir) fn take_once(
+        &mut self,
+    ) -> Result<APrimeI64PhysicalReceiptV1, APrimeI64PhysicalReceiptSlotRejectV1> {
+        match std::mem::replace(&mut self.state, APrimeI64PhysicalReceiptSlotState::Consumed) {
+            APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => Ok(receipt),
+            APrimeI64PhysicalReceiptSlotState::Empty => {
+                self.state = APrimeI64PhysicalReceiptSlotState::Empty;
+                Err(APrimeI64PhysicalReceiptSlotRejectV1::Missing)
+            }
+            APrimeI64PhysicalReceiptSlotState::Consumed => {
+                Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)
+            }
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn install_for_test(
+        &mut self,
+        receipt: APrimeI64PhysicalReceiptV1,
+    ) -> Result<(), APrimeI64PhysicalReceiptSlotRejectV1> {
+        self.install(receipt)
     }
 }
 
@@ -476,5 +593,45 @@ mod tests {
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::CallArgumentMismatch)
         );
+    }
+
+    #[test]
+    fn receipt_slot_is_linear_and_clone_scrubs_capability() {
+        let mut slot = APrimeI64PhysicalReceiptSlotV1::default();
+        assert!(slot.borrow().is_none());
+        slot.install_for_test(valid_receipt())
+            .expect("first receipt install");
+        assert!(slot.borrow().is_some());
+
+        let mut cloned = slot.clone();
+        assert!(cloned.borrow().is_none());
+        assert_eq!(
+            cloned.take_once(),
+            Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)
+        );
+
+        let receipt = slot.take_once().expect("one-shot receipt take");
+        assert!(receipt.validate().is_ok());
+        assert!(slot.borrow().is_none());
+        assert_eq!(
+            slot.take_once(),
+            Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)
+        );
+        assert_eq!(
+            slot.install_for_test(valid_receipt()),
+            Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)
+        );
+    }
+
+    #[test]
+    fn function_metadata_clone_does_not_duplicate_receipt() {
+        let mut metadata = crate::mir::function::FunctionMetadata::default();
+        metadata
+            .install_a_prime_i64_physical_receipt_for_test(valid_receipt())
+            .expect("receipt install");
+
+        let cloned = metadata.clone();
+        assert!(cloned.a_prime_i64_physical_receipt().is_none());
+        assert!(metadata.a_prime_i64_physical_receipt().is_some());
     }
 }

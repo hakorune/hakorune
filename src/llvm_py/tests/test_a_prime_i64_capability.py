@@ -108,6 +108,17 @@ class TestAPrimeI64Capability(unittest.TestCase):
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)
 
+    def test_formal_parameter_value_ids_are_strict(self):
+        data = _valid_function_data()
+        data["params"][0] = "src"
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["params"][3] = data["params"][2]
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
     def test_transport_shape_mismatch_is_rejected(self):
         data = _valid_function_data()
         data["metadata"]["a_prime_i64_physical_receipt"]["formal_parameter_count"] = 3

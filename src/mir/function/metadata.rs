@@ -16,7 +16,10 @@ use super::types::{
 };
 use super::types::{RecordValueContract, ReturnExitContract};
 use crate::mir::{
-    a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1,
+    a_prime_i64_physical_receipt::{
+        APrimeI64PhysicalReceiptSlotRejectV1, APrimeI64PhysicalReceiptSlotV1,
+        APrimeI64PhysicalReceiptV1,
+    },
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
     array_rmw_add1_leaf_seed_plan::ArrayRmwAdd1LeafSeedRoute,
@@ -586,10 +589,12 @@ pub struct FunctionMetadata {
     /// evidence during semantic refresh.
     pub parameter_entry_contracts: Vec<ParameterEntryContract>,
 
-    /// Optional post-session A-prime LLVM physical capability.  This is a
+    /// Optional post-session A-prime LLVM physical capability. This is a
     /// transport receipt only; the canonical physical session is its sole
-    /// issuer and ordinary functions leave it absent.
-    pub(crate) a_prime_i64_physical_receipt: Option<APrimeI64PhysicalReceiptV1>,
+    /// issuer and ordinary functions leave it absent. The slot is deliberately
+    /// clone-scrubbing: install only after the final metadata/prepared-draft
+    /// snapshot, then let the live consumer take it once.
+    a_prime_i64_physical_receipt: APrimeI64PhysicalReceiptSlotV1,
 
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.
@@ -683,4 +688,34 @@ pub struct FunctionMetadata {
     /// Verifier-backed exact-numeric field proofs rebuilt from the current MIR
     /// during semantic refresh. These are contract evidence, not storage facts.
     pub exact_numeric_field_contract_proofs: Vec<TypeContractProof>,
+}
+
+impl FunctionMetadata {
+    /// Borrow the transport receipt for JSON observation only. The live
+    /// physical consumer must use `take_a_prime_i64_physical_receipt`.
+    pub(crate) fn a_prime_i64_physical_receipt(&self) -> Option<&APrimeI64PhysicalReceiptV1> {
+        self.a_prime_i64_physical_receipt.borrow()
+    }
+
+    /// Install after the last cloneable metadata/prepared-draft snapshot.
+    pub(in crate::mir) fn install_a_prime_i64_physical_receipt(
+        &mut self,
+        receipt: APrimeI64PhysicalReceiptV1,
+    ) -> Result<(), APrimeI64PhysicalReceiptSlotRejectV1> {
+        self.a_prime_i64_physical_receipt.install(receipt)
+    }
+
+    pub(in crate::mir) fn take_a_prime_i64_physical_receipt(
+        &mut self,
+    ) -> Result<APrimeI64PhysicalReceiptV1, APrimeI64PhysicalReceiptSlotRejectV1> {
+        self.a_prime_i64_physical_receipt.take_once()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn install_a_prime_i64_physical_receipt_for_test(
+        &mut self,
+        receipt: APrimeI64PhysicalReceiptV1,
+    ) -> Result<(), APrimeI64PhysicalReceiptSlotRejectV1> {
+        self.a_prime_i64_physical_receipt.install_for_test(receipt)
+    }
 }

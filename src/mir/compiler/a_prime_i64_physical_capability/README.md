@@ -33,9 +33,13 @@ opaque-handle argument. Rust, JSON, and Python reject swapped, foreign,
 duplicate, or role-incompatible rows before effect.
 
 This receipt remains transport-test-only while the canonical physical session
-is disconnected. It is still cloneable through the legacy `FunctionMetadata`
-container; the required consume-once/move-only owner migration is a separate
-pre-session hardening child and must close before a live emitter consumes it.
+is disconnected. The receipt is non-Clone and lives behind a
+clone-scrubbing, one-shot slot in `FunctionMetadata`: metadata snapshots cannot
+duplicate an occupied capability, JSON borrows the canonical slot, and the
+future live consumer must take it exactly once. The live issuer must install
+the receipt only after the final metadata/prepared-draft snapshot; otherwise a
+clone intentionally loses the receipt. This ownership boundary must close
+before a live emitter consumes it.
 
 The next bounded consumer is the V2 I8 producer receipt, not this transport
 loader. The selected-fixture canary now enters through the selected Dynamic
