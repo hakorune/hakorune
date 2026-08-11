@@ -2393,6 +2393,87 @@ Acceptance for this design stop:
 [ ] the next implementation row is the emitter canary, not production cutover
 ```
 
+#### DYNAMIC-V2-I6-CALLSLOT-ABI-D0 (DESIGN STOP — required before I7/V11)
+
+Worker audit and the repository/runtime census found no canonical physical
+ABI for the selected Dynamic I6 `substring` CallSlot. This is a design stop,
+not an invitation to reuse a legacy route. The existing `substring_hii` /
+`indexOf_hh` helpers are String-specialized, do not provide a strict
+normal-vs-Fault status or cleanup/disposition receipt, and cannot represent
+the verified V10/V11 Dynamic result contract. Generic `RuntimeDataBox`,
+legacy `BoxCall`, plugin/by-name dispatch, `nyash.integer.get_h`, raw
+ptr/int repair, sentinel zero, and fallback/retry are forbidden.
+
+The only admissible next design is one bounded, source-independent physical
+capability keyed by the already co-sealed I6 relation:
+
+```text
+VerifiedDynamicFullLoopCallRelationsV2
+  + exact I6 item/source CallSlot relation
+  + receiver V0:Dynamic
+  + arguments V6:I64, V9:I64
+  + result V10:Dynamic
+  + immutable plan/capability brand
+      -> one DynamicV2CallSlotAbiPlanV1
+      -> backend Direct | Checked | RejectBeforeEffect
+      -> one move-only DynamicV2CallSlotResultReceiptV1
+```
+
+The plan must be issued once from the verified relation and must not infer
+meaning from selector text, physical `(block, instruction_index)`, or an
+independent fingerprint. The canonical source dispatch arities are
+`substring/2` and `indexOf/1` (receiver excluded); any receiver-inclusive
+physical spelling must be an explicitly named field, not a second arity
+authority. Physical location is auxiliary materialization evidence only.
+
+The result handoff is split into two linear capabilities:
+
+```text
+V10 value-use receipt
+  -> consumed exactly once by I7
+
+V10 cleanup/discharge token
+  -> consumed by the existing exit-transaction cleanup owner
+```
+
+The receipt is non-Clone, session/plan-branded, has no raw `ValueId` getter,
+and is consumed through an expected-item/result/brand scoped callback. A
+normal numeric zero must be distinguishable from failure; invalid/stale or
+unsupported carriers must be terminal Faults with no result publication.
+The physical ABI must preserve representation provenance and disposition
+(`Forwarded` versus `EndAuthorized`) without moving cleanup into the CallSlot
+helper. I7/V11, I9/V13, physical End, and production callers are outside this
+design stop.
+
+Acceptance for closing this row:
+
+```text
+[ ] exactly one I6/V10 plan issuer; no per-call re-resolution
+[ ] source/Recipe CallSlot arity remains substring/2 and indexOf/1
+[ ] logical ItemKey/source-site or opaque plan brand is co-sealed;
+    block/instruction is never the semantic identity
+[ ] any physical receipt validator receives the sealed plan/producer brand;
+    receiver/argument/result/return ValueIds cannot be arbitrary transport rows
+[ ] one named non-test consumer consumes the physical receipt exactly once;
+    JSON remains observation-only and `take_a_prime_i64_physical_receipt()`
+    has one live consumer before the emitter is called production-ready
+[ ] explicit receiver/argument/result lanes and representation provenance
+[ ] strict status distinguishes normal zero from Fault
+[ ] VM and LLVM each classify Direct | Checked | RejectBeforeEffect
+[ ] V10 value-use and cleanup/discharge capabilities are separate
+[ ] receipt is move-only, session-branded, one-shot, and raw-getter-free
+[ ] foreign/missing/duplicate/wrong lane/target/arity/status/disposition
+    rejects before Builder effect
+[ ] swapped arity, foreign plan/site/item, and mutated receiver/argument/result
+    rows reject before Builder effect
+[ ] no RuntimeDataBox, legacy BoxCall, plugin/by-name, sentinel, raw repair,
+    fallback, retry, or I7/V11 claim
+```
+
+Until this decision is accepted, the selected Dynamic physical emitter remains
+`RejectBeforeEffect`; no I6 implementation, I7 implementation, or physical
+End implementation may be started.
+
 Implementation boundary to use after this D0 is accepted:
 
 ```text
