@@ -2488,25 +2488,26 @@ than growing `operation_emitter.rs`, `located_if.rs`, or
 #### DYNAMIC-V2-FAMILY-NATIVE-PHYSICAL-EMITTER-D0 — design closeout
 
 **Accepted with implementation capability gates.**  The owner split and the
-two-stage API are now closed: the next implementation row may add only the
-private V2 operation-program co-seal and the move-only family-native plan.  It
-must not claim a fresh-session canary or a production caller.  `DynamicLess`
+two-stage API are now closed. The private V2 operation-program co-seal, the
+move-only family-native preflight plan, and its evidence ledger are landed;
+they must not claim a fresh-session canary or a production caller. `DynamicLess`
 normal-Bool materialization and Dynamic temporary cleanup remain named
-capability gates; if either issuer is absent, the implementation rejects before
-the first Builder effect.  This is an implementation boundary, not a reason
-to add a semantic authority or a V1 adapter.
+capability decisions; if either issuer is absent, the implementation rejects
+before the first Builder effect. This is an implementation boundary, not a
+reason to add a semantic authority or a V1 adapter.
 
-The next execution row is:
+The next design decisions are:
 
 ```text
-DYNAMIC-V2-PHYSICAL-DEMAND-COSEAL-R0
+DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0
+DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0
 ```
 
-Its only purpose is to make the A-prime issuer retain one private
-`PreparedDynamicLoopOperationProgramV2` scoped loan and to prove the
-Builder-free V2-native plan/ledger contract.  The subsequent emitter canary,
-fresh session, production cutover, and old-route retirement remain separate
-rows and remain closed until their capability gates are green.
+The already-landed R0 below records the A-prime issuer's one private
+`PreparedDynamicLoopOperationProgramV2` scoped loan and the Builder-free
+plan/ledger contract. The subsequent emitter canary, fresh session, production
+cutover, and old-route retirement remain separate rows and remain closed until
+both capability decisions are green.
 
 #### DYNAMIC-V2-PHYSICAL-DEMAND-COSEAL-R0 — landed
 
@@ -2522,7 +2523,7 @@ placements, all 15 operations, and the three selected Fault rows.  This slice
 does not add a Builder effect, fresh session, Dynamic operation emitter,
 cleanup emitter, production caller, fallback, or retry.
 
-The next execution row is:
+The next execution row after the capability decisions is:
 
 ```text
 DYNAMIC-V2-PHYSICAL-EMITTER-I0
@@ -2550,14 +2551,57 @@ This slice consumes the A-prime demand once, lends the sole co-sealed
 `PreparedDynamicLoopOperationProgramV2` only while validating the plan, and
 records the bounded 15-operation schedule across the pre-I10, terminal, and
 continuation segments. It validates the complete 17/15/1/3 coverage counts,
-CallSlot membership, and the exact I10 then-Return/else-Fallthrough shape.
+the already co-sealed CallSlot relation, and the exact I10
+then-Return/else-Fallthrough shape. The only caller is the focused package
+canary; no production caller exists yet.
 
-The plan is intentionally not yet the full I0 ledger: placement owner/block
-rows, site-keyed two-site Completion claims, emitted receipts, and the named
-DynamicLess/temporary-cleanup physical capabilities remain downstream work.
+The plan is intentionally not a session emitter. A private preflight ledger
+now co-seals copied placement owner/block/kind rows (17), operation
+source/effect/execution/CallSlot identity rows (15), the one If/one Exit
+control disposition, three Fault rows, and the two Completion site keys. It
+does not contain `ValueId`/`BasicBlockId` or emitted receipts; those remain
+session-local downstream work. The named DynamicLess/temporary-cleanup
+physical capabilities also remain open.
 No Builder/session/ValueId/BasicBlock effect, production caller, V1 adapter,
 raw Recipe/JoinIR route, fallback, or retry is introduced. The selected canary
 therefore remains `NoSafeSlice` until the remaining I0 gates are closed.
+
+#### DYNAMIC-V2-PHYSICAL-EMITTER-LEDGER-S1 — landed
+
+`PreparedSelectedDynamicV2EmissionPlanV1` now owns one private
+`DynamicV2NativePreflightLedgerV1`. The ledger is only an accounting view over
+the existing co-sealed V2 physical input; it is not a second source, Recipe,
+JoinSig, Fault, or Completion authority. It is move-only with the plan and is
+available only through a scoped loan. The A-prime demand and its sole V2
+operation program are consumed once at plan issuance; later session work must
+consume the plan ledger and add only session-local producer receipts.
+
+This S1 slice is complete only for Builder-free evidence. It deliberately does
+not claim the emitter I0, a fresh session, a DynamicLess Bool capability, a
+temporary-discharge capability, or a production caller.
+
+#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — next design stop
+
+The semantic `DynamicLess` row and its Fault relation already have one owner.
+The missing physical owner must consume the exact I9 V2 operation row, its
+sealed operands/representation receipts, and the I9 Fault row, then issue one
+normal Bool receipt or a terminal pre-effect rejection. The backend matrix is
+`Direct | Checked | RejectBeforeEffect`: VM may use an exact immediate/checked
+lane; LLVM requires an explicit producer representation receipt or rejects.
+No `MirType` inference, V1 compare adapter, raw carrier inspection, fallback,
+or retry is permitted. This D0 must name the capability issuer and its
+negative matrix before session code resumes.
+
+#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — next design stop
+
+The semantic cleanup owner remains `invocation_cleanup.rs`, with the exact six
+cutpoints for V10/V11: I6 fault, I7 fault, I9 fault, I9 normal boundary, inner
+Return, and Backedge. A physical capability must consume those rows together
+with exact producer representation receipts and issue an ordered discharge
+plan, or reject before effect when the physical end primitive is unavailable.
+It must not infer last use by name, attach Home to the I64 induction, skip a
+Dynamic temporary, or create a second Fault/exit authority. Primary/suppressed
+Fault chronology remains owned by the existing exit transaction.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

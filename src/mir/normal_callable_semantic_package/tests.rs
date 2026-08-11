@@ -212,6 +212,9 @@ fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
                 .count(),
             4
         );
+        plan.with_ledger(|ledger| {
+            assert_eq!(ledger.coverage_counts(), (17, 15, 3, 2));
+        });
     })
     .expect("selected V2 preflight plan loan");
 }

@@ -43,6 +43,12 @@ those receipts exist, the selected canary rejects before the first Builder
 effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
 fallback, and retry are not valid alternatives.
 
+The next design boundary is physical capability ownership, not another
+semantic product: `DynamicLess` must issue a checked normal-Bool receipt, and
+the invocation cleanup owner must issue ordered V10/V11 discharge receipts.
+If either capability is unavailable, the session rejects before its first
+Builder effect. The existing semantic rows remain evidence only.
+
 ## Canonical V2 function finish
 
 The three canonical V2 profile lowerers (`trivial_ssa`, `direct_accum`, and

@@ -8,8 +8,16 @@ use std::collections::BTreeSet;
 
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
+use crate::mir::compiler::dynamic_full_body_recipe::{
+    DynamicFullLoopFaultFamilyV2, DynamicFullLoopOperationEffectV2,
+    DynamicFullLoopPhysicalItemKindV2,
+};
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
-use crate::mir::loop_recipe_contract::{LoopExitKindV2, LoopItemKeyV1, LoopOperationV2};
+use crate::mir::loop_recipe_contract::{
+    LoopBlockKeyV1, LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1, LoopOperationExecutionClassV2,
+    LoopOperationV2, LoopValueKeyV1,
+};
+use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceStmtSiteV1};
 
 const EXPECTED_OPERATION_COUNT: usize = 15;
 const EXPECTED_PLACEMENT_COUNT: usize = 17;
@@ -30,7 +38,6 @@ pub(in crate::mir) enum DynamicV2PhysicalScheduleSegmentV1 {
     Prelude,
     ThenTerminal,
     Continuation,
-    StepBackedge,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,11 +56,168 @@ impl DynamicV2PhysicalScheduleRowV1 {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DynamicV2PlacementEvidenceV1 {
+    item: LoopItemKeyV1,
+    owner_loop: LoopNodeKeyV1,
+    block: LoopBlockKeyV1,
+    kind: DynamicFullLoopPhysicalItemKindV2,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct DynamicV2OperationEvidenceV1 {
+    item: LoopItemKeyV1,
+    owner_loop: LoopNodeKeyV1,
+    block: LoopBlockKeyV1,
+    source_role: DynamicFullBodySourceRoleV1,
+    source_site: SourceExprSiteV1,
+    effect: DynamicFullLoopOperationEffectV2,
+    execution: LoopOperationExecutionClassV2,
+    call_role: Option<DynamicFullBodySourceRoleV1>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DynamicV2ControlEvidenceV1 {
+    loop_key: LoopNodeKeyV1,
+    owner_block: LoopBlockKeyV1,
+    if_item: LoopItemKeyV1,
+    condition: LoopValueKeyV1,
+    then_block: LoopBlockKeyV1,
+    else_block: Option<LoopBlockKeyV1>,
+    then_exit: Option<LoopExitKindV2>,
+    then_exit_item: Option<LoopItemKeyV1>,
+    else_exit: Option<LoopExitKindV2>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DynamicV2FaultEvidenceV1 {
+    item: LoopItemKeyV1,
+    family: DynamicFullLoopFaultFamilyV2,
+    normal_result: LoopValueKeyV1,
+}
+
+/// Private evidence ledger for the preflight plan.  It copies only the
+/// already co-sealed identities; it never becomes a second source/Recipe or
+/// JoinSig authority.  Session emission later consumes this ledger exactly
+/// once and adds session-local receipts in a child product.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) struct DynamicV2NativePreflightLedgerV1 {
+    placements: Box<[DynamicV2PlacementEvidenceV1]>,
+    operations: Box<[DynamicV2OperationEvidenceV1]>,
+    control: DynamicV2ControlEvidenceV1,
+    faults: Box<[DynamicV2FaultEvidenceV1]>,
+    completion_sites: [SourceStmtSiteV1; 2],
+    inner_return_value: LoopValueKeyV1,
+    outer_tail_binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
+}
+
+impl DynamicV2NativePreflightLedgerV1 {
+    fn issue(
+        program: &PreparedDynamicLoopOperationProgramV2<'_>,
+        source_relation: &crate::mir::compiler::dynamic_full_body_recipe::
+            DynamicAPrimeI64SourceRelationViewV1<'_>,
+    ) -> Result<Self, SelectedDynamicV2PhysicalPlanRejectV1> {
+        let placements = program
+            .placement_rows()
+            .iter()
+            .map(|row| DynamicV2PlacementEvidenceV1 {
+                item: row.item(),
+                owner_loop: row.owner_loop(),
+                block: row.block(),
+                kind: row.kind(),
+            })
+            .collect::<Vec<_>>();
+        if placements.len() != EXPECTED_PLACEMENT_COUNT {
+            return Err(SelectedDynamicV2PhysicalPlanRejectV1::Coverage);
+        }
+
+        let operations = program
+            .operation_rows()
+            .iter()
+            .map(|row| DynamicV2OperationEvidenceV1 {
+                item: row.item(),
+                owner_loop: row.owner_loop(),
+                block: row.block(),
+                source_role: row.source_role(),
+                source_site: row.source_site().clone(),
+                effect: row.effect(),
+                execution: row.execution(),
+                call_role: row.call_role(),
+            })
+            .collect::<Vec<_>>();
+        if operations.len() != EXPECTED_OPERATION_COUNT {
+            return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder);
+        }
+
+        let control = program.control();
+        let control_row = control
+            .rows()
+            .first()
+            .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape)?;
+        let branch = control_row
+            .branches()
+            .first()
+            .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape)?;
+        let control_evidence = DynamicV2ControlEvidenceV1 {
+            loop_key: control_row.loop_key(),
+            owner_block: branch.owner_block(),
+            if_item: branch.if_item(),
+            condition: branch.condition(),
+            then_block: branch.then_block(),
+            else_block: branch.else_block(),
+            then_exit: branch.then_arm().exit_kind(),
+            then_exit_item: match branch.then_arm() {
+                crate::mir::compiler::dynamic_full_body_recipe::DynamicLoopPhysicalArmV2::Exit {
+                    item, ..
+                } => Some(item),
+                crate::mir::compiler::dynamic_full_body_recipe::DynamicLoopPhysicalArmV2::Fallthrough => None,
+            },
+            else_exit: branch.else_arm().exit_kind(),
+        };
+
+        let faults = program
+            .faults()
+            .rows()
+            .iter()
+            .map(|row| DynamicV2FaultEvidenceV1 {
+                item: row.item(),
+                family: row.family(),
+                normal_result: row.normal_result(),
+            })
+            .collect::<Vec<_>>();
+        if faults.len() != EXPECTED_FAULT_COUNT {
+            return Err(SelectedDynamicV2PhysicalPlanRejectV1::Coverage);
+        }
+
+        let completion = source_relation.completion_sites();
+        let completion_sites = [completion[0].clone(), completion[1].clone()];
+        Ok(Self {
+            placements: placements.into_boxed_slice(),
+            operations: operations.into_boxed_slice(),
+            control: control_evidence,
+            faults: faults.into_boxed_slice(),
+            completion_sites,
+            inner_return_value: source_relation.inner_return_value(),
+            outer_tail_binding: source_relation.outer_tail_binding(),
+        })
+    }
+
+    pub(in crate::mir) fn coverage_counts(&self) -> (usize, usize, usize, usize) {
+        (
+            self.placements.len(),
+            self.operations.len(),
+            self.faults.len(),
+            self.completion_sites.len(),
+        )
+    }
+}
+
 /// Move-only, Builder-free plan for one selected Dynamic V2 cohort.
 #[derive(Debug)]
 pub(in crate::mir) struct PreparedSelectedDynamicV2EmissionPlanV1<'program> {
     demand: VerifiedAPrimeI64PhysicalDemandV1<'program>,
     schedule: Box<[DynamicV2PhysicalScheduleRowV1]>,
+    ledger: DynamicV2NativePreflightLedgerV1,
 }
 
 impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
@@ -67,14 +231,30 @@ impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
     ) -> R {
         self.demand.with_operation_program(callback)
     }
+
+    pub(in crate::mir) fn with_ledger<R>(
+        &self,
+        callback: impl FnOnce(&DynamicV2NativePreflightLedgerV1) -> R,
+    ) -> R {
+        callback(&self.ledger)
+    }
 }
 
 pub(in crate::mir) fn issue_selected_dynamic_v2_emission_plan<'program>(
     demand: VerifiedAPrimeI64PhysicalDemandV1<'program>,
 ) -> Result<PreparedSelectedDynamicV2EmissionPlanV1<'program>, SelectedDynamicV2PhysicalPlanRejectV1>
 {
-    let schedule = demand.with_operation_program(build_schedule)?;
-    Ok(PreparedSelectedDynamicV2EmissionPlanV1 { demand, schedule })
+    let source_relation = demand.source_relation();
+    let (schedule, ledger) = demand.with_operation_program(|program| {
+        let schedule = build_schedule(program)?;
+        let ledger = DynamicV2NativePreflightLedgerV1::issue(program, source_relation)?;
+        Ok::<_, SelectedDynamicV2PhysicalPlanRejectV1>((schedule, ledger))
+    })?;
+    Ok(PreparedSelectedDynamicV2EmissionPlanV1 {
+        demand,
+        schedule,
+        ledger,
+    })
 }
 
 fn build_schedule(
