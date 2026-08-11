@@ -1860,7 +1860,7 @@ This is the landed pre-A-prime demand; Slice B atomically recuts the same sole
 owner to the mixed-I64 program and exact three-Fault coverage. It is not a
 second production mode.
 
-## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — SECOND IMPLEMENTATION SLICE)
+## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — THIRD IMPLEMENTATION SLICE)
 Decision: the bounded mixed-I64/Dynamic cohort can share the existing common
 Loop core. This is a post-result/ABI BoxShape lane, not a new source authority.
 The A-prime Builder-free demand is now green, so this series is the current
@@ -1932,6 +1932,23 @@ LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
   census fixed-role receipts versus segment receipts; delete old topology only
   after production and test callers reach zero
 ```
+
+#### LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0 (CLOSED — `28c4bdd5c4`)
+
+The second BoxShape slice is landed. V1 now issues one private
+`PreparedLoopOperationLedgerV1` while the Builder-free physical demand is
+sealed; both V1 physical dispatchers borrow its complete Recipe-order
+operation, ReadBinding, derived-carrier, and WriteBinding arrays. The legacy
+projection methods delegate to this ledger and no longer rescan Recipe,
+source-evidence, or effect rows. V2 coverage now matches placements by exact
+`ItemKey` and rejects duplicate, missing, extra, or mismatched rows instead of
+depending on storage-order `zip`. V1 and V2 remain family-native: no adapter,
+new source observer, or second Recipe/JoinSig authority was introduced.
+
+Focused physicalizer (27 tests), V1 demand (5 tests), HRTB demand (1 test),
+`cargo check --lib`, `git diff --check`, and
+`bash tools/checks/loop_physical_transfer_authority_guard.sh` are green. The
+next active row is `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0`.
 
 #### Post-Dynamic cleanup acceptance matrix
 

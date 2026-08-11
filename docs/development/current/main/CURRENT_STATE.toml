@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "A-prime is accepted and the bounded Builder-free physical demand is landed for the ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport, A2 exact parameter-contract replacement, the mixed typed Recipe/lifecycle recut, the borrowed source-relation view, the selected package loan, and the first Loop transfer-authority cleanup are closed: pos/end/induction/carrier and I1/I5/I15 are I64, I6/I7/I9 remain Dynamic, and only invocation temporaries retain cleanup. Production remains NoSafeSlice until the ordered ledger, exact-I64 VM/LLVM gates, fresh session, and selected cutover close."
+status = "A-prime is accepted and the bounded Builder-free physical demand is landed for the ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport, A2 exact parameter-contract replacement, the mixed typed Recipe/lifecycle recut, the borrowed source-relation view, the selected package loan, the JoinSig transfer authority, and the complete ordered operation/source-effect ledger are closed: pos/end/induction/carrier and I1/I5/I15 are I64, I6/I7/I9 remain Dynamic, and only invocation temporaries retain cleanup. Production remains NoSafeSlice until the common physicalizer boundary, exact-I64 VM/LLVM gates, fresh session, and selected cutover close."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0 accepted for the bounded BoxShape series; second implementation row active"
+current_design_stop = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0 accepted for the bounded BoxShape series; third implementation row active"
 work_mode = "fast"
-current_execution_row = "LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0"
-current_blocker_token = "Implement only the second bounded Loop BoxShape slice: make V1 and V2 physical consumers borrow one complete ordered operation/source-effect ledger from their verified products and remove repeated Recipe/evidence find scans. This is a consumer protocol, not a V2-to-V1 adapter. No new source observer, Recipe/JoinSig authority, storage-order zip, physical session, Completion/ABI work, production switch, fallback, or retry belongs in this row."
+current_execution_row = "LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0"
+current_blocker_token = "Implement only the third bounded Loop BoxShape slice: move the common physicalizer stop to ReadyLoopAfterContinuationV1; remove Callable profile-close symbols and hard-coded profile counts from recursive_after.rs; keep Callable Tail, ABI, Completion, Return, and DraftSeal in the callable owner. No topology deletion, physical session, production switch, fallback, or retry belongs in this row."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -721,12 +721,12 @@ latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_design_card = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0"
+next_execution_card = "LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "A-prime replaces the checked-Dynamic terminal proposal for skip_while: pos/end are exact i64 API contracts, the induction Recipe/carrier becomes I64, and only invocation temporaries remain Dynamic. A1 transport, A2 exact parameter-contract replacement, the mixed Recipe/Fault/lifecycle recut, the borrowed source-relation view, the selected package loan, and the first Loop transfer-authority cleanup are closed with identity-preserving HRTB loans, OpaqueHandle/ExactTrivial classification, a three-row Fault catalog, and one invocation-only cleanup projection. The active implementation row now consumes one complete ordered operation/source-effect ledger; exact-I64 VM/LLVM gates, fresh session, cutover, H2/H3/H5 parity, and the Hako-mimalloc gate follow."
+latest_card_summary = "A-prime replaces the checked-Dynamic terminal proposal for skip_while: pos/end are exact i64 API contracts, the induction Recipe/carrier becomes I64, and only invocation temporaries remain Dynamic. A1 transport, A2 exact parameter-contract replacement, the mixed Recipe/Fault/lifecycle recut, the borrowed source-relation view, the selected package loan, the JoinSig transfer authority, and one complete ordered V1/V2 operation/source-effect ledger are closed with identity-preserving HRTB loans, OpaqueHandle/ExactTrivial classification, a three-row Fault catalog, and one invocation-only cleanup projection. The active implementation row now moves the common physicalizer boundary; exact-I64 VM/LLVM gates, fresh session, cutover, H2/H3/H5 parity, and the Hako-mimalloc gate follow."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
