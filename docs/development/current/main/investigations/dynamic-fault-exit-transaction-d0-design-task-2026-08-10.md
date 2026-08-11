@@ -695,15 +695,17 @@ growth would enter the 760 stop band. All Rust source remains below 800 lines.
 
 #### A-PRIME-EXACT-I64-PHYSICAL-CAPABILITY-D0 (live design child; no new card)
 
-Status: DESIGN STOP. The mixed Recipe has already closed the semantic shape;
-this child decides only the physical capability required before a fresh
-session. It does not open a Dynamic-to-I64 conversion corridor.
+Status: ACCEPTED FOR IMPLEMENTATION (bounded A-prime only). The mixed Recipe
+has closed the semantic shape; this Decision closes only the exact physical
+capability required before a fresh session. It does not open a
+Dynamic-to-I64 conversion corridor. Runtime/production behavior remains
+`NoSafeSlice` until the implementation row and its gates are green.
 
 The sole accepted A-prime chain is:
 
 ```text
 pos/end: i64 source contract
-  -> existing FunctionEntryContract / resolved BindingRef rows
+  -> package CallableParameterContractKindV1::ExactTrivial / BindingRef rows
   -> exact local copy (i = pos)
   -> mixed typed Recipe (I64 induction/carrier)
   -> I64 JoinSig/After and exact two Completion operands
@@ -749,12 +751,13 @@ unsupported backend; and any attempt to consume a raw `ValueId` before the
 fresh session. `VerifiedFunctionCompletionV1` remains the sole result/site
 owner, GenericLoop and TypeOp remain unchanged, and fallback/retry remain zero.
 
-This child is accepted for implementation only after the issuer and VM/LLVM
-matrix are documented with focused positive/negative tests. Until then the
-current behavior is `RejectBeforeEffect` and the parent row remains a design
-stop.
+The issuer boundary and VM/LLVM Direct-or-RejectBeforeEffect contract are now
+documented and accepted. Focused positive/negative tests are implementation
+gates, not a reason to reopen this Decision. Until the implementation row is
+green, current behavior remains `RejectBeforeEffect` and production remains
+`NoSafeSlice`.
 
-### Pre-implementation authority close (required before code)
+### Implementation authority close
 
 The semantic A-prime chain is closed, but the physical capability issuer is
 not yet implemented.  The sole issuer is a new private module at
