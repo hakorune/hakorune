@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-08
+Date: 2026-08-11
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -141,6 +141,39 @@ authority. `NoSafeSlice` is a development state; `Candidate`, `Declined`,
 `Unresolved`, and `Rejected` remain source dispositions. A parked I0 must say
 whether its next slice is (a) the missing issuer design/implementation or (b)
 an explicit park; it may not cross the boundary with a test-only constructor.
+
+### Design-stop diagnosis and unblock contract
+
+Give each design stop one primary missing-boundary class. Secondary
+dependencies stay in prose rather than becoming deeper task names.
+
+```text
+SemanticAuthorityMissing
+RepresentationDecisionMissing
+MaterializationRelationMissing
+BackendCapabilityMissing
+NamedConsumerMissing
+```
+
+Apply these laws before moving a design stop to implementation:
+
+- Split pre-effect semantic/demand products from session-local realization.
+  A product issued before physical allocation owns no `ValueId` or block; a
+  session product does not reclassify source meaning.
+- Runtime-polymorphic representation provenance is producer-issued and must
+  survive copy, rebind, merge, and PHI. Consumers never infer it from raw bits,
+  names, receipt-free runtime-table probes, or metadata.
+- Classify every required backend/capability cell as exactly `Direct`,
+  `Checked`, or `RejectBeforeEffect`. Fallback is not a capability class.
+- Do not implement a new receipt without its named consumer and retirement
+  edge in the same bounded series. Caller-zero proof chains remain design.
+- Write missing/foreign/duplicate/ambiguous/unsupported cases and, for Fault
+  boundaries, primary/suppressed/no-result chronology before the positive
+  implementation.
+- Keep one serial authority spine in the current pointer. Independent parity,
+  performance, and cleanup proofs become explicit DAG siblings after their
+  shared production cutover; they are not serialized merely because the UI has
+  one current row.
 
 ### Compact router
 

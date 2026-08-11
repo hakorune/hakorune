@@ -1,9 +1,11 @@
 # DYNAMIC-FAULT-EXIT-TRANSACTION-D0
 
-Status: logical/fault/flow/operation-demand foundation landed. The current
-executable row adds explicit `: i64` to the existing Completion authority;
-full physical input/session remains `NoSafeSlice` until that row lands and the
-Dynamic-to-i64 operand relation is selected.
+Status: logical/fault/flow/operation-demand foundation and the explicit `: i64`
+Completion relation are landed. `PHYSICAL-INPUT-AUTHORITY-I0` remains a design
+stop. Target `CHECKED-DYNAMIC-I64-ABI` is a boundary-local checked ABI plus
+producer-issued representation provenance; current behavior is
+reject-before-effect until the selected corridor, backend matrix, and outer
+carrier disposition are sealed.
 Date: 2026-08-10
 Depends on: `LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0` closed
 Authority:
@@ -97,7 +99,7 @@ or backedge value.
 
 ## Failure precedence
 
-The accepted C-prime chronology is reused without a Dynamic-specific policy:
+The accepted exit chronology is reused without a Dynamic-specific policy:
 
 ```text
 pending Normal / Return / Break / Continue
@@ -194,16 +196,10 @@ and exposes no `into_parts` escape.
 12. PHYSICAL-OPERATION-DEMAND-I0
     CLOSED: whole-program Builder-free demand/prepare
 
-13. PHYSICAL-INPUT-AUTHORITY-I0
-    parked until the explicit source-backed result/ABI row is green
-
-13a. LOOP-UNIFICATION-AFTER-DYNAMIC-D0
-    BoxShape-only pre-cutover cleanup, followed by selected If/Exit BoxCount
-    rows and `LOOP-PRECUTOVER-AUTHORITY-H2`; topology deletion is later
-
-14. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-    parked until rows 13/13a are green; owns site-keyed Completion consumption,
-    detached DraftSeal prepare, and unpublished-session discard
+13+. Current and future rows
+    see `Current serial spine and post-cutover DAG` below; that section is the
+    sole live ordering authority for representation, Loop cleanup, session,
+    production cutover, parity, performance, and selfhost activation
 ```
 
 Each implementation row updates its code, focused tests, module README,
@@ -469,11 +465,12 @@ Once a fresh session opens, the sole failure policy remains whole unpublished
 function discard exactly once.  Same-session repair, retry, compatibility
 fallback, raw `lower_loop` entry, and AST/MIR re-matching are forbidden.
 
-### Remaining task ladder after this Decision
+### Current serial spine and post-cutover DAG
+
+The current pointer follows only the authority-critical serial spine:
 
 ```text
-DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  -> explicit `: i64` source + existing VerifiedFunctionCompletionV1
+PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0
   -> PHYSICAL-INPUT-AUTHORITY-I0
   -> LOOP-UNIFICATION-AFTER-DYNAMIC-D0
   -> LOOP-PHYSICAL-IF-COVERAGE-I0
@@ -481,16 +478,35 @@ DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
   -> LOOP-PRECUTOVER-AUTHORITY-H2
   -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
   -> H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
-  -> H2 reopen / H2-H3-H5
-  -> MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
+       selected legacy edge deleted in the same commit
+       retry / fallback = 0
+       first production cutover
+```
+
+After that first production cutover, independent evidence is no longer forced
+into one artificial linear queue:
+
+```text
+first production cutover
+  +-> required A: H2 reopen -> H2/H3/H5 parity
+  +-> required B: MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
+  +-> cleanup C: topology caller-zero census / deletion
+
+required A + required B
   -> HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
 ```
 
+The Hako result-producer cutover requires H2/H3/H5 parity and the mimalloc
+promotion gate. Broad topology deletion is a cleanup sibling and gates that
+cutover only when an exact selected caller remains. The Hako cutover activates
+one producer and retires the Rust selfhost producer in the same commit; broader
+`.hako` MirBuilder/parser migration follows it.
+
 The JoinSig logical view, Dynamic physical-input view, and complete operation
 demand are already closed and add no Builder effect. The broader callable
-physical-input/session rows remain closed until the source-backed result/ABI
-row lands; Home, runtime Fault, retry, and fallback are nonclaims.
+physical-input/session rows remain closed until
+`PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0` closes; Home, runtime Fault,
+retry, and fallback are nonclaims.
 
 The result/ABI boundary is intentionally two-stage: the declared-result
 contract is closed, but the physical Dynamic-to-i64 representation is not.
@@ -643,9 +659,11 @@ bash tools/checks/naming_charter_guard.sh           # ok
 ```
 
 The next boundary is intentionally a design stop: `PHYSICAL-INPUT-AUTHORITY-I0`
-must decide whether the Dynamic return operands have an existing exact-I64
-authority, a checked Dynamic-to-i64 projection, or `NoSafeSlice`. This row does
-not claim physical I64 compatibility.
+must close the producer provenance, target-aware backend capability issuer,
+strict helper ABI, and outer disposition required by the selected
+`CHECKED-DYNAMIC-I64-ABI` architecture. Until then, the unsupported behavior is
+`RejectBeforeEffect`, the slice remains `NoSafeSlice`, and this row does not
+claim physical I64 compatibility.
 
 Required tests:
 
@@ -717,29 +735,41 @@ outer Return:
   Completion site -> Tail/current carrier:Dynamic
 ```
 
-`PHYSICAL-INPUT-AUTHORITY-I0` must issue one complete site-keyed relation:
+`PHYSICAL-INPUT-AUTHORITY-I0` must issue one complete Builder-free demand:
 
 ```text
-VerifiedDynamicI64ReturnOperandSetV1
+DynamicI64ReturnProjectionDemandRefV1
   each Completion site
   -> exact logical operand
-  -> exact physical ValueId
-  -> exact I64 conformance
+  -> required checked-I64 capability
+  -> no ValueId / BasicBlockId / MIR
+
+DYNAMIC-EXIT-PHYSICAL-SESSION-P0 later consumes:
+  exact demand row
+  + producer-issued representation receipt
+  + session-local block/value IDs
+  -> prepared normal exact-i64 path
+  + terminal projection-Fault path
 ```
 
-The owner must choose exactly one accepted basis:
+The accepted target architecture and current unsupported behavior are distinct:
 
 ```text
-A. an existing source/semantic authority proves ExactI64 statically
-B. a checked Dynamic -> i64 projection issues Normal(i64) | Fault(TypeError)
-C. neither exists -> NoSafeSlice
+target architecture:
+  CHECKED-DYNAMIC-I64-ABI
+  = boundary-local checked projection
+    + producer-issued representation provenance
+
+current unsupported behavior:
+  RejectBeforeEffect
 ```
 
-If B is selected, its Fault site, cleanup disposition, absent result on Fault,
-normal-only publication, and retry/fallback zero are co-sealed before Builder
-effects. Adding `MirType::Integer` to a Dynamic ValueId because the declaration
-says `i64` is forbidden. This question belongs to the existing physical-input
-row; it does not create a new task card.
+No existing source/semantic authority currently proves either logical Dynamic
+operand is physical `i64`, and the checked path is not executable until every
+selected producer and backend cell has a canonical issuer. Adding
+`MirType::Integer` to a Dynamic ValueId because the declaration says `i64` is
+forbidden. This question belongs to the existing physical-input row; it does
+not create a new task card.
 
 The existing six-row Fault catalog remains the exact Recipe-operation catalog.
 A checked return projection is a callable-terminal sibling keyed by the exact
@@ -762,26 +792,26 @@ Dynamic Recipe / final exit transaction:
 fresh callable physical session / terminal:
   sole owner of materialized return ValueIds
 
-one final exit-transaction projection:
-  sole owner allowed to relate those operands and ValueIds
+Builder-free demand view:
+  sole pre-session projection of sites / logical operands / required capability
+
+session-local final-exit realization:
+  sole owner allowed to relate demand rows, physical representations, and IDs
 ```
 
-Basis A is currently unavailable: no existing verified product proves either
-logical Dynamic operand is physical `i64`. Basis B is only a future
-implementation option after a concrete checked Dynamic-to-i64 operation and
-backend representation are identified. That operation must issue
-`Normal(i64) | Fault(TypeError)` for both Completion sites, co-seal the exact
-cleanup/primary-Fault/no-result/normal-publication rules before Builder effects,
-and have no retry or fallback. Until that concrete owner exists, the result is
-Basis C: `NoSafeSlice`.
+No existing verified product proves either logical Dynamic operand is physical
+`i64`. `CHECKED-DYNAMIC-I64-ABI` is the selected target, but
+its producer provenance, backend capability issuer, and outer disposition are
+still unresolved. Until those canonical issuers exist, current behavior is
+`RejectBeforeEffect` and the slice remains `NoSafeSlice`.
 
 The sole next task is therefore the remainder of this existing row:
 
 ```text
 PHYSICAL-INPUT-AUTHORITY-I0
   child design: PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0
-  design only until A or a concrete B is accepted
-  then one narrow issue+consume cell, site-keyed for inner and outer Return
+  design only until the complete CHECKED-DYNAMIC-I64-ABI capability is accepted
+  then issue the Builder-free two-site demand; realization remains session-local
 ```
 
 It must not create a sibling result contract, Static/Dynamic arbitration sum,
@@ -792,58 +822,173 @@ the missing Dynamic-to-i64 conformance proof.
 
 #### PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 (design child; no new card)
 
-This is the only remaining design question inside
-`PHYSICAL-INPUT-AUTHORITY-I0`. It is not a new result-contract authority and
-it is not a TypeOp extension. Its purpose is to decide whether the existing
-final-exit owner can issue and immediately consume one private checked
-projection for both Completion sites.
+Decision: target `CHECKED-DYNAMIC-I64-ABI` is accepted as the only candidate
+architecture; current unsupported behavior remains `RejectBeforeEffect`. Global
+all-values-as-handles and a language-wide tagged representation are not opened
+by this row. The child remains `NoSafeSlice` until its canonical issuers and
+complete selected-corridor table are fixed.
 
 ```text
-VerifiedDynamicExitTransactionCoSealV1
-  -> private HRTB final-exit view
-     Completion site
-     logical operand (inner V14 / outer carrier)
-     fresh-session materialized ValueId
-     backend representation witness
-  -> CheckedDynamicI64ReturnProjectionV1
-       Normal(i64) | Fault(TypeError)
+primary stop class: RepresentationDecisionMissing
+dependent evidence gap: BackendCapabilityMissing
 ```
 
-The projection is valid only when one co-seal fixes all of the following:
+The checked boundary is one authority chain with two different times. They
+must not be collapsed into one product.
 
 ```text
-exact two Completion sites; no missing/duplicate/foreign/extra claim
-logical operand -> materialized ValueId at each site
-one backend-neutral representation contract for raw Integer / IntegerBox / handle
-checked failure has no result and no normal publication
-cleanup and Primary/Cleanup/Suppressed chronology are fixed before transfer
-normal result publication occurs only after the check succeeds
-retry/fallback = 0
+pre-session / Builder-free
+  VerifiedDynamicExitTransactionCoSealV1
+    -> HRTB DynamicI64ReturnProjectionDemandRefV1<'program>
+       exact Completion-derived I64 ABI and sites
+       inner logical operand = I12 / V14
+       outer logical operand = L0 / B0 / Dynamic
+       required capability = CheckedDynamicCarrierToI64
+       no ValueId / BasicBlockId / MIR / helper call
+
+session-local realization
+  exact demand row
+  + producer-issued DynamicCarrierPhysicalRefV1
+      ImmediateI64 { value }
+      IntegerBoxHandle { handle }
+      TaggedCarrier { tag, payload }
+  + source block
+    -> PreparedCheckedDynamicI64ReturnProjectionSetV1<'program>
+       per site: normal exact-i64 block/value + terminal fault block/reason
 ```
 
-The current repository does not satisfy this child. `TypeOp(Check/Cast)`
-returns the input value and does not normalize an `IntegerBox` handle;
-`RuntimeTypeSpec::Integer` is a predicate, not a conversion or exit contract;
-`nyash.integer.get_h` maps invalid handles to zero and is therefore not a
-checked authority; and `DynamicIntegerRange` is a `FieldSet`-only contract.
-LLVM also has raw-i64/handle representation ambiguity, so a uniform
-representation capability (or an equally explicit checked ABI) must be sealed
-before VM/LLVM parity can be claimed. Until that evidence exists, this child
-is `NoSafeSlice` and no code is authorized.
+The conceptual names above describe owner boundaries; they are not authorized
+code types until the issuers below are identified. The Completion relation is
+borrowed through the final-exit HRTB spine rather than passed in as a sibling.
+Inner/outer rows are matched by exact `SourceStmtSiteV1`, never by array
+ordinal. A tagged carrier may use multiple physical IDs, so the realization
+must not invent one generic `source: ValueId` field.
 
-Completion remains the sole declared-result and return-site owner. The final
-exit transaction remains the sole projection owner. The fresh physical session
-remains the sole materialized-`ValueId` owner. No sibling result receipt,
-Static/Dynamic sum, standalone bridge, GenericLoop change, Recipe/JoinSig
-physical type, or public raw slot is introduced.
+##### Selected-corridor representation provenance
 
-If representation is accepted later, the implementation is one
-selected-Dynamic issue+consume cell only. It must use the package-held final
-program rather than reissue a generic Dynamic source classifier; any
-transitional source-seed caller must reach zero before cutover. Multi-return
-uses the existing ordered `VerifiedFunctionCompletionV1::ExplicitReturns`
-sites; detached DraftSeal `prepare` writes one Return per claimed site and
-`commit` remains ownership-only. No return-join or PHI is introduced.
+Every runtime-polymorphic value carries representation provenance from its
+producer to its consumer. Return lowering never probes bare bits or repairs a
+missing receipt.
+
+| Corridor edge | Required issuer fact | Missing fact |
+|---|---|---|
+| parameter ingress / prelude local | exact incoming representation and borrowed/owned disposition | `NoSafeSlice` |
+| `DynamicAdd` normal result | representation of the new result | `NoSafeSlice` |
+| Dynamic invocation normal result | representation of the new result | `NoSafeSlice` |
+| local copy / rebind | preserved exact representation relation | `NoSafeSlice` |
+| PHI/current carrier | all incoming representations form one verified representation | `NoSafeSlice` |
+| inner Return / outer Tail | exact demand row plus retained representation | `NoSafeSlice` |
+
+The selected D0 must decide whether the unchanged `skip_while` corridor is
+provably `ImmediateI64` throughout or requires the complete private
+`TaggedCarrier { tag, payload }` path. A partial tagged corridor is rejected.
+`PreparedLoopCarrierRepresentationV1::SourceBackedDynamic` is source lineage,
+not physical representation evidence.
+
+##### Backend capability matrix
+
+Every selected backend/representation cell is exactly `Direct`, `Checked`, or
+`RejectBeforeEffect`. Fallback is not a capability class.
+
+| Representation | VM target | LLVM target |
+|---|---|---|
+| `ImmediateI64` | `Direct` after producer witness | `Direct` after producer witness |
+| `IntegerBoxHandle` | `Checked` VM downcast/normalize | `Checked` strict status/out helper |
+| private `TaggedCarrier` | `Checked` enum/tag match | `Checked` only after tag/payload survives the whole corridor |
+| exact-numeric wrapper | explicit normalization Decision or `RejectBeforeEffect` | `RejectBeforeEffect` in this cohort |
+| ambiguous bare `i64` | `RejectBeforeEffect` | `RejectBeforeEffect` |
+
+The backend capability is not semantic-program-owned. The demand records a
+required abstract capability; a target-aware physical/session ingress, or a
+separately accepted backend-neutral MIR contract, must be the sole capability
+issuer. The current compile request does not itself prove the backend.
+
+The strict helper ABI must separate a valid zero from failure, for example:
+
+```c
+int32_t hako_integer_try_get_h_v1(
+    uint64_t handle,
+    int64_t* out_value
+);
+```
+
+It is called only with an upstream `IntegerBoxHandle` receipt. Success alone
+writes `out_value`; invalid handle and non-IntegerBox remain distinct internal
+reasons. The helper owns no cleanup, Completion, Fault precedence, or source
+meaning. Selected return callers of sentinel-zero `nyash.integer.get_h` remain
+zero.
+
+##### Outer disposition and Fault chronology
+
+Projection changes the Dynamic carrier into a primitive result; it does not
+silently forward the original carrier. The final design must therefore close
+the outer path as well as the inner path:
+
+```text
+borrowed ingress current
+  -> no owned End obligation
+
+owned current
+  -> exact End authorization on projection Normal and projection Fault
+
+projection Normal + cleanup success
+  -> publish exact i64 once
+
+projection Fault
+  -> no Completion claim and no result publication
+  -> projection Fault is primary unless an earlier Fault already exists
+
+cleanup Fault after an earlier Fault
+  -> suppressed; remaining teardown is best effort
+```
+
+The strict helper never performs End/release. Existing exit-transaction
+chronology owns cleanup and primary/suppressed ordering. Until borrowed versus
+owned outer disposition is source-backed for every selected path,
+`CHECKED-DYNAMIC-I64-ABI` is not accepted for implementation.
+
+##### D0 acceptance and later I0
+
+This child closes only when all of the following are named and source-backed:
+
+```text
+complete producer representation table for the selected corridor
+sole target-aware backend capability issuer
+ImmediateI64 / IntegerBoxHandle / TaggedCarrier closed vocabulary
+strict non-sentinel helper ABI
+VM and LLVM Direct / Checked / RejectBeforeEffect matrix
+exact two-site demand keyed by Completion site identity
+outer borrowed-versus-owned cleanup disposition
+projection Fault / cleanup Fault / no-result chronology
+Completion remains the sole result/site owner
+GenericLoop / TypeOp / global value representation remain unchanged
+```
+
+Required negative/terminal matrix:
+
+```text
+missing / foreign / duplicate / extra site or representation receipt -> reject
+wrong logical operand, owner, target, block, or physical representation -> reject
+ambiguous bare i64 or partial tagged corridor -> RejectBeforeEffect
+IntegerBox(0) -> checked success with value 0
+invalid, stale, or non-IntegerBox handle -> terminal projection Fault
+projection Fault -> Completion claim 0 / result 0 / physical Return 0
+normal paths -> exact two site-keyed i64 claims / physical Returns 2
+projection success + cleanup Fault -> cleanup Fault primary / result 0
+earlier Fault + later cleanup Fault -> earlier primary / cleanup suppressed
+duplicate consumption / retry / fallback -> reject
+```
+
+If any row is missing, current behavior is `RejectBeforeEffect` before a fresh
+session or Builder effect. Once all rows are accepted,
+`PHYSICAL-INPUT-AUTHORITY-I0`
+implements only the Builder-free demand view. Session-local materialization,
+checked normal/fault blocks, exact site-keyed Completion claims, and detached
+DraftSeal prepare remain `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` responsibilities.
+Normal paths produce exactly two physical Return terminators; Fault paths
+produce zero. No synthetic return join or PHI is introduced. The package-held
+final program is used directly, transitional source-seed callers reach zero by
+cutover, and retry/fallback remain zero.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
@@ -1141,7 +1286,7 @@ rescan, profile callback, or new public plan may enter it. Guards require zero
 Recipe transfer/role inference in layout or allocator, zero callable-profile
 counts in the common physicalizer, zero repeated V1 ledger scans, and zero
 synthetic placement keys. Any missing JoinSig capability returns to design with
-`NoSafeSlice`; the current explicit result-contract I0 owns the active lane.
+`NoSafeSlice`; the current Dynamic-i64 representation D0 owns the active lane.
 
 #### Selected H2 pre-cutover BoxCount and gate
 
@@ -1196,7 +1341,7 @@ no test-only semantic/Home constructor
 
 ```text
 resolved_control_flow/function_control.rs        current 606
-  current result I0: reuse existing owner; keep additions minimal
+  Completion remains the existing owner; keep additions minimal
   split before growth crosses the 650-700 refactor band
 
 builder/resolved_lowering/completion_consumption.rs  current 191
@@ -1220,6 +1365,15 @@ dynamic_full_body_recipe/coseal/
   semantic_program/exit_transaction/
     physical_input.rs
     physical_input_tests.rs
+    dynamic_i64_demand.rs             future target <= 350; Builder-free only
+
+builder/resolved_lowering/dynamic_i64_projection/
+  model.rs                            future session-local IDs only
+  prepare.rs                          future normal/fault realization
+  tests.rs
+
+crates/nyash_kernel/src/exports/primitive.rs
+  strict status/out helper only after D0 acceptance; no sentinel-zero reuse
 
 dynamic_full_body_recipe/physical_demand/
   mod.rs

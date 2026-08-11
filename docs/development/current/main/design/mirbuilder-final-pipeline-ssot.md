@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-28
+Date: 2026-08-11
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -171,19 +171,46 @@ Rust final-source producer、selfhost parity後はHako producerをatomic cutover
 inference、compatibility retry、fixture narrowingで循環を越えない。
 
 明示`: i64`はdeclared-result syntax authorityであって、logical class `Dynamic`の
-`ValueId`をphysical `Integer`としてReturnできる証明ではない。physical-input
-ownerはinner/outerの各Returnについて、次のいずれかをexactに閉じる。
+物理carrierを`Integer`としてReturnできる証明ではない。selected Dynamic corridor
+の目標方式は`CHECKED-DYNAMIC-I64-ABI`で固定する。
 
 ```text
-A. existing authority proves the operand is ExactI64
-B. checked Dynamic -> i64 projection:
-     Normal(i64) | Fault(TypeError)
-C. neither relation exists -> NoSafeSlice
+CHECKED-DYNAMIC-I64-ABI:
+  boundary-local checked ABI/helper
+  + producer-issued representation provenance
+
+current unsupported behavior:
+  RejectBeforeEffect
+
+not selected here:
+  global all-values-as-handles
+  language-wide tagged representation cutover
 ```
 
-Bを選ぶ場合、projectionはexact Fault cut point、cleanup disposition、normal時だけ
-result publication、retry/fallback 0を同じsemantic programへco-sealする。source
-annotationを理由に`MirType::Integer`をValueIdへ後付けしてはならない。
+bare `i64` bitsからraw integerとhandleを推測しない。runtime-polymorphicな物理値は、
+producerが`ImmediateI64`、`IntegerBoxHandle`、またはprivateな
+`TaggedCarrier(tag,payload)` provenanceを発行し、copy/rebind/PHI/currentを越えて
+consumerまで保持する。欠落したprovenanceをReturn側がmetadata、runtime table、
+TypeOp、sentinel-zero helperから修復してはならない。
+
+この境界は二つの時刻へ分ける。
+
+```text
+pre-session demand:
+  Completion sites + logical operands + required checked capability
+  ValueId / BasicBlockId / MIRなし
+
+session-local realization:
+  exact demand row + producer representation + physical IDs
+  -> normal exact i64 | terminal projection Fault
+```
+
+semantic ownerはsession IDsを持たず、session realizationはresult contract、return
+site、logical operandを再分類しない。各required backend/representation cellは
+`Direct | Checked | RejectBeforeEffect`のいずれかであり、fallbackは第四の分類に
+ならない。projection Faultはresultを発行せず、cleanupとprimary/suppressed順序は
+既存exit transactionが所有する。source annotationを理由に`MirType::Integer`を
+後付けしてはならない。
 
 ### Bounded loop unification boundary
 
@@ -208,10 +235,16 @@ Completionはcallable ownerが持つ。V1/V2を型変換するadapter、syntheti
 `ItemKey`、名前・順序によるrepair、第二JoinSig/Recipe/physical plannerは
 禁止する。
 
-このcleanupは現在のHako result-owner design stopとは独立したparked
+このcleanupは現在のDynamic-i64 representation design stopとは独立したparked
 BoxShape laneであり、実行行を先取りしない。詳細なsubtaskとcaller-zeroの
 退役条件は、active Dynamic cardの
 `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` sectionだけを参照する。
+
+Durable order is representation demand, Loop authority cleanup, session-local
+realization, then one production replacement. After the first production
+cutover, semantic parity and performance promotion may proceed as sibling
+proofs; every required sibling must be green before a selfhost producer is
+activated. Exact task tokens and cleanup census remain in the active card.
 
 ## Non-negotiable laws
 
