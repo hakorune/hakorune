@@ -2393,7 +2393,7 @@ Acceptance for this design stop:
 [ ] the next implementation row is the emitter canary, not production cutover
 ```
 
-#### DYNAMIC-V2-I6-CALLSLOT-ABI-D0 (DESIGN STOP — required before I7/V11)
+#### DYNAMIC-V2-I6-CALLSLOT-ABI-D0 (ACCEPTED DESIGN — I0-A next)
 
 Worker audit and the repository/runtime census found no canonical physical
 ABI for the selected Dynamic I6 `substring` CallSlot. This is a design stop,
@@ -2510,9 +2510,81 @@ Acceptance for closing this row:
     fallback, retry, or I7/V11 claim
 ```
 
-Until this decision is accepted, the selected Dynamic physical emitter remains
-`RejectBeforeEffect`; no I6 implementation, I7 implementation, or physical
-End implementation may be started.
+D0 is accepted as a physical transport design only. It does not accept any
+I6/V10 provider or result representation yet: the selected emitter remains
+`RejectBeforeEffect` until a separately owned provider descriptor proves the
+lane and synchronous capability. No runtime dispatch, I6 implementation,
+I7/V11 implementation, physical End, or production caller is opened by this
+Decision.
+
+#### DYNAMIC-V2-CALLSLOT-WIRE-SCHEMA-I0-A (NEXT — schema parity only)
+
+This is the first implementation slice after the D0 decision. It defines
+transport vocabulary and layout tests only; it has no runtime symbol, registry
+lookup, LLVM call, VM dispatch, receipt issuer, or production caller.
+
+The exact fixed-width schema is:
+
+```rust
+#[repr(C)]
+struct DynamicV2WireValueV1 {
+    tag: u32,
+    reserved: u32,
+    payload: u64,
+}
+
+#[repr(C)]
+struct DynamicV2CallOutV1 {
+    status: u32,
+    fault_code: u32,
+    result_tag: u32,
+    disposition: u32,
+    forwarded_input: u32,
+    reserved: u32,
+    value_payload: u64,
+    lease_token: u64,
+    continuation_token: u64,
+}
+```
+
+The wire revision is `1`; all enums are `#[repr(u32)]`, and the C/LLVM
+surface uses only `u32/u64` fields. Rust tests, C `_Static_assert` checks,
+and the Python/LLVM schema must agree on size, alignment, field offsets,
+constants, and validity matrices. Unknown revision, enum, or nonzero reserved
+bits reject rather than being normalized.
+
+I0-A fixes these transport-only values:
+
+```text
+tag:          INVALID=0, HOST_HANDLE=1, IMMEDIATE_I64=2
+status:       NORMAL=0, FAULT=1, SUSPENDED=2 (reserved/rejected in I0-A)
+disposition:  NONE=0, FORWARDED=1, END_AUTHORIZED=2
+fault_code:   NONE=0, INVALID_RECEIVER=1, INVALID_HANDLE=2, ARITY=3,
+              UNSUPPORTED_SLOT=4, TYPE_MISMATCH=5, RANGE=6, RUNTIME=7,
+              INVALID_RESULT=8
+```
+
+`NORMAL` requires a valid result tag and a valid disposition. `FAULT`
+requires a nonzero fault code and zero result/payload/lease/continuation.
+`SUSPENDED` is represented for schema parity only and is rejected by the
+selected synchronous emitter until a continuation owner exists. I0-A does
+not put provider brands, plan identities, selector text, or raw lease tokens
+into the compiler semantic product; those remain private capability values
+in later slices.
+
+I0-A acceptance:
+
+```text
+[ ] Rust repr(C)/repr(u32) model and C header layout are exact
+[ ] size/alignment/field-offset and constant parity tests are green
+[ ] unknown version/tag/status/fault/disposition and reserved bits reject
+[ ] NORMAL/FAULT/SUSPENDED validity matrix rejects malformed combinations
+[ ] normal numeric zero is not a failure sentinel
+[ ] no runtime dispatch, registry, LLVM extern call, VM call, or receipt issuer
+[ ] no RuntimeDataBox, legacy BoxCall, string helper, selector inference,
+    fallback, retry, or production caller
+[ ] each new source file remains below the 700-line refactor band
+```
 
 Implementation DAG after the design stop is accepted (still within this
 rolling card; no extra card is required):
