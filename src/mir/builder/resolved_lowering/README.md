@@ -45,11 +45,13 @@ those receipts exist, the selected canary rejects before the first Builder
 effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
 fallback, and retry are not valid alternatives.
 
-The next design boundary is physical capability ownership, not another
-semantic product: `DynamicLess` must issue a checked normal-Bool receipt, and
-the invocation cleanup owner must issue ordered V10/V11 discharge receipts.
-If either capability is unavailable, the session rejects before its first
-Builder effect. The existing semantic rows remain evidence only.
+The current implementation row is the family-native V2 emitter, not another
+semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; it must
+receive a session-issued opaque `Prelude` segment target and may not accept a
+raw `BasicBlockId`. `DynamicLess` still needs a checked normal-Bool receipt,
+and the invocation cleanup owner still needs ordered V10/V11 discharge
+receipts. If any capability is unavailable, the session rejects before its
+first Builder effect. The existing semantic rows remain evidence only.
 
 The physical issuers are separate children of this selected V2 boundary. The
 `DynamicLess` issuer consumes exact I9 (`V11:Dynamic`, `V12:I64` -> `V13:Bool`)
@@ -65,15 +67,24 @@ are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
 inference, `MirType` repair, `nyash.integer.get_h`, fallback, and retry are
 forbidden.
 
-The first I0 slice now issues these two Builder-free requirements and a
+The landed I0 slice issues these two Builder-free requirements and a
 move-only `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition
 is explicitly `RejectBeforeEffect` until the I7/I8 producer receipt leaves and
-the physical End leaf are implemented; it is not a session canary and has no
-production caller. The numeric I6/I7/I8/I9 and V10/V11/V12/V13 checks are
-private guards for this selected bounded cohort, not a generic physical
-planner or a reusable V2 authority. Inner-Return source identity and the
-Backedge loop key remain in the cleanup demand; the demand may not be split
-through copy accessors before a future consuming emitter is connected.
+the physical End leaf are implemented; it has no production caller. The I8
+leaf may be exercised by a real selected-fixture, unpublished-session canary
+so its receipt boundary is tested, but that canary is not a capability-gate
+bypass or a production handoff. The handoff must consume the plan, move the
+private ledger, and own a session-issued opaque target set. The consuming
+handoff co-seals I8/V12/literal-0/placement/Prelude once; the emitter does not
+rescan the whole operation program. The all-or-nothing capability gate remains
+the sole production handoff. No `cfg(test)` semantic constructor, raw
+block/value getter, or gate bypass is allowed. The preflight ledger borrow is
+test-only once the consuming handoff exists. The numeric I6/I7/I8/I9 and
+V10/V11/V12/V13 checks are private guards for this selected bounded cohort,
+not a generic physical planner or a reusable V2 authority. Inner-Return source
+identity and the Backedge loop key remain in the cleanup demand; the demand
+may not be split through copy accessors before a future consuming emitter is
+connected.
 
 ## Canonical V2 function finish
 

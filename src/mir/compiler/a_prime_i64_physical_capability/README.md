@@ -36,3 +36,12 @@ This receipt remains transport-test-only while the canonical physical session
 is disconnected. It is still cloneable through the legacy `FunctionMetadata`
 container; the required consume-once/move-only owner migration is a separate
 pre-session hardening child and must close before a live emitter consumes it.
+
+The next bounded consumer is the V2 I8 producer receipt, not this transport
+loader. That producer enters only through the selected Dynamic plan's
+plan-consuming unpublished-session handoff, receives an opaque `Prelude`
+segment target issued by the canonical session, and never accepts a raw
+`BasicBlockId`/`ValueId` or re-reads Recipe/source roles. The capability gate
+remains `RejectBeforeEffect` until the I7, I8, and physical End leaves are all
+available; the I8 slice may use a real selected-fixture unpublished-session
+canary, but it does not open a production caller or bypass that gate.

@@ -2790,6 +2790,11 @@ exact I8 item/result/value, session/program/frame/scope/provenance brand,
 `ImmediateI64` representation, and duplicate/foreign/type-conflict rejection
 before effect. It must not accept a raw `BasicBlockId`, rescan Recipe/source
 roles, expose raw `ValueId`, add a V1 adapter, or create a production caller.
+Its legal test ingress is a real selected-fixture unpublished-session canary,
+not a `cfg(test)` semantic constructor and not a capability-gate bypass. The
+session handoff consumes the plan, moves the private ledger, and owns a fresh
+session-brand target set; only a scoped `Prelude` target loan reaches the I8
+emitter.
 
 The emitter row also contains the transport hardening child
 `A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`, required before a live session:
@@ -2811,29 +2816,46 @@ physical End leaf are all available. I9 is not emitted independently: it must
 consume the exact I7/I8 producer receipts and issue its Bool/Fault handoff only
 inside the later all-or-nothing session admission.
 
+The I8 handoff is a required part of this same implementation row. The
+preflight `with_ledger(&self)` view is not a session API: before a session
+canary is connected, it must be test-only or be replaced by one private
+plan-consuming handoff that moves the ledger into the session. The session
+must expose no raw block/value getter, and the opaque target set must be
+session-branded. Production callers remain zero until the complete I7/I8/End
+gate is available.
+
+The consuming handoff must also co-seal the exact I8 evidence once, before
+the emitter runs: item `I8`, result `V12`, literal `0`, its verified placement,
+and its `Prelude` segment. The I8 emitter may not borrow the whole operation
+program and search for that row again. The test canary is a real unpublished
+session consumer; the production capability gate remains the only production
+handoff. The later End leaf applies the same rule to its discharge rows.
+
 The transport-shape portion of `A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`
 is now landed as schema v2 in the Rust receipt, JSON encoder, and Python
 loader: formal count is exactly four, parameter roles retain `pos=1`/`end=2`,
 return sites are exactly `{inner, outer}`, and the two CallSlot rows require
 canonical role-specific target fingerprints, receiver roles, argument
-ordinals/roles, lanes, and unique result IDs. The receipt remains caller-zero and
-cloneable-through-`FunctionMetadata` for now; consume-once/move-only ownership
-is intentionally still a pre-session blocker and is not claimed closed by
-this shape slice. The semantic value co-seal (including the `index_of` `ch`
-result-chain and source CallSlot relation) remains owned by the canonical
-session issuer; the transport loader does not re-resolve those values.
+ordinals/roles, lanes, and unique result IDs. This is shape transport only:
+the receipt remains caller-zero and cloneable-through-`FunctionMetadata` for
+now, so consume-once/move-only ownership is still a pre-session blocker. The
+semantic value co-seal (including the `index_of` `ch` result-chain and source
+CallSlot relation) remains owned by the canonical session issuer; the
+transport loader does not re-resolve those values.
 
-Before a production caller is allowed, one hardening child of this same
-rolling card must close the transport-only receipt boundary: the LLVM loader
-and Rust receipt mirror must validate the exact four-formal layout
-(`src=0,pos=1,end=2,pred_chars=3`), the exact `{inner,outer}` return-site set,
-and the selected CallSlot role/target/argument/result identity. The post-session
-receipt must become consume-once (or remain behind a clearly test-only
-projection) before a live emitter can consume it. Add negative tests for
-swapped/foreign lanes, source-role schedule perturbation, condition-after-I10,
-and foreign cleanup boundary identity. This hardening does not create a new
-semantic authority or a production caller; until it is closed, the receipt
-loaders remain caller-zero transport tests.
+The same hardening child must close the remaining transport boundary before a
+live emitter: canonical issuer visibility/one-shot handoff, Rust/Python
+caller-zero guards, field-level JSON/Python parity, and negative coverage for
+swapped/foreign lanes, receiver/argument identity, source-role schedule
+perturbation, condition-after-I10, and foreign cleanup identity. This child
+does not create a semantic authority or a production caller. The I8 leaf uses
+one plan-consuming unpublished-session handoff with an opaque `Prelude`
+segment target; the all-or-nothing capability gate remains the only
+production handoff until I7, I8, and physical End are all available. The
+schema-2 loader policy must also be fixed in this child: `fallback` and
+`retry` are explicit boolean `false` fields, and unknown-field handling is
+either explicitly rejected or documented as a compatibility projection; it
+must not be an accidental `raw.get(..., false)` acceptance.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 
