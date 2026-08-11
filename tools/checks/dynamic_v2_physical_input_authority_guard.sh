@@ -14,12 +14,15 @@ DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_deman
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+WIRE_RS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/call_slot_wire.rs"
+WIRE_PY="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_callslot_wire.py"
+WIRE_C="$ROOT_DIR/include/nyrt_dynamic_call_slot_v2.h"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_EMITTER"
+  "$SELECTED_EMITTER" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -86,6 +89,50 @@ fi
 for file in "$SELECTED_ABI" "$SELECTED_EMITTER"; do
   if rg -F -q -- "ledger.clone(" "$file"; then
     guard_fail "$TAG" "V2 preflight ledger was copied or split: ${file#"$ROOT_DIR/"}"
+  fi
+done
+
+guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_RS" \
+  "I0-A Rust CallSlot wire schema is missing"
+guard_expect_fixed_in_file "$TAG" "HakoDynamicV2CallOutV1" "$WIRE_C" \
+  "I0-A C CallSlot wire schema is missing"
+guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_PY" \
+  "I0-A Python/LLVM schema mirror is missing"
+for pair in \
+  "Invalid = 0" \
+  "HostHandle = 1" \
+  "ImmediateI64 = 2" \
+  "Normal = 0" \
+  "Fault = 1" \
+  "Suspended = 2" \
+  "None = 0" \
+  "Forwarded = 1" \
+  "EndAuthorized = 2"; do
+  guard_expect_fixed_in_file "$TAG" "$pair" "$WIRE_RS" \
+    "Rust I0-A enum value drifted: $pair"
+done
+for pair in \
+  "TAG_INVALID = 0" \
+  "TAG_HOST_HANDLE = 1" \
+  "TAG_IMMEDIATE_I64 = 2" \
+  "STATUS_NORMAL = 0" \
+  "STATUS_FAULT = 1" \
+  "STATUS_SUSPENDED = 2" \
+  "DISPOSITION_NONE = 0" \
+  "DISPOSITION_FORWARDED = 1" \
+  "DISPOSITION_END_AUTHORIZED = 2"; do
+  guard_expect_fixed_in_file "$TAG" "$pair" "$WIRE_PY" \
+    "Python I0-A constant drifted: $pair"
+done
+for forbidden in \
+  "hako_dynamic_call_slot_v2" \
+  "nyrt_host_call_slot" \
+  "substring_hii" \
+  "indexOf_hh" \
+  "RuntimeDataBox" \
+  "BoxCall"; do
+  if rg -F -q -- "$forbidden" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"; then
+    guard_fail "$TAG" "I0-A wire schema must not dispatch through runtime/provider helper: $forbidden"
   fi
 done
 

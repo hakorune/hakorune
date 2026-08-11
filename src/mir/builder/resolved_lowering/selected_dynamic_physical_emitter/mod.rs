@@ -5,6 +5,7 @@
 //! Builder/CFG owner and never activates the production capability gate.
 
 mod i64_const;
+mod call_slot_wire;
 
 use std::sync::Arc;
 

@@ -2550,8 +2550,8 @@ struct DynamicV2CallOutV1 {
 The wire revision is `1`; all enums are `#[repr(u32)]`, and the C/LLVM
 surface uses only `u32/u64` fields. Rust tests, C `_Static_assert` checks,
 and the Python/LLVM schema must agree on size, alignment, field offsets,
-constants, and validity matrices. Unknown revision, enum, or nonzero reserved
-bits reject rather than being normalized.
+constants, and validity matrices. Unknown enum values or nonzero reserved bits
+reject rather than being normalized.
 
 I0-A fixes these transport-only values:
 
@@ -2572,18 +2572,86 @@ not put provider brands, plan identities, selector text, or raw lease tokens
 into the compiler semantic product; those remain private capability values
 in later slices.
 
+The revision is compile-time/out-of-band in this slice: the Rust `V1` type,
+the Python `WIRE_REVISION`, and the C revision macro must all equal `1`. The
+wire structs carry no runtime revision field, so an unknown revision is not a
+representable decoded value; a future versioned loader must reject a schema
+mismatch before decoding these structs.
+
 I0-A acceptance:
 
 ```text
 [ ] Rust repr(C)/repr(u32) model and C header layout are exact
 [ ] size/alignment/field-offset and constant parity tests are green
-[ ] unknown version/tag/status/fault/disposition and reserved bits reject
+[ ] compile-time revision parity is `1`; unknown runtime revisions are outside
+    this fieldless schema and must be rejected by a future versioned loader
 [ ] NORMAL/FAULT/SUSPENDED validity matrix rejects malformed combinations
 [ ] normal numeric zero is not a failure sentinel
 [ ] no runtime dispatch, registry, LLVM extern call, VM call, or receipt issuer
 [ ] no RuntimeDataBox, legacy BoxCall, string helper, selector inference,
     fallback, retry, or production caller
 [ ] each new source file remains below the 700-line refactor band
+```
+
+#### DYNAMIC-V2-CALLSLOT-WIRE-SCHEMA-I0-A — implementation receipt (2026-08-11)
+
+I0-A is closed as a transport-only slice. Rust `repr(C)`/`repr(u32)` types,
+the fixed-width C header, and the Python/LLVM `ctypes` mirror now share the
+same revision-1 constants, field offsets, 16-byte value layout, and 48-byte
+call-out layout. Rust and Python validators reject unknown enum values,
+nonzero reserved fields, malformed Normal/Fault/Suspended combinations, and
+fixed-width overflow; numeric zero remains a valid Normal payload. The
+forwarded-input sentinel is not treated as a lane when an arity observation is
+provided.
+
+Focused receipt:
+
+```text
+Rust call-slot wire tests: 8 passed
+Python call-slot wire tests: 8 passed
+C11 and C++17 header syntax checks: passed
+dynamic_v2_physical_input_authority_guard.sh: green
+current_state_pointer_guard.sh: green
+```
+
+The slice adds no runtime symbol, provider registry, VM/LLVM call, receipt
+issuer, I6/V10 lane, I7/V11 result decision, physical End, or production
+caller. `DynamicV2CallOutV1` remains non-Clone/non-Copy so the later runtime
+owner can enforce one-shot lease/discharge consumption. The next row is the
+provider-owned strict runtime dispatcher; it must not reuse legacy helpers or
+open a production caller.
+
+#### DYNAMIC-V2-CALLSLOT-RUNTIME-DISPATCH-I0-B (NEXT — provider capability only)
+
+I0-B is the next bounded implementation row. It introduces exactly one
+provider/runtime capability owner for the revision-1 wire and a strict
+dispatcher that consumes a sealed provider descriptor. It may validate the
+receiver/argument/result lanes and return Normal/Fault/RejectBeforeEffect,
+but it must not select a provider from selector text, re-resolve a CallSlot,
+or infer a Dynamic representation from a bare `ValueId`/`i64`.
+
+I0-B may add the runtime registry/descriptor and its negative tests only. It
+must not add VM or LLVM extern calls, I6/V10 emission, I7/V11 result typing,
+physical End, continuation handling, cleanup discharge, production callers,
+legacy helper reuse, sentinel/fallback/retry, or a second semantic/Recipe
+authority. `MaySuspend` remains rejected unless a named continuation owner is
+introduced in a later row.
+
+I0-B acceptance:
+
+```text
+[ ] exactly one provider descriptor/registry owner
+[ ] descriptor is opaque, immutable, and source-independent
+[ ] strict lane/status/disposition validation consumes the I0-A wire only
+[ ] invalid receiver/handle/arity/result rejects before effect
+[ ] Normal zero is distinct from Fault
+[ ] Suspended is rejected without a continuation owner
+[ ] provider/selector/Recipe re-resolution callers = 0
+[ ] legacy BoxCall/RuntimeDataBox/string helper/by-name callers = 0
+[ ] VM/LLVM extern callers, I6/I7 emitters, Physical End, and production
+    callers = 0
+[ ] provider descriptor and runtime dispatch products are move-only/one-shot
+    where lease or discharge state is introduced
 ```
 
 Implementation DAG after the design stop is accepted (still within this
