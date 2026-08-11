@@ -4,8 +4,8 @@ use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
@@ -22,14 +22,12 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
-pub(super) type LoopContinueOnlyRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_loop_continue_only_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     continue_cond_view: CondBlockView,
     facts: &LoopContinueOnlyFacts,
-) -> Option<LoopContinueOnlyRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -113,5 +111,5 @@ pub(super) fn build_loop_continue_only_recipe(
         }],
     );
 
-    Some(LoopContinueOnlyRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }

@@ -16,20 +16,18 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopArrayJoinFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
-
-pub(super) type ArrayJoinRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_array_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,
     facts: &LoopArrayJoinFacts,
-) -> Option<ArrayJoinRecipe> {
+) -> Option<BuiltRecipeTree> {
     let body = build_body_from_facts(facts);
     if body.len() != 3 {
         return None;
@@ -81,7 +79,7 @@ pub(super) fn build_array_join_recipe(
         }],
     );
 
-    Some(ArrayJoinRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }
 
 /// Build separator append statement: result = result + separator

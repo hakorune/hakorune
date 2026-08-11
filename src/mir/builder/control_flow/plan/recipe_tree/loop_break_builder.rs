@@ -18,8 +18,8 @@ use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::LoopBreakStepPlacement;
@@ -44,8 +44,6 @@ fn should_dedupe_carrier_update(facts: &LoopBreakFacts) -> bool {
 }
 
 /// LoopBreak recipe (arena + root block).
-pub(super) type LoopBreakRecipe = super::BuiltRecipeTree;
-
 /// Build a RecipeBlock for LoopBreak from Facts.
 ///
 /// Returns None if the facts cannot be represented as a valid Recipe shape.
@@ -60,7 +58,7 @@ pub(super) fn build_loop_break_recipe(
     loop_cond_view: CondBlockView,
     break_cond_view: CondBlockView,
     facts: &LoopBreakFacts,
-) -> Option<LoopBreakRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -198,7 +196,7 @@ pub(super) fn build_loop_break_recipe(
         }],
     );
 
-    Some(LoopBreakRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }
 
 #[cfg(test)]

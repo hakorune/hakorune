@@ -1,39 +1,18 @@
 use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::accum_const_loop_builder::{
-    build_accum_const_loop_recipe, AccumConstLoopRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::array_join_builder::{
-    build_array_join_recipe, ArrayJoinRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
-    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::char_map_builder::{
-    build_char_map_recipe, CharMapRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::{
-    build_if_phi_join_recipe, IfPhiJoinRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_break_builder::{
-    build_loop_break_recipe, LoopBreakRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_builder::{
-    build_loop_continue_only_recipe, LoopContinueOnlyRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_simple_while_builder::{
-    build_loop_simple_while_recipe, LoopSimpleWhileRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::{
-    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::scan_with_init_builder::{
-    build_scan_with_init_recipe, ScanWithInitRecipe,
-};
-use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::{
-    build_split_scan_recipe, SplitScanRecipe,
-};
+use crate::mir::builder::control_flow::plan::recipe_tree::accum_const_loop_builder::build_accum_const_loop_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::array_join_builder::build_array_join_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::build_bool_predicate_scan_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::char_map_builder::build_char_map_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::build_if_phi_join_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_break_builder::build_loop_break_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_continue_only_builder::build_loop_continue_only_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_simple_while_builder::build_loop_simple_while_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::build_loop_true_early_exit_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::scan_with_init_builder::build_scan_with_init_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::build_split_scan_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::BuiltRecipeTree;
 
 /// Recipe-first verification for loop-break.
 pub(super) fn verify_loop_break_recipe(
@@ -64,7 +43,7 @@ pub(super) fn verify_loop_break_recipe(
         loop_break_facts,
     );
 
-    let Some(LoopBreakRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         // Recipe not buildable = contract violation in planner_required
         return Err(Freeze::contract(
             "LoopBreak recipe missing (planner_required)",
@@ -133,7 +112,7 @@ pub(super) fn verify_if_phi_join_recipe(
     let recipe =
         build_if_phi_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, if_phi_join_facts);
 
-    let Some(IfPhiJoinRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "IfPhiJoin recipe missing (planner_required)",
         ));
@@ -182,7 +161,7 @@ pub(super) fn verify_loop_continue_only_recipe(
         continue_only_facts,
     );
 
-    let Some(LoopContinueOnlyRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "LoopContinueOnly recipe missing (planner_required)",
         ));
@@ -229,7 +208,7 @@ pub(super) fn verify_loop_true_early_exit_recipe(
 
     let recipe = build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, early_exit_facts);
 
-    let Some(LoopTrueEarlyExitRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "LoopTrueEarlyExit recipe missing (planner_required)",
         ));
@@ -275,7 +254,7 @@ pub(super) fn verify_loop_simple_while_recipe(
 
     let recipe = build_loop_simple_while_recipe(&loop_stmt, cond_view, body);
 
-    let Some(LoopSimpleWhileRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "LoopSimpleWhile recipe missing (planner_required)",
         ));
@@ -323,7 +302,7 @@ pub(super) fn verify_loop_char_map_recipe(
 
     let recipe = build_char_map_recipe(&loop_stmt, cond_view, char_map_facts);
 
-    let Some(CharMapRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "LoopCharMap recipe missing (planner_required)",
         ));
@@ -372,7 +351,7 @@ pub(super) fn verify_loop_array_join_recipe(
     let recipe =
         build_array_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, array_join_facts);
 
-    let Some(ArrayJoinRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "LoopArrayJoin recipe missing (planner_required)",
         ));
@@ -416,7 +395,7 @@ pub(super) fn verify_scan_with_init_recipe(
     let loop_cond_view = CondBlockView::from_expr(&loop_condition);
     let recipe = build_scan_with_init_recipe(&loop_stmt, loop_cond_view, scan_with_init_facts);
 
-    let Some(ScanWithInitRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "ScanWithInit recipe missing (planner_required)",
         ));
@@ -459,7 +438,7 @@ pub(super) fn verify_split_scan_recipe(
     let loop_cond_view = CondBlockView::from_expr(&loop_condition);
     let recipe = build_split_scan_recipe(&loop_stmt, loop_cond_view, split_scan_facts);
 
-    let Some(SplitScanRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "SplitScan recipe missing (planner_required)",
         ));
@@ -504,7 +483,7 @@ pub(super) fn verify_bool_predicate_scan_recipe(
     );
     let recipe = build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, bool_scan_facts);
 
-    let Some(BoolPredicateScanRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "BoolPredicateScan recipe missing (planner_required)",
         ));
@@ -549,7 +528,7 @@ pub(super) fn verify_accum_const_loop_recipe(
     );
     let recipe = build_accum_const_loop_recipe(&loop_stmt, loop_cond_view, accum_const_facts);
 
-    let Some(AccumConstLoopRecipe { arena, root }) = recipe else {
+    let Some(BuiltRecipeTree { arena, root }) = recipe else {
         return Err(Freeze::contract(
             "AccumConstLoop recipe missing (planner_required)",
         ));

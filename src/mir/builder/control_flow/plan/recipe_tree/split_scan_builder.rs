@@ -5,8 +5,8 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::loop_types::SplitScanFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -15,13 +15,11 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-pub(super) type SplitScanRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_split_scan_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &SplitScanFacts,
-) -> Option<SplitScanRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -72,7 +70,7 @@ pub(super) fn build_split_scan_recipe(
         }],
     );
 
-    Some(SplitScanRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }
 
 fn build_match_condition(facts: &SplitScanFacts) -> ASTNode {

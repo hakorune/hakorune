@@ -5,8 +5,8 @@ use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockV
 use crate::mir::builder::control_flow::plan::domain::LoopTrueEarlyExitKind;
 use crate::mir::builder::control_flow::plan::facts::LoopTrueEarlyExitFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
@@ -16,13 +16,11 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-pub(super) type LoopTrueEarlyExitRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_loop_true_early_exit_recipe(
     loop_stmt: &ASTNode,
     exit_cond_view: CondBlockView,
     facts: &LoopTrueEarlyExitFacts,
-) -> Option<LoopTrueEarlyExitRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -126,5 +124,5 @@ pub(super) fn build_loop_true_early_exit_recipe(
         }],
     );
 
-    Some(LoopTrueEarlyExitRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }

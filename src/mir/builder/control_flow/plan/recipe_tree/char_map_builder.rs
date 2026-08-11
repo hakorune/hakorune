@@ -21,14 +21,13 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::LoopCharMapFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, BuiltRecipeTree, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
+    RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// CharMap recipe (arena + root block).
-pub(super) type CharMapRecipe = super::BuiltRecipeTree;
-
 /// Build a RecipeBlock for CharMap from Facts.
 ///
 /// CharMap constraints:
@@ -48,7 +47,7 @@ pub(super) fn build_char_map_recipe(
     loop_stmt: &ASTNode,
     cond_view: CondBlockView,
     facts: &LoopCharMapFacts,
-) -> Option<CharMapRecipe> {
+) -> Option<BuiltRecipeTree> {
     // Build body 3 statements from Facts
     let body = build_body_from_facts(facts);
     if body.len() != 3 {
@@ -79,7 +78,7 @@ pub(super) fn build_char_map_recipe(
         }],
     );
 
-    Some(CharMapRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }
 
 /// Build body AST from Facts fields.

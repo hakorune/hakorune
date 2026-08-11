@@ -5,7 +5,8 @@ use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::AccumConstLoopFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, BuiltRecipeTree, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
+    RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -14,13 +15,11 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-pub(super) type AccumConstLoopRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_accum_const_loop_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &AccumConstLoopFacts,
-) -> Option<AccumConstLoopRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -59,5 +58,5 @@ pub(super) fn build_accum_const_loop_recipe(
         }],
     );
 
-    Some(AccumConstLoopRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }

@@ -18,14 +18,13 @@ use super::build_stmt_only_block;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, BuiltRecipeTree, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
+    RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// LoopSimpleWhile recipe (arena + root block).
-pub(super) type LoopSimpleWhileRecipe = super::BuiltRecipeTree;
-
 /// Build a RecipeBlock for LoopSimpleWhile from Facts.
 ///
 /// LoopSimpleWhile constraints:
@@ -42,7 +41,7 @@ pub(super) fn build_loop_simple_while_recipe(
     loop_stmt: &ASTNode,
     cond_view: CondBlockView,
     body: &[ASTNode],
-) -> Option<LoopSimpleWhileRecipe> {
+) -> Option<BuiltRecipeTree> {
     // Validate body is stmt-only (no control flow)
     // This should already be validated by facts extraction
     if body.is_empty() {
@@ -73,5 +72,5 @@ pub(super) fn build_loop_simple_while_recipe(
         }],
     );
 
-    Some(LoopSimpleWhileRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }

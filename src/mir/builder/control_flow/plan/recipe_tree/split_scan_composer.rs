@@ -8,10 +8,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::{
-    build_split_scan_recipe, SplitScanRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::split_scan_builder::build_split_scan_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, BuiltRecipeTree, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -87,7 +87,7 @@ impl RecipeComposer {
         };
         let loop_cond_view = CondBlockView::from_expr(&loop_condition);
 
-        let Some(SplitScanRecipe { arena, root }) =
+        let Some(BuiltRecipeTree { arena, root }) =
             build_split_scan_recipe(&loop_stmt, loop_cond_view, &split_facts)
         else {
             return Err(Freeze::contract("SplitScan recipe build returned None"));

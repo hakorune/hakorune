@@ -8,10 +8,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_break_builder::{
-    build_loop_break_recipe, LoopBreakRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_break_builder::build_loop_break_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, BuiltRecipeTree, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::{LoopBreakStepPlacement, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 
@@ -81,7 +81,7 @@ impl RecipeComposer {
         let loop_cond_view = CondBlockView::from_expr(&loop_break_facts.loop_condition);
         let break_cond_view = CondBlockView::from_expr(&loop_break_facts.break_condition);
 
-        let Some(LoopBreakRecipe { arena, root }) = build_loop_break_recipe(
+        let Some(BuiltRecipeTree { arena, root }) = build_loop_break_recipe(
             &loop_stmt,
             loop_cond_view,
             break_cond_view,

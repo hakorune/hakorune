@@ -8,10 +8,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::{
-    build_if_phi_join_recipe, IfPhiJoinRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::if_phi_join_builder::build_if_phi_join_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, BuiltRecipeTree, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -49,7 +49,7 @@ impl RecipeComposer {
         let loop_cond_view = CondBlockView::from_expr(&if_phi_join_facts.condition);
         let if_cond_view = CondBlockView::from_expr(&if_phi_join_facts.if_condition);
 
-        let Some(IfPhiJoinRecipe { arena, root }) =
+        let Some(BuiltRecipeTree { arena, root }) =
             build_if_phi_join_recipe(&loop_stmt, loop_cond_view, if_cond_view, &if_phi_join_facts)
         else {
             return Err(Freeze::contract(

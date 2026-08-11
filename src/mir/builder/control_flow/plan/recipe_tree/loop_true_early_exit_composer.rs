@@ -8,10 +8,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::{
-    build_loop_true_early_exit_recipe, LoopTrueEarlyExitRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::loop_true_early_exit_builder::build_loop_true_early_exit_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, BuiltRecipeTree, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -52,7 +52,7 @@ impl RecipeComposer {
         };
         let exit_cond_view = CondBlockView::from_expr(&early_exit_facts.exit_condition);
 
-        let Some(LoopTrueEarlyExitRecipe { arena, root }) =
+        let Some(BuiltRecipeTree { arena, root }) =
             build_loop_true_early_exit_recipe(&loop_stmt, exit_cond_view, &early_exit_facts)
         else {
             return Err(Freeze::contract(

@@ -4,8 +4,8 @@ use crate::ast::{ASTNode, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::IfPhiJoinFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
@@ -21,14 +21,12 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
-pub(super) type IfPhiJoinRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_if_phi_join_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     if_cond_view: CondBlockView,
     facts: &IfPhiJoinFacts,
-) -> Option<IfPhiJoinRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body statements: if-else + loop_increment. Parts expects update statements,
@@ -91,5 +89,5 @@ pub(super) fn build_if_phi_join_recipe(
         }],
     );
 
-    Some(IfPhiJoinRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }

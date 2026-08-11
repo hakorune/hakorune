@@ -4,8 +4,8 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::facts::BoolPredicateScanFacts;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock, RecipeBodies,
-    RecipeItem,
+    BlockContractKind, BuiltRecipeTree, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
+    RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
@@ -15,13 +15,11 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-pub(super) type BoolPredicateScanRecipe = super::BuiltRecipeTree;
-
 pub(super) fn build_bool_predicate_scan_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     facts: &BoolPredicateScanFacts,
-) -> Option<BoolPredicateScanRecipe> {
+) -> Option<BuiltRecipeTree> {
     let mut arena = RecipeBodies::new();
 
     // Body 0: loop statement itself
@@ -85,7 +83,7 @@ pub(super) fn build_bool_predicate_scan_recipe(
         }],
     );
 
-    Some(BoolPredicateScanRecipe { arena, root })
+    Some(BuiltRecipeTree { arena, root })
 }
 
 fn build_not_predicate_condition(facts: &BoolPredicateScanFacts) -> ASTNode {

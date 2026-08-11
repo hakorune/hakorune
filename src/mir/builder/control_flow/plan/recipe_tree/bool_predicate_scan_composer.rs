@@ -8,10 +8,10 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
-use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::{
-    build_bool_predicate_scan_recipe, BoolPredicateScanRecipe,
+use crate::mir::builder::control_flow::plan::recipe_tree::bool_predicate_scan_builder::build_bool_predicate_scan_recipe;
+use crate::mir::builder::control_flow::plan::recipe_tree::{
+    BlockContractKind, BuiltRecipeTree, RecipeItem,
 };
-use crate::mir::builder::control_flow::plan::recipe_tree::{BlockContractKind, RecipeItem};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 
@@ -50,7 +50,7 @@ impl RecipeComposer {
             &bool_scan_facts.cond_profile,
         );
 
-        let Some(BoolPredicateScanRecipe { arena, root }) =
+        let Some(BuiltRecipeTree { arena, root }) =
             build_bool_predicate_scan_recipe(&loop_stmt, loop_cond_view, &bool_scan_facts)
         else {
             return Err(Freeze::contract(
