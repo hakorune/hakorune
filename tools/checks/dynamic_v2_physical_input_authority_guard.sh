@@ -92,6 +92,14 @@ for file in "$SELECTED_ABI" "$SELECTED_EMITTER"; do
   fi
 done
 
+# A borrowed ledger view is test evidence only.  The first live session handoff
+# must consume the plan and move the ledger; keeping this API production-visible
+# would reopen a second emission authority before that handoff exists.
+SELECTED_ABI_PRODUCTION="$(sed '/^[[:space:]]*#\[cfg(test)\]/,$d' "$SELECTED_ABI")"
+if printf '%s\n' "$SELECTED_ABI_PRODUCTION" | rg -q -- "with_ledger"; then
+  guard_fail "$TAG" "preflight ledger borrow escaped the test-only boundary"
+fi
+
 guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_RS" \
   "I0-A Rust CallSlot wire schema is missing"
 guard_expect_fixed_in_file "$TAG" "HakoDynamicV2CallOutV1" "$WIRE_C" \
