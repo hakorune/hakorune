@@ -2594,9 +2594,9 @@ temporary-discharge capability, or a production caller.
 
 Before the capability I0 row, the ledger's move-only contract must be made
 literal: `DynamicV2NativePreflightLedgerV1` must not implement `Clone` in
-production. Tests may compare a separate borrowed coverage projection, but a
-physical sibling must not copy the evidence ledger and create a second
-emission authority.
+production. This is now landed in `0ef252baf7`; tests may compare a separate
+borrowed coverage projection, but a physical sibling must not copy the
+evidence ledger and create a second emission authority.
 
 #### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — design closeout
 
@@ -2724,7 +2724,7 @@ physical End leaf are unavailable; acceptance does not claim a fresh session
 or production caller. No capability may silently become a no-op, infer a raw
 value, or use fallback/retry.
 
-#### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — downstream implementation gate
+#### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — CLOSED (`0ef252baf7`)
 
 This is the first implementation row after both D0 decisions are accepted.
 It may issue only the two Builder-free capability demands and the move-only
@@ -2734,14 +2734,14 @@ I7/I8 producer receipt or physical End primitive is unavailable. The gate is
 the only allowed handoff into the later V2 emitter session; a partial gate is
 not a canary and must reject before the first Builder effect.
 
-The first bounded I0 slice is now landed. It adds the private I9 demand, the
-exact six-row temporary-discharge demand, and the move-only admission
-aggregate. The aggregate currently has an explicit `RejectBeforeEffect`
-disposition because the I7/I8 producer receipt leaves and the physical End
-leaf are not yet implemented. The focused package proof checks the I9
-operands/result (`V11`, `V12`, `V13`), the six ordered cleanup rows, and the
-all-or-nothing rejection; it does not open a session, allocate a physical ID,
-or create a production caller.
+The first bounded I0 slice is landed and closed in `0ef252baf7`. It adds the
+private I9 demand, the exact six-row temporary-discharge demand, and the
+move-only admission aggregate. The aggregate has an explicit
+`RejectBeforeEffect` disposition because the I7/I8 producer receipt leaves and
+the physical End leaf are not yet implemented. The focused package proof
+checks the I9 operands/result (`V11`, `V12`, `V13`), the six ordered cleanup
+rows, and the all-or-nothing rejection; it does not open a session, allocate a
+physical ID, or create a production caller.
 
 The bounded schedule derives operation segments from verified placement and
 the co-sealed I10 control only: predicate-block operations and body operations
@@ -2753,9 +2753,63 @@ IndexOf CallSlot role, and the I8 zero constant. Cleanup rows retain the exact
 inner-return source site and backedge loop identity; row order is not a
 replacement for provenance.
 
-The remaining I0 work is only the named physical leaves and their strict
-producer receipts. Do not replace this rejection with a generic compare,
-scope cleanup, raw handle inspection, or a fallback route.
+The remaining work belongs to the next emitter row and is only the named
+physical leaves and their strict producer receipts. Do not replace this
+rejection with a generic compare, scope cleanup, raw handle inspection, or a
+fallback route.
+
+Closeout evidence for this row is fixed:
+
+```text
+selected_dynamic_loan_issues_one_v2_native_preflight_plan = green
+selected_v2_capability_admission_is_all_or_nothing_before_effect = green
+DynamicV2NativePreflightLedgerV1::Clone = 0
+source-role physical segment selection = 0
+production caller / fresh session = 0
+```
+
+Non-claims: no I7/I8 producer receipt, physical End leaf, fresh ValueId or
+BasicBlock session, Completion consumption, production caller, fallback, or
+retry is closed by this row.
+
+#### DYNAMIC-V2-PHYSICAL-EMITTER-I0 — next implementation row
+
+This is the sole next implementation row after the capability admission
+closeout. It is still pre-production and must stay inside the selected V2
+physical boundary. The first leaf is the exact I8 constant producer:
+
+```text
+DYNAMIC-V2-I8-CONST-I64-PRODUCER-RECEIPT-I0
+```
+
+The I8 producer consumes the co-sealed placement/control schedule and a
+session-issued opaque segment target, emits exactly `ConstI64(0) -> V12`
+through the canonical integer emitter, and issues one move-only
+`DynamicV2I64ProducerReceiptV1` only after successful emission. It verifies the
+exact I8 item/result/value, session/program/frame/scope/provenance brand,
+`ImmediateI64` representation, and duplicate/foreign/type-conflict rejection
+before effect. It must not accept a raw `BasicBlockId`, rescan Recipe/source
+roles, expose raw `ValueId`, add a V1 adapter, or create a production caller.
+
+The emitter row also contains the transport hardening child
+`A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`, required before a live session:
+Rust and LLVM/Python receipts must prove the exact four-formal layout
+(`src=0,pos=1,end=2,pred_chars=3`), exact `{inner,outer}` completion site set,
+and canonical CallSlot role/target/receiver/argument/result identity. The
+post-session receipt must be move-only or consumed exactly once. A receipt
+must not be retained inside a cloneable `FunctionMetadata` owner unless the
+owner exposes a single explicit consume/take boundary; the clean default is a
+fresh-session/prepared-draft move-only owner with JSON encoding borrowing or
+consuming it once. The JSON/Python loader remains transport-test-only until
+that boundary is closed. Swapped/foreign lanes, role-target mismatch,
+source-role schedule perturbation, condition-after-I10, and foreign cleanup
+identity remain mandatory negatives. This child adds no semantic authority and
+no production caller.
+
+The full capability gate remains `RejectBeforeEffect` until I7, I8, and the
+physical End leaf are all available. I9 is not emitted independently: it must
+consume the exact I7/I8 producer receipts and issue its Bool/Fault handoff only
+inside the later all-or-nothing session admission.
 
 Before a production caller is allowed, one hardening child of this same
 rolling card must close the transport-only receipt boundary: the LLVM loader
