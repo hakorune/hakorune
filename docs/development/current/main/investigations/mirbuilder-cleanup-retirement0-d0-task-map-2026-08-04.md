@@ -270,6 +270,21 @@ small neutral module (for example `analyzer_mode.rs`):
 there risks violating the 800-line source limit. Guard the four old symbols at
 zero and the new production entry at one capability owner.
 
+T2-S1 design audit receipt (2026-08-11): the policy-matrix design is accepted,
+but implementation remains parked while the active provider lane is a design
+stop. The current four wrappers and existing policy enum are still the live
+shape; `TrivialCanonicalAnalysisModeV1` has not been introduced. Do not delete
+the wrappers or change guards in place. When this disjoint refactor is resumed,
+use a short behavior-neutral series: (1) add the mode in a small neutral
+`analyzer_policy`/`analyzer_mode` module while keeping facades and callers
+buildable, (2) move capability callers/tests to one canonical entry and update
+the manifest/guard, then (3) delete wrappers only after caller-zero evidence.
+If the new entry cannot preserve the four policy quadrants without growing
+`analyzer.rs`/`capability.rs` past the refactor band, stop and split the
+facade/module rather than widening either file. No current pointer change,
+fixture expansion, route change, or semantic authority is authorized by this
+cleanup receipt.
+
 ### T3-D0..S3 — test facade and naming cleanup
 
 First manifest every `_for_test` facade with cfg scope, owner, mutation class,
