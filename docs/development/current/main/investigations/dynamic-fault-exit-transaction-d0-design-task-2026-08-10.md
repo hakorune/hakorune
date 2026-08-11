@@ -1011,12 +1011,11 @@ branch 3:
   A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 (receipt/JSON/strict-preflight transport)
 ```
 
-The Rust VM reference lane accepts `VMValue::Integer` under the exact entry
-contract, then carries ImmediateI64 directly. Bool/String/BoxRef/foreign
-values reject before body effect. `ExactNumeric` also rejects in this bounded
-row until an explicit normalization Decision exists; the present checker does
-not normalize it to an Integer carrier. This row is non-production evidence
-and does not open a provider or session.
+The former Rust VM reference checker accepted `VMValue::Integer` under the
+exact entry contract, then carried ImmediateI64 directly. That caller-zero
+artifact is now retired by `DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0`; it is
+historical evidence only. The Rust VM remains a bootstrap/reference/
+compatibility lane and is not a consumer of the selected A-prime capability.
 
 `A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0` is landed as a transport boundary
 before the selected cross-backend cutover. It is not a backend-name allowlist
@@ -2262,17 +2261,17 @@ remains downstream until that branch closes.
 
 The session is downstream of the AOT/LLVM production capability branch listed
 in the A-prime physical-input contract. It must not open while that branch is
-merely named. The Rust VM entry row is already landed reference evidence and
-cannot open the session, provider, or production cutover.
+merely named. No Rust VM entry row can open the session, provider, or
+production cutover; the former caller-zero row is retired by the fence below.
 
-#### A-PRIME-VM-EXACT-I64-ENTRY-I0 — non-gating retirement debt
+#### A-PRIME-VM-EXACT-I64-ENTRY-I0 — retired reference artifact
 
-The backend-local classifier landed as `6212f3eb06`, but remains caller-zero
-and is not a production capability, provider consumer, session prerequisite,
-or cutover gate. `DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0` deletes this
-orphan classifier and freezes Rust VM DynamicV2 provider/receipt/session
-callers at zero. No future VM adapter is part of the production roadmap;
-unsupported reference behavior stays typed fail-fast.
+The former backend-local classifier was caller-zero and never a production
+capability, provider consumer, session prerequisite, or cutover gate.
+`DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0` deletes that orphan and freezes the
+Rust VM DynamicV2/provider/receipt/session caller set at zero. No future VM
+adapter is part of the production roadmap; unsupported reference behavior
+stays in its existing compatibility lane.
 
 #### A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 — following mandatory branch
 
@@ -2893,6 +2892,19 @@ already-supported bootstrap/recovery/compatibility smoke until caller-zero
 retirement; `.hako` is the future semantic-reference owner. A VM provider,
 receipt, representation adapter, runtime leaf, or production acceptance gate
 is explicitly out of scope.
+
+##### DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0 (IMPLEMENTATION RECEIPT)
+
+The caller-zero VM A-prime classifier module
+`src/backend/mir_interpreter/exec/a_prime_i64_entry.rs` and its module edge
+were removed. The Rust interpreter keeps its existing generic numeric
+contract behavior; it does not classify selected A-prime arguments, consume a
+DynamicV2 demand, issue a provider/receipt, or open a physical session.
+`tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh` now freezes zero
+DynamicV2/A-prime provider, receipt, adapter, session, and production symbols
+under the Rust interpreter, Rust VM runner, and VM test/reference roots. This
+is a BoxShape fence, not VM feature work, and does not authorize a VM provider
+or production gate.
 
 At the ABI boundary, `EndAuthorized` carries one one-shot lease, `Forwarded`
 carries no fresh lease, and Fault publishes neither result nor lease.
