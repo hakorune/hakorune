@@ -46,42 +46,6 @@ pub(super) enum RecursiveAfterRejectV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct ReadyCallableLoopProfileCloseV1 {
-    owner: FunctionOwnerIdV1,
-    terminal_block: BasicBlockId,
-    after_predecessors: Box<[BasicBlockId]>,
-    operation_count: usize,
-    pure_count: usize,
-    read_count: usize,
-    write_count: usize,
-    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
-}
-
-impl ReadyCallableLoopProfileCloseV1 {
-    pub(super) fn finish(
-        self,
-        owner: FunctionOwnerIdV1,
-        terminal_block: BasicBlockId,
-    ) -> Result<(), String> {
-        if self.owner != owner || self.terminal_block != terminal_block {
-            return Err("callable profile close owner/terminal mismatch".into());
-        }
-        if self.after_predecessors.len() != 1
-            || (
-                self.operation_count,
-                self.pure_count,
-                self.read_count,
-                self.write_count,
-            ) != (7, 4, 2, 1)
-        {
-            return Err("callable profile close coverage mismatch".into());
-        }
-        let _condition_key = self.condition_key;
-        Ok(())
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
 pub(super) struct ReadyLoopAfterContinuationV1 {
     owner: FunctionOwnerIdV1,
     root_after: BasicBlockId,
@@ -99,23 +63,6 @@ impl ReadyLoopAfterContinuationV1 {
 
     pub(super) const fn predecessor_count(&self) -> usize {
         self.predecessors.len()
-    }
-
-    pub(super) fn into_profile_close(
-        self,
-        counts: (usize, usize, usize, usize),
-        condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
-    ) -> ReadyCallableLoopProfileCloseV1 {
-        ReadyCallableLoopProfileCloseV1 {
-            owner: self.owner,
-            terminal_block: self.root_after,
-            after_predecessors: self.predecessors,
-            operation_count: counts.0,
-            pure_count: counts.1,
-            read_count: counts.2,
-            write_count: counts.3,
-            condition_key,
-        }
     }
 }
 

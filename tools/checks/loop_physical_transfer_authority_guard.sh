@@ -45,6 +45,29 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "let ledger = program.ledger()" "$V1_SEGMENT_DISPATCH" \
   "segment dispatcher must borrow the complete ledger"
+guard_expect_fixed_in_file "$TAG" \
+  "ReadyCallableLoopProfileCloseV1" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/tail_completion.rs" \
+  "Callable profile-close must live in the callable adapter"
+guard_expect_fixed_in_file "$TAG" \
+  "mod tail_completion;" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs" \
+  "callable tail adapter module must remain wired"
+guard_expect_fixed_in_file "$TAG" \
+  "#[cfg(test)]" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs" \
+  "callable tail adapter must remain test-only"
+
+for forbidden in \
+  'ReadyCallableLoopProfileCloseV1' \
+  'profile_counts' \
+  '(7, 4, 2, 1)' \
+  'condition_key' \
+  'into_profile_close' \
+  'ExactTrivialReturnAbiV1' \
+  'VerifiedCallableTailV1'
+do
+  if rg -n -F -- "$forbidden" "$AFTER" >/dev/null 2>&1; then
+    guard_fail "$TAG" "common recursive After retains Callable profile authority: $forbidden"
+  fi
+done
 
 for file in "$LAYOUT" "$ALLOCATOR" "$AFTER"; do
   if rg -n -F "LoopConditionV1" "$file" >/dev/null 2>&1; then

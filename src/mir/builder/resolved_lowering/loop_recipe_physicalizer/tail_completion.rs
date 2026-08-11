@@ -6,7 +6,7 @@
 //! and consumes the existing Completion/return ledgers once.
 
 use super::operation_type::ensure_provisional_value_class;
-use super::recursive_after::{ReadyCallableLoopProfileCloseV1, ReadyLoopAfterContinuationV1};
+use super::recursive_after::ReadyLoopAfterContinuationV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableTailV1;
@@ -32,6 +32,42 @@ pub(super) enum CallableTailCompletionRejectV1 {
     },
     Completion(String),
     Identity(String),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct ReadyCallableLoopProfileCloseV1 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    terminal_block: BasicBlockId,
+    after_predecessor_count: usize,
+    operation_count: usize,
+    pure_count: usize,
+    read_count: usize,
+    write_count: usize,
+    condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+}
+
+impl ReadyCallableLoopProfileCloseV1 {
+    pub(super) fn finish(
+        self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        terminal_block: BasicBlockId,
+    ) -> Result<(), String> {
+        if self.owner != owner || self.terminal_block != terminal_block {
+            return Err("callable profile close owner/terminal mismatch".into());
+        }
+        if self.after_predecessor_count != 1
+            || (
+                self.operation_count,
+                self.pure_count,
+                self.read_count,
+                self.write_count,
+            ) != (7, 4, 2, 1)
+        {
+            return Err("callable profile close coverage mismatch".into());
+        }
+        let _condition_key = self.condition_key;
+        Ok(())
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -77,6 +113,7 @@ pub(super) fn consume_callable_tail_completion_v1(
     session: &mut CanonicalSsaFunctionSessionV2<'_>,
 ) -> Result<ReadyCallableTailCompletionV1, CallableTailCompletionRejectV1> {
     let owner = ready.owner();
+    let after_predecessor_count = ready.predecessor_count();
     if tail.owner() != owner || terminal.owner() != owner {
         return Err(CallableTailCompletionRejectV1::OwnerMismatch);
     }
@@ -140,6 +177,15 @@ pub(super) fn consume_callable_tail_completion_v1(
         block: after,
         value,
         abi: terminal.abi(),
-        profile_close: ready.into_profile_close(profile_counts, condition_key),
+        profile_close: ReadyCallableLoopProfileCloseV1 {
+            owner,
+            terminal_block: after,
+            after_predecessor_count,
+            operation_count: profile_counts.0,
+            pure_count: profile_counts.1,
+            read_count: profile_counts.2,
+            write_count: profile_counts.3,
+            condition_key,
+        },
     })
 }
