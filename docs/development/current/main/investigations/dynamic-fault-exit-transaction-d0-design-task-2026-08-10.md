@@ -2400,7 +2400,14 @@ Acceptance for this design stop:
 [ ] the next implementation row is the emitter canary, not production cutover
 ```
 
-#### DYNAMIC-V2-I6-CALLSLOT-ABI-D0 (ACCEPTED DESIGN — I0-A next)
+#### DYNAMIC-V2-I6-CALLSLOT-ABI-D0 (HISTORICAL DESIGN — SUPERSEDED BY TEXT-SCAN RECUT)
+
+This earlier design-stop text is retained only as design history. Its
+`I7 -> V11 Dynamic OR separately accepted I64` fork is no longer live. The
+current contract is the exact-I64 recut recorded below: I7 is
+`TextFindNeedle -> V11:I64`, I9 is `CompareI64`, and V11 has no lease or End.
+The old section must not be used to authorize an I6-only ABI, a boxed I7
+result, or a second provider decision.
 
 Worker audit and the repository/runtime census found no canonical physical
 ABI for the selected Dynamic I6 `substring` CallSlot. This is a design stop,
@@ -2836,6 +2843,17 @@ Implementation receipt (2026-08-12):
   registry, runtime, LLVM, VM, physical session, fallback, retry, or
   production caller was added by this receipt.
 
+Transport projection follow-up (2026-08-12):
+  The post-session A-prime Rust/Python validators and the Rust JSON fixture
+  were also synchronized with this recut.  The source arities remain
+  `substring/2` and `indexOf/1`; substring returns an opaque Text handle,
+  while indexOf returns `ImmediateI64`.  The four formal lanes remain
+  `src=0,pos=1,end=2,pred_chars=3`, with role-index checks `pos=1` and
+  `end=2`.  A stale `substring/3`/`indexOf/2` or I7 opaque result now rejects
+  before effect.  Focused Rust receipt/JSON tests (7/2) and Python loader
+  tests (9) are green.  This is transport consistency only: no provider,
+  runtime, LLVM production hook, VM consumer, or production caller was added.
+
 Stop:
   if any owner still requires V11 Dynamic, an I9 Fault, or V11 End, return to
   design. Do not repair with IntegerBox, fake/no-op lease, Dynamic injection,
@@ -2926,6 +2944,43 @@ The provider design is closed, but the capability matrix remains
 `RejectBeforeEffect` until the semantic recut and every downstream capability
 in this DAG are implemented. No provider code is authorized by the D0
 closeout alone.
+
+##### Provider-slot audit reconciliation (2026-08-12)
+
+The worker audit considered widening this contract to a `text.cursor` or
+`text.index` family because the language-level String API also exposes
+`length`, `lastIndexOf`, and overloads. That widening is **not** adopted.
+ProviderSlot completeness is scoped to the versioned role set declared by the
+slot; it does not mean "every method on the receiver class". The accepted
+`hako.text.scan@1` role set is therefore exactly:
+
+```text
+TextSliceRange  = substring/2
+TextFindNeedle  = indexOf/1
+```
+
+Both roles share one canonical Text/UTF-8 code-point profile, one provider,
+one ABI/lifecycle contract, and one admission seal. `length`,
+`lastIndexOf`, unrelated overloads, and the full String surface are explicit
+non-claims, not missing rows to be silently filled by a compatibility
+provider. A future cursor/index slot would require a separate Decision and a
+separate complete role set; it cannot be mixed into this cell.
+
+This decision does **not** prove that a selected caller produced `end` from
+`length`, nor that a current byte-index helper implements the CP profile.
+Those are independent caller/capability proofs. The selected AOT cell must
+reject before effect when the provider export is byte-indexed, environment
+selected, receiver-alias ambiguous, missing either role, or otherwise fails
+the exact profile. The language String reference remains the CP semantic
+source; this small provider contract is its bounded AOT projection.
+
+The audit also confirms that the next implementation boundary is still one
+atomic AOT cell, not a hook-only slice. Live code is still missing the
+`ProviderAdmissionSeal`, immutable admitted registry, call-in admission wire,
+receiver-identity-bearing `RuntimeExecutablePlan`, canonical-session I6/I7
+receipts, and strict LLVM leaf. Until those owners and their named LLVM
+consumer land together, the row remains `RejectBeforeEffect`; no Rust VM
+provider/adapter or legacy String route may be used to bridge the gap.
 
 There is no Rust VM node in this production DAG. Rust VM stays limited to
 already-supported bootstrap/recovery/compatibility smoke until caller-zero

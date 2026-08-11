@@ -26,6 +26,18 @@ guard_expect_fixed_in_file "$TAG" 'rejects_swapped_parameter_role_indices' "$RUS
   "Rust must reject swapped role/ordinal rows"
 guard_expect_fixed_in_file "$TAG" 'test_parameter_role_index_mismatch_is_rejected' "$PY_TESTS" \
   "Python must reject swapped role/ordinal rows"
+guard_expect_fixed_in_file "$TAG" '"substring/2"' "$RUST_RECEIPT" \
+  "Rust must keep the source CallSlot arity for substring"
+guard_expect_fixed_in_file "$TAG" '"indexOf/1"' "$RUST_RECEIPT" \
+  "Rust must keep the source CallSlot arity for indexOf"
+guard_expect_fixed_in_file "$TAG" 'expected_result_lane' "$PY_LOADER" \
+  "Python must validate the role-specific result lane"
+guard_expect_fixed_in_file "$TAG" 'result_lane: APrimeI64LaneV1::ImmediateI64' "$RUST_TESTS" \
+  "Rust must model indexOf as an ImmediateI64 result"
+guard_expect_fixed_in_file "$TAG" '"result_lane": "immediate_i64"' "$PY_TESTS" \
+  "Python must model indexOf as an ImmediateI64 result"
+guard_expect_fixed_in_file "$TAG" 'CallResultLaneMismatch' "$RUST_TESTS" \
+  "Rust must reject a stale I7 opaque result lane"
 
 for file in "$RUST_RECEIPT" "$PY_LOADER" "$PY_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

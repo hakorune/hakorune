@@ -312,8 +312,13 @@ def load_selected_a_prime_capability(
         ):
             if arg.ordinal != ordinal or arg.role != expected_role or arg.lane != expected_lane:
                 raise APrimeI64CapabilityError("call argument identity does not match role")
-        if row.result_lane != "opaque_handle":
-            raise APrimeI64CapabilityError("Dynamic call results must use opaque_handle")
+        expected_result_lane = (
+            "opaque_handle" if row.role == "substring" else "immediate_i64"
+        )
+        if row.result_lane != expected_result_lane:
+            raise APrimeI64CapabilityError(
+                f"{row.role} result must use {expected_result_lane}"
+            )
         if row.result_value_id in call_results:
             raise APrimeI64CapabilityError("duplicate call result ValueId")
         call_results.add(row.result_value_id)

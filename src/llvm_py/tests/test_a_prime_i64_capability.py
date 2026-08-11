@@ -56,7 +56,7 @@ def _valid_function_data():
                             {"ordinal": 0, "role": "ch", "value_id": 20, "lane": "opaque_handle"}
                         ],
                         "result_value_id": 21,
-                        "result_lane": "opaque_handle",
+                        "result_lane": "immediate_i64",
                     },
                 ],
                 "returns": [
@@ -97,6 +97,13 @@ class TestAPrimeI64Capability(unittest.TestCase):
 
         data = _valid_function_data()
         data["metadata"]["a_prime_i64_physical_receipt"]["returns"][0]["lane"] = "opaque_handle"
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["call_edges"][1][
+            "result_lane"
+        ] = "opaque_handle"
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)
 

@@ -130,9 +130,9 @@ mod tests {
             block: BasicBlockId::new(3),
             instruction_index,
             target_fingerprint: if role == "substring" {
-                "substring/3".into()
+                "substring/2".into()
             } else {
-                "indexOf/2".into()
+                "indexOf/1".into()
             },
             receiver_role: if role == "substring" {
                 "src"
@@ -166,7 +166,11 @@ mod tests {
                 }]
             },
             result_value_id: ValueId::new(if role == "substring" { 20 } else { 21 }),
-            result_lane: APrimeI64LaneV1::OpaqueHandle,
+            result_lane: if role == "substring" {
+                APrimeI64LaneV1::OpaqueHandle
+            } else {
+                APrimeI64LaneV1::ImmediateI64
+            },
         }
     }
 }

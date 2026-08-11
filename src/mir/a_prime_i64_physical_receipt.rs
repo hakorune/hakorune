@@ -267,7 +267,12 @@ impl APrimeI64PhysicalReceiptV1 {
             if !call_results.insert(row.result_value_id.as_u32()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::DuplicateCallResult);
             }
-            if row.result_lane != APrimeI64LaneV1::OpaqueHandle {
+            let expected_result_lane = if row.role == "substring" {
+                APrimeI64LaneV1::OpaqueHandle
+            } else {
+                APrimeI64LaneV1::ImmediateI64
+            };
+            if row.result_lane != expected_result_lane {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallResultLaneMismatch);
             }
         }
@@ -484,7 +489,7 @@ mod tests {
                         lane: APrimeI64LaneV1::OpaqueHandle,
                     }],
                     result_value_id: ValueId::new(21),
-                    result_lane: APrimeI64LaneV1::OpaqueHandle,
+                    result_lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
             vec![
@@ -544,6 +549,13 @@ mod tests {
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::ParameterLaneMismatch)
+        );
+
+        let mut receipt = valid_receipt();
+        receipt.call_edges[1].result_lane = APrimeI64LaneV1::OpaqueHandle;
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::CallResultLaneMismatch)
         );
     }
 
