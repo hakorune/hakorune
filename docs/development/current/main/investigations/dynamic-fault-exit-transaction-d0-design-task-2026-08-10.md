@@ -492,6 +492,11 @@ demand are already closed and add no Builder effect. The broader callable
 physical-input/session rows remain closed until the source-backed result/ABI
 row lands; Home, runtime Fault, retry, and fallback are nonclaims.
 
+The result/ABI boundary is intentionally two-stage: the declared-result
+contract is closed, but the physical Dynamic-to-i64 representation is not.
+No Loop cleanup, physical session, DraftSeal, or production cutover may open
+until the second stage is closed.
+
 ## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: Dynamic-to-i64 NoSafeSlice)
 
 The declared-result row is now closed: the selected
@@ -774,6 +779,7 @@ The sole next task is therefore the remainder of this existing row:
 
 ```text
 PHYSICAL-INPUT-AUTHORITY-I0
+  child design: PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0
   design only until A or a concrete B is accepted
   then one narrow issue+consume cell, site-keyed for inner and outer Return
 ```
@@ -783,6 +789,61 @@ standalone initializer bridge, Dynamic source reissuer, GenericLoop change,
 Recipe/JoinSig physical type, or public raw `ValueId`/slot API. Loop
 unification remains the next structural lane after this row; it cannot replace
 the missing Dynamic-to-i64 conformance proof.
+
+#### PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 (design child; no new card)
+
+This is the only remaining design question inside
+`PHYSICAL-INPUT-AUTHORITY-I0`. It is not a new result-contract authority and
+it is not a TypeOp extension. Its purpose is to decide whether the existing
+final-exit owner can issue and immediately consume one private checked
+projection for both Completion sites.
+
+```text
+VerifiedDynamicExitTransactionCoSealV1
+  -> private HRTB final-exit view
+     Completion site
+     logical operand (inner V14 / outer carrier)
+     fresh-session materialized ValueId
+     backend representation witness
+  -> CheckedDynamicI64ReturnProjectionV1
+       Normal(i64) | Fault(TypeError)
+```
+
+The projection is valid only when one co-seal fixes all of the following:
+
+```text
+exact two Completion sites; no missing/duplicate/foreign/extra claim
+logical operand -> materialized ValueId at each site
+one backend-neutral representation contract for raw Integer / IntegerBox / handle
+checked failure has no result and no normal publication
+cleanup and Primary/Cleanup/Suppressed chronology are fixed before transfer
+normal result publication occurs only after the check succeeds
+retry/fallback = 0
+```
+
+The current repository does not satisfy this child. `TypeOp(Check/Cast)`
+returns the input value and does not normalize an `IntegerBox` handle;
+`RuntimeTypeSpec::Integer` is a predicate, not a conversion or exit contract;
+`nyash.integer.get_h` maps invalid handles to zero and is therefore not a
+checked authority; and `DynamicIntegerRange` is a `FieldSet`-only contract.
+LLVM also has raw-i64/handle representation ambiguity, so a uniform
+representation capability (or an equally explicit checked ABI) must be sealed
+before VM/LLVM parity can be claimed. Until that evidence exists, this child
+is `NoSafeSlice` and no code is authorized.
+
+Completion remains the sole declared-result and return-site owner. The final
+exit transaction remains the sole projection owner. The fresh physical session
+remains the sole materialized-`ValueId` owner. No sibling result receipt,
+Static/Dynamic sum, standalone bridge, GenericLoop change, Recipe/JoinSig
+physical type, or public raw slot is introduced.
+
+If representation is accepted later, the implementation is one
+selected-Dynamic issue+consume cell only. It must use the package-held final
+program rather than reissue a generic Dynamic source classifier; any
+transitional source-seed caller must reach zero before cutover. Multi-return
+uses the existing ordered `VerifiedFunctionCompletionV1::ExplicitReturns`
+sites; detached DraftSeal `prepare` writes one Return per claimed site and
+`commit` remains ownership-only. No return-join or PHI is introduced.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
@@ -985,6 +1046,24 @@ verified Recipe placement
 one complete operation/source-effect ledger
   -> one complete physical demand
 ```
+This parked BoxShape series opens only after
+`PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0` is accepted. Its dependency
+order is fixed and must not be inverted:
+
+```text
+semantic-program co-seal
+  -> JoinSig logical transfer authority
+  -> complete operation/source-effect ledger
+  -> common physicalizer boundary cleanup
+  -> selected If/Exit coverage
+  -> pre-cutover authority gate
+  -> physical session / DraftSeal prepare
+```
+
+The series is not a workaround for the missing checked Dynamic-to-i64
+representation. Broader Always/all-family topology work and fixed-topology
+deletion remain later, after the selected production edge has been cut over.
+
 `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` is the first implementation row. Its
 private traversal may derive item order and segment boundaries only. JoinSig
 issues the logical Predicate/Jump/Backedge/nested-resume transfer evidence;
