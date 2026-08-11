@@ -9,19 +9,13 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, Sequence, Tuple
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 CAPABILITY_KEY = "a_prime_i64_physical_receipt"
 FORMAL_PARAMETER_COUNT = 4
 
 
 class APrimeI64CapabilityError(ValueError):
     """Malformed, incomplete, or mismatched A-prime receipt."""
-
-
-@dataclass(frozen=True)
-class APrimeI64ValueRow:
-    value_id: int
-    lane: str
 
 
 @dataclass(frozen=True)
@@ -123,16 +117,6 @@ def _required_rows(value: Any, label: str) -> Sequence[Dict[str, Any]]:
     if any(not isinstance(row, dict) for row in value):
         raise APrimeI64CapabilityError(f"{label} rows must be objects")
     return value
-
-
-def _load_value_row(row: Dict[str, Any], label: str) -> APrimeI64ValueRow:
-    lane = _required_string(row.get("lane"), f"{label}.lane")
-    if lane not in ("immediate_i64", "opaque_handle"):
-        raise APrimeI64CapabilityError(f"{label}.lane is unsupported: {lane}")
-    return APrimeI64ValueRow(
-        value_id=_required_int(row.get("value_id"), f"{label}.value_id"),
-        lane=lane,
-    )
 
 
 def _validate_func_params(func_data: Dict[str, Any], rows: Sequence[APrimeI64ParameterRow]) -> None:

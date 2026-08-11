@@ -8,7 +8,7 @@
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeSet;
 
-pub(crate) const A_PRIME_I64_PHYSICAL_RECEIPT_SCHEMA_VERSION: u32 = 1;
+pub(crate) const A_PRIME_I64_PHYSICAL_RECEIPT_SCHEMA_VERSION: u32 = 2;
 pub(crate) const A_PRIME_I64_FORMAL_PARAMETER_COUNT: usize = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -95,7 +95,6 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
     DuplicateCallSite,
     CallRoleMismatch,
     EmptyCallTarget,
-    EmptyCallArguments,
     CallTargetFingerprintMismatch,
     CallReceiverMismatch,
     CallArgumentMismatch,

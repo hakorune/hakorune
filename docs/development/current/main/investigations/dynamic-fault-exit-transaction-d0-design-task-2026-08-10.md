@@ -2812,14 +2812,16 @@ consume the exact I7/I8 producer receipts and issue its Bool/Fault handoff only
 inside the later all-or-nothing session admission.
 
 The transport-shape portion of `A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`
-is now landed in the Rust receipt, JSON encoder, and Python loader: formal
-count is exactly four, parameter roles retain `pos=1`/`end=2`, return sites
-are exactly `{inner, outer}`, and the two CallSlot rows require canonical
-role-specific target fingerprints, receiver roles, argument ordinals/roles,
-lanes, and unique result IDs. The receipt remains caller-zero and
+is now landed as schema v2 in the Rust receipt, JSON encoder, and Python
+loader: formal count is exactly four, parameter roles retain `pos=1`/`end=2`,
+return sites are exactly `{inner, outer}`, and the two CallSlot rows require
+canonical role-specific target fingerprints, receiver roles, argument
+ordinals/roles, lanes, and unique result IDs. The receipt remains caller-zero and
 cloneable-through-`FunctionMetadata` for now; consume-once/move-only ownership
 is intentionally still a pre-session blocker and is not claimed closed by
-this shape slice.
+this shape slice. The semantic value co-seal (including the `index_of` `ch`
+result-chain and source CallSlot relation) remains owned by the canonical
+session issuer; the transport loader does not re-resolve those values.
 
 Before a production caller is allowed, one hardening child of this same
 rolling card must close the transport-only receipt boundary: the LLVM loader

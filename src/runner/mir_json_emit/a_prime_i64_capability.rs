@@ -112,7 +112,7 @@ mod tests {
         let mut obj = serde_json::Map::new();
         insert_a_prime_i64_physical_receipt_json(&mut obj, &metadata);
         let value = &obj["a_prime_i64_physical_receipt"];
-        assert_eq!(value["schema_version"], 1);
+        assert_eq!(value["schema_version"], 2);
         assert_eq!(value["backend_family"], "llvm");
         assert_eq!(value["formal_parameter_count"], 4);
         assert_eq!(value["parameters"].as_array().unwrap().len(), 2);

@@ -19,7 +19,7 @@ def _valid_function_data():
         "params": [10, 11, 12, 13],
         "metadata": {
             "a_prime_i64_physical_receipt": {
-                "schema_version": 1,
+                "schema_version": 2,
                 "backend_family": "llvm",
                 "formal_parameter_count": 4,
                 "fallback": False,
