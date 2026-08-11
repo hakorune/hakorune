@@ -2586,7 +2586,7 @@ production. Tests may compare a separate borrowed coverage projection, but a
 physical sibling must not copy the evidence ledger and create a second
 emission authority.
 
-#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — design contract
+#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — design closeout
 
 The semantic `DynamicLess` row and its Fault relation already have one owner.
 The sole physical issuer is a child of the selected-lowering V2 ABI/emitter
@@ -2600,7 +2600,24 @@ inference, V1 compare adapter, raw carrier inspection, Fault reissue, fallback,
 or retry is permitted. This D0 must name the I7/I8 producer receipt owners
 and its negative matrix before session code resumes.
 
-#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — design contract
+The implementation names are fixed for this cohort:
+
+```text
+DynamicV2CallSlotResultReceiptV1       = I7 V10/V11 producer receipt
+DynamicV2I64ProducerReceiptV1          = I8/V12 exact immediate receipt
+DynamicV2LessBoolCapabilityDemandV1   = Builder-free I9 demand
+DynamicV2LessBoolEmissionReceiptV1    = session-local normal Bool + I9 handoff
+DynamicV2TemporaryEndCapabilityV1     = physical End/discharge leaf
+DynamicV2TemporaryDischargeDemandV1   = Builder-free six-row demand
+DynamicV2TemporaryDischargeReceiptV1  = session-local ordered End receipts
+SelectedDynamicV2PhysicalCapabilityAdmissionV1
+                                      = move-only two-demand co-seal
+```
+
+These names are private to the selected V2 physical boundary. They are not
+semantic products and do not become public runtime ABI vocabulary.
+
+#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — design closeout
 
 The two physical capability decisions remain separate issuers. They are
 deliberately not fused into a `DynamicLessAndCleanup` semantic product: the
@@ -2639,8 +2656,9 @@ inner Return              -> End(V10)
 Backedge                  -> End(V10)
 ```
 
-The physical End/discharge issuer is a separate child of the same selected V2
-ABI boundary (or the canonical session primitive once that primitive exists).
+The physical End/discharge issuer is `DynamicV2TemporaryEndCapabilityV1`, a
+separate child of the same selected V2 ABI boundary (or the canonical session
+primitive once that primitive exists).
 It issues only a private ordered-discharge demand before a session and
 session-local discharge receipts after exact producer materialization. `V9`,
 `V17`, and the I64 induction carrier are explicitly outside this capability.
@@ -2688,10 +2706,11 @@ half of the admission gate missing. Bare `i64`, `MirType`, generic
 `eval_cmp`, raw Recipe/AST/JoinIR, V1 adapters, sentinel-zero helpers,
 fallback, and retry cannot repair any of these cases.
 
-This closes the design contract only after the named I7/I8 producer receipt
-owners and the physical End issuer are present or explicitly classified as
-`RejectBeforeEffect`. Until then the current implementation remains
-`design_stop`/`NoSafeSlice`; no fresh session or production caller is claimed.
+The two D0 contracts are now accepted. Their implementation must still emit
+`RejectBeforeEffect` when the named I7/I8 producer receipt owners or the
+physical End leaf are unavailable; acceptance does not claim a fresh session
+or production caller. No capability may silently become a no-op, infer a raw
+value, or use fallback/retry.
 
 #### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — downstream implementation gate
 
