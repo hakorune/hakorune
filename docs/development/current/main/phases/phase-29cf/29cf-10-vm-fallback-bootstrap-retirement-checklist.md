@@ -17,6 +17,14 @@ Related:
 
 # 29cf-10 VM Fallback / Bootstrap Boundary Retirement Checklist
 
+> Supersession note (2026-08-12): the `current mainline keep: vm, vm-hako`
+> wording below is historical route classification. The current ownership
+> SSOT is `design/vm-active-lane-retirement-ssot.md` (and the execution-axis
+> separation SSOT): EXE/AOT is the product/mainline/performance owner, `.hako`
+> MIR is the future semantic-reference owner, and Rust VM is only a narrow
+> bootstrap/recovery/compatibility/smoke keep. Rust VM does not qualify as a
+> DynamicV2 production provider consumer.
+
 ## 0) Current Snapshot
 
 - [x] `phase-29cc` top-level closeout remains accepted

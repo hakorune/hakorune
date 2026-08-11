@@ -2658,10 +2658,13 @@ I0-B acceptance:
 #### DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 (CURRENT DESIGN STOP — NoSafeSlice)
 
 The repository census shows that the named provider issuer, canonical
-provider registry, and VM/LLVM runtime caller for I6/V10 are still absent.
-I0-A therefore closes only the transport schema. Issuing a provider plan or a
-runtime receipt now would create an orphan second authority with no named
-consumer, so I0-B is intentionally not implementation-ready.
+provider registry, and AOT/LLVM production consumer for I6/V10 are still
+absent. Rust VM callers do exist, but the VM active-lane SSOT classifies them
+as temporary semantic-reference/smoke/compatibility keeps, not as a product
+execution owner or a valid DynamicV2 provider consumer. I0-A therefore closes
+only the transport schema. Issuing a provider plan or a runtime receipt now
+would create an orphan second authority with no named production consumer, so
+I0-B is intentionally not implementation-ready.
 
 The next design boundary is fixed as one provider-registry admission owner:
 
@@ -2687,21 +2690,26 @@ The design stop must close only the following census and matrix:
 ```text
 [ ] exact I6 item/source-site/selector/arity relation is identified
 [ ] provider registry owner and immutable generation are named
-[ ] VM and LLVM caller/issuer locations are either named or confirmed zero
+[ ] AOT/LLVM production provider issuer/caller locations are either named or
+    confirmed zero
+[ ] Rust VM DynamicV2 provider issuer/caller = 0; existing VM
+    semantic-reference/compatibility callers remain a non-claim
 [ ] receiver V0:Dynamic, arguments V6/V9:I64, result V10:Dynamic lanes are fixed
 [ ] Direct | Checked | RejectBeforeEffect capability matrix is fixed
 [ ] synchronous capability and lease/discharge owner are named
-[ ] I7/V11, I9/V13, Physical End, VM/LLVM calls, and production callers remain
-    non-claims
+[ ] I7/V11, I9/V13, Physical End, AOT/LLVM production calls, Rust VM
+    DynamicV2 calls, and production callers remain non-claims
 [ ] no provider plan, runtime receipt, registry module, or fixture is added
     before a named non-test consumer exists
 ```
 
 Re-entry to I0-B implementation requires a named provider issuer and a named
-non-test consumer in the same bounded slice. Until then, the only valid
-outcome is typed `RejectBeforeEffect` at the future admission boundary.
+AOT/LLVM production consumer in the same bounded slice. A Rust VM
+semantic-reference or compatibility caller does not satisfy this condition.
+Until then, the only valid outcome is typed `RejectBeforeEffect` at the future
+admission boundary.
 
-Provider census receipt (2026-08-11):
+Provider census receipt (2026-08-12, VM lane split audit):
 
 ```text
 I6 source/Recipe relation:
@@ -2717,9 +2725,14 @@ I7 source/Recipe relation:
 DynamicV2 wire/provider non-test callers:
   provider plan issuer = 0
   provider registry = 0
-  VM issuer/caller = 0
-  LLVM issuer/caller = 0
+  AOT/LLVM production issuer/caller = 0
+  Rust VM DynamicV2 issuer/caller = 0
   DynamicV2CallOut/WireValue runtime consumers = 0
+
+Rust VM lane classification:
+  semantic-reference/smoke/compatibility callers = explicit keep
+  DynamicV2 provider consumer claim = 0
+  product execution owner claim = 0
 
 Existing nyrt_host_call_slot and host_api dispatch_call_slot callers:
   legacy compatibility route; excluded from I0-B and forbidden for reuse
