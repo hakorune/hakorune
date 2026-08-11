@@ -122,7 +122,7 @@ box InstanceApi {
 fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
     let batch = batch("static box Api { run(value) { return value } }", 8);
     let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
-    let parameter = catalog
+    let parameter = &catalog
         .declarations()
         .next()
         .unwrap()
@@ -184,13 +184,13 @@ fn foreign_batches_keep_distinct_parameter_binding_identity() {
     let source = "static box Source { run(value) { return value } }";
     let first = batch(source, 11);
     let second = batch(source, 11);
-    let first_row = issue_callable_parameter_contract_v1(&first)
-        .unwrap()
+    let first_catalog = issue_callable_parameter_contract_v1(&first).unwrap();
+    let first_row = first_catalog
         .declarations()
         .next()
         .unwrap();
-    let second_row = issue_callable_parameter_contract_v1(&second)
-        .unwrap()
+    let second_catalog = issue_callable_parameter_contract_v1(&second).unwrap();
+    let second_row = second_catalog
         .declarations()
         .next()
         .unwrap();
