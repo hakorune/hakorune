@@ -2485,6 +2485,29 @@ row must add focused positive/negative tests in a child test module rather
 than growing `operation_emitter.rs`, `located_if.rs`, or
 `recursive_child_lowering.rs`.
 
+#### DYNAMIC-V2-FAMILY-NATIVE-PHYSICAL-EMITTER-D0 — design closeout
+
+**Accepted with implementation capability gates.**  The owner split and the
+two-stage API are now closed: the next implementation row may add only the
+private V2 operation-program co-seal and the move-only family-native plan.  It
+must not claim a fresh-session canary or a production caller.  `DynamicLess`
+normal-Bool materialization and Dynamic temporary cleanup remain named
+capability gates; if either issuer is absent, the implementation rejects before
+the first Builder effect.  This is an implementation boundary, not a reason
+to add a semantic authority or a V1 adapter.
+
+The next execution row is:
+
+```text
+DYNAMIC-V2-PHYSICAL-DEMAND-COSEAL-R0
+```
+
+Its only purpose is to make the A-prime issuer retain one private
+`PreparedDynamicLoopOperationProgramV2` scoped loan and to prove the
+Builder-free V2-native plan/ledger contract.  The subsequent emitter canary,
+fresh session, production cutover, and old-route retirement remain separate
+rows and remain closed until their capability gates are green.
+
 Until this row is accepted and implemented, the selected Dynamic fresh-session
 canary remains `NoSafeSlice`. Do not call the old raw JoinIR route a canary and
 do not promote the package adapter. This is a BoxShape/authority boundary,
