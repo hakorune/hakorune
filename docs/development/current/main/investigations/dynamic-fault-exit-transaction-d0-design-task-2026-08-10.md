@@ -835,7 +835,7 @@ until this issuer boundary, the VM/LLVM matrix, and the focused
 missing/foreign/duplicate/ambiguous negative tests are landed in the design
 record and accepted.  This is a design close, not a new task card.
 
-#### A-PRIME-SOURCE-RELATION-VIEW-I0 (behavior-neutral prerequisite)
+#### A-PRIME-SOURCE-RELATION-VIEW-I0 (landed behavior-neutral prerequisite)
 
 This is the only implementation slice allowed before the backend transport
 Decision closes.  It adds the private HRTB-borrowed
@@ -858,8 +858,9 @@ ValueId / BasicBlockId / MIR / helper / fallback / retry -> absent
 
 The implementation must live in a new small sibling module; neither the
 671-line source observer nor the common physical-input view grows a new
-authority.  After this behavior-neutral slice lands, the pointer returns to
-the A-prime backend-transport design stop before any physical session code.
+authority.  This slice landed as `9057ec8b06` with the focused co-seal test.
+The pointer now returns to the A-prime backend-transport design stop before
+any physical session code.
 
 #### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
 
