@@ -882,6 +882,11 @@ src/mir/builder/normal_callable_dynamic_loop_rebind.rs
 src/mir/builder/normal_callable_dynamic_origin.rs
   tracks ValueId -> BindingRef origin, not ImmediateI64/IntegerBoxHandle/tag data.
 
+lang/src/compiler/parser/scan/parser_scan_loop_box.hako
+  annotates only the callable result as `: i64`; `src`, `pos`, `end`, and
+  `pred_chars` remain untyped, and `i`/`ch`/`i + 1` are therefore not a source
+  exact-I64 representation proof.
+
 src/mir/return_exit_backend_capability.rs
   gates existing exact-numeric cases only; it has no Dynamic checked-capability
   issuer.
