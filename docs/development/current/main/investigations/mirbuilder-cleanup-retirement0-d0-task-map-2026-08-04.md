@@ -249,6 +249,15 @@ builders still own route-specific Facts/AST reconstruction and contract
 policy, and portable `LoopRecipeArtifactV1` remains a separate authority.
 Guard old type names at zero and the new bundle at one shared definition.
 
+T2-S0 series receipt (2026-08-11): `11b63d67db` introduced the single
+builder-local `BuiltRecipeTree` definition and replaced all eleven duplicate
+route-shell structs with compatibility type aliases. The change is
+behavior-neutral and keeps the aliases temporarily so the next series step
+can migrate composers/matcher consumers without widening this commit. The
+remaining acceptance work is alias removal plus a caller/guard census; no
+portable Recipe, route, JoinSig, physicalizer, fixture, fallback, or retry
+change is permitted in that follow-up.
+
 ### T2-D1/S1 — trivial canonical policy-matrix consolidation
 
 The four `analyze_trivial_canonical_*` wrappers are policy-matrix delegators,
