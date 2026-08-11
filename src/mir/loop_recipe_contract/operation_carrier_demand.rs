@@ -21,6 +21,26 @@ pub(crate) struct PreparedLoopDerivedCarrierSeedRowV1 {
 }
 
 impl PreparedLoopDerivedCarrierSeedRowV1 {
+    pub(crate) fn new(
+        schedule: PreparedLoopOperationScheduleRowV1,
+        binding: super::ids::LoopBindingKeyV1,
+        result: super::ids::LoopValueKeyV1,
+        source_binding: BindingRefV1,
+        source_loop: SourceStmtSiteV1,
+        carrier: LoopCarrierKeyV1,
+        class: LoopValueClassV1,
+    ) -> Self {
+        Self {
+            schedule,
+            binding,
+            result,
+            source_binding,
+            source_loop,
+            carrier,
+            class,
+        }
+    }
+
     pub(crate) const fn item(&self) -> LoopItemKeyV1 {
         self.schedule.item()
     }

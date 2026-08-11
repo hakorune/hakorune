@@ -113,28 +113,23 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
     }
 
     let segments_by_item = segment_index(&layout)?;
-    let read_rows_source = program
+    let ledger = program.ledger();
+    let read_rows = ledger
         .read_binding_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let read_rows = read_rows_source
         .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
-    let carrier_rows_source = program
+    let carrier_rows = ledger
         .derived_carrier_seed_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let carrier_rows = carrier_rows_source
         .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
-    let write_rows_source = program
+    let write_rows = ledger
         .write_binding_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let write_rows = write_rows_source
         .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
-    let operation_rows = program.operation_rows();
+    let operation_rows = ledger.operation_rows();
     let mut produced = BTreeSet::new();
     let mut available = BTreeSet::new();
     let mut rows = Vec::with_capacity(operation_rows.len());

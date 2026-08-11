@@ -27,10 +27,15 @@ physical schedule or expose raw Recipe/JoinSig access.
 The following Dynamic V2 demand child is also landed outside this portable V1
 owner: `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes the complete
 HRTB view and exposes only whole-program Recipe-order rows. It is not a V1
-adapter and creates no physical IDs or Builder effects. Future loop cleanup
-may share the recursive Recipe/JoinSig kernel and neutral physical-demand
-boundary, but source observers, Prelude, Tail/result, Home, ABI, Completion,
-provider, and runtime remain separate authorities until a later Decision.
+adapter and creates no physical IDs or Builder effects. V1 now has the same
+bounded consumer shape without merging the families: `PreparedLoopOperationLedgerV1`
+is issued once from the verified Recipe/effect products and borrowed by the
+physical dispatchers. Its compatibility projections delegate to that ledger;
+they do not rescan Recipe/evidence/effect rows. V2 coverage is keyed by
+`ItemKey`, never by storage-order `zip`. Future loop cleanup may share the
+recursive Recipe/JoinSig kernel and neutral physical-demand boundary, but
+source observers, Prelude, Tail/result, Home, ABI, Completion, provider, and
+runtime remain separate authorities until a later Decision.
 
 Loop boundary rows never invent an ItemKey for Enter or Backedge. Branch rows
 retain exact `if_item` and `exit_item`. For the bounded Dynamic cohort, the
@@ -44,9 +49,9 @@ items from names/order, re-pair After, or coerce V2 through V1 physical demand.
 `VerifiedLoopJoinClosureV2::logical_transfer_view()` is the sole downstream
 entry for the landed logical view. It validates the branch-owned exit against
 the matching Loop summary and exposes that summary as integrity-only evidence;
-it is not a second physical action. The next row is
-`PHYSICAL-OPERATION-DEMAND-I0`; no Builder, MIR/CFG/PHI, ABI, session,
-retry, or fallback is opened there.
+it is not a second physical action. The next common row is the physicalizer
+boundary cleanup; no Builder, MIR/CFG/PHI, ABI, session, retry, or fallback is
+opened by the ledger slice.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.

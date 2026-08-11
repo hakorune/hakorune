@@ -13,6 +13,20 @@ pub(crate) struct PreparedLoopOperationScheduleRowV1 {
     pub(super) owner_loop: LoopNodeKeyV1,
 }
 
+impl PreparedLoopOperationScheduleRowV1 {
+    pub(crate) const fn new(
+        item: LoopItemKeyV1,
+        block: LoopBlockKeyV1,
+        owner_loop: LoopNodeKeyV1,
+    ) -> Self {
+        Self {
+            item,
+            block,
+            owner_loop,
+        }
+    }
+}
+
 /// Full Recipe-order operation view derived from a prepared program.
 ///
 /// This is intentionally a complete projection: callers cannot ask for one
@@ -24,8 +38,22 @@ pub(crate) struct PreparedLoopOperationRowV1 {
 }
 
 impl PreparedLoopOperationRowV1 {
+    pub(crate) const fn new(
+        schedule: PreparedLoopOperationScheduleRowV1,
+        operation: LoopOperationV1,
+    ) -> Self {
+        Self {
+            schedule,
+            operation,
+        }
+    }
+
     pub(crate) const fn item(self) -> LoopItemKeyV1 {
         self.schedule.item
+    }
+
+    pub(crate) const fn schedule(self) -> PreparedLoopOperationScheduleRowV1 {
+        self.schedule
     }
 
     pub(crate) const fn block(self) -> LoopBlockKeyV1 {
@@ -80,6 +108,26 @@ pub(crate) struct PreparedLoopWriteBindingRowV1 {
 }
 
 impl PreparedLoopWriteBindingRowV1 {
+    pub(crate) fn new(
+        schedule: PreparedLoopOperationScheduleRowV1,
+        binding: LoopBindingKeyV1,
+        value: LoopValueKeyV1,
+        source_binding: BindingRefV1,
+        source_site: SourceExprSiteV1,
+        class: LoopValueClassV1,
+    ) -> Self {
+        Self {
+            schedule,
+            binding,
+            value,
+            source_binding,
+            source_site,
+            class,
+        }
+    }
+}
+
+impl PreparedLoopWriteBindingRowV1 {
     pub(crate) const fn item(&self) -> LoopItemKeyV1 {
         self.schedule.item
     }
@@ -107,6 +155,24 @@ impl PreparedLoopWriteBindingRowV1 {
 }
 
 impl PreparedLoopReadBindingRowV1 {
+    pub(crate) fn new(
+        schedule: PreparedLoopOperationScheduleRowV1,
+        binding: LoopBindingKeyV1,
+        result: LoopValueKeyV1,
+        source_binding: BindingRefV1,
+        source_site: SourceExprSiteV1,
+        class: LoopValueClassV1,
+    ) -> Self {
+        Self {
+            schedule,
+            binding,
+            result,
+            source_binding,
+            source_site,
+            class,
+        }
+    }
+
     pub(crate) const fn item(&self) -> LoopItemKeyV1 {
         self.schedule.item
     }

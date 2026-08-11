@@ -23,6 +23,11 @@ fn callable_full_demand_prepares_all_seven_operations_without_builder_effect() {
     assert_eq!(prepared.coverage().operation_count(), 7);
     assert_eq!(prepared.demand().operation_effect().evidence().len(), 7);
     assert_eq!(prepared.schedule()[0].item().raw(), 0);
+    assert_eq!(prepared.ledger().operation_rows().len(), 7);
+    assert_eq!(prepared.ledger().read_binding_rows().len(), 2);
+    assert_eq!(prepared.ledger().derived_carrier_seed_rows().len(), 0);
+    assert_eq!(prepared.ledger().write_binding_rows().len(), 1);
+    assert_eq!(prepared.ledger().operation_rows()[0].item().raw(), 0);
 }
 
 #[test]
@@ -36,6 +41,10 @@ fn generic_g0_full_demand_prepares_all_fifteen_operations_without_builder_effect
     assert_eq!(prepared.coverage().operation_count(), 15);
     assert_eq!(prepared.demand().operation_effect().evidence().len(), 15);
     assert!(prepared.schedule().iter().any(|row| row.item().raw() == 3));
+    assert_eq!(prepared.ledger().operation_rows().len(), 15);
+    assert_eq!(prepared.ledger().read_binding_rows().len(), 4);
+    assert_eq!(prepared.ledger().derived_carrier_seed_rows().len(), 1);
+    assert_eq!(prepared.ledger().write_binding_rows().len(), 2);
 }
 
 #[test]

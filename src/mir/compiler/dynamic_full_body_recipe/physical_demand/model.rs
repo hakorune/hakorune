@@ -1,5 +1,7 @@
 //! Move-only whole-program Dynamic physical-demand products.
 
+use std::collections::BTreeMap;
+
 use super::super::coseal::DynamicFullLoopFaultCutPointCatalogRefV2;
 use super::super::coseal::{
     DynamicFullLoopOperationPhysicalRefV2, DynamicFullLoopPhysicalInputViewV2,
@@ -123,13 +125,28 @@ pub(super) fn coverage_of(
     {
         return Err(DynamicFullLoopPhysicalDemandRejectV2::OperationCoverage);
     }
-    for (placement, operation) in operation_placements.iter().zip(operations.iter()) {
+    let mut placement_by_item = BTreeMap::new();
+    for placement in operation_placements {
+        if placement_by_item
+            .insert(placement.item(), placement)
+            .is_some()
+        {
+            return Err(DynamicFullLoopPhysicalDemandRejectV2::OperationOrder);
+        }
+    }
+    for operation in operations {
+        let Some(placement) = placement_by_item.remove(&operation.item()) else {
+            return Err(DynamicFullLoopPhysicalDemandRejectV2::OperationOrder);
+        };
         if placement.item() != operation.item()
             || placement.block() != operation.block()
             || placement.owner_loop() != operation.owner_loop()
         {
             return Err(DynamicFullLoopPhysicalDemandRejectV2::OperationOrder);
         }
+    }
+    if !placement_by_item.is_empty() {
+        return Err(DynamicFullLoopPhysicalDemandRejectV2::OperationOrder);
     }
     let control_count = input.control().rows().len();
     if control_count != 1 || input.control().logical().branches().len() != 1 {

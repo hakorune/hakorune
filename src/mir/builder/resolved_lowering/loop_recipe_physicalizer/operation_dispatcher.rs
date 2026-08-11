@@ -27,8 +27,7 @@ use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
-    LoopOperationPhysicalDemandRejectV1, LoopOperationV1, LoopValueKeyV1,
-    PreparedLoopOperationProgramV1,
+    LoopOperationV1, LoopValueKeyV1, PreparedLoopOperationProgramV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -85,7 +84,6 @@ pub(super) enum LoopOperationDispatchPreflightRejectV1 {
         expected: usize,
         found: usize,
     },
-    Demand(LoopOperationPhysicalDemandRejectV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -233,26 +231,23 @@ pub(super) fn prepare_loop_operation_dispatch_v1(
         return Err(LoopOperationDispatchPreflightRejectV1::PreheaderMismatch);
     }
 
-    let read_rows_source = program
+    let ledger = program.ledger();
+    let read_rows = ledger
         .read_binding_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let read_rows = IntoIterator::into_iter(read_rows_source)
-        .map(|row| (row.item(), row))
-        .collect::<BTreeMap<_, _>>();
-    let carrier_rows_source = program
-        .derived_carrier_seed_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let carrier_rows = carrier_rows_source
         .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
-    let write_rows_source = program
-        .write_binding_rows()
-        .map_err(LoopOperationDispatchPreflightRejectV1::Demand)?;
-    let write_rows = IntoIterator::into_iter(write_rows_source)
+    let carrier_rows = ledger
+        .derived_carrier_seed_rows()
+        .iter()
         .map(|row| (row.item(), row))
         .collect::<BTreeMap<_, _>>();
-    let operation_rows = program.operation_rows();
+    let write_rows = ledger
+        .write_binding_rows()
+        .iter()
+        .map(|row| (row.item(), row))
+        .collect::<BTreeMap<_, _>>();
+    let operation_rows = ledger.operation_rows();
     let mut produced = BTreeSet::new();
     let mut available = BTreeSet::new();
     let mut rows = Vec::with_capacity(operation_rows.len());
