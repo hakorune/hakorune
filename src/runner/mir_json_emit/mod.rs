@@ -1,6 +1,7 @@
 use serde_json::json;
 use std::io::Write;
 
+mod a_prime_i64_capability;
 mod agg_local;
 mod array_metadata;
 mod array_write;

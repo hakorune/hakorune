@@ -16,6 +16,7 @@ use super::types::{
 };
 use super::types::{RecordValueContract, ReturnExitContract};
 use crate::mir::{
+    a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1,
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
     array_rmw_add1_leaf_seed_plan::ArrayRmwAdd1LeafSeedRoute,
@@ -584,6 +585,11 @@ pub struct FunctionMetadata {
     /// Executable parameter-entry semantic contracts rebuilt from declaration
     /// evidence during semantic refresh.
     pub parameter_entry_contracts: Vec<ParameterEntryContract>,
+
+    /// Optional post-session A-prime LLVM physical capability.  This is a
+    /// transport receipt only; the canonical physical session is its sole
+    /// issuer and ordinary functions leave it absent.
+    pub(crate) a_prime_i64_physical_receipt: Option<APrimeI64PhysicalReceiptV1>,
 
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.

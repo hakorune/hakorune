@@ -2241,17 +2241,18 @@ is `RejectBeforeEffect`. Existing ptr/int repair, missing-argument zero,
 `RejectBeforeEffect` until a separate capability row.
 
 The design consultation is closed with this implementation boundary. The
-I0 slice adds only a post-session sealed `APrimeI64PhysicalCapabilityV1`
-receipt, one optional `FunctionMetadata` field, one dedicated MIR-JSON
-encoder call, and a strict Python preflight validator. The receipt carries
-explicit `ImmediateI64`/`OpaqueHandle` lanes, exact parameter and `(block,
-instruction_index)` call-edge rows, and later site-keyed return/lineage rows;
-it is not the Builder-free demand and cannot be fabricated by tests or
-metadata spelling. The generic parameter backend gate remains unchanged:
-only a canonical fully-covered A-prime projection may exempt its exact rows;
-unrelated exact rows still reject on LLVM. No physical session, production
-caller, GenericLoop/TypeOp change, or old source-seed/raw-JoinIR connection is
-part of this I0.
+bounded I0 transport is now landed: a post-session sealed
+`APrimeI64PhysicalReceiptV1`, one optional `FunctionMetadata` field, one
+dedicated MIR-JSON encoder call, and a strict Python preflight validator.
+The receipt carries explicit `ImmediateI64`/`OpaqueHandle` lanes, exact
+parameter and `(block, instruction_index)` call-edge rows, and site-keyed
+return rows; it is not the Builder-free demand and cannot be fabricated by
+tests or metadata spelling. The generic parameter backend gate remains
+unchanged: only a canonical fully-covered A-prime projection may exempt its
+exact rows; unrelated exact rows still reject on LLVM. No physical session,
+production caller, GenericLoop/TypeOp change, or old source-seed/raw-JoinIR
+connection is part of this I0. The receipt remains caller-zero until the
+named physical session consumes it exactly once.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

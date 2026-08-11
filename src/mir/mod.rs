@@ -8,6 +8,7 @@
  * docs/development/current/main/design/mir-root-facade-contract-ssot.md
  */
 
+pub(crate) mod a_prime_i64_physical_receipt; // sealed post-session A-prime LLVM capability
 pub mod agg_local_scalarization; // generic agg_local scalarization owner seam folded from landed pilots
 pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
@@ -39,7 +40,6 @@ pub mod builder;
 pub(crate) mod callable_parameter_contract;
 pub(crate) mod callable_result_representation;
 pub(crate) mod callable_semantic_batch;
-pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod canonical_direct_call;
 pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;
@@ -50,6 +50,7 @@ pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub mod edge_args;
+pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_root_body_recipe;
