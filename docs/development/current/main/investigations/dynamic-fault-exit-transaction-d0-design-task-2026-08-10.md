@@ -789,6 +789,25 @@ program supplies the retained source/Recipe/Completion relation.  Both are
 borrowed under one HRTB callback and are consumed only to issue the exact-I64
 demand.
 
+The minimum borrowed relation is now fixed to these existing facts:
+
+```text
+owner / frame / scope-region / exact Loop membership
+Pos and End BindingRefs + parameter contract classes
+formal Pos -> local Induction declaration -> PreludeInitializerPos site
+LoopConditionI / StepReadI / StepTargetI / InnerReturnI / OuterReturnI sites
+Recipe binding/carrier entry V1:I64 and inner V14:I64
+After/current class I64
+the two Completion sites
+```
+
+`VerifiedDynamicFullLoopPhysicalInputViewV2` remains the operation/placement/
+control/Fault view and is not promoted into a callable-entry authority.  The
+legacy `VerifiedDynamicLocalInitializationSourceV1` is evidence for the
+source relation, while `PreparedDynamicLocalEntryV1` remains session-local
+because it contains physical ValueIds.  Neither legacy product is the A-prime
+Builder-free demand or a replacement issuer.
+
 Backend transport is a separate capability adapter.  VM accepts only exact
 `VMValue::Integer` under the selected contract.  LLVM is Direct only when the
 selected mixed signature and every selected call edge carry exact metadata;
