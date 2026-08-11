@@ -2290,6 +2290,80 @@ production caller, GenericLoop/TypeOp change, or old source-seed/raw-JoinIR
 connection is part of this I0. The receipt remains caller-zero until the
 named physical session consumes it exactly once.
 
+#### DYNAMIC-V2-FAMILY-NATIVE-PHYSICAL-EMITTER-D0 — newly exposed prerequisite
+
+The selected fresh-session canary cannot honestly start yet. The landed
+`VerifiedDynamicLoopOperationPhysicalDemandV2` is a complete Builder-free
+view of 17 placements, 15 operations, one If/control row, one Exit relation,
+and the exact Fault rows. It intentionally has no Builder consumer. The
+existing `loop_recipe_physicalizer` consumes V1 `LoopOperationV1`/V1 ledger
+products; converting the V2 view into those products would create a second
+Recipe/source authority and is forbidden.
+
+The next design slice is therefore a family-native V2 physical emitter, kept
+inside the selected Dynamic physical boundary. It is not a new semantic
+program, Recipe, JoinSig, Completion, or If authority. It may borrow only the
+already co-sealed V2 physical-input view and the existing low-level Builder
+emission primitives.
+
+Required owner split:
+
+```text
+V2 physical demand
+  -> one V2-native emission plan
+     - exact item/owner/block placement
+     - complete operation order
+     - source/effect and CallSlot identity checks
+     - producer-issued representation receipts
+     - exact logical control/disposition rows
+  -> canonical unpublished session
+     - ValueId/BasicBlockId/PHI/CFG mutation
+     - site-keyed Completion claims
+     - DraftSeal prepare_exact_two
+```
+
+The emitter must remain a consumer, not a planner. It may not read raw Recipe
+or source products, search by name/ordinal, reconstruct transfer edges, or
+choose a fallback operation family. The normal two-arm `IfCfgSessionV1`
+path remains the ordinary If authority; the selected I10 terminal arm uses
+the already landed deferred-return token and never emits a Return. The sole
+Return writer remains `draft_seal/exit_projection.rs`.
+
+The first bounded family-native output is deliberately narrower than a
+language-wide V2 physicalizer:
+
+```text
+selected A-prime cohort only
+  - ImmediateI64 parameter/local/induction lanes
+  - existing DynamicAdd/DynamicLess/CallSlot contracts, with no raw carrier
+    reinterpretation
+  - exact I10 then=Return / else=Fallthrough disposition
+  - exact I12 inner and outer Completion-site claims
+  - unsupported operation/representation/backend = RejectBeforeEffect
+```
+
+Acceptance for this design stop:
+
+```text
+[ ] V2 -> V1 adapter count = 0
+[ ] one V2-native emitter issuer and one session handoff are named
+[ ] all 17 placements and all 15 operations are consumed exactly once
+[ ] CallSlot rows use the already co-sealed call relations
+[ ] Dynamic operation results carry an explicit producer receipt; no raw-i64
+    or handle inference is permitted
+[ ] control rows are consumed as evidence; no physical transfer is rebuilt
+    from Recipe
+[ ] deferred terminal arm remains un-terminated until DraftSeal projection
+[ ] missing/foreign/duplicate/ambiguous relation rejects before Builder effect
+[ ] file split keeps each new module below the 700-line refactor band
+[ ] the next implementation row is the emitter canary, not production cutover
+```
+
+Until this row is accepted and implemented, the selected Dynamic fresh-session
+canary remains `NoSafeSlice`. Do not call the old raw JoinIR route a canary and
+do not promote the package adapter. This is a BoxShape/authority boundary,
+not a reason to add a compatibility fallback.
+
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 
 The fresh-session row remains downstream of the LLVM capability contract. It
@@ -2355,11 +2429,13 @@ rolling card:
 ```text
 1. detached claim/projection (closed)
 2. live DraftSeal prepare_exact_two using the same projection pipeline
-3. bounded deferred-return disposition evidence for I10
-4. selected Dynamic fresh-session canary:
+3. bounded deferred-return disposition evidence for I10 (closed)
+4. V2 family-native physical emitter design/implementation:
+     complete V2 demand -> V2-native emission plan -> session-local receipts
+5. selected Dynamic fresh-session canary:
      package loan -> A-prime demand -> ImmediateI64 claims
      -> disposition-aware branch close -> prepare_exact_two
-5. production caller switch only after all four gates are green
+6. production caller switch only after all five gates are green
 ```
 
 No new Completion, Recipe, JoinSig, If, or physical Return authority is
