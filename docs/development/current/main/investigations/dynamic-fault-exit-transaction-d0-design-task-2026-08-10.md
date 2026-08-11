@@ -492,21 +492,29 @@ demand are already closed and add no Builder effect. The broader callable
 physical-input/session rows remain closed until the source-backed result/ABI
 row lands; Home, runtime Fault, retry, and fallback are nonclaims.
 
-## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: result/ABI NoSafeSlice)
+## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: Dynamic-to-i64 NoSafeSlice)
 
-The installed-package physical-input boundary is not implementable yet for
-the selected `ParserScanLoopBox.skip_while/4` fixture. Its source declaration
-has no result annotation, so `VerifiedFunctionCompletionV1` reports
-`Unannotated`; `ExactTrivialReturnAbiV1` accepts only an explicit `i64` source
-spelling. Do not infer a result or ABI from loop shape, `return i`, `MirType`,
-`FunctionSignature`, runtime tags, or selector names.
+The declared-result row is now closed: the selected
+`ParserScanLoopBox.skip_while/4` source explicitly declares `: i64`, and the
+existing `VerifiedFunctionCompletionV1` owns the declared result classification
+and exact two-site Completion set. That is necessary transport and semantic
+coverage, but it is not physical operand proof.
 
-Existing retained claims can later co-seal Prelude/entry, Tail, and the inner
-/ outer Completion sites. The missing prerequisite is a language/resolver
-Decision for a canonical source-backed callable result contract, followed by
-its physical ABI projection. Until that lands, no `Verified*`/`Prepared*`
-physical bridge, session, DraftSeal, Collector, `lower_loop`, retry, or
-fallback is allowed.
+The selected Recipe still returns logical `LoopValueClassV2::Dynamic` values:
+the inner Return operand is `V14:Dynamic`, and the outer Tail/current carrier
+is also Dynamic. `ExactTrivialReturnAbiV1` classifies the source spelling and
+the existing `ExistingExactNumericDeferred` relation is intentionally deferred;
+neither proves that either logical operand is a physical `MirType::Integer` or
+provides a materialized `ValueId`. The installed package's Dynamic physical
+input currently owns only logical placement/operation/control/Fault rows, not
+Completion, ABI, or return-operand `ValueId` rows.
+
+Therefore this row remains a design stop. Do not infer a result or ABI from
+loop shape, `return i`, `LoopValueClassV2::Dynamic`, `MirType`,
+`FunctionSignature`, TypeContext, runtime tags, selector names, or method names.
+GenericLoop remains an exact-MirType verifier and is unchanged. No physical
+bridge, session, DraftSeal, Collector, `lower_loop`, retry, or fallback is
+opened by this row.
 
 ### DYNAMIC-CALLABLE-RESULT-CONTRACT-D0 (revised accepted)
 
@@ -727,6 +735,47 @@ Completion site; it is never inserted as a Recipe item, JoinSig edge, or a
 seventh operation row. The final callable exit transaction must co-seal that
 sibling with cleanup and primary/suppressed Fault chronology before session
 mutation.
+
+#### PHYSICAL-INPUT-AUTHORITY-I0 decision and next task
+
+The design decision is fixed, but implementation is not yet authorized:
+
+```text
+Completion:
+  sole declared-result and exact return-site owner
+
+Dynamic Recipe / final exit transaction:
+  sole logical return-operand owner (V14 and outer carrier)
+
+fresh callable physical session / terminal:
+  sole owner of materialized return ValueIds
+
+one final exit-transaction projection:
+  sole owner allowed to relate those operands and ValueIds
+```
+
+Basis A is currently unavailable: no existing verified product proves either
+logical Dynamic operand is physical `i64`. Basis B is only a future
+implementation option after a concrete checked Dynamic-to-i64 operation and
+backend representation are identified. That operation must issue
+`Normal(i64) | Fault(TypeError)` for both Completion sites, co-seal the exact
+cleanup/primary-Fault/no-result/normal-publication rules before Builder effects,
+and have no retry or fallback. Until that concrete owner exists, the result is
+Basis C: `NoSafeSlice`.
+
+The sole next task is therefore the remainder of this existing row:
+
+```text
+PHYSICAL-INPUT-AUTHORITY-I0
+  design only until A or a concrete B is accepted
+  then one narrow issue+consume cell, site-keyed for inner and outer Return
+```
+
+It must not create a sibling result contract, Static/Dynamic arbitration sum,
+standalone initializer bridge, Dynamic source reissuer, GenericLoop change,
+Recipe/JoinSig physical type, or public raw `ValueId`/slot API. Loop
+unification remains the next structural lane after this row; it cannot replace
+the missing Dynamic-to-i64 conformance proof.
 
 ### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
