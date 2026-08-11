@@ -10,7 +10,7 @@ VerifiedFinalCallableProgramSourceV1
        -> complete resolved callable batch
             ↓ exact opaque declaration identity co-seal
        selected key -> private batch slot
-  -> exact owned direct-method parameter-demand subset
+  -> exact owned direct-method parameter-contract subset
   -> private Dynamic projection
        ValidUnselected
        Selected {
@@ -23,8 +23,8 @@ VerifiedFinalCallableProgramSourceV1
 
 Complete batch membership comes from final callable anchors, not the parameter
 catalog. A mixed Program may therefore retain top-level rows while only its
-direct Box methods contribute parameter demands. When selected, the Dynamic
-candidate and its required demands must resolve to the same private batch
+direct Box methods contribute parameter contracts. When selected, the Dynamic
+candidate and its required contract must resolve to the same private batch
 slot. A complete batch with no Dynamic candidate is a typed valid-unselected
 projection, not an issuer failure or fallback.
 
@@ -40,8 +40,8 @@ begin_lowering(installed context)
 
 The port never exposes a batch slot, rejects foreign catalog contexts and
 duplicate selected-key consumption, and closes only after complete selected
-coverage. Borrowed lowering inputs and parameter demands remain scoped to the
-callback. This module does not own callable-name selection, CFG, PHI,
+coverage. Borrowed lowering inputs and parameter contracts remain scoped to the
+callback. HomeDemand is only a derived Dynamic-ingress view. This module does not own callable-name selection, CFG, PHI,
 runtime exit chronology, physical ABI, runtime dispatch, retry, or fallback.
 
 Dynamic call relations are issued from the same batch-scoped lowering input as

@@ -24,6 +24,10 @@ Current I0 boundary:
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
 - only `Ordinary` has an issuer. `Take` remains vocabulary-only.
 
+The optional declared-type spelling is transported as borrowed syntax for the
+downstream callable-parameter contract issuer. This parser owner does not
+classify ABI, HomeDemand, Recipe, MIR, or backend meaning.
+
 The catalog is deliberately not part of `ParserBoxSourceSealV1`: static Boxes
 remain on the total postpass compatibility arm while sharing the same parser
 brand/Box path/source-member cursor. Inventory ordinal, method name, Box name,
@@ -61,11 +65,11 @@ lending syntax. The same retained owner may lend the exact rows again, but no
 AST reference can escape and there is no AST/catalog `into_parts` surface.
 
 The older consuming callback remains only for the already-landed standalone
-parameter-demand path. It retires when the demand becomes a borrowed projection
+parameter-contract path. It retires when the contract becomes a borrowed projection
 of `VerifiedResolvedCallableSemanticBatchV1`; new semantic owners must use the
 retained source instead of consuming and independently resolving the catalog.
 
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner
 retains this whole source, resolves its declarations exactly once, and owns the
-only forest/projection batch used by normal-source and parameter-demand views.
+only forest/projection batch used by normal-source and parameter-contract views.

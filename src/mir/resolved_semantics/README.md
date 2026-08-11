@@ -715,13 +715,14 @@ The next aggregate design must co-seal the landed
 `VerifiedDeclaredInstanceMethodHomeCatalogV1`. Query does not issue a second
 receiver Handle axis. The current bounded Home ABI owns its combined
 receiver/parameter/result relation. The common complete
-`VerifiedCallableParameterDemandCatalogV1` is now issued for direct static and
-ordinary instance declarations from the Rust/Hako typed transfer source seal
-plus canonical resolved owner forests. It retains both authorities, maps only
-`Ordinary -> Handle`, and preserves zero-parameter declarations. Home ABI
-aggregates must consume or project those rows instead of reissuing parameter
-demand. `Take`, owning demands, and normal-callable production consumption
-remain closed.
+`VerifiedCallableParameterContractCatalogV1` is now issued for direct static
+and ordinary instance declarations from the Rust/Hako typed transfer source
+seal plus canonical resolved bindings. It retains both authorities and maps
+absent ordinary spelling to `OpaqueHandle`, explicit `i64` to
+`ExactTrivial(I64)`, while rejecting unsupported explicit/non-ordinary rows.
+Zero-parameter declarations remain present. Home ABI aggregates must consume
+or project the contract rows instead of reissuing parameter meaning. `Take`,
+owning demands, and normal-callable production consumption remain closed.
 Physical call ABI is deliberately downstream. The parser handoff is already
 closed for the bounded Rust cohort; a missing resolver semantic signature,
 nominal type authority, typed Query behavior, or Home ABI is `NoSafeSlice`, not

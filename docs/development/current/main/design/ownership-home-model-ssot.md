@@ -164,25 +164,26 @@ Do not call every record Trivial. Identity-free structure can still contain a
 Box owner. `Option<Box>`, `Result<Box, E>`, and Box-bearing enum variants are
 owner-bearing until a recursive classifier proves otherwise.
 
-### Callable parameter demand and Home ABI
+### Callable parameter contract and Home ABI
 
-Declaration-side parameter demand is issued once by a common callable axis:
+Declaration-side parameter contract is issued once by a common callable axis:
 
 ```text
-VerifiedCallableParameterDemandCatalog
+VerifiedCallableParameterContractCatalog
   exact callable declaration identity
   complete ordered parameter rows
-  Ordinary -> Handle
-  Take -> accepted Home-demand capability
+  absent Ordinary -> OpaqueHandle
+  explicit i64 -> ExactTrivial(I64)
+  unsupported explicit/non-ordinary -> reject
 ```
 
 The first bounded authority is implemented for direct static Box methods and
 direct ordinary instance methods. One non-`Clone`
-`VerifiedCallableParameterDemandCatalogV1` retains the complete parser source
-catalog plus the canonical resolved owner forests and maps every sealed
-`Ordinary` row to `Handle`. Zero-parameter declarations remain present as
-empty declaration rows. `Take` and every owning demand remain unissued until
-their source-backed capability exists.
+`VerifiedCallableParameterContractCatalogV1` retains the complete parser
+source spelling and canonical resolved bindings through one identity-checked
+batch loan. Zero-parameter declarations remain present as empty declaration
+rows. The bounded issuer does not issue `Take` or owning demands until their
+source-backed capability exists.
 
 One sealed callable Home ABI remains the only combined call-site authority:
 
@@ -199,9 +200,11 @@ The callable D0 also decides whether this ABI is part of callable identity,
 overload uniqueness, interface compatibility, and cache keys. Method spelling
 alone is never enough.
 
-The common parameter catalog owns parameter demands; it owns no receiver,
+The common parameter contract owns exact parameter representation meaning; it
+owns no receiver,
 result, Recipe, carrier, or physical meaning. A callable Home ABI consumes or
-projects those exact rows and must not restate them through a second issuer.
+projects their `HomeDemand` view one-way and must not restate them through a
+second issuer.
 The callable Home ABI design stop is now closed by
 [`OWN-HOME-CALLABLE-ABI-D0`](../investigations/own-home-callable-abi-d0-design-task-2026-08-09.md).
 The next design/implementation sequence consumes the landed resolver

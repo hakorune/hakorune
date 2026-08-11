@@ -6,13 +6,14 @@ use crate::mir::builder::{
     CompilationContext, SameModuleCallableCatalogBrandV1, SelectedNormalCallableKeyV1,
     VerifiedSourceBackedDynamicCallableV1,
 };
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::{BindingRefV1, HomeDemandV1};
+use crate::mir::resolved_semantics::BindingRefV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
 use super::model::{
-    NormalCallableDynamicProjectionV1, OwnedCallableParameterDemandDeclarationV1,
+    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     VerifiedNormalCallableSemanticPackageV1,
 };
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
@@ -31,13 +32,13 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
-    parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
+    parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     dynamic: NormalCallableDynamicProjectionV1,
 }
 
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
-    parameter_demands: &'loan [super::model::OwnedCallableParameterDemandV1],
+    parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
     semantic: SelectedCallableSemanticRefV1<'loan>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
@@ -87,7 +88,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog,
             batch,
             selected,
-            parameter_demands,
+            parameter_contracts,
             dynamic,
         } = self.package;
         let catalog_brand = catalog.catalog().brand().clone();
@@ -97,7 +98,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog_brand,
             batch,
             selected,
-            parameter_demands,
+            parameter_contracts,
             dynamic,
         }
     }
@@ -138,7 +139,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             .batch_slot(key)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
         let parameters = self
-            .parameter_demands
+            .parameter_contracts
             .iter()
             .find(|row| row.batch_slot == batch_slot)
             .map(|row| row.parameters.as_ref())
@@ -160,7 +161,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                 |source, method_source_observation| {
                     callback(SelectedCallableLoweringInputRefV1 {
                         source,
-                        parameter_demands: parameters,
+                        parameter_contracts: parameters,
                         semantic,
                         method_source_observation,
                     })
@@ -203,12 +204,12 @@ impl SelectedCallableLoweringInputRefV1<'_> {
         self.source
     }
 
-    pub(crate) fn parameter_demands(
+    pub(crate) fn parameter_contracts(
         &self,
-    ) -> impl ExactSizeIterator<Item = (u32, BindingRefV1, HomeDemandV1)> + '_ {
-        self.parameter_demands
+    ) -> impl ExactSizeIterator<Item = (u32, BindingRefV1, CallableParameterContractKindV1)> + '_ {
+        self.parameter_contracts
             .iter()
-            .map(|row| (row.ordinal, row.binding, row.demand))
+            .map(|row| (row.ordinal, row.binding, row.kind))
     }
 
     pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'_> {

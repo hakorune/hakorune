@@ -12,6 +12,8 @@ use super::{
     SelectedCallableSemanticRefV1,
 };
 
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     final_source_with_config(source, ParserBuildConfig::default())
 }
@@ -52,7 +54,7 @@ fn issue(
 }
 
 #[test]
-fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_demands() {
+fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() {
     let package = issue(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
     ))
@@ -99,6 +101,46 @@ fn selected_dynamic_loan_carries_the_package_source_seed() {
         SelectedCallableSemanticRefV1::Ordinary => panic!("Dynamic row lost package seed"),
     })
     .expect("selected Dynamic loan");
+}
+
+#[test]
+fn package_scoped_loan_retains_exact_parameter_contract() {
+    let package = issue(
+        "static box Api { run(source, pos: i64, end: i64, tail) { return pos } }",
+    )
+    .expect("typed parameter package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 4),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let kinds = input
+            .parameter_contracts()
+            .map(|(_, _, kind)| kind)
+            .collect::<Vec<_>>();
+        assert_eq!(
+            kinds,
+            [
+                CallableParameterContractKindV1::OpaqueHandle,
+                CallableParameterContractKindV1::ExactTrivial(
+                    crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64,
+                ),
+                CallableParameterContractKindV1::ExactTrivial(
+                    crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64,
+                ),
+                CallableParameterContractKindV1::OpaqueHandle,
+            ]
+        );
+    })
+    .expect("exact contract loan");
+    port.complete().expect("selected contract consumed");
 }
 
 #[test]
@@ -199,7 +241,7 @@ gate Build.test {
                 ..ParserBuildConfig::default()
             },
         ),
-        Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterDemand)
+        Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterContract)
     ));
 }
 
@@ -227,7 +269,7 @@ fn consuming_install_and_port_enforce_exact_selected_coverage() {
         .begin_lowering(&context)
         .expect("same installed catalog");
     port.with_selected_lowering_input(&key, |input| {
-        assert_eq!(input.parameter_demands().len(), 1);
+        assert_eq!(input.parameter_contracts().len(), 1);
         assert!(input.source().callable_header().is_none());
         assert!(matches!(
             input.semantic(),

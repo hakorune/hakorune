@@ -8,7 +8,10 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 PARSER_LOAN="$ROOT_DIR/src/parser/normal_callable_program_source/semantic_syntax_loan.rs"
 PARSER_ANCHOR="$ROOT_DIR/src/parser/callable_source_anchor.rs"
 BATCH_ISSUER="$ROOT_DIR/src/mir/callable_semantic_batch/issuer.rs"
-DEMAND_ISSUER="$ROOT_DIR/src/mir/callable_parameter_demand/issuer.rs"
+CONTRACT_DIR="$ROOT_DIR/src/mir/callable_parameter_contract"
+CONTRACT_ISSUER="$CONTRACT_DIR/issuer.rs"
+CONTRACT_MODEL="$CONTRACT_DIR/model.rs"
+CONTRACT_TESTS="$CONTRACT_DIR/tests.rs"
 PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
 PACKAGE_MODEL="$ROOT_DIR/src/mir/normal_callable_semantic_package/model.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
@@ -30,7 +33,8 @@ RAW_SOURCE_TRANSPORT="$ROOT_DIR/src/mir/builder/raw_invocation_source_transport.
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
-  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
+  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
+  "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \
@@ -78,14 +82,29 @@ reject_fixed_in_file \
   "with_callable_parameter_syntax" "$BATCH_ISSUER" \
   "parameter catalog must not define semantic batch membership"
 guard_expect_fixed_in_file "$TAG" \
-  "let Some(source_parameters) = row.parameters() else" "$DEMAND_ISSUER" \
-  "parameter demand must skip unprojected callable rows without inference"
-reject_fixed_in_file \
-  "parameter_demands.len() != batch.declarations().len()" "$PACKAGE_ISSUER" \
-  "package must not equate partial demand count with complete batch count"
+  "let Some(source_parameters) = row.parameters() else" "$CONTRACT_ISSUER" \
+  "parameter contract must skip unprojected callable rows without inference"
 guard_expect_fixed_in_file "$TAG" \
-  "MissingDynamicParameterDemand" "$PACKAGE_ISSUER" \
-  "selected Dynamic candidate must fail closed without parameter authority"
+  "UnsupportedDeclaredType" "$CONTRACT_ISSUER" \
+  "unsupported explicit parameter types must reject without opaque fallback"
+guard_expect_fixed_in_file "$TAG" \
+  "OpaqueHandle" "$CONTRACT_MODEL" \
+  "contract model must retain the opaque ordinary case"
+guard_expect_fixed_in_file "$TAG" \
+  "ExactTrivial" "$CONTRACT_MODEL" \
+  "contract model must retain the explicit exact-trivial case"
+reject_fixed_in_file \
+  "parameter_contracts.len() != batch.declarations().len()" "$PACKAGE_ISSUER" \
+  "package must not equate partial contract count with complete batch count"
+guard_expect_fixed_in_file "$TAG" \
+  "MissingDynamicParameterContract" "$PACKAGE_ISSUER" \
+  "selected Dynamic candidate must fail closed without parameter contract authority"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_callable_parameter_contract_v1" "$PACKAGE_ISSUER" \
+  "package must use the sole parameter contract issuer"
+reject_fixed_in_file \
+  "callable_parameter_demand" "$PACKAGE_ISSUER" \
+  "old parameter demand owner must not remain a package dependency"
 guard_expect_fixed_in_file "$TAG" \
   "same_declaration_identity" "$SELECTED_MAPPING" \
   "selected mapping must use exact parser declaration identity"
@@ -137,6 +156,21 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "consuming_install_and_port_enforce_exact_selected_coverage" "$PACKAGE_TESTS" \
   "consuming install and exactly-once port test is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "package_scoped_loan_retains_exact_parameter_contract" "$PACKAGE_TESTS" \
+  "package scoped exact parameter-contract loan fixture is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "projects_exact_i64_and_opaque_parameters_from_one_batch" "$CONTRACT_TESTS" \
+  "mixed exact/opaque parameter contract fixture is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "unsupported_explicit_type_rejects_without_opaque_fallback" "$CONTRACT_TESTS" \
+  "unsupported explicit parameter negative is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "parser_scan_loop_box_keeps_all_fifteen_untyped_parameters_opaque" "$CONTRACT_TESTS" \
+  "bounded Dynamic source contract fixture is absent"
+guard_expect_fixed_in_file "$TAG" \
+  "issuer_keeps_resolver_and_forest_outside_the_contract_owner" "$CONTRACT_TESTS" \
+  "parameter contract owner boundary test is absent"
 guard_expect_fixed_in_file "$TAG" \
   "issue_source_bound_dynamic_member_calls_v1" "$DYNAMIC_TARGET" \
   "route-neutral Dynamic source relation issuer is missing"
@@ -202,8 +236,13 @@ for old_edge in \
   fi
 done
 
+if [[ -e "$ROOT_DIR/src/mir/callable_parameter_demand/mod.rs" ]]; then
+  guard_fail "$TAG" "old callable_parameter_demand owner remains"
+fi
+
 for file in \
-  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
+  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
+  "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \

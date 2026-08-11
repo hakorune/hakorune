@@ -2,22 +2,23 @@ use crate::mir::builder::{
     VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
-use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, HomeDemandV1};
+use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub(super) struct OwnedCallableParameterDemandV1 {
+pub(super) struct OwnedCallableParameterContractV1 {
     pub(super) ordinal: u32,
     pub(super) binding: BindingRefV1,
-    pub(super) demand: HomeDemandV1,
+    pub(super) kind: CallableParameterContractKindV1,
 }
 
 #[derive(Debug)]
-pub(super) struct OwnedCallableParameterDemandDeclarationV1 {
+pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) batch_slot: u32,
     pub(super) owner: FunctionOwnerIdV1,
-    pub(super) parameters: Box<[OwnedCallableParameterDemandV1]>,
+    pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
 
 /// The sole owned pre-Builder semantic package for one complete callable batch.
@@ -30,7 +31,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    pub(super) parameter_demands: Box<[OwnedCallableParameterDemandDeclarationV1]>,
+    pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
 }
 
@@ -65,12 +66,12 @@ impl VerifiedNormalCallableSemanticPackageV1 {
 
     #[cfg(test)]
     pub(crate) fn parameter_declaration_count(&self) -> usize {
-        self.parameter_demands.len()
+        self.parameter_contracts.len()
     }
 
     #[cfg(test)]
     pub(crate) fn parameter_count(&self) -> usize {
-        self.parameter_demands
+        self.parameter_contracts
             .iter()
             .map(|row| row.parameters.len())
             .sum()

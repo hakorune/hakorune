@@ -556,7 +556,7 @@ next:
   A2 must atomically replace the old callable_parameter_demand owner.
 ```
 
-Commit A2 — `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0` (next):
+Commit A2 — `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0` (CLOSED):
 
 ```text
 exact spelling + declaration identity + resolved BindingRef
@@ -590,6 +590,16 @@ parameter contract authority. The package retains the non-Clone contract; raw
 batch slots and arbitrary constructors remain private. No dual producer,
 fallback, `.hako` signature change, Recipe/ValueId/backend/session work is
 allowed in A2.
+
+Evidence: the old `callable_parameter_demand` module/export/callers are gone;
+the new issuer is the sole package production caller; absent ordinary rows
+become `OpaqueHandle`, explicit `i64` rows become `ExactTrivial(I64)`, and
+unsupported explicit/non-ordinary rows reject. Package-scoped loans retain
+the exact contract kind while `HomeDemand` is derived only at the Dynamic
+ingress boundary. Contract, package, parser, batch, and complete-batch guard
+tests are green; touched Rust remains below the 800-line hard boundary.
+
+Next: Slice B is the only current semantic replacement row.
 
 #### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
 

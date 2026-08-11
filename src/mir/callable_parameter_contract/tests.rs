@@ -2,11 +2,14 @@ use crate::mir::callable_semantic_batch::{
     issue_resolved_callable_semantic_batch_v1, VerifiedResolvedCallableSemanticBatchV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, FunctionSemanticResolverSessionV1, HomeDemandV1, SourceBindingSiteV1,
+    BindingKindV1, FunctionSemanticResolverSessionV1, SourceBindingSiteV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig};
 
-use super::{issue_callable_parameter_demands_v1, CallableParameterDeclarationModeV1};
+use super::{
+    issue_callable_parameter_contract_v1, CallableParameterContractKindV1,
+    CallableParameterDeclarationModeV1,
+};
 
 fn batch(source: &str, compilation: u32) -> VerifiedResolvedCallableSemanticBatchV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -30,11 +33,11 @@ fn batch(source: &str, compilation: u32) -> VerifiedResolvedCallableSemanticBatc
 }
 
 #[test]
-fn projects_static_instance_and_zero_parameter_demands_from_one_batch() {
+fn projects_exact_i64_and_opaque_parameters_from_one_batch() {
     let batch = batch(
         r#"
 static box StaticApi {
-    run(source, count: i64) { return count }
+    run(source, pos: i64, end: i64, tail) { return end }
     ping() { return 0 }
 }
 box InstanceApi {
@@ -43,8 +46,8 @@ box InstanceApi {
 "#,
         7,
     );
-    let catalog =
-        issue_callable_parameter_demands_v1(&batch).expect("complete parameter demand projection");
+    let catalog = issue_callable_parameter_contract_v1(&batch)
+        .expect("complete parameter contract projection");
     let declarations = catalog.declarations().collect::<Vec<_>>();
 
     assert_eq!(declarations.len(), 3);
@@ -52,17 +55,33 @@ box InstanceApi {
         declarations[0].mode(),
         CallableParameterDeclarationModeV1::StaticBoxMethod
     );
-    assert_eq!(declarations[0].parameters().len(), 2);
+    assert_eq!(
+        declarations[0]
+            .parameters()
+            .iter()
+            .map(|row| row.kind())
+            .collect::<Vec<_>>(),
+        [
+            CallableParameterContractKindV1::OpaqueHandle,
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            ),
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            ),
+            CallableParameterContractKindV1::OpaqueHandle,
+        ]
+    );
     assert!(declarations[0]
         .parameters()
         .iter()
-        .all(|row| row.demand() == HomeDemandV1::Handle));
+        .zip([false, true, true, false])
+        .all(|(row, is_trivial)| (row.home_demand() == crate::mir::resolved_semantics::HomeDemandV1::Trivial) == is_trivial));
     assert_eq!(declarations[1].parameters().len(), 0);
     assert_eq!(
         declarations[2].mode(),
         CallableParameterDeclarationModeV1::InstanceBoxMethod
     );
-    assert_eq!(declarations[2].parameters().len(), 1);
 
     for declaration in declarations {
         batch
@@ -100,15 +119,28 @@ box InstanceApi {
 }
 
 #[test]
-fn parser_scan_loop_box_projects_all_fifteen_ordinary_demands() {
+fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
+    let batch = batch("static box Api { run(value) { return value } }", 8);
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let parameter = catalog
+        .declarations()
+        .next()
+        .unwrap()
+        .parameters()[0];
+    assert_eq!(
+        parameter.kind(),
+        CallableParameterContractKindV1::OpaqueHandle
+    );
+}
+
+#[test]
+fn parser_scan_loop_box_keeps_all_fifteen_untyped_parameters_opaque() {
     let batch = batch(
         include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),
-        11,
+        8,
     );
-    let catalog =
-        issue_callable_parameter_demands_v1(&batch).expect("complete parameter demand projection");
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
     let declarations = catalog.declarations().collect::<Vec<_>>();
-
     assert_eq!(
         declarations
             .iter()
@@ -116,68 +148,52 @@ fn parser_scan_loop_box_projects_all_fifteen_ordinary_demands() {
             .collect::<Vec<_>>(),
         [4, 3, 4, 4]
     );
-    assert_eq!(
-        declarations
-            .iter()
-            .map(|row| row.parameters().len())
-            .sum::<usize>(),
-        15
-    );
     assert!(declarations.iter().all(|declaration| declaration
         .parameters()
         .iter()
-        .all(|row| row.demand() == HomeDemandV1::Handle)));
-
-    let skip_while = declarations[0];
-    let position = &skip_while.parameters()[1];
-    batch
-        .with_lowering_input(skip_while.batch_slot(), |input| {
-            assert_eq!(input.owner(), skip_while.owner());
-            assert_eq!(
-                input
-                    .function()
-                    .binding(position.binding())
-                    .expect("position binding")
-                    .diagnostic_name(),
-                "pos"
-            );
-        })
-        .expect("same-batch skip_while loan");
+        .all(|row| row.kind() == CallableParameterContractKindV1::OpaqueHandle)));
 }
 
 #[test]
-fn top_level_rows_remain_in_batch_without_inferred_parameter_demands() {
-    let batch = batch(
-        "function helper(value) { return value }\n\
-         static box StaticApi { run(value) { return value } }",
-        12,
-    );
-    assert_eq!(batch.declarations().len(), 2);
+fn unsupported_explicit_type_rejects_without_opaque_fallback() {
+    let batch = batch("static box Api { run(value: f64) { return value } }", 9);
+    assert!(matches!(
+        issue_callable_parameter_contract_v1(&batch),
+        Err(super::CallableParameterContractIssueV1::UnsupportedDeclaredType {
+            declaration: 0,
+            parameter: 0,
+        })
+    ));
+}
 
-    let catalog = issue_callable_parameter_demands_v1(&batch)
-        .expect("direct-method parameter source projects onto the batch");
+#[test]
+fn top_level_rows_remain_outside_direct_method_contract_catalog() {
+    let batch = batch(
+        "function helper(value: i64) { return value }\n\
+         static box StaticApi { run(value) { return value } }",
+        10,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
     let declarations = catalog.declarations().collect::<Vec<_>>();
     assert_eq!(declarations.len(), 1);
     assert_eq!(declarations[0].batch_slot(), 1);
-    assert_eq!(declarations[0].parameters().len(), 1);
 }
 
 #[test]
-fn foreign_semantic_batches_keep_distinct_parameter_identity() {
+fn foreign_batches_keep_distinct_parameter_binding_identity() {
     let source = "static box Source { run(value) { return value } }";
-    let first = batch(source, 13);
-    let second = batch(source, 13);
-    let first_catalog = issue_callable_parameter_demands_v1(&first).unwrap();
-    let second_catalog = issue_callable_parameter_demands_v1(&second).unwrap();
-    let first_row = first_catalog
+    let first = batch(source, 11);
+    let second = batch(source, 11);
+    let first_row = issue_callable_parameter_contract_v1(&first)
+        .unwrap()
         .declarations()
         .next()
-        .expect("first declaration");
-    let second_row = second_catalog
+        .unwrap();
+    let second_row = issue_callable_parameter_contract_v1(&second)
+        .unwrap()
         .declarations()
         .next()
-        .expect("second declaration");
-
+        .unwrap();
     assert_ne!(first_row.owner(), second_row.owner());
     assert_ne!(
         first_row.parameters()[0].binding(),
@@ -186,15 +202,17 @@ fn foreign_semantic_batches_keep_distinct_parameter_identity() {
 }
 
 #[test]
-fn projection_has_no_resolver_or_forest_authority() {
+fn issuer_keeps_resolver_and_forest_outside_the_contract_owner() {
     let issuer = include_str!("issuer.rs");
     let model = include_str!("model.rs");
-
     for forbidden in [
         "resolve_selected_callable_forests",
         "FunctionSemanticResolverSessionV1",
         "VerifiedSemanticOwnerForestV1",
         "resolved_forest",
+        "ValueId",
+        "MirType",
+        "Recipe",
     ] {
         assert!(!issuer.contains(forbidden), "issuer retained {forbidden}");
         assert!(!model.contains(forbidden), "model retained {forbidden}");

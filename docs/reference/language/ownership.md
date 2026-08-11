@@ -344,7 +344,7 @@ The conceptual product contains:
 receiver demand:
   Handle | Home | SharedHome | None
 
-parameter demand:
+parameter contract:
   Handle | Home | SharedHome | Trivial
 
 result relation:
@@ -354,11 +354,13 @@ result relation:
 
 The passive relation vocabulary for these demands/results is landed in the
 resolver as an internal, branded receipt, and the bounded `I64|Unit` Home ABI
-catalog is now issued through one same-declaration co-seal. In addition, the
-common direct-method parameter authority now consumes one complete parser
-source catalog and canonical resolved owner forests to issue every
-`Ordinary -> Handle` row atomically. It preserves zero-parameter declarations
-and exposes no split/name-lookup API. The relation brand is batch provenance
+catalog is now issued through one same-declaration co-seal. The common
+direct-method parameter contract consumes one complete parser source catalog
+and canonical resolved bindings: absent ordinary spelling becomes
+`OpaqueHandle`, explicit `i64` becomes `ExactTrivial(I64)`, and unsupported
+explicit/non-ordinary transfer rejects. It preserves zero-parameter
+declarations and exposes no split/name-lookup API. `HomeDemand` is only a
+one-way projection from this contract. The relation brand is batch provenance
 only, not resolver nominal identity. This does not make `take`, Home grammar,
 or production ABI live: Query/body conformance, Home Flow, physical ownership,
 targets, and production remain separate gates.
@@ -368,8 +370,8 @@ targets, and production remain separate gates.
 A callable whose body and all relevant resolved facts are locally available
 may derive a candidate **result relation** and local Home Flow from its body.
 Parameter and receiver Home demands come only from the resolved declaration:
-a plain parameter is always Handle, and only the accepted explicit Home-demand
-form `take` may consume it. Body analysis verifies that
+an absent ordinary parameter is Handle through the contract projection, while
+an explicit accepted trivial contract is Trivial. Body analysis verifies that
 contract and may not invent an invisible consuming parameter. The verifier
 seals the combined ABI once. Private is a common ClosedCallable case, but
 visibility alone is not the classifier.
