@@ -2324,6 +2324,46 @@ un-terminated blocks; it does not connect to a live session or production
 caller. A missing backend capability, terminated If branch, or missing exact
 relation is `NoSafeSlice`, not a fallback route.
 
+The fresh-session implementation has one additional mandatory boundary before
+the live two-site owner can open. The selected I10 `then = Return` /
+`else = Fallthrough` disposition must be fixed before either branch is closed.
+The normal `IfCfgSessionV1::close_then` / `close_else` path remains the
+all-fallthrough `Jump -> merge -> PHI` authority and is not widened for this
+cohort. A selected Dynamic session may issue only a private, source-keyed
+deferred-return disposition token: the terminal arm remains un-terminated and
+is excluded from merge predecessors; the surviving fallthrough arm alone
+jumps to merge. A tokenless un-terminated block, two-terminal-arm shape,
+no-terminal-arm shape, join rows on the terminal arm, foreign/duplicate
+disposition, or a terminated terminal block rejects before effect.
+
+`exit_projection.rs` remains the sole Return writer. The If disposition
+records CFG evidence only; it never emits a Return and never creates a return
+join or PHI. The selected session consumes the package-held Dynamic program,
+the A-prime demand, the disposition token, and the site-keyed two-site
+Completion claim set exactly once, then passes the same private exit set into
+`prepare_exact_two()`. The live owner must preserve `site -> block/value`
+identity (no array zip or ordinal repair), require `expected == claimed == 2`,
+and produce exactly two normal Return instructions in the unpublished draft.
+This keeps DraftSeal as the single Return writer while avoiding post-hoc CFG
+repair.
+
+The implementation remains staged inside this one rolling card:
+
+```text
+1. detached claim/projection (closed)
+2. live DraftSeal prepare_exact_two using the same projection pipeline
+3. bounded deferred-return disposition evidence for I10
+4. selected Dynamic fresh-session canary:
+     package loan -> A-prime demand -> ImmediateI64 claims
+     -> disposition-aware branch close -> prepare_exact_two
+5. production caller switch only after all four gates are green
+```
+
+No new Completion, Recipe, JoinSig, If, or physical Return authority is
+created by these child rows. The production A-prime caller remains zero until
+the canary consumes the entire chain and proves the old source-seed/raw-JoinIR
+edge can be deleted in the same cutover.
+
 ## Hard stops
 
 ```text
