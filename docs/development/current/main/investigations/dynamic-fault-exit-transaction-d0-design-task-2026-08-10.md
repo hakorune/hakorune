@@ -1138,6 +1138,31 @@ that every production route already uses it.  A separate caller census is
 required before global retirement; it is not a reason to add another finalizer
 or to widen the current VM/LLVM capability slice.
 
+The 2026-08-11 caller census fixes the retirement boundary more precisely:
+
+```text
+name-based infer_return_type:
+  type_hint_providers.rs:78 -> legacy finalize_module/finalize_function_draft_with_lookup
+  return_type_strategy.rs:204 -> module_lifecycle.rs:418
+  selected A-prime caller-zero required before cutover
+
+legacy finalize_function_draft:
+  recursive_child_lowering.rs:439,548
+    -> port_aware_function_draft_impl.rs:127,132
+    -> calls/lowering.rs:162,184
+  compatibility production edge remains until selected cutover
+
+finalize_drained_module_once / PreparedInvocationDrainV1:
+  production callers = 0 (fixtures/tests only)
+  do not claim global drain convergence yet
+```
+
+The physical-session slice adds guards for the selected route only; it does
+not delete or reroute these compatibility edges prematurely.  The selected
+cutover must prove `infer_return_type` caller-zero, legacy finalizer
+caller-zero, source-seed-only route zero, and raw-JoinIR route zero in the
+same commit that installs the package-backed session.
+
 ## Historical checked-Dynamic return design (SUPERSEDED; non-authoritative)
 
 Everything in this section is retained only as the rejected-alternative audit.
