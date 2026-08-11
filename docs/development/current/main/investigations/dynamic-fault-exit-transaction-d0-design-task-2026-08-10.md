@@ -1405,7 +1405,7 @@ seventh operation row. The final callable exit transaction must co-seal that
 sibling with cleanup and primary/suppressed Fault chronology before session
 mutation.
 
-#### PHYSICAL-INPUT-AUTHORITY-I0 decision and next task
+#### PHYSICAL-INPUT-AUTHORITY-I0 decision and landed boundary
 
 The authority split is fixed, but implementation is not yet authorized:
 
@@ -1426,26 +1426,29 @@ session-local final-exit realization:
   sole owner allowed to relate demand rows, physical representations, and IDs
 ```
 
-No existing verified product emits the selected physical exact-I64 receipt.
-The A-prime producer provenance, entry/call-edge capability, and strict
-Rust-MIR-JSON-to-LLVM transport are still unresolved. Until those canonical
-issuers exist, current behavior is `RejectBeforeEffect` and the slice remains
+No fresh physical session currently emits the selected physical exact-I64
+receipt. The Builder-free A-prime demand, backend-local VM capability, sealed
+receipt model, MIR-JSON transport, and strict LLVM preflight are now landed.
+The remaining missing authority is the session-local producer provenance and
+the one production consumer that realizes the receipt. Until that consumer
+exists, current behavior is `RejectBeforeEffect` and the selected slice remains
 `NoSafeSlice`.
 
-The sole next task is therefore the remainder of this existing row:
+The sole next task is therefore the downstream implementation row:
 
 ```text
-PHYSICAL-INPUT-AUTHORITY-I0
-  child design: A-PRIME-EXACT-I64-PHYSICAL-CAPABILITY-D0
-  design only until the complete exact-I64 capability/transport contract is accepted
-  then issue the Builder-free two-site demand; realization remains session-local
+DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  consume the installed-package A-prime demand exactly once
+  materialize the fresh-session receipt
+  close both site-keyed Completion claims through DraftSeal prepare
 ```
 
 It must not create a sibling result contract, Static/Dynamic arbitration sum,
 standalone initializer bridge, Dynamic source reissuer, GenericLoop change,
 Recipe/JoinSig physical type, or public raw `ValueId`/slot API. Loop
-unification remains the next structural lane after this row; it cannot replace
-the missing Dynamic-to-i64 conformance proof.
+unification remains the structural prerequisite inside the downstream session
+series; it cannot replace the missing session-local Dynamic-to-i64 conformance
+proof.
 
 #### PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 (superseded historical proposal)
 
