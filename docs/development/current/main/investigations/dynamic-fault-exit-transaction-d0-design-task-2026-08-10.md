@@ -2654,6 +2654,52 @@ I0-B acceptance:
     where lease or discharge state is introduced
 ```
 
+#### DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 (CURRENT DESIGN STOP — NoSafeSlice)
+
+The repository census shows that the named provider issuer, canonical
+provider registry, and VM/LLVM runtime caller for I6/V10 are still absent.
+I0-A therefore closes only the transport schema. Issuing a provider plan or a
+runtime receipt now would create an orphan second authority with no named
+consumer, so I0-B is intentionally not implementation-ready.
+
+The next design boundary is fixed as one provider-registry admission owner:
+
+```text
+existing co-sealed I6 CallSlot relation
+  + Dynamic invocation envelope
+  + immutable provider-registry snapshot/capability
+      -> VerifiedDynamicCallSlotProviderPlanV1
+```
+
+The future plan is move-only, non-Clone, non-splittable, and keeps an opaque
+source/plan brand, canonical selector+source arity, resolved provider/ABI
+family, registry generation, synchronous capability, and the strict
+`Normal(DynamicCarrier) | Fault` contract. It must not expose a raw function
+pointer, provider ID, `RuntimeDataBox`, `BoxCall`, or a by-name dispatch hook.
+The selector/arity is resolved once at admission; the call path never
+re-resolves it. Missing, ambiguous, foreign, unsupported, or stale provider
+capability rejects before Builder effect, with no zero/empty sentinel,
+retry, fallback, or short-buffer reinvocation.
+
+The design stop must close only the following census and matrix:
+
+```text
+[ ] exact I6 item/source-site/selector/arity relation is identified
+[ ] provider registry owner and immutable generation are named
+[ ] VM and LLVM caller/issuer locations are either named or confirmed zero
+[ ] receiver V0:Dynamic, arguments V6/V9:I64, result V10:Dynamic lanes are fixed
+[ ] Direct | Checked | RejectBeforeEffect capability matrix is fixed
+[ ] synchronous capability and lease/discharge owner are named
+[ ] I7/V11, I9/V13, Physical End, VM/LLVM calls, and production callers remain
+    non-claims
+[ ] no provider plan, runtime receipt, registry module, or fixture is added
+    before a named non-test consumer exists
+```
+
+Re-entry to I0-B implementation requires a named provider issuer and a named
+non-test consumer in the same bounded slice. Until then, the only valid
+outcome is typed `RejectBeforeEffect` at the future admission boundary.
+
 Implementation DAG after the design stop is accepted (still within this
 rolling card; no extra card is required):
 
