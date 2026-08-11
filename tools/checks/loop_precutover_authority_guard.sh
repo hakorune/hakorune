@@ -14,11 +14,14 @@ DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_dema
 DEMAND_ROOT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe"
 A_PRIME_ISSUER="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/issuer.rs"
 ROUTING="$BUILDER_DIR/control_flow/joinir/routing.rs"
+EMITTER_DIR="$BUILDER_DIR/resolved_lowering/selected_dynamic_physical_emitter"
+EMITTER_ABI="$BUILDER_DIR/resolved_lowering/selected_dynamic_physical_abi.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$RECURSIVE" "$RAW_LOOP" "$LOAN_PORT" "$ROOT_LOWERING" \
-  "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"
+  "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING" "$EMITTER_DIR/mod.rs" \
+  "$EMITTER_DIR/tests.rs"
 
 guard_expect_fixed_in_file "$TAG" \
   "NormalCallableSemanticPackageMode::Installed" "$ROOT_LOWERING" \
@@ -89,6 +92,25 @@ if [[ "${#a_prime_callers[@]}" -ne 0 ]]; then
   guard_fail "$TAG" "selected A-prime demand gained a pre-cutover production caller: ${a_prime_callers[*]}"
 fi
 
+# The I8 emitter is a selected-fixture canary only.  Keep the plan-consuming
+# session entry and its leaf out of production until the I7/End gate closes.
+for pattern in \
+  'DynamicV2PhysicalEmissionSessionV1::begin(' \
+  'DynamicV2PhysicalEmissionSessionV1::emit_i8_const(' \
+  'issue_selected_dynamic_v2_emission_plan('; do
+  emitter_callers=()
+  while IFS= read -r file; do
+    [[ -z "$file" ]] && continue
+    case "$file" in
+      */tests.rs|*_tests.rs|"$DEMAND_ISSUER"|"$A_PRIME_ISSUER"|"$EMITTER_ABI") continue ;;
+    esac
+    emitter_callers+=("$file")
+  done < <(rg -l --glob '*.rs' -F "$pattern" "$ROOT_DIR/src/mir" || true)
+  if [[ "${#emitter_callers[@]}" -ne 0 ]]; then
+    guard_fail "$TAG" "pre-cutover emitter gained a production caller for ${pattern}: ${emitter_callers[*]}"
+  fi
+done
+
 for file in "$RECURSIVE" "$RAW_LOOP" "$LOAN_PORT" "$ROOT_LOWERING" "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
@@ -96,4 +118,4 @@ for file in "$RECURSIVE" "$RAW_LOOP" "$LOAN_PORT" "$ROOT_LOWERING" "$DEMAND_ISSU
   fi
 done
 
-echo "[$TAG] ok (legacy production edge=1, V2/A-prime demand production callers=0)"
+echo "[$TAG] ok (legacy production edge=1, V2/A-prime/emitter production callers=0)"

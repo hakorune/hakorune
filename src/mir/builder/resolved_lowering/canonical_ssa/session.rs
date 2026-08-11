@@ -176,6 +176,29 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.owner
     }
 
+    /// Allocate one unpublished physical block through the canonical CFG
+    /// owner.  Profile emitters may borrow the returned id only while their
+    /// opaque target is alive; they must not call `ensure_block_exists` or
+    /// mutate the function CFG directly.
+    pub(in crate::mir::builder::resolved_lowering) fn create_unpublished_block(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<BasicBlockId, String> {
+        if builder.function_state.current_function.is_none() {
+            return Err("canonical physical target requires current function".to_owned());
+        }
+        let block = builder.next_block_id();
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("current function checked above");
+        self.cfg
+            .create_block(function, block)
+            .map_err(|error| error.to_string())?;
+        Ok(block)
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn finish_for_draft_seal(
         self,
         builder: &mut MirBuilder,

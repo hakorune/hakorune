@@ -2831,6 +2831,15 @@ program and search for that row again. The test canary is a real unpublished
 session consumer; the production capability gate remains the only production
 handoff. The later End leaf applies the same rule to its discharge rows.
 
+The I8 canary is now implemented as a consuming handoff: it owns the
+canonical unpublished function session and `CanonicalSsaFunctionSessionV2`,
+creates the Prelude block only through the canonical CFG owner, and issues a
+non-Clone session-branded `DynamicV2I64ProducerReceiptV1`. The fixture test
+keeps the package loan in scope, so it does not fabricate a `'static` plan or
+use `enter_function_for_test`. This closes only the canary leaf; the I7/End
+receipts, strict post-session transport ownership, and the production gate
+remain open.
+
 The transport-shape portion of `A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`
 is now landed as schema v2 in the Rust receipt, JSON encoder, and Python
 loader: formal count is exactly four, parameter roles retain `pos=1`/`end=2`,

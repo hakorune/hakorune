@@ -46,9 +46,10 @@ effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
 fallback, and retry are not valid alternatives.
 
 The current implementation row is the family-native V2 emitter, not another
-semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; it must
-receive a session-issued opaque `Prelude` segment target and may not accept a
-raw `BasicBlockId`. `DynamicLess` still needs a checked normal-Bool receipt,
+semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; the
+selected-fixture canary now receives a session-issued opaque `Prelude` target
+through canonical unpublished function/SSA/CFG sessions and may not accept a
+raw `MirBuilder` or `BasicBlockId`. `DynamicLess` still needs a checked normal-Bool receipt,
 and the invocation cleanup owner still needs ordered V10/V11 discharge
 receipts. If any capability is unavailable, the session rejects before its
 first Builder effect. The existing semantic rows remain evidence only.

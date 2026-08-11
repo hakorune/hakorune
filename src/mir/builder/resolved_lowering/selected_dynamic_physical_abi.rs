@@ -32,6 +32,7 @@ pub(in crate::mir) enum SelectedDynamicV2PhysicalPlanRejectV1 {
     PlacementShape,
     OperationCallRelation,
     ControlShape,
+    I8Evidence,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,6 +54,43 @@ impl DynamicV2PhysicalScheduleRowV1 {
     }
 
     pub(in crate::mir) const fn segment(self) -> DynamicV2PhysicalScheduleSegmentV1 {
+        self.segment
+    }
+}
+
+/// Exact Builder-free handoff evidence for the first physical leaf.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct DynamicV2I8EvidenceV1 {
+    item: LoopItemKeyV1,
+    result: LoopValueKeyV1,
+    literal: i64,
+    owner_loop: LoopNodeKeyV1,
+    block: LoopBlockKeyV1,
+    segment: DynamicV2PhysicalScheduleSegmentV1,
+}
+
+impl DynamicV2I8EvidenceV1 {
+    pub(super) const fn item(&self) -> LoopItemKeyV1 {
+        self.item
+    }
+
+    pub(super) const fn result(&self) -> LoopValueKeyV1 {
+        self.result
+    }
+
+    pub(super) const fn literal(&self) -> i64 {
+        self.literal
+    }
+
+    pub(super) const fn owner_loop(&self) -> LoopNodeKeyV1 {
+        self.owner_loop
+    }
+
+    pub(super) const fn block(&self) -> LoopBlockKeyV1 {
+        self.block
+    }
+
+    pub(super) const fn segment(&self) -> DynamicV2PhysicalScheduleSegmentV1 {
         self.segment
     }
 }
@@ -107,6 +145,7 @@ pub(in crate::mir) struct DynamicV2NativePreflightLedgerV1 {
     operations: Box<[DynamicV2OperationEvidenceV1]>,
     control: DynamicV2ControlEvidenceV1,
     faults: Box<[DynamicV2FaultEvidenceV1]>,
+    i8: Option<DynamicV2I8EvidenceV1>,
     completion_sites: [SourceStmtSiteV1; 2],
     inner_return_value: LoopValueKeyV1,
     outer_tail_binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
@@ -117,6 +156,7 @@ impl DynamicV2NativePreflightLedgerV1 {
         program: &PreparedDynamicLoopOperationProgramV2<'_>,
         source_relation: &crate::mir::compiler::dynamic_full_body_recipe::
             DynamicAPrimeI64SourceRelationViewV1<'_>,
+        schedule: &[DynamicV2PhysicalScheduleRowV1],
     ) -> Result<Self, SelectedDynamicV2PhysicalPlanRejectV1> {
         let placements = program
             .placement_rows()
@@ -190,6 +230,8 @@ impl DynamicV2NativePreflightLedgerV1 {
             return Err(SelectedDynamicV2PhysicalPlanRejectV1::Coverage);
         }
 
+        let i8 = issue_i8_evidence(program, &placements, schedule)?;
+
         let completion = source_relation.completion_sites();
         let completion_sites = [completion[0].clone(), completion[1].clone()];
         Ok(Self {
@@ -197,6 +239,7 @@ impl DynamicV2NativePreflightLedgerV1 {
             operations: operations.into_boxed_slice(),
             control: control_evidence,
             faults: faults.into_boxed_slice(),
+            i8: Some(i8),
             completion_sites,
             inner_return_value: source_relation.inner_return_value(),
             outer_tail_binding: source_relation.outer_tail_binding(),
@@ -211,6 +254,10 @@ impl DynamicV2NativePreflightLedgerV1 {
             self.completion_sites.len(),
         )
     }
+
+    pub(super) fn take_i8_evidence(&mut self) -> Option<DynamicV2I8EvidenceV1> {
+        self.i8.take()
+    }
 }
 
 /// Move-only, Builder-free plan for one selected Dynamic V2 cohort.
@@ -221,7 +268,7 @@ pub(in crate::mir) struct PreparedSelectedDynamicV2EmissionPlanV1<'program> {
     ledger: DynamicV2NativePreflightLedgerV1,
 }
 
-impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
+impl<'program> PreparedSelectedDynamicV2EmissionPlanV1<'program> {
     pub(in crate::mir) fn schedule_rows(&self) -> &[DynamicV2PhysicalScheduleRowV1] {
         &self.schedule
     }
@@ -233,6 +280,7 @@ impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
         self.demand.with_operation_program(callback)
     }
 
+    #[cfg(test)]
     pub(in crate::mir) fn with_ledger<R>(
         &self,
         callback: impl FnOnce(&DynamicV2NativePreflightLedgerV1) -> R,
@@ -254,6 +302,18 @@ impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
     ) -> Option<[crate::mir::resolved_semantics::SourceStmtSiteV1; 2]> {
         self.demand.completion_sites()
     }
+
+    /// Consume the preflight plan into the family-native physical session.
+    /// The session is the only non-test owner allowed to move the ledger.
+    pub(super) fn into_emitter_parts(
+        self,
+    ) -> (
+        VerifiedAPrimeI64PhysicalDemandV1<'program>,
+        Box<[DynamicV2PhysicalScheduleRowV1]>,
+        DynamicV2NativePreflightLedgerV1,
+    ) {
+        (self.demand, self.schedule, self.ledger)
+    }
 }
 
 pub(in crate::mir) fn issue_selected_dynamic_v2_emission_plan<'program>(
@@ -263,13 +323,70 @@ pub(in crate::mir) fn issue_selected_dynamic_v2_emission_plan<'program>(
     let source_relation = demand.source_relation();
     let (schedule, ledger) = demand.with_operation_program(|program| {
         let schedule = build_schedule(program)?;
-        let ledger = DynamicV2NativePreflightLedgerV1::issue(program, source_relation)?;
+        let ledger = DynamicV2NativePreflightLedgerV1::issue(program, source_relation, &schedule)?;
         Ok::<_, SelectedDynamicV2PhysicalPlanRejectV1>((schedule, ledger))
     })?;
     Ok(PreparedSelectedDynamicV2EmissionPlanV1 {
         demand,
         schedule,
         ledger,
+    })
+}
+
+fn issue_i8_evidence(
+    program: &PreparedDynamicLoopOperationProgramV2<'_>,
+    placements: &[DynamicV2PlacementEvidenceV1],
+    schedule: &[DynamicV2PhysicalScheduleRowV1],
+) -> Result<DynamicV2I8EvidenceV1, SelectedDynamicV2PhysicalPlanRejectV1> {
+    const I8: u32 = 8;
+    const V12: u32 = 12;
+    let rows = program
+        .operation_rows()
+        .iter()
+        .filter(|row| row.item() == LoopItemKeyV1::new(I8))
+        .collect::<Vec<_>>();
+    let [row] = rows.as_slice() else {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    };
+    let (result, literal) = match row.operation() {
+        LoopOperationV2::ConstI64 { result, value } => (*result, *value),
+        _ => return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence),
+    };
+    if result != LoopValueKeyV1::new(V12) || literal != 0 {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    }
+    let placements = placements
+        .iter()
+        .filter(|placement| placement.item == LoopItemKeyV1::new(I8))
+        .collect::<Vec<_>>();
+    let [placement] = placements.as_slice() else {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    };
+    if placement.kind != DynamicFullLoopPhysicalItemKindV2::Operation {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    }
+    let segments = schedule
+        .iter()
+        .filter(|row| row.item == LoopItemKeyV1::new(I8))
+        .map(|row| (*row).segment())
+        .collect::<Vec<_>>();
+    let [segment] = segments.as_slice() else {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    };
+    let segment = *segment;
+    if segment != DynamicV2PhysicalScheduleSegmentV1::Prelude
+        || placement.owner_loop != row.owner_loop()
+        || placement.block != row.block()
+    {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
+    }
+    Ok(DynamicV2I8EvidenceV1 {
+        item: row.item(),
+        result,
+        literal,
+        owner_loop: row.owner_loop(),
+        block: row.block(),
+        segment,
     })
 }
 
