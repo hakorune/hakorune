@@ -14,7 +14,8 @@ Authority:
 
 The final product lends one complete callable syntax batch from those anchors
 and slots. Direct-method parameter rows are joined as an exact optional
-projection on each batch slot; they never define total callable cardinality.
+projection on each batch slot; they retain borrowed declared-type spelling but
+never define total callable cardinality or classify ABI/Home semantics.
 Top-level, selected-gate, and generated callables remain batch members without
 receiving a fabricated `Ordinary` parameter source.
 

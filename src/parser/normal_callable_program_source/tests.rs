@@ -25,9 +25,26 @@ fn transform(
 
 #[test]
 fn exact_static_callable_set_survives_one_transform() {
-    let final_source = transform(parse("static box Scan { run(x) { return x } }"), |_| {})
+    let final_source = transform(
+        parse("static box Scan { run(x, pos: i64, end: i64, y) { return x } }"),
+        |_| {},
+    )
         .expect("exact transform");
     assert_eq!(final_source.callable_count(), 1);
+    let parameter_types = final_source
+        .with_callable_semantic_syntax(|loan| {
+            loan.rows()[0]
+                .parameters()
+                .expect("direct method parameter source")
+                .iter()
+                .map(|parameter| parameter.declared_type_name().map(str::to_owned))
+                .collect::<Vec<_>>()
+        })
+        .expect("semantic syntax loan");
+    assert_eq!(
+        parameter_types,
+        [None, Some("i64".to_owned()), Some("i64".to_owned()), None]
+    );
     let parameter_count = final_source
         .with_callable_parameter_syntax(|catalog, loan| {
             assert_eq!(catalog.declarations().len(), 1);
@@ -36,7 +53,18 @@ fn exact_static_callable_set_survives_one_transform() {
         })
         .expect("exact parameter syntax")
         .expect("direct method parameter source");
-    assert_eq!(parameter_count, 1);
+    assert_eq!(parameter_count, 4);
+}
+
+#[test]
+fn top_level_callable_does_not_fabricate_parameter_source() {
+    let final_source = transform(parse("function helper(pos: i64) { return pos }"), |_| {})
+        .expect("exact transform");
+    final_source
+        .with_callable_semantic_syntax(|loan| {
+            assert!(loan.rows()[0].parameters().is_none());
+        })
+        .expect("semantic syntax loan");
 }
 
 #[test]
@@ -136,6 +164,31 @@ fn added_or_changed_callable_rejects_without_compatibility_fallback() {
     });
     assert!(matches!(
         changed,
+        Err(FinalCallableProgramSourceRejectV1::CallableDeclarationChanged { row: 0 })
+    ));
+
+    let changed_parameter_type = transform(
+        parse("static box Scan { run(value: i64) { return value } }"),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::BoxDeclaration { methods, .. } = &mut statements[0] else {
+                unreachable!()
+            };
+            *methods = std::mem::take(methods)
+                .map_declarations(|mut declaration| {
+                    let ASTNode::FunctionDeclaration { param_decls, .. } = &mut declaration else {
+                        unreachable!()
+                    };
+                    param_decls[0].declared_type_name = None;
+                    declaration
+                })
+                .expect("valid transformed inventory");
+        },
+    );
+    assert!(matches!(
+        changed_parameter_type,
         Err(FinalCallableProgramSourceRejectV1::CallableDeclarationChanged { row: 0 })
     ));
 }

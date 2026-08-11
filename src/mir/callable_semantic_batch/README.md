@@ -19,7 +19,9 @@ projection, and only then publishes the non-Clone batch. Callers may borrow an
 exact `ResolvedFunctionLoweringInputV1` inside a scoped callback; they cannot
 move out syntax, the parameter catalog, a forest, or a projection.
 
-Parameter syntax is an exact partial projection onto private batch slots.
+Parameter syntax is an exact partial projection onto private batch slots. The
+loan preserves optional declared-type spelling as borrowed source syntax; it
+does not classify parameter ABI/Home demand or create a physical ValueId.
 Missing parameter-source evidence does not remove a top-level, selected-gate,
 or generated callable from the batch and does not synthesize `Ordinary`.
 Child issuers that require parameter demand must fail closed for a selected row

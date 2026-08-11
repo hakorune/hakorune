@@ -16,6 +16,7 @@ SELECTED_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_ma
 SOURCE_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
 INGRESS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/ingress.rs"
 BATCH_TESTS="$ROOT_DIR/src/mir/callable_semantic_batch/tests.rs"
+PARSER_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/tests.rs"
 PACKAGE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/tests.rs"
 DYNAMIC_TARGET="$ROOT_DIR/src/mir/source_call_target/dynamic_member.rs"
 DYNAMIC_CALLS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/calls.rs"
@@ -32,6 +33,7 @@ guard_require_files "$TAG" \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$PARSER_TESTS" \
   "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
   "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \
   "$RAW_SOURCE_TRANSPORT"
@@ -63,6 +65,12 @@ reject_fixed_in_file \
 guard_expect_fixed_in_file "$TAG" \
   "parameters: Option<Box" "$PARSER_LOAN" \
   "parameter source must remain an exact partial projection"
+guard_expect_fixed_in_file "$TAG" \
+  "declared_type_name: Option<&'source str>" "$PARSER_LOAN" \
+  "final syntax loan must preserve declared parameter spelling"
+guard_expect_fixed_in_file "$TAG" \
+  "declared_type_name: Option<&'batch str>" "$ROOT_DIR/src/mir/callable_semantic_batch/model.rs" \
+  "resolved batch loan must preserve declared parameter spelling"
 guard_expect_fixed_in_file "$TAG" \
   ".with_callable_semantic_syntax" "$BATCH_ISSUER" \
   "semantic batch must traverse complete final callable syntax"
@@ -111,6 +119,12 @@ reject_fixed_in_file \
 guard_expect_fixed_in_file "$TAG" \
   "top_level_and_box_methods_share_one_complete_batch" "$BATCH_TESTS" \
   "mixed top-level complete-batch fixture is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "typed_parameter_spelling_survives_resolved_batch_loan" "$BATCH_TESTS" \
+  "resolved parameter spelling transport fixture is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "top_level_callable_does_not_fabricate_parameter_source" "$PARSER_TESTS" \
+  "top-level parameter projection negative is missing"
 guard_expect_fixed_in_file "$TAG" \
   "top_level_and_dynamic_candidate_share_one_complete_package_batch" "$PACKAGE_TESTS" \
   "mixed top-level plus Dynamic package fixture is missing"
@@ -192,6 +206,7 @@ for file in \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$DEMAND_ISSUER" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$PARSER_TESTS" \
   "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
   "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \
   "$RAW_SOURCE_TRANSPORT"; do

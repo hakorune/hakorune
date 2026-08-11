@@ -98,6 +98,27 @@ fn lowering_input_borrows_the_same_forest_owner_and_parameter_binding() {
 }
 
 #[test]
+fn typed_parameter_spelling_survives_resolved_batch_loan() {
+    let batch = batch(
+        "static box Api { run(value, pos: i64, end: i64, tail) { return value } }",
+    );
+    batch
+        .with_declaration_semantics(|view| {
+            let parameters = view.declarations()[0]
+                .parameters()
+                .expect("direct method parameter source");
+            assert_eq!(
+                parameters
+                    .iter()
+                    .map(|parameter| parameter.declared_type_name())
+                    .collect::<Vec<_>>(),
+                [None, Some("i64"), Some("i64"), None]
+            );
+        })
+        .expect("resolved declaration semantics");
+}
+
+#[test]
 fn unchanged_parser_scan_loop_box_is_a_complete_four_row_batch() {
     let batch = batch(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"

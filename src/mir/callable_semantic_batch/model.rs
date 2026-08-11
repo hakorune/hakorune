@@ -54,6 +54,7 @@ pub(crate) struct VerifiedResolvedCallableSemanticRowRefV1<'batch> {
 pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
     ordinal: u32,
     name: &'batch str,
+    declared_type_name: Option<&'batch str>,
     ordinary: bool,
 }
 
@@ -132,6 +133,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                         .map_err(|_| ResolvedCallableSemanticBatchLoanErrorV1::SourceCoverage)?;
                     if syntax.batch_slot() != batch_slot
                         || semantic.batch_slot != batch_slot
+                        || !syntax.identity().same_as(&semantic.identity)
                         || syntax.parameters().is_some_and(|parameters| {
                             parameters.len()
                                 != usize::try_from(semantic.parameter_count).unwrap_or(usize::MAX)
@@ -152,6 +154,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                             .map(|parameter| VerifiedResolvedCallableParameterSourceRefV1 {
                                 ordinal: parameter.ordinal(),
                                 name: parameter.name(),
+                                declared_type_name: parameter.declared_type_name(),
                                 ordinary: parameter.is_ordinary(),
                             })
                             .collect::<Vec<_>>()
@@ -210,6 +213,10 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
 
     pub(crate) const fn is_ordinary(self) -> bool {
         self.ordinary
+    }
+
+    pub(crate) const fn declared_type_name(&self) -> Option<&str> {
+        self.declared_type_name
     }
 
     pub(crate) const fn name(&self) -> &str {

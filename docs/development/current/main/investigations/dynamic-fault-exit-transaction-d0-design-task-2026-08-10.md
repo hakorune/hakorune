@@ -534,31 +534,29 @@ commit/test boundaries, not new public authorities or new task cards.
 
 #### Slice A: A-PRIME-PARAMETER-CONTRACT-I0
 
-Commit A1 — `CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` (BoxShape):
+Commit A1 — `CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` (CLOSED, BoxShape):
 
 ```text
-owner:
-  final callable syntax loan -> resolved callable batch HRTB loan
-
 change:
-  FinalCallableParameterSourceRefV1
-  VerifiedResolvedCallableParameterSourceRefV1
-    retain borrowed declared_type_name
+  final callable syntax loan -> resolved callable batch HRTB loan
+  retains borrowed declared_type_name: Option<&str>
+  and checks syntax/batch declaration identity during the batch loan
 
-named consumer:
-  CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0
+contract:
+  [None, i64, i64, None] is transported as source spelling only.
+  No ABI/Home/Recipe/ValueId/backend meaning is assigned here.
+  No AST rescan, name/ordinal repair, or owned-string authority is added.
 
-delete:
-  lossy ordinal/name/ordinary-only parameter transport
+evidence:
+  typed parser/batch positives, top-level non-fabrication, parameter-drift
+  rejection, focused parser/batch tests, complete-batch guard, and README
+  updates are green.
+
+next:
+  A2 must atomically replace the old callable_parameter_demand owner.
 ```
 
-Primary files are
-`parser/normal_callable_program_source/semantic_syntax_loan.rs` and
-`mir/callable_semantic_batch/model.rs` plus their focused tests. The positive
-case is `[None, i64, i64, None]`; foreign identity, missing/duplicate row,
-parameter-count drift, AST rescan, and name/ordinal repair reject.
-
-Commit A2 — `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0`:
+Commit A2 — `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0` (next):
 
 ```text
 exact spelling + declaration identity + resolved BindingRef
@@ -571,10 +569,12 @@ exact spelling + declaration identity + resolved BindingRef
 ```
 
 Use one small `src/mir/callable_parameter_contract/` owner with README, model,
-issuer, and tests. The existing `ExactTrivialParameterAbiV1::classify` remains
-the sole spelling classifier. The existing `ParameterEntryContract` remains
-the later runtime checker; it is not constructed before ValueIds exist. The
-mixed selected rows must be exactly:
+issuer, and tests. This is an atomic replacement, not a sibling authority:
+delete the old `callable_parameter_demand` module/export and its production
+callers in the same commit. The existing `ExactTrivialParameterAbiV1::classify`
+remains the sole spelling classifier. The existing `ParameterEntryContract`
+remains the later runtime checker; it is not constructed before ValueIds exist.
+The mixed selected rows must be exactly:
 
 ```text
 src        OpaqueHandle / Handle
@@ -584,8 +584,12 @@ pred_chars OpaqueHandle / Handle
 ```
 
 This commit deletes the unconditional “all ordinary parameters are Handle”
-decision. The package retains the non-Clone contract; raw batch slots and
-arbitrary constructors remain private.
+decision and updates the ownership/result-contract references that still state
+that rule. `HomeDemand` is only a one-way derived projection; it is not the
+parameter contract authority. The package retains the non-Clone contract; raw
+batch slots and arbitrary constructors remain private. No dual producer,
+fallback, `.hako` signature change, Recipe/ValueId/backend/session work is
+allowed in A2.
 
 #### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
 
@@ -784,8 +788,9 @@ the Hako producer and retires the Rust selfhost producer in the same commit.
 Broader `.hako` migration follows. Fixed topology hard deletion remains a
 post-cutover caller-zero cleanup.
 
-Production remains `NoSafeSlice` until D4, but the design is accepted and the
-first safe implementation row is `CALLABLE-PARAMETER-TYPE-TRANSPORT-R0`.
+Production remains `NoSafeSlice` until D4. A1
+`CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` is closed; the current safe
+implementation row is A2 `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0`.
 
 ## Historical checked-Dynamic return design (SUPERSEDED; non-authoritative)
 

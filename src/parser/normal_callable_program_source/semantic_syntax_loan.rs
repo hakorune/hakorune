@@ -30,6 +30,7 @@ pub(crate) enum FinalCallableDeclarationModeV1 {
 pub(crate) struct FinalCallableParameterSourceRefV1<'source> {
     ordinal: u32,
     name: &'source str,
+    declared_type_name: Option<&'source str>,
     ordinary: bool,
 }
 
@@ -132,6 +133,10 @@ impl FinalCallableParameterSourceRefV1<'_> {
         self.ordinary
     }
 
+    pub(crate) const fn declared_type_name(&self) -> Option<&str> {
+        self.declared_type_name
+    }
+
     pub(crate) const fn name(&self) -> &str {
         self.name
     }
@@ -166,6 +171,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                 .map(|parameter| FinalCallableParameterSourceRefV1 {
                     ordinal: parameter.ordinal(),
                     name: parameter.name(),
+                    declared_type_name: parameter.declared_type().as_deref(),
                     ordinary: parameter.transfer().is_ordinary(),
                 })
                 .collect::<Vec<_>>()
