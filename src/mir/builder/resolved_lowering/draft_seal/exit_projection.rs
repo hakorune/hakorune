@@ -1,13 +1,15 @@
-//! Single-site Return projection for the strict draft-seal seam.
+//! Return projection for the strict draft-seal seam.
 //!
-//! This child module owns only the existing bounded exit vocabulary and its
-//! borrow-only projection.  It deliberately does not add multi-site
-//! physicalization or a second Completion/Return authority.
+//! This child module owns the existing bounded exit vocabulary and its
+//! detached projection.  Multi-site claims are supplied by the focused
+//! `multi_site_exit` child; this module never creates a second
+//! Completion/Return authority.
 
 use crate::mir::{BasicBlockId, ConstValue, MirBuilder, MirInstruction, MirType};
 
 use super::{
-    FunctionDraftSealProjectionErrorV1, FunctionDraftSealProjectionV1, ReadyFunctionDraftSealV1,
+    FunctionDraftSealProjectionErrorV1, FunctionDraftSealProjectionV1, PreparedFunctionExitSetV1,
+    ReadyFunctionDraftSealV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -28,6 +30,7 @@ pub(in crate::mir::builder::resolved_lowering) enum PreparedFunctionExitV1 {
 pub(in crate::mir::builder::resolved_lowering) enum FunctionDraftSealPreparationErrorV1 {
     ExplicitValueOperandMissing,
     MultipleExplicitReturnClaimsUnsupported,
+    MultiSite(super::multi_site_exit::MultiSiteExitPreparationErrorV1),
 }
 
 impl ReadyFunctionDraftSealV1 {
@@ -70,56 +73,84 @@ impl FunctionDraftSealProjectionV1 {
         builder: &MirBuilder,
         exit: PreparedFunctionExitV1,
     ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
-        let mut function = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or(FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing)?
-            .clone();
+        Self::project_from_builder_exit_set(builder, PreparedFunctionExitSetV1::single(exit))
+            .map_err(|(_, error)| error)
+    }
+
+    pub(super) fn project_from_builder_exit_set(
+        builder: &MirBuilder,
+        exit: PreparedFunctionExitSetV1,
+    ) -> Result<
+        Self,
+        (
+            PreparedFunctionExitSetV1,
+            FunctionDraftSealProjectionErrorV1,
+        ),
+    > {
+        let mut function = match builder.function_state.current_function.as_ref() {
+            Some(function) => function.clone(),
+            None => {
+                return Err((
+                    exit,
+                    FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing,
+                ))
+            }
+        };
         let mut type_ctx = super::clone_type_context(&builder.function_state.type_ctx);
         let origin_caller_rows = builder.value_origin_caller_rows();
-        let block = match exit {
-            PreparedFunctionExitV1::ExplicitValue { block, .. }
-            | PreparedFunctionExitV1::ExplicitUnit { block }
-            | PreparedFunctionExitV1::ImplicitUnit { block } => block,
-        };
-        let block_data = function
-            .blocks
-            .get(&block)
-            .ok_or(FunctionDraftSealProjectionErrorV1::ExitBlockMissing { block })?;
-        if block_data.terminator.is_some() {
-            return Err(FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { block });
-        }
+        let mut seen_blocks = std::collections::BTreeSet::new();
+        let result = exit.try_for_each_exit(|exit| {
+            let block = match exit {
+                PreparedFunctionExitV1::ExplicitValue { block, .. }
+                | PreparedFunctionExitV1::ExplicitUnit { block }
+                | PreparedFunctionExitV1::ImplicitUnit { block } => block,
+            };
+            let block_data = function
+                .blocks
+                .get(&block)
+                .ok_or(FunctionDraftSealProjectionErrorV1::ExitBlockMissing { block })?;
+            if block_data.terminator.is_some() {
+                return Err(
+                    FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { block },
+                );
+            }
+            if !seen_blocks.insert(block) {
+                return Err(
+                    FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { block },
+                );
+            }
 
-        match exit {
-            PreparedFunctionExitV1::ExplicitValue { value, .. } => {
-                // The exact operand type is resolved after the private type
-                // propagation plan. Projection only records the physical
-                // operand and never makes an early signature decision.
-                function
-                    .blocks
-                    .get_mut(&block)
-                    .expect("validated exit block")
-                    .add_instruction(MirInstruction::Return { value: Some(value) });
+            match exit {
+                PreparedFunctionExitV1::ExplicitValue { value, .. } => {
+                    function
+                        .blocks
+                        .get_mut(&block)
+                        .expect("validated exit block")
+                        .add_instruction(MirInstruction::Return { value: Some(value) });
+                }
+                PreparedFunctionExitV1::ExplicitUnit { .. }
+                | PreparedFunctionExitV1::ImplicitUnit { .. } => {
+                    let value = super::allocate_projected_void(
+                        &mut function,
+                        &builder.function_state.compilation.reserved_value_ids,
+                    )?;
+                    type_ctx.value_types.insert(value, MirType::Void);
+                    super::set_projected_return_type(&mut function, MirType::Void)?;
+                    let block_data = function
+                        .blocks
+                        .get_mut(&block)
+                        .expect("validated exit block");
+                    block_data.add_instruction(MirInstruction::Const {
+                        dst: value,
+                        value: ConstValue::Void,
+                    });
+                    block_data.add_instruction(MirInstruction::Return { value: Some(value) });
+                }
             }
-            PreparedFunctionExitV1::ExplicitUnit { .. }
-            | PreparedFunctionExitV1::ImplicitUnit { .. } => {
-                let value = super::allocate_projected_void(
-                    &mut function,
-                    &builder.function_state.compilation.reserved_value_ids,
-                )?;
-                type_ctx.value_types.insert(value, MirType::Void);
-                super::set_projected_return_type(&mut function, MirType::Void)?;
-                let block_data = function
-                    .blocks
-                    .get_mut(&block)
-                    .expect("validated exit block");
-                block_data.add_instruction(MirInstruction::Const {
-                    dst: value,
-                    value: ConstValue::Void,
-                });
-                block_data.add_instruction(MirInstruction::Return { value: Some(value) });
-            }
+            Ok(())
+        });
+        if let Err(error) = result {
+            return Err((exit, error));
         }
 
         Ok(Self {

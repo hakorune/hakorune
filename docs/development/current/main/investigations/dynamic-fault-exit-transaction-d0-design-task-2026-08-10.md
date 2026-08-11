@@ -2317,9 +2317,12 @@ Completion owner through a site-keyed claim set in its own small module; do not
 create a sibling result or return authority. The physical session keeps
 `ValueId`/`BasicBlockId` receipts session-local, while the pre-session demand
 remains Builder-free. `draft_seal.rs` is already near the file-size boundary,
-so multi-site projection belongs in a focused child module rather than in the
-flat file. A missing backend capability or missing exact relation is
-`NoSafeSlice`, not a fallback route.
+so multi-site claim/projection logic belongs in focused child modules rather
+than in the flat file. The current slice now has a source-order claim set and
+an unpublished detached projection that can place Return×2 only on distinct
+un-terminated blocks; it does not connect to a live session or production
+caller. A missing backend capability, terminated If branch, or missing exact
+relation is `NoSafeSlice`, not a fallback route.
 
 ## Hard stops
 
@@ -2348,11 +2351,12 @@ resolved_control_flow/function_control.rs        current 606
 builder/resolved_lowering/completion_consumption.rs  current 191
   site-keyed claim set and focused tests belong here
 
-builder/resolved_lowering/draft_seal.rs          current 579
-  no new multi-site logic in the flat file
-  first move exit projection behavior-neutrally into:
-    draft_seal/exit_projection.rs                target <= 350
-  then extend the detached projection in the physical-session series
+builder/resolved_lowering/draft_seal.rs          current 545
+  keep multi-site claim/projection logic out of the flat file
+  exit projection lives in focused children:
+    draft_seal/exit_projection.rs                current 162
+    draft_seal/multi_site_exit.rs                current 272
+  live-session integration remains downstream
 
 builder/recursive_child_lowering.rs              current 785
   explicit no-addition surface

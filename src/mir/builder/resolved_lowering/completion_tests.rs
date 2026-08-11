@@ -283,6 +283,71 @@ fn detached_multi_site_exit_rejects_single_site_and_unit_claims() {
 }
 
 #[test]
+fn draft_seal_projection_materializes_exact_two_site_returns_without_mutating_live_builder() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_projection_two_sites",
+        vec![if_return(1), return_stmt(Some(literal(2)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let sites = completion.explicit_sites().to_vec();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&sites[1], target, BasicBlockId::new(11), ValueId::new(21))
+        .unwrap();
+    consumption
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(10), ValueId::new(20))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("draft_seal_projection_two_sites/0".to_string());
+    builder.ensure_block_exists(BasicBlockId::new(10)).unwrap();
+    builder.ensure_block_exists(BasicBlockId::new(11)).unwrap();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(ValueId::new(20), MirType::Integer);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(ValueId::new(21), MirType::Integer);
+
+    let projected = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare_exact_two()
+        .unwrap()
+        .project(&builder)
+        .unwrap();
+
+    for (block, value) in [
+        (BasicBlockId::new(10), ValueId::new(20)),
+        (BasicBlockId::new(11), ValueId::new(21)),
+    ] {
+        assert!(matches!(
+            projected.function().get_block(block).unwrap().terminator,
+            Some(MirInstruction::Return { value: Some(id) }) if id == value
+        ));
+        assert!(builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .get_block(block)
+            .unwrap()
+            .terminator
+            .is_none());
+    }
+}
+
+#[test]
 fn multi_site_completion_rejects_missing_duplicate_and_foreign_claims() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
         "completion_multi_site_rejects",

@@ -27,6 +27,7 @@ mod exit_projection;
 mod multi_site_exit;
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
+pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
 
 #[derive(Debug)]
@@ -40,7 +41,7 @@ pub(super) struct ReadyFunctionDraftSealV1 {
 #[derive(Debug)]
 pub(super) struct PreparedFunctionExitPlanV1 {
     completion: ReadyFunctionCompletionV1,
-    exit: PreparedFunctionExitV1,
+    exit: PreparedFunctionExitSetV1,
 }
 
 /// Private non-authority image used by the prepare phase.  It is deliberately
@@ -50,7 +51,7 @@ pub(super) struct PreparedFunctionExitPlanV1 {
 pub(super) struct FunctionDraftSealProjectionV1 {
     function: MirFunction,
     type_ctx: TypeContext,
-    exit: PreparedFunctionExitV1,
+    exit: PreparedFunctionExitSetV1,
     origin_caller_rows: Vec<(ValueId, String)>,
 }
 
@@ -119,6 +120,10 @@ pub(super) enum PreparedFunctionResultV1 {
         value: ValueId,
         return_type: MirType,
     },
+    ExactOperands {
+        values: Box<[ValueId]>,
+        return_type: MirType,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -129,7 +134,6 @@ pub(super) struct PreparedFunctionSignatureV1 {
 #[derive(Debug)]
 pub(super) struct PreparedFunctionDraftSealPlanV1 {
     metadata: PreparedFunctionMetadataV1,
-    projection: FunctionDraftSealProjectionV1,
     stale: PreparedTransientStaleValueFactsV1,
 }
 
@@ -161,7 +165,7 @@ impl ReadyFunctionDraftSealV1 {
 
         Ok(PreparedFunctionExitPlanV1 {
             completion: self.completion,
-            exit,
+            exit: PreparedFunctionExitSetV1::single(exit),
         })
     }
 
@@ -187,9 +191,14 @@ impl PreparedFunctionExitPlanV1 {
         self,
         builder: &MirBuilder,
     ) -> Result<FunctionDraftSealProjectionV1, RejectedFunctionDraftProjectionV1> {
-        let exit = self.exit;
-        FunctionDraftSealProjectionV1::project_from_builder(builder, exit)
-            .map_err(|error| RejectedFunctionDraftProjectionV1 { owner: self, error })
+        let Self { completion, exit } = self;
+        match FunctionDraftSealProjectionV1::project_from_builder_exit_set(builder, exit) {
+            Ok(projection) => Ok(projection),
+            Err((exit, error)) => Err(RejectedFunctionDraftProjectionV1 {
+                owner: Self { completion, exit },
+                error,
+            }),
+        }
     }
 
     pub(super) fn project_exit(
@@ -197,11 +206,6 @@ impl PreparedFunctionExitPlanV1 {
         exit: PreparedFunctionExitV1,
     ) -> Result<FunctionDraftSealProjectionV1, FunctionDraftSealProjectionErrorV1> {
         FunctionDraftSealProjectionV1::project_from_builder(builder, exit)
-    }
-
-    #[cfg(test)]
-    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
-        self.exit
     }
 }
 
@@ -269,6 +273,7 @@ impl FunctionDraftSealProjectionV1 {
         let return_type = match &signature.result {
             PreparedFunctionResultV1::Unit => MirType::Void,
             PreparedFunctionResultV1::ExactOperand { return_type, .. } => return_type.clone(),
+            PreparedFunctionResultV1::ExactOperands { return_type, .. } => return_type.clone(),
         };
         set_projected_return_type(&mut self.function, return_type)?;
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
@@ -297,43 +302,6 @@ impl FunctionDraftSealProjectionV1 {
             signature,
             phi: PreparedFunctionPhiClosureReceiptV1,
         })
-    }
-
-    /// Resolve the result/signature relation from the already projected exit
-    /// plan.  This deliberately does not scan Return instructions or infer
-    /// from the last produced ValueId.
-    pub(super) fn prepare_signature(
-        &self,
-    ) -> Result<PreparedFunctionSignatureV1, FunctionDraftSealProjectionErrorV1> {
-        let result = match self.exit {
-            PreparedFunctionExitV1::ExplicitValue { value, .. } => {
-                let Some(return_type) = self.type_ctx.value_types.get(&value).cloned() else {
-                    return Err(FunctionDraftSealProjectionErrorV1::ReturnValueTypeMissing {
-                        value,
-                    });
-                };
-                if return_type == MirType::Unknown {
-                    return Err(FunctionDraftSealProjectionErrorV1::UnknownReturnValueType {
-                        value,
-                    });
-                }
-                if !matches!(
-                    return_type,
-                    MirType::Integer | MirType::Bool | MirType::Float | MirType::Void
-                ) {
-                    return Err(
-                        FunctionDraftSealProjectionErrorV1::UnsupportedReturnValueType {
-                            value,
-                            actual: return_type,
-                        },
-                    );
-                }
-                PreparedFunctionResultV1::ExactOperand { value, return_type }
-            }
-            PreparedFunctionExitV1::ExplicitUnit { .. }
-            | PreparedFunctionExitV1::ImplicitUnit { .. } => PreparedFunctionResultV1::Unit,
-        };
-        Ok(PreparedFunctionSignatureV1 { result })
     }
 }
 
@@ -455,32 +423,28 @@ impl PreparedFunctionStaleFactsV1 {
     pub(super) fn verify(
         self,
     ) -> Result<PreparedFunctionDraftSealPlanV1, FunctionDraftSealProjectionErrorV1> {
-        let mut verified_type_ctx = clone_type_context(&self.metadata.projection.type_ctx);
-        self.stale.apply_to_type_context(&mut verified_type_ctx);
+        let Self {
+            mut metadata,
+            stale,
+        } = self;
+        let mut verified_type_ctx = clone_type_context(&metadata.projection.type_ctx);
+        stale.apply_to_type_context(&mut verified_type_ctx);
         crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
-            &self.metadata.projection.function,
+            &metadata.projection.function,
             &verified_type_ctx.value_types,
         )
         .map_err(|error| {
             FunctionDraftSealProjectionErrorV1::TypedValueVerificationFailed(error.to_string())
         })?;
         crate::mir::verification::MirVerifier::new()
-            .verify_function(&self.metadata.projection.function)
+            .verify_function(&metadata.projection.function)
             .map_err(|errors| {
                 FunctionDraftSealProjectionErrorV1::ProjectedVerificationFailed(format!(
                     "{errors:?}"
                 ))
             })?;
-        Ok(PreparedFunctionDraftSealPlanV1 {
-            projection: FunctionDraftSealProjectionV1 {
-                function: self.metadata.projection.function.clone(),
-                type_ctx: verified_type_ctx,
-                exit: self.metadata.projection.exit,
-                origin_caller_rows: self.metadata.projection.origin_caller_rows.clone(),
-            },
-            metadata: self.metadata,
-            stale: self.stale,
-        })
+        metadata.projection.type_ctx = verified_type_ctx;
+        Ok(PreparedFunctionDraftSealPlanV1 { metadata, stale })
     }
 
     #[cfg(test)]
@@ -499,8 +463,8 @@ impl PreparedFunctionDraftSealPlanV1 {
     /// payload. Metadata/stale/verification receipts remain owned by the
     /// outer draft-seal plan; this payload is only the physical apply input.
     pub(super) fn into_session_commit_input(self) -> PreparedFunctionSessionCommitInputV1 {
-        let mut function = self.projection.function;
-        let type_ctx = self.projection.type_ctx;
+        let mut function = self.metadata.projection.function;
+        let type_ctx = self.metadata.projection.type_ctx;
         function.metadata.value_types = type_ctx.value_types.clone();
         PreparedFunctionSessionCommitInputV1::new(function, type_ctx)
     }
@@ -526,7 +490,7 @@ impl PreparedFunctionDraftSealPlanV1 {
 
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
-        &self.projection
+        &self.metadata.projection
     }
 }
 
