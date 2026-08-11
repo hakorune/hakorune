@@ -938,7 +938,7 @@ skip the After closure or reopen a Tail-only route.
 | 17 | `LOOP-CALLER-ZERO-PARITY-G0-I1-D1` | per-transfer Predicate receipts, neutral After boundary, and common DerivedCarrierEntry emitter contract | **accepted design 2026-08-08**; implementation is split into the common I0 row below and G0 I1 |
 | 18 | `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` | common per-transfer Predicate values plus profile-neutral DerivedCarrierEntry emission | **closed 2026-08-08**; no G0-specific owner or production selection |
 | 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | **closed 2026-08-08** caller-zero; no G0-specific physicalizer |
-| 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | does not activate the physical caller |
+| 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | repository-wide convergence; not a prerequisite for the bounded selected H2 first cutover unless its unchanged source needs that family |
 | 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | exact node/source/entry coverage + Core-owned continuation -> one semantic-program input; migrate callers and delete split issuance | BoxShape Refactor Series; no accepted-shape or production change |
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
@@ -950,6 +950,42 @@ skip the After closure or reopen a Tail-only route.
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
+
+### Selected Dynamic first-cutover overlay (2026-08-11)
+
+The table above remains the repository-wide convergence order. The bounded
+`ParserScanLoopBox.skip_while/4` replacement uses this smaller exact overlay so
+the first production cutover does not wait for unrelated all-19 families:
+
+```text
+PHYSICAL-INPUT-AUTHORITY-I0
+  -> exact Dynamic-to-i64 return-operand relation
+
+LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (BoxShape only)
+  -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
+  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+  -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+  -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
+
+selected BoxCount only
+  -> LOOP-PHYSICAL-IF-COVERAGE-I0
+  -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
+  -> LOOP-PRECUTOVER-AUTHORITY-H2
+
+outer callable owner
+  -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  -> H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
+
+post-cutover
+  -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
+```
+
+`LOOP-UNIFICATION-AFTER-DYNAMIC-D0` never absorbs If/Exit BoxCount. `Always`,
+unrelated G0 retirement, and broader all-family parity remain later unless the
+unchanged selected source proves they are required. The topology D0 is census
+and deletion-gate preparation only; fixed-role hard deletion occurs after the
+selected old production edge is removed and remaining callers reach zero.
 
 ### Pre-cutover execution briefs
 

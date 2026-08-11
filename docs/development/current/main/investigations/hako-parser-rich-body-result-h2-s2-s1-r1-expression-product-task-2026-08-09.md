@@ -2,8 +2,8 @@
 Status: the selected initializer relation is accepted but has no standalone
 implementation row. It will be issued and consumed atomically by the first
 selected Dynamic physical replacement cell. The immediate executable row is
-the explicit source-backed Dynamic result contract; the parser-only product
-WIP remains parked until that physical cutover. GenericLoop stays an
+the explicit `: i64` declaration feeding the existing Completion owner; the
+parser-only product WIP remains parked until that physical cutover. GenericLoop stays an
 exact-MirType verifier.
 Date: 2026-08-09
 Row: `HAKO-PARSER-RICH-BODY-RESULT-H2-S2-S1-R1`
@@ -906,7 +906,7 @@ reissuing source semantics or modifying GenericLoop?
 
 ```text
 SelectedCallableLoweringInputRefV1
-  semantic = Ordinary | Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
+  semantic = Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
   exact resolved callable source/owner
   exact method source observation
                  |
@@ -923,14 +923,12 @@ located Loop admission
   Loop / condition / body sites
   exact binding schedule
                  v
-PreparedInitializerProducerAdmissionV1<'program>
-  = Static(PreparedStaticInitializerAdmissionV1)
-  | Dynamic(PreparedDynamicInitializerAdmissionV1<'program>)
+PreparedSelectedDynamicLoopAdmissionV1<'program>
 ```
 
-The request-local Dynamic arm reuses the existing
+The request-local Dynamic path reuses the existing
 `PreparedDynamicLocalEntryV1`; it does not introduce another local
-materialization product. The closed admission sum is scoped to the sole
+materialization product. The Dynamic-only admission is scoped to the sole
 consumer and must not be published as a disconnected caller-zero receipt.
 
 The final Dynamic co-seal may lend only the narrow prelude relation needed by
@@ -946,25 +944,20 @@ callable by rerunning `SourceBackedDynamicCallableIssuerV1`. Package semantics
 is the classifier; request-local state only binds that meaning to values
 created by this Lower.
 
-### Family rule
+### Selected-cell rule
 
 ```text
-Static only:
-  exact selected direct-call source
-  + successful emission destination
-  + sole post-success TypeContext publication
-  -> existing exact-MirType GenericLoop route
+Ordinary / Static:
+  this selected Dynamic cell is not chosen
+  existing exact-MirType route remains unchanged
 
-Dynamic only:
+Dynamic:
   package-loaned exact Dynamic program
   + exact local materialization
   + exact located Loop admission
   -> existing Dynamic V2 physical path
 
-Static && Dynamic:
-  reject as ambiguous producer
-
-neither:
+missing Dynamic relation:
   NoSafeSlice
 ```
 
@@ -1040,9 +1033,8 @@ materialization:
 family:
   Ordinary selected semantic offered as Dynamic
   foreign package/program or wrong program owner
-  Dynamic local copy offered as Static
-  Static result offered as Dynamic
-  both families or neither family
+  Static result publication imported by the Dynamic cell
+  missing selected Dynamic relation
 
 authority guards:
   diagnostic LocalInitializerObservation as semantic input
@@ -1101,7 +1093,7 @@ one named production consumer
 package Dynamic program is the only semantic classifier
 PreparedDynamicLocalEntryV1 is the only existing local materialization fact
 method/Loop/frame/scope provenance has one exact relation
-Static xor Dynamic selection remains fail-fast
+Ordinary/Static never enters this selected Dynamic cell
 Dynamic does not enter exact-MirType GenericLoop
 the consumer can reach the existing bounded V2 physical input/demand
 no source/Recipe/JoinSig reissue
@@ -1119,8 +1111,8 @@ foreign package/program/owner/frame/scope/region/Loop
 wrong initializer site/ordinal or local BindingRef/ValueId
 missing or duplicate local materialization
 ordinary semantic offered as Dynamic
-Dynamic offered as Static exact-type receipt
-both producer families or neither family
+Static exact-type receipt imported into the Dynamic cell
+missing selected Dynamic relation
 Dynamic routed to GenericLoop
 package semantic program consumed twice
 source reissue by name/arity/ValueId/route/runtime tag
@@ -1273,7 +1265,7 @@ The intended shape is:
 
 ```text
 SelectedCallableLoweringInputRefV1
-  semantic = Ordinary | Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
+  semantic = Dynamic(&VerifiedDynamicExitTransactionCoSealV1)
   exact callable/source owner and method observation
                  |
                  | narrow HRTB borrow, no raw Recipe/JoinSig exposure
@@ -1296,16 +1288,14 @@ PreparedLocatedRawLoopChildEntryV1
   exact method/Loop/condition/body source
   exact binding schedule
                  v
-PreparedInitializerProducerAdmissionV1<'program>
-  = Static(PreparedStaticInitializerAdmissionV1)
-  | Dynamic(PreparedDynamicInitializerAdmissionV1<'program>)
+PreparedSelectedDynamicLoopAdmissionV1<'program>
 ```
 
-The closed sum is a lowering-boundary product, not a new parser/resolver
+The Dynamic-only scoped relation is a lowering-boundary product, not a new parser/resolver
 authority. The package remains the only Dynamic semantic classifier; request-
 local state only binds that meaning to Values created by this Lower. The
 diagnostic `LocalInitializerObservationV1` remains non-semantic. Missing,
-foreign, duplicate, or ambiguous relations fail fast as `NoSafeSlice`.
+foreign, or duplicate relations fail fast as `NoSafeSlice`.
 
 ### Bridge acceptance
 
@@ -1320,7 +1310,7 @@ initializer source + ordinal
 local declaration / BindingRef
 initializer ValueId -> local destination ValueId
 exact binding schedule
-Static xor Dynamic family selection
+selected semantic variant is Dynamic; Static/Ordinary never enters this cell
 Dynamic never enters exact-MirType GenericLoop
 no source/Recipe/JoinSig reissue, fallback, or retry
 ```
@@ -1368,7 +1358,7 @@ borrows the package Dynamic program through its HRTB boundary
 matches the package source seed's exact loop membership
 borrows/takes one exact local materialization entry
 co-seals callable/method/Loop/frame/Scope/Region provenance
-enforces Static xor Dynamic exactly once
+requires the selected package variant to be Dynamic
 passes the move-only relation to the selected Loop consumer
 ```
 
@@ -1376,6 +1366,23 @@ It must not store a raw program reference in the general raw invocation port,
 promote diagnostic observations, or emit a receipt that is immediately
 dropped. If the physical consumer cannot consume the relation in the same
 slice, remain `NoSafeSlice` and do not add an adapter-only product.
+
+The retained generic Dynamic source seed is migration evidence, not the final
+selected authority. The cutover must satisfy one of these terminal forms:
+
+```text
+preferred:
+  VerifiedDynamicExitTransactionCoSealV1
+    -> narrow initializer-admission view
+    -> request-local origin projection
+  selected production caller of issue_source_backed_dynamic_callable_v1 = 0
+
+bounded transitional form:
+  generic source seed + final program
+    are borrowable only through one package-internal non-splittable co-seal
+```
+
+They may not survive as two freely consumable Dynamic classifiers.
 
 ### Atomic consumer guardrails
 
@@ -1401,42 +1408,38 @@ forbidden inputs:
 
 ```text
 0. H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-BRIDGE-D0 (accepted)
-   no standalone receipt; issue and consume only in row 4
+   no standalone receipt; issue and consume only in row 5
 
 1. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-   annotate the canonical production source with `: i64`; the current Rust
-   final-source producer issues one frontend-neutral semantic result contract
-   through the existing declaration identity and selected batch mapping
+   annotate the canonical source with `: i64`; existing
+   VerifiedFunctionCompletionV1 remains the sole result/return-site owner
 
 2. PHYSICAL-INPUT-AUTHORITY-I0
    co-seal the already-landed whole Dynamic demand with Prelude/result/ABI,
-   Tail, and the exact multi-site Completion/operand set
+   Tail, exact multi-site Completion operands, and proven or checked
+   Dynamic-to-i64 conformance; otherwise NoSafeSlice
 
-3. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-   extend existing Completion consumption and DraftSeal to site-keyed physical
-   claims in one unpublished function session, without a synthetic
-   return-join/PHI or a second Return writer
+3. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
+   BoxShape co-seal/transfer/ledger/common-boundary cleanup and topology census
+   -> selected If/Exit coverage -> LOOP-PRECUTOVER-AUTHORITY-H2
 
-4. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 series
-   remove Recipe-derived transfer inference/evidence rescans, keep Callable
-   profile ownership out of the common physicalizer, and retire the fixed-role
-   topology only after segment callers are zero
+4. DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+   site-keyed Completion claims in one unpublished session; detached DraftSeal
+   prepare writes Returns; commit is ownership-only; no synthetic join/PHI
 
 5. H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
    issue+consume the private initializer admission in one named production
    consumer, delete the selected legacy Loop edge, fallback/retry = 0; this
    row is the `MIRBUILDER-FIRST-PRODUCTION-CUTOVER` milestone
 
-6. H2-S2-S1-R1-REOPEN-AUDIT
+6. LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
+   post-cutover caller-zero proof and hard deletion of fixed-role topology
+
+7. H2-S2-S1-R1-REOPEN-AUDIT
    rerun the unchanged empty/R0/S0/R1 fixtures and predecessor/parity guards
 
-7. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
+8. H2-S2-S1-I0 -> H2-S3-I0 -> H2-I0 -> H3-I0 -> H5
    close parser expression/body/header/final-source and normalized parity
-
-8. HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
-   activate the Hako normalized result-row producer and retire the Rust
-   frontend producer from selfhost production; never run both or retry between
-   them in one compilation
 
 9. MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
     after the new MIRBuilder is production-green and before selfhosting,
@@ -1444,7 +1447,11 @@ forbidden inputs:
     record C-vs-AOT performance/assembly evidence; no selfhost claim without
     this canary
 
-10. SELFHOST-MIRBUILDER/PARSER-MIGRATION
+10. HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
+    after the promotion gate, activate the Hako normalized producer and retire
+    the Rust frontend producer; never run both or retry between them
+
+11. SELFHOST-MIRBUILDER/PARSER-MIGRATION
     move one normalized producer at a time after parity; Rust and Hako never
     compete and there is no fallback to the retired producer
 ```

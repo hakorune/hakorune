@@ -25,7 +25,9 @@ MIRBUILDER-FIRST-PRODUCTION-CUTOVER
 is the milestone closed by `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`, not a second
 switch task. That row must have a named production caller, delete the selected
 old route, and leave retry/fallback at zero. This gate must not become a
-prerequisite for the current Dynamic semantic lane.
+prerequisite for the current Dynamic semantic lane. It must close before
+`HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0` or any broader `.hako` selfhost
+producer activation.
 
 ## Execution contract
 

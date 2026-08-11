@@ -1,6 +1,7 @@
 ---
-Status: accepted future Hako frontend producer and parity design. The current
-bootstrap producer is the Rust final-source row; the Hako producer activates
+Status: accepted producer/parity design. The explicit `: i64` bootstrap
+architecture is accepted but not yet implemented; the current Rust final-source
+view is the sole selected transport when I0 lands. The Hako producer activates
 only after H2/H3/H5 parity and atomically retires the Rust frontend authority.
 Date: 2026-08-11
 Scope: canonical Hako callable-header result annotation authority only.
@@ -18,8 +19,8 @@ Related:
 
 The semantic authority is the explicit source annotation, not a particular
 frontend implementation. The selected frontend emits one normalized callable-
-header row; one frontend-neutral result-contract issuer consumes it together
-with the existing opaque declaration identity and resolved batch row.
+header row; the existing frontend-neutral Completion verifier consumes its
+resolved source view and remains the sole semantic result/return-site owner.
 
 During bootstrap the Rust final-source producer is the only production
 producer. After H2/H3/H5, `source_carrier_v1` emits the same normalized row as
@@ -36,7 +37,7 @@ canonical Hako parser session
   -> same parser provenance / declaration identity
   -> final source seal
   -> resolved callable batch
-  -> one source-backed result-contract issuer
+  -> existing verify_function_completion_v1
 ```
 
 The selected bounded fixture remains:
@@ -86,15 +87,18 @@ VerifiedHakoFinalCallableProgramSourceV1
   same opaque declaration identity
 
 Hako source row + Rust source row normalized parity
-  -> one resolved callable row
-  -> DeclaredCallableResultContractIssuerV1
-  -> VerifiedDeclaredExactI64CallableResultContractV1
+  -> one selected ResolvedFunctionLoweringInputV1
+  -> existing verify_function_completion_v1
+  -> VerifiedFunctionCompletionV1
+       declared result = Annotated("i64")
+       exact return-site coverage
 ```
 
-The result receipt owns only the declared semantic result (`I64`, with the
-bounded `ExactScalar` representation contract). It is not a body-conformance
-proof, MIR `MirType`, physical ABI, return writer, Completion, or publication
-receipt.
+The parser row owns syntax transport only. `VerifiedFunctionCompletionV1` and
+its sealed exit contract remain the sole semantic result classification and
+return-site aggregate. A later ExactI64/ABI view may only borrow from that
+owner; it is not a sibling semantic receipt, body-derived fact, `MirType`,
+return writer, or publication receipt.
 
 ## Accepted normalized producer contract
 
@@ -105,13 +109,14 @@ a compatibility provider:
 selected frontend normalized header row
   + same parser provenance + CallableDeclarationIdentityV1
   + existing resolved callable batch row
-  -> sole DeclaredCallableResultContractIssuerV1
-  -> frontend-neutral exact-I64 result receipt
+  -> existing resolved function input/source view
+  -> sole verify_function_completion_v1
+  -> frontend-neutral VerifiedFunctionCompletionV1
 ```
 
 The selected frontend owns syntax and parser provenance. The resolved callable
 batch owns owner/forest/projection and exposes only the identity-to-batch
-relation. The result issuer consumes that row and may not infer from method
+relation. The Completion verifier consumes that source view and may not infer from method
 name, body, `MirType`, `FunctionSignature`, ABI, runtime tag, or inventory
 ordinal. H5 parity is test evidence, not a semantic issuer. If any edge is
 unavailable, stop with `NoSafeSlice` rather than adding JSON, FuncScanner, a
@@ -129,8 +134,8 @@ none of these rows may use compatibility fallback:
    parameter/header shape, and declared result spelling.
 4. The Hako row reaches the resolver batch through the same source provenance
    and opaque identity relation as Rust.
-5. Exactly one canonical result issuer can issue the bounded `: i64` receipt
-   for the selected `StaticBoxMethod` row.
+5. Exactly one Completion verifier classifies the selected `StaticBoxMethod`
+   row as `Annotated("i64")` with exact return-site coverage.
 6. Missing annotation, `void`, other types, foreign source identity, foreign
    owner, and duplicate rows fail with typed rejection; none becomes an
    inferred result.
@@ -154,27 +159,39 @@ H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
   closed historical row: package is the sole Dynamic classifier
 
 DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  CURRENT: add `: i64` to the canonical production declaration; transport the
-  Rust final-source typed result row through the same declaration identity and
-  batch mapping; issue one frontend-neutral exact-I64 contract
+  CURRENT: add `: i64` to the canonical production declaration and prove the
+  existing resolved input reaches VerifiedFunctionCompletionV1 as
+  Annotated("i64") with the exact two return sites; no sibling result receipt
 
 PHYSICAL-INPUT-AUTHORITY-I0
   project one ABI and co-seal Prelude/Tail with the exact multi-site
-  Completion/operand set before Builder effects
+  Completion/operand set plus exact Dynamic-to-i64 conformance before effects
+
+LOOP-UNIFICATION-AFTER-DYNAMIC-D0
+  BoxShape semantic/transfer/ledger/common-boundary cleanup and topology census
+
+LOOP-PHYSICAL-IF-COVERAGE-I0
+  selected I10 branch/merge evidence; no Layout inference
+
+LOOP-PHYSICAL-EXIT-COVERAGE-I0
+  selected I12 Return evidence; no route-local Return writer
+
+LOOP-PRECUTOVER-AUTHORITY-H2
+  selected Dynamic common physicalizer coverage and zero competing authority
 
 DYNAMIC-EXIT-PHYSICAL-SESSION-P0
   consume exact multi-site Completion claims in one unpublished session;
-  DraftSeal emits one Return per claimed exit block; no synthetic
+  detached DraftSeal prepare emits one Return per claimed exit block; no synthetic
   return-join/PHI
-
-LOOP-UNIFICATION-AFTER-DYNAMIC-D0
-  remove Recipe-derived transfer inference and repeated V1 evidence scans;
-  keep Callable Tail/ABI/Completion outside the common physicalizer
 
 H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
   package program + local materialization + located Loop are co-sealed and
   consumed in one bounded V2 route; same-slice selected legacy-edge deletion;
   this row is the first-production-cutover milestone
+
+LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
+  post-cutover only: prove remaining caller zero, then hard-delete fixed-role
+  topology and the old operation-target issuer
 
 H2-S2-S1-R1-REOPEN-AUDIT
   only after the bounded Dynamic dependency cutover; apply the existing
@@ -195,6 +212,10 @@ H3-I0
 
 H5
   test-only normalized Rust/Hako parity
+
+MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
+  validate the production new-MIRBuilder before any Hako frontend producer is
+  activated
 
 HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
   consume the H3-sealed normalized row after H5 parity, activate the Hako
@@ -223,7 +244,9 @@ LOOP-SEMANTIC-PROGRAM-COSEAL-R0
   -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
   -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
   -> LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0
-  -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0
+  -> LOOP-PHYSICAL-IF-COVERAGE-I0
+  -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
+  -> LOOP-PRECUTOVER-AUTHORITY-H2
 ```
 
 The bounded common protocol is:

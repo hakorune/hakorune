@@ -141,19 +141,25 @@ pre-Builder semantic packageとLowerで初めて割り当てられる物理値�
 
 ```text
 installed-package selected semantic loan
+  requires SelectedCallableSemanticRefV1::Dynamic
   + request-local completed local materialization
   + exact located Loop source/schedule
-  -> one scoped initializer admission
-     Static exact type | Dynamic authorized representation
+  -> one scoped selected Dynamic initializer admission
 ```
 
 packageはcallable/Recipe/lifecycle意味を所有し、request-local stateは
 `BindingRef -> ValueId`投影だけを所有する。located Loop boundaryは両者を
 co-sealしてsole consumerへ渡すが、source semantics、Recipe、JoinSig、型を
-再発行しない。Staticは唯一のpost-success TypeContext publicationを経て既存の
-exact-MirType routeへ入り、Dynamicはpackage-loaned programからbounded V2
-routeへ入る。両方成立、どちらも不成立、foreign/duplicate relationはeffect前に
-rejectする。Dynamicを`MirType::Unknown`やlegacy GenericLoopで偽装しない。
+再発行しない。Ordinary/Staticはこのcellを選択せず、既存の唯一のpost-success
+TypeContext publicationとexact-MirType routeを保つ。Dynamicだけがpackage-loaned
+programからbounded V2 routeへ入る。missing/foreign/duplicate relationはeffect前に
+rejectする。新しいStatic/Dynamic closed sumやfamily arbitrationを作らず、
+Dynamicを`MirType::Unknown`やlegacy GenericLoopで偽装しない。
+
+selected Dynamicの最終source authorityはfinal exit-transaction co-sealから貸す
+narrow initializer viewである。移行中のgeneric source seedは、cutoverでproduction
+callerを0にするか、final programと一つのpackage-internal non-splittable co-seal
+からだけborrow可能にする。二つのsource classifierを独立consumerへ公開しない。
 
 admissionだけをcaller-zero productとして先行発行してはならない。最終co-seal
 はnamed consumerと同じproduction replacement cellでissue/consumeし、旧selected
@@ -163,6 +169,21 @@ source-backed result/ABIが不足する場合、正本sourceへ明示result anno
 Rust final-source producer、selfhost parity後はHako producerをatomic cutoverで
 選ぶ。同一compileで両方をadmitせず、frontend固有result receipt、body/Loop/MIR
 inference、compatibility retry、fixture narrowingで循環を越えない。
+
+明示`: i64`はdeclared-result syntax authorityであって、logical class `Dynamic`の
+`ValueId`をphysical `Integer`としてReturnできる証明ではない。physical-input
+ownerはinner/outerの各Returnについて、次のいずれかをexactに閉じる。
+
+```text
+A. existing authority proves the operand is ExactI64
+B. checked Dynamic -> i64 projection:
+     Normal(i64) | Fault(TypeError)
+C. neither relation exists -> NoSafeSlice
+```
+
+Bを選ぶ場合、projectionはexact Fault cut point、cleanup disposition、normal時だけ
+result publication、retry/fallback 0を同じsemantic programへco-sealする。source
+annotationを理由に`MirType::Integer`をValueIdへ後付けしてはならない。
 
 ### Bounded loop unification boundary
 
@@ -217,17 +238,20 @@ lowering productだけを受け取る。名称が将来`LoweredRecipe`などへ�
 ### 3. Seal completes; it does not plan
 
 canonical function pathでは、Body Loweringはexit operandとexact exit blockを
-準備するが、physical `Return`の唯一writerは
-`PreparedFunctionDraftSealV1::commit(self)`である。
+準備する。physical `Return`の唯一writerはDraftSealのdetached prepare projection
+であり、`PreparedFunctionDraftSealV1::commit(self)`は検証済みprojectionをmove
+するownership-only terminalである。
 
 multiple source Returnでもこのownerは増えない。
-`VerifiedFunctionCompletionV1::ExplicitReturns`のexact ordered sitesと、同じ
-semantic result contractから一方向に得たABI、各siteの`BindingRef` operandを
+`VerifiedFunctionCompletionV1::ExplicitReturns`がdeclared result分類とexact
+ordered sitesのsole semantic ownerである。そのborrowed exact-result projection
+から一方向に得たABI、各siteの`BindingRef` operandを
 一つのmove-only setへco-sealし、既存Completion consumptionがsite-keyedな
-physical claimをexactly onceで閉じる。DraftSealは各claimed exit blockへ一つの
-Returnを書き、profile lowererはReturnを書かない。単に複数exitを一つへ集める
-ためだけのsynthetic return-join/PHIは作らない。backend/MIR制約が別のverified
-ownerとして要求した場合だけ、独立Decisionで開く。
+physical claimをexactly onceで閉じる。DraftSeal prepareはdetached projectionの
+各claimed exit blockへ一つのReturnを書き、全検証を完了する。commit後のfallible
+workは0で、profile lowererはReturnを書かない。単に複数exitを一つへ集めるため
+だけのsynthetic return-join/PHIは作らない。backend/MIR制約が別のverified owner
+として要求した場合だけ、独立Decisionで開く。
 
 `CanonicalSsaFunctionSessionV2`経路における`ReadyFunctionDraftSealV1`の
 issuerは、target `finish_for_draft_seal`だけに集約する。各V2 profile
