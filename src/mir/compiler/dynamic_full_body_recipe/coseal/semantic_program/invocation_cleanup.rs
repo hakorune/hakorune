@@ -69,6 +69,20 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
         self.invocation.with_semantic_program(callback)
     }
 
+    pub(in crate::mir) fn a_prime_source_relation_view(
+        &self,
+    ) -> Result<super::DynamicAPrimeI64SourceRelationViewV1<'_>, super::DynamicAPrimeI64SourceRelationRejectV1>
+    {
+        self.invocation.a_prime_source_relation_view()
+    }
+
+    pub(in crate::mir) fn physical_input_view(
+        &self,
+    ) -> Result<super::DynamicFullLoopPhysicalInputViewV2<'_>, super::DynamicFullLoopPhysicalInputRejectV2>
+    {
+        self.invocation.physical_input_view()
+    }
+
     pub(in crate::mir) const fn current(&self) -> DynamicInvocationCleanupCurrentDispositionV1 {
         DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
     }

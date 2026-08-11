@@ -104,6 +104,13 @@ pub(in crate::mir) fn issue<R>(
     semantic: &VerifiedDynamicFullLoopSemanticProgramV2,
     callback: impl for<'program> FnOnce(DynamicFullLoopPhysicalInputViewV2<'program>) -> R,
 ) -> Result<R, DynamicFullLoopPhysicalInputRejectV2> {
+    let view = issue_view(semantic)?;
+    Ok(callback(view))
+}
+
+pub(in crate::mir) fn issue_view(
+    semantic: &VerifiedDynamicFullLoopSemanticProgramV2,
+) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
     let logical = semantic
         .logical_transfer_view()
         .map_err(DynamicFullLoopPhysicalInputRejectV2::LogicalTransfer)?;
@@ -124,7 +131,7 @@ pub(in crate::mir) fn issue<R>(
         control,
         faults: semantic.fault_cut_points(),
     };
-    Ok(callback(view))
+    Ok(view)
 }
 
 fn verify_fault_coverage(

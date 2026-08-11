@@ -33,6 +33,20 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     pub(super) rows: Box<[VerifiedResolvedCallableSemanticRowV1]>,
 }
 
+/// Selected-callable identity transport for downstream scoped loans.
+///
+/// This is a copied opaque identity view, not a lookup key or semantic
+/// authority.  It carries no AST, batch slot, or resolver allocation handle;
+/// the batch row remains the sole issuer.
+#[derive(Debug, Clone)]
+pub(crate) struct VerifiedResolvedCallableSourceIdentityV1 {
+    identity: CallableDeclarationIdentityV1,
+    mode: ResolvedCallableDeclarationModeV1,
+    owner: FunctionOwnerIdV1,
+    function_origin: FunctionOriginV1,
+    method_source_observation: Option<CallableMethodSourceObservationV1>,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct VerifiedResolvedCallableSemanticDeclarationRefV1<'batch> {
     row: &'batch VerifiedResolvedCallableSemanticRowV1,
@@ -77,6 +91,31 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         callback: impl for<'source> FnOnce(ResolvedFunctionLoweringInputV1<'source>) -> R,
     ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
         self.with_lowering_input_and_method_source(batch_slot, |input, _| callback(input))
+    }
+
+    pub(crate) fn with_lowering_input_and_source_identity<R>(
+        &self,
+        batch_slot: u32,
+        callback: impl for<'source> FnOnce(
+            ResolvedFunctionLoweringInputV1<'source>,
+            VerifiedResolvedCallableSourceIdentityV1,
+        ) -> R,
+    ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
+        let index = usize::try_from(batch_slot)
+            .map_err(|_| ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
+        let semantic = self
+            .rows
+            .get(index)
+            .filter(|row| row.batch_slot == batch_slot)
+            .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
+        let identity = VerifiedResolvedCallableSourceIdentityV1 {
+            identity: semantic.identity.clone(),
+            mode: semantic.mode,
+            owner: semantic.owner,
+            function_origin: semantic.function_origin,
+            method_source_observation: semantic.method_source_observation.clone(),
+        };
+        self.with_lowering_input(batch_slot, |input| callback(input, identity))
     }
 
     pub(crate) fn with_lowering_input_and_method_source<R>(
@@ -171,6 +210,28 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                 }))
             })
             .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
+    }
+}
+
+impl VerifiedResolvedCallableSourceIdentityV1 {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.identity
+    }
+
+    pub(crate) const fn mode(&self) -> ResolvedCallableDeclarationModeV1 {
+        self.mode
+    }
+
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
+        self.function_origin
+    }
+
+    pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
+        self.method_source_observation.as_ref()
     }
 }
 

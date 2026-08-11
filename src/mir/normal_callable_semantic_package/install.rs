@@ -7,6 +7,7 @@ use crate::mir::builder::{
     VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::BindingRefV1;
@@ -40,7 +41,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
     semantic: SelectedCallableSemanticRefV1<'loan>,
-    method_source_observation: Option<CallableMethodSourceObservationV1>,
+    source_identity: VerifiedResolvedCallableSourceIdentityV1,
 }
 
 #[derive(Clone, Copy)]
@@ -156,17 +157,14 @@ impl InstalledNormalCallableSemanticPackageV1 {
             _ => SelectedCallableSemanticRefV1::Ordinary,
         };
         self.batch
-            .with_lowering_input_and_method_source(
-                batch_slot,
-                |source, method_source_observation| {
-                    callback(SelectedCallableLoweringInputRefV1 {
-                        source,
-                        parameter_contracts: parameters,
-                        semantic,
-                        method_source_observation,
-                    })
-                },
-            )
+            .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
+                callback(SelectedCallableLoweringInputRefV1 {
+                    source,
+                    parameter_contracts: parameters,
+                    semantic,
+                    source_identity,
+                })
+            })
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
     }
 }
@@ -199,24 +197,29 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     }
 }
 
-impl SelectedCallableLoweringInputRefV1<'_> {
+impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
     pub(crate) fn source(&self) -> ResolvedFunctionLoweringInputV1<'_> {
         self.source
     }
 
     pub(crate) fn parameter_contracts(
         &self,
-    ) -> impl ExactSizeIterator<Item = (u32, BindingRefV1, CallableParameterContractKindV1)> + '_ {
+    ) -> impl ExactSizeIterator<Item = (u32, BindingRefV1, CallableParameterContractKindV1)> + '_
+    {
         self.parameter_contracts
             .iter()
             .map(|row| (row.ordinal, row.binding, row.kind))
     }
 
-    pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'_> {
+    pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'loan> {
         self.semantic
     }
 
     pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
-        self.method_source_observation.as_ref()
+        self.source_identity.method_source_observation()
+    }
+
+    pub(crate) fn source_identity(&self) -> &VerifiedResolvedCallableSourceIdentityV1 {
+        &self.source_identity
     }
 }

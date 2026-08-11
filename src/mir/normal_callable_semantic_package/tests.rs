@@ -2,6 +2,7 @@ use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::parser::{
     BuildMode, NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
 };
@@ -104,6 +105,44 @@ fn selected_dynamic_loan_carries_the_package_source_seed() {
 }
 
 #[test]
+fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let demand = crate::mir::compiler::a_prime_i64_physical_capability::
+            issue_selected_a_prime_i64_physical_demand(&input)
+            .expect("selected Dynamic A-prime demand");
+        assert_eq!(
+            demand.requirement(),
+            crate::mir::compiler::a_prime_i64_physical_capability::
+                APrimeI64PhysicalRequirementV1::DirectExactI64
+        );
+        assert_eq!(demand.identity().owner(), input.source().owner());
+        assert_eq!(demand.source_relation().completion_sites().len(), 2);
+        assert_eq!(demand.physical_input().placements().len(), 17);
+        assert_eq!(demand.physical_input().operations().len(), 15);
+    })
+    .expect("selected A-prime demand loan");
+}
+
+#[test]
 fn package_scoped_loan_retains_exact_parameter_contract() {
     let package = issue(
         "static box Api { run(source, pos: i64, end: i64, tail) { return pos } }",
@@ -141,6 +180,34 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
     })
     .expect("exact contract loan");
     port.complete().expect("selected contract consumed");
+}
+
+#[test]
+fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
+    let package = issue("static box Api { run(value) { return value } }")
+        .expect("ordinary package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 1),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        assert!(matches!(
+            crate::mir::compiler::a_prime_i64_physical_capability::
+                issue_selected_a_prime_i64_physical_demand(&input),
+            Err(
+                crate::mir::compiler::a_prime_i64_physical_capability::
+                    APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic
+            )
+        ));
+    })
+    .expect("ordinary selected loan");
 }
 
 #[test]
@@ -271,6 +338,13 @@ fn consuming_install_and_port_enforce_exact_selected_coverage() {
     port.with_selected_lowering_input(&key, |input| {
         assert_eq!(input.parameter_contracts().len(), 1);
         assert!(input.source().callable_header().is_none());
+        let identity = input.source_identity();
+        assert_eq!(identity.owner(), input.source().owner());
+        assert_eq!(
+            identity.mode(),
+            ResolvedCallableDeclarationModeV1::StaticBoxMethod
+        );
+        assert!(identity.method_source_observation().is_some());
         assert!(matches!(
             input.semantic(),
             SelectedCallableSemanticRefV1::Ordinary

@@ -152,6 +152,13 @@ pub(super) fn issue<R>(
     envelope: &VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
 ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
+    let view = issue_view(envelope)?;
+    Ok(callback(view))
+}
+
+pub(super) fn issue_view(
+    envelope: &VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
+) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1> {
     let source = &envelope.source;
     let artifact = &envelope.artifact;
     let coverage = &envelope.coverage;
@@ -288,7 +295,7 @@ pub(super) fn issue<R>(
         inner_return_value: value(14),
         outer_tail_binding: induction_key,
     };
-    Ok(callback(view))
+    Ok(view)
 }
 
 fn parameter_class(

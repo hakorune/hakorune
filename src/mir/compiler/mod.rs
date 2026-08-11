@@ -61,6 +61,8 @@ pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod dynamic_full_body_recipe;
 #[allow(dead_code)]
+pub(in crate::mir) mod a_prime_i64_physical_capability;
+#[allow(dead_code)]
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]
 mod dynamic_full_body_source_tests;

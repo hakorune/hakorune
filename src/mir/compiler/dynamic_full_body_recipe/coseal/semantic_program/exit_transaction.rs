@@ -74,6 +74,19 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
             .with_semantic_program(|semantic| super::physical_input::issue(semantic, callback))
     }
 
+    pub(in crate::mir) fn a_prime_source_relation_view(
+        &self,
+    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
+    {
+        self.cleanup.a_prime_source_relation_view()
+    }
+
+    pub(in crate::mir) fn physical_input_view(
+        &self,
+    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
+        self.cleanup.physical_input_view()
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn current(&self) -> super::DynamicInvocationCleanupCurrentDispositionV1 {
         self.cleanup.current()

@@ -120,6 +120,19 @@ impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
         self.program.after()
     }
 
+    pub(in crate::mir) fn a_prime_source_relation_view(
+        &self,
+    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
+    {
+        self.program.a_prime_source_relation_view()
+    }
+
+    pub(in crate::mir) fn physical_input_view(
+        &self,
+    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
+        self.program.physical_input_view()
+    }
+
     pub(in crate::mir) fn fault_cut_points(&self) -> DynamicFullLoopFaultCutPointCatalogRefV2<'_> {
         self.program.fault_cut_points()
     }
@@ -131,6 +144,19 @@ impl VerifiedDynamicFullLoopSemanticProgramV2 {
         callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
     ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
         self.envelope.with_a_prime_source_relation(callback)
+    }
+
+    pub(in crate::mir) fn a_prime_source_relation_view(
+        &self,
+    ) -> Result<DynamicAPrimeI64SourceRelationViewV1<'_>, DynamicAPrimeI64SourceRelationRejectV1>
+    {
+        super::a_prime_source::issue_view(&self.envelope)
+    }
+
+    pub(in crate::mir) fn physical_input_view(
+        &self,
+    ) -> Result<DynamicFullLoopPhysicalInputViewV2<'_>, DynamicFullLoopPhysicalInputRejectV2> {
+        physical_input::issue_view(self)
     }
 
     pub(in crate::mir) fn after(&self) -> DynamicFullLoopAfterRefV2<'_> {
