@@ -1,8 +1,8 @@
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
 };
-use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
+use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{
     BuildMode, NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
 };
@@ -144,10 +144,8 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
 
 #[test]
 fn package_scoped_loan_retains_exact_parameter_contract() {
-    let package = issue(
-        "static box Api { run(source, pos: i64, end: i64, tail) { return pos } }",
-    )
-    .expect("typed parameter package");
+    let package = issue("static box Api { run(source, pos: i64, end: i64, tail) { return pos } }")
+        .expect("typed parameter package");
     let mut context = CompilationContext::new();
     let installed = package
         .prepare_install(&mut context)
@@ -184,8 +182,8 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
 
 #[test]
 fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
-    let package = issue("static box Api { run(value) { return value } }")
-        .expect("ordinary package");
+    let package =
+        issue("static box Api { run(value) { return value } }").expect("ordinary package");
     let mut context = CompilationContext::new();
     let installed = package
         .prepare_install(&mut context)

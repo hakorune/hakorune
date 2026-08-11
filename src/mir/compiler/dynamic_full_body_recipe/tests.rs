@@ -298,12 +298,18 @@ fn v2_verifier_rejects_duplicate_and_wrong_class_carriers() {
 #[test]
 fn v2_verifier_rejects_body_local_or_return_value_as_root_carrier_entry() {
     for (value, expected) in [
-        (10, LoopRecipeV2RejectReason::InvalidCarrierClass {
-            key: LoopCarrierKeyV1::new(0),
-        }),
-        (14, LoopRecipeV2RejectReason::CarrierEntryNotAvailable {
-            key: LoopCarrierKeyV1::new(0),
-        }),
+        (
+            10,
+            LoopRecipeV2RejectReason::InvalidCarrierClass {
+                key: LoopCarrierKeyV1::new(0),
+            },
+        ),
+        (
+            14,
+            LoopRecipeV2RejectReason::CarrierEntryNotAvailable {
+                key: LoopCarrierKeyV1::new(0),
+            },
+        ),
     ] {
         let mut recipe = super::mapping::complete_dynamic_loop_recipe_v2();
         recipe.carriers[0].entry_value = LoopValueKeyV1::new(value);

@@ -61,7 +61,10 @@ fn unchanged_skip_while_issues_complete_ast_free_source_inventory() {
     assert_eq!(product.bindings().len(), 6);
     assert_eq!(product.rows().len(), 28);
     assert_eq!(
-        product.completion().function_exit_contract().declared_result(),
+        product
+            .completion()
+            .function_exit_contract()
+            .declared_result(),
         &DeclaredFunctionResultContractV1::Annotated("i64".into())
     );
     assert_eq!(product.completion().explicit_sites().len(), 2);

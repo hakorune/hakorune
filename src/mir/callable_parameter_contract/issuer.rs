@@ -5,14 +5,12 @@ use crate::mir::callable_semantic_batch::{
     VerifiedResolvedCallableSemanticBatchV1,
 };
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
-use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingOriginV1, SourceBindingSiteV1,
-};
+use crate::mir::resolved_semantics::{BindingKindV1, BindingOriginV1, SourceBindingSiteV1};
 
 use super::model::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
-    VerifiedCallableParameterContractCatalogV1,
-    VerifiedCallableParameterContractDeclarationV1, VerifiedCallableParameterContractV1,
+    VerifiedCallableParameterContractCatalogV1, VerifiedCallableParameterContractDeclarationV1,
+    VerifiedCallableParameterContractV1,
 };
 
 #[derive(Debug)]
@@ -79,12 +77,10 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         },
                     )?;
                     if binding.owner() != row.owner() {
-                        return Err(
-                            CallableParameterContractIssueV1::ForeignParameterBinding {
-                                declaration,
-                                parameter,
-                            },
-                        );
+                        return Err(CallableParameterContractIssueV1::ForeignParameterBinding {
+                            declaration,
+                            parameter,
+                        });
                     }
                     let record = function.binding(binding).ok_or(
                         CallableParameterContractIssueV1::ForeignParameterBinding {
@@ -102,10 +98,12 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         });
                     }
                     if !bindings.insert(binding) {
-                        return Err(CallableParameterContractIssueV1::DuplicateParameterBinding {
-                            declaration,
-                            parameter,
-                        });
+                        return Err(
+                            CallableParameterContractIssueV1::DuplicateParameterBinding {
+                                declaration,
+                                parameter,
+                            },
+                        );
                     }
                     parameters.push(VerifiedCallableParameterContractV1::new(
                         parameter, binding, kind,

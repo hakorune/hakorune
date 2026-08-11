@@ -56,7 +56,6 @@ impl LoopJoinLogicalTransferViewV1<'_> {
         }
         found.ok_or(LoopJoinLogicalTransferRejectV1::MissingBoundary { loop_key, role })
     }
-
 }
 
 pub(super) fn issue(signature: &VerifiedLoopJoinSigV1) -> LoopJoinLogicalTransferViewV1<'_> {

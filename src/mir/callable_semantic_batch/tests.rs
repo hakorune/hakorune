@@ -99,9 +99,7 @@ fn lowering_input_borrows_the_same_forest_owner_and_parameter_binding() {
 
 #[test]
 fn typed_parameter_spelling_survives_resolved_batch_loan() {
-    let batch = batch(
-        "static box Api { run(value, pos: i64, end: i64, tail) { return value } }",
-    );
+    let batch = batch("static box Api { run(value, pos: i64, end: i64, tail) { return value } }");
     batch
         .with_declaration_semantics(|view| {
             let parameters = view.declarations()[0]

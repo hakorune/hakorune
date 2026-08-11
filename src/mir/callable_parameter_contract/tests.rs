@@ -76,7 +76,9 @@ box InstanceApi {
         .parameters()
         .iter()
         .zip([false, true, true, false])
-        .all(|(row, is_trivial)| (row.home_demand() == crate::mir::resolved_semantics::HomeDemandV1::Trivial) == is_trivial));
+        .all(|(row, is_trivial)| (row.home_demand()
+            == crate::mir::resolved_semantics::HomeDemandV1::Trivial)
+            == is_trivial));
     assert_eq!(declarations[1].parameters().len(), 0);
     assert_eq!(
         declarations[2].mode(),
@@ -122,11 +124,7 @@ box InstanceApi {
 fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
     let batch = batch("static box Api { run(value) { return value } }", 8);
     let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
-    let parameter = &catalog
-        .declarations()
-        .next()
-        .unwrap()
-        .parameters()[0];
+    let parameter = &catalog.declarations().next().unwrap().parameters()[0];
     assert_eq!(
         parameter.kind(),
         CallableParameterContractKindV1::OpaqueHandle
@@ -176,10 +174,12 @@ fn unsupported_explicit_type_rejects_without_opaque_fallback() {
     let batch = batch("static box Api { run(value: f64) { return value } }", 9);
     assert!(matches!(
         issue_callable_parameter_contract_v1(&batch),
-        Err(super::CallableParameterContractIssueV1::UnsupportedDeclaredType {
-            declaration: 0,
-            parameter: 0,
-        })
+        Err(
+            super::CallableParameterContractIssueV1::UnsupportedDeclaredType {
+                declaration: 0,
+                parameter: 0,
+            }
+        )
     ));
 }
 
@@ -202,15 +202,9 @@ fn foreign_batches_keep_distinct_parameter_binding_identity() {
     let first = batch(source, 11);
     let second = batch(source, 11);
     let first_catalog = issue_callable_parameter_contract_v1(&first).unwrap();
-    let first_row = first_catalog
-        .declarations()
-        .next()
-        .unwrap();
+    let first_row = first_catalog.declarations().next().unwrap();
     let second_catalog = issue_callable_parameter_contract_v1(&second).unwrap();
-    let second_row = second_catalog
-        .declarations()
-        .next()
-        .unwrap();
+    let second_row = second_catalog.declarations().next().unwrap();
     assert_ne!(first_row.owner(), second_row.owner());
     assert_ne!(
         first_row.parameters()[0].binding(),

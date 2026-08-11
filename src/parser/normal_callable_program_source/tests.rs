@@ -29,7 +29,7 @@ fn exact_static_callable_set_survives_one_transform() {
         parse("static box Scan { run(x, pos: i64, end: i64, y) { return x } }"),
         |_| {},
     )
-        .expect("exact transform");
+    .expect("exact transform");
     assert_eq!(final_source.callable_count(), 1);
     let parameter_types = final_source
         .with_callable_semantic_syntax(|loan| {

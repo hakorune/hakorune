@@ -284,14 +284,17 @@ fn verify_recipe_call(
         .map(|row| row.class)
         != Some(expected.recipe_receiver_class)
         || args.len() != expected.recipe_argument_classes.len()
-        || args.iter().zip(expected.recipe_argument_classes).any(|(key, class)| {
-            recipe
-                .values
-                .iter()
-                .find(|row| row.key == *key)
-                .map(|row| row.class)
-                != Some(*class)
-        })
+        || args
+            .iter()
+            .zip(expected.recipe_argument_classes)
+            .any(|(key, class)| {
+                recipe
+                    .values
+                    .iter()
+                    .find(|row| row.key == *key)
+                    .map(|row| row.class)
+                    != Some(*class)
+            })
         || recipe
             .values
             .iter()

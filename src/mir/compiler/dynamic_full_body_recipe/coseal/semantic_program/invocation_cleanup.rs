@@ -5,7 +5,9 @@
 //! (V10/V11) and the already sealed invocation lifecycle.  It does not issue
 //! source semantics, a second JoinSig, a physical block, or a runtime Fault.
 
-use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1, LoopValueClassV2};
+use crate::mir::loop_recipe_contract::{
+    LoopItemKeyV1, LoopNodeKeyV1, LoopValueClassV2, LoopValueKeyV1,
+};
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
 use super::{
@@ -22,7 +24,10 @@ pub(in crate::mir) enum DynamicInvocationCleanupCurrentDispositionV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum InvocationCleanupActionV1 {
-    EndTemporary { producer: LoopItemKeyV1, result: LoopValueKeyV1 },
+    EndTemporary {
+        producer: LoopItemKeyV1,
+        result: LoopValueKeyV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -71,15 +76,19 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
 
     pub(in crate::mir) fn a_prime_source_relation_view(
         &self,
-    ) -> Result<super::DynamicAPrimeI64SourceRelationViewV1<'_>, super::DynamicAPrimeI64SourceRelationRejectV1>
-    {
+    ) -> Result<
+        super::DynamicAPrimeI64SourceRelationViewV1<'_>,
+        super::DynamicAPrimeI64SourceRelationRejectV1,
+    > {
         self.invocation.a_prime_source_relation_view()
     }
 
     pub(in crate::mir) fn physical_input_view(
         &self,
-    ) -> Result<super::DynamicFullLoopPhysicalInputViewV2<'_>, super::DynamicFullLoopPhysicalInputRejectV2>
-    {
+    ) -> Result<
+        super::DynamicFullLoopPhysicalInputViewV2<'_>,
+        super::DynamicFullLoopPhysicalInputRejectV2,
+    > {
         self.invocation.physical_input_view()
     }
 
@@ -88,7 +97,8 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
     }
 
     pub(in crate::mir) fn completion_sites(&self) -> Option<[SourceStmtSiteV1; 2]> {
-        self.invocation.with_semantic_program(|program| program.completion_sites())
+        self.invocation
+            .with_semantic_program(|program| program.completion_sites())
     }
 
     pub(in crate::mir) fn completion_summary(&self) -> Option<(FunctionOwnerIdV1, RegionId, bool)> {
@@ -104,7 +114,8 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
 
 pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
     invocation: VerifiedDynamicInvocationCarrierLifecycleProgramV1,
-) -> Result<VerifiedDynamicInvocationCleanupProjectionV1, DynamicInvocationCleanupProjectionRejectV1> {
+) -> Result<VerifiedDynamicInvocationCleanupProjectionV1, DynamicInvocationCleanupProjectionRejectV1>
+{
     let rows = invocation.invocation_lifecycle().rows().collect::<Vec<_>>();
     if rows.len() != 2 || !has_invocation_row(&rows, 6, 10) || !has_invocation_row(&rows, 7, 11) {
         return Err(DynamicInvocationCleanupProjectionRejectV1::InvocationCoverage);
@@ -112,8 +123,10 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
 
     let typed = invocation.with_semantic_program(|program| {
         program.after().class() == LoopValueClassV2::I64
-            && program.recipe_value_class(LoopValueKeyV1::new(10)) == Some(LoopValueClassV2::Dynamic)
-            && program.recipe_value_class(LoopValueKeyV1::new(11)) == Some(LoopValueClassV2::Dynamic)
+            && program.recipe_value_class(LoopValueKeyV1::new(10))
+                == Some(LoopValueClassV2::Dynamic)
+            && program.recipe_value_class(LoopValueKeyV1::new(11))
+                == Some(LoopValueClassV2::Dynamic)
             && program.recipe_value_class(LoopValueKeyV1::new(14)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(15)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(17)) == Some(LoopValueClassV2::I64)
@@ -126,12 +139,17 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
     let i6 = exact_fault(faults, 6, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
     let i7 = exact_fault(faults, 7, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
     let i9 = exact_fault(faults, 9, DynamicFullLoopFaultFamilyV2::DynamicLess)?;
-    if faults.len() != 3 || [i6.item(), i7.item(), i9.item()] != [LoopItemKeyV1::new(6), LoopItemKeyV1::new(7), LoopItemKeyV1::new(9)] {
+    if faults.len() != 3
+        || [i6.item(), i7.item(), i9.item()]
+            != [
+                LoopItemKeyV1::new(6),
+                LoopItemKeyV1::new(7),
+                LoopItemKeyV1::new(9),
+            ]
+    {
         return Err(DynamicInvocationCleanupProjectionRejectV1::FaultCoverage);
     }
-    let Some(sites) = invocation
-        .with_semantic_program(|program| program.completion_sites())
-    else {
+    let Some(sites) = invocation.with_semantic_program(|program| program.completion_sites()) else {
         return Err(DynamicInvocationCleanupProjectionRejectV1::CompletionCoverage);
     };
     let loop_key = invocation.after().loop_key();

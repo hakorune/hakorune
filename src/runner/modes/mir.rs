@@ -24,20 +24,21 @@ impl NyashRunner {
                 }
             };
 
-        let parsed = match crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            &prepared.code,
-            self.parser_build_config(),
-        ) {
-            Ok(parsed) => parsed,
-            Err(e) => {
-                crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                    filename,
-                    &prepared.code,
-                    &e,
-                );
-                process::exit(1);
-            }
-        };
+        let parsed =
+            match crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                &prepared.code,
+                self.parser_build_config(),
+            ) {
+                Ok(parsed) => parsed,
+                Err(e) => {
+                    crate::runner::modes::common_util::diag::print_parse_error_with_context(
+                        filename,
+                        &prepared.code,
+                        &e,
+                    );
+                    process::exit(1);
+                }
+            };
         let transformed = match crate::r#macro::transform_normal_callable_program_v1(parsed) {
             Ok(transformed) => transformed,
             Err(rejected) => {
@@ -56,17 +57,15 @@ impl NyashRunner {
             crate::r#macro::NormalCallableTransformOutcomeV1::Compatibility {
                 ast,
                 reason: _reason,
-            } => match NormalCompileRequestV1::for_mir_mode(
-                ast,
-                Some(filename),
-                prepared.imports,
-            ) {
-                Ok(request) => request,
-                Err(rejected) => {
-                    eprintln!("❌ MIR compilation error: {}", rejected);
-                    process::exit(1);
+            } => {
+                match NormalCompileRequestV1::for_mir_mode(ast, Some(filename), prepared.imports) {
+                    Ok(request) => request,
+                    Err(rejected) => {
+                        eprintln!("❌ MIR compilation error: {}", rejected);
+                        process::exit(1);
+                    }
                 }
-            },
+            }
         };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
         let compile_result = match mir_compiler.compile_normal(request) {

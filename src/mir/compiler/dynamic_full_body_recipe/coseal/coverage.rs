@@ -182,15 +182,12 @@ fn verify_targets(
             .find(|row| row.key == key)
             .map(|row| row.class)
     };
-    let expected_value_class = |key: crate::mir::loop_recipe_contract::LoopValueKeyV1| {
-        match key.raw() {
-            1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => {
-                LoopValueClassV2::I64
-            }
+    let expected_value_class =
+        |key: crate::mir::loop_recipe_contract::LoopValueKeyV1| match key.raw() {
+            1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
             5 | 13 => LoopValueClassV2::Bool,
             _ => LoopValueClassV2::Dynamic,
-        }
-    };
+        };
     let target_exists = |target: DynamicFullLoopClaimTargetV2| match target {
         DynamicFullLoopClaimTargetV2::Loop(key) => recipe.loops.iter().any(|row| row.key == key),
         DynamicFullLoopClaimTargetV2::Binding(key) => recipe

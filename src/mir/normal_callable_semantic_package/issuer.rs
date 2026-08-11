@@ -9,13 +9,13 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_invocation_cleanup_projection_i0,
-    issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
-    produce_dynamic_full_loop_recipe_v2_with_contract, DynamicFullLoopRecipeProducerRejectV2,
+    issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
+    issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    DynamicExitTransactionCoSealRejectV1,
-    DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
-    DynamicInvocationCarrierLifecycleProgramRejectV1,
+    issue_dynamic_invocation_cleanup_projection_i0,
+    produce_dynamic_full_loop_recipe_v2_with_contract, DynamicExitTransactionCoSealRejectV1,
+    DynamicFullLoopRecipeProducerRejectV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicInvocationCleanupProjectionRejectV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -141,9 +141,11 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                         issue: other,
                     },
                 })?;
-            let dynamic_recipe =
-                produce_dynamic_full_loop_recipe_v2_with_contract(dynamic_inventory, typed_contract)
-                .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipe)?;
+            let dynamic_recipe = produce_dynamic_full_loop_recipe_v2_with_contract(
+                dynamic_inventory,
+                typed_contract,
+            )
+            .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipe)?;
             let dynamic_envelope =
                 issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, dynamic_calls)
                     .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope)?;

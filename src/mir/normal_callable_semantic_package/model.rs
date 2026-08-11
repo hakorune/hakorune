@@ -1,8 +1,8 @@
 use crate::mir::builder::{
     VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
-use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use std::rc::Rc;

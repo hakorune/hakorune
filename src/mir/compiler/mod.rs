@@ -10,6 +10,8 @@ use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
 #[allow(dead_code)]
+pub(in crate::mir) mod a_prime_i64_physical_capability;
+#[allow(dead_code)]
 pub(in crate::mir) mod acyclic_callable_graph;
 #[allow(dead_code)]
 pub(in crate::mir) mod acyclic_callable_module_plan;
@@ -60,8 +62,6 @@ pub(in crate::mir) mod direct_accum_profile;
 pub(in crate::mir) mod direct_accum_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod dynamic_full_body_recipe;
-#[allow(dead_code)]
-pub(in crate::mir) mod a_prime_i64_physical_capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]

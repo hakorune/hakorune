@@ -1,11 +1,11 @@
 //! Deterministic complete V2 Recipe for the accepted Dynamic Loop body.
 
 use crate::mir::loop_recipe_contract::{
-    LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopConditionV2, LoopExitKeyV1,
-    LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1, LoopNodeV2, LoopOperationV2, LoopRecipeBindingV2,
-    LoopRecipeBlockV2, LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2,
-    LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2, LoopValueKeyV1,
-    LoopBinaryI64OpV2, LoopCompareI64OpV2,
+    LoopBinaryI64OpV2, LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopCompareI64OpV2,
+    LoopConditionV2, LoopExitKeyV1, LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1, LoopNodeV2,
+    LoopOperationV2, LoopRecipeBindingV2, LoopRecipeBlockV2, LoopRecipeCarrierV2, LoopRecipeExitV2,
+    LoopRecipeItemRowV2, LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2,
+    LoopValueKeyV1,
 };
 
 pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
@@ -205,9 +205,7 @@ fn value(raw: u32, class: LoopValueClassV2) -> LoopRecipeValueV2 {
 fn value_class(raw: u32) -> LoopValueClassV2 {
     match raw {
         5 | 13 => LoopValueClassV2::Bool,
-        1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => {
-            LoopValueClassV2::I64
-        }
+        1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
         _ => LoopValueClassV2::Dynamic,
     }
 }
