@@ -2290,6 +2290,12 @@ production caller, GenericLoop/TypeOp change, or old source-seed/raw-JoinIR
 connection is part of this I0. The receipt remains caller-zero until the
 named physical session consumes it exactly once.
 
+The formal parameter lane is role-indexed, not merely position-unique:
+`src` is ordinal `0`, `pos` is ordinal `1`, `end` is ordinal `2`, and
+`pred_chars` is ordinal `3`. The post-session receipt contains only the exact
+`pos -> 1` and `end -> 2` rows; swapped or receiver-shifted rows reject before
+effect in both the Rust seal and the LLVM-side loader.
+
 #### DYNAMIC-V2-FAMILY-NATIVE-PHYSICAL-EMITTER-D0 — newly exposed prerequisite
 
 The selected fresh-session canary cannot honestly start yet. The landed
@@ -2447,6 +2453,12 @@ post-I10 continuation/step, backedge, and after).  This is a physical schedule
 only; it may not invent a Recipe block, synthetic ItemKey, or new transfer
 meaning.  If the exact I10 boundary cannot be proven from the complete V2
 ledger, the plan rejects before its first Builder effect.
+
+The segment boundary is derived only from exact operation placement and the
+co-sealed I10 control row: operations in the I10 then block are terminal;
+operations in the owning body block before the exact I10 item are prelude;
+operations after that item are continuation. Source roles remain diagnostic
+cross-checks in the ledger and never select a physical segment.
 
 For the selected source shape (`else_block = None`), the emitter uses the
 existing `IfCfgSessionV1::open_implicit_false` path and the one-sided deferred
@@ -2721,6 +2733,41 @@ all-or-nothing admission gate. It must not open a fresh session, allocate a
 I7/I8 producer receipt or physical End primitive is unavailable. The gate is
 the only allowed handoff into the later V2 emitter session; a partial gate is
 not a canary and must reject before the first Builder effect.
+
+The first bounded I0 slice is now landed. It adds the private I9 demand, the
+exact six-row temporary-discharge demand, and the move-only admission
+aggregate. The aggregate currently has an explicit `RejectBeforeEffect`
+disposition because the I7/I8 producer receipt leaves and the physical End
+leaf are not yet implemented. The focused package proof checks the I9
+operands/result (`V11`, `V12`, `V13`), the six ordered cleanup rows, and the
+all-or-nothing rejection; it does not open a session, allocate a physical ID,
+or create a production caller.
+
+The bounded schedule derives operation segments from verified placement and
+the co-sealed I10 control only: predicate-block operations and body operations
+before I10 are `Prelude`, the exact then-block operation before the I12 Return
+is `ThenTerminal`, and body operations after I10 are `Continuation`. Source
+roles remain diagnostic evidence and cannot choose a physical segment. The
+I9 demand also checks the exact I9 DynamicLess fault row/result, the I7
+IndexOf CallSlot role, and the I8 zero constant. Cleanup rows retain the exact
+inner-return source site and backedge loop identity; row order is not a
+replacement for provenance.
+
+The remaining I0 work is only the named physical leaves and their strict
+producer receipts. Do not replace this rejection with a generic compare,
+scope cleanup, raw handle inspection, or a fallback route.
+
+Before a production caller is allowed, one hardening child of this same
+rolling card must close the transport-only receipt boundary: the LLVM loader
+and Rust receipt mirror must validate the exact four-formal layout
+(`src=0,pos=1,end=2,pred_chars=3`), the exact `{inner,outer}` return-site set,
+and the selected CallSlot role/target/argument/result identity. The post-session
+receipt must become consume-once (or remain behind a clearly test-only
+projection) before a live emitter can consume it. Add negative tests for
+swapped/foreign lanes, source-role schedule perturbation, condition-after-I10,
+and foreign cleanup boundary identity. This hardening does not create a new
+semantic authority or a production caller; until it is closed, the receipt
+loaders remain caller-zero transport tests.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

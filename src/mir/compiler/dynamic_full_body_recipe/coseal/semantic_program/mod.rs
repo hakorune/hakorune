@@ -41,8 +41,10 @@ pub(in crate::mir) use invocation_carrier_lifecycle::{
     DynamicInvocationCarrierLifecycleRowRefV1, DynamicInvocationCarrierPublicationV1,
 };
 pub(in crate::mir) use invocation_cleanup::{
-    issue_dynamic_invocation_cleanup_projection_i0, DynamicInvocationCleanupCurrentDispositionV1,
-    DynamicInvocationCleanupProjectionRejectV1, VerifiedDynamicInvocationCleanupProjectionV1,
+    issue_dynamic_invocation_cleanup_projection_i0, DynamicInvocationCleanupActionViewV1,
+    DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
+    DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1,
+    VerifiedDynamicInvocationCleanupProjectionV1,
 };
 pub(in crate::mir) use physical_input::{
     DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,

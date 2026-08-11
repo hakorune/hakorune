@@ -27,6 +27,7 @@ mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
 mod ownership;
 mod selected_dynamic_physical_abi;
+mod selected_dynamic_physical_capability;
 mod semantic_stack;
 mod trivial_ssa;
 
@@ -37,6 +38,10 @@ pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleRowV1,
     DynamicV2PhysicalScheduleSegmentV1, PreparedSelectedDynamicV2EmissionPlanV1,
     SelectedDynamicV2PhysicalPlanRejectV1,
+};
+pub(in crate::mir) use selected_dynamic_physical_capability::{
+    issue_selected_dynamic_v2_physical_capability_admission,
+    DynamicV2PhysicalCapabilityDispositionV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };
 
 #[cfg(test)]

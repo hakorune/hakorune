@@ -36,7 +36,12 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?
         .prepare_all()
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?;
-    Ok(from_parts(identity, source_relation, operation_program))
+    Ok(from_parts(
+        identity,
+        program,
+        source_relation,
+        operation_program,
+    ))
 }
 
 fn validate_identity(

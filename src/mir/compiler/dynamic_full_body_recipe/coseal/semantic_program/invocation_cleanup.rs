@@ -30,6 +30,70 @@ enum InvocationCleanupActionV1 {
     },
 }
 
+/// Borrow-free identity view of one already verified cleanup row.  This is a
+/// semantic evidence view only; it contains no ValueId, block, End
+/// instruction, or physical capability.  Boundary identity is retained so a
+/// later physical consumer cannot treat the fixed row order as provenance.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum DynamicInvocationCleanupRowKindV1 {
+    Fault,
+    NormalBoundary,
+    InnerReturn,
+    Backedge,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) struct DynamicInvocationCleanupActionViewV1 {
+    producer: LoopItemKeyV1,
+    result: LoopValueKeyV1,
+}
+
+impl DynamicInvocationCleanupActionViewV1 {
+    pub(in crate::mir) const fn producer(self) -> LoopItemKeyV1 {
+        self.producer
+    }
+
+    pub(in crate::mir) const fn result(self) -> LoopValueKeyV1 {
+        self.result
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) struct DynamicInvocationCleanupRowViewV1 {
+    kind: DynamicInvocationCleanupRowKindV1,
+    item: Option<LoopItemKeyV1>,
+    inner_return_site: Option<SourceStmtSiteV1>,
+    backedge_loop: Option<LoopNodeKeyV1>,
+    first: Option<DynamicInvocationCleanupActionViewV1>,
+    second: Option<DynamicInvocationCleanupActionViewV1>,
+}
+
+impl DynamicInvocationCleanupRowViewV1 {
+    pub(in crate::mir) const fn kind(&self) -> DynamicInvocationCleanupRowKindV1 {
+        self.kind
+    }
+
+    pub(in crate::mir) const fn item(&self) -> Option<LoopItemKeyV1> {
+        self.item
+    }
+
+    pub(in crate::mir) fn inner_return_site(&self) -> Option<&SourceStmtSiteV1> {
+        self.inner_return_site.as_ref()
+    }
+
+    pub(in crate::mir) const fn backedge_loop(&self) -> Option<LoopNodeKeyV1> {
+        self.backedge_loop
+    }
+
+    pub(in crate::mir) const fn first(&self) -> Option<DynamicInvocationCleanupActionViewV1> {
+        self.first
+    }
+
+    pub(in crate::mir) const fn second(&self) -> Option<DynamicInvocationCleanupActionViewV1> {
+        self.second
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum InvocationCleanupCutPointV1 {
     Fault {
@@ -96,6 +160,10 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
         DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
     }
 
+    pub(in crate::mir) fn physical_rows(&self) -> [DynamicInvocationCleanupRowViewV1; 6] {
+        std::array::from_fn(|index| cleanup_row_view(&self.rows[index]))
+    }
+
     pub(in crate::mir) fn completion_sites(&self) -> Option<[SourceStmtSiteV1; 2]> {
         self.invocation
             .with_semantic_program(|program| program.completion_sites())
@@ -109,6 +177,55 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
     #[cfg(test)]
     pub(in crate::mir) fn rows(&self) -> &[InvocationCleanupCutPointV1; 6] {
         &self.rows
+    }
+}
+
+fn cleanup_row_view(row: &InvocationCleanupCutPointV1) -> DynamicInvocationCleanupRowViewV1 {
+    let (kind, item, inner_return_site, backedge_loop, actions) = match row {
+        InvocationCleanupCutPointV1::Fault { item, actions, .. } => (
+            DynamicInvocationCleanupRowKindV1::Fault,
+            Some(*item),
+            None,
+            None,
+            actions.as_ref(),
+        ),
+        InvocationCleanupCutPointV1::NormalBoundary { item, actions } => (
+            DynamicInvocationCleanupRowKindV1::NormalBoundary,
+            Some(*item),
+            None,
+            None,
+            actions.as_ref(),
+        ),
+        InvocationCleanupCutPointV1::InnerReturn { site, action } => (
+            DynamicInvocationCleanupRowKindV1::InnerReturn,
+            None,
+            Some(site.clone()),
+            None,
+            std::slice::from_ref(action),
+        ),
+        InvocationCleanupCutPointV1::Backedge { loop_key, action } => (
+            DynamicInvocationCleanupRowKindV1::Backedge,
+            None,
+            None,
+            Some(*loop_key),
+            std::slice::from_ref(action),
+        ),
+    };
+    let action = |action: &InvocationCleanupActionV1| match action {
+        InvocationCleanupActionV1::EndTemporary { producer, result } => {
+            DynamicInvocationCleanupActionViewV1 {
+                producer: *producer,
+                result: *result,
+            }
+        }
+    };
+    DynamicInvocationCleanupRowViewV1 {
+        kind,
+        item,
+        inner_return_site,
+        backedge_loop,
+        first: actions.first().map(action),
+        second: actions.get(1).map(action),
     }
 }
 

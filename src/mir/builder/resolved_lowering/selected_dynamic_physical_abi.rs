@@ -7,15 +7,16 @@
 use std::collections::BTreeSet;
 
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
-use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopFaultFamilyV2, DynamicFullLoopOperationEffectV2,
-    DynamicFullLoopPhysicalItemKindV2,
+    DynamicFullLoopOperationPhysicalRefV2, DynamicFullLoopPhysicalItemKindV2,
+    DynamicFullLoopPhysicalItemPlacementV2, DynamicLoopPhysicalArmV2,
+    DynamicLoopPhysicalControlViewV2, PreparedDynamicLoopOperationProgramV2,
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::loop_recipe_contract::{
-    LoopBlockKeyV1, LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1, LoopOperationExecutionClassV2,
-    LoopOperationV2, LoopValueKeyV1,
+    LoopBlockKeyV1, LoopConditionV2, LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1,
+    LoopOperationExecutionClassV2, LoopOperationV2, LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceStmtSiteV1};
 
@@ -28,7 +29,7 @@ const EXPECTED_FAULT_COUNT: usize = 3;
 pub(in crate::mir) enum SelectedDynamicV2PhysicalPlanRejectV1 {
     Coverage,
     OperationOrder,
-    UnsupportedSourceRole,
+    PlacementShape,
     OperationCallRelation,
     ControlShape,
 }
@@ -100,7 +101,7 @@ struct DynamicV2FaultEvidenceV1 {
 /// already co-sealed identities; it never becomes a second source/Recipe or
 /// JoinSig authority.  Session emission later consumes this ledger exactly
 /// once and adds session-local receipts in a child product.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct DynamicV2NativePreflightLedgerV1 {
     placements: Box<[DynamicV2PlacementEvidenceV1]>,
     operations: Box<[DynamicV2OperationEvidenceV1]>,
@@ -238,6 +239,21 @@ impl PreparedSelectedDynamicV2EmissionPlanV1<'_> {
     ) -> R {
         callback(&self.ledger)
     }
+
+    pub(in crate::mir) fn with_cleanup_physical_rows<R>(
+        &self,
+        callback: impl FnOnce(
+            [crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowViewV1; 6],
+        ) -> R,
+    ) -> R {
+        self.demand.with_cleanup_physical_rows(callback)
+    }
+
+    pub(in crate::mir) fn completion_sites(
+        &self,
+    ) -> Option<[crate::mir::resolved_semantics::SourceStmtSiteV1; 2]> {
+        self.demand.completion_sites()
+    }
 }
 
 pub(in crate::mir) fn issue_selected_dynamic_v2_emission_plan<'program>(
@@ -273,12 +289,12 @@ fn build_schedule(
 
     let mut seen = BTreeSet::new();
     let mut rows = Vec::with_capacity(EXPECTED_OPERATION_COUNT);
+    let control = program.control();
     for operation in program.operation_rows() {
         if !seen.insert(operation.item()) {
             return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder);
         }
-        let segment = segment_for_role(operation.source_role())
-            .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::UnsupportedSourceRole)?;
+        let segment = segment_for_operation(operation, control, program.placement_rows())?;
         let is_call = matches!(operation.operation(), LoopOperationV2::CallSlot { .. });
         if is_call != operation.call_role().is_some() {
             return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationCallRelation);
@@ -294,32 +310,99 @@ fn build_schedule(
     Ok(rows.into_boxed_slice())
 }
 
-fn segment_for_role(
-    role: DynamicFullBodySourceRoleV1,
-) -> Option<DynamicV2PhysicalScheduleSegmentV1> {
-    match role {
-        DynamicFullBodySourceRoleV1::LoopConditionI
-        | DynamicFullBodySourceRoleV1::LoopCondition
-        | DynamicFullBodySourceRoleV1::SubstringStartI
-        | DynamicFullBodySourceRoleV1::SubstringEndI
-        | DynamicFullBodySourceRoleV1::SubstringEndDelta
-        | DynamicFullBodySourceRoleV1::SubstringEndAdd
-        | DynamicFullBodySourceRoleV1::SubstringCall
-        | DynamicFullBodySourceRoleV1::IndexOfCall
-        | DynamicFullBodySourceRoleV1::InnerIfZero
-        | DynamicFullBodySourceRoleV1::InnerIfCondition => {
-            Some(DynamicV2PhysicalScheduleSegmentV1::Prelude)
+fn segment_for_operation(
+    operation: &DynamicFullLoopOperationPhysicalRefV2<'_>,
+    control: &DynamicLoopPhysicalControlViewV2<'_>,
+    placements: &[DynamicFullLoopPhysicalItemPlacementV2],
+) -> Result<DynamicV2PhysicalScheduleSegmentV1, SelectedDynamicV2PhysicalPlanRejectV1> {
+    let row = control
+        .rows()
+        .first()
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape)?;
+    let branch = row
+        .branches()
+        .first()
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape)?;
+    let if_placement = placements
+        .iter()
+        .find(|placement| placement.item() == branch.if_item())
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    if if_placement.owner_loop() != row.loop_key()
+        || if_placement.block() != branch.owner_block()
+        || if_placement.kind() != DynamicFullLoopPhysicalItemKindV2::If
+    {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    let then_exit_item = match branch.then_arm() {
+        DynamicLoopPhysicalArmV2::Exit {
+            item,
+            kind: LoopExitKindV2::Return { .. },
+        } => item,
+        _ => return Err(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape),
+    };
+    let then_exit_placement = placements
+        .iter()
+        .find(|placement| placement.item() == then_exit_item)
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    if then_exit_placement.owner_loop() != row.loop_key()
+        || then_exit_placement.block() != branch.then_block()
+        || then_exit_placement.kind() != DynamicFullLoopPhysicalItemKindV2::Exit
+    {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    let if_order = placements
+        .iter()
+        .position(|placement| placement.item() == branch.if_item())
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    let then_exit_order = placements
+        .iter()
+        .position(|placement| placement.item() == then_exit_item)
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    if then_exit_order <= if_order {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    if operation.owner_loop() != row.loop_key() {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    let operation_placement = placements
+        .iter()
+        .find(|placement| placement.item() == operation.item())
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    if operation_placement.owner_loop() != row.loop_key()
+        || operation_placement.block() != operation.block()
+        || operation_placement.kind() != DynamicFullLoopPhysicalItemKindV2::Operation
+    {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    let operation_order = placements
+        .iter()
+        .position(|placement| placement.item() == operation.item())
+        .ok_or(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)?;
+    if let LoopConditionV2::Predicate { block, .. } = row.condition() {
+        if operation.block() == block {
+            return if operation_order < if_order {
+                Ok(DynamicV2PhysicalScheduleSegmentV1::Prelude)
+            } else {
+                Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
+            };
         }
-        DynamicFullBodySourceRoleV1::InnerReturnI => {
-            Some(DynamicV2PhysicalScheduleSegmentV1::ThenTerminal)
-        }
-        DynamicFullBodySourceRoleV1::StepReadI
-        | DynamicFullBodySourceRoleV1::StepDelta
-        | DynamicFullBodySourceRoleV1::StepAdd
-        | DynamicFullBodySourceRoleV1::StepTargetI => {
-            Some(DynamicV2PhysicalScheduleSegmentV1::Continuation)
-        }
-        _ => None,
+    }
+    if operation.block() == branch.then_block() {
+        return if operation_order < then_exit_order {
+            Ok(DynamicV2PhysicalScheduleSegmentV1::ThenTerminal)
+        } else {
+            Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
+        };
+    }
+    if operation.block() != branch.owner_block() {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
+    }
+    if operation_order < if_order {
+        Ok(DynamicV2PhysicalScheduleSegmentV1::Prelude)
+    } else if operation_order > if_order {
+        Ok(DynamicV2PhysicalScheduleSegmentV1::Continuation)
+    } else {
+        Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
     }
 }
 

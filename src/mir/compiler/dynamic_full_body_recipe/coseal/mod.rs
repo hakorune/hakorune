@@ -48,10 +48,11 @@ pub(in crate::mir) use semantic_program::{
     DynamicFullLoopSemanticProgramRejectV2, DynamicInvocationCarrierDestinationRefV1,
     DynamicInvocationCarrierLifecycleCatalogRefV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
-    DynamicInvocationCarrierPublicationV1, DynamicInvocationCleanupCurrentDispositionV1,
-    DynamicInvocationCleanupProjectionRejectV1, DynamicLoopPhysicalControlViewV2,
-    VerifiedDynamicExitTransactionCoSealV1, VerifiedDynamicFullLoopSemanticProgramV2,
-    VerifiedDynamicInvocationCarrierLifecycleProgramV1,
+    DynamicInvocationCarrierPublicationV1, DynamicInvocationCleanupActionViewV1,
+    DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,
+    DynamicInvocationCleanupRowKindV1, DynamicInvocationCleanupRowViewV1,
+    DynamicLoopPhysicalControlViewV2, VerifiedDynamicExitTransactionCoSealV1,
+    VerifiedDynamicFullLoopSemanticProgramV2, VerifiedDynamicInvocationCarrierLifecycleProgramV1,
     VerifiedDynamicInvocationCleanupProjectionV1,
 };
 

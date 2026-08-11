@@ -3,7 +3,8 @@
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalDemandRejectV2,
-    DynamicFullLoopPhysicalInputRejectV2, PreparedDynamicLoopOperationProgramV2,
+    DynamicFullLoopPhysicalInputRejectV2, DynamicInvocationCleanupRowViewV1,
+    PreparedDynamicLoopOperationProgramV2, VerifiedDynamicExitTransactionCoSealV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -32,12 +33,13 @@ pub(in crate::mir) enum APrimeI64PhysicalRequirementV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
     identity: VerifiedResolvedCallableSourceIdentityV1,
+    program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
     operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
     requirement: APrimeI64PhysicalRequirementV1,
 }
 
-impl VerifiedAPrimeI64PhysicalDemandV1<'_> {
+impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     pub(in crate::mir) fn identity(&self) -> &VerifiedResolvedCallableSourceIdentityV1 {
         &self.identity
     }
@@ -50,6 +52,19 @@ impl VerifiedAPrimeI64PhysicalDemandV1<'_> {
         &self.source_relation
     }
 
+    pub(in crate::mir) fn with_cleanup_physical_rows<R>(
+        &self,
+        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 6]) -> R,
+    ) -> R {
+        self.program.with_cleanup_physical_rows(callback)
+    }
+
+    pub(in crate::mir) fn completion_sites(
+        &self,
+    ) -> Option<[crate::mir::resolved_semantics::SourceStmtSiteV1; 2]> {
+        self.program.completion_sites()
+    }
+
     pub(in crate::mir) fn with_operation_program<R>(
         &self,
         callback: impl FnOnce(&PreparedDynamicLoopOperationProgramV2<'_>) -> R,
@@ -60,11 +75,13 @@ impl VerifiedAPrimeI64PhysicalDemandV1<'_> {
 
 pub(super) fn from_parts<'program>(
     identity: VerifiedResolvedCallableSourceIdentityV1,
+    program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
     operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
 ) -> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     VerifiedAPrimeI64PhysicalDemandV1 {
         identity,
+        program,
         source_relation,
         operation_program,
         requirement: APrimeI64PhysicalRequirementV1::DirectExactI64,

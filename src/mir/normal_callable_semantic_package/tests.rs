@@ -212,11 +212,133 @@ fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
                 .count(),
             4
         );
+        let schedule_items = |segment| {
+            plan.schedule_rows()
+                .iter()
+                .filter(|row| row.segment() == segment)
+                .map(|row| row.item().raw())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            schedule_items(
+                crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1::Prelude
+            ),
+            (0..10).collect::<Vec<_>>()
+        );
+        assert_eq!(
+            schedule_items(crate::mir::builder::resolved_lowering::
+                DynamicV2PhysicalScheduleSegmentV1::ThenTerminal),
+            vec![11]
+        );
+        assert_eq!(
+            schedule_items(crate::mir::builder::resolved_lowering::
+                DynamicV2PhysicalScheduleSegmentV1::Continuation),
+            vec![13, 14, 15, 16]
+        );
         plan.with_ledger(|ledger| {
             assert_eq!(ledger.coverage_counts(), (17, 15, 3, 2));
         });
     })
     .expect("selected V2 preflight plan loan");
+}
+
+#[test]
+fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let demand = crate::mir::compiler::a_prime_i64_physical_capability::
+            issue_selected_a_prime_i64_physical_demand(&input)
+            .expect("selected Dynamic A-prime demand");
+        let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
+            .expect("selected V2 preflight plan");
+        let admission =
+            crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(plan)
+                .expect("exact V2 capability requirements");
+        assert_eq!(
+            admission.disposition(),
+            crate::mir::builder::resolved_lowering::
+                DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect
+        );
+        let less = admission.less();
+        assert_eq!(
+            less.item(),
+            crate::mir::loop_recipe_contract::LoopItemKeyV1::new(9)
+        );
+        assert_eq!(
+            less.left(),
+            crate::mir::loop_recipe_contract::LoopValueKeyV1::new(11)
+        );
+        assert_eq!(
+            less.right(),
+            crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12)
+        );
+        assert_eq!(
+            less.result(),
+            crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13)
+        );
+        let cleanup = admission.cleanup();
+        assert_eq!(cleanup.len(), 6);
+        assert_eq!(
+            cleanup[0].item(),
+            Some(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(6))
+        );
+        assert_eq!(
+            cleanup[1]
+                .first()
+                .map(|action| (action.producer(), action.result())),
+            Some((
+                crate::mir::loop_recipe_contract::LoopItemKeyV1::new(6),
+                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(10),
+            ))
+        );
+        assert_eq!(
+            cleanup[2]
+                .first()
+                .map(|action| (action.producer(), action.result())),
+            Some((
+                crate::mir::loop_recipe_contract::LoopItemKeyV1::new(7),
+                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(11),
+            ))
+        );
+        assert_eq!(
+            cleanup[2]
+                .second()
+                .map(|action| (action.producer(), action.result())),
+            Some((
+                crate::mir::loop_recipe_contract::LoopItemKeyV1::new(6),
+                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(10),
+            ))
+        );
+        assert!(cleanup[4].inner_return_site().is_some());
+        assert_eq!(
+            cleanup[5].backedge_loop(),
+            Some(crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0))
+        );
+        assert!(matches!(
+            admission.into_rejected_plan(),
+            Err(crate::mir::builder::resolved_lowering::
+                SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)
+        ));
+    })
+    .expect("selected V2 capability admission loan");
 }
 
 #[test]

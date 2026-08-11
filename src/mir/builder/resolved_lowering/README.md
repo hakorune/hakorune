@@ -32,8 +32,10 @@ The selected A-prime demand is a source/parameter/identity wrapper around the
 single co-sealed `PreparedDynamicLoopOperationProgramV2`. It is not a second
 physical-demand authority. The current `selected_dynamic_physical_abi` module
 consumes that demand once and issues a Builder-free, move-only V2-native
-preflight plan. The plan validates the complete operation order, source-role
-projection, CallSlot relation, and the bounded I10 disposition without
+preflight plan. The plan validates the complete operation order, keeps the
+source-role projection only as a diagnostic cross-check, derives segment
+boundaries from exact placement/control, validates the CallSlot relation,
+and checks the bounded I10 disposition without
 opening a session or allocating `ValueId`/`BasicBlockId`.
 
 This is deliberately a preflight slice, not a production emitter. A later
@@ -62,6 +64,16 @@ Missing/foreign/ambiguous producer receipts or an unavailable End primitive
 are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
 inference, `MirType` repair, `nyash.integer.get_h`, fallback, and retry are
 forbidden.
+
+The first I0 slice now issues these two Builder-free requirements and a
+move-only `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition
+is explicitly `RejectBeforeEffect` until the I7/I8 producer receipt leaves and
+the physical End leaf are implemented; it is not a session canary and has no
+production caller. The numeric I6/I7/I8/I9 and V10/V11/V12/V13 checks are
+private guards for this selected bounded cohort, not a generic physical
+planner or a reusable V2 authority. Inner-Return source identity and the
+Backedge loop key remain in the cleanup demand; the demand may not be split
+through copy accessors before a future consuming emitter is connected.
 
 ## Canonical V2 function finish
 
