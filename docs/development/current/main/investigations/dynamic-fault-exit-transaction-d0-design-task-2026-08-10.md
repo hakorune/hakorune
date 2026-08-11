@@ -772,6 +772,23 @@ A-prime authorities.  The demand issuer is the only place that co-seals the
 callable entry edge, exact `i = pos` relation, I64 carrier/PHI lineage, I6/I7
 mixed call-edge facts, and the two Completion-site operands.
 
+The `i = pos` evidence is borrowed from the retained source inventory already
+inside the selected final program; it is not re-observed from the AST.  The
+private source-facts loan must contain exactly the existing binding rows for
+`Pos` and `Induction`, the `PreludeInitializerPos` source row, and the resolver
+relation proving that the initializer reads `Pos`.  The issuer may additionally
+check the existing `LoopConditionI`/`StepReadI`/`InnerReturnI`/`OuterReturnI`
+rows against the same `Induction` binding, but it must not search by name,
+ordinal, or a second method inventory.  Missing, foreign, duplicate, or
+mismatched rows reject the demand.
+
+This source-facts loan is a narrow child view of the final exit co-seal.  It is
+not a new source observer, a second Recipe producer, or a public source map.
+The selected package input supplies the parameter-contract rows; the final
+program supplies the retained source/Recipe/Completion relation.  Both are
+borrowed under one HRTB callback and are consumed only to issue the exact-I64
+demand.
+
 Backend transport is a separate capability adapter.  VM accepts only exact
 `VMValue::Integer` under the selected contract.  LLVM is Direct only when the
 selected mixed signature and every selected call edge carry exact metadata;
