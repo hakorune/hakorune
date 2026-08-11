@@ -754,6 +754,37 @@ matrix are documented with focused positive/negative tests. Until then the
 current behavior is `RejectBeforeEffect` and the parent row remains a design
 stop.
 
+### Pre-implementation authority close (required before code)
+
+The semantic A-prime chain is closed, but the physical capability issuer is
+not yet implemented.  The sole issuer is a new private module at
+`src/mir/compiler/a_prime_i64_physical_capability/issuer.rs`.  It consumes one
+borrowed selected-callable lowering input together with the existing
+`FunctionEntryContract`/`BindingRef` rows, mixed typed Recipe,
+`VerifiedDynamicExitTransactionCoSealV1`, and
+`VerifiedFunctionCompletionV1`, then emits one Builder-free exact-I64 demand.
+It may not contain or publish `ValueId`, `BasicBlockId`, MIR instructions,
+helper calls, backend tags, or a second source/Recipe/Completion authority.
+
+The existing `physical_input.rs` remains the Loop placement/operation/Fault
+view owner; the test-only prelude issuer and generic backend gates are not
+A-prime authorities.  The demand issuer is the only place that co-seals the
+callable entry edge, exact `i = pos` relation, I64 carrier/PHI lineage, I6/I7
+mixed call-edge facts, and the two Completion-site operands.
+
+Backend transport is a separate capability adapter.  VM accepts only exact
+`VMValue::Integer` under the selected contract.  LLVM is Direct only when the
+selected mixed signature and every selected call edge carry exact metadata;
+missing, ambiguous, wrapper, `resolve_i64`, missing-value zero, ptr/int repair,
+retry, and fallback are all `RejectBeforeEffect`.  The LLVM metadata transport
+must be fixed before the session/cutover slice; changing a backend-name
+allowlist is not an implementation.
+
+No physical session, Completion consumer, or production cutover may start
+until this issuer boundary, the VM/LLVM matrix, and the focused
+missing/foreign/duplicate/ambiguous negative tests are landed in the design
+record and accepted.  This is a design close, not a new task card.
+
 #### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
 
 Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
