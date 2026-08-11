@@ -1966,6 +1966,21 @@ topology receipts and the segment route were deliberately not deleted; the
 next active row is the caller census
 `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0`.
 
+#### LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0 (CLOSED — `1544d128d2`)
+
+The fourth BoxShape slice is a census/guard only. The legacy fixed-role entry
+`physicalize_topology_v1` has no non-test caller; the operation-demand variant
+has no caller. The segment dispatcher and allocator are referenced only by the
+Callable/Generic canaries, and `issue_for_segment` is referenced only by the
+segment dispatcher. This proves the old fixed-role route is not currently a
+hidden production selector, while the transitive fixed-role types remain in
+common operation/emitter code for the historical canaries.
+
+The consolidated transfer guard now rejects unexpected callers and protects
+the no-new-caller boundary. No topology type or old issuer is deleted here;
+hard deletion remains post-cutover `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0`.
+The next active selected-cohort row is `LOOP-PHYSICAL-IF-COVERAGE-I0`.
+
 #### Post-Dynamic cleanup acceptance matrix
 
 The parked series is intentionally concrete about the old V1 surfaces it must

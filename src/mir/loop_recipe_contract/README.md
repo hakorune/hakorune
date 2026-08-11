@@ -52,8 +52,11 @@ the matching Loop summary and exposes that summary as integrity-only evidence;
 it is not a second physical action. The common physicalizer boundary now stops
 at `ReadyLoopAfterContinuationV1`; Callable profile-close, Tail, ABI,
 Completion, Return, and DraftSeal remain outside this owner. The next row is
-the fixed-topology/segment caller census; no Builder, MIR/CFG/PHI, ABI,
-session, retry, or fallback is opened by the ledger or boundary cleanup.
+the selected I10 transfer coverage; no Builder, MIR/CFG/PHI, ABI, session,
+retry, or fallback is opened by the ledger or boundary cleanup. The completed
+fixed-role topology census is caller-zero for its top-level issuers; its
+transitive canary-only types remain until the selected production cutover and
+post-cutover retirement row.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.
