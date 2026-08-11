@@ -3072,6 +3072,53 @@ LLVM selected consumer
 runtime leaf
   owns: receiver-key check and one consumption of the sealed branch/result;
   it does not construct a plan or choose a provider.
+
+##### I0-B preflight audit receipt (2026-08-12)
+
+The preflight audit confirms that the semantic decision is sufficient but the
+implementation cell is not yet present. The focused A-prime transport checks
+are green for the exact four-formal lane (`src=0`, `pos=1`, `end=2`,
+`pred_chars=3`), including role/index mismatch rejection and I7
+`ImmediateI64` result validation. This evidence does not count as an I0-B
+production caller or provider implementation.
+
+The only accepted implementation shape remains one atomic activation cell:
+
+```text
+contract artifact (canonical Text / CP / two roles)
+  + selected A-prime requirement (contract id + I6/I7 role map)
+  + provider export facts and canonical aliases
+      -> one consuming ProviderAdmissionSeal
+      -> immutable admitted registry
+      -> receiver-identity-bearing RoutePlan/RuntimeExecutablePlan
+      -> call-in admission wire projections
+      -> LLVM early selected consumer + strict CP leaf
+      -> canonical-session I6/I7 receipts + V10 lease/End
+```
+
+Do not land the contract manifest, registry, wire, hook, runtime leaf, or
+lease owner as an isolated preparatory authority. They are all named parts of
+the same I0-B consumer cell. Existing mutable `BoxCallableRegistry`, plugin
+snapshots, legacy String helpers, and Rust VM routes remain compatibility or
+reference lanes and are not retargeted.
+
+Required I0-B preflight negatives are now explicit:
+
+```text
+missing/foreign/duplicate role or provider       -> RejectBeforeEffect
+String/StringBox alias ambiguity                 -> admission reject
+byte/env index mode                              -> admission reject
+I6/I7 profile or lifecycle mismatch              -> admission reject
+I7 Dynamic/lease/End reintroduction              -> admission reject
+runtime registry/name/provider/image lookup      -> forbidden
+selected generic/legacy fallthrough              -> forbidden
+VM DynamicV2 provider/receipt/session consumer    -> zero
+```
+
+The active row therefore stays
+`DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B` in `fast` mode. No new
+semantic receipt or partial provider module is authorized before the complete
+named consumer can be included in the same bounded activation series.
 ```
 
 The current output wire in `include/nyrt_dynamic_call_slot_v2.h` remains
