@@ -951,7 +951,7 @@ limited to these three contracts:
 No new source observer, Dynamic producer, Completion owner, GenericLoop
 change, or physical session is allowed while these contracts are open.
 
-#### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
+#### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (landed Builder-free demand)
 
 Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
 
@@ -970,6 +970,14 @@ final exit/package HRTB view
 
 It contains no ValueId, BasicBlockId, MIR, helper, PHI token, runtime tag, or
 raw Recipe/JoinSig getter.
+
+Status: CLOSED (C1 landed as `5dba33cd0e`). The selected package loan now
+retains the opaque callable source identity and issues this demand from the
+final Dynamic exit transaction through narrow borrowed source-relation and
+physical-input views. Focused package (14 tests), Dynamic body (29 tests),
+`cargo check --lib`, complete-batch authority, pointer, and diff gates are
+green. This closes the Builder-free demand only; it does not claim a physical
+ValueId, backend ABI, session, or production cutover.
 
 After C1, three branches must be green before the session:
 
@@ -1852,10 +1860,11 @@ This is the landed pre-A-prime demand; Slice B atomically recuts the same sole
 owner to the mixed-I64 program and exact three-Fault coverage. It is not a
 second production mode.
 
-## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
-Decision: the bounded Dynamic cohort can share the existing common Loop core,
-but this is a post-result/ABI BoxShape lane, not a new source authority or
-current execution row. The global task names and order remain owned by
+## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — FIRST IMPLEMENTATION SLICE)
+Decision: the bounded mixed-I64/Dynamic cohort can share the existing common
+Loop core. This is a post-result/ABI BoxShape lane, not a new source authority.
+The A-prime Builder-free demand is now green, so this series is the current
+execution frontier. The global task names and order remain owned by
 `loop-common-physical-demand-and-session-ssot.md`:
 
 ```text
@@ -1875,7 +1884,6 @@ verified Recipe placement
 one complete operation/source-effect ledger
   -> one complete physical demand
 ```
-This parked BoxShape series opens after `A-PRIME-PHYSICAL-INPUT-I0` is green.
 VM and LLVM capability are sibling branches and must also be green before the
 fresh session. The Loop dependency order is fixed and must not be inverted:
 
