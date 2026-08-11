@@ -1860,11 +1860,14 @@ This is the landed pre-A-prime demand; Slice B atomically recuts the same sole
 owner to the mixed-I64 program and exact three-Fault coverage. It is not a
 second production mode.
 
-## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — FIRST IMPLEMENTATION SLICE)
+## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — SECOND IMPLEMENTATION SLICE)
 Decision: the bounded mixed-I64/Dynamic cohort can share the existing common
 Loop core. This is a post-result/ABI BoxShape lane, not a new source authority.
 The A-prime Builder-free demand is now green, so this series is the current
-execution frontier. The global task names and order remain owned by
+execution frontier. `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` landed in
+`542b3a794d`: V1 physical layout now consumes a JoinSig-owned logical transfer
+view, binds transfer meaning in one private placement binder, and segment
+allocation consumes the placement role receipt. The global task names and order remain owned by
 `loop-common-physical-demand-and-session-ssot.md`:
 
 ```text
@@ -1902,10 +1905,10 @@ Dynamic value or reopens parameter classification. Broader Always/all-family
 topology work and fixed-topology deletion remain later, after the selected
 production edge has been cut over.
 
-`LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` is the first implementation row. Its
-private traversal may derive item order and segment boundaries only. JoinSig
-issues the logical Predicate/Jump/Backedge/nested-resume transfer evidence;
-Layout binds that evidence to placement; Canonical CFG emits it once. Therefore
+`LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` is closed. Its private traversal derives
+item order and segment boundaries only. JoinSig issues the logical
+Predicate/Jump/Backedge/nested-resume transfer evidence; Layout binds that
+evidence to placement; Canonical CFG emits it once. Therefore
 `physical_layout.rs` and `recursive_after.rs` must not rebuild transfer meaning
 from `LoopConditionV1`/Recipe condition data, and `segment_allocator.rs` must
 consume the segment placement receipt instead of rescanning Recipe conditions
