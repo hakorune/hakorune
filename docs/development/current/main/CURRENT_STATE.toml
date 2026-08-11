@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 is closed: canonical skip_while declares : i64 and VerifiedFunctionCompletionV1 remains the sole semantic result/return-site owner with exactly two sites. PHYSICAL-INPUT-AUTHORITY-I0 remains a design stop. Target CHECKED-DYNAMIC-I64-ABI is a boundary-local checked ABI/helper plus producer-issued representation provenance in the selected Dynamic corridor; current unsupported behavior is RejectBeforeEffect. Pre-session demand and session-local realization are separate. The exact producer table, target-aware backend capability issuer, and outer borrowed-versus-owned disposition are still unresolved, so NoSafeSlice remains. Loop unification, session, cutover, H2/H3/H5, Hako producer activation, and mimalloc execution stay downstream. GenericLoop remains an exact-MirType verifier."
+status = "A-prime is accepted for the bounded ParserScanLoopBox.skip_while/4 cohort: pos/end exact i64 contracts flow through parser transport, resolved BindingRefs, an exact local copy, a mixed typed Recipe, I64 carrier/operations, VM+LLVM capabilities, and existing two-site Completion. The full tagged Dynamic corridor is parked. Production remains NoSafeSlice until the atomic Recipe/lifecycle recut, Loop authority cleanup, backend gates, fresh session, and selected cutover close. The first safe implementation row is CALLABLE-PARAMETER-TYPE-TRANSPORT-R0."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PHYSICAL-INPUT-AUTHORITY-I0"
-work_mode = "design_stop"
-current_execution_row = "PHYSICAL-INPUT-AUTHORITY-I0"
-current_blocker_token = "Keep PHYSICAL-INPUT-AUTHORITY-I0 at design stop while PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 is unresolved. Fix one complete selected-corridor producer table: every value carries ImmediateI64, IntegerBoxHandle, or private TaggedCarrier(tag,payload) provenance through ingress, DynamicAdd/invocation, rebind, PHI/current, and both returns; bare i64 never distinguishes raw from handle. Fix the sole target-aware backend capability issuer and classify every VM/LLVM cell Direct, Checked, or RejectBeforeEffect. The strict helper must distinguish zero from invalid/non-integer, and outer borrowed-versus-owned cleanup must be exact. Keep Builder-free two-site demand separate from session-local realization. Until all issuers exist, remain NoSafeSlice. TypeOp, DynamicIntegerRange, : i64, MirType, receipt-free or ambiguous runtime probing, sentinel-zero helpers, sibling result contracts, GenericLoop changes, fallback, and retry are forbidden."
+current_design_stop = "none; A-prime design accepted"
+work_mode = "fast"
+current_execution_row = "CALLABLE-PARAMETER-TYPE-TRANSPORT-R0"
+current_blocker_token = "Implement only the behavior-neutral exact parameter spelling transport from FinalCallableParameterSourceRefV1 through the resolved callable batch HRTB loan. Preserve [None,i64,i64,None] with opaque declaration identity. Do not change the canonical .hako signature yet, classify ABI/Home/Recipe, add ValueIds, rescan AST, repair by name/site/ordinal, or open VM/LLVM/session/cutover. The next named consumer is CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0. Keep all touched Rust source below 760 lines and 800 hard."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -235,7 +235,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The declared-result bootstrap is closed. The current representation D0 selects CHECKED-DYNAMIC-I64-ABI as the target architecture and RejectBeforeEffect as current unsupported behavior, but remains NoSafeSlice until the selected producer-provenance table, backend Direct/Checked/Reject matrix, strict helper ABI, and outer borrowed-versus-owned disposition have canonical issuers. No code or physical session is authorized."
+current_execution_summary = "A-prime design and caller/API census are closed. Begin the first BoxShape commit: carry declared parameter spelling through the final syntax loan and resolved batch without semantic classification. Production remains NoSafeSlice; Recipe, backend, session, and cutover are downstream rows."
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "PHYSICAL-INPUT-AUTHORITY-I0"
+next_design_card = "none until a new design stop is reached"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none"
+next_execution_card = "CALLABLE-PARAMETER-TYPE-TRANSPORT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The standalone initializer bridge and Static/Dynamic arbitration are absent. Completion remains the sole declared-result/two-site owner. Current design stop: CHECKED-DYNAMIC-I64-ABI uses a boundary-local checked ABI plus producer-issued ImmediateI64/IntegerBoxHandle/private-tag provenance, split into Builder-free demand and session-local realization; current unsupported behavior is RejectBeforeEffect. Producer issuers, target-aware VM/LLVM capability, and outer cleanup disposition remain unresolved, so Loop cleanup/session/cutover stay closed. After first cutover, H2/H3/H5 parity and the Hako-mimalloc promotion gate become sibling proofs that jointly gate Hako result-producer activation."
+latest_card_summary = "A-prime replaces the checked-Dynamic terminal proposal for skip_while: pos/end are exact i64 API contracts, the induction Recipe/carrier becomes I64, and only invocation temporaries remain Dynamic. Four implementation slices are fixed: parameter contract, atomic Recipe/Fault/lifecycle recut, Loop+VM/LLVM physical capability, and fresh session+cutover. Current row is the behavior-neutral parameter type transport. After first cutover, H2/H3/H5 parity and the Hako-mimalloc gate jointly gate Hako parameter/result producer activation."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

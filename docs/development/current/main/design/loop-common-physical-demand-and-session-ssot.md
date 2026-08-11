@@ -958,8 +958,10 @@ The table above remains the repository-wide convergence order. The bounded
 the first production cutover does not wait for unrelated all-19 families:
 
 ```text
-PHYSICAL-INPUT-AUTHORITY-I0
-  -> exact Dynamic-to-i64 return-operand relation
+A-PRIME-PARAMETER-CONTRACT-I0
+  -> exact pos/end source/binding/ABI relation
+  -> A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
+  -> A-PRIME-PHYSICAL-INPUT-I0
 
 LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (BoxShape only)
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
@@ -973,8 +975,14 @@ selected BoxCount only
   -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
   -> LOOP-PRECUTOVER-AUTHORITY-H2
 
+backend siblings
+  -> A-PRIME-VM-EXACT-I64-ENTRY-I0
+  -> LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0
+
 outer callable owner
-  -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
+  -> FUNCTION-COMPLETION-SITE-KEYED-CLAIMS-R0
+  -> DRAFT-SEAL-EXIT-PROJECTION-SPLIT-R0
+  -> A-PRIME-I64-LOOP-PHYSICAL-SESSION-I0
   -> H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
 
 post-cutover

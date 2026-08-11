@@ -170,47 +170,52 @@ Rust final-source producer、selfhost parity後はHako producerをatomic cutover
 選ぶ。同一compileで両方をadmitせず、frontend固有result receipt、body/Loop/MIR
 inference、compatibility retry、fixture narrowingで循環を越えない。
 
-明示`: i64`はdeclared-result syntax authorityであって、logical class `Dynamic`の
-物理carrierを`Integer`としてReturnできる証明ではない。selected Dynamic corridor
-の目標方式は`CHECKED-DYNAMIC-I64-ABI`で固定する。
+明示result `: i64`はdeclared-result syntax authorityであって、logical class
+`Dynamic`の物理carrierを`Integer`としてReturnできる証明ではない。bounded
+`ParserScanLoopBox.skip_while/4`は、その変換自体を避けるA-primeを採用する。
 
 ```text
-CHECKED-DYNAMIC-I64-ABI:
-  boundary-local checked ABI/helper
-  + producer-issued representation provenance
-
-current unsupported behavior:
-  RejectBeforeEffect
+A-prime:
+  pos/end: i64 source contract
+  -> exact parameter transport / BindingRef relation
+  -> exact local copy i = pos
+  -> mixed typed Recipe
+  -> I64 carrier / operations / returns
+  -> ImmediateI64 VM/LLVM physicalization
 
 not selected here:
   global all-values-as-handles
   language-wide tagged representation cutover
+  terminal Dynamic-to-i64 helper
 ```
 
-bare `i64` bitsからraw integerとhandleを推測しない。runtime-polymorphicな物理値は、
-producerが`ImmediateI64`、`IntegerBoxHandle`、またはprivateな
-`TaggedCarrier(tag,payload)` provenanceを発行し、copy/rebind/PHI/currentを越えて
-consumerまで保持する。欠落したprovenanceをReturn側がmetadata、runtime table、
-TypeOp、sentinel-zero helperから修復してはならない。
+source result annotationからcarrierを逆算しない。`pos/end`のsource contract、
+resolver binding、local copy、Recipe class、physical representationを一方向に
+co-sealする。`src`/`pred_chars`とDynamic invocation temporariesはDynamicのまま、
+induction carrierだけをI64にする。consumerがbare bits、metadata、runtime table、
+TypeOp、MirType、sentinel-zero helperから欠落したprovenanceを修復してはならない。
 
-この境界は二つの時刻へ分ける。
+parameter/result境界は二つの時刻へ分ける。
 
 ```text
 pre-session demand:
-  Completion sites + logical operands + required checked capability
+  exact parameter contracts
+  + mixed Recipe / JoinSig / Completion sites
+  + required target capability
   ValueId / BasicBlockId / MIRなし
 
 session-local realization:
-  exact demand row + producer representation + physical IDs
-  -> normal exact i64 | terminal projection Fault
+  exact demand row + formal/local/PHI/return physical IDs
+  -> ImmediateI64 receipts + site-keyed Completion claims
 ```
 
 semantic ownerはsession IDsを持たず、session realizationはresult contract、return
-site、logical operandを再分類しない。各required backend/representation cellは
-`Direct | Checked | RejectBeforeEffect`のいずれかであり、fallbackは第四の分類に
-ならない。projection Faultはresultを発行せず、cleanupとprimary/suppressed順序は
-既存exit transactionが所有する。source annotationを理由に`MirType::Integer`を
-後付けしてはならない。
+site、Recipe classを再分類しない。VM/LLVMはexact selected capabilityがあれば
+`Direct`、なければ`RejectBeforeEffect`であり、A-prime I0に`Checked` helperはない。
+Dynamic temporary Faultとcleanupのprimary/suppressed順序は既存exit transactionが
+所有する。source annotationを理由に既存Dynamic ValueIdへ`MirType::Integer`を
+後付けしてはならない。full tagged Dynamic corridorは将来taskとしてparkし、
+A-prime失敗時に自動選択しない。
 
 ### Bounded loop unification boundary
 
@@ -235,16 +240,20 @@ Completionはcallable ownerが持つ。V1/V2を型変換するadapter、syntheti
 `ItemKey`、名前・順序によるrepair、第二JoinSig/Recipe/physical plannerは
 禁止する。
 
-このcleanupは現在のDynamic-i64 representation design stopとは独立したparked
+このcleanupはA-prime parameter/Recipe/physical-input rowsの後に開くparked
 BoxShape laneであり、実行行を先取りしない。詳細なsubtaskとcaller-zeroの
 退役条件は、active Dynamic cardの
 `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` sectionだけを参照する。
 
-Durable order is representation demand, Loop authority cleanup, session-local
-realization, then one production replacement. After the first production
-cutover, semantic parity and performance promotion may proceed as sibling
-proofs; every required sibling must be green before a selfhost producer is
-activated. Exact task tokens and cleanup census remain in the active card.
+Durable order is the exact parameter contract, atomic mixed-Recipe recut, then
+Builder-free physical input. Loop authority cleanup, the VM exact-I64 gate,
+and the LLVM exact-I64 gate are mandatory sibling branches; all three must be
+green before site-keyed Completion, DraftSeal preparation, and session-local
+realization open. One production replacement follows. After the first
+production cutover, semantic parity and performance promotion may proceed as
+sibling proofs; every required sibling must be green before a selfhost
+producer is activated. Exact task tokens and cleanup census remain in the
+active card.
 
 ## Non-negotiable laws
 

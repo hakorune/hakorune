@@ -1,18 +1,32 @@
 # DYNAMIC-FAULT-EXIT-TRANSACTION-D0
 
-Status: logical/fault/flow/operation-demand foundation and the explicit `: i64`
-Completion relation are landed. `PHYSICAL-INPUT-AUTHORITY-I0` remains a design
-stop. Target `CHECKED-DYNAMIC-I64-ABI` is a boundary-local checked ABI plus
-producer-issued representation provenance; current behavior is
-reject-before-effect until the selected corridor, backend matrix, and outer
-carrier disposition are sealed.
+Status: logical/fault/flow/operation-demand foundation and the explicit result
+`: i64` Completion relation are landed. The previous checked-Dynamic return
+corridor is superseded for this bounded method by accepted target A-prime:
+`pos/end: i64 -> exact entry contract -> exact local copy -> mixed typed Recipe
+-> I64 carrier -> ImmediateI64 physicalization`. Production remains
+`NoSafeSlice` until the implementation rows below close. The full tagged
+Dynamic corridor is parked rather than partially implemented.
 Date: 2026-08-10
 Depends on: `LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0` closed
 Authority:
 `language-result-propagation-and-exit-transaction-ssot.md`,
-`dynamic-invocation.md`, and the exact Dynamic V2 semantic program
+`mirbuilder-final-pipeline-ssot.md`,
+`loop-common-physical-demand-and-session-ssot.md`, and the live A-prime
+Decision in this card. `dynamic-invocation.md` remains the authority for the
+I6/I7/I9 Dynamic temporary operations. The landed exact-Dynamic V2 program is
+an input to Slice B's atomic replacement, not a competing selected program.
 
-## Decision
+## Landed pre-A-prime foundation (historical baseline)
+
+The sections in this baseline record the already-landed six-Fault and Dynamic
+induction program that A-prime now replaces. They remain evidence for why the
+old carrier/cleanup/exit owners existed, but they do not select a current task,
+Recipe class, Fault count, lifecycle, or backend policy. The live authority
+starts at `PHYSICAL-INPUT-AUTHORITY-I0 (A-prime accepted; production
+NoSafeSlice)` below.
+
+### Decision
 
 The final direction remains one callable-bounded exit transaction, but it may
 not be implemented as one early mega-product.  The existing owners stay
@@ -35,7 +49,7 @@ opaque forward-or-end obligation without claiming Home. Complete carrier flow
 and the two-Return physical Completion consumer are still missing, so the full
 transaction I0 remains `NoSafeSlice`.
 
-## Corrected Fault census
+### Corrected Fault census
 
 The earlier question listed only the two CallSlots.  The complete unchanged
 `skip_while/4` Recipe has six fault-capable operations:
@@ -54,7 +68,7 @@ I15 DynamicAdd   induction step
 existing selector-independent Dynamic invocation envelope.  Neither contract
 is a concrete runtime Fault value or primary-outcome product.
 
-## Sole-owner table
+### Sole-owner table
 
 | Meaning | Sole owner | Explicit non-owner |
 |---|---|---|
@@ -74,7 +88,7 @@ Fault is never a Recipe value/Exit, JoinSig edge, Completion site, Home, or
 physical-session error.  Compiler session discard is not runtime rollback;
 Dynamic effects before a Fault remain observable.
 
-## Exact cut-point matrix
+### Exact cut-point matrix
 
 Opaque `ch` carrier cleanup exists only after Dynamic carrier flow proves
 normal-only V10 publication and a Live obligation. A source-visible Home
@@ -97,7 +111,7 @@ cleanup is additional and remains unavailable for the unchanged source.
 V10/ch remains iteration-local and is never a Recipe carrier, JoinSig payload,
 or backedge value.
 
-## Failure precedence
+### Failure precedence
 
 The accepted exit chronology is reused without a Dynamic-specific policy:
 
@@ -122,7 +136,7 @@ whole-session discard law and never enters this runtime chronology.
 The future typed outcome must distinguish at least `Primary`, `Cleanup`, and
 `PrimaryWithSuppressedCleanup`; concatenated strings are not authority.
 
-## Final target architecture
+### Final target architecture
 
 ```text
 VerifiedDynamicFullLoopSemanticProgramV2
@@ -154,7 +168,7 @@ flow, and any independently verified Home Flow. It accepts no caller-supplied
 owner, Recipe, JoinSig, Completion, cleanup rows, Fault sites, or physical IDs
 and exposes no `into_parts` escape.
 
-## Ordered task ladder
+### Ordered task ladder
 
 ```text
 1. DYNAMIC-FAULT-CUTPOINT-CATALOG-I0
@@ -196,18 +210,19 @@ and exposes no `into_parts` escape.
 12. PHYSICAL-OPERATION-DEMAND-I0
     CLOSED: whole-program Builder-free demand/prepare
 
-13+. Current and future rows
-    see `Current serial spine and post-cutover DAG` below; that section is the
-    sole live ordering authority for representation, Loop cleanup, session,
-    production cutover, parity, performance, and selfhost activation
+13+. Later rows at the time of this historical receipt
+    were superseded by the live A-prime dependency DAG below; this baseline no
+    longer selects representation, Loop cleanup, session, cutover, parity,
+    performance, or selfhost tasks
 ```
 
 Each implementation row updates its code, focused tests, module README,
 landed reference receipt, active card, and guards in the same slice.
 
-## Dynamic carrier-flow slice (D0/I0)
+### Dynamic carrier-flow slice (D0/I0)
 
-This bounded slice is now implementation-ready.  Its readiness sentence is:
+At that historical point this bounded slice was implementation-ready. Its
+landed readiness sentence was:
 
 ```text
 the whole VerifiedDynamicCarrierRebindTransactionProgramV1
@@ -257,7 +272,7 @@ The package will replace its selected Dynamic rebind field with this whole
 flow product.  No raw flow row, current slot, result ValueId, cleanup token,
 or standalone ingress is exposed to lowering.
 
-## Carrier-flow I0 closeout
+### Carrier-flow I0 closeout
 
 `DYNAMIC-CARRIER-FLOW-D0/I0` is closed as the bounded semantic iteration-flow
 projection.  `issue_dynamic_carrier_flow_program_v1` consumes exactly one
@@ -270,7 +285,7 @@ cleanup execution, Return/After forwarding, Completion consumption, CFG/MIR,
 physical source-ledger progress, retry, or fallback.  This flow now feeds the
 closed cleanup and exit-transaction co-seal chain.
 
-## Carrier cleanup projection (D0/I0 closeout)
+### Carrier cleanup projection (D0/I0 closeout)
 
 `DYNAMIC-EXIT-CLEANUP-PLAN-I0` is closed as a bounded carrier-only
 projection. `issue_dynamic_carrier_cleanup_projection_i0` consumes the whole
@@ -304,7 +319,7 @@ RUSTFLAGS=-Awarnings cargo check -q --lib
 
 The cleanup projection now feeds the closed exit-transaction co-seal.
 
-## Exit-transaction co-seal (D0/I0 closeout)
+### Exit-transaction co-seal (D0/I0 closeout)
 
 `MULTI-RETURN-COMPLETION-CONSUMPTION-D0/I0` and
 `DYNAMIC-EXIT-TRANSACTION-COSEAL-I0` are closed as one consuming logical
@@ -334,7 +349,7 @@ That closeout originally named `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`. The later
 audit below inserted the missing Builder-free physical-input authority rows
 before any session may open.
 
-## Physical session P0 audit (parked parent)
+### Physical session P0 audit (parked parent)
 
 `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` remains parked, not an implementation
 permission. The existing `loop_physical_prepare.rs` and callable physical
@@ -393,7 +408,7 @@ DraftSeal / Collector / publication
 provider or runtime dispatch
 ```
 
-## Physical-input authority bridge D0 (accepted parent boundary)
+### Physical-input authority bridge D0 (accepted parent boundary)
 
 `PHYSICAL-INPUT-AUTHORITY-BRIDGE-D0` was the prior parent design stop. The
 logical package and its exit-transaction co-seal are complete enough to be
@@ -423,7 +438,7 @@ verified products and publish only their same-owner/frame/scope/target
 compatibility.  Until its canonical issuer exists, no `Verified*` or
 `Prepared*` physical receipt is added merely to connect existing fields.
 
-### Owner census
+#### Owner census
 
 | physical concern | current owner / evidence | bridge status |
 | --- | --- | --- |
@@ -443,7 +458,7 @@ production authorities.  They must not be enlarged to absorb the bridge;
 the eventual bridge should live in a new, narrowly owned module or in the
 existing package-to-physical boundary after its source issuer is identified.
 
-### Sole issuer and fail-fast contract
+#### Sole issuer and fail-fast contract
 
 The future bridge issuer must accept exactly one installed-package scoped
 input and the existing source-backed physical capability products.  It must
@@ -465,55 +480,317 @@ Once a fresh session opens, the sole failure policy remains whole unpublished
 function discard exactly once.  Same-session repair, retry, compatibility
 fallback, raw `lower_loop` entry, and AST/MIR re-matching are forbidden.
 
-### Current serial spine and post-cutover DAG
+## PHYSICAL-INPUT-AUTHORITY-I0 (A-prime accepted; production NoSafeSlice)
 
-The current pointer follows only the authority-critical serial spine:
-
-```text
-PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0
-  -> PHYSICAL-INPUT-AUTHORITY-I0
-  -> LOOP-UNIFICATION-AFTER-DYNAMIC-D0
-  -> LOOP-PHYSICAL-IF-COVERAGE-I0
-  -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
-  -> LOOP-PRECUTOVER-AUTHORITY-H2
-  -> DYNAMIC-EXIT-PHYSICAL-SESSION-P0
-  -> H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0
-       selected legacy edge deleted in the same commit
-       retry / fallback = 0
-       first production cutover
-```
-
-After that first production cutover, independent evidence is no longer forced
-into one artificial linear queue:
+The selected design is A-prime. It is one forward authority chain, not a
+checked conversion from a Dynamic carrier:
 
 ```text
-first production cutover
-  +-> required A: H2 reopen -> H2/H3/H5 parity
-  +-> required B: MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
-  +-> cleanup C: topology caller-zero census / deletion
-
-required A + required B
-  -> HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0
+pos/end: i64 source contract
+  -> exact parser parameter transport
+  -> resolved BindingRef relation
+  -> mixed parameter contract and HomeDemand projection
+  -> exact i = pos relation
+  -> mixed typed V2 Recipe
+  -> I64 physical input
+  -> ImmediateI64 fresh-session receipts
+  -> existing two-site Completion
 ```
 
-The Hako result-producer cutover requires H2/H3/H5 parity and the mimalloc
-promotion gate. Broad topology deletion is a cleanup sibling and gates that
-cutover only when an exact selected caller remains. The Hako cutover activates
-one producer and retires the Rust selfhost producer in the same commit; broader
-`.hako` MirBuilder/parser migration follows it.
+The result annotation remains owned by `VerifiedFunctionCompletionV1`; it does
+not classify the carrier. The full tagged Dynamic corridor is parked for a
+future API that genuinely accepts arbitrary Dynamic values. A-prime failure
+returns `NoSafeSlice`; it never auto-opens the tagged corridor, a helper, or a
+fallback.
 
-The JoinSig logical view, Dynamic physical-input view, and complete operation
-demand are already closed and add no Builder effect. The broader callable
-physical-input/session rows remain closed until
-`PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0` closes; Home, runtime Fault,
-retry, and fallback are nonclaims.
+### Caller and API Decision (CLOSED)
 
-The result/ABI boundary is intentionally two-stage: the declared-result
-contract is closed, but the physical Dynamic-to-i64 representation is not.
-No Loop cleanup, physical session, DraftSeal, or production cutover may open
-until the second stage is closed.
+Repository census found one canonical declaration and zero canonical
+production callers. The only tracked `.skip_while(...)` call targets a
+fixture-local shadow declaration. Therefore A-prime is accepted from the
+cursor/bound API meaning, not from caller parity:
 
-## PHYSICAL-INPUT-AUTHORITY-I0 (design stop: Dynamic-to-i64 NoSafeSlice)
+```text
+pos initializes local cursor i
+end is the cursor bound
+i/end feed comparison and substring indices
+i advances by exactly one
+both exits return i
+```
+
+The canonical source change lands atomically with the Recipe recut:
+
+```hako
+skip_while(src, pos: i64, end: i64, pred_chars): i64
+```
+
+There is no method-name inference, general parser-cursor typing rule, or claim
+that `src`/`pred_chars` are I64.
+
+### Four implementation slices
+
+The implementation uses four responsibilities. Child row names below are
+commit/test boundaries, not new public authorities or new task cards.
+
+#### Slice A: A-PRIME-PARAMETER-CONTRACT-I0
+
+Commit A1 — `CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` (BoxShape):
+
+```text
+owner:
+  final callable syntax loan -> resolved callable batch HRTB loan
+
+change:
+  FinalCallableParameterSourceRefV1
+  VerifiedResolvedCallableParameterSourceRefV1
+    retain borrowed declared_type_name
+
+named consumer:
+  CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0
+
+delete:
+  lossy ordinal/name/ordinary-only parameter transport
+```
+
+Primary files are
+`parser/normal_callable_program_source/semantic_syntax_loan.rs` and
+`mir/callable_semantic_batch/model.rs` plus their focused tests. The positive
+case is `[None, i64, i64, None]`; foreign identity, missing/duplicate row,
+parameter-count drift, AST rescan, and name/ordinal repair reject.
+
+Commit A2 — `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0`:
+
+```text
+exact spelling + declaration identity + resolved BindingRef
+  -> package-private parameter contract row
+     OpaqueHandle
+     or ExactTrivial(ExactTrivialParameterAbiV1)
+  -> one-way HomeDemand projection
+     OpaqueHandle -> Handle
+     ExactTrivial -> Trivial
+```
+
+Use one small `src/mir/callable_parameter_contract/` owner with README, model,
+issuer, and tests. The existing `ExactTrivialParameterAbiV1::classify` remains
+the sole spelling classifier. The existing `ParameterEntryContract` remains
+the later runtime checker; it is not constructed before ValueIds exist. The
+mixed selected rows must be exactly:
+
+```text
+src        OpaqueHandle / Handle
+pos        ExactTrivial(I64) / Trivial
+end        ExactTrivial(I64) / Trivial
+pred_chars OpaqueHandle / Handle
+```
+
+This commit deletes the unconditional “all ordinary parameters are Handle”
+decision. The package retains the non-Clone contract; raw batch slots and
+arbitrary constructors remain private.
+
+#### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
+
+This is one atomic BoxCount/semantic replacement commit. It changes the
+canonical source, the sole existing producer, the Fault catalog, and the
+selected lifecycle together. No alternate producer or old/new mode is allowed.
+
+```text
+inputs:
+  V0 src Dynamic        V1 pos I64
+  V2 end I64            V3 pred_chars Dynamic
+
+binding/carrier:
+  B0 induction I64      C0 entry V1:I64
+
+typed replacements:
+  I1  CompareI64(Less) -> V5:Bool
+  I5  BinaryI64(Add)   -> V9:I64
+  I15 BinaryI64(Add)   -> V17:I64
+
+still Dynamic:
+  I6 -> V10 substring result
+  I7 -> V11 indexOf result
+  I9 DynamicLess(V11, V12) -> V13
+
+return/current:
+  V14 / V15 / V17 / After = I64
+```
+
+The V2 schema/verifier already supports the mixed program;
+`typed_schema_v2.rs` is 757 lines and is a no-add surface.
+
+The Fault catalog is atomically replaced:
+
+```text
+old: 6 rows
+new: I6 DynamicInvocation, I7 DynamicInvocation, I9 DynamicLess
+
+execution coverage:
+  NonFaulting = 12
+  FaultBeforeNormalResult = 1
+  ExternallyBoundOutcome = 2
+```
+
+The I64 induction is `ExactI64TrivialNoEnd`. Delete the selected Dynamic
+induction authorities in the same commit:
+
+```text
+operator_carrier_lifecycle/**
+carrier_rebind.rs and tests
+carrier_flow.rs
+ingress.rs / BorrowedIngressNoEnd
+old six-row profile assumptions
+```
+
+Replace `carrier_cleanup.rs` with `dynamic_temporary_cleanup.rs` (target at
+most 300 lines). It owns only V10/V11 temporary cleanup and is consumed by the
+existing exit transaction. I64 induction values receive no End/Home/owned or
+borrowed lifecycle.
+
+Primary touched families are `dynamic_full_body_recipe/{mapping,claims,coseal,
+physical_demand}`, `normal_callable_semantic_package`, the canonical `.hako`
+source, module README, and the MIR/language references. Required negatives
+cover class drift, old Dynamic operations, old+new Fault coexistence, missing
+I6/I7/I9, I64 End, missing temporary cleanup, and JoinSig payload drift.
+
+Update the existing Dynamic authority guards rather than adding one guard per
+child. Production callers of deleted lifecycle issuers and fixed six-row
+constants become zero. `dynamic_full_body_source.rs` (671) and
+`physical_evidence.rs` (649) receive no new responsibility; split first if
+growth would enter the 760 stop band. All Rust source remains below 800 lines.
+
+#### Slice C: A-PRIME-PHYSICAL-CAPABILITY-I0
+
+Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
+
+```text
+final exit/package HRTB view
+  owner/frame/Scope-Region/provenance
+  exact pos/end contracts
+  exact pos -> induction relation
+  mixed Recipe + JoinSig + complete ledger
+  exact 3 Fault rows
+  ExactI64TrivialNoEnd carrier
+  Completion inner site -> I12/V14:I64
+  Completion outer site -> After/current:I64
+  required target capability
+```
+
+It contains no ValueId, BasicBlockId, MIR, helper, PHI token, runtime tag, or
+raw Recipe/JoinSig getter.
+
+After C1, three branches must be green before the session:
+
+```text
+branch 1:
+  LOOP-UNIFICATION-AFTER-DYNAMIC-D0 selected subset
+
+branch 2:
+  A-PRIME-VM-EXACT-I64-ENTRY-I0
+
+branch 3:
+  LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0
+```
+
+VM accepts `VMValue::Integer` under the exact entry contract, then carries
+ImmediateI64 directly. Bool/String/BoxRef/foreign values reject before body
+effect. `ExactNumeric` also rejects in this bounded row until an explicit
+normalization Decision exists; the present checker does not normalize it to an
+Integer carrier.
+
+`LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0` is mandatory before the selected
+cross-backend cutover. It is not a backend-name allowlist edit:
+
+```text
+exact mixed signature
++ every selected call edge proves pos/end ImmediateI64
+  -> Direct
+
+missing/ambiguous edge, wrapper, raw integer/handle ambiguity
+  -> RejectBeforeEffect
+```
+
+The LLVM row owns parameter/call-edge capability only. It must eliminate the
+selected use of ptr/int repair, missing-argument zero, `resolve_i64`, retry, and
+fallback. Primary surfaces are the existing backend-capability owner, MIR/JSON
+call-edge metadata, `llvm_py/builders/function_lower.py`, a split child of the
+approximately 740-line `function_lower_prepass.py`, and
+`instructions/mir_call/global_call.py`. Other backends remain
+RejectBeforeEffect.
+
+#### Slice D: A-PRIME-SESSION-AND-CUTOVER-I0
+
+This slice follows the Loop and backend branches.
+
+Commit D1 — `FUNCTION-COMPLETION-SITE-KEYED-CLAIMS-R0`:
+
+```text
+VerifiedFunctionCompletionV1 explicit sites
+  -> private site-keyed physical claim set
+expected == claimed
+missing/duplicate/foreign/extra/wrong target -> reject
+Fault path -> claim zero
+```
+
+It replaces the selected singleton bool/one-witness consumer; it does not
+create another Completion owner.
+
+Commit D2 — `DRAFT-SEAL-EXIT-PROJECTION-SPLIT-R0` is behavior-neutral. Split
+the 688-line `draft_seal.rs` into `draft_seal/exit_projection.rs` (target at
+most 350) before multi-return growth. Detached prepare remains the sole Return
+writer; commit remains an ownership-only move with fallible work zero.
+
+Commit D3 — `A-PRIME-I64-LOOP-PHYSICAL-SESSION-I0`:
+
+```text
+formal pos/end -> ImmediateI64 receipts
+local i = pos  -> exact-copy receipt
+header/backedge PHI -> every incoming ImmediateI64
+I1/I5/I15 -> typed direct operations
+inner/outer exits -> exact site-keyed block/value claims
+
+DraftSeal prepare:
+  Return(i64) at both normal exits
+  exact Return count = 2
+  synthetic return join / return PHI = 0
+
+any failure:
+  discard whole unpublished function once
+  publication/retry/fallback = 0
+```
+
+Commit D4 is the existing `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`: switch the
+named `ParserScanLoopBox.skip_while/4` production lowering, delete the selected
+legacy edge in the same commit, and close
+`MIRBUILDER-FIRST-PRODUCTION-CUTOVER`.
+
+### Dependency DAG
+
+```text
+Slice A parameter contract
+  -> Slice B atomic Recipe/semantic recut
+  -> Slice C Builder-free input
+       +-> Loop authority cleanup + selected If/Exit coverage
+       +-> VM exact I64 capability
+       +-> LLVM exact I64 capability
+
+all three branches green
+  -> Slice D site claims / DraftSeal split / fresh session / cutover
+```
+
+After first cutover, H2/H3/H5 parity and
+`MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` run as required sibling proofs.
+Both gate `HAKO-CALLABLE-PARAMETER-RESULT-ISSUER-CUTOVER-I0`, which activates
+the Hako producer and retires the Rust selfhost producer in the same commit.
+Broader `.hako` migration follows. Fixed topology hard deletion remains a
+post-cutover caller-zero cleanup.
+
+Production remains `NoSafeSlice` until D4, but the design is accepted and the
+first safe implementation row is `CALLABLE-PARAMETER-TYPE-TRANSPORT-R0`.
+
+## Historical checked-Dynamic return design (SUPERSEDED; non-authoritative)
+
+Everything in this section is retained only as the rejected-alternative audit.
+It must not select a task, type, helper, backend capability, or current pointer.
 
 The declared-result row is now closed: the selected
 `ParserScanLoopBox.skip_while/4` source explicitly declares `: i64`, and the
@@ -1034,7 +1311,7 @@ produce zero. No synthetic return join or PHI is introduced. The package-held
 final program is used directly, transitional source-seed callers reach zero by
 cutover, and retry/fallback remain zero.
 
-### PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
+## PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
 Decision: accepted for the exact selected Dynamic full-body cohort after
 external review and repository-backed owner census. This does not activate a
@@ -1211,8 +1488,11 @@ and retains whole Recipe-order arrays with no single-item selector, V1
 adapter, or raw lookup. Focused demand, dynamic-body, cargo-check, authority,
 pointer, and diff gates are green. Prelude, Tail, ABI, Completion, session,
 DraftSeal, publication, provider/runtime, retry, and fallback stay closed.
+This is the landed pre-A-prime demand; Slice B atomically recuts the same sole
+owner to the mixed-I64 program and exact three-Fault coverage. It is not a
+second production mode.
 
-### LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
+## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (PARKED)
 Decision: the bounded Dynamic cohort can share the existing common Loop core,
 but this is a post-result/ABI BoxShape lane, not a new source authority or
 current execution row. The global task names and order remain owned by
@@ -1235,9 +1515,9 @@ verified Recipe placement
 one complete operation/source-effect ledger
   -> one complete physical demand
 ```
-This parked BoxShape series opens only after
-`PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0` is accepted. Its dependency
-order is fixed and must not be inverted:
+This parked BoxShape series opens after `A-PRIME-PHYSICAL-INPUT-I0` is green.
+VM and LLVM capability are sibling branches and must also be green before the
+fresh session. The Loop dependency order is fixed and must not be inverted:
 
 ```text
 semantic-program co-seal
@@ -1249,9 +1529,10 @@ semantic-program co-seal
   -> physical session / DraftSeal prepare
 ```
 
-The series is not a workaround for the missing checked Dynamic-to-i64
-representation. Broader Always/all-family topology work and fixed-topology
-deletion remain later, after the selected production edge has been cut over.
+The series consumes the accepted mixed-I64 program; it never retypes a
+Dynamic value or reopens parameter classification. Broader Always/all-family
+topology work and fixed-topology deletion remain later, after the selected
+production edge has been cut over.
 
 `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` is the first implementation row. Its
 private traversal may derive item order and segment boundaries only. JoinSig
@@ -1322,15 +1603,15 @@ not a hidden second authority. A missing JoinSig capability or an unavoidable
 row re-pairing is a design stop (`NoSafeSlice`), not a reason to add a lookup,
 fallback, or fixture-specific branch.
 
-Open after the current declared-result and physical-input rows close, and
-before the Dynamic physical-session canary. Hako producer parity/cutover is
-later. This is one bounded refactor series: no accepted shape,
+Open after the A-prime parameter, semantic recut, and physical-input rows
+close, and before the I64 physical-session canary. Hako producer parity/cutover
+is later. This is one bounded refactor series: no accepted shape,
 BoxCount, selector, production switch, legacy deletion, fallback/retry, source
 rescan, profile callback, or new public plan may enter it. Guards require zero
 Recipe transfer/role inference in layout or allocator, zero callable-profile
 counts in the common physicalizer, zero repeated V1 ledger scans, and zero
 synthetic placement keys. Any missing JoinSig capability returns to design with
-`NoSafeSlice`; the current Dynamic-i64 representation D0 owns the active lane.
+`NoSafeSlice`; the current active row remains the first unfinished A-prime row.
 
 #### Selected H2 pre-cutover BoxCount and gate
 
@@ -1370,15 +1651,18 @@ No topology type is hard-deleted while a required pre-cutover caller remains.
 ## Hard stops
 
 ```text
-no Dynamic implies Home
-no runtime tag implies Home
-no empty cleanup as proof of Home absence
-no Fault Recipe value/Exit or JoinSig edge
-no Completion consumption before the multi-return owner lands
-no cleanup/Return/Backedge publication without complete carrier/Home flow
-no physical cleanup/CFG/DraftSeal/collector/publication
-no retry/fallback or source narrowing
-no test-only semantic/Home constructor
+no result annotation implies I64 carrier
+no untyped parameter becomes I64 without the exact parameter-contract chain
+no old Dynamic induction lifecycle survives the mixed-Recipe recut
+no End/Home obligation is attached to the I64 induction
+no Dynamic invocation temporary cleanup is deleted with the induction lifecycle
+no Fault becomes a Recipe value/Exit or JoinSig edge
+no Layout/allocator re-infers transfer or segment role from Recipe
+no VM/LLVM Direct classification without the complete selected receipt
+no Completion consumption before the site-keyed multi-return owner lands
+no physical CFG/DraftSeal/collector/publication before the fresh session
+no retry/fallback, source narrowing, terminal Dynamic-to-I64 helper, or tagged-corridor auto-open
+no test-only semantic, ABI, lifecycle, or backend-capability constructor
 ```
 
 ## File-size plan
@@ -1409,15 +1693,24 @@ dynamic_full_body_recipe/coseal/
   semantic_program/exit_transaction/
     physical_input.rs
     physical_input_tests.rs
-    dynamic_i64_demand.rs             future target <= 350; Builder-free only
+  semantic_program/dynamic_temporary_cleanup.rs  target <= 300
 
-builder/resolved_lowering/dynamic_i64_projection/
-  model.rs                            future session-local IDs only
-  prepare.rs                          future normal/fault realization
+callable_parameter_contract/
+  README.md
+  model.rs
+  issuer.rs
   tests.rs
 
-crates/nyash_kernel/src/exports/primitive.rs
-  strict status/out helper only after D0 acceptance; no sentinel-zero reuse
+builder/resolved_lowering/selected_dynamic_physical_abi.rs
+  session-local ImmediateI64 receipts only; target <= 350
+
+llvm_py/builders/selected_callable_physical_abi.py
+llvm_py/instructions/mir_call/selected_callable_abi.py
+llvm_py/instructions/selected_exact_i64_return.py
+  selected direct ABI only; generic resolver/repair imports forbidden
+
+llvm_py/builders/function_lower_prepass.py      current about 740
+  explicit no-addition surface; delegate to the new preflight module
 
 dynamic_full_body_recipe/physical_demand/
   mod.rs
@@ -1427,5 +1720,6 @@ dynamic_full_body_recipe/physical_demand/
 ```
 
 Split at roughly 650-700 lines, stop adding at 760, and keep 800 as the hard
-limit. Do not add these relations to `typed_schema_v2.rs`, `join_sig/flow.rs`,
-or a standalone public `VerifiedCh*` product.
+limit. Do not add these relations to `typed_schema_v2.rs` (757),
+`join_sig/flow.rs`, the LLVM resolver (about 768), or a standalone public
+`VerifiedCh*` product.
