@@ -2419,6 +2419,14 @@ VerifiedDynamicFullLoopCallRelationsV2
       -> one move-only DynamicV2CallSlotResultReceiptV1
 ```
 
+The CallSlot relation alone is not enough to choose those representation
+lanes: `DynamicMember(selector, arity)` intentionally does not own receiver,
+result, provider, or ABI facts. A separate route/provider capability must be
+co-sealed at the selected physical boundary before the plan may say
+`OpaqueHandle`, `ImmediateI64`, or any other lane. The source target remains a
+message-identity owner; it must not grow a backend/provider field, and the
+physical plan must not become a second provider registry.
+
 The plan must be issued once from the verified relation and must not infer
 meaning from selector text, physical `(block, instruction_index)`, or an
 independent fingerprint. The canonical source dispatch arities are
@@ -2445,8 +2453,26 @@ normal numeric zero must be distinguishable from failure; invalid/stale or
 unsupported carriers must be terminal Faults with no result publication.
 The physical ABI must preserve representation provenance and disposition
 (`Forwarded` versus `EndAuthorized`) without moving cleanup into the CallSlot
-helper. I7/V11, I9/V13, physical End, and production callers are outside this
-design stop.
+helper. The selected invocation contract is `MaySuspend`; therefore a
+`SynchronousNonSuspending` capability is required for this bounded leaf, or
+the call rejects before Builder effect. A suspended result would require a
+separate continuation/resume owner and is outside this slice.
+
+The result-class mismatch is explicit and cannot be hidden by a helper:
+
+```text
+I6  Dynamic receiver + I64/I64 -> V10 Dynamic opaque handle
+I7  Dynamic receiver + V10      -> V11 Dynamic OR a separately accepted I64
+                              (never bare i64 inferred as Dynamic)
+I9  consumes the accepted V11 class together with V12:I64
+```
+
+The current `indexOf` bare-i64 route does not prove the Dynamic V11 contract;
+it remains RejectBeforeEffect until the V11 result class is separately sealed.
+I7/V11, I9/V13, physical End, and production callers are outside this design
+stop, but their result-class decision is a prerequisite for closing the I6
+plan. The String-narrowing alternative is parked as a separate future
+source-contract design; it must not be smuggled into this Dynamic cohort.
 
 Acceptance for closing this row:
 
@@ -2461,7 +2487,18 @@ Acceptance for closing this row:
     JSON remains observation-only and `take_a_prime_i64_physical_receipt()`
     has one live consumer before the emitter is called production-ready
 [ ] explicit receiver/argument/result lanes and representation provenance
+[ ] a separately owned route/provider capability proves each lane; the
+    CallSlot selector/arity alone never upgrades Dynamic to String/Integer
+[ ] V0/V3 formal Dynamic lanes and every V10/V11 producer/rebind carry a
+    HostHandle (or other admitted tag) receipt under the same program/frame/
+    scope brand; bare ValueId/Unknown/raw-i64 conversion is rejected
+[ ] V10 output carries both an admitted result representation and its
+    one-shot lease/discharge capability when the disposition is EndAuthorized
 [ ] strict status distinguishes normal zero from Fault
+[ ] `MaySuspend` is rejected unless a named synchronous capability exists;
+    no implicit continuation or cleanup deferral is introduced
+[ ] I7 bare-i64 helper is not accepted as proof of Dynamic V11; V11 result
+    class is explicitly decided before I7 implementation
 [ ] VM and LLVM each classify Direct | Checked | RejectBeforeEffect
 [ ] V10 value-use and cleanup/discharge capabilities are separate
 [ ] receipt is move-only, session-branded, one-shot, and raw-getter-free
@@ -2476,6 +2513,27 @@ Acceptance for closing this row:
 Until this decision is accepted, the selected Dynamic physical emitter remains
 `RejectBeforeEffect`; no I6 implementation, I7 implementation, or physical
 End implementation may be started.
+
+Implementation DAG after the design stop is accepted (still within this
+rolling card; no extra card is required):
+
+```text
+D0  Dynamic CallSlot wire/status/tag/disposition + provider/synchronous
+    capability + lease/discharge contract; docs/README/tests only
+I0-A wire schema and C/LLVM parity; no runtime dispatch
+I0-B new registry/provider-owned strict runtime dispatcher; no legacy helpers
+I0-C VM checked leaf -> V10 value receipt + separate lease/discharge token
+I0-D LLVM checked leaf -> the same wire, unsupported lanes reject pre-effect
+I0-E unpublished I6/V10 emitter canary; production caller remains zero
+    until I7/V11 result class and physical End are separately closed
+```
+
+The runtime ownership primitive is part of the ABI boundary, not a hidden
+cleanup convention: an `EndAuthorized` result carries a one-shot opaque lease
+and the matching discharge owner consumes it exactly once. `Forwarded` carries
+no fresh lease and identifies the forwarded input lane. A Fault publishes
+neither result nor lease. Suspension is reserved in the wire but rejected in
+this synchronous slice unless a named continuation/resume owner is added.
 
 Implementation boundary to use after this D0 is accepted:
 
