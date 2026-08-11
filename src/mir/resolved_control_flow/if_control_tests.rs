@@ -18,6 +18,13 @@ fn literal(value: i64) -> ASTNode {
     }
 }
 
+fn return_stmt(value: i64) -> ASTNode {
+    ASTNode::Return {
+        value: Some(Box::new(literal(value))),
+        span: Span::unknown(),
+    }
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
@@ -158,6 +165,39 @@ fn nested_if_rows_use_exact_preorder_and_exclusive_coverage() {
         product.if_control(product.rows()[1].site()),
         Some(&product.rows()[1])
     );
+}
+
+#[test]
+fn if_control_authorizes_each_return_in_the_sealed_return_set() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        if_stmt(literal(1), vec![return_stmt(1)], None),
+        return_stmt(2),
+    ]))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 2);
+
+    let control = analyze_resolved_if_control_v1(input, &completion).unwrap();
+    assert_eq!(control.row_count(), 1);
+    assert_eq!(control.coverage_partition_len(), 5);
+}
+
+#[test]
+fn nested_return_without_function_completion_is_rejected_before_if_control() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![if_stmt(
+        literal(1),
+        vec![return_stmt(1)],
+        None,
+    )]))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    assert!(matches!(
+        verify_function_completion_v1(input),
+        Err(
+            super::function_control::FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
+        )
+    ));
 }
 
 #[test]

@@ -432,7 +432,7 @@ struct IfControlRowDraftV1<'source> {
 
 struct IfControlAnalyzerV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
-    authorized_return_site: Option<SourceStmtSiteV1>,
+    authorized_return_sites: Box<[SourceStmtSiteV1]>,
     rows: Vec<Option<IfControlRowDraftV1<'source>>>,
     partition: Vec<IfControlCoverageClaimV1>,
     expression_policy: ExpressionPolicyV1,
@@ -455,7 +455,7 @@ impl<'source> IfControlAnalyzerV1<'source> {
         }
         Ok(Self {
             input,
-            authorized_return_site: completion.explicit_site().cloned(),
+            authorized_return_sites: completion.explicit_sites().to_vec().into_boxed_slice(),
             rows: Vec::new(),
             partition: Vec::new(),
             expression_policy,
@@ -534,7 +534,7 @@ impl<'source> IfControlAnalyzerV1<'source> {
                 self.visit_expression(&value, owner_row)?;
             }
             ASTNode::Return { value, .. } => {
-                if self.authorized_return_site.as_ref() != Some(statement.site()) {
+                if !self.authorized_return_sites.contains(statement.site()) {
                     return Err(ResolvedIfControlErrorV1::UnauthorizedReturn(
                         statement.site().clone(),
                     ));

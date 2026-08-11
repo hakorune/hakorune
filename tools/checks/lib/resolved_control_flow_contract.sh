@@ -224,6 +224,11 @@ PY
     guard_expect_fixed_in_file "$tag" "$anchor" "$flow/$file" \
       "D′ SSA-E0 completion contract drifted: $file:$anchor"
   done
+  guard_expect_fixed_in_file "$tag" 'completion.explicit_sites()' "$if_control" \
+    "D′ SSA-S3 If control must authorize the sealed explicit return set"
+  if rg -n 'authorized_return_site\b' "$if_control"; then
+    guard_fail "$tag" "D′ SSA-S3 If control retained a single explicit return authorization"
+  fi
   for spec in \
     'completion_consumption.rs:ReadyFunctionCompletionV1' \
     'completion_consumption.rs:claim_explicit_return' \
