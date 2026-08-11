@@ -24,8 +24,8 @@ def _valid_function_data():
                 "fallback": False,
                 "retry": False,
                 "parameters": [
-                    {"role": "pos", "formal_parameter_index": 0, "value_id": 10, "lane": "immediate_i64"},
-                    {"role": "end", "formal_parameter_index": 1, "value_id": 11, "lane": "immediate_i64"},
+                    {"role": "pos", "formal_parameter_index": 1, "value_id": 11, "lane": "immediate_i64"},
+                    {"role": "end", "formal_parameter_index": 2, "value_id": 12, "lane": "immediate_i64"},
                 ],
                 "call_edges": [
                     {
@@ -62,7 +62,10 @@ class TestAPrimeI64Capability(unittest.TestCase):
 
     def test_valid_receipt_is_strictly_indexable(self):
         view = load_selected_a_prime_capability(_valid_function_data())
-        self.assertEqual(view.require_parameter("pos").value_id, 10)
+        pos = view.require_parameter("pos")
+        end = view.require_parameter("end")
+        self.assertEqual((pos.formal_parameter_index, pos.value_id), (1, 11))
+        self.assertEqual((end.formal_parameter_index, end.value_id), (2, 12))
         self.assertEqual(view.require_call_edge(1, 4).role, "index_of")
         self.assertEqual(view.require_return("outer").value_id, 31)
 
@@ -82,6 +85,21 @@ class TestAPrimeI64Capability(unittest.TestCase):
 
         data = _valid_function_data()
         data["metadata"]["a_prime_i64_physical_receipt"]["returns"][0]["lane"] = "opaque_handle"
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+    def test_parameter_role_index_mismatch_is_rejected(self):
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["parameters"][0][
+            "formal_parameter_index"
+        ] = 0
+        with self.assertRaises(APrimeI64CapabilityError):
+            load_selected_a_prime_capability(data)
+
+        data = _valid_function_data()
+        data["metadata"]["a_prime_i64_physical_receipt"]["parameters"][1][
+            "formal_parameter_index"
+        ] = 1
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)
 

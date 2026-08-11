@@ -177,6 +177,13 @@ def load_selected_a_prime_capability(
     )
     if {row.role for row in parameters} != {"pos", "end"}:
         raise APrimeI64CapabilityError("parameter roles must be exactly pos/end")
+    expected_indices = {"pos": 1, "end": 2}
+    for row in parameters:
+        if row.formal_parameter_index != expected_indices[row.role]:
+            raise APrimeI64CapabilityError(
+                f"{row.role} must use formal parameter index "
+                f"{expected_indices[row.role]}"
+            )
     if len({row.formal_parameter_index for row in parameters}) != len(parameters):
         raise APrimeI64CapabilityError("duplicate parameter index")
     if len({row.value_id for row in parameters}) != len(parameters):

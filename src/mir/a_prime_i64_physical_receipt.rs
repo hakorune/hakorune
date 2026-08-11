@@ -80,6 +80,7 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
     DuplicateParameterRole,
     DuplicateParameterIndex,
     DuplicateParameterValue,
+    ParameterRoleIndexMismatch,
     ParameterRoleMismatch,
     ParameterLaneMismatch,
     MissingCallEdgeRows,
@@ -148,6 +149,14 @@ impl APrimeI64PhysicalReceiptV1 {
         for row in &self.parameters {
             if !matches!(row.role.as_str(), "pos" | "end") {
                 return Err(APrimeI64PhysicalReceiptRejectV1::ParameterRoleMismatch);
+            }
+            let expected_index = match row.role.as_str() {
+                "pos" => 1,
+                "end" => 2,
+                _ => unreachable!("parameter role checked above"),
+            };
+            if row.formal_parameter_index != expected_index {
+                return Err(APrimeI64PhysicalReceiptRejectV1::ParameterRoleIndexMismatch);
             }
             if !parameter_roles.insert(row.role.as_str()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::DuplicateParameterRole);
@@ -247,14 +256,14 @@ mod tests {
             vec![
                 APrimeI64ParameterReceiptV1 {
                     role: "pos".to_string(),
-                    formal_parameter_index: 0,
-                    value_id: ValueId::new(10),
+                    formal_parameter_index: 1,
+                    value_id: ValueId::new(11),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
                 APrimeI64ParameterReceiptV1 {
                     role: "end".to_string(),
-                    formal_parameter_index: 1,
-                    value_id: ValueId::new(11),
+                    formal_parameter_index: 2,
+                    value_id: ValueId::new(12),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
@@ -304,7 +313,10 @@ mod tests {
 
     #[test]
     fn validates_complete_receipt() {
-        assert!(valid_receipt().validate().is_ok());
+        let receipt = valid_receipt();
+        assert_eq!(receipt.parameters[0].formal_parameter_index, 1);
+        assert_eq!(receipt.parameters[1].formal_parameter_index, 2);
+        assert!(receipt.validate().is_ok());
     }
 
     #[test]
@@ -338,6 +350,23 @@ mod tests {
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::ParameterLaneMismatch)
+        );
+    }
+
+    #[test]
+    fn rejects_swapped_parameter_role_indices() {
+        let mut receipt = valid_receipt();
+        receipt.parameters[0].formal_parameter_index = 0;
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::ParameterRoleIndexMismatch)
+        );
+
+        let mut receipt = valid_receipt();
+        receipt.parameters[1].formal_parameter_index = 1;
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::ParameterRoleIndexMismatch)
         );
     }
 }

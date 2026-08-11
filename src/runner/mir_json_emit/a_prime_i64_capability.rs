@@ -72,14 +72,14 @@ mod tests {
             vec![
                 APrimeI64ParameterReceiptV1 {
                     role: "pos".into(),
-                    formal_parameter_index: 0,
-                    value_id: ValueId::new(1),
+                    formal_parameter_index: 1,
+                    value_id: ValueId::new(2),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
                 APrimeI64ParameterReceiptV1 {
                     role: "end".into(),
-                    formal_parameter_index: 1,
-                    value_id: ValueId::new(2),
+                    formal_parameter_index: 2,
+                    value_id: ValueId::new(3),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
