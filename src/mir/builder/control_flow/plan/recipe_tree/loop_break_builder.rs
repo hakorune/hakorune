@@ -44,11 +44,7 @@ fn should_dedupe_carrier_update(facts: &LoopBreakFacts) -> bool {
 }
 
 /// LoopBreak recipe (arena + root block).
-#[derive(Debug)]
-pub(super) struct LoopBreakRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type LoopBreakRecipe = super::BuiltRecipeTree;
 
 /// Build a RecipeBlock for LoopBreak from Facts.
 ///

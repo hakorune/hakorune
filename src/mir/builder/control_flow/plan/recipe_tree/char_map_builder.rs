@@ -27,11 +27,7 @@ use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// CharMap recipe (arena + root block).
-#[derive(Debug)]
-pub(super) struct CharMapRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type CharMapRecipe = super::BuiltRecipeTree;
 
 /// Build a RecipeBlock for CharMap from Facts.
 ///

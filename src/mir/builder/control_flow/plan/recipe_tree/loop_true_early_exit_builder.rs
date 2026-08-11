@@ -16,11 +16,7 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-#[derive(Debug)]
-pub(super) struct LoopTrueEarlyExitRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type LoopTrueEarlyExitRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_loop_true_early_exit_recipe(
     loop_stmt: &ASTNode,

@@ -14,6 +14,16 @@ pub(in crate::mir::builder) use block::{
     BlockContractKind, BodyId, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
     RecipeBodies, RecipeItem,
 };
+
+/// Route-neutral owned bundle produced by builder-local Recipe constructors.
+///
+/// This is intentionally distinct from the portable verified Recipe artifact:
+/// route builders still own their Facts/AST reconstruction and admission
+/// policy.  The bundle only removes the repeated `{ arena, root }` shell.
+pub(super) struct BuiltRecipeTree {
+    pub arena: RecipeBodies,
+    pub root: RecipeBlock,
+}
 pub(in crate::mir::builder) use join_scope::collect_branch_local_vars_from_block_recursive;
 
 // Builder modules stay private; callers enter through composer/matcher owners.

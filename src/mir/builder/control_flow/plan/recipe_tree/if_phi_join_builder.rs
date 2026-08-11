@@ -21,11 +21,7 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
-#[derive(Debug)]
-pub(super) struct IfPhiJoinRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type IfPhiJoinRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_if_phi_join_recipe(
     loop_stmt: &ASTNode,

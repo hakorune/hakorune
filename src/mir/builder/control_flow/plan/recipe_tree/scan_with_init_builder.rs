@@ -15,11 +15,7 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-#[derive(Debug)]
-pub(super) struct ScanWithInitRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type ScanWithInitRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_scan_with_init_recipe(
     loop_stmt: &ASTNode,

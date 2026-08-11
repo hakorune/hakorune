@@ -22,11 +22,7 @@ fn dummy_var(name: &str) -> ASTNode {
     }
 }
 
-#[derive(Debug)]
-pub(super) struct LoopContinueOnlyRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type LoopContinueOnlyRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_loop_continue_only_recipe(
     loop_stmt: &ASTNode,

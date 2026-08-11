@@ -14,11 +14,7 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-#[derive(Debug)]
-pub(super) struct AccumConstLoopRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type AccumConstLoopRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_accum_const_loop_recipe(
     loop_stmt: &ASTNode,

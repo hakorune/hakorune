@@ -24,11 +24,7 @@ use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
 /// LoopSimpleWhile recipe (arena + root block).
-#[derive(Debug)]
-pub(super) struct LoopSimpleWhileRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type LoopSimpleWhileRecipe = super::BuiltRecipeTree;
 
 /// Build a RecipeBlock for LoopSimpleWhile from Facts.
 ///

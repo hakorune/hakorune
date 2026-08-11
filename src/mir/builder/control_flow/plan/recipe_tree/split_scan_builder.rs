@@ -15,11 +15,7 @@ fn dummy_span() -> Span {
     Span::new(0, 0, 0, 0)
 }
 
-#[derive(Debug)]
-pub(super) struct SplitScanRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type SplitScanRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_split_scan_recipe(
     loop_stmt: &ASTNode,

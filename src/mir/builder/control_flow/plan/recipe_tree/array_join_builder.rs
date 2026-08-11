@@ -22,11 +22,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 
-#[derive(Debug)]
-pub(super) struct ArrayJoinRecipe {
-    pub arena: RecipeBodies,
-    pub root: RecipeBlock,
-}
+pub(super) type ArrayJoinRecipe = super::BuiltRecipeTree;
 
 pub(super) fn build_array_join_recipe(
     loop_stmt: &ASTNode,
