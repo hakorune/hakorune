@@ -11,6 +11,9 @@
 
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
+use super::super::a_prime_source::{
+    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+};
 use super::VerifiedDynamicInvocationCleanupProjectionV1;
 use super::{DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2};
 
@@ -55,6 +58,14 @@ pub(in crate::mir) struct VerifiedDynamicExitTransactionCoSealV1 {
 }
 
 impl VerifiedDynamicExitTransactionCoSealV1 {
+    pub(in crate::mir) fn with_a_prime_source_relation<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
+    ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
+        self.cleanup
+            .with_semantic_program(|semantic| semantic.with_a_prime_source_relation(callback))
+    }
+
     pub(in crate::mir) fn with_physical_input<R>(
         &self,
         callback: impl for<'program> FnOnce(DynamicFullLoopPhysicalInputViewV2<'program>) -> R,

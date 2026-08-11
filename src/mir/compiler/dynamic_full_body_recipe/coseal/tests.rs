@@ -116,6 +116,58 @@ fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
 }
 
 #[test]
+fn a_prime_source_relation_borrows_only_verified_i64_facts() {
+    let fixture = fixture(true);
+    let product =
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
+            .expect("atomic source/Recipe/envelope co-seal");
+
+    let owner = product.source().owner;
+    let scope_region = product.source().scope_region;
+    let observed = product
+        .with_a_prime_source_relation(|view| {
+            assert_eq!(view.owner(), owner);
+            assert_eq!(view.scope_region(), scope_region);
+            assert_eq!(
+                view.pos_class(),
+                super::super::DynamicFullLoopParameterClassV2::I64
+            );
+            assert_eq!(
+                view.end_class(),
+                super::super::DynamicFullLoopParameterClassV2::I64
+            );
+            assert_eq!(view.pos_binding().owner(), owner);
+            assert_eq!(view.end_binding().owner(), owner);
+            assert_eq!(view.induction_binding().owner(), owner);
+            assert_eq!(
+                view.induction_key(),
+                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0)
+            );
+            assert_eq!(
+                view.carrier_key(),
+                crate::mir::loop_recipe_contract::LoopCarrierKeyV1::new(0)
+            );
+            assert_eq!(view.entry_value(), LoopValueKeyV1::new(1));
+            assert_eq!(view.inner_return_value(), LoopValueKeyV1::new(14));
+            assert_eq!(
+                view.outer_tail_binding(),
+                crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0)
+            );
+            assert_eq!(view.completion_sites().len(), 2);
+            (
+                view.pos_binding(),
+                view.end_binding(),
+                view.induction_binding(),
+            )
+        })
+        .expect("A-prime source relation");
+
+    assert_eq!(observed.0.owner(), owner);
+    assert_eq!(observed.1.owner(), owner);
+    assert_eq!(observed.2.owner(), owner);
+}
+
+#[test]
 fn physical_evidence_coseals_exact_placement_operation_and_effect_coverage() {
     let fixture = fixture(true);
     let product =

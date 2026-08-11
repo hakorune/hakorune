@@ -22,6 +22,7 @@ pub(in crate::mir) use coseal::{
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
     DynamicInvocationCarrierPublicationV1, DynamicInvocationCleanupCurrentDispositionV1,
     DynamicInvocationCleanupProjectionRejectV1, DynamicIterationLocalValueRefV2,
+    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
     DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,
     DynamicLoopPhysicalControlViewV2, VerifiedDynamicExitTransactionCoSealV1,
     VerifiedDynamicFullLoopSemanticProgramV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,

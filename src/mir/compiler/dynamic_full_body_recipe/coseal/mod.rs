@@ -1,5 +1,6 @@
 //! Sole atomic full-table source/Recipe/Dynamic-envelope co-seal.
 
+mod a_prime_source;
 mod calls;
 mod coverage;
 mod local;
@@ -13,6 +14,9 @@ use crate::mir::loop_recipe_contract::VerifiedLoopRecipeArtifactV2;
 use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::{DynamicFullLoopRecipeCandidateV2, DynamicFullLoopRetainedSourceV1};
+pub(in crate::mir) use a_prime_source::{
+    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+};
 use calls::{
     verify_dynamic_call_relations_v2, DynamicFullLoopCallRelationRejectV2,
     VerifiedDynamicFullLoopCallRelationsV2,
@@ -75,6 +79,13 @@ pub(in crate::mir) struct VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
 }
 
 impl VerifiedDynamicFullLoopSourceRecipeEnvelopeV2 {
+    pub(in crate::mir) fn with_a_prime_source_relation<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
+    ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
+        a_prime_source::issue(self, callback)
+    }
+
     pub(in crate::mir) fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
         self.iteration_local.borrow(&self.source)
     }

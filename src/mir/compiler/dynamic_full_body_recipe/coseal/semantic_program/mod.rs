@@ -19,6 +19,9 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
+use super::a_prime_source::{
+    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+};
 use super::{DynamicIterationLocalValueRefV2, VerifiedDynamicFullLoopSourceRecipeEnvelopeV2};
 pub(in crate::mir) use exit_transaction::{
     issue_dynamic_exit_transaction_coseal_i0, DynamicExitTransactionCoSealRejectV1,
@@ -123,6 +126,13 @@ impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
 }
 
 impl VerifiedDynamicFullLoopSemanticProgramV2 {
+    pub(in crate::mir) fn with_a_prime_source_relation<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,
+    ) -> Result<R, DynamicAPrimeI64SourceRelationRejectV1> {
+        self.envelope.with_a_prime_source_relation(callback)
+    }
+
     pub(in crate::mir) fn after(&self) -> DynamicFullLoopAfterRefV2<'_> {
         DynamicFullLoopAfterRefV2 {
             control: &self.control,
