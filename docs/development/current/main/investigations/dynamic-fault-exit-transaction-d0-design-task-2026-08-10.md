@@ -1090,6 +1090,54 @@ Production remains `NoSafeSlice` until D4. A1
 `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0` are closed; the current safe
 implementation row is Slice B `A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0`.
 
+#### Production-consumer and finalization audit (2026-08-11)
+
+The A-prime demand is currently a verified Builder-free product with
+test-only callers.  This is intentional pre-cutover state, not production
+SSOT convergence.  The selected Builder adapter still follows the migration
+route
+
+```text
+installed package -> source seed -> raw AST descent -> old JoinIR route
+```
+
+until Slice D supplies the named consumer.  The selected cutover must instead
+consume the package-loaned final program exactly once:
+
+```text
+installed package -> A-prime physical demand -> fresh canonical session
+```
+
+and must delete the selected old edge in the same commit.  Acceptance is
+explicitly:
+
+```text
+selected A-prime demand production callers = 1
+selected package program consumed         = 1
+selected source-seed-only route            = 0
+selected raw JoinIR route                  = 0
+```
+
+The semantic Completion already carries the exact two-site set, while the
+physical consumer is still bounded to one claim and the DraftSeal writer
+explicitly rejects multi-site input.  The next session slice must extend the
+existing Completion consumption owner to source-site-keyed claims, require
+`expected == claimed == 2`, reject missing/duplicate/foreign/extra claims,
+and prepare exactly two normal Return instructions without a synthetic return
+join or Return PHI.  No second Completion owner is allowed.
+
+The canonical DraftSeal path must also reject missing signature-backed result
+types.  The selected A-prime route must have zero callers of name-based
+`infer_return_type` and zero callers of the legacy `finalize_function_draft`;
+the latter may remain only on explicitly isolated compatibility routes until
+their caller-zero retirement gate.  No selected route may repair a type from
+method name, ValueId, raw AST, or a missing-value default.
+
+The module drain/finalization owner remains a target SSOT rather than a claim
+that every production route already uses it.  A separate caller census is
+required before global retirement; it is not a reason to add another finalizer
+or to widen the current VM/LLVM capability slice.
+
 ## Historical checked-Dynamic return design (SUPERSEDED; non-authoritative)
 
 Everything in this section is retained only as the rejected-alternative audit.
@@ -2144,8 +2192,45 @@ the selected production file-size limit. Run:
 bash tools/checks/loop_precutover_authority_guard.sh
 ```
 
-before changing the selected production edge. The next row is
-`DYNAMIC-EXIT-PHYSICAL-SESSION-P0`.
+before changing the selected production edge. The next execution rows are
+the exact-I64 backend branches below; `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`
+remains downstream until both branches close.
+
+The session is downstream of the two exact-I64 backend branches listed in
+the A-prime physical-input contract. It must not open while those branches
+are merely named. The immediate next branch is the VM entry capability; the
+LLVM capability contract follows it and is mandatory before the selected
+cross-backend cutover.
+
+#### A-PRIME-VM-EXACT-I64-ENTRY-I0 — next execution boundary
+
+This row closes the selected VM entry/transport behavior without changing
+GenericLoop or inventing a Dynamic representation. The existing parameter
+entry contract remains the sole source/semantic owner:
+
+```text
+exact VM Integer at the selected pos/end boundary -> Direct ImmediateI64
+wrong/foreign/ambiguous value                    -> RejectBeforeEffect
+ExactNumeric wrapper or IntegerBox               -> RejectBeforeEffect in this cohort
+body effect / session / fallback / retry           -> not reached on reject
+```
+
+The row must provide a producer-issued exact-I64 witness through entry,
+local copy, induction carrier, PHI/backedge, and the two return operands. A
+bare `ValueId`, `MirType::Integer` lookup, sentinel zero, or runtime tag is
+not a witness. The implementation belongs beside the existing backend
+capability owner and focused parameter-entry tests; it must not add a second
+parameter contract or reclassify source semantics.
+
+#### A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 — following mandatory branch
+
+The LLVM branch is required for the selected cross-backend cutover, but it
+does not widen the language representation. An exact mixed signature and
+every selected call edge may be `Direct` only when the producer witness is
+present. A missing/ambiguous edge, wrapper, or raw integer/handle ambiguity
+is `RejectBeforeEffect`. Existing ptr/int repair, missing-argument zero,
+`resolve_i64`, retry, and fallback are forbidden. Other backends remain
+`RejectBeforeEffect` until a separate capability row.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — next implementation boundary
 

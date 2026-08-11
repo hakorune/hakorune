@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "A-prime is accepted and the bounded Builder-free physical demand is landed for the ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport, A2 exact parameter-contract replacement, the mixed typed Recipe/lifecycle recut, the borrowed source-relation view, the selected package loan, the JoinSig transfer authority, the complete ordered operation/source-effect ledger, the common physicalizer boundary cleanup, the fixed-topology/segment caller census, selected I10 branch/merge co-seal, selected I12 Return co-seal, and the selected pre-cutover authority census are closed: pos/end/induction/carrier and I1/I5/I15 are I64, I6/I7/I9 remain Dynamic, and only invocation temporaries retain cleanup. Production remains NoSafeSlice until the exact-I64 VM/LLVM capability gates, fresh unpublished session, site-keyed Completion/DraftSeal claims, and selected cutover close."
+status = "A-prime is accepted and the bounded Builder-free physical demand is landed for the ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport, A2 exact parameter-contract replacement, the mixed typed Recipe/lifecycle recut, the borrowed source-relation view, the selected package loan, the JoinSig transfer authority, the complete ordered operation/source-effect ledger, the common physicalizer boundary cleanup, the fixed-topology/segment caller census, selected I10 branch/merge co-seal, selected I12 Return co-seal, and the selected pre-cutover authority census are closed: pos/end/induction/carrier and I1/I5/I15 are I64, I6/I7/I9 remain Dynamic, and only invocation temporaries retain cleanup. Production remains NoSafeSlice until the VM exact-I64 entry branch, the mandatory LLVM exact-I64 capability branch, the fresh unpublished session, site-keyed Completion/DraftSeal claims, and selected cutover close."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "DYNAMIC-EXIT-PHYSICAL-SESSION-P0 implementation boundary; H2 pre-cutover authority census closed with one explicit legacy migration edge"
+current_design_stop = "A-PRIME-VM-EXACT-I64-ENTRY-I0 implementation boundary; LLVM capability and physical session remain downstream"
 work_mode = "fast"
-current_execution_row = "DYNAMIC-EXIT-PHYSICAL-SESSION-P0"
-current_blocker_token = "Consume the installed package's selected Dynamic loan and already-sealed Builder-free physical demand exactly once in one fresh unpublished session. Close VM Direct|Checked and LLVM Direct|RejectBeforeEffect capability behavior, site-keyed two-site Completion claims, and DraftSeal prepare/commit through a focused child module. Keep ValueId/BasicBlock receipts session-local; retain the single legacy physical edge only as the explicit pre-cutover allowlist; do not delete it, reissue source semantics, add a second planner, use MirType inference, fallback, or retry. Missing capability or relation is NoSafeSlice."
+current_execution_row = "A-PRIME-VM-EXACT-I64-ENTRY-I0"
+current_blocker_token = "Close the selected VM exact-I64 entry/transport capability using the existing parameter-contract owner: producer-issued ImmediateI64 witness through entry, local copy, induction carrier, PHI/backedge, and return operands; wrong, foreign, ambiguous, ExactNumeric-wrapper, or IntegerBox values reject before body effect. Do not infer from ValueId/MirType/name/tag, add a second contract, open a session, change GenericLoop, fallback, or retry. After this row, close the mandatory LLVM Direct|RejectBeforeEffect capability. Only then may the named physical-session consumer connect the currently test-only A-prime demand; the current production route remains source-seed/raw-JoinIR, physical Completion is still one-site, and selected name-based type repair or legacy finalizer use must be zero before cutover."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,9 +719,9 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "DYNAMIC-EXIT-PHYSICAL-SESSION-P0"
+next_design_card = "A-PRIME-VM-EXACT-I64-ENTRY-I0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-EXIT-PHYSICAL-SESSION-P0"
+next_execution_card = "A-PRIME-VM-EXACT-I64-ENTRY-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
