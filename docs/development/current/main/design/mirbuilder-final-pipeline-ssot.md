@@ -181,7 +181,8 @@ A-prime:
   -> exact local copy i = pos
   -> mixed typed Recipe
   -> I64 carrier / operations / returns
-  -> ImmediateI64 VM/LLVM physicalization
+  -> ImmediateI64 AOT/LLVM physicalization
+     Rust VM evidence is reference/compatibility-only and non-gating
 
 not selected here:
   global all-values-as-handles
@@ -210,8 +211,10 @@ session-local realization:
 ```
 
 semantic ownerはsession IDsを持たず、session realizationはresult contract、return
-site、Recipe classを再分類しない。VM/LLVMはexact selected capabilityがあれば
+site、Recipe classを再分類しない。AOT/LLVMはexact selected capabilityがあれば
 `Direct`、なければ`RejectBeforeEffect`であり、A-prime I0に`Checked` helperはない。
+Rust VMはproduction capability、session prerequisite、cutover gateではなく、新しい
+DynamicV2 provider/receipt/representation adapterを追加しない。
 Dynamic temporary Faultとcleanupのprimary/suppressed順序は既存exit transactionが
 所有する。source annotationを理由に既存Dynamic ValueIdへ`MirType::Integer`を
 後付けしてはならない。full tagged Dynamic corridorは将来taskとしてparkし、
@@ -246,11 +249,12 @@ BoxShape laneであり、実行行を先取りしない。詳細なsubtaskとcal
 `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` sectionだけを参照する。
 
 Durable order is the exact parameter contract, atomic mixed-Recipe recut, then
-Builder-free physical input. Loop authority cleanup, the VM exact-I64 gate,
-and the LLVM exact-I64 gate are mandatory sibling branches; all three must be
-green before site-keyed Completion, DraftSeal preparation, and session-local
-realization open. One production replacement follows. After the first
-production cutover, semantic parity and performance promotion may proceed as
+Builder-free physical input. Loop authority cleanup and the AOT/LLVM
+exact-I64 gate are mandatory before site-keyed Completion, DraftSeal
+preparation, and session-local realization open. Rust VM is not a mandatory
+sibling and cannot unlock production. One production replacement follows.
+After the first production cutover, semantic parity and performance
+promotion may proceed as
 sibling proofs; every required sibling must be green before a selfhost
 producer is activated. Exact task tokens and cleanup census remain in the
 active card.
