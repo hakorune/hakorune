@@ -693,7 +693,68 @@ constants become zero. `dynamic_full_body_source.rs` (671) and
 `physical_evidence.rs` (649) receive no new responsibility; split first if
 growth would enter the 760 stop band. All Rust source remains below 800 lines.
 
-#### Slice C: A-PRIME-PHYSICAL-CAPABILITY-I0
+#### A-PRIME-EXACT-I64-PHYSICAL-CAPABILITY-D0 (live design child; no new card)
+
+Status: DESIGN STOP. The mixed Recipe has already closed the semantic shape;
+this child decides only the physical capability required before a fresh
+session. It does not open a Dynamic-to-I64 conversion corridor.
+
+The sole accepted A-prime chain is:
+
+```text
+pos/end: i64 source contract
+  -> existing FunctionEntryContract / resolved BindingRef rows
+  -> exact local copy (i = pos)
+  -> mixed typed Recipe (I64 induction/carrier)
+  -> I64 JoinSig/After and exact two Completion operands
+  -> Builder-free physical demand
+  -> fresh session ImmediateI64 realization
+```
+
+The Builder-free issuer is the existing final package physical-input spine:
+`VerifiedDynamicExitTransactionCoSealV1` lends one HRTB-bounded demand view.
+It owns no `ValueId`, `BasicBlockId`, MIR instruction, helper call, or backend
+implementation. The fresh-session owner later materializes those facts; it
+does not reclassify source meaning.
+
+The target-aware capability matrix is deliberately narrow:
+
+```text
+parameter entry:
+  exact i64 contract + exact selected call edge -> Direct
+  wrong/ambiguous/unsupported representation   -> RejectBeforeEffect
+
+local copy / induction PHI / backedge:
+  every incoming exact I64 -> Direct
+  any missing or mixed incoming -> RejectBeforeEffect
+
+I6/I7 call arguments:
+  mixed Recipe classes and exact I64 pos/end edge -> Direct selected edge
+  wrapper, missing metadata, or repair-only edge -> RejectBeforeEffect
+
+inner/outer return:
+  exact Completion-site operands are I64 -> Direct
+  anything else -> RejectBeforeEffect
+```
+
+VM and LLVM consume the same demand; neither may be replaced by `resolve_i64`,
+missing-value zero, ptr/int repair, runtime tag inference, or a backend-name
+allowlist. This corridor needs no Dynamic-to-I64 helper, IntegerBox handle, or
+tagged carrier. `Dynamic` remains only the I6/I7 temporary result family and is
+never returned by this Recipe.
+
+Required rejection cases are missing/foreign/duplicate/ambiguous parameter,
+local-copy, carrier/PHI, call-edge, or Completion evidence; wrong value class;
+unsupported backend; and any attempt to consume a raw `ValueId` before the
+fresh session. `VerifiedFunctionCompletionV1` remains the sole result/site
+owner, GenericLoop and TypeOp remain unchanged, and fallback/retry remain zero.
+
+This child is accepted for implementation only after the issuer and VM/LLVM
+matrix are documented with focused positive/negative tests. Until then the
+current behavior is `RejectBeforeEffect` and the parent row remains a design
+stop.
+
+#### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
 
 Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
 
@@ -723,7 +784,7 @@ branch 2:
   A-PRIME-VM-EXACT-I64-ENTRY-I0
 
 branch 3:
-  LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0
+  A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0
 ```
 
 VM accepts `VMValue::Integer` under the exact entry contract, then carries
@@ -732,7 +793,7 @@ effect. `ExactNumeric` also rejects in this bounded row until an explicit
 normalization Decision exists; the present checker does not normalize it to an
 Integer carrier.
 
-`LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0` is mandatory before the selected
+`A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0` is mandatory before the selected
 cross-backend cutover. It is not a backend-name allowlist edit:
 
 ```text

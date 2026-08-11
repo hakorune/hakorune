@@ -159,13 +159,14 @@ H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0
   closed historical row: package is the sole Dynamic classifier
 
 DYNAMIC-CALLABLE-RESULT-CONTRACT-I0
-  CURRENT: add `: i64` to the canonical production declaration and prove the
+  CLOSED: add `: i64` to the canonical production declaration and prove the
   existing resolved input reaches VerifiedFunctionCompletionV1 as
   Annotated("i64") with the exact two return sites; no sibling result receipt
 
 PHYSICAL-INPUT-AUTHORITY-I0
-  project one ABI and co-seal Prelude/Tail with the exact multi-site
-  Completion/operand set plus exact Dynamic-to-i64 conformance before effects
+  CURRENT DESIGN STOP: project the already typed A-prime entry/local-copy/
+  carrier/PHI/call-edge facts into one Builder-free exact-I64 demand; no
+  Dynamic-to-i64 conformance or tagged corridor is opened
 
 LOOP-UNIFICATION-AFTER-DYNAMIC-D0
   BoxShape semantic/transfer/ledger/common-boundary cleanup and topology census
