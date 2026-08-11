@@ -51,9 +51,9 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
 mod tests {
     use super::*;
     use crate::mir::a_prime_i64_physical_receipt::{
-        APrimeI64BackendFamilyV1, APrimeI64CallArgumentReceiptV1,
-        APrimeI64CallEdgeReceiptV1, APrimeI64LaneV1, APrimeI64ParameterReceiptV1,
-        APrimeI64ReturnReceiptV1, APrimeI64PhysicalReceiptV1,
+        APrimeI64BackendFamilyV1, APrimeI64CallArgumentReceiptV1, APrimeI64CallEdgeReceiptV1,
+        APrimeI64LaneV1, APrimeI64ParameterReceiptV1, APrimeI64PhysicalReceiptV1,
+        APrimeI64ReturnReceiptV1,
     };
     use crate::mir::{BasicBlockId, ValueId};
 
@@ -83,10 +83,7 @@ mod tests {
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
-            vec![
-                call("substring", 4),
-                call("index_of", 5),
-            ],
+            vec![call("substring", 4), call("index_of", 5)],
             vec![
                 APrimeI64ReturnReceiptV1 {
                     site: "inner".into(),
