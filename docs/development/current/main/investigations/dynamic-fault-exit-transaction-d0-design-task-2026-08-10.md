@@ -2528,14 +2528,36 @@ The next execution row is:
 DYNAMIC-V2-PHYSICAL-EMITTER-I0
 ```
 
-It is preflight-first: construct the move-only V2-native plan/ledger and
-reject before the first Builder effect when DynamicLess, CallSlot result, or
-temporary-cleanup capability receipts are unavailable.
+It is preflight-first. The first bounded sub-slice is recorded below; the
+remaining I0 work must still construct the complete private V2 ledger and
+named capability gates before any session effect.
 
 Until this row is accepted and implemented, the selected Dynamic fresh-session
 canary remains `NoSafeSlice`. Do not call the old raw JoinIR route a canary and
 do not promote the package adapter. This is a BoxShape/authority boundary,
 not a reason to add a compatibility fallback.
+
+#### DYNAMIC-V2-PHYSICAL-EMITTER-PREFLIGHT-S0 — landed
+
+The selected package loan now has one Builder-free preflight entry point:
+
+```text
+issue_selected_dynamic_v2_emission_plan(A-prime demand)
+  -> move-only V2-native schedule plan
+```
+
+This slice consumes the A-prime demand once, lends the sole co-sealed
+`PreparedDynamicLoopOperationProgramV2` only while validating the plan, and
+records the bounded 15-operation schedule across the pre-I10, terminal, and
+continuation segments. It validates the complete 17/15/1/3 coverage counts,
+CallSlot membership, and the exact I10 then-Return/else-Fallthrough shape.
+
+The plan is intentionally not yet the full I0 ledger: placement owner/block
+rows, site-keyed two-site Completion claims, emitted receipts, and the named
+DynamicLess/temporary-cleanup physical capabilities remain downstream work.
+No Builder/session/ValueId/BasicBlock effect, production caller, V1 adapter,
+raw Recipe/JoinIR route, fallback, or retry is introduced. The selected canary
+therefore remains `NoSafeSlice` until the remaining I0 gates are closed.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

@@ -146,6 +146,77 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
 }
 
 #[test]
+fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let demand = crate::mir::compiler::a_prime_i64_physical_capability::
+            issue_selected_a_prime_i64_physical_demand(&input)
+            .expect("selected Dynamic A-prime demand");
+        let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
+            .expect("selected V2 preflight plan");
+        assert_eq!(plan.schedule_rows().len(), 15);
+        assert_eq!(
+            plan.schedule_rows()
+                .iter()
+                .filter(|row| {
+                    matches!(
+                        row.segment(),
+                        crate::mir::builder::resolved_lowering::
+                            DynamicV2PhysicalScheduleSegmentV1::Prelude
+                    )
+                })
+                .count(),
+            10
+        );
+        assert_eq!(
+            plan.schedule_rows()
+                .iter()
+                .filter(|row| {
+                    matches!(
+                        row.segment(),
+                        crate::mir::builder::resolved_lowering::
+                            DynamicV2PhysicalScheduleSegmentV1::ThenTerminal
+                    )
+                })
+                .count(),
+            1
+        );
+        assert_eq!(
+            plan.schedule_rows()
+                .iter()
+                .filter(|row| {
+                    matches!(
+                        row.segment(),
+                        crate::mir::builder::resolved_lowering::
+                            DynamicV2PhysicalScheduleSegmentV1::Continuation
+                    )
+                })
+                .count(),
+            4
+        );
+    })
+    .expect("selected V2 preflight plan loan");
+}
+
+#[test]
 fn package_scoped_loan_retains_exact_parameter_contract() {
     let package = issue("static box Api { run(source, pos: i64, end: i64, tail) { return pos } }")
         .expect("typed parameter package");

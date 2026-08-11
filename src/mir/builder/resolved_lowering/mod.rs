@@ -26,11 +26,17 @@ mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
 mod ownership;
+mod selected_dynamic_physical_abi;
 mod semantic_stack;
 mod trivial_ssa;
 
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
+};
+pub(in crate::mir) use selected_dynamic_physical_abi::{
+    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleRowV1,
+    DynamicV2PhysicalScheduleSegmentV1, PreparedSelectedDynamicV2EmissionPlanV1,
+    SelectedDynamicV2PhysicalPlanRejectV1,
 };
 
 #[cfg(test)]

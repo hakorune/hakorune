@@ -26,6 +26,23 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
+## Current selected Dynamic V2 preflight
+
+The selected A-prime demand is a source/parameter/identity wrapper around the
+single co-sealed `PreparedDynamicLoopOperationProgramV2`. It is not a second
+physical-demand authority. The current `selected_dynamic_physical_abi` module
+consumes that demand once and issues a Builder-free, move-only V2-native
+preflight plan. The plan validates the complete operation order, source-role
+projection, CallSlot relation, and the bounded I10 disposition without
+opening a session or allocating `ValueId`/`BasicBlockId`.
+
+This is deliberately a preflight slice, not a production emitter. A later
+session handoff must consume the private plan ledger and provide named
+`DynamicLess` normal-result and Dynamic temporary-cleanup capabilities. Until
+those receipts exist, the selected canary rejects before the first Builder
+effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
+fallback, and retry are not valid alternatives.
+
 ## Canonical V2 function finish
 
 The three canonical V2 profile lowerers (`trivial_ssa`, `direct_accum`, and
