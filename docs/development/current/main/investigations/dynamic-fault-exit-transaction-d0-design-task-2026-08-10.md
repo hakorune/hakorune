@@ -2424,7 +2424,8 @@ terminal
   Return writer: draft_seal/exit_projection.rs only
 ```
 
-The implementation API is intentionally two-stage and move-only:
+The landed I8 canary uses the following consuming handoff; the older
+`plan.emit_into(...)` sketch is superseded and must not be implemented:
 
 ```text
 issue_selected_dynamic_v2_emission_plan(demand)
@@ -2432,18 +2433,30 @@ issue_selected_dynamic_v2_emission_plan(demand)
      Builder effect = 0
      no raw Recipe/JoinSig/ValueId escape
 
-plan.emit_into(&mut CanonicalSsaFunctionSessionV2)
-  -> PreparedSelectedDynamicV2EmissionReceipt
-     session-local ValueId/BasicBlockId/PHI ownership
+DynamicV2PhysicalEmissionSessionV1::begin(
+    plan,
+    canonical_function_session,
+    canonical_ssa_session,
+  )
+  -> unpublished session owner
+     canonical CFG/SSA ownership
+
+session.emit_i8_const()
+  -> one session-branded, move-only I8 receipt
+
+session.discard_unpublished()
+  -> terminal discard; no production caller
 ```
 
-The private `V2NativeEmissionLedger` is the only in-session ledger.  It has
+The private `DynamicV2NativePreflightLedgerV1` is the only pre-session ledger.
+It has
 exactly 17 placement rows, 15 operation rows, one If row, one Exit row, the
 three selected Dynamic Fault rows (I6/I7/I9), per-item emitted/producer
-receipt state, and the two site-keyed Completion claims.  It has no name,
+evidence state, and the two site-keyed Completion claims.  It has no name,
 ordinal, zip, or repair lookup and is discarded with the unpublished session
-on any failure.  `finish()` is exactly-once and cannot expose a second value
-map.
+on any failure.  The I8 leaf consumes only its exact evidence row; I7, End,
+and the complete session finish remain downstream and cannot expose a second
+value map.
 
 The physical plan must not create a one-to-one `LoopBlockKey -> BasicBlock`
 map: the verified V2 body places operations on a logical body block around the
@@ -2765,14 +2778,23 @@ selected_dynamic_loan_issues_one_v2_native_preflight_plan = green
 selected_v2_capability_admission_is_all_or_nothing_before_effect = green
 DynamicV2NativePreflightLedgerV1::Clone = 0
 source-role physical segment selection = 0
-production caller / fresh session = 0
+production caller = 0
+fresh production session = 0
+selected-fixture I8 canonical unpublished-session canary = green
 ```
 
-Non-claims: no I7/I8 producer receipt, physical End leaf, fresh ValueId or
-BasicBlock session, Completion consumption, production caller, fallback, or
-retry is closed by this row.
+Non-claims: I7/physical End producer receipts, strict post-session receipt
+transport, Completion consumption, production caller, fallback, and retry are
+not closed by this row.
 
-#### DYNAMIC-V2-PHYSICAL-EMITTER-I0 — next implementation row
+The I8 canary is now landed as a consuming handoff: it owns the canonical
+unpublished function/SSA/CFG session, creates the Prelude block through the
+canonical CFG owner, and issues one session-branded move-only
+`DynamicV2I64ProducerReceiptV1`. It remains a canary only; strict
+post-session receipt transport, I7, physical End, Completion consumption,
+production caller, fallback, and retry remain open.
+
+#### DYNAMIC-V2-PHYSICAL-EMITTER-I0 — active implementation row
 
 This is the sole next implementation row after the capability admission
 closeout. It is still pre-production and must stay inside the selected V2
@@ -2786,9 +2808,11 @@ The I8 producer consumes the co-sealed placement/control schedule and a
 session-issued opaque segment target, emits exactly `ConstI64(0) -> V12`
 through the canonical integer emitter, and issues one move-only
 `DynamicV2I64ProducerReceiptV1` only after successful emission. It verifies the
-exact I8 item/result/value, session/program/frame/scope/provenance brand,
+exact I8 item/result/value, selected package owner, session-branded target,
 `ImmediateI64` representation, and duplicate/foreign/type-conflict rejection
-before effect. It must not accept a raw `BasicBlockId`, rescan Recipe/source
+before effect. Frame/scope/provenance co-seal and foreign same-owner
+plan/session negatives remain P1 hardening before I7/End. It must not accept a raw
+`BasicBlockId`, rescan Recipe/source
 roles, expose raw `ValueId`, add a V1 adapter, or create a production caller.
 Its legal test ingress is a real selected-fixture unpublished-session canary,
 not a `cfg(test)` semantic constructor and not a capability-gate bypass. The

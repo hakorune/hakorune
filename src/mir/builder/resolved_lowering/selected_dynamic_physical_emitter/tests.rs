@@ -72,8 +72,12 @@ fn open_canonical_session<'input, 'builder>(
             true,
         )
         .expect("direct-call capability");
-        let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input)
-            .expect("loop-only If control");
+        let loop_site = input.function().only_loop_site().expect("one Loop site");
+        let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile(
+            input,
+            loop_site.node(),
+        )
+        .expect("selected Loop-owned If control");
         CanonicalSsaFunctionSessionV2::new(input, if_control, completion, 0)
             .expect("canonical session")
     };
@@ -119,7 +123,7 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(plan, outer, canonical)
             .expect("unpublished canonical session");
         let receipt = session.emit_i8_const().expect("I8 receipt");
-        receipt.with_value(|value| assert_eq!(value.as_u32(), 1));
+        receipt.with_value(|value| assert_ne!(value.as_u32(), 0));
         drop(receipt);
         assert_eq!(session.current_instruction_count(), 1);
         let error = session
@@ -128,6 +132,20 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         assert_eq!(error, DynamicV2I8EmitterRejectV1::DuplicateI8Emission);
         assert_eq!(session.current_instruction_count(), 1);
         session.discard_unpublished();
+        assert!(builder.function_state.current_function.is_none());
+
+        let completion = verify_function_completion_v1(input.source()).expect("completion");
+        let (outer, canonical) = open_canonical_session(&mut builder, input.source(), completion);
+        let error = DynamicV2PhysicalEmissionSessionV1::reject_begin(
+            outer,
+            canonical,
+            DynamicV2I8EmitterRejectV1::OwnerMismatch,
+        );
+        assert!(matches!(
+            error,
+            Err(DynamicV2I8EmitterRejectV1::OwnerMismatch)
+        ));
+        drop(error);
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("selected loan");

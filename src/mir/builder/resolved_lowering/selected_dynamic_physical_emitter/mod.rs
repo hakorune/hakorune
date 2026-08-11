@@ -58,6 +58,16 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
 }
 
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
+    fn reject_begin(
+        outer: CanonicalFunctionLoweringSessionV1<'builder>,
+        canonical: CanonicalSsaFunctionSessionV2<'program>,
+        error: DynamicV2I8EmitterRejectV1,
+    ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
+        drop(canonical);
+        outer.discard_unpublished();
+        Err(error)
+    }
+
     /// Consume the plan and both canonical unpublished owners.
     pub(super) fn begin(
         plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
@@ -66,11 +76,18 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         if canonical.owner() != demand.identity().owner() {
-            return Err(DynamicV2I8EmitterRejectV1::OwnerMismatch);
+            return Self::reject_begin(outer, canonical, DynamicV2I8EmitterRejectV1::OwnerMismatch);
         }
-        let evidence = ledger
-            .take_i8_evidence()
-            .ok_or(DynamicV2I8EmitterRejectV1::MissingI8Evidence)?;
+        let evidence = match ledger.take_i8_evidence() {
+            Some(evidence) => evidence,
+            None => {
+                return Self::reject_begin(
+                    outer,
+                    canonical,
+                    DynamicV2I8EmitterRejectV1::MissingI8Evidence,
+                )
+            }
+        };
         if schedule
             .iter()
             .filter(|row| row.item() == evidence.item())
@@ -78,12 +95,24 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             != 1
             || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
         {
-            return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
+            return Self::reject_begin(
+                outer,
+                canonical,
+                DynamicV2I8EmitterRejectV1::TargetMismatch,
+            );
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
-        let prelude_block = canonical
-            .create_unpublished_block(outer.builder_view_mut_for_lowering())
-            .map_err(DynamicV2I8EmitterRejectV1::BlockAllocation)?;
+        let prelude_block =
+            match canonical.create_unpublished_block(outer.builder_view_mut_for_lowering()) {
+                Ok(block) => block,
+                Err(error) => {
+                    return Self::reject_begin(
+                        outer,
+                        canonical,
+                        DynamicV2I8EmitterRejectV1::BlockAllocation(error),
+                    )
+                }
+            };
         let target_brand = Arc::clone(&brand.0);
         Ok(Self {
             outer: Some(outer),
