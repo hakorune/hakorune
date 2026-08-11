@@ -11,7 +11,7 @@
 
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
-use super::carrier_rebind::VerifiedDynamicCarrierCleanupProjectionV1;
+use super::VerifiedDynamicInvocationCleanupProjectionV1;
 use super::{DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,7 +49,7 @@ const EXIT_TRANSACTION_ROUTE_COUNT_V1: usize = 2;
 
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedDynamicExitTransactionCoSealV1 {
-    cleanup: VerifiedDynamicCarrierCleanupProjectionV1,
+    cleanup: VerifiedDynamicInvocationCleanupProjectionV1,
     routes: [DynamicExitTransactionRouteV1; EXIT_TRANSACTION_ROUTE_COUNT_V1],
     target: DynamicCallableFunctionExitTargetV1,
 }
@@ -64,7 +64,7 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn current(&self) -> super::DynamicCarrierCurrentDispositionV1 {
+    pub(in crate::mir) fn current(&self) -> super::DynamicInvocationCleanupCurrentDispositionV1 {
         self.cleanup.current()
     }
 
@@ -79,15 +79,17 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn cleanup(&self) -> &VerifiedDynamicCarrierCleanupProjectionV1 {
+    pub(in crate::mir) fn cleanup(&self) -> &VerifiedDynamicInvocationCleanupProjectionV1 {
         &self.cleanup
     }
 }
 
 pub(in crate::mir) fn issue_dynamic_exit_transaction_coseal_i0(
-    cleanup: VerifiedDynamicCarrierCleanupProjectionV1,
+    cleanup: VerifiedDynamicInvocationCleanupProjectionV1,
 ) -> Result<VerifiedDynamicExitTransactionCoSealV1, DynamicExitTransactionCoSealRejectV1> {
-    let sites = cleanup.completion_sites();
+    let Some(sites) = cleanup.completion_sites() else {
+        return Err(DynamicExitTransactionCoSealRejectV1::CompletionCoverage);
+    };
     if sites[0] == sites[1] {
         return Err(DynamicExitTransactionCoSealRejectV1::CompletionCoverage);
     }
@@ -126,28 +128,15 @@ mod tests {
     use super::*;
     use crate::mir::compiler::dynamic_full_body_recipe::coseal::tests::fixture;
     use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
-        issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
-        issue_dynamic_carrier_ingress_lifecycle_program_v1,
-        issue_dynamic_carrier_rebind_transaction_program_v1,
         issue_dynamic_full_loop_semantic_program_v2,
         issue_dynamic_full_loop_source_recipe_envelope_v2,
         issue_dynamic_invocation_carrier_lifecycle_program_v1,
-        issue_dynamic_operator_carrier_lifecycle_program_v1,
+        issue_dynamic_invocation_cleanup_projection_i0,
     };
     use crate::mir::compiler::dynamic_full_body_recipe::issue_dynamic_full_loop_operation_physical_demand_v2;
-    use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodyBindingRoleV1;
-    use crate::mir::resolved_semantics::HomeDemandV1;
 
     fn exact_coseal() -> VerifiedDynamicExitTransactionCoSealV1 {
         let fixture = fixture(true);
-        let parameter_binding = fixture
-            .candidate
-            .source
-            .bindings
-            .iter()
-            .find(|row| row.role() == DynamicFullBodyBindingRoleV1::Pos)
-            .expect("pos binding")
-            .binding();
         let envelope =
             issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
                 .expect("source/Recipe envelope");
@@ -155,20 +144,8 @@ mod tests {
             issue_dynamic_full_loop_semantic_program_v2(envelope).expect("semantic program");
         let invocation = issue_dynamic_invocation_carrier_lifecycle_program_v1(semantic)
             .expect("invocation lifecycle");
-        let operator = issue_dynamic_operator_carrier_lifecycle_program_v1(invocation)
-            .expect("operator lifecycle");
-        let ingress = issue_dynamic_carrier_ingress_lifecycle_program_v1(
-            operator,
-            1,
-            parameter_binding,
-            HomeDemandV1::Handle,
-        )
-        .expect("ingress lifecycle");
-        let rebind =
-            issue_dynamic_carrier_rebind_transaction_program_v1(ingress).expect("rebind relation");
-        let flow = issue_dynamic_carrier_flow_program_v1(rebind).expect("carrier flow");
-        let cleanup =
-            issue_dynamic_carrier_cleanup_projection_i0(flow).expect("cleanup projection");
+        let cleanup = issue_dynamic_invocation_cleanup_projection_i0(invocation)
+            .expect("invocation cleanup projection");
         issue_dynamic_exit_transaction_coseal_i0(cleanup).expect("exit transaction co-seal")
     }
 
@@ -221,7 +198,7 @@ mod tests {
                 );
                 assert_eq!(input.control().rows().len(), 1);
                 assert_eq!(input.control().logical().branches().len(), 1);
-                assert_eq!(input.faults().rows().len(), 6);
+                assert_eq!(input.faults().rows().len(), 3);
             })
             .expect("final exit co-seal physical input");
     }
@@ -239,11 +216,11 @@ mod tests {
                 assert_eq!(coverage.operation_count(), 15);
                 assert_eq!(coverage.placement_count(), 17);
                 assert_eq!(coverage.control_count(), 1);
-                assert_eq!(coverage.fault_count(), 6);
+                assert_eq!(coverage.fault_count(), 3);
                 assert_eq!(prepared.operation_rows().len(), 15);
                 assert_eq!(prepared.placement_rows().len(), 17);
                 assert_eq!(prepared.control().rows().len(), 1);
-                assert_eq!(prepared.faults().rows().len(), 6);
+                assert_eq!(prepared.faults().rows().len(), 3);
             })
             .expect("physical demand HRTB loan");
     }

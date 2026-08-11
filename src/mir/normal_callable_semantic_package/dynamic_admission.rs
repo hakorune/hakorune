@@ -2,11 +2,11 @@ use crate::mir::builder::{
     issue_source_backed_dynamic_callable_v1, VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    produce_dynamic_full_loop_recipe_v2, DynamicFullLoopRecipeCandidateV2,
-    DynamicFullLoopRecipeProducerRejectV2,
+    DynamicFullLoopParameterContractV2, DynamicFullLoopRecipeProducerRejectV2,
 };
 use crate::mir::compiler::dynamic_full_body_source::{
     DynamicFullBodySourceIssueV1, DynamicFullBodySourceIssuerV1,
+    VerifiedDynamicLoopFullBodySourceInventoryV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_control_flow::{
@@ -32,7 +32,7 @@ pub(super) enum DynamicCallableAdmissionV1 {
     Candidate {
         owner: FunctionOwnerIdV1,
         source: VerifiedSourceBackedDynamicCallableV1,
-        recipe: DynamicFullLoopRecipeCandidateV2,
+        inventory: VerifiedDynamicLoopFullBodySourceInventoryV1,
         calls: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
     },
     Declined(DynamicCallableDeclineV1),
@@ -96,16 +96,44 @@ pub(super) fn admit_dynamic_callable_v1(
     // reissuing it from the resolved AST a second time.
     let source_backed = issue_source_backed_dynamic_callable_v1(input)
         .map_err(DynamicCallableAdmissionIssueV1::SourceBacked)?;
-    let recipe = produce_dynamic_full_loop_recipe_v2(source)
-        .map_err(DynamicCallableAdmissionIssueV1::Recipe)?;
     let calls = issue_source_bound_dynamic_member_calls_v1(input)
         .map_err(DynamicCallableAdmissionIssueV1::Calls)?;
     Ok(DynamicCallableAdmissionV1::Candidate {
         owner,
         source: source_backed,
-        recipe,
+        inventory: source,
         calls,
     })
+}
+
+pub(super) fn issue_dynamic_parameter_contract_v2(
+    rows: &[super::model::OwnedCallableParameterContractV1],
+) -> Result<DynamicFullLoopParameterContractV2, DynamicCallableAdmissionIssueV1> {
+    let rows = rows
+        .iter()
+        .map(|row| {
+            let class = match row.kind {
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle => {
+                    crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::Dynamic
+                }
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) => {
+                    if abi != crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64 {
+                        return Err(DynamicCallableAdmissionIssueV1::Recipe(
+                            DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch,
+                        ));
+                    }
+                    crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::I64
+                }
+            };
+            Ok(crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterContractRowV2 {
+                ordinal: row.ordinal,
+                binding: row.binding,
+                class,
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
+    Ok(DynamicFullLoopParameterContractV2::new(rows))
 }
 
 enum ClassifiedDynamicSourceIssueV1 {

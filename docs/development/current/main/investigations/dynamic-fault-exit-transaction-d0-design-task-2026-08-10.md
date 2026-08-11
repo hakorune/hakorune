@@ -603,6 +603,8 @@ Next: Slice B is the only current semantic replacement row.
 
 #### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
 
+Status: CLOSED (I0 landed)
+
 This is one atomic BoxCount/semantic replacement commit. It changes the
 canonical source, the sole existing producer, the Fault catalog, and the
 selected lifecycle together. No alternate producer or old/new mode is allowed.
@@ -1083,7 +1085,7 @@ selected producer and backend cell has a canonical issuer. Adding
 forbidden. This question belongs to the existing physical-input row; it does
 not create a new task card.
 
-The existing six-row Fault catalog remains the exact Recipe-operation catalog.
+The current three-row Fault catalog remains the exact Recipe-operation catalog.
 A checked return projection is a callable-terminal sibling keyed by the exact
 Completion site; it is never inserted as a Recipe item, JoinSig edge, or a
 seventh operation row. The final callable exit transaction must co-seal that
@@ -1414,9 +1416,10 @@ retained binding rows        = 6
 retained source rows         = 28
 Recipe item placements       = 17
 operation-source/effect rows = 15
-control rows                 = I10 If, I12 Exit
+control placement items      = I10 If, I12 Exit
+control transfer rows        = 1
 CallSlot rows                = I6, I7
-Fault rows                   = I1, I5, I6, I7, I9, I15
+Fault rows                   = I6, I7, I9
 
 source effects:
   BindingRead          = 5
@@ -1425,14 +1428,14 @@ source effects:
   ExpressionEvaluation = 7
 
 execution classes:
-  NonFaulting             = 9
-  FaultBeforeNormalResult = 4
+  NonFaulting             = 12
+  FaultBeforeNormalResult = 1
   ExternallyBoundOutcome  = 2
 ~~~
 
 ExpressionEvaluation is a source-effect relation, not a Pure claim.
 execution_class_v2 remains the exhaustive operation execution owner. The Fault
-catalog remains the sole six-row fault authorization owner.
+catalog remains the sole three-row fault authorization owner.
 
 For every operation item, exactly one Expression source claim is the primary
 physical anchor. I16 is intentionally special only in evidence cardinality:
@@ -1518,7 +1521,7 @@ closed; next was `PHYSICAL-OPERATION-DEMAND-I0`.
 Status: CLOSED (I0 landed)
 
 Landed: `VerifiedDynamicLoopOperationPhysicalDemandV2` consumes the complete
-HRTB view, validates 17 placements/15 operations/one control/six Fault rows,
+HRTB view, validates 17 placements/15 operations/one control transfer/three Fault rows,
 and retains whole Recipe-order arrays with no single-item selector, V1
 adapter, or raw lookup. Focused demand, dynamic-body, cargo-check, authority,
 pointer, and diff gates are green. Prelude, Tail, ABI, Completion, session,

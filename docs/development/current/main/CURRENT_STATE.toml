@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "A-prime is accepted for the bounded ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport and A2 exact parameter-contract replacement are closed: absent ordinary rows are OpaqueHandle, explicit i64 rows are ExactTrivial(I64), and HomeDemand is only a derived projection. Production remains NoSafeSlice until the mixed Recipe/lifecycle recut, Loop authority cleanup, VM/LLVM gates, fresh session, and selected cutover close."
+status = "A-prime is accepted for the bounded ParserScanLoopBox.skip_while/4 cohort. A1 parameter spelling transport, A2 exact parameter-contract replacement, and the mixed typed Recipe/lifecycle recut are closed: pos/end/induction/carrier and I1/I5/I15 are I64, I6/I7/I9 remain Dynamic, and only invocation temporaries retain cleanup. Production remains NoSafeSlice until Loop authority cleanup, VM/LLVM gates, fresh session, and selected cutover close."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; A-prime design accepted"
 work_mode = "fast"
-current_execution_row = "A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0"
-current_blocker_token = "Atomically replace the bounded Dynamic induction Recipe/lifecycle with the mixed typed A-prime Recipe: pos/end/induction/carrier and I1/I5/I15 are I64; I6/I7/I9 remain Dynamic. Replace the six-row Fault catalog with exactly I6/I7/I9, remove selected Dynamic induction lifecycle authorities, preserve V10/V11 temporary cleanup, and keep JoinSig/Completion relations exact. No old/new producer coexistence, fallback, I64 End/Home lifecycle, typed_schema_v2.rs additions, backend/session/cutover work, or source/Recipe rescan. Keep all touched Rust below 760 lines and 800 hard."
+current_execution_row = "PHYSICAL-INPUT-AUTHORITY-I0"
+current_blocker_token = "Close the selected Dynamic physical capability before any session effect: define the bounded CHECKED-DYNAMIC-I64-ABI producer/backend matrix, keep Builder-free demand separate from session-local ValueId realization, and require exact two-site Completion operands. Unsupported or ambiguous representation must RejectBeforeEffect. No MirType inference, TypeOp repair, Dynamic source reissue, GenericLoop change, fallback, retry, backend-name allowlist, or physical session/cutover until the capability and negative matrix are green."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -721,12 +721,12 @@ latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_design_card = "none until a new design stop is reached"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0"
+next_execution_card = "PHYSICAL-INPUT-AUTHORITY-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "A-prime replaces the checked-Dynamic terminal proposal for skip_while: pos/end are exact i64 API contracts, the induction Recipe/carrier becomes I64, and only invocation temporaries remain Dynamic. A1 transport and A2 exact parameter-contract replacement are closed with identity-preserving HRTB loans, OpaqueHandle/ExactTrivial classification, and one-way HomeDemand projection. Current row is the atomic mixed Recipe/Fault/lifecycle recut; then Loop+VM/LLVM capability, fresh session, and selected cutover follow. After first cutover, H2/H3/H5 parity and the Hako-mimalloc gate jointly gate Hako parameter/result producer activation."
+latest_card_summary = "A-prime replaces the checked-Dynamic terminal proposal for skip_while: pos/end are exact i64 API contracts, the induction Recipe/carrier becomes I64, and only invocation temporaries remain Dynamic. A1 transport, A2 exact parameter-contract replacement, and the mixed Recipe/Fault/lifecycle recut are closed with identity-preserving HRTB loans, OpaqueHandle/ExactTrivial classification, a three-row Fault catalog, and one invocation-only cleanup projection. Current row is the Builder-free physical capability; then Loop authority cleanup, VM/LLVM gates, fresh session, and selected cutover follow. After first cutover, H2/H3/H5 parity and the Hako-mimalloc gate jointly gate Hako parameter/result producer activation."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

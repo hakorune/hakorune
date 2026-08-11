@@ -30,7 +30,7 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
     let after = program.after();
     assert_eq!(after.loop_key(), LoopNodeKeyV1::new(0));
     assert_eq!(after.binding(), LoopBindingKeyV1::new(0));
-    assert_eq!(after.class(), LoopValueClassV2::Dynamic);
+    assert_eq!(after.class(), LoopValueClassV2::I64);
 
     let transfer = program
         .logical_transfer_view()
@@ -82,7 +82,7 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
     ));
     assert_eq!(transfer.after().loop_key(), LoopNodeKeyV1::new(0));
     assert_eq!(transfer.after().binding(), LoopBindingKeyV1::new(0));
-    assert_eq!(transfer.after().class(), LoopValueClassV2::Dynamic);
+    assert_eq!(transfer.after().class(), LoopValueClassV2::I64);
     assert_eq!(
         transfer
             .summary_transfers()
@@ -122,16 +122,6 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
             .collect::<Vec<_>>(),
         vec![
             (
-                LoopItemKeyV1::new(1),
-                DynamicFullLoopFaultFamilyV2::DynamicLess,
-                LoopValueKeyV1::new(5),
-            ),
-            (
-                LoopItemKeyV1::new(5),
-                DynamicFullLoopFaultFamilyV2::DynamicAdd,
-                LoopValueKeyV1::new(9),
-            ),
-            (
                 LoopItemKeyV1::new(6),
                 DynamicFullLoopFaultFamilyV2::DynamicInvocation,
                 LoopValueKeyV1::new(10),
@@ -145,11 +135,6 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
                 LoopItemKeyV1::new(9),
                 DynamicFullLoopFaultFamilyV2::DynamicLess,
                 LoopValueKeyV1::new(13),
-            ),
-            (
-                LoopItemKeyV1::new(15),
-                DynamicFullLoopFaultFamilyV2::DynamicAdd,
-                LoopValueKeyV1::new(17),
             ),
         ]
     );
@@ -209,7 +194,7 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
             == crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     }));
     assert_eq!(lifecycle.after().loop_key(), LoopNodeKeyV1::new(0));
-    assert_eq!(lifecycle.fault_cut_points().rows().len(), 6);
+    assert_eq!(lifecycle.fault_cut_points().rows().len(), 3);
 }
 
 #[test]
@@ -298,7 +283,6 @@ fn semantic_program_surface_has_one_input_and_no_split_or_physical_escape() {
     for forbidden in [
         "from_after",
         "into_parts",
-        "FunctionOwnerIdV1",
         "VerifiedFunctionCompletionV1",
         "MirBuilder",
         "BasicBlockId",

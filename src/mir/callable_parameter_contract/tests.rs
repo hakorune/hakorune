@@ -134,7 +134,7 @@ fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
 }
 
 #[test]
-fn parser_scan_loop_box_keeps_all_fifteen_untyped_parameters_opaque() {
+fn parser_scan_loop_box_preserves_exact_i64_parameter_contracts() {
     let batch = batch(
         include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),
         8,
@@ -148,7 +148,24 @@ fn parser_scan_loop_box_keeps_all_fifteen_untyped_parameters_opaque() {
             .collect::<Vec<_>>(),
         [4, 3, 4, 4]
     );
-    assert!(declarations.iter().all(|declaration| declaration
+    assert_eq!(
+        declarations[0]
+            .parameters()
+            .iter()
+            .map(|row| row.kind())
+            .collect::<Vec<_>>(),
+        vec![
+            CallableParameterContractKindV1::OpaqueHandle,
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            ),
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            ),
+            CallableParameterContractKindV1::OpaqueHandle,
+        ]
+    );
+    assert!(declarations[1..].iter().all(|declaration| declaration
         .parameters()
         .iter()
         .all(|row| row.kind() == CallableParameterContractKindV1::OpaqueHandle)));

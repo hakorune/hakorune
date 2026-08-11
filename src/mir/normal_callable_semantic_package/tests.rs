@@ -69,7 +69,7 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
     };
     assert_eq!(
         program.current(),
-        crate::mir::compiler::dynamic_full_body_recipe::DynamicCarrierCurrentDispositionV1::BorrowedIngressNoEnd
+        crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
     );
 }
 

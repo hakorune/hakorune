@@ -136,9 +136,9 @@ fn verify_fault_coverage(
     for operation in operations {
         let family = match operation.execution() {
             LoopOperationExecutionClassV2::FaultBeforeNormalResult { family, .. } => match family {
-                LoopOperationFaultFamilyV2::DynamicAdd => {
-                    super::DynamicFullLoopFaultFamilyV2::DynamicAdd
-                }
+                LoopOperationFaultFamilyV2::DynamicAdd => return Err(
+                    DynamicFullLoopPhysicalInputRejectV2::FaultCoverage,
+                ),
                 LoopOperationFaultFamilyV2::DynamicLess => {
                     super::DynamicFullLoopFaultFamilyV2::DynamicLess
                 }

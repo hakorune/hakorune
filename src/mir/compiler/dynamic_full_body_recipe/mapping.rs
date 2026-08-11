@@ -5,6 +5,7 @@ use crate::mir::loop_recipe_contract::{
     LoopExitKindV2, LoopItemKeyV1, LoopNodeKeyV1, LoopNodeV2, LoopOperationV2, LoopRecipeBindingV2,
     LoopRecipeBlockV2, LoopRecipeCarrierV2, LoopRecipeExitV2, LoopRecipeItemRowV2,
     LoopRecipeItemV2, LoopRecipeV2, LoopRecipeValueV2, LoopValueClassV2, LoopValueKeyV1,
+    LoopBinaryI64OpV2, LoopCompareI64OpV2,
 };
 
 pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
@@ -35,7 +36,8 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
             ),
             operation(
                 1,
-                LoopOperationV2::DynamicLess {
+                LoopOperationV2::CompareI64 {
+                    op: LoopCompareI64OpV2::Less,
                     left: value_key(4),
                     right: value_key(2),
                     result: value_key(5),
@@ -64,7 +66,8 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
             ),
             operation(
                 5,
-                LoopOperationV2::DynamicAdd {
+                LoopOperationV2::BinaryI64 {
+                    op: LoopBinaryI64OpV2::Add,
                     left: value_key(7),
                     right: value_key(8),
                     result: value_key(9),
@@ -138,7 +141,8 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
             ),
             operation(
                 15,
-                LoopOperationV2::DynamicAdd {
+                LoopOperationV2::BinaryI64 {
+                    op: LoopBinaryI64OpV2::Add,
                     left: value_key(15),
                     right: value_key(16),
                     result: value_key(17),
@@ -155,7 +159,7 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
         bindings: vec![LoopRecipeBindingV2 {
             key: binding,
             label: "induction".to_owned(),
-            class: LoopValueClassV2::Dynamic,
+            class: LoopValueClassV2::I64,
         }],
         values: (0..18).map(|raw| value(raw, value_class(raw))).collect(),
         inputs: (0..4).map(value_key).collect(),
@@ -163,7 +167,7 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
             key: LoopCarrierKeyV1::new(0),
             owner_loop: LoopNodeKeyV1::new(0),
             binding,
-            class: LoopValueClassV2::Dynamic,
+            class: LoopValueClassV2::I64,
             entry_value: value_key(1),
         }],
         exits: vec![LoopRecipeExitV2 {
@@ -201,7 +205,9 @@ fn value(raw: u32, class: LoopValueClassV2) -> LoopRecipeValueV2 {
 fn value_class(raw: u32) -> LoopValueClassV2 {
     match raw {
         5 | 13 => LoopValueClassV2::Bool,
-        8 | 12 | 16 => LoopValueClassV2::I64,
+        1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => {
+            LoopValueClassV2::I64
+        }
         _ => LoopValueClassV2::Dynamic,
     }
 }

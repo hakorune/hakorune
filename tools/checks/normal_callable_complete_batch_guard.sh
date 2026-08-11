@@ -17,7 +17,7 @@ PACKAGE_MODEL="$ROOT_DIR/src/mir/normal_callable_semantic_package/model.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 SELECTED_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mapping.rs"
 SOURCE_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
-INGRESS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/ingress.rs"
+INVOCATION_CLEANUP="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/invocation_cleanup.rs"
 BATCH_TESTS="$ROOT_DIR/src/mir/callable_semantic_batch/tests.rs"
 PARSER_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/tests.rs"
 PACKAGE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/tests.rs"
@@ -36,7 +36,7 @@ guard_require_files "$TAG" \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
   "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
-  "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$SOURCE_CATALOG" "$INVOCATION_CLEANUP" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \
   "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
   "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \
@@ -118,11 +118,11 @@ reject_fixed_in_file \
   "seal_program(" "$SOURCE_CATALOG" \
   "source-backed catalog must not enter through the AST-only program seal"
 guard_expect_fixed_in_file "$TAG" \
-  "issue_dynamic_carrier_ingress_lifecycle_program_v1" "$PACKAGE_ISSUER" \
-  "selected Dynamic package must co-seal parameter #1 ingress"
+  "issue_dynamic_invocation_cleanup_projection_i0" "$PACKAGE_ISSUER" \
+  "selected Dynamic package must co-seal invocation cleanup"
 guard_expect_fixed_in_file "$TAG" \
-  "BorrowedIngressNoEndV1" "$INGRESS" \
-  "Dynamic ingress must retain the borrowed-no-end lifecycle marker"
+  "ExactI64TrivialNoEnd" "$INVOCATION_CLEANUP" \
+  "mixed Recipe must retain the exact trivial-I64 induction lifecycle marker"
 guard_expect_fixed_in_file "$TAG" \
   "NormalCallableSemanticPackagePortV1" "$PACKAGE_INSTALL" \
   "installed package must expose one exactly-once selected lowering port"
@@ -166,7 +166,7 @@ guard_expect_fixed_in_file "$TAG" \
   "unsupported_explicit_type_rejects_without_opaque_fallback" "$CONTRACT_TESTS" \
   "unsupported explicit parameter negative is absent"
 guard_expect_fixed_in_file "$TAG" \
-  "parser_scan_loop_box_keeps_all_fifteen_untyped_parameters_opaque" "$CONTRACT_TESTS" \
+  "parser_scan_loop_box_preserves_exact_i64_parameter_contracts" "$CONTRACT_TESTS" \
   "bounded Dynamic source contract fixture is absent"
 guard_expect_fixed_in_file "$TAG" \
   "issuer_keeps_resolver_and_forest_outside_the_contract_owner" "$CONTRACT_TESTS" \
@@ -244,7 +244,7 @@ for file in \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
   "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
   "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
-  "$SOURCE_CATALOG" "$INGRESS" "$BATCH_TESTS" "$PACKAGE_TESTS" \
+  "$SOURCE_CATALOG" "$INVOCATION_CLEANUP" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \
   "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
   "$PRODUCTION_LIFECYCLE" "$PRODUCTION_LOWERING" "$PACKAGE_PORT_ADAPTER" \

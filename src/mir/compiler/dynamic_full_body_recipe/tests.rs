@@ -64,8 +64,8 @@ fn unchanged_source_produces_the_complete_verified_v2_recipe() {
     assert_eq!(recipe.values.len(), 18);
     assert_eq!(recipe.items.len(), 17);
     assert_eq!(recipe.exits.len(), 1);
-    assert_eq!(recipe.bindings[0].class, LoopValueClassV2::Dynamic);
-    assert_eq!(recipe.carriers[0].class, LoopValueClassV2::Dynamic);
+    assert_eq!(recipe.bindings[0].class, LoopValueClassV2::I64);
+    assert_eq!(recipe.carriers[0].class, LoopValueClassV2::I64);
     assert_eq!(
         recipe.exits[0].kind,
         LoopExitKindV2::Return {
@@ -247,18 +247,18 @@ fn v2_join_closure_rejects_multiple_root_carriers_before_elaboration() {
     recipe.bindings.push(LoopRecipeBindingV2 {
         key: LoopBindingKeyV1::new(1),
         label: "second".to_owned(),
-        class: LoopValueClassV2::Dynamic,
+        class: LoopValueClassV2::I64,
     });
     recipe.values.push(LoopRecipeValueV2 {
         key: LoopValueKeyV1::new(18),
-        class: LoopValueClassV2::Dynamic,
+        class: LoopValueClassV2::I64,
     });
     recipe.inputs.push(LoopValueKeyV1::new(18));
     recipe.carriers.push(LoopRecipeCarrierV2 {
         key: LoopCarrierKeyV1::new(1),
         owner_loop: LoopNodeKeyV1::new(0),
         binding: LoopBindingKeyV1::new(1),
-        class: LoopValueClassV2::Dynamic,
+        class: LoopValueClassV2::I64,
         entry_value: LoopValueKeyV1::new(18),
     });
     let verified = LoopRecipeVerifierV2::verify(recipe).expect("two-carrier wire verifies");
@@ -297,15 +297,17 @@ fn v2_verifier_rejects_duplicate_and_wrong_class_carriers() {
 
 #[test]
 fn v2_verifier_rejects_body_local_or_return_value_as_root_carrier_entry() {
-    for value in [10, 14] {
+    for (value, expected) in [
+        (10, LoopRecipeV2RejectReason::InvalidCarrierClass {
+            key: LoopCarrierKeyV1::new(0),
+        }),
+        (14, LoopRecipeV2RejectReason::CarrierEntryNotAvailable {
+            key: LoopCarrierKeyV1::new(0),
+        }),
+    ] {
         let mut recipe = super::mapping::complete_dynamic_loop_recipe_v2();
         recipe.carriers[0].entry_value = LoopValueKeyV1::new(value);
-        assert_eq!(
-            LoopRecipeVerifierV2::verify(recipe),
-            Err(LoopRecipeV2RejectReason::CarrierEntryNotAvailable {
-                key: LoopCarrierKeyV1::new(0),
-            })
-        );
+        assert_eq!(LoopRecipeVerifierV2::verify(recipe), Err(expected));
     }
 }
 
@@ -335,7 +337,7 @@ fn payload(binding: LoopBindingKeyV1, value: u32) -> LoopJoinPayloadV2 {
     LoopJoinPayloadV2 {
         binding,
         value: LoopValueKeyV1::new(value),
-        class: LoopValueClassV2::Dynamic,
+        class: LoopValueClassV2::I64,
     }
 }
 
@@ -362,6 +364,6 @@ fn port_binding(
         loop_key,
         port,
         binding,
-        class: LoopValueClassV2::Dynamic,
+        class: LoopValueClassV2::I64,
     }
 }

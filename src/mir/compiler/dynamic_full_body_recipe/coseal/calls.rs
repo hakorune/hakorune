@@ -147,8 +147,11 @@ struct DynamicCallExpectationV2 {
     selector: &'static str,
     arity: u32,
     recipe_receiver: LoopValueKeyV1,
+    recipe_receiver_class: LoopValueClassV2,
     recipe_arguments: &'static [u32],
+    recipe_argument_classes: &'static [LoopValueClassV2],
     recipe_result: LoopValueKeyV1,
+    recipe_result_class: LoopValueClassV2,
 }
 
 impl DynamicCallExpectationV2 {
@@ -165,8 +168,11 @@ impl DynamicCallExpectationV2 {
             selector: "substring",
             arity: 2,
             recipe_receiver: LoopValueKeyV1::new(0),
+            recipe_receiver_class: LoopValueClassV2::Dynamic,
             recipe_arguments: &[6, 9],
+            recipe_argument_classes: &[LoopValueClassV2::I64, LoopValueClassV2::I64],
             recipe_result: LoopValueKeyV1::new(10),
+            recipe_result_class: LoopValueClassV2::Dynamic,
         }
     }
 
@@ -180,8 +186,11 @@ impl DynamicCallExpectationV2 {
             selector: "indexOf",
             arity: 1,
             recipe_receiver: LoopValueKeyV1::new(3),
+            recipe_receiver_class: LoopValueClassV2::Dynamic,
             recipe_arguments: &[10],
+            recipe_argument_classes: &[LoopValueClassV2::Dynamic],
             recipe_result: LoopValueKeyV1::new(11),
+            recipe_result_class: LoopValueClassV2::Dynamic,
         }
     }
 }
@@ -268,19 +277,29 @@ fn verify_recipe_call(
     {
         return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
     }
-    for key in std::iter::once(receiver)
-        .chain(args.iter())
-        .chain(std::iter::once(result))
-    {
-        if recipe
+    if recipe
+        .values
+        .iter()
+        .find(|row| row.key == *receiver)
+        .map(|row| row.class)
+        != Some(expected.recipe_receiver_class)
+        || args.len() != expected.recipe_argument_classes.len()
+        || args.iter().zip(expected.recipe_argument_classes).any(|(key, class)| {
+            recipe
+                .values
+                .iter()
+                .find(|row| row.key == *key)
+                .map(|row| row.class)
+                != Some(*class)
+        })
+        || recipe
             .values
             .iter()
-            .find(|row| row.key == *key)
+            .find(|row| row.key == *result)
             .map(|row| row.class)
-            != Some(LoopValueClassV2::Dynamic)
-        {
-            return Err(DynamicFullLoopCallRelationRejectV2::RecipeValueClassMismatch);
-        }
+            != Some(expected.recipe_result_class)
+    {
+        return Err(DynamicFullLoopCallRelationRejectV2::RecipeValueClassMismatch);
     }
     Ok(())
 }

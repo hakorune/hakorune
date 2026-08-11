@@ -9,24 +9,22 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    issue_dynamic_carrier_cleanup_projection_i0, issue_dynamic_carrier_flow_program_v1,
-    issue_dynamic_carrier_ingress_lifecycle_program_v1,
-    issue_dynamic_carrier_rebind_transaction_program_v1, issue_dynamic_exit_transaction_coseal_i0,
+    issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_invocation_cleanup_projection_i0,
     issue_dynamic_full_loop_semantic_program_v2, issue_dynamic_full_loop_source_recipe_envelope_v2,
+    produce_dynamic_full_loop_recipe_v2_with_contract, DynamicFullLoopRecipeProducerRejectV2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_operator_carrier_lifecycle_program_v1, DynamicCarrierCleanupProjectionRejectV1,
-    DynamicCarrierFlowProgramRejectV1, DynamicCarrierIngressLifecycleProgramRejectV1,
-    DynamicCarrierRebindTransactionRejectV1, DynamicExitTransactionCoSealRejectV1,
+    DynamicExitTransactionCoSealRejectV1,
     DynamicFullLoopSemanticProgramRejectV2, DynamicFullLoopSourceRecipeEnvelopeRejectV2,
     DynamicInvocationCarrierLifecycleProgramRejectV1,
-    DynamicOperatorCarrierLifecycleProgramRejectV1,
+    DynamicInvocationCleanupProjectionRejectV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
 use super::dynamic_admission::{
-    admit_dynamic_callable_v1, DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
+    admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
+    DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
 };
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
@@ -47,17 +45,14 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
         batch_slot: u32,
         issue: DynamicCallableAdmissionIssueV1,
     },
+    DynamicRecipe(DynamicFullLoopRecipeProducerRejectV2),
     DuplicateDynamicCandidate,
     MissingDynamicParameterContract,
     DynamicParameterContractIdentity,
     DynamicRecipeEnvelope(DynamicFullLoopSourceRecipeEnvelopeRejectV2),
     DynamicSemanticProgram(DynamicFullLoopSemanticProgramRejectV2),
     DynamicInvocationLifecycle(DynamicInvocationCarrierLifecycleProgramRejectV1),
-    DynamicOperatorLifecycle(DynamicOperatorCarrierLifecycleProgramRejectV1),
-    DynamicIngress(DynamicCarrierIngressLifecycleProgramRejectV1),
-    DynamicRebind(DynamicCarrierRebindTransactionRejectV1),
-    DynamicFlow(DynamicCarrierFlowProgramRejectV1),
-    DynamicCleanup(DynamicCarrierCleanupProjectionRejectV1),
+    DynamicCleanup(DynamicInvocationCleanupProjectionRejectV1),
     DynamicExitTransaction(DynamicExitTransactionCoSealRejectV1),
 }
 
@@ -103,7 +98,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
         if let DynamicCallableAdmissionV1::Candidate {
             owner,
             source,
-            recipe,
+            inventory,
             calls,
         } = admission
         {
@@ -111,7 +106,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 continue;
             }
             if candidate
-                .replace((batch_slot, owner, source, recipe, calls))
+                .replace((batch_slot, owner, source, inventory, calls))
                 .is_some()
             {
                 return Err(NormalCallableSemanticPackageIssueV1::DuplicateDynamicCandidate);
@@ -124,7 +119,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             dynamic_batch_slot,
             dynamic_owner,
             dynamic_source,
-            dynamic_recipe,
+            dynamic_inventory,
             dynamic_calls,
         )) => {
             let mut dynamic_contracts = parameter_contracts
@@ -136,6 +131,19 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             if dynamic_contracts.next().is_some() || dynamic_contract.owner != dynamic_owner {
                 return Err(NormalCallableSemanticPackageIssueV1::DynamicParameterContractIdentity);
             }
+            let typed_contract = issue_dynamic_parameter_contract_v2(&dynamic_contract.parameters)
+                .map_err(|issue| match issue {
+                    DynamicCallableAdmissionIssueV1::Recipe(reject) => {
+                        NormalCallableSemanticPackageIssueV1::DynamicRecipe(reject)
+                    }
+                    other => NormalCallableSemanticPackageIssueV1::Dynamic {
+                        batch_slot: dynamic_batch_slot,
+                        issue: other,
+                    },
+                })?;
+            let dynamic_recipe =
+                produce_dynamic_full_loop_recipe_v2_with_contract(dynamic_inventory, typed_contract)
+                .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipe)?;
             let dynamic_envelope =
                 issue_dynamic_full_loop_source_recipe_envelope_v2(dynamic_recipe, dynamic_calls)
                     .map_err(NormalCallableSemanticPackageIssueV1::DynamicRecipeEnvelope)?;
@@ -144,31 +152,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             let dynamic_invocation =
                 issue_dynamic_invocation_carrier_lifecycle_program_v1(dynamic_semantic)
                     .map_err(NormalCallableSemanticPackageIssueV1::DynamicInvocationLifecycle)?;
-            let program =
-                issue_dynamic_operator_carrier_lifecycle_program_v1(dynamic_invocation)
-                    .map_err(NormalCallableSemanticPackageIssueV1::DynamicOperatorLifecycle)?;
-            let mut parameter_one_rows = dynamic_contract
-                .parameters
-                .iter()
-                .filter(|parameter| parameter.ordinal == 1);
-            let Some(parameter_one) = parameter_one_rows.next() else {
-                return Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterContract);
-            };
-            if parameter_one_rows.next().is_some() {
-                return Err(NormalCallableSemanticPackageIssueV1::DynamicParameterContractIdentity);
-            }
-            let ingress = issue_dynamic_carrier_ingress_lifecycle_program_v1(
-                program,
-                parameter_one.ordinal,
-                parameter_one.binding,
-                parameter_one.kind.home_demand(),
-            )
-            .map_err(NormalCallableSemanticPackageIssueV1::DynamicIngress)?;
-            let program = issue_dynamic_carrier_rebind_transaction_program_v1(ingress)
-                .map_err(NormalCallableSemanticPackageIssueV1::DynamicRebind)?;
-            let program = issue_dynamic_carrier_flow_program_v1(program)
-                .map_err(|reject| NormalCallableSemanticPackageIssueV1::DynamicFlow(reject))?;
-            let program = issue_dynamic_carrier_cleanup_projection_i0(program)
+            let program = issue_dynamic_invocation_cleanup_projection_i0(dynamic_invocation)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicCleanup)?;
             let program = issue_dynamic_exit_transaction_coseal_i0(program)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicExitTransaction)?;

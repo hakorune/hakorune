@@ -11,12 +11,11 @@ use crate::mir::loop_recipe_contract::{
 use super::super::VerifiedDynamicFullLoopSourceRecipeEnvelopeV2;
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 
-const FAULT_CUT_POINT_COUNT_V2: usize = 6;
+const FAULT_CUT_POINT_COUNT_V2: usize = 3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicFullLoopFaultFamilyV2 {
     DynamicLess,
-    DynamicAdd,
     DynamicInvocation,
 }
 
@@ -107,8 +106,8 @@ fn verify_recipe_fault_cut_points_v2(
         let (family, normal_result) = match operation.execution_class_v2() {
             LoopOperationExecutionClassV2::FaultBeforeNormalResult {
                 family: LoopOperationFaultFamilyV2::DynamicAdd,
-                normal_result,
-            } => (DynamicFullLoopFaultFamilyV2::DynamicAdd, normal_result),
+                ..
+            } => return Err(DynamicFullLoopFaultCutPointRejectV2::ExactCoverageMismatch),
             LoopOperationExecutionClassV2::FaultBeforeNormalResult {
                 family: LoopOperationFaultFamilyV2::DynamicLess,
                 normal_result,
@@ -134,8 +133,7 @@ fn verify_recipe_fault_cut_points_v2(
 
     let family_count = |family| rows.iter().filter(|row| row.family == family).count();
     if rows.len() != FAULT_CUT_POINT_COUNT_V2
-        || family_count(DynamicFullLoopFaultFamilyV2::DynamicLess) != 2
-        || family_count(DynamicFullLoopFaultFamilyV2::DynamicAdd) != 2
+        || family_count(DynamicFullLoopFaultFamilyV2::DynamicLess) != 1
         || family_count(DynamicFullLoopFaultFamilyV2::DynamicInvocation) != 2
     {
         return Err(DynamicFullLoopFaultCutPointRejectV2::ExactCoverageMismatch);

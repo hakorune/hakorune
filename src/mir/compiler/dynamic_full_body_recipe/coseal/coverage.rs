@@ -182,14 +182,23 @@ fn verify_targets(
             .find(|row| row.key == key)
             .map(|row| row.class)
     };
+    let expected_value_class = |key: crate::mir::loop_recipe_contract::LoopValueKeyV1| {
+        match key.raw() {
+            1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => {
+                LoopValueClassV2::I64
+            }
+            5 | 13 => LoopValueClassV2::Bool,
+            _ => LoopValueClassV2::Dynamic,
+        }
+    };
     let target_exists = |target: DynamicFullLoopClaimTargetV2| match target {
         DynamicFullLoopClaimTargetV2::Loop(key) => recipe.loops.iter().any(|row| row.key == key),
         DynamicFullLoopClaimTargetV2::Binding(key) => recipe
             .bindings
             .iter()
-            .any(|row| row.key == key && row.class == LoopValueClassV2::Dynamic),
+            .any(|row| row.key == key && row.class == LoopValueClassV2::I64),
         DynamicFullLoopClaimTargetV2::Value(key) => {
-            value_class(key) == Some(LoopValueClassV2::Dynamic)
+            value_class(key) == Some(expected_value_class(key))
         }
         DynamicFullLoopClaimTargetV2::Item(key) => recipe.items.iter().any(|row| row.key == key),
         DynamicFullLoopClaimTargetV2::Exit(key) => recipe.exits.iter().any(|row| {
@@ -203,12 +212,12 @@ fn verify_targets(
             recipe
                 .bindings
                 .iter()
-                .any(|row| row.key == binding && row.class == LoopValueClassV2::Dynamic)
+                .any(|row| row.key == binding && row.class == LoopValueClassV2::I64)
                 && recipe.carriers.iter().any(|row| {
                     row.key == carrier
                         && row.binding == binding
                         && row.entry_value == entry
-                        && row.class == LoopValueClassV2::Dynamic
+                        && row.class == LoopValueClassV2::I64
                 })
         }
         DynamicFullLoopClaimTargetV2::IterationLocal { value } => {
@@ -217,7 +226,7 @@ fn verify_targets(
         DynamicFullLoopClaimTargetV2::CallableTail { binding } => recipe
             .bindings
             .iter()
-            .any(|row| row.key == binding && row.class == LoopValueClassV2::Dynamic),
+            .any(|row| row.key == binding && row.class == LoopValueClassV2::I64),
     };
     if bindings.iter().any(|row| !target_exists(row.target))
         || sources.iter().any(|row| !target_exists(row.target))
