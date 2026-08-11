@@ -2114,6 +2114,39 @@ LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
 ```
 
 No topology type is hard-deleted while a required pre-cutover caller remains.
+
+#### LOOP-PRECUTOVER-AUTHORITY-H2 — production census fixed (gate remains open)
+
+The selected-cohort census is now machine-checked by
+`tools/checks/loop_precutover_authority_guard.sh`. Its deliberately narrow
+pre-cutover result is:
+
+```text
+legacy AST/JoinIR physical edge     = 1 production caller
+new Dynamic physical-demand callers = 0 production callers
+```
+
+The single legacy edge is the existing
+`PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1` route into
+the raw JoinIR loop lowering path. It is an explicit migration allowlist, not
+a hidden second new issuer, and must remain until the named
+`H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0` removes it in the same cutover that
+installs the package-backed physical route. The new Dynamic physical-demand
+issuer is therefore not activated early and has no production caller yet.
+
+This census does **not** claim that the H2 gate is closed or that competing
+physical authority is zero. It freezes the exact migration boundary so that
+no additional legacy caller, raw physical planner, fallback, or retry can be
+introduced while the fresh-session design is audited. The guard also enforces
+the selected production file-size limit. Run:
+
+```text
+bash tools/checks/loop_precutover_authority_guard.sh
+```
+
+before opening `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` or changing the selected
+production edge.
+
 ## Hard stops
 
 ```text
