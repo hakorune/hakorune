@@ -2611,6 +2611,7 @@ Rust call-slot wire tests: 8 passed
 Python call-slot wire tests: 8 passed
 C11 and C++17 header syntax checks: passed
 dynamic_v2_physical_input_authority_guard.sh: green
+a_prime_i64_parameter_lane_guard.sh: green
 current_state_pointer_guard.sh: green
 ```
 
