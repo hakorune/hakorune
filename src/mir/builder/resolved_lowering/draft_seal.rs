@@ -24,8 +24,10 @@ use super::completion_consumption::ReadyFunctionCompletionV1;
 use super::draft_seal_owner::OpenFunctionDraftSealV1;
 
 mod exit_projection;
+mod multi_site_exit;
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
+pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
 
 #[derive(Debug)]
 pub(super) struct ReadyFunctionDraftSealV1 {

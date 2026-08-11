@@ -95,12 +95,10 @@ impl ExplicitReturnClaimV1 {
         }
     }
 
-    #[cfg(test)]
     pub(super) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
 
-    #[cfg(test)]
     pub(super) fn witness(&self) -> ExplicitReturnWitnessV1 {
         self.witness
     }

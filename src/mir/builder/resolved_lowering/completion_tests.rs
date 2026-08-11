@@ -12,7 +12,8 @@ use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType,
 
 use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::draft_seal::{
-    FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
+    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
+    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
 };
 
 fn resolved_product(name: &str) -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
@@ -42,6 +43,15 @@ fn if_return(value: i64) -> ASTNode {
     ASTNode::If {
         condition: Box::new(literal(1)),
         then_body: vec![return_stmt(Some(literal(value)))],
+        else_body: None,
+        span: Span::unknown(),
+    }
+}
+
+fn if_return_unit() -> ASTNode {
+    ASTNode::If {
+        condition: Box::new(literal(1)),
+        then_body: vec![return_stmt(None)],
         else_body: None,
         span: Span::unknown(),
     }
@@ -199,25 +209,76 @@ fn multi_site_completion_claims_are_keyed_by_source_site_and_returned_in_source_
         .finish(body.site(), body.statements().len() as u32, target)
         .unwrap();
 
-    assert_eq!(ready.explicit_claims().len(), 2);
-    assert_eq!(ready.explicit_claims()[0].site(), &sites[0]);
-    assert_eq!(ready.explicit_claims()[1].site(), &sites[1]);
+    let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(11));
+    let detached = DetachedFunctionExitClaimSetV1::prepare(&ready).unwrap();
+    assert_eq!(detached.claims().len(), 2);
+    assert_eq!(detached.claims()[0].site(), &sites[0]);
+    assert_eq!(detached.claims()[1].site(), &sites[1]);
     assert_eq!(
-        ready.explicit_claims()[0].witness(),
-        super::completion_consumption::ExplicitReturnWitnessV1::Value(
-            super::completion_consumption::ReturnOperandWitnessV1::new(
-                BasicBlockId::new(10),
-                ValueId::new(20),
-            )
-        )
+        detached.claims()[0].exit(),
+        PreparedFunctionExitV1::ExplicitValue {
+            block: BasicBlockId::new(10),
+            value: ValueId::new(20),
+        }
     );
+    let pair = detached.into_exact_two().unwrap();
+    assert_eq!(pair[0].site(), &sites[0]);
+    assert_eq!(pair[1].site(), &sites[1]);
 
-    let error = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(11))
-        .prepare_exit_borrowed()
-        .unwrap_err();
+    let error = ready.prepare_exit_borrowed().unwrap_err();
     assert_eq!(
         error,
         FunctionDraftSealPreparationErrorV1::MultipleExplicitReturnClaimsUnsupported
+    );
+}
+
+#[test]
+fn detached_multi_site_exit_rejects_single_site_and_unit_claims() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "completion_single_site_detached",
+        vec![return_stmt(Some(literal(1)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let site = completion.explicit_site().unwrap().clone();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&site, target, BasicBlockId::new(1), ValueId::new(2))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+    let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(1));
+    assert_eq!(
+        DetachedFunctionExitClaimSetV1::prepare(&ready),
+        Err(MultiSiteExitPreparationErrorV1::ExplicitReturnClaimCountNotTwo { actual: 1 })
+    );
+
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "completion_multi_unit_detached",
+        vec![if_return_unit(), return_stmt(None)],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let sites = completion.explicit_sites().to_vec();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption.claim_explicit_unit(&sites[0], target).unwrap();
+    consumption.claim_explicit_unit(&sites[1], target).unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+    let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(1));
+    assert_eq!(
+        DetachedFunctionExitClaimSetV1::prepare(&ready),
+        Err(MultiSiteExitPreparationErrorV1::ExplicitReturnUnitClaim)
     );
 }
 

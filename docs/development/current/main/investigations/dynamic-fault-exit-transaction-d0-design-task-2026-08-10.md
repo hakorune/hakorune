@@ -349,12 +349,12 @@ That closeout originally named `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`. The later
 audit below inserted the missing Builder-free physical-input authority rows
 before any session may open.
 
-### Physical session P0 audit (parked parent)
+### Physical session P0 audit (current downstream boundary)
 
-`DYNAMIC-EXIT-PHYSICAL-SESSION-P0` remains parked, not an implementation
-permission. The existing `loop_physical_prepare.rs` and callable physical
-canary are `cfg(test)` helpers only; no production issuer yet supplies the
-complete physical input for the selected Dynamic package.
+`DYNAMIC-EXIT-PHYSICAL-SESSION-P0` is now the active implementation row. The
+existing `loop_physical_prepare.rs` and callable physical canary remain
+`cfg(test)` helpers only; no production issuer yet supplies the complete
+physical input for the selected Dynamic package.
 
 The package already supplies the exact logical source-backed input and the
 non-splittable `VerifiedDynamicExitTransactionCoSealV1`, but the physical
@@ -979,7 +979,7 @@ physical-input views. Focused package (14 tests), Dynamic body (29 tests),
 green. This closes the Builder-free demand only; it does not claim a physical
 ValueId, backend ABI, session, or production cutover.
 
-After C1, three branches must be green before the session:
+The three prerequisite branches are now green before the session:
 
 ```text
 branch 1:
@@ -989,7 +989,7 @@ branch 2:
   A-PRIME-VM-EXACT-I64-ENTRY-I0
 
 branch 3:
-  A-PRIME-LLVM-EXACT-I64-CAPABILITY-D0 (contract only)
+  A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 (receipt/JSON/strict-preflight transport)
 ```
 
 VM accepts `VMValue::Integer` under the exact entry contract, then carries
@@ -998,8 +998,9 @@ effect. `ExactNumeric` also rejects in this bounded row until an explicit
 normalization Decision exists; the present checker does not normalize it to an
 Integer carrier.
 
-`A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0` is mandatory before the selected
-cross-backend cutover. It is not a backend-name allowlist edit:
+`A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0` is landed as a transport boundary
+before the selected cross-backend cutover. It is not a backend-name allowlist
+edit:
 
 ```text
 exact mixed signature
@@ -1010,13 +1011,11 @@ missing/ambiguous edge, wrapper, raw integer/handle ambiguity
   -> RejectBeforeEffect
 ```
 
-The LLVM row owns parameter/call-edge capability only. It must eliminate the
+The LLVM row owns parameter/call-edge transport only. It eliminates the
 selected use of ptr/int repair, missing-argument zero, `resolve_i64`, retry, and
-fallback. Primary surfaces are the existing backend-capability owner, MIR/JSON
-call-edge metadata, `llvm_py/builders/function_lower.py`, a split child of the
-approximately 740-line `function_lower_prepass.py`, and
-`instructions/mir_call/global_call.py`. Other backends remain
-RejectBeforeEffect.
+fallback in its strict validator. The fresh session still has to issue the
+receipt and consume it exactly once; no production caller is connected yet.
+Other backends remain RejectBeforeEffect.
 
 #### Slice D: A-PRIME-SESSION-AND-CUTOVER-I0
 
@@ -1039,6 +1038,15 @@ Commit D2 — `DRAFT-SEAL-EXIT-PROJECTION-SPLIT-R0` is behavior-neutral. Split
 the 688-line `draft_seal.rs` into `draft_seal/exit_projection.rs` (target at
 most 350) before multi-return growth. Detached prepare remains the sole Return
 writer; commit remains an ownership-only move with fallible work zero.
+
+The next bounded sub-slice is now landed as a Builder-free child of that split:
+`draft_seal/multi_site_exit.rs`.  It borrows the completed, site-keyed
+Completion claims and issues a non-Clone canonical source-order claim set for
+the selected two-site cohort.  It rejects empty, non-two-site, and unit claims;
+it does not touch a Builder, CFG, TypeContext, Return instruction, or physical
+session.  `into_exact_two()` is the only bounded admission surface, and no
+parts API or second Completion owner exists.  This closes only the detached
+claim preparation; it does not claim that physical Returns are emitted.
 
 Commit D3 — `A-PRIME-I64-LOOP-PHYSICAL-SESSION-I0`:
 
