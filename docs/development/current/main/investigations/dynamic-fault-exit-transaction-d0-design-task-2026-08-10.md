@@ -509,6 +509,13 @@ provides a materialized `ValueId`. The installed package's Dynamic physical
 input currently owns only logical placement/operation/control/Fault rows, not
 Completion, ABI, or return-operand `ValueId` rows.
 
+The existing `ExactNumericRuntimeCheckContract::DynamicIntegerRange` does not
+close this gap: its owner and interpreter hook are anchored to numeric
+`FieldSet` sites, not callable Return sites, and it has no return-value
+publication or exit-transaction relation. Reusing it by changing a site label
+would create a second, incomplete return authority; extending it to returns is
+a new language/runtime Decision, not an existing proof.
+
 Therefore this row remains a design stop. Do not infer a result or ABI from
 loop shape, `return i`, `LoopValueClassV2::Dynamic`, `MirType`,
 `FunctionSignature`, TypeContext, runtime tags, selector names, or method names.
