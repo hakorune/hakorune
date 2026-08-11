@@ -864,6 +864,45 @@ Inner/outer rows are matched by exact `SourceStmtSiteV1`, never by array
 ordinal. A tagged carrier may use multiple physical IDs, so the realization
 must not invent one generic `source: ValueId` field.
 
+##### Repository-backed stop evidence (2026-08-11 audit)
+
+The current code confirms that this is a real representation stop rather than
+an untracked task name:
+
+```text
+src/mir/builder/normal_callable_dynamic_loop_prepare.rs
+  PreparedLoopCarrierRepresentationV1::SourceBackedDynamic
+  retains only BindingRef source lineage; its private Exact(I64) arm has no
+  production issuer.
+
+src/mir/builder/normal_callable_dynamic_loop_rebind.rs
+  emits the Dynamic Add BinOp but rejects when the result is unexpectedly
+  published as MirType::Integer; it does not publish a representation receipt.
+
+src/mir/builder/normal_callable_dynamic_origin.rs
+  tracks ValueId -> BindingRef origin, not ImmediateI64/IntegerBoxHandle/tag data.
+
+src/mir/return_exit_backend_capability.rs
+  gates existing exact-numeric cases only; it has no Dynamic checked-capability
+  issuer.
+
+src/backend/mir_interpreter/exec/exact_numeric_value_checker.rs
+  validates Integer/ExactNumeric values but does not normalize IntegerBox.
+
+src/llvm_py/instructions/exact_numeric_ops.py
+  has metadata-driven ptr/int and missing-value compatibility behavior; it is
+  not a Dynamic representation proof.
+
+src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/
+  current disposition has BorrowedIngressNoEnd and an owned vocabulary, but
+  the selected outer projection action is not yet issued/co-sealed.
+```
+
+Therefore the next D0 work is not to reopen Completion, Recipe, GenericLoop,
+or the existing source inventory. It is to name the representation issuer,
+target-aware backend capability issuer, and outer-disposition issuer, then
+close their negative matrix before any fresh session or Builder effect.
+
 ##### Selected-corridor representation provenance
 
 Every runtime-polymorphic value carries representation provenance from its
