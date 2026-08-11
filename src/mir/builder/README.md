@@ -128,7 +128,26 @@ Builder code should call the documented FlowPlanner / route-entry facades, not
 reach into route-specific plan internals. The current boundary SSOT is
 `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`.
 
-## Callable source ingress (current frontier)
+## Current selected-Dynamic frontier (2026-08-11)
+
+The selected `ParserScanLoopBox.skip_while/4` replacement is still
+pre-cutover.  The target production path is:
+
+```text
+installed package loan
+  -> A-prime exact-i64 physical demand
+  -> fresh canonical function session
+  -> site-keyed Completion claims
+  -> DraftSeal prepare / Collector / atomic publish
+```
+
+The A-prime demand is currently Builder-free and has no production caller by
+design.  The live production path remains the explicit migration edge below
+(`source seed -> raw AST descent -> old JoinIR route`) until the named
+cutover commit.  Do not add a second source observer, route planner, type
+repair, fallback, or retry to bridge this gap.
+
+## Legacy callable source ingress (pre-cutover edge)
 
 `normal_callable_semantic_source.rs` owns the selected normal-callable source
 loan. The S0 receipt retains the exact resolver ledger and
