@@ -2425,6 +2425,9 @@ independent fingerprint. The canonical source dispatch arities are
 `substring/2` and `indexOf/1` (receiver excluded); any receiver-inclusive
 physical spelling must be an explicitly named field, not a second arity
 authority. Physical location is auxiliary materialization evidence only.
+The earlier transport mismatch (`substring/3`/`indexOf/2`) was corrected to
+these source arities in `c5e8961c84`; this is transport hardening only and does
+not create an I6 producer or a production caller.
 
 The result handoff is split into two linear capabilities:
 
