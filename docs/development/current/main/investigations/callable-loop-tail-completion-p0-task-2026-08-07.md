@@ -35,12 +35,12 @@ existing Completion once, and marks the same return site once. A second
 Completion claim rejects, and the unpublished function session is explicitly
 discarded after the canary. The common operation physicalizer remains
 unaware of Tail, ABI, Completion, Return, and DraftSeal.
-The After receipt now also owns a non-Clone
-`ReadyCallableLoopProfileCloseV1`; it moves through the Tail/Completion
-receipt and revalidates owner, sealed After predecessor, exact operation
-family counts, and terminal block without introducing a second semantic
-owner. Its `finish` method is the required non-no-op closure input for the
-later `finish_profile_close` step.
+The common After receipt remains neutral. The existing `#[cfg(test)]`
+Callable Tail adapter owns the non-Clone `ReadyCallableLoopProfileCloseV1`; it
+moves through the Tail/Completion receipt and revalidates owner, sealed After
+predecessor, exact operation family counts, and terminal block without
+introducing a second semantic owner. Its `finish` method is the required
+non-no-op closure input for the later `finish_profile_close` step.
 
 ## Required contracts
 

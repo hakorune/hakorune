@@ -1860,7 +1860,7 @@ This is the landed pre-A-prime demand; Slice B atomically recuts the same sole
 owner to the mixed-I64 program and exact three-Fault coverage. It is not a
 second production mode.
 
-## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — THIRD IMPLEMENTATION SLICE)
+## LOOP-UNIFICATION-AFTER-DYNAMIC-D0 (OPEN — FOURTH IMPLEMENTATION SLICE)
 Decision: the bounded mixed-I64/Dynamic cohort can share the existing common
 Loop core. This is a post-result/ABI BoxShape lane, not a new source authority.
 The A-prime Builder-free demand is now green, so this series is the current
@@ -1949,6 +1949,22 @@ Focused physicalizer (27 tests), V1 demand (5 tests), HRTB demand (1 test),
 `cargo check --lib`, `git diff --check`, and
 `bash tools/checks/loop_physical_transfer_authority_guard.sh` are green. The
 next active row is `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0`.
+
+#### LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0 (CLOSED — `46fbf8d0d7`)
+
+The third BoxShape slice is landed. `recursive_after.rs` now owns only the
+neutral `ReadyLoopAfterContinuationV1` and common CFG/SSA/PHI After closure.
+`ReadyCallableLoopProfileCloseV1`, the callable `7/4/2/1` coverage check, and
+the profile condition witness now live in the existing `#[cfg(test)]`
+Callable Tail adapter. Generic G0 continues to consume only the neutral After
+receipt. The common physicalizer has no Callable profile symbols, Tail/ABI,
+Completion, Return, or DraftSeal authority.
+
+The consolidated transfer guard now enforces this boundary and the focused
+physicalizer suite, `cargo check --lib`, and diff checks remain green. Fixed
+topology receipts and the segment route were deliberately not deleted; the
+next active row is the caller census
+`LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0`.
 
 #### Post-Dynamic cleanup acceptance matrix
 

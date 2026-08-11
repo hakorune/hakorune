@@ -49,9 +49,11 @@ items from names/order, re-pair After, or coerce V2 through V1 physical demand.
 `VerifiedLoopJoinClosureV2::logical_transfer_view()` is the sole downstream
 entry for the landed logical view. It validates the branch-owned exit against
 the matching Loop summary and exposes that summary as integrity-only evidence;
-it is not a second physical action. The next common row is the physicalizer
-boundary cleanup; no Builder, MIR/CFG/PHI, ABI, session, retry, or fallback is
-opened by the ledger slice.
+it is not a second physical action. The common physicalizer boundary now stops
+at `ReadyLoopAfterContinuationV1`; Callable profile-close, Tail, ABI,
+Completion, Return, and DraftSeal remain outside this owner. The next row is
+the fixed-topology/segment caller census; no Builder, MIR/CFG/PHI, ABI,
+session, retry, or fallback is opened by the ledger or boundary cleanup.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.

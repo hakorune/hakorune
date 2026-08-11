@@ -264,8 +264,9 @@ emits them exactly once through canonical CFG/identity/PhiTxn, seals every
 segment and root After block, and returns one neutral
 `ReadyLoopAfterContinuationV1`.
 
-The Callable wrapper alone checks `7 = Pure4 + Read2 + Write1`; Tail,
-Completion, and DraftSeal remain their existing owners. The focused canary
+The Callable `#[cfg(test)]` Tail adapter alone owns the profile-close receipt
+and checks `7 = Pure4 + Read2 + Write1`; Tail, Completion, and DraftSeal remain
+their existing owners. The focused canary
 asserts exact segment coverage, a distinct root After, late-failure whole
 session discard, and fresh-session reuse. No G0 physical allocation,
 production selection, retry/fallback retirement, publication change, or broad
