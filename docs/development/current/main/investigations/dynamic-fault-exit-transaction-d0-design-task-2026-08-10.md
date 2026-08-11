@@ -2359,6 +2359,65 @@ Acceptance for this design stop:
 [ ] the next implementation row is the emitter canary, not production cutover
 ```
 
+Implementation boundary to use after this D0 is accepted:
+
+```text
+src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs
+  target size: <= 350 lines; split child modules before 500
+
+preflight (Builder effect = 0)
+  input:  VerifiedAPrimeI64PhysicalDemandV1<'program>
+         + selected package/source identity
+  output: move-only V2-native emission plan
+          - exact 17 placement rows
+          - exact 15 operation rows
+          - exact CallSlot relation rows
+          - exact I10 control/disposition requirement
+          - exact inner/outer Completion-site keys
+
+session-local realization
+  input:  the plan + canonical function session + producer-issued entry values
+  output: session-local representation receipts and value map
+          - V0..V3 entry values
+          - V1/I64 local and induction lane
+          - V4..V17 operation results
+          - I10 condition and surviving merge evidence
+  owner:  canonical SSA/CFG/PHI session; no second map escapes the session
+
+terminal
+  input:  verified deferred-return token + site-keyed completion claims
+  output: OpenFunctionDraftSealV1::prepare_exact_two(outer_site)
+  Return writer: draft_seal/exit_projection.rs only
+```
+
+The plan issuer validates the operation family exhaustively. The selected
+cohort's first operation cases are:
+
+```text
+ReadBinding / ConstI64 / BinaryI64 / CompareI64
+  -> existing low-level I64 emission primitives, with V2 rows and V2 value
+     keys retained in the family-native ledger
+
+DynamicAdd / DynamicLess / CallSlot
+  -> dedicated V2-family emitters that consume their already sealed execution
+     class/Fault/CallSlot row and issue an explicit normal-result receipt
+
+WriteBinding
+  -> canonical session identity/rebind owner, consuming the V2 binding row
+
+If / Exit
+  -> control consumer only; no operation emitter and no synthetic ItemKey
+```
+
+No operation is emitted through a `LoopOperationV1` conversion. The V2
+value ledger is private to this selected session and is discarded with the
+unpublished function on any failure. A missing producer receipt, a result
+whose class differs from its V2 value row, or a CallSlot without its exact
+co-sealed relation rejects before the first Builder effect. The implementation
+row must add focused positive/negative tests in a child test module rather
+than growing `operation_emitter.rs`, `located_if.rs`, or
+`recursive_child_lowering.rs`.
+
 Until this row is accepted and implemented, the selected Dynamic fresh-session
 canary remains `NoSafeSlice`. Do not call the old raw JoinIR route a canary and
 do not promote the package adapter. This is a BoxShape/authority boundary,
