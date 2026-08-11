@@ -782,12 +782,26 @@ rows against the same `Induction` binding, but it must not search by name,
 ordinal, or a second method inventory.  Missing, foreign, duplicate, or
 mismatched rows reject the demand.
 
-This source-facts loan is a narrow child view of the final exit co-seal.  It is
+The narrow child view is named `DynamicAPrimeI64SourceRelationViewV1<'program>`
+and is delegated through the final exit co-seal; it is not a second physical
+input view.  This source-facts loan is a narrow child view of the final exit
+co-seal.  It is
 not a new source observer, a second Recipe producer, or a public source map.
 The selected package input supplies the parameter-contract rows; the final
 program supplies the retained source/Recipe/Completion relation.  Both are
 borrowed under one HRTB callback and are consumed only to issue the exact-I64
 demand.
+
+The package's older `VerifiedSourceBackedDynamicCallableV1` sibling remains a
+generic source seed and is not the typed A-prime authority; it does not carry
+the exact `pos/end` contract.  The A-prime view must therefore delegate to the
+retained full-body source inside `VerifiedDynamicExitTransactionCoSealV1`,
+not to that legacy seed and not to a new source reissue.
+
+The 671-line `dynamic_full_body_source.rs` is already near the split band and
+must not receive the A-prime issuer.  Keep the source-relation view in a new
+small sibling module under the A-prime capability/coseal boundary; the existing
+observer only lends the already sealed rows.
 
 The minimum borrowed relation is now fixed to these existing facts:
 
