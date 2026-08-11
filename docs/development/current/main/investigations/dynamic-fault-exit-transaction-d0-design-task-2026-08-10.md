@@ -862,6 +862,53 @@ authority.  This slice landed as `9057ec8b06` with the focused co-seal test.
 The pointer now returns to the A-prime backend-transport design stop before
 any physical session code.
 
+#### A-prime physical-capability audit addendum (design stop remains open)
+
+The landed source-relation view is intentionally narrow.  It is the source/
+Recipe/Completion loan, not the complete physical-demand input.  The next
+issuer must not widen that view into a second source or callable authority.
+Instead, the private A-prime demand issuer consumes sibling facts under the
+same selected-package HRTB boundary and co-seals them once:
+
+```text
+selected callable header / exact entry edge
+  + package-owned parameter contract rows
+  + DynamicAPrimeI64SourceRelationViewV1
+  + exact I6/I7 CallSlot argument/result relations
+  + existing I64 Recipe carrier / JoinSig / After facts
+  + existing two-site VerifiedFunctionCompletionV1 facts
+  -> one Builder-free VerifiedAPrimeI64PhysicalDemandV1
+```
+
+The source-relation view must not grow `ValueId`, `BasicBlockId`, MIR,
+backend tags, call-edge ABI, or session state merely to make this issuer
+convenient.  Conversely, the demand issuer may not silently omit the
+selected callable identity/entry edge, the exact I6/I7 argument relation, or
+the owner-branded function target.  A missing or foreign sibling fact is a
+typed `RejectBeforeEffect`, never a name/ordinal/ValueId repair.
+
+The LLVM part is a transport/capability child, not a backend-name allowlist.
+Rust MIR JSON remains the single metadata emission owner.  A narrow
+A-prime exact-I64 capability projection may be added beside the existing
+parameter/call-edge metadata, then consumed by LLVM lowering as
+`Direct | RejectBeforeEffect`.  It must prove the selected mixed signature
+and every selected I6/I7 edge; it must not call `resolve_i64`, fill missing
+values with zero, or use ptr/int repair.  The generic parameter-entry
+metadata and post-MIR `FunctionEntryContract` remain distinct from the
+Builder-free demand and must not be re-used as a semantic source authority.
+
+Therefore implementation is not yet opened.  The remaining design close is
+limited to these three contracts:
+
+1. selected callable header/entry-edge ownership and exact function target;
+2. exact I6/I7 argument/result edge evidence and its co-seal with the mixed
+   Recipe/JoinSig/Completion facts; and
+3. one Rust-MIR-JSON-to-LLVM capability projection with strict
+   `Direct | RejectBeforeEffect` behavior.
+
+No new source observer, Dynamic producer, Completion owner, GenericLoop
+change, or physical session is allowed while these contracts are open.
+
 #### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
 
 Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
