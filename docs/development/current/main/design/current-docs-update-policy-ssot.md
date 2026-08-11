@@ -162,6 +162,12 @@ Changing only `current_blocker_token`, `latest_card`, `latest_card_path`, or
 `landed_tail` is a `CURRENT_STATE.toml` update. Thin mirrors should point to
 those fields by name instead of repeating the concrete row token.
 
+Backend production/reference/nonconsumer roles are live selection state. They
+belong in `CURRENT_STATE.toml` and the active card, not as a fixed VM/AOT/JIT
+priority in `AGENTS.md` or another restart mirror. The root router keeps only
+the durable rule that existing backend code and tests do not authorize parity
+or production work for an unselected backend.
+
 ## Row and Guard Growth Policy
 
 The previous phase-296x cadence produced too many docs-only rows and per-row

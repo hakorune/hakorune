@@ -165,6 +165,11 @@ Apply these laws before moving a design stop to implementation:
   names, receipt-free runtime-table probes, or metadata.
 - Classify every required backend/capability cell as exactly `Direct`,
   `Checked`, or `RejectBeforeEffect`. Fallback is not a capability class.
+- Backend role and acceptance authority come only from `CURRENT_STATE.toml`
+  and its active card. The existence of a VM/AOT/JIT implementation, test, or
+  compatibility route is evidence, not permission to add parity, a new
+  feature, or a production gate to an unselected backend. A named
+  nonconsumer/caller-zero fence remains binding until its owner reopens it.
 - Do not implement a new receipt without its named consumer and retirement
   edge in the same bounded series. Caller-zero proof chains remain design.
 - Write missing/foreign/duplicate/ambiguous/unsupported cases and, for Fault
@@ -387,6 +392,8 @@ durable pointer because root `AGENTS.md` is ignored by git.
 
 If a fixed phase name, old backend preference, or historical runtime line in
 `AGENTS.md` conflicts with `CURRENT_STATE.toml`, the current-state SSOT wins.
+Do not copy the current backend priority into the root router; keep only the
+durable rule that the current pointer and active card select backend roles.
 
 ## Unsupported Pure Shape Triage
 
