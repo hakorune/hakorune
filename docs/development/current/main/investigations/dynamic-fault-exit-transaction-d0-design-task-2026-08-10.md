@@ -549,7 +549,7 @@ result authority. Missing/non-i64 annotation, foreign provenance/declaration/
 owner, duplicate selected producer, or source/Completion mismatch reject before
 a function session opens.
 
-#### DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 (CURRENT)
+#### DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 (CLOSED 2026-08-11)
 
 This is one bounded BoxCount/source-contract slice, not a physical cutover.
 The task ID is retained for pointer stability; its responsibility is
@@ -598,6 +598,34 @@ src/mir/resolved_control_flow/function_control.rs
 src/mir/normal_callable_semantic_package/dynamic_admission.rs
   retain the existing verified Completion unchanged inside the final program
 ```
+
+Closeout receipt (2026-08-11):
+
+```text
+canonical ParserScanLoopBox.skip_while now declares : i64
+Rust final-source/resolved input reaches the existing Completion verifier
+Completion declared result = Annotated("i64")
+Completion explicit return sites = exactly 2
+no sibling result receipt, ABI writer, body/MirType inference, or fallback added
+```
+
+Focused evidence:
+
+```text
+cargo test -q --lib dynamic_full_body_source       # 6 passed
+cargo test -q --lib normal_callable_semantic_package # 11 passed
+cargo test -q --lib dynamic_full_body_recipe       # 38 passed
+cargo test -q --lib function_control               # 14 passed
+cargo test -q --lib source_resolver_handoff        # 3 passed
+cargo check -q --lib                               # green (warnings only)
+bash tools/checks/current_state_pointer_guard.sh    # ok
+bash tools/checks/naming_charter_guard.sh           # ok
+```
+
+The next boundary is intentionally a design stop: `PHYSICAL-INPUT-AUTHORITY-I0`
+must decide whether the Dynamic return operands have an existing exact-I64
+authority, a checked Dynamic-to-i64 projection, or `NoSafeSlice`. This row does
+not claim physical I64 compatibility.
 
 Required tests:
 

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The selected initializer admission design is accepted with no standalone bridge receipt and no Static/Dynamic arbitration inside the selected Dynamic cell. The bootstrap-cycle resolution architecture is accepted but not yet implemented: the active row adds explicit source `: i64` and lets the existing VerifiedFunctionCompletionV1 remain the sole semantic result/return-site owner. Dynamic-to-i64 physical operand conformance is a later PHYSICAL-INPUT design gate. Hako becomes the normalized source producer only after H2/H3/H5 parity and an atomic no-fallback cutover. GenericLoop remains an exact-MirType verifier."
+status = "The selected initializer admission design is accepted with no standalone bridge receipt and no Static/Dynamic arbitration inside the selected Dynamic cell. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 is closed: canonical skip_while declares : i64 and the existing VerifiedFunctionCompletionV1 remains the sole semantic result/return-site owner with exactly two explicit sites. The next design stop is PHYSICAL-INPUT-AUTHORITY-I0 for Dynamic-to-i64 physical operand conformance; no physical compatibility is claimed. Hako becomes the normalized source producer only after H2/H3/H5 parity and an atomic no-fallback cutover. GenericLoop remains an exact-MirType verifier."
 date = "2026-08-11"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0"
-current_blocker_token = "Add explicit `: i64` to the canonical ParserScanLoopBox.skip_while declaration and prove that the existing selected Rust final-source/resolved input reaches verify_function_completion_v1 as Annotated(i64) with the exact two return sites. VerifiedFunctionCompletionV1 remains the sole semantic result/exit-site owner; add no sibling Verified result contract or independent annotation classifier. Reject missing/non-i64, foreign, duplicate, or mismatched source/owner rows before Builder effects. Do not claim Dynamic ValueId-to-i64 physical conformance, infer from body/MirType/signature/ABI/runtime/name, implement the Hako producer, add fallback/retry, or open physical session/cutover work."
+current_design_stop = "PHYSICAL-INPUT-AUTHORITY-I0"
+work_mode = "design_stop"
+current_execution_row = "PHYSICAL-INPUT-AUTHORITY-I0"
+current_blocker_token = "Decide the sole authority for selected Dynamic return operands at the physical-input boundary. Use an existing exact-I64 proof, or design a checked Dynamic-to-i64 projection with its Fault/cleanup/normal-publication contract; otherwise keep NoSafeSlice. Do not attach MirType::Integer from the : i64 annotation alone, add a sibling result contract, reopen Completion ownership, modify GenericLoop, or open physical session/cutover work."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "DYNAMIC-CALLABLE-RESULT-CONTRACT-I0"
+next_design_card = "PHYSICAL-INPUT-AUTHORITY-I0"
+next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The standalone initializer bridge and Static/Dynamic closed-sum selector are retired from the selected Dynamic cell. The immediate row adds explicit skip_while : i64 and proves existing VerifiedFunctionCompletionV1 is the sole semantic result/return-site owner. Next: Dynamic-to-i64 physical-input conformance; Loop BoxShape cleanup plus selected If/Exit coverage; multi-site physical session; selected cutover; post-cutover topology deletion; H2/H3/H5; Hako producer cutover; mimalloc promotion gate."
+latest_card_summary = "The standalone initializer bridge and Static/Dynamic closed-sum selector are retired from the selected Dynamic cell. DYNAMIC-CALLABLE-RESULT-CONTRACT-I0 is closed: canonical skip_while declares : i64 and existing VerifiedFunctionCompletionV1 seals the sole semantic result/return-site owner with two explicit sites. Current design stop: PHYSICAL-INPUT-AUTHORITY-I0 must decide Dynamic-to-i64 physical conformance before Loop cleanup, multi-site session, selected cutover, H2/H3/H5, Hako producer cutover, or the mimalloc promotion gate."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

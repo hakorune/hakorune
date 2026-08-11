@@ -1,5 +1,7 @@
 use crate::ast::ASTNode;
-use crate::mir::resolved_control_flow::verify_function_completion_v1;
+use crate::mir::resolved_control_flow::{
+    verify_function_completion_v1, DeclaredFunctionResultContractV1,
+};
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
 use crate::parser::NyashParser;
 
@@ -58,6 +60,10 @@ fn unchanged_skip_while_issues_complete_ast_free_source_inventory() {
 
     assert_eq!(product.bindings().len(), 6);
     assert_eq!(product.rows().len(), 28);
+    assert_eq!(
+        product.completion().function_exit_contract().declared_result(),
+        &DeclaredFunctionResultContractV1::Annotated("i64".into())
+    );
     assert_eq!(product.completion().explicit_sites().len(), 2);
     assert_eq!(
         product.loop_membership().source().site().node().segments(),

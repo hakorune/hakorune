@@ -4,7 +4,7 @@ using lang.compiler.parser.scan.parser_common_utils_box as ParserCommonUtilsBox
 
 static box ParserScanLoopBox {
   // Skip while current char is in pred_chars. Returns next pos.
-  skip_while(src, pos, end, pred_chars) {
+  skip_while(src, pos, end, pred_chars): i64 {
     local i = pos
     loop(i < end) {
       local ch = src.substring(i, i + 1)
