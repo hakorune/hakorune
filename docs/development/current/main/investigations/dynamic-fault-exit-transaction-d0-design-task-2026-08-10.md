@@ -835,6 +835,32 @@ until this issuer boundary, the VM/LLVM matrix, and the focused
 missing/foreign/duplicate/ambiguous negative tests are landed in the design
 record and accepted.  This is a design close, not a new task card.
 
+#### A-PRIME-SOURCE-RELATION-VIEW-I0 (behavior-neutral prerequisite)
+
+This is the only implementation slice allowed before the backend transport
+Decision closes.  It adds the private HRTB-borrowed
+`DynamicAPrimeI64SourceRelationViewV1<'program>` and its focused tests.  The
+view is issued from the final exit co-seal using the already retained source,
+claims, Recipe, and Completion facts.  It does not lower instructions, open a
+session, publish a type, or select a backend.
+
+Acceptance:
+
+```text
+exact Pos/End/Induction bindings and declarations
+exact PreludeInitializerPos -> Pos resolver relation
+exact LoopConditionI / StepReadI / StepTargetI / InnerReturnI / OuterReturnI
+exact Recipe binding/carrier/value classes and claim targets
+exact two Completion sites
+missing/foreign/duplicate/mismatched rows -> typed reject
+ValueId / BasicBlockId / MIR / helper / fallback / retry -> absent
+```
+
+The implementation must live in a new small sibling module; neither the
+671-line source observer nor the common physical-input view grows a new
+authority.  After this behavior-neutral slice lands, the pointer returns to
+the A-prime backend-transport design stop before any physical session code.
+
 #### Slice C: A-PRIME-PHYSICAL-INPUT-I0 (after the live capability Decision)
 
 Commit C1 — `A-PRIME-PHYSICAL-INPUT-I0` remains Builder-free:
