@@ -2347,7 +2347,10 @@ and produce exactly two normal Return instructions in the unpublished draft.
 This keeps DraftSeal as the single Return writer while avoiding post-hoc CFG
 repair.
 
-The implementation remains staged inside this one rolling card:
+The builder-disconnected disposition token and one-sided predecessor verifier
+are now landed in `if_materialization.rs`; they do not emit a Return and have
+no production caller. The implementation remains staged inside this one
+rolling card:
 
 ```text
 1. detached claim/projection (closed)

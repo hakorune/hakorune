@@ -8,7 +8,7 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::emission::{branch, phi_lifecycle};
-use crate::mir::resolved_semantics::BindingRefV1;
+use crate::mir::resolved_semantics::{BindingRefV1, SourceStmtSiteV1};
 use crate::mir::verification::utils::compute_predecessors;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
@@ -54,6 +54,67 @@ pub(super) struct IfCfgSessionV1 {
     else_route: ElseRouteV1,
     then_exit: Option<BasicBlockId>,
     else_exit: Option<BasicBlockId>,
+    then_deferred_return: Option<BasicBlockId>,
+    else_deferred_return: Option<BasicBlockId>,
+    deferred_return_verified: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct PendingDeferredReturnDispositionV1 {
+    branch: DeferredReturnBranchV1,
+    site: SourceStmtSiteV1,
+    block: BasicBlockId,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum DeferredReturnBranchV1 {
+    Then,
+    Else,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct VerifiedDeferredReturnDispositionV1 {
+    branch: DeferredReturnBranchV1,
+    site: SourceStmtSiteV1,
+    terminal_block: BasicBlockId,
+    surviving_predecessor: BasicBlockId,
+    merge: BasicBlockId,
+}
+
+impl PendingDeferredReturnDispositionV1 {
+    pub(super) fn branch(&self) -> DeferredReturnBranchV1 {
+        self.branch
+    }
+
+    pub(super) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(super) fn block(&self) -> BasicBlockId {
+        self.block
+    }
+}
+
+impl VerifiedDeferredReturnDispositionV1 {
+    pub(super) fn branch(&self) -> DeferredReturnBranchV1 {
+        self.branch
+    }
+
+    pub(super) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(super) fn terminal_block(&self) -> BasicBlockId {
+        self.terminal_block
+    }
+
+    pub(super) fn surviving_predecessor(&self) -> BasicBlockId {
+        self.surviving_predecessor
+    }
+
+    pub(super) fn merge(&self) -> BasicBlockId {
+        self.merge
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,7 +151,7 @@ impl IfCfgSessionV1 {
     }
 
     pub(super) fn close_then(&mut self, builder: &mut MirBuilder) -> Result<(), String> {
-        if self.then_exit.is_some() {
+        if self.then_exit.is_some() || self.then_deferred_return.is_some() {
             return Err("[freeze:contract][canonical_if/then_closed_twice]".to_string());
         }
         let exit = current_unterminated_block(builder, "then")?;
@@ -107,7 +168,7 @@ impl IfCfgSessionV1 {
     }
 
     pub(super) fn close_else(&mut self, builder: &mut MirBuilder) -> Result<(), String> {
-        if self.else_exit.is_some() {
+        if self.else_exit.is_some() || self.else_deferred_return.is_some() {
             return Err("[freeze:contract][canonical_if/else_closed_twice]".to_string());
         }
         if matches!(self.else_route, ElseRouteV1::ImplicitFalse) {
@@ -119,10 +180,129 @@ impl IfCfgSessionV1 {
         Ok(())
     }
 
+    /// Close one selected Dynamic terminal arm without emitting a Return.
+    /// The returned token is only CFG evidence; `exit_projection.rs` remains
+    /// the sole Return writer.  The surviving arm must be closed normally and
+    /// the token must then be verified exactly once.
+    pub(super) fn close_then_with_deferred_return(
+        &mut self,
+        builder: &mut MirBuilder,
+        site: SourceStmtSiteV1,
+    ) -> Result<PendingDeferredReturnDispositionV1, String> {
+        if self.then_exit.is_some() || self.then_deferred_return.is_some() {
+            return Err("[freeze:contract][canonical_if/then_closed_twice]".to_string());
+        }
+        let block = current_unterminated_block(builder, "then")?;
+        self.then_deferred_return = Some(block);
+        Ok(PendingDeferredReturnDispositionV1 {
+            branch: DeferredReturnBranchV1::Then,
+            site,
+            block,
+        })
+    }
+
+    pub(super) fn close_else_with_deferred_return(
+        &mut self,
+        builder: &mut MirBuilder,
+        site: SourceStmtSiteV1,
+    ) -> Result<PendingDeferredReturnDispositionV1, String> {
+        if self.else_exit.is_some() || self.else_deferred_return.is_some() {
+            return Err("[freeze:contract][canonical_if/else_closed_twice]".to_string());
+        }
+        if matches!(self.else_route, ElseRouteV1::ImplicitFalse) {
+            return Err("[freeze:contract][canonical_if/implicit_else_close]".to_string());
+        }
+        let block = current_unterminated_block(builder, "else")?;
+        self.else_deferred_return = Some(block);
+        Ok(PendingDeferredReturnDispositionV1 {
+            branch: DeferredReturnBranchV1::Else,
+            site,
+            block,
+        })
+    }
+
+    /// Verify a one-sided terminal disposition and move the cursor to merge.
+    /// No PHI rows are admitted and the terminal arm is never a merge
+    /// predecessor.  Normal two-arm verification deliberately rejects any
+    /// pending disposition instead of silently mixing the contracts.
+    pub(super) fn verify_deferred_return(
+        &mut self,
+        builder: &mut MirBuilder,
+        pending: PendingDeferredReturnDispositionV1,
+    ) -> Result<VerifiedDeferredReturnDispositionV1, String> {
+        if self.deferred_return_verified {
+            return Err("[freeze:contract][canonical_if/deferred_return_reconsumed]".to_string());
+        }
+        let (terminal_block, surviving_predecessor) = match pending.branch {
+            DeferredReturnBranchV1::Then => {
+                if self.then_deferred_return != Some(pending.block) || self.then_exit.is_some() {
+                    return Err(
+                        "[freeze:contract][canonical_if/then_disposition_mismatch]".to_string()
+                    );
+                }
+                let surviving = match self.else_route {
+                    ElseRouteV1::ImplicitFalse => self.layout.header,
+                    ElseRouteV1::Explicit { .. } => self.else_exit.ok_or_else(|| {
+                        "[freeze:contract][canonical_if/explicit_else_not_closed]".to_string()
+                    })?,
+                };
+                (pending.block, surviving)
+            }
+            DeferredReturnBranchV1::Else => {
+                if self.else_deferred_return != Some(pending.block) || self.else_exit.is_some() {
+                    return Err(
+                        "[freeze:contract][canonical_if/else_disposition_mismatch]".to_string()
+                    );
+                }
+                let surviving = self
+                    .then_exit
+                    .ok_or_else(|| "[freeze:contract][canonical_if/then_not_closed]".to_string())?;
+                (pending.block, surviving)
+            }
+        };
+        let actual = compute_predecessors(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .ok_or_else(|| {
+                    "[freeze:contract][canonical_if/predecessors_without_function]".to_string()
+                })?,
+        )
+        .remove(&self.layout.merge)
+        .unwrap_or_default()
+        .into_iter()
+        .collect::<BTreeSet<_>>();
+        let expected = [surviving_predecessor].into_iter().collect::<BTreeSet<_>>();
+        if actual != expected || actual.contains(&terminal_block) {
+            return Err(format!(
+                "[freeze:contract][canonical_if/deferred_return_predecessor_mismatch] expected={expected:?} actual={actual:?} terminal={terminal_block:?}"
+            ));
+        }
+        self.deferred_return_verified = true;
+        builder.start_new_block(self.layout.merge)?;
+        Ok(VerifiedDeferredReturnDispositionV1 {
+            branch: pending.branch,
+            site: pending.site,
+            terminal_block,
+            surviving_predecessor,
+            merge: self.layout.merge,
+        })
+    }
+
     pub(super) fn verify_actual_predecessors(
         &self,
         builder: &mut MirBuilder,
     ) -> Result<VerifiedIfMergePredecessorsV1, String> {
+        if self.then_deferred_return.is_some()
+            || self.else_deferred_return.is_some()
+            || self.deferred_return_verified
+        {
+            return Err(
+                "[freeze:contract][canonical_if/deferred_return_requires_one_sided_verify]"
+                    .to_string(),
+            );
+        }
         let then_pred = self
             .then_exit
             .ok_or_else(|| "[freeze:contract][canonical_if/then_not_closed]".to_string())?;
@@ -186,6 +366,9 @@ impl IfCfgSessionV1 {
                 .unwrap_or(ElseRouteV1::ImplicitFalse),
             then_exit: None,
             else_exit: None,
+            then_deferred_return: None,
+            else_deferred_return: None,
+            deferred_return_verified: false,
         })
     }
 }

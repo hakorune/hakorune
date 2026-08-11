@@ -3,7 +3,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use hakorune_mir_core::BindingId;
 
 use crate::mir::builder::emission::{branch, constant};
-use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIssuerV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+};
+use crate::mir::verification::utils::compute_predecessors;
 use crate::mir::{ConstValue, MirInstruction, MirType, ValueId};
 
 use super::branch_transaction::{
@@ -11,7 +14,8 @@ use super::branch_transaction::{
 };
 use super::if_cfg_ready_bridge::VerifiedResolvedIfCfgReadyJoinRowsV1;
 use super::if_materialization::{
-    define_join_phis, DefinedJoinPublishV1, DefinedJoinValueStoreV1, IfCfgSessionV1,
+    define_join_phis, DeferredReturnBranchV1, DefinedJoinPublishV1, DefinedJoinValueStoreV1,
+    IfCfgSessionV1,
 };
 use super::MirBuilder;
 
@@ -445,6 +449,58 @@ fn explicit_else_uses_both_actual_branch_exits() {
     assert!(actual[&layout.merge()].contains(&layout.then_entry()));
     assert!(actual[&layout.merge()].contains(&else_exit));
     assert_eq!(layout.else_entry(), Some(else_exit));
+}
+
+#[test]
+fn deferred_then_return_excludes_terminal_arm_from_merge() {
+    let (mut builder, condition, _) = builder_fixture();
+    let site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+    ]));
+    let mut session = IfCfgSessionV1::open_explicit_else(&mut builder, condition).unwrap();
+    let layout = session.layout();
+
+    session.enter_then(&mut builder).unwrap();
+    let pending = session
+        .close_then_with_deferred_return(&mut builder, site.clone())
+        .unwrap();
+    assert_eq!(pending.branch(), DeferredReturnBranchV1::Then);
+    assert_eq!(pending.block(), layout.then_entry());
+
+    session.enter_else(&mut builder).unwrap();
+    let surviving = builder.function_state.current_block.unwrap();
+    session.close_else(&mut builder).unwrap();
+    let verified = session
+        .verify_deferred_return(&mut builder, pending)
+        .unwrap();
+
+    assert_eq!(verified.branch(), DeferredReturnBranchV1::Then);
+    assert_eq!(verified.site(), &site);
+    assert_eq!(verified.terminal_block(), layout.then_entry());
+    assert_eq!(verified.surviving_predecessor(), surviving);
+    assert_eq!(verified.merge(), layout.merge());
+    assert_eq!(builder.function_state.current_block, Some(layout.merge()));
+
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    assert!(function
+        .get_block(layout.then_entry())
+        .unwrap()
+        .terminator
+        .is_none());
+    assert_eq!(
+        compute_predecessors(function)
+            .remove(&layout.merge())
+            .unwrap()
+            .into_iter()
+            .collect::<BTreeSet<_>>(),
+        [surviving].into_iter().collect()
+    );
+    assert!(function
+        .get_block(layout.merge())
+        .unwrap()
+        .phi_instructions()
+        .next()
+        .is_none());
 }
 
 #[test]
