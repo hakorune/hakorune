@@ -1,4 +1,4 @@
-// NyRT Dynamic CallSlot v2 transport schema (I0-A only).
+// NyRT Dynamic CallSlot v2 transport schema (wire revision 2).
 //
 // This header declares fixed-width wire vocabulary only.  It intentionally
 // declares no runtime function and no provider/selector registry entry.
@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define HAKO_DYNAMIC_V2_WIRE_REVISION_V1 UINT32_C(1)
+#define HAKO_DYNAMIC_V2_WIRE_REVISION_V2 UINT32_C(2)
 #define HAKO_DYNAMIC_V2_FORWARDED_NONE_V1 UINT32_MAX
 
 #define HAKO_DYNAMIC_V2_TAG_INVALID UINT32_C(0)
@@ -75,7 +75,7 @@ HAKO_DYNAMIC_V2_STATIC_ASSERT(offsetof(HakoDynamicV2CallOutV1, reserved) == 20, 
 HAKO_DYNAMIC_V2_STATIC_ASSERT(offsetof(HakoDynamicV2CallOutV1, value_payload) == 24, "out value offset");
 HAKO_DYNAMIC_V2_STATIC_ASSERT(offsetof(HakoDynamicV2CallOutV1, lease_token) == 32, "out lease offset");
 HAKO_DYNAMIC_V2_STATIC_ASSERT(offsetof(HakoDynamicV2CallOutV1, continuation_token) == 40, "out continuation offset");
-HAKO_DYNAMIC_V2_STATIC_ASSERT(HAKO_DYNAMIC_V2_WIRE_REVISION_V1 == 1, "wire revision");
+HAKO_DYNAMIC_V2_STATIC_ASSERT(HAKO_DYNAMIC_V2_WIRE_REVISION_V2 == 2, "wire revision");
 HAKO_DYNAMIC_V2_STATIC_ASSERT(HAKO_DYNAMIC_V2_TAG_INVALID == 0, "invalid tag");
 HAKO_DYNAMIC_V2_STATIC_ASSERT(HAKO_DYNAMIC_V2_TAG_HOST_HANDLE == 1, "host handle tag");
 HAKO_DYNAMIC_V2_STATIC_ASSERT(HAKO_DYNAMIC_V2_TAG_IMMEDIATE_I64 == 2, "i64 tag");

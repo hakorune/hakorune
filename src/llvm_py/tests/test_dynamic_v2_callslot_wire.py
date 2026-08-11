@@ -19,6 +19,7 @@ from builders.dynamic_v2_callslot_wire import (
     STATUS_NORMAL,
     STATUS_SUSPENDED,
     TAG_HOST_HANDLE,
+    TAG_IMMEDIATE_I64,
     TAG_INVALID,
     validate_call_out,
     validate_wire_value,
@@ -56,8 +57,8 @@ class TestDynamicV2CallslotWire(unittest.TestCase):
         self.assertEqual(DynamicV2CallOutV1.lease_token.offset, 32)
         self.assertEqual(DynamicV2CallOutV1.continuation_token.offset, 40)
 
-    def test_constants_are_revision_one_wire_values(self):
-        self.assertEqual(wire.WIRE_REVISION, 1)
+    def test_constants_are_revision_two_wire_values(self):
+        self.assertEqual(wire.WIRE_REVISION, 2)
         self.assertEqual(
             [wire.TAG_INVALID, wire.TAG_HOST_HANDLE, wire.TAG_IMMEDIATE_I64],
             [0, 1, 2],
@@ -93,6 +94,43 @@ class TestDynamicV2CallslotWire(unittest.TestCase):
         out = normal_end_authorized()
         out["value_payload"] = 0
         validate_call_out(out, argc=0)
+
+    def test_immediate_i64_normal_has_no_lifecycle_disposition(self):
+        out = normal_end_authorized()
+        out.update(
+            result_tag=TAG_IMMEDIATE_I64,
+            disposition=DISPOSITION_NONE,
+            forwarded_input=FORWARDED_NONE,
+            value_payload=0,
+            lease_token=0,
+        )
+        validate_call_out(out, argc=0)
+
+    def test_immediate_i64_normal_rejects_lease_or_forwarded_lane(self):
+        out = normal_end_authorized()
+        out.update(
+            result_tag=TAG_IMMEDIATE_I64,
+            disposition=DISPOSITION_NONE,
+            forwarded_input=FORWARDED_NONE,
+            lease_token=1,
+        )
+        with self.assertRaises(ValueError):
+            validate_call_out(out)
+        out.update(
+            disposition=wire.DISPOSITION_END_AUTHORIZED,
+            forwarded_input=FORWARDED_NONE,
+            lease_token=1,
+        )
+        with self.assertRaises(ValueError):
+            validate_call_out(out)
+        out.update(lease_token=0)
+        out.update(
+            disposition=wire.DISPOSITION_FORWARDED,
+            forwarded_input=0,
+            lease_token=0,
+        )
+        with self.assertRaises(ValueError):
+            validate_call_out(out)
 
     def test_end_authorized_sentinel_is_not_checked_as_a_lane(self):
         validate_call_out(normal_end_authorized(), argc=0)

@@ -6,7 +6,10 @@
 
 use std::convert::TryFrom;
 
-pub(crate) const DYNAMIC_V2_WIRE_REVISION_V1: u32 = 1;
+/// Revision 2 keeps the fixed layout and adds a lease-free Normal form for
+/// `ImmediateI64`.  The `V1` type suffix names the unchanged C layout, not
+/// the validity revision.
+pub(crate) const DYNAMIC_V2_WIRE_REVISION_V2: u32 = 2;
 pub(crate) const DYNAMIC_V2_FORWARDED_NONE_V1: u32 = u32::MAX;
 
 #[repr(u32)]
@@ -180,20 +183,28 @@ impl DynamicV2CallOutV1 {
             DynamicV2CallStatusV1::Normal => {
                 if fault != DynamicV2CallFaultCodeV1::None
                     || tag == DynamicV2WireTagV1::Invalid
-                    || disposition == DynamicV2CallDispositionV1::None
                     || self.continuation_token != 0
                 {
                     return Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome);
                 }
                 match disposition {
+                    DynamicV2CallDispositionV1::None
+                        if tag != DynamicV2WireTagV1::ImmediateI64
+                            || self.forwarded_input != DYNAMIC_V2_FORWARDED_NONE_V1
+                            || self.lease_token != 0 =>
+                    {
+                        return Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
+                    }
                     DynamicV2CallDispositionV1::Forwarded
-                        if self.forwarded_input == DYNAMIC_V2_FORWARDED_NONE_V1
+                        if tag != DynamicV2WireTagV1::HostHandle
+                            || self.forwarded_input == DYNAMIC_V2_FORWARDED_NONE_V1
                             || self.lease_token != 0 =>
                     {
                         return Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
                     }
                     DynamicV2CallDispositionV1::EndAuthorized
-                        if self.forwarded_input != DYNAMIC_V2_FORWARDED_NONE_V1
+                        if tag != DynamicV2WireTagV1::HostHandle
+                            || self.forwarded_input != DYNAMIC_V2_FORWARDED_NONE_V1
                             || self.lease_token == 0 =>
                     {
                         return Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
@@ -279,6 +290,20 @@ mod tests {
         }
     }
 
+    fn normal_immediate_i64() -> DynamicV2CallOutV1 {
+        DynamicV2CallOutV1 {
+            status: DynamicV2CallStatusV1::Normal as u32,
+            fault_code: DynamicV2CallFaultCodeV1::None as u32,
+            result_tag: DynamicV2WireTagV1::ImmediateI64 as u32,
+            disposition: DynamicV2CallDispositionV1::None as u32,
+            forwarded_input: DYNAMIC_V2_FORWARDED_NONE_V1,
+            reserved: 0,
+            value_payload: 0,
+            lease_token: 0,
+            continuation_token: 0,
+        }
+    }
+
     #[test]
     fn c_layout_is_fixed_width() {
         assert_eq!(std::mem::size_of::<DynamicV2WireValueV1>(), 16);
@@ -307,6 +332,37 @@ mod tests {
         let mut out = normal_end_authorized();
         out.value_payload = 0;
         assert_eq!(out.validate_transport(), Ok(DynamicV2CallStatusV1::Normal));
+    }
+
+    #[test]
+    fn immediate_i64_normal_has_no_lifecycle_disposition() {
+        let out = normal_immediate_i64();
+        assert_eq!(out.validate_transport(), Ok(DynamicV2CallStatusV1::Normal));
+        assert!(out.validate_forwarded_arity(0).is_ok());
+    }
+
+    #[test]
+    fn immediate_i64_cannot_publish_lease_or_forwarded_lane() {
+        let mut out = normal_immediate_i64();
+        out.lease_token = 1;
+        assert_eq!(
+            out.validate_transport(),
+            Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
+        );
+        out.lease_token = 0;
+        out.disposition = DynamicV2CallDispositionV1::EndAuthorized as u32;
+        out.lease_token = 1;
+        assert_eq!(
+            out.validate_transport(),
+            Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
+        );
+        out.lease_token = 0;
+        out.disposition = DynamicV2CallDispositionV1::Forwarded as u32;
+        out.forwarded_input = 0;
+        assert_eq!(
+            out.validate_transport(),
+            Err(DynamicV2WireSchemaRejectV1::InvalidNormalOutcome)
+        );
     }
 
     #[test]

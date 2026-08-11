@@ -14,7 +14,7 @@ DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_deman
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
-WIRE_RS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/call_slot_wire.rs"
+WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
 WIRE_PY="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_callslot_wire.py"
 WIRE_C="$ROOT_DIR/include/nyrt_dynamic_call_slot_v2.h"
 

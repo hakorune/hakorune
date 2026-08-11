@@ -2580,13 +2580,13 @@ not put provider brands, plan identities, selector text, or raw lease tokens
 into the compiler semantic product; those remain private capability values
 in later slices.
 
-The revision is compile-time/out-of-band in this slice: the Rust `V1` type,
+The original I0-A revision was compile-time/out-of-band: the Rust `V1` type,
 the Python `WIRE_REVISION`, and the C revision macro must all equal `1`. The
 wire structs carry no runtime revision field, so an unknown revision is not a
 representable decoded value; a future versioned loader must reject a schema
 mismatch before decoding these structs.
 
-I0-A acceptance:
+I0-A acceptance (historical revision-1 schema; superseded by R0):
 
 ```text
 [ ] Rust repr(C)/repr(u32) model and C header layout are exact
@@ -2626,9 +2626,49 @@ current_state_pointer_guard.sh: green
 The slice adds no runtime symbol, provider registry, VM/LLVM call, receipt
 issuer, I6/V10 lane, I7/V11 result decision, physical End, or production
 caller. `DynamicV2CallOutV1` remains non-Clone/non-Copy so the later runtime
-owner can enforce one-shot lease/discharge consumption. The next row is the
-provider authority design stop below; a dispatcher-only implementation would
-be an orphan authority and is not open.
+owner can enforce one-shot lease/discharge consumption. This revision-1
+receipt is historical transport evidence; the active wire authority is the
+revision-2 row below. No dispatcher-only implementation is opened.
+
+#### DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0 — implementation receipt (2026-08-12)
+
+The C header remains the sole fixed-width layout owner. The Rust projection
+was moved from the MIR emitter canary to `src/abi/dynamic_call_slot_wire.rs`;
+the MIR module edge and duplicate file were removed. The Python/LLVM module
+remains a checked projection only.
+
+Wire revision 2 preserves the 16-byte value and 48-byte call-out layouts and
+all existing tag/status/disposition/fault numeric values. It adds exactly one
+valid Normal form for the landed exact-I64 corridor:
+
+```text
+Normal + ImmediateI64 + None disposition
+  forwarded_input = UINT32_MAX
+  lease_token = 0
+  continuation_token = 0
+
+Normal + HostHandle
+  still requires Forwarded or EndAuthorized lifecycle rules
+```
+
+Rust, Python, and C parity guards cover revision/constants, retired MIR
+ownership, fixed layouts, and the ImmediateI64 validity/negative matrix.
+Focused receipt:
+
+```text
+Rust wire tests: 10 passed
+Python wire tests: 10 passed
+C11 and C++17 header syntax checks: passed
+dynamic_v2_callslot_wire_authority_guard.sh: green
+dynamic_v2_physical_input_authority_guard.sh: green
+current_state_pointer_guard.sh: green
+```
+
+No provider, registry, runtime symbol, LLVM/VM caller, receipt issuer,
+fallback, retry, or production switch was added.
+
+The next bounded row is the selected AOT executable cell; it remains closed
+until its complete provider/admission authority is implemented atomically.
 
 #### DYNAMIC-V2-CALLSLOT-RUNTIME-DISPATCH-I0-B — superseded forecast
 

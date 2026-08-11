@@ -1,4 +1,4 @@
-"""Transport-only schema mirror for Dynamic CallSlot ABI v2 (I0-A).
+"""Transport-only projection of the C-owned Dynamic CallSlot wire revision 2.
 
 This module intentionally has no runtime dispatch or provider lookup.  It is
 used by schema/parity tests until a backend capability owns a live descriptor.
@@ -7,7 +7,7 @@ used by schema/parity tests until a backend capability owns a live descriptor.
 import ctypes
 
 
-WIRE_REVISION = 1
+WIRE_REVISION = 2
 FORWARDED_NONE = 0xFFFFFFFF
 
 TAG_INVALID = 0
@@ -128,15 +128,26 @@ def validate_call_out(out, *, argc=None, allow_suspended=True):
         if (
             out["fault_code"] != FAULT_NONE
             or out["result_tag"] == TAG_INVALID
-            or out["disposition"] == DISPOSITION_NONE
             or out["continuation_token"] != 0
         ):
             raise ValueError("invalid normal call outcome")
-        if out["disposition"] == DISPOSITION_FORWARDED:
+        if out["disposition"] == DISPOSITION_NONE:
+            if (
+                out["result_tag"] != TAG_IMMEDIATE_I64
+                or out["forwarded_input"] != FORWARDED_NONE
+                or out["lease_token"] != 0
+            ):
+                raise ValueError("invalid immediate-i64 normal outcome")
+        elif out["disposition"] == DISPOSITION_FORWARDED:
+            if out["result_tag"] != TAG_HOST_HANDLE:
+                raise ValueError("forwarded outcome requires a host handle")
             if out["forwarded_input"] == FORWARDED_NONE or out["lease_token"] != 0:
                 raise ValueError("invalid forwarded outcome")
-        elif out["forwarded_input"] != FORWARDED_NONE or out["lease_token"] == 0:
-            raise ValueError("invalid end-authorized outcome")
+        else:
+            if out["result_tag"] != TAG_HOST_HANDLE:
+                raise ValueError("end-authorized outcome requires a host handle")
+            if out["forwarded_input"] != FORWARDED_NONE or out["lease_token"] == 0:
+                raise ValueError("invalid end-authorized outcome")
         if (
             argc is not None
             and out["forwarded_input"] != FORWARDED_NONE
