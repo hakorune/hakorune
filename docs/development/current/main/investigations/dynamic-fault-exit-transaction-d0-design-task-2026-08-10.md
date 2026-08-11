@@ -2636,153 +2636,146 @@ authority, production receipt issuer, and selected LLVM consumer.
 #### DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 (CURRENT DESIGN STOP — NoSafeSlice)
 
 The row token is retained for pointer continuity; no product named
-`ProviderPlan` is accepted by this Decision.
-
-The global provider architecture already has one accepted truth spine, but
-its production owners are not implemented for I6. `BoxCallableRegistry` is a
-mutable/Clone skeleton; `VerifiedProviderSlotContractV1`,
-`ProviderAdmissionSeal`, and `RuntimeExecutablePlanV1` are not live code.
-The production I6 receipt issuer, LLVM preflight/hook, strict runtime symbol,
-and one-shot lease issuer all have caller count zero. I0-A therefore closes
-transport only, and I0-B remains `NoSafeSlice`.
-
-The proposed Dynamic-specific registry and call-time provider selection are
-rejected. The sole target architecture is the existing provider spine:
+`ProviderPlan` is accepted. The presealed runtime architecture is accepted,
+but the exact complete `ProviderSlot` contract is not yet named, so I0-B stays
+`NoSafeSlice`.
 
 ```text
-exact co-sealed I6 relation + invocation envelope
-  + VerifiedProviderSlotContractV1
-  + ProviderAdmissionSeal / admitted BoxCallableRegistry row
-      -> MethodCallRoutePlan
-      -> RuntimeExecutablePlanV1 { PlanStamp, image pin, exact entry }
-      -> private VerifiedDynamicCallSlotExecutableDispatchV1
-
-runtime actual receiver class
-      -> strict check of the already sealed branch
-      -> one lifecycle/image lease
-      -> invoke exactly once
+Decision:
+  REVISE: reject an I6-only slot and any selector-derived String/provider
+  claim; use one complete capability and a presealed canonical receiver branch
+Source authority + canonical issuer:
+  ProviderSlot contract artifact + provider export facts
+    -> one consuming ProviderAdmissionSeal
+    -> immutable admitted BoxCallableRegistry
+    -> RoutePlan -> RuntimeExecutablePlan
+Non-authority:
+  I6/I7 names, Dynamic value class, raw String/StringBox keys, slot numbers,
+  TypeRegistry, LLVM, runtime, PluginLoader compatibility snapshots, Rust VM
+Fail-fast boundary:
+  incomplete capability, I6/I7 drift, undeclared alias, duplicate/collision,
+  ambiguous branch, foreign image/plan, or unsafe lease rejects before effect
+Smallest next slice:
+  close COMPLETE-SLOT-CONTRACT-D0 below, docs-only, in this rolling card
+Non-claims:
+  no provider/admission code, runtime symbol, LLVM hook, I6/I7 emission,
+  Physical End, VM consumer, fallback, retry, or production switch
 ```
 
-For this bounded I6 cell the closed dispatch contains exactly one String
-receiver branch. Runtime performs no registry lookup, provider/image
-reselection, selector lookup, or fallback. A future `ProviderLease` proves
-lifetime only; it is not a provider-selection authority. A separate Dynamic
-canonical registry or a second `ProviderAdmissionSeal` is forbidden.
-
-Current execution brief:
+The current exact source/Recipe authority closes only these relations:
 
 ```text
-Change:
-  name the exact global provider, neutral wire, production receipt, LLVM
-  consumer, strict runtime, and lease seams; add no code or fixture
-Contract:
-  admission/build time seals the executable branch; runtime only validates
-  the actual receiver and consumes that branch; AOT/LLVM is production
-Done:
-  every missing owner below has one canonical issuer and one named consumer;
-  runtime reselection and Rust VM production consumers are zero
-Stop:
-  any orphan plan, Dynamic registry, selector repair, VM adapter, legacy
-  helper, sentinel, retry, or fallback keeps this row NoSafeSlice
+I6: substring/2, V0:Dynamic, [V6:I64, V9:I64] -> V10:Dynamic
+I7: indexOf/1, V3:Dynamic, [V10:Dynamic]       -> V11:Dynamic
 ```
 
-Provider census receipt (2026-08-12, independent worker audit):
+It does not prove that either receiver is String or belongs to a provider.
+Selector spelling, Recipe class, an internal slot number, or runtime type name
+must never repair that missing relation.
+
+##### DYNAMIC-V2-CALLSLOT-COMPLETE-SLOT-CONTRACT-D0 (current design child)
+
+The preferred bounded candidate is one independently replaceable
+`hako.text.scan@1` capability containing both `substring/2` and `indexOf/1`.
+It is accepted only if the Decision fixes the full semantic profiles of both
+methods: receiver class, ordered argument/result classes, Fault/effect,
+suspension, Home/lifecycle, and physical representation demands. If those two
+methods cannot be justified as one complete capability, the Decision must use
+the complete String surface instead; it may not fall back to an I6-only pseudo
+slot.
+
+The selected Dynamic profile must explicitly require the accepted contract ID
+and map role-keyed I6/I7 relations to its two callable rows. The admission
+issuer verifies this mapping; it does not discover the contract by searching
+for `substring` or `indexOf`.
+
+The contract also owns one canonical `Text` receiver class and its admitted
+physical aliases. Raw `String` and `StringBox` seed rows are cold inputs only:
 
 ```text
-I6 source/Recipe relation:
-  item I6, selector substring, source arity 2
-  receiver V0:Dynamic, arguments V6:I64/V9:I64, result V10:Dynamic
-  owner: dynamic_full_body_recipe/coseal/calls.rs
-
-I7 source/Recipe relation:
-  item I7, selector indexOf, source arity 1
-  receiver V3:Dynamic, argument V10:Dynamic, result V11:Dynamic
-  owner: dynamic_full_body_recipe/coseal/calls.rs
-
-Canonical provider/runtime gaps:
-  admitted immutable BoxCallableRegistry owner = 0
-  ProviderSlot contract / AdmissionSeal / RuntimeExecutablePlan code = 0
-  production I6 post-session receipt issuer = 0
-  LLVM metadata preflight caller / selected hook = 0 / 0
-  strict AOT runtime symbol / one-shot lease issuer = 0 / 0
-  neutral cross-boundary wire authority = include/nyrt_dynamic_call_slot_v2.h
-  Rust VM DynamicV2 issuer/caller = 0
-  DynamicV2CallOut/WireValue runtime consumers = 0
-
-Rust VM lane classification:
-  semantic-reference/smoke/compatibility callers = explicit keep
-  DynamicV2 provider consumer claim = 0
-  product execution owner claim = 0
-
-Existing nyrt_host_call_slot and host_api dispatch_call_slot callers:
-  legacy compatibility route; excluded from I0-B and forbidden for reuse
-
-Current capability matrix:
-  Direct                = 0
-  Checked               = 0
-  RejectBeforeEffect    = 1
+declared String/StringBox alias rows
+  + same complete contract/provider/target/ABI/lifecycle
+      -> ProviderAdmissionSeal
+      -> one canonical Text receiver class
+      -> one presealed branch per callable
 ```
 
-The existing `issue_selected_dynamic_v2_physical_capability_admission`
-function is observed only by a normal-callable package test; its production
-caller count is zero. It remains a proof-only rejected admission and is not a
-provider registry or a runtime receipt issuer. This census is evidence for the
-stop, not permission to add an executable dispatch product without its named
-consumer.
+Missing I6 or I7, different contract/provider/profile, differing alias target
+or lifecycle, undeclared aliases, or more than one canonical branch rejects
+admission. Runtime may classify only exact physical Text representations and
+compare the resulting canonical class with the presealed branch. It may not
+use `type_name()`, `with_str_handle()`, selector lookup, or registry search.
 
-Wire-owner decision (2026-08-12, design-only):
+The sole provider spine after this Decision is:
 
 ```text
-normative fixed-width ABI owner:
-  include/nyrt_dynamic_call_slot_v2.h
-
-projection-only consumers:
-  src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/call_slot_wire.rs
-  src/llvm_py/builders/dynamic_v2_callslot_wire.py
-
-owner excludes:
-  ProviderSlot, AdmissionSeal, BoxCallableRegistry, RoutePlan,
-  RuntimeExecutablePlan, selector/provider/image selection, runtime dispatch,
-  lease semantics, and all Rust VM meaning
+provider contract artifact + provider export facts
+  -> BoxCallableRegistryBuilderV1              mutable cold input
+  -> ProviderAdmissionSealV1                   consuming, all-or-nothing
+  -> BoxCallableRegistry                       immutable admitted truth,
+                                               deterministic order/generation
+  -> MethodCallRoutePlan
+  -> RuntimeExecutablePlanV1                   image pin, entry, PlanStamp
+  -> private I6/I7 executable projections      canonical receiver identity
+  -> LLVM selected early hook
+  -> strict AOT leaf: canonical-class check + invoke exactly once
 ```
 
-The header is the sole byte-layout, revision, constant, and validity-vocabulary
-owner. Rust and Python may validate and project it, but may not introduce an
-independent ABI source. `DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0` remains a
-BoxShape follow-up for the mechanical parity guard and projection-only marker;
-it adds no runtime caller, provider, LLVM hook, receipt issuer, or VM lane.
+The current mutable/Clone/overwrite `BoxCallableRegistry` is therefore a draft
+skeleton, not admitted truth. The implementation renames/splits it; a boolean
+`admitted` flag is forbidden. Duplicate keys, alias collisions, and foreign
+contract rows reject instead of overwriting. The legacy PluginLoader snapshot,
+arity-0 repair, `ffi_bridge`, and `runtime_invoke_boundary` remain explicitly
+compatibility-only and cannot feed the selected AOT path.
 
-Implementation order after this D0 is accepted (same rolling card):
+No caller-zero admitted-registry receipt is implemented ahead of its consumer.
+The builder/seal/admitted transition and both I6/I7 executable projections land
+inside the named AOT activation cell.
+
+##### Wire and carrier lease decisions
+
+`include/nyrt_dynamic_call_slot_v2.h` remains the sole fixed-width layout,
+revision, constant, and validity-vocabulary owner. Rust and Python are checked
+projections only. The later wire BoxShape slice moves the Rust projection from
+the MIRBuilder subtree to `src/abi/dynamic_call_slot_v2.rs`, deletes the old
+definition, and adds C/Rust/Python size/alignment/offset/constant parity. It
+adds no provider, runtime, LLVM, or VM consumer.
+
+The carrier lease token is never a raw `HostHandle`, `drop_epoch`, legacy
+generation-zero `BoxIdentity`, registry generation, or `PlanStamp`. The host
+lifecycle controller owns a non-reused opaque `DynamicV2CarrierLeaseIdV1` and
+an exact live entry `{ result_handle, lifecycle_class }`:
 
 ```text
-DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0           BoxShape
-  delete `backend/mir_interpreter/exec/a_prime_i64_entry.rs` and its module
-  edge; extend the existing Dynamic V2 authority guard; VM provider/receipt/
-  session symbols and production gates = 0; unsupported reference use rejects
-
-DYNAMIC-V2-CALLSLOT-PROVIDER-SPINE-R0              BoxShape
-  split mutable provider seeding from the consuming global admission:
-  Provider facts -> ProviderAdmissionSeal -> immutable, non-Clone admitted
-  BoxCallableRegistry -> semantic RoutePlan. Duplicate/collision and foreign
-  contract rows reject atomically. Keep PluginLoaderV2 snapshot/rebuild and
-  `ffi_bridge` as explicitly legacy compatibility projections; do not retarget
-  them or add call-time registry lookup. RuntimeExecutablePlan/image pin is a
-  later AOT owner, not a registry field.
-
-DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0             BoxShape
-  move I0-A under the D0-selected neutral ABI owner; Rust/C/Python are
-  verified projections; runtime/provider behavior and callers remain zero
-
-DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B      BoxCount, atomic
-  exact substring ProviderSlot + admitted registry row + RoutePlan +
-  RuntimeExecutablePlan/image pin + private I6 projection + canonical-session
-  I6 receipt + one LLVM preflight/early hook + one strict runtime leaf +
-  one value/lifecycle aggregate; selected generic fallthrough = 0
+Normal + EndAuthorized: result handle + fresh live lease are published atomically
+Normal + Forwarded:     fresh lease = 0
+Fault / Suspended:      result = 0, lease = 0
+consume_end:            remove live entry once, verify expected handle, then drop
 ```
 
+Unknown, duplicate, stale, foreign, mismatched, and counter-overflow tokens
+reject without dropping another object. The ABA negative must reuse a freed raw
+handle for a new object, retry the stale lease, reject it, and keep the new
+object alive.
+
+##### Task DAG after the current child Decision is accepted
+
 ```text
-I0-B I6/V10 executable cell
-  -> I7/V11 exact provider/result cell
+DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0             BoxShape
+  delete caller-zero DynamicV2 VM classifier/module edge; guard every VM
+  provider/receipt/adapter/session/production symbol at zero
+
+DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0               BoxShape
+  C header remains owner; move the Rust projection to src/abi, delete the MIR
+  copy, freeze C/Rust/Python parity; runtime/provider/VM callers remain zero
+
+DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B        BoxCount, atomic
+  contract artifact + builder/admission/admitted registry transition + exact
+  I6/I7 RoutePlan/RuntimeExecutablePlan branches + canonical-session receipts
+  + one LLVM early hook + strict AOT leaf + value/lease aggregate
+  selected generic fallthrough = 0
+
+I0-B
   -> I9 Bool + ordered Physical End all-or-nothing gate
   -> fresh unpublished session + exact-two DraftSeal
   -> selected production cutover and old-edge deletion
@@ -2790,38 +2783,33 @@ I0-B I6/V10 executable cell
   -> Hako frontend issuer cutover
 ```
 
-The I0-B acceptance commit includes its positive/negative tests, guard,
-README/reference updates, and named production consumer. Registry-only,
-plan-only, runtime-symbol-only, or dormant-hook commits are forbidden. The
-LLVM hook belongs before generic method lowering; absent unselected metadata
-may return `NotSelected`, while malformed selected metadata is terminal.
-Every new source file stays below 800 lines (split near 650-700).
-
-The provider-spine refactor must not silently turn the legacy plugin route into
-the AOT provider consumer. `PluginLoaderV2::box_callable_registry_snapshot`,
-the legacy arity-0 compatibility key, `runtime_invoke_boundary` shim policy,
-and `ffi_bridge` remain a separately named compatibility lane until their
-caller-zero retirement task. The selected AOT cell may consume only the
-admitted global registry/RoutePlan/RuntimeExecutablePlan chain.
+The former standalone `DYNAMIC-V2-CALLSLOT-PROVIDER-SPINE-R0` is retired from
+the DAG: an admitted registry with no named production consumer would be an
+orphan authority. I0-B is one activation commit with small owner modules, not
+one large source file; split near 650-700 lines and stop at 800.
 
 ```text
-I0-B Done:
-  canonical admitted BoxCallableRegistry truth = 1
-  Dynamic-specific canonical registry          = 0
-  ProviderSlot / AdmissionSeal / executable plan owners = 1 each
-  I6 production receipt issuer / LLVM selected hook / strict AOT leaf = 1 each
-  runtime registry lookup or provider/image reselection = 0
-  selector/name lookup after executable seal = 0
-  selected generic/legacy fallthrough = 0
-  Rust VM DynamicV2 production consumer = 0
-  retry / fallback / sentinel-zero repair = 0
+I0-B acceptance:
+  complete ProviderSlot contract / admission issuer                 = 1 / 1
+  I6-only pseudo slot                                               = 0
+  I6/I7 contract, provider, profile identity                        = same
+  source-backed static String claim                                 = 0
+  String/StringBox canonical Text branch after admission            = 1
+  admitted mutable insert / duplicate overwrite                     = 0 / 0
+  RoutePlan / RuntimeExecutablePlan / exact image pin owners        = 1 each
+  I6/I7 production receipt issuers                                  = 1 each
+  LLVM selected early hook / strict AOT leaf                        = 1 / 1
+  runtime registry/name/selector/provider/image lookup or reselection = 0
+  selected generic/legacy fallthrough                               = 0
+  carrier lease issuer / raw-host-handle lease alias                = 1 / 0
+  stale/duplicate/foreign lease acceptance                          = 0
+  Rust VM DynamicV2 production consumer                             = 0
+  retry / fallback / sentinel-zero repair                           = 0
 ```
 
-Compile-time missing/foreign/stale/duplicate/ambiguous plan evidence rejects
-before effect. Runtime invalid/dead receiver, wrong class/arity/tag, or absent
-sealed branch becomes Fault before provider effect. `Suspended` and malformed
-Normal/Fault outcomes are contract violations; zero remains a valid Normal
-payload. Value and lifecycle lease remain one non-splittable aggregate.
+Until the complete slot contract and its exact source-profile requirement are
+fixed, the capability matrix remains `RejectBeforeEffect` and this parent D0
+remains the current design stop.
 
 There is no Rust VM node in this production DAG. Rust VM stays limited to
 already-supported bootstrap/recovery/compatibility smoke until caller-zero
