@@ -17,6 +17,16 @@ Decision in this card. `dynamic-invocation.md` remains the authority for the
 I6/I7/I9 Dynamic temporary operations. The landed exact-Dynamic V2 program is
 an input to Slice B's atomic replacement, not a competing selected program.
 
+## VM lane override (current, non-historical)
+
+Rust VM is not a production backend or a DynamicV2 provider consumer. Its
+remaining scope is limited to bootstrap/recovery, compatibility, semantic
+reference, and small smoke/regression evidence. No new VM provider, V10/V11
+receipt issuer, Dynamic runtime leaf, or feature-only VM implementation may
+be added by this card. AOT/LLVM is the only production-capability lane for
+the provider/session rows below; Rust VM evidence never satisfies a production
+gate and never justifies a second implementation path.
+
 ## Landed pre-A-prime foundation (historical baseline)
 
 The sections in this baseline record the already-landed six-Fault and Dynamic
@@ -739,11 +749,13 @@ inner/outer return:
   anything else -> RejectBeforeEffect
 ```
 
-VM and LLVM consume the same demand; neither may be replaced by `resolve_i64`,
-missing-value zero, ptr/int repair, runtime tag inference, or a backend-name
-allowlist. This corridor needs no Dynamic-to-I64 helper, IntegerBox handle, or
-tagged carrier. `Dynamic` remains only the I6/I7 temporary result family and is
-never returned by this Recipe.
+The AOT/LLVM production lanes consume the same demand; neither may be replaced
+by `resolve_i64`, missing-value zero, ptr/int repair, runtime tag inference, or
+a backend-name allowlist. Rust VM may consume the exact-I64 demand only in its
+existing reference/smoke/compatibility lane and is not a production consumer.
+This corridor needs no Dynamic-to-I64 helper, IntegerBox handle, or tagged
+carrier. `Dynamic` remains only the I6/I7 temporary result family and is never
+returned by this Recipe.
 
 Required rejection cases are missing/foreign/duplicate/ambiguous parameter,
 local-copy, carrier/PHI, call-edge, or Completion evidence; wrong value class;
@@ -751,9 +763,10 @@ unsupported backend; and any attempt to consume a raw `ValueId` before the
 fresh session. `VerifiedFunctionCompletionV1` remains the sole result/site
 owner, GenericLoop and TypeOp remain unchanged, and fallback/retry remain zero.
 
-The issuer boundary and VM/LLVM Direct-or-RejectBeforeEffect contract are now
-documented and accepted. Focused positive/negative tests are implementation
-gates, not a reason to reopen this Decision. Until the implementation row is
+The issuer boundary and AOT/LLVM Direct-or-RejectBeforeEffect production
+contract are now documented and accepted. Focused positive/negative tests are
+implementation gates, not a reason to reopen this Decision. Rust VM behavior
+is reference/smoke evidence only. Until the production implementation row is
 green, current behavior remains `RejectBeforeEffect` and production remains
 `NoSafeSlice`.
 
@@ -831,16 +844,17 @@ source relation, while `PreparedDynamicLocalEntryV1` remains session-local
 because it contains physical ValueIds.  Neither legacy product is the A-prime
 Builder-free demand or a replacement issuer.
 
-Backend transport is a separate capability adapter.  VM accepts only exact
-`VMValue::Integer` under the selected contract.  LLVM is Direct only when the
-selected mixed signature and every selected call edge carry exact metadata;
+Backend transport is a separate capability adapter.  Rust VM accepts only
+exact `VMValue::Integer` in its narrow reference/compatibility lane; that
+behavior is not a production capability gate.  AOT/LLVM is Direct only when
+the selected mixed signature and every selected call edge carry exact metadata;
 missing, ambiguous, wrapper, `resolve_i64`, missing-value zero, ptr/int repair,
 retry, and fallback are all `RejectBeforeEffect`.  The LLVM metadata transport
 must be fixed before the session/cutover slice; changing a backend-name
 allowlist is not an implementation.
 
 No physical session, Completion consumer, or production cutover may start
-until this issuer boundary, the VM/LLVM matrix, and the focused
+until this issuer boundary, the AOT/LLVM production capability matrix, and the focused
 missing/foreign/duplicate/ambiguous negative tests are landed in the design
 record and accepted.  This is a design close, not a new task card.
 
@@ -979,24 +993,26 @@ physical-input views. Focused package (14 tests), Dynamic body (29 tests),
 green. This closes the Builder-free demand only; it does not claim a physical
 ValueId, backend ABI, session, or production cutover.
 
-The three prerequisite branches are now green before the session:
+The two required production prerequisite branches are now green before the
+session; the Rust VM row is reference-only evidence:
 
 ```text
 branch 1:
   LOOP-UNIFICATION-AFTER-DYNAMIC-D0 selected subset
 
-branch 2:
+reference evidence (non-blocking):
   A-PRIME-VM-EXACT-I64-ENTRY-I0
 
 branch 3:
   A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 (receipt/JSON/strict-preflight transport)
 ```
 
-VM accepts `VMValue::Integer` under the exact entry contract, then carries
-ImmediateI64 directly. Bool/String/BoxRef/foreign values reject before body
-effect. `ExactNumeric` also rejects in this bounded row until an explicit
-normalization Decision exists; the present checker does not normalize it to an
-Integer carrier.
+The Rust VM reference lane accepts `VMValue::Integer` under the exact entry
+contract, then carries ImmediateI64 directly. Bool/String/BoxRef/foreign
+values reject before body effect. `ExactNumeric` also rejects in this bounded
+row until an explicit normalization Decision exists; the present checker does
+not normalize it to an Integer carrier. This row is non-production evidence
+and does not open a provider or session.
 
 `A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0` is landed as a transport boundary
 before the selected cross-backend cutover. It is not a backend-name allowlist
@@ -1079,10 +1095,10 @@ Slice A parameter contract
   -> Slice B atomic Recipe/semantic recut
   -> Slice C Builder-free input
        +-> Loop authority cleanup + selected If/Exit coverage
-       +-> VM exact I64 capability
-       +-> LLVM exact I64 capability
+       +-> AOT/LLVM production exact-I64 capability
+       +-> Rust VM reference/smoke evidence (non-blocking)
 
-all three branches green
+all required production branches green
   -> Slice D site claims / DraftSeal split / fresh session / cutover
 ```
 
@@ -1144,7 +1160,7 @@ method name, ValueId, raw AST, or a missing-value default.
 The module drain/finalization owner remains a target SSOT rather than a claim
 that every production route already uses it.  A separate caller census is
 required before global retirement; it is not a reason to add another finalizer
-or to widen the current VM/LLVM capability slice.
+or to widen the current AOT/LLVM production capability slice.
 
 The 2026-08-11 caller census fixes the retirement boundary more precisely:
 
@@ -1673,7 +1689,13 @@ complete producer representation table for the selected corridor
 sole target-aware backend capability issuer
 ImmediateI64 / IntegerBoxHandle / TaggedCarrier closed vocabulary
 strict non-sentinel helper ABI
-VM and LLVM Direct / Checked / RejectBeforeEffect matrix
+AOT/LLVM production Direct / Checked / RejectBeforeEffect matrix
+Rust VM reference/smoke behavior remains non-production evidence
+
+This matrix is retained as superseded capability evidence. Rust VM rows are
+reference/compatibility/smoke-only; they are not a production backend,
+provider consumer, session prerequisite, or cutover gate. New provider work
+belongs only to a named AOT/LLVM production consumer.
 exact two-site demand keyed by Completion site identity
 outer borrowed-versus-owned cleanup disposition
 projection Fault / cleanup Fault / no-result chronology
@@ -1971,8 +1993,10 @@ verified Recipe placement
 one complete operation/source-effect ledger
   -> one complete physical demand
 ```
-VM and LLVM capability are sibling branches and must also be green before the
-fresh session. The Loop dependency order is fixed and must not be inverted:
+AOT/LLVM production capability is the required sibling branch before the
+fresh session. Rust VM reference/smoke evidence may run independently and is
+not a session, provider, or cutover gate. The Loop dependency order is fixed
+and must not be inverted:
 
 ```text
 semantic-program co-seal
@@ -2228,15 +2252,14 @@ the selected production file-size limit. Run:
 bash tools/checks/loop_precutover_authority_guard.sh
 ```
 
-before changing the selected production edge. The next execution rows are
-the exact-I64 backend branches below; `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`
-remains downstream until both branches close.
+before changing the selected production edge. The next execution row is the
+AOT/LLVM production capability branch below; `DYNAMIC-EXIT-PHYSICAL-SESSION-P0`
+remains downstream until that branch closes.
 
-The session is downstream of the two exact-I64 backend branches listed in
-the A-prime physical-input contract. It must not open while those branches
-are merely named. The immediate next branch is the VM entry capability; the
-LLVM capability contract follows it and is mandatory before the selected
-cross-backend cutover.
+The session is downstream of the AOT/LLVM production capability branch listed
+in the A-prime physical-input contract. It must not open while that branch is
+merely named. The Rust VM entry row is already landed reference evidence and
+cannot open the session, provider, or production cutover.
 
 #### A-PRIME-VM-EXACT-I64-ENTRY-I0 — landed capability boundary
 
@@ -2499,7 +2522,8 @@ Acceptance for closing this row:
     no implicit continuation or cleanup deferral is introduced
 [ ] I7 bare-i64 helper is not accepted as proof of Dynamic V11; V11 result
     class is explicitly decided before I7 implementation
-[ ] VM and LLVM each classify Direct | Checked | RejectBeforeEffect
+[ ] AOT/LLVM production lanes each classify Direct | Checked |
+    RejectBeforeEffect; Rust VM classification is reference/smoke evidence
 [ ] V10 value-use and cleanup/discharge capabilities are separate
 [ ] receipt is move-only, session-branded, one-shot, and raw-getter-free
 [ ] foreign/missing/duplicate/wrong lane/target/arity/status/disposition
@@ -2632,7 +2656,7 @@ but it must not select a provider from selector text, re-resolve a CallSlot,
 or infer a Dynamic representation from a bare `ValueId`/`i64`.
 
 I0-B may add the runtime registry/descriptor and its negative tests only. It
-must not add VM or LLVM extern calls, I6/V10 emission, I7/V11 result typing,
+must not add Rust VM provider calls or AOT/LLVM extern calls, I6/V10 emission, I7/V11 result typing,
 physical End, continuation handling, cleanup discharge, production callers,
 legacy helper reuse, sentinel/fallback/retry, or a second semantic/Recipe
 authority. `MaySuspend` remains rejected unless a named continuation owner is
@@ -2649,8 +2673,8 @@ I0-B acceptance:
 [ ] Suspended is rejected without a continuation owner
 [ ] provider/selector/Recipe re-resolution callers = 0
 [ ] legacy BoxCall/RuntimeDataBox/string helper/by-name callers = 0
-[ ] VM/LLVM extern callers, I6/I7 emitters, Physical End, and production
-    callers = 0
+[ ] AOT/LLVM extern callers and production callers remain zero until a named
+    consumer exists; Rust VM DynamicV2 provider callers = 0
 [ ] provider descriptor and runtime dispatch products are move-only/one-shot
     where lease or discharge state is introduced
 ```
@@ -2756,12 +2780,18 @@ rolling card; no extra card is required):
 D0  Dynamic CallSlot wire/status/tag/disposition + provider/synchronous
     capability + lease/discharge contract; docs/README/tests only
 I0-A wire schema and C/LLVM parity; no runtime dispatch
-I0-B new registry/provider-owned strict runtime dispatcher; no legacy helpers
-I0-C VM checked leaf -> V10 value receipt + separate lease/discharge token
-I0-D LLVM checked leaf -> the same wire, unsupported lanes reject pre-effect
-I0-E unpublished I6/V10 emitter canary; production caller remains zero
-    until I7/V11 result class and physical End are separately closed
+I0-B AOT/LLVM provider-owned strict runtime dispatcher; no legacy helpers
+I0-C AOT/LLVM checked capability leaf -> V10 value receipt + separate
+    lease/discharge token; each production consumer must be named
+I0-D unsupported AOT/LLVM lanes reject before effect; no provider fallback
+I0-E unpublished I6/V10 emitter canary only after an AOT/LLVM consumer,
+    I7/V11 result class, and Physical End are separately closed
 ```
+
+There is no Rust VM provider leaf in this DAG. Rust VM remains a narrow
+bootstrap/recovery/compatibility/semantic-reference and smoke lane; it must
+not receive a DynamicV2 provider, V10 receipt issuer, or new provider runtime
+feature. The VM lane is a non-claim for this production provider plan.
 
 The runtime ownership primitive is part of the ABI boundary, not a hidden
 cleanup convention: an `EndAuthorized` result carries a one-shot opaque lease
@@ -3088,15 +3118,15 @@ The backend contract is explicit:
 
 ```text
 DynamicLess normal Bool:
-  VM    = Direct only with exact immediate producer lane, or Checked only
-          with a strict helper that distinguishes false from failure
-  LLVM  = Direct/Checked only with explicit producer representation receipt;
-          otherwise RejectBeforeEffect
+  AOT/LLVM = Direct/Checked only with explicit producer representation receipt;
+             otherwise RejectBeforeEffect
+  Rust VM  = reference/smoke evidence only; never a production capability gate
 
 V10/V11 temporary discharge:
-  VM/LLVM = Direct/Checked only with an exact ordered End/discharge primitive
+  AOT/LLVM = Direct/Checked only with an exact ordered End/discharge primitive
              tied to the producer receipt; generic scope cleanup, Arc drop,
              last-use/name inference, or `nyash.integer.get_h` is not enough
+  Rust VM  = reference/compatibility smoke only; no provider/session claim
   unsupported backend = RejectBeforeEffect
 ```
 
@@ -3297,7 +3327,7 @@ downstream of I6/V10, I7/V11, and End.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 
-The fresh-session row remains downstream of the LLVM capability contract. It
+The fresh-session row remains downstream of the AOT/LLVM production capability contract. It
 may consume the already-landed Builder-free physical input, but it must not
 issue new source/Recipe/JoinSig meaning. Its first production adapter must consume
 the selected package loan and the A-prime physical demand exactly once.
@@ -3306,7 +3336,8 @@ Before opening a session, the implementation must keep these prerequisites
 explicit and local:
 
 ```text
-backend capability       = VM Direct|Checked and LLVM Direct|RejectBeforeEffect
+backend capability       = AOT/LLVM Direct|Checked or RejectBeforeEffect;
+                             Rust VM is reference/smoke only
 physical demand           = named package-backed production consumer
 Completion                = site-keyed claims for both exact return sites
 DraftSeal                 = new submodule for multi-Return prepare; commit moves only
@@ -3401,7 +3432,8 @@ no End/Home obligation is attached to the I64 induction
 no Dynamic invocation temporary cleanup is deleted with the induction lifecycle
 no Fault becomes a Recipe value/Exit or JoinSig edge
 no Layout/allocator re-infers transfer or segment role from Recipe
-no VM/LLVM Direct classification without the complete selected receipt
+no AOT/LLVM production Direct classification without the complete selected receipt
+no Rust VM provider/session classification; VM remains reference/smoke only
 no Completion consumption before the site-keyed multi-return owner lands
 no physical CFG/DraftSeal/collector/publication before the fresh session
 no retry/fallback, source narrowing, terminal Dynamic-to-I64 helper, or tagged-corridor auto-open

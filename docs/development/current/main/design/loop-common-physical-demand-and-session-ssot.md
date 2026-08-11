@@ -976,8 +976,10 @@ selected BoxCount only
   -> LOOP-PRECUTOVER-AUTHORITY-H2
 
 backend siblings
-  -> A-PRIME-VM-EXACT-I64-ENTRY-I0
+  -> AOT/LLVM production exact-I64 capability
   -> LLVM-SELECTED-DYNAMIC-EXACT-I64-DIRECT-I0
+  (Rust VM exact-I64 row is reference/smoke evidence only; it is not a
+   production gate, provider consumer, or session prerequisite.)
 
 outer callable owner
   -> FUNCTION-COMPLETION-SITE-KEYED-CLAIMS-R0
