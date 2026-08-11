@@ -2115,7 +2115,7 @@ LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0
 
 No topology type is hard-deleted while a required pre-cutover caller remains.
 
-#### LOOP-PRECUTOVER-AUTHORITY-H2 — production census fixed (gate remains open)
+#### LOOP-PRECUTOVER-AUTHORITY-H2 — CLOSED (`d048acea00`)
 
 The selected-cohort census is now machine-checked by
 `tools/checks/loop_precutover_authority_guard.sh`. Its deliberately narrow
@@ -2144,8 +2144,39 @@ the selected production file-size limit. Run:
 bash tools/checks/loop_precutover_authority_guard.sh
 ```
 
-before opening `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` or changing the selected
-production edge.
+before changing the selected production edge. The next row is
+`DYNAMIC-EXIT-PHYSICAL-SESSION-P0`.
+
+#### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — next implementation boundary
+
+The fresh-session row is now the only active implementation boundary. It may
+consume the already-landed Builder-free physical input, but it must not issue
+new source/Recipe/JoinSig meaning. Its first production adapter must consume
+the selected package loan and the A-prime physical demand exactly once.
+
+Before opening a session, the implementation must keep these prerequisites
+explicit and local:
+
+```text
+backend capability       = VM Direct|Checked and LLVM Direct|RejectBeforeEffect
+physical demand           = named package-backed production consumer
+Completion                = site-keyed claims for both exact return sites
+DraftSeal                 = new submodule for multi-Return prepare; commit moves only
+common large files        = no new responsibility in operation_emitter.rs or flat draft_seal.rs
+legacy route              = the one census allowlist remains until H2 cutover
+failure                   = pre-effect reject or whole unpublished-session discard
+fallback/retry            = forbidden
+```
+
+`ResolvedFunctionCompletionConsumptionV1` must stop using a single boolean
+and one optional witness for this selected two-site cohort. Extend the existing
+Completion owner through a site-keyed claim set in its own small module; do not
+create a sibling result or return authority. The physical session keeps
+`ValueId`/`BasicBlockId` receipts session-local, while the pre-session demand
+remains Builder-free. `draft_seal.rs` is already near the file-size boundary,
+so multi-site projection belongs in a focused child module rather than in the
+flat file. A missing backend capability or missing exact relation is
+`NoSafeSlice`, not a fallback route.
 
 ## Hard stops
 
