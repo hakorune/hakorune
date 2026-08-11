@@ -227,7 +227,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         let completion = completion
             .finish(&root_body, root_body_end, target_function)
             .map_err(CanonicalFunctionFinishErrorV1::Completion)?;
-        if completion.returns_value() && completion.explicit_operand().is_none() {
+        if completion.returns_value() && completion.explicit_claims().is_empty() {
             return Err(CanonicalFunctionFinishErrorV1::ReturnOperandMissing);
         }
         Ok(ReadyFunctionDraftSealV1::from_v2_finish(

@@ -146,6 +146,7 @@ pub(super) struct PreparedFunctionDraftSealPlanV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum FunctionDraftSealPreparationErrorV1 {
     ExplicitValueOperandMissing,
+    MultipleExplicitReturnClaimsUnsupported,
 }
 
 impl ReadyFunctionDraftSealV1 {
@@ -190,6 +191,11 @@ impl ReadyFunctionDraftSealV1 {
             return Ok(PreparedFunctionExitV1::ImplicitUnit {
                 block: self.current_block,
             });
+        }
+        if self.completion.explicit_claims().len() > 1 {
+            return Err(
+                FunctionDraftSealPreparationErrorV1::MultipleExplicitReturnClaimsUnsupported,
+            );
         }
         if self.completion.returns_value() {
             let Some(witness) = self.completion.explicit_operand() else {

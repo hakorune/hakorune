@@ -4,11 +4,16 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::RegionId;
-use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
+use crate::mir::resolved_semantics::{
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    SourceStmtSiteV1,
+};
 use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
 
 use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
-use super::draft_seal::{PreparedFunctionExitV1, ReadyFunctionDraftSealV1};
+use super::draft_seal::{
+    FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
+};
 
 fn resolved_product(name: &str) -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
     let function = function(name, Vec::new());
@@ -29,6 +34,15 @@ fn literal(value: i64) -> ASTNode {
 fn return_stmt(value: Option<ASTNode>) -> ASTNode {
     ASTNode::Return {
         value: value.map(Box::new),
+        span: Span::unknown(),
+    }
+}
+
+fn if_return(value: i64) -> ASTNode {
+    ASTNode::If {
+        condition: Box::new(literal(1)),
+        then_body: vec![return_stmt(Some(literal(value)))],
+        else_body: None,
         span: Span::unknown(),
     }
 }
@@ -155,6 +169,107 @@ fn explicit_completion_retains_exact_lowered_operand_witness() {
     let witness = ready.explicit_operand().unwrap();
     assert_eq!(witness.block(), BasicBlockId::new(3));
     assert_eq!(witness.value(), ValueId::new(17));
+}
+
+#[test]
+fn multi_site_completion_claims_are_keyed_by_source_site_and_returned_in_source_order() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "completion_multi_site",
+        vec![if_return(1), return_stmt(Some(literal(2)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 2);
+    let sites = completion.explicit_sites().to_vec();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+
+    // Claim in reverse order to prove the source site, not Vec insertion
+    // order, is the matching key.
+    consumption
+        .claim_explicit_return(&sites[1], target, BasicBlockId::new(11), ValueId::new(21))
+        .unwrap();
+    consumption
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(10), ValueId::new(20))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    assert_eq!(ready.explicit_claims().len(), 2);
+    assert_eq!(ready.explicit_claims()[0].site(), &sites[0]);
+    assert_eq!(ready.explicit_claims()[1].site(), &sites[1]);
+    assert_eq!(
+        ready.explicit_claims()[0].witness(),
+        super::completion_consumption::ExplicitReturnWitnessV1::Value(
+            super::completion_consumption::ReturnOperandWitnessV1::new(
+                BasicBlockId::new(10),
+                ValueId::new(20),
+            )
+        )
+    );
+
+    let error = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(11))
+        .prepare_exit_borrowed()
+        .unwrap_err();
+    assert_eq!(
+        error,
+        FunctionDraftSealPreparationErrorV1::MultipleExplicitReturnClaimsUnsupported
+    );
+}
+
+#[test]
+fn multi_site_completion_rejects_missing_duplicate_and_foreign_claims() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "completion_multi_site_rejects",
+        vec![if_return(1), return_stmt(Some(literal(2)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let sites = completion.explicit_sites().to_vec();
+
+    let mut missing =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    missing
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(10), ValueId::new(20))
+        .unwrap();
+    let error = missing
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap_err();
+    assert!(error.contains("consumption_mismatch"));
+
+    let completion = verify_function_completion_v1(input).unwrap();
+    let mut duplicate =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    duplicate
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(10), ValueId::new(20))
+        .unwrap();
+    let error = duplicate
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(12), ValueId::new(22))
+        .unwrap_err();
+    assert!(error.contains("explicit_reconsumed"));
+
+    let completion = verify_function_completion_v1(input).unwrap();
+    let mut foreign =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    let foreign_site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(99),
+    ]));
+    let error = foreign
+        .claim_explicit_return(
+            &foreign_site,
+            target,
+            BasicBlockId::new(10),
+            ValueId::new(20),
+        )
+        .unwrap_err();
+    assert!(error.contains("explicit_site_mismatch"));
 }
 
 #[test]
