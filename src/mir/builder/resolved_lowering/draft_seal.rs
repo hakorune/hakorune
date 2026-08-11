@@ -459,6 +459,16 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    #[cfg(test)]
+    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
+        match &self.metadata.projection.exit {
+            PreparedFunctionExitSetV1::Single(exit) => *exit,
+            PreparedFunctionExitSetV1::ExactTwo(_) => {
+                panic!("single-site test accessor used for an exact-two exit set")
+            }
+        }
+    }
+
     /// Move the final projected function/type facts into the neutral session
     /// payload. Metadata/stale/verification receipts remain owned by the
     /// outer draft-seal plan; this payload is only the physical apply input.

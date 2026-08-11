@@ -77,7 +77,7 @@ impl FunctionDraftSealProjectionV1 {
             .map_err(|(_, error)| error)
     }
 
-    pub(super) fn project_from_builder_exit_set(
+    pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_exit_set(
         builder: &MirBuilder,
         exit: PreparedFunctionExitSetV1,
     ) -> Result<

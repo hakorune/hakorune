@@ -836,3 +836,59 @@ fn open_draft_seal_rejection_discards_the_unpublished_session() {
     assert!(builder.function_state.current_function.is_none());
     assert!(builder.function_state.current_block.is_none());
 }
+
+#[test]
+fn open_exact_two_requires_the_site_keyed_outer_block_before_projection() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_open_exact_two_site_check",
+        vec![if_return(1), return_stmt(Some(literal(2)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 2);
+    let sites = completion.explicit_sites().to_vec();
+    let target = input.function().lowering_roots().function_pair().region();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&sites[0], target, BasicBlockId::new(1), ValueId::new(10))
+        .unwrap();
+    consumption
+        .claim_explicit_return(&sites[1], target, BasicBlockId::new(2), ValueId::new(20))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let mut builder = MirBuilder::new();
+    let product = resolved_product("draft_seal_open_exact_two_site_check");
+    let session = builder
+        .open_resolved_function_draft_seal_session_v1("draft_seal_open_exact_two_site_check/0");
+    let mut open = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0)).open(session);
+    open.builder_mut()
+        .function_state
+        .resolved_binding_state
+        .install(&product)
+        .unwrap();
+    open.builder_mut()
+        .function_state
+        .resolved_binding_state
+        .finish(product.owner())
+        .unwrap();
+    open.builder_mut()
+        .enter_function_for_test("draft_seal_open_exact_two_site_check/0".into());
+
+    let rejected = match open.prepare_exact_two(&sites[1]) {
+        Ok(_) => panic!("site-keyed outer block mismatch unexpectedly prepared"),
+        Err(rejected) => rejected,
+    };
+    assert_eq!(
+        rejected.stage(),
+        super::draft_seal_owner::FunctionDraftSealStageV1::SessionClose
+    );
+    rejected.discard();
+    assert!(builder.function_state.current_function.is_none());
+    assert!(builder.function_state.current_block.is_none());
+}

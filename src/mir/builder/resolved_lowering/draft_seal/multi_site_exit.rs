@@ -14,7 +14,8 @@ use super::super::completion_consumption::ExplicitReturnWitnessV1;
 use super::{
     FunctionDraftSealPreparationErrorV1, FunctionDraftSealProjectionErrorV1,
     FunctionDraftSealProjectionV1, PreparedFunctionExitPlanV1, PreparedFunctionExitV1,
-    PreparedFunctionResultV1, PreparedFunctionSignatureV1, ReadyFunctionDraftSealV1,
+    PreparedFunctionResultV1, PreparedFunctionSignatureV1, ReadyFunctionCompletionV1,
+    ReadyFunctionDraftSealV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,6 +43,25 @@ impl PreparedFunctionExitSetV1 {
         claims: [DetachedFunctionExitClaimV1; 2],
     ) -> Self {
         Self::ExactTwo(claims)
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn block_for_site(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<crate::mir::BasicBlockId> {
+        match self {
+            Self::Single(_) => None,
+            Self::ExactTwo(claims) => {
+                claims
+                    .iter()
+                    .find(|claim| claim.site() == site)
+                    .map(|claim| match claim.exit() {
+                        PreparedFunctionExitV1::ExplicitValue { block, .. }
+                        | PreparedFunctionExitV1::ExplicitUnit { block }
+                        | PreparedFunctionExitV1::ImplicitUnit { block } => block,
+                    })
+            }
+        }
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn try_for_each_exit<E>(
@@ -168,6 +188,19 @@ impl ReadyFunctionDraftSealV1 {
 }
 
 impl PreparedFunctionExitPlanV1 {
+    pub(in crate::mir::builder::resolved_lowering) fn into_parts(
+        self,
+    ) -> (ReadyFunctionCompletionV1, PreparedFunctionExitSetV1) {
+        (self.completion, self.exit)
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn exit_block_for_site(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<crate::mir::BasicBlockId> {
+        self.exit.block_for_site(site)
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder::resolved_lowering) fn exit(&self) -> PreparedFunctionExitV1 {
         match &self.exit {

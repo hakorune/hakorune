@@ -8,27 +8,27 @@
 use crate::mir::builder::calls::{
     CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
 };
+use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
 use super::draft_seal::{
     FunctionDraftSealPreparationErrorV1, FunctionDraftSealProjectionErrorV1,
-    PreparedFunctionDraftSealPlanV1, PreparedFunctionExitPlanV1, PreparedFunctionExitV1,
-    ReadyFunctionDraftSealV1,
+    FunctionDraftSealProjectionV1, PreparedFunctionDraftSealPlanV1, PreparedFunctionExitSetV1,
+    PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
 };
 
 /// Live unpublished function owner.  It is intentionally not `Clone` and has
 /// no access path other than prepare or discard.
 pub(super) struct OpenFunctionDraftSealV1<'builder> {
     session: CanonicalFunctionLoweringSessionV1<'builder>,
-    ready: ReadyFunctionDraftSealV1,
+    ready: Option<ReadyFunctionDraftSealV1>,
 }
 
 /// All fallible work is completed before this owner is issued.  Its commit is
 /// therefore an ownership-only terminal.
 pub(super) struct PreparedFunctionDraftSealV1<'builder> {
     completion: ReadyFunctionCompletionV1,
-    exit: PreparedFunctionExitV1,
     plan: PreparedFunctionDraftSealPlanV1,
     close: PreparedFunctionSessionCloseV1<'builder>,
 }
@@ -36,7 +36,6 @@ pub(super) struct PreparedFunctionDraftSealV1<'builder> {
 pub(super) struct CompletedFunctionDraftV1 {
     draft: MirFunction,
     completion: ReadyFunctionCompletionV1,
-    exit: PreparedFunctionExitV1,
     receipt: FunctionDraftSealReceiptV1,
 }
 
@@ -77,18 +76,26 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         session: CanonicalFunctionLoweringSessionV1<'builder>,
         ready: ReadyFunctionDraftSealV1,
     ) -> Self {
-        Self { session, ready }
+        Self {
+            session,
+            ready: Some(ready),
+        }
     }
 
     /// Prepare every detached plan while the live session remains borrowed.
     /// No function slot, type context, or caller context is moved on failure.
     pub(super) fn prepare(
-        self,
+        mut self,
     ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
-        let exit = match self.ready.prepare_exit_borrowed() {
+        let ready = self
+            .ready
+            .take()
+            .expect("open draft-seal owner must retain one ready completion");
+        let exit = match ready.prepare_exit_borrowed() {
             Ok(exit) => exit,
             Err(error) => return Err(self.reject(FunctionDraftSealStageV1::Exit, error.into())),
         };
+        let completion = ready.into_completion();
 
         let plan_result = {
             let builder = self.session.builder_view();
@@ -118,10 +125,72 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         }
 
         let OpenFunctionDraftSealV1 { session, ready } = self;
+        debug_assert!(ready.is_none());
         let close = session.prepare_draft_seal_close_after_readiness(function_name);
         Ok(PreparedFunctionDraftSealV1 {
-            completion: ready.into_completion(),
-            exit,
+            completion,
+            plan,
+            close,
+        })
+    }
+
+    /// Selected Dynamic-only entry.  The physical session must pass the
+    /// canonical outer Completion site so current-block validation cannot use
+    /// claim order or an ordinal repair.  The ready owner is consumed before
+    /// any projection work; rejection still owns the live session and can
+    /// discard it, but it cannot leak a second claim authority.
+    pub(super) fn prepare_exact_two(
+        mut self,
+        outer_site: &SourceStmtSiteV1,
+    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
+        let ready = self
+            .ready
+            .take()
+            .expect("open draft-seal owner must retain one ready completion");
+        let exit_plan = match ready.prepare_exact_two() {
+            Ok(plan) => plan,
+            Err(error) => return Err(self.reject(FunctionDraftSealStageV1::Exit, error.into())),
+        };
+        let Some(expected_outer_block) = exit_plan.exit_block_for_site(outer_site) else {
+            return Err(self.reject(
+                FunctionDraftSealStageV1::Exit,
+                FunctionDraftSealErrorV1::SessionClose(
+                    "exact-two outer Completion site is absent from the exit claim set".to_string(),
+                ),
+            ));
+        };
+        if self.session.builder_view().function_state.current_block != Some(expected_outer_block) {
+            return Err(self.reject(
+                FunctionDraftSealStageV1::SessionClose,
+                FunctionDraftSealErrorV1::SessionClose(
+                    "current block does not match the site-keyed outer exit claim".to_string(),
+                ),
+            ));
+        }
+
+        let (completion, exit_set) = exit_plan.into_parts();
+        let plan_result = {
+            let builder = self.session.builder_view();
+            prepare_detached_plan_with_exit_set(builder, exit_set)
+        };
+        let plan = match plan_result {
+            Ok(plan) => plan,
+            Err((stage, error)) => return Err(self.reject(stage, error)),
+        };
+        let function_name = match self.session.draft_seal_readiness() {
+            Ok(name) => name,
+            Err(error) => {
+                return Err(self.reject(
+                    FunctionDraftSealStageV1::SessionClose,
+                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                ))
+            }
+        };
+        let OpenFunctionDraftSealV1 { session, ready } = self;
+        debug_assert!(ready.is_none());
+        let close = session.prepare_draft_seal_close_after_readiness(function_name);
+        Ok(PreparedFunctionDraftSealV1 {
+            completion,
             plan,
             close,
         })
@@ -161,7 +230,9 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 
     #[cfg(test)]
     pub(super) fn ready(&self) -> &ReadyFunctionDraftSealV1 {
-        &self.ready
+        self.ready
+            .as_ref()
+            .expect("ready completion is consumed once prepare begins")
     }
 }
 
@@ -169,7 +240,6 @@ impl PreparedFunctionDraftSealV1<'_> {
     pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
         let Self {
             completion,
-            exit,
             plan,
             close,
         } = self;
@@ -178,7 +248,6 @@ impl PreparedFunctionDraftSealV1<'_> {
         CompletedFunctionDraftV1 {
             draft,
             completion,
-            exit,
             receipt,
         }
     }
@@ -194,10 +263,6 @@ impl CompletedFunctionDraftV1 {
 
     pub(super) fn draft(&self) -> &MirFunction {
         &self.draft
-    }
-
-    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
-        self.exit
     }
 
     pub(super) fn completion(&self) -> &ReadyFunctionCompletionV1 {
@@ -277,12 +342,20 @@ fn prepare_detached_plan(
     builder: &MirBuilder,
     exit: PreparedFunctionExitV1,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
-    let projection = PreparedFunctionExitPlanV1::project_exit(builder, exit).map_err(|error| {
-        (
-            stage_for_projection_error(&error),
-            FunctionDraftSealErrorV1::Projection(error),
-        )
-    })?;
+    prepare_detached_plan_with_exit_set(builder, PreparedFunctionExitSetV1::single(exit))
+}
+
+fn prepare_detached_plan_with_exit_set(
+    builder: &MirBuilder,
+    exit: PreparedFunctionExitSetV1,
+) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
+    let projection = FunctionDraftSealProjectionV1::project_from_builder_exit_set(builder, exit)
+        .map_err(|(_exit, error)| {
+            (
+                stage_for_projection_error(&error),
+                FunctionDraftSealErrorV1::Projection(error),
+            )
+        })?;
     let phi = projection.prepare_phi_closure().map_err(|error| {
         (
             FunctionDraftSealStageV1::PhiClosure,
