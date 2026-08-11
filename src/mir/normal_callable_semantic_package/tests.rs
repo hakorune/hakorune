@@ -136,8 +136,11 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
         );
         assert_eq!(demand.identity().owner(), input.source().owner());
         assert_eq!(demand.source_relation().completion_sites().len(), 2);
-        assert_eq!(demand.physical_input().placements().len(), 17);
-        assert_eq!(demand.physical_input().operations().len(), 15);
+        demand.with_operation_program(|program| {
+            assert_eq!(program.placement_rows().len(), 17);
+            assert_eq!(program.operation_rows().len(), 15);
+            assert_eq!(program.coverage().fault_count(), 3);
+        });
     })
     .expect("selected A-prime demand loan");
 }

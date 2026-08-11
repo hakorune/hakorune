@@ -3,7 +3,8 @@
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalInputViewV2,
+    issue_dynamic_full_loop_operation_physical_demand_v2, DynamicAPrimeI64SourceRelationViewV1,
+    DynamicFullLoopPhysicalInputViewV2,
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
@@ -31,7 +32,11 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     validate_identity(&identity, &source_relation)?;
     validate_parameters(input, &source_relation)?;
     validate_call_edges(&physical_input)?;
-    Ok(from_parts(identity, source_relation, physical_input))
+    let operation_program = issue_dynamic_full_loop_operation_physical_demand_v2(physical_input)
+        .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?
+        .prepare_all()
+        .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?;
+    Ok(from_parts(identity, source_relation, operation_program))
 }
 
 fn validate_identity(

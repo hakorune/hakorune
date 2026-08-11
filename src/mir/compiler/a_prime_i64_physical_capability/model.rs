@@ -2,8 +2,8 @@
 
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalInputRejectV2,
-    DynamicFullLoopPhysicalInputViewV2,
+    DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalDemandRejectV2,
+    DynamicFullLoopPhysicalInputRejectV2, PreparedDynamicLoopOperationProgramV2,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -15,6 +15,7 @@ pub(in crate::mir) enum APrimeI64PhysicalDemandRejectV1 {
         crate::mir::compiler::dynamic_full_body_recipe::DynamicAPrimeI64SourceRelationRejectV1,
     ),
     PhysicalInput(DynamicFullLoopPhysicalInputRejectV2),
+    PhysicalDemand(DynamicFullLoopPhysicalDemandRejectV2),
     CallEdgeCoverage,
 }
 
@@ -32,7 +33,7 @@ pub(in crate::mir) enum APrimeI64PhysicalRequirementV1 {
 pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
     identity: VerifiedResolvedCallableSourceIdentityV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
-    physical_input: DynamicFullLoopPhysicalInputViewV2<'program>,
+    operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
     requirement: APrimeI64PhysicalRequirementV1,
 }
 
@@ -49,20 +50,23 @@ impl VerifiedAPrimeI64PhysicalDemandV1<'_> {
         &self.source_relation
     }
 
-    pub(in crate::mir) fn physical_input(&self) -> &DynamicFullLoopPhysicalInputViewV2<'_> {
-        &self.physical_input
+    pub(in crate::mir) fn with_operation_program<R>(
+        &self,
+        callback: impl FnOnce(&PreparedDynamicLoopOperationProgramV2<'_>) -> R,
+    ) -> R {
+        callback(&self.operation_program)
     }
 }
 
 pub(super) fn from_parts<'program>(
     identity: VerifiedResolvedCallableSourceIdentityV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
-    physical_input: DynamicFullLoopPhysicalInputViewV2<'program>,
+    operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
 ) -> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     VerifiedAPrimeI64PhysicalDemandV1 {
         identity,
         source_relation,
-        physical_input,
+        operation_program,
         requirement: APrimeI64PhysicalRequirementV1::DirectExactI64,
     }
 }
