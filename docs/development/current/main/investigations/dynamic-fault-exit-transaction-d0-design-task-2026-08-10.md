@@ -2342,6 +2342,23 @@ selected A-prime cohort only
   - unsupported operation/representation/backend = RejectBeforeEffect
 ```
 
+The Builder-free demand must also retain the already verified V2 operation
+program as a private, scoped relation.  The A-prime issuer may issue
+`PreparedDynamicLoopOperationProgramV2` from the co-sealed physical-input view
+exactly once and lend it only to the family-native emitter; the emitter may
+not re-issue the demand or reconstruct operation rows from the Recipe.  No raw
+operation-program parts, V1 adapter, or cloneable program authority is added.
+
+Two physical capabilities are still explicit gates rather than implied by the
+semantic operation contract.  There is no canonical Builder emitter yet for
+the normal `DynamicLess` Bool receipt, and the semantic carrier/cleanup
+projection has no canonical physical temporary-discharge emitter.  The
+family-native emitter therefore accepts those rows only through named
+capabilities that issue producer/provenance receipts.  Until those capabilities
+exist, the selected canary must reject before its first Builder effect; a
+semantic `DynamicLess`/cleanup row is not permission to emit an `Unknown`
+value, infer a type, or silently skip cleanup.
+
 Acceptance for this design stop:
 
 ```text
@@ -2351,6 +2368,17 @@ Acceptance for this design stop:
 [ ] CallSlot rows use the already co-sealed call relations
 [ ] Dynamic operation results carry an explicit producer receipt; no raw-i64
     or handle inference is permitted
+[ ] the V2 operation program is co-sealed once and exposed only through a
+    scoped loan to this emitter
+[ ] the two-stage move-only plan/session API and private V2 ledger are fixed
+[ ] the ledger has exactly 17 placements, 15 operations, one If, one Exit,
+    three Dynamic Fault rows, and site-keyed two-site Completion claims
+[ ] physical schedule segments do not pretend that logical Recipe blocks are
+    one-to-one physical BasicBlocks
+[ ] DynamicLess has a named normal-Bool physical capability or rejects before
+    effect; semantic classification alone is insufficient
+[ ] Dynamic temporary cleanup has a named physical discharge capability or
+    rejects before effect; no cleanup row is silently dropped
 [ ] control rows are consumed as evidence; no physical transfer is rebuilt
     from Recipe
 [ ] deferred terminal arm remains un-terminated until DraftSeal projection
@@ -2390,6 +2418,43 @@ terminal
   Return writer: draft_seal/exit_projection.rs only
 ```
 
+The implementation API is intentionally two-stage and move-only:
+
+```text
+issue_selected_dynamic_v2_emission_plan(demand)
+  -> PreparedSelectedDynamicV2EmissionPlan
+     Builder effect = 0
+     no raw Recipe/JoinSig/ValueId escape
+
+plan.emit_into(&mut CanonicalSsaFunctionSessionV2)
+  -> PreparedSelectedDynamicV2EmissionReceipt
+     session-local ValueId/BasicBlockId/PHI ownership
+```
+
+The private `V2NativeEmissionLedger` is the only in-session ledger.  It has
+exactly 17 placement rows, 15 operation rows, one If row, one Exit row, the
+three selected Dynamic Fault rows (I6/I7/I9), per-item emitted/producer
+receipt state, and the two site-keyed Completion claims.  It has no name,
+ordinal, zip, or repair lookup and is discarded with the unpublished session
+on any failure.  `finish()` is exactly-once and cannot expose a second value
+map.
+
+The physical plan must not create a one-to-one `LoopBlockKey -> BasicBlock`
+map: the verified V2 body places operations on a logical body block around the
+I10 branch.  The plan therefore uses private physical schedule segments keyed
+by the co-sealed operation/control order (pre-I10 body, I10 terminal arm,
+post-I10 continuation/step, backedge, and after).  This is a physical schedule
+only; it may not invent a Recipe block, synthetic ItemKey, or new transfer
+meaning.  If the exact I10 boundary cannot be proven from the complete V2
+ledger, the plan rejects before its first Builder effect.
+
+For the selected source shape (`else_block = None`), the emitter uses the
+existing `IfCfgSessionV1::open_implicit_false` path and the one-sided deferred
+return verifier.  Only the narrow
+`crate::mir::builder::resolved_lowering` visibility needed by this sibling
+emitter may be widened; the token types remain private and no crate-wide If
+API is introduced.  `open_explicit_else` is not a substitute for this shape.
+
 The plan issuer validates the operation family exhaustively. The selected
 cohort's first operation cases are:
 
@@ -2400,7 +2465,9 @@ ReadBinding / ConstI64 / BinaryI64 / CompareI64
 
 DynamicAdd / DynamicLess / CallSlot
   -> dedicated V2-family emitters that consume their already sealed execution
-     class/Fault/CallSlot row and issue an explicit normal-result receipt
+     class/Fault/CallSlot row and issue an explicit normal-result receipt;
+     missing DynamicLess or Dynamic temporary-cleanup capability is a
+     pre-effect rejection
 
 WriteBinding
   -> canonical session identity/rebind owner, consuming the V2 binding row
