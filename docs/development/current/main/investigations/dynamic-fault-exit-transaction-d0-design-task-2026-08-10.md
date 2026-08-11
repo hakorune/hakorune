@@ -606,6 +606,11 @@ Next: Slice B is the only current semantic replacement row.
 This is one atomic BoxCount/semantic replacement commit. It changes the
 canonical source, the sole existing producer, the Fault catalog, and the
 selected lifecycle together. No alternate producer or old/new mode is allowed.
+The A2 parameter contract is not re-derived here: the sole Recipe producer
+consumes a private exact co-seal of the A2 rows and the full-body source
+inventory. That relation retains ordinal, BindingRef, source role, and
+Recipe input/value class transitively inside the candidate/envelope; no public
+bridge, name lookup, ordinal repair, or second parameter authority is allowed.
 
 ```text
 inputs:
@@ -619,6 +624,10 @@ typed replacements:
   I1  CompareI64(Less) -> V5:Bool
   I5  BinaryI64(Add)   -> V9:I64
   I15 BinaryI64(Add)   -> V17:I64
+
+per-call typed classes:
+  I6 substring: Dynamic receiver, I64/I64 arguments, Dynamic result
+  I7 indexOf:   Dynamic receiver, Dynamic argument, Dynamic result
 
 still Dynamic:
   I6 -> V10 substring result
@@ -644,8 +653,9 @@ execution coverage:
   ExternallyBoundOutcome = 2
 ```
 
-The I64 induction is `ExactI64TrivialNoEnd`. Delete the selected Dynamic
-induction authorities in the same commit:
+The I64 induction is `ExactI64TrivialNoEnd`. Preserve the existing invocation
+lifecycle for V10/V11, then replace only the selected Dynamic induction and
+operator chain in the same commit:
 
 ```text
 operator_carrier_lifecycle/**
@@ -655,10 +665,19 @@ ingress.rs / BorrowedIngressNoEnd
 old six-row profile assumptions
 ```
 
-Replace `carrier_cleanup.rs` with `dynamic_temporary_cleanup.rs` (target at
-most 300 lines). It owns only V10/V11 temporary cleanup and is consumed by the
-existing exit transaction. I64 induction values receive no End/Home/owned or
-borrowed lifecycle.
+Replace the deleted chain with one invocation cleanup projection (target at
+most 300 lines), named `invocation_cleanup.rs`. It consumes the existing
+`VerifiedDynamicInvocationCarrierLifecycleProgramV1` and is consumed by the
+existing exit transaction. It owns only V10/V11 cleanup; the I64 induction
+receives no End/Home/owned/borrowed lifecycle. The exact bounded matrix is:
+
+```text
+I6 fault                 -> no V10 cleanup
+I7 fault                 -> end V10
+I9 normal/fault          -> end V11; I9 fault also ends V10
+inner Return/backedge    -> end V10
+outer Tail               -> no invocation temporary cleanup
+```
 
 Primary touched families are `dynamic_full_body_recipe/{mapping,claims,coseal,
 physical_demand}`, `normal_callable_semantic_package`, the canonical `.hako`
@@ -799,8 +818,9 @@ Broader `.hako` migration follows. Fixed topology hard deletion remains a
 post-cutover caller-zero cleanup.
 
 Production remains `NoSafeSlice` until D4. A1
-`CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` is closed; the current safe
-implementation row is A2 `CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0`.
+`CALLABLE-PARAMETER-TYPE-TRANSPORT-R0` and A2
+`CALLABLE-EXACT-I64-PARAMETER-CONTRACT-I0` are closed; the current safe
+implementation row is Slice B `A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0`.
 
 ## Historical checked-Dynamic return design (SUPERSEDED; non-authoritative)
 
