@@ -3129,9 +3129,11 @@ admission schema is required in the I0-B activation slice, with one normative
 owner and checked projections; a third hand-written semantic table is
 forbidden.
 
-Until these fields and owners are fixed in this active card, the current
-state is `design_stop`; implementing only `BoxCallableRegistry`, a provider
-plan, a runtime symbol, or an LLVM hook would create an orphan authority.
+The D0 field/owner decision is now accepted and the active pointer is the
+implementation row below.  The implementation is still not landed: adding
+only `BoxCallableRegistry`, a provider plan, a runtime symbol, or an LLVM hook
+would create an orphan authority.  The whole named chain must remain one
+atomic I0-B activation cell.
 
 There is no Rust VM node in this production DAG. Rust VM stays limited to
 already-supported bootstrap/recovery/compatibility smoke until caller-zero
