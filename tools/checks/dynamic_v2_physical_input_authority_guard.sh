@@ -40,13 +40,17 @@ guard_expect_fixed_in_file "$TAG" \
   "physical_demand_consumes_the_complete_view_inside_the_htrb_loan" "$EXIT_TX" \
   "whole-program Dynamic demand HRTB test is missing"
 
+INPUT_PRODUCTION="$(mktemp "${TMPDIR:-/tmp}/dynamic-v2-physical-input.XXXXXX")"
+sed '/^#\[cfg(test)\]/,$d' "$INPUT" >"$INPUT_PRODUCTION"
+trap 'rm -f "$INPUT_PRODUCTION"' EXIT
+
 for forbidden in \
   "as_sig(" \
   "as_recipe(" \
   "LoopItemKeyV1::new(" \
   "VerifiedLoopJoinSigV2" \
   "LoopRecipeItemV2"; do
-  if rg -F -q -- "$forbidden" "$INPUT"; then
+  if rg -F -q -- "$forbidden" "$INPUT_PRODUCTION"; then
     guard_fail "$TAG" "physical-input view contains forbidden raw/reconstructed authority: $forbidden"
   fi
 done

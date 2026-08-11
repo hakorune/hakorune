@@ -2017,6 +2017,11 @@ guards, and the current-pointer guard are green. The next selected row is
 `LOOP-PRECUTOVER-AUTHORITY-H2`; this commit does not open physical session,
 Completion, ABI, topology deletion, production cutover, fallback, or retry.
 
+The Dynamic physical-input guard's authority scan is production-scoped: it
+stops before the `#[cfg(test)]` fixture module, so synthetic negative fixtures
+cannot be mistaken for a production Recipe/JoinSig reconstruction path. The
+full file still remains subject to the 800-line boundary.
+
 #### Post-Dynamic cleanup acceptance matrix
 
 The parked series is intentionally concrete about the old V1 surfaces it must
