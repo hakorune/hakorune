@@ -759,12 +759,18 @@ stop.
 The semantic A-prime chain is closed, but the physical capability issuer is
 not yet implemented.  The sole issuer is a new private module at
 `src/mir/compiler/a_prime_i64_physical_capability/issuer.rs`.  It consumes one
-borrowed selected-callable lowering input together with the existing
-`FunctionEntryContract`/`BindingRef` rows, mixed typed Recipe,
-`VerifiedDynamicExitTransactionCoSealV1`, and
+borrowed selected-callable lowering input together with the package-owned
+`CallableParameterContractKindV1::ExactTrivial`/`BindingRef` rows, the mixed
+typed Recipe, `VerifiedDynamicExitTransactionCoSealV1`, and
 `VerifiedFunctionCompletionV1`, then emits one Builder-free exact-I64 demand.
 It may not contain or publish `ValueId`, `BasicBlockId`, MIR instructions,
 helper calls, backend tags, or a second source/Recipe/Completion authority.
+
+The post-MIR `FunctionEntryContract` is not an input authority for this
+issuer.  It owns ValueId-bearing runtime metadata after Builder lowering and
+may only be consumed by the later physical/session gate.  The semantic issuer
+uses the package's source-backed parameter contract kind and BindingRef rows;
+it must not recreate them from post-MIR metadata.
 
 The existing `physical_input.rs` remains the Loop placement/operation/Fault
 view owner; the test-only prelude issuer and generic backend gates are not
@@ -888,14 +894,32 @@ the owner-branded function target.  A missing or foreign sibling fact is a
 typed `RejectBeforeEffect`, never a name/ordinal/ValueId repair.
 
 The LLVM part is a transport/capability child, not a backend-name allowlist.
-Rust MIR JSON remains the single metadata emission owner.  A narrow
-A-prime exact-I64 capability projection may be added beside the existing
-parameter/call-edge metadata, then consumed by LLVM lowering as
-`Direct | RejectBeforeEffect`.  It must prove the selected mixed signature
-and every selected I6/I7 edge; it must not call `resolve_i64`, fill missing
-values with zero, or use ptr/int repair.  The generic parameter-entry
-metadata and post-MIR `FunctionEntryContract` remain distinct from the
-Builder-free demand and must not be re-used as a semantic source authority.
+Rust MIR JSON remains the single metadata emission owner.  The capability
+contract is two-stage, so semantic demand and physical transport are not
+confused:
+
+```text
+pre-session:
+  VerifiedAPrimeI64PhysicalDemandV1
+    = backend-independent Direct/Reject requirement
+
+fresh session:
+  exact ValueId/BasicBlock/PHI/call/return realization
+    -> FunctionMetadata physical receipt
+    -> dedicated a_prime_i64_capability JSON emitter
+    -> strict LLVM loader/lane
+```
+
+The dedicated field encoder must live beside, not inside, the generic
+parameter contract encoder (for example
+`src/runner/mir_json_emit/a_prime_i64_capability.rs`), while
+`mir_json_emit/metadata.rs` remains the sole JSON composition owner and calls
+that encoder exactly once.  The Python side gets a matching strict
+loader/lane.  It must prove the selected mixed signature and every selected
+I6/I7 edge; it must not call `resolve_i64`, fill missing values with zero, or
+use ptr/int repair.  The generic parameter-entry metadata and post-MIR
+`FunctionEntryContract` remain distinct from the Builder-free demand and must
+not be re-used as a semantic source authority.
 
 Therefore implementation is not yet opened.  The remaining design close is
 limited to these three contracts:
@@ -903,7 +927,8 @@ limited to these three contracts:
 1. selected callable header/entry-edge ownership and exact function target;
 2. exact I6/I7 argument/result edge evidence and its co-seal with the mixed
    Recipe/JoinSig/Completion facts; and
-3. one Rust-MIR-JSON-to-LLVM capability projection with strict
+3. one pre-session capability contract plus one post-session
+   Rust-MIR-JSON-to-LLVM physical receipt projection with strict
    `Direct | RejectBeforeEffect` behavior.
 
 No new source observer, Dynamic producer, Completion owner, GenericLoop
@@ -939,7 +964,7 @@ branch 2:
   A-PRIME-VM-EXACT-I64-ENTRY-I0
 
 branch 3:
-  A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0
+  A-PRIME-LLVM-EXACT-I64-CAPABILITY-D0 (contract only)
 ```
 
 VM accepts `VMValue::Integer` under the exact entry contract, then carries
@@ -1188,12 +1213,11 @@ bash tools/checks/current_state_pointer_guard.sh    # ok
 bash tools/checks/naming_charter_guard.sh           # ok
 ```
 
-The next boundary is intentionally a design stop: `PHYSICAL-INPUT-AUTHORITY-I0`
-must close the producer provenance, target-aware backend capability issuer,
-strict helper ABI, and outer disposition required by the selected
-`CHECKED-DYNAMIC-I64-ABI` architecture. Until then, the unsupported behavior is
-`RejectBeforeEffect`, the slice remains `NoSafeSlice`, and this row does not
-claim physical I64 compatibility.
+The next boundary is intentionally a design stop:
+`A-PRIME-EXACT-I64-PHYSICAL-CAPABILITY-D0` must close the selected
+entry/call-edge provenance and target-aware exact-I64 capability. Until then,
+the unsupported behavior is `RejectBeforeEffect`, the slice remains
+`NoSafeSlice`, and this row does not claim physical I64 compatibility.
 
 Required tests:
 
@@ -1271,7 +1295,7 @@ outer Return:
 DynamicI64ReturnProjectionDemandRefV1
   each Completion site
   -> exact logical operand
-  -> required checked-I64 capability
+  -> required exact-I64 Direct-or-Reject capability
   -> no ValueId / BasicBlockId / MIR
 
 DYNAMIC-EXIT-PHYSICAL-SESSION-P0 later consumes:
@@ -1286,20 +1310,20 @@ The accepted target architecture and current unsupported behavior are distinct:
 
 ```text
 target architecture:
-  CHECKED-DYNAMIC-I64-ABI
-  = boundary-local checked projection
-    + producer-issued representation provenance
+  A-prime exact-I64 corridor
+  = source-level exact-I64 contract
+    + typed Recipe/carrier
+    + producer-issued exact-I64 physical receipt
 
 current unsupported behavior:
   RejectBeforeEffect
 ```
 
-No existing source/semantic authority currently proves either logical Dynamic
-operand is physical `i64`, and the checked path is not executable until every
-selected producer and backend cell has a canonical issuer. Adding
-`MirType::Integer` to a Dynamic ValueId because the declaration says `i64` is
-forbidden. This question belongs to the existing physical-input row; it does
-not create a new task card.
+No physical/session receipt currently proves the exact-I64 realization of the
+selected corridor.  Adding `MirType::Integer` to a Dynamic ValueId because a
+declaration says `i64` is forbidden.  A generic Dynamic-to-I64 helper is not
+part of this bounded row.  This question belongs to the existing physical-
+input row; it does not create a new task card.
 
 The current three-row Fault catalog remains the exact Recipe-operation catalog.
 A checked return projection is a callable-terminal sibling keyed by the exact
@@ -1310,7 +1334,7 @@ mutation.
 
 #### PHYSICAL-INPUT-AUTHORITY-I0 decision and next task
 
-The design decision is fixed, but implementation is not yet authorized:
+The authority split is fixed, but implementation is not yet authorized:
 
 ```text
 Completion:
@@ -1329,18 +1353,18 @@ session-local final-exit realization:
   sole owner allowed to relate demand rows, physical representations, and IDs
 ```
 
-No existing verified product proves either logical Dynamic operand is physical
-`i64`. `CHECKED-DYNAMIC-I64-ABI` is the selected target, but
-its producer provenance, backend capability issuer, and outer disposition are
-still unresolved. Until those canonical issuers exist, current behavior is
-`RejectBeforeEffect` and the slice remains `NoSafeSlice`.
+No existing verified product emits the selected physical exact-I64 receipt.
+The A-prime producer provenance, entry/call-edge capability, and strict
+Rust-MIR-JSON-to-LLVM transport are still unresolved. Until those canonical
+issuers exist, current behavior is `RejectBeforeEffect` and the slice remains
+`NoSafeSlice`.
 
 The sole next task is therefore the remainder of this existing row:
 
 ```text
 PHYSICAL-INPUT-AUTHORITY-I0
-  child design: PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0
-  design only until the complete CHECKED-DYNAMIC-I64-ABI capability is accepted
+  child design: A-PRIME-EXACT-I64-PHYSICAL-CAPABILITY-D0
+  design only until the complete exact-I64 capability/transport contract is accepted
   then issue the Builder-free two-site demand; realization remains session-local
 ```
 
@@ -1350,10 +1374,20 @@ Recipe/JoinSig physical type, or public raw `ValueId`/slot API. Loop
 unification remains the next structural lane after this row; it cannot replace
 the missing Dynamic-to-i64 conformance proof.
 
-#### PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 (design child; no new card)
+#### PHYSICAL-INPUT-DYNAMIC-I64-REPRESENTATION-D0 (superseded historical proposal)
 
-Decision: target `CHECKED-DYNAMIC-I64-ABI` is accepted as the only candidate
-architecture; current unsupported behavior remains `RejectBeforeEffect`. Global
+The generic checked-Dynamic corridor recorded below is historical design
+material only.  It is not the live A-prime contract and must not be revived
+for `skip_while`.  In particular, `IntegerBoxHandle`, `TaggedCarrier`, the
+strict Dynamic-to-I64 helper, and the generic `Checked` backend cells are
+parked for a future genuinely polymorphic Dynamic API.  The live bounded
+A-prime corridor is exact source `i64` through a typed Recipe and therefore
+has only `Direct` or `RejectBeforeEffect` behavior; see the authoritative
+section immediately before `PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0`.
+
+Historical decision (superseded by A-prime): target `CHECKED-DYNAMIC-I64-ABI`
+was accepted as the only candidate architecture for the generic Dynamic
+corridor; current unsupported behavior remains `RejectBeforeEffect`. Global
 all-values-as-handles and a language-wide tagged representation are not opened
 by this row. The child remains `NoSafeSlice` until its canonical issuers and
 complete selected-corridor table are fixed.
@@ -1563,6 +1597,61 @@ Normal paths produce exactly two physical Return terminators; Fault paths
 produce zero. No synthetic return join or PHI is introduced. The package-held
 final program is used directly, transitional source-seed callers reach zero by
 cutover, and retry/fallback remain zero.
+
+#### Live A-prime exact-I64 physical contract
+
+This is the only physical-capability contract currently allowed for the
+bounded `ParserScanLoopBox.skip_while/4` cohort:
+
+```text
+source pos/end: ExactTrivial(I64)
+  -> package CallableParameterContractKindV1 + BindingRef
+  -> sealed Pos -> Induction initializer relation
+  -> mixed typed Recipe / I64 carrier / I64 JoinSig and After
+  -> exact I6/I7 CallSlot argument/result evidence
+  -> exact two Completion-site logical operands
+  -> VerifiedAPrimeI64PhysicalDemandV1
+```
+
+The demand is Builder-free and backend-independent.  It contains the
+selected callable identity/header and owner-branded function target, the
+entry relation, source/Recipe/JoinSig/After/Completion facts, and a required
+exact-I64 capability.  It contains no `ValueId`, `BasicBlockId`, MIR,
+backend tag, helper call, or physical block.  The existing post-MIR
+`FunctionEntryContract` is not an issuer input; it is a later physical
+metadata consumer.
+
+The selected backend matrix is deliberately only:
+
+```text
+all exact-I64 source/Recipe/call-edge facts present
+  -> Direct
+missing / foreign / duplicate / ambiguous / repair-only / unsupported
+  -> RejectBeforeEffect
+```
+
+The generic Dynamic checked corridor is not a fallback.  A-prime does not
+use `resolve_i64`, missing-value zero, `ptrtoint`/`inttoptr`, IntegerBox
+downcast, tagged carrier, or backend-name allowlists.
+
+Transport has two non-overlapping stages:
+
+```text
+pre-session:
+  issue VerifiedAPrimeI64PhysicalDemandV1
+
+fresh session:
+  materialize exact ValueId/BasicBlock/PHI/call/return facts
+  -> FunctionMetadata physical receipt
+  -> metadata.rs (sole JSON composer) calls one dedicated
+     a_prime_i64_capability field encoder
+  -> strict LLVM A-prime lane
+```
+
+The dedicated field encoder and strict Python lane are transport projections,
+not semantic authorities.  Missing or foreign physical receipt fails before
+LLVM effect; generic resolver repair and the existing fallback path are not
+valid for a selected A-prime artifact.
 
 ## PHYSICAL-OPERATION-DEMAND-AUTHORITY-D0 (revised accepted)
 
