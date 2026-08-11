@@ -2700,6 +2700,41 @@ Re-entry to I0-B implementation requires a named provider issuer and a named
 non-test consumer in the same bounded slice. Until then, the only valid
 outcome is typed `RejectBeforeEffect` at the future admission boundary.
 
+Provider census receipt (2026-08-11):
+
+```text
+I6 source/Recipe relation:
+  item I6, selector substring, source arity 2
+  receiver V0:Dynamic, arguments V6:I64/V9:I64, result V10:Dynamic
+  owner: dynamic_full_body_recipe/coseal/calls.rs
+
+I7 source/Recipe relation:
+  item I7, selector indexOf, source arity 1
+  receiver V3:Dynamic, argument V10:Dynamic, result V11:Dynamic
+  owner: dynamic_full_body_recipe/coseal/calls.rs
+
+DynamicV2 wire/provider non-test callers:
+  provider plan issuer = 0
+  provider registry = 0
+  VM issuer/caller = 0
+  LLVM issuer/caller = 0
+  DynamicV2CallOut/WireValue runtime consumers = 0
+
+Existing nyrt_host_call_slot and host_api dispatch_call_slot callers:
+  legacy compatibility route; excluded from I0-B and forbidden for reuse
+
+Capability matrix for this stop:
+  Direct                = 0
+  Checked               = 0
+  RejectBeforeEffect    = 1
+```
+
+The existing `issue_selected_dynamic_v2_physical_capability_admission`
+function is observed only by a normal-callable package test; its production
+caller count is zero. It remains a proof-only rejected admission and is not a
+provider registry or a runtime receipt issuer. This census is evidence for the
+stop, not permission to add a provider plan without a named consumer.
+
 Implementation DAG after the design stop is accepted (still within this
 rolling card; no extra card is required):
 
