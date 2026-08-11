@@ -3028,8 +3028,14 @@ The D0 closeout fixes the following concrete boundary before implementation:
 
 ```text
 normalized contract artifact
-  owns: contract id, version, CP profile, two role rows, input/result lanes,
-        Home/Fault/effect/sync/lifecycle and alias rules
+  source owner to be introduced in the atomic I0-B slice:
+    lang/src/runtime/meta/provider_slot_contract_box.hako
+  it references canonical CoreMethod row identities and owns contract id,
+  version, CP profile, two role rows, input/result lanes, Home/Fault/effect,
+  sync/lifecycle and alias rules. Its normalized generated projection belongs
+  at lang/src/runtime/meta/generated/provider_slot_contract_manifest.json and
+  is not hand-edited. The generator is the only issuer of that normalized
+  artifact; Rust/C/Python projections consume it and never restate its rows.
 
 selected A-prime requirement
   owns: required contract id and
@@ -3044,9 +3050,16 @@ admitted registry
         mutable insert or duplicate overwrite
 
 call-in admission wire (new ABI surface, not the result-output wire)
-  owns: revision, admission/branch identity, registry generation, slot
-        contract id, receiver canonical key, callable key, RoutePlan stamp,
-        RuntimeExecutablePlan/image/entry identity, and exact I6/I7 lane
+  normative owner to be introduced in the atomic I0-B slice:
+    include/nyrt_dynamic_call_slot_v2_admission.h
+  checked projections:
+    src/abi/dynamic_call_slot_v2_admission.rs
+    src/llvm_py/builders/dynamic_v2_callslot_admission_wire.py
+  owns only: wire revision, registry generation, opaque admission token,
+  I6/I7 role, receiver WireValue, argc, and fixed argument WireValue lanes.
+  RuntimeExecutablePlan image/entry/PlanStamp/receiver-branch identity is
+  referenced by the opaque token and stays in the presealed plan; it is not
+  copied into this wire. Selector/name/raw callable key never enters it.
 
 RuntimeExecutablePlan
   owns: presealed receiver branch, provider entry/image pin, PlanStamp, and
