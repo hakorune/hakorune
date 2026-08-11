@@ -12,11 +12,14 @@ COSEAL_TESTS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/tests.r
 DEMAND_MOD="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/mod.rs"
 DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
+SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
+SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
-  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER"
+  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
+  "$SELECTED_EMITTER"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -75,5 +78,20 @@ for file in "$EVIDENCE" "$INPUT" "$EXIT_TX" "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMA
     guard_fail "$TAG" "source file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+
+LEDGER_HEADER="$(rg -n -B3 -- "struct DynamicV2NativePreflightLedgerV1" "$SELECTED_ABI")"
+if printf '%s\n' "$LEDGER_HEADER" | rg -q -- "Clone"; then
+  guard_fail "$TAG" "the move-only V2 preflight ledger must not derive Clone"
+fi
+for file in "$SELECTED_ABI" "$SELECTED_EMITTER"; do
+  if rg -F -q -- "ledger.clone(" "$file"; then
+    guard_fail "$TAG" "V2 preflight ledger was copied or split: ${file#"$ROOT_DIR/"}"
+  fi
+done
+
+SCHEDULE_BODY="$(sed -n '/^fn build_schedule(/,/^fn segment_for_operation/p' "$SELECTED_ABI")"
+if printf '%s\n' "$SCHEDULE_BODY" | rg -q -- "source_role|segment_for_role"; then
+  guard_fail "$TAG" "physical schedule must derive from verified placement/control, not source-role policy"
+fi
 
 echo "[$TAG] ok"
