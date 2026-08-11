@@ -233,11 +233,11 @@ impl APrimeI64PhysicalReceiptV1 {
             }
             let (expected_target, expected_receiver, expected_arguments) = match row.role.as_str() {
                 "substring" => (
-                    "substring/3",
+                    "substring/2",
                     "src",
                     &[(0usize, "start"), (1usize, "end")][..],
                 ),
-                "index_of" => ("indexOf/2", "pred_chars", &[(0usize, "ch")][..]),
+                "index_of" => ("indexOf/1", "pred_chars", &[(0usize, "ch")][..]),
                 _ => unreachable!("call role checked above"),
             };
             if row.target_fingerprint != expected_target {
@@ -448,7 +448,7 @@ mod tests {
                     role: "substring".to_string(),
                     block: BasicBlockId::new(1),
                     instruction_index: 3,
-                    target_fingerprint: "substring/3".to_string(),
+                    target_fingerprint: "substring/2".to_string(),
                     receiver_role: "src".to_string(),
                     receiver_value_id: ValueId::new(10),
                     receiver_lane: APrimeI64LaneV1::OpaqueHandle,
@@ -473,7 +473,7 @@ mod tests {
                     role: "index_of".to_string(),
                     block: BasicBlockId::new(1),
                     instruction_index: 4,
-                    target_fingerprint: "indexOf/2".to_string(),
+                    target_fingerprint: "indexOf/1".to_string(),
                     receiver_role: "pred_chars".to_string(),
                     receiver_value_id: ValueId::new(14),
                     receiver_lane: APrimeI64LaneV1::OpaqueHandle,
@@ -581,7 +581,7 @@ mod tests {
         );
 
         let mut receipt = valid_receipt();
-        receipt.call_edges[0].target_fingerprint = "indexOf/2".to_string();
+        receipt.call_edges[0].target_fingerprint = "indexOf/1".to_string();
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::CallTargetFingerprintMismatch)

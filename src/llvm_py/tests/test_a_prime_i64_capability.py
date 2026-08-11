@@ -33,7 +33,7 @@ def _valid_function_data():
                         "role": "substring",
                         "block": 1,
                         "instruction_index": 3,
-                        "target_fingerprint": "substring/3",
+                        "target_fingerprint": "substring/2",
                         "receiver_role": "src",
                         "receiver_value_id": 10,
                         "receiver_lane": "opaque_handle",
@@ -48,7 +48,7 @@ def _valid_function_data():
                         "role": "index_of",
                         "block": 1,
                         "instruction_index": 4,
-                        "target_fingerprint": "indexOf/2",
+                        "target_fingerprint": "indexOf/1",
                         "receiver_role": "pred_chars",
                         "receiver_value_id": 14,
                         "receiver_lane": "opaque_handle",
@@ -133,7 +133,7 @@ class TestAPrimeI64Capability(unittest.TestCase):
         data = _valid_function_data()
         data["metadata"]["a_prime_i64_physical_receipt"]["call_edges"][0][
             "target_fingerprint"
-        ] = "indexOf/2"
+        ] = "indexOf/1"
         with self.assertRaises(APrimeI64CapabilityError):
             load_selected_a_prime_capability(data)
 

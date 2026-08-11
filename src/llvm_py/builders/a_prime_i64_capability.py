@@ -290,7 +290,10 @@ def load_selected_a_prime_capability(
         raise APrimeI64CapabilityError("duplicate call site")
     call_results = set()
     for row in calls:
-        expected_target = "substring/3" if row.role == "substring" else "indexOf/2"
+        # Keep the transport key identical to the source CallSlot authority:
+        # receiver excluded (`substring/2`, `indexOf/1`).  A receiver-inclusive
+        # ABI spelling belongs to a future explicit field, never this key.
+        expected_target = "substring/2" if row.role == "substring" else "indexOf/1"
         expected_receiver = "src" if row.role == "substring" else "pred_chars"
         expected_argument_roles = ("start", "end") if row.role == "substring" else ("ch",)
         expected_argument_lanes = (

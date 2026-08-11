@@ -27,8 +27,8 @@ batch slot, or lowering authority.
 The current schema-v2 transport-test receipt mirrors the selected four-formal layout
 (`src=0`, `pos=1`, `end=2`, `pred_chars=3`), the exact `{inner, outer}` return
 site set, and the canonical two-call shape. `substring` is fingerprinted as
-`substring/3` with `src` plus ordered `start`/`end` immediate-i64 arguments;
-`indexOf` is fingerprinted as `indexOf/2` with `pred_chars` plus ordered `ch`
+`substring/2` with `src` plus ordered `start`/`end` immediate-i64 arguments;
+`indexOf` is fingerprinted as `indexOf/1` with `pred_chars` plus ordered `ch`
 opaque-handle argument. Rust, JSON, and Python reject swapped, foreign,
 duplicate, or role-incompatible rows before effect.
 
