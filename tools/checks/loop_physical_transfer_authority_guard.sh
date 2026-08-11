@@ -114,6 +114,34 @@ for file in "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH"; do
   done
 done
 
+PHYSICALIZER_DIR="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer"
+legacy_topology_callers="$(rg -l --glob '*.rs' 'physicalize_topology_v1\(' "$PHYSICALIZER_DIR" | grep -v '/topology.rs' || true)"
+if [[ -n "$legacy_topology_callers" && "$legacy_topology_callers" != "$PHYSICALIZER_DIR/tests.rs" ]]; then
+  guard_fail "$TAG" "legacy fixed-topology entry gained a non-test caller: $legacy_topology_callers"
+fi
+if rg -n --glob '*.rs' -F 'physicalize_topology_for_operation_demand_v1(' "$PHYSICALIZER_DIR" \
+  | grep -v '/topology.rs' >/dev/null 2>&1; then
+  guard_fail "$TAG" "operation-demand fixed-topology entry gained a caller"
+fi
+for pattern in \
+  'prepare_loop_segment_operation_dispatch_v1(' \
+  'allocate_for_layout('
+do
+  callers="$(rg -l --glob '*.rs' -F -- "$pattern" "$PHYSICALIZER_DIR" | grep -v '/segment_dispatcher.rs' | grep -v '/segment_allocator.rs' || true)"
+  while IFS= read -r caller; do
+    [[ -z "$caller" ]] && continue
+    case "$caller" in
+      "$PHYSICALIZER_DIR/callable_production_canary_tests.rs"|\
+      "$PHYSICALIZER_DIR/generic_production_canary_tests.rs") ;;
+      *) guard_fail "$TAG" "segment physical route gained an unexpected caller: $caller" ;;
+    esac
+  done <<< "$callers"
+done
+segment_target_callers="$(rg -l --glob '*.rs' -F 'VerifiedLoopOperationTargetBlockV1::issue_for_segment' "$PHYSICALIZER_DIR" | grep -v '/segment_dispatcher.rs' || true)"
+if [[ -n "$segment_target_callers" ]]; then
+  guard_fail "$TAG" "segment target issuer gained an unexpected caller: $segment_target_callers"
+fi
+
 if rg -n -F -- '.zip(' "$V2_DEMAND" >/dev/null 2>&1; then
   guard_fail "$TAG" "V2 physical demand pairs independent arrays by storage order"
 fi
