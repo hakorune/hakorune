@@ -3361,6 +3361,23 @@ created by these child rows. The production A-prime caller remains zero until
 the canary consumes the entire chain and proves the old source-seed/raw-JoinIR
 edge can be deleted in the same cutover.
 
+### Pre-session contract hardening required before the live canary
+
+The selected V2 path must not pass an arbitrary `&SourceStmtSiteV1` as the
+outer argument to `prepare_exact_two()`. The outer site must be borrowed from
+the already site-keyed A-prime/Completion relation (or a private typed
+`DynamicAPrimeOuterCompletionSiteV1` capability issued by that relation). A
+caller cannot select the inner site, an unrelated callable site, or repair the
+pair by array order/ordinal. The DraftSeal owner remains the only Return
+writer; this requirement only narrows the input capability.
+
+The same live-canary slice must use exact signature/Recipe/producer evidence
+for type preparation. `infer_return_type(name)` and any function/method-name
+compatibility whitelist remain legacy-only and must have zero callers on the
+selected V2 route. Missing exact type evidence is `RejectBeforeEffect`, never
+name-based repair. These are hardening conditions on the existing family-native
+emitter row, not new semantic or physical authorities.
+
 ## Hard stops
 
 ```text
