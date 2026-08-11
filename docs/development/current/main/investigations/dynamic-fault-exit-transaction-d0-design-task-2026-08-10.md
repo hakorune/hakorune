@@ -4,9 +4,11 @@ Status: logical/fault/flow/operation-demand foundation and the explicit result
 `: i64` Completion relation are landed. The previous checked-Dynamic return
 corridor is superseded for this bounded method by accepted target A-prime:
 `pos/end: i64 -> exact entry contract -> exact local copy -> mixed typed Recipe
--> I64 carrier -> ImmediateI64 physicalization`. Production remains
-`NoSafeSlice` until the implementation rows below close. The full tagged
-Dynamic corridor is parked rather than partially implemented.
+-> I64 carrier -> ImmediateI64 physicalization`. The accepted
+`hako.text.scan@1` contract now requires the current I7/I9 exact-I64 semantic
+recut. Production remains `NoSafeSlice` until the implementation rows below
+close. The full tagged Dynamic corridor is parked rather than partially
+implemented.
 Date: 2026-08-10
 Depends on: `LOOP-V2-SEMANTIC-PROGRAM-COSEAL-I0` closed
 Authority:
@@ -14,7 +16,8 @@ Authority:
 `mirbuilder-final-pipeline-ssot.md`,
 `loop-common-physical-demand-and-session-ssot.md`, and the live A-prime
 Decision in this card. `dynamic-invocation.md` remains the authority for the
-I6/I7/I9 Dynamic temporary operations. The landed exact-Dynamic V2 program is
+I6/I7 invocation operations; I9 becomes typed CompareI64 in the current recut.
+The landed exact-Dynamic V2 program is
 an input to Slice B's atomic replacement, not a competing selected program.
 
 ## VM lane override (current, non-historical)
@@ -611,9 +614,10 @@ tests are green; touched Rust remains below the 800-line hard boundary.
 
 Next: Slice B is the only current semantic replacement row.
 
-#### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0
+#### Slice B: A-PRIME-MIXED-RECIPE-SEMANTIC-RECUT-I0 (historical landed base)
 
-Status: CLOSED (I0 landed)
+Status: CLOSED (I0 landed); its I7/I9 subset is superseded by the current
+text-scan exact-I64 recut.
 
 This is one atomic BoxCount/semantic replacement commit. It changes the
 canonical source, the sole existing producer, the Fault catalog, and the
@@ -2633,17 +2637,17 @@ The dispatcher-only row is rejected. Runtime code may be added only inside
 the later atomic AOT executable cell, together with its canonical provider
 authority, production receipt issuer, and selected LLVM consumer.
 
-#### DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 (CURRENT DESIGN STOP — NoSafeSlice)
+#### DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 — accepted design, implementation gated
 
-The row token is retained for pointer continuity; no product named
-`ProviderPlan` is accepted. The presealed runtime architecture is accepted,
-but the exact complete `ProviderSlot` contract is not yet named, so I0-B stays
-`NoSafeSlice`.
+No product named `ProviderPlan` is accepted. The presealed runtime
+architecture and exact `hako.text.scan@1` contract are accepted. I0-B remains
+`RejectBeforeEffect` until the exact-I64 semantic recut, VM nonconsumer fence,
+and neutral wire revision are closed.
 
 ```text
 Decision:
-  REVISE: reject an I6-only slot and any selector-derived String/provider
-  claim; use one complete capability and a presealed canonical receiver branch
+  ACCEPT: use complete hako.text.scan@1 plus a presealed canonical Text branch;
+  reject an I6-only slot and selector-derived String/provider claims
 Source authority + canonical issuer:
   ProviderSlot contract artifact + provider export facts
     -> one consuming ProviderAdmissionSeal
@@ -2653,10 +2657,10 @@ Non-authority:
   I6/I7 names, Dynamic value class, raw String/StringBox keys, slot numbers,
   TypeRegistry, LLVM, runtime, PluginLoader compatibility snapshots, Rust VM
 Fail-fast boundary:
-  incomplete capability, I6/I7 drift, undeclared alias, duplicate/collision,
-  ambiguous branch, foreign image/plan, or unsafe lease rejects before effect
+  incomplete capability, I6/I7/I64 drift, undeclared alias, byte/CP mismatch,
+  duplicate/collision, ambiguous branch, foreign plan, or unsafe lease rejects
 Smallest next slice:
-  close COMPLETE-SLOT-CONTRACT-D0 below, docs-only, in this rolling card
+  DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0 below
 Non-claims:
   no provider/admission code, runtime symbol, LLVM hook, I6/I7 emission,
   Physical End, VM consumer, fallback, retry, or production switch
@@ -2673,64 +2677,116 @@ It does not prove that either receiver is String or belongs to a provider.
 Selector spelling, Recipe class, an internal slot number, or runtime type name
 must never repair that missing relation.
 
-##### DYNAMIC-V2-CALLSLOT-COMPLETE-SLOT-CONTRACT-D0 (current design child)
+##### DYNAMIC-V2-CALLSLOT-COMPLETE-SLOT-CONTRACT-D0 — accepted closeout
 
-The preferred bounded candidate is one independently replaceable
-`hako.text.scan@1` capability containing both `substring/2` and `indexOf/1`.
-It is accepted only if the Decision fixes the full semantic profiles of both
-methods: receiver class, ordered argument/result classes, Fault/effect,
-suspension, Home/lifecycle, and physical representation demands. If those two
-methods cannot be justified as one complete capability, the Decision must use
-the complete String surface instead; it may not fall back to an I6-only pseudo
-slot.
+`hako.text.scan@1` is accepted as a small, independently replaceable
+capability. `complete` means that one provider implements every role declared
+by this versioned slot; it does not mean every public String method. An I6-only
+slot is still forbidden. Expanding this cell to the seven cursor signatures or
+the full String surface would add unrelated provider obligations without
+proving the selected I6/I7 relation.
 
-The selected Dynamic profile must explicitly require the accepted contract ID
-and map role-keyed I6/I7 relations to its two callable rows. The admission
-issuer verifies this mapping; it does not discover the contract by searching
-for `substring` or `indexOf`.
+The contract owns two semantic roles, not two selector spellings:
 
-The contract also owns one canonical `Text` receiver class and its admitted
-physical aliases. Raw `String` and `StringBox` seed rows are cold inputs only:
+| role | exact semantic row | result/lifecycle |
+| --- | --- | --- |
+| `TextSliceRange` | borrowed canonical Text + two CP offsets -> Text; zero-based half-open range, independently clamped endpoints | Normal is either a forwarded Text input or a fresh immutable Text carrier with one non-reused End lease |
+| `TextFindNeedle` | borrowed canonical Text + borrowed canonical Text -> exact I64; first CP index, empty needle `0`, miss `-1` | `ImmediateI64`, trivial no-End, no lease |
 
-```text
-declared String/StringBox alias rows
-  + same complete contract/provider/target/ABI/lifecycle
-      -> ProviderAdmissionSeal
-      -> one canonical Text receiver class
-      -> one presealed branch per callable
-```
+Both rows use profile `utf8-codepoint-clamped-v1`, are synchronous and
+non-suspending, retain no input, invoke no callback, and do not re-enter Hako.
+They execute on the invoking thread. `TextSliceRange` may allocate its result;
+`TextFindNeedle` is read-only. Invalid/dead/non-Text handles, wrong wire tags or
+arity, and allocation failure are Faults. Clamping and search miss are Normal.
+The selected call remains conservatively `OpaqueObservable`; the provider
+contract does not reclassify the caller-side invocation envelope as Pure.
 
-Missing I6 or I7, different contract/provider/profile, differing alias target
-or lifecycle, undeclared aliases, or more than one canonical branch rejects
-admission. Runtime may classify only exact physical Text representations and
-compare the resulting canonical class with the presealed branch. It may not
-use `type_name()`, `with_str_handle()`, selector lookup, or registry search.
-
-The sole provider spine after this Decision is:
+The source and relation owners are distinct:
 
 ```text
-provider contract artifact + provider export facts
-  -> BoxCallableRegistryBuilderV1              mutable cold input
-  -> ProviderAdmissionSealV1                   consuming, all-or-nothing
-  -> BoxCallableRegistry                       immutable admitted truth,
-                                               deterministic order/generation
-  -> MethodCallRoutePlan
-  -> RuntimeExecutablePlanV1                   image pin, entry, PlanStamp
-  -> private I6/I7 executable projections      canonical receiver identity
-  -> LLVM selected early hook
-  -> strict AOT leaf: canonical-class check + invoke exactly once
+docs/reference/language/strings.md
+  -> Text / UTF-8 code-point semantics
+
+neutral hako.text.scan@1 contract artifact
+  -> role set, exact row contracts, profile, Home/Fault/effect/sync/lifecycle
+
+selected A-prime profile requirement
+  -> required contract id
+  -> SubstringCall => TextSliceRange
+  -> IndexOfCall   => TextFindNeedle
+
+the consuming ProviderAdmissionSeal
+  -> co-seals requirement + artifact + exact I6/I7 relations + provider exports
 ```
 
-The current mutable/Clone/overwrite `BoxCallableRegistry` is therefore a draft
-skeleton, not admitted truth. The implementation renames/splits it; a boolean
-`admitted` flag is forbidden. Duplicate keys, alias collisions, and foreign
-contract rows reject instead of overwriting. The legacy PluginLoader snapshot,
-arity-0 repair, `ffi_bridge`, and `runtime_invoke_boundary` remain explicitly
-compatibility-only and cannot feed the selected AOT path.
+The normalized contract artifact is the sole capability-contract issuer. The
+selected A-prime profile owns only the requirement and role map; it cannot
+redefine the contract. Selector/name/arity, Recipe `Dynamic`, raw String keys,
+`hako.toml`, TypeRegistry, LLVM/runtime, and Rust VM are non-authorities.
+Rust/C/Python projections are never independent contract sources.
 
-No caller-zero admitted-registry receipt is implemented ahead of its consumer.
-The builder/seal/admitted transition and both I6/I7 executable projections land
-inside the named AOT activation cell.
+The selected profile fixes `pos/end` as CP offsets and requires both `src` and
+`pred_chars` to satisfy canonical Text at the checked call boundary. I6's Text
+result is the exact I7 needle relation. Runtime validates only a presealed
+canonical receiver branch; it does not search a registry or derive Text from a
+selector.
+
+Raw `String` and `StringBox` exports are cold aliases. Admission may collapse
+them to one canonical Text branch only when contract, provider, profile,
+target, ABI, and lifecycle all match. Missing/duplicate roles, different
+providers/profiles, undeclared aliases, byte-indexed implementations, or more
+than one canonical branch reject before Builder effect. Existing env-selected
+String operations and parse/default-zero compatibility surfaces cannot be
+admitted.
+
+The sole provider spine remains:
+
+```text
+contract artifact + provider export facts
+  -> BoxCallableRegistryBuilderV1
+  -> one consuming ProviderAdmissionSealV1
+  -> immutable deterministic BoxCallableRegistry
+  -> MethodCallRoutePlan -> RuntimeExecutablePlanV1
+  -> private I6/I7 branches -> LLVM early hook -> strict AOT leaf
+```
+
+The current mutable/Clone/overwrite registry is only a draft skeleton. The
+builder/seal/admitted transition lands with the named AOT consumer; no
+caller-zero registry authority is introduced. PluginLoader snapshots,
+arity-0 repair, `ffi_bridge`, and `runtime_invoke_boundary` stay compatibility
+only.
+
+The audit found one prerequisite semantic inconsistency. Language and the
+accepted slot say `indexOf -> I64`, while the current selected Recipe says
+`V11:Dynamic`, applies `DynamicLess` at I9, and gives V11 an End obligation.
+Boxing the integer or injecting bare I64 into Dynamic is rejected: both create
+an unnecessary allocation/lifecycle or an unproved Dynamic representation.
+
+##### DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0 (NEXT)
+
+Change:
+  atomically replace I7/V11 with exact I64, I9 with `CompareI64(Less)`, the
+  selected Fault catalog from I6/I7/I9 to I6/I7, and V11 cleanup/End with
+  trivial no-End. Delete the superseded Dynamic result/lifecycle rows in the
+  same commit.
+
+Contract:
+  `docs/reference/language/strings.md` and the exact I7 relation are the
+  semantic sources. Recipe/call relation, execution classes, Fault catalog,
+  invocation lifecycle, cleanup cutpoints, physical evidence/input, and tests
+  must move together. This row creates no provider, registry, runtime/LLVM/VM
+  consumer, or production switch.
+
+Done:
+  V11 is I64 everywhere; I9 is nonfaulting `CompareI64`; selected Fault rows
+  are exactly I6/I7; V11 End rows are zero; V10 remains the only invocation
+  carrier with `EndExactlyOnceUnlessForwarded`; missing/old/foreign mixed rows
+  reject; the existing authority guard freezes the counts.
+
+Stop:
+  if any owner still requires V11 Dynamic, an I9 Fault, or V11 End, return to
+  design. Do not repair with IntegerBox, fake/no-op lease, Dynamic injection,
+  name lookup, fallback, retry, or VM work.
 
 ##### Wire and carrier lease decisions
 
@@ -2738,8 +2794,12 @@ inside the named AOT activation cell.
 revision, constant, and validity-vocabulary owner. Rust and Python are checked
 projections only. The later wire BoxShape slice moves the Rust projection from
 the MIRBuilder subtree to `src/abi/dynamic_call_slot_v2.rs`, deletes the old
-definition, and adds C/Rust/Python size/alignment/offset/constant parity. It
-adds no provider, runtime, LLVM, or VM consumer.
+definition, and adds C/Rust/Python size/alignment/offset/constant parity. Since
+revision 1 rejected every Normal result with disposition `None`, that slice
+also bumps the out-of-band revision to 2 and admits exactly one trivial case:
+`Normal + ImmediateI64 + None + no forwarded lane + lease 0`. HostHandle
+results still require Forwarded or EndAuthorized. It adds no provider, runtime,
+LLVM, or VM consumer.
 
 The carrier lease token is never a raw `HostHandle`, `drop_epoch`, legacy
 generation-zero `BoxIdentity`, registry generation, or `PlanStamp`. The host
@@ -2758,7 +2818,7 @@ reject without dropping another object. The ABA negative must reuse a freed raw
 handle for a new object, retry the stale lease, reject it, and keep the new
 object alive.
 
-##### Task DAG after the current child Decision is accepted
+##### Task DAG after the semantic recut closes
 
 ```text
 DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0             BoxShape
@@ -2767,7 +2827,8 @@ DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0             BoxShape
 
 DYNAMIC-V2-CALLSLOT-WIRE-AUTHORITY-R0               BoxShape
   C header remains owner; move the Rust projection to src/abi, delete the MIR
-  copy, freeze C/Rust/Python parity; runtime/provider/VM callers remain zero
+  copy, revise validity vocabulary to wire revision 2 for trivial I64 Normal,
+  freeze C/Rust/Python parity; runtime/provider/VM callers remain zero
 
 DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B        BoxCount, atomic
   contract artifact + builder/admission/admitted registry transition + exact
@@ -2776,7 +2837,7 @@ DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B        BoxCount, atomic
   selected generic fallthrough = 0
 
 I0-B
-  -> I9 Bool + ordered Physical End all-or-nothing gate
+  -> typed I9 Bool + ordered V10 Physical End all-or-nothing gate
   -> fresh unpublished session + exact-two DraftSeal
   -> selected production cutover and old-edge deletion
   -> H2/H3/H5 parity || Hako-mimalloc promotion gate
@@ -2790,7 +2851,7 @@ one large source file; split near 650-700 lines and stop at 800.
 
 ```text
 I0-B acceptance:
-  complete ProviderSlot contract / admission issuer                 = 1 / 1
+  hako.text.scan@1 roles / admission issuer                         = 2 / 1
   I6-only pseudo slot                                               = 0
   I6/I7 contract, provider, profile identity                        = same
   source-backed static String claim                                 = 0
@@ -2798,6 +2859,7 @@ I0-B acceptance:
   admitted mutable insert / duplicate overwrite                     = 0 / 0
   RoutePlan / RuntimeExecutablePlan / exact image pin owners        = 1 each
   I6/I7 production receipt issuers                                  = 1 each
+  I7 ImmediateI64 / I7 lease / V11 End                              = 1 / 0 / 0
   LLVM selected early hook / strict AOT leaf                        = 1 / 1
   runtime registry/name/selector/provider/image lookup or reselection = 0
   selected generic/legacy fallthrough                               = 0
@@ -2807,9 +2869,10 @@ I0-B acceptance:
   retry / fallback / sentinel-zero repair                           = 0
 ```
 
-Until the complete slot contract and its exact source-profile requirement are
-fixed, the capability matrix remains `RejectBeforeEffect` and this parent D0
-remains the current design stop.
+The provider design is closed, but the capability matrix remains
+`RejectBeforeEffect` until the semantic recut and every downstream capability
+in this DAG are implemented. No provider code is authorized by the D0
+closeout alone.
 
 There is no Rust VM node in this production DAG. Rust VM stays limited to
 already-supported bootstrap/recovery/compatibility smoke until caller-zero
@@ -2916,11 +2979,11 @@ ReadBinding / ConstI64 / BinaryI64 / CompareI64
   -> existing low-level I64 emission primitives, with V2 rows and V2 value
      keys retained in the family-native ledger
 
-DynamicAdd / DynamicLess / CallSlot
+CallSlot
   -> dedicated V2-family emitters that consume their already sealed execution
      class/Fault/CallSlot row and issue an explicit normal-result receipt;
-     missing DynamicLess or Dynamic temporary-cleanup capability is a
-     pre-effect rejection
+     missing provider or Dynamic temporary-cleanup capability is a pre-effect
+     rejection
 
 WriteBinding
   -> canonical session identity/rebind owner, consuming the V2 binding row
@@ -2943,24 +3006,16 @@ than growing `operation_emitter.rs`, `located_if.rs`, or
 **Accepted with implementation capability gates.**  The owner split and the
 two-stage API are now closed. The private V2 operation-program co-seal, the
 move-only family-native preflight plan, and its evidence ledger are landed;
-they must not claim a fresh-session canary or a production caller. `DynamicLess`
-normal-Bool materialization and Dynamic temporary cleanup remain named
-capability decisions; if either issuer is absent, the implementation rejects
-before the first Builder effect. This is an implementation boundary, not a
-reason to add a semantic authority or a V1 adapter.
-
-The next design decisions are:
-
-```text
-DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0
-DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0
-```
+they must not claim a fresh-session canary or a production caller. The accepted
+text-scan recut replaces the old DynamicLess capability with ordinary typed
+CompareI64 and narrows temporary cleanup to V10. This is an implementation
+boundary, not a reason to add a semantic authority or a V1 adapter.
 
 The already-landed R0 below records the A-prime issuer's one private
 `PreparedDynamicLoopOperationProgramV2` scoped loan and the Builder-free
 plan/ledger contract. The subsequent emitter canary, fresh session, production
-cutover, and old-route retirement remain separate rows and remain closed until
-both capability decisions are green.
+cutover, and old-route retirement remain separate rows. The old DynamicLess
+capability decision is superseded by the exact-I64 recut below.
 
 #### DYNAMIC-V2-PHYSICAL-DEMAND-COSEAL-R0 — landed
 
@@ -2971,9 +3026,9 @@ the resulting non-`Clone` operation program and lends it only through
 `with_operation_program`; the previous raw physical-input accessor was
 removed.  Physical-demand rejection remains typed and terminal.
 
-The focused package proof checks the private program surface for all 17
-placements, all 15 operations, and the three selected Fault rows.  This slice
-does not add a Builder effect, fresh session, Dynamic operation emitter,
+The landed focused proof checked 17 placements, 15 operations, and the former
+three-Fault catalog. The semantic recut must atomically replace that catalog
+with exact I6/I7 coverage. This slice added no Builder effect, fresh session,
 cleanup emitter, production caller, fallback, or retry.
 
 The next execution row after the capability decisions is:
@@ -3003,18 +3058,19 @@ issue_selected_dynamic_v2_emission_plan(A-prime demand)
 This slice consumes the A-prime demand once, lends the sole co-sealed
 `PreparedDynamicLoopOperationProgramV2` only while validating the plan, and
 records the bounded 15-operation schedule across the pre-I10, terminal, and
-continuation segments. It validates the complete 17/15/1/3 coverage counts,
-the already co-sealed CallSlot relation, and the exact I10
+continuation segments. Its former 17/15/1/3 count is a landed baseline; the
+recut replaces the final count with two Fault rows while preserving the
+co-sealed CallSlot relation and the exact I10
 then-Return/else-Fallthrough shape. The only caller is the focused package
 canary; no production caller exists yet.
 
 The plan is intentionally not a session emitter. A private preflight ledger
 now co-seals copied placement owner/block/kind rows (17), operation
 source/effect/execution/CallSlot identity rows (15), the one If/one Exit
-control disposition, three Fault rows, and the two Completion site keys. It
+control disposition, the selected Fault rows, and the two Completion site keys. It
 does not contain `ValueId`/`BasicBlockId` or emitted receipts; those remain
-session-local downstream work. The named DynamicLess/temporary-cleanup
-physical capabilities also remain open.
+session-local downstream work. The named CallSlot/temporary-cleanup physical
+capabilities also remain open.
 No Builder/session/ValueId/BasicBlock effect, production caller, V1 adapter,
 raw Recipe/JoinIR route, fallback, or retry is introduced. The selected canary
 therefore remains `NoSafeSlice` until the remaining I0 gates are closed.
@@ -3030,7 +3086,7 @@ operation program are consumed once at plan issuance; later session work must
 consume the plan ledger and add only session-local producer receipts.
 
 This S1 slice is complete only for Builder-free evidence. It deliberately does
-not claim the emitter I0, a fresh session, a DynamicLess Bool capability, a
+not claim the emitter I0, a fresh session, a CallSlot provider capability, a
 temporary-discharge capability, or a production caller.
 
 Before the capability I0 row, the ledger's move-only contract must be made
@@ -3039,312 +3095,86 @@ production. This is now landed in `0ef252baf7`; tests may compare a separate
 borrowed coverage projection, but a physical sibling must not copy the
 evidence ledger and create a second emission authority.
 
-#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — design closeout
+#### DYNAMIC-V2-DYNAMICLESS-BOOL-CAPABILITY-D0 — superseded
 
-The semantic `DynamicLess` row and its Fault relation already have one owner.
-The sole physical issuer is a child of the selected-lowering V2 ABI/emitter
-boundary; `dynamic_operator_contract` remains only the semantic owner. It must
-consume the exact I9 V2 operation row, its sealed operands/representation
-receipts, and the I9 Fault row, then issue one normal Bool receipt or a
-terminal pre-effect rejection. The backend matrix is `Direct | Checked |
-RejectBeforeEffect`: AOT/LLVM requires an explicit producer representation
-receipt or rejects. Rust VM is not a production consumer. No `MirType`
-inference, V1 compare adapter, raw carrier inspection, Fault reissue, fallback,
- or retry is permitted. This D0 must name the I6/V10, I7/V11, and I8/V12
- producer receipt owners
-and its negative matrix before session code resumes.
+This design was internally correct for the former `V11:Dynamic` Recipe, but
+the accepted `hako.text.scan@1` contract proves that `indexOf/1` returns
+exact I64. The following semantic recut supersedes the DynamicLess demand,
+its I9 Fault row, and the V11 cleanup obligation. Git history owns the landed
+D0/I0 evidence; it must not remain a second live contract in this card.
 
-The implementation names are fixed for this cohort:
+The recut uses the ordinary verified V2 `CompareI64(Less)` operation family.
+It consumes exact I7/V11 and I8/V12 I64 producer rows and produces V13:Bool.
+There is no selected DynamicLess provider, execution envelope, physical
+capability demand, or Fault handoff after the recut.
 
-```text
-DynamicV2CallSlotResultReceiptV1       = I6/V10 or I7/V11 CallSlot receipt
-DynamicV2I64ProducerReceiptV1          = I8/V12 exact immediate receipt
-DynamicV2LessBoolCapabilityDemandV1   = Builder-free I9 demand
-DynamicV2LessBoolEmissionReceiptV1    = session-local normal Bool + I9 handoff
-DynamicV2TemporaryEndCapabilityV1     = physical End/discharge leaf
-DynamicV2TemporaryDischargeDemandV1   = Builder-free six-row demand
-DynamicV2TemporaryDischargeReceiptV1  = session-local ordered End receipts
-SelectedDynamicV2PhysicalCapabilityAdmissionV1
-                                      = move-only two-demand co-seal
-```
+#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — revised target
 
-These names are private to the selected V2 physical boundary. They are not
-semantic products and do not become public runtime ABI vocabulary.
-
-#### DYNAMIC-V2-TEMPORARY-CLEANUP-CAPABILITY-D0 — design closeout
-
-The two physical capability decisions remain separate issuers. They are
-deliberately not fused into a `DynamicLessAndCleanup` semantic product: the
-Bool result and temporary discharge have different timing, failure, and
-backend contracts. Both physical issuers are children of the selected-
-lowering boundary in
-`src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs`; semantic
-owners lend scoped rows, while backend modules provide only private Direct or
-Checked leaves.
-
-The DynamicLess issuer is the only physical issuer in the selected-lowering
-boundary's V2 ABI/emitter child. It consumes exactly one I9 operation row
-(`V11:Dynamic`, `V12:I64` -> `V13:Bool`), its existing I9 Fault row, the
-borrowed `DynamicOperatorExecutionEnvelopeV1`, and exact producer
-representation requirements for V11 and V12. The I7 `CallSlot` producer must
-be the only source of the V11 representation receipt; the I8 `ConstI64`
-producer must be the only source of the V12 receipt. If either producer has no
-Direct/Checked receipt owner yet, this gate remains `RejectBeforeEffect`.
-The issuer issues a private Builder-free normal-Bool capability demand. A
-session-local emitter may later consume producer receipts and issue one
-normal-Bool receipt plus the existing I9 Fault disposition handoff to the
-exit transaction. The issuer never reclassifies `DynamicLess`, creates a
-Fault row, or exposes a `ValueId`.
-
-The temporary-cleanup issuer consumes exactly the six rows already owned by
-`VerifiedDynamicInvocationCleanupProjectionV1` and the exact producer
-representation receipts for V10/V11. Its ordered rows are fixed and
-site-keyed:
+Only V10, the Text result of I6, remains an invocation carrier. V11 is an
+ImmediateI64 trivial result and never receives a lease or End. Until the
+provider leaf is activated, V10's existing conservative exit coverage remains:
 
 ```text
-I6 Fault                  -> []
-I7 Fault                  -> End(V10)
-I9 Fault                  -> End(V11), End(V10)
-I9 normal boundary        -> End(V11)
-inner Return              -> End(V10)
-Backedge                  -> End(V10)
+I6 Fault       -> []
+I7 Fault       -> dispose V10 according to its exact lifecycle receipt
+inner Return   -> dispose V10 according to its exact lifecycle receipt
+Backedge       -> dispose V10 according to its exact lifecycle receipt
 ```
 
-The physical End/discharge issuer is `DynamicV2TemporaryEndCapabilityV1`, a
-separate child of the same selected V2 ABI boundary (or the canonical session
-primitive once that primitive exists).
-It issues only a private ordered-discharge demand before a session and
-session-local discharge receipts after exact producer materialization. `V9`,
-`V17`, and the I64 induction carrier are explicitly outside this capability.
-It never owns Fault chronology, Completion, Home, or last-use inference.
-Primary/suppressed Fault ordering remains owned by the existing exit
-transaction.
+A Forwarded V10 has no fresh lease; an EndAuthorized V10 has exactly one
+non-reused lease. A future earlier release at I7 normal completion is an
+optimization and is not part of the recut. Primary/suppressed Fault chronology
+remains owned by the exit transaction. Generic Drop/Arc, last-use inference,
+raw handles, and no-op End are forbidden.
 
-The two demands are joined only by a move-only, all-or-nothing admission
-gate, conceptually `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. This
-aggregate issues no semantic, Recipe, JoinSig, Fault, or Completion fact. A
-missing, foreign, duplicate, or backend-ineligible receipt from either side
-rejects before the first Builder effect; a later session failure discards the
-unpublished session without retry or fallback.
+The Builder-free cleanup demand and its move-only admission aggregate must be
+atomically regenerated from these verified rows during
+`DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0`. Old six-row cleanup evidence,
+any I9 Fault row, and any V11 discharge row are rejected rather than accepted
+as compatibility input.
 
-The gate must also prove one package/program/frame/scope/provenance brand for
-both siblings. A DynamicLess receipt from one program and a cleanup receipt
-from another cannot be recombined, even when their item keys happen to match.
-The normal I9 sequence is fixed as `DynamicLess(V11, V12) -> Bool -> I9
-normal-boundary End(V11) -> If`; an I9 Fault hands cleanup to the existing
-transaction as `End(V11) -> End(V10)`, while I7 Fault is `End(V10)` and inner
-Return/Backedge are `End(V10)`.
+#### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — historical landed base
 
-The backend contract is explicit:
+Commit `0ef252baf7` landed a move-only pre-effect gate for the former
+DynamicLess/six-row-cleanup model and proved that the preflight ledger is not
+Clone and that source roles do not select physical segments. Those structural
+properties remain required. The accepted semantic recut replaces only the
+obsolete I9/V11 meaning and cleanup counts; it does not add a session or
+production caller.
+
+The already-landed I8 unpublished-session canary remains valid: it emits
+`ConstI64(0) -> V12` through the canonical integer emitter and issues one
+session-branded move-only I64 receipt. The exact four-formal transport layout
+remains `src=0,pos=1,end=2,pred_chars=3`; swapped lanes reject.
+
+#### DYNAMIC-V2-PHYSICAL-EMITTER-I0 — downstream after the recut
+
+After the recut, the remaining selected physical leaves are finite:
 
 ```text
-DynamicLess normal Bool:
-  AOT/LLVM = Direct/Checked only with explicit producer representation receipt;
-             otherwise RejectBeforeEffect
-  Rust VM  = reference/smoke evidence only; never a production capability gate
-
-V10/V11 temporary discharge:
-  AOT/LLVM = Direct/Checked only with an exact ordered End/discharge primitive
-             tied to the producer receipt; generic scope cleanup, Arc drop,
-             last-use/name inference, or `nyash.integer.get_h` is not enough
-  Rust VM  = reference/compatibility smoke only; no provider/session claim
-  unsupported backend = RejectBeforeEffect
+I6 TextSliceRange provider receipt -> V10 Text value + lifecycle aggregate
+I7 TextFindNeedle provider receipt -> V11 ImmediateI64, no lease
+I8 canonical ConstI64 receipt       -> V12 ImmediateI64
+I9 canonical CompareI64             -> V13 Bool
+V10 ordered physical discharge      -> existing exit transaction
 ```
 
-Required negatives are symmetric and terminal: missing/duplicate/foreign I9
-row or I6/V10, I7/V11, or I8/V12 producer receipt, wrong operand/result class, missing execution
-envelope, six-row cleanup omission or reorder, wrong V10/V11 producer, absent
-End primitive, `V9`/`V17`/I64 induction cleanup, foreign
-program/frame/scope/provenance, capability double-consumption, and either
-half of the admission gate missing. Bare `i64`, `MirType`, generic
-`eval_cmp`, raw Recipe/AST/JoinIR, V1 adapters, sentinel-zero helpers,
-fallback, and retry cannot repair any of these cases.
+I6/I7 must come from the same admitted `hako.text.scan@1` provider/profile.
+I7 consumes the exact V10 value receipt; I9 consumes exact V11/V12 receipts.
+The physical End leaf consumes only the V10 lifecycle aggregate. No operation
+resolves a selector, rescans Recipe/source roles, infers a representation from
+a ValueId, or uses the generic RuntimeDataBox/legacy BoxCall path.
 
-The two D0 contracts are now accepted. Their implementation must still emit
-`RejectBeforeEffect` when the named I6/V10, I7/V11, or I8/V12 producer receipt owners or the
-physical End leaf are unavailable; acceptance does not claim a fresh session
-or production caller. No capability may silently become a no-op, infer a raw
-value, or use fallback/retry.
+The A-prime post-session transport remains move-only and one-shot. It retains
+the exact four formal lanes, exact inner/outer Completion sites, and canonical
+CallSlot role/receiver/argument/result identities. Rust VM has no provider,
+receipt, adapter, or session node in this path.
 
-#### DYNAMIC-V2-PHYSICAL-CAPABILITY-ADMISSION-I0 — CLOSED (`0ef252baf7`)
-
-This is the first implementation row after both D0 decisions are accepted.
-It may issue only the two Builder-free capability demands and the move-only
-all-or-nothing admission gate. It must not open a fresh session, allocate a
-`ValueId`/`BasicBlockId`, emit a helper, or add a production caller while an
-I7/I8 producer receipt or physical End primitive is unavailable. The gate is
-the only allowed handoff into the later V2 emitter session; a partial gate is
-not a canary and must reject before the first Builder effect.
-
-The first bounded I0 slice is landed and closed in `0ef252baf7`. It adds the
-private I9 demand, the exact six-row temporary-discharge demand, and the
-move-only admission aggregate. The aggregate has an explicit
-`RejectBeforeEffect` disposition because the I6/V10, I7/V11, and I8/V12 producer receipt leaves and
-the physical End leaf are not yet implemented. The focused package proof
-checks the I9 operands/result (`V11`, `V12`, `V13`), the six ordered cleanup
-rows, and the all-or-nothing rejection; it does not open a session, allocate a
-physical ID, or create a production caller.
-
-The bounded schedule derives operation segments from verified placement and
-the co-sealed I10 control only: predicate-block operations and body operations
-before I10 are `Prelude`, the exact then-block operation before the I12 Return
-is `ThenTerminal`, and body operations after I10 are `Continuation`. Source
-roles remain diagnostic evidence and cannot choose a physical segment. The
-I9 demand also checks the exact I9 DynamicLess fault row/result, the I7
-IndexOf CallSlot role, and the I8 zero constant. Cleanup rows retain the exact
-inner-return source site and backedge loop identity; row order is not a
-replacement for provenance.
-
-The remaining work belongs to the next emitter row and is only the named
-physical leaves and their strict producer receipts. Do not replace this
-rejection with a generic compare, scope cleanup, raw handle inspection, or a
-fallback route.
-
-Closeout evidence for this row is fixed:
-
-```text
-selected_dynamic_loan_issues_one_v2_native_preflight_plan = green
-selected_v2_capability_admission_is_all_or_nothing_before_effect = green
-DynamicV2NativePreflightLedgerV1::Clone = 0
-source-role physical segment selection = 0
-production caller = 0
-fresh production session = 0
-selected-fixture I8 canonical unpublished-session canary = green
-```
-
-Non-claims: I7/physical End producer receipts, strict post-session receipt
-transport, Completion consumption, production caller, fallback, and retry are
-not closed by this row.
-
-The I8 canary is now landed as a consuming handoff: it owns the canonical
-unpublished function/SSA/CFG session, creates the Prelude block through the
-canonical CFG owner, and issues one session-branded move-only
-`DynamicV2I64ProducerReceiptV1`. It remains a canary only; strict
-post-session receipt transport, I7, physical End, Completion consumption,
-production caller, fallback, and retry remain open.
-
-#### DYNAMIC-V2-PHYSICAL-EMITTER-I0 — active implementation row
-
-This is the sole next implementation row after the capability admission
-closeout. It is still pre-production and must stay inside the selected V2
-physical boundary. The first leaf is the exact I8 constant producer:
-
-```text
-DYNAMIC-V2-I8-CONST-I64-PRODUCER-RECEIPT-I0
-```
-
-The I8 producer consumes the co-sealed placement/control schedule and a
-session-issued opaque segment target, emits exactly `ConstI64(0) -> V12`
-through the canonical integer emitter, and issues one move-only
-`DynamicV2I64ProducerReceiptV1` only after successful emission. It verifies the
-exact I8 item/result/value, selected package owner, session-branded target,
-`ImmediateI64` representation, and duplicate/foreign/type-conflict rejection
-before effect. Frame/scope/provenance co-seal and foreign same-owner
-plan/session negatives remain P1 hardening before I7/End. It must not accept a raw
-`BasicBlockId`, rescan Recipe/source
-roles, expose raw `ValueId`, add a V1 adapter, or create a production caller.
-Its legal test ingress is a real selected-fixture unpublished-session canary,
-not a `cfg(test)` semantic constructor and not a capability-gate bypass. The
-session handoff consumes the plan, moves the private ledger, and owns a fresh
-session-brand target set; only a scoped `Prelude` target loan reaches the I8
-emitter.
-
-The emitter row also contains the transport hardening child
-`A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`, required before a live session:
-Rust and LLVM/Python receipts must prove the exact four-formal layout
-(`src=0,pos=1,end=2,pred_chars=3`), exact `{inner,outer}` completion site set,
-and canonical CallSlot role/target/receiver/argument/result identity. The
-post-session receipt must be move-only or consumed exactly once. A receipt
-must not be retained inside a cloneable `FunctionMetadata` owner unless the
-owner exposes a single explicit consume/take boundary; the clean default is a
-fresh-session/prepared-draft move-only owner with JSON encoding borrowing or
-consuming it once. The JSON/Python loader remains transport-test-only until
-that boundary is closed. Swapped/foreign lanes, role-target mismatch,
-source-role schedule perturbation, condition-after-I10, and foreign cleanup
-identity remain mandatory negatives. This child adds no semantic authority and
-no production caller.
-
-The full capability gate remains `RejectBeforeEffect` until I7, I8, and the
-physical End leaf are all available. I9 is not emitted independently: it must
-consume the exact I7/I8 producer receipts and issue its Bool/Fault handoff only
-inside the later all-or-nothing session admission.
-
-The I8 handoff is a required part of this same implementation row. The
-preflight `with_ledger(&self)` view is not a session API: before a session
-canary is connected, it must be test-only or be replaced by one private
-plan-consuming handoff that moves the ledger into the session. The session
-must expose no raw block/value getter, and the opaque target set must be
-session-branded. Production callers remain zero until the complete I7/I8/End
-gate is available.
-
-Before the later I9/DynamicLess emitter can consume the I8 result, the
-session-branded `DynamicV2I64ProducerReceiptV1` must gain one non-test,
-scoped, one-shot consumer (for example `consume_for(expected_producer,
-expected_result, expected_brand, callback)`). The receipt must own or otherwise
-retain an opaque brand token across the handoff; a receipt borrowing the
-session mutably cannot be passed into the next emitter while the session is
-still being updated. The callback may lend the `ValueId`/representation witness
-only for the exact producer/result pair. No raw getter, `Clone`, name-based
-repair, or second receipt authority is allowed. I6/V10 must use the same
-pattern while keeping its value-use receipt separate from its cleanup/discharge
-token; I7/V11 then consumes the exact V10 value receipt, and I9 consumes V11
-plus V12. Until this handoff is closed, I9 remains `RejectBeforeEffect`.
-
-The consuming handoff must also co-seal the exact I8 evidence once, before
-the emitter runs: item `I8`, result `V12`, literal `0`, its verified placement,
-and its `Prelude` segment. The I8 emitter may not borrow the whole operation
-program and search for that row again. The test canary is a real unpublished
-session consumer; the production capability gate remains the only production
-handoff. The later End leaf applies the same rule to its discharge rows.
-
-The I8 canary is now implemented as a consuming handoff: it owns the
-canonical unpublished function session and `CanonicalSsaFunctionSessionV2`,
-creates the Prelude block only through the canonical CFG owner, and issues a
-non-Clone session-branded `DynamicV2I64ProducerReceiptV1`. The fixture test
-keeps the package loan in scope, so it does not fabricate a `'static` plan or
-use `enter_function_for_test`. This closes only the canary leaf; the I7/End
-receipts, strict post-session transport ownership, and the production gate
-remain open.
-
-The transport-shape portion of `A-PRIME-LLVM-PHYSICAL-RECEIPT-HARDENING-I0`
-is now landed as schema v2 in the Rust receipt, JSON encoder, and Python
-loader: formal count is exactly four, parameter roles retain `pos=1`/`end=2`,
-return sites are exactly `{inner, outer}`, and the two CallSlot rows require
-canonical role-specific target fingerprints, receiver roles, argument
-ordinals/roles, lanes, and unique result IDs. The receipt is now non-Clone and
-stored behind a clone-scrubbing, one-shot metadata slot: `FunctionMetadata::clone()`
-cannot duplicate an occupied capability, JSON only borrows the canonical slot,
-and the future live consumer must use `take_once`. The slot must be installed
-after the final metadata snapshot/prepared-draft clone; otherwise the cloned
-snapshot intentionally loses the receipt. The semantic value co-seal (including
-the `index_of` `ch` result-chain and source CallSlot relation) remains owned by
-the canonical session issuer; the transport loader does not re-resolve those
-values.
-
-The same hardening child must close the remaining transport boundary before a
-live emitter: canonical issuer visibility/one-shot handoff, Rust/Python
-caller-zero guards, field-level JSON/Python parity, and negative coverage for
-swapped/foreign lanes, receiver/argument identity, source-role schedule
-perturbation, condition-after-I10, and foreign cleanup identity. This child
-does not create a semantic authority or a production caller. The I8 leaf uses
-one plan-consuming unpublished-session handoff with an opaque `Prelude`
-segment target; the all-or-nothing capability gate remains the only
-production handoff until I7, I8, and physical End are all available. The
-schema-2 loader policy must also be fixed in this child: `fallback` and
-`retry` are explicit boolean `false` fields, and unknown-field handling is
-either explicitly rejected or documented as a compatibility projection; it
-must not be an accidental `raw.get(..., false)` acceptance.
-
-The next leaves have an additional dependency boundary. I7 cannot be opened
-by routing through the generic `RuntimeDataBox`/legacy BoxCall path. First
-issue or explicitly reject the canonical physical Dynamic CallSlot ABI for
-I6 `substring` and its V10 result. I7 then consumes that exact move-only V10
-receipt and issues the V11 result receipt; it may not rescan source/Recipe or
-infer a call ABI from selector names. Physical End is a separate leaf and
-stays `NoSafeSlice` until a canonical backend/runtime discharge primitive is
-named; generic Drop/Arc cleanup, last-use inference, and `nyash.integer.get_h`
-are not substitutes. I9 and the all-or-nothing effectful session remain
-downstream of I6/V10, I7/V11, and End.
+The complete gate stays RejectBeforeEffect until I6, I7, V10 discharge, and
+the strict AOT/LLVM leaves are all present. Only then may the fresh unpublished
+session, site-keyed Completion consumption, exact-two DraftSeal, and selected
+production cutover open. Fallback, retry, sentinel-zero repair, and selected
+legacy finalization remain zero.
 
 #### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 

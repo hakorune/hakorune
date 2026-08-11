@@ -26,6 +26,11 @@ This applies to both primitive `String` and `StringBox` paths. Long-term, the la
 - Indices are zero‑based. Slices use half‑open intervals `[i, j)`.
 - CP APIs never intermix with byte APIs. GC APIs are explicitly suffixed (e.g., `*_gc`).
 - Conversions must be explicit. No implicit transcoding.
+- CP slice endpoints are clamped independently to `[0, length]`; after
+  clamping, `start >= end` yields the empty string rather than swapping the
+  endpoints or raising a range Fault.
+- `indexOf("")` returns the clamped starting position (`0` for the one-argument
+  form). A search miss is the normal value `-1`, never a Fault sentinel.
 
 ## Core APIs (MVP)
 

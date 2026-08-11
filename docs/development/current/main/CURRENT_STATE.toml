@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The selected A-prime source/Recipe/JoinSig/physical-demand chain, two-site Completion/DraftSeal preparation, I8 unpublished-session canary, and transport-only I0-A CallSlot wire are closed. The fixed-width wire owner is include/nyrt_dynamic_call_slot_v2.h; Rust and Python are checked projections. Provider execution remains a design stop: I6/I7 prove exact Dynamic call relations but do not prove a String receiver or ProviderSlot. The current child must close one complete capability contract, its explicit selected-profile requirement, String/StringBox alias sealing into one canonical Text class, and the non-reused carrier-lease owner. Provider admission and the immutable registry land only with the named AOT/LLVM consumer. Rust VM DynamicV2 provider/session/cutover callers stay zero."
+status = "The complete hako.text.scan@1 capability is accepted as two semantic roles under one UTF-8 code-point profile; I6-only and full-String expansion are both rejected. Language indexOf returns exact I64, so the current fast row atomically recuts I7/V11, I9, Fault coverage, cleanup, and Builder-free physical evidence from Dynamic/End to I64/CompareI64/trivial-no-End. Provider/admitted-registry/AOT activation remains closed until that recut, the VM nonconsumer fence, and wire revision-2 authority are green. Rust VM DynamicV2 production callers remain zero."
 date = "2026-08-12"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 / COMPLETE-SLOT-CONTRACT-D0: reject an I6-only pseudo slot and selector-derived String/provider claims. Choose one complete capability covering I6 substring/2 and I7 indexOf/1 (preferred hako.text.scan@1 only if its full semantic profile is independently replaceable), make the selected Dynamic profile require that exact contract ID, seal declared String/StringBox representations into one canonical Text receiver class, and keep runtime to presealed class validation plus one invoke."
-work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0"
-current_blocker_token = "Design only. I6/I7 selector/arity relations, Dynamic classes, raw String/StringBox keys, internal slots, TypeRegistry, LLVM, runtime, and Rust VM cannot issue the ProviderSlot or canonical receiver class. Close one complete contract artifact and its selected-profile requirement, exact I6/I7 same-contract/provider/profile coverage, alias seal, immutable admitted-registry transition, executable branch identity, and non-reused host lifecycle lease ID. The C header remains the wire owner. Until accepted, add no provider/admission code, fixture, runtime symbol, LLVM hook, I6/I7 emission, I9, Physical End, VM work, fallback, retry, or production switch; remain RejectBeforeEffect."
+current_design_stop = "none for DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0; the parent Provider D0 is accepted but AOT activation stays RejectBeforeEffect until its ordered prerequisites close"
+work_mode = "fast"
+current_execution_row = "DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0"
+current_blocker_token = "Atomically recut the selected semantic program only: I7/V11 Dynamic -> I64, I9 DynamicLess -> CompareI64, Fault rows I6/I7/I9 -> I6/I7, V11 End rows -> 0, and cleanup/preflight/physical evidence to the exact new counts. V10 remains the sole Dynamic invocation carrier. Add no provider, registry, runtime/LLVM/VM consumer, session, fixture workaround, fallback, retry, or production switch. Any surviving V11 Dynamic, I9 Fault, V11 lease/End, or old mixed-count acceptance is blocking."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0"
+next_design_card = "none; DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 design accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none until DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 is accepted; then DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0"
+next_execution_card = "DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "A-prime source/Recipe/JoinSig/physical-demand work, two-site Completion preparation, I8 unpublished-session canary, and transport-only I0-A CallSlot wire parity are closed. The C header is the fixed-width wire owner; Rust/Python are projections. Provider execution remains NoSafeSlice because I6/I7 prove Dynamic call relations only: a complete ProviderSlot, explicit selected-profile contract requirement, String/StringBox alias seal, immutable admitted registry, executable branch identity, AOT/LLVM consumer, and non-reused carrier lease are not live. A Dynamic registry, I6-only slot, selector-derived String/provider claim, call-time reselection, raw-handle lease, VM production node, fallback, and retry are forbidden."
+latest_card_summary = "hako.text.scan@1 is the accepted complete two-role ProviderSlot contract under utf8-codepoint-clamped-v1; the selected A-prime profile requires it explicitly and admission will co-seal I6/I7 without selector inference. The next bounded row aligns the existing Recipe, Fault, cleanup, and physical evidence with indexOf's exact-I64 language result. Provider admission, runtime/LLVM activation, Physical End, and production cutover remain closed. VM provider/session work, dynamic registries, runtime reselection, fallback, and retry are forbidden."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
