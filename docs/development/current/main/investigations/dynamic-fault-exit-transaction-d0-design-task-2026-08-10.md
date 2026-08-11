@@ -2202,7 +2202,7 @@ are merely named. The immediate next branch is the VM entry capability; the
 LLVM capability contract follows it and is mandatory before the selected
 cross-backend cutover.
 
-#### A-PRIME-VM-EXACT-I64-ENTRY-I0 — next execution boundary
+#### A-PRIME-VM-EXACT-I64-ENTRY-I0 — landed capability boundary
 
 This row closes the selected VM entry/transport behavior without changing
 GenericLoop or inventing a Dynamic representation. The existing parameter
@@ -2222,6 +2222,14 @@ not a witness. The implementation belongs beside the existing backend
 capability owner and focused parameter-entry tests; it must not add a second
 parameter contract or reclassify source semantics.
 
+The backend-local classifier landed as `6212f3eb06`. It accepts only direct
+`VMValue::Integer(i64)` and rejects wrappers, object carriers, and other
+runtime variants without downcast, type-name lookup, or generic-contract
+changes. It remains caller-zero until the named physical session consumes the
+backend-neutral A-prime demand. Feature-wide lib-test compilation currently
+has an unrelated pre-existing `BoxMethodInventoryV1` fixture mismatch; the
+feature lib check and authority guards remain green.
+
 #### A-PRIME-LLVM-EXACT-I64-CAPABILITY-I0 — following mandatory branch
 
 The LLVM branch is required for the selected cross-backend cutover, but it
@@ -2232,11 +2240,11 @@ is `RejectBeforeEffect`. Existing ptr/int repair, missing-argument zero,
 `resolve_i64`, retry, and fallback are forbidden. Other backends remain
 `RejectBeforeEffect` until a separate capability row.
 
-#### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — next implementation boundary
+#### DYNAMIC-EXIT-PHYSICAL-SESSION-P0 — downstream implementation boundary
 
-The fresh-session row is now the only active implementation boundary. It may
-consume the already-landed Builder-free physical input, but it must not issue
-new source/Recipe/JoinSig meaning. Its first production adapter must consume
+The fresh-session row remains downstream of the LLVM capability contract. It
+may consume the already-landed Builder-free physical input, but it must not
+issue new source/Recipe/JoinSig meaning. Its first production adapter must consume
 the selected package loan and the A-prime physical demand exactly once.
 
 Before opening a session, the implementation must keep these prerequisites
@@ -2290,7 +2298,7 @@ resolved_control_flow/function_control.rs        current 606
 builder/resolved_lowering/completion_consumption.rs  current 191
   site-keyed claim set and focused tests belong here
 
-builder/resolved_lowering/draft_seal.rs          current 688
+builder/resolved_lowering/draft_seal.rs          current 579
   no new multi-site logic in the flat file
   first move exit projection behavior-neutrally into:
     draft_seal/exit_projection.rs                target <= 350
