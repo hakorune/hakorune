@@ -2000,6 +2000,23 @@ transfer guard, current-pointer guard, and Dynamic full-body test family. The
 next selected row is `LOOP-PHYSICAL-EXIT-COVERAGE-I0`; this commit does not
 open it.
 
+#### LOOP-PHYSICAL-EXIT-COVERAGE-I0 (CLOSED — 2026-08-11)
+
+The selected Dynamic Return arm is now covered by the same physical-input
+co-seal. The exact I12 Exit placement must belong to L0/B2, the logical role
+must target `FunctionExit`, and the physical Recipe evidence must retain a
+Return operand. The JoinSig summary payload is intentionally not treated as
+the Return operand: it is the carrier-transfer summary, while the exact V14
+Return operand remains owned by the verified Recipe exit row. A missing Return
+operand, non-`FunctionExit` target, foreign item, wrong block, or wrong exit
+kind rejects the whole view. The summary Return remains integrity-only and
+cannot become a second physical action.
+
+Focused positive/negative tests, the Dynamic full-body family, both authority
+guards, and the current-pointer guard are green. The next selected row is
+`LOOP-PRECUTOVER-AUTHORITY-H2`; this commit does not open physical session,
+Completion, ABI, topology deletion, production cutover, fallback, or retry.
+
 #### Post-Dynamic cleanup acceptance matrix
 
 The parked series is intentionally concrete about the old V1 surfaces it must

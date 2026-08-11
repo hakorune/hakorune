@@ -314,7 +314,7 @@ fn exit_kind_matches(physical: DynamicLoopPhysicalArmV2, expected: LoopExitKindV
                 target_loop: expected,
             },
         ) => actual == expected,
-        (Some(LoopExitKindV2::Return { .. }), LoopExitKindV2::Return { .. }) => true,
+        (Some(LoopExitKindV2::Return { value }), LoopExitKindV2::Return { .. }) => value.is_some(),
         _ => false,
     }
 }
@@ -365,6 +365,27 @@ mod tests {
         })
     }
 
+    fn return_arm_to_loop(
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+        value: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+        target_loop: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
+    ) -> LoopJoinBranchArmTransferRefV2<'static> {
+        let payload = Box::leak(
+            vec![LoopJoinPayloadV2 {
+                binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1::new(0),
+                value,
+                class: LoopValueClassV2::I64,
+            }]
+            .into_boxed_slice(),
+        );
+        LoopJoinBranchArmTransferRefV2::Exit(LoopJoinBranchExitRefV2 {
+            exit_item: item,
+            role: LoopJoinEdgeRoleV1::Return,
+            target: LoopJoinBranchExitTargetV2::Loop(target_loop),
+            payload,
+        })
+    }
+
     #[test]
     fn if_exit_arm_requires_exact_item_block_kind_and_exit_role() {
         let owner = crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0);
@@ -407,6 +428,23 @@ mod tests {
                 item: exit_item,
                 kind: LoopExitKindV2::Break { target_loop: owner },
             },
+            &placements,
+            owner,
+            Some(LoopBlockKeyV1::new(2)),
+        ));
+        assert!(!verify_arm(
+            return_arm(exit_item, value),
+            DynamicLoopPhysicalArmV2::Exit {
+                item: exit_item,
+                kind: LoopExitKindV2::Return { value: None },
+            },
+            &placements,
+            owner,
+            Some(LoopBlockKeyV1::new(2)),
+        ));
+        assert!(!verify_arm(
+            return_arm_to_loop(exit_item, value, owner),
+            physical,
             &placements,
             owner,
             Some(LoopBlockKeyV1::new(2)),
