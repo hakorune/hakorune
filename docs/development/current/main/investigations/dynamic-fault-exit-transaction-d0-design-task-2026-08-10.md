@@ -2982,6 +2982,97 @@ receipts, and strict LLVM leaf. Until those owners and their named LLVM
 consumer land together, the row remains `RejectBeforeEffect`; no Rust VM
 provider/adapter or legacy String route may be used to bridge the gap.
 
+##### DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-D0-CLOSEOUT (design stop, 2026-08-12)
+
+The semantic slot decision is closed, but the implementation authority is not
+yet sufficiently named to authorize I0-B code. This is a design stop, not a
+request for a hook-only canary or a second provider registry.
+
+```text
+Decision:
+  Keep hako.text.scan@1 as one complete two-role slot
+  (TextSliceRange/substring/2 and TextFindNeedle/indexOf/1). Before I0-B,
+  close the neutral contract artifact, the admission boundary, the call-in
+  wire, and the receiver-identity-bearing executable branch as one owner chain.
+Source authority + canonical issuer:
+  normalized hako.text.scan@1 contract artifact (CP semantics, role rows,
+  Home/Fault/effect/sync/lifecycle/representation) + provider export facts
+  -> one consuming ProviderAdmissionSeal -> immutable admitted registry.
+  The selected A-prime profile supplies only the required contract id and
+  exact I6/I7 role map; it does not redefine the contract.
+Non-authority:
+  source selector/name/arity, Recipe Dynamic class, raw String/StringBox keys,
+  hako.toml, TypeRegistry, PluginLoader snapshots, legacy RoutePlan enum,
+  Rust VM, LLVM/Python/Rust wire projections, and runtime registry/name lookup.
+Fail-fast boundary:
+  missing/foreign/duplicate/ambiguous role, provider, alias, CP profile, ABI,
+  lifecycle, registry generation, receiver branch, call-in token, image pin,
+  or I6/I7 canonical-session receipt rejects before Builder effect. Runtime
+  may inspect and consume only an already sealed branch; it may not search or
+  reselect a provider, image, selector, or route.
+Smallest next slice:
+  docs-only D0 closeout: fix the artifact/requirement/ProviderAdmissionSeal
+  ownership, exact call-in admission fields, and RuntimeExecutablePlan branch
+  identity below. Then one atomic I0-B activation commit must land the builder
+  -> seal -> admitted-registry transition, I6/I7 RoutePlan and executable
+  branches, strict LLVM early consumer/leaf, canonical-session receipts, and
+  the V10 lease/End consumer together.
+Non-claims:
+  no full String surface, no I6-only pseudo-slot, no Dynamic-specific registry,
+  no Rust VM feature/provider/receipt/session, no runtime lookup, no Physical
+  End in isolation, no fallback/retry/sentinel repair, and no production
+  switch until the complete atomic cell is green.
+```
+
+The D0 closeout fixes the following concrete boundary before implementation:
+
+```text
+normalized contract artifact
+  owns: contract id, version, CP profile, two role rows, input/result lanes,
+        Home/Fault/effect/sync/lifecycle and alias rules
+
+selected A-prime requirement
+  owns: required contract id and
+        SubstringCall -> TextSliceRange / IndexOfCall -> TextFindNeedle
+
+ProviderAdmissionSeal
+  owns: one-time co-seal of requirement + artifact + I6/I7 relations
+        + provider export facts + canonical Text aliases + ABI/lifecycle
+
+admitted registry
+  owns: immutable deterministic admitted rows, generation/brand and no raw
+        mutable insert or duplicate overwrite
+
+call-in admission wire (new ABI surface, not the result-output wire)
+  owns: revision, admission/branch identity, registry generation, slot
+        contract id, receiver canonical key, callable key, RoutePlan stamp,
+        RuntimeExecutablePlan/image/entry identity, and exact I6/I7 lane
+
+RuntimeExecutablePlan
+  owns: presealed receiver branch, provider entry/image pin, PlanStamp, and
+        the admitted call-in token. It contains no registry/name lookup.
+
+LLVM selected consumer
+  owns: one early hook before generic method lowering and one strict leaf;
+  selected malformed/unsupported input is terminal and never falls through.
+
+runtime leaf
+  owns: receiver-key check and one consumption of the sealed branch/result;
+  it does not construct a plan or choose a provider.
+```
+
+The current output wire in `include/nyrt_dynamic_call_slot_v2.h` remains
+transport-only. It is not the admission wire and must not be stretched to
+carry provider, selector, image, or registry semantics. The Rust and Python
+types remain projections of that output wire. A separate neutral call-in
+admission schema is required in the I0-B activation slice, with one normative
+owner and checked projections; a third hand-written semantic table is
+forbidden.
+
+Until these fields and owners are fixed in this active card, the current
+state is `design_stop`; implementing only `BoxCallableRegistry`, a provider
+plan, a runtime symbol, or an LLVM hook would create an orphan authority.
+
 There is no Rust VM node in this production DAG. Rust VM stays limited to
 already-supported bootstrap/recovery/compatibility smoke until caller-zero
 retirement; `.hako` is the future semantic-reference owner. A VM provider,
