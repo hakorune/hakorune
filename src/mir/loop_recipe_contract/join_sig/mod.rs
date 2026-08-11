@@ -9,6 +9,7 @@ mod model;
 mod port;
 pub(super) mod recipe_view;
 mod recipe_view_v2;
+mod transfer_view_v1;
 mod transfer_view_v2;
 mod v2;
 mod visibility;
@@ -21,6 +22,9 @@ pub(crate) use model::{
     LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
     LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
     VerifiedLoopJoinSigV2,
+};
+pub(crate) use transfer_view_v1::{
+    LoopJoinBoundaryTransferRefV1, LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferViewV1,
 };
 pub(crate) use transfer_view_v2::{
     LoopJoinAfterRefV2, LoopJoinBoundaryTransferRefV2, LoopJoinBranchArmTransferRefV2,

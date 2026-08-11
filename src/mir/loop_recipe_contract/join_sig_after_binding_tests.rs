@@ -28,6 +28,7 @@ fn row_with_edges(edges: Vec<LoopJoinEdgeV1>) -> LoopJoinLoopV1 {
     LoopJoinLoopV1 {
         key: LoopNodeKeyV1::new(0),
         parent: None,
+        condition: None,
         carriers: Vec::new(),
         edges,
     }

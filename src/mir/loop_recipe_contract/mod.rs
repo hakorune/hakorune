@@ -14,6 +14,7 @@ mod operation_effect;
 mod operation_physical_demand;
 mod physical_input;
 mod physical_layout;
+mod physical_transfer;
 mod producer_id;
 pub(crate) mod route_id;
 mod schema;
@@ -140,14 +141,16 @@ pub(crate) use input_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{
-    issue_sole_root_carrier_join_closure_v2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1,
-    LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1, LoopJoinBranchExitV2,
-    LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1,
-    LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV1,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
-    LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2,
-    VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+    issue_sole_root_carrier_join_closure_v2, LoopJoinBoundaryTransferRefV1,
+    LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV1, LoopJoinBranchArmV2,
+    LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1, LoopJoinBranchExitV2, LoopJoinBranchV1,
+    LoopJoinBranchV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2,
+    LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferRejectV2,
+    LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2, LoopJoinLoopV1, LoopJoinLoopV2,
+    LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV1, LoopJoinPortBindingV2,
+    LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, LoopJoinSigV1,
+    LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1,
+    VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
@@ -175,8 +178,8 @@ pub(crate) use physical_input::{VerifiedLoopPhysicalBoundaryV1, VerifiedLoopPhys
 #[allow(unused_imports)]
 pub(crate) use physical_layout::{
     LoopPhysicalLayoutCoverageReceiptV1, LoopPhysicalLayoutRejectV1, LoopPhysicalSegmentKeyV1,
-    LoopPhysicalTargetV1, LoopPhysicalTransferV1, PreparedLoopControlSegmentV1,
-    PreparedLoopPhysicalLayoutV1,
+    LoopPhysicalSegmentRoleV1, LoopPhysicalTargetV1, LoopPhysicalTransferV1,
+    PreparedLoopControlSegmentV1, PreparedLoopPhysicalLayoutV1,
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;

@@ -241,9 +241,14 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
     };
 
     let carriers = payloads(recipe, key, &body_flow.bindings)?;
+    let condition = match node.condition {
+        LoopJoinConditionView::Predicate { block, value } => Some((block, value)),
+        LoopJoinConditionView::Always => None,
+    };
     rows.push(LoopJoinLoop {
         key,
         parent: node.parent,
+        condition,
         carriers,
         edges,
     });

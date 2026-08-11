@@ -11,7 +11,7 @@ use super::segment_topology::{
 use super::topology::{
     LoopPhysicalBlockRoleV1, LoopPhysicalServicesV1, LoopPhysicalizerRejectV1, ReadyLoopEntryV1,
 };
-use crate::mir::loop_recipe_contract::{LoopConditionV1, PreparedLoopPhysicalLayoutV1};
+use crate::mir::loop_recipe_contract::{LoopPhysicalSegmentRoleV1, PreparedLoopPhysicalLayoutV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopPhysicalSegmentAllocatorRejectV1 {
@@ -37,7 +37,10 @@ pub(super) fn allocate_for_layout(
             .map_err(LoopPhysicalSegmentAllocatorRejectV1::Block)?;
         rows.push(LoopPhysicalSegmentBlockRowV1::new(
             segment.key(),
-            segment_role(layout, segment.key()),
+            match segment.role() {
+                LoopPhysicalSegmentRoleV1::Header => LoopPhysicalBlockRoleV1::Header,
+                LoopPhysicalSegmentRoleV1::Body => LoopPhysicalBlockRoleV1::Body,
+            },
             physical_block,
         ));
     }
@@ -59,31 +62,4 @@ pub(super) fn allocate_for_layout(
         rows,
     )
     .map_err(LoopPhysicalSegmentAllocatorRejectV1::Receipt)
-}
-
-fn segment_role(
-    layout: &PreparedLoopPhysicalLayoutV1,
-    segment: crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1,
-) -> LoopPhysicalBlockRoleV1 {
-    let is_condition = layout
-        .program()
-        .demand()
-        .operation_effect()
-        .core()
-        .recipe()
-        .as_recipe()
-        .loops
-        .iter()
-        .any(|loop_row| {
-            loop_row.key == segment.loop_key()
-                && matches!(
-                    loop_row.condition,
-                    LoopConditionV1::Predicate { block, .. } if block == segment.block()
-                )
-        });
-    if is_condition {
-        LoopPhysicalBlockRoleV1::Header
-    } else {
-        LoopPhysicalBlockRoleV1::Body
-    }
 }

@@ -1907,10 +1907,12 @@ private traversal may derive item order and segment boundaries only. JoinSig
 issues the logical Predicate/Jump/Backedge/nested-resume transfer evidence;
 Layout binds that evidence to placement; Canonical CFG emits it once. Therefore
 `physical_layout.rs` and `recursive_after.rs` must not rebuild transfer meaning
-from `LoopConditionV1`/`as_recipe()`, and `segment_allocator.rs` must consume the
-segment placement receipt instead of rescanning Recipe conditions for Header or
-Body. Physical-side name, ordinal, source-order, and current-block repair are
-forbidden. No synthetic `ItemKey` or Step block is introduced.
+from `LoopConditionV1`/Recipe condition data, and `segment_allocator.rs` must
+consume the segment placement receipt instead of rescanning Recipe conditions
+for Header or Body. `as_recipe()` remains a placement-only traversal in this
+row; it may supply block/item order, but it may not supply condition or
+transfer meaning. Physical-side name, ordinal, source-order, and current-block
+repair are forbidden. No synthetic `ItemKey` or Step block is introduced.
 The same BoxShape series includes:
 
 ```text
@@ -1937,7 +1939,8 @@ task family or change the current H2 parser blocker.
 ```text
 physical_layout.rs / recursive_after.rs
   consume JoinSig transfer evidence + verified placement
-  never rebuild Predicate/Jump/Backedge/nested resume from Recipe
+  never rebuild Predicate/Jump/Backedge/nested resume from Recipe condition
+  data; Recipe reads are placement-only
 
 segment_allocator.rs
   consume segment-placement receipt
@@ -1967,7 +1970,10 @@ Acceptance for the series requires the corresponding guards and focused tests:
 zero Recipe transfer inference in layout/allocator, zero Callable profile
 symbols and hard-coded profile cardinalities in common physicalizer code, zero
 repeated V1 ledger scans, and a caller census proving the old topology route is
-not a hidden second authority. A missing JoinSig capability or an unavoidable
+not a hidden second authority. The first R0 guard is
+`bash tools/checks/loop_physical_transfer_authority_guard.sh`; it covers the
+JoinSig transfer view, placement binder, placement-role allocator, condition
+authority exclusion, and the 800-line boundary. A missing JoinSig capability or an unavoidable
 row re-pairing is a design stop (`NoSafeSlice`), not a reason to add a lookup,
 fallback, or fixture-specific branch.
 

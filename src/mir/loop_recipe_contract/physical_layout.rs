@@ -7,8 +7,15 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
+use super::join_sig::{
+    LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferViewV1,
+    LoopJoinPortV1,
+};
 use super::operation_physical_demand::PreparedLoopOperationProgramV1;
-use super::schema::{LoopConditionV1, LoopRecipeItemV1, LoopRecipeV1};
+use super::physical_transfer::{
+    bind_backedge, bind_nested_loop, bind_predicate, LoopPhysicalTransferBindingRejectV1,
+};
+use super::schema::{LoopRecipeItemV1, LoopRecipeV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct LoopPhysicalSegmentKeyV1 {
@@ -61,9 +68,16 @@ pub(crate) enum LoopPhysicalTransferV1 {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LoopPhysicalSegmentRoleV1 {
+    Header,
+    Body,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PreparedLoopControlSegmentV1 {
     key: LoopPhysicalSegmentKeyV1,
+    role: LoopPhysicalSegmentRoleV1,
     operations: Box<[LoopItemKeyV1]>,
     transfer: LoopPhysicalTransferV1,
 }
@@ -71,6 +85,10 @@ pub(crate) struct PreparedLoopControlSegmentV1 {
 impl PreparedLoopControlSegmentV1 {
     pub(crate) const fn key(&self) -> LoopPhysicalSegmentKeyV1 {
         self.key
+    }
+
+    pub(crate) const fn role(&self) -> LoopPhysicalSegmentRoleV1 {
+        self.role
     }
 
     pub(crate) fn operations(&self) -> &[LoopItemKeyV1] {
@@ -121,6 +139,8 @@ pub(crate) enum LoopPhysicalLayoutRejectV1 {
         expected: usize,
         found: usize,
     },
+    Transfer(LoopJoinLogicalTransferRejectV1),
+    TransferBinding(LoopPhysicalTransferBindingRejectV1),
 }
 
 #[derive(Debug)]
@@ -135,6 +155,12 @@ impl PreparedLoopPhysicalLayoutV1 {
     pub(crate) fn from_program(
         program: PreparedLoopOperationProgramV1,
     ) -> Result<Self, LoopPhysicalLayoutRejectV1> {
+        let transfer_view = program
+            .demand()
+            .operation_effect()
+            .core()
+            .join_sig()
+            .logical_transfer_view();
         let recipe = program
             .demand()
             .operation_effect()
@@ -142,7 +168,7 @@ impl PreparedLoopPhysicalLayoutV1 {
             .recipe()
             .as_recipe();
         let (entry_segment, segments, visited_items, operation_items) = {
-            let mut builder = LayoutBuilder::new(recipe);
+            let mut builder = LayoutBuilder::new(recipe, &transfer_view);
             let entry_segment = builder.entry_key(recipe.root_loop)?;
             builder.build_loop(recipe.root_loop, LoopPhysicalTargetV1::OpenRootAfter)?;
             let (segments, visited_items, operation_items) = builder.finish()?;
@@ -202,6 +228,7 @@ impl PreparedLoopPhysicalLayoutV1 {
 
 struct LayoutBuilder<'a> {
     recipe: &'a LoopRecipeV1,
+    transfers: &'a LoopJoinLogicalTransferViewV1<'a>,
     item_rows: BTreeMap<LoopItemKeyV1, LoopRecipeItemV1>,
     segments: Vec<PreparedLoopControlSegmentV1>,
     visited_loops: BTreeSet<LoopNodeKeyV1>,
@@ -211,9 +238,10 @@ struct LayoutBuilder<'a> {
 }
 
 impl<'a> LayoutBuilder<'a> {
-    fn new(recipe: &'a LoopRecipeV1) -> Self {
+    fn new(recipe: &'a LoopRecipeV1, transfers: &'a LoopJoinLogicalTransferViewV1<'a>) -> Self {
         Self {
             recipe,
+            transfers,
             item_rows: recipe
                 .items
                 .iter()
@@ -253,17 +281,24 @@ impl<'a> LayoutBuilder<'a> {
         &self,
         loop_key: LoopNodeKeyV1,
     ) -> Result<LoopPhysicalSegmentKeyV1, LoopPhysicalLayoutRejectV1> {
-        let node = self
-            .recipe
-            .loops
-            .iter()
-            .find(|row| row.key == loop_key)
-            .ok_or(LoopPhysicalLayoutRejectV1::MissingLoop(loop_key))?;
-        let block = match node.condition {
-            LoopConditionV1::Predicate { block, .. } => block,
-            LoopConditionV1::Always => {
-                return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
-            }
+        let enter = self
+            .transfers
+            .require(loop_key, LoopJoinEdgeRoleV1::Enter)
+            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+        require_ports(
+            enter.loop_key,
+            enter.role,
+            enter.from,
+            enter.to,
+            LoopJoinPortV1::Preheader,
+            LoopJoinPortV1::Header,
+        )?;
+        let predicate = self
+            .transfers
+            .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
+            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+        let Some((block, _)) = predicate.condition else {
+            return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
         };
         Ok(LoopPhysicalSegmentKeyV1::new(loop_key, block, 0))
     }
@@ -282,29 +317,38 @@ impl<'a> LayoutBuilder<'a> {
             .iter()
             .find(|row| row.key == loop_key)
             .ok_or(LoopPhysicalLayoutRejectV1::MissingLoop(loop_key))?;
-        let (condition_block, condition_value) = match node.condition {
-            LoopConditionV1::Predicate { block, value } => (block, value),
-            LoopConditionV1::Always => {
-                return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
-            }
+        let predicate_true = self
+            .transfers
+            .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
+            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+        let predicate_false = self
+            .transfers
+            .require(loop_key, LoopJoinEdgeRoleV1::PredicateFalse)
+            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+        let backedge = self
+            .transfers
+            .require(loop_key, LoopJoinEdgeRoleV1::Backedge)
+            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+        let Some((condition_block, _)) = predicate_true.condition else {
+            return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
         };
         let body_entry = LoopPhysicalSegmentKeyV1::new(loop_key, node.body, 0);
+        let predicate = bind_predicate(predicate_true, predicate_false, body_entry, after_target)
+            .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
         self.build_block(
             loop_key,
             condition_block,
-            LoopPhysicalTransferV1::Predicate {
-                condition: condition_value,
-                on_true: body_entry,
-                on_false: after_target,
-            },
+            LoopPhysicalSegmentRoleV1::Header,
+            predicate,
         )?;
         let condition_entry = LoopPhysicalSegmentKeyV1::new(loop_key, condition_block, 0);
+        let backedge = bind_backedge(backedge, LoopPhysicalTargetV1::Segment(condition_entry))
+            .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
         self.build_block(
             loop_key,
             node.body,
-            LoopPhysicalTransferV1::Jump {
-                target: LoopPhysicalTargetV1::Segment(condition_entry),
-            },
+            LoopPhysicalSegmentRoleV1::Body,
+            backedge,
         )
     }
 
@@ -312,6 +356,7 @@ impl<'a> LayoutBuilder<'a> {
         &mut self,
         loop_key: LoopNodeKeyV1,
         block_key: LoopBlockKeyV1,
+        role: LoopPhysicalSegmentRoleV1,
         finish_transfer: LoopPhysicalTransferV1,
     ) -> Result<(), LoopPhysicalLayoutRejectV1> {
         if !self.visited_blocks.insert(block_key) {
@@ -339,13 +384,17 @@ impl<'a> LayoutBuilder<'a> {
                     let current = LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal);
                     let resume = LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal + 1);
                     let child_entry = self.entry_key(child)?;
+                    let child_enter = self
+                        .transfers
+                        .require(child, LoopJoinEdgeRoleV1::Enter)
+                        .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                    let nested_transfer = bind_nested_loop(child_enter, child, child_entry)
+                        .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
                     self.segments.push(PreparedLoopControlSegmentV1 {
                         key: current,
+                        role,
                         operations: operations.into_boxed_slice(),
-                        transfer: LoopPhysicalTransferV1::OpenNestedLoop {
-                            loop_key: child,
-                            entry: child_entry,
-                        },
+                        transfer: nested_transfer,
                     });
                     operations = Vec::new();
                     ordinal += 1;
@@ -364,11 +413,35 @@ impl<'a> LayoutBuilder<'a> {
         }
         self.segments.push(PreparedLoopControlSegmentV1 {
             key: LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal),
+            role,
             operations: operations.into_boxed_slice(),
             transfer: finish_transfer,
         });
         Ok(())
     }
+}
+
+fn require_ports(
+    loop_key: LoopNodeKeyV1,
+    role: LoopJoinEdgeRoleV1,
+    from: LoopJoinPortV1,
+    to: LoopJoinPortV1,
+    expected_from: LoopJoinPortV1,
+    expected_to: LoopJoinPortV1,
+) -> Result<(), LoopPhysicalLayoutRejectV1> {
+    if from == expected_from && to == expected_to {
+        return Ok(());
+    }
+    Err(LoopPhysicalLayoutRejectV1::TransferBinding(
+        LoopPhysicalTransferBindingRejectV1::PortMismatch {
+            loop_key,
+            role,
+            expected_from,
+            expected_to,
+            found_from: from,
+            found_to: to,
+        },
+    ))
 }
 
 #[cfg(test)]
@@ -406,6 +479,11 @@ mod tests {
         assert_eq!(layout.coverage().segment_count(), 2);
         assert_eq!(layout.entry_segment(), layout.segments()[0].key());
         assert_eq!(
+            layout.segments()[0].role(),
+            LoopPhysicalSegmentRoleV1::Header
+        );
+        assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
+        assert_eq!(
             layout.segments()[0].operations(),
             [
                 LoopItemKeyV1::new(0),
@@ -434,6 +512,15 @@ mod tests {
         assert_eq!(layout.coverage().operation_count(), 15);
         assert_eq!(layout.coverage().segment_count(), 5);
         assert_eq!(layout.entry_segment(), layout.segments()[0].key());
+        assert_eq!(
+            layout.segments()[0].role(),
+            LoopPhysicalSegmentRoleV1::Header
+        );
+        assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
+        assert_eq!(
+            layout.segments()[2].role(),
+            LoopPhysicalSegmentRoleV1::Header
+        );
         assert_eq!(layout.segments()[0].key(), root_condition);
         assert_eq!(layout.segments()[1].key(), root_before_child);
         assert_eq!(layout.segments()[2].key(), child_condition);

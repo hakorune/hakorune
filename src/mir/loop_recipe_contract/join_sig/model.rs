@@ -1,4 +1,6 @@
-use super::super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
+use super::super::ids::{
+    LoopBindingKeyV1, LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum LoopJoinPortV1 {
@@ -83,6 +85,10 @@ pub(crate) type LoopJoinEdgeV2 = LoopJoinEdge<super::super::schema_v2::LoopValue
 pub(crate) struct LoopJoinLoop<C> {
     pub(crate) key: LoopNodeKeyV1,
     pub(crate) parent: Option<LoopNodeKeyV1>,
+    /// The verified logical predicate placement/value, if this loop has one.
+    /// `None` is the logical `Always` condition; physical consumers must not
+    /// rediscover this from the Recipe condition wire.
+    pub(crate) condition: Option<(LoopBlockKeyV1, LoopValueKeyV1)>,
     pub(crate) carriers: Vec<LoopJoinPayload<C>>,
     pub(crate) edges: Vec<LoopJoinEdge<C>>,
 }
