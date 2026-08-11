@@ -893,6 +893,20 @@ selected callable identity/entry edge, the exact I6/I7 argument relation, or
 the owner-branded function target.  A missing or foreign sibling fact is a
 typed `RejectBeforeEffect`, never a name/ordinal/ValueId repair.
 
+The current package loan has one concrete preparation gap: its
+`SelectedCallableLoweringInputRefV1` carries the resolved source input,
+parameter-contract rows, Dynamic program, and optional method observation,
+but not the selected batch row's parser identity/mode/owner relation.  Before
+the A-prime issuer is implemented, add one private borrowed
+`SelectedCallableSourceIdentityRefV1` projection from that already co-sealed
+batch row.  It may carry parser declaration identity, declaration mode,
+owner/function-origin, and the optional method-source observation; it must not
+expose a canonical key, batch slot, AST, or a new lookup authority.  A
+top-level callable must not receive a fabricated `VerifiedCallableHeaderV1`:
+its exact owner-branded declaration relation comes from the batch row itself.
+This is a transport/view adjustment inside the existing package loan, not a
+new semantic product.
+
 The LLVM part is a transport/capability child, not a backend-name allowlist.
 Rust MIR JSON remains the single metadata emission owner.  The capability
 contract is two-stage, so semantic demand and physical transport are not
