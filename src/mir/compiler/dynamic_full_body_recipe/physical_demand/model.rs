@@ -153,7 +153,7 @@ pub(super) fn coverage_of(
         return Err(DynamicFullLoopPhysicalDemandRejectV2::ControlCoverage);
     }
     let fault_count = input.faults().rows().len();
-    if fault_count != 3 {
+    if fault_count != 2 {
         return Err(DynamicFullLoopPhysicalDemandRejectV2::FaultCoverage);
     }
     Ok(DynamicFullLoopPhysicalDemandCoverageV2 {

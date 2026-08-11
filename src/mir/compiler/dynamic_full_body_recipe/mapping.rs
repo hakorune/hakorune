@@ -98,7 +98,8 @@ pub(super) fn complete_dynamic_loop_recipe_v2() -> LoopRecipeV2 {
             ),
             operation(
                 9,
-                LoopOperationV2::DynamicLess {
+                LoopOperationV2::CompareI64 {
+                    op: LoopCompareI64OpV2::Less,
                     left: value_key(11),
                     right: value_key(12),
                     result: value_key(13),
@@ -205,7 +206,7 @@ fn value(raw: u32, class: LoopValueClassV2) -> LoopRecipeValueV2 {
 fn value_class(raw: u32) -> LoopValueClassV2 {
     match raw {
         5 | 13 => LoopValueClassV2::Bool,
-        1 | 2 | 4 | 6 | 7 | 8 | 9 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
+        1 | 2 | 4 | 6 | 7 | 8 | 9 | 11 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
         _ => LoopValueClassV2::Dynamic,
     }
 }

@@ -23,8 +23,7 @@ runtime representation.
 
 - `mapping.rs` is the sole bounded Recipe producer.  It emits the mixed typed
   shape: `pos`, `end`, induction binding, carrier, `CompareI64`, and the two
-  `BinaryI64(Add)` operations are `I64`; string/call values and `DynamicLess`
-  remain `Dynamic`.
+  `BinaryI64(Add)` operations are `I64`; string/call values remain `Dynamic`.
 - `dynamic_full_body_recipe/mod.rs` consumes the exact A2 parameter contract
   together with the source inventory.  Its private four-row relation keeps
   ordinal, `BindingRef`, source role, and Recipe class together until the
@@ -34,21 +33,21 @@ runtime representation.
   source roles against the mixed Recipe classes.
 - `coseal/calls.rs` validates the exact call classes:
   `I6: Dynamic receiver + I64/I64 arguments -> Dynamic`, and
-  `I7: Dynamic receiver + Dynamic argument -> Dynamic`.
+  `I7: Dynamic receiver + Dynamic argument -> I64`.
 - `coseal/physical_evidence.rs` owns the private 17-placement / 15-operation
   source-effect ledger.  It relates already verified facts; it is not a new
   AST observer or execution authority.
 - `coseal/semantic_program/` consumes the whole envelope and derives one
-  non-splittable JoinSig/After closure and the exact three-row Fault catalog:
-  `I6`, `I7`, and `I9`.  `I1`, `I5`, and `I15` are typed non-faulting operations
+  non-splittable JoinSig/After closure and the exact two-row Fault catalog:
+  `I6` and `I7`.  `I1`, `I5`, `I9`, and `I15` are typed non-faulting operations
   in this cohort.
 - `invocation_carrier_lifecycle.rs` remains the sole lifecycle owner for the
-  two Dynamic invocation results: `I6/V10` is the Loop-body temporary and
-  `I7/V11` is the I9 full-expression temporary.  It does not own the I64
-  induction carrier.
+  one Dynamic invocation result: `I6/V10` is the Loop-body temporary.  The
+  `I7/V11` exact-I64 result has no Dynamic lease or End obligation.  It does
+  not own the I64 induction carrier.
 - `invocation_cleanup.rs` is the only cleanup projection for this cohort.  It
-  retains the invocation lifecycle and the exact six logical cut points:
-  `I6` Fault, `I7` Fault, `I9` Fault, `I9` normal boundary, inner Return, and
+  retains the invocation lifecycle and the exact four logical cut points:
+  `I6` Fault, `I7` Fault, inner Return, and
   Backedge.  The induction disposition is the private
   `ExactI64TrivialNoEnd` marker.
 - `exit_transaction.rs` consumes that projection and seals the inner Recipe
@@ -65,16 +64,16 @@ The bounded Recipe has one I64 induction carrier and keeps only the genuinely
 opaque values Dynamic:
 
 ```text
-V1 pos / V2 end / V4,V6,V7,V8,V9,V12,V14,V15,V16,V17 = I64
+V1 pos / V2 end / V4,V6,V7,V8,V9,V11,V12,V14,V15,V16,V17 = I64
 V5,V13 = Bool
-V0 src / V3 pred_chars / V10,V11 = Dynamic
+V0 src / V3 pred_chars / V10 = Dynamic
 
 I1  CompareI64(Less)
 I5  BinaryI64(Add)
 I15 BinaryI64(Add)
 I6  CallSlot(substring)
 I7  CallSlot(indexOf)
-I9  DynamicLess
+I9  CompareI64(Less)
 ```
 
 The `i64` source contract is transported by the existing callable parameter
@@ -113,7 +112,7 @@ design stop rather than widening this producer by inference.
 ## Acceptance and cleanup
 
 Acceptance requires the exact parameter contract, mixed Recipe classes, the
-three-row Fault catalog, two invocation lifecycle rows, six cleanup cut
+two-row Fault catalog, one invocation lifecycle row, four cleanup cut
 points, and the existing two Completion sites to remain co-sealed.  Focused
 tests must reject foreign source, wrong class, missing/duplicate CallSlot,
 wrong Fault coverage, and old/new lifecycle pairing.

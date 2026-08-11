@@ -15,7 +15,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 use crate::mir::loop_recipe_contract::{
     LoopConditionV2, LoopExitKindV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitRefV2,
     LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV2,
-    LoopJoinLogicalTransferViewV2, LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2,
+    LoopJoinLogicalTransferViewV2, LoopOperationExecutionClassV2,
     LoopRecipeProvenanceV1,
 };
 use crate::mir::resolved_semantics::{
@@ -144,14 +144,9 @@ fn verify_fault_coverage(
     let mut expected = Vec::new();
     for operation in operations {
         let family = match operation.execution() {
-            LoopOperationExecutionClassV2::FaultBeforeNormalResult { family, .. } => match family {
-                LoopOperationFaultFamilyV2::DynamicAdd => {
-                    return Err(DynamicFullLoopPhysicalInputRejectV2::FaultCoverage)
-                }
-                LoopOperationFaultFamilyV2::DynamicLess => {
-                    super::DynamicFullLoopFaultFamilyV2::DynamicLess
-                }
-            },
+            LoopOperationExecutionClassV2::FaultBeforeNormalResult { .. } => {
+                return Err(DynamicFullLoopPhysicalInputRejectV2::FaultCoverage)
+            }
             LoopOperationExecutionClassV2::ExternallyBoundOutcome { .. }
                 if operation.call_role().is_some() =>
             {

@@ -40,7 +40,7 @@ opening a session or allocating `ValueId`/`BasicBlockId`.
 
 This is deliberately a preflight slice, not a production emitter. A later
 session handoff must consume the private plan ledger and provide named
-`DynamicLess` normal-result and Dynamic temporary-cleanup capabilities. Until
+`CompareI64` normal-result and Dynamic temporary-cleanup capabilities. Until
 those receipts exist, the selected canary rejects before the first Builder
 effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
 fallback, and retry are not valid alternatives.
@@ -49,18 +49,18 @@ The current implementation row is the family-native V2 emitter, not another
 semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; the
 selected-fixture canary now receives a session-issued opaque `Prelude` target
 through canonical unpublished function/SSA/CFG sessions and may not accept a
-raw `MirBuilder` or `BasicBlockId`. `DynamicLess` still needs a checked normal-Bool receipt,
-and the invocation cleanup owner still needs ordered V10/V11 discharge
-receipts. If any capability is unavailable, the session rejects before its
-first Builder effect. The existing semantic rows remain evidence only.
+raw `MirBuilder` or `BasicBlockId`. `CompareI64` now names the exact I9
+normal-Bool demand, while the invocation cleanup owner retains only the I6/V10
+Dynamic discharge receipt; I7/V11 is exact I64 and has no lease or End row. If
+any capability is unavailable, the session rejects before its first Builder
+effect. The existing semantic rows remain evidence only.
 
 The physical issuers are separate children of this selected V2 boundary. The
-`DynamicLess` issuer consumes exact I9 (`V11:Dynamic`, `V12:I64` -> `V13:Bool`)
-plus the I7 CallSlot and I8 ConstI64 producer receipts and hands the existing
-I9 Fault disposition to the exit transaction. The cleanup issuer consumes the
-six scoped rows from `invocation_cleanup.rs` in their fixed order
-(`I6=[]`, `I7=End(V10)`, `I9 fault=End(V11),End(V10)`, `I9 normal=End(V11)`,
-inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, and the I64
+`CompareI64` issuer consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
+plus the I7 CallSlot and I8 ConstI64 producer receipts and rejects any I9
+Fault row. The cleanup issuer consumes the four scoped rows from
+`invocation_cleanup.rs` in their fixed order (`I6 fault=[]`, `I7 fault=End(V10)`,
+inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, `V11`, and the I64
 induction. A move-only admission gate co-seals only those two physical
 receipts; it is not a semantic, Fault, Completion, Recipe, or JoinSig owner.
 Missing/foreign/ambiguous producer receipts or an unavailable End primitive

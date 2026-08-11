@@ -387,7 +387,7 @@ fn verify_operation_coverage(
             )
         })
         .count();
-    if (non_faulting, faulting, externally_bound) != (12, 1, 2) {
+    if (non_faulting, faulting, externally_bound) != (13, 0, 2) {
         return Err(DynamicFullLoopPhysicalEvidenceRejectV2::ExecutionCoverage);
     }
     Ok(())

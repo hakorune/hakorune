@@ -23,7 +23,7 @@ use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceStmtSiteV1};
 const EXPECTED_OPERATION_COUNT: usize = 15;
 const EXPECTED_PLACEMENT_COUNT: usize = 17;
 const EXPECTED_CONTROL_COUNT: usize = 1;
-const EXPECTED_FAULT_COUNT: usize = 3;
+const EXPECTED_FAULT_COUNT: usize = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum SelectedDynamicV2PhysicalPlanRejectV1 {
@@ -291,7 +291,7 @@ impl<'program> PreparedSelectedDynamicV2EmissionPlanV1<'program> {
     pub(in crate::mir) fn with_cleanup_physical_rows<R>(
         &self,
         callback: impl FnOnce(
-            [crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowViewV1; 6],
+            [crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowViewV1; 4],
         ) -> R,
     ) -> R {
         self.demand.with_cleanup_physical_rows(callback)

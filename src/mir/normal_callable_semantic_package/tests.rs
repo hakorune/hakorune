@@ -139,7 +139,7 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
         demand.with_operation_program(|program| {
             assert_eq!(program.placement_rows().len(), 17);
             assert_eq!(program.operation_rows().len(), 15);
-            assert_eq!(program.coverage().fault_count(), 3);
+            assert_eq!(program.coverage().fault_count(), 2);
         });
     })
     .expect("selected A-prime demand loan");
@@ -236,7 +236,7 @@ fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
             vec![13, 14, 15, 16]
         );
         plan.with_ledger(|ledger| {
-            assert_eq!(ledger.coverage_counts(), (17, 15, 3, 2));
+            assert_eq!(ledger.coverage_counts(), (17, 15, 2, 2));
         });
     })
     .expect("selected V2 preflight plan loan");
@@ -277,25 +277,25 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
             crate::mir::builder::resolved_lowering::
                 DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect
         );
-        let less = admission.less();
+        let compare_i64 = admission.compare_i64();
         assert_eq!(
-            less.item(),
+            compare_i64.item(),
             crate::mir::loop_recipe_contract::LoopItemKeyV1::new(9)
         );
         assert_eq!(
-            less.left(),
+            compare_i64.left(),
             crate::mir::loop_recipe_contract::LoopValueKeyV1::new(11)
         );
         assert_eq!(
-            less.right(),
+            compare_i64.right(),
             crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12)
         );
         assert_eq!(
-            less.result(),
+            compare_i64.result(),
             crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13)
         );
         let cleanup = admission.cleanup();
-        assert_eq!(cleanup.len(), 6);
+        assert_eq!(cleanup.len(), 4);
         assert_eq!(
             cleanup[0].item(),
             Some(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(6))
@@ -309,27 +309,9 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
                 crate::mir::loop_recipe_contract::LoopValueKeyV1::new(10),
             ))
         );
+        assert!(cleanup[2].inner_return_site().is_some());
         assert_eq!(
-            cleanup[2]
-                .first()
-                .map(|action| (action.producer(), action.result())),
-            Some((
-                crate::mir::loop_recipe_contract::LoopItemKeyV1::new(7),
-                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(11),
-            ))
-        );
-        assert_eq!(
-            cleanup[2]
-                .second()
-                .map(|action| (action.producer(), action.result())),
-            Some((
-                crate::mir::loop_recipe_contract::LoopItemKeyV1::new(6),
-                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(10),
-            ))
-        );
-        assert!(cleanup[4].inner_return_site().is_some());
-        assert_eq!(
-            cleanup[5].backedge_loop(),
+            cleanup[3].backedge_loop(),
             Some(crate::mir::loop_recipe_contract::LoopNodeKeyV1::new(0))
         );
         assert!(matches!(

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The complete hako.text.scan@1 capability is accepted as two semantic roles under one UTF-8 code-point profile; I6-only and full-String expansion are both rejected. Language indexOf returns exact I64, so the current fast row atomically recuts I7/V11, I9, Fault coverage, cleanup, and Builder-free physical evidence from Dynamic/End to I64/CompareI64/trivial-no-End. Provider/admitted-registry/AOT activation remains closed until that recut, the VM nonconsumer fence, and wire revision-2 authority are green. Rust VM DynamicV2 production callers remain zero."
+status = "The complete hako.text.scan@1 capability is accepted as two semantic roles under one UTF-8 code-point profile; I6-only and full-String expansion are both rejected. The exact-I64 semantic recut is landed: I7/V11 is I64, I9 is nonfaulting CompareI64, Fault rows are I6/I7, the sole Dynamic lifecycle is I6/V10, cleanup has four rows, and physical evidence is 13 NonFaulting / 0 Faulting / 2 ExternallyBound. Provider/admitted-registry/AOT activation remains closed until the VM nonconsumer fence, wire revision-2 authority, and later selected AOT cell are green. Rust VM DynamicV2 production callers remain zero."
 date = "2026-08-12"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "none for DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0; the parent Provider D0 is accepted but AOT activation stays RejectBeforeEffect until its ordered prerequisites close"
+current_design_stop = "none for DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0; the parent Provider D0 is accepted but AOT activation stays RejectBeforeEffect until its ordered prerequisites close"
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0"
-current_blocker_token = "Atomically recut the selected semantic program only: I7/V11 Dynamic -> I64, I9 DynamicLess -> CompareI64, Fault rows I6/I7/I9 -> I6/I7, V11 End rows -> 0, and cleanup/preflight/physical evidence to the exact new counts. V10 remains the sole Dynamic invocation carrier. Add no provider, registry, runtime/LLVM/VM consumer, session, fixture workaround, fallback, retry, or production switch. Any surviving V11 Dynamic, I9 Fault, V11 lease/End, or old mixed-count acceptance is blocking."
+current_execution_row = "DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0"
+current_blocker_token = "Keep the landed semantic recut intact while closing the VM nonconsumer fence: DynamicV2 VM classifier/provider/receipt/adapter/session/production callers must remain zero. Do not add provider, registry, runtime/LLVM, session, fixture workaround, fallback, retry, or production switch. The next wire slice remains transport-only and must keep the C header as sole layout owner."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -721,12 +721,12 @@ latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_design_card = "none; DYNAMIC-V2-CALLSLOT-PROVIDER-PLAN-D0 design accepted"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0"
+next_execution_card = "DYNAMIC-V2-RUST-VM-NONCONSUMER-FENCE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "hako.text.scan@1 is the accepted complete two-role ProviderSlot contract under utf8-codepoint-clamped-v1; the selected A-prime profile requires it explicitly and admission will co-seal I6/I7 without selector inference. The next bounded row aligns the existing Recipe, Fault, cleanup, and physical evidence with indexOf's exact-I64 language result. Provider admission, runtime/LLVM activation, Physical End, and production cutover remain closed. VM provider/session work, dynamic registries, runtime reselection, fallback, and retry are forbidden."
+latest_card_summary = "hako.text.scan@1 is the accepted complete two-role ProviderSlot contract under utf8-codepoint-clamped-v1; the selected A-prime profile requires it explicitly and admission will co-seal I6/I7 without selector inference. The exact-I64 semantic recut is landed with V11/I9/Fault/lifecycle/cleanup/physical counts aligned; focused tests and authority guards are green. The next bounded row is the VM nonconsumer fence, then transport-only wire authority. Provider admission, runtime/LLVM activation, Physical End, and production cutover remain closed. VM provider/session work, dynamic registries, runtime reselection, fallback, and retry are forbidden."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

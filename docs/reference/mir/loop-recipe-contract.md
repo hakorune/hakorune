@@ -1435,3 +1435,25 @@ local ordinal. Focused callable
 Recipe, operation/effect, prepared-ingress, Prelude, and physical-canary tests
 remain green. No S6A observer, new producer, Recipe kind, selector, physical
 route, or production caller was opened by this row.
+
+## Landed bounded text-scan recut — `DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0`
+
+The selected `hako.text.scan@1` cohort now uses the language-level result
+contract directly: `I7/indexOf` produces exact `I64` `V11`, and `I9` is the
+non-faulting `CompareI64(Less)` over `V11` and the zero constant. This is a
+semantic-program recut, not a provider or backend implementation.
+
+The co-sealed counts are fixed as follows:
+
+```text
+Fault rows:             2  (I6, I7)
+Dynamic lifecycle rows: 1  (I6/V10)
+Invocation cleanup:     4  (I6 fault, I7 fault, inner Return, Backedge)
+Physical execution:     13 NonFaulting / 0 Faulting / 2 ExternallyBound
+```
+
+`V11` has no Dynamic lease, End, or Fault row. `V10` remains the sole
+Dynamic invocation temporary and keeps its existing End-authorized lifecycle.
+This receipt does not issue a provider, registry, runtime, LLVM, VM, physical
+session, fallback, retry, or production caller; those remain separately
+gated by the active card.

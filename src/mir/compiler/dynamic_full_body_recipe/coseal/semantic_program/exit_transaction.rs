@@ -65,7 +65,7 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
 
     pub(in crate::mir) fn with_cleanup_physical_rows<R>(
         &self,
-        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 6]) -> R,
+        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 4]) -> R,
     ) -> R {
         callback(self.cleanup.physical_rows())
     }
@@ -273,7 +273,7 @@ mod tests {
                     logical.then_arm,
                     LoopJoinBranchArmTransferRefV2::Exit(_)
                 ));
-                assert_eq!(input.faults().rows().len(), 3);
+                assert_eq!(input.faults().rows().len(), 2);
             })
             .expect("final exit co-seal physical input");
     }
@@ -291,11 +291,11 @@ mod tests {
                 assert_eq!(coverage.operation_count(), 15);
                 assert_eq!(coverage.placement_count(), 17);
                 assert_eq!(coverage.control_count(), 1);
-                assert_eq!(coverage.fault_count(), 3);
+                assert_eq!(coverage.fault_count(), 2);
                 assert_eq!(prepared.operation_rows().len(), 15);
                 assert_eq!(prepared.placement_rows().len(), 17);
                 assert_eq!(prepared.control().rows().len(), 1);
-                assert_eq!(prepared.faults().rows().len(), 3);
+                assert_eq!(prepared.faults().rows().len(), 2);
             })
             .expect("physical demand HRTB loan");
     }

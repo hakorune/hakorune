@@ -54,7 +54,7 @@ impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
 
     pub(in crate::mir) fn with_cleanup_physical_rows<R>(
         &self,
-        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 6]) -> R,
+        callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 4]) -> R,
     ) -> R {
         self.program.with_cleanup_physical_rows(callback)
     }

@@ -190,7 +190,7 @@ impl DynamicCallExpectationV2 {
             recipe_arguments: &[10],
             recipe_argument_classes: &[LoopValueClassV2::Dynamic],
             recipe_result: LoopValueKeyV1::new(11),
-            recipe_result_class: LoopValueClassV2::Dynamic,
+            recipe_result_class: LoopValueClassV2::I64,
         }
     }
 }

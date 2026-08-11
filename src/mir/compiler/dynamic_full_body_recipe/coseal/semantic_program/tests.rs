@@ -131,11 +131,6 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
                 DynamicFullLoopFaultFamilyV2::DynamicInvocation,
                 LoopValueKeyV1::new(11),
             ),
-            (
-                LoopItemKeyV1::new(9),
-                DynamicFullLoopFaultFamilyV2::DynamicLess,
-                LoopValueKeyV1::new(13),
-            ),
         ]
     );
 
@@ -143,7 +138,7 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
         .expect("complete Dynamic invocation-result lifecycle");
     let rows = lifecycle.invocation_lifecycle();
     let rows = rows.rows().collect::<Vec<_>>();
-    assert_eq!(rows.len(), 2);
+    assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].producer(), LoopItemKeyV1::new(6));
     assert_eq!(rows[0].result(), LoopValueKeyV1::new(10));
     assert_eq!(
@@ -173,28 +168,12 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
         }
         other => panic!("unexpected local destination: {other:?}"),
     }
-    assert_eq!(rows[1].producer(), LoopItemKeyV1::new(7));
-    assert_eq!(rows[1].result(), LoopValueKeyV1::new(11));
-    assert_eq!(
-        rows[1].publication(),
-        DynamicInvocationCarrierPublicationV1::OnNormalResultPublication
-    );
-    match rows[1].destination() {
-        DynamicInvocationCarrierDestinationRefV1::FullExpressionTemporary {
-            boundary_source,
-            boundary_item,
-        } => {
-            assert_eq!(boundary_item, LoopItemKeyV1::new(9));
-            assert_ne!(boundary_source, rows[1].producer_source());
-        }
-        other => panic!("unexpected temporary destination: {other:?}"),
-    }
     assert!(rows.iter().all(|row| {
         row.lifecycle()
             == crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded
     }));
     assert_eq!(lifecycle.after().loop_key(), LoopNodeKeyV1::new(0));
-    assert_eq!(lifecycle.fault_cut_points().rows().len(), 3);
+    assert_eq!(lifecycle.fault_cut_points().rows().len(), 2);
 }
 
 #[test]

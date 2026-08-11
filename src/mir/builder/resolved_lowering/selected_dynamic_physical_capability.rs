@@ -1,7 +1,7 @@
 //! Builder-free capability admission for the selected Dynamic V2 cohort.
 //!
 //! The module owns no semantic meaning.  It only checks that the already
-//! co-sealed I9 operation and six cleanup rows can be handed to physical
+//! co-sealed I9 I64 operation and four cleanup rows can be handed to physical
 //! producers.  The current backend leaves intentionally stop at
 //! `RejectBeforeEffect`; no session or ValueId is created here.
 
@@ -11,8 +11,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::loop_recipe_contract::{
-    LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationFaultFamilyV2, LoopOperationV2,
-    LoopValueKeyV1,
+    LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationV2, LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
@@ -26,12 +25,11 @@ const V10: u32 = 10;
 const V11: u32 = 11;
 const V12: u32 = 12;
 const V13: u32 = 13;
-const CLEANUP_ROW_COUNT: usize = 6;
+const CLEANUP_ROW_COUNT: usize = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum SelectedDynamicV2PhysicalCapabilityRejectV1 {
-    LessOperation,
-    LessFault,
+    CompareI64Operation,
     ProducerReceiptUnavailable,
     CleanupCoverage,
     CleanupOrder,
@@ -66,7 +64,7 @@ impl DynamicV2ProducerReceiptRequirementV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) struct DynamicV2LessBoolCapabilityDemandV1 {
+pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
     item: LoopItemKeyV1,
     left: LoopValueKeyV1,
     right: LoopValueKeyV1,
@@ -75,7 +73,7 @@ pub(in crate::mir) struct DynamicV2LessBoolCapabilityDemandV1 {
     v12: DynamicV2ProducerReceiptRequirementV1,
 }
 
-impl DynamicV2LessBoolCapabilityDemandV1 {
+impl DynamicV2CompareI64CapabilityDemandV1 {
     pub(in crate::mir) const fn item(self) -> LoopItemKeyV1 {
         self.item
     }
@@ -166,7 +164,7 @@ pub(in crate::mir) enum DynamicV2PhysicalCapabilityDispositionV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
-    less: DynamicV2LessBoolCapabilityDemandV1,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
     cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
 }
@@ -177,8 +175,8 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn less(&self) -> DynamicV2LessBoolCapabilityDemandV1 {
-        self.less
+    pub(in crate::mir) const fn compare_i64(&self) -> DynamicV2CompareI64CapabilityDemandV1 {
+        self.compare_i64
     }
 
     #[cfg(test)]
@@ -208,53 +206,50 @@ pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'p
     SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program>,
     SelectedDynamicV2PhysicalCapabilityRejectV1,
 > {
-    let less = issue_less_demand(&plan)?;
+    let compare_i64 = issue_compare_i64_demand(&plan)?;
     let cleanup = issue_cleanup_demand(&plan)?;
     Ok(SelectedDynamicV2PhysicalCapabilityAdmissionV1 {
         plan,
-        less,
+        compare_i64,
         cleanup,
         disposition: DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect,
     })
 }
 
-fn issue_less_demand(
+fn issue_compare_i64_demand(
     plan: &PreparedSelectedDynamicV2EmissionPlanV1<'_>,
-) -> Result<DynamicV2LessBoolCapabilityDemandV1, SelectedDynamicV2PhysicalCapabilityRejectV1> {
+) -> Result<DynamicV2CompareI64CapabilityDemandV1, SelectedDynamicV2PhysicalCapabilityRejectV1> {
     plan.with_operation_program(|program| {
         let i7 = program
             .operation_rows()
             .iter()
             .find(|row| row.item() == LoopItemKeyV1::new(I7))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::LessOperation)?;
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
         let i8 = program
             .operation_rows()
             .iter()
             .find(|row| row.item() == LoopItemKeyV1::new(I8))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::LessOperation)?;
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
         let i9 = program
             .operation_rows()
             .iter()
             .find(|row| row.item() == LoopItemKeyV1::new(I9))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::LessOperation)?;
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
         let (left, right, result) = match i9.operation() {
-            LoopOperationV2::DynamicLess {
+            LoopOperationV2::CompareI64 {
+                op: crate::mir::loop_recipe_contract::LoopCompareI64OpV2::Less,
                 left,
                 right,
                 result,
             } => (*left, *right, *result),
-            _ => return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::LessOperation),
+            _ => return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation),
         };
         if left != LoopValueKeyV1::new(V11)
             || right != LoopValueKeyV1::new(V12)
             || result != LoopValueKeyV1::new(V13)
-            || i9.execution()
-                != (LoopOperationExecutionClassV2::FaultBeforeNormalResult {
-                    family: LoopOperationFaultFamilyV2::DynamicLess,
-                    normal_result: LoopValueKeyV1::new(V13),
-                })
+            || i9.execution() != LoopOperationExecutionClassV2::NonFaulting
         {
-            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::LessOperation);
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation);
         }
         if !matches!(i7.operation(), LoopOperationV2::CallSlot { result: Some(value), .. } if *value == LoopValueKeyV1::new(V11))
             || i7.call_role() != Some(DynamicFullBodySourceRoleV1::IndexOfCall)
@@ -262,20 +257,15 @@ fn issue_less_demand(
         {
             return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
         }
-        let faults = program.faults();
-        let i9_faults = faults
+        if program
+            .faults()
             .rows()
             .iter()
-            .filter(|row| row.item() == LoopItemKeyV1::new(I9))
-            .collect::<Vec<_>>();
-        if i9_faults.len() != 1
-            || i9_faults[0].family()
-                != crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopFaultFamilyV2::DynamicLess
-            || i9_faults[0].normal_result() != LoopValueKeyV1::new(V13)
+            .any(|row| row.item() == LoopItemKeyV1::new(I9))
         {
-            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::LessFault);
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation);
         }
-        Ok(DynamicV2LessBoolCapabilityDemandV1 {
+        Ok(DynamicV2CompareI64CapabilityDemandV1 {
             item: LoopItemKeyV1::new(I9),
             left,
             right,
@@ -354,18 +344,6 @@ fn validate_cleanup_rows(
             None,
         ),
         (
-            DynamicInvocationCleanupRowKindV1::Fault,
-            Some(I9),
-            Some((I7, V11)),
-            Some((I6, V10)),
-        ),
-        (
-            DynamicInvocationCleanupRowKindV1::NormalBoundary,
-            Some(I9),
-            Some((I7, V11)),
-            None,
-        ),
-        (
             DynamicInvocationCleanupRowKindV1::InnerReturn,
             None,
             Some((I6, V10)),
@@ -387,13 +365,13 @@ fn validate_cleanup_rows(
             return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CleanupOrder);
         }
         match index {
-            4 if row.inner_return_site() != Some(&completion_sites[0]) => {
+            2 if row.inner_return_site() != Some(&completion_sites[0]) => {
                 return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CleanupOrder)
             }
-            5 if row.backedge_loop() != Some(loop_key) => {
+            3 if row.backedge_loop() != Some(loop_key) => {
                 return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CleanupOrder)
             }
-            0..=3 if row.inner_return_site().is_some() || row.backedge_loop().is_some() => {
+            0..=1 if row.inner_return_site().is_some() || row.backedge_loop().is_some() => {
                 return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CleanupOrder)
             }
             _ => {}

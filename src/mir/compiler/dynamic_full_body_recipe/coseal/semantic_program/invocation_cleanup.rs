@@ -1,8 +1,9 @@
 //! Invocation-only cleanup projection for the mixed-I64 Dynamic Loop.
 //!
 //! The induction carrier is an exact trivial I64 and has no Home/End
-//! lifecycle.  This product retains only the two Dynamic invocation results
-//! (V10/V11) and the already sealed invocation lifecycle.  It does not issue
+//! lifecycle.  This product retains only the Dynamic substring result (V10)
+//! and the already sealed invocation lifecycle.  The indexOf result (V11) is
+//! an exact I64 with no lifecycle obligation.  It does not issue
 //! source semantics, a second JoinSig, a physical block, or a runtime Fault.
 
 use crate::mir::loop_recipe_contract::{
@@ -15,7 +16,7 @@ use super::{
     VerifiedDynamicFullLoopSemanticProgramV2, VerifiedDynamicInvocationCarrierLifecycleProgramV1,
 };
 
-const INVOCATION_CLEANUP_ROW_COUNT_V1: usize = 6;
+const INVOCATION_CLEANUP_ROW_COUNT_V1: usize = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicInvocationCleanupCurrentDispositionV1 {
@@ -37,7 +38,6 @@ enum InvocationCleanupActionV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicInvocationCleanupRowKindV1 {
     Fault,
-    NormalBoundary,
     InnerReturn,
     Backedge,
 }
@@ -101,10 +101,6 @@ enum InvocationCleanupCutPointV1 {
         family: DynamicFullLoopFaultFamilyV2,
         actions: Box<[InvocationCleanupActionV1]>,
     },
-    NormalBoundary {
-        item: LoopItemKeyV1,
-        actions: Box<[InvocationCleanupActionV1]>,
-    },
     InnerReturn {
         site: SourceStmtSiteV1,
         action: InvocationCleanupActionV1,
@@ -160,7 +156,7 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
         DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
     }
 
-    pub(in crate::mir) fn physical_rows(&self) -> [DynamicInvocationCleanupRowViewV1; 6] {
+    pub(in crate::mir) fn physical_rows(&self) -> [DynamicInvocationCleanupRowViewV1; 4] {
         std::array::from_fn(|index| cleanup_row_view(&self.rows[index]))
     }
 
@@ -175,7 +171,7 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn rows(&self) -> &[InvocationCleanupCutPointV1; 6] {
+    pub(in crate::mir) fn rows(&self) -> &[InvocationCleanupCutPointV1; 4] {
         &self.rows
     }
 }
@@ -184,13 +180,6 @@ fn cleanup_row_view(row: &InvocationCleanupCutPointV1) -> DynamicInvocationClean
     let (kind, item, inner_return_site, backedge_loop, actions) = match row {
         InvocationCleanupCutPointV1::Fault { item, actions, .. } => (
             DynamicInvocationCleanupRowKindV1::Fault,
-            Some(*item),
-            None,
-            None,
-            actions.as_ref(),
-        ),
-        InvocationCleanupCutPointV1::NormalBoundary { item, actions } => (
-            DynamicInvocationCleanupRowKindV1::NormalBoundary,
             Some(*item),
             None,
             None,
@@ -234,7 +223,7 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
 ) -> Result<VerifiedDynamicInvocationCleanupProjectionV1, DynamicInvocationCleanupProjectionRejectV1>
 {
     let rows = invocation.invocation_lifecycle().rows().collect::<Vec<_>>();
-    if rows.len() != 2 || !has_invocation_row(&rows, 6, 10) || !has_invocation_row(&rows, 7, 11) {
+    if rows.len() != 1 || !has_invocation_row(&rows, 6, 10) {
         return Err(DynamicInvocationCleanupProjectionRejectV1::InvocationCoverage);
     }
 
@@ -243,7 +232,7 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
             && program.recipe_value_class(LoopValueKeyV1::new(10))
                 == Some(LoopValueClassV2::Dynamic)
             && program.recipe_value_class(LoopValueKeyV1::new(11))
-                == Some(LoopValueClassV2::Dynamic)
+                == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(14)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(15)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(17)) == Some(LoopValueClassV2::I64)
@@ -255,14 +244,8 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
     let faults = invocation.fault_cut_points().rows();
     let i6 = exact_fault(faults, 6, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
     let i7 = exact_fault(faults, 7, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
-    let i9 = exact_fault(faults, 9, DynamicFullLoopFaultFamilyV2::DynamicLess)?;
-    if faults.len() != 3
-        || [i6.item(), i7.item(), i9.item()]
-            != [
-                LoopItemKeyV1::new(6),
-                LoopItemKeyV1::new(7),
-                LoopItemKeyV1::new(9),
-            ]
+    if faults.len() != 2
+        || [i6.item(), i7.item()] != [LoopItemKeyV1::new(6), LoopItemKeyV1::new(7)]
     {
         return Err(DynamicInvocationCleanupProjectionRejectV1::FaultCoverage);
     }
@@ -274,10 +257,6 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
         producer: LoopItemKeyV1::new(6),
         result: LoopValueKeyV1::new(10),
     };
-    let end_v11 = InvocationCleanupActionV1::EndTemporary {
-        producer: LoopItemKeyV1::new(7),
-        result: LoopValueKeyV1::new(11),
-    };
     let rows = [
         InvocationCleanupCutPointV1::Fault {
             item: i6.item(),
@@ -288,15 +267,6 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
             item: i7.item(),
             family: i7.family(),
             actions: Box::new([end_v10]),
-        },
-        InvocationCleanupCutPointV1::Fault {
-            item: i9.item(),
-            family: i9.family(),
-            actions: Box::new([end_v11, end_v10]),
-        },
-        InvocationCleanupCutPointV1::NormalBoundary {
-            item: i9.item(),
-            actions: Box::new([end_v11]),
         },
         InvocationCleanupCutPointV1::InnerReturn {
             site: sites[0].clone(),

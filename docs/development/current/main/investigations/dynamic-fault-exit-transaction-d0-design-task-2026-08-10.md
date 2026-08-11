@@ -2762,7 +2762,7 @@ accepted slot say `indexOf -> I64`, while the current selected Recipe says
 Boxing the integer or injecting bare I64 into Dynamic is rejected: both create
 an unnecessary allocation/lifecycle or an unproved Dynamic representation.
 
-##### DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0 (NEXT)
+##### DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0 (IMPLEMENTATION RECEIPT)
 
 Change:
   atomically replace I7/V11 with exact I64, I9 with `CompareI64(Less)`, the
@@ -2782,6 +2782,20 @@ Done:
   are exactly I6/I7; V11 End rows are zero; V10 remains the only invocation
   carrier with `EndExactlyOnceUnlessForwarded`; missing/old/foreign mixed rows
   reject; the existing authority guard freezes the counts.
+
+Implementation receipt (2026-08-12):
+  `mapping.rs`, the CallSlot co-seal, semantic Fault/lifecycle/cleanup
+  projections, physical evidence/input, A-prime demand, and selected
+  preflight now agree on one mixed typed Recipe.  The exact landed counts are
+  `Fault=2 (I6/I7)`, `Dynamic lifecycle=1 (I6/V10)`, `cleanup=4`, and
+  physical execution classes `NonFaulting=13 / Faulting=0 /
+  ExternallyBound=2`.  I7/V11 is `I64` from CallSlot result through I9
+  `CompareI64(Less)` and has no lease, End, or Fault row.  Focused
+  `dynamic_full_body_recipe` (31/31) and
+  `normal_callable_semantic_package` (16/16) tests, the physical-input
+  authority guard, and the current-pointer guard are green.  No provider,
+  registry, runtime, LLVM, VM, physical session, fallback, retry, or
+  production caller was added by this receipt.
 
 Stop:
   if any owner still requires V11 Dynamic, an I9 Fault, or V11 End, return to
