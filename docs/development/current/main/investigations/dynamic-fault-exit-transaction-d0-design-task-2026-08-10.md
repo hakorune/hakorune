@@ -413,7 +413,10 @@ current session projection or production cutover.
 MIRBUILDER-LINE-BUDGET-R0
   split module_draft_collector.rs (801; tests start near 433)
   split completion_tests.rs (894)
-  freeze analyzer.rs (769) and builder.rs (787): no additions before split
+  split src/mir/resolved_value_profile/analyzer.rs (769) at its policy/
+  verification seam; keep one analyzer authority and move only private
+  helpers/tests. Freeze src/mir/builder.rs (787): no additions before its
+  module-registry classification row below.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
