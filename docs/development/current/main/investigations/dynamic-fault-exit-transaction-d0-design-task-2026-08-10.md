@@ -290,6 +290,13 @@ preflight ledger Clone / clone-or-split production path          = 0 / 0
 This is one activation cell built in small owner modules. Intermediate code
 does not become an independently selectable provider or production route.
 
+The first cold BoxShape is now landed in `src/box_callable/admitted.rs`:
+`BoxCallableRegistryDraftV1` is provider-fact input, the consuming
+`BoxCallableProviderAdmissionSealV1` rejects duplicate/foreign facts, and
+`AdmittedBoxCallableRegistryV1` is deterministic and non-Clone.  The spine is
+guarded with zero production callers; it is not a provider activation or a
+runtime route until the complete cell below consumes it.
+
 Change:
   activate the complete `hako.text.scan@1` provider capability, strict AOT/LLVM
   I6/I7 execution, full Dynamic Loop physical session, exact-two DraftSeal,
@@ -500,6 +507,7 @@ cargo check -q --lib
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
 bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
+bash tools/checks/dynamic_v2_provider_spine_guard.sh
 bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
