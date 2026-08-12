@@ -142,7 +142,56 @@ Completion parts, `ValueId`, or `BasicBlockId`.
 
 ## Ordered implementation DAG
 
-### 1. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — next, BoxShape
+### 1. `DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0` — current design stop
+
+The previously listed projection row is parked until this owner decision is
+closed.  The target is a Dynamic Loop with an inner If Return, so
+`CanonicalTrivialBindingSsaPlanV1`, `CanonicalLoweringPreflightV1`, and the
+first-family trivial analyzer are not valid session inputs.  Making them
+accept this shape would issue a second semantic plan, Completion, or If
+authority.
+
+Decision:
+  choose one same-source admission boundary that lends the existing Dynamic
+  semantic authority to the existing canonical CFG/SSA/PHI engine.
+Source authority + canonical issuer:
+  the installed package's exactly-once selected loan and its
+  `VerifiedDynamicExitTransactionCoSealV1`; the existing
+  `VerifiedAPrimeI64PhysicalDemandV1` ->
+  `PreparedSelectedDynamicV2EmissionPlanV1` chain remains the only pre-session
+  physical plan.
+Non-authority:
+  `CanonicalTrivialBindingSsaPlanV1`, generic trivial analysis, package-local
+  Completion/If reissuance, canary AST/header reconstruction, raw AST/JoinIR,
+  names/ordinals, provider/LLVM/runtime/VM, and arbitrary external sessions.
+Fail-fast boundary:
+  if owner/function/forest/projection/source-root identity, Completion,
+  Dynamic Loop control disposition, or lifetime cannot be lent exactly once
+  without clone/reverification, remain `NoSafeSlice` before Builder effect.
+Smallest next slice:
+  decide the private HRTB/consuming callback shape and whether the existing
+  canonical session can consume the borrowed facts without leaking a
+  semantic borrow into DraftSeal.
+Non-claims:
+  no code, new durable `Verified*`/`Prepared*` semantic receipt, provider or
+  LLVM implementation, VM work, production switch, fallback, or retry.
+
+Required acceptance:
+
+```text
+selected Dynamic -> CanonicalTrivialBindingSsaPlan consumer = 0
+selected Dynamic -> CanonicalLoweringPreflight consumer      = 0
+Dynamic Completion semantic issuer                          = 1
+Dynamic Loop control issuer                                  = 1
+canonical-session admission issuer                          = 1
+source/Recipe/Completion/If reissue                         = 0
+AST/header reconstruction                                    = 0
+foreign/arbitrary session pairing                            = 0
+```
+
+Only after this D0 is accepted may the following parked BoxShape row open.
+
+### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — parked BoxShape
 
 Change:
   make the existing Completion consumption ledger accept owned or borrowed
