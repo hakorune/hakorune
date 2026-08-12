@@ -469,7 +469,7 @@ Decision: accepted BoxCount; `CheckedCallOutEnd` is the neutral physical lease-c
 Source authority + canonical issuer: retained cleanup/site-plan/JoinSig facts; one move-only lifecycle owner feeds Canonical SSA/CFG. Runtime lease is the execution consumer, not the MIR issuer.
 Non-authority: runtime lease API alone, `ReleaseStrong`, existing `Throw`, `After`, V1 physicalizer, generic Call, provider/LLVM/VM, selector/name lookup, fallback, or a second semantic receipt.
 Fail-fast boundary: missing/foreign/stale/duplicate lease, End, site/landing/predecessor, Fault rejoin, or profile-close evidence rejects before publication; no I8-I16 cursor or production route is opened by R0.
-Smallest next slice: add the typed MIR vocabulary, canonical CFG/SSA emitters, lifecycle ledger handoff, focused negatives, and one reusable authority guard; keep the session unpublished.
+Landed R0 slice: `ca31203fba` adds the typed MIR vocabulary/issuers and `fe8e70b83a` co-seals cleanup/site-plan facts into a move-only lifecycle plan; full cursor execution remains unpublished.
 Non-claims: no full I8-I16/control/cleanup, provider/runtime activation, DraftSeal/collector, production caller, or VM parity in R0.
 ```
 
