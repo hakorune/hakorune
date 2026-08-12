@@ -310,7 +310,30 @@ Contract:
   The LLVM formal lane is exact and role-bound: `src=0`, `pos=1`, `end=2`,
   `pred_chars=3`; swapped or shifted receipt rows reject before effect.
 
-Done:
+Activation preflight invariants (P0):
+
+```text
+physical symbol/header source       = existing catalog/source identity projection
+raw method name -> physical symbol  = 0
+raw body return scan in canonical    = 0
+canonical skeleton input             = exact physical header + Completion contract
+authority validation before Builder mutation = 1
+legacy raw skeleton/body inference   = selected AOT path only, 0
+semantic block count chosen by emitter = 0
+DynamicProfileOwned owner validation  = exact or unit disposition
+```
+
+The selected physical symbol must come from the existing cataloged method
+admission (`ParserScanLoopBox.skip_while/4` for this cohort), never from
+`format!("{name}/{}", params.len())`. The canonical skeleton may allocate
+function storage and entry blocks only after the selected package loan,
+physical header projection, and Dynamic Completion/control expectations have
+validated. It must not call `contains_value_return` or otherwise rescan raw
+AST to infer a return shape; the existing legacy skeleton remains a
+compatibility route only. These checks are part of the same activation cell,
+not a new semantic authority.
+
+Acceptance criteria:
   one consuming ProviderAdmissionSeal, immutable deterministic admitted
   registry, receiver-identity RuntimeExecutablePlan, strict CodePoint AOT leaf,
   I6 V10 value+one-shot lease/End, I7 ImmediateI64/no lease, complete operation

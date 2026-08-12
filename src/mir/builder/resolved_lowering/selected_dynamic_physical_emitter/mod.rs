@@ -1,8 +1,8 @@
 //! Family-native V2 physical emitter boundary for the selected Dynamic cohort.
 //!
-//! This module is a canary-only handoff. It consumes a preflight plan together
-//! with the two canonical unpublished session owners; it never opens a second
-//! Builder/CFG owner and never activates the production capability gate.
+//! This module is a canary-only handoff. It consumes a preflight plan, opens
+//! the canonical unpublished owners inside its scoped entry, and never opens a
+//! second Builder/CFG owner or activates the production capability gate.
 
 mod i64_const;
 
