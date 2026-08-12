@@ -419,6 +419,11 @@ it issues one private move-only pair, not a new semantic receipt. The selected
 emitter consumes that pair through `begin(builder, activation)` before target
 allocation. No selector/by-name lookup, `into_parts`, or target-side plan minting.
 
+Checkpoint (2026-08-13): the private transport is implemented and consumed by
+the unpublished emitter before target allocation. The next bounded row is
+`PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1`: site-local Normal/Fault landings,
+canonical Normal-result/value-ledger publication, and final 1:1:1 census only.
+
 #### `PHYSICAL-SESSION-I0-E`
 ```text
 Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0
