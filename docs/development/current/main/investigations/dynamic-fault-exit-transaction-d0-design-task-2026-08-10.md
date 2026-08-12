@@ -636,7 +636,6 @@ MIRBUILDER-LINE-BUDGET-R0
   enforce the line budget, explicit physical targets, and Dynamic count
   ownership; the focused recipe suite has 33 passing tests. Repository-wide
   `cargo fmt --check` remains a known baseline and is not part of this row.
-
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
   historical key registry -> generated/archive index
@@ -753,7 +752,6 @@ new Recipe/JoinSig/CFG/SSA/PHI/Completion authority
 production cutover before the complete atomic activation cell
 fallback / retry / legacy dual-production
 ```
-
 ## History
 
 Detailed landed chronology lives in git history and the historical archive
