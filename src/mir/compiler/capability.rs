@@ -19,7 +19,7 @@ use crate::mir::resolved_value_profile::{
     analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1,
     analyze_trivial_canonical_owner_v1,
     analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
-    product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
+    TrivialCanonicalOwnerAnalysisV1,
 };
 
 use super::direct_accum_capability::{
@@ -37,6 +37,7 @@ mod first_family_plan;
 mod function_role_policy;
 mod normal_main_binding;
 mod resolved_owner_header;
+mod trivial_plan;
 pub(crate) use first_family_plan::{
     seal_direct_accum_owner_header_v1, CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
     CanonicalLoopFamilyPlanV1,
@@ -46,6 +47,7 @@ pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
 pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
+pub(crate) use trivial_plan::CanonicalTrivialBindingSsaPlanV1;
 
 #[derive(Debug)]
 pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
@@ -79,71 +81,6 @@ impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
             self.function,
             self.flow,
             self.completion,
-            self.block_expr_count,
-        )
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
-    function: ResolvedFunctionLoweringInputV1<'a>,
-    if_control: crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-    completion: VerifiedFunctionCompletionV1,
-    profile: VerifiedTrivialCanonicalOwnerV1,
-    block_expr_count: usize,
-}
-
-impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
-    /// Borrow the already sealed canonical function input without exposing
-    /// plan parts.  The callback is intentionally the only handoff surface
-    /// for a selected-package co-seal; callers cannot re-pair a raw input
-    /// after consuming the plan or synthesize a second source authority.
-    pub(crate) fn with_function_input<R>(
-        &self,
-        callback: impl FnOnce(ResolvedFunctionLoweringInputV1<'a>) -> R,
-    ) -> R {
-        callback(self.function)
-    }
-
-    pub(crate) fn seal_resolved_owner_header_v1(
-        &self,
-    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
-        VerifiedResolvedOwnerHeaderV1::seal_input(
-            CanonicalFirstFamilyPlanBrandV1::from_family(
-                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
-            ),
-            self.function,
-        )
-    }
-
-    pub(crate) fn direct_call_count(&self) -> usize {
-        self.profile.direct_calls().len()
-    }
-
-    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
-        &self.completion
-    }
-
-    pub(crate) fn terminal_profile(
-        &self,
-    ) -> &crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1 {
-        self.profile.terminal()
-    }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        ResolvedFunctionLoweringInputV1<'a>,
-        crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-        VerifiedFunctionCompletionV1,
-        VerifiedTrivialCanonicalOwnerV1,
-        usize,
-    ) {
-        (
-            self.function,
-            self.if_control,
-            self.completion,
-            self.profile,
             self.block_expr_count,
         )
     }
