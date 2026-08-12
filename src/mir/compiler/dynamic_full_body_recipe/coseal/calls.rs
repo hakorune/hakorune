@@ -94,18 +94,12 @@ pub(super) fn verify_dynamic_call_relations_v2(
     if targets.len() > 2 {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetCountMismatch);
     }
-    verify_one(
-        source,
-        recipe,
-        &targets,
-        DynamicCallExpectationV2::substring(),
-    )?;
-    verify_one(
-        source,
-        recipe,
-        &targets,
-        DynamicCallExpectationV2::index_of(),
-    )?;
+    let substring_expected = DynamicCallExpectationV2::substring();
+    let substring_core = core_method_row(&substring_expected)?;
+    let index_of_expected = DynamicCallExpectationV2::index_of();
+    let index_of_core = core_method_row(&index_of_expected)?;
+    verify_one(source, recipe, &targets, substring_expected, substring_core)?;
+    verify_one(source, recipe, &targets, index_of_expected, index_of_core)?;
 
     let substring_site = expr_site(source, DynamicFullBodySourceRoleV1::SubstringCall)?.clone();
     let index_of_site = expr_site(source, DynamicFullBodySourceRoleV1::IndexOfCall)?.clone();
@@ -134,9 +128,6 @@ pub(super) fn verify_dynamic_call_relations_v2(
     if substring_target.call_site() == index_of_target.call_site() {
         return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
     }
-    let substring_core = core_method_row(&DynamicCallExpectationV2::substring())?;
-    let index_of_core = core_method_row(&DynamicCallExpectationV2::index_of())?;
-
     Ok(VerifiedDynamicFullLoopCallRelationsV2 {
         owner: source.owner,
         rows: [
@@ -162,7 +153,6 @@ struct DynamicCallExpectationV2 {
     receiver_site: DynamicFullBodySourceRoleV1,
     receiver_binding: DynamicFullBodyBindingRoleV1,
     arguments: &'static [(u32, DynamicFullBodySourceRoleV1)],
-    selector: &'static str,
     arity: u32,
     recipe_receiver: LoopValueKeyV1,
     recipe_receiver_class: LoopValueClassV2,
@@ -183,7 +173,6 @@ impl DynamicCallExpectationV2 {
                 (0, DynamicFullBodySourceRoleV1::SubstringStartI),
                 (1, DynamicFullBodySourceRoleV1::SubstringEndAdd),
             ],
-            selector: "substring",
             arity: 2,
             recipe_receiver: LoopValueKeyV1::new(0),
             recipe_receiver_class: LoopValueClassV2::Dynamic,
@@ -201,7 +190,6 @@ impl DynamicCallExpectationV2 {
             receiver_site: DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
             receiver_binding: DynamicFullBodyBindingRoleV1::PredChars,
             arguments: &[(0, DynamicFullBodySourceRoleV1::IndexOfArgumentCh)],
-            selector: "indexOf",
             arity: 1,
             recipe_receiver: LoopValueKeyV1::new(3),
             recipe_receiver_class: LoopValueClassV2::Dynamic,
@@ -218,8 +206,8 @@ fn verify_one<'a>(
     recipe: &VerifiedLoopRecipeV2,
     targets: &'a [VerifiedSourceBoundDynamicMemberCallV1],
     expected: DynamicCallExpectationV2,
+    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
 ) -> Result<&'a VerifiedSourceBoundDynamicMemberCallV1, DynamicFullLoopCallRelationRejectV2> {
-    let core_row = core_method_row(&expected)?;
     let call_site = expr_site(source, expected.call)?;
     let receiver_site = expr_site(source, expected.receiver_site)?;
     let receiver_binding = binding(source, expected.receiver_binding)?;
@@ -243,13 +231,10 @@ fn verify_one<'a>(
     {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetBindingMismatch);
     }
-    if target.dispatch().selector() != expected.selector
+    if target.dispatch().selector() != core_row.canonical
         || target.dispatch().arity() != expected.arity
     {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch);
-    }
-    if expected.selector != core_row.canonical {
-        return Err(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch);
     }
     if target.arguments().len() != expected.arguments.len()
         || target
@@ -264,15 +249,15 @@ fn verify_one<'a>(
         return Err(DynamicFullLoopCallRelationRejectV2::TargetArgumentMismatch);
     }
 
-    verify_recipe_call(recipe, &expected)?;
+    verify_recipe_call(recipe, &expected, core_row)?;
     Ok(target)
 }
 
 fn verify_recipe_call(
     recipe: &VerifiedLoopRecipeV2,
     expected: &DynamicCallExpectationV2,
+    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
 ) -> Result<(), DynamicFullLoopCallRelationRejectV2> {
-    let core_row = core_method_row(expected)?;
     let recipe = recipe.as_recipe();
     let Some(row) = recipe.items.iter().find(|row| row.key == expected.item) else {
         return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
@@ -400,8 +385,10 @@ mod tests {
         };
         args.swap(0, 1);
         let verified = LoopRecipeVerifierV2::verify(recipe).expect("shape remains type-valid");
+        let expected = DynamicCallExpectationV2::substring();
+        let core_row = core_method_row(&expected).expect("generated substring row");
         assert_eq!(
-            verify_recipe_call(&verified, &DynamicCallExpectationV2::substring()),
+            verify_recipe_call(&verified, &expected, core_row),
             Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch)
         );
     }
@@ -411,9 +398,16 @@ mod tests {
         let fixture = super::super::tests::fixture(true);
         let (source, artifact, _claims) = fixture.candidate.into_parts();
         let mut expectation = DynamicCallExpectationV2::substring();
-        expectation.selector = "not-substring";
+        expectation.core_method_op = CoreMethodOp::StringIndexOf;
+        let core_row = core_method_row(&expectation).expect("generated indexOf row");
         assert_eq!(
-            verify_one(&source, artifact.recipe(), &fixture.calls, expectation),
+            verify_one(
+                &source,
+                artifact.recipe(),
+                &fixture.calls,
+                expectation,
+                core_row
+            ),
             Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch)
         );
     }

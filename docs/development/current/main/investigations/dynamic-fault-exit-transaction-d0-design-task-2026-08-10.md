@@ -412,13 +412,20 @@ spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written
 `recipe_result_class` is gone. Provider/LLVM/runtime/session activation
 remains open; no production caller was opened.
 
+The I6/I7 generated rows are resolved once by operation identity and the same
+borrowed references are passed through target/Recipe verification and retained
+in the two call-relation rows. Selector spelling is only a cross-check against
+the borrowed row's canonical spelling; a second selector/result/effect
+authority or relookup is forbidden.
+
 Evidence:
 
 ```text
 generated result-row projection tests                  = 6 passed
 dynamic_full_body_recipe tests                         = 32 passed
-selector mismatch / selector-only result authority    = green / 0
+selector cross-check / selector-only result authority = green / 0
 generated effect projection                            = 1 (typed enum + parity)
+single generated-row resolution per call relation      = 1
 provider/registry/LLVM/runtime/VM additions            = 0
 ```
 
