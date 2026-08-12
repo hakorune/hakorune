@@ -14,11 +14,13 @@ RUST="$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs"
 PYTHON="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py"
 CODEGEN_TEST="$ROOT_DIR/tools/checks/lib/provider_slot_contract_codegen_tests.py"
 PROJECTION_TEST="$ROOT_DIR/tools/checks/lib/text_scan_export_projection_tests.py"
+STRICT_LEAF="$ROOT_DIR/crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs"
+LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -59,6 +61,7 @@ for root in "$ROOT_DIR/src/mir" "$ROOT_DIR/src/llvm_py/instructions" "$ROOT_DIR/
   if [[ -d "$root" ]] && rg -n \
     --glob '*.rs' --glob '*.py' --glob '*.hako' \
     --glob '!**/tests.rs' --glob '!**/*_tests.rs' --glob '!**/tests/**' \
+    --glob '!**/exports/dynamic_v2_text_scan.rs' \
     'text_scan_aot_export_facts|TextScanAotExportFactV1|hako\.text\.scan\.(substring|index_of)\.v1' \
     "$root"; then
     guard_fail "$TAG" "I0-B symbolic export has an early production/runtime/VM caller: ${root#"$ROOT_DIR/"}"
@@ -68,5 +71,30 @@ done
 if rg -n '^[[:space:]]*(pub([[:space:]]*\([^)]*\))?[[:space:]]+)?(struct|enum|fn|const)[[:space:]].*(ProviderAdmissionSeal|RuntimeExecutablePlan|BoxCallableRegistry|lower_method_call|DynamicV2PhysicalEmissionSession)' "$SOURCE" "$CODEGEN" "$HEADER" "$RUST" "$PYTHON"; then
   guard_fail "$TAG" "I0-B artifact illegally opens provider/session/runtime authority"
 fi
+
+# I0-D strict leaf/lease is a work-branch checkpoint: its two exported
+# definitions are allowed here, but no LLVM/VM/production caller is opened.
+if [[ "$(rg -n '#\[export_name = "hako\.text\.scan\.(substring|index_of)\.v1"\]' "$STRICT_LEAF" | wc -l | tr -d '[:space:]')" != 2 ]]; then
+  guard_fail "$TAG" "strict CodePoint leaf must define exactly two declared entries"
+fi
+if [[ "$(rg -n '^pub fn issue_end_authorized|^pub fn publish_end_authorized_text' "$LEASE" | wc -l | tr -d '[:space:]')" != 2 ]]; then
+  guard_fail "$TAG" "neutral lease owner must expose one issue and one aggregate publisher"
+fi
+if [[ "$(rg -n '^pub fn consume_end_authorized' "$LEASE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "neutral lease owner must expose exactly one End consumer"
+fi
+STRICT_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$STRICT_LEAF")"
+if printf '%s\n' "$STRICT_BODY" | rg -n 'index_mode_from_env|compat_fallback_allowed|hako_forward|drop_handle'; then
+  guard_fail "$TAG" "strict leaf must not use generic mode, fallback, forwarding, or raw handle drop"
+fi
+if printf '%s\n' "$STRICT_BODY" | rg -n 'A_Prime|a_prime|Vm|Interpreter|lower_method_call|RuntimeExecutablePlan'; then
+  guard_fail "$TAG" "strict leaf must not open VM, MIR, LLVM, or executable-plan routes"
+fi
+for file in "$STRICT_LEAF" "$LEASE"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "I0-D strict leaf/lease file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
 
 echo "[$TAG] ok"

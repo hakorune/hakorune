@@ -34,6 +34,7 @@ mod gc_trigger_policy;
 pub mod global_hooks;
 pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
 pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
+pub mod dynamic_v2_lease;
 mod host_handles_policy;
 pub mod leak_tracker;
 pub mod mirbuilder_emit;

@@ -8,8 +8,8 @@ pub(crate) const TEXT_SCAN_ABI_REVISION_V1: u32 = 1;
 pub(crate) const TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1: u32 = 1;
 pub(crate) const TEXT_SCAN_SUSPENSION_NON_SUSPENDING_V1: u32 = 0;
 pub(crate) const TEXT_SCAN_CALL_ABI_REVISION_V1: u32 = 1;
-pub(crate) const TEXT_SCAN_CALL_OK_V1: u32 = 0;
-pub(crate) const TEXT_SCAN_CALL_INVALID_OUTPUT_V1: u32 = 1;
+pub const TEXT_SCAN_CALL_OK_V1: u32 = 0;
+pub const TEXT_SCAN_CALL_INVALID_OUTPUT_V1: u32 = 1;
 pub(crate) const TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2: u32 =
     super::dynamic_call_slot_wire::DYNAMIC_V2_WIRE_REVISION_V2;
 pub(crate) const TEXT_SCAN_SYMBOL_SUBSTRING_V1: &str = "hako.text.scan.substring.v1";

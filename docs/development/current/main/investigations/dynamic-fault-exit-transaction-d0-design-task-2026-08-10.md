@@ -420,8 +420,9 @@ revision, and `u32` transport status.
 `src/runtime/dynamic_v2_lease.rs` will own opaque monotonic/generation-branded
 lease tokens; the strict leaf only consumes it. Kernel consumers must import
 the shared Rust wire and may not define a second `repr(C)` callout. The parity
-BoxShape is green; strict leaf, LLVM hook, VM change, and production caller
-remain closed until the complete activation boundary.
+BoxShape and the work-branch strict leaf/lease checkpoint are green; the LLVM
+hook, link finalizer, VM change, and production caller remain closed until the
+complete activation boundary.
 
 Before editing the leaf, freeze these owners and the order of effects:
 

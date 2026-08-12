@@ -114,7 +114,7 @@ pub mod providers;
 pub mod abi {
     pub mod dynamic_call_slot_wire;
     #[allow(dead_code)]
-    pub(crate) mod text_scan_aot_export_facts;
+    pub mod text_scan_aot_export_facts;
     pub mod nyrt_shim;
     pub mod return_proof;
     pub mod runtime_decl_return_proof;

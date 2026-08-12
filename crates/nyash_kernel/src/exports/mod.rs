@@ -7,6 +7,7 @@ pub(crate) mod atomic;
 pub(crate) mod birth;
 pub(crate) mod box_helpers;
 pub(crate) mod cmp;
+pub(crate) mod dynamic_v2_text_scan;
 pub(crate) mod env;
 pub(crate) mod file;
 pub(crate) mod instance;
