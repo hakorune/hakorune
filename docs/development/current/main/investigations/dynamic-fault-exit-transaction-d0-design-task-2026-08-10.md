@@ -25,14 +25,17 @@ that scoped loan.
 
 Current implementation status: exact-I64 semantic recut, exact-two Completion
 and DraftSeal machinery, the Rust-VM nonconsumer fence, neutral output wire,
-and the I8 unpublished canary are landed. The canary still reissues Completion
-and an empty common If authority and accepts an externally constructed
-canonical session. Production still uses the selected raw AST/JoinIR edge.
+the I8 unpublished canary, and the complete R0 canonical-session projection
+series are landed. The selected emitter now consumes the exact package input,
+borrows the final Dynamic program only through its private HRTB authority,
+snapshots Completion/control expectations, and opens its unpublished canonical
+session internally. Production still uses the selected raw AST/JoinIR edge.
 
-Next ordered task: implement one BoxShape-only canonical-session projection
-series. Borrow the existing Completion, mark the Loop-owned control partition
-without issuing a second If authority, make the Dynamic emission plan open its
-own canonical session, and replace the canary's semantic re-verification.
+Next ordered task: implement the already-accepted AOT physical activation cell
+(`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`) with the complete provider contract,
+admission, strict LLVM leaf, I6/I7 receipts, End/lifecycle, and atomic selected
+production switch. No provider/runtime/LLVM implementation is implied by the
+completed R0 BoxShape row itself.
 
 Production stop line: provider/AOT/runtime activation and the selected
 production switch remain closed until the projection series is green. No
@@ -56,8 +59,9 @@ Source authority + canonical issuer:
   Installed package same-batch loan + VerifiedDynamicExitTransactionCoSealV1;
   issue_selected_a_prime_i64_physical_demand is the existing co-seal issuer.
 Non-authority:
-  generic trivial analysis, package-local verify_function, canary AST/header
-  reconstruction, reissued Completion/If, names/ordinals, provider, LLVM, VM.
+  generic trivial analysis, package-local verify_function, canary semantic
+  AST/header re-verification, reissued Completion/If, names/ordinals, provider,
+  LLVM, VM.
 Fail-fast boundary:
   ordinary/foreign/mismatched identity, authority reissue, arbitrary session
   pairing, borrow escape, double consume, or incomplete physical capability
@@ -162,8 +166,9 @@ Source authority + canonical issuer:
   physical plan.
 Non-authority:
   `CanonicalTrivialBindingSsaPlanV1`, generic trivial analysis, package-local
-  Completion/If reissuance, canary AST/header reconstruction, raw AST/JoinIR,
-  names/ordinals, provider/LLVM/runtime/VM, and arbitrary external sessions.
+  Completion/If reissuance, canary semantic AST/header re-verification, raw
+  AST/JoinIR meaning, names/ordinals, provider/LLVM/runtime/VM, and arbitrary
+  external sessions.
 Fail-fast boundary:
   if owner/function/forest/projection/source-root identity, Completion,
   Dynamic Loop control disposition, or lifetime cannot be lent exactly once
@@ -185,7 +190,7 @@ Dynamic Completion semantic issuer                          = 1
 Dynamic Loop control issuer                                  = 1
 canonical-session admission issuer                          = 1
 source/Recipe/Completion/If reissue                         = 0
-AST/header reconstruction                                    = 0
+semantic AST/header re-verification                          = 0
 foreign/arbitrary session pairing                            = 0
 ```
 
@@ -215,7 +220,7 @@ This closes the D0 design question.  The next row is the parked BoxShape
 projection, beginning with the completion consumer's `Owned | Borrowed`
 storage and borrow-free ready close.
 
-### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — parked BoxShape
+### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — landed BoxShape
 
 Change:
   make the existing Completion consumption ledger accept owned or borrowed
@@ -234,7 +239,22 @@ Done:
   A-prime demand, borrowed Completion, and Dynamic-owned control disposition.
   Its calls to `verify_function_completion_v1` and
   `empty_for_owned_loop_profile` are zero. Ordinary/trivial behavior is
-  unchanged and no borrow escapes.
+  unchanged, no borrow escapes, and the emitter no longer accepts externally
+  paired outer/canonical sessions.
+
+Landed evidence (R0-A/R0-B/R0-C):
+
+```text
+Completion consumer Owned|Borrowed storage                 = landed
+borrow-free Ready close                                    = landed
+final-program HRTB authority                               = landed
+Dynamic-owned control disposition                          = landed
+selected emitter external session arguments                = 0
+selected canary semantic re-verification                   = 0
+selected canary empty If reissuance                         = 0
+preflight ledger Clone / clone-or-split production path     = 0 / 0
+focused canary / semantic authority / pointer guards        = green
+```
 
 Stop:
   if the sole Completion or control disposition cannot be projected without

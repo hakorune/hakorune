@@ -8,6 +8,8 @@ mod i64_const;
 
 use std::sync::Arc;
 
+use crate::ast::ASTNode;
+use crate::mir::builder::MirBuilder;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
@@ -16,6 +18,8 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
+use crate::mir::function::MirParamDecl;
+use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::BasicBlockId;
 
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
@@ -28,6 +32,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     DuplicateI8Emission,
     BlockAllocation(String),
     ConstantEmission(String),
+    SessionOpen(String),
 }
 
 #[derive(Debug)]
@@ -60,30 +65,103 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
     fn reject_begin(
         outer: CanonicalFunctionLoweringSessionV1<'builder>,
-        canonical: CanonicalSsaFunctionSessionV2<'program>,
         error: DynamicV2I8EmitterRejectV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
-        drop(canonical);
         outer.discard_unpublished();
         Err(error)
     }
 
-    /// Consume the plan and both canonical unpublished owners.
+    /// Consume the plan and open the canonical unpublished owners internally.
+    /// The final Dynamic program lends only a scoped authority view; the
+    /// canonical session snapshots the completion/control expectations before
+    /// this method returns, so no semantic borrow escapes the session.
     pub(super) fn begin(
+        builder: &'builder mut MirBuilder,
         plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
-        mut outer: CanonicalFunctionLoweringSessionV1<'builder>,
-        mut canonical: CanonicalSsaFunctionSessionV2<'program>,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
+        let input = demand.input();
+        let root = input.source().root();
+        let ASTNode::FunctionDeclaration {
+            name,
+            params,
+            param_decls,
+            body,
+            return_type_name,
+            attrs,
+            uses,
+            ..
+        } = root
+        else {
+            return Err(DynamicV2I8EmitterRejectV1::SessionOpen(
+                "selected fixture root must be a function".to_owned(),
+            ));
+        };
+        let function_name = format!("{name}/{}", params.len());
+        let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
+        let setup = (|| -> Result<(), DynamicV2I8EmitterRejectV1> {
+            let draft_builder = outer.builder_view_mut_for_lowering();
+            draft_builder
+                .function_state
+                .resolved_binding_state
+                .install(input.function())
+                .map_err(|error| {
+                    DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string())
+                })?;
+            draft_builder
+                .create_function_skeleton(function_name.clone(), params, body)
+                .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
+            draft_builder.set_current_function_declared_signature(
+                param_decls
+                    .iter()
+                    .map(|decl| MirParamDecl {
+                        name: decl.name.clone(),
+                        declared_type_name: decl.declared_type_name.clone(),
+                        implicit_receiver: false,
+                    })
+                    .collect(),
+                return_type_name.clone(),
+            );
+            draft_builder.set_current_function_runes(attrs);
+            draft_builder.set_current_function_declared_capability_uses(uses);
+            let function = draft_builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    DynamicV2I8EmitterRejectV1::SessionOpen(
+                        "selected function skeleton missing".to_owned(),
+                    )
+                })?;
+            CanonicalDirectStaticCallCapabilityV1::install_for_function(
+                &mut function.metadata.canonical_direct_static_call_capabilities,
+                true,
+            )
+            .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))?;
+            Ok(())
+        })();
+        if let Err(error) = setup {
+            return Self::reject_begin(outer, error);
+        }
+        let mut canonical = match demand.with_canonical_session_authority(|authority| {
+            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority, 0)
+        }) {
+            Ok(canonical) => canonical,
+            Err(error) => {
+                return Self::reject_begin(
+                    outer,
+                    DynamicV2I8EmitterRejectV1::SessionOpen(error),
+                )
+            }
+        };
         if canonical.owner() != demand.identity().owner() {
-            return Self::reject_begin(outer, canonical, DynamicV2I8EmitterRejectV1::OwnerMismatch);
+            return Self::reject_begin(outer, DynamicV2I8EmitterRejectV1::OwnerMismatch);
         }
         let evidence = match ledger.take_i8_evidence() {
             Some(evidence) => evidence,
             None => {
                 return Self::reject_begin(
                     outer,
-                    canonical,
                     DynamicV2I8EmitterRejectV1::MissingI8Evidence,
                 )
             }
@@ -97,7 +175,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         {
             return Self::reject_begin(
                 outer,
-                canonical,
                 DynamicV2I8EmitterRejectV1::TargetMismatch,
             );
         }
@@ -108,7 +185,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 Err(error) => {
                     return Self::reject_begin(
                         outer,
-                        canonical,
                         DynamicV2I8EmitterRejectV1::BlockAllocation(error),
                     )
                 }

@@ -12,6 +12,7 @@ COSEAL_TESTS="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/tests.r
 DEMAND_MOD="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/mod.rs"
 DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
+APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -22,7 +23,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_EMITTER" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
+  "$SELECTED_EMITTER" "$APRIME_MODEL" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -106,6 +107,24 @@ guard_expect_fixed_in_file "$TAG" "HakoDynamicV2CallOutV1" "$WIRE_C" \
   "I0-A C CallSlot wire schema is missing"
 guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_PY" \
   "I0-A Python/LLVM schema mirror is missing"
+
+# R0 canonical-session projection: the selected emitter must consume the
+# package-backed input and lend the final Dynamic authority internally.  The
+# canary may not re-verify Completion/If control or accept an externally
+# paired session.
+guard_expect_fixed_in_file "$TAG" "with_canonical_session_authority" "$APRIME_MODEL" \
+  "selected demand must expose only the scoped final-program authority view"
+guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_EMITTER" \
+  "selected emitter must construct the Dynamic canonical session itself"
+if rg -n -- "verify_function_completion_v1|empty_for_owned_loop_profile" \
+  "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"; then
+  guard_fail "$TAG" "selected Dynamic canary reissued Completion/If authority"
+fi
+if ! rg -n -- "begin\(" "$SELECTED_EMITTER" >/dev/null || \
+   ! rg -n -- "builder: &'builder mut MirBuilder" "$SELECTED_EMITTER" >/dev/null; then
+  guard_fail "$TAG" "selected emitter begin must own the unpublished session handoff"
+fi
+
 for pair in \
   "Invalid = 0" \
   "HostHandle = 1" \

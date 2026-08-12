@@ -4,8 +4,10 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalDemandRejectV2,
     DynamicFullLoopPhysicalInputRejectV2, DynamicInvocationCleanupRowViewV1,
-    PreparedDynamicLoopOperationProgramV2, VerifiedDynamicExitTransactionCoSealV1,
+    DynamicCanonicalSessionAuthorityRefV1, PreparedDynamicLoopOperationProgramV2,
+    VerifiedDynamicExitTransactionCoSealV1,
 };
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum APrimeI64PhysicalDemandRejectV1 {
@@ -32,6 +34,7 @@ pub(in crate::mir) enum APrimeI64PhysicalRequirementV1 {
 /// in the later session-local realization stage.
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
+    input: ResolvedFunctionLoweringInputV1<'program>,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
@@ -40,6 +43,17 @@ pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
 }
 
 impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
+    pub(in crate::mir) fn input(&self) -> ResolvedFunctionLoweringInputV1<'program> {
+        self.input
+    }
+
+    pub(in crate::mir) fn with_canonical_session_authority<R>(
+        &self,
+        callback: impl for<'authority> FnOnce(DynamicCanonicalSessionAuthorityRefV1<'authority>) -> R,
+    ) -> R {
+        self.program.with_canonical_session_authority(callback)
+    }
+
     pub(in crate::mir) fn identity(&self) -> &VerifiedResolvedCallableSourceIdentityV1 {
         &self.identity
     }
@@ -74,12 +88,14 @@ impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
 }
 
 pub(super) fn from_parts<'program>(
+    input: ResolvedFunctionLoweringInputV1<'program>,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
     operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
 ) -> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     VerifiedAPrimeI64PhysicalDemandV1 {
+        input,
         identity,
         program,
         source_relation,
