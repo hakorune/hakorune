@@ -3741,3 +3741,72 @@ tracked current pointer, the active card, the AOT-only backend choice, the
 one-authority/no-orphan rule, and the 760/800-line budget. It is gitignored
 local guidance; no durable rule belongs there, so no `AGENTS.md` edit is
 needed. The tracked active card remains the durable task source.
+
+##### DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-D0 (design stop, 2026-08-12)
+
+The worker implementation audit found one boundary that must be named before
+the atomic I0-B cell is allowed to acquire a production caller. The existing
+parts are individually valid, but the selected package loan currently exposes
+the final Dynamic semantic program while the canonical resolved lowering route
+opens its own plan/session from a different input. Calling the A-prime issuer
+from either side alone would create a disconnected demand or a second lowering
+authority.
+
+```text
+InstalledNormalCallableSemanticPackageV1
+  -> SelectedCallableLoweringInputRefV1
+       source identity + final Dynamic program
+  + existing canonical resolved lowering plan/session entry
+  -> one private consuming selected-Dynamic handoff
+       -> issue_selected_a_prime_i64_physical_demand()
+       -> issue_selected_dynamic_v2_emission_plan()
+       -> existing canonical session / DraftSeal owners
+```
+
+Decision:
+  ACCEPT the existing package, Recipe, JoinSig, canonical session, Completion,
+  and DraftSeal owners; add only a private handoff co-seal that binds the
+  package loan to the canonical resolved lowering transaction. Do not issue a
+  new semantic `Verified*`/`Prepared*` receipt, copy a Recipe/JoinSig, or open
+  a second CFG/SSA/session owner.
+
+Source authority + canonical issuer:
+  The installed package owns the selected semantic loan and source identity;
+  the existing canonical resolved lowering entry owns the physical session.
+  One selected-Dynamic lowering callback consumes both under the same callable
+  transaction and is the sole caller of the A-prime demand issuer.
+
+Non-authority:
+  `normal_callable_semantic_lowering_state` source re-issuance, raw AST/JoinIR
+  descent, selector/name lookup, a standalone A-prime bridge, the Rust VM,
+  and any new package/Recipe/JoinSig/CFG/SSA owner.
+
+Fail-fast boundary:
+  foreign selected key, ordinary semantic variant, owner/source mismatch,
+  missing canonical plan, duplicate handoff, or missing exact two-site
+  Completion rejects before Builder effect. The old raw route is not a
+  fallback for a selected Dynamic handoff failure.
+
+Smallest next slice:
+  keep this row design-only; name the private callback/context boundary,
+  prove its single caller and no second authority, then reopen the existing
+  `DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B` activation task. The reopened
+  cell must still land contract artifact -> ProviderAdmissionSeal -> immutable
+  registry -> receiver-identity Route/ExecutablePlan -> admission wire -> one
+  LLVM hook/strict CP leaf -> canonical I6/I7 receipts -> V10 lease/End in one
+  activation commit.
+
+Non-claims:
+  no provider registry, contract manifest, wire, LLVM hook, runtime symbol,
+  physical End, production switch, fallback, retry, or VM work is authorized
+  by this D0.
+
+Acceptance for reopening I0-B:
+
+```text
+selected package loan + canonical resolved plan co-seal issuer = 1
+A-prime production caller                                  = 0 until handoff, 1 after I0-B
+raw AST/JoinIR selected-Dynamic route                       = 0 after cutover
+second Recipe/JoinSig/CFG/SSA/package authority              = 0
+ordinary/foreign/duplicate/missing handoff                  = RejectBeforeEffect
+```

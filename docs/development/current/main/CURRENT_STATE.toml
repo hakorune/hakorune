@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The complete hako.text.scan@1 capability is accepted as two semantic roles under one UTF-8 code-point profile; I6-only and full-String expansion are both rejected. The exact-I64 semantic recut is landed: I7/V11 is I64, I9 is nonfaulting CompareI64, Fault rows are I6/I7, the sole Dynamic lifecycle is I6/V10, cleanup has four rows, physical evidence is 13 NonFaulting / 0 Faulting / 2 ExternallyBound, and the A-prime post-session transport agrees on substring/2, indexOf/1, I7 ImmediateI64, and pos=1/end=2. The Rust VM nonconsumer fence and transport-only output wire authority are landed: the caller-zero A-prime classifier/module edge is retired, the C header owns wire revision 2, Rust/Python are checked projections, and ImmediateI64 Normal has no lifecycle disposition. The D0 authority closeout is accepted, but the I0-B implementation cell is not landed: its contract artifact, consuming ProviderAdmissionSeal, immutable admitted registry, separate call-in admission wire, receiver-identity-bearing RuntimeExecutablePlan, canonical-session I6/I7 receipts, strict LLVM leaf, and V10 lease/End consumer must still land together as one activation cell."
+status = "The complete hako.text.scan@1 capability is accepted as two semantic roles under one UTF-8 code-point profile; I6-only and full-String expansion are both rejected. The exact-I64 semantic recut is landed: I7/V11 is I64, I9 is nonfaulting CompareI64, Fault rows are I6/I7, the sole Dynamic lifecycle is I6/V10, cleanup has four rows, physical evidence is 13 NonFaulting / 0 Faulting / 2 ExternallyBound, and the A-prime post-session transport agrees on substring/2, indexOf/1, I7 ImmediateI64, and pos=1/end=2. The Rust VM nonconsumer fence and transport-only output wire authority are landed: the caller-zero A-prime classifier/module edge is retired, the C header owns wire revision 2, Rust/Python are checked projections, and ImmediateI64 Normal has no lifecycle disposition. The provider D0 is accepted, but implementation is paused at one missing handoff boundary: the selected package semantic loan and the canonical resolved lowering plan must be co-sealed before A-prime demand can gain its single production caller. The I0-B contract artifact, consuming ProviderAdmissionSeal, immutable admitted registry, separate call-in admission wire, receiver-identity-bearing RuntimeExecutablePlan, canonical-session I6/I7 receipts, strict LLVM leaf, and V10 lease/End consumer remain one activation cell after that handoff closes."
 date = "2026-08-12"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "none; DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-D0-CLOSEOUT accepted"
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B"
-current_blocker_token = "Implement one atomic AOT cell: lang/src/runtime/meta/provider_slot_contract_box.hako -> generated provider_slot_contract_manifest.json -> one consuming ProviderAdmissionSeal -> immutable admitted registry -> receiver-identity-bearing I6/I7 RoutePlan/RuntimeExecutablePlan -> include/nyrt_dynamic_call_slot_v2_admission.h with Rust/Python checked projections -> one LLVM early consumer and strict CP leaf -> canonical-session receipts and V10 lease/End consumer. The existing C/Rust/Python output wire remains transport-only. Rust VM, selector/name/provider/image lookup, Dynamic-specific registry, fallback, retry, sentinel repair, Physical End in isolation, and production switch before the complete cell are forbidden."
+current_design_stop = "DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-D0"
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-D0"
+current_blocker_token = "First co-seal the installed package's SelectedCallableLoweringInputRefV1 (including the final Dynamic semantic program and source identity) with the existing canonical resolved lowering plan/session entry. This handoff must issue no new semantic authority, expose no raw AST/Recipe/JoinSig/ValueId, and have one consuming production boundary. Only after that handoff is complete may the atomic AOT cell run: lang/src/runtime/meta/provider_slot_contract_box.hako -> generated provider_slot_contract_manifest.json -> one consuming ProviderAdmissionSeal -> immutable admitted registry -> receiver-identity-bearing I6/I7 RoutePlan/RuntimeExecutablePlan -> include/nyrt_dynamic_call_slot_v2_admission.h with Rust/Python checked projections -> one LLVM early consumer and strict CP leaf -> canonical-session receipts and V10 lease/End consumer. The existing C/Rust/Python output wire remains transport-only. Rust VM, selector/name/provider/image lookup, Dynamic-specific registry, fallback, retry, sentinel repair, Physical End in isolation, and production switch before the complete cell are forbidden."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -719,10 +719,10 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "none; DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-D0-CLOSEOUT accepted"
+next_design_card = "DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
