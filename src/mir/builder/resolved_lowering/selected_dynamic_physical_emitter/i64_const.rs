@@ -1,7 +1,9 @@
 use super::targets::DynamicV2OpaquePhysicalTargetV1;
+use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::ValueId;
@@ -30,17 +32,28 @@ pub(super) fn emit<'session>(
     target: &DynamicV2OpaquePhysicalTargetV1,
     evidence: DynamicV2I8EvidenceV1,
     brand: &'session DynamicV2PhysicalSessionBrandV1,
+    values: &mut DynamicV2PhysicalValueLedgerV1,
 ) -> Result<DynamicV2I64ProducerReceiptV1<'session>, DynamicV2I8EmitterRejectV1> {
     if !target.matches(brand) {
         return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
     }
     let value = constant::emit_integer_at(builder, target.block(), evidence.literal())
         .map_err(DynamicV2I8EmitterRejectV1::ConstantEmission)?;
-    Ok(DynamicV2I64ProducerReceiptV1 {
+    let receipt = DynamicV2I64ProducerReceiptV1 {
         brand,
         producer: evidence.item(),
         result: evidence.result(),
         block: target.block(),
         value,
-    })
+    };
+    values
+        .publish(
+            receipt.producer,
+            receipt.result,
+            target,
+            receipt.value,
+            DynamicV2PhysicalRepresentationV1::ImmediateI64,
+        )
+        .map_err(|error| DynamicV2I8EmitterRejectV1::PhysicalValueLedger(format!("{error:?}")))?;
+    Ok(receipt)
 }

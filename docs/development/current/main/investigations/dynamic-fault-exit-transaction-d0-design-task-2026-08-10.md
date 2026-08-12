@@ -407,6 +407,22 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   a move-only session-local five-role target set; full operation emission remains
   closed until the atomic AOT cell.
 
+DYNAMIC-V2-SESSION-PRIVATE-VALUE-LEDGER-R0
+  The existing I8/V12 canary publishes its emitted physical value exactly once
+  into a session-owned move-only ledger. The ledger stores only the logical
+  result, producer, physical block, ValueId, and already-selected representation
+  and exposes reads through a callback-scoped view. Duplicate producer/result,
+  foreign target, missing result, and representation mismatch reject. It does
+  not choose Recipe order, block layout, effect, lifecycle, provider, or result
+  class, and it has no production raw-ValueId getter or split API. This is a
+  BoxShape only: no provider, LLVM, VM, PHI, Return, Completion, DraftSeal,
+  collector, production caller, fallback, or retry is opened.
+
+Status (landed BoxShape, 2026-08-12): the canary owns and publishes I8/V12 in
+`value_ledger.rs`; the focused positive/missing-value test and physical-input
+authority guard are green. Full I0-I16 consumption remains NoSafeSlice until
+I6/I7 executable admission and the V10 lease/End owner land together.
+
 DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
   ModuleLoweringPortV1 receives the already-completed canonical draft through
   one direct collector admission.  It must not open a second function session

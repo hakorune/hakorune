@@ -6,6 +6,7 @@
 
 mod i64_const;
 mod targets;
+mod value_ledger;
 
 use std::sync::Arc;
 
@@ -15,6 +16,7 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, PreparedSelectedDynamicV2EmissionPlanV1,
 };
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
@@ -23,6 +25,10 @@ use crate::mir::BasicBlockId;
 use targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
+use value_ledger::{
+    DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueLedgerV1,
+    DynamicV2PhysicalValueViewV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
@@ -34,6 +40,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     ConstantEmission(String),
     SessionOpen(String),
     PhysicalHeader(String),
+    PhysicalValueLedger(String),
 }
 
 #[derive(Debug)]
@@ -48,6 +55,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     ledger: DynamicV2NativePreflightLedgerV1,
     brand: DynamicV2PhysicalSessionBrandV1,
     targets: DynamicV2PhysicalTargetSetV1,
+    values: DynamicV2PhysicalValueLedgerV1,
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
 }
 
@@ -182,6 +190,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 )
             }
         };
+        let values = DynamicV2PhysicalValueLedgerV1::new(&brand);
         Ok(Self {
             outer: Some(outer),
             canonical: Some(canonical),
@@ -190,6 +199,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ledger,
             brand,
             targets,
+            values,
             i8_evidence: Some(evidence),
         })
     }
@@ -225,6 +235,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &target,
             evidence,
             &self.brand,
+            &mut self.values,
         )
     }
 
@@ -235,6 +246,19 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .take()
             .expect("unpublished emitter must retain outer session")
             .discard_unpublished();
+    }
+
+    #[cfg(test)]
+    pub(super) fn with_physical_value_for_test<R>(
+        &self,
+        result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+        callback: impl for<'a> FnOnce(&'a DynamicV2PhysicalValueViewV1) -> R,
+    ) -> Result<R, DynamicV2PhysicalValueLedgerRejectV1> {
+        self.values.with_value(
+            result,
+            DynamicV2PhysicalRepresentationV1::ImmediateI64,
+            callback,
+        )
     }
 
     #[cfg(test)]

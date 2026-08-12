@@ -86,8 +86,48 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
         assert_eq!(function.signature.effects, crate::mir::EffectMask::READ);
         let receipt = session.emit_i8_const().expect("I8 receipt");
-        receipt.with_value(|value| assert_ne!(value.as_u32(), 0));
+        let emitted_value = receipt.with_value(|value| {
+            assert_ne!(value.as_u32(), 0);
+            value
+        });
         drop(receipt);
+        session
+            .with_physical_value_for_test(
+                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12),
+                |view| {
+                    assert_eq!(view.producer().raw(), 8);
+                    assert_eq!(view.result().raw(), 12);
+                    assert_eq!(view.value(), emitted_value);
+                    assert_eq!(view.block(), target_blocks[1]);
+                },
+            )
+            .expect("I8 value must be ledger-published");
+        assert_eq!(
+            session
+                .with_physical_value_for_test(
+                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13),
+                    |_| (),
+                )
+                .expect_err("missing value must reject"),
+            value_ledger::DynamicV2PhysicalValueLedgerRejectV1::MissingResult
+        );
+        let duplicate_target = session
+            .targets
+            .with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |target| target);
+        assert_eq!(
+            session
+                .values
+                .publish(
+                    crate::mir::loop_recipe_contract::LoopItemKeyV1::new(8),
+                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12),
+                    &duplicate_target,
+                    emitted_value,
+                    crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::
+                        DynamicV2PhysicalRepresentationV1::ImmediateI64,
+                )
+                .expect_err("duplicate publication must reject"),
+            value_ledger::DynamicV2PhysicalValueLedgerRejectV1::DuplicateProducer
+        );
         assert_eq!(session.current_instruction_count(), 1);
         let error = session
             .emit_i8_const()

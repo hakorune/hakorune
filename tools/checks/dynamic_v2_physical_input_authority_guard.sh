@@ -17,6 +17,7 @@ SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physi
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
+SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
 SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -27,7 +28,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -175,6 +176,32 @@ for target_fact in \
   "create_unpublished_block"; do
   guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
     "session-private target ownership is missing: ${target_fact}"
+done
+for ledger_fact in \
+  "DynamicV2PhysicalValueLedgerV1" \
+  "DynamicV2PhysicalValueLedgerRejectV1" \
+  "DynamicV2PhysicalValueViewV1" \
+  "pub(super) fn publish" \
+  "pub(super) fn with_value"; do
+  guard_expect_fixed_in_file "$TAG" "$ledger_fact" "$SELECTED_VALUE_LEDGER" \
+    "session-private physical value ledger is missing: ${ledger_fact}"
+done
+if rg -n -B3 -A1 -- "struct DynamicV2PhysicalValueLedgerV1" "$SELECTED_VALUE_LEDGER" \
+  | rg -q -- "Clone" || rg -F -q -- "into_parts" "$SELECTED_VALUE_LEDGER"; then
+  guard_fail "$TAG" "session-private physical value ledger must remain move-only"
+fi
+guard_expect_fixed_in_file "$TAG" "self.values" "$SELECTED_EMITTER" \
+  "the I8 canary must retain a session-owned physical value ledger"
+guard_expect_fixed_in_file "$TAG" "with_physical_value_for_test" "$SELECTED_EMITTER" \
+  "the canary must exercise callback-scoped ledger reads"
+if rg -n -- "physical_value\(" "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/i64_const.rs"; then
+  guard_fail "$TAG" "production emitter must not expose a raw physical ValueId getter"
+fi
+for file in "$SELECTED_VALUE_LEDGER"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "session value ledger reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
 done
 if rg -n -B3 -A3 -- "struct DynamicV2PhysicalTargetSetV1" "$SELECTED_TARGETS" \
   | rg -q -- "Clone"; then
