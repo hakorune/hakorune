@@ -40,6 +40,15 @@ pub(super) struct DynamicFullLoopCallRelationV2 {
     pub(super) item: LoopItemKeyV1,
     pub(super) call_role: DynamicFullBodySourceRoleV1,
     pub(super) target: VerifiedSourceBoundDynamicMemberCallV1,
+    core_method: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+}
+
+impl DynamicFullLoopCallRelationV2 {
+    pub(super) fn core_method(
+        &self,
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+        self.core_method
+    }
 }
 
 #[derive(Debug)]
@@ -125,6 +134,8 @@ pub(super) fn verify_dynamic_call_relations_v2(
     if substring_target.call_site() == index_of_target.call_site() {
         return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
     }
+    let substring_core = core_method_row(&DynamicCallExpectationV2::substring())?;
+    let index_of_core = core_method_row(&DynamicCallExpectationV2::index_of())?;
 
     Ok(VerifiedDynamicFullLoopCallRelationsV2 {
         owner: source.owner,
@@ -133,11 +144,13 @@ pub(super) fn verify_dynamic_call_relations_v2(
                 item: LoopItemKeyV1::new(6),
                 call_role: DynamicFullBodySourceRoleV1::SubstringCall,
                 target: substring_target,
+                core_method: substring_core,
             },
             DynamicFullLoopCallRelationV2 {
                 item: LoopItemKeyV1::new(7),
                 call_role: DynamicFullBodySourceRoleV1::IndexOfCall,
                 target: index_of_target,
+                core_method: index_of_core,
             },
         ],
     })

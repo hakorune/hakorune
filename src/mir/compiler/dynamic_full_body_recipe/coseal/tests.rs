@@ -96,6 +96,14 @@ fn unchanged_source_coseals_all_claims_and_two_owned_call_relations() {
 
     assert_eq!(product.coverage().counts(), (6, 28, 25, 1, 2));
     assert_eq!(product.calls().rows().len(), 2);
+    assert_eq!(
+        product.calls().rows()[0].core_method().op,
+        crate::mir::core_method_op::CoreMethodOp::StringSubstring
+    );
+    assert_eq!(
+        product.calls().rows()[1].core_method().result_kind,
+        crate::mir::core_method_result_kind::CoreMethodResultKindV1::I64Value
+    );
     assert_eq!(product.artifact().recipe().as_recipe().items.len(), 17);
     assert_eq!(product.source().completion.explicit_sites().len(), 2);
     assert_eq!(product.calls().owner(), product.source().owner);
