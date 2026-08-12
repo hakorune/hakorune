@@ -552,11 +552,22 @@ MIRBUILDER-LINE-BUDGET-R0
   Module-registry cleanup evidence:
     `src/mir/compiler/mod.rs` now contains the compiler entrypoint and
     `module_registry.in.rs` contains only the textual module declarations.
-    The entrypoint is 644 lines and the included registry is 215 lines; the
+    The entrypoint is 644 lines and the included registry is 214 lines; the
     module namespace, visibility, cfg gates, and sibling `super::` paths are
     unchanged.  `cargo check -q --lib`, the dynamic recipe focused suite
     (32 passed), the physical-input guard, loop-precutover guard, current-state
     guard, full in-place replacement guard, and `git diff --check` are green.
+
+  Dynamic session count ownership evidence (2026-08-12):
+    `CanonicalSsaFunctionSessionV2::new_selected_dynamic` no longer accepts a
+    caller-selected `block_expr_count`; the Dynamic profile fixes its own
+    zero common-expression expectation internally.  The selected emitter no
+    longer passes a semantic count, and
+    `dynamic_v2_physical_input_authority_guard.sh` rejects reintroduction.
+    `cargo check -q --lib`, the selected-emitter focused test, the physical
+    input guard, the current-state pointer guard, and `git diff --check` are
+    green.  `cargo fmt --check` remains a known repository-wide baseline and
+    is not changed by this BoxShape slice.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
