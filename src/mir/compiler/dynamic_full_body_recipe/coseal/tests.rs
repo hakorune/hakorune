@@ -152,6 +152,16 @@ fn a_prime_source_relation_borrows_only_verified_i64_facts() {
                 view.end_class(),
                 super::super::DynamicFullLoopParameterClassV2::I64
             );
+            assert_eq!(
+                view.src_class(),
+                super::super::DynamicFullLoopParameterClassV2::Dynamic
+            );
+            assert_eq!(
+                view.pred_chars_class(),
+                super::super::DynamicFullLoopParameterClassV2::Dynamic
+            );
+            assert_eq!(view.src_binding().owner(), owner);
+            assert_eq!(view.pred_chars_binding().owner(), owner);
             assert_eq!(view.pos_binding().owner(), owner);
             assert_eq!(view.end_binding().owner(), owner);
             assert_eq!(view.induction_binding().owner(), owner);

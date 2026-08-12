@@ -13,6 +13,7 @@ DEMAND_MOD="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/
 DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.rs"
+APRIME_SOURCE="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/a_prime_source.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
@@ -27,7 +28,7 @@ WIRE_C="$ROOT_DIR/include/nyrt_dynamic_call_slot_v2.h"
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
-  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
+  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
@@ -52,6 +53,12 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "physical_demand_consumes_the_complete_view_inside_the_htrb_loan" "$EXIT_TX" \
   "whole-program Dynamic demand HRTB test is missing"
+for formal_fact in \
+  "src_binding" "pos_binding" "end_binding" "pred_chars_binding" \
+  "src_class" "pos_class" "end_class" "pred_chars_class"; do
+  guard_expect_fixed_in_file "$TAG" "$formal_fact" "$APRIME_SOURCE" \
+    "A-prime source relation is missing exact formal-lane fact: $formal_fact"
+done
 
 INPUT_PRODUCTION="$(mktemp "${TMPDIR:-/tmp}/dynamic-v2-physical-input.XXXXXX")"
 sed '/^#\[cfg(test)\]/,$d' "$INPUT" >"$INPUT_PRODUCTION"

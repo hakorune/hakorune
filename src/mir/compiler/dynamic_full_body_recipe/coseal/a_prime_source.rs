@@ -37,8 +37,10 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     owner: FunctionOwnerIdV1,
     frame: &'program LoopExecutionFrameKeyV1,
     scope_region: ResolvedScopeRegionPairV1,
+    src_binding: BindingRefV1,
     pos_binding: BindingRefV1,
     end_binding: BindingRefV1,
+    pred_chars_binding: BindingRefV1,
     induction_binding: BindingRefV1,
     induction_declaration: &'program SourceBindingSiteV1,
     initializer: &'program SourceExprSiteV1,
@@ -49,8 +51,10 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     inner_return_i: &'program SourceExprSiteV1,
     outer_return_i: &'program SourceExprSiteV1,
     completion_sites: [&'program SourceStmtSiteV1; 2],
+    src_class: DynamicFullLoopParameterClassV2,
     pos_class: DynamicFullLoopParameterClassV2,
     end_class: DynamicFullLoopParameterClassV2,
+    pred_chars_class: DynamicFullLoopParameterClassV2,
     induction_key: LoopBindingKeyV1,
     carrier_key: LoopCarrierKeyV1,
     entry_value: LoopValueKeyV1,
@@ -75,8 +79,16 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.pos_binding
     }
 
+    pub(in crate::mir) const fn src_binding(&self) -> BindingRefV1 {
+        self.src_binding
+    }
+
     pub(in crate::mir) const fn end_binding(&self) -> BindingRefV1 {
         self.end_binding
+    }
+
+    pub(in crate::mir) const fn pred_chars_binding(&self) -> BindingRefV1 {
+        self.pred_chars_binding
     }
 
     pub(in crate::mir) const fn induction_binding(&self) -> BindingRefV1 {
@@ -127,6 +139,14 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.end_class
     }
 
+    pub(in crate::mir) const fn src_class(&self) -> DynamicFullLoopParameterClassV2 {
+        self.src_class
+    }
+
+    pub(in crate::mir) const fn pred_chars_class(&self) -> DynamicFullLoopParameterClassV2 {
+        self.pred_chars_class
+    }
+
     pub(in crate::mir) const fn induction_key(&self) -> LoopBindingKeyV1 {
         self.induction_key
     }
@@ -162,8 +182,10 @@ pub(super) fn issue_view(
     let source = &envelope.source;
     let artifact = &envelope.artifact;
     let coverage = &envelope.coverage;
+    let src = binding(source, DynamicFullBodyBindingRoleV1::Src)?;
     let pos = binding(source, DynamicFullBodyBindingRoleV1::Pos)?;
     let end = binding(source, DynamicFullBodyBindingRoleV1::End)?;
+    let pred_chars = binding(source, DynamicFullBodyBindingRoleV1::PredChars)?;
     let induction = binding(source, DynamicFullBodyBindingRoleV1::Induction)?;
     let initializer = expression(source, DynamicFullBodySourceRoleV1::PreludeInitializerPos)?;
     let loop_site = statement(source, DynamicFullBodySourceRoleV1::Loop)?;
@@ -173,10 +195,14 @@ pub(super) fn issue_view(
     let inner_return_i = expression(source, DynamicFullBodySourceRoleV1::InnerReturnI)?;
     let outer_return_i = expression(source, DynamicFullBodySourceRoleV1::OuterReturnI)?;
 
+    let src_class = parameter_class(source, 0)?;
     let pos_class = parameter_class(source, 1)?;
     let end_class = parameter_class(source, 2)?;
-    if pos_class != DynamicFullLoopParameterClassV2::I64
+    let pred_chars_class = parameter_class(source, 3)?;
+    if src_class != DynamicFullLoopParameterClassV2::Dynamic
+        || pos_class != DynamicFullLoopParameterClassV2::I64
         || end_class != DynamicFullLoopParameterClassV2::I64
+        || pred_chars_class != DynamicFullLoopParameterClassV2::Dynamic
     {
         return Err(DynamicAPrimeI64SourceRelationRejectV1::ParameterContract);
     }
@@ -275,8 +301,10 @@ pub(super) fn issue_view(
         owner: source.owner,
         frame: &source.frame,
         scope_region: source.scope_region,
+        src_binding: src.binding(),
         pos_binding: pos.binding(),
         end_binding: end.binding(),
+        pred_chars_binding: pred_chars.binding(),
         induction_binding: induction.binding(),
         induction_declaration: induction.declaration(),
         initializer,
@@ -287,8 +315,10 @@ pub(super) fn issue_view(
         inner_return_i,
         outer_return_i,
         completion_sites: [inner_site, outer_site],
+        src_class,
         pos_class,
         end_class,
+        pred_chars_class,
         induction_key,
         carrier_key,
         entry_value: value(1),

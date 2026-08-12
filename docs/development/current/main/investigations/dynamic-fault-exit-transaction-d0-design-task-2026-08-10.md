@@ -436,6 +436,11 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   `Enter != Header`; full operation emission remains closed until the atomic
   AOT cell.
 
+  The existing A-prime source relation also retains the exact four formal
+  lanes (`src=0`, `pos=1`, `end=2`, `pred_chars=3`) and their binding/class
+  facts. This is a borrowed source relation only; physical seed materialization
+  and PHI opening remain a later session step.
+
 DYNAMIC-V2-SESSION-PRIVATE-VALUE-LEDGER-R0
   The existing I8/V12 canary publishes its emitted physical value exactly once
   into a session-owned move-only ledger. The ledger stores only the logical
