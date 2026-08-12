@@ -86,6 +86,12 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
                 [row("StringBox", "length", "0", result_kind="ScalarMaybe")]
             )
 
+    def test_unknown_effect_is_rejected(self) -> None:
+        malformed = row("StringBox", "length", "0")
+        malformed["effect"] = "observable_maybe"
+        with self.assertRaisesRegex(ValueError, "unknown effect"):
+            CODEGEN.validate_rows([malformed])
+
     def test_missing_result_kind_is_rejected(self) -> None:
         malformed = row("StringBox", "length", "0")
         del malformed["result_kind"]

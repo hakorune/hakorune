@@ -2,7 +2,9 @@
 // source: lang/src/runtime/meta/core_method_contract_box.hako
 
 use crate::mir::core_method_op::CoreMethodOp;
-use crate::mir::core_method_result_kind::{CoreMethodContractResultRowV1, CoreMethodResultKindV1};
+use crate::mir::core_method_result_kind::{
+    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,
+};
 
 pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[
     CoreMethodContractResultRowV1 {
@@ -12,6 +14,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[0],
         op: CoreMethodOp::ArrayLen,
         result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "ArrayBox",
@@ -20,6 +23,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::ArrayGet,
         result_kind: CoreMethodResultKindV1::Dynamic,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "ArrayBox",
@@ -28,6 +32,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::ArrayHas,
         result_kind: CoreMethodResultKindV1::BoolValue,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "ArrayBox",
@@ -36,6 +41,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[2],
         op: CoreMethodOp::ArraySet,
         result_kind: CoreMethodResultKindV1::NoValue,
+        effect: CoreMethodEffectV1::MutatesSlot,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "ArrayBox",
@@ -44,6 +50,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::ArrayPush,
         result_kind: CoreMethodResultKindV1::NoValue,
+        effect: CoreMethodEffectV1::MutatesShape,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -52,6 +59,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::MapGet,
         result_kind: CoreMethodResultKindV1::Dynamic,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -60,6 +68,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[2],
         op: CoreMethodOp::MapSet,
         result_kind: CoreMethodResultKindV1::Dynamic,
+        effect: CoreMethodEffectV1::MutatesSlot,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -68,6 +77,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::MapHas,
         result_kind: CoreMethodResultKindV1::BoolValue,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -76,6 +86,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::MapDelete,
         result_kind: CoreMethodResultKindV1::Dynamic,
+        effect: CoreMethodEffectV1::MutatesShape,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -84,6 +95,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[0],
         op: CoreMethodOp::MapKeys,
         result_kind: CoreMethodResultKindV1::Dynamic,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "MapBox",
@@ -92,6 +104,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[0],
         op: CoreMethodOp::MapLen,
         result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",
@@ -100,6 +113,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[0],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",
@@ -108,6 +122,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1, 2],
         op: CoreMethodOp::StringSubstring,
         result_kind: CoreMethodResultKindV1::StringValue,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",
@@ -116,6 +131,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1, 2],
         op: CoreMethodOp::StringIndexOf,
         result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",
@@ -124,6 +140,7 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::StringLastIndexOf,
         result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
     },
     CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",
@@ -132,5 +149,6 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         arities: &[1],
         op: CoreMethodOp::StringContains,
         result_kind: CoreMethodResultKindV1::BoolValue,
+        effect: CoreMethodEffectV1::PureRead,
     },
 ];

@@ -39,6 +39,16 @@ RESULT_KINDS = {
     "NoValue",
     "Dynamic",
 }
+EFFECTS = {
+    "pure_read",
+    "mutates_slot",
+    "mutates_shape",
+}
+EFFECT_RUST_VARIANTS = {
+    "pure_read": "PureRead",
+    "mutates_slot": "MutatesSlot",
+    "mutates_shape": "MutatesShape",
+}
 
 
 def extract_block(text: str, marker: str) -> str:
@@ -205,6 +215,10 @@ def validate_rows(rows: list[dict[str, object]]) -> None:
         if result_kind not in RESULT_KINDS:
             raise ValueError(f"{row_id} has unknown result_kind: {result_kind!r}")
 
+        effect = row["effect"]
+        if effect not in EFFECTS:
+            raise ValueError(f"{row_id} has unknown effect: {effect!r}")
+
         receiver = str(row["box"])
         canonical = str(row["canonical"])
         if not receiver or not canonical:
@@ -262,7 +276,9 @@ def generate_rust(source: Path, rows: list[dict[str, object]]) -> str:
         f"// source: {source.relative_to(ROOT)}",
         "",
         "use crate::mir::core_method_op::CoreMethodOp;",
-        "use crate::mir::core_method_result_kind::{CoreMethodContractResultRowV1, CoreMethodResultKindV1};",
+        "use crate::mir::core_method_result_kind::{",
+        "    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,",
+        "};",
         "",
         "pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[",
     ]
@@ -278,6 +294,7 @@ def generate_rust(source: Path, rows: list[dict[str, object]]) -> str:
                 f"        arities: &[{arities}],",
                 f"        op: CoreMethodOp::{row['core_op']},",
                 f"        result_kind: CoreMethodResultKindV1::{row['result_kind']},",
+                f"        effect: CoreMethodEffectV1::{EFFECT_RUST_VARIANTS[row['effect']]},",
                 "    },",
             ]
         )

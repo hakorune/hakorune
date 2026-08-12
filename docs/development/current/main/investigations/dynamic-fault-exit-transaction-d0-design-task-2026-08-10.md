@@ -392,9 +392,10 @@ an independently selectable provider or production route):
   This is a semantic projection BoxShape, not a new TextScan authority or
   production route.
 
-Status (open, 2026-08-12): codegen reads `effect` for JSON but drops it from
-the generated Rust row. Result-kind co-seal is landed; effect projection,
-Rust enum, generated-row parity, and negative drift coverage remain pending.
+Status (landed BoxShape, 2026-08-12): the generator validates source effects,
+emits `CoreMethodEffectV1` beside `result_kind`, and keeps JSON/Rust parity.
+Unknown effect values reject in the generator; this does not open a provider,
+runtime, LLVM, VM, or production route.
 
 `DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
   The existing generated `CoreMethodContractBox` rows are borrowed by one
@@ -405,11 +406,11 @@ Rust enum, generated-row parity, and negative drift coverage remain pending.
   before provider admission. A hand-written result table, selector-only
   result classification, or independent provider catalog is forbidden.
 
-Status (result BoxShape landed, 2026-08-12): `calls.rs` projects and retains
-the generated row by `CoreMethodOp`/arity, cross-checks canonical spelling,
-and derives Recipe class from `StringValue`/`I64Value`; hand-written
-`recipe_result_class` is gone. Effect projection and all provider/LLVM/
-runtime/session activation remain open; no production caller was opened.
+Status (result/effect BoxShape landed, 2026-08-12): `calls.rs` projects and
+retains the generated row by `CoreMethodOp`/arity, cross-checks canonical
+spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written
+`recipe_result_class` is gone. Provider/LLVM/runtime/session activation
+remains open; no production caller was opened.
 
 Evidence:
 
@@ -417,7 +418,7 @@ Evidence:
 generated result-row projection tests                  = 6 passed
 dynamic_full_body_recipe tests                         = 32 passed
 selector mismatch / selector-only result authority    = green / 0
-generated effect projection                            = 0 (next R0)
+generated effect projection                            = 1 (typed enum + parity)
 provider/registry/LLVM/runtime/VM additions            = 0
 ```
 

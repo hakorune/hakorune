@@ -18,6 +18,28 @@ pub(crate) enum CoreMethodResultKindV1 {
     Dynamic,
 }
 
+/// Typed effect projection from the `.hako` CoreMethodContractBox row.
+/// This remains separate from the Dynamic invocation envelope's runtime
+/// observation and suspension semantics.
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CoreMethodEffectV1 {
+    PureRead,
+    MutatesSlot,
+    MutatesShape,
+}
+
+#[allow(dead_code)]
+impl CoreMethodEffectV1 {
+    pub(crate) fn as_manifest_name(self) -> &'static str {
+        match self {
+            Self::PureRead => "pure_read",
+            Self::MutatesSlot => "mutates_slot",
+            Self::MutatesShape => "mutates_shape",
+        }
+    }
+}
+
 #[allow(dead_code)]
 impl CoreMethodResultKindV1 {
     pub(crate) fn as_manifest_name(self) -> &'static str {
@@ -40,6 +62,7 @@ pub(crate) struct CoreMethodContractResultRowV1 {
     pub(crate) arities: &'static [u32],
     pub(crate) op: CoreMethodOp,
     pub(crate) result_kind: CoreMethodResultKindV1,
+    pub(crate) effect: CoreMethodEffectV1,
 }
 
 #[allow(dead_code)]
@@ -141,6 +164,8 @@ mod tests {
                 .expect("generated indexOf row");
         assert_eq!(substring.result_kind, CoreMethodResultKindV1::StringValue);
         assert_eq!(index_of.result_kind, CoreMethodResultKindV1::I64Value);
+        assert_eq!(substring.effect, CoreMethodEffectV1::PureRead);
+        assert_eq!(index_of.effect, CoreMethodEffectV1::PureRead);
     }
 
     #[test]
@@ -157,6 +182,7 @@ mod tests {
             let receiver = json_row["box"].as_str().expect("box");
             let canonical = json_row["canonical"].as_str().expect("canonical");
             let result_kind = json_row["result_kind"].as_str().expect("result_kind");
+            let effect = json_row["effect"].as_str().expect("effect");
             let op = json_row["core_op"].as_str().expect("core_op");
             let arities = json_row["arity"]
                 .as_str()
@@ -170,6 +196,7 @@ mod tests {
                     .expect("canonical generated row");
                 assert_eq!(row.op.as_manifest_name(), op);
                 assert_eq!(row.result_kind.as_manifest_name(), result_kind);
+                assert_eq!(row.effect.as_manifest_name(), effect);
                 for alias in aliases {
                     let alias = alias.as_str().expect("alias spelling");
                     let selected = lookup_core_method_result_row_v1(receiver, alias, arity)
