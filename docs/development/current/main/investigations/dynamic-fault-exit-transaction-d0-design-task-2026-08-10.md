@@ -388,6 +388,23 @@ an independently selectable provider or production route):
   before provider admission. A hand-written result table, selector-only
   result classification, or independent provider catalog is forbidden.
 
+Status (landed BoxShape, 2026-08-12): `calls.rs` now projects the generated
+row by `CoreMethodOp` and arity, cross-checks the source selector against the
+row's canonical spelling, and derives the Recipe result class from the row's
+`StringValue`/`I64Value`. The old hand-written `recipe_result_class` field is
+gone. This is only a named semantic consumer; no ProviderSlot, registry,
+provider, LLVM, runtime, VM, lease, or production caller was opened.
+
+Evidence:
+
+```text
+generated row projection tests                         = 6 passed
+dynamic_full_body_recipe tests                         = 32 passed
+selector mismatch remains TargetDispatchMismatch      = green
+selector-only result-class authority                  = 0
+provider/registry/LLVM/runtime/VM additions           = 0
+```
+
 ```text
 DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
   DynamicV2PhysicalEmissionSessionV1 consumes the package-owned selected key,
