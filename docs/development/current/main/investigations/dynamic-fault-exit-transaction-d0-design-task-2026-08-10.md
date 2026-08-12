@@ -20,14 +20,17 @@ not an I6-only pseudo-slot and not the full String surface. Its normalized
 contract is the sole result/lifecycle authority for I6/I7.
 
 Current implementation status: semantic exact-I64 recut, VM nonconsumer fence,
-and transport-only output wire are landed. The selected-package/canonical-plan
-handoff has a private input callback accessor landed; the identity co-seal
-helper and production handoff are the current bounded row.
+and transport-only output wire are landed. The selected-package callback
+accessor and canonical-plan identity test are landed, but the normal-default
+static-box production transport owner is not. The current row is therefore a
+design stop, not an implementation permission.
 
-Next ordered task: resolve the production bridge design below. The installed
-package loan and canonical lowering plan currently have no common production
-caller, so the handoff helper must not be added as an orphan. Provider, wire,
-LLVM, runtime, and VM feature code is not authorized by this stop.
+Next ordered task: resolve the canonical-plan transport below. Existing
+canonical plan issuers are on separate resolved-callable pipelines; the
+installed package loan and a canonical plan have no normal-default/static-box
+production transport owner or common caller. Do not add an orphan handoff
+helper. Provider, wire, LLVM, runtime, and VM feature code is not authorized
+by this stop.
 
 Production stop line: selected package loan and canonical resolved lowering
 plan/session must be co-sealed once. No raw AST/JoinIR route, selector/name
@@ -42,12 +45,13 @@ zero.
 
 ```text
 work_mode = design_stop
-current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-PRODUCTION-BRIDGE-D0
+current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-CANONICAL-PLAN-TRANSPORT-D0
 ```
 
 The previous BoxShape slice landed the canonical-plan callback accessor and
 the focused identity test. The next step is a design stop because the two
-existing owners do not meet at one production boundary:
+existing owners do not meet at one production boundary, and the canonical
+plan issuer is not yet connected to this root:
 
 ```text
 package loan:
@@ -58,6 +62,10 @@ canonical plan/session:
   resolved_lowering / callable transaction
     -> canonical session / DraftSeal
 
+canonical plan issuers:
+  resolved_callable_module_preflight / normal_source_plan handoff
+    -> separate pipelines; no normal-default transport caller
+
 normal-default production root:
   package loan exists, but no CanonicalTrivialBindingSsaPlanV1 is carried here
 
@@ -66,38 +74,85 @@ source-family boundary:
   MainMethod helper rejection is not this cohort's blocker and remains
   unchanged.
 
+normal-default/static-box transport owner = 0
 existing common production caller = 0
 ```
 
-### Production bridge decision brief
+### Canonical-plan transport decision brief
 
 ```text
 Decision:
-  Keep the handoff Builder-free and stop until one existing production
-  lowering callback can borrow both products; do not create an orphan helper.
+  Keep the handoff Builder-free and stop until one existing canonical plan
+  issuer and one move-only normal-default transport owner are named; do not
+  create an orphan helper or reissue the plan in the package issuer.
 Source authority + canonical issuer:
-  Installed SelectedCallableLoweringInputRefV1 and the existing
-  CanonicalTrivialBindingSsaPlanV1/session owners; the bridge is issued only
-  at their first shared lowering callback.
+  Existing canonical plan owners (`VerifiedCallableModulePreflightV1` or the
+  normal-source-plan handoff) plus the installed
+  `SelectedCallableLoweringInputRefV1`; the applicable issuer for the
+  normal-default static-box cohort is still unresolved.
 Non-authority:
-  source seed, raw AST/JoinIR, selector/name, ordinal/batch repair, a second
-  plan/Completion, and any VM/provider path.
+  package-local preflight reissue, source seed, raw AST/JoinIR, selector/name,
+  ordinal/batch repair, a second plan/Completion, and any VM/provider path.
 Fail-fast boundary:
-  no shared caller, foreign owner/function/forest/projection/root, ordinary
-  semantic variant, absent carried plan, or plan re-verification rejects
-  before Builder effect.
+  absent issuer/transport owner, no shared caller, foreign
+  owner/function/forest/projection/root, ordinary semantic variant, or plan
+  re-verification remains `NoSafeSlice` before Builder effect.
 Smallest next slice:
-  extend the existing normal-callable package/root transaction to carry the
-  already-created per-selected-key plan once into PreparedProgramRootWorkPlanV1,
-  and only then add one private identity co-seal in the selected package
-  lowering callback.
+  decide and document the existing issuer-to-root move-only transport for the
+  per-selected-key plan; do not implement until its source owner, lifetime,
+  exact key relation, and one consuming callback are closed.
 Non-claims:
-  no new semantic receipt, AOT provider cell, LLVM leaf, runtime lease, VM
-  feature, fallback, retry, or selected production switch in this D0.
+  no package-local plan reissue, new semantic receipt, AOT provider cell,
+  LLVM leaf, runtime lease, VM feature, fallback, retry, or selected production
+  switch in this D0.
 ```
 
-After this design stop is accepted, the implementation row may add only the
-production bridge wiring described above. It may not add:
+### Audit evidence and D0 exit criteria
+
+The current code has two canonical-plan families, but neither is connected to
+the normal-default static-box root:
+
+```text
+VerifiedCallableModulePreflightV1
+  -> CanonicalLoweringPreflightV1
+  -> plan map for the resolved-callable pipeline
+
+normal_source_plan handoff
+  -> CanonicalLoweringPreflightV1
+  -> helper plan map for its source family
+
+normal-default root
+  -> issue_normal_callable_semantic_package_v1()
+  -> InstalledNormalCallableSemanticPackageV1
+  -> selected package loan
+  -> no canonical plan transport
+```
+
+The package issuer must not call `CanonicalLoweringPreflightV1` again: that
+would reissue Completion, If-control, and profile facts. A foreign borrowed
+plan cannot be paired by owner/name/ordinal. A `PreparedProgramRootWorkPlanV1`
+field also cannot borrow a plan until its same-source lifetime owner is named;
+the package and plan are not currently one self-contained owner.
+
+The design stop can close only when all of these are documented against one
+existing source owner:
+
+```text
+canonical plan issuer for this normal-default/static-box cohort = 1
+move-only plan transport owner                              = 1
+SelectedCallableKey -> plan relation                       = exact
+package batch / plan source-forest identity                 = exact
+shared consuming callback                                   = 1
+package preflight reissue                                   = 0
+foreign plan re-pair                                        = 0
+MainMethod rejection change                                 = 0
+```
+
+Until then, the correct state is `NoSafeSlice`; no handoff helper or new
+semantic receipt is authorized.
+
+Only after this design stop is accepted may a bounded implementation row add
+the production bridge wiring. It may not add:
 
 1. one crate-private callback/accessor on
    `CanonicalTrivialBindingSsaPlanV1` for its existing
