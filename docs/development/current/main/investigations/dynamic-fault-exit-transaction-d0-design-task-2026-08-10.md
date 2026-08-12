@@ -258,6 +258,12 @@ move-only admission supplies the `APrimePhysicalFunctionHeaderV1` and is
 retained until the canonical collector handoff. A foreign key, wrong namespace
 or arity, double consume, or missing admission rejects before Builder effect.
 
+I0-A receipt (2026-08-12): the package loan now carries the admission through
+static and instance adapter scopes, the selected A-prime tests consume it by
+value, and the physical-input guard rejects issuer-side resealing and raw
+symbol reconstruction. This remains a pre-cutover transport/BoxShape change;
+the production caller is still zero.
+
 #### `TEXT-SCAN-EXPORT-CONTRACT-I0-B`
 
 The semantic source is one normalized artifact rooted at

@@ -13,6 +13,7 @@ use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::normal_callable_semantic_package::{
     SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
+    SelectedCatalogedCallableLoweringInputV1,
 };
 
 use super::model::{
@@ -21,21 +22,16 @@ use super::model::{
 };
 
 pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
-    input: &'loan SelectedCallableLoweringInputRefV1<'loan>,
+    input: SelectedCatalogedCallableLoweringInputV1<'loan>,
 ) -> Result<VerifiedAPrimeI64PhysicalDemandV1<'loan>, APrimeI64PhysicalDemandRejectV1> {
+    let (input, physical_header) = input.into_lowering_and_admission();
     let SelectedCallableSemanticRefV1::Dynamic { program, .. } = input.semantic() else {
         return Err(APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic);
     };
     let selected_key = input.selected_key().clone();
-    let physical_header = match &selected_key {
-        SelectedNormalCallableKeyV1::Cataloged(source_key) => {
-            NormalCatalogedBoxMethodDraftAdmissionV1::seal(source_key.clone())
-                .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalHeader)?
-        }
-        SelectedNormalCallableKeyV1::TopLevel(_) => {
-            return Err(APrimeI64PhysicalDemandRejectV1::CallableIdentity)
-        }
-    };
+    if !matches!(&selected_key, SelectedNormalCallableKeyV1::Cataloged(_)) {
+        return Err(APrimeI64PhysicalDemandRejectV1::CallableIdentity);
+    }
     let identity = input.source_identity().clone();
     let source_relation = program
         .a_prime_source_relation_view()
@@ -44,7 +40,7 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .physical_input_view()
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalInput)?;
     validate_identity(&identity, &source_relation)?;
-    validate_parameters(input, &source_relation)?;
+    validate_parameters(&input, &source_relation)?;
     validate_call_edges(&physical_input)?;
     let operation_program = issue_dynamic_full_loop_operation_physical_demand_v2(physical_input)
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?

@@ -13,7 +13,10 @@ DEMAND_MOD="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/
 DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.rs"
+APRIME_ISSUER="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/issuer.rs"
 APRIME_SOURCE="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/a_prime_source.rs"
+PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+PACKAGE_LOAN="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
@@ -31,7 +34,7 @@ guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
-  "$SELECTED_FORMAL_HEADER" \
+  "$APRIME_ISSUER" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -142,6 +145,18 @@ guard_expect_fixed_in_file "$TAG" "physical_header" "$APRIME_MODEL" \
   "selected physical session must consume the demand-owned header projection"
 guard_expect_fixed_in_file "$TAG" "function_effects" "$APRIME_MODEL" \
   "the physical header must retain the verified effect projection"
+guard_expect_fixed_in_file "$TAG" "SelectedCatalogedCallableLoweringInputV1" "$PACKAGE_INSTALL" \
+  "catalog admission must travel with the selected package loan"
+guard_expect_fixed_in_file "$TAG" "with_selected_cataloged_lowering_input" "$PACKAGE_INSTALL" \
+  "package must expose one exactly-once cataloged admission loan"
+guard_expect_fixed_in_file "$TAG" "with_cataloged_callable_source_scope" "$PACKAGE_LOAN" \
+  "Builder adapter must forward the existing catalog admission"
+if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$APRIME_ISSUER"; then
+  guard_fail "$TAG" "A-prime issuer must not re-seal a catalog physical header"
+fi
+if rg -F -q -- "format!(" "$APRIME_ISSUER"; then
+  guard_fail "$TAG" "A-prime issuer must not reconstruct the catalog physical symbol"
+fi
 guard_expect_fixed_in_file "$TAG" "physical_function_effects" "$DEMAND_MODEL" \
   "the operation/effect plan must be the selected function-effect projection source"
 if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITTER"; then

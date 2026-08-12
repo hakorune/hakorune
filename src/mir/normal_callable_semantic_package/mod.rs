@@ -17,7 +17,7 @@ mod tests;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1, SelectedCallableLoweringInputRefV1,
-    SelectedCallableSemanticRefV1,
+    SelectedCallableSemanticRefV1, SelectedCatalogedCallableLoweringInputV1,
 };
 pub(crate) use issuer::{
     issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1,

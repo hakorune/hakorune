@@ -3,8 +3,8 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::{
-    CompilationContext, SameModuleCallableCatalogBrandV1, SelectedNormalCallableKeyV1,
-    VerifiedSourceBackedDynamicCallableV1,
+    CompilationContext, NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
+    SelectedNormalCallableKeyV1, VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
@@ -26,6 +26,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     DuplicateSelectedKey,
     IncompleteSelectedCoverage,
     BatchLoan,
+    CatalogedAdmissionMismatch,
 }
 
 #[derive(Debug)]
@@ -43,6 +44,29 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
     selected_key: SelectedNormalCallableKeyV1,
+}
+
+/// Exactly-once selected input paired with the catalog admission that already
+/// crossed the catalog boundary. Downstream users consume this wrapper instead
+/// of reconstructing an admission from a source key.
+pub(crate) struct SelectedCatalogedCallableLoweringInputV1<'loan> {
+    selected: SelectedCallableLoweringInputRefV1<'loan>,
+    admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+}
+
+impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
+    pub(crate) fn selected(&self) -> &SelectedCallableLoweringInputRefV1<'loan> {
+        &self.selected
+    }
+
+    pub(crate) fn into_lowering_and_admission(
+        self,
+    ) -> (
+        SelectedCallableLoweringInputRefV1<'loan>,
+        NormalCatalogedBoxMethodDraftAdmissionV1,
+    ) {
+        (self.selected, self.admission)
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -195,6 +219,26 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         Ok(result)
     }
 
+    pub(crate) fn with_selected_cataloged_lowering_input<R>(
+        &mut self,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        callback: impl for<'loan> FnOnce(SelectedCatalogedCallableLoweringInputV1<'loan>) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
+        let result = self.with_selected_lowering_input(&key, |selected| {
+            if selected.selected_key() != &key {
+                return Err(
+                    NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
+                );
+            }
+            Ok(callback(SelectedCatalogedCallableLoweringInputV1 {
+                selected,
+                admission,
+            }))
+        })??;
+        Ok(result)
+    }
+
     pub(crate) fn complete(self) -> Result<(), NormalCallableSemanticPackageInstallIssueV1> {
         if self.consumed.len() != self.installed.selected.keys().len()
             || self
@@ -210,7 +254,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
 }
 
 impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
-    pub(crate) fn source(&self) -> ResolvedFunctionLoweringInputV1<'_> {
+    pub(crate) fn source(&self) -> ResolvedFunctionLoweringInputV1<'loan> {
         self.source
     }
 

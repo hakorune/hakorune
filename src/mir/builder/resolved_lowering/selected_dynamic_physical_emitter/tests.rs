@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::builder::{
     issue_selected_dynamic_v2_emission_plan, CanonicalSameModuleCallableKeyV1, CompilationContext,
-    MirBuilder, SelectedNormalCallableKeyV1,
+    MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
 };
 use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
@@ -38,8 +38,13 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         ),
     );
     let mut port = installed.begin_lowering(&context).expect("loan");
-    port.with_selected_lowering_input(&key, |input| {
-        let demand = issue_selected_a_prime_i64_physical_demand(&input).expect("A-prime demand");
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
+        let demand = issue_selected_a_prime_i64_physical_demand(input).expect("A-prime demand");
         let plan = issue_selected_dynamic_v2_emission_plan(demand).expect("V2 plan");
         let target = |item| {
             plan.schedule_rows()

@@ -69,6 +69,30 @@ impl<'package, 'loan, 'port, 'collector>
             })
             .map_err(package_issue)?
     }
+
+    fn with_cataloged_callable_source_scope<R>(
+        &mut self,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        execute: impl FnOnce(
+            &mut RawInvocationChildPortV1<'port, 'collector>,
+            super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
+            NormalCatalogedBoxMethodDraftAdmissionV1,
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let inner = &mut *self.inner;
+        self.package
+            .with_selected_cataloged_lowering_input(admission, |input| {
+                let (selected, admission) = input.into_lowering_and_admission();
+                let lineage =
+                    super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
+                        admission.source_key().clone(),
+                    );
+                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                    execute(inner, transport, admission)
+                })
+            })
+            .map_err(package_issue)?
+    }
 }
 
 fn package_issue(error: NormalCallableSemanticPackageInstallIssueV1) -> String {
@@ -284,25 +308,21 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let source_key = admission.source_key().clone();
-        self.with_callable_source_scope(
-            SelectedNormalCallableKeyV1::Cataloged(source_key.clone()),
-            |inner, transport| {
-                inner
-                    .lower_normal_cataloged_static_box_method_with_source_v1(
-                        builder,
-                        admission,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                        transport,
-                    )
-                    .map_err(|error| error.to_string())
-            },
-        )
+        self.with_cataloged_callable_source_scope(admission, |inner, transport, admission| {
+            inner
+                .lower_normal_cataloged_static_box_method_with_source_v1(
+                    builder,
+                    admission,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                    transport,
+                )
+                .map_err(|error| error.to_string())
+        })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -317,24 +337,20 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let source_key = admission.source_key().clone();
-        self.with_callable_source_scope(
-            SelectedNormalCallableKeyV1::Cataloged(source_key.clone()),
-            |inner, transport| {
-                inner
-                    .lower_normal_cataloged_instance_box_method_with_source_v1(
-                        builder,
-                        admission,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                        transport,
-                    )
-                    .map_err(|error| error.to_string())
-            },
-        )
+        self.with_cataloged_callable_source_scope(admission, |inner, transport, admission| {
+            inner
+                .lower_normal_cataloged_instance_box_method_with_source_v1(
+                    builder,
+                    admission,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                    transport,
+                )
+                .map_err(|error| error.to_string())
+        })
     }
 }

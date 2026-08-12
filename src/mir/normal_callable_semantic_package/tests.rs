@@ -1,5 +1,6 @@
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, CompilationContext, NormalCatalogedBoxMethodDraftAdmissionV1,
+    SelectedNormalCallableKeyV1,
 };
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -105,6 +106,35 @@ fn selected_dynamic_loan_carries_the_package_source_seed() {
 }
 
 #[test]
+fn foreign_catalog_admission_rejects_before_selected_loan_callback() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let foreign = NormalCatalogedBoxMethodDraftAdmissionV1::seal(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("ForeignBox", "skip_while", 4),
+    )
+    .expect("foreign admission shape");
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    let mut called = false;
+    let result = port.with_selected_cataloged_lowering_input(foreign, |_| {
+        called = true;
+    });
+    assert_eq!(
+        result,
+        Err(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)
+    );
+    assert!(!called);
+}
+
+#[test]
 fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
     let package = issue(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
@@ -125,16 +155,22 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
+        let owner = input.selected().source().owner();
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         assert_eq!(
             demand.requirement(),
             crate::mir::compiler::a_prime_i64_physical_capability::
                 APrimeI64PhysicalRequirementV1::DirectExactI64
         );
-        assert_eq!(demand.identity().owner(), input.source().owner());
+        assert_eq!(demand.identity().owner(), owner);
         assert_eq!(
             demand.physical_header().physical_symbol(),
             "ParserScanLoopBox.skip_while/4"
@@ -171,9 +207,14 @@ fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
             .expect("selected V2 preflight plan");
@@ -268,9 +309,14 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
             .expect("selected V2 preflight plan");
@@ -397,10 +443,15 @@ fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         assert!(matches!(
             crate::mir::compiler::a_prime_i64_physical_capability::
-                issue_selected_a_prime_i64_physical_demand(&input),
+                issue_selected_a_prime_i64_physical_demand(input),
             Err(
                 crate::mir::compiler::a_prime_i64_physical_capability::
                     APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic
