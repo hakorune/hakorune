@@ -47,7 +47,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, catalog-admission transport, I0-B TextScan contract/export projections, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; I0-C symbolic admission is the current work-branch checkpoint.",
   "2026-08-12: I0-C symbolic TextScan admission retains exact export symbols and receiver lanes in an immutable, PlanStamp-branded pre-link product; I0-D adds exact parameter descriptors and one shared Rust wire projection; production callers, LLVM hooks, runtime lookup, and Rust-VM consumers remain zero.",
-  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries and one-shot lease owner pass direct leaf/lease tests; LLVM hooks, RuntimeExecutablePlan, production callers, and Rust-VM consumers remain zero.",
+  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, one-shot lease owner, and non-emitting per-call metadata projection pass focused tests; LLVM hook callers, RuntimeExecutablePlan, production callers, and Rust-VM consumers remain zero.",
   "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
   "2026-08-12: Dynamic session begin was split into private outer-open and target/formal-header phases; public handoff and behavior remain unchanged.",
 ]

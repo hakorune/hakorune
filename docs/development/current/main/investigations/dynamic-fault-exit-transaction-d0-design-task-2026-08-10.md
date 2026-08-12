@@ -465,9 +465,10 @@ the physical session, claim Completion, publish a draft, change production
 callers, or touch Rust VM. Those remain one later activation boundary with the
 already named physical session, link finalizer, collector, and cutover.
 
-The work-branch checkpoint may be tested internally, but it is not a mainline
-landing. Main still requires the complete activation unit and the same guard
-must flip atomically to new selected caller = 1 / old selected edge = 0.
+Receipt (2026-08-12): the non-emitting metadata loader and direct test seam
+pass valid/negative site, lane, entry, and PlanStamp checks; no production
+caller was opened. It is not a mainline landing. Main still requires the
+complete activation unit and an atomic new selected caller = 1 / old edge = 0.
 
 #### `PHYSICAL-SESSION-I0-E`
 

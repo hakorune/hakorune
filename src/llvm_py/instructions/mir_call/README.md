@@ -11,7 +11,16 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
   - `constructor_call.py`
   - `closure_call.py`
   - `value_call.py`
-  - `extern_call.py`
+    - `extern_call.py`
+
+## Selected Dynamic V2 boundary
+
+- `../builders/dynamic_v2_aot_admission.py` validates the immutable per-call
+  symbolic admission projection (site, entry, ABI/wire, lanes, lease, and
+  PlanStamp) against the retained A-prime receipt.
+- `selected_dynamic_v2.py` is a non-emitting test/canary seam only. It is not
+  imported by the dispatcher until the complete AOT activation cell is ready;
+  it performs no provider lookup, LLVM emission, fallback, retry, or VM work.
 
 ## Shared SSOT
 

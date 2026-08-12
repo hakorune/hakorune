@@ -16,11 +16,14 @@ CODEGEN_TEST="$ROOT_DIR/tools/checks/lib/provider_slot_contract_codegen_tests.py
 PROJECTION_TEST="$ROOT_DIR/tools/checks/lib/text_scan_export_projection_tests.py"
 STRICT_LEAF="$ROOT_DIR/crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs"
 LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
+METADATA="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_aot_admission.py"
+HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
+METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -32,6 +35,28 @@ for file in "$SOURCE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON"; do
     guard_fail "$TAG" "I0-B artifact reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+for file in "$METADATA" "$HOOK" "$METADATA_TEST"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "I0-D1 metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+
+if [[ "$(rg -n '^def load_selected_dynamic_v2_aot_admission\(' "$METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "I0-D1 metadata loader definition must be unique"
+fi
+if [[ "$(rg -n '^def inspect_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "I0-D1 selected hook definition must be unique"
+fi
+if rg -n \
+  --glob '*.py' \
+  --glob '!**/tests/**' \
+  --glob '!**/dynamic_v2_aot_admission.py' \
+  --glob '!**/selected_dynamic_v2.py' \
+  'selected_dynamic_v2|dynamic_v2_aot_admission' \
+  "$ROOT_DIR/src/llvm_py/builders" "$ROOT_DIR/src/llvm_py/instructions"; then
+  guard_fail "$TAG" "I0-D1 metadata/hook must have zero production Python callers"
+fi
 
 guard_expect_fixed_in_file "$TAG" '"role_count": 2' "$MANIFEST" "TextScan contract must have exactly two roles"
 guard_expect_fixed_in_file "$TAG" 'TextScanProviderSlotContract = "provider_slot_contract_box.hako"' "$MODULE" "Hako module must expose the TextScan contract source"
