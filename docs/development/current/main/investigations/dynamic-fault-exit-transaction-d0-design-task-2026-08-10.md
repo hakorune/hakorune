@@ -365,6 +365,7 @@ hako.text.scan@1 normalized contract + A-prime role requirement co-seal
   -> full unpublished physical session
   -> exact-two DraftSeal
   -> atomic selected production switch + old-edge deletion
+```
 
 Bounded implementation subrows (all part of this one activation cell; none is
 an independently selectable provider or production route):
@@ -381,6 +382,11 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   producer receipts, and V10 End evidence; it claims exactly two Completion
   sites and prepares the two physical Return terminators.  Missing, extra,
   duplicate, mixed-representation, or synthetic join/PHI evidence rejects.
+  Physical targets remain exact: condition B0 -> Header, body operations
+  before If -> BodyPrelude in B1, then Return -> ThenTerminal in B2, body
+  operations after If -> Continuation in B1, and callable After -> After.
+  `Prelude` is an order label only; it must never collapse B0 and B1 into one
+  physical block.
 
 DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
   ModuleLoweringPortV1 receives the already-completed canonical draft through
@@ -401,7 +407,6 @@ owners are respectively the existing Dynamic physical session, the same
 session/DraftSeal path, `ModuleLoweringPortV1`, and the installed package
 adapter. They may be developed in a work branch, but main receives them only
 as the complete activation unit.
-```
 
 Required activation counts:
 
