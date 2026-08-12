@@ -291,6 +291,7 @@ pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     RejectedNormalDefaultRootCatalogLifecycleV1,
 };
 #[allow(dead_code)]
+mod cataloged_box_method_collector_handoff;
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 #[cfg(test)]
 mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof

@@ -334,12 +334,22 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert_eq!(completed.draft().signature.name, "ParserScanLoopBox.skip_while/4");
         assert_eq!(completed.draft().signature.return_type, crate::mir::MirType::Integer);
         assert!(builder.function_state.current_function.is_none());
-        let entry = completed.into_collector_entry();
-        let (_, receipt) = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::default()
-            .prepare_callable_batch(vec![entry])
-            .expect("cataloged Box-method collector preflight")
-            .collect_all();
-        assert_eq!(receipt.len(), 1);
+        let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+        let collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+        let mut invocation =
+            crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
+                &mut builder,
+                collector,
+            );
+        let receipt = invocation
+            .with_module_port(|_builder, port| {
+                port.commit_cataloged_box_method_completed(completed)
+            })
+            .expect("branded cataloged Box-method collector handoff");
+        assert_eq!(receipt.brand(), brand);
+        assert_eq!(receipt.payload().symbol(), "ParserScanLoopBox.skip_while/4");
+        assert_eq!(receipt.payload().arity(), 4);
+        assert_eq!(receipt.payload().policy(), crate::mir::builder::module_draft_collector::DraftPublicationPolicyV1::CanonicalRejectDuplicate);
     })
     .expect("selected loan");
 }
