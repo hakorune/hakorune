@@ -134,6 +134,9 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             values
         }
         MirInstruction::CheckedCallOutNormalResult { .. } => Vec::new(),
+        MirInstruction::CheckedCallOutEnd { .. } | MirInstruction::CheckedCallOutFault { .. } => {
+            Vec::new()
+        }
         MirInstruction::NewBox { args, .. } => args.clone(),
         MirInstruction::RecordValuePublish { base, fields, .. } => {
             let mut used = base.iter().copied().collect::<Vec<_>>();

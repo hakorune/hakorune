@@ -138,6 +138,7 @@ impl BasicBlock {
                 | MirInstruction::Jump { .. }
                 | MirInstruction::Return { .. }
                 | MirInstruction::CheckedCallOut { .. }
+                | MirInstruction::CheckedCallOutFault { .. }
                 | MirInstruction::Throw { .. }
         )
     }

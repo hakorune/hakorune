@@ -215,6 +215,28 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    /// Sole canonical CFG writer for a checked-call Fault landing.  Fault is
+    /// a terminal with no successor; it cannot silently rejoin `After` or a
+    /// shared normal cleanup block.
+    pub(in crate::mir::builder) fn emit_checked_callout_fault(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.preflight_terminator(function, source)?;
+        if function.metadata.checked_callout_plan(site_id).is_none() {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "checked callout Fault has no admitted site plan".to_owned(),
+            ));
+        }
+        let block = function
+            .get_block_mut(source)
+            .expect("Fault source was checked");
+        block.set_terminator(MirInstruction::CheckedCallOutFault { site_id });
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn seal_block(
         &mut self,
         function: &mut MirFunction,

@@ -114,6 +114,17 @@ impl fmt::Display for MirInstruction {
                     write!(f, "ret void")
                 }
             }
+            MirInstruction::CheckedCallOutEnd {
+                site_id,
+                lease_slot,
+            } => write!(
+                f,
+                "checked_callout.end site={} lease={}",
+                site_id.0, lease_slot.0
+            ),
+            MirInstruction::CheckedCallOutFault { site_id } => {
+                write!(f, "checked_callout.fault site={}", site_id.0)
+            }
             // Phase 287: Lifecycle management
             MirInstruction::KeepAlive { values } => {
                 write!(f, "keepalive")?;

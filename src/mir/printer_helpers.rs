@@ -426,6 +426,18 @@ pub fn format_instruction(
             )
         }
 
+        MirInstruction::CheckedCallOutEnd {
+            site_id,
+            lease_slot,
+        } => format!(
+            "checked_callout.end site={} lease={}",
+            site_id.0, lease_slot.0
+        ),
+
+        MirInstruction::CheckedCallOutFault { site_id } => {
+            format!("checked_callout.fault site={}", site_id.0)
+        }
+
         MirInstruction::Phi { dst, inputs, .. } => {
             let inputs_str = inputs
                 .iter()

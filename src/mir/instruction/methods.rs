@@ -73,6 +73,10 @@ impl MirInstruction {
             | MirInstruction::Return { .. }
             | MirInstruction::CheckedCallOutNormalResult { .. } => EffectMask::PURE,
 
+            MirInstruction::CheckedCallOutFault { .. } => EffectMask::CONTROL,
+
+            MirInstruction::CheckedCallOutEnd { .. } => EffectMask::WRITE,
+
             // The effect is a verified cache projected from the function-local
             // CheckedCallOut site plan.  No selector/provider lookup occurs here.
             MirInstruction::CheckedCallOut { effects, .. } => *effects,
@@ -151,6 +155,8 @@ impl MirInstruction {
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
             | MirInstruction::CheckedCallOut { .. }
+            | MirInstruction::CheckedCallOutEnd { .. }
+            | MirInstruction::CheckedCallOutFault { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::DestroyOwned { .. }
@@ -230,7 +236,9 @@ impl MirInstruction {
         match self {
             MirInstruction::Const { .. }
             | MirInstruction::Jump { .. }
-            | MirInstruction::CheckedCallOutNormalResult { .. } => Vec::new(),
+            | MirInstruction::CheckedCallOutNormalResult { .. }
+            | MirInstruction::CheckedCallOutEnd { .. }
+            | MirInstruction::CheckedCallOutFault { .. } => Vec::new(),
 
             MirInstruction::CheckedCallOut {
                 receiver,

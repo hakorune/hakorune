@@ -117,6 +117,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 values
             }
             CheckedCallOutNormalResult { .. } => Vec::new(),
+            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => Vec::new(),
             Branch { condition, .. } => vec![*condition],
             Jump { .. } => Vec::new(),
             Phi { inputs, .. } => inputs.iter().map(|(_, v)| *v).collect(),

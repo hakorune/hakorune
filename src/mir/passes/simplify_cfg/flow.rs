@@ -408,8 +408,11 @@ fn rewrite_value_uses_in_block(block: &mut BasicBlock, from: ValueId, to: ValueI
 
 fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: ValueId, to: ValueId) {
     match instruction {
-        MirInstruction::Const { .. } | MirInstruction::Catch { .. } | MirInstruction::Safepoint => {
-        }
+        MirInstruction::Const { .. }
+        | MirInstruction::Catch { .. }
+        | MirInstruction::Safepoint
+        | MirInstruction::CheckedCallOutEnd { .. }
+        | MirInstruction::CheckedCallOutFault { .. } => {}
         MirInstruction::MemOp { operands, .. } => {
             for operand in operands {
                 rewrite_value_use(operand, from, to);

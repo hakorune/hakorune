@@ -481,6 +481,21 @@ pub enum MirInstruction {
         dst: ValueId,
     },
 
+    /// Consume the lease attached to one admitted CheckedCallOut result.
+    /// This is a physical lifecycle instruction, not a generic call or a
+    /// semantic cleanup receipt.  The selected lifecycle owner guarantees
+    /// that each path consumes the I6 lease exactly once.
+    CheckedCallOutEnd {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
+    },
+
+    /// Terminal for a checked-call Fault landing.  It deliberately has no
+    /// successor; backend lowering may only materialize this canonical stop.
+    CheckedCallOutFault {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+    },
+
     // === SSA Phi Function ===
     /// SSA phi function for merging values from different paths
     /// `%dst = phi [%val1 from %bb1, %val2 from %bb2, ...]`

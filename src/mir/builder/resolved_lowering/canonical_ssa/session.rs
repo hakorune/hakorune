@@ -383,6 +383,48 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         ))
     }
 
+    /// Sole canonical SSA/session writer for the physical End instruction.
+    /// End has no SSA result, but it must still be emitted through the
+    /// canonical session so a caller cannot pair a foreign site or lease slot
+    /// with an otherwise valid block.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_checked_callout_end(
+        &mut self,
+        builder: &mut MirBuilder,
+        block: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
+    ) -> Result<(), String> {
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "checked callout End requires current function".to_owned())?;
+        let plan = function
+            .metadata
+            .checked_callout_plan(site_id)
+            .ok_or_else(|| "checked callout End has no admitted site plan".to_owned())?;
+        match plan.normal_shape() {
+            crate::mir::checked_callout::CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                lease_slot: expected,
+            } if expected == lease_slot => {}
+            _ => return Err("checked callout End lease shape mismatch".to_owned()),
+        }
+        if builder.function_state.current_block != Some(block) {
+            return Err("checked callout End requires selected current block".to_owned());
+        }
+        let target = function
+            .get_block_mut(block)
+            .ok_or_else(|| "checked callout End block is missing".to_owned())?;
+        if target.is_sealed() || target.is_terminated() {
+            return Err("checked callout End block is sealed or terminated".to_owned());
+        }
+        target.add_instruction(crate::mir::MirInstruction::CheckedCallOutEnd {
+            site_id,
+            lease_slot,
+        });
+        Ok(())
+    }
+
     /// Adopt one resolver-issued formal lane into the canonical identity/SSA
     /// owner. The function skeleton has already reserved the parameter
     /// ValueIds; this method only validates and publishes those exact values.

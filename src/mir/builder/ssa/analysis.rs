@@ -78,6 +78,8 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Return { .. } => "Return",
         MirInstruction::CheckedCallOut { .. } => "CheckedCallOut",
         MirInstruction::CheckedCallOutNormalResult { .. } => "CheckedCallOutNormalResult",
+        MirInstruction::CheckedCallOutEnd { .. } => "CheckedCallOutEnd",
+        MirInstruction::CheckedCallOutFault { .. } => "CheckedCallOutFault",
         MirInstruction::Phi { .. } => "Phi",
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",

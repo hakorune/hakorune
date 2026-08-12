@@ -155,6 +155,7 @@ impl JoinIrIdRemapper {
                 vals
             }
             CheckedCallOutNormalResult { dst, .. } => vec![*dst],
+            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => Vec::new(),
             Phi { dst, inputs, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(inputs.iter().map(|(_, v)| *v));
@@ -625,6 +626,7 @@ impl JoinIrIdRemapper {
                 site_id: *site_id,
                 dst: remap(*dst),
             },
+            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => inst.clone(),
             // Pass through unchanged
             Safepoint => inst.clone(),
         }

@@ -158,7 +158,9 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         // CheckedCallOut is intentionally not an LLVM JSON opcode in R0.
         // Canonical CFG plumbing exists, but AOT execution remains closed.
         MirInstruction::CheckedCallOut { .. }
-        | MirInstruction::CheckedCallOutNormalResult { .. } => &[],
+        | MirInstruction::CheckedCallOutNormalResult { .. }
+        | MirInstruction::CheckedCallOutEnd { .. }
+        | MirInstruction::CheckedCallOutFault { .. } => &[],
         MirInstruction::Phi { .. } => &["phi"],
         MirInstruction::NewBox { .. } => &["newbox"],
         MirInstruction::TypeOp { .. } => &["typeop"],
