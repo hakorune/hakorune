@@ -46,6 +46,9 @@ navigation order must stay narrow and explicit.
   helper names out of this file.
 - `core_method_op.rs` owns the MIR carrier vocabulary that mirrors the
   generated `CoreMethodContract` manifest.
+- `core_method_result_kind.rs` owns the read-only generated-row projection,
+  including `result_kind` and typed callable `effect`; `.hako`
+  `CoreMethodContractBox` remains the sole semantic source.
 - Mutating carriers such as `ArrayPush` / `ArraySet` must not reuse key metadata
   for value operands. Add an explicit operand/value field if a future lowering
   needs one.
