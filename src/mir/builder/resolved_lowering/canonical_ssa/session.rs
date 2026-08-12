@@ -205,7 +205,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
     pub(in crate::mir::builder::resolved_lowering) fn new_selected_dynamic(
         input: ResolvedFunctionLoweringInputV1<'source>,
         authority: DynamicCanonicalSessionAuthorityRefV1<'_>,
-        block_expr_count: usize,
     ) -> Result<Self, String> {
         if authority.owner() != input.owner()
             || authority.target_function() != input.function().function_region()
@@ -219,7 +218,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             input.function(),
             input.function().lowering_roots(),
             ResolvedSemanticExpectedCountsV1::new(
-                block_expr_count,
+                0,
                 if_control_regions,
                 if_branch_pairs,
             ),

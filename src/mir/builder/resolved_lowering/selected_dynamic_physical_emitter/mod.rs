@@ -138,7 +138,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         // Validate all borrowed semantic/control authority and the canary
         // evidence before opening any Builder-owned session or skeleton.
         let mut canonical = match demand.with_canonical_session_authority(|authority| {
-            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority, 0)
+            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority)
         }) {
             Ok(canonical) => canonical,
             Err(error) => {
