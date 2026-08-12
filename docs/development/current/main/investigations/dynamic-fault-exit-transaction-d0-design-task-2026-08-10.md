@@ -389,8 +389,9 @@ an independently selectable provider or production route):
   result classification, or independent provider catalog is forbidden.
 
 Status (landed BoxShape, 2026-08-12): `calls.rs` now projects the generated
-row by `CoreMethodOp` and arity, cross-checks the source selector against the
-row's canonical spelling, and derives the Recipe result class from the row's
+row by `CoreMethodOp` and arity, retains that borrowed row identity in each
+verified call relation, cross-checks the source selector against the row's
+canonical spelling, and derives the Recipe result class from the row's
 `StringValue`/`I64Value`. The old hand-written `recipe_result_class` field is
 gone. This is only a named semantic consumer; no ProviderSlot, registry,
 provider, LLVM, runtime, VM, lease, or production caller was opened.
