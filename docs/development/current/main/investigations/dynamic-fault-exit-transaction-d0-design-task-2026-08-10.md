@@ -58,6 +58,9 @@ canonical plan/session:
   resolved_lowering / callable transaction
     -> canonical session / DraftSeal
 
+normal-default production root:
+  package loan exists, but no CanonicalTrivialBindingSsaPlanV1 is carried here
+
 existing common production caller = 0
 ```
 
@@ -76,11 +79,13 @@ Non-authority:
   plan/Completion, and any VM/provider path.
 Fail-fast boundary:
   no shared caller, foreign owner/function/forest/projection/root, ordinary
-  semantic variant, or plan re-verification rejects before Builder effect.
+  semantic variant, absent carried plan, or plan re-verification rejects
+  before Builder effect.
 Smallest next slice:
-  carry the already-created canonical plan into the selected package lowering
-  callback, then perform one private identity co-seal and consume existing
-  demand/session owners inside that callback.
+  identify the existing source-bound plan producer and carry its already-
+  created move-only plan into PreparedProgramRootWorkPlanV1; only then add
+  one private identity co-seal in the selected package lowering callback and
+  consume existing demand/session owners there.
 Non-claims:
   no new semantic receipt, AOT provider cell, LLVM leaf, runtime lease, VM
   feature, fallback, retry, or selected production switch in this D0.
@@ -116,7 +121,9 @@ parser/resolver source
 The handoff compares the existing products by owner, function product,
 function origin, forest allocation, and source-root identity. It never repairs
 with a name, ordinal, batch slot, selector, AST rescan, or physical `ValueId`.
-Foreign, ordinary, duplicate, missing, or mismatched input rejects before
+The plan is not re-verified from `SelectedCallableLoweringInputRefV1::source()`;
+that would issue a second Completion/If/profile authority. Foreign, ordinary,
+duplicate, missing, absent-carried-plan, or mismatched input rejects before
 session/Builder effect and never falls through to the selected raw route.
 
 ## hako.text.scan@1 contract
