@@ -463,14 +463,14 @@ Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backe
 Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
-#### `DYNAMIC-V2-PHYSICAL-LIFECYCLE-FAULT-TERMINAL-D0`
+#### `DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0`
 ```text
-Decision: design-stop; D1 is landed, but the E tail lacks a physical lifecycle vocabulary and owner. Compare `CheckedCallOutEnd` (non-terminator) plus non-rejoining `CheckedCallOutFault` (no-successor terminator) against any source-backed alternative.
-Source authority + canonical issuer: retained cleanup/site-plan/JoinSig facts; Canonical SSA/CFG plus one neutral physical lifecycle owner. Runtime lease is the execution consumer, not the MIR issuer.
+Decision: accepted BoxCount; `CheckedCallOutEnd` is the neutral physical lease-consumption instruction and non-rejoining `CheckedCallOutFault` is the canonical fault terminal.
+Source authority + canonical issuer: retained cleanup/site-plan/JoinSig facts; one move-only lifecycle owner feeds Canonical SSA/CFG. Runtime lease is the execution consumer, not the MIR issuer.
 Non-authority: runtime lease API alone, `ReleaseStrong`, existing `Throw`, `After`, V1 physicalizer, generic Call, provider/LLVM/VM, selector/name lookup, fallback, or a second semantic receipt.
-Fail-fast boundary: missing/foreign/stale/duplicate lease, End, site/landing/predecessor, Fault rejoin, I8-I16/control, PHI, or profile-close evidence rejects before publication.
-Smallest next slice: decide the typed End/terminal representation and move-only canonical handoff, then consume I8-I16/control/cleanup in the same unpublished session.
-Non-claims: no code, fixture, provider/runtime activation, DraftSeal/collector, production caller, or VM parity until the Decision is accepted.
+Fail-fast boundary: missing/foreign/stale/duplicate lease, End, site/landing/predecessor, Fault rejoin, or profile-close evidence rejects before publication; no I8-I16 cursor or production route is opened by R0.
+Smallest next slice: add the typed MIR vocabulary, canonical CFG/SSA emitters, lifecycle ledger handoff, focused negatives, and one reusable authority guard; keep the session unpublished.
+Non-claims: no full I8-I16/control/cleanup, provider/runtime activation, DraftSeal/collector, production caller, or VM parity in R0.
 ```
 
 #### `EXACT-TWO-COLLECTOR-I0-F`
