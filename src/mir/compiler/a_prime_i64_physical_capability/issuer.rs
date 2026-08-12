@@ -47,6 +47,9 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?
         .prepare_all()
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?;
+    let function_effects = operation_program
+        .physical_function_effects()
+        .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionEffect)?;
     Ok(from_parts(
         input.source(),
         selected_key,
@@ -55,6 +58,7 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         source_relation,
         operation_program,
         physical_header,
+        function_effects,
     ))
 }
 

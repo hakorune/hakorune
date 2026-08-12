@@ -171,6 +171,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                     function_name.clone(),
                     &declared_param_decls,
                     return_type_name.as_deref(),
+                    demand.function_effects(),
                 )
                 .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
             draft_builder.set_current_function_declared_signature(

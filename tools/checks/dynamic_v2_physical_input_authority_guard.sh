@@ -16,6 +16,7 @@ APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.r
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
 WIRE_PY="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_callslot_wire.py"
@@ -25,7 +26,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -126,6 +127,10 @@ guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$A
   "A-prime demand must own the single catalog-backed physical-header admission"
 guard_expect_fixed_in_file "$TAG" "physical_header" "$APRIME_MODEL" \
   "selected physical session must consume the demand-owned header projection"
+guard_expect_fixed_in_file "$TAG" "function_effects" "$APRIME_MODEL" \
+  "the physical header must retain the verified effect projection"
+guard_expect_fixed_in_file "$TAG" "physical_function_effects" "$DEMAND_MODEL" \
+  "the operation/effect plan must be the selected function-effect projection source"
 if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected emitter must not re-seal the catalog physical header"
 fi
@@ -143,6 +148,12 @@ if rg -F -q -- "DynamicV2ProducerLaneV1" "$SELECTED_CAPABILITY" || \
 fi
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"
+guard_expect_fixed_in_file "$TAG" "demand.function_effects()" "$SELECTED_EMITTER" \
+  "canonical selected skeleton must consume the demand-owned effect projection"
+if rg -n -A35 -- "fn create_resolved_function_skeleton" "$SKELETON_BUILDER" \
+  | rg -q -- "EffectMask::READ|Effect::ReadHeap"; then
+  guard_fail "$TAG" "canonical skeleton must not hardcode its function effect"
+fi
 guard_expect_fixed_in_file "$TAG" "DynamicV2PhysicalBlockTargetV1" "$SELECTED_ABI" \
   "selected schedule must carry an explicit logical-to-physical block target"
 for target in Header BodyPrelude ThenTerminal Continuation After; do

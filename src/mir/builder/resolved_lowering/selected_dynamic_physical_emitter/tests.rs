@@ -75,6 +75,7 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         assert_eq!(function.signature.params[1], crate::mir::MirType::Integer);
         assert_eq!(function.signature.params[2], crate::mir::MirType::Integer);
         assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
+        assert_eq!(function.signature.effects, crate::mir::EffectMask::READ);
         let receipt = session.emit_i8_const().expect("I8 receipt");
         receipt.with_value(|value| assert_ne!(value.as_u32(), 0));
         drop(receipt);

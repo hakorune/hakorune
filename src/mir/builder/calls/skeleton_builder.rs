@@ -13,7 +13,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::MirParamDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{Effect, EffectMask, FunctionSignature, MirType};
+use crate::mir::{FunctionSignature, MirType};
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 2 - 関数スケルトン作成
@@ -39,6 +39,7 @@ impl MirBuilder {
         func_name: String,
         param_decls: &[MirParamDecl],
         declared_return_type_name: Option<&str>,
+        effects: crate::mir::EffectMask,
     ) -> Result<(), String> {
         let signature = FunctionSignature {
             name: func_name,
@@ -54,7 +55,7 @@ impl MirBuilder {
             return_type: declared_return_type_name
                 .map(crate::mir::builder::builder_metadata::source_type_name_to_mir)
                 .unwrap_or(MirType::Void),
-            effects: EffectMask::READ.add(Effect::ReadHeap),
+            effects,
         };
         self.install_function_skeleton(signature, Some("create_resolved_function_skeleton"))
     }
