@@ -5,6 +5,8 @@
 //! producers.  The current backend leaves intentionally stop at
 //! `RejectBeforeEffect`; no session or ValueId is created here.
 
+use std::num::NonZeroU64;
+
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicInvocationCleanupActionViewV1, DynamicInvocationCleanupRowKindV1,
     DynamicInvocationCleanupRowViewV1,
@@ -16,6 +18,11 @@ use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationV2, LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::box_callable::provider_admission::{
+    PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1,
+    ProviderAdmissionSealV1, TextScanAliasProjectionV1,
+};
 
 use super::selected_dynamic_physical_abi::PreparedSelectedDynamicV2EmissionPlanV1;
 
@@ -36,6 +43,7 @@ pub(in crate::mir) enum SelectedDynamicV2PhysicalCapabilityRejectV1 {
     CleanupCoverage,
     CleanupOrder,
     EndCapabilityUnavailable,
+    TextScanAdmission(ProviderAdmissionRejectV1),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,7 +83,7 @@ impl DynamicV2ProducerReceiptRequirementV1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy)]
 pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
     item: LoopItemKeyV1,
     left: LoopValueKeyV1,
@@ -83,6 +91,8 @@ pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
     result: LoopValueKeyV1,
     v11: DynamicV2ProducerReceiptRequirementV1,
     v12: DynamicV2ProducerReceiptRequirementV1,
+    substring_core: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    index_of_core: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
 }
 
 impl DynamicV2CompareI64CapabilityDemandV1 {
@@ -108,6 +118,18 @@ impl DynamicV2CompareI64CapabilityDemandV1 {
 
     pub(in crate::mir) const fn v12(self) -> DynamicV2ProducerReceiptRequirementV1 {
         self.v12
+    }
+
+    pub(in crate::mir) const fn substring_core(
+        self,
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+        self.substring_core
+    }
+
+    pub(in crate::mir) const fn index_of_core(
+        self,
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+        self.index_of_core
     }
 }
 
@@ -178,6 +200,7 @@ pub(in crate::mir) struct SelectedDynamicV2PhysicalCapabilityAdmissionV1<'progra
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
     compare_i64: DynamicV2CompareI64CapabilityDemandV1,
     cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+    aot: PreparedAotExecutableAdmissionV1,
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
 }
 
@@ -187,7 +210,14 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn compare_i64(&self) -> DynamicV2CompareI64CapabilityDemandV1 {
+    pub(in crate::mir) const fn aot_admission(&self) -> &PreparedAotExecutableAdmissionV1 {
+        &self.aot
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) const fn compare_i64(
+        &self,
+    ) -> DynamicV2CompareI64CapabilityDemandV1 {
         self.compare_i64
     }
 
@@ -214,16 +244,29 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
 
 pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'program>(
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
+    registry_generation: NonZeroU64,
+    plan_stamp: ModuleInvocationBrandV1,
 ) -> Result<
     SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program>,
     SelectedDynamicV2PhysicalCapabilityRejectV1,
 > {
     let compare_i64 = issue_compare_i64_demand(&plan)?;
     let cleanup = issue_cleanup_demand(&plan)?;
+    let aliases = TextScanAliasProjectionV1::from_type_registry()
+        .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::TextScanAdmission)?;
+    let aot = ProviderAdmissionSealV1::consume_text_scan(
+        compare_i64.substring_core(),
+        compare_i64.index_of_core(),
+        aliases,
+        registry_generation,
+        plan_stamp,
+    )
+    .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::TextScanAdmission)?;
     Ok(SelectedDynamicV2PhysicalCapabilityAdmissionV1 {
         plan,
         compare_i64,
         cleanup,
+        aot,
         disposition: DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect,
     })
 }
@@ -345,6 +388,8 @@ fn issue_compare_i64_demand(
                 family: DynamicV2ProducerFamilyV1::ConstI64,
                 representation: DynamicV2PhysicalRepresentationV1::ImmediateI64,
             },
+            substring_core: i6_core,
+            index_of_core: i7_core,
         })
     })
 }

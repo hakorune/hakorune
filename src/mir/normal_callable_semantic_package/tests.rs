@@ -321,13 +321,22 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
         let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
             .expect("selected V2 preflight plan");
         let admission =
-            crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(plan)
+            crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(
+                plan,
+                std::num::NonZeroU64::new(1).expect("test registry generation"),
+                crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
+            )
                 .expect("exact V2 capability requirements");
         assert_eq!(
             admission.disposition(),
             crate::mir::builder::resolved_lowering::
                 DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect
         );
+        assert_eq!(admission.aot_admission().contract_id(), "hako.text.scan@1");
+        assert_eq!(admission.aot_admission().canonical_receiver(), "Text");
+        assert_eq!(admission.aot_admission().aliases(), ["String", "StringBox"]);
+        assert_eq!(admission.aot_admission().registry_branch_count(), 1);
+        assert_eq!(admission.aot_admission().registry_generation(), 1);
         let compare_i64 = admission.compare_i64();
         assert_eq!(
             compare_i64.item(),

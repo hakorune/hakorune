@@ -34,6 +34,7 @@ pub(crate) struct TextScanAotExportFactV1 {
     pub(crate) entry: TextScanAotEntryIdV1,
     pub(crate) symbol: &'static str,
     pub(crate) arity: u32,
+    pub(crate) receiver_lane: TextScanValueLaneV1,
     pub(crate) argument_lanes: &'static [TextScanValueLaneV1],
     pub(crate) result_lane: TextScanValueLaneV1,
     pub(crate) lease: TextScanLeaseCapabilityV1,
@@ -44,6 +45,7 @@ pub(crate) const TEXT_SCAN_AOT_EXPORT_FACTS_V1: &[TextScanAotExportFactV1] = &[
         entry: TextScanAotEntryIdV1::Substring,
         symbol: "hako.text.scan.substring.v1",
         arity: 2,
+        receiver_lane: TextScanValueLaneV1::HostHandle,
         argument_lanes: &[
             TextScanValueLaneV1::ImmediateI64,
             TextScanValueLaneV1::ImmediateI64,
@@ -55,6 +57,7 @@ pub(crate) const TEXT_SCAN_AOT_EXPORT_FACTS_V1: &[TextScanAotExportFactV1] = &[
         entry: TextScanAotEntryIdV1::IndexOf,
         symbol: "hako.text.scan.index_of.v1",
         arity: 1,
+        receiver_lane: TextScanValueLaneV1::HostHandle,
         argument_lanes: &[TextScanValueLaneV1::HostHandle],
         result_lane: TextScanValueLaneV1::ImmediateI64,
         lease: TextScanLeaseCapabilityV1::None,
@@ -72,6 +75,13 @@ mod tests {
         assert_eq!(TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1, 1);
         assert_eq!(TEXT_SCAN_AOT_EXPORT_FACTS_V1[0].arity, 2);
         assert_eq!(TEXT_SCAN_AOT_EXPORT_FACTS_V1[1].arity, 1);
+        assert_eq!(
+            TEXT_SCAN_AOT_EXPORT_FACTS_V1
+                .iter()
+                .map(|fact| fact.receiver_lane)
+                .collect::<Vec<_>>(),
+            vec![TextScanValueLaneV1::HostHandle; 2]
+        );
     }
 
     #[test]

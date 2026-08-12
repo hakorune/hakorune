@@ -44,7 +44,8 @@ for pair in \
   "HostHandle = 1" "ImmediateI64 = 2" \
   "None = 0" "EndAuthorized = 1" \
   'symbol: "hako.text.scan.substring.v1"' \
-  'symbol: "hako.text.scan.index_of.v1"'; do
+  'symbol: "hako.text.scan.index_of.v1"' \
+  'receiver_lane: TextScanValueLaneV1::HostHandle'; do
   guard_expect_fixed_in_file "$TAG" "$pair" "$RUST" "Rust export projection drifted: $pair"
 done
 

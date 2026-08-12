@@ -71,6 +71,14 @@ class TextScanExportProjectionTests(unittest.TestCase):
             macro_uint("HAKO_TEXT_SCAN_INDEX_OF_ARITY"),
             projection.EXPORT_FACTS[1]["arity"],
         )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_SUBSTRING_RECEIVER_LANE"),
+            projection.EXPORT_FACTS[0]["receiver_lane"],
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE"),
+            projection.EXPORT_FACTS[1]["receiver_lane"],
+        )
 
         self.assertEqual(
             [fact["symbol"] for fact in projection.EXPORT_FACTS],
@@ -104,6 +112,8 @@ class TextScanExportProjectionTests(unittest.TestCase):
     def test_strict_lanes_and_leases_are_fixed(self) -> None:
         projection = load_projection()
         substring, index_of = projection.EXPORT_FACTS
+        self.assertEqual(substring["receiver_lane"], projection.VALUE_HOST_HANDLE)
+        self.assertEqual(index_of["receiver_lane"], projection.VALUE_HOST_HANDLE)
         self.assertEqual(substring["argument_lanes"], (projection.VALUE_IMMEDIATE_I64,) * 2)
         self.assertEqual(substring["result_lane"], projection.VALUE_HOST_HANDLE)
         self.assertEqual(substring["lease"], projection.LEASE_END_AUTHORIZED)

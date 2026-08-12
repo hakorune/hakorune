@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TAG="dynamic-v2-text-scan-admission-authority"
+source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+
+guard_require_command "$TAG" rg
+guard_require_command "$TAG" wc
+guard_require_files "$TAG" \
+  "$ROOT_DIR/src/box_callable/provider_admission/mod.rs" \
+  "$ROOT_DIR/src/box_callable/provider_admission/seal.rs" \
+  "$ROOT_DIR/src/box_callable/provider_admission/admitted_registry.rs" \
+  "$ROOT_DIR/src/box_callable/provider_admission/aot_admission.rs" \
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
+  "$ROOT_DIR/docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+
+ADMISSION_DIR="$ROOT_DIR/src/box_callable/provider_admission"
+
+for file in "$ADMISSION_DIR"/*.rs; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "I0-C admission file reached the hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+
+if [[ "$(rg -n 'pub\(crate\) struct PreparedAotExecutableAdmissionV1' "$ADMISSION_DIR/aot_admission.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "symbolic AOT admission must have exactly one owner"
+fi
+if [[ "$(rg -n 'pub\(crate\) struct AdmittedTextScanRegistryV1' "$ADMISSION_DIR/admitted_registry.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "immutable admitted registry must have exactly one owner"
+fi
+if [[ "$(rg -n 'pub\(crate\) struct ProviderAdmissionSealV1' "$ADMISSION_DIR/seal.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "ProviderAdmissionSeal must have exactly one issuer"
+fi
+if [[ "$(rg -n 'ProviderAdmissionSealV1::consume_text_scan' "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected physical capability must consume the admission exactly once"
+fi
+
+if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \
+  "$ADMISSION_DIR"; then
+  guard_fail "$TAG" "I0-C admission must not re-search generated rows, selectors, runtime plans, addresses, images, or VM lanes"
+fi
+if rg -n -U '#\[derive\([^\n]*Clone[^\n]*\)\][[:space:]]*\n[[:space:]]*(pub\([^)]*\)[[:space:]]+)?struct[[:space:]]+(PreparedAotExecutableAdmissionV1|AdmittedTextScanRegistryV1)' \
+  "$ADMISSION_DIR" || \
+  rg -n 'Clone[[:space:]]*for[[:space:]]+(PreparedAotExecutableAdmissionV1|AdmittedTextScanRegistryV1)|into_parts|raw registry' \
+  "$ADMISSION_DIR"; then
+  guard_fail "$TAG" "I0-C admission must remain move-only without raw registry escape"
+fi
+
+guard_expect_fixed_in_file "$TAG" 'receiver_lane: TextScanValueLaneV1::HostHandle' \
+  "$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs" \
+  "Rust export facts must declare the HostHandle receiver lane"
+guard_expect_fixed_in_file "$TAG" '"receiver_lane": VALUE_HOST_HANDLE' \
+  "$ROOT_DIR/src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py" \
+  "Python export facts must declare the HostHandle receiver lane"
+guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SUBSTRING_RECEIVER_LANE' \
+  "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
+  "C export facts must declare the substring receiver lane"
+guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE' \
+  "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
+  "C export facts must declare the indexOf receiver lane"
+
+guard_expect_fixed_in_file "$TAG" 'ModuleInvocationBrandV1' \
+  "$ADMISSION_DIR/aot_admission.rs" \
+  "symbolic admission must carry the existing compile-session PlanStamp"
+guard_expect_fixed_in_file "$TAG" 'RejectBeforeEffect' \
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
+  "pre-link admission must remain non-production/reject-only"
+
+echo "[$TAG] ok"

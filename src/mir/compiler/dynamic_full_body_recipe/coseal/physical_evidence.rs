@@ -219,10 +219,10 @@ pub(in crate::mir) struct DynamicFullLoopOperationPhysicalRefV2<'program> {
     operation: &'program LoopOperationV2,
     call: Option<&'program VerifiedSourceBoundDynamicMemberCallV1>,
     core_method:
-        Option<&'program crate::mir::core_method_result_kind::CoreMethodContractResultRowV1>,
+        Option<&'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1>,
 }
 
-impl DynamicFullLoopOperationPhysicalRefV2<'_> {
+impl<'program> DynamicFullLoopOperationPhysicalRefV2<'program> {
     pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
         self.evidence.item()
     }
@@ -265,7 +265,7 @@ impl DynamicFullLoopOperationPhysicalRefV2<'_> {
 
     pub(in crate::mir) fn core_method(
         &self,
-    ) -> Option<&crate::mir::core_method_result_kind::CoreMethodContractResultRowV1> {
+    ) -> Option<&'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1> {
         self.core_method
     }
 }
