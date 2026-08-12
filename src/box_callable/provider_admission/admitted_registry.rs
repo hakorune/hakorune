@@ -1,6 +1,7 @@
 //! Immutable selected rows issued by the provider-admission seal.
 
 use crate::abi::text_scan_aot_export_facts::TextScanAotEntryIdV1;
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TextScanAdmittedRoleV1 {
@@ -33,17 +34,17 @@ impl AdmittedTextScanRowV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct AdmittedTextScanRegistryV1 {
     rows: [AdmittedTextScanRowV1; 2],
-    generation: u64,
+    plan_stamp: ModuleInvocationBrandV1,
 }
 
 impl AdmittedTextScanRegistryV1 {
     pub(super) fn new(
         substring_slot: u16,
         index_of_slot: u16,
-        generation: u64,
+        plan_stamp: ModuleInvocationBrandV1,
     ) -> Result<Self, &'static str> {
-        if substring_slot == index_of_slot || generation == 0 {
-            return Err("duplicate TextScan slot or zero registry generation");
+        if substring_slot == index_of_slot {
+            return Err("duplicate TextScan slot");
         }
         Ok(Self {
             rows: [
@@ -58,7 +59,7 @@ impl AdmittedTextScanRegistryV1 {
                     entry: TextScanAotEntryIdV1::IndexOf,
                 },
             ],
-            generation,
+            plan_stamp,
         })
     }
 
@@ -67,7 +68,11 @@ impl AdmittedTextScanRegistryV1 {
     }
 
     pub(crate) const fn generation(&self) -> u64 {
-        self.generation
+        self.plan_stamp.invocation_ordinal().get()
+    }
+
+    pub(crate) const fn plan_stamp(&self) -> ModuleInvocationBrandV1 {
+        self.plan_stamp
     }
 
     pub(crate) fn row(&self, role: TextScanAdmittedRoleV1) -> AdmittedTextScanRowV1 {
@@ -84,16 +89,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn duplicate_slots_and_zero_generation_are_rejected() {
-        assert!(AdmittedTextScanRegistryV1::new(301, 301, 1).is_err());
-        assert!(AdmittedTextScanRegistryV1::new(301, 302, 0).is_err());
+    fn duplicate_slots_are_rejected() {
+        assert!(AdmittedTextScanRegistryV1::new(
+            301,
+            301,
+            ModuleInvocationBrandV1::test_with_ordinal(1),
+        )
+        .is_err());
     }
 
     #[test]
     fn admitted_rows_are_deterministic_and_complete() {
-        let registry = AdmittedTextScanRegistryV1::new(301, 302, 7).expect("admit rows");
+        let stamp = ModuleInvocationBrandV1::test_with_ordinal(7);
+        let registry = AdmittedTextScanRegistryV1::new(
+            301,
+            302,
+            stamp,
+        )
+        .expect("admit rows");
         assert_eq!(registry.branch_count(), 1);
         assert_eq!(registry.generation(), 7);
+        assert_eq!(registry.plan_stamp(), stamp);
         assert_eq!(
             registry.row(TextScanAdmittedRoleV1::TextSliceRange).entry(),
             TextScanAotEntryIdV1::Substring

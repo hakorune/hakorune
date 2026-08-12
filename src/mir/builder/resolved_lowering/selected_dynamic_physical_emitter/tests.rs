@@ -67,7 +67,6 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         });
         let capability = issue_selected_dynamic_v2_physical_capability_admission(
             plan,
-            std::num::NonZeroU64::new(1).expect("test registry generation"),
             crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
         )
         .expect("physical capability admission");

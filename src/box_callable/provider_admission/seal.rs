@@ -1,7 +1,5 @@
 //! One-shot TextScan provider admission over retained semantic rows.
 
-use std::num::NonZeroU64;
-
 use crate::abi::text_scan_aot_export_facts::{
     TextScanAotEntryIdV1, TextScanAotExportFactV1, TextScanCallOutParameterV1,
     TextScanCallParameterTypeV1, TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1,
@@ -74,7 +72,6 @@ impl ProviderAdmissionSealV1 {
         substring_core: &CoreMethodContractResultRowV1,
         index_of_core: &CoreMethodContractResultRowV1,
         aliases: TextScanAliasProjectionV1,
-        registry_generation: NonZeroU64,
         plan_stamp: ModuleInvocationBrandV1,
     ) -> Result<PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1> {
         validate_core_row(
@@ -100,7 +97,7 @@ impl ProviderAdmissionSealV1 {
         let registry = AdmittedTextScanRegistryV1::new(
             aliases.substring_slot,
             aliases.index_of_slot,
-            registry_generation.get(),
+            plan_stamp,
         )
         .map_err(|_| ProviderAdmissionRejectV1::RegistryCollision)?;
         Ok(build(
@@ -112,7 +109,6 @@ impl ProviderAdmissionSealV1 {
             registry,
             substring_entry,
             index_of_entry,
-            plan_stamp,
         ))
     }
 }

@@ -209,8 +209,8 @@ pub(super) fn build(
     registry: AdmittedTextScanRegistryV1,
     substring: TextScanEntryContractV1,
     index_of: TextScanEntryContractV1,
-    plan_stamp: ModuleInvocationBrandV1,
 ) -> PreparedAotExecutableAdmissionV1 {
+    let plan_stamp = registry.plan_stamp();
     PreparedAotExecutableAdmissionV1 {
         contract_id,
         profile,

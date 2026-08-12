@@ -331,7 +331,6 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
         let admission =
             crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(
                 plan,
-                std::num::NonZeroU64::new(1).expect("test registry generation"),
                 crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
             )
             .expect("exact V2 capability requirements");

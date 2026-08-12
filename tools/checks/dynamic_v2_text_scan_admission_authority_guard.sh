@@ -36,6 +36,14 @@ fi
 if [[ "$(rg -n 'ProviderAdmissionSealV1::consume_text_scan' "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected physical capability must consume the admission exactly once"
 fi
+if rg -n 'NonZeroU64|registry_generation[[:space:]]*:' \
+  "$ADMISSION_DIR/seal.rs" \
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"; then
+  guard_fail "$TAG" "admission must not accept an independent raw registry generation"
+fi
+if [[ "$(rg -n 'AdmittedTextScanRegistryV1::new' "$ADMISSION_DIR/seal.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "the admitted registry must be constructed by the seal exactly once"
+fi
 
 if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \
   "$ADMISSION_DIR"; then

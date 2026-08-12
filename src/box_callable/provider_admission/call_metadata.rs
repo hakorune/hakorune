@@ -214,7 +214,6 @@ mod tests {
     use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_RESULT_ROWS_V1;
     use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
     use crate::mir::{BasicBlockId, ValueId};
-    use std::num::NonZeroU64;
 
     #[test]
     fn projection_keeps_exact_two_typed_sites_and_stamp() {
@@ -236,7 +235,7 @@ mod tests {
         assert_eq!(projection.registry_generation(), 7);
         assert_eq!(
             projection.plan_stamp(),
-            ModuleInvocationBrandV1::test_with_ordinal(3)
+            ModuleInvocationBrandV1::test_with_ordinal(7)
         );
     }
 
@@ -286,8 +285,7 @@ mod tests {
             substring,
             index_of,
             aliases,
-            NonZeroU64::new(7).expect("generation"),
-            ModuleInvocationBrandV1::test_with_ordinal(3),
+            ModuleInvocationBrandV1::test_with_ordinal(7),
         )
         .expect("TextScan admission")
     }

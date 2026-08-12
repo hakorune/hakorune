@@ -4,8 +4,6 @@
 //! I9 I64 operation, cleanup rows, and AOT admission can form one physical
 //! activation handoff. Runtime producer execution remains `RejectBeforeEffect`.
 
-use std::num::NonZeroU64;
-
 use crate::box_callable::provider_admission::{
     PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1, ProviderAdmissionSealV1,
     TextScanAdmittedRoleV1, TextScanAliasProjectionV1,
@@ -339,7 +337,6 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
 
 pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'program>(
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
-    registry_generation: NonZeroU64,
     plan_stamp: ModuleInvocationBrandV1,
 ) -> Result<
     SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program>,
@@ -353,7 +350,6 @@ pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'p
         compare_i64.substring_core(),
         compare_i64.index_of_core(),
         aliases,
-        registry_generation,
         plan_stamp,
     )
     .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::TextScanAdmission)?;

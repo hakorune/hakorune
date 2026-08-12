@@ -547,40 +547,41 @@ below 760 target and 800 hard stop.
 Non-claims: no W6 subfragment may land as a selectable production route; if
 the complete cell is not green, keep the current unpublished lane unchanged.
 
-#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-ISSUER-R0` — design stop prerequisite
+#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-R0` — accepted BoxShape prerequisite
 
-Decision: name the sole issuer of the admitted provider-registry generation
-before W6 can change the capability from `RejectBeforeEffect`. The current
-`AdmittedTextScanRegistryV1` stores a caller-supplied `NonZeroU64`; that value
-is not an authority and may not be replaced by an invocation ordinal, a host
-handle generation, or a test constant.
+Decision: use the existing invocation identity issuer as the sole source of the
+admitted provider-registry generation. The current `AdmittedTextScanRegistryV1`
+stores a caller-supplied `NonZeroU64`; replace that input with a projection of
+the already admitted `ModuleInvocationBrandV1` and do not add a counter.
 
 Source authority + canonical issuer: the provider admission/immutable-registry
-owner must issue one move-only generation product together with the admitted
-TextScan rows and shared `PlanStamp`. `ProviderAdmissionSealV1` may consume
-that product, but it must not mint or re-lookup it. The issuer must be tied to
-the same admitted registry owner and reject foreign/stale generations.
+owner consumes the `ModuleInvocationBrandV1` issued for the same activation.
+`AdmittedTextScanRegistryV1` stores that brand and derives its diagnostic
+generation from the brand's invocation ordinal; `ProviderAdmissionSealV1`
+and the executable admission retain the same brand. No provider lookup or
+second issuer is added.
 
-Non-authority: `ModuleInvocationBrandV1`, raw `NonZeroU64`, host lease
-generation, type-registry slot number, selector/name, runtime lookup, LLVM,
-VM, and the unpublished test canary. No new semantic `Verified*`/`Prepared*`
+Non-authority: raw `NonZeroU64`, host lease generation, type-registry slot
+number, selector/name, runtime lookup, LLVM, VM, and the unpublished test
+canary. `ModuleInvocationBrandV1` is the existing identity source, not a new
+semantic receipt. No new semantic `Verified*`/`Prepared*`
 meaning or second provider registry is allowed.
 
-Fail-fast boundary: missing/zero/foreign/stale generation, registry/alias
-collision, PlanStamp mismatch, or `RejectBeforeEffect` success disposition
-must reject before Builder/session/collector mutation. Until this row is
-accepted, W6 keeps provider/runtime/LLVM production callers at zero.
+Fail-fast boundary: missing/zero/foreign/stale brand, registry/alias collision,
+PlanStamp mismatch, or `RejectBeforeEffect` success disposition must reject
+before Builder/session/collector mutation. W6 keeps provider/runtime/LLVM
+production callers at zero until its complete activation cell is green.
 
-Smallest next slice: read-only census the existing provider seed, admission,
-and invocation owners; then define one branded generation issuer/consumer
-boundary (or record `NoSafeSlice` if no existing owner can issue it). Do not
-land a generation-only provider product, production caller, registry lookup,
-fallback, retry, or VM adapter.
+Smallest next slice: remove the external generation argument from the existing
+admission path, make the registry constructor private to the seal, and add
+brand/stale/zero negative coverage. Keep the canary and all production callers
+unchanged; the next consumer remains the complete W6 activation cell.
 
-Acceptance: generation issuer definition/caller = 1/1; admitted registry and
-PlanStamp share the issuer brand; duplicate/foreign/stale/zero generation
-negatives are green; raw generation input and test-only `legacy_test()` are
-production callers = 0; the existing unpublished canary remains unchanged.
+Acceptance: generation issuer/consumer = existing invocation identity/one;
+admitted registry and PlanStamp share the exact brand; generation is only an
+ordinal projection; duplicate/foreign/stale/zero brand negatives are green;
+raw generation input and test-only `legacy_test()` are production callers = 0.
+This is a BoxShape correction only and does not open W6 production execution.
 Non-claims: successful W6 activation, strict leaf/link cutover, collector
 publication, old-edge retirement, or RuntimeExecutablePlan activation.
 
