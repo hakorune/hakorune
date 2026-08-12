@@ -5,10 +5,10 @@ date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Define one private move-only transport from the existing selected capability/AOT admission into the physical session containing exact I6 EndAuthorizedHandle/V10 and I7 ImmediateI64/V11 site plans under one PlanStamp. targets.rs may not mint or infer plans; missing/duplicate/swapped/foreign/partial input rejects before corridor block mutation."
+current_design_stop = "Define one private move-only transport issued by the existing SelectedDynamicV2PhysicalCapabilityAdmissionV1 from its retained A-prime relation plus PreparedAotExecutableAdmissionV1 into the physical session: exact I6 EndAuthorizedHandle/V10 and I7 ImmediateI64/V11 site plans under one PlanStamp. targets.rs may not mint or infer plans; missing/duplicate/swapped/foreign/partial input rejects before corridor block mutation."
 work_mode = "design_stop"
 current_execution_row = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0"
-current_blocker_token = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0: name the exact existing owner and consuming API that move I6/I7 admitted site plans into the selected physical session before corridor allocation, without selector/entry lookup, parts API, second registry, or second CFG authority."
+current_blocker_token = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0: use one private consuming transport from SelectedDynamicV2PhysicalCapabilityAdmissionV1 (retained A-prime relation + PreparedAotExecutableAdmissionV1) into begin(builder, activation) before corridor allocation; no selector/entry lookup, parts API, second registry, or second CFG authority."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

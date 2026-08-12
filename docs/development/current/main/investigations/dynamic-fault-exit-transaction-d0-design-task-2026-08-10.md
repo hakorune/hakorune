@@ -413,6 +413,12 @@ Only after this transport is accepted may the same session allocate the four
 site-local landings, emit two CheckedCallOut terminators/projections, publish
 their results to its existing value ledger, and satisfy the final census.
 
+Transport owner/issuer: the existing `SelectedDynamicV2PhysicalCapabilityAdmissionV1`
+consumes its retained A-prime relation and `PreparedAotExecutableAdmissionV1`;
+it issues one private move-only pair, not a new semantic receipt. The selected
+emitter consumes that pair through `begin(builder, activation)` before target
+allocation. No selector/by-name lookup, `into_parts`, or target-side plan minting.
+
 #### `PHYSICAL-SESSION-I0-E`
 ```text
 Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0
