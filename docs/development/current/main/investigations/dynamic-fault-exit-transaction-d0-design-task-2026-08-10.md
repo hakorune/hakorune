@@ -440,8 +440,9 @@ Non-authority: six logical targets, site-plan transport, V1 physicalizer, select
 Fail-fast boundary: missing/foreign/duplicate formal or operation, use-before-produce,
   typed representation drift, PlanStamp/site mismatch, shared landing, or orphan projection
   rejects before publication and discards the unpublished session.
-Smallest next slice: source-backed typed shape projection (Dynamic borrow, ImmediateI64,
-  ImmediateBool, EndAuthorizedHandle) plus one private corridor module for formal->I0-I5->I6->I7.
+Smallest next slice: consume existing projections (formal Dynamic stays a canonical SSA
+  receipt; operation rows provide ImmediateI64/ImmediateBool; admitted site plans provide
+  I6 EndAuthorizedHandle and I7 ImmediateI64) in one private corridor for formal->I0-I5->I6->I7.
 Non-claims: no I9/control/backedge/cleanup completion, provider/LLVM/runtime activation,
   collector, production caller, fallback, retry, or VM parity.
 ```
