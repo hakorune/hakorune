@@ -379,6 +379,23 @@ hako.text.scan@1 role aggregate
 Bounded implementation subrows (all part of this one activation cell; none is
 an independently selectable provider or production route):
 
+`CORE-METHOD-CONTRACT-COMPLETE-ROW-PROJECTION-R0`
+  Extend the existing `CoreMethodContractBox` code generator so the generated
+  Rust semantic row carries the typed `effect` (and only the source-owned
+  contract fields needed by the selected co-seal) alongside `result_kind`.
+  The `.hako` `CoreMethodContractBox` remains the only effect authority; no
+  TextScan-only effect table, selector lookup, or Builder-fixed `EffectMask`
+  is allowed. The by-`CoreMethodOp` projection must expose both result and
+  effect, and missing, unknown, or drifted rows reject before provider
+  admission. `pure_read` is the callable effect axis; it must not reclassify
+  the Dynamic invocation envelope's `OpaqueObservable`/suspension semantics.
+  This is a semantic projection BoxShape, not a new TextScan authority or
+  production route.
+
+Status (open, 2026-08-12): codegen reads `effect` for JSON but drops it from
+the generated Rust row. Result-kind co-seal is landed; effect projection,
+Rust enum, generated-row parity, and negative drift coverage remain pending.
+
 `DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
   The existing generated `CoreMethodContractBox` rows are borrowed by one
   private TextScan role aggregate. I6/substring must match the generated
@@ -388,30 +405,47 @@ an independently selectable provider or production route):
   before provider admission. A hand-written result table, selector-only
   result classification, or independent provider catalog is forbidden.
 
-Status (landed BoxShape, 2026-08-12): `calls.rs` now projects the generated
-row by `CoreMethodOp` and arity, retains that borrowed row identity in each
-verified call relation, cross-checks the source selector against the row's
-canonical spelling, and derives the Recipe result class from the row's
-`StringValue`/`I64Value`. The old hand-written `recipe_result_class` field is
-gone. This is only a named semantic consumer; no ProviderSlot, registry,
-provider, LLVM, runtime, VM, lease, or production caller was opened.
+Status (result BoxShape landed, 2026-08-12): `calls.rs` projects and retains
+the generated row by `CoreMethodOp`/arity, cross-checks canonical spelling,
+and derives Recipe class from `StringValue`/`I64Value`; hand-written
+`recipe_result_class` is gone. Effect projection and all provider/LLVM/
+runtime/session activation remain open; no production caller was opened.
 
 Evidence:
 
 ```text
-generated row projection tests                         = 6 passed
+generated result-row projection tests                  = 6 passed
 dynamic_full_body_recipe tests                         = 32 passed
-selector mismatch remains TargetDispatchMismatch      = green
-selector-only result-class authority                  = 0
-provider/registry/LLVM/runtime/VM additions           = 0
+selector mismatch / selector-only result authority    = green / 0
+generated effect projection                            = 0 (next R0)
+provider/registry/LLVM/runtime/VM additions            = 0
 ```
+
+The effect row is required before the TextScan aggregate can claim to borrow
+the complete callable contract. `StringSubstring` and `StringIndexOf` must
+both project `PureRead` from generated rows; the aggregate may add only the
+shared UTF-8 code-point profile and cross-role lifecycle requirements.
+
+Activation order after the effect projection is fixed:
+
+```text
+TextScan role aggregate -> consuming admission -> immutable registry
+-> receiver-identity RuntimeExecutablePlan -> strict LLVM leaf
+-> PHYSICAL-SESSION-BLOCKS (Header/BodyPrelude/Then/Continuation/After)
+-> TYPED-OPS -> CARRIER-SSA-END (I6 lease/End, I7 ImmediateI64)
+-> exact-two DraftSeal -> CanonicalCallable collector -> cutover
+```
+
+Each arrow is a named child of this activation cell, not an independently
+selectable authority. Any missing relation remains `RejectBeforeEffect`.
 
 ```text
 DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
-  DynamicV2PhysicalEmissionSessionV1 consumes the package-owned selected key,
-  owner, and validated physical header once.  It retains one private child
-  admission through the unpublished session and rejects foreign symbol,
-  arity, owner, or target evidence before any collector handoff.
+  The package adapter's existing cataloged-method admission is the sole
+  physical-header source. It is moved into the selected Dynamic activation
+  input and retained through the unpublished session and collector; the
+  emitter must not re-seal the same source key. Foreign symbol, arity, owner,
+  target, or physical-header evidence rejects before Builder mutation.
 
 DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   The same session consumes the complete operation/control schedule, I6/I7
@@ -427,8 +461,11 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
 DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
   ModuleLoweringPortV1 receives the already-completed canonical draft through
   one direct collector admission.  It must not open a second function session
-  or re-run finalize/type/return inference; the catalog physical symbol and
-  source owner remain the same co-sealed identity.
+  or re-run finalize/type/return inference. The selected package-owned
+  catalog identity maps to `FunctionDraftKeyV1::CanonicalCallable` with the
+  existing whole-batch collision preflight; `into_legacy_collector_parts()`
+  and `FunctionDraftKeyV1::LegacySymbol` are compatibility-only and forbidden
+  on this path.
 
 DYNAMIC-V2-SELECTED-PACKAGE-ADAPTER-CUTOVER-I0
   NormalCallableSemanticPackagePortAdapterV1 routes only the selected Dynamic
@@ -449,6 +486,7 @@ Required activation counts:
 ```text
 complete TextScan roles / same provider-profile                 = 2 / 1
 generated CoreMethodContractBox result/effect source             = 1
+generated typed effect projection                              = 1
 TextScan result/effect reissuance                                = 0
 ProviderAdmissionSeal / immutable admitted registry             = 1 / 1
 mutable admitted insert / duplicate overwrite                   = 0 / 0
@@ -462,6 +500,7 @@ synthetic return join / return PHI                              = 0 / 0
 new selected production caller / selected old edge              = 1 / 0
 runtime registry/selector/provider/image lookup                  = 0
 selected legacy finalizer / name-type repair                     = 0 / 0
+selected Builder-fixed effect summary / legacy collector key      = 0 / 0
 Rust VM DynamicV2 production consumer                           = 0
 fallback / retry / sentinel-zero repair                         = 0 / 0 / 0
 ```
