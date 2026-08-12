@@ -12,6 +12,8 @@ mod driver_dispatch;
 mod harness_driver;
 mod link_driver;
 mod native_driver;
+#[cfg(test)]
+mod runtime_executable_plan;
 
 #[derive(Parser, Debug)]
 #[command(

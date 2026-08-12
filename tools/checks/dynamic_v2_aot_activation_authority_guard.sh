@@ -22,11 +22,12 @@ METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
 RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
+PLAN_OWNER="$ROOT_DIR/crates/nyash-llvm-compiler/src/runtime_executable_plan.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -53,6 +54,9 @@ done
 if (( $(wc -l < "$LINK_DRIVER" | tr -d '[:space:]') >= 800 )); then
   guard_fail "$TAG" "link boundary reached hard 800-line boundary"
 fi
+if (( $(wc -l < "$PLAN_OWNER" | tr -d '[:space:]') >= 800 )); then
+  guard_fail "$TAG" "post-link plan owner reached hard 800-line boundary"
+fi
 
 if [[ "$(rg -n '^def load_selected_dynamic_v2_aot_admission\(' "$METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 metadata loader definition must be unique"
@@ -71,6 +75,21 @@ if [[ "$(rg -n '^pub\(crate\) fn insert_dynamic_v2_aot_call_admission_json\(' "$
 fi
 if [[ "$(rg -n '^fn require_explicit_nyrt_archive\(' "$LINK_DRIVER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "W3 explicit --nyrt artifact boundary must have one owner"
+fi
+if [[ "$(rg -n '^pub\(crate\) struct RuntimeExecutablePlanV1' "$PLAN_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "W3 post-link executable plan owner must be unique"
+fi
+if [[ "$(rg -n '^pub\(crate\) fn issue_runtime_executable_plan\(' "$PLAN_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "W3 post-link executable plan issuer must be unique"
+fi
+if rg -n 'RuntimeExecutablePlanV1|issue_runtime_executable_plan\(' \
+  --glob '*.rs' \
+  --glob '!runtime_executable_plan.rs' \
+  "$ROOT_DIR/crates/nyash-llvm-compiler/src"; then
+  guard_fail "$TAG" "W3 executable plan must remain disconnected from production callers"
+fi
+if rg -n 'lookup_core_method|into_parts|\.clone\(|RuntimeExecutablePlanV1::clone' "$PLAN_OWNER"; then
+  guard_fail "$TAG" "W3 post-link plan owner must not re-resolve or clone semantic facts"
 fi
 if rg -n \
   --glob '*.py' \

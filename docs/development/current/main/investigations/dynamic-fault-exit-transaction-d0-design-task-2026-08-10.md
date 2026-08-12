@@ -450,23 +450,22 @@ test seam               src/llvm_py/instructions/mir_call/selected_dynamic_v2.py
 link/plan               link-driver sibling + small plan owner (<650 lines)
 ```
 
-The finalizer requires explicit `--nyrt`, verifies digest, both symbols,
-ABI/wire revision, and the same PlanStamp, then issues one move-only plan. It
-must not use `boundary_driver_ffi`, environment fallback, generic String, or a
-raw HostHandle as lease. I6 has one EndAuthorized lease/End; I7 has
-ImmediateI64 with lease/End zero; normal zero is valid.
+The post-link plan boundary requires explicit `--nyrt`, verifies digest, both
+symbols, ABI/wire revision, and the same PlanStamp, then issues one move-only
+plan. The current verifier is test-only; real linker/CallOut finalization is
+closed. No `boundary_driver_ffi`, environment fallback, generic String, or raw
+HostHandle lease. I6 has one EndAuthorized lease/End; I7 has ImmediateI64 with
+lease/End zero; normal zero is valid.
 
 The pre-link archive boundary also requires `libnyash_kernel.a` to be a regular
 file, not merely an existing path; directory-shaped or missing artifacts reject
 before the linker is invoked.
 
-Acceptance: strict entries=2; lease issuer/consume=1; link
-finalizer/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
-LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM DynamicV2=0. Run ABI,
-wire, VM-fence, AOT-authority, in-place, leaf/lease, metadata, and explicit-link
-negative gates. The explicit `--nyrt` archive-presence boundary is now one
-private link owner; digest/symbol/ABI/PlanStamp verification remains closed
-until the complete activation unit. Main still requires complete W0-W6 with
+Acceptance: strict entries=2; lease issuer/consume=1; test-only artifact
+verifier/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
+link finalizer/LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM=0. Run
+ABI, wire, VM-fence, AOT-authority, in-place, leaf/lease, metadata, and
+explicit-link negative gates. Main still requires complete W0-W6 with
 new caller=1/old edge=0.
 
 #### `PHYSICAL-SESSION-I0-E`
