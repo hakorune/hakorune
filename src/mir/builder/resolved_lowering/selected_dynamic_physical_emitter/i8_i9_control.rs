@@ -1,0 +1,202 @@
+//! The first post-CallOut physical continuation for the selected Dynamic lane.
+//!
+//! I8 and I9 remain ordinary Recipe operations.  Their placement is derived
+//! from the I7 Normal landing, not from the logical `BodyPrelude` label, which
+//! is already terminated by the I6 CheckedCallOut.  This module only projects
+//! existing rows and uses the canonical SSA/CFG issuers.
+
+use super::callout_corridor::{require_compare, require_const, DynamicV2CallOutCorridorV1};
+use super::i64_const;
+use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
+use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
+use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
+use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
+use crate::mir::builder::emission::loop_operation;
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
+use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
+use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
+use crate::mir::{BasicBlockId, CompareOp, MirInstruction};
+
+const I8: LoopItemKeyV1 = LoopItemKeyV1::new(8);
+const I9: LoopItemKeyV1 = LoopItemKeyV1::new(9);
+const V11: LoopValueKeyV1 = LoopValueKeyV1::new(11);
+const V12: LoopValueKeyV1 = LoopValueKeyV1::new(12);
+const V13: LoopValueKeyV1 = LoopValueKeyV1::new(13);
+
+fn reject(message: impl Into<String>) -> DynamicV2I8EmitterRejectV1 {
+    DynamicV2I8EmitterRejectV1::PhysicalCorridor(message.into())
+}
+
+fn value_at(
+    values: &DynamicV2PhysicalValueLedgerV1,
+    result: LoopValueKeyV1,
+    block: BasicBlockId,
+) -> Result<crate::mir::ValueId, DynamicV2I8EmitterRejectV1> {
+    values
+        .with_value(
+            result,
+            DynamicV2PhysicalRepresentationV1::ImmediateI64,
+            |view| {
+                if view.block() == block {
+                    Ok(view.value())
+                } else {
+                    Err(reject(format!(
+                        "value {result:?} is not available in I7 Normal landing"
+                    )))
+                }
+            },
+        )
+        .map_err(|error| reject(format!("physical value ledger: {error:?}")))?
+}
+
+fn validate_i7_normal_predecessor(
+    outer: &CanonicalFunctionLoweringSessionV1<'_>,
+    corridor: &DynamicV2CallOutCorridorV1,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    corridor.with_i7_normal(|normal| {
+        let function = outer
+            .builder_view()
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| reject("missing function while validating I7 Normal landing"))?;
+        let landing = function
+            .get_block(normal.block())
+            .ok_or_else(|| reject("I7 Normal landing block is missing"))?;
+        if landing.predecessors.len() != 1 {
+            return Err(reject("I7 Normal landing must have one predecessor"));
+        }
+        let source = landing
+            .predecessors
+            .iter()
+            .next()
+            .copied()
+            .expect("one predecessor was checked");
+        match function
+            .get_block(source)
+            .and_then(|block| block.terminator.as_ref())
+        {
+            Some(MirInstruction::CheckedCallOut {
+                site_id,
+                normal_landing,
+                ..
+            }) if *site_id == corridor.i7_site() && *normal_landing == normal.block() => Ok(()),
+            _ => Err(reject(
+                "I7 Normal landing predecessor is not the admitted CallOut",
+            )),
+        }
+    })
+}
+
+fn emit_branch(
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    source: BasicBlockId,
+    condition: crate::mir::ValueId,
+    targets: &DynamicV2PhysicalTargetSetV1,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    let function = outer
+        .builder_view_mut_for_lowering()
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| reject("missing function while emitting I9 branch"))?;
+    targets.with_role(DynamicV2PhysicalTargetRoleV1::ThenTerminal, |then_target| {
+        targets.with_role(
+            DynamicV2PhysicalTargetRoleV1::Continuation,
+            |continuation_target| {
+                canonical
+                    .cfg
+                    .emit_branch(
+                        function,
+                        source,
+                        condition,
+                        then_target.block(),
+                        continuation_target.block(),
+                    )
+                    .map_err(|error| reject(error.to_string()))
+            },
+        )
+    })
+}
+
+pub(super) fn emit(
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    program: &PreparedDynamicLoopOperationProgramV2<'_>,
+    corridor: &DynamicV2CallOutCorridorV1,
+    targets: &DynamicV2PhysicalTargetSetV1,
+    values: &mut DynamicV2PhysicalValueLedgerV1,
+    brand: &DynamicV2PhysicalSessionBrandV1,
+    evidence: DynamicV2I8EvidenceV1,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    if !corridor.matches(brand) {
+        return Err(reject("I7 corridor has a foreign session brand"));
+    }
+    if evidence.item() != I8
+        || evidence.result() != V12
+        || evidence.literal() != 0
+        || evidence.target()
+            != crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::
+                DynamicV2PhysicalBlockTargetV1::BodyPrelude
+    {
+        return Err(reject("I8 evidence drift"));
+    }
+    let rows = program.operation_rows();
+    if rows.len() != 15 {
+        return Err(reject(
+            "I8/I9 continuation requires exactly 15 operation rows",
+        ));
+    }
+    require_const(&rows[8], V12, 0)?;
+    require_compare(&rows[9], V11, V12, V13)?;
+    validate_i7_normal_predecessor(outer, corridor)?;
+
+    corridor.with_i7_normal(|normal| {
+        let block = normal.block();
+        let value_v12 = canonical
+            .issue_physical_value_id(outer.builder_view_mut_for_lowering())
+            .map_err(reject)?;
+        let _receipt = i64_const::emit_with_dst(
+            outer.builder_view_mut_for_lowering(),
+            normal,
+            evidence,
+            brand,
+            values,
+            value_v12,
+        )?;
+        let value_v11 = value_at(values, V11, block)?;
+        let value_v12 = value_at(values, V12, block)?;
+        let value_v13 = canonical
+            .issue_physical_value_id(outer.builder_view_mut_for_lowering())
+            .map_err(reject)?;
+        loop_operation::emit_compare_i64_at_with_dst(
+            outer.builder_view_mut_for_lowering(),
+            block,
+            value_v13,
+            CompareOp::Lt,
+            value_v11,
+            value_v12,
+        )
+        .map_err(reject)?;
+        canonical
+            .publish_physical_value_type(
+                outer.builder_view_mut_for_lowering(),
+                value_v13,
+                crate::mir::MirType::Bool,
+            )
+            .map_err(reject)?;
+        values
+            .publish(
+                I9,
+                V13,
+                normal,
+                value_v13,
+                DynamicV2PhysicalRepresentationV1::ImmediateBool,
+            )
+            .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
+        emit_branch(canonical, outer, block, value_v13, targets)
+    })
+}

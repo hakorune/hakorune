@@ -8,6 +8,7 @@
 mod callout_corridor;
 mod formal_header;
 mod i64_const;
+mod i8_i9_control;
 mod lifecycle_terminal;
 mod operation_cursor;
 mod targets;
@@ -33,10 +34,9 @@ use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCa
 use crate::mir::checked_callout::{CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1};
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::BasicBlockId;
-use targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
+use targets::DynamicV2PhysicalTargetSetV1;
 
 use formal_header::DynamicV2OpenedFormalHeaderV1;
-pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
 use value_ledger::{
     DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueLedgerV1,
     DynamicV2PhysicalValueViewV1,
@@ -47,7 +47,6 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     MissingI8Evidence,
     OwnerMismatch,
     TargetMismatch,
-    DuplicateI8Emission,
     BlockAllocation(String),
     ConstantEmission(String),
     SessionOpen(String),
@@ -74,12 +73,12 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     targets: DynamicV2PhysicalTargetSetV1,
     formal_header: DynamicV2OpenedFormalHeaderV1,
     values: DynamicV2PhysicalValueLedgerV1,
-    i8_evidence: Option<DynamicV2I8EvidenceV1>,
     compare_i64: DynamicV2CompareI64CapabilityDemandV1,
     cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
     aot: PreparedAotExecutableAdmissionV1,
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
     lifecycle: lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1,
+    callout_corridor: callout_corridor::DynamicV2CallOutCorridorV1,
 }
 
 /// Validate semantic authority and the canary evidence before opening the
@@ -329,8 +328,22 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             Ok(parts) => parts,
             Err(error) => return Self::reject_begin(outer, error),
         };
-        let values = DynamicV2PhysicalValueLedgerV1::new(&brand);
-        let mut session = Self {
+        let mut values = DynamicV2PhysicalValueLedgerV1::new(&brand);
+        let callout_corridor = match callout_corridor::emit(
+            &mut canonical,
+            &mut outer,
+            &demand,
+            &targets,
+            &formal_header,
+            &mut values,
+            &brand,
+            sites,
+            evidence,
+        ) {
+            Ok(corridor) => corridor,
+            Err(error) => return Self::reject_begin(outer, error),
+        };
+        let session = Self {
             outer: Some(outer),
             canonical: Some(canonical),
             demand,
@@ -340,62 +353,14 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             targets,
             formal_header,
             values,
-            i8_evidence: Some(evidence),
             compare_i64,
             cleanup,
             aot,
             disposition,
             lifecycle,
+            callout_corridor,
         };
-        if let Err(error) = callout_corridor::emit(
-            session.canonical.as_mut().expect("canonical session"),
-            session.outer.as_mut().expect("outer session"),
-            &session.demand,
-            &session.targets,
-            &session.formal_header,
-            &mut session.values,
-            &session.brand,
-            sites,
-        ) {
-            session.discard_unpublished();
-            return Err(error);
-        }
         Ok(session)
-    }
-
-    /// Emit exactly one I8 leaf. A failure consumes the evidence and cannot be
-    /// retried; the caller must discard the unpublished session.
-    pub(super) fn emit_i8_const(
-        &mut self,
-    ) -> Result<DynamicV2I64ProducerReceiptV1<'_>, DynamicV2I8EmitterRejectV1> {
-        let evidence = self
-            .i8_evidence
-            .take()
-            .ok_or(DynamicV2I8EmitterRejectV1::DuplicateI8Emission)?;
-        let target = self
-            .targets
-            .with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |target| target);
-        if !target.matches(&self.brand)
-            || self
-                .schedule
-                .iter()
-                .filter(|row| row.item() == evidence.item())
-                .count()
-                != 1
-        {
-            return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
-        }
-        let outer = self
-            .outer
-            .as_mut()
-            .ok_or(DynamicV2I8EmitterRejectV1::TargetMismatch)?;
-        i64_const::emit(
-            outer.builder_view_mut_for_lowering(),
-            &target,
-            evidence,
-            &self.brand,
-            &mut self.values,
-        )
     }
 
     /// Explicit terminal for the unpublished canary.
@@ -444,6 +409,12 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     #[cfg(test)]
     pub(super) fn target_blocks_for_test(&self) -> [BasicBlockId; 6] {
         self.targets.blocks_for_test()
+    }
+
+    #[cfg(test)]
+    pub(super) fn i7_normal_block_for_test(&self) -> BasicBlockId {
+        self.callout_corridor
+            .with_i7_normal(|target| target.block())
     }
 }
 

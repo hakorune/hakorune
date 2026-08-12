@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: D1 unpublished physical corridor now consumes formal->I0-I5->I6->I7 once, emits site-local CheckedCallOut/Normal projections, and retains I4-I11 typed V2 receipts; remaining I8-I16/control/cleanup and terminal publication stay closed.",
+  "2026-08-13: E1 unpublished continuation now consumes the I7 Normal landing for I8/V12, I9/V13, and a canonical Then/Continuation branch; remaining I10-I16/control/cleanup and terminal publication stay closed.",
   "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
   "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut vocabulary/issuers plus the move-only cleanup/site-plan lifecycle co-seal landed; End/Fault execution, full E, publication, and production callers remain closed.",

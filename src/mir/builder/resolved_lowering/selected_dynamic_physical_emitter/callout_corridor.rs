@@ -7,6 +7,7 @@
 //! already admitted operation and CheckedCallOut facts into that session.
 
 use super::formal_header::DynamicV2OpenedFormalHeaderV1;
+use super::i8_i9_control;
 use super::targets::{
     DynamicV2OpaquePhysicalTargetV1, DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1,
 };
@@ -15,8 +16,8 @@ use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::{constant, loop_operation};
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
-use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1};
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
@@ -78,6 +79,45 @@ impl DynamicV2InstalledCallOutSitesV1 {
     }
 }
 
+/// The session-private continuation produced by the two admitted CallOuts.
+/// The Normal/Fault landing identities stay opaque and move with the session;
+/// later leaves may not reconstruct them from logical target names.
+#[derive(Debug)]
+pub(super) struct DynamicV2CallOutCorridorV1 {
+    i7_site: CheckedCallOutSiteIdV1,
+    i7_normal: DynamicV2OpaquePhysicalTargetV1,
+    i7_fault: DynamicV2OpaquePhysicalTargetV1,
+}
+
+impl DynamicV2CallOutCorridorV1 {
+    pub(super) fn new(
+        i7_site: CheckedCallOutSiteIdV1,
+        i7_normal: DynamicV2OpaquePhysicalTargetV1,
+        i7_fault: DynamicV2OpaquePhysicalTargetV1,
+    ) -> Self {
+        Self {
+            i7_site,
+            i7_normal,
+            i7_fault,
+        }
+    }
+
+    pub(super) const fn i7_site(&self) -> CheckedCallOutSiteIdV1 {
+        self.i7_site
+    }
+
+    pub(super) fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {
+        self.i7_normal.matches(brand) && self.i7_fault.matches(brand)
+    }
+
+    pub(super) fn with_i7_normal<R>(
+        &self,
+        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
+    ) -> R {
+        callback(&self.i7_normal)
+    }
+}
+
 fn reject(message: impl Into<String>) -> DynamicV2I8EmitterRejectV1 {
     DynamicV2I8EmitterRejectV1::PhysicalCorridor(message.into())
 }
@@ -100,7 +140,7 @@ fn require_read(
     }
 }
 
-fn require_const(
+pub(super) fn require_const(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected: LoopValueKeyV1,
     literal: i64,
@@ -138,7 +178,7 @@ fn require_add(
     }
 }
 
-fn require_compare(
+pub(super) fn require_compare(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected_left: LoopValueKeyV1,
     expected_right: LoopValueKeyV1,
@@ -309,7 +349,8 @@ pub(super) fn emit(
     values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
     sites: DynamicV2InstalledCallOutSitesV1,
-) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    i8_evidence: DynamicV2I8EvidenceV1,
+) -> Result<DynamicV2CallOutCorridorV1, DynamicV2I8EmitterRejectV1> {
     demand.with_operation_program(|program| {
         emit_program(
             canonical,
@@ -321,6 +362,7 @@ pub(super) fn emit(
             values,
             brand,
             sites,
+            i8_evidence,
         )
     })
 }
@@ -337,7 +379,8 @@ fn emit_program(
     values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
     sites: DynamicV2InstalledCallOutSitesV1,
-) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    i8_evidence: DynamicV2I8EvidenceV1,
+) -> Result<DynamicV2CallOutCorridorV1, DynamicV2I8EmitterRejectV1> {
     let rows = program.operation_rows();
     if rows.len() != 15 {
         return Err(reject(
@@ -373,6 +416,13 @@ fn emit_program(
         v2,
     )
     .map_err(reject)?;
+    canonical
+        .publish_physical_value_type(
+            outer.builder_view_mut_for_lowering(),
+            v5,
+            crate::mir::MirType::Bool,
+        )
+        .map_err(reject)?;
     values
         .publish(
             rows[1].item(),
@@ -417,6 +467,13 @@ fn emit_program(
         v8,
     )
     .map_err(reject)?;
+    canonical
+        .publish_physical_value_type(
+            outer.builder_view_mut_for_lowering(),
+            v9,
+            crate::mir::MirType::Integer,
+        )
+        .map_err(reject)?;
     values
         .publish(
             rows[5].item(),
@@ -505,6 +562,13 @@ fn emit_program(
             sites.i7(),
         )
         .map_err(reject)?;
+    canonical
+        .publish_physical_value_type(
+            outer.builder_view_mut_for_lowering(),
+            i7_projection.dst(),
+            crate::mir::MirType::Integer,
+        )
+        .map_err(reject)?;
     if !matches!(sites.i7_shape(), CheckedCallOutNormalShapeV1::ImmediateI64) {
         return Err(reject("I7 site plan is not ImmediateI64"));
     }
@@ -518,7 +582,18 @@ fn emit_program(
         )
         .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
 
-    Ok(())
+    let corridor = DynamicV2CallOutCorridorV1::new(sites.i7(), i7_normal, i7_fault);
+    i8_i9_control::emit(
+        canonical,
+        outer,
+        program,
+        &corridor,
+        targets,
+        values,
+        brand,
+        i8_evidence,
+    )?;
+    Ok(corridor)
 }
 
 fn new_landing(

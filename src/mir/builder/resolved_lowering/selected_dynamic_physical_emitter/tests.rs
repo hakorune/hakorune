@@ -163,6 +163,8 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             (9, immediate_i64),
             (10, handle),
             (11, immediate_i64),
+            (12, immediate_i64),
+            (13, immediate_bool),
         ] {
             session
                 .with_physical_value_for_test_as(
@@ -192,6 +194,40 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             })
             .count();
         assert_eq!(callout_count, 2);
+        let i7_normal_block = session.i7_normal_block_for_test();
+        let i7_normal = function
+            .get_block(i7_normal_block)
+            .expect("I7 Normal landing");
+        assert_eq!(i7_normal.predecessors.len(), 1);
+        assert!(matches!(
+            i7_normal.instructions.first(),
+            Some(crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+                ..
+            })
+        ));
+        assert!(matches!(
+            i7_normal.instructions.get(1),
+            Some(crate::mir::MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(0),
+                ..
+            })
+        ));
+        assert!(matches!(
+            i7_normal.instructions.get(2),
+            Some(crate::mir::MirInstruction::Compare {
+                op: crate::mir::CompareOp::Lt,
+                ..
+            })
+        ));
+        assert!(matches!(
+            i7_normal.terminator,
+            Some(crate::mir::MirInstruction::Branch {
+                then_bb,
+                else_bb,
+                ..
+            }) if then_bb == target_blocks[3] && else_bb == target_blocks[4]
+        ));
         assert!(session.current_instruction_count() >= 5);
         session.discard_unpublished();
         assert!(builder.function_state.current_function.is_none());

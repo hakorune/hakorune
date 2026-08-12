@@ -53,19 +53,21 @@ lease, emit the full I8-I16 cursor, publish a draft, or open an LLVM/VM/
 production caller; those remain later activation work.
 
 The current implementation row is the family-native V2 emitter, not another
-semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; the
-selected-fixture canary now receives a session-issued opaque `Prelude` target
+semantic product. The first bounded E1 continuation is now
+`I7.Normal -> I8 ConstI64(0) -> V12 -> I9 CompareI64 -> V13 -> Branch`; it
+uses the session-issued I7 Normal landing rather than the already-terminated
+logical `BodyPrelude` target. The selected-fixture canary receives all targets
 through canonical unpublished function/SSA/CFG sessions and may not accept a
-raw `MirBuilder` or `BasicBlockId`. `CompareI64` now names the exact I9
-normal-Bool demand, while the invocation cleanup owner retains only the I6/V10
-Dynamic discharge receipt; I7/V11 is exact I64 and has no lease or End row. If
-any capability is unavailable, the session rejects before its first Builder
-effect. The existing semantic rows remain evidence only.
+raw `MirBuilder` or `BasicBlockId`. The invocation cleanup owner retains only
+the I6/V10 Dynamic discharge receipt; I7/V11 is exact I64 and has no lease or
+End row. If any capability is unavailable, the session rejects before its
+first Builder effect. The existing semantic rows remain evidence only; the
+remaining I10-I16/control/cleanup, DraftSeal, and publication work is closed.
 
 The physical issuers are separate children of this selected V2 boundary. The
-`CompareI64` issuer consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
-plus the I7 CallSlot and I8 ConstI64 producer receipts and rejects any I9
-Fault row. The cleanup issuer consumes the four scoped rows from
+private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
+plus the I7 CallSlot and I8 ConstI64 producer receipts, then routes its result
+through the canonical CFG issuer and rejects any I9 Fault row. The cleanup issuer consumes the four scoped rows from
 `invocation_cleanup.rs` in their fixed order (`I6 fault=[]`, `I7 fault=End(V10)`,
 inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, `V11`, and the I64
 induction. A move-only admission gate co-seals only those two physical
@@ -77,9 +79,8 @@ forbidden.
 
 The landed I0 slice issues these two Builder-free requirements and a
 move-only `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition
-is explicitly `RejectBeforeEffect` until the I7/I8 producer receipt leaves and
-the physical End leaf are implemented; it has no production caller. The I8
-leaf may be exercised by a real selected-fixture, unpublished-session canary
+is explicitly `RejectBeforeEffect` until the physical End leaf is implemented;
+it has no production caller. The I8/I9 continuation may be exercised by a real selected-fixture, unpublished-session canary
 so its receipt boundary is tested, but that canary is not a capability-gate
 bypass or a production handoff. The handoff must consume the plan, move the
 private ledger, and own a session-issued opaque target set. The consuming
