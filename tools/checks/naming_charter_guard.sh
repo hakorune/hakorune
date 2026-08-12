@@ -23,6 +23,7 @@ BUILD_SHARED_RS="$ROOT_DIR/src/runner/build_shared.rs"
 BUILD_PRODUCT_RS="$ROOT_DIR/src/runner/build_product.rs"
 BUILD_ENGINEERING_RS="$ROOT_DIR/src/runner/build_engineering.rs"
 MIR_BUILDER_BUILD_RS="$ROOT_DIR/src/mir/builder/builder_build.rs"
+MIR_BUILDER_VARIABLE_READ_RS="$ROOT_DIR/src/mir/builder/variable_read.rs"
 WINDOWS_DIR="$ROOT_DIR/tools/windows"
 HAKO_CHECK_SH="$ROOT_DIR/tools/hako-check/hako-check.sh"
 BUILD_LLVM_PS="$ROOT_DIR/tools/build_llvm.ps1"
@@ -1086,9 +1087,9 @@ if rg -n 'Stage[‑-]1 CLI bridge|Stage[‑-]1 bridge|Stage1 bridge|Stage1 stub|
 fi
 require_fixed 'visible_alias("syntax-3")' "$CLI_ARGS_RS"
 require_fixed "syntax3_alias_sets_stage3_parser_flag" "$CLI_ARGS_TESTS_RS"
-require_fixed "syntax-3 keyword diagnostic" "$MIR_BUILDER_BUILD_RS"
-require_fixed "mode-B compatibility routes" "$MIR_BUILDER_BUILD_RS"
-if rg -n 'Stage-3 keyword|for Stage-B' "$MIR_BUILDER_BUILD_RS"; then
+require_fixed "syntax-3 keyword diagnostic" "$MIR_BUILDER_VARIABLE_READ_RS"
+require_fixed "mode-B compatibility routes" "$MIR_BUILDER_VARIABLE_READ_RS"
+if rg -n 'Stage-3 keyword|for Stage-B' "$MIR_BUILDER_VARIABLE_READ_RS"; then
   guard_fail "$TAG" "MIR builder undefined-variable hints must use syntax-3 / mode-B wording"
 fi
 require_fixed 'args.push("--syntax-3".to_string())' "$SELFHOST_STAGE_A_SPAWN_RS"

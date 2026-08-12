@@ -44,6 +44,7 @@ impl MirBuilder {
     }
 
     pub(in crate::mir::builder) fn undefined_variable_message(&self, name: &str) -> String {
+        // syntax-3 keyword diagnostic (local/flow/try/catch/throw)
         let mut msg = format!("Undefined variable: {}", name);
 
         if name == "local" && !crate::config::env::parser_stage3_enabled() {
