@@ -520,6 +520,13 @@ MIRBUILDER-BUILDER-BUILD-SPLIT-R0
   move file-local tests to one sibling test module
   do not add a new lowering entry, receipt, fallback, env policy, or authority
 
+  Landed evidence:
+    builder_build.rs = 298 lines (literal/variable/assignment facade)
+    new_expression.rs = 231 lines (raw-new route only)
+    new_expression_tests.rs = 105 lines (raw-new focused tests)
+    existing callers/visibility/emission order unchanged
+    cargo check and focused raw-new/dispatch tests green
+
 MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
   run after selected production cutover and a caller/cfg census
   keep builder.rs as the sole MirBuilder facade and preserve module paths,
