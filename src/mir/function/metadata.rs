@@ -709,6 +709,16 @@ impl FunctionMetadata {
     ) -> Option<&crate::mir::checked_callout::CheckedCallOutSitePlanV1> {
         self.checked_callout_site_plans.get(site)
     }
+
+    pub(crate) fn verify_checked_callout_function(
+        &self,
+        function: &crate::mir::MirFunction,
+    ) -> Result<
+        crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1,
+        crate::mir::checked_callout::CheckedCallOutFunctionRejectV1,
+    > {
+        self.checked_callout_site_plans.verify_function(function)
+    }
 }
 
 impl FunctionMetadata {

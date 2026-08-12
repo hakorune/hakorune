@@ -394,6 +394,13 @@ Non-claims:
   DraftSeal, collector, production switch, fallback/retry, or VM consumer.
 ```
 
+Checkpoint receipt (2026-08-13): the borrow-free function census is now
+consumed once by canonical function finish. It closes exact
+plan:terminator:Normal-projection cardinality, final site-local predecessor
+sets, effect/PlanStamp parity, unique outcome/lease slots, and canonical fresh
+Normal-result ValueId issuance. The session-private I6/I7 physical corridor
+and result representation/value-ledger publication remain the open half of E0.
+
 #### `PHYSICAL-SESSION-I0-E`
 ```text
 Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0

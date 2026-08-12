@@ -1,11 +1,11 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, and local neutral MIR CheckedCallOut issuers are landed. The next bounded implementation is E0 function-level CheckedCallOut census/corridor closeout before the unpublished full physical session; production activation and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, and neutral MIR CheckedCallOut function census are landed. E0 now has only the private I6/I7 physical corridor and result publication before the unpublished full physical session; production activation and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none; CheckedCallOut D0/R0 local vocabulary and issuers are accepted. E0 must still close the function-level plan:terminator:Normal-projection census, final landing predecessors, fresh SSA destination issuance, and private I6/I7 corridor topology before full physical session work."
+current_design_stop = "none; CheckedCallOut D0/R0 vocabulary plus E0 function-level 1:1:1 census, final landing predecessors, and fresh SSA destination issuance are accepted. E0 must still close the private I6/I7 corridor topology and result publication before full physical session work."
 work_mode = "fast"
 current_execution_row = "PHYSICAL-SESSION-I0-E"
 current_blocker_token = "PHYSICAL-SESSION-I0-E: consume one move-only activation aggregate and one Recipe-order cursor for the full unpublished I0-I16/control/cleanup session; keep provider execution, collector, production switch, fallback, retry, and Rust-VM DynamicV2 closed."
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, and local CheckedCallOut issuers are landed; E0 function census/corridor closeout precedes the full unpublished physical session. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, and CheckedCallOut function census are landed; E0 private corridor/result publication precedes the full unpublished physical session. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 local issuers, and generation-aware lease identity R0 are landed; production callers remain zero. E0 now closes function-level plan:terminator:Normal-projection cardinality, final predecessors, fresh SSA destination issuance, and private I6/I7 corridor topology before the full unpublished physical session."
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, and E0 function-level 1:1:1 census/fresh destination issuance are landed; production callers remain zero. E0 now closes only the private I6/I7 corridor and result publication before the full unpublished physical session."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_execution_card = "PHYSICAL-SESSION-I0-E"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
   "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut local vocabulary/issuers landed with function-local site plans, canonical two-edge CFG, Normal-landing projection, test-only JSON parity, and LLVM/VM rejection; E0 function census/corridor closeout remains before PHYSICAL-SESSION-I0-E.",
   "2026-08-13: lease identity R0 landed with text-only capture, non-wrapping slot generation, conditional drop, collision-preserving insertion, and LIFO stale-token proof; it unblocked neutral CheckedCallOut R0.",

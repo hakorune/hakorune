@@ -9,8 +9,8 @@ use crate::mir::compiler::dynamic_full_body_recipe::DynamicCanonicalSessionAutho
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_control_flow::if_control::{
-    FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1,
-    ResolvedIfControlMaterializationV1, VerifiedResolvedFunctionIfControlV1,
+    FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1, ResolvedIfControlMaterializationV1,
+    VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
@@ -59,8 +59,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     target_function: RegionId,
     pub(in crate::mir::builder::resolved_lowering) identity: ResolvedSsaIdentityStateV2<'source>,
     pub(in crate::mir::builder::resolved_lowering) semantics: ResolvedSemanticStackV1,
-    pub(in crate::mir::builder::resolved_lowering) if_control:
-        CanonicalIfControlConsumptionV1,
+    pub(in crate::mir::builder::resolved_lowering) if_control: CanonicalIfControlConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) completion:
         ResolvedFunctionCompletionConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) cfg: CanonicalCfgSessionV1,
@@ -99,6 +98,7 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalFunctionFinishError
     IfControl(String),
     Identity(String),
     Phi(String),
+    CheckedCallOut(String),
     Binding(String),
     Completion(String),
     ReturnOperandMissing,
@@ -134,6 +134,10 @@ impl std::fmt::Display for CanonicalFunctionFinishErrorV1 {
             Self::Phi(error) => {
                 write!(formatter, "[freeze:contract][canonical_finish/phi] {error}")
             }
+            Self::CheckedCallOut(error) => write!(
+                formatter,
+                "[freeze:contract][canonical_finish/checked_callout] {error}"
+            ),
             Self::Binding(error) => write!(
                 formatter,
                 "[freeze:contract][canonical_finish/binding] {error}"
@@ -219,11 +223,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         let semantics = ResolvedSemanticStackV1::new_with_expectations(
             input.function(),
             input.function().lowering_roots(),
-            ResolvedSemanticExpectedCountsV1::new(
-                0,
-                if_control_regions,
-                if_branch_pairs,
-            ),
+            ResolvedSemanticExpectedCountsV1::new(0, if_control_regions, if_branch_pairs),
         )?;
         let root_body = input
             .source()
@@ -234,8 +234,10 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         })?;
         let implicit_completion = authority.completion().is_implicit_void();
         let target_function = input.function().function_region();
-        let completion =
-            ResolvedFunctionCompletionConsumptionV1::new_borrowed(input.owner(), authority.completion())?;
+        let completion = ResolvedFunctionCompletionConsumptionV1::new_borrowed(
+            input.owner(),
+            authority.completion(),
+        )?;
         Ok(Self {
             owner: input.owner(),
             root_body: root_body.site().clone(),
@@ -310,7 +312,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         source: BasicBlockId,
         normal_landing: BasicBlockId,
         site_id: CheckedCallOutSiteIdV1,
-        dst: ValueId,
     ) -> Result<CheckedCallOutNormalResultProjectionV1, String> {
         let function = builder
             .function_state
@@ -354,16 +355,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         }) {
             return Err("checked callout Normal projection was already issued".to_owned());
         }
-        if function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .any(|inst| inst.dst_value() == Some(dst))
-        {
-            return Err(
-                "checked callout Normal projection destination is already defined".to_owned(),
-            );
-        }
+        let dst = function.next_value_id();
         let projection = crate::mir::MirInstruction::CheckedCallOutNormalResult { site_id, dst };
         function
             .get_block_mut(normal_landing)
@@ -398,9 +390,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 || index >= function.params.len()
                 || builder.function_state.current_block != Some(function.entry_block)
             {
-                return Err(
-                    "[freeze:contract][formal_parameter/reserved_entry_drift]".to_owned(),
-                );
+                return Err("[freeze:contract][formal_parameter/reserved_entry_drift]".to_owned());
             }
             let value = function.params[index];
             if value != ValueId::new(ordinal) {
@@ -408,14 +398,15 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                     "[freeze:contract][formal_parameter/value_drift] ordinal={ordinal} value={value:?}"
                 ));
             }
-            (function.entry_block, value, function.signature.params[index].clone())
+            (
+                function.entry_block,
+                value,
+                function.signature.params[index].clone(),
+            )
         };
         self.identity
             .publish_declaration_exact(site, binding, entry, value)?;
-        builder.register_value_kind(
-            value,
-            hakorune_mir_core::MirValueKind::Parameter(ordinal),
-        );
+        builder.register_value_kind(value, hakorune_mir_core::MirValueKind::Parameter(ordinal));
         if ty != MirType::Unknown {
             builder
                 .function_state
@@ -456,6 +447,12 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .current_function
             .as_ref()
             .ok_or(CanonicalFunctionFinishErrorV1::FunctionMissing)?;
+        function
+            .metadata
+            .verify_checked_callout_function(function)
+            .map_err(|error| {
+                CanonicalFunctionFinishErrorV1::CheckedCallOut(format!("{error:?}"))
+            })?;
         cfg.finish(function)
             .map_err(|error| CanonicalFunctionFinishErrorV1::Cfg(error.to_string()))?;
         semantics

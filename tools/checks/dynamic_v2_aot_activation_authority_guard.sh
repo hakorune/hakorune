@@ -97,6 +97,16 @@ fi
 if [[ "$(rg -n 'fn define_checked_callout_normal_result\(' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "Canonical Normal-result issuer must be unique"
 fi
+if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "CheckedCallOut function census owner must be unique"
+fi
+if [[ "$(rg -n '\.verify_checked_callout_function\(function\)' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "canonical finish must consume the CheckedCallOut function census exactly once"
+fi
+CALLOUT_NORMAL_ISSUER="$(sed -n '/fn define_checked_callout_normal_result(/,/^    }/p' "$CALLOUT_SSA")"
+if printf '%s\n' "$CALLOUT_NORMAL_ISSUER" | rg -n 'dst:[[:space:]]*ValueId'; then
+  guard_fail "$TAG" "CheckedCallOut Normal-result destination must be minted by canonical SSA"
+fi
 if rg -n 'lower_method_call|RuntimeExecutablePlan|dynamic_v2_text_scan|lookup_core_method' \
   "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"; then
   guard_fail "$TAG" "neutral CheckedCallOut R0 must not resolve provider, runtime, or generic method routes"

@@ -5,8 +5,8 @@
 //! site plan is admitted once and the canonical CFG/SSA sessions consume it.
 
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-use crate::mir::{BasicBlockId, EffectMask, ValueId};
-use std::collections::BTreeMap;
+use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirInstruction, ValueId};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct CheckedCallOutSiteIdV1(pub(crate) u32);
@@ -214,6 +214,168 @@ impl CheckedCallOutPlanTableV1 {
     pub(crate) fn get(&self, site: CheckedCallOutSiteIdV1) -> Option<&CheckedCallOutSitePlanV1> {
         self.plans.get(&site)
     }
+
+    pub(crate) fn verify_function(
+        &self,
+        function: &MirFunction,
+    ) -> Result<VerifiedCheckedCallOutFunctionV1, CheckedCallOutFunctionRejectV1> {
+        verify_checked_callout_function_v1(function, self)
+    }
+}
+
+/// Borrow-free proof that every admitted site was materialized exactly once.
+/// It carries census only; plan/CFG/SSA meaning stays with the existing owners.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct VerifiedCheckedCallOutFunctionV1 {
+    site_count: usize,
+}
+
+impl VerifiedCheckedCallOutFunctionV1 {
+    pub(crate) const fn site_count(self) -> usize {
+        self.site_count
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CheckedCallOutFunctionRejectV1 {
+    OrphanPlan(CheckedCallOutSiteIdV1),
+    OrphanTerminator(CheckedCallOutSiteIdV1),
+    OrphanProjection(CheckedCallOutSiteIdV1),
+    DuplicateTerminator(CheckedCallOutSiteIdV1),
+    DuplicateProjection(CheckedCallOutSiteIdV1),
+    LandingMismatch(CheckedCallOutSiteIdV1),
+    LandingPredecessorMismatch(CheckedCallOutSiteIdV1),
+    ProjectionOrder(CheckedCallOutSiteIdV1),
+    EffectCacheMismatch(CheckedCallOutSiteIdV1),
+    DuplicateOutcomeSlot(CheckedCallOutOutcomeSlotIdV1),
+    DuplicateLeaseSlot(CheckedCallOutLeaseSlotIdV1),
+    PlanStampMismatch(CheckedCallOutSiteIdV1),
+}
+
+#[derive(Debug, Clone, Copy)]
+struct CheckedCallOutTerminatorObservationV1 {
+    source: BasicBlockId,
+    normal_landing: BasicBlockId,
+    fault_landing: BasicBlockId,
+    effects: EffectMask,
+}
+
+/// Final function census for the neutral CheckedCallOut vocabulary.
+///
+/// Local emitters remain the only CFG/SSA writers. This verifier observes the
+/// completed unpublished function and rejects every orphan, duplicate, or
+/// late edge that would violate the plan:terminator:projection 1:1:1 law.
+fn verify_checked_callout_function_v1(
+    function: &MirFunction,
+    plans: &CheckedCallOutPlanTableV1,
+) -> Result<VerifiedCheckedCallOutFunctionV1, CheckedCallOutFunctionRejectV1> {
+    let mut terminators = BTreeMap::new();
+    let mut projections = BTreeMap::new();
+
+    for (block_id, block) in &function.blocks {
+        if let Some(MirInstruction::CheckedCallOut {
+            site_id,
+            normal_landing,
+            fault_landing,
+            effects,
+            ..
+        }) = block.terminator.as_ref()
+        {
+            let observed = CheckedCallOutTerminatorObservationV1 {
+                source: *block_id,
+                normal_landing: *normal_landing,
+                fault_landing: *fault_landing,
+                effects: *effects,
+            };
+            if terminators.insert(*site_id, observed).is_some() {
+                return Err(CheckedCallOutFunctionRejectV1::DuplicateTerminator(
+                    *site_id,
+                ));
+            }
+        }
+        for (index, instruction) in block.instructions.iter().enumerate() {
+            if let MirInstruction::CheckedCallOutNormalResult { site_id, .. } = instruction {
+                if projections.insert(*site_id, (*block_id, index)).is_some() {
+                    return Err(CheckedCallOutFunctionRejectV1::DuplicateProjection(
+                        *site_id,
+                    ));
+                }
+            }
+        }
+    }
+
+    for site in terminators.keys() {
+        if !plans.plans.contains_key(site) {
+            return Err(CheckedCallOutFunctionRejectV1::OrphanTerminator(*site));
+        }
+    }
+    for site in projections.keys() {
+        if !plans.plans.contains_key(site) {
+            return Err(CheckedCallOutFunctionRejectV1::OrphanProjection(*site));
+        }
+    }
+
+    let mut outcome_slots = BTreeSet::new();
+    let mut lease_slots = BTreeSet::new();
+    let expected_stamp = plans.plans.values().next().map(|plan| plan.plan_stamp());
+    for (site, plan) in &plans.plans {
+        let Some(terminator) = terminators.get(site) else {
+            return Err(CheckedCallOutFunctionRejectV1::OrphanPlan(*site));
+        };
+        let Some((projection_block, projection_index)) = projections.get(site).copied() else {
+            return Err(CheckedCallOutFunctionRejectV1::OrphanProjection(*site));
+        };
+        if terminator.normal_landing == terminator.fault_landing
+            || projection_block != terminator.normal_landing
+        {
+            return Err(CheckedCallOutFunctionRejectV1::LandingMismatch(*site));
+        }
+        if terminator.effects != plan.effects() {
+            return Err(CheckedCallOutFunctionRejectV1::EffectCacheMismatch(*site));
+        }
+        if expected_stamp.is_some_and(|stamp| !plan.plan_stamp().same(stamp)) {
+            return Err(CheckedCallOutFunctionRejectV1::PlanStampMismatch(*site));
+        }
+        if !outcome_slots.insert(plan.outcome_slot()) {
+            return Err(CheckedCallOutFunctionRejectV1::DuplicateOutcomeSlot(
+                plan.outcome_slot(),
+            ));
+        }
+        if let CheckedCallOutNormalShapeV1::EndAuthorizedHandle { lease_slot } = plan.normal_shape()
+        {
+            if !lease_slots.insert(lease_slot) {
+                return Err(CheckedCallOutFunctionRejectV1::DuplicateLeaseSlot(
+                    lease_slot,
+                ));
+            }
+        }
+
+        for landing in [terminator.normal_landing, terminator.fault_landing] {
+            let Some(block) = function.get_block(landing) else {
+                return Err(CheckedCallOutFunctionRejectV1::LandingMismatch(*site));
+            };
+            if block.predecessors.len() != 1 || !block.predecessors.contains(&terminator.source) {
+                return Err(CheckedCallOutFunctionRejectV1::LandingPredecessorMismatch(
+                    *site,
+                ));
+            }
+        }
+        let normal = function
+            .get_block(terminator.normal_landing)
+            .expect("Normal landing was checked above");
+        let first_non_phi = normal
+            .instructions
+            .iter()
+            .position(|instruction| !matches!(instruction, MirInstruction::Phi { .. }))
+            .unwrap_or(normal.instructions.len());
+        if projection_index != first_non_phi {
+            return Err(CheckedCallOutFunctionRejectV1::ProjectionOrder(*site));
+        }
+    }
+
+    Ok(VerifiedCheckedCallOutFunctionV1 {
+        site_count: plans.plans.len(),
+    })
 }
 
 /// A Normal-landing projection is an ordinary SSA definition.  It is not a
@@ -255,7 +417,61 @@ impl CheckedCallOutNormalResultProjectionV1 {
 mod tests {
     use super::*;
     use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-    use crate::mir::MirInstruction;
+    use crate::mir::{BasicBlock, FunctionSignature, MirInstruction, MirType};
+
+    fn test_function_with_site(with_projection: bool) -> (MirFunction, CheckedCallOutPlanTableV1) {
+        let source = BasicBlockId::new(0);
+        let normal = BasicBlockId::new(1);
+        let fault = BasicBlockId::new(2);
+        let site = CheckedCallOutSiteIdV1(6);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "checked/0".to_owned(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::READ,
+            },
+            source,
+        );
+        function.add_block(BasicBlock::new(normal));
+        function.add_block(BasicBlock::new(fault));
+        function
+            .get_block_mut(source)
+            .unwrap()
+            .set_terminator(MirInstruction::CheckedCallOut {
+                site_id: site,
+                receiver: ValueId::new(0),
+                arguments: vec![],
+                normal_landing: normal,
+                fault_landing: fault,
+                effects: EffectMask::READ,
+            });
+        for landing in [normal, fault] {
+            function
+                .get_block_mut(landing)
+                .unwrap()
+                .add_predecessor(source);
+        }
+        if with_projection {
+            function.get_block_mut(normal).unwrap().add_instruction(
+                MirInstruction::CheckedCallOutNormalResult {
+                    site_id: site,
+                    dst: ValueId::new(1),
+                },
+            );
+        }
+        let mut plans = CheckedCallOutPlanTableV1::default();
+        plans
+            .admit(CheckedCallOutSitePlanV1::from_test(
+                site,
+                CheckedCallOutEntryIdV1(17),
+                CheckedCallOutNormalShapeV1::ImmediateI64,
+                EffectMask::READ,
+                ModuleInvocationBrandV1::legacy_test(),
+            ))
+            .unwrap();
+        (function, plans)
+    }
 
     #[test]
     fn plan_json_roundtrip_preserves_site_shape_and_stamp() {
@@ -326,5 +542,35 @@ mod tests {
             crate::mir::contracts::backend_core_ops::llvm_json_ops_for_instruction(&term)
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn function_census_accepts_exact_plan_terminator_projection_triplet() {
+        let (function, plans) = test_function_with_site(true);
+        let verified = plans.verify_function(&function).expect("exact triplet");
+        assert_eq!(verified.site_count(), 1);
+    }
+
+    #[test]
+    fn function_census_rejects_orphan_projection_and_late_predecessor() {
+        let (function, plans) = test_function_with_site(false);
+        assert!(matches!(
+            plans.verify_function(&function),
+            Err(CheckedCallOutFunctionRejectV1::OrphanProjection(
+                CheckedCallOutSiteIdV1(6)
+            ))
+        ));
+
+        let (mut function, plans) = test_function_with_site(true);
+        function
+            .get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .add_predecessor(BasicBlockId::new(9));
+        assert!(matches!(
+            plans.verify_function(&function),
+            Err(CheckedCallOutFunctionRejectV1::LandingPredecessorMismatch(
+                CheckedCallOutSiteIdV1(6)
+            ))
+        ));
     }
 }
