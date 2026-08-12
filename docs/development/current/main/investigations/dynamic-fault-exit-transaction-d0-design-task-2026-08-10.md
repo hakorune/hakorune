@@ -435,9 +435,11 @@ provider/registry/LLVM/runtime/VM additions            = 0
 
 The generated effect row is borrowed by the TextScan co-seal; it does not
 reclassify the Dynamic envelope. `StringSubstring` and `StringIndexOf` must
-project `PureRead` from the generated rows. Status (header BoxShape, 2026-08-12):
-the A-prime demand owns the single catalog physical-header admission and the
-emitter no longer re-seals it; provider/session activation remains open.
+project `PureRead` from the generated rows. Status (header/effect BoxShape,
+2026-08-12): A-prime owns the catalog physical-header admission and one-way
+MIR effect projection; the canonical skeleton consumes it without fixing an
+effect, and the emitter no longer re-seals the source key. Provider/session
+activation remains open.
 
 Activation order after the effect projection is fixed:
 
