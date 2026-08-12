@@ -304,7 +304,14 @@ Change:
 
 Contract:
   `TextSliceRange` and `TextFindNeedle` are the complete two-role capability.
-  The ProviderSlot role contract is the sole I6/I7 result/lifecycle authority.
+  `CoreMethodContractBox` and its generated rows remain the sole callable
+  result/effect authority (`StringValue` for substring and `I64Value` for
+  indexOf). The TextScan ProviderSlot contract is only the complete two-role
+  aggregate: it borrows and co-seals those generated rows, then owns the
+  shared semantic profile and cross-role lifecycle/capability requirements.
+  ProviderAdmissionSeal separately owns selected provider/ABI admission, and
+  RuntimeExecutablePlan owns executable binding. No layer may reissue a
+  second result/effect table.
   The global provider spine is reused; runtime consumes a presealed executable
   branch and never searches a registry or reselects provider/image/selector.
   The LLVM formal lane is exact and role-bound: `src=0`, `pos=1`, `end=2`,
@@ -353,7 +360,9 @@ Stop:
 Internal implementation order, without creating separate authorities:
 
 ```text
-hako.text.scan@1 normalized contract + A-prime role requirement co-seal
+hako.text.scan@1 role aggregate
+  + borrowed generated CoreMethodContractBox rows (sole result/effect source)
+  + A-prime I6/I7 role requirement co-seal
   -> BoxCallableRegistryDraft
   -> consuming ProviderAdmissionSeal
   -> immutable admitted registry
@@ -369,6 +378,15 @@ hako.text.scan@1 normalized contract + A-prime role requirement co-seal
 
 Bounded implementation subrows (all part of this one activation cell; none is
 an independently selectable provider or production route):
+
+`DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
+  The existing generated `CoreMethodContractBox` rows are borrowed by one
+  private TextScan role aggregate. I6/substring must match the generated
+  `StringValue` row and I7/indexOf must match the generated `I64Value` row;
+  the aggregate adds only the complete two-role profile and shared lifecycle
+  requirements. Missing, foreign, duplicated, or mismatched rows reject
+  before provider admission. A hand-written result table, selector-only
+  result classification, or independent provider catalog is forbidden.
 
 ```text
 DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
@@ -412,6 +430,8 @@ Required activation counts:
 
 ```text
 complete TextScan roles / same provider-profile                 = 2 / 1
+generated CoreMethodContractBox result/effect source             = 1
+TextScan result/effect reissuance                                = 0
 ProviderAdmissionSeal / immutable admitted registry             = 1 / 1
 mutable admitted insert / duplicate overwrite                   = 0 / 0
 String|StringBox canonical branch                               = 1

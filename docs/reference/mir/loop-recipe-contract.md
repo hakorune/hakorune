@@ -1438,8 +1438,10 @@ route, or production caller was opened by this row.
 
 ## Landed bounded text-scan recut — `DYNAMIC-V2-TEXT-SCAN-I64-SEMANTIC-RECUT-R0`
 
-The selected `hako.text.scan@1` cohort now uses the language-level result
-contract directly: `I7/indexOf` produces exact `I64` `V11`, and `I9` is the
+The selected `hako.text.scan@1` cohort consumes the language-level result
+contract emitted by `CoreMethodContractBox` and its generated rows: the
+`StringValue` substring row and the `I64Value` indexOf row. `I7/indexOf`
+therefore produces exact `I64` `V11`, and `I9` is the
 non-faulting `CompareI64(Less)` over `V11` and the zero constant. This is a
 semantic-program recut, not a provider or backend implementation.
 
