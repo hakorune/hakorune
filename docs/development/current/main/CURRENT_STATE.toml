@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W4 internal target-topology/order BoxShape rejects duplicate/missing roles and swapped 15-item order before scheduling; full unpublished physical session remains next.",
+  "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut MIR R0 landed with one function-local site-plan table, canonical two-edge CFG issuer, Normal-landing SSA projection, test-only JSON parity, and LLVM/VM rejection; production callers remain zero. Next is PHYSICAL-SESSION-I0-E.",
   "2026-08-13: lease identity R0 landed with text-only capture, non-wrapping slot generation, conditional drop, collision-preserving insertion, and LIFO stale-token proof; it unblocked neutral CheckedCallOut R0.",
   "2026-08-13: CheckedCallOut D0 is accepted with site-plan authority, site-local Normal/Fault landings, block-local Normal-result projection, verified effect cache, typed I6/I7 shape, and backend fail-stop policy.",

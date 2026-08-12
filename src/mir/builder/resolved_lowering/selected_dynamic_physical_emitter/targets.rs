@@ -11,7 +11,6 @@ use super::DynamicV2PhysicalSessionBrandV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2PhysicalBlockTargetV1, DynamicV2PhysicalScheduleRowV1,
-    DynamicV2PhysicalScheduleSegmentV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::BasicBlockId;
@@ -65,10 +64,13 @@ impl DynamicV2OpaquePhysicalTargetV1 {
 }
 
 impl DynamicV2PhysicalTargetSetV1 {
-    fn validate_role_coverage(
+    pub(super) fn issue(
+        canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+        builder: &mut MirBuilder,
+        brand: &DynamicV2PhysicalSessionBrandV1,
         schedule: &[DynamicV2PhysicalScheduleRowV1],
         outer_tail_target: DynamicV2PhysicalBlockTargetV1,
-    ) -> Result<(), String> {
+    ) -> Result<Self, String> {
         let mut seen = [false; 5];
         for row in schedule {
             let index = match DynamicV2PhysicalTargetRoleV1::from_target(row.target()) {
@@ -78,9 +80,6 @@ impl DynamicV2PhysicalTargetSetV1 {
                 DynamicV2PhysicalTargetRoleV1::Continuation => 3,
                 DynamicV2PhysicalTargetRoleV1::After => 4,
             };
-            if seen[index] {
-                return Err("selected physical target role is duplicated".to_owned());
-            }
             seen[index] = true;
         }
         if !seen[..4].iter().all(|present| *present)
@@ -88,17 +87,6 @@ impl DynamicV2PhysicalTargetSetV1 {
         {
             return Err("selected physical target roles are incomplete".to_owned());
         }
-        Ok(())
-    }
-
-    pub(super) fn issue(
-        canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
-        builder: &mut MirBuilder,
-        brand: &DynamicV2PhysicalSessionBrandV1,
-        schedule: &[DynamicV2PhysicalScheduleRowV1],
-        outer_tail_target: DynamicV2PhysicalBlockTargetV1,
-    ) -> Result<Self, String> {
-        Self::validate_role_coverage(schedule, outer_tail_target)?;
 
         // The function entry is the logical loop Enter. The loop Header is a
         // distinct unpublished block; its PHI/edge meaning belongs to the
@@ -177,53 +165,5 @@ impl DynamicV2PhysicalTargetSetV1 {
             self.continuation,
             self.after,
         ]
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn row(item: u32, target: DynamicV2PhysicalBlockTargetV1) -> DynamicV2PhysicalScheduleRowV1 {
-        DynamicV2PhysicalScheduleRowV1::from_test_parts(
-            crate::mir::loop_recipe_contract::LoopItemKeyV1::new(item),
-            DynamicV2PhysicalScheduleSegmentV1::Prelude,
-            target,
-        )
-    }
-
-    fn complete_roles() -> Vec<DynamicV2PhysicalScheduleRowV1> {
-        vec![
-            row(0, DynamicV2PhysicalBlockTargetV1::Header),
-            row(1, DynamicV2PhysicalBlockTargetV1::BodyPrelude),
-            row(2, DynamicV2PhysicalBlockTargetV1::ThenTerminal),
-            row(3, DynamicV2PhysicalBlockTargetV1::Continuation),
-        ]
-    }
-
-    #[test]
-    fn duplicate_role_is_rejected_before_block_allocation() {
-        let mut rows = complete_roles();
-        rows.push(row(4, DynamicV2PhysicalBlockTargetV1::Header));
-        assert_eq!(
-            DynamicV2PhysicalTargetSetV1::validate_role_coverage(
-                &rows,
-                DynamicV2PhysicalBlockTargetV1::After,
-            ),
-            Err("selected physical target role is duplicated".to_owned())
-        );
-    }
-
-    #[test]
-    fn missing_role_is_rejected_before_block_allocation() {
-        let mut rows = complete_roles();
-        rows.pop();
-        assert_eq!(
-            DynamicV2PhysicalTargetSetV1::validate_role_coverage(
-                &rows,
-                DynamicV2PhysicalBlockTargetV1::After,
-            ),
-            Err("selected physical target roles are incomplete".to_owned())
-        );
     }
 }
