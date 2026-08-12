@@ -1,7 +1,8 @@
 ---
 Status: active compact card
 Date: 2026-08-12
-Scope: selected Dynamic callable, hako.text.scan@1, AOT/LLVM production lane
+Scope: selected Dynamic callable, canonical session admission, hako.text.scan@1,
+  AOT/LLVM production activation
 ParentHistory: docs/development/current/main/design/archive/dynamic-fault-exit-transaction-d0-history-2026-08-10.md
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -15,353 +16,370 @@ Related:
 
 ## Current capsule
 
-Current decision: `hako.text.scan@1` is one complete two-role capability,
-not an I6-only pseudo-slot and not the full String surface. Its normalized
-contract is the sole result/lifecycle authority for I6/I7.
+Current decision: the final `VerifiedDynamicExitTransactionCoSealV1` is the
+selected cohort's sole semantic plan. `CanonicalTrivialBindingSsaPlanV1` is a
+different family and must not be extended to accept this Loop. The installed
+package port remains the exactly-once transport owner; the existing A-prime
+demand/emission plan opens the existing canonical CFG/SSA/PHI session inside
+that scoped loan.
 
-Current implementation status: semantic exact-I64 recut, VM nonconsumer fence,
-and transport-only output wire are landed. The selected-package callback
-accessor and canonical-plan identity test are landed, but the normal-default
-static-box production transport owner is not. The current row is therefore a
-design stop, not an implementation permission.
+Current implementation status: exact-I64 semantic recut, exact-two Completion
+and DraftSeal machinery, the Rust-VM nonconsumer fence, neutral output wire,
+and the I8 unpublished canary are landed. The canary still reissues Completion
+and an empty common If authority and accepts an externally constructed
+canonical session. Production still uses the selected raw AST/JoinIR edge.
 
-Next ordered task: resolve the canonical-plan admission and transport below. Existing
-canonical plan issuers are on separate resolved-callable pipelines; the
-installed package loan and a canonical plan have no normal-default/static-box
-production transport owner or common caller. Do not add an orphan handoff
-helper. Provider, wire, LLVM, runtime, and VM feature code is not authorized
-by this stop.
+Next ordered task: implement one BoxShape-only canonical-session projection
+series. Borrow the existing Completion, mark the Loop-owned control partition
+without issuing a second If authority, make the Dynamic emission plan open its
+own canonical session, and replace the canary's semantic re-verification.
 
-Production stop line: selected package loan and canonical resolved lowering
-plan/session must be co-sealed once. No raw AST/JoinIR route, selector/name
-repair, second Recipe/JoinSig/CFG/SSA owner, or fallback may cross the seam.
+Production stop line: provider/AOT/runtime activation and the selected
+production switch remain closed until the projection series is green. No
+trivial-plan widening, second Completion/If/profile, raw AST repair, arbitrary
+session pairing, fallback, retry, or Rust-VM DynamicV2 consumer may cross the
+seam.
 
-Retirement finish line: the complete I0-B cell has one LLVM production caller,
-the selected old edge is removed in that same activation commit, and all
-provider/registry/selector/runtime lookup and Rust-VM DynamicV2 callers are
-zero.
+Retirement finish line: one atomic AOT activation consumes the selected package
+loan through exact-two DraftSeal, removes the selected old edge in the same
+commit, and leaves provider/selector/registry/image reselection, legacy
+fallthrough, fallback, retry, and Rust-VM DynamicV2 callers at zero.
 
-## Current row
-
-```text
-work_mode = design_stop
-current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-CANONICAL-PLAN-ADMISSION-D0
-```
-
-The previous BoxShape slice landed the canonical-plan callback accessor and
-the focused identity test. The next step is a design stop because the two
-existing owners do not meet at one production boundary, and the canonical
-plan issuer is not yet connected to this root:
-
-```text
-package loan:
-  NormalCallableSemanticPackagePortAdapterV1
-    -> old raw AST/JoinIR route
-
-canonical plan/session:
-  resolved_lowering / callable transaction
-    -> canonical session / DraftSeal
-
-canonical plan issuers:
-  resolved_callable_module_preflight / normal_source_plan handoff
-    -> separate pipelines; no normal-default transport caller
-  generic verify_function rejects non-empty parameter declarations or a typed
-    return as `typed_signature_not_activated`
-
-normal-default production root:
-  package loan exists, but no CanonicalTrivialBindingSsaPlanV1 is carried here
-
-source-family boundary:
-  `skip_while` is a non-Main cataloged static-box method. The existing
-  MainMethod helper rejection is not this cohort's blocker and remains
-  unchanged.
-
-normal-default/static-box transport owner = 0
-existing common production caller = 0
-```
-
-### Canonical-plan admission and transport decision brief
+## Accepted design decision
 
 ```text
 Decision:
-  Keep the handoff Builder-free and stop until one same-source canonical plan
-  admission for the typed A-prime method and one move-only normal-default
-  transport owner are named; do not create an orphan helper or reissue the
-  plan in the package issuer.
+  Reuse the final Dynamic program as the sole semantic plan and the existing
+  A-prime demand/emission plan as the sole pre-session physical plan. Do not
+  admit this cohort into CanonicalTrivialBindingSsaPlanV1.
 Source authority + canonical issuer:
-  Existing canonical plan owners (`VerifiedCallableModulePreflightV1` or the
-  normal-source-plan handoff) plus the installed
-  `SelectedCallableLoweringInputRefV1`; neither current generic verifier
-  admits the typed `skip_while` signature (`typed_signature_not_activated`),
-  so the same-source typed admission is unresolved.
+  Installed package same-batch loan + VerifiedDynamicExitTransactionCoSealV1;
+  issue_selected_a_prime_i64_physical_demand is the existing co-seal issuer.
 Non-authority:
-  package-local preflight reissue, source seed, raw AST/JoinIR, selector/name,
-  ordinal/batch repair, a second plan/Completion, and any VM/provider path.
+  generic trivial analysis, package-local verify_function, canary AST/header
+  reconstruction, reissued Completion/If, names/ordinals, provider, LLVM, VM.
 Fail-fast boundary:
-  absent typed issuer/transport owner, generic typed-signature rejection, no
-  shared caller, foreign owner/function/forest/projection/root, ordinary
-  semantic variant, or plan re-verification remains `NoSafeSlice` before
-  Builder effect.
+  ordinary/foreign/mismatched identity, authority reissue, arbitrary session
+  pairing, borrow escape, double consume, or incomplete physical capability
+  rejects before Builder effect.
 Smallest next slice:
-  decide and document the same-source typed plan issuer, then its issuer-to-
-  root move-only transport for the per-selected-key plan; do not implement
-  until source owner, lifetime, exact key relation, and one consuming callback
-  are closed.
+  DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0, a behavior-neutral refactor
+  series with the existing unpublished canary as its named consumer.
 Non-claims:
-  no package-local plan reissue, new semantic receipt, AOT provider cell,
-  LLVM leaf, runtime lease, VM feature, fallback, retry, or selected production
-  switch in this D0.
+  no accepted source shape, provider/runtime feature, LLVM hook, VM feature,
+  production switch, generic typed-trivial expansion, fallback, or retry.
 ```
 
-### Audit evidence and D0 exit criteria
+### Why the former trivial-plan premise is rejected
 
-The current code has two canonical-plan families, but neither is connected to
-the normal-default static-box root:
+The target is a mixed typed/Dynamic Loop with an inner If Return. The generic
+trivial verifier has no Loop arm, rejects Return inside If, and owns its own
+trivial profile, If control, and Completion. Widening it would create a second
+semantic planner beside the already-complete Dynamic Recipe/JoinSig program.
+
+The correct products already exist:
 
 ```text
-VerifiedCallableModulePreflightV1
-  -> CanonicalLoweringPreflightV1
-  -> plan map for the resolved-callable pipeline
-
-normal_source_plan handoff
-  -> CanonicalLoweringPreflightV1
-  -> helper plan map for its source family
-
-normal-default root
-  -> issue_normal_callable_semantic_package_v1()
-  -> InstalledNormalCallableSemanticPackageV1
-  -> selected package loan
-  -> no canonical plan transport
+SelectedCallableLoweringInputRefV1
+  -> VerifiedDynamicExitTransactionCoSealV1
+       owns source / mixed Recipe / JoinSig / Completion / cleanup / exits
+  -> VerifiedAPrimeI64PhysicalDemandV1
+  -> PreparedSelectedDynamicV2EmissionPlanV1
 ```
 
-The package issuer must not call `CanonicalLoweringPreflightV1` again: that
-would reissue Completion, If-control, and profile facts. A foreign borrowed
-plan cannot be paired by owner/name/ordinal. A `PreparedProgramRootWorkPlanV1`
-field also cannot borrow a plan until its same-source lifetime owner is named;
-the package and plan are not currently one self-contained owner.
-
-The design stop can close only when all of these are documented against one
-existing source owner:
+The missing seam is only the physical session projection:
 
 ```text
-  same-source typed canonical plan issuer for this cohort          = 1
-  move-only plan transport owner                              = 1
-SelectedCallableKey -> plan relation                       = exact
-package batch / plan source-forest identity                 = exact
-shared consuming callback                                   = 1
-package preflight reissue                                   = 0
-foreign plan re-pair                                        = 0
-MainMethod rejection change                                 = 0
+borrowed sole Completion
++ Dynamic-program-owned Loop control disposition
++ exact same-source resolved input
++ move-only A-prime emission plan
+  -> existing canonical CFG/SSA/PHI session
 ```
 
-Until then, the correct state is `NoSafeSlice`; no handoff helper or new
-semantic receipt is authorized.
+`PreparedProgramRootWorkPlanV1` stays a root scheduling owner. It does not gain
+a borrowed canonical-plan field, avoiding a self-reference and foreign-plan
+pairing surface.
 
-### Typed A-prime admission subdecision
-
-The current generic canonical verifier cannot be treated as the missing
-transport source. Its existing policy rejects the selected signature before
-profile admission:
+## Final owner graph
 
 ```text
-param_decls / declared type -> typed_signature_not_activated
-typed return on a non-admitted profile -> typed_return_profile_not_activated
-typed parameter on a non-admitted profile -> typed_parameter_profile_not_activated
+InstalledNormalCallableSemanticPackageV1
+  owns batch + selected mapping + parameter contracts + final Dynamic program
+             |
+             | NormalCallableSemanticPackagePortV1
+             | exactly-once HRTB selected loan
+             v
+SelectedCallableLoweringInputRefV1::Dynamic
+  same-source ResolvedFunctionLoweringInputV1
+  + &VerifiedDynamicExitTransactionCoSealV1
+             |
+             +-> borrowed canonical-session authority
+             |     sole Completion
+             |     Dynamic-owned Loop If disposition
+             |     common outer If rows = 0
+             |
+             +-> issue_selected_a_prime_i64_physical_demand
+                    |
+                    v
+             PreparedSelectedDynamicV2EmissionPlanV1
+                    |
+                    | opens its own scoped session
+                    v
+             CanonicalSsaFunctionSessionV2
+               sole CFG / Binding SSA / PHI owner
+                    |
+                    v
+             site-keyed Completion claims
+             -> DraftSeal prepare: Return x 2
+             -> DraftSeal commit
+             -> Collector / Atomic Publish
 ```
 
-Therefore the next design subrow is
-`CANONICAL-TYPED-A-PRIME-ADMISSION-D0`, kept inside this active card. It must
-choose one existing canonical-plan owner whose acceptance policy reuses the
-already sealed parameter contract and `VerifiedFunctionCompletionV1` for the
-typed static-box A-prime cohort. It may not create a package-local plan,
-`TypedSignatureReceipt`, or a second Completion/profile authority.
+The scoped loan may yield a private view, not a durable semantic receipt. The
+view cannot escape the callback and exposes no raw AST, Recipe, JoinSig,
+Completion parts, `ValueId`, or `BasicBlockId`.
+
+## Ordered implementation DAG
+
+### 1. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — next, BoxShape
+
+Change:
+  make the existing Completion consumption ledger accept owned or borrowed
+  Completion authority; add a private HRTB session-authority view on the final
+  Dynamic program; make the Dynamic emission plan open the canonical session
+  internally instead of accepting an arbitrary session.
+
+Contract:
+  semantic facts remain in the final Dynamic program. The physical consumer
+  copies only target/result/site expectations into its one-shot claim ledger.
+  Dynamic JoinSig remains the Loop-local control owner; common outer If rows
+  are exactly zero without constructing another verified empty If product.
+
+Done:
+  the existing I8 unpublished canary uses the selected package loan, existing
+  A-prime demand, borrowed Completion, and Dynamic-owned control disposition.
+  Its calls to `verify_function_completion_v1` and
+  `empty_for_owned_loop_profile` are zero. Ordinary/trivial behavior is
+  unchanged and no borrow escapes.
+
+Stop:
+  if the sole Completion or control disposition cannot be projected without
+  clone, re-verification, raw parts, or a second semantic issuer, return to
+  design stop.
+
+Recommended refactor commits:
 
 ```text
-Decision:
-  decide the one existing canonical-plan admission policy for typed A-prime;
-  keep the package as a selected semantic-loan owner only.
-Source authority + canonical issuer:
-  existing callable parameter contract + Completion + one canonical plan
-  issuer; the typed admission owner is not yet selected.
-Non-authority:
-  package-local preflight, source names, fixture shape, raw AST, MIR type,
-  VM, provider, and foreign plan pairing.
-Fail-fast boundary:
-  typed profile not admitted, missing/foreign plan, identity drift, clone,
-  double consume, or `verify_function(loan.source())` is RejectBeforeEffect.
-Smallest next slice:
-  name the existing issuer's typed A-prime policy and its same-source plan
-  lifetime/transport before any code or handoff helper.
-Non-claims:
-  no source syntax change, new semantic receipt, provider/LLVM/VM feature,
-  fallback, retry, or production switch.
+R0-A  completion consumer Owned|Borrowed internal storage; borrow-free ready close
+R0-B  private final-program HRTB session authority and Dynamic control disposition
+R0-C  emission plan opens session; canary reissue/external pairing deleted; guard
 ```
 
-Only after this design stop is accepted may a bounded implementation row add
-the production bridge wiring. It may not add:
-
-1. one crate-private callback/accessor on
-   `CanonicalTrivialBindingSsaPlanV1` for its existing
-   `ResolvedFunctionLoweringInputV1`;
-2. one private selected-Dynamic handoff helper that borrows the selected
-   package loan and canonical plan together, checks exact identity, and then
-   permits the existing A-prime issuer to be called inside that callback.
-
-It may not add a semantic `Verified*`/`Prepared*` handoff receipt, provider
-artifact, admitted registry, call-in wire, LLVM hook, runtime symbol, lease,
-Physical End, VM adapter, or production switch.
-
-## Authority chain
+Required structural evidence:
 
 ```text
-parser/resolver source
-  -> exact callable membership and source identity
-  -> complete Dynamic semantic package
-  -> verified Recipe / JoinSig / semantic program
-  -> selected package loan
-  -> private handoff co-seal with canonical resolved plan
-  -> existing canonical session / Completion / DraftSeal
-  -> future atomic AOT/LLVM provider cell
+selected Dynamic imports CanonicalTrivialBindingSsaPlanV1       = 0
+selected Dynamic calls CanonicalLoweringPreflightV1             = 0
+selected canary verify_function_completion_v1 calls             = 0
+selected canary empty_for_owned_loop_profile calls              = 0
+external canonical-session argument to Dynamic begin            = 0
+Dynamic Completion semantic issuer                              = 1
+Dynamic canonical-session projection issuer                     = 1
+CanonicalSsaFunctionSessionV2 mutable owner                      = 1
+provider / LLVM / VM additions                                  = 0 / 0 / 0
+fallback / retry                                                = 0 / 0
 ```
 
-The handoff compares the existing products by owner, function product,
-function origin, forest allocation, and source-root identity. It never repairs
-with a name, ordinal, batch slot, selector, AST rescan, or physical `ValueId`.
-The plan is not re-verified from `SelectedCallableLoweringInputRefV1::source()`;
-that would issue a second Completion/If/profile authority. The existing
-canonical source owner remains unchanged for MainMethod helper rejection;
-this row only transports the already-created plan for the exact non-Main
-static-box-method site. Foreign, ordinary, duplicate, missing,
-absent-carried-plan, or mismatched input rejects before session/Builder effect
-and never falls through to the selected raw route.
+### 2. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
 
-## hako.text.scan@1 contract
+This is one activation cell built in small owner modules. Intermediate code
+does not become an independently selectable provider or production route.
 
-The contract is normalized from one source artifact. Rust, C, Python, LLVM,
-`hako.toml`, and PluginLoader data are projections or link/export facts, never
-semantic contract owners.
+Change:
+  activate the complete `hako.text.scan@1` provider capability, strict AOT/LLVM
+  I6/I7 execution, full Dynamic Loop physical session, exact-two DraftSeal,
+  and selected package production caller; delete the selected raw AST/JoinIR
+  edge in the same activation commit.
+
+Contract:
+  `TextSliceRange` and `TextFindNeedle` are the complete two-role capability.
+  The ProviderSlot role contract is the sole I6/I7 result/lifecycle authority.
+  The global provider spine is reused; runtime consumes a presealed executable
+  branch and never searches a registry or reselects provider/image/selector.
+
+Done:
+  one consuming ProviderAdmissionSeal, immutable deterministic admitted
+  registry, receiver-identity RuntimeExecutablePlan, strict CodePoint AOT leaf,
+  I6 V10 value+one-shot lease/End, I7 ImmediateI64/no lease, complete operation
+  and control schedule, two Completion claims, two physical Returns, one new
+  selected production caller, and zero selected old callers are green.
+
+Stop:
+  missing/foreign/duplicate contract or image, alias ambiguity, incomplete
+  slot coverage, missing capability, lifecycle drift, synthetic return join or
+  PHI, generic-method fallthrough, fallback, retry, or VM dependence rejects
+  before activation.
+
+Internal implementation order, without creating separate authorities:
 
 ```text
-hako.text.scan@1
+hako.text.scan@1 normalized contract + A-prime role requirement co-seal
+  -> BoxCallableRegistryDraft
+  -> consuming ProviderAdmissionSeal
+  -> immutable admitted registry
+  -> MethodCallRoutePlan / RuntimeExecutablePlan
+  -> neutral call-in admission wire + PlanStamp
+  -> canonical-session I6/I7 receipts
+  -> strict LLVM early hook / CodePoint leaf
+  -> V10 lease and exact End
+  -> full unpublished physical session
+  -> exact-two DraftSeal
+  -> atomic selected production switch + old-edge deletion
+```
+
+Required activation counts:
+
+```text
+complete TextScan roles / same provider-profile                 = 2 / 1
+ProviderAdmissionSeal / immutable admitted registry             = 1 / 1
+mutable admitted insert / duplicate overwrite                   = 0 / 0
+String|StringBox canonical branch                               = 1
+RuntimeExecutablePlan with receiver/generation/image/PlanStamp  = 1
+LLVM selected early consumer / strict leaf                      = 1 / 1
+I6 receipt / lease issuer / End consumer                        = 1 / 1 / 1
+I7 receipt / lease / End                                        = 1 / 0 / 0
+Completion expected / claimed / physical Return                 = 2 / 2 / 2
+synthetic return join / return PHI                              = 0 / 0
+new selected production caller / selected old edge              = 1 / 0
+runtime registry/selector/provider/image lookup                  = 0
+selected legacy finalizer / name-type repair                     = 0 / 0
+Rust VM DynamicV2 production consumer                           = 0
+fallback / retry / sentinel-zero repair                         = 0 / 0 / 0
+```
+
+### 3. `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0` — after cutover
+
+Delete only after caller-zero evidence:
+
+```text
+selected source-seed-only route
+selected raw JoinIR edge and legacy finalizer edge
+test-side Completion/If reissuance helpers
+superseded I8-only canary shell
+diagnostic-only raw role/fingerprint authority uses
+selected old topology callers
+```
+
+Global fixed-topology deletion waits for all remaining callers to reach zero.
+H2/H3/H5 parity and the AOT mimalloc gate then run as independent siblings;
+both must be green before Hako producer activation.
+
+## hako.text.scan@1 semantic contract
+
+```text
 profile: utf8-codepoint-clamped-v1
 receiver: canonical Text
 aliases: String | StringBox, canonicalized before admission
 
 TextSliceRange / substring/2
   CanonicalText + ImmediateI64 + ImmediateI64 -> CanonicalText
-  CP half-open range, endpoint clamp, synchronous, one EndAuthorized lease
+  CP half-open range, endpoint clamp, synchronous
+  Normal result = one EndAuthorized lease
 
 TextFindNeedle / indexOf/1
   CanonicalText + CanonicalText -> exact ImmediateI64
-  first CP index, empty needle = 0, miss = -1, lease = 0, End = 0
+  first CP index, empty needle = 0, miss = -1
+  Normal result lease = 0, End = 0
 ```
 
-`TextFindNeedle` is the sole authority for `I7/V11 = ImmediateI64` and its
-no-lease/no-End result. `calls.rs` expectations, selector/fingerprint strings,
-fixture constants, and A-prime diagnostic role strings are dispatch and
-cross-check evidence only. They must never refine result class or lifecycle.
-I6/I7 must co-seal the same contract, provider, profile, alias branch, and
-admission generation; missing/foreign/duplicate/ambiguous/byte/env-mode or
-lifecycle drift is `RejectBeforeEffect`.
+Selector and diagnostic strings only cross-check dispatch keys. They do not
+decide result class, representation, lifecycle, provider, or executable entry.
+The strict leaf does not call the environment-selected/generic String surface,
+string-to-i64 compatibility parsing, or sentinel-zero helpers.
 
-## Exact semantic recut already landed
+## Mandatory cleanup and line-budget gates
+
+These are BoxShape siblings, not semantic progress and not substitutes for the
+current session projection or production cutover.
 
 ```text
-I6 substring/2: V0:Dynamic, V6:I64, V9:I64 -> V10:Dynamic
-I7 indexOf/1:   V3:Dynamic, V10:Dynamic   -> V11:I64
-I8 ConstI64(0):                              -> V12:I64
-I9 CompareI64(Less): V11:I64, V12:I64      -> V13:Bool
+MIRBUILDER-LINE-BUDGET-R0
+  split module_draft_collector.rs (801; tests start near 433)
+  split completion_tests.rs (894)
+  freeze analyzer.rs (769) and builder.rs (787): no additions before split
+
+CURRENT-STATE-LIVE-SCHEMA-I0
+  CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
+  historical key registry -> generated/archive index
+
+MIRBUILDER-WORKSTREAM-ARCHIVE-R0
+  rolling workstream current brief below 800 lines
+  closed chronology -> archive/git history
+
+MIRBUILDER-PRIVATE-PHASE-SPLIT-R0
+  keep one public emit_instruction writer; split private prepare/validate/
+  physical-commit/post-metadata phases
+  split builder_build.rs by literal/read/assignment/new-expression ownership
 ```
 
-Only V10 has Dynamic lifecycle. I7/V11 has no lease or End. The active
-physical evidence is `13 NonFaulting / 0 Faulting / 2 ExternallyBound`; the
-selected cleanup rows are I6 fault, I7 fault, inner Return, and Backedge.
+The current active card is intentionally compact. Its multi-thousand-line
+predecessor is retained only under `design/archive/` as historical evidence.
+It is not a current pointer or implementation authority.
 
-## Existing landed evidence
+## Common negative matrix
 
 ```text
-2e9348d0bc  canonical plan input callback accessor + focused identity test
-38a5895d15  handoff D0 accepted; fast row opened
-b5caad2ce8  handoff implementation boundary recorded
-c3c4343367  capability plan impl split keeps capability.rs at 748 lines;
-            trivial_plan.rs owns the 73-line plan carrier/impl
+Ordinary or foreign selected loan                         -> reject/not selected
+owner/function/forest/projection/root drift              -> reject
+missing/duplicate/extra Completion site                  -> reject
+wrong function target or return operand                  -> reject
+Loop/local If/inner Return shape drift                   -> reject
+second Completion/If/profile issuance                    -> guard failure
+raw AST/Recipe/JoinSig/ValueId handoff                    -> guard failure
+arbitrary canonical-session pairing                      -> API/guard failure
+borrow escaping package callback                         -> compile failure
+provider/LLVM/End incomplete at activation               -> RejectBeforeEffect
+selected legacy/generic fallthrough                      -> guard failure
+name/ordinal/selector repair, fallback, retry             -> guard failure
+Rust VM DynamicV2 provider/receipt/session                -> guard failure
 ```
 
-Focused checks currently used by this row:
+## Focused gates
 
-```text
-cargo test -q --lib main_plan_retains_exact_role_unit_and_consumable_trivial_plan
+```bash
+cargo test -q --lib normal_callable_semantic_package
 cargo test -q --lib dynamic_full_body_recipe
+cargo test -q --lib selected_dynamic_physical_emitter
+cargo test -q --lib completion
+cargo check -q --lib
+
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
+bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
+bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 git diff --check
-```
-
-Known baseline warnings from the full Rust crate are non-blocking unless a
-focused command fails. The active row has no provider or VM production caller.
-
-## Next atomic AOT/LLVM cell (not yet open)
-
-After the handoff row closes, I0-B must land in one activation commit using
-small owner modules:
-
-```text
-normalized contract artifact + generated manifest
-  -> one consuming ProviderAdmissionSeal
-  -> immutable deterministic admitted BoxCallableRegistry
-  -> I6/I7 RoutePlan and receiver-identity RuntimeExecutablePlan
-  -> separate call-in admission wire (C header owner; projections checked)
-  -> canonical-session I6/I7 physical receipts
-  -> one strict LLVM early consumer and CodePoint AOT leaf
-  -> V10 value/lifecycle aggregate and one-shot End
-```
-
-The admitted branch retains contract/provider/profile/receiver/generation,
-image/entry, and plan stamp. Runtime only checks and consumes that sealed
-branch; it never searches a registry or reselects a provider/image/selector.
-The I0-B result class must come from the role contract, not `calls.rs`.
-
-Required I0-B counts:
-
-```text
-contract source / normalized generator                 = 1 / 1
-ProviderAdmissionSeal issuer                          = 1
-complete TextScan role coverage                       = 2
-immutable admitted registry / mutable overwrite       = 1 / 0
-I6/I7 same contract/provider/profile                   = 1
-receiver identity + generation + image/entry stamp    = present
-LLVM selected early consumer / strict leaf             = 1 / 1
-I6/I7 canonical-session receipt issuers                 = 1 / 1
-I6 lease issuer / End consumer                         = 1 / 1
-I7 lease / End                                         = 0 / 0
-runtime selector/provider/registry/image lookup        = 0
-selected generic/legacy fallthrough                    = 0
-Rust VM DynamicV2 provider/receipt/session consumer    = 0
-fallback / retry / sentinel-zero repair               = 0
 ```
 
 ## Non-claims
 
 ```text
-full String surface
-I6-only provider slot
-Rust VM provider/receipt/session
+CanonicalTrivialBindingSsaPlanV1 Dynamic expansion
+generic all-V2 Loop admission
+full String surface or I6-only provider slot
 Dynamic-specific registry
 runtime provider/selector/image lookup
 generic String compatibility route
-bare-handle or sentinel-zero repair
-standalone I7 receipt
-physical End in isolation
-new CFG/SSA/PHI/Completion authority
-production cutover before the complete I0-B cell
+Rust VM provider/receipt/session
+new Recipe/JoinSig/CFG/SSA/PHI/Completion authority
+production cutover before the complete atomic activation cell
+fallback / retry / legacy dual-production
 ```
 
-## History and audit
+## History
 
-The former 3,900-line investigation ledger is retained at
-`docs/development/current/main/design/archive/dynamic-fault-exit-transaction-d0-history-2026-08-10.md`.
-It is historical evidence, not a current pointer or semantic authority.
-The local `AGENTS.md` was read in full; it is gitignored local guidance and
-requires no edit. The tracked current card and `CURRENT_STATE.toml` are the
-durable task sources.
+Detailed landed chronology lives in git history and the historical archive
+named in `ParentHistory`. This card owns only the live Decision, next slice,
+activation boundary, retirement conditions, and cleanup queue.

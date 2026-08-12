@@ -1,4 +1,10 @@
-# DYNAMIC-FAULT-EXIT-TRANSACTION-D0
+# DYNAMIC-FAULT-EXIT-TRANSACTION-D0 — historical archive
+
+> Historical evidence only. This file is not a current task, pointer, or
+> semantic authority. Continue from
+> `docs/development/current/main/CURRENT_STATE.toml` and the compact active card
+> at
+> `docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md`.
 
 Status: logical/fault/flow/operation-demand foundation and the explicit result
 `: i64` Completion relation are landed. The previous checked-Dynamic return
@@ -20,7 +26,7 @@ I6/I7 invocation operations; I9 becomes typed CompareI64 in the current recut.
 The landed exact-Dynamic V2 program is
 an input to Slice B's atomic replacement, not a competing selected program.
 
-## VM lane override (current, non-historical)
+## VM lane override at archival cut time
 
 Rust VM is not a production backend or a DynamicV2 provider consumer. Its
 remaining scope is limited to bootstrap/recovery, compatibility, semantic

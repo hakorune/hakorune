@@ -541,7 +541,8 @@ Moved to: docs/development/archive/phases/phase-131/131-03-llvm-lowering-invento
 - 新しい Phase 文書は `main/phases/` に入れる（`main/` 直下に増やさない）。
 - 設計図（SSOT）は `main/design/` に寄せる（Phase の完了サマリと混ぜない）。
 - `10-Now.md` は「現状の要約＋正本リンク」に徹し、詳細ログの本文は抱え込まない。
-- `CURRENT_TASK.md` は root anchor なので、重要な blocker / current priority はまずそこへ置く。
+- `CURRENT_TASK.md` は薄い root anchor に保ち、重要な blocker / current priority は
+  `CURRENT_STATE.toml` とその `latest_card_path` に一度だけ置く。
 - `05-Restart-Quick-Resume.md` は restart 手順と読む順だけに徹し、landed chronicle は抱え込まない。
 - `15-Workstream-Map.md` は rough order の one-screen mirror に徹し、phase detail は抱え込まない。
 - `phases/README.md` は current / guardrail / recent landed の index に徹し、repo-wide landed ledger を再掲しない。
