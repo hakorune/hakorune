@@ -421,6 +421,15 @@ PreparedAotExecutableAdmissionV1
   -> RuntimeExecutablePlanV1 (post-link only)
 ```
 
+The current neutral export facts declare symbols and lanes, but a plain `i64`
+return cannot carry the I6 `EndAuthorized` lease. Before implementing either
+entry, the same neutral ABI owner must freeze the call signature and result
+transport: value tag/payload, status/fault, disposition, and lease token must
+travel through the existing result-wire projection (or an explicitly
+equivalent checked out-parameter ABI). Never overload a returned host handle,
+zero, or an unversioned side channel as the lease. The kernel, LLVM, and link
+layers must consume this one ABI projection; none may redefine it locally.
+
 The kernel leaf owns strict handle/lane checks and CodePoint substring/indexOf
 semantics. It must publish a fresh result handle through the existing host
 handle API, but the raw handle is not a lease token and `drop_handle` is not the

@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic-plan and canonical-session admission are accepted. The AOT physical activation is the only live implementation row; provider/runtime/LLVM activation and production cutover remain closed until the complete cell is green. Rust-VM DynamicV2 work remains forbidden."
+status = "Selected Dynamic semantic-plan and canonical-session admission are accepted. The AOT physical activation is in a design stop for its neutral call ABI and one-shot lease owner; provider/runtime/LLVM activation and production cutover remain closed. Rust-VM DynamicV2 work remains forbidden."
 date = "2026-08-12"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none"
-work_mode = "fast"
+current_design_stop = "I0-D must freeze one neutral call ABI carrying result status/disposition/lease and name one monotonic or generation-branded End lease owner before strict leaf code."
+work_mode = "design_stop"
 current_execution_row = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-current_blocker_token = "I0-C symbolic TextScan admission is complete as a work-branch checkpoint: retained I6/I7 Core rows, canonical String/StringBox alias projection, neutral export lanes/symbols, immutable admitted rows, and PlanStamp are co-sealed into one move-only PreparedAotExecutableAdmission. Next is I0-D: strict CodePoint AOT leaf, LLVM early consumer, and post-object link-time RuntimeExecutablePlan as one activation boundary. Physical session, collector, production cutover, runtime lookup, generic String compatibility, Rust-VM work, fallback, retry, and pre-link image/address fabrication remain forbidden."
+current_blocker_token = "I0-D design stop: the neutral TextScan facts have symbols/lanes but no fixed call ABI that carries the I6 EndAuthorized lease. Freeze one checked result-wire or equivalent out-parameter ABI and one monotonic/generation-branded lease issuer/consumer before strict leaf, LLVM hook, or link-plan code. Physical session, collector, production cutover, runtime lookup, generic String compatibility, Rust-VM work, fallback, retry, and pre-link image/address fabrication remain forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. Ordinary and legacy compatibility routes remain separate; selected Dynamic production cutover is not yet enabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. I0-D is paused at the neutral call-ABI/lease-owner design boundary; ordinary and legacy compatibility routes remain separate and selected Dynamic production cutover is not enabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, and the I0-C symbolic admission checkpoint are landed on the work branch. The active atomic cell now has seven bounded subrows: catalog-admission transport, TextScan semantic/export artifacts, consuming provider admission, strict AOT/LLVM leaf plus link-time executable-plan finalization, full physical session, exact-two CanonicalCallable handoff, and selected cutover."
-next_design_card = "none"
+latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, and the I0-C symbolic admission checkpoint are landed on the work branch. I0-D is now design-stopped until one neutral call ABI carries the I6 lease and one one-shot lease owner is named; strict leaf/LLVM/link code remains closed."
+next_design_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
