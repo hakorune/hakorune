@@ -7,11 +7,32 @@ use crate::mir::{BasicBlockId, ValueId};
 
 #[derive(Debug)]
 pub(super) struct ResolvedFunctionCompletionConsumptionV1 {
-    completion: VerifiedFunctionCompletionV1,
+    expected: CompletionExpectationV1,
     /// Slots are indexed by the resolver-owned `explicit_sites()` order.
     /// The site is still carried in every claim so a future consumer cannot
     /// silently treat storage order as source identity.
     explicit_claims: Box<[Option<ExplicitReturnClaimV1>]>,
+}
+
+/// Borrow-free physical expectations copied from the sole semantic
+/// Completion owner at the admission boundary.  Keeping only the facts the
+/// physical consumer needs prevents a borrowed semantic product from leaking
+/// into DraftSeal while still allowing selected Dynamic lowering to borrow
+/// the installed package exactly once.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CompletionExpectationV1 {
+    owner: FunctionOwnerIdV1,
+    target_function: RegionId,
+    kind: CompletionPhysicalKindV1,
+    explicit_sites: Box<[SourceStmtSiteV1]>,
+    implicit_body_end: Option<(SourceBodySiteV1, u32)>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CompletionPhysicalKindV1 {
+    ExplicitValue,
+    ExplicitUnit,
+    ImplicitVoid,
 }
 
 /// Temporal witness minted only after every current canonical Lower finish.
@@ -20,7 +41,7 @@ pub(super) struct ResolvedFunctionCompletionConsumptionV1 {
 /// finalizer API. Raw pre-Builder completion products cannot finalize a draft.
 #[derive(Debug)]
 pub(super) struct ReadyFunctionCompletionV1 {
-    completion: VerifiedFunctionCompletionV1,
+    kind: CompletionPhysicalKindV1,
     explicit_claims: Box<[ExplicitReturnClaimV1]>,
 }
 
@@ -44,11 +65,11 @@ impl ReadyFunctionCompletionV1 {
     }
 
     pub(super) fn returns_value(&self) -> bool {
-        self.completion.returns_value()
+        matches!(self.kind, CompletionPhysicalKindV1::ExplicitValue)
     }
 
     pub(super) fn is_implicit_void(&self) -> bool {
-        self.completion.is_implicit_void()
+        matches!(self.kind, CompletionPhysicalKindV1::ImplicitVoid)
     }
 
     /// Exact site-keyed physical claims in the resolver's canonical source
@@ -60,8 +81,8 @@ impl ReadyFunctionCompletionV1 {
 }
 
 /// Builder-side evidence for one explicit source exit.  The completion
-/// consumer can retain a complete site-keyed set; the current DraftSeal
-/// writer still admits only a single claim.
+/// consumer retains a complete site-keyed set and the DraftSeal writer
+/// consumes the same set for one- or two-site exits.
 ///
 /// The source completion contract decides whether the operand is a return;
 /// this witness records only the exact already-lowered physical operand and
@@ -125,13 +146,34 @@ impl ReturnOperandWitnessV1 {
 }
 
 impl ResolvedFunctionCompletionConsumptionV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.expected.owner
+    }
+
     pub(super) fn returns_value(&self) -> bool {
-        self.completion.returns_value()
+        matches!(self.expected.kind, CompletionPhysicalKindV1::ExplicitValue)
     }
 
     pub(super) fn new(
         expected_owner: FunctionOwnerIdV1,
         completion: VerifiedFunctionCompletionV1,
+    ) -> Result<Self, String> {
+        Self::project(expected_owner, &completion)
+    }
+
+    /// Borrowed selected-Dynamic admission.  Only the exact physical
+    /// expectations are copied; the semantic Completion remains owned by the
+    /// installed package and cannot escape this call.
+    pub(super) fn new_borrowed(
+        expected_owner: FunctionOwnerIdV1,
+        completion: &VerifiedFunctionCompletionV1,
+    ) -> Result<Self, String> {
+        Self::project(expected_owner, completion)
+    }
+
+    fn project(
+        expected_owner: FunctionOwnerIdV1,
+        completion: &VerifiedFunctionCompletionV1,
     ) -> Result<Self, String> {
         if completion.owner() != expected_owner {
             return Err("[freeze:contract][canonical_completion/owner_mismatch]".to_string());
@@ -150,9 +192,25 @@ impl ResolvedFunctionCompletionConsumptionV1 {
                 );
             }
         }
+        let kind = if completion.returns_value() {
+            CompletionPhysicalKindV1::ExplicitValue
+        } else if completion.is_implicit_void() {
+            CompletionPhysicalKindV1::ImplicitVoid
+        } else {
+            CompletionPhysicalKindV1::ExplicitUnit
+        };
+        let expected = CompletionExpectationV1 {
+            owner: completion.owner(),
+            target_function: completion.target_function(),
+            kind,
+            explicit_sites: completion.explicit_sites().to_vec().into_boxed_slice(),
+            implicit_body_end: completion
+                .implicit_body_end()
+                .map(|(body, end)| (body.clone(), end)),
+        };
         Ok(Self {
             explicit_claims: vec![None; completion.explicit_sites().len()].into_boxed_slice(),
-            completion,
+            expected,
         })
     }
 
@@ -161,11 +219,11 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         site: &SourceStmtSiteV1,
         target_function: RegionId,
     ) -> Result<usize, String> {
-        if self.completion.target_function() != target_function {
+        if self.expected.target_function != target_function {
             return Err("[freeze:contract][canonical_completion/target_mismatch]".to_string());
         }
-        self.completion
-            .explicit_sites()
+        self.expected
+            .explicit_sites
             .iter()
             .position(|expected| expected == site)
             .ok_or_else(|| {
@@ -180,7 +238,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        if !self.completion.returns_value() {
+        if !self.returns_value() {
             return Err("[freeze:contract][canonical_completion/value_kind_mismatch]".to_string());
         }
         let index = self.claim_slot(site, target_function)?;
@@ -197,7 +255,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         site: &SourceStmtSiteV1,
         target_function: RegionId,
     ) -> Result<(), String> {
-        if self.completion.returns_value() {
+        if self.returns_value() {
             return Err("[freeze:contract][canonical_completion/unit_kind_mismatch]".to_string());
         }
         let index = self.claim_slot(site, target_function)?;
@@ -214,12 +272,12 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         root_body_end: u32,
         target_function: RegionId,
     ) -> Result<ReadyFunctionCompletionV1, String> {
-        if self.completion.target_function() != target_function {
+        if self.expected.target_function != target_function {
             return Err(
                 "[freeze:contract][canonical_completion/finish_target_mismatch]".to_string(),
             );
         }
-        let expected_count = self.completion.explicit_sites().len();
+        let expected_count = self.expected.explicit_sites.len();
         if self
             .explicit_claims
             .iter()
@@ -229,8 +287,8 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         {
             return Err("[freeze:contract][canonical_completion/consumption_mismatch]".to_string());
         }
-        if let Some((expected_body, expected_end)) = self.completion.implicit_body_end() {
-            if expected_body != root_body || expected_end != root_body_end {
+        if let Some((expected_body, expected_end)) = self.expected.implicit_body_end.as_ref() {
+            if expected_body != root_body || *expected_end != root_body_end {
                 return Err(
                     "[freeze:contract][canonical_completion/implicit_body_mismatch]".to_string(),
                 );
@@ -243,11 +301,96 @@ impl ResolvedFunctionCompletionConsumptionV1 {
             .collect::<Option<Vec<_>>>()
             .ok_or_else(|| {
                 "[freeze:contract][canonical_completion/operand_witness_missing]".to_string()
-            })?
+        })?
             .into_boxed_slice();
+        let kind = self.expected.kind;
         Ok(ReadyFunctionCompletionV1 {
-            completion: self.completion,
+            kind,
             explicit_claims,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ResolvedFunctionCompletionConsumptionV1;
+    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_control_flow::verify_function_completion_v1;
+
+    fn function(name: &str) -> ASTNode {
+        ASTNode::FunctionDeclaration {
+            name: name.into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn borrowed_completion_projects_to_a_borrow_free_consumer() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function("borrowed_completion"))
+            .expect("resolved unit");
+        let input = unit.root_function_input().expect("root input");
+        let completion = verify_function_completion_v1(input).expect("completion");
+        let owner = input.owner();
+        let target = input.function().lowering_roots().function_pair().region();
+        let body = input.source().root_body().expect("root body");
+        let site = completion
+            .explicit_sites()
+            .first()
+            .expect("explicit return site")
+            .clone();
+
+        let mut consumer = ResolvedFunctionCompletionConsumptionV1::new_borrowed(
+            owner,
+            &completion,
+        )
+        .expect("borrowed completion");
+        assert_eq!(consumer.owner(), owner);
+        assert!(consumer.returns_value());
+        consumer
+            .claim_explicit_return(
+                &site,
+                target,
+                crate::mir::BasicBlockId::new(1),
+                crate::mir::ValueId::new(2),
+            )
+            .expect("claim");
+        let ready = consumer
+            .finish(body.site(), body.statements().len() as u32, target)
+            .expect("borrow-free ready completion");
+        assert!(ready.returns_value());
+        assert_eq!(ready.explicit_claims().len(), 1);
+    }
+
+    #[test]
+    fn borrowed_completion_rejects_a_foreign_owner() {
+        let first = VerifiedResolvedSourceUnitV1::resolve_function(function("first_completion"))
+            .expect("first unit");
+        let second = VerifiedResolvedSourceUnitV1::resolve_function(function("second_completion"))
+            .expect("second unit");
+        let first_input = first.root_function_input().expect("first input");
+        let second_input = second.root_function_input().expect("second input");
+        let completion = verify_function_completion_v1(first_input).expect("completion");
+        let error = ResolvedFunctionCompletionConsumptionV1::new_borrowed(
+            second_input.owner(),
+            &completion,
+        )
+        .expect_err("foreign owner must reject");
+        assert!(error.contains("owner_mismatch"));
     }
 }
