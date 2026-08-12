@@ -463,7 +463,15 @@ Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backe
 Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
-Internal BoxShape checkpoint (2026-08-13): physical target-role coverage requires all roles before block allocation (repeated schedule rows per role remain valid). Operation order remains the already-issued `operation_rows()` sequence; a numeric item-order guard was rejected by the fixture. D1 corridor is landed; the full consuming cursor, I8-I16/control/cleanup session, and terminal remain open.
+#### `PHYSICAL-SESSION-I0-E-TAIL-CONTROL-CLEANUP-TERMINAL-D0`
+```text
+Decision: design-stop; D1 is landed, but the E tail lacks one neutral physical End/Fault-cleanup terminal owner.
+Source authority + canonical issuer: operation/control/cleanup/JoinSig facts; Canonical SSA/CFG and one new physical lifecycle owner only.
+Non-authority: runtime lease API alone, V1 physicalizer, generic Call, provider/LLVM/VM, selector/name lookup, fallback, or a second semantic receipt.
+Fail-fast boundary: missing/foreign/stale/duplicate lease, End, landing/predecessor, I8-I16/control, PHI, or profile-close evidence rejects before publication.
+Smallest next slice: name the lifecycle owner and its move-only terminal handoff, then consume I8-I16/control/cleanup in the same unpublished session.
+Non-claims: no code, fixture, provider/runtime activation, DraftSeal/collector, production caller, or VM parity until the Decision is accepted.
+```
 
 #### `EXACT-TWO-COLLECTOR-I0-F`
 
