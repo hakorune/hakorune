@@ -101,56 +101,37 @@ pub(super) fn verify_dynamic_call_relations_v2(
     if targets.len() > 2 {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetCountMismatch);
     }
+    let mut targets = targets.into_vec();
     let substring_expected = DynamicCallExpectationV2::substring();
     let substring_core = core_method_row(&substring_expected)?;
     let index_of_expected = DynamicCallExpectationV2::index_of();
     let index_of_core = core_method_row(&index_of_expected)?;
-    verify_one(source, recipe, &targets, substring_expected, substring_core)?;
-    verify_one(source, recipe, &targets, index_of_expected, index_of_core)?;
-
-    let substring_site = expr_site(source, DynamicFullBodySourceRoleV1::SubstringCall)?.clone();
-    let index_of_site = expr_site(source, DynamicFullBodySourceRoleV1::IndexOfCall)?.clone();
-    let mut substring_target = None;
-    let mut index_of_target = None;
-    for target in targets.into_vec() {
-        if target.owner() != source.owner {
+    if expr_site(source, substring_expected.call)? == expr_site(source, index_of_expected.call)? {
+        return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
+    }
+    let substring = verify_one(
+        source,
+        recipe,
+        &mut targets,
+        substring_expected,
+        substring_core,
+    )?;
+    let index_of = verify_one(
+        source,
+        recipe,
+        &mut targets,
+        index_of_expected,
+        index_of_core,
+    )?;
+    if !targets.is_empty() {
+        if targets.iter().any(|target| target.owner() != source.owner) {
             return Err(DynamicFullLoopCallRelationRejectV2::DifferentOwner);
         }
-        if target.call_site() == &substring_site {
-            if substring_target.replace(target).is_some() {
-                return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
-            }
-        } else if target.call_site() == &index_of_site {
-            if index_of_target.replace(target).is_some() {
-                return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
-            }
-        } else {
-            return Err(DynamicFullLoopCallRelationRejectV2::UnexpectedTarget);
-        }
-    }
-    let substring_target =
-        substring_target.ok_or(DynamicFullLoopCallRelationRejectV2::MissingTarget)?;
-    let index_of_target =
-        index_of_target.ok_or(DynamicFullLoopCallRelationRejectV2::MissingTarget)?;
-    if substring_target.call_site() == index_of_target.call_site() {
-        return Err(DynamicFullLoopCallRelationRejectV2::ReusedTarget);
+        return Err(DynamicFullLoopCallRelationRejectV2::UnexpectedTarget);
     }
     Ok(VerifiedDynamicFullLoopCallRelationsV2 {
         owner: source.owner,
-        rows: [
-            DynamicFullLoopCallRelationV2 {
-                item: LoopItemKeyV1::new(6),
-                call_role: DynamicFullBodySourceRoleV1::SubstringCall,
-                target: substring_target,
-                core_method: substring_core,
-            },
-            DynamicFullLoopCallRelationV2 {
-                item: LoopItemKeyV1::new(7),
-                call_role: DynamicFullBodySourceRoleV1::IndexOfCall,
-                target: index_of_target,
-                core_method: index_of_core,
-            },
-        ],
+        rows: [substring, index_of],
     })
 }
 
@@ -208,25 +189,30 @@ impl DynamicCallExpectationV2 {
     }
 }
 
-fn verify_one<'a>(
+fn verify_one(
     source: &DynamicFullLoopRetainedSourceV1,
     recipe: &VerifiedLoopRecipeV2,
-    targets: &'a [VerifiedSourceBoundDynamicMemberCallV1],
+    targets: &mut Vec<VerifiedSourceBoundDynamicMemberCallV1>,
     expected: DynamicCallExpectationV2,
     core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
-) -> Result<&'a VerifiedSourceBoundDynamicMemberCallV1, DynamicFullLoopCallRelationRejectV2> {
+) -> Result<DynamicFullLoopCallRelationV2, DynamicFullLoopCallRelationRejectV2> {
     let call_site = expr_site(source, expected.call)?;
     let receiver_site = expr_site(source, expected.receiver_site)?;
     let receiver_binding = binding(source, expected.receiver_binding)?;
-    let mut matches = targets
+    let matches = targets
         .iter()
-        .filter(|target| target.owner() == source.owner && target.call_site() == call_site);
-    let Some(target) = matches.next() else {
-        return Err(DynamicFullLoopCallRelationRejectV2::MissingTarget);
+        .enumerate()
+        .filter(|(_, target)| target.owner() == source.owner && target.call_site() == call_site)
+        .map(|(index, _)| index)
+        .collect::<Vec<_>>();
+    let [target_index] = matches.as_slice() else {
+        return Err(if matches.is_empty() {
+            DynamicFullLoopCallRelationRejectV2::MissingTarget
+        } else {
+            DynamicFullLoopCallRelationRejectV2::AmbiguousTarget
+        });
     };
-    if matches.next().is_some() {
-        return Err(DynamicFullLoopCallRelationRejectV2::AmbiguousTarget);
-    }
+    let target = targets.remove(*target_index);
 
     if target.call_site() != call_site
         || target.result_site() != call_site
@@ -257,7 +243,12 @@ fn verify_one<'a>(
     }
 
     verify_recipe_call(recipe, &expected, core_row)?;
-    Ok(target)
+    Ok(DynamicFullLoopCallRelationV2 {
+        item: expected.item,
+        call_role: expected.call,
+        target,
+        core_method: core_row,
+    })
 }
 
 fn verify_recipe_call(
@@ -402,20 +393,24 @@ mod tests {
 
     #[test]
     fn dispatch_selector_and_arity_are_part_of_the_source_target_contract() {
-        let fixture = super::super::tests::fixture(true);
-        let (source, artifact, _claims) = fixture.candidate.into_parts();
+        let super::super::tests::CosealFixtureV2 { candidate, calls } =
+            super::super::tests::fixture(true);
+        let (source, artifact, _claims) = candidate.into_parts();
+        let mut targets = calls.into_vec();
         let mut expectation = DynamicCallExpectationV2::substring();
         expectation.core_method_op = CoreMethodOp::StringIndexOf;
         let core_row = core_method_row(&expectation).expect("generated indexOf row");
+        let error = verify_one(
+            &source,
+            artifact.recipe(),
+            &mut targets,
+            expectation,
+            core_row,
+        )
+        .expect_err("swapped CoreMethodOp must reject");
         assert_eq!(
-            verify_one(
-                &source,
-                artifact.recipe(),
-                &fixture.calls,
-                expectation,
-                core_row
-            ),
-            Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch)
+            error,
+            DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch
         );
     }
 
