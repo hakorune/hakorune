@@ -47,7 +47,8 @@ done
 # production route before the complete TextScan/AOT activation cell exists.
 if rg -n --glob '*.rs' \
   'BoxCallableProviderAdmissionSealV1::admit|BoxCallableRegistryDraftV1' \
-  "$ROOT_DIR/src" --glob '!src/box_callable/admitted.rs' --glob '!src/box_callable/mod.rs'; then
+  "$ROOT_DIR/src" --glob '!src/box_callable/admitted.rs' \
+  --glob '!src/box_callable/text_scan.rs' --glob '!src/box_callable/mod.rs'; then
   guard_fail "$TAG" "provider spine has an unscoped production caller before AOT activation"
 fi
 

@@ -297,6 +297,12 @@ The first cold BoxShape is now landed in `src/box_callable/admitted.rs`:
 guarded with zero production callers; it is not a provider activation or a
 runtime route until the complete cell below consumes it.
 
+The normalized `hako.text.scan@1` contract projection is also landed in
+`src/box_callable/text_scan.rs`: `TextSliceRange` and `TextFindNeedle` are the
+complete CP-profile role set, with `String`/`StringBox` alias admission.  Its
+consumer count remains zero; the strict AOT leaf and canonical I6/I7 receipts
+must consume this contract together in the activation cell.
+
 Change:
   activate the complete `hako.text.scan@1` provider capability, strict AOT/LLVM
   I6/I7 execution, full Dynamic Loop physical session, exact-two DraftSeal,
@@ -508,6 +514,7 @@ bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
 bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
 bash tools/checks/dynamic_v2_provider_spine_guard.sh
+bash tools/checks/dynamic_v2_text_scan_contract_guard.sh
 bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
