@@ -358,7 +358,7 @@ Rust VM DynamicV2 production consumer                           = 0
 fallback / retry / sentinel-zero repair                         = 0 / 0 / 0
 ```
 
-### 3. `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0` — after cutover
+### 4. `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0` — after cutover
 
 Delete only after caller-zero evidence:
 
