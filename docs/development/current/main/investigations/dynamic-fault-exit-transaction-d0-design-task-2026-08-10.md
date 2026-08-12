@@ -444,6 +444,13 @@ Non-claims: no lease/End execution, provider/LLVM/VM, DraftSeal, collector, fall
   or production caller.
 ```
 
+Implementation checkpoint (2026-08-13): the private cursor now runs before
+unpublished Builder-session opening. It consumes the complete 15-row array
+once, proves dependency/use-before-produce and retained I6/I7 CoreMethod
+shape, and has focused positive/negative tests plus the physical-input guard.
+It deliberately issues no physical value id or CallOut; canonical value
+issuance and the site-local corridor remain the next bounded substep.
+
 #### `PHYSICAL-SESSION-I0-E`
 ```text
 Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0

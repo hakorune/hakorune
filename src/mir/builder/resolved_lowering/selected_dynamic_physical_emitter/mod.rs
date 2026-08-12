@@ -7,6 +7,7 @@
 
 mod i64_const;
 mod formal_header;
+mod operation_cursor;
 mod targets;
 mod value_ledger;
 
@@ -52,6 +53,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     FormalHeader(String),
     PhysicalValueLedger(String),
     CheckedCallOutSitePlan(String),
+    RecipeOperationCursor(String),
 }
 
 #[derive(Debug)]
@@ -269,6 +271,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         let input = demand.input();
         let physical_header = demand.physical_function_header();
         let function_name = physical_header.catalog().physical_symbol().to_owned();
+        operation_cursor::validate(&demand)
+            .map_err(|error| {
+                DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!("{error:?}"))
+            })?;
         let (mut canonical, evidence) =
             validate_pre_session_authority(&demand, &schedule, &mut ledger, input)?;
 

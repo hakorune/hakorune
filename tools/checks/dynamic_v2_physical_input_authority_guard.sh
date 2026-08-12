@@ -23,6 +23,7 @@ SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_p
 SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
 SELECTED_FORMAL_HEADER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs"
 SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
+SELECTED_OPERATION_CURSOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/operation_cursor.rs"
 SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -35,6 +36,7 @@ guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$APRIME_ISSUER" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
+  "$SELECTED_OPERATION_CURSOR" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -233,6 +235,34 @@ guard_expect_fixed_in_file "$TAG" "self.values" "$SELECTED_EMITTER" \
   "the I8 canary must retain a session-owned physical value ledger"
 guard_expect_fixed_in_file "$TAG" "with_physical_value_for_test" "$SELECTED_EMITTER" \
   "the canary must exercise callback-scoped ledger reads"
+for cursor_fact in \
+  "DynamicV2RecipeOperationCursorV1" \
+  "consume_all" \
+  "DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2" \
+  "UseBeforeProduce" \
+  "DuplicateResult" \
+  "CoreMethodOp::StringSubstring" \
+  "CoreMethodOp::StringIndexOf"; do
+  guard_expect_fixed_in_file "$TAG" "$cursor_fact" "$SELECTED_OPERATION_CURSOR" \
+    "V2 Recipe-order cursor is missing required fact: $cursor_fact"
+done
+guard_expect_fixed_in_file "$TAG" "operation_cursor::validate" "$SELECTED_EMITTER" \
+  "selected session must run the exact-once V2 cursor before opening Builder state"
+for forbidden in \
+  "loop_recipe_physicalizer" \
+  "MirInstruction" \
+  "BasicBlockId" \
+  "ValueId" \
+  "selector" \
+  "lookup"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_OPERATION_CURSOR"; then
+    guard_fail "$TAG" "V2 operation cursor must not become a second physical/selector authority: $forbidden"
+  fi
+done
+cursor_lines="$(wc -l < "$SELECTED_OPERATION_CURSOR" | tr -d '[:space:]')"
+if (( cursor_lines >= 800 )); then
+  guard_fail "$TAG" "V2 operation cursor reached hard 800-line boundary: ${SELECTED_OPERATION_CURSOR#"$ROOT_DIR/"} has $cursor_lines"
+fi
 if rg -n -- "physical_value\(" "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/i64_const.rs"; then
   guard_fail "$TAG" "production emitter must not expose a raw physical ValueId getter"
 fi

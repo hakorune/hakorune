@@ -77,7 +77,10 @@ so its receipt boundary is tested, but that canary is not a capability-gate
 bypass or a production handoff. The handoff must consume the plan, move the
 private ledger, and own a session-issued opaque target set. The consuming
 handoff co-seals I8/V12/literal-0/placement/Prelude once; the emitter does not
-rescan the whole operation program. The all-or-nothing capability gate remains
+rescan the whole operation program outside its private V2 cursor. The cursor
+consumes the already verified 15-row Recipe array exactly once before Builder
+state opens, checks dependency/use-before-produce and retained I6/I7
+CoreMethod rows, and issues no ValueId or CallOut. The all-or-nothing capability gate remains
 the sole production handoff. No `cfg(test)` semantic constructor, raw
 block/value getter, or gate bypass is allowed. The preflight ledger borrow is
 test-only once the consuming handoff exists. The numeric I6/I7/I8/I9 and
