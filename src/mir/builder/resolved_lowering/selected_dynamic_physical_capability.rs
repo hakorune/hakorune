@@ -59,6 +59,10 @@ pub(in crate::mir) enum DynamicV2ProducerFamilyV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicV2PhysicalRepresentationV1 {
     ImmediateI64,
+    ImmediateBool,
+    EndAuthorizedHandle {
+        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

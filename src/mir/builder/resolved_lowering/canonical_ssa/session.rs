@@ -303,6 +303,21 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .ok_or_else(|| "canonical physical target requires current function".to_owned())
     }
 
+    /// Issue one physical SSA value id for a selected unpublished operation.
+    /// This is the only selected-lane value-id issuer; operation leaves only
+    /// receive the id and publish their typed receipt through the session ledger.
+    pub(in crate::mir::builder::resolved_lowering) fn issue_physical_value_id(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<ValueId, String> {
+        builder
+            .function_state
+            .current_function
+            .as_mut()
+            .map(|function| function.next_value_id())
+            .ok_or_else(|| "canonical physical value requires current function".to_owned())
+    }
+
     /// Define the checked-call result only in its Normal landing block.  The
     /// terminator has no destination, so the existing block-local definition
     /// and dominance machinery remains the sole SSA authority.
