@@ -411,15 +411,14 @@ negative link gate are green.
 
 ##### I0-D implementation-preparation contract
 
-Design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0`. Decision is a checked
-out-parameter ABI over the existing `HakoDynamicV2CallOutV1`; the plain `i64`
-entry shape is rejected. The neutral header plus Rust/Python projections own
-the ABI revision, logical arity, wire revision, and `u32` transport status.
-`src/runtime/dynamic_v2_carrier_lease.rs` is the neutral future lease
-issuer/consumer owner, with opaque monotonic/generation-branded tokens;
-`dynamic_v2_text_scan.rs` only consumes that API, while `drop_handle` and raw
-handles remain non-authority. This design task lands no strict leaf, LLVM hook,
-VM change, or production caller.
+Accepted design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0`. The checked
+out-parameter ABI over existing `HakoDynamicV2CallOutV1` is the sole call shape;
+plain `i64` is rejected. The neutral header plus Rust/Python projections own
+ABI revision, logical arity, wire revision, and `u32` transport status.
+`src/runtime/dynamic_v2_lease.rs` will own opaque monotonic/generation-branded
+lease tokens; the strict leaf only consumes it. The next BoxShape is ABI
+projection/parity; strict leaf, LLVM hook, VM change, and production caller
+remain closed until the complete activation boundary.
 
 Before editing the leaf, freeze these owners and the order of effects:
 
@@ -661,7 +660,7 @@ src/box_callable/provider_admission/
   admitted_registry.rs    immutable deterministic selected rows
   aot_admission.rs        symbolic entry IDs/generation/PlanStamp aggregate
 
-src/runtime/dynamic_v2_carrier_lease.rs
+src/runtime/dynamic_v2_lease.rs
   one-shot ABA-safe lease issuer/consumer for the strict leaf
 
 crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs

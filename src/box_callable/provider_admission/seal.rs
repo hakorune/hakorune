@@ -3,8 +3,10 @@
 use std::num::NonZeroU64;
 
 use crate::abi::text_scan_aot_export_facts::{
-    TextScanAotEntryIdV1, TextScanAotExportFactV1, TextScanLeaseCapabilityV1,
-    TextScanValueLaneV1, TEXT_SCAN_ABI_REVISION_V1, TEXT_SCAN_AOT_EXPORT_FACTS_V1,
+    TextScanAotEntryIdV1, TextScanAotExportFactV1, TextScanCallOutParameterV1,
+    TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
+    TEXT_SCAN_ABI_REVISION_V1, TEXT_SCAN_AOT_EXPORT_FACTS_V1,
+    TEXT_SCAN_CALL_ABI_REVISION_V1, TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
     TEXT_SCAN_CONTRACT_ID_V1, TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
@@ -164,6 +166,12 @@ fn entry_contract(
         || fact.arity != expected_arity
         || fact.receiver_lane != TextScanValueLaneV1::HostHandle
         || fact.symbol.is_empty()
+        || fact.call_abi.entry != expected_entry
+        || fact.call_abi.logical_arity != expected_arity
+        || fact.call_abi.abi_revision != TEXT_SCAN_CALL_ABI_REVISION_V1
+        || fact.call_abi.out_wire_revision != TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2
+        || fact.call_abi.transport_return != TextScanCallTransportReturnV1::U32
+        || fact.call_abi.out_parameter != TextScanCallOutParameterV1::Required
     {
         return Err(ProviderAdmissionRejectV1::ExportMismatch);
     }
@@ -187,6 +195,7 @@ fn entry_contract(
             fact.argument_lanes,
             fact.result_lane,
             fact.lease,
+            fact.call_abi,
         ))
     } else {
         Err(ProviderAdmissionRejectV1::ExportMismatch)

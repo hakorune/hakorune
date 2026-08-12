@@ -60,6 +60,21 @@ guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SUBSTRING_RECEIVER_LANE' \
 guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE' \
   "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
   "C export facts must declare the indexOf receiver lane"
+guard_expect_fixed_in_file "$TAG" 'TextScanCallAbiFactV1' \
+  "$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs" \
+  "Rust projection must retain the checked call ABI facts"
+guard_expect_fixed_in_file "$TAG" 'TextScanCallTransportReturnV1::U32' \
+  "$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs" \
+  "Rust projection must use a transport-only u32 return"
+guard_expect_fixed_in_file "$TAG" 'HakoDynamicV2CallOutV1 *out' \
+  "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
+  "C projection must require the neutral checked out wire"
+guard_expect_fixed_in_file "$TAG" '"call_abi"' \
+  "$ROOT_DIR/src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py" \
+  "Python projection must retain the checked call ABI facts"
+guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION' \
+  "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
+  "C projection must pin the neutral output wire revision"
 
 guard_expect_fixed_in_file "$TAG" 'ModuleInvocationBrandV1' \
   "$ADMISSION_DIR/aot_admission.rs" \

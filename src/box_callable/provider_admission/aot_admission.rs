@@ -1,7 +1,8 @@
 //! Owned symbolic AOT admission, before object generation and link.
 
 use crate::abi::text_scan_aot_export_facts::{
-    TextScanAotEntryIdV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
+    TextScanAotEntryIdV1, TextScanCallAbiFactV1, TextScanLeaseCapabilityV1,
+    TextScanValueLaneV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
@@ -16,6 +17,7 @@ pub(crate) struct TextScanEntryContractV1 {
     argument_lanes: &'static [TextScanValueLaneV1],
     result_lane: TextScanValueLaneV1,
     lease: TextScanLeaseCapabilityV1,
+    call_abi: TextScanCallAbiFactV1,
 }
 
 impl TextScanEntryContractV1 {
@@ -27,6 +29,7 @@ impl TextScanEntryContractV1 {
         argument_lanes: &'static [TextScanValueLaneV1],
         result_lane: TextScanValueLaneV1,
         lease: TextScanLeaseCapabilityV1,
+        call_abi: TextScanCallAbiFactV1,
     ) -> Self {
         Self {
             entry,
@@ -36,6 +39,7 @@ impl TextScanEntryContractV1 {
             argument_lanes,
             result_lane,
             lease,
+            call_abi,
         }
     }
 
@@ -65,6 +69,10 @@ impl TextScanEntryContractV1 {
 
     pub(crate) const fn lease(self) -> TextScanLeaseCapabilityV1 {
         self.lease
+    }
+
+    pub(crate) const fn call_abi(self) -> TextScanCallAbiFactV1 {
+        self.call_abi
     }
 }
 

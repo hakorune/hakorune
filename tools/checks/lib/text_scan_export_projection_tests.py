@@ -60,6 +60,23 @@ class TextScanExportProjectionTests(unittest.TestCase):
             macro_uint("HAKO_TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED"),
             projection.PROFILE_CODEPOINT_CLAMPED,
         )
+        self.assertEqual(macro_uint("HAKO_TEXT_SCAN_CALL_ABI_REVISION"), projection.CALL_ABI_REVISION)
+        self.assertEqual(macro_uint("HAKO_TEXT_SCAN_CALL_OK"), projection.CALL_OK)
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_CALL_INVALID_OUTPUT"), projection.CALL_INVALID_OUTPUT
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION"),
+            projection.CALL_OUT_WIRE_REVISION,
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_CALL_TRANSPORT_RETURN_U32"),
+            1,
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_CALL_OUT_POINTER_REQUIRED"),
+            1,
+        )
         self.assertEqual(macro_uint("HAKO_TEXT_SCAN_ENTRY_SUBSTRING"), projection.ENTRY_SUBSTRING)
         self.assertEqual(macro_uint("HAKO_TEXT_SCAN_ENTRY_INDEX_OF"), projection.ENTRY_INDEX_OF)
         self.assertEqual(macro_uint("HAKO_TEXT_SCAN_ENTRY_COUNT"), len(projection.EXPORT_FACTS))
@@ -117,9 +134,23 @@ class TextScanExportProjectionTests(unittest.TestCase):
         self.assertEqual(substring["argument_lanes"], (projection.VALUE_IMMEDIATE_I64,) * 2)
         self.assertEqual(substring["result_lane"], projection.VALUE_HOST_HANDLE)
         self.assertEqual(substring["lease"], projection.LEASE_END_AUTHORIZED)
+        self.assertEqual(substring["call_abi"]["logical_arity"], substring["arity"])
+        self.assertEqual(substring["call_abi"]["abi_revision"], projection.CALL_ABI_REVISION)
+        self.assertEqual(
+            substring["call_abi"]["out_wire_revision"], projection.CALL_OUT_WIRE_REVISION
+        )
+        self.assertEqual(substring["call_abi"]["transport_return"], projection.CALL_TRANSPORT_RETURN)
+        self.assertEqual(substring["call_abi"]["out_parameter"], projection.CALL_OUT_PARAMETER)
         self.assertEqual(index_of["argument_lanes"], (projection.VALUE_HOST_HANDLE,))
         self.assertEqual(index_of["result_lane"], projection.VALUE_IMMEDIATE_I64)
         self.assertEqual(index_of["lease"], projection.LEASE_NONE)
+        self.assertEqual(index_of["call_abi"]["logical_arity"], index_of["arity"])
+        self.assertEqual(index_of["call_abi"]["abi_revision"], projection.CALL_ABI_REVISION)
+        self.assertEqual(
+            index_of["call_abi"]["out_wire_revision"], projection.CALL_OUT_WIRE_REVISION
+        )
+        self.assertEqual(index_of["call_abi"]["transport_return"], projection.CALL_TRANSPORT_RETURN)
+        self.assertEqual(index_of["call_abi"]["out_parameter"], projection.CALL_OUT_PARAMETER)
 
 
 if __name__ == "__main__":
