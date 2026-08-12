@@ -56,7 +56,11 @@ fi
 
 # I0-B is intentionally closed before provider/runtime/LLVM production use.
 for root in "$ROOT_DIR/src/mir" "$ROOT_DIR/src/llvm_py/instructions" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/src/backend/mir_interpreter" "$ROOT_DIR/src/tests"; do
-  if [[ -d "$root" ]] && rg -n 'text_scan_aot_export_facts|TextScanAotExportFactV1|hako\.text\.scan\.(substring|index_of)\.v1' "$root" --glob '*.rs' --glob '*.py' --glob '*.hako'; then
+  if [[ -d "$root" ]] && rg -n \
+    --glob '*.rs' --glob '*.py' --glob '*.hako' \
+    --glob '!**/tests.rs' --glob '!**/*_tests.rs' --glob '!**/tests/**' \
+    'text_scan_aot_export_facts|TextScanAotExportFactV1|hako\.text\.scan\.(substring|index_of)\.v1' \
+    "$root"; then
     guard_fail "$TAG" "I0-B symbolic export has an early production/runtime/VM caller: ${root#"$ROOT_DIR/"}"
   fi
 done

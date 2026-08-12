@@ -409,6 +409,57 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
+##### I0-D implementation-preparation contract
+
+Before editing the leaf, freeze these owners and the order of effects:
+
+```text
+PreparedAotExecutableAdmissionV1
+  -> strict CodePoint leaf (two declared entry symbols only)
+  -> per-function LLVM admission transport / early selected hook
+  -> object/link finalizer
+  -> RuntimeExecutablePlanV1 (post-link only)
+```
+
+The kernel leaf owns strict handle/lane checks and CodePoint substring/indexOf
+semantics. It must publish a fresh result handle through the existing host
+handle API, but the raw handle is not a lease token and `drop_handle` is not the
+End authority. I6 therefore needs one monotonic or generation-branded lease
+owner in this activation; I7 is an immediate I64 with no lease. Missing lease
+authority is `RejectBeforeEffect`, not a default token.
+
+The LLVM path transports the move-only symbolic admission per selected
+function, calls the selected hook exactly once before generic method lowering,
+and treats malformed/unsupported metadata as terminal. It may project symbols,
+lanes, and PlanStamp, but it does not re-search selectors, generated rows,
+registry entries, or providers. The result wire remains transport-only.
+
+The link finalizer is the sole owner of artifact digest, resolved address, and
+`RuntimeExecutablePlanV1`. It accepts only the explicit `libnyash_kernel`
+artifact, verifies both declared symbols plus ABI/profile/lane/lease facts,
+preserves the admission PlanStamp, and publishes no executable on missing,
+foreign, stale, duplicate, or mismatched artifacts. Pre-link code must contain
+no image/address/digest and no runtime lookup or fallback.
+
+I0-D may begin only when the following are named in code and guard output:
+
+```text
+strict entry definitions                         = 2
+LLVM selected early consumer                     = 1
+post-link RuntimeExecutablePlan finalizer         = 1
+I6 fresh handle / lease / End                     = 1 / 1 / 1
+I7 ImmediateI64 / lease / End                     = 1 / 0 / 0
+generic fallthrough / fallback / retry            = 0 / 0 / 0
+pre-link image/address/digest                     = 0
+Rust-VM DynamicV2/provider callers                = 0
+```
+
+Negative tests must cover invalid/dead/wrong-class handles, non-I64 lanes,
+invalid range and normal zero, missing or foreign `--nyrt` artifact, symbol or
+ABI drift, stale/foreign PlanStamp, duplicate finalizer, and link failure with
+zero executable publication. The test-only symbolic assertions excluded by the
+pre-cutover guard do not count as production callers.
+
 #### `PHYSICAL-SESSION-I0-E`
 
 Consume the complete Recipe-order cursor once. Preserve the landed six-block
