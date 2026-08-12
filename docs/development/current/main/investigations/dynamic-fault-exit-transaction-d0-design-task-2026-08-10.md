@@ -422,7 +422,7 @@ Evidence:
 
 ```text
 generated result-row projection tests                  = 6 passed
-dynamic_full_body_recipe tests                         = 32 passed
+dynamic_full_body_recipe tests                         = 33 passed
 selector cross-check / selector-only result authority = green / 0
 generated effect projection                            = 1 (typed enum + parity)
 single generated-row resolution per call relation      = 1
@@ -632,7 +632,7 @@ MIRBUILDER-LINE-BUDGET-R0
     focused tests, cargo check, and line-budget guards are green
     selected physical target projection is now explicit:
       Header / BodyPrelude / ThenTerminal / Continuation / After
-  `dynamic_full_body_recipe` focused tests = 32 passed
+  `dynamic_full_body_recipe` focused tests = 33 passed
 
   Module-registry cleanup evidence:
     `src/mir/compiler/mod.rs` now contains the compiler entrypoint and
@@ -640,7 +640,7 @@ MIRBUILDER-LINE-BUDGET-R0
     The entrypoint is 644 lines and the included registry is 214 lines; the
     module namespace, visibility, cfg gates, and sibling `super::` paths are
     unchanged.  `cargo check -q --lib`, the dynamic recipe focused suite
-    (32 passed), the physical-input guard, loop-precutover guard, current-state
+    (33 passed), the physical-input guard, loop-precutover guard, current-state
     guard, full in-place replacement guard, and `git diff --check` are green.
 
   Dynamic session count ownership evidence (2026-08-12):
