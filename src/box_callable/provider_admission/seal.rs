@@ -7,7 +7,9 @@ use crate::abi::text_scan_aot_export_facts::{
     TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
     TEXT_SCAN_ABI_REVISION_V1, TEXT_SCAN_AOT_EXPORT_FACTS_V1,
     TEXT_SCAN_CALL_ABI_REVISION_V1, TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
-    TEXT_SCAN_CONTRACT_ID_V1, TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1,
+    TextScanCallParameterTypeV1, TEXT_SCAN_CONTRACT_ID_V1,
+    TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1, TEXT_SCAN_SYMBOL_INDEX_OF_V1,
+    TEXT_SCAN_SYMBOL_SUBSTRING_V1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
@@ -165,13 +167,14 @@ fn entry_contract(
     if fact.entry != expected_entry
         || fact.arity != expected_arity
         || fact.receiver_lane != TextScanValueLaneV1::HostHandle
-        || fact.symbol.is_empty()
+        || fact.symbol != expected_symbol(expected_entry)
         || fact.call_abi.entry != expected_entry
         || fact.call_abi.logical_arity != expected_arity
         || fact.call_abi.abi_revision != TEXT_SCAN_CALL_ABI_REVISION_V1
         || fact.call_abi.out_wire_revision != TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2
         || fact.call_abi.transport_return != TextScanCallTransportReturnV1::U32
         || fact.call_abi.out_parameter != TextScanCallOutParameterV1::Required
+        || fact.call_abi.parameter_types != expected_parameter_types(expected_entry)
     {
         return Err(ProviderAdmissionRejectV1::ExportMismatch);
     }
@@ -199,5 +202,30 @@ fn entry_contract(
         ))
     } else {
         Err(ProviderAdmissionRejectV1::ExportMismatch)
+    }
+}
+
+fn expected_symbol(entry: TextScanAotEntryIdV1) -> &'static str {
+    match entry {
+        TextScanAotEntryIdV1::Substring => TEXT_SCAN_SYMBOL_SUBSTRING_V1,
+        TextScanAotEntryIdV1::IndexOf => TEXT_SCAN_SYMBOL_INDEX_OF_V1,
+    }
+}
+
+fn expected_parameter_types(
+    entry: TextScanAotEntryIdV1,
+) -> &'static [TextScanCallParameterTypeV1] {
+    match entry {
+        TextScanAotEntryIdV1::Substring => &[
+            TextScanCallParameterTypeV1::U64,
+            TextScanCallParameterTypeV1::I64,
+            TextScanCallParameterTypeV1::I64,
+            TextScanCallParameterTypeV1::OutPointer,
+        ],
+        TextScanAotEntryIdV1::IndexOf => &[
+            TextScanCallParameterTypeV1::U64,
+            TextScanCallParameterTypeV1::U64,
+            TextScanCallParameterTypeV1::OutPointer,
+        ],
     }
 }

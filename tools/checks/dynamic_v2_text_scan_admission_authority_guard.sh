@@ -66,6 +66,12 @@ guard_expect_fixed_in_file "$TAG" 'TextScanCallAbiFactV1' \
 guard_expect_fixed_in_file "$TAG" 'TextScanCallTransportReturnV1::U32' \
   "$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs" \
   "Rust projection must use a transport-only u32 return"
+guard_expect_fixed_in_file "$TAG" 'parameter_types' \
+  "$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs" \
+  "Rust projection must retain exact parameter order and signedness"
+guard_expect_fixed_in_file "$TAG" '"parameter_types"' \
+  "$ROOT_DIR/src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py" \
+  "Python projection must retain exact parameter order and signedness"
 guard_expect_fixed_in_file "$TAG" 'HakoDynamicV2CallOutV1 *out' \
   "$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h" \
   "C projection must require the neutral checked out wire"

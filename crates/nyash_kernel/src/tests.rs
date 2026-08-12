@@ -133,6 +133,8 @@ mod filebox;
 mod mimalloc_parallel_stress;
 #[path = "tests/string.rs"]
 mod string;
+#[path = "tests/dynamic_v2_wire.rs"]
+mod dynamic_v2_wire;
 
 #[test]
 fn future_spawn_instance_disable_rust_fallback_when_policy_is_off() {

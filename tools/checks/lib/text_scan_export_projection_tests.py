@@ -69,6 +69,27 @@ class TextScanExportProjectionTests(unittest.TestCase):
             macro_uint("HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION"),
             projection.CALL_OUT_WIRE_REVISION,
         )
+        self.assertEqual(macro_uint("HAKO_TEXT_SCAN_PARAM_TYPE_U64"), projection.PARAM_TYPE_U64)
+        self.assertEqual(macro_uint("HAKO_TEXT_SCAN_PARAM_TYPE_I64"), projection.PARAM_TYPE_I64)
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_PARAM_TYPE_OUT_POINTER"), projection.PARAM_TYPE_OUT_POINTER
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_SUBSTRING_PARAM_COUNT"),
+            len(projection.EXPORT_FACTS[0]["call_abi"]["parameter_types"]),
+        )
+        self.assertEqual(
+            macro_uint("HAKO_TEXT_SCAN_INDEX_OF_PARAM_COUNT"),
+            len(projection.EXPORT_FACTS[1]["call_abi"]["parameter_types"]),
+        )
+        self.assertEqual(
+            [macro_uint(f"HAKO_TEXT_SCAN_SUBSTRING_PARAM_{i}") for i in range(4)],
+            list(projection.EXPORT_FACTS[0]["call_abi"]["parameter_types"]),
+        )
+        self.assertEqual(
+            [macro_uint(f"HAKO_TEXT_SCAN_INDEX_OF_PARAM_{i}") for i in range(3)],
+            list(projection.EXPORT_FACTS[1]["call_abi"]["parameter_types"]),
+        )
         self.assertEqual(
             macro_uint("HAKO_TEXT_SCAN_CALL_TRANSPORT_RETURN_U32"),
             1,
@@ -151,6 +172,23 @@ class TextScanExportProjectionTests(unittest.TestCase):
         )
         self.assertEqual(index_of["call_abi"]["transport_return"], projection.CALL_TRANSPORT_RETURN)
         self.assertEqual(index_of["call_abi"]["out_parameter"], projection.CALL_OUT_PARAMETER)
+        self.assertEqual(
+            substring["call_abi"]["parameter_types"],
+            (
+                projection.PARAM_TYPE_U64,
+                projection.PARAM_TYPE_I64,
+                projection.PARAM_TYPE_I64,
+                projection.PARAM_TYPE_OUT_POINTER,
+            ),
+        )
+        self.assertEqual(
+            index_of["call_abi"]["parameter_types"],
+            (
+                projection.PARAM_TYPE_U64,
+                projection.PARAM_TYPE_U64,
+                projection.PARAM_TYPE_OUT_POINTER,
+            ),
+        )
 
 
 if __name__ == "__main__":

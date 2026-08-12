@@ -12,6 +12,8 @@ pub(crate) const TEXT_SCAN_CALL_OK_V1: u32 = 0;
 pub(crate) const TEXT_SCAN_CALL_INVALID_OUTPUT_V1: u32 = 1;
 pub(crate) const TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2: u32 =
     super::dynamic_call_slot_wire::DYNAMIC_V2_WIRE_REVISION_V2;
+pub(crate) const TEXT_SCAN_SYMBOL_SUBSTRING_V1: &str = "hako.text.scan.substring.v1";
+pub(crate) const TEXT_SCAN_SYMBOL_INDEX_OF_V1: &str = "hako.text.scan.index_of.v1";
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -46,6 +48,14 @@ pub(crate) enum TextScanCallOutParameterV1 {
     Required = 1,
 }
 
+#[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TextScanCallParameterTypeV1 {
+    U64 = 1,
+    I64 = 2,
+    OutPointer = 3,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct TextScanCallAbiFactV1 {
     pub(crate) entry: TextScanAotEntryIdV1,
@@ -54,6 +64,7 @@ pub(crate) struct TextScanCallAbiFactV1 {
     pub(crate) out_wire_revision: u32,
     pub(crate) transport_return: TextScanCallTransportReturnV1,
     pub(crate) out_parameter: TextScanCallOutParameterV1,
+    pub(crate) parameter_types: &'static [TextScanCallParameterTypeV1],
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -71,7 +82,7 @@ pub(crate) struct TextScanAotExportFactV1 {
 pub(crate) const TEXT_SCAN_AOT_EXPORT_FACTS_V1: &[TextScanAotExportFactV1] = &[
     TextScanAotExportFactV1 {
         entry: TextScanAotEntryIdV1::Substring,
-        symbol: "hako.text.scan.substring.v1",
+        symbol: TEXT_SCAN_SYMBOL_SUBSTRING_V1,
         arity: 2,
         receiver_lane: TextScanValueLaneV1::HostHandle,
         argument_lanes: &[
@@ -87,11 +98,17 @@ pub(crate) const TEXT_SCAN_AOT_EXPORT_FACTS_V1: &[TextScanAotExportFactV1] = &[
             out_wire_revision: TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
             transport_return: TextScanCallTransportReturnV1::U32,
             out_parameter: TextScanCallOutParameterV1::Required,
+            parameter_types: &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ],
         },
     },
     TextScanAotExportFactV1 {
         entry: TextScanAotEntryIdV1::IndexOf,
-        symbol: "hako.text.scan.index_of.v1",
+        symbol: TEXT_SCAN_SYMBOL_INDEX_OF_V1,
         arity: 1,
         receiver_lane: TextScanValueLaneV1::HostHandle,
         argument_lanes: &[TextScanValueLaneV1::HostHandle],
@@ -104,6 +121,11 @@ pub(crate) const TEXT_SCAN_AOT_EXPORT_FACTS_V1: &[TextScanAotExportFactV1] = &[
             out_wire_revision: TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
             transport_return: TextScanCallTransportReturnV1::U32,
             out_parameter: TextScanCallOutParameterV1::Required,
+            parameter_types: &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ],
         },
     },
 ];
@@ -150,5 +172,22 @@ mod tests {
         assert_eq!(index_of.call_abi.entry, index_of.entry);
         assert_eq!(index_of.call_abi.logical_arity, index_of.arity);
         assert_eq!(index_of.call_abi.out_wire_revision, 2);
+        assert_eq!(
+            substring.call_abi.parameter_types,
+            &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ]
+        );
+        assert_eq!(
+            index_of.call_abi.parameter_types,
+            &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ]
+        );
     }
 }

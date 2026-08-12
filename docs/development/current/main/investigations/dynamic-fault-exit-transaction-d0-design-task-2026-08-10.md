@@ -411,13 +411,16 @@ negative link gate are green.
 
 ##### I0-D implementation-preparation contract
 
-Accepted design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0`. The checked
-out-parameter ABI over existing `HakoDynamicV2CallOutV1` is the sole call shape;
-plain `i64` is rejected. The neutral header plus Rust/Python projections own
-ABI revision, logical arity, wire revision, and `u32` transport status.
+Accepted design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0` and its bounded
+`DYNAMIC-V2-STRICT-CALL-ABI-PARITY-I0-D0` BoxShape. The checked out-parameter
+ABI over existing `HakoDynamicV2CallOutV1` is the sole call shape; plain `i64`
+is rejected. The neutral header plus one shared Rust projection and Python
+projection own ABI revision, logical arity, exact parameter types/order, wire
+revision, and `u32` transport status.
 `src/runtime/dynamic_v2_lease.rs` will own opaque monotonic/generation-branded
-lease tokens; the strict leaf only consumes it. The next BoxShape is ABI
-projection/parity; strict leaf, LLVM hook, VM change, and production caller
+lease tokens; the strict leaf only consumes it. Kernel consumers must import
+the shared Rust wire and may not define a second `repr(C)` callout. The parity
+BoxShape is green; strict leaf, LLVM hook, VM change, and production caller
 remain closed until the complete activation boundary.
 
 Before editing the leaf, freeze these owners and the order of effects:

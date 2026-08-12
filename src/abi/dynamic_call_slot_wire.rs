@@ -9,12 +9,12 @@ use std::convert::TryFrom;
 /// Revision 2 keeps the fixed layout and adds a lease-free Normal form for
 /// `ImmediateI64`.  The `V1` type suffix names the unchanged C layout, not
 /// the validity revision.
-pub(crate) const DYNAMIC_V2_WIRE_REVISION_V2: u32 = 2;
-pub(crate) const DYNAMIC_V2_FORWARDED_NONE_V1: u32 = u32::MAX;
+pub const DYNAMIC_V2_WIRE_REVISION_V2: u32 = 2;
+pub const DYNAMIC_V2_FORWARDED_NONE_V1: u32 = u32::MAX;
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicV2WireTagV1 {
+pub enum DynamicV2WireTagV1 {
     Invalid = 0,
     HostHandle = 1,
     ImmediateI64 = 2,
@@ -35,7 +35,7 @@ impl TryFrom<u32> for DynamicV2WireTagV1 {
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicV2CallStatusV1 {
+pub enum DynamicV2CallStatusV1 {
     Normal = 0,
     Fault = 1,
     Suspended = 2,
@@ -56,7 +56,7 @@ impl TryFrom<u32> for DynamicV2CallStatusV1 {
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicV2CallDispositionV1 {
+pub enum DynamicV2CallDispositionV1 {
     None = 0,
     Forwarded = 1,
     EndAuthorized = 2,
@@ -77,7 +77,7 @@ impl TryFrom<u32> for DynamicV2CallDispositionV1 {
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicV2CallFaultCodeV1 {
+pub enum DynamicV2CallFaultCodeV1 {
     None = 0,
     InvalidReceiver = 1,
     InvalidHandle = 2,
@@ -109,7 +109,7 @@ impl TryFrom<u32> for DynamicV2CallFaultCodeV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum DynamicV2WireSchemaRejectV1 {
+pub enum DynamicV2WireSchemaRejectV1 {
     UnknownTag(u32),
     UnknownStatus(u32),
     UnknownDisposition(u32),
@@ -125,14 +125,14 @@ pub(crate) enum DynamicV2WireSchemaRejectV1 {
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct DynamicV2WireValueV1 {
-    pub(crate) tag: u32,
-    pub(crate) reserved: u32,
-    pub(crate) payload: u64,
+pub struct DynamicV2WireValueV1 {
+    pub tag: u32,
+    pub reserved: u32,
+    pub payload: u64,
 }
 
 impl DynamicV2WireValueV1 {
-    pub(crate) const fn new(tag: DynamicV2WireTagV1, payload: u64) -> Self {
+    pub const fn new(tag: DynamicV2WireTagV1, payload: u64) -> Self {
         Self {
             tag: tag as u32,
             reserved: 0,
@@ -140,7 +140,7 @@ impl DynamicV2WireValueV1 {
         }
     }
 
-    pub(crate) fn validate(self) -> Result<DynamicV2WireTagV1, DynamicV2WireSchemaRejectV1> {
+    pub fn validate(self) -> Result<DynamicV2WireTagV1, DynamicV2WireSchemaRejectV1> {
         if self.reserved != 0 {
             return Err(DynamicV2WireSchemaRejectV1::NonZeroReserved);
         }
@@ -156,20 +156,20 @@ impl DynamicV2WireValueV1 {
 /// attach a one-shot lease to `lease_token`.
 #[repr(C)]
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct DynamicV2CallOutV1 {
-    pub(crate) status: u32,
-    pub(crate) fault_code: u32,
-    pub(crate) result_tag: u32,
-    pub(crate) disposition: u32,
-    pub(crate) forwarded_input: u32,
-    pub(crate) reserved: u32,
-    pub(crate) value_payload: u64,
-    pub(crate) lease_token: u64,
-    pub(crate) continuation_token: u64,
+pub struct DynamicV2CallOutV1 {
+    pub status: u32,
+    pub fault_code: u32,
+    pub result_tag: u32,
+    pub disposition: u32,
+    pub forwarded_input: u32,
+    pub reserved: u32,
+    pub value_payload: u64,
+    pub lease_token: u64,
+    pub continuation_token: u64,
 }
 
 impl DynamicV2CallOutV1 {
-    pub(crate) fn validate_transport(
+    pub fn validate_transport(
         &self,
     ) -> Result<DynamicV2CallStatusV1, DynamicV2WireSchemaRejectV1> {
         if self.reserved != 0 {
@@ -240,7 +240,7 @@ impl DynamicV2CallOutV1 {
         Ok(status)
     }
 
-    pub(crate) fn validate_for_synchronous_emitter(
+    pub fn validate_for_synchronous_emitter(
         &self,
     ) -> Result<(), DynamicV2WireSchemaRejectV1> {
         if self.validate_transport()? == DynamicV2CallStatusV1::Suspended {
@@ -249,7 +249,7 @@ impl DynamicV2CallOutV1 {
         Ok(())
     }
 
-    pub(crate) fn validate_forwarded_arity(
+    pub fn validate_forwarded_arity(
         &self,
         argc: u32,
     ) -> Result<(), DynamicV2WireSchemaRejectV1> {
