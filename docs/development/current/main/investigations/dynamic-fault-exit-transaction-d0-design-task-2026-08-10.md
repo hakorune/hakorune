@@ -487,11 +487,12 @@ Non-authority: FreeStatic-only `CanonicalCallableKeyV1`, `LegacySymbol`, raw
 `MirFunction.signature.name/arity`, `into_legacy_collector_parts`, or re-sealing.
 Fail-fast boundary: owner/namespace/name/arity/symbol, collector brand, duplicate,
 foreign, and second-consume mismatch rejects before collector mutation/publication.
-Smallest next slice: add `FunctionDraftKeyV1::CatalogedBoxMethod`, retain the
-admission key in `CompletedFunctionDraftV1`, and hand it once to the existing
-`CanonicalRejectDuplicate` batch collector. No publication or cutover.
+Landed R0 canary: `662e50847b` adds `FunctionDraftKeyV1::CatalogedBoxMethod`,
+retains the admission key in a move-only completed-draft projection, and hands
+it once to the existing `CanonicalRejectDuplicate` batch collector. Publication
+and production cutover remain closed.
 Non-claims: no provider/runtime/LLVM/VM activation, legacy retirement, or
-production caller in R0.
+production caller in R0; the selected production collector handoff is next.
 
 #### `SELECTED-CUTOVER-I0-G`
 
