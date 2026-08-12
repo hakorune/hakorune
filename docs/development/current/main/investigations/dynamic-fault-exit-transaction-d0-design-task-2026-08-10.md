@@ -409,54 +409,57 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
-##### I0-D1b landed; `DYNAMIC-V2-AOT-LLVM-HOOK-I0-W3` next
-
-Decision: D1b is a BoxShape transport projection, not a new semantic/provider authority.
-Source authority + canonical issuer: canonical physical-session co-seal of
-`PreparedAotExecutableAdmissionV1` + `APrimeI64PhysicalReceiptV1` +
-`ModuleInvocationBrandV1`; no raw key/name reconstruction.
-Non-authority: JSON/Python, LLVM, RuntimeExecutablePlan, registry/provider/image,
-generic String lowering, and Rust VM; all remain projections or closed lanes.
-Fail-fast boundary: missing/foreign/stale brand, generation, role, site, entry,
-ABI, wire, lane, lease, duplicate/swap, or unknown field rejects before effect.
-Smallest next slice: one Rust projection module and one JSON emitter, immediately
-checked by the existing Python loader; production callers remain zero.
-Non-claims: no LLVM `CallOut`, lease execution, image/address/digest, physical
-session, DraftSeal, collector, production switch, fallback/retry, or VM consumer.
-
-Implementation contract (work branch only):
+##### I0-D1b landed; `DYNAMIC-V2-AOT-LLVM-HOOK-I0-W3` implementation-prep
 
 ```text
-src/box_callable/provider_admission/call_metadata.rs
-  project_dynamic_v2_aot_call_metadata(&PreparedAotExecutableAdmissionV1,
-                                       &APrimeI64PhysicalReceiptV1)
-  -> owned DynamicV2AotCallMetadataProjectionV1
-
-src/runner/mir_json_emit/dynamic_v2_aot_admission.rs
-  insert_dynamic_v2_aot_call_admission_json(...)
+Decision:
+  W3 is a work-branch BoxShape checkpoint. It may consume the landed typed
+  metadata at one test-only seam; selected production lowering remains closed.
+Source authority + canonical issuer:
+  C/Rust/Python checked ABI projections; PreparedAotExecutableAdmissionV1 and
+  APrimeI64PhysicalReceiptV1 for the two call rows; post-link finalizer alone
+  issues RuntimeExecutablePlanV1 from an explicit, verified kernel artifact.
+Non-authority:
+  JSON/Python, generic String, runtime registry/name lookup, MIR/Recipe
+  re-inference, and Rust VM; no second provider/registry authority.
+Fail-fast boundary:
+  missing/foreign/stale brand, symbol/ABI/lane drift, duplicate/swap,
+  non-one-shot lease, absent entry, artifact digest/symbol/ABI mismatch, or
+  link failure rejects before CallOut/publication; no fallback.
+Smallest next slice:
+  audit strict CodePoint leaf/lease and neutral wire, then close one guarded
+  checkpoint: test seam -> explicit link preflight -> owned PlanStamp/plan.
+Non-claims:
+  no production hook/CallOut, selected session, DraftSeal/collector, cutover,
+  retry/fallback, or VM DynamicV2 consumer.
 ```
 
-The Rust projection is a small, non-`Verified`/non-`Prepared` transport type:
-one `ModuleInvocationBrandV1`/registry generation and exactly two typed call
-rows (`substring`, `index_of`) carrying block/instruction, admitted entry,
-symbol, ABI/wire revisions, exact lanes, and lease capability. It must consume
-the already-sealed admission/receipt facts; no reseal, clone, Core-row lookup,
-selector lookup, or free-form getter is allowed. Register only the two modules.
-Do not wire `FunctionMetadata`, the LLVM dispatcher, `method_call.py`, the
-kernel export, RuntimeExecutablePlan, or any VM path in this row.
+The D1b transport is a projection, not a semantic/provider receipt:
+`call_metadata.rs` consumes sealed admission/receipt facts and
+`dynamic_v2_aot_admission.rs` is the sole JSON emitter. Exact two typed rows,
+positive/negative tests, Python loader, and authority guard are green
+(2026-08-12); no production caller is open.
 
-Acceptance: Rust issuer = 1, JSON emitter = 1, Python loader = 1; valid
-projection and negative tests for missing/foreign/stale/duplicate/swapped/
-unknown/lane drift; admission/receipt/brand/generation parity; ordinary
-absence remains `NotSelected`, selected malformed data is terminal. Existing
-guards must assert production callers = 0, LLVM emitted call = 0,
-RuntimeExecutablePlan/session/collector = 0, fallback/retry = 0, and Rust-VM
-DynamicV2 callers = 0. Keep each new source file below 650 lines (hard 800).
+W3 owners (work branch only):
 
-Receipt (2026-08-12): Rust projection, JSON emitter, Python loader, valid/
-negative tests, and authority guard are green; no production caller was opened.
-Next W3 is strict leaf + short LLVM hook + post-link plan boundary. Main still
-requires the complete activation unit and atomic new caller = 1 / old edge = 0.
+```text
+strict leaf/lease       crates/nyash_kernel/.../dynamic_v2_text_scan.rs
+wire/ABI                include/nyrt_dynamic_call_slot_v2.h + src/abi/...
+test seam               src/llvm_py/instructions/mir_call/selected_dynamic_v2.py
+link/plan               link-driver sibling + small plan owner (<650 lines)
+```
+
+The finalizer requires explicit `--nyrt`, verifies digest, both symbols,
+ABI/wire revision, and the same PlanStamp, then issues one move-only plan. It
+must not use `boundary_driver_ffi`, environment fallback, generic String, or a
+raw HostHandle as lease. I6 has one EndAuthorized lease/End; I7 has
+ImmediateI64 with lease/End zero; normal zero is valid.
+
+Acceptance: strict entries=2; lease issuer/consume=1; link
+finalizer/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
+LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM DynamicV2=0. Run ABI,
+wire, VM-fence, AOT-authority, in-place, leaf/lease, metadata, and explicit-link
+negative gates. Main still requires complete W0-W6 with new caller=1/old edge=0.
 
 #### `PHYSICAL-SESSION-I0-E`
 
