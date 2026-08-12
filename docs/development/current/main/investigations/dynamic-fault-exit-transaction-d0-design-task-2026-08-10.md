@@ -401,6 +401,18 @@ sets, effect/PlanStamp parity, unique outcome/lease slots, and canonical fresh
 Normal-result ValueId issuance. The session-private I6/I7 physical corridor
 and result representation/value-ledger publication remain the open half of E0.
 
+`PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0` is the design stop before the
+corridor: `targets.rs` must not mint site plans or
+landing pairs. First transport exactly two already-admitted physical call
+plans from the existing capability aggregate into the selected session:
+I6=`EndAuthorizedHandle/V10`, I7=`ImmediateI64/V11`, one shared PlanStamp.
+The transport is private, move-only, has no selector/entry lookup or parts API,
+and is consumed by canonical CFG/SSA before any corridor block mutation. A
+missing, duplicate, swapped, foreign, or partial pair is RejectBeforeEffect.
+Only after this transport is accepted may the same session allocate the four
+site-local landings, emit two CheckedCallOut terminators/projections, publish
+their results to its existing value ledger, and satisfy the final census.
+
 #### `PHYSICAL-SESSION-I0-E`
 ```text
 Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0

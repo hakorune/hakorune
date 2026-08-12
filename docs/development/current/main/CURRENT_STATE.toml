@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, and neutral MIR CheckedCallOut function census are landed. E0 now has only the private I6/I7 physical corridor and result publication before the unpublished full physical session; production activation and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, and neutral MIR CheckedCallOut function census are landed. E0 corridor implementation is stopped until an exact move-only I6/I7 admitted-site-plan transport into the selected session is accepted; production activation and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none; CheckedCallOut D0/R0 vocabulary plus E0 function-level 1:1:1 census, final landing predecessors, and fresh SSA destination issuance are accepted. E0 must still close the private I6/I7 corridor topology and result publication before full physical session work."
-work_mode = "fast"
-current_execution_row = "PHYSICAL-SESSION-I0-E"
-current_blocker_token = "PHYSICAL-SESSION-I0-E: consume one move-only activation aggregate and one Recipe-order cursor for the full unpublished I0-I16/control/cleanup session; keep provider execution, collector, production switch, fallback, retry, and Rust-VM DynamicV2 closed."
+current_design_stop = "Define one private move-only transport from the existing selected capability/AOT admission into the physical session containing exact I6 EndAuthorizedHandle/V10 and I7 ImmediateI64/V11 site plans under one PlanStamp. targets.rs may not mint or infer plans; missing/duplicate/swapped/foreign/partial input rejects before corridor block mutation."
+work_mode = "design_stop"
+current_execution_row = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0"
+current_blocker_token = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0: name the exact existing owner and consuming API that move I6/I7 admitted site plans into the selected physical session before corridor allocation, without selector/entry lookup, parts API, second registry, or second CFG authority."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,9 +29,9 @@ current_execution_design = "docs/development/current/main/investigations/dynamic
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, and E0 function-level 1:1:1 census/fresh destination issuance are landed; production callers remain zero. E0 now closes only the private I6/I7 corridor and result publication before the full unpublished physical session."
-next_design_card = "none"
+next_design_card = "PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "PHYSICAL-SESSION-I0-E"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
