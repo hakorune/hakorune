@@ -365,6 +365,42 @@ hako.text.scan@1 normalized contract + A-prime role requirement co-seal
   -> full unpublished physical session
   -> exact-two DraftSeal
   -> atomic selected production switch + old-edge deletion
+
+Bounded implementation subrows (all part of this one activation cell; none is
+an independently selectable provider or production route):
+
+```text
+DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
+  DynamicV2PhysicalEmissionSessionV1 consumes the package-owned selected key,
+  owner, and validated physical header once.  It retains one private child
+  admission through the unpublished session and rejects foreign symbol,
+  arity, owner, or target evidence before any collector handoff.
+
+DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
+  The same session consumes the complete operation/control schedule, I6/I7
+  producer receipts, and V10 End evidence; it claims exactly two Completion
+  sites and prepares the two physical Return terminators.  Missing, extra,
+  duplicate, mixed-representation, or synthetic join/PHI evidence rejects.
+
+DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
+  ModuleLoweringPortV1 receives the already-completed canonical draft through
+  one direct collector admission.  It must not open a second function session
+  or re-run finalize/type/return inference; the catalog physical symbol and
+  source owner remain the same co-sealed identity.
+
+DYNAMIC-V2-SELECTED-PACKAGE-ADAPTER-CUTOVER-I0
+  NormalCallableSemanticPackagePortAdapterV1 routes only the selected Dynamic
+  variant through demand -> full session -> DraftSeal -> collector.  Ordinary
+  remains on its existing route.  In the same activation commit the selected
+  raw AST/JoinIR edge is deleted; selected canonical caller=1, old edge=0,
+  fallback=0, retry=0.
+```
+
+The four names are execution subrows, not new authority types. Their sole
+owners are respectively the existing Dynamic physical session, the same
+session/DraftSeal path, `ModuleLoweringPortV1`, and the installed package
+adapter. They may be developed in a work branch, but main receives them only
+as the complete activation unit.
 ```
 
 Required activation counts:
@@ -483,15 +519,27 @@ current session projection or production cutover.
 
 ```text
 MIRBUILDER-LINE-BUDGET-R0
-  split module_draft_collector.rs (801; tests start near 433)
-  split completion_tests.rs (894)
+  split module_draft_collector.rs (434 after test extraction)
+  split completion tests into completion_consumption_tests.rs (202),
+  completion_draft_seal_tests.rs (627), and completion_test_support.rs (98)
   split src/mir/resolved_value_profile/analyzer.rs (769) at its policy/
   verification seam; keep one analyzer authority and move only private
-  helpers/tests. Freeze src/mir/builder.rs (787): no additions before its
+  helpers/tests. Freeze src/mir/builder.rs (788): no additions before its
   module-registry classification row below.
-  treat this as a pre-cutover hard gate for the 801/894-line files: no new
+  treat this as a pre-cutover hard gate for the formerly 801/894-line files: no new
   production authority or physical activation code may be added to them;
   analyzer.rs is either split at the same private seam or frozen unchanged.
+
+  Landed BoxShape evidence:
+    module_draft_collector.rs = 434 lines
+    completion_consumption_tests.rs = 202 lines
+    completion_draft_seal_tests.rs = 627 lines
+    completion_test_support.rs = 98 lines
+    builder_build.rs = 298 lines
+    new_expression.rs = 231 lines
+    new_expression_tests.rs = 105 lines
+    all moved callers/paths and cfg reachability are unchanged
+    focused tests, cargo check, and line-budget guards are green
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
