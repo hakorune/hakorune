@@ -451,10 +451,10 @@ Implementation checkpoint (2026-08-13): D2 preflight remains the complete
 15-row dependency/order gate. D1 now consumes one unpublished session through
 formal -> I0-I5 -> site-local I6/I7 CheckedCallOut and Normal projections; E1
 and E2 close I8/I9 and Fault/End terminals, E3 closes I11/inner Completion,
-and E4 consumes I13-I16, emits the Backedge End, and seals the Enter+Continuation
-Header PHI path. The canonical SSA/CFG owners issue all ValueIds/edges and the
-sole V2 ledger retains typed receipts; profile close, DraftSeal, and publication
-remain closed.
+E4 consumes I13-I16 and seals the Enter+Continuation Header PHI path, and E5
+claims the outer Completion and prepares exact-two DraftSeal. Canonical SSA/CFG
+remain the sole ValueId/edge owners; publication and collector handoff remain
+closed.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
@@ -463,8 +463,8 @@ function-level census/corridor closeout are green.
 Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
 Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
 Acceptance: six logical targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
-E1 landed: `PHYSICAL-SESSION-I0-E1-I8-I9-CONTROL` consumes the I7 Normal landing, emits I8/V12 and I9/V13, then branches canonically. E2 landed: `PHYSICAL-SESSION-I0-E2-FAULT-END` emits I6 Fault without End and I7 Fault with one V10 End, both as successorless terminals. E3 landed: `PHYSICAL-SESSION-I0-E3-INNER-RETURN-THEN` reads I11/V14, consumes the canonical I6 End cutpoint, claims the inner Completion return, and seals ThenTerminal without emitting Return. E4 landed: `PHYSICAL-SESSION-I0-E4-CONTINUATION-BACKEDGE-PHI` consumes I13-I16, emits the Backedge End, jumps Continuation to Header, and closes Header with Enter and Continuation predecessors plus the canonical induction PHI. Profile close, DraftSeal, and publication remain closed.
-Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
+E1 landed: `PHYSICAL-SESSION-I0-E1-I8-I9-CONTROL` consumes the I7 Normal landing, emits I8/V12 and I9/V13, then branches canonically. E2 landed: `PHYSICAL-SESSION-I0-E2-FAULT-END` emits I6 Fault without End and I7 Fault with one V10 End, both as successorless terminals. E3 landed: `PHYSICAL-SESSION-I0-E3-INNER-RETURN-THEN` reads I11/V14, consumes the canonical I6 End cutpoint, claims the inner Completion return, and seals ThenTerminal without emitting Return. E4 landed: `PHYSICAL-SESSION-I0-E4-CONTINUATION-BACKEDGE-PHI` consumes I13-I16, emits the Backedge End, jumps Continuation to Header, and closes Header with Enter and Continuation predecessors plus the canonical induction PHI. E5 landed: profile close claims the outer Completion, seals the remaining corridor, and hands exact-two DraftSeal to the existing owner. Publication and collector remain closed.
+Non-claims: no CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
 #### `DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0`
