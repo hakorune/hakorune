@@ -409,6 +409,8 @@ DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
   arity, owner, target, effect, or header evidence rejects before Builder
   mutation. `begin` only orchestrates prepare -> validate -> open -> install;
   it does not invent header/effect facts.
+  Landed BoxShape (2026-08-12): private outer-open and target/formal-header
+  phases now keep the public handoff unchanged and make the orchestration explicit.
 
 DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   The same session consumes the complete operation/control schedule, I6/I7

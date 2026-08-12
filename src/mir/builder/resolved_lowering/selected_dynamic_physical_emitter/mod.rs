@@ -145,6 +145,44 @@ fn install_unpublished_function_header(
     .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))
 }
 
+fn open_unpublished_outer<'builder>(
+    builder: &'builder mut MirBuilder,
+    function_name: &str,
+) -> CanonicalFunctionLoweringSessionV1<'builder> {
+    builder.open_resolved_function_draft_seal_session_v1(function_name)
+}
+
+fn issue_targets_and_formal_header(
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    schedule: &[DynamicV2PhysicalScheduleRowV1],
+    outer_tail_target: DynamicV2PhysicalBlockTargetV1,
+    source_relation: &crate::mir::compiler::dynamic_full_body_recipe::
+        DynamicAPrimeI64SourceRelationViewV1<'_>,
+    brand: &DynamicV2PhysicalSessionBrandV1,
+) -> Result<
+    (DynamicV2PhysicalTargetSetV1, DynamicV2OpenedFormalHeaderV1),
+    DynamicV2I8EmitterRejectV1,
+> {
+    let targets = DynamicV2PhysicalTargetSetV1::issue(
+        canonical,
+        outer.builder_view_mut_for_lowering(),
+        brand,
+        schedule,
+        outer_tail_target,
+    )
+    .map_err(DynamicV2I8EmitterRejectV1::BlockAllocation)?;
+    let formal_header = formal_header::open(
+        canonical,
+        outer.builder_view_mut_for_lowering(),
+        source_relation,
+        &targets,
+        brand,
+    )
+    .map_err(DynamicV2I8EmitterRejectV1::FormalHeader)?;
+    Ok((targets, formal_header))
+}
+
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
     fn reject_begin(
         outer: CanonicalFunctionLoweringSessionV1<'builder>,
@@ -169,7 +207,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         let (mut canonical, evidence) =
             validate_pre_session_authority(&demand, &schedule, &mut ledger, input)?;
 
-        let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
+        let mut outer = open_unpublished_outer(builder, &function_name);
         if let Err(error) = install_unpublished_function_header(
             &mut outer,
             input,
@@ -179,35 +217,16 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             return Self::reject_begin(outer, error);
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
-        let targets = match DynamicV2PhysicalTargetSetV1::issue(
+        let (targets, formal_header) = match issue_targets_and_formal_header(
             &mut canonical,
-            outer.builder_view_mut_for_lowering(),
-            &brand,
+            &mut outer,
             &schedule,
             ledger.outer_tail_target(),
-        ) {
-            Ok(targets) => targets,
-            Err(error) => {
-                return Self::reject_begin(
-                    outer,
-                    DynamicV2I8EmitterRejectV1::BlockAllocation(error),
-                )
-            }
-        };
-        let formal_header = match formal_header::open(
-            &mut canonical,
-            outer.builder_view_mut_for_lowering(),
             demand.source_relation(),
-            &targets,
             &brand,
         ) {
-            Ok(formal_header) => formal_header,
-            Err(error) => {
-                return Self::reject_begin(
-                    outer,
-                    DynamicV2I8EmitterRejectV1::FormalHeader(error),
-                )
-            }
+            Ok(parts) => parts,
+            Err(error) => return Self::reject_begin(outer, error),
         };
         let values = DynamicV2PhysicalValueLedgerV1::new(&brand);
         Ok(Self {
