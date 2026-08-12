@@ -61,6 +61,11 @@ canonical plan/session:
 normal-default production root:
   package loan exists, but no CanonicalTrivialBindingSsaPlanV1 is carried here
 
+source-family boundary:
+  `skip_while` is a non-Main cataloged static-box method. The existing
+  MainMethod helper rejection is not this cohort's blocker and remains
+  unchanged.
+
 existing common production caller = 0
 ```
 
@@ -82,10 +87,10 @@ Fail-fast boundary:
   semantic variant, absent carried plan, or plan re-verification rejects
   before Builder effect.
 Smallest next slice:
-  identify the existing source-bound plan producer and carry its already-
-  created move-only plan into PreparedProgramRootWorkPlanV1; only then add
-  one private identity co-seal in the selected package lowering callback and
-  consume existing demand/session owners there.
+  extend the existing normal-callable package/root transaction to carry the
+  already-created per-selected-key plan once into PreparedProgramRootWorkPlanV1,
+  and only then add one private identity co-seal in the selected package
+  lowering callback.
 Non-claims:
   no new semantic receipt, AOT provider cell, LLVM leaf, runtime lease, VM
   feature, fallback, retry, or selected production switch in this D0.
@@ -122,9 +127,12 @@ The handoff compares the existing products by owner, function product,
 function origin, forest allocation, and source-root identity. It never repairs
 with a name, ordinal, batch slot, selector, AST rescan, or physical `ValueId`.
 The plan is not re-verified from `SelectedCallableLoweringInputRefV1::source()`;
-that would issue a second Completion/If/profile authority. Foreign, ordinary,
-duplicate, missing, absent-carried-plan, or mismatched input rejects before
-session/Builder effect and never falls through to the selected raw route.
+that would issue a second Completion/If/profile authority. The existing
+canonical source owner remains unchanged for MainMethod helper rejection;
+this row only transports the already-created plan for the exact non-Main
+static-box-method site. Foreign, ordinary, duplicate, missing,
+absent-carried-plan, or mismatched input rejects before session/Builder effect
+and never falls through to the selected raw route.
 
 ## hako.text.scan@1 contract
 
