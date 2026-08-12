@@ -51,6 +51,88 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
 }
 
+/// Validate semantic authority and the canary evidence before opening the
+/// Builder-owned function session. This private phase only co-seals existing
+/// receipts; it does not issue a new semantic product.
+fn validate_pre_session_authority<'program>(
+    demand: &VerifiedAPrimeI64PhysicalDemandV1<'program>,
+    schedule: &[DynamicV2PhysicalScheduleRowV1],
+    ledger: &mut DynamicV2NativePreflightLedgerV1,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'program>,
+) -> Result<
+    (
+        CanonicalSsaFunctionSessionV2<'program>,
+        DynamicV2I8EvidenceV1,
+    ),
+    DynamicV2I8EmitterRejectV1,
+> {
+    let canonical = demand
+        .with_canonical_session_authority(|authority| {
+            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority)
+        })
+        .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
+    if canonical.owner() != demand.identity().owner() {
+        return Err(DynamicV2I8EmitterRejectV1::OwnerMismatch);
+    }
+    let evidence = ledger
+        .take_i8_evidence()
+        .ok_or(DynamicV2I8EmitterRejectV1::MissingI8Evidence)?;
+    if schedule
+        .iter()
+        .filter(|row| row.item() == evidence.item())
+        .count()
+        != 1
+        || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
+        || evidence.target() != DynamicV2PhysicalBlockTargetV1::BodyPrelude
+        || ledger.outer_tail_target() != DynamicV2PhysicalBlockTargetV1::After
+    {
+        return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
+    }
+    Ok((canonical, evidence))
+}
+
+fn install_unpublished_function_header(
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    physical_header: &crate::mir::compiler::a_prime_i64_physical_capability::
+        APrimePhysicalFunctionHeaderV1,
+    function_name: String,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    let declared_param_decls = physical_header.params().to_vec();
+    let draft_builder = outer.builder_view_mut_for_lowering();
+    draft_builder
+        .function_state
+        .resolved_binding_state
+        .install(input.function())
+        .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))?;
+    draft_builder
+        .create_resolved_function_skeleton(
+            function_name,
+            &declared_param_decls,
+            physical_header.return_type_name(),
+            physical_header.effects(),
+        )
+        .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
+    draft_builder.set_current_function_declared_signature(
+        declared_param_decls,
+        physical_header.return_type_name().map(str::to_owned),
+    );
+    draft_builder.set_current_function_runes(physical_header.attrs());
+    draft_builder.set_current_function_declared_capability_uses(physical_header.uses());
+    let function = draft_builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| {
+            DynamicV2I8EmitterRejectV1::SessionOpen("selected function skeleton missing".to_owned())
+        })?;
+    CanonicalDirectStaticCallCapabilityV1::install_for_function(
+        &mut function.metadata.canonical_direct_static_call_capabilities,
+        true,
+    )
+    .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))
+}
+
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
     fn reject_begin(
         outer: CanonicalFunctionLoweringSessionV1<'builder>,
@@ -70,81 +152,18 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         let input = demand.input();
-        // The A-prime demand owns the single catalog-backed physical-header
-        // admission.  This emitter only borrows its checked projection; it
-        // never re-seals the selected key or reconstructs a raw AST header.
         let physical_header = demand.physical_function_header();
         let function_name = physical_header.catalog().physical_symbol().to_owned();
-        let declared_param_decls = physical_header.params().to_vec();
-
-        // Validate all borrowed semantic/control authority and the canary
-        // evidence before opening any Builder-owned session or skeleton.
-        let mut canonical = match demand.with_canonical_session_authority(|authority| {
-            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority)
-        }) {
-            Ok(canonical) => canonical,
-            Err(error) => {
-                return Err(DynamicV2I8EmitterRejectV1::SessionOpen(error));
-            }
-        };
-        if canonical.owner() != demand.identity().owner() {
-            return Err(DynamicV2I8EmitterRejectV1::OwnerMismatch);
-        }
-        let evidence = match ledger.take_i8_evidence() {
-            Some(evidence) => evidence,
-            None => return Err(DynamicV2I8EmitterRejectV1::MissingI8Evidence),
-        };
-        if schedule
-            .iter()
-            .filter(|row| row.item() == evidence.item())
-            .count()
-            != 1
-            || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
-            || evidence.target() != DynamicV2PhysicalBlockTargetV1::BodyPrelude
-            || ledger.outer_tail_target() != DynamicV2PhysicalBlockTargetV1::After
-        {
-            return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
-        }
+        let (mut canonical, evidence) =
+            validate_pre_session_authority(&demand, &schedule, &mut ledger, input)?;
 
         let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
-        let setup = (|| -> Result<(), DynamicV2I8EmitterRejectV1> {
-            let draft_builder = outer.builder_view_mut_for_lowering();
-            draft_builder
-                .function_state
-                .resolved_binding_state
-                .install(input.function())
-                .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))?;
-            draft_builder
-                .create_resolved_function_skeleton(
-                    function_name.clone(),
-                    &declared_param_decls,
-                    physical_header.return_type_name(),
-                    physical_header.effects(),
-                )
-                .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
-            draft_builder.set_current_function_declared_signature(
-                declared_param_decls.clone(),
-                physical_header.return_type_name().map(str::to_owned),
-            );
-            draft_builder.set_current_function_runes(physical_header.attrs());
-            draft_builder.set_current_function_declared_capability_uses(physical_header.uses());
-            let function = draft_builder
-                .function_state
-                .current_function
-                .as_mut()
-                .ok_or_else(|| {
-                    DynamicV2I8EmitterRejectV1::SessionOpen(
-                        "selected function skeleton missing".to_owned(),
-                    )
-                })?;
-            CanonicalDirectStaticCallCapabilityV1::install_for_function(
-                &mut function.metadata.canonical_direct_static_call_capabilities,
-                true,
-            )
-            .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))?;
-            Ok(())
-        })();
-        if let Err(error) = setup {
+        if let Err(error) = install_unpublished_function_header(
+            &mut outer,
+            input,
+            physical_header,
+            function_name.clone(),
+        ) {
             return Self::reject_begin(outer, error);
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));

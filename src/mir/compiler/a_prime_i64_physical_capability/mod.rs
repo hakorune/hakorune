@@ -10,7 +10,7 @@ mod model;
 pub(in crate::mir) use issuer::issue_selected_a_prime_i64_physical_demand;
 pub(in crate::mir) use model::{
     APrimeI64PhysicalDemandRejectV1, APrimeI64PhysicalRequirementV1,
-    VerifiedAPrimeI64PhysicalDemandV1,
+    APrimePhysicalFunctionHeaderV1, VerifiedAPrimeI64PhysicalDemandV1,
 };
 
 #[cfg(test)]
