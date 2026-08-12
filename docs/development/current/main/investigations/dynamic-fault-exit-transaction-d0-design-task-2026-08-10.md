@@ -547,13 +547,16 @@ MIRBUILDER-LINE-BUDGET-R0
     focused tests, cargo check, and line-budget guards are green
     selected physical target projection is now explicit:
       Header / BodyPrelude / ThenTerminal / Continuation / After
-    `dynamic_full_body_recipe` focused tests = 32 passed
+  `dynamic_full_body_recipe` focused tests = 32 passed
 
-  Known baseline (not caused by this activation cell):
-    `mirbuilder_inplace_replacement_guard.sh` reaches the existing
-    `src/mir/compiler/mod.rs = 848` line-budget failure on both the parent
-    commit and this commit.  This remains a separate module-registry cleanup
-    row; it is not counted as activation evidence or silently waived.
+  Module-registry cleanup evidence:
+    `src/mir/compiler/mod.rs` now contains the compiler entrypoint and
+    `module_registry.in.rs` contains only the textual module declarations.
+    The entrypoint is 644 lines and the included registry is 215 lines; the
+    module namespace, visibility, cfg gates, and sibling `super::` paths are
+    unchanged.  `cargo check -q --lib`, the dynamic recipe focused suite
+    (32 passed), the physical-input guard, loop-precutover guard, current-state
+    guard, full in-place replacement guard, and `git diff --check` are green.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
