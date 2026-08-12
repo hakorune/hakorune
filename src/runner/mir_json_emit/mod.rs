@@ -8,6 +8,7 @@ mod array_write;
 pub(crate) mod control_edge_args;
 mod core_metadata;
 mod decls;
+mod dynamic_v2_aot_admission;
 mod emitters;
 mod exact_numeric;
 mod fastmem_metadata;

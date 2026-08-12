@@ -19,11 +19,13 @@ LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
 METADATA="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_aot_admission.py"
 HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
 METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
+RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
+JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -41,12 +43,24 @@ for file in "$METADATA" "$HOOK" "$METADATA_TEST"; do
     guard_fail "$TAG" "I0-D1 metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+for file in "$RUST_METADATA" "$JSON_METADATA"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "I0-D1b metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
 
 if [[ "$(rg -n '^def load_selected_dynamic_v2_aot_admission\(' "$METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 metadata loader definition must be unique"
 fi
 if [[ "$(rg -n '^def inspect_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 selected hook definition must be unique"
+fi
+if [[ "$(rg -n '^pub\(crate\) fn project_dynamic_v2_aot_call_metadata\(' "$RUST_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "I0-D1b Rust metadata issuer definition must be unique"
+fi
+if [[ "$(rg -n '^pub\(crate\) fn insert_dynamic_v2_aot_call_admission_json\(' "$JSON_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "I0-D1b JSON metadata emitter definition must be unique"
 fi
 if rg -n \
   --glob '*.py' \
@@ -57,6 +71,25 @@ if rg -n \
   "$ROOT_DIR/src/llvm_py/builders" "$ROOT_DIR/src/llvm_py/instructions"; then
   guard_fail "$TAG" "I0-D1 metadata/hook must have zero production Python callers"
 fi
+if rg -n \
+  --glob '*.rs' \
+  --glob '!call_metadata.rs' \
+  'project_dynamic_v2_aot_call_metadata\(' \
+  "$ROOT_DIR/src"; then
+  guard_fail "$TAG" "I0-D1b Rust metadata issuer must have zero production callers"
+fi
+if rg -n \
+  --glob '*.rs' \
+  --glob '!dynamic_v2_aot_admission.rs' \
+  'insert_dynamic_v2_aot_call_admission_json\(' \
+  "$ROOT_DIR/src"; then
+  guard_fail "$TAG" "I0-D1b JSON metadata emitter must have zero production callers"
+fi
+if rg -n 'lookup_core_method|selector|PreparedAotExecutableAdmissionV1::|into_parts|clone\(' "$RUST_METADATA" "$JSON_METADATA"; then
+  guard_fail "$TAG" "I0-D1b projection must borrow retained facts without reseal, lookup, selector, or clone"
+fi
+guard_expect_fixed_in_file "$TAG" 'DynamicV2AotCallMetadataProjectionV1' "$RUST_METADATA" "Rust typed metadata projection is missing"
+guard_expect_fixed_in_file "$TAG" 'dynamic_v2_aot_call_admission_v1' "$JSON_METADATA" "JSON metadata key projection is missing"
 
 guard_expect_fixed_in_file "$TAG" '"role_count": 2' "$MANIFEST" "TextScan contract must have exactly two roles"
 guard_expect_fixed_in_file "$TAG" 'TextScanProviderSlotContract = "provider_slot_contract_box.hako"' "$MODULE" "Hako module must expose the TextScan contract source"
