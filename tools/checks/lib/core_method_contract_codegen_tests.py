@@ -22,6 +22,7 @@ def row(
     arity: str,
     *,
     aliases: list[str] | None = None,
+    core_op: str = "ArrayGet",
     result_kind: str = "Dynamic",
 ) -> dict[str, object]:
     return {
@@ -30,7 +31,7 @@ def row(
         "aliases": aliases or [],
         "arity": arity,
         "effect": "pure_read",
-        "core_op": "ArrayGet",
+        "core_op": core_op,
         "result_kind": result_kind,
         "lowering_tier": "warm_direct_abi",
         "cold_lowering": "test.helper",
@@ -55,7 +56,7 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
             CODEGEN.validate_rows(
                 [
                     row("StringBox", "length", "0", aliases=["len"]),
-                    row("StringBox", "len", "0"),
+                    row("StringBox", "len", "0", core_op="StringLength"),
                 ]
             )
 
@@ -64,14 +65,32 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
             CODEGEN.validate_rows(
                 [
                     row("StringBox", "indexOf", "1", aliases=["find"]),
-                    row("StringBox", "search", "1", aliases=["find"]),
+                    row(
+                        "StringBox",
+                        "search",
+                        "1",
+                        aliases=["find"],
+                        core_op="StringSearch",
+                    ),
                 ]
             )
 
     def test_expanded_arity_overlap_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "spelling collision"):
             CODEGEN.validate_rows(
-                [row("StringBox", "substring", "1|2"), row("StringBox", "substring", "2")]
+                [
+                    row("StringBox", "substring", "1|2"),
+                    row("StringBox", "substring", "2", core_op="StringSubstring"),
+                ]
+            )
+
+    def test_same_receiver_operation_and_arity_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "operation collision"):
+            CODEGEN.validate_rows(
+                [
+                    row("StringBox", "find", "1", core_op="StringIndexOf"),
+                    row("StringBox", "search", "1", core_op="StringIndexOf"),
+                ]
             )
 
     def test_duplicate_alias_inside_one_row_is_rejected(self) -> None:

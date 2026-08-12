@@ -342,8 +342,10 @@ an independently selectable provider or production route):
 
 Status (landed BoxShape, 2026-08-12): the generator validates source effects,
 emits `CoreMethodEffectV1` beside `result_kind`, and keeps JSON/Rust parity.
-Unknown effect values reject in the generator; this does not open a provider,
-runtime, LLVM, VM, or production route.
+Unknown effects and duplicate `(receiver, CoreMethodOp, arity)` rows reject in
+the generator. The manifest guard fixes the sole production by-op consumer at
+the I6/I7 call co-seal; this does not open a provider, runtime, LLVM, VM, or
+production route.
 
 `DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
   The existing generated `CoreMethodContractBox` rows are borrowed by a

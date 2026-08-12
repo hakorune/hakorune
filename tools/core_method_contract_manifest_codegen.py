@@ -202,6 +202,7 @@ def parse_arities(pattern: object) -> tuple[int, ...]:
 def validate_rows(rows: list[dict[str, object]]) -> None:
     seen_ids: set[str] = set()
     selected: dict[tuple[str, str, int], str] = {}
+    selected_by_op: dict[tuple[str, str, int], str] = {}
     for row in rows:
         missing = [field for field in [*ROW_FIELDS, "id"] if field not in row]
         if missing:
@@ -230,6 +231,16 @@ def validate_rows(rows: list[dict[str, object]]) -> None:
         if any(not spelling for spelling in spellings):
             raise ValueError(f"{row_id} contains an empty method spelling")
         for arity in parse_arities(row["arity"]):
+            op_key = (receiver, str(row["core_op"]), arity)
+            previous_by_op = selected_by_op.get(op_key)
+            if previous_by_op is not None:
+                raise ValueError(
+                    "CoreMethodContract operation collision: "
+                    f"receiver={receiver} core_op={row['core_op']} arity={arity} "
+                    f"rows={previous_by_op},{row_id}"
+                )
+            selected_by_op[op_key] = row_id
+
             for spelling in spellings:
                 key = (receiver, spelling, arity)
                 previous = selected.get(key)

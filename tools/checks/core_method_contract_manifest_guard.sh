@@ -41,6 +41,25 @@ if [[ "$core_lookup_call_count" -ne 1 ]]; then
     "expected exactly one disconnected callable-result Core lookup consumer, got $core_lookup_call_count"
 fi
 
+core_by_op_consumers="$({
+  rg -l 'lookup_core_method_result_row_by_op_v1' "$ROOT_DIR/src/mir" \
+    --glob '*.rs' --glob '!core_method_result_kind.rs' || true
+} | sort -u)"
+expected_core_by_op_consumer="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/calls.rs"
+if [[ "$core_by_op_consumers" != "$expected_core_by_op_consumer" ]]; then
+  guard_fail "$TAG" \
+    "expected calls.rs as the sole by-op lookup consumer, got: ${core_by_op_consumers:-<none>}"
+fi
+
+core_by_op_call_count="$({
+  rg -o 'lookup_core_method_result_row_by_op_v1\(' \
+    "$expected_core_by_op_consumer" || true
+} | wc -l)"
+if [[ "$core_by_op_call_count" -ne 1 ]]; then
+  guard_fail "$TAG" \
+    "expected exactly one production by-op lookup call, got $core_by_op_call_count"
+fi
+
 runtime_json_reads="$(
   rg -l 'core_method_contract_manifest\.json' "$ROOT_DIR/src" --glob '*.rs' || true
 )"
