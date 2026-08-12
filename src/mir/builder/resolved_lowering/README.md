@@ -66,8 +66,10 @@ and I7 Fault as one canonical `CheckedCallOutEnd` for V10 followed by a
 successorless `CheckedCallOutFault`; it never rejoins `After`. E3 now reads
 I11/V14 in ThenTerminal, consumes the I6 End cutpoint, claims the inner
 Completion return, and seals Then without emitting Return; DraftSeal remains
-the sole Return writer. I13-I16, backedge/PHI, profile close, DraftSeal, and
-publication remain closed.
+the sole Return writer. E4 now consumes I13/V15, I14/V16, I15/V17, and I16's
+induction assignment in Continuation, emits the Backedge I6 End, jumps back to
+Header, and seals the canonical Header PHI with Enter and Continuation inputs;
+profile close, DraftSeal, and publication remain closed.
 
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
@@ -75,7 +77,10 @@ plus the I7 CallSlot and I8 ConstI64 producer receipts, then routes its result
 through the canonical CFG issuer and rejects any I9 Fault row. The cleanup issuer consumes the four scoped rows from
 `invocation_cleanup.rs` in their fixed order (`I6 fault=[]`, `I7 fault=End(V10)`,
 inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, `V11`, and the I64
-induction. A move-only admission gate co-seals only those two physical
+induction from cleanup ownership. The private E4 continuation/backedge leaf
+borrows the retained I13-I16 rows, uses the canonical Header current value,
+and emits only through Canonical SSA/CFG/identity owners; it does not invent a
+PHI or Return. A move-only admission gate co-seals only those two physical
 receipts; it is not a semantic, Fault, Completion, Recipe, or JoinSig owner.
 Missing/foreign/ambiguous producer receipts or an unavailable End primitive
 are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
