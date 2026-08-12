@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, and the private move-only I6/I7 admitted-site-plan transport are landed. D1 is held at a design stop until the complete Recipe-operation to canonical physical ValueId cursor is named; full physical execution, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, and the private move-only I6/I7 admitted-site-plan transport are landed. The D2 operation cursor contract is accepted for bounded implementation; full physical execution, production activation, and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Name the sole operation-cursor issuer that maps the already verified Recipe operation rows and formal/header receipts from LoopValueKeyV1 to canonical physical ValueId receipts before CheckedCallOut emission. I6 requires V0/V6/V9, I7 requires V3/V10, and I8/I9 require V12/V13; targets/site plans may not invent placeholders or infer values."
-work_mode = "design_stop"
+current_design_stop = "D2 contract accepted: the private V2 operation cursor must consume the verified Recipe rows exactly once and use the existing canonical SSA/value-ledger owners; no second physicalizer, placeholder ValueId, or corridor mutation may bypass it."
+work_mode = "fast"
 current_execution_row = "PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2"
-current_blocker_token = "PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2: consume all operation_rows exactly once into canonical physical ValueId receipts; close I6 V0/[V6,V9]->V10 and I7 V3/[V10]->V11 before CheckedCallOut corridor mutation. No placeholder ValueId, selector lookup, second CFG/SSA authority, lease/End, LLVM, or production caller."
+current_blocker_token = "PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2: implement one private V2 cursor over operation_rows; consume I0-I16 once, issue physical values through CanonicalSsaFunctionSessionV2, retain receipts in the existing V2 ledger, and reject missing/duplicate/foreign/order/representation drift before CheckedCallOut corridor mutation."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, CheckedCallOut census, and site-plan transport are landed; the operation cursor must close before E0 corridor/result publication. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, and the D2 cursor contract are landed; bounded cursor implementation precedes E0 corridor/result publication. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, and private I6/I7 admitted-site-plan transport are landed; production callers remain zero. The next design stop names the complete Recipe-order value cursor before the site-local corridor."
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, and the accepted D2 cursor contract are landed; production callers remain zero. The bounded cursor implementation precedes the site-local corridor."
 next_design_card = "PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none (design stop until the cursor contract is accepted)"
-next_execution_card_path = ""
+next_execution_card = "PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2"
+next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
