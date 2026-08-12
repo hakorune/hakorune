@@ -177,6 +177,30 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
 }
 
 #[test]
+fn canonical_session_authority_lends_real_completion_and_loop_control() {
+    let fixture = fixture(true);
+    let envelope =
+        issue_dynamic_full_loop_source_recipe_envelope_v2(fixture.candidate, fixture.calls)
+            .expect("exact source/Recipe/envelope");
+    let program = issue_dynamic_full_loop_semantic_program_v2(envelope)
+        .expect("atomic Dynamic semantic program");
+
+    let (site_count, owner, target) = program.with_canonical_session_authority(|authority| {
+        authority
+            .validate_loop_control()
+            .expect("sealed Loop control");
+        (
+            authority.completion().explicit_sites().len(),
+            authority.owner(),
+            authority.target_function(),
+        )
+    });
+    assert_eq!(site_count, 2);
+    assert_eq!(owner, program.completion_summary().expect("summary").0);
+    assert_eq!(target, program.completion_summary().expect("summary").1);
+}
+
+#[test]
 fn wrong_invocation_membership_rejects_the_private_catalog() {
     let fixture = fixture(true);
     let recipe = fixture.candidate.artifact.recipe().as_recipe();

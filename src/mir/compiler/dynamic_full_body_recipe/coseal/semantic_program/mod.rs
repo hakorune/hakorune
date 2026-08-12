@@ -18,6 +18,7 @@ use crate::mir::loop_recipe_contract::{
     LoopValueClassV2, LoopValueKeyV1, VerifiedLoopJoinClosureV2,
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 
 use super::a_prime_source::{
     DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
@@ -66,6 +67,40 @@ pub(in crate::mir) enum DynamicInvocationCarrierLifecycleProgramRejectV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct DynamicFullLoopAfterRefV2<'program> {
     control: &'program VerifiedLoopJoinClosureV2,
+}
+
+/// HRTB-bounded authority view for the selected Dynamic canonical session.
+/// It lends the real retained Completion and validates the already-sealed
+/// JoinClosure without exposing Recipe/JoinSig/Completion parts.
+#[derive(Debug)]
+pub(in crate::mir) struct DynamicCanonicalSessionAuthorityRefV1<'program> {
+    completion: &'program VerifiedFunctionCompletionV1,
+    control: &'program VerifiedLoopJoinClosureV2,
+}
+
+impl DynamicCanonicalSessionAuthorityRefV1<'_> {
+    pub(in crate::mir) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+        self.completion
+    }
+
+    pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.completion.owner()
+    }
+
+    pub(in crate::mir) fn target_function(&self) -> RegionId {
+        self.completion.target_function()
+    }
+
+    pub(in crate::mir) fn validate_loop_control(&self) -> Result<(), String> {
+        let view = self
+            .control
+            .logical_transfer_view()
+            .map_err(|error| format!("[freeze:contract][dynamic_session/control] {error:?}"))?;
+        if view.branches().len() != 1 {
+            return Err("[freeze:contract][dynamic_session/control_branch_count]".to_string());
+        }
+        Ok(())
+    }
 }
 
 impl DynamicFullLoopAfterRefV2<'_> {
@@ -139,6 +174,17 @@ impl VerifiedDynamicInvocationCarrierLifecycleProgramV1 {
 }
 
 impl VerifiedDynamicFullLoopSemanticProgramV2 {
+    pub(in crate::mir) fn with_canonical_session_authority<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicCanonicalSessionAuthorityRefV1<'program>) -> R,
+    ) -> R {
+        let authority = DynamicCanonicalSessionAuthorityRefV1 {
+            completion: &self.envelope.source.completion,
+            control: &self.control,
+        };
+        callback(authority)
+    }
+
     pub(in crate::mir) fn with_a_prime_source_relation<R>(
         &self,
         callback: impl for<'program> FnOnce(DynamicAPrimeI64SourceRelationViewV1<'program>) -> R,

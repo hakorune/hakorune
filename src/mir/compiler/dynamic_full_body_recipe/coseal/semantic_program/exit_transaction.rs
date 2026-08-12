@@ -16,7 +16,10 @@ use super::super::a_prime_source::{
 };
 use super::DynamicInvocationCleanupRowViewV1;
 use super::VerifiedDynamicInvocationCleanupProjectionV1;
-use super::{DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2};
+use super::{
+    DynamicCanonicalSessionAuthorityRefV1, DynamicFullLoopPhysicalInputRejectV2,
+    DynamicFullLoopPhysicalInputViewV2,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicExitTransactionCoSealRejectV1 {
@@ -59,6 +62,14 @@ pub(in crate::mir) struct VerifiedDynamicExitTransactionCoSealV1 {
 }
 
 impl VerifiedDynamicExitTransactionCoSealV1 {
+    pub(in crate::mir) fn with_canonical_session_authority<R>(
+        &self,
+        callback: impl for<'program> FnOnce(DynamicCanonicalSessionAuthorityRefV1<'program>) -> R,
+    ) -> R {
+        self.cleanup
+            .with_semantic_program(|semantic| semantic.with_canonical_session_authority(callback))
+    }
+
     pub(in crate::mir) fn completion_sites(&self) -> Option<[SourceStmtSiteV1; 2]> {
         self.cleanup.completion_sites()
     }

@@ -104,8 +104,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         };
         let mut row = self
             .session
-            .if_control
-            .claim(statement)
+            .claim_if_control(statement)
             .map_err(|error| format!("[freeze:contract][if_control/claim] {error:?}"))?;
         row.claim_statement(statement)
             .map_err(|error| format!("[freeze:contract][if_control/statement] {error:?}"))?;

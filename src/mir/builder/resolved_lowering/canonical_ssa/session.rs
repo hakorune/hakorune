@@ -5,9 +5,11 @@ use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::compiler::dynamic_full_body_recipe::DynamicCanonicalSessionAuthorityRefV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_control_flow::if_control::{
-    FunctionIfControlUseLedgerV1, VerifiedResolvedFunctionIfControlV1,
+    FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1,
+    ResolvedIfControlMaterializationV1, VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
@@ -16,6 +18,33 @@ use crate::mir::BasicBlockId;
 use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
+
+enum CanonicalIfControlConsumptionV1 {
+    Resolved(FunctionIfControlUseLedgerV1),
+    DynamicProfileOwned { owner: FunctionOwnerIdV1 },
+}
+
+impl CanonicalIfControlConsumptionV1 {
+    fn claim(
+        &mut self,
+        statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
+        match self {
+            Self::Resolved(ledger) => ledger.claim(statement),
+            Self::DynamicProfileOwned { .. } => Err(FunctionIfControlUseErrorV1::Unexpected),
+        }
+    }
+
+    fn finish(self) -> Result<(), FunctionIfControlUseErrorV1> {
+        match self {
+            Self::Resolved(ledger) => ledger.finish(),
+            Self::DynamicProfileOwned { owner } => {
+                let _ = owner;
+                Ok(())
+            }
+        }
+    }
+}
 
 /// The only mutable SSA/CFG/PHI owner for one canonical function session.
 ///
@@ -28,7 +57,8 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     target_function: RegionId,
     pub(in crate::mir::builder::resolved_lowering) identity: ResolvedSsaIdentityStateV2<'source>,
     pub(in crate::mir::builder::resolved_lowering) semantics: ResolvedSemanticStackV1,
-    pub(in crate::mir::builder::resolved_lowering) if_control: FunctionIfControlUseLedgerV1,
+    pub(in crate::mir::builder::resolved_lowering) if_control:
+        CanonicalIfControlConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) completion:
         ResolvedFunctionCompletionConsumptionV1,
     pub(in crate::mir::builder::resolved_lowering) cfg: CanonicalCfgSessionV1,
@@ -160,12 +190,73 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             target_function,
             identity: ResolvedSsaIdentityStateV2::new(input.function()),
             semantics,
-            if_control: if_control.into_use_ledger(),
+            if_control: CanonicalIfControlConsumptionV1::Resolved(if_control.into_use_ledger()),
             completion,
             cfg: CanonicalCfgSessionV1::new(),
             phis: PhiTxn::begin("canonical_binding_ssa"),
             implicit_completion,
         })
+    }
+
+    /// Dynamic-only admission from the final semantic program.  The
+    /// authority view is borrowed only while this constructor snapshots the
+    /// Completion expectations and validates the sealed Loop control; the
+    /// returned session owns no semantic borrow.
+    pub(in crate::mir::builder::resolved_lowering) fn new_selected_dynamic(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+        authority: DynamicCanonicalSessionAuthorityRefV1<'_>,
+        block_expr_count: usize,
+    ) -> Result<Self, String> {
+        if authority.owner() != input.owner()
+            || authority.target_function() != input.function().function_region()
+        {
+            return Err("[freeze:contract][dynamic_session/identity_mismatch]".to_string());
+        }
+        authority.validate_loop_control()?;
+        let if_control_regions = 0;
+        let if_branch_pairs = 0;
+        let semantics = ResolvedSemanticStackV1::new_with_expectations(
+            input.function(),
+            input.function().lowering_roots(),
+            ResolvedSemanticExpectedCountsV1::new(
+                block_expr_count,
+                if_control_regions,
+                if_branch_pairs,
+            ),
+        )?;
+        let root_body = input
+            .source()
+            .root_body()
+            .map_err(|error| error.to_string())?;
+        let root_body_end = u32::try_from(root_body.statements().len()).map_err(|_| {
+            "[freeze:contract][canonical_completion/body_length_overflow]".to_string()
+        })?;
+        let implicit_completion = authority.completion().is_implicit_void();
+        let target_function = input.function().function_region();
+        let completion =
+            ResolvedFunctionCompletionConsumptionV1::new_borrowed(input.owner(), authority.completion())?;
+        Ok(Self {
+            owner: input.owner(),
+            root_body: root_body.site().clone(),
+            root_body_end,
+            target_function,
+            identity: ResolvedSsaIdentityStateV2::new(input.function()),
+            semantics,
+            if_control: CanonicalIfControlConsumptionV1::DynamicProfileOwned {
+                owner: input.owner(),
+            },
+            completion,
+            cfg: CanonicalCfgSessionV1::new(),
+            phis: PhiTxn::begin("canonical_binding_ssa"),
+            implicit_completion,
+        })
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn claim_if_control(
+        &mut self,
+        statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
+        self.if_control.claim(statement)
     }
 
     pub(in crate::mir::builder::resolved_lowering) const fn completion_is_implicit(&self) -> bool {
