@@ -155,6 +155,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - archive buckets, landed ledger, and current-doc slimming contract
   - repository artifact lifecycle baseline, bounded archive batches, design
     registry, and check-script retirement task order
+- `docs/development/archive/current_state/current-state-historical-key-index-2026-08-12.json`
+  - non-authoritative index of keys removed when `CURRENT_STATE.toml` became a
+    compact live pointer; exact historical values remain in git history
 - `design/design-registry-v1-sharded-manifest-ssot.md`
   - 7,000-line embedded registryを deterministic 16-shard manifestへ移す
     BoxShape-only authority。実装は必ず clean worktree を作る `CLEAN0` から始める

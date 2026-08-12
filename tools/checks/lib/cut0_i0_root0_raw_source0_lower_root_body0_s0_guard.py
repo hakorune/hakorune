@@ -37,16 +37,8 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
     joined = "\n".join(path.read_text() for path in SOURCE)
-
-    active = 'current_execution_row = "SCRIPT-RESULT-TAIL0-S0"' in state
-    closed = 'script_result_tail0_s0_status = "closed"' in state
-    if not active and not closed:
-        raise AssertionError("BODY0-S0 is neither active nor recorded closed")
-    if active:
-        require(state, 'latest_card = "script-result-tail0-s0-execution-task-2026-07-25"', "next card")
     for fragment in (
         "Decision: `SCRIPT-RESULT-TAIL-prime-r1`",
         "Implementation authorization: `SCRIPT-RESULT-TAIL0-S0` only",

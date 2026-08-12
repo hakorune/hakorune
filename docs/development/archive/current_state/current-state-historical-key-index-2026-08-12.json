@@ -1,0 +1,18 @@
+{
+  "kind": "current_state_historical_key_index",
+  "authority": "non-authoritative archive index",
+  "source_path": "docs/development/current/main/CURRENT_STATE.toml",
+  "source_commit": "d5a46c2d2d",
+  "value_source": "git show d5a46c2d2d^:docs/development/current/main/CURRENT_STATE.toml",
+  "removed_key_count": 382,
+  "removed_key_policy": "Removed historical task/path keys are intentionally not copied here. Use the source commit for exact names and values; current-state remains pointer-only.",
+  "preserved_live_keys": [
+    "status", "date", "development_branch_ssot", "development_branch_cutover",
+    "current_design_stop", "work_mode", "current_execution_row",
+    "current_blocker_token", "active_lane", "active_phase", "phase_status",
+    "method_anchor", "taskboard", "latest_workstream_card", "current_execution_design",
+    "latest_card", "latest_card_path", "next_design_card", "next_design_card_path",
+    "next_execution_card", "next_execution_card_path", "current_update_policy",
+    "pre_perf_gate", "pre_perf_gate_status", "optimization_return_lane", "landed_tail"
+  ]
+}

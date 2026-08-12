@@ -7,6 +7,9 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 MAX_ACTIVE_DOC_LINES=1000
 MAX_TASK_ORDER_LINE_CHARS=500
 MAX_LANDED_TAIL_ROWS=12
+MAX_CURRENT_STATE_LINES=120
+MAX_CURRENT_STATE_TOP_LEVEL_FIELDS=40
+MAX_CURRENT_STATE_LINE_CHARS=1000
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
@@ -116,6 +119,19 @@ require_repo_file() {
 }
 
 echo "[$TAG] checking compact current state"
+
+state_lines="$(wc -l < "$STATE_DOC" | tr -d '[:space:]')"
+if (( state_lines > MAX_CURRENT_STATE_LINES )); then
+  guard_fail "$TAG" "CURRENT_STATE.toml exceeds ${MAX_CURRENT_STATE_LINES} lines: $state_lines"
+fi
+state_max_line_chars="$(awk '{ if (length($0) > max) max = length($0) } END { print max + 0 }' "$STATE_DOC")"
+if (( state_max_line_chars > MAX_CURRENT_STATE_LINE_CHARS )); then
+  guard_fail "$TAG" "CURRENT_STATE.toml exceeds ${MAX_CURRENT_STATE_LINE_CHARS} characters per line: $state_max_line_chars"
+fi
+state_top_level_fields="$(rg -n '^[A-Za-z0-9_]+[[:space:]]*=' "$STATE_DOC" | wc -l | tr -d '[:space:]')"
+if (( state_top_level_fields > MAX_CURRENT_STATE_TOP_LEVEL_FIELDS )); then
+  guard_fail "$TAG" "CURRENT_STATE.toml exceeds ${MAX_CURRENT_STATE_TOP_LEVEL_FIELDS} top-level fields: $state_top_level_fields"
+fi
 
 require_repo_file "$active_phase" "active_phase"
 require_repo_file "$phase_status" "phase_status"
