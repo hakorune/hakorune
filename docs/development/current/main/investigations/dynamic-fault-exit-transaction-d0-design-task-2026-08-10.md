@@ -460,7 +460,7 @@ function-level census/corridor closeout are green.
 Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
 Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
 Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
-First bounded substep: `PHYSICAL-SESSION-I0-E1-I8-I9-CONTROL` consumes the I7 Normal landing, emits I8/V12 and I9/V13, then uses the canonical CFG issuer for the ThenTerminal/Continuation branch; End/Fault, I10-I16, PHI, DraftSeal, and publication remain closed.
+E1 landed: `PHYSICAL-SESSION-I0-E1-I8-I9-CONTROL` consumes the I7 Normal landing, emits I8/V12 and I9/V13, then branches canonically. Next bounded substep: `PHYSICAL-SESSION-I0-E2-FAULT-END` emits I6 Fault without End and I7 Fault with one V10 End, both as successorless terminals; I10-I16, PHI, DraftSeal, and publication remain closed.
 Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 

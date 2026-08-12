@@ -194,6 +194,34 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             })
             .count();
         assert_eq!(callout_count, 2);
+        let i6_fault = function
+            .get_block(session.i6_fault_block_for_test())
+            .expect("I6 Fault landing");
+        assert!(i6_fault.instructions.is_empty());
+        assert!(matches!(
+            i6_fault.terminator,
+            Some(crate::mir::MirInstruction::CheckedCallOutFault {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+            })
+        ));
+        assert!(i6_fault.successors.is_empty());
+        let i7_fault = function
+            .get_block(session.i7_fault_block_for_test())
+            .expect("I7 Fault landing");
+        assert!(matches!(
+            i7_fault.instructions.as_slice(),
+            [crate::mir::MirInstruction::CheckedCallOutEnd {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+            }]
+        ));
+        assert!(matches!(
+            i7_fault.terminator,
+            Some(crate::mir::MirInstruction::CheckedCallOutFault {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+            })
+        ));
+        assert!(i7_fault.successors.is_empty());
         let i7_normal_block = session.i7_normal_block_for_test();
         let i7_normal = function
             .get_block(i7_normal_block)

@@ -84,6 +84,7 @@ impl DynamicV2InstalledCallOutSitesV1 {
 /// later leaves may not reconstruct them from logical target names.
 #[derive(Debug)]
 pub(super) struct DynamicV2CallOutCorridorV1 {
+    i6_fault: DynamicV2OpaquePhysicalTargetV1,
     i7_site: CheckedCallOutSiteIdV1,
     i7_normal: DynamicV2OpaquePhysicalTargetV1,
     i7_fault: DynamicV2OpaquePhysicalTargetV1,
@@ -91,15 +92,24 @@ pub(super) struct DynamicV2CallOutCorridorV1 {
 
 impl DynamicV2CallOutCorridorV1 {
     pub(super) fn new(
+        i6_fault: DynamicV2OpaquePhysicalTargetV1,
         i7_site: CheckedCallOutSiteIdV1,
         i7_normal: DynamicV2OpaquePhysicalTargetV1,
         i7_fault: DynamicV2OpaquePhysicalTargetV1,
     ) -> Self {
         Self {
+            i6_fault,
             i7_site,
             i7_normal,
             i7_fault,
         }
+    }
+
+    pub(super) fn with_i6_fault<R>(
+        &self,
+        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
+    ) -> R {
+        callback(&self.i6_fault)
     }
 
     pub(super) const fn i7_site(&self) -> CheckedCallOutSiteIdV1 {
@@ -115,6 +125,13 @@ impl DynamicV2CallOutCorridorV1 {
         callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
     ) -> R {
         callback(&self.i7_normal)
+    }
+
+    pub(super) fn with_i7_fault<R>(
+        &self,
+        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
+    ) -> R {
+        callback(&self.i7_fault)
     }
 }
 
@@ -582,7 +599,7 @@ fn emit_program(
         )
         .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
 
-    let corridor = DynamicV2CallOutCorridorV1::new(sites.i7(), i7_normal, i7_fault);
+    let corridor = DynamicV2CallOutCorridorV1::new(i6_fault, sites.i7(), i7_normal, i7_fault);
     i8_i9_control::emit(
         canonical,
         outer,

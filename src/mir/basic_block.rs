@@ -170,6 +170,11 @@ impl BasicBlock {
                     // No normal successors for throw - control goes to exception handlers
                     // Exception edges are handled separately from normal control flow
                 }
+                MirInstruction::CheckedCallOutFault { .. } => {
+                    // A checked-call Fault is a canonical fail-stop terminal.
+                    // It deliberately has no normal successor; the backend
+                    // must not invent a rejoin edge or route it through After.
+                }
                 MirInstruction::CheckedCallOut {
                     normal_landing,
                     fault_landing,

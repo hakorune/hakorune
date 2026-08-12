@@ -230,6 +230,21 @@ impl CanonicalCfgSessionV1 {
                 "checked callout Fault has no admitted site plan".to_owned(),
             ));
         }
+        let fault_target_matches = function.blocks.values().any(|block| {
+            matches!(
+                block.terminator.as_ref(),
+                Some(MirInstruction::CheckedCallOut {
+                    site_id: actual_site,
+                    fault_landing,
+                    ..
+                }) if *actual_site == site_id && *fault_landing == source
+            )
+        });
+        if !fault_target_matches {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "checked callout Fault source is not the admitted site landing".to_owned(),
+            ));
+        }
         let block = function
             .get_block_mut(source)
             .expect("Fault source was checked");

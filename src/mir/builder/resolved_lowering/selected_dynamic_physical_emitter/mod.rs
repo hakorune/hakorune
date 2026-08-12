@@ -6,6 +6,7 @@
 //! the production capability gate.
 
 mod callout_corridor;
+mod fault_terminals;
 mod formal_header;
 mod i64_const;
 mod i8_i9_control;
@@ -343,6 +344,15 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             Ok(corridor) => corridor,
             Err(error) => return Self::reject_begin(outer, error),
         };
+        if let Err(error) = fault_terminals::emit(
+            &mut canonical,
+            &mut outer,
+            &callout_corridor,
+            &lifecycle,
+            &brand,
+        ) {
+            return Self::reject_begin(outer, error);
+        }
         let session = Self {
             outer: Some(outer),
             canonical: Some(canonical),
@@ -415,6 +425,16 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     pub(super) fn i7_normal_block_for_test(&self) -> BasicBlockId {
         self.callout_corridor
             .with_i7_normal(|target| target.block())
+    }
+
+    #[cfg(test)]
+    pub(super) fn i6_fault_block_for_test(&self) -> BasicBlockId {
+        self.callout_corridor.with_i6_fault(|target| target.block())
+    }
+
+    #[cfg(test)]
+    pub(super) fn i7_fault_block_for_test(&self) -> BasicBlockId {
+        self.callout_corridor.with_i7_fault(|target| target.block())
     }
 }
 

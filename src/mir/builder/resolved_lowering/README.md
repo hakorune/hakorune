@@ -53,7 +53,7 @@ lease, emit the full I8-I16 cursor, publish a draft, or open an LLVM/VM/
 production caller; those remain later activation work.
 
 The current implementation row is the family-native V2 emitter, not another
-semantic product. The first bounded E1 continuation is now
+semantic product. E1 now provides the first bounded continuation
 `I7.Normal -> I8 ConstI64(0) -> V12 -> I9 CompareI64 -> V13 -> Branch`; it
 uses the session-issued I7 Normal landing rather than the already-terminated
 logical `BodyPrelude` target. The selected-fixture canary receives all targets
@@ -61,8 +61,11 @@ through canonical unpublished function/SSA/CFG sessions and may not accept a
 raw `MirBuilder` or `BasicBlockId`. The invocation cleanup owner retains only
 the I6/V10 Dynamic discharge receipt; I7/V11 is exact I64 and has no lease or
 End row. If any capability is unavailable, the session rejects before its
-first Builder effect. The existing semantic rows remain evidence only; the
-remaining I10-I16/control/cleanup, DraftSeal, and publication work is closed.
+first Builder effect. E2 now materializes I6 Fault as a successorless terminal
+and I7 Fault as one canonical `CheckedCallOutEnd` for V10 followed by a
+successorless `CheckedCallOutFault`; it never rejoins `After`. The existing
+semantic rows remain evidence only; the remaining I10-I16/control/cleanup,
+DraftSeal, and publication work is closed.
 
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
