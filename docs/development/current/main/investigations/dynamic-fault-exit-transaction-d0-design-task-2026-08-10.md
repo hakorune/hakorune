@@ -423,6 +423,14 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   operations after If -> Continuation in B1, and callable After -> After.
   `Prelude` is an order label only; it must never collapse B0 and B1 into one
   physical block.
+  Before full operation emission, three physical preconditions must be
+  closed in the same session admission: canonical loop `Enter` is distinct
+  from the allocated loop `Header` PHI block; each I6/I7 `Normal|Fault`
+  outcome has an explicit fault terminal and cleanup edge (I7 Fault ends the
+  live V10 carrier); and formal lanes `src=0,pos=1,end=2,pred_chars=3` are
+  projected to the Recipe V0/V3 physical seeds rather than inferred at the
+  consumer. Missing Enter/Header, outcome-terminal, or formal-seed evidence
+  rejects before Builder mutation.
   Status (landed BoxShape, 2026-08-12): the unpublished I8 canary now consumes
   a move-only session-local five-role target set; full operation emission remains
   closed until the atomic AOT cell.
