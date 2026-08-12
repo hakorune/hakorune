@@ -345,9 +345,11 @@ Contract:
   result definition stays in the Normal landing and effect stays plan-owned.
 
 Done:
-  exact 1:1:1 plan/terminator/projection, two canonical successors, ordinary
-  Normal-block dominance, I6/I7 typed shapes and JSON parity are green. LLVM
-  and VM execution allowlists reject by name; production issuers/callers are 0.
+  local plan admission, canonical two-edge emission, ordinary Normal-block
+  dominance, I6/I7 typed shapes and test-only JSON parity are green. The
+  function-level plan:terminator:Normal-projection census and final landing
+  predecessor proof remain the first E0 closeout; LLVM and VM execution
+  allowlists reject by name and production issuers/callers remain 0.
 
 Stop:
   duplicate/orphan/foreign site, shared or identical landing, result in
@@ -358,11 +360,44 @@ Stop:
 Receipt (2026-08-13):
   neutral CheckedCallOut owner, function-local site-plan admission, canonical
   two-edge CFG emission, Normal-landing SSA projection, test-only JSON parity,
-  and explicit LLVM/VM rejection are green; production callers remain zero.
+  and explicit LLVM/VM rejection are green as local evidence. Exact function
+  census, fresh SSA destination issuance, and final landing predecessor proof
+  are intentionally deferred to E0; production callers remain zero.
+
+#### `PHYSICAL-SESSION-I0-E0` — CheckedCallOut function census / corridor precondition
+
+This is the first private BoxShape substep of `PHYSICAL-SESSION-I0-E`; it is
+not a new card, semantic receipt, backend route, or production caller.
+
+```text
+Authority:
+  CheckedCallOutPlanTableV1 owns admitted plans;
+  CanonicalCfgSessionV1 owns terminators/edges;
+  CanonicalSsaFunctionSessionV2 owns Normal projections and fresh ValueIds.
+
+Change:
+  add one consuming function-level census and verify plan:terminator:Normal
+  projection = 1:1:1, site-local distinct landings, exact source predecessor,
+  effect-cache/PlanStamp parity, and unique outcome/lease slots. Keep six
+  logical target anchors; model I6/I7 Normal/Fault landing pairs as a
+  session-private corridor without executing providers or emitting calls.
+
+Acceptance:
+  orphan/duplicate/foreign plan, terminator, projection, landing predecessor,
+  slot, or stamp rejects before publication; Normal projection destination is
+  session-issued, not caller-supplied; I6 shape is EndAuthorizedHandle and I7
+  shape is ImmediateI64. Positive/negative focused tests and one reusable guard
+  are green.
+
+Non-claims:
+  no I6/I7 runtime execution, lease/End consumption, full cursor, LLVM hook,
+  DraftSeal, collector, production switch, fallback/retry, or VM consumer.
+```
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
-Entry precondition: lease identity R0 and checked CallOut physical R0 are closed.
+Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0
+function-level census/corridor closeout are green.
 Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
 Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
 Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
