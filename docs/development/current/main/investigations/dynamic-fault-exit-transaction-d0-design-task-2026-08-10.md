@@ -424,32 +424,33 @@ the unpublished emitter before target allocation. The next bounded row is
 `PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1`: site-local Normal/Fault landings,
 canonical Normal-result/value-ledger publication, and final 1:1:1 census only.
 
-Design stop (2026-08-13): `PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2`
-is the next **BoxShape** row before D1 can emit a CheckedCallOut. It adds no
-semantic shape: one private cursor consumes the already verified V2 Recipe
-rows once and asks the existing canonical SSA owner for physical `ValueId`
-receipts. The V1 `loop_recipe_physicalizer` is not reusable here because its
-V1 ledger/targets would create a second cursor and second physical authority.
+Decision (2026-08-13): D2 preflight is landed; D1 must not be split into an
+I6-only or I7-only leaf. The smallest safe physical slice is one unpublished
+session that adopts the verified formal seeds, emits I0-I5 prerequisites,
+emits site-local I6/I7 CheckedCallOut terminators and Normal projections, and
+publishes all resulting receipts through the existing V2 ledger.
 
 ```text
-Decision: implement one move-only V2 Recipe-order -> canonical `ValueId` cursor.
-Source authority + canonical issuer: `PreparedDynamicLoopOperationProgramV2::operation_rows()`;
-  `CanonicalSsaFunctionSessionV2` issues values and the existing V2 ledger retains receipts.
-Non-authority: V1 physicalizer, targets, site plans, selectors, BasicBlock, LLVM, runtime, VM.
-Fail-fast boundary: missing/duplicate/reordered/foreign/stale/representation-mismatched
-  rows, use-before-def, or caller-supplied/placeholder `ValueId` rejects before CFG mutation.
-Smallest next slice: consume all rows once; prove I6 `V0/[V6,V9]->V10`, I7 `V3/[V10]->V11`,
-  I8 `V12:I64`, and I9 `V11/V12->V13:Bool`; add negative tests and a reusable guard.
-Non-claims: no lease/End execution, provider/LLVM/VM, DraftSeal, collector, fallback/retry,
-  or production caller.
+Decision: task one combined typed-ledger/callout corridor; no new semantic shape.
+Source authority + canonical issuer: operation_rows() for order; A-prime formal
+  relation for V0..V3; CanonicalSsaFunctionSessionV2 for ValueId/SSA; CanonicalCfgSessionV1
+  for CheckedCallOut/edges; existing DynamicV2PhysicalValueLedgerV1 for receipts.
+Non-authority: six logical targets, site-plan transport, V1 physicalizer, selector/name
+  lookup, caller ValueId, MirType inference, LLVM/runtime/VM, lease/End, DraftSeal.
+Fail-fast boundary: missing/foreign/duplicate formal or operation, use-before-produce,
+  typed representation drift, PlanStamp/site mismatch, shared landing, or orphan projection
+  rejects before publication and discards the unpublished session.
+Smallest next slice: source-backed typed shape projection (Dynamic borrow, ImmediateI64,
+  ImmediateBool, EndAuthorizedHandle) plus one private corridor module for formal->I0-I5->I6->I7.
+Non-claims: no I9/control/backedge/cleanup completion, provider/LLVM/runtime activation,
+  collector, production caller, fallback, retry, or VM parity.
 ```
 
-Implementation checkpoint (2026-08-13): the private cursor now runs before
-unpublished Builder-session opening. It consumes the complete 15-row array
-once, proves dependency/use-before-produce and retained I6/I7 CoreMethod
-shape, and has focused positive/negative tests plus the physical-input guard.
-It deliberately issues no physical value id or CallOut; canonical value
-issuance and the site-local corridor remain the next bounded substep.
+Implementation checkpoint (2026-08-13): the private D2 cursor consumes the
+complete 15-row array once before Builder mutation, proves dependency/order and
+retained I6/I7 CoreMethod shape, and issues no physical ValueId or CallOut. The
+combined D1 corridor is now the sole next implementation boundary; a partial
+I6/I7 leaf is explicitly NoSafeSlice.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
