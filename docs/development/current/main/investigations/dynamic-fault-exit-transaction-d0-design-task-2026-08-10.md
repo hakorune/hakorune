@@ -545,6 +545,15 @@ MIRBUILDER-LINE-BUDGET-R0
     new_expression_tests.rs = 105 lines
     all moved callers/paths and cfg reachability are unchanged
     focused tests, cargo check, and line-budget guards are green
+    selected physical target projection is now explicit:
+      Header / BodyPrelude / ThenTerminal / Continuation / After
+    `dynamic_full_body_recipe` focused tests = 32 passed
+
+  Known baseline (not caused by this activation cell):
+    `mirbuilder_inplace_replacement_guard.sh` reaches the existing
+    `src/mir/compiler/mod.rs = 848` line-budget failure on both the parent
+    commit and this commit.  This remains a separate module-registry cleanup
+    row; it is not counted as activation evidence or silently waived.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
