@@ -497,6 +497,27 @@ cutover remain closed.
 Non-claims: no provider/runtime/LLVM/VM activation, legacy retirement, or
 production caller in R0; the selected production collector handoff is next.
 
+#### `DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0`
+
+Decision: accepted BoxShape; the selected package adapter may borrow the
+already-paired semantic input and catalog admission for one identity check,
+then consume the same move-only wrapper into the unchanged compatibility
+route. No second receipt or collector path is introduced.
+Source authority + canonical issuer: `NormalCallableSemanticPackagePortV1`
+and its `SelectedCatalogedCallableLoweringInputV1`; the package's existing
+exactly-once selected-key loan remains the issuer.
+Non-authority: raw AST/body, `LegacySymbol`, raw name/arity, A-prime demand,
+physical session, collector mutation, publication, provider, LLVM, VM, or
+fallback/retry.
+Fail-fast: selected catalog key and admission source key must match; the
+borrowed views cannot escape the HRTB callback, and ordinary/compatibility
+lowering remains behaviorally unchanged.
+Landed: `fa49ade689` adds the non-escaping paired loan and adapter cross-check;
+the authority guard fixes its issuer/caller census while selected physical,
+collector, publication, and production callers remain zero.
+Non-claims: no selected production cutover or old-edge deletion; the complete
+activation cell remains the only route to production.
+
 #### `SELECTED-CUTOVER-I0-G`
 
 The installed package adapter consumes the selected Dynamic program instead
