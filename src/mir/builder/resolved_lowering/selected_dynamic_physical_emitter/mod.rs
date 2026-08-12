@@ -409,7 +409,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     /// published; this is the final physical-session canary only.
     pub(super) fn finish_unpublished_draft(
         mut self,
-    ) -> Result<crate::mir::MirFunction, DynamicV2I8EmitterRejectV1> {
+    ) -> Result<crate::mir::builder::resolved_lowering::CompletedCatalogedBoxCallableDraftV1, DynamicV2I8EmitterRejectV1> {
         let mut canonical = self.canonical.take().ok_or_else(|| {
             DynamicV2I8EmitterRejectV1::DraftSeal("canonical session missing".into())
         })?;
@@ -482,7 +482,11 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 )));
             }
         };
-        Ok(prepared.commit().into_draft())
+        let completed = prepared.commit();
+        Ok(crate::mir::builder::resolved_lowering::CompletedCatalogedBoxCallableDraftV1::from_admission(
+            completed,
+            self.demand.physical_function_header().catalog(),
+        ))
     }
 
     /// Explicit terminal for the unpublished canary.

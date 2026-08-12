@@ -2,6 +2,7 @@ use super::{
     CompletedDraftSignatureViewV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
     ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1,
 };
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -16,6 +17,39 @@ fn draft(symbol: &str, arity: usize) -> MirFunction {
         },
         BasicBlockId::new(0),
     )
+}
+
+#[test]
+fn cataloged_box_method_key_preserves_owner_namespace_and_duplicate_policy() {
+    let key = CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "ParserScanLoopBox",
+        "skip_while",
+        4,
+    );
+    let draft = draft("ParserScanLoopBox.skip_while/4", 4);
+    let mut collector = ModuleDraftCollectorV1::default();
+    collector
+        .prepare_admission(
+            super::FunctionDraftKeyV1::CatalogedBoxMethod(key.clone()),
+            "ParserScanLoopBox.skip_while/4".into(),
+            4,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .expect("cataloged Box-method admission")
+        .seal(draft)
+        .expect("matching draft")
+        .collect();
+
+    let duplicate = collector.prepare_admission(
+        super::FunctionDraftKeyV1::CatalogedBoxMethod(key),
+        "ParserScanLoopBox.skip_while/4".into(),
+        4,
+        DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+    );
+    assert!(matches!(
+        duplicate,
+        Err(super::ModuleDraftAdmissionErrorV1::DuplicateKey(_))
+    ));
 }
 
 #[test]

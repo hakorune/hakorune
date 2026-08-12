@@ -326,12 +326,20 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(phi.contains(&(target_blocks[0], crate::mir::ValueId::new(1))));
         assert!(phi.iter().any(|(block, _)| *block == target_blocks[4]));
         assert!(session.current_instruction_count() >= 5);
-        let draft = session
+        let completed = session
             .finish_unpublished_draft()
             .expect("profile close and exact-two DraftSeal");
-        assert_eq!(draft.signature.name, "ParserScanLoopBox.skip_while/4");
-        assert_eq!(draft.signature.return_type, crate::mir::MirType::Integer);
+        assert_eq!(completed.key().owner(), "ParserScanLoopBox");
+        assert_eq!(completed.key().name(), "skip_while");
+        assert_eq!(completed.draft().signature.name, "ParserScanLoopBox.skip_while/4");
+        assert_eq!(completed.draft().signature.return_type, crate::mir::MirType::Integer);
         assert!(builder.function_state.current_function.is_none());
+        let entry = completed.into_collector_entry();
+        let (_, receipt) = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::default()
+            .prepare_callable_batch(vec![entry])
+            .expect("cataloged Box-method collector preflight")
+            .collect_all();
+        assert_eq!(receipt.len(), 1);
     })
     .expect("selected loan");
 }

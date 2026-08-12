@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
@@ -59,6 +60,9 @@ pub(in crate::mir::builder) enum FunctionDraftKeyV1 {
     LegacySymbol(String),
     CanonicalResolvedOwner(FunctionOwnerIdV1),
     CanonicalCallable(CanonicalCallableKeyV1),
+    /// Cataloged Box-method identity; unlike `CanonicalCallable`, this keeps
+    /// the same-module namespace and owner/name/arity together.
+    CatalogedBoxMethod(CanonicalSameModuleCallableKeyV1),
     SyntheticConditionFn,
 }
 

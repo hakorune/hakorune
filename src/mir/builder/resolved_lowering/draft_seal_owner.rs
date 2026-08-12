@@ -8,6 +8,12 @@
 use crate::mir::builder::calls::{
     CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
 };
+use crate::mir::builder::{
+    CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
+};
+use crate::mir::builder::module_draft_collector::{
+    CallableCollectorDraftEntryV1, FunctionDraftKeyV1,
+};
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
@@ -43,6 +49,49 @@ pub(super) struct FunctionDraftSealReceiptV1 {
     pub(super) signature: super::draft_seal::PreparedFunctionSignatureV1,
     pub(super) phi: super::draft_seal::PreparedFunctionPhiClosureReceiptV1,
     pub(super) stale_fact_count: usize,
+}
+
+/// Test-only F handoff retaining the selected cataloged Box-method identity.
+/// This is a collector projection of existing admission, not a new semantic
+/// authority; symbol and arity remain sourced from that admission.
+#[cfg(test)]
+pub(in crate::mir::builder) struct CompletedCatalogedBoxCallableDraftV1 {
+    completed: CompletedFunctionDraftV1,
+    key: CanonicalSameModuleCallableKeyV1,
+    physical_symbol: Box<str>,
+    physical_arity: usize,
+}
+
+#[cfg(test)]
+impl CompletedCatalogedBoxCallableDraftV1 {
+    pub(in crate::mir::builder) fn from_admission(
+        completed: CompletedFunctionDraftV1,
+        admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
+    ) -> Self {
+        Self {
+            completed,
+            key: admission.source_key().clone(),
+            physical_symbol: admission.physical_symbol().into(),
+            physical_arity: admission.physical_arity(),
+        }
+    }
+
+    pub(in crate::mir::builder) fn draft(&self) -> &MirFunction {
+        self.completed.draft()
+    }
+
+    pub(in crate::mir::builder) fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.key
+    }
+
+    pub(in crate::mir::builder) fn into_collector_entry(self) -> CallableCollectorDraftEntryV1 {
+        CallableCollectorDraftEntryV1::new(
+            FunctionDraftKeyV1::CatalogedBoxMethod(self.key),
+            self.physical_symbol.into_string(),
+            self.physical_arity,
+            self.completed.into_draft(),
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

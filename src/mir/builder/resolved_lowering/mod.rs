@@ -13,6 +13,8 @@ mod direct_accum_adapter;
 mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
+#[cfg(test)]
+pub(in crate::mir::builder) use draft_seal_owner::CompletedCatalogedBoxCallableDraftV1;
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
 mod flow_consumption;
