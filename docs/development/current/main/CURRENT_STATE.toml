@@ -8,7 +8,7 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 current_design_stop = "none"
 work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-current_blocker_token = "DYNAMIC-V2-AOT-LLVM-HOOK-I0-W3: checked out-parameter ABI and strict lease checkpoint are fixed; consume the landed Rust AOT metadata only at the selected non-production seam and verify explicit post-link artifact facts in the test-only plan owner. Production CallOut/link publication, session/cutover, fallback/retry, and Rust-VM DynamicV2 work remain closed."
+current_blocker_token = "DYNAMIC-V2-PHYSICAL-SESSION-I0-E: W3 ABI/lease/metadata and test-only post-link fact verification are landed; the next activation must consume one complete physical cursor for all 15 operations, control, V10 lease/End, exact-two DraftSeal, CanonicalCallable collector, and selected cutover. Partial cursor, production CallOut/link publication, fallback/retry, and Rust-VM DynamicV2 work remain closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, I0-C symbolic admission, I0-D checked ABI/parity projection, D1 Rust/JSON metadata projection, W3 test-only selected seam, explicit --nyrt archive-presence boundary, and bounded artifact digest/entry/ABI/PlanStamp verification are landed. LLVM/link plan activation remains closed until its complete activation boundary."
+latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, I0-C symbolic admission, I0-D checked ABI/parity projection, D1 Rust/JSON metadata projection, W3 test-only selected seam, explicit --nyrt archive-presence boundary, and bounded artifact digest/entry/ABI/PlanStamp verification are landed. Next is the complete W4-W6 activation unit; partial physical production remains closed."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_execution_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
