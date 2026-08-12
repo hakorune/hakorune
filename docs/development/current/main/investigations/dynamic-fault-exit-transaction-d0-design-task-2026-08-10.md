@@ -3857,3 +3857,28 @@ crate-private callback/accessor and its negative census tests. It may not
 add the provider contract, admitted registry, wire, LLVM hook, runtime leaf,
 lease, physical End, or a production switch until the active pointer is
 explicitly reopened to the atomic I0-B cell.
+
+##### DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-I0 (fast, 2026-08-12)
+
+This is the single BoxShape implementation row opened after the D0 decision.
+It has exactly two allowed changes:
+
+1. Add one crate-private callback/accessor on the existing canonical plan so
+   its existing `ResolvedFunctionLoweringInputV1` can be borrowed without
+   exposing raw parts before the identity check.
+2. Add one private handoff helper that borrows the selected package loan and
+   canonical plan together, checks owner/function/forest/source-root/callable
+   header identity, and invokes the existing A-prime issuer only inside that
+   callback. The helper must not publish a new `Verified*`/`Prepared*` receipt.
+
+The row is complete when the callback/accessor has focused positive and
+negative tests, has no production provider/LLVM/VM caller, and has no raw
+AST/JoinIR/Recipe/JoinSig/ValueId re-pairing. The A-prime issuer remains
+production-caller zero until the later atomic I0-B row; this I0 is a private
+handoff shape cleanup, not a production switch.
+
+Required rejection cases are ordinary semantic input, foreign selected key,
+owner mismatch, function mismatch, forest/projection mismatch, source-root
+mismatch, callable-header mismatch, and duplicate handoff. Every rejection
+must occur before a session or Builder effect and must not fall through to
+the selected raw AST/JoinIR route.
