@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, and the unpublished D1 formal->I0-I7 typed corridor are landed. The physical End/Fault terminal vocabulary is now accepted as the next bounded R0; publication, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, and the physical End/Fault terminal R0 are landed. The next bounded row is the unpublished physical-session E; publication, production activation, and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Accepted R0 design: CheckedCallOutEnd is the neutral physical lease-consumption instruction and non-rejoining CheckedCallOutFault is the canonical fault terminal. The R0 implementation must consume existing cleanup/site-plan facts only; runtime lease remains the execution consumer, while ReleaseStrong, Throw, After, generic Call, V1 physicalizer, and fallback stay outside the lane."
+current_design_stop = "Accepted E design: consume one move-only activation aggregate and Recipe-order cursor in an unpublished canonical session for I0-I16/control/cleanup. A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG are the only authorities; DraftSeal, collector, publication, provider/runtime activation, and Rust-VM DynamicV2 remain outside the lane."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0"
-current_blocker_token = "DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0: implement the sole typed End/Fault terminal vocabulary and canonical CFG/SSA handoff; reject missing/foreign/stale/duplicate lease, End, site/landing/predecessor, and profile-close evidence before publication."
+current_execution_row = "PHYSICAL-SESSION-I0-E"
+current_blocker_token = "PHYSICAL-SESSION-I0-E: consume the move-only activation aggregate and Recipe-order cursor once; emit I0-I16/control/cleanup in the unpublished canonical session and reject missing/foreign/stale/duplicate operation, outcome, lease, target, predecessor, PHI, End, and profile-close evidence before publication."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is in one bounded R0 implementation at the E tail authority boundary. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, and the unpublished D1 formal->I0-I7 corridor are landed; full I8-I16/control/cleanup and terminal publication remain closed. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is at the unpublished E physical-session boundary. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 corridor, and the typed End/Fault terminal R0 are landed; full I8-I16/control/cleanup and terminal publication remain closed. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, and R0 cleanup/site-plan lifecycle co-seal are landed; production callers remain zero. Full E remains unpublished."
-next_design_card = "DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0"
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, and R0 cleanup/site-plan lifecycle co-seal are landed; production callers remain zero. E is now the next unpublished physical-session boundary."
+next_design_card = "PHYSICAL-SESSION-I0-E"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0"
+next_execution_card = "PHYSICAL-SESSION-I0-E"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
