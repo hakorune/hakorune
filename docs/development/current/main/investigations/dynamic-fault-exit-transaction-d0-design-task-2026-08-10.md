@@ -398,13 +398,15 @@ Unknown effect values reject in the generator; this does not open a provider,
 runtime, LLVM, VM, or production route.
 
 `DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
-  The existing generated `CoreMethodContractBox` rows are borrowed by one
-  private TextScan role aggregate. I6/substring must match the generated
-  `StringValue` row and I7/indexOf must match the generated `I64Value` row;
-  the aggregate adds only the complete two-role profile and shared lifecycle
-  requirements. Missing, foreign, duplicated, or mismatched rows reject
-  before provider admission. A hand-written result table, selector-only
-  result classification, or independent provider catalog is forbidden.
+  The existing generated `CoreMethodContractBox` rows are borrowed by a
+  private TextScan role view that is consumed immediately by the same-slice
+  ProviderAdmission; it is not a standalone durable authority. I6/substring
+  must match the generated `StringValue` row and I7/indexOf must match the
+  generated `I64Value` row; the view adds only the complete two-role profile
+  and shared lifecycle requirements. Missing, foreign, duplicated, or
+  mismatched rows reject before provider admission. A hand-written result
+  table, selector-only result classification, or independent provider catalog
+  is forbidden.
 
 Status (result/effect BoxShape landed, 2026-08-12): `calls.rs` projects and
 retains the generated row by `CoreMethodOp`/arity, cross-checks canonical
