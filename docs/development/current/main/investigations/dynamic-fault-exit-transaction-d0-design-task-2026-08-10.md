@@ -189,6 +189,7 @@ Dynamic canonical-session projection issuer                     = 1
 CanonicalSsaFunctionSessionV2 mutable owner                      = 1
 provider / LLVM / VM additions                                  = 0 / 0 / 0
 fallback / retry                                                = 0 / 0
+preflight ledger Clone / clone-or-split production path          = 0 / 0
 ```
 
 ### 2. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
@@ -207,13 +208,19 @@ Contract:
   The ProviderSlot role contract is the sole I6/I7 result/lifecycle authority.
   The global provider spine is reused; runtime consumes a presealed executable
   branch and never searches a registry or reselects provider/image/selector.
+  The LLVM formal lane is exact and role-bound: `src=0`, `pos=1`, `end=2`,
+  `pred_chars=3`; swapped or shifted receipt rows reject before effect.
 
 Done:
   one consuming ProviderAdmissionSeal, immutable deterministic admitted
   registry, receiver-identity RuntimeExecutablePlan, strict CodePoint AOT leaf,
   I6 V10 value+one-shot lease/End, I7 ImmediateI64/no lease, complete operation
   and control schedule, two Completion claims, two physical Returns, one new
-  selected production caller, and zero selected old callers are green.
+  selected production caller, and zero selected old callers are green. The
+  schedule is mechanically derived from verified Recipe order/placement and
+  JoinSig control (`Prelude`, `ThenTerminal`, `Continuation`); source-role names
+  are diagnostic cross-checks only. The preflight ledger is move-only and has
+  no Clone, clone, or split emitter path.
 
 Stop:
   missing/foreign/duplicate contract or image, alias ambiguity, incomplete
@@ -352,6 +359,11 @@ MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
   move historical phase/migration prose to archive or owning README
   remove #[allow(dead_code)] or disconnected modules only after caller-zero;
   classification alone never retires them
+
+MIRBUILDER-COMPLETION-COMMENT-CLEANUP-R0
+  update the stale completion-consumption comment that still describes a
+  single explicit claim; exact-two site-keyed consumption is already landed
+  and must remain the only physical claim model
 ```
 
 Both rows are behavior-neutral refactor series of two to five commits. Their
