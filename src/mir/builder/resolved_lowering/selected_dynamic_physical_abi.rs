@@ -24,6 +24,8 @@ const EXPECTED_OPERATION_COUNT: usize = 15;
 const EXPECTED_PLACEMENT_COUNT: usize = 17;
 const EXPECTED_CONTROL_COUNT: usize = 1;
 const EXPECTED_FAULT_COUNT: usize = 2;
+const EXPECTED_OPERATION_ORDER: [u32; EXPECTED_OPERATION_COUNT] =
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum SelectedDynamicV2PhysicalPlanRejectV1 {
@@ -446,6 +448,13 @@ fn build_schedule(
 
     validate_control(program)?;
 
+    let operation_items = program
+        .operation_rows()
+        .iter()
+        .map(|operation| operation.item())
+        .collect::<Vec<_>>();
+    validate_operation_item_order(&operation_items)?;
+
     let mut seen = BTreeSet::new();
     let mut rows = Vec::with_capacity(EXPECTED_OPERATION_COUNT);
     let control = program.control();
@@ -469,6 +478,20 @@ fn build_schedule(
         return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder);
     }
     Ok(rows.into_boxed_slice())
+}
+
+fn validate_operation_item_order(
+    items: &[LoopItemKeyV1],
+) -> Result<(), SelectedDynamicV2PhysicalPlanRejectV1> {
+    if items.len() != EXPECTED_OPERATION_ORDER.len()
+        || items
+            .iter()
+            .zip(EXPECTED_OPERATION_ORDER)
+            .any(|(item, expected)| item.raw() != expected)
+    {
+        return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder);
+    }
+    Ok(())
 }
 
 fn schedule_for_operation(
@@ -609,4 +632,25 @@ fn validate_control(
         return Err(SelectedDynamicV2PhysicalPlanRejectV1::ControlShape);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{validate_operation_item_order, SelectedDynamicV2PhysicalPlanRejectV1};
+    use crate::mir::loop_recipe_contract::LoopItemKeyV1;
+
+    #[test]
+    fn exact_dynamic_operation_order_is_accepted() {
+        let items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16].map(LoopItemKeyV1::new);
+        assert_eq!(validate_operation_item_order(&items), Ok(()));
+    }
+
+    #[test]
+    fn swapped_dynamic_operation_rows_are_rejected() {
+        let items = [0, 1, 2, 3, 4, 5, 7, 6, 8, 9, 11, 13, 14, 15, 16].map(LoopItemKeyV1::new);
+        assert_eq!(
+            validate_operation_item_order(&items),
+            Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder)
+        );
+    }
 }
