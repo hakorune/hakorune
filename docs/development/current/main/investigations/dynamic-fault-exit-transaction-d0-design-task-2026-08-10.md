@@ -415,10 +415,11 @@ Design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0`. Decision is a checked
 out-parameter ABI over the existing `HakoDynamicV2CallOutV1`; the plain `i64`
 entry shape is rejected. The neutral header plus Rust/Python projections own
 the ABI revision, logical arity, wire revision, and `u32` transport status.
-`dynamic_v2_text_scan.rs` is the only future lease issuer/consumer owner, with
-opaque monotonic/generation-branded tokens; `drop_handle` and raw handles are
-non-authority. This design task lands no strict leaf, LLVM hook, VM change, or
-production caller.
+`src/runtime/dynamic_v2_carrier_lease.rs` is the neutral future lease
+issuer/consumer owner, with opaque monotonic/generation-branded tokens;
+`dynamic_v2_text_scan.rs` only consumes that API, while `drop_handle` and raw
+handles remain non-authority. This design task lands no strict leaf, LLVM hook,
+VM change, or production caller.
 
 Before editing the leaf, freeze these owners and the order of effects:
 
@@ -660,8 +661,11 @@ src/box_callable/provider_admission/
   admitted_registry.rs    immutable deterministic selected rows
   aot_admission.rs        symbolic entry IDs/generation/PlanStamp aggregate
 
+src/runtime/dynamic_v2_carrier_lease.rs
+  one-shot ABA-safe lease issuer/consumer for the strict leaf
+
 crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs
-  strict CodePoint I6/I7 entries and one-shot lease owner
+  strict CodePoint I6/I7 entries consuming the neutral lease API
 
 src/llvm_py/instructions/mir_call/selected_dynamic_v2.py
   short early hook; no provider lookup or generic fallback
