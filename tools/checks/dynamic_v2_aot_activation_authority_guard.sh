@@ -29,11 +29,13 @@ CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.r
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
+CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
+CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -123,6 +125,23 @@ guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
   "canonical CFG must own the physical Fault terminal issuer"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
   "canonical SSA must own the physical End issuer"
+if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "cataloged Box-method collector terminal definition must be unique"
+fi
+if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF_TESTS" | wc -l | tr -d '[:space:]')" -lt 1 ]]; then
+  guard_fail "$TAG" "cataloged Box-method collector terminal needs a focused test caller"
+fi
+if rg -n 'commit_cataloged_box_method_completed\(' "$ROOT_DIR/src/mir" \
+  --glob '*.rs' --glob '!**/tests.rs' --glob '!**/*_tests.rs' \
+  --glob '!**/cataloged_box_method_collector_handoff.rs'; then
+  guard_fail "$TAG" "cataloged Box-method collector terminal must have no production caller before selected cutover"
+fi
+for file in "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "cataloged collector handoff file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
 if rg -n 'ReleaseStrong|Throw|After|drop_handle|consume_end_authorized' "$SELECTED_LIFECYCLE"; then
   guard_fail "$TAG" "selected lifecycle owner must not reclassify cleanup or execute runtime lease effects"
 fi

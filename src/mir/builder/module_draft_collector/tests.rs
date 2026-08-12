@@ -53,6 +53,72 @@ fn cataloged_box_method_key_preserves_owner_namespace_and_duplicate_policy() {
 }
 
 #[test]
+fn cataloged_box_method_symbol_and_arity_drift_reject_before_mutation() {
+    let key = CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "ParserScanLoopBox",
+        "skip_while",
+        4,
+    );
+    let mut collector = ModuleDraftCollectorV1::default();
+
+    let wrong_symbol = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CatalogedBoxMethod(key.clone()),
+            "ParserScanLoopBox.skip_while/4".into(),
+            4,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("skip_while/4", 4));
+    assert!(matches!(
+        wrong_symbol,
+        Err(ModuleDraftAdmissionErrorV1::SymbolMismatch { .. })
+    ));
+    assert_eq!(collector.symbol_count(), 0);
+
+    let wrong_arity = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CatalogedBoxMethod(key),
+            "ParserScanLoopBox.skip_while/4".into(),
+            4,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("ParserScanLoopBox.skip_while/4", 3));
+    assert!(matches!(
+        wrong_arity,
+        Err(ModuleDraftAdmissionErrorV1::ArityMismatch { .. })
+    ));
+    assert_eq!(collector.symbol_count(), 0);
+}
+
+#[test]
+fn unbranded_cataloged_box_method_receipt_rejects_without_collection() {
+    let key = CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "ParserScanLoopBox",
+        "skip_while",
+        4,
+    );
+    let mut collector = ModuleDraftCollectorV1::default();
+    let prepared = collector
+        .prepare_admission(
+            FunctionDraftKeyV1::CatalogedBoxMethod(key),
+            "ParserScanLoopBox.skip_while/4".into(),
+            4,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap();
+    let unpublished = prepared
+        .seal(draft("ParserScanLoopBox.skip_while/4", 4))
+        .unwrap();
+    assert!(matches!(
+        unpublished.collect_branded(),
+        Err(super::CollectorReceiptBrandErrorV1::CollectorUnbranded)
+    ));
+    assert_eq!(collector.symbol_count(), 0);
+}
+
+#[test]
 fn header_view_borrows_the_same_collector_owned_draft() {
     let mut collector = ModuleDraftCollectorV1::default();
     let prepared = collector
