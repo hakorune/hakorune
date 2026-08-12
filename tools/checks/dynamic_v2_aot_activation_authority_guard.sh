@@ -28,11 +28,12 @@ CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.r
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -112,6 +113,19 @@ guard_expect_fixed_in_file "$TAG" "consume_for_session" "$SELECTED_CAPABILITY" \
   "the selected session must consume the activation aggregate exactly once"
 guard_expect_fixed_in_file "$TAG" "install_checked_callout_site_plans" "$SELECTED_EMITTER" \
   "the emitter must install admitted plans before corridor allocation"
+guard_expect_fixed_in_file "$TAG" "CheckedCallOutEnd" "$SELECTED_LIFECYCLE" \
+  "the selected lifecycle owner must project the typed End instruction"
+guard_expect_fixed_in_file "$TAG" "CheckedCallOutFault" "$SELECTED_LIFECYCLE" \
+  "the selected lifecycle owner must project the non-rejoining Fault terminal"
+guard_expect_fixed_in_file "$TAG" "lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue" "$SELECTED_EMITTER" \
+  "the selected session must consume cleanup/site facts before Builder open"
+guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
+  "canonical CFG must own the physical Fault terminal issuer"
+guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
+  "canonical SSA must own the physical End issuer"
+if rg -n 'ReleaseStrong|Throw|After|drop_handle|consume_end_authorized' "$SELECTED_LIFECYCLE"; then
+  guard_fail "$TAG" "selected lifecycle owner must not reclassify cleanup or execute runtime lease effects"
+fi
 if [[ "$(rg -n '\.verify_checked_callout_function\(function\)' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "canonical finish must consume the CheckedCallOut function census exactly once"
 fi
@@ -236,7 +250,7 @@ fi
 if printf '%s\n' "$STRICT_BODY" | rg -n 'A_Prime|a_prime|Vm|Interpreter|lower_method_call|RuntimeExecutablePlan'; then
   guard_fail "$TAG" "strict leaf must not open VM, MIR, LLVM, or executable-plan routes"
 fi
-for file in "$STRICT_LEAF" "$LEASE"; do
+for file in "$STRICT_LEAF" "$LEASE" "$SELECTED_LIFECYCLE"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "I0-D strict leaf/lease file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

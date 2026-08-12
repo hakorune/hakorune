@@ -8,6 +8,7 @@
 mod callout_corridor;
 mod formal_header;
 mod i64_const;
+mod lifecycle_terminal;
 mod operation_cursor;
 mod targets;
 mod value_ledger;
@@ -56,6 +57,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     CheckedCallOutSitePlan(String),
     RecipeOperationCursor(String),
     PhysicalCorridor(String),
+    LifecycleTerminal(String),
 }
 
 #[derive(Debug)]
@@ -77,6 +79,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
     aot: PreparedAotExecutableAdmissionV1,
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
+    lifecycle: lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1,
 }
 
 /// Validate semantic authority and the canary evidence before opening the
@@ -287,6 +290,11 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         site_plans: CheckedCallOutSitePlanPairV1,
         disposition: DynamicV2PhysicalCapabilityDispositionV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
+        let lifecycle = lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue(
+            &site_plans,
+            &cleanup,
+        )
+        .map_err(|error| DynamicV2I8EmitterRejectV1::LifecycleTerminal(format!("{error:?}")))?;
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         let input = demand.input();
         let physical_header = demand.physical_function_header();
@@ -337,6 +345,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             cleanup,
             aot,
             disposition,
+            lifecycle,
         };
         if let Err(error) = callout_corridor::emit(
             session.canonical.as_mut().expect("canonical session"),

@@ -77,6 +77,10 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         let mut builder = MirBuilder::new();
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, activation)
             .expect("unpublished canonical session");
+        assert_eq!(session.lifecycle.i6_site().0, 0);
+        assert_eq!(session.lifecycle.i7_site().0, 1);
+        assert_eq!(session.lifecycle.lease_slot().0, 0);
+        assert_eq!(session.lifecycle.end_cutpoints().len(), 3);
         let target_blocks = session.target_blocks_for_test();
         assert_eq!(target_blocks.len(), 6);
         assert_eq!(

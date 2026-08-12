@@ -45,6 +45,13 @@ those receipts exist, the selected canary rejects before the first Builder
 effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
 fallback, and retry are not valid alternatives.
 
+The selected lifecycle R0 co-seals the retained four cleanup rows with the
+admitted I6/I7 site plans before opening Builder state. `CheckedCallOutEnd` is
+the sole physical lease-consumption vocabulary and `CheckedCallOutFault` is
+the non-rejoining canonical fault terminal. This handoff does not execute a
+lease, emit the full I8-I16 cursor, publish a draft, or open an LLVM/VM/
+production caller; those remain later activation work.
+
 The current implementation row is the family-native V2 emitter, not another
 semantic product. Its first bounded leaf is `I8 ConstI64(0) -> V12`; the
 selected-fixture canary now receives a session-issued opaque `Prelude` target

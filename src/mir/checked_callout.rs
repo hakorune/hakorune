@@ -264,6 +264,14 @@ impl CheckedCallOutSitePlanPairV1 {
     }
 
     /// Consume the pair without exposing a re-pairing/parts API.
+    pub(in crate::mir) fn with_sites<R>(
+        &self,
+        callback: impl FnOnce(&CheckedCallOutSitePlanV1, &CheckedCallOutSitePlanV1) -> R,
+    ) -> R {
+        callback(&self.i6, &self.i7)
+    }
+
+    /// Consume the pair without exposing a re-pairing/parts API.
     pub(in crate::mir) fn consume<R>(
         self,
         callback: impl FnOnce(CheckedCallOutSitePlanV1, CheckedCallOutSitePlanV1) -> R,
