@@ -139,7 +139,7 @@ fn require_explicit_nyrt_archive(nyrt_dir_opt: Option<&PathBuf>) -> Result<PathB
         "explicit --nyrt <DIR> is required for Harness/Native exe linking; boundary route handles fallback",
     )?;
     let libnyrt = nyrt_dir.join("libnyash_kernel.a");
-    if !libnyrt.exists() {
+    if !libnyrt.is_file() {
         bail!(
             "libnyash_kernel.a not found in {}.\n\
              hint: build the kernel staticlib first:\n\
@@ -244,6 +244,20 @@ mod tests {
         ));
         let err = require_explicit_nyrt_archive(Some(&root)).unwrap_err();
         assert!(err.to_string().contains("libnyash_kernel.a not found"));
+    }
+
+    #[test]
+    fn explicit_nyrt_archive_boundary_rejects_directory_named_as_archive() {
+        let root = std::env::temp_dir().join(format!(
+            "nyllvmc_directory_nyrt_{}_{}",
+            std::process::id(),
+            unique_test_suffix()
+        ));
+        std::fs::create_dir_all(root.join("libnyash_kernel.a"))
+            .expect("temporary archive-shaped directory");
+        let err = require_explicit_nyrt_archive(Some(&root)).unwrap_err();
+        assert!(err.to_string().contains("libnyash_kernel.a not found"));
+        std::fs::remove_dir_all(&root).expect("remove temporary nyrt directory");
     }
 
     #[test]

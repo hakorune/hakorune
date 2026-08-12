@@ -456,6 +456,10 @@ must not use `boundary_driver_ffi`, environment fallback, generic String, or a
 raw HostHandle as lease. I6 has one EndAuthorized lease/End; I7 has
 ImmediateI64 with lease/End zero; normal zero is valid.
 
+The pre-link archive boundary also requires `libnyash_kernel.a` to be a regular
+file, not merely an existing path; directory-shaped or missing artifacts reject
+before the linker is invoked.
+
 Acceptance: strict entries=2; lease issuer/consume=1; link
 finalizer/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
 LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM DynamicV2=0. Run ABI,
