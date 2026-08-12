@@ -14,6 +14,7 @@ DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_deman
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
+SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -24,7 +25,8 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_EMITTER" "$CANONICAL_SESSION" "$APRIME_MODEL" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -126,6 +128,18 @@ guard_expect_fixed_in_file "$TAG" "physical_header" "$APRIME_MODEL" \
   "selected physical session must consume the demand-owned header projection"
 if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected emitter must not re-seal the catalog physical header"
+fi
+for contract in \
+  "CoreMethodOp::StringIndexOf" \
+  "CoreMethodResultKindV1::I64Value" \
+  "CoreMethodEffectV1::PureRead" \
+  "DynamicV2PhysicalRepresentationV1::ImmediateI64"; do
+  guard_expect_fixed_in_file "$TAG" "$contract" "$SELECTED_CAPABILITY" \
+    "selected physical capability must consume the generated I7 contract and exact representation: $contract"
+done
+if rg -F -q -- "DynamicV2ProducerLaneV1" "$SELECTED_CAPABILITY" || \
+   rg -F -q -- ".lane()" "$SELECTED_CAPABILITY"; then
+  guard_fail "$TAG" "producer family and physical representation must not be collapsed into a legacy lane"
 fi
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"

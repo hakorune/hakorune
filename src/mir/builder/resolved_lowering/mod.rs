@@ -44,7 +44,8 @@ pub(in crate::mir) use selected_dynamic_physical_abi::{
 };
 pub(in crate::mir) use selected_dynamic_physical_capability::{
     issue_selected_dynamic_v2_physical_capability_admission,
-    DynamicV2PhysicalCapabilityDispositionV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
+    DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
+    DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };
 
 #[cfg(test)]

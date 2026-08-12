@@ -299,6 +299,22 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
             compare_i64.result(),
             crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13)
         );
+        assert_eq!(
+            compare_i64.v11().family(),
+            crate::mir::builder::resolved_lowering::DynamicV2ProducerFamilyV1::DynamicCallSlot
+        );
+        assert_eq!(
+            compare_i64.v11().representation(),
+            crate::mir::builder::resolved_lowering::DynamicV2PhysicalRepresentationV1::ImmediateI64
+        );
+        assert_eq!(
+            compare_i64.v12().family(),
+            crate::mir::builder::resolved_lowering::DynamicV2ProducerFamilyV1::ConstI64
+        );
+        assert_eq!(
+            compare_i64.v12().representation(),
+            crate::mir::builder::resolved_lowering::DynamicV2PhysicalRepresentationV1::ImmediateI64
+        );
         let cleanup = admission.cleanup();
         assert_eq!(cleanup.len(), 4);
         assert_eq!(

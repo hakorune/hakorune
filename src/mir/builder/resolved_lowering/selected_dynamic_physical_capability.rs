@@ -10,6 +10,8 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicInvocationCleanupRowViewV1,
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
+use crate::mir::core_method_op::CoreMethodOp;
+use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CoreMethodResultKindV1};
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationV2, LoopValueKeyV1,
 };
@@ -37,8 +39,13 @@ pub(in crate::mir) enum SelectedDynamicV2PhysicalCapabilityRejectV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum DynamicV2ProducerLaneV1 {
+pub(in crate::mir) enum DynamicV2ProducerFamilyV1 {
     DynamicCallSlot,
+    ConstI64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum DynamicV2PhysicalRepresentationV1 {
     ImmediateI64,
 }
 
@@ -46,7 +53,8 @@ pub(in crate::mir) enum DynamicV2ProducerLaneV1 {
 pub(in crate::mir) struct DynamicV2ProducerReceiptRequirementV1 {
     producer: LoopItemKeyV1,
     result: LoopValueKeyV1,
-    lane: DynamicV2ProducerLaneV1,
+    family: DynamicV2ProducerFamilyV1,
+    representation: DynamicV2PhysicalRepresentationV1,
 }
 
 impl DynamicV2ProducerReceiptRequirementV1 {
@@ -58,8 +66,12 @@ impl DynamicV2ProducerReceiptRequirementV1 {
         self.result
     }
 
-    pub(in crate::mir) const fn lane(self) -> DynamicV2ProducerLaneV1 {
-        self.lane
+    pub(in crate::mir) const fn family(self) -> DynamicV2ProducerFamilyV1 {
+        self.family
+    }
+
+    pub(in crate::mir) const fn representation(self) -> DynamicV2PhysicalRepresentationV1 {
+        self.representation
     }
 }
 
@@ -257,6 +269,15 @@ fn issue_compare_i64_demand(
         {
             return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
         }
+        let i7_core = i7
+            .core_method()
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)?;
+        if i7_core.op != CoreMethodOp::StringIndexOf
+            || i7_core.result_kind != CoreMethodResultKindV1::I64Value
+            || i7_core.effect != CoreMethodEffectV1::PureRead
+        {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        }
         if program
             .faults()
             .rows()
@@ -273,12 +294,14 @@ fn issue_compare_i64_demand(
             v11: DynamicV2ProducerReceiptRequirementV1 {
                 producer: LoopItemKeyV1::new(I7),
                 result: LoopValueKeyV1::new(V11),
-                lane: DynamicV2ProducerLaneV1::DynamicCallSlot,
+                family: DynamicV2ProducerFamilyV1::DynamicCallSlot,
+                representation: DynamicV2PhysicalRepresentationV1::ImmediateI64,
             },
             v12: DynamicV2ProducerReceiptRequirementV1 {
                 producer: LoopItemKeyV1::new(I8),
                 result: LoopValueKeyV1::new(V12),
-                lane: DynamicV2ProducerLaneV1::ImmediateI64,
+                family: DynamicV2ProducerFamilyV1::ConstI64,
+                representation: DynamicV2PhysicalRepresentationV1::ImmediateI64,
             },
         })
     })
