@@ -61,6 +61,15 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         let mut builder = MirBuilder::new();
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, plan)
             .expect("unpublished canonical session");
+        let target_blocks = session.target_blocks_for_test();
+        assert_eq!(target_blocks.len(), 5);
+        assert_eq!(
+            target_blocks
+                .iter()
+                .collect::<std::collections::BTreeSet<_>>()
+                .len(),
+            5
+        );
         let function = session
             .outer
             .as_ref()

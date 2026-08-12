@@ -289,6 +289,18 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         Ok(block)
     }
 
+    pub(in crate::mir::builder::resolved_lowering) fn entry_block(
+        &self,
+        builder: &MirBuilder,
+    ) -> Result<BasicBlockId, String> {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|function| function.entry_block)
+            .ok_or_else(|| "canonical physical target requires current function".to_owned())
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn finish_for_draft_seal(
         self,
         builder: &mut MirBuilder,

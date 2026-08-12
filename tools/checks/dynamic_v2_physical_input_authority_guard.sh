@@ -16,6 +16,7 @@ APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.r
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
 SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -26,7 +27,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -162,6 +163,35 @@ guard_expect_fixed_in_file "$TAG" "DynamicV2PhysicalBlockTargetV1" "$SELECTED_AB
 for target in Header BodyPrelude ThenTerminal Continuation After; do
   guard_expect_fixed_in_file "$TAG" "${target}" "$SELECTED_ABI" \
     "selected block-target projection is missing: ${target}"
+done
+for target in Header BodyPrelude ThenTerminal Continuation After; do
+  guard_expect_fixed_in_file "$TAG" "${target}" "$SELECTED_TARGETS" \
+    "session-private target set is missing role: ${target}"
+done
+for target_fact in \
+  "DynamicV2PhysicalTargetSetV1" \
+  "DynamicV2OpaquePhysicalTargetV1" \
+  "with_role" \
+  "create_unpublished_block"; do
+  guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
+    "session-private target ownership is missing: ${target_fact}"
+done
+if rg -n -B3 -A3 -- "struct DynamicV2PhysicalTargetSetV1" "$SELECTED_TARGETS" \
+  | rg -q -- "Clone"; then
+  guard_fail "$TAG" "physical target set must remain move-only"
+fi
+for forbidden in \
+  "DynamicV2OpaqueBodyPreludeTargetV1" \
+  "body_prelude_target"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_EMITTER" "$SELECTED_TARGETS"; then
+    guard_fail "$TAG" "selected emitter retained the old singleton physical target: $forbidden"
+  fi
+done
+for file in "$SELECTED_EMITTER" "$SELECTED_TARGETS"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "selected physical target source reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
 done
 if rg -F -q -- 'format!("{name}/' "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected physical symbol was reconstructed from the raw method name"

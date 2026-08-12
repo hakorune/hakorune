@@ -5,6 +5,7 @@
 //! second Builder/CFG owner or activates the production capability gate.
 
 mod i64_const;
+mod targets;
 
 use std::sync::Arc;
 
@@ -19,6 +20,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::BasicBlockId;
+use targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
 
@@ -37,18 +39,6 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
 #[derive(Debug)]
 struct DynamicV2PhysicalSessionBrandV1(Arc<()>);
 
-#[derive(Debug)]
-struct DynamicV2OpaqueBodyPreludeTargetV1 {
-    brand: Arc<()>,
-    block: BasicBlockId,
-}
-
-impl DynamicV2OpaqueBodyPreludeTargetV1 {
-    fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {
-        Arc::ptr_eq(&self.brand, &brand.0)
-    }
-}
-
 /// Consuming, unpublished physical session for one selected V2 plan.
 pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
     outer: Option<CanonicalFunctionLoweringSessionV1<'builder>>,
@@ -57,7 +47,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     schedule: Box<[DynamicV2PhysicalScheduleRowV1]>,
     ledger: DynamicV2NativePreflightLedgerV1,
     brand: DynamicV2PhysicalSessionBrandV1,
-    body_prelude_target: DynamicV2OpaqueBodyPreludeTargetV1,
+    targets: DynamicV2PhysicalTargetSetV1,
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
 }
 
@@ -137,8 +127,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 physical_header.return_type_name().map(str::to_owned),
             );
             draft_builder.set_current_function_runes(physical_header.attrs());
-            draft_builder
-                .set_current_function_declared_capability_uses(physical_header.uses());
+            draft_builder.set_current_function_declared_capability_uses(physical_header.uses());
             let function = draft_builder
                 .function_state
                 .current_function
@@ -159,17 +148,21 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             return Self::reject_begin(outer, error);
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
-        let prelude_block =
-            match canonical.create_unpublished_block(outer.builder_view_mut_for_lowering()) {
-                Ok(block) => block,
-                Err(error) => {
-                    return Self::reject_begin(
-                        outer,
-                        DynamicV2I8EmitterRejectV1::BlockAllocation(error),
-                    )
-                }
-            };
-        let target_brand = Arc::clone(&brand.0);
+        let targets = match DynamicV2PhysicalTargetSetV1::issue(
+            &mut canonical,
+            outer.builder_view_mut_for_lowering(),
+            &brand,
+            &schedule,
+            ledger.outer_tail_target(),
+        ) {
+            Ok(targets) => targets,
+            Err(error) => {
+                return Self::reject_begin(
+                    outer,
+                    DynamicV2I8EmitterRejectV1::BlockAllocation(error),
+                )
+            }
+        };
         Ok(Self {
             outer: Some(outer),
             canonical: Some(canonical),
@@ -177,10 +170,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             schedule,
             ledger,
             brand,
-            body_prelude_target: DynamicV2OpaqueBodyPreludeTargetV1 {
-                brand: target_brand,
-                block: prelude_block,
-            },
+            targets,
             i8_evidence: Some(evidence),
         })
     }
@@ -194,7 +184,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .i8_evidence
             .take()
             .ok_or(DynamicV2I8EmitterRejectV1::DuplicateI8Emission)?;
-        if !self.body_prelude_target.matches(&self.brand)
+        let target = self
+            .targets
+            .with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |target| target);
+        if !target.matches(&self.brand)
             || self
                 .schedule
                 .iter()
@@ -210,7 +203,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .ok_or(DynamicV2I8EmitterRejectV1::TargetMismatch)?;
         i64_const::emit(
             outer.builder_view_mut_for_lowering(),
-            &self.body_prelude_target,
+            &target,
             evidence,
             &self.brand,
         )
@@ -233,6 +226,11 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .builder_view()
             .current_function_instructions()
             .len()
+    }
+
+    #[cfg(test)]
+    pub(super) fn target_blocks_for_test(&self) -> [BasicBlockId; 5] {
+        self.targets.blocks_for_test()
     }
 }
 

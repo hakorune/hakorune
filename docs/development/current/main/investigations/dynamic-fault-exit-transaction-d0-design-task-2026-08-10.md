@@ -400,6 +400,9 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   operations after If -> Continuation in B1, and callable After -> After.
   `Prelude` is an order label only; it must never collapse B0 and B1 into one
   physical block.
+  Status (landed BoxShape, 2026-08-12): the unpublished I8 canary now consumes
+  a move-only session-local five-role target set; full operation emission remains
+  closed until the atomic AOT cell.
 
 DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
   ModuleLoweringPortV1 receives the already-completed canonical draft through
