@@ -222,68 +222,12 @@ storage and borrow-free ready close.
 
 ### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — landed BoxShape
 
-Change:
-  make the existing Completion consumption ledger accept owned or borrowed
-  Completion authority; add a private HRTB session-authority view on the final
-  Dynamic program; make the Dynamic emission plan open the canonical session
-  internally instead of accepting an arbitrary session.
-
-Contract:
-  semantic facts remain in the final Dynamic program. The physical consumer
-  copies only target/result/site expectations into its one-shot claim ledger.
-  Dynamic JoinSig remains the Loop-local control owner; common outer If rows
-  are exactly zero without constructing another verified empty If product.
-
-Done:
-  the existing I8 unpublished canary uses the selected package loan, existing
-  A-prime demand, borrowed Completion, and Dynamic-owned control disposition.
-  Its calls to `verify_function_completion_v1` and
-  `empty_for_owned_loop_profile` are zero. Ordinary/trivial behavior is
-  unchanged, no borrow escapes, and the emitter no longer accepts externally
-  paired outer/canonical sessions.
-
-Landed evidence (R0-A/R0-B/R0-C):
-
-```text
-Completion consumer Owned|Borrowed storage                 = landed
-borrow-free Ready close                                    = landed
-final-program HRTB authority                               = landed
-Dynamic-owned control disposition                          = landed
-selected emitter external session arguments                = 0
-selected canary semantic re-verification                   = 0
-selected canary empty If reissuance                         = 0
-preflight ledger Clone / clone-or-split production path     = 0 / 0
-focused canary / semantic authority / pointer guards        = green
-```
-
-Stop:
-  if the sole Completion or control disposition cannot be projected without
-  clone, re-verification, raw parts, or a second semantic issuer, return to
-  design stop.
-
-Recommended refactor commits:
-
-```text
-R0-A  completion consumer Owned|Borrowed internal storage; borrow-free ready close
-R0-B  private final-program HRTB session authority and Dynamic control disposition
-R0-C  emission plan opens session; canary reissue/external pairing deleted; guard
-```
-
-Required structural evidence:
-
-```text
-selected Dynamic imports CanonicalTrivialBindingSsaPlanV1       = 0
-selected Dynamic calls CanonicalLoweringPreflightV1             = 0
-selected canary verify_function_completion_v1 calls             = 0
-selected canary empty_for_owned_loop_profile calls              = 0
-external canonical-session argument to Dynamic begin            = 0
-Dynamic Completion semantic issuer                              = 1
-Dynamic canonical-session projection issuer                     = 1
-CanonicalSsaFunctionSessionV2 mutable owner                      = 1
-provider / LLVM / VM additions                                  = 0 / 0 / 0
-fallback / retry                                                = 0 / 0
-preflight ledger Clone / clone-or-split production path          = 0 / 0
-```
+The existing Completion consumer now snapshots owned/borrowed expectations,
+the final Dynamic program lends its control/Completion authority through a
+private HRTB view, and the selected emitter opens the canonical unpublished
+session internally. The I8 canary is unpublished and test-only; no provider,
+LLVM, VM, fallback, retry, or production caller was opened. Detailed R0
+chronology and evidence live in `ParentHistory` and git history.
 
 ### 3. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
 
@@ -410,37 +354,15 @@ runtime, LLVM, VM, or production route.
   table, selector-only result classification, or independent provider catalog
   is forbidden.
 
-Status (result/effect BoxShape landed, 2026-08-12): `calls.rs` projects and
-retains the generated row by `CoreMethodOp`/arity, cross-checks canonical
-spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written
-`recipe_result_class` is gone. Provider/LLVM/runtime/session activation
-remains open; no production caller was opened.
-
-The I6/I7 generated rows are resolved once by operation identity and the same
-borrowed references are passed through target/Recipe verification and retained
-in the two call-relation rows. Selector spelling is only a cross-check against
-the borrowed row's canonical spelling; a second selector/result/effect
-authority or relookup is forbidden.
-
-Evidence:
-
-```text
-generated result-row projection tests                  = 6 passed
-dynamic_full_body_recipe tests                         = 33 passed
-selector cross-check / selector-only result authority = green / 0
-generated effect projection                            = 1 (typed enum + parity)
-single generated-row resolution per call relation      = 1; I6/I7 checks = 2
-provider/registry/LLVM/runtime/VM additions            = 0
-```
-
-The generated effect row is borrowed by the TextScan co-seal; it does not
-reclassify the Dynamic envelope. `StringSubstring` and `StringIndexOf` must
-project `PureRead` from the generated rows. Status (header/effect BoxShape,
-2026-08-12): A-prime owns the catalog physical-header admission and one-way
-MIR effect projection; the canonical skeleton consumes it without fixing an
-effect, the emitter no longer re-seals the source key, and the existing
-RejectBeforeEffect capability now checks both generated call rows. Provider/
-session activation remains open.
+Status (landed BoxShape, 2026-08-12): generated CoreMethod rows now carry
+typed `result_kind/effect`; I6/I7 resolve them once by `CoreMethodOp`/arity,
+cross-check spelling, and retain the same rows through Recipe verification.
+A-prime owns the catalog-derived physical header and one-way MIR effect
+projection; the canonical skeleton consumes it without fixed effects or raw
+body inference. The selected capability rejects incomplete/mismatched I6/I7
+contracts before effect. Provider/session activation remains open. Focused
+tests and the manifest/physical-input guards are green; full evidence is in
+`ParentHistory` and git history.
 
 Activation order after the effect projection is fixed:
 
