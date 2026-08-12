@@ -173,7 +173,9 @@ for target_fact in \
   "DynamicV2PhysicalTargetSetV1" \
   "DynamicV2OpaquePhysicalTargetV1" \
   "with_role" \
-  "create_unpublished_block"; do
+  "create_unpublished_block" \
+  "let enter = canonical.entry_block(builder)?" \
+  "let blocks = [enter, header, body_prelude, then_terminal, continuation, after]"; do
   guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
     "session-private target ownership is missing: ${target_fact}"
 done

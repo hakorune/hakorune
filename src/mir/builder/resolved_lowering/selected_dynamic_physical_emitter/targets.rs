@@ -1,8 +1,9 @@
 //! Session-private physical targets for the selected Dynamic canary.
 //!
-//! The canonical SSA session owns block allocation.  This value only groups
-//! the five role-to-block projections needed by the bounded physical layout;
-//! it does not own edges, operation order, Completion, or PHI meaning.
+//! The canonical SSA session owns block allocation. This value groups the
+//! function-entry `Enter` block plus the five role-to-block projections needed
+//! by the bounded physical layout; it does not own edges, operation order,
+//! Completion, or PHI meaning.
 
 use std::sync::Arc;
 
@@ -38,6 +39,7 @@ impl DynamicV2PhysicalTargetRoleV1 {
 #[derive(Debug)]
 pub(super) struct DynamicV2PhysicalTargetSetV1 {
     brand: Arc<()>,
+    enter: BasicBlockId,
     header: BasicBlockId,
     body_prelude: BasicBlockId,
     then_terminal: BasicBlockId,
@@ -86,12 +88,16 @@ impl DynamicV2PhysicalTargetSetV1 {
             return Err("selected physical target roles are incomplete".to_owned());
         }
 
-        let header = canonical.entry_block(builder)?;
+        // The function entry is the logical loop Enter. The loop Header is a
+        // distinct unpublished block; its PHI/edge meaning belongs to the
+        // canonical session and is not issued by this BoxShape.
+        let enter = canonical.entry_block(builder)?;
+        let header = canonical.create_unpublished_block(builder)?;
         let body_prelude = canonical.create_unpublished_block(builder)?;
         let then_terminal = canonical.create_unpublished_block(builder)?;
         let continuation = canonical.create_unpublished_block(builder)?;
         let after = canonical.create_unpublished_block(builder)?;
-        let blocks = [header, body_prelude, then_terminal, continuation, after];
+        let blocks = [enter, header, body_prelude, then_terminal, continuation, after];
         for (index, block) in blocks.iter().enumerate() {
             if blocks[..index].contains(block) {
                 return Err("selected physical target blocks are not distinct".to_owned());
@@ -99,6 +105,7 @@ impl DynamicV2PhysicalTargetSetV1 {
         }
         Ok(Self {
             brand: Arc::clone(&brand.0),
+            enter,
             header,
             body_prelude,
             then_terminal,
@@ -126,8 +133,9 @@ impl DynamicV2PhysicalTargetSetV1 {
     }
 
     #[cfg(test)]
-    pub(super) fn blocks_for_test(&self) -> [BasicBlockId; 5] {
+    pub(super) fn blocks_for_test(&self) -> [BasicBlockId; 6] {
         [
+            self.enter,
             self.header,
             self.body_prelude,
             self.then_terminal,

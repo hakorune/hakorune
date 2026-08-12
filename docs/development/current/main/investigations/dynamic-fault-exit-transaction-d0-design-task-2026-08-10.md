@@ -432,8 +432,9 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   consumer. Missing Enter/Header, outcome-terminal, or formal-seed evidence
   rejects before Builder mutation.
   Status (landed BoxShape, 2026-08-12): the unpublished I8 canary now consumes
-  a move-only session-local five-role target set; full operation emission remains
-  closed until the atomic AOT cell.
+  a move-only session-local six-block topology (`Enter` plus five roles), with
+  `Enter != Header`; full operation emission remains closed until the atomic
+  AOT cell.
 
 DYNAMIC-V2-SESSION-PRIVATE-VALUE-LEDGER-R0
   The existing I8/V12 canary publishes its emitted physical value exactly once

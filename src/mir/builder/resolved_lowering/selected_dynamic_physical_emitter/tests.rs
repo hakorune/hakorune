@@ -62,13 +62,13 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, plan)
             .expect("unpublished canonical session");
         let target_blocks = session.target_blocks_for_test();
-        assert_eq!(target_blocks.len(), 5);
+        assert_eq!(target_blocks.len(), 6);
         assert_eq!(
             target_blocks
                 .iter()
                 .collect::<std::collections::BTreeSet<_>>()
                 .len(),
-            5
+            6
         );
         let function = session
             .outer
@@ -79,6 +79,8 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
             .current_function
             .as_ref()
             .expect("canonical skeleton");
+        assert_eq!(target_blocks[0], function.entry_block);
+        assert_ne!(target_blocks[0], target_blocks[1]);
         assert_eq!(function.signature.name, "ParserScanLoopBox.skip_while/4");
         assert_eq!(function.signature.params.len(), 4);
         assert_eq!(function.signature.params[1], crate::mir::MirType::Integer);
@@ -98,7 +100,7 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
                     assert_eq!(view.producer().raw(), 8);
                     assert_eq!(view.result().raw(), 12);
                     assert_eq!(view.value(), emitted_value);
-                    assert_eq!(view.block(), target_blocks[1]);
+                    assert_eq!(view.block(), target_blocks[2]);
                 },
             )
             .expect("I8 value must be ledger-published");

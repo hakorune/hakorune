@@ -272,7 +272,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 
     #[cfg(test)]
-    pub(super) fn target_blocks_for_test(&self) -> [BasicBlockId; 5] {
+    pub(super) fn target_blocks_for_test(&self) -> [BasicBlockId; 6] {
         self.targets.blocks_for_test()
     }
 }
