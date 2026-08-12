@@ -3810,3 +3810,50 @@ raw AST/JoinIR selected-Dynamic route                       = 0 after cutover
 second Recipe/JoinSig/CFG/SSA/package authority              = 0
 ordinary/foreign/duplicate/missing handoff                  = RejectBeforeEffect
 ```
+
+##### Handoff implementation census (worker audit, 2026-08-12)
+
+The handoff is a private callback boundary, not a new semantic receipt. The
+existing selected package loan is available from
+`InstalledNormalCallableSemanticPackageV1::with_selected_lowering_input`,
+while the canonical resolved route is entered from
+`normal_module_transaction/callable_main_physical.rs` and eventually opens
+`CanonicalFunctionLoweringSessionV1` / `CanonicalSsaFunctionSessionV2` in
+`resolved_lowering`. These are currently separate inputs and have no
+production co-seal caller.
+
+The smallest allowed implementation seam is therefore:
+
+```text
+private selected-Dynamic lowering callback
+  selected package loan
+  + canonical resolved plan
+  -> exact owner/function/forest/source-root/header identity checks
+  -> issue_selected_a_prime_i64_physical_demand(loan)
+  -> issue_selected_dynamic_v2_emission_plan(demand)
+  -> existing canonical session / Completion / DraftSeal owners
+```
+
+The canonical plan may expose one crate-private callback for its existing
+`ResolvedFunctionLoweringInputV1`; it must not expose `into_parts()` before
+the identity check, and it must not publish a raw input getter. The selected
+loan and canonical plan are consumed/borrowed only within this callback, so
+no ordinal, batch slot, name, AST lookup, or `ValueId` repair can re-pair
+them. The callback is the sole future caller of the A-prime demand issuer.
+
+Required pre-I0-B census remains:
+
+```text
+selected package + canonical plan co-seal issuer       = 1
+A-prime production caller                              = 0 (until I0-B)
+canonical session owner                                = existing only
+selected raw AST/JoinIR route                          = 1 legacy edge, not reused
+new semantic Verified*/Prepared* handoff receipt       = 0
+second Recipe/JoinSig/CFG/SSA/package authority        = 0
+```
+
+The first implementation slice after this design stop may add only the
+crate-private callback/accessor and its negative census tests. It may not
+add the provider contract, admitted registry, wire, LLVM hook, runtime leaf,
+lease, physical End, or a production switch until the active pointer is
+explicitly reopened to the atomic I0-B cell.
