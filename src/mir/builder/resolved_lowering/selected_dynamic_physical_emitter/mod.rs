@@ -1,8 +1,9 @@
 //! Family-native V2 physical emitter boundary for the selected Dynamic cohort.
 //!
-//! This module is a canary-only handoff. It consumes a preflight plan, opens
-//! the canonical unpublished owners inside its scoped entry, and never opens a
-//! second Builder/CFG owner or activates the production capability gate.
+//! This module is a canary-only handoff. It consumes one admitted activation,
+//! installs its exact site plans, opens the canonical unpublished owners inside
+//! its scoped entry, and never opens a second Builder/CFG owner or activates
+//! the production capability gate.
 
 mod i64_const;
 mod formal_header;
@@ -11,6 +12,7 @@ mod value_ledger;
 
 use std::sync::Arc;
 
+use crate::box_callable::provider_admission::PreparedAotExecutableAdmissionV1;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
@@ -18,9 +20,14 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2PhysicalScheduleRowV1, PreparedSelectedDynamicV2EmissionPlanV1,
 };
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::{
+    DynamicV2CompareI64CapabilityDemandV1, DynamicV2PhysicalCapabilityDispositionV1,
+    DynamicV2TemporaryDischargeRowV1, PreparedSelectedDynamicV2AotActivationV1,
+};
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
+use crate::mir::checked_callout::{CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1};
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::BasicBlockId;
 use targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
@@ -44,6 +51,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     PhysicalHeader(String),
     FormalHeader(String),
     PhysicalValueLedger(String),
+    CheckedCallOutSitePlan(String),
 }
 
 #[derive(Debug)]
@@ -61,6 +69,10 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     formal_header: DynamicV2OpenedFormalHeaderV1,
     values: DynamicV2PhysicalValueLedgerV1,
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+    cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
+    aot: PreparedAotExecutableAdmissionV1,
+    disposition: DynamicV2PhysicalCapabilityDispositionV1,
 }
 
 /// Validate semantic authority and the canary evidence before opening the
@@ -145,6 +157,35 @@ fn install_unpublished_function_header(
     .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))
 }
 
+fn install_checked_callout_site_plans(
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    site_plans: CheckedCallOutSitePlanPairV1,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    let table = site_plans
+        .consume(|i6, i7| {
+            let mut table = CheckedCallOutPlanTableV1::default();
+            table
+                .admit(i6)
+                .and_then(|()| table.admit(i7))
+                .map(|()| table)
+        })
+        .map_err(|error| {
+            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(format!("{error:?}"))
+        })?;
+    let builder = outer.builder_view_mut_for_lowering();
+    let function = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| {
+            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
+                "selected function skeleton missing while installing site plans".to_owned(),
+            )
+        })?;
+    function.metadata.install_checked_callout_plan_table(table);
+    Ok(())
+}
+
 fn open_unpublished_outer<'builder>(
     builder: &'builder mut MirBuilder,
     function_name: &str,
@@ -198,7 +239,31 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     /// this method returns, so no semantic borrow escapes the session.
     pub(super) fn begin(
         builder: &'builder mut MirBuilder,
+        activation: PreparedSelectedDynamicV2AotActivationV1<'program>,
+    ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
+        activation.consume_for_session(
+            |plan, compare_i64, cleanup, aot, site_plans, disposition| {
+                Self::begin_from_parts(
+                    builder,
+                    plan,
+                    compare_i64,
+                    cleanup,
+                    aot,
+                    site_plans,
+                    disposition,
+                )
+            },
+        )
+    }
+
+    fn begin_from_parts(
+        builder: &'builder mut MirBuilder,
         plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
+        compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+        cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
+        aot: PreparedAotExecutableAdmissionV1,
+        site_plans: CheckedCallOutSitePlanPairV1,
+        disposition: DynamicV2PhysicalCapabilityDispositionV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         let input = demand.input();
@@ -214,6 +279,9 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             physical_header,
             function_name.clone(),
         ) {
+            return Self::reject_begin(outer, error);
+        }
+        if let Err(error) = install_checked_callout_site_plans(&mut outer, site_plans) {
             return Self::reject_begin(outer, error);
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
@@ -240,6 +308,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             formal_header,
             values,
             i8_evidence: Some(evidence),
+            compare_i64,
+            cleanup,
+            aot,
+            disposition,
         })
     }
 

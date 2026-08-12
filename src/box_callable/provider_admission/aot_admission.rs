@@ -20,6 +20,44 @@ pub(crate) struct TextScanEntryContractV1 {
     call_abi: TextScanCallAbiFactV1,
 }
 
+/// Provider-owned projection consumed by the neutral MIR site-plan issuer.
+/// It carries only checked ABI facts; it does not issue MIR IDs or shapes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct TextScanCheckedCallOutFactsV1 {
+    entry_code: u32,
+    arity: u32,
+    call_abi_revision: u32,
+    wire_revision: u32,
+    end_authorized_handle: bool,
+    immediate_i64: bool,
+}
+
+impl TextScanCheckedCallOutFactsV1 {
+    pub(crate) const fn entry_code(self) -> u32 {
+        self.entry_code
+    }
+
+    pub(crate) const fn arity(self) -> u32 {
+        self.arity
+    }
+
+    pub(crate) const fn call_abi_revision(self) -> u32 {
+        self.call_abi_revision
+    }
+
+    pub(crate) const fn wire_revision(self) -> u32 {
+        self.wire_revision
+    }
+
+    pub(crate) const fn is_end_authorized_handle(self) -> bool {
+        self.end_authorized_handle
+    }
+
+    pub(crate) const fn is_immediate_i64(self) -> bool {
+        self.immediate_i64
+    }
+}
+
 impl TextScanEntryContractV1 {
     pub(super) const fn from_fact(
         entry: TextScanAotEntryIdV1,
@@ -138,6 +176,33 @@ impl PreparedAotExecutableAdmissionV1 {
         match role {
             TextScanAdmittedRoleV1::TextSliceRange => self.substring,
             TextScanAdmittedRoleV1::TextFindNeedle => self.index_of,
+        }
+    }
+
+    pub(crate) const fn checked_callout_facts(
+        &self,
+        role: TextScanAdmittedRoleV1,
+    ) -> TextScanCheckedCallOutFactsV1 {
+        let entry = self.entry_for(role);
+        TextScanCheckedCallOutFactsV1 {
+            entry_code: entry.entry as u32,
+            arity: entry.arity,
+            call_abi_revision: entry.call_abi.abi_revision,
+            wire_revision: entry.call_abi.out_wire_revision,
+            end_authorized_handle: matches!(
+                (entry.result_lane, entry.lease),
+                (
+                    TextScanValueLaneV1::HostHandle,
+                    TextScanLeaseCapabilityV1::EndAuthorized
+                )
+            ),
+            immediate_i64: matches!(
+                (entry.result_lane, entry.lease),
+                (
+                    TextScanValueLaneV1::ImmediateI64,
+                    TextScanLeaseCapabilityV1::None
+                )
+            ),
         }
     }
 }

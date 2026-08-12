@@ -703,6 +703,13 @@ impl FunctionMetadata {
         self.checked_callout_site_plans.admit(plan)
     }
 
+    pub(crate) fn install_checked_callout_plan_table(
+        &mut self,
+        plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
+    ) {
+        self.checked_callout_site_plans = plans;
+    }
+
     pub(crate) fn checked_callout_plan(
         &self,
         site: crate::mir::checked_callout::CheckedCallOutSiteIdV1,

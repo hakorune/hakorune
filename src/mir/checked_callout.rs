@@ -42,6 +42,34 @@ pub(crate) struct CheckedCallOutSitePlanV1 {
     plan_stamp: ModuleInvocationBrandV1,
 }
 
+/// Physical input used by the selected TextScan admission.  The caller may
+/// provide only already-admitted ABI facts; site/slot identities are issued by
+/// the pair constructor below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) struct CheckedCallOutAdmittedSiteInputV1 {
+    pub(in crate::mir) entry: CheckedCallOutEntryIdV1,
+    pub(in crate::mir) call_abi_revision: u32,
+    pub(in crate::mir) wire_revision: u32,
+    pub(in crate::mir) normal_shape: CheckedCallOutNormalShapeV1,
+    pub(in crate::mir) effects: EffectMask,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum CheckedCallOutSitePlanPairRejectV1 {
+    InvalidI6,
+    InvalidI7,
+    NonDistinctEntry,
+    PlanStampMismatch,
+}
+
+/// Exactly the two admitted TextScan call plans.  It cannot be cloned or
+/// split; the selected session consumes it into its function-local plan table.
+#[derive(Debug)]
+pub(in crate::mir) struct CheckedCallOutSitePlanPairV1 {
+    i6: CheckedCallOutSitePlanV1,
+    i7: CheckedCallOutSitePlanV1,
+}
+
 impl CheckedCallOutSitePlanV1 {
     #[cfg(test)]
     pub(crate) fn from_test(
@@ -182,6 +210,65 @@ impl CheckedCallOutSitePlanV1 {
             outcome_slot,
             plan_stamp: ModuleInvocationBrandV1::test_with_ordinal(ordinal),
         })
+    }
+}
+
+impl CheckedCallOutSitePlanPairV1 {
+    pub(in crate::mir) fn from_admitted(
+        i6: CheckedCallOutAdmittedSiteInputV1,
+        i7: CheckedCallOutAdmittedSiteInputV1,
+        plan_stamp: ModuleInvocationBrandV1,
+    ) -> Result<Self, CheckedCallOutSitePlanPairRejectV1> {
+        if i6.entry == i7.entry {
+            return Err(CheckedCallOutSitePlanPairRejectV1::NonDistinctEntry);
+        }
+        if i6.call_abi_revision != 1
+            || i6.wire_revision != 2
+            || !matches!(
+                i6.normal_shape,
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(0)
+                }
+            )
+        {
+            return Err(CheckedCallOutSitePlanPairRejectV1::InvalidI6);
+        }
+        if i7.call_abi_revision != 1
+            || i7.wire_revision != 2
+            || !matches!(i7.normal_shape, CheckedCallOutNormalShapeV1::ImmediateI64)
+        {
+            return Err(CheckedCallOutSitePlanPairRejectV1::InvalidI7);
+        }
+        Ok(Self {
+            i6: CheckedCallOutSitePlanV1 {
+                site_id: CheckedCallOutSiteIdV1(0),
+                admitted_entry: i6.entry,
+                call_abi_revision: i6.call_abi_revision,
+                wire_revision: i6.wire_revision,
+                normal_shape: i6.normal_shape,
+                effects: i6.effects,
+                outcome_slot: CheckedCallOutOutcomeSlotIdV1(0),
+                plan_stamp,
+            },
+            i7: CheckedCallOutSitePlanV1 {
+                site_id: CheckedCallOutSiteIdV1(1),
+                admitted_entry: i7.entry,
+                call_abi_revision: i7.call_abi_revision,
+                wire_revision: i7.wire_revision,
+                normal_shape: i7.normal_shape,
+                effects: i7.effects,
+                outcome_slot: CheckedCallOutOutcomeSlotIdV1(1),
+                plan_stamp,
+            },
+        })
+    }
+
+    /// Consume the pair without exposing a re-pairing/parts API.
+    pub(in crate::mir) fn consume<R>(
+        self,
+        callback: impl FnOnce(CheckedCallOutSitePlanV1, CheckedCallOutSitePlanV1) -> R,
+    ) -> R {
+        callback(self.i6, self.i7)
     }
 }
 
@@ -571,6 +658,71 @@ mod tests {
             Err(CheckedCallOutFunctionRejectV1::LandingPredecessorMismatch(
                 CheckedCallOutSiteIdV1(6)
             ))
+        ));
+    }
+
+    #[test]
+    fn admitted_text_scan_pair_is_typed_and_move_only() {
+        let pair = CheckedCallOutSitePlanPairV1::from_admitted(
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(1),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                },
+                effects: EffectMask::READ,
+            },
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(2),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
+                effects: EffectMask::READ,
+            },
+            ModuleInvocationBrandV1::legacy_test(),
+        )
+        .expect("exact TextScan pair");
+        pair.consume(|i6, i7| {
+            assert_eq!(i6.site_id(), CheckedCallOutSiteIdV1(0));
+            assert_eq!(i7.site_id(), CheckedCallOutSiteIdV1(1));
+            assert!(matches!(
+                i6.normal_shape(),
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. }
+            ));
+            assert!(matches!(
+                i7.normal_shape(),
+                CheckedCallOutNormalShapeV1::ImmediateI64
+            ));
+        });
+    }
+
+    #[test]
+    fn admitted_text_scan_pair_rejects_wrong_i7_shape() {
+        let error = CheckedCallOutSitePlanPairV1::from_admitted(
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(1),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                },
+                effects: EffectMask::READ,
+            },
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(2),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(1),
+                },
+                effects: EffectMask::READ,
+            },
+            ModuleInvocationBrandV1::legacy_test(),
+        );
+        assert!(matches!(
+            error,
+            Err(CheckedCallOutSitePlanPairRejectV1::InvalidI7)
         ));
     }
 }

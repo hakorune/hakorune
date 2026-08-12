@@ -1,7 +1,9 @@
 use super::*;
 use crate::mir::builder::{
-    issue_selected_dynamic_v2_emission_plan, CanonicalSameModuleCallableKeyV1, CompilationContext,
-    MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
+    issue_selected_dynamic_v2_emission_plan,
+    issue_selected_dynamic_v2_physical_capability_admission, CanonicalSameModuleCallableKeyV1,
+    CompilationContext, MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1,
+    SelectedNormalCallableKeyV1,
 };
 use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
@@ -63,8 +65,17 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
                 DynamicV2PhysicalBlockTargetV1::After
             );
         });
+        let capability = issue_selected_dynamic_v2_physical_capability_admission(
+            plan,
+            std::num::NonZeroU64::new(1).expect("test registry generation"),
+            crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
+        )
+        .expect("physical capability admission");
+        let activation = capability
+            .prepare_aot_activation()
+            .expect("checked CallOut site-plan transport");
         let mut builder = MirBuilder::new();
-        let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, plan)
+        let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, activation)
             .expect("unpublished canonical session");
         let target_blocks = session.target_blocks_for_test();
         assert_eq!(target_blocks.len(), 6);
@@ -92,6 +103,14 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         assert_eq!(function.signature.params[2], crate::mir::MirType::Integer);
         assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
         assert_eq!(function.signature.effects, crate::mir::EffectMask::READ);
+        assert!(function
+            .metadata
+            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1(0))
+            .is_some());
+        assert!(function
+            .metadata
+            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1(1))
+            .is_some());
         let formal_header = &session.formal_header;
         assert_eq!(
             formal_header

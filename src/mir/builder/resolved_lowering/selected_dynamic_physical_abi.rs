@@ -321,6 +321,10 @@ impl<'program> PreparedSelectedDynamicV2EmissionPlanV1<'program> {
         self.demand.with_operation_program(callback)
     }
 
+    pub(in crate::mir) const fn function_effects(&self) -> crate::mir::EffectMask {
+        self.demand.function_effects()
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn with_ledger<R>(
         &self,

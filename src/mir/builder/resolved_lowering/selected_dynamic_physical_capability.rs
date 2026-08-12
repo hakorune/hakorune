@@ -1,12 +1,19 @@
 //! Builder-free capability admission for the selected Dynamic V2 cohort.
 //!
-//! The module owns no semantic meaning.  It only checks that the already
-//! co-sealed I9 I64 operation and four cleanup rows can be handed to physical
-//! producers.  The current backend leaves intentionally stop at
-//! `RejectBeforeEffect`; no session or ValueId is created here.
+//! The module owns no semantic meaning. It checks that the already co-sealed
+//! I9 I64 operation, cleanup rows, and AOT admission can form one physical
+//! activation handoff. Runtime producer execution remains `RejectBeforeEffect`.
 
 use std::num::NonZeroU64;
 
+use crate::box_callable::provider_admission::{
+    PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1, ProviderAdmissionSealV1,
+    TextScanAdmittedRoleV1, TextScanAliasProjectionV1,
+};
+use crate::mir::checked_callout::{
+    CheckedCallOutAdmittedSiteInputV1, CheckedCallOutEntryIdV1, CheckedCallOutNormalShapeV1,
+    CheckedCallOutSitePlanPairRejectV1, CheckedCallOutSitePlanPairV1,
+};
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicInvocationCleanupActionViewV1, DynamicInvocationCleanupRowKindV1,
     DynamicInvocationCleanupRowViewV1,
@@ -44,6 +51,7 @@ pub(in crate::mir) enum SelectedDynamicV2PhysicalCapabilityRejectV1 {
     CleanupOrder,
     EndCapabilityUnavailable,
     TextScanAdmission(ProviderAdmissionRejectV1),
+    CheckedCallOutSitePlan(CheckedCallOutSitePlanPairRejectV1),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -204,6 +212,19 @@ pub(in crate::mir) struct SelectedDynamicV2PhysicalCapabilityAdmissionV1<'progra
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
 }
 
+/// Builder-free physical activation handoff.  It retains the existing
+/// capability evidence and the exact two site plans; the selected session is
+/// the only consumer that may open the unpublished Builder owners.
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedSelectedDynamicV2AotActivationV1<'program> {
+    plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+    cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+    aot: PreparedAotExecutableAdmissionV1,
+    site_plans: CheckedCallOutSitePlanPairV1,
+    disposition: DynamicV2PhysicalCapabilityDispositionV1,
+}
+
 impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     pub(in crate::mir) const fn disposition(&self) -> DynamicV2PhysicalCapabilityDispositionV1 {
         self.disposition
@@ -239,6 +260,82 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
                 Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)
             }
         }
+    }
+
+    pub(in crate::mir) fn prepare_aot_activation(
+        self,
+    ) -> Result<
+        PreparedSelectedDynamicV2AotActivationV1<'program>,
+        SelectedDynamicV2PhysicalCapabilityRejectV1,
+    > {
+        let Self {
+            plan,
+            compare_i64,
+            cleanup,
+            aot,
+            disposition,
+        } = self;
+        let effects = plan.function_effects();
+        let i6 = aot.checked_callout_facts(TextScanAdmittedRoleV1::TextSliceRange);
+        let i7 = aot.checked_callout_facts(TextScanAdmittedRoleV1::TextFindNeedle);
+        let site_plans = CheckedCallOutSitePlanPairV1::from_admitted(
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(i6.entry_code()),
+                call_abi_revision: i6.call_abi_revision(),
+                wire_revision: i6.wire_revision(),
+                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                },
+                effects,
+            },
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(i7.entry_code()),
+                call_abi_revision: i7.call_abi_revision(),
+                wire_revision: i7.wire_revision(),
+                normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
+                effects,
+            },
+            aot.plan_stamp(),
+        )
+        .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::CheckedCallOutSitePlan)?;
+        if i6.arity() != 2
+            || !i6.is_end_authorized_handle()
+            || i7.arity() != 1
+            || !i7.is_immediate_i64()
+        {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        }
+        Ok(PreparedSelectedDynamicV2AotActivationV1 {
+            plan,
+            compare_i64,
+            cleanup,
+            aot,
+            site_plans,
+            disposition,
+        })
+    }
+}
+
+impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
+    pub(in crate::mir) fn consume_for_session<R>(
+        self,
+        callback: impl FnOnce(
+            PreparedSelectedDynamicV2EmissionPlanV1<'program>,
+            DynamicV2CompareI64CapabilityDemandV1,
+            [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+            PreparedAotExecutableAdmissionV1,
+            CheckedCallOutSitePlanPairV1,
+            DynamicV2PhysicalCapabilityDispositionV1,
+        ) -> R,
+    ) -> R {
+        callback(
+            self.plan,
+            self.compare_i64,
+            self.cleanup,
+            self.aot,
+            self.site_plans,
+            self.disposition,
+        )
     }
 }
 

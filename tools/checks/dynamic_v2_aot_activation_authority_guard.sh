@@ -26,11 +26,13 @@ PLAN_OWNER="$ROOT_DIR/crates/nyash-llvm-compiler/src/runtime_executable_plan.rs"
 CALLOUT_OWNER="$ROOT_DIR/src/mir/checked_callout.rs"
 CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
+SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
+SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -100,6 +102,16 @@ fi
 if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "CheckedCallOut function census owner must be unique"
 fi
+guard_expect_fixed_in_file "$TAG" "CheckedCallOutSitePlanPairV1" "$CALLOUT_OWNER" \
+  "CheckedCallOut must own the exact two-site transport shape"
+guard_expect_fixed_in_file "$TAG" "prepare_aot_activation" "$SELECTED_CAPABILITY" \
+  "selected capability admission must issue the site-plan transport"
+guard_expect_fixed_in_file "$TAG" "PreparedSelectedDynamicV2AotActivationV1" "$SELECTED_CAPABILITY" \
+  "site-plan transport must remain one move-only activation aggregate"
+guard_expect_fixed_in_file "$TAG" "consume_for_session" "$SELECTED_CAPABILITY" \
+  "the selected session must consume the activation aggregate exactly once"
+guard_expect_fixed_in_file "$TAG" "install_checked_callout_site_plans" "$SELECTED_EMITTER" \
+  "the emitter must install admitted plans before corridor allocation"
 if [[ "$(rg -n '\.verify_checked_callout_function\(function\)' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "canonical finish must consume the CheckedCallOut function census exactly once"
 fi
