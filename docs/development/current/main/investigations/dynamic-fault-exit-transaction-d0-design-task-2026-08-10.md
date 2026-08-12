@@ -409,73 +409,64 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
-##### I0-D1b landed; `DYNAMIC-V2-AOT-LLVM-HOOK-I0-W3` implementation-prep
+##### W3 landed; `DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0` design stop
+
+W3 has two strict entries, the checked C/Rust/Python CallOut ABI, one neutral
+one-shot lease owner, typed test-only metadata validation, explicit `--nyrt`,
+and a test-only post-link fact verifier. Production LLVM/CallOut/link callers
+remain zero. Git history owns the detailed W3 evidence.
 
 ```text
-Decision:
-  W3 is a work-branch BoxShape checkpoint. It may consume the landed typed
-  metadata at one test-only seam; selected production lowering remains closed.
-Source authority + canonical issuer:
-  C/Rust/Python checked ABI projections; PreparedAotExecutableAdmissionV1 and
-  APrimeI64PhysicalReceiptV1 for the two call rows; post-link finalizer alone
-  issues RuntimeExecutablePlanV1 from an explicit, verified kernel artifact.
-Non-authority:
-  JSON/Python, generic String, runtime registry/name lookup, MIR/Recipe
-  re-inference, and Rust VM; no second provider/registry authority.
-Fail-fast boundary:
-  missing/foreign/stale brand, symbol/ABI/lane drift, duplicate/swap,
-  non-one-shot lease, absent entry, artifact digest/symbol/ABI mismatch, or
-  link failure rejects before CallOut/publication; no fallback.
-Smallest next slice:
-  audit strict CodePoint leaf/lease and neutral wire, then close one guarded
-  checkpoint: test seam -> explicit link preflight -> owned PlanStamp/plan.
-Non-claims:
-  no production hook/CallOut, selected session, DraftSeal/collector, cutover,
-  retry/fallback, or VM DynamicV2 consumer.
+Decision: a neutral terminator-like checked CallOut physical op is required; metadata-only runtime branching would create a second CFG authority.
+Source authority + canonical issuer: existing AOT admission and A-prime call rows supply entry/lanes; the exit transaction supplies Normal/Fault meaning; CanonicalSsaFunctionSessionV2 alone issues blocks, edges, predecessors, and seals.
+Non-authority: the op and its side table do not issue Recipe, Completion, provider, ABI, result, lifecycle, or selector meaning; generic Call/String, LLVM-only blocks, fallback/retry, and Rust VM consumers are forbidden.
+Fail-fast boundary: admitted site/role/arity/lanes, ABI/wire/PlanStamp, and expected outcome/lease shape validate before Builder mutation; session-issued ValueIds, targets, and CFG edges validate only inside the unpublished session and discard on failure.
+Smallest next slice: close the D0 schema for a compact CheckedCallOut terminator plus function-local site plan and opaque outcome/lease slot IDs, then name one non-production R0 implementation slice.
+Non-claims: no LLVM emission, runtime lease consumption, full I0-I16 cursor, DraftSeal/collector, executable publication, selected cutover, or VM parity.
 ```
 
-The D1b transport is a projection, not a semantic/provider receipt:
-`call_metadata.rs` consumes sealed admission/receipt facts and
-`dynamic_v2_aot_admission.rs` is the sole JSON emitter. Exact two typed rows,
-positive/negative tests, Python loader, and authority guard are green
-(2026-08-12); the test-only seam now distinguishes `NotSelected` from
-terminal selected-metadata absence; no production caller is open.
+The instruction carries only physical site/entry identity, ordered `ValueId`
+operands, optional normal result `ValueId`, opaque outcome/lease slot IDs, and
+canonical Normal/Fault targets. The function-local site plan is projected once
+from the existing ABI/admission facts and copies only physical fields. Runtime
+payload, raw `CallOut*`, and lease
+tokens never become MIR `ValueId`s. LLVM owns `alloca` and wire decode, while
+the canonical CFG remains the sole owner of both successors. The D0 must also
+freeze backend rejection for every non-AOT consumer and the later End op's
+exact lease-slot relation before implementation begins.
 
-W3 owners (work branch only):
+D0 closes only when the following representation contract is exact:
 
 ```text
-strict leaf/lease       crates/nyash_kernel/.../dynamic_v2_text_scan.rs
-wire/ABI                include/nyrt_dynamic_call_slot_v2.h + src/abi/...
-test seam               src/llvm_py/instructions/mir_call/selected_dynamic_v2.py
-link/plan               link-driver sibling + small plan owner (<650 lines)
+CheckedCallOut terminator:
+  site_id, receiver, ordered arguments, normal_result, normal_target, fault_target
+function-local site plan:
+  site_id, admitted entry ID, call ABI/wire revisions, result lane,
+  physical effect projection, outcome slot, optional lease slot, PlanStamp
 ```
 
-The post-link plan boundary requires explicit `--nyrt`, verifies digest, both
-symbols, ABI/wire revision, and the same PlanStamp, then issues one move-only
-plan. The current verifier is test-only; real linker/CallOut finalization is
-closed. No `boundary_driver_ffi`, environment fallback, generic String, or raw
-HostHandle lease. I6 has one EndAuthorized lease/End; I7 has ImmediateI64 with
-lease/End zero; normal zero is valid.
+`normal_result` is defined only on the Normal successor. Fault defines no
+result or lease; its target owns the existing cleanup/chronology projection.
+An I6 plan has one lease slot and a later exact End relation; I7 has no lease
+slot. Side-slot IDs are compiler-physical identities, never runtime tokens.
+The private in-process session brand is not serialized or reconstructed.
 
-The pre-link archive boundary also requires `libnyash_kernel.a` to be a regular
-file, not merely an existing path; directory-shaped or missing artifacts reject
-before the linker is invoked.
-
-Acceptance: strict entries=2; lease issuer/consume=1; test-only artifact
-verifier/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
-link finalizer/LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM=0. Run
-ABI, wire, VM-fence, AOT-authority, in-place, leaf/lease, metadata, and
-explicit-link negative gates. Main still requires complete W0-W6 with
-new caller=1/old edge=0.
+The named implementation slice after D0 is
+`DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0`: add the neutral vocabulary, one
+terminator variant, function-local side-table storage, verifier/JSON roundtrip,
+and explicit non-AOT backend rejection, with production issuers/callers zero.
+Keep new modules below 650 lines and every source below the 800-line hard stop.
+R0 rejects duplicate/foreign site IDs, non-distinct successors, missing result,
+I6-without-lease, I7-with-lease, Fault payload publication, unsealed CFG edges,
+unknown ABI/wire revision, generic fallback, retry, and every VM consumer.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
-Decision: work-branch unpublished/test-only physical session; current capability remains closed.
-Source authority + issuer: existing A-prime demand, selected capability admission, target/formal/value ledgers, and canonical SSA session.
-Non-authority: no new Recipe/Completion/Collector/provider/RuntimePlan/LLVM/VM/fallback authority.
-Fail-fast: consume one aggregate before mutation; exact formal lanes, six targets, 15 operations, control, representation, V10 lease/End, and session brand must match.
-Smallest next slice: one consuming handoff, then one Recipe-order cursor for I0-I16/control/cleanup; unpublished discard on any mismatch.
-Non-claims: no exact-two DraftSeal, CanonicalCallable collector, CallOut/link publication, production caller, or selected cutover.
+Entry precondition: the checked CallOut CFG/outcome representation D0 and its non-production R0 are closed.
+Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
+Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
+Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
+Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
 #### `EXACT-TWO-COLLECTOR-I0-F`
