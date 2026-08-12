@@ -25,7 +25,7 @@ accessor and canonical-plan identity test are landed, but the normal-default
 static-box production transport owner is not. The current row is therefore a
 design stop, not an implementation permission.
 
-Next ordered task: resolve the canonical-plan transport below. Existing
+Next ordered task: resolve the canonical-plan admission and transport below. Existing
 canonical plan issuers are on separate resolved-callable pipelines; the
 installed package loan and a canonical plan have no normal-default/static-box
 production transport owner or common caller. Do not add an orphan handoff
@@ -45,7 +45,7 @@ zero.
 
 ```text
 work_mode = design_stop
-current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-CANONICAL-PLAN-TRANSPORT-D0
+current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-CANONICAL-PLAN-ADMISSION-D0
 ```
 
 The previous BoxShape slice landed the canonical-plan callback accessor and
@@ -65,6 +65,8 @@ canonical plan/session:
 canonical plan issuers:
   resolved_callable_module_preflight / normal_source_plan handoff
     -> separate pipelines; no normal-default transport caller
+  generic verify_function rejects non-empty parameter declarations or a typed
+    return as `typed_signature_not_activated`
 
 normal-default production root:
   package loan exists, but no CanonicalTrivialBindingSsaPlanV1 is carried here
@@ -78,29 +80,33 @@ normal-default/static-box transport owner = 0
 existing common production caller = 0
 ```
 
-### Canonical-plan transport decision brief
+### Canonical-plan admission and transport decision brief
 
 ```text
 Decision:
-  Keep the handoff Builder-free and stop until one existing canonical plan
-  issuer and one move-only normal-default transport owner are named; do not
-  create an orphan helper or reissue the plan in the package issuer.
+  Keep the handoff Builder-free and stop until one same-source canonical plan
+  admission for the typed A-prime method and one move-only normal-default
+  transport owner are named; do not create an orphan helper or reissue the
+  plan in the package issuer.
 Source authority + canonical issuer:
   Existing canonical plan owners (`VerifiedCallableModulePreflightV1` or the
   normal-source-plan handoff) plus the installed
-  `SelectedCallableLoweringInputRefV1`; the applicable issuer for the
-  normal-default static-box cohort is still unresolved.
+  `SelectedCallableLoweringInputRefV1`; neither current generic verifier
+  admits the typed `skip_while` signature (`typed_signature_not_activated`),
+  so the same-source typed admission is unresolved.
 Non-authority:
   package-local preflight reissue, source seed, raw AST/JoinIR, selector/name,
   ordinal/batch repair, a second plan/Completion, and any VM/provider path.
 Fail-fast boundary:
-  absent issuer/transport owner, no shared caller, foreign
-  owner/function/forest/projection/root, ordinary semantic variant, or plan
-  re-verification remains `NoSafeSlice` before Builder effect.
+  absent typed issuer/transport owner, generic typed-signature rejection, no
+  shared caller, foreign owner/function/forest/projection/root, ordinary
+  semantic variant, or plan re-verification remains `NoSafeSlice` before
+  Builder effect.
 Smallest next slice:
-  decide and document the existing issuer-to-root move-only transport for the
-  per-selected-key plan; do not implement until its source owner, lifetime,
-  exact key relation, and one consuming callback are closed.
+  decide and document the same-source typed plan issuer, then its issuer-to-
+  root move-only transport for the per-selected-key plan; do not implement
+  until source owner, lifetime, exact key relation, and one consuming callback
+  are closed.
 Non-claims:
   no package-local plan reissue, new semantic receipt, AOT provider cell,
   LLVM leaf, runtime lease, VM feature, fallback, retry, or selected production
@@ -138,8 +144,8 @@ The design stop can close only when all of these are documented against one
 existing source owner:
 
 ```text
-canonical plan issuer for this normal-default/static-box cohort = 1
-move-only plan transport owner                              = 1
+  same-source typed canonical plan issuer for this cohort          = 1
+  move-only plan transport owner                              = 1
 SelectedCallableKey -> plan relation                       = exact
 package batch / plan source-forest identity                 = exact
 shared consuming callback                                   = 1
@@ -150,6 +156,46 @@ MainMethod rejection change                                 = 0
 
 Until then, the correct state is `NoSafeSlice`; no handoff helper or new
 semantic receipt is authorized.
+
+### Typed A-prime admission subdecision
+
+The current generic canonical verifier cannot be treated as the missing
+transport source. Its existing policy rejects the selected signature before
+profile admission:
+
+```text
+param_decls / declared type -> typed_signature_not_activated
+typed return on a non-admitted profile -> typed_return_profile_not_activated
+typed parameter on a non-admitted profile -> typed_parameter_profile_not_activated
+```
+
+Therefore the next design subrow is
+`CANONICAL-TYPED-A-PRIME-ADMISSION-D0`, kept inside this active card. It must
+choose one existing canonical-plan owner whose acceptance policy reuses the
+already sealed parameter contract and `VerifiedFunctionCompletionV1` for the
+typed static-box A-prime cohort. It may not create a package-local plan,
+`TypedSignatureReceipt`, or a second Completion/profile authority.
+
+```text
+Decision:
+  decide the one existing canonical-plan admission policy for typed A-prime;
+  keep the package as a selected semantic-loan owner only.
+Source authority + canonical issuer:
+  existing callable parameter contract + Completion + one canonical plan
+  issuer; the typed admission owner is not yet selected.
+Non-authority:
+  package-local preflight, source names, fixture shape, raw AST, MIR type,
+  VM, provider, and foreign plan pairing.
+Fail-fast boundary:
+  typed profile not admitted, missing/foreign plan, identity drift, clone,
+  double consume, or `verify_function(loan.source())` is RejectBeforeEffect.
+Smallest next slice:
+  name the existing issuer's typed A-prime policy and its same-source plan
+  lifetime/transport before any code or handoff helper.
+Non-claims:
+  no source syntax change, new semantic receipt, provider/LLVM/VM feature,
+  fallback, retry, or production switch.
+```
 
 Only after this design stop is accepted may a bounded implementation row add
 the production bridge wiring. It may not add:
