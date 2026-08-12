@@ -411,6 +411,15 @@ negative link gate are green.
 
 ##### I0-D implementation-preparation contract
 
+Design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0`. Decision is a checked
+out-parameter ABI over the existing `HakoDynamicV2CallOutV1`; the plain `i64`
+entry shape is rejected. The neutral header plus Rust/Python projections own
+the ABI revision, logical arity, wire revision, and `u32` transport status.
+`dynamic_v2_text_scan.rs` is the only future lease issuer/consumer owner, with
+opaque monotonic/generation-branded tokens; `drop_handle` and raw handles are
+non-authority. This design task lands no strict leaf, LLVM hook, VM change, or
+production caller.
+
 Before editing the leaf, freeze these owners and the order of effects:
 
 ```text
