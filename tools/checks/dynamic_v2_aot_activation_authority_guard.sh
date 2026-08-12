@@ -164,11 +164,24 @@ fi
 if [[ "$(rg -n '#\[export_name = "hako\.text\.scan\.(substring|index_of)\.v1"\]' "$STRICT_LEAF" | wc -l | tr -d '[:space:]')" != 2 ]]; then
   guard_fail "$TAG" "strict CodePoint leaf must define exactly two declared entries"
 fi
-if [[ "$(rg -n '^pub fn issue_end_authorized|^pub fn publish_end_authorized_text' "$LEASE" | wc -l | tr -d '[:space:]')" != 2 ]]; then
-  guard_fail "$TAG" "neutral lease owner must expose one issue and one aggregate publisher"
+if [[ "$(rg -n '^fn issue_end_authorized\(' "$LEASE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "neutral lease owner must keep the raw-handle issuer private"
+fi
+if [[ "$(rg -n '^pub fn publish_end_authorized_text\(' "$LEASE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "neutral lease owner must expose one aggregate publisher"
 fi
 if [[ "$(rg -n '^pub fn consume_end_authorized' "$LEASE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "neutral lease owner must expose exactly one End consumer"
+fi
+LEASE_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$LEASE")"
+if [[ "$(printf '%s\n' "$LEASE_BODY" | rg -n 'capture_text_lease_identity|drop_if_lease_identity_matches' | wc -l | tr -d '[:space:]')" -lt 3 ]]; then
+  guard_fail "$TAG" "lease owner must use text identity capture and conditional drop"
+fi
+if printf '%s\n' "$LEASE_BODY" | rg -n 'capture_lease_identity|drop_handle\('; then
+  guard_fail "$TAG" "lease owner must not use generic capture or raw handle drop"
+fi
+if printf '%s\n' "$LEASE_BODY" | rg -n 'table\.insert\(token'; then
+  guard_fail "$TAG" "lease token collision must preserve the existing entry"
 fi
 STRICT_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$STRICT_LEAF")"
 if printf '%s\n' "$STRICT_BODY" | rg -n 'index_mode_from_env|compat_fallback_allowed|hako_forward|drop_handle'; then

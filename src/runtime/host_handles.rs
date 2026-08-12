@@ -15,6 +15,8 @@ mod text_read;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::cell::RefCell;
+#[cfg(test)]
+use std::sync::Mutex;
 use std::sync::{
     atomic::{AtomicU64, Ordering},
     Arc,
@@ -37,6 +39,14 @@ const HOST_HANDLE_INITIAL_SLOTS: usize = 128 * 1024;
 /// Initial capacity for the reusable handle free-list. (64 Ki entries.)
 const HOST_HANDLE_INITIAL_FREE: usize = 64 * 1024;
 
+#[cfg(test)]
+static TEST_HOST_HANDLE_POLICY_ENV_LOCK: OnceCell<Mutex<()>> = OnceCell::new();
+
+#[cfg(test)]
+pub(crate) fn test_host_handle_policy_lock() -> &'static Mutex<()> {
+    TEST_HOST_HANDLE_POLICY_ENV_LOCK.get_or_init(|| Mutex::new(()))
+}
+
 #[derive(Clone)]
 struct LatestFreshStableBox {
     handle: u64,
@@ -52,6 +62,24 @@ thread_local! {
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
     StableText(String),
+}
+
+/// Generation-branded identity owned by the reusable host-handle table.
+///
+/// This is separate from the legacy `BoxIdentity` projection: lease End must
+/// distinguish a reused raw slot while the public object identity surface
+/// remains compatibility-shaped.
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub(crate) struct HostHandleLeaseIdentityV1 {
+    handle: u64,
+    generation: u64,
+}
+
+impl HostHandleLeaseIdentityV1 {
+    #[inline(always)]
+    pub(crate) const fn generation(&self) -> u64 {
+        self.generation
+    }
 }
 
 impl HandlePayload {
@@ -120,6 +148,8 @@ struct SlotTable {
     // Reusable handle IDs released via drop_handle().
     // Reuse keeps slot table growth bounded under churn.
     free: Vec<u64>,
+    // Per-slot lease generation. Zero is reserved for an unpublished slot.
+    lease_generations: Vec<u64>,
 }
 
 struct Registry {
@@ -164,6 +194,14 @@ fn ensure_slot_vacant_or_panic(
     }
 }
 
+#[inline(always)]
+fn next_lease_generation(previous: u64) -> u64 {
+    previous
+        .checked_add(1)
+        .filter(|generation| *generation != 0)
+        .expect("[host_handles] lease generation exhausted")
+}
+
 impl Registry {
     fn new() -> Self {
         #[cfg(not(test))]
@@ -175,6 +213,7 @@ impl Registry {
                 next: 1,
                 slots,
                 free: Vec::with_capacity(HOST_HANDLE_INITIAL_FREE),
+                lease_generations: vec![0],
             }),
             #[cfg(not(test))]
             alloc_policy_mode,
@@ -216,14 +255,19 @@ impl Registry {
                 "[host_handles] reusable handle out of slots range",
                 "[host_handles] reusable handle points to occupied slot",
             );
+            let generation = next_lease_generation(table.lease_generations[idx]);
+            table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
             return h;
         }
 
         let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
+        let previous_generation = table.lease_generations.get(idx).copied().unwrap_or(0);
+        let generation = next_lease_generation(previous_generation);
         if idx == table.slots.len() {
             table.slots.push(Some(payload));
+            table.lease_generations.push(generation);
         } else {
             ensure_slot_vacant_or_panic(
                 &table,
@@ -231,6 +275,7 @@ impl Registry {
                 "[host_handles] fresh handle out of slots range",
                 "[host_handles] fresh handle points to occupied slot",
             );
+            table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
         }
         h
@@ -412,6 +457,40 @@ impl Registry {
             host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
             DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
         }
+    }
+
+    #[inline(always)]
+    fn capture_text_lease_identity(&self, h: u64) -> Option<HostHandleLeaseIdentityV1> {
+        let table = self.table.read();
+        let payload = slot_ref(&table, h)?;
+        payload.as_str_fast()?;
+        let idx = usize::try_from(h).ok()?;
+        let generation = table.lease_generations.get(idx).copied()?;
+        (generation != 0).then_some(HostHandleLeaseIdentityV1 {
+            handle: h,
+            generation,
+        })
+    }
+
+    #[inline(always)]
+    fn drop_if_lease_identity_matches(&self, identity: HostHandleLeaseIdentityV1) -> bool {
+        let mut table = self.table.write();
+        let Ok(idx) = usize::try_from(identity.handle) else {
+            return false;
+        };
+        let matches = table.lease_generations.get(idx).copied() == Some(identity.generation)
+            && table.slots.get(idx).is_some_and(Option::is_some);
+        if !matches {
+            return false;
+        }
+        table.slots[idx] = None;
+        host_handles_policy::recycle_handle(
+            self.alloc_policy_mode(),
+            &mut table.free,
+            identity.handle,
+        );
+        DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
+        true
     }
 }
 
@@ -675,6 +754,19 @@ pub fn drop_handle(h: u64) {
     reg().drop_handle(h)
 }
 
+/// Capture the live identity used by the one-shot DynamicV2 lease owner.
+#[inline(always)]
+pub(crate) fn capture_text_lease_identity(h: u64) -> Option<HostHandleLeaseIdentityV1> {
+    reg().capture_text_lease_identity(h)
+}
+
+/// Drop only if the raw slot still contains the captured lease identity.
+/// The comparison and removal happen under one slot-table write lock.
+#[inline(always)]
+pub(crate) fn drop_if_lease_identity_matches(identity: HostHandleLeaseIdentityV1) -> bool {
+    reg().drop_if_lease_identity_matches(identity)
+}
+
 /// Monotonic epoch incremented when any handle is dropped.
 /// Consumers can use this to invalidate per-thread fast caches safely.
 #[inline(always)]
@@ -688,6 +780,10 @@ pub fn host_handle_identity_report_fields() -> &'static [(&'static str, &'static
         ("external_host_abi_changed", "0"),
         ("object_handle_contract_used_by_host_handles", "1"),
         ("host_handle_identity_generation", "legacy_unversioned"),
+        (
+            "dynamic_v2_lease_identity_generation",
+            "slot_monotonic_nonwrapping",
+        ),
         ("borrowed_access_preserved", "1"),
         ("identity_snapshot_available", "1"),
         ("host_handle_backing_arc_replaced", "0"),

@@ -304,7 +304,7 @@ I7 and every Fault path issue no lease and no End. JSON carries only neutral
 IDs/revisions/shapes. Function pointers, provider objects, session brands,
 runtime tokens and raw outcome storage are never serialized.
 
-#### `DYNAMIC-V2-LEASE-IDENTITY-R0` — next BoxShape
+#### `DYNAMIC-V2-LEASE-IDENTITY-R0` — landed BoxShape
 
 Change:
   replace token-to-raw-handle storage with one host-handle-owner-issued
@@ -326,6 +326,12 @@ Stop:
   raw handle alone, legacy generation zero, drop-epoch inference, unlocked
   check-then-drop, reusable token, public raw issuer, fallback or VM work is
   forbidden. This row opens no production caller.
+
+Receipt (2026-08-13):
+  text-only identity capture, non-wrapping slot generation, conditional
+  same-slot drop, collision-preserving lease insertion, and LIFO stale-token
+  tests are green. The raw issuer remains private; aggregate publish and
+  exactly-once End consume remain the only public lease surface.
 
 #### `DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0` — after lease identity
 

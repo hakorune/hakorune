@@ -200,11 +200,13 @@ for target_fact in \
   "DynamicV2OpaquePhysicalTargetV1" \
   "with_role" \
   "create_unpublished_block" \
-  "let enter = canonical.entry_block(builder)?" \
-  "let blocks = [enter, header, body_prelude, then_terminal, continuation, after]"; do
+  "let enter = canonical.entry_block(builder)?"; do
   guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
     "session-private target ownership is missing: ${target_fact}"
 done
+if ! rg -n -q -- 'let blocks = \[' "$SELECTED_TARGETS"; then
+  guard_fail "$TAG" "session-private target ownership is missing: let blocks = [enter, header, body_prelude, then_terminal, continuation, after]"
+fi
 for formal_fact in \
   "DynamicV2FormalSeedV1" \
   "adopt_exact_formal_parameter" \
