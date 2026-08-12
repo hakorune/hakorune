@@ -622,39 +622,10 @@ MIRBUILDER-LINE-BUDGET-R0
   production authority or physical activation code may be added to them;
   analyzer.rs is either split at the same private seam or frozen unchanged.
 
-  Landed BoxShape evidence:
-    module_draft_collector.rs = 434 lines
-    completion_consumption_tests.rs = 202 lines
-    completion_draft_seal_tests.rs = 627 lines
-    completion_test_support.rs = 98 lines
-    builder_build.rs = 298 lines
-    new_expression.rs = 231 lines
-    new_expression_tests.rs = 105 lines
-    all moved callers/paths and cfg reachability are unchanged
-    focused tests, cargo check, and line-budget guards are green
-    selected physical target projection is now explicit:
-      Header / BodyPrelude / ThenTerminal / Continuation / After
-  `dynamic_full_body_recipe` focused tests = 33 passed
-
-  Module-registry cleanup evidence:
-    `src/mir/compiler/mod.rs` now contains the compiler entrypoint and
-    `module_registry.in.rs` contains only the textual module declarations.
-    The entrypoint is 644 lines and the included registry is 214 lines; the
-    module namespace, visibility, cfg gates, and sibling `super::` paths are
-    unchanged.  `cargo check -q --lib`, the dynamic recipe focused suite
-    (33 passed), the physical-input guard, loop-precutover guard, current-state
-    guard, full in-place replacement guard, and `git diff --check` are green.
-
-  Dynamic session count ownership evidence (2026-08-12):
-    `CanonicalSsaFunctionSessionV2::new_selected_dynamic` no longer accepts a
-    caller-selected `block_expr_count`; the Dynamic profile fixes its own
-    zero common-expression expectation internally.  The selected emitter no
-    longer passes a semantic count, and
-    `dynamic_v2_physical_input_authority_guard.sh` rejects reintroduction.
-    `cargo check -q --lib`, the selected-emitter focused test, the physical
-    input guard, the current-state pointer guard, and `git diff --check` are
-    green.  `cargo fmt --check` remains a known repository-wide baseline and
-    is not changed by this BoxShape slice.
+  Landed cleanup evidence is archived in `ParentHistory`/git. Current guards
+  enforce the line budget, explicit physical targets, and Dynamic count
+  ownership; the focused recipe suite has 33 passing tests. Repository-wide
+  `cargo fmt --check` remains a known baseline and is not part of this row.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
@@ -683,29 +654,10 @@ MIRBUILDER-BUILDER-BUILD-SPLIT-R0
   move file-local tests to one sibling test module
   do not add a new lowering entry, receipt, fallback, env policy, or authority
 
-  Landed evidence:
-    builder_build.rs = 298 lines (literal/variable/assignment facade)
-    new_expression.rs = 231 lines (raw-new route only)
-    new_expression_tests.rs = 105 lines (raw-new focused tests)
-    existing callers/visibility/emission order unchanged
-    cargo check and focused raw-new/dispatch tests green
-
-  P0 preflight evidence (2026-08-12):
-    SelectedCallableLoweringInputRefV1 now retains the package-owned selected
-    catalog key; the A-prime demand carries that exact key without issuing a
-    second semantic identity.  The unpublished selected emitter derives
-    `ParserScanLoopBox.skip_while/4` through the existing cataloged-method
-    admission and rejects top-level, namespace, name, arity, and declaration
-    mismatches before opening a Builder session.  Its canonical skeleton uses
-    `create_resolved_function_skeleton` with declared header/return data and
-    does not inspect the raw body or call `contains_value_return`.  The HRTB
-    Dynamic authority and canary evidence are validated before Builder
-    mutation; the old body-aware skeleton remains compatibility-only.
-    Guard now freezes catalog-symbol projection, body-free skeleton use, and
-    validation-before-session order.  Focused selected-emitter test asserts
-    the catalog symbol and exact i64 return lane; cargo check and the focused
-    test are green.  This remains an unpublished canary; no provider, LLVM,
-    VM, or production caller was added.
+  Landed evidence is archived in `ParentHistory`/git. The selected canary
+  already uses catalog-derived `ParserScanLoopBox.skip_while/4`, a body-free
+  skeleton, and pre-mutation authority validation; it remains unpublished and
+  adds no provider, LLVM, VM, or production caller.
 
 MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
   run after selected production cutover and a caller/cfg census
