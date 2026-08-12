@@ -409,7 +409,7 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
-##### I0-D1 landed; `DYNAMIC-V2-AOT-METADATA-ISSUER-I0-D1b` next
+##### I0-D1b landed; `DYNAMIC-V2-AOT-LLVM-HOOK-I0-W3` next
 
 Decision: D1b is a BoxShape transport projection, not a new semantic/provider authority.
 Source authority + canonical issuer: canonical physical-session co-seal of
@@ -453,10 +453,10 @@ guards must assert production callers = 0, LLVM emitted call = 0,
 RuntimeExecutablePlan/session/collector = 0, fallback/retry = 0, and Rust-VM
 DynamicV2 callers = 0. Keep each new source file below 650 lines (hard 800).
 
-Receipt (2026-08-12): D1 loader/direct seam is green for valid and negative
-site/lane/entry/PlanStamp cases; no production caller was opened. D1b remains a
-work-branch checkpoint; main requires the complete activation unit and an
-atomic new selected caller = 1 / old selected edge = 0.
+Receipt (2026-08-12): Rust projection, JSON emitter, Python loader, valid/
+negative tests, and authority guard are green; no production caller was opened.
+Next W3 is strict leaf + short LLVM hook + post-link plan boundary. Main still
+requires the complete activation unit and atomic new caller = 1 / old edge = 0.
 
 #### `PHYSICAL-SESSION-I0-E`
 
