@@ -11,6 +11,7 @@ use super::{
 pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::CoreContext;
 mod array_element_write;
+mod assignment_lowering;
 mod builder_build;
 mod builder_debug;
 mod builder_emit;
@@ -23,6 +24,7 @@ mod builder_test_api;
 mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
+mod literal_lowering;
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
 mod new_expression;
@@ -41,6 +43,7 @@ mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId p
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
+mod variable_read;
 pub(crate) use callable_declaration_catalog::{
     issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
     SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
