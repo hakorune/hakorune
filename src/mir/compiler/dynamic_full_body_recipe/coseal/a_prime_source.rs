@@ -15,6 +15,7 @@ use crate::mir::resolved_semantics::{
 use super::super::claims::DynamicFullLoopClaimTargetV2;
 use super::super::{DynamicFullLoopParameterClassV2, DynamicFullLoopRetainedSourceV1};
 use super::coverage::VerifiedDynamicFullLoopClaimCoverageV2;
+use super::local::DynamicIterationLocalValueRefV2;
 use super::VerifiedDynamicFullLoopSourceRecipeEnvelopeV2;
 use crate::mir::compiler::dynamic_full_body_source::{
     DynamicFullBodyBindingRoleV1, DynamicFullBodyBindingRowV1, DynamicFullBodySourceRoleV1,
@@ -50,6 +51,11 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     initializer: &'program SourceExprSiteV1,
     loop_site: &'program SourceStmtSiteV1,
     condition_i: &'program SourceExprSiteV1,
+    condition_end: &'program SourceExprSiteV1,
+    substring_receiver: &'program SourceExprSiteV1,
+    substring_start: &'program SourceExprSiteV1,
+    substring_end_i: &'program SourceExprSiteV1,
+    index_of_receiver: &'program SourceExprSiteV1,
     step_read_i: &'program SourceExprSiteV1,
     step_target_i: &'program SourceExprSiteV1,
     inner_return_i: &'program SourceExprSiteV1,
@@ -68,6 +74,7 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     pred_chars_value: LoopValueKeyV1,
     inner_return_value: LoopValueKeyV1,
     outer_tail_binding: LoopBindingKeyV1,
+    iteration_local: DynamicIterationLocalValueRefV2<'program>,
 }
 
 /// One borrowed formal lane from the already verified source/Recipe relation.
@@ -150,6 +157,26 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
 
     pub(in crate::mir) const fn condition_i(&self) -> &SourceExprSiteV1 {
         self.condition_i
+    }
+
+    pub(in crate::mir) const fn condition_end(&self) -> &SourceExprSiteV1 {
+        self.condition_end
+    }
+
+    pub(in crate::mir) const fn substring_receiver(&self) -> &SourceExprSiteV1 {
+        self.substring_receiver
+    }
+
+    pub(in crate::mir) const fn substring_start(&self) -> &SourceExprSiteV1 {
+        self.substring_start
+    }
+
+    pub(in crate::mir) const fn substring_end_i(&self) -> &SourceExprSiteV1 {
+        self.substring_end_i
+    }
+
+    pub(in crate::mir) const fn index_of_receiver(&self) -> &SourceExprSiteV1 {
+        self.index_of_receiver
     }
 
     pub(in crate::mir) const fn step_read_i(&self) -> &SourceExprSiteV1 {
@@ -242,6 +269,10 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
     pub(in crate::mir) const fn outer_tail_binding(&self) -> LoopBindingKeyV1 {
         self.outer_tail_binding
     }
+
+    pub(in crate::mir) const fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
+        self.iteration_local
+    }
 }
 
 pub(super) fn issue<R>(
@@ -266,6 +297,13 @@ pub(super) fn issue_view(
     let initializer = expression(source, DynamicFullBodySourceRoleV1::PreludeInitializerPos)?;
     let loop_site = statement(source, DynamicFullBodySourceRoleV1::Loop)?;
     let condition_i = expression(source, DynamicFullBodySourceRoleV1::LoopConditionI)?;
+    let condition_end = expression(source, DynamicFullBodySourceRoleV1::LoopConditionEnd)?;
+    let substring_receiver =
+        expression(source, DynamicFullBodySourceRoleV1::SubstringReceiverSrc)?;
+    let substring_start = expression(source, DynamicFullBodySourceRoleV1::SubstringStartI)?;
+    let substring_end_i = expression(source, DynamicFullBodySourceRoleV1::SubstringEndI)?;
+    let index_of_receiver =
+        expression(source, DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars)?;
     let step_read_i = expression(source, DynamicFullBodySourceRoleV1::StepReadI)?;
     let step_target_i = expression(source, DynamicFullBodySourceRoleV1::StepTargetI)?;
     let inner_return_i = expression(source, DynamicFullBodySourceRoleV1::InnerReturnI)?;
@@ -398,6 +436,11 @@ pub(super) fn issue_view(
         initializer,
         loop_site,
         condition_i,
+        condition_end,
+        substring_receiver,
+        substring_start,
+        substring_end_i,
+        index_of_receiver,
         step_read_i,
         step_target_i,
         inner_return_i,
@@ -416,6 +459,7 @@ pub(super) fn issue_view(
         pred_chars_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::PredChars)?,
         inner_return_value: value(14),
         outer_tail_binding: induction_key,
+        iteration_local: envelope.iteration_local(),
     };
     Ok(view)
 }

@@ -326,7 +326,11 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(phi.contains(&(target_blocks[0], crate::mir::ValueId::new(1))));
         assert!(phi.iter().any(|(block, _)| *block == target_blocks[4]));
         assert!(session.current_instruction_count() >= 5);
-        session.discard_unpublished();
+        let draft = session
+            .finish_unpublished_draft()
+            .expect("profile close and exact-two DraftSeal");
+        assert_eq!(draft.signature.name, "ParserScanLoopBox.skip_while/4");
+        assert_eq!(draft.signature.return_type, crate::mir::MirType::Integer);
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("selected loan");

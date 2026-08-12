@@ -84,6 +84,7 @@ impl DynamicV2InstalledCallOutSitesV1 {
 /// later leaves may not reconstruct them from logical target names.
 #[derive(Debug)]
 pub(super) struct DynamicV2CallOutCorridorV1 {
+    i6_normal: DynamicV2OpaquePhysicalTargetV1,
     i6_fault: DynamicV2OpaquePhysicalTargetV1,
     i7_site: CheckedCallOutSiteIdV1,
     i7_normal: DynamicV2OpaquePhysicalTargetV1,
@@ -92,17 +93,26 @@ pub(super) struct DynamicV2CallOutCorridorV1 {
 
 impl DynamicV2CallOutCorridorV1 {
     pub(super) fn new(
+        i6_normal: DynamicV2OpaquePhysicalTargetV1,
         i6_fault: DynamicV2OpaquePhysicalTargetV1,
         i7_site: CheckedCallOutSiteIdV1,
         i7_normal: DynamicV2OpaquePhysicalTargetV1,
         i7_fault: DynamicV2OpaquePhysicalTargetV1,
     ) -> Self {
         Self {
+            i6_normal,
             i6_fault,
             i7_site,
             i7_normal,
             i7_fault,
         }
+    }
+
+    pub(super) fn with_i6_normal<R>(
+        &self,
+        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
+    ) -> R {
+        callback(&self.i6_normal)
     }
 
     pub(super) fn with_i6_fault<R>(
@@ -438,6 +448,14 @@ fn emit_program(
     let body_block = body.block();
     let current = formals.header_current_value();
     let v2 = formal_value(formals, V2)?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.condition_i(), relation.induction_binding())
+        .map_err(reject)?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.condition_end(), relation.end_binding())
+        .map_err(reject)?;
     loop_operation::publish_i64_value(outer.builder_view_mut_for_lowering(), current)
         .map_err(reject)?;
 
@@ -548,6 +566,18 @@ fn emit_program(
         &[V10],
         V11,
     )?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.substring_receiver(), relation.src_binding())
+        .map_err(reject)?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.substring_start(), relation.induction_binding())
+        .map_err(reject)?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.substring_end_i(), relation.induction_binding())
+        .map_err(reject)?;
 
     let i6_normal = new_landing(canonical, outer, brand)?;
     let i6_fault = new_landing(canonical, outer, brand)?;
@@ -590,9 +620,27 @@ fn emit_program(
             representation(sites.i6_shape()),
         )
         .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
+    let iteration_local = relation.iteration_local();
+    canonical
+        .identity
+        .publish_declaration_exact(
+            iteration_local.declaration(),
+            iteration_local.binding(),
+            i6_normal.block(),
+            i6_projection.dst(),
+        )
+        .map_err(reject)?;
 
     let receiver = formal_value(formals, V3)?;
     let substring_value = value(values, V10, representation(sites.i6_shape()))?;
+    canonical
+        .identity
+        .claim_variable_use_binding(relation.index_of_receiver(), relation.pred_chars_binding())
+        .map_err(reject)?;
+    canonical
+        .identity
+        .claim_variable_use_binding(iteration_local.read(), iteration_local.binding())
+        .map_err(reject)?;
     emit_checked_callout(
         canonical,
         outer,
@@ -632,7 +680,8 @@ fn emit_program(
         )
         .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
 
-    let corridor = DynamicV2CallOutCorridorV1::new(i6_fault, sites.i7(), i7_normal, i7_fault);
+    let corridor =
+        DynamicV2CallOutCorridorV1::new(i6_normal, i6_fault, sites.i7(), i7_normal, i7_fault);
     i8_i9_control::emit(
         canonical,
         outer,

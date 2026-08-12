@@ -14,6 +14,7 @@ mod i8_i9_control;
 mod inner_return_then;
 mod lifecycle_terminal;
 mod operation_cursor;
+mod profile_close;
 mod targets;
 mod value_ledger;
 
@@ -61,6 +62,8 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     PhysicalCorridor(String),
     LifecycleTerminal(String),
     InnerReturn(String),
+    ProfileClose(String),
+    DraftSeal(String),
 }
 
 #[derive(Debug)]
@@ -399,6 +402,87 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             callout_corridor,
         };
         Ok(session)
+    }
+
+    /// Close the unpublished Dynamic profile through the existing canonical
+    /// Completion/DraftSeal owners. The returned draft is not collected or
+    /// published; this is the final physical-session canary only.
+    pub(super) fn finish_unpublished_draft(
+        mut self,
+    ) -> Result<crate::mir::MirFunction, DynamicV2I8EmitterRejectV1> {
+        let mut canonical = self.canonical.take().ok_or_else(|| {
+            DynamicV2I8EmitterRejectV1::DraftSeal("canonical session missing".into())
+        })?;
+        let mut outer = self
+            .outer
+            .take()
+            .ok_or_else(|| DynamicV2I8EmitterRejectV1::DraftSeal("outer session missing".into()))?;
+        let profile = match profile_close::emit(
+            &mut canonical,
+            &mut outer,
+            &self.demand,
+            &self.targets,
+            &self.callout_corridor,
+            &self.lifecycle,
+            &self.brand,
+        ) {
+            Ok(profile) => profile,
+            Err(error) => {
+                outer.discard_unpublished();
+                return Err(error);
+            }
+        };
+        let after = self
+            .targets
+            .with_role(targets::DynamicV2PhysicalTargetRoleV1::After, |target| {
+                target.block()
+            });
+        let profile_close =
+            match crate::mir::builder::resolved_lowering::canonical_ssa::finish_profile_close(
+                self.demand.identity().owner(),
+                after,
+                || profile.finish(self.demand.identity().owner(), after),
+            ) {
+                Ok(close) => close,
+                Err(error) => {
+                    outer.discard_unpublished();
+                    return Err(DynamicV2I8EmitterRejectV1::ProfileClose(error));
+                }
+            };
+        let ready = match canonical
+            .finish_for_draft_seal(outer.builder_view_mut_for_lowering(), profile_close)
+        {
+            Ok(ready) => ready,
+            Err(error) => {
+                outer.discard_unpublished();
+                return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!("{error:?}")));
+            }
+        };
+        let Some(outer_site) = self
+            .demand
+            .source_relation()
+            .completion_sites()
+            .get(1)
+            .copied()
+            .cloned()
+        else {
+            outer.discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(
+                "outer Completion site missing".into(),
+            ));
+        };
+        let open = ready.open(outer);
+        let prepared = match open.prepare_exact_two(&outer_site) {
+            Ok(prepared) => prepared,
+            Err(rejected) => {
+                let detail = format!("{:?}", rejected.error());
+                rejected.discard();
+                return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
+                    "exact-two DraftSeal preparation rejected: {detail}"
+                )));
+            }
+        };
+        Ok(prepared.commit().into_draft())
     }
 
     /// Explicit terminal for the unpublished canary.
