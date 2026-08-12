@@ -237,6 +237,11 @@ fn issue_compare_i64_demand(
             .iter()
             .find(|row| row.item() == LoopItemKeyV1::new(I7))
             .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
+        let i6 = program
+            .operation_rows()
+            .iter()
+            .find(|row| row.item() == LoopItemKeyV1::new(I6))
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)?;
         let i8 = program
             .operation_rows()
             .iter()
@@ -266,6 +271,31 @@ fn issue_compare_i64_demand(
         if !matches!(i7.operation(), LoopOperationV2::CallSlot { result: Some(value), .. } if *value == LoopValueKeyV1::new(V11))
             || i7.call_role() != Some(DynamicFullBodySourceRoleV1::IndexOfCall)
             || !matches!(i8.operation(), LoopOperationV2::ConstI64 { result, value: 0 } if *result == LoopValueKeyV1::new(V12))
+        {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        }
+        if !matches!(
+            i6.operation(),
+            LoopOperationV2::CallSlot {
+                result: Some(value),
+                ..
+            } if *value == LoopValueKeyV1::new(V10)
+        ) || i6.call_role() != Some(DynamicFullBodySourceRoleV1::SubstringCall)
+            || !matches!(
+                i6.execution(),
+                LoopOperationExecutionClassV2::ExternallyBoundOutcome {
+                    normal_result: Some(value)
+                } if value == LoopValueKeyV1::new(V10)
+            )
+        {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        }
+        let i6_core = i6
+            .core_method()
+            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)?;
+        if i6_core.op != CoreMethodOp::StringSubstring
+            || i6_core.result_kind != CoreMethodResultKindV1::StringValue
+            || i6_core.effect != CoreMethodEffectV1::PureRead
         {
             return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
         }

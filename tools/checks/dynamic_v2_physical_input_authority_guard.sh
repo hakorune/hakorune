@@ -135,6 +135,9 @@ if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITT
   guard_fail "$TAG" "selected emitter must not re-seal the catalog physical header"
 fi
 for contract in \
+  "CoreMethodOp::StringSubstring" \
+  "CoreMethodResultKindV1::StringValue" \
+  "CoreMethodEffectV1::PureRead" \
   "CoreMethodOp::StringIndexOf" \
   "CoreMethodResultKindV1::I64Value" \
   "CoreMethodEffectV1::PureRead" \
