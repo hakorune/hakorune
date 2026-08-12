@@ -138,7 +138,10 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         );
         assert_eq!(formal_header.enter(), target_blocks[0]);
         assert_eq!(formal_header.header(), target_blocks[1]);
-        assert_eq!(formal_header.header_current().physical_block(), target_blocks[1]);
+        assert_eq!(
+            formal_header.header_current().physical_block(),
+            target_blocks[1]
+        );
         let receipt = session.emit_i8_const().expect("I8 receipt");
         let emitted_value = receipt.with_value(|value| {
             assert_ne!(value.as_u32(), 0);

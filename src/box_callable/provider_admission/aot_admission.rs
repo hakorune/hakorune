@@ -1,8 +1,7 @@
 //! Owned symbolic AOT admission, before object generation and link.
 
 use crate::abi::text_scan_aot_export_facts::{
-    TextScanAotEntryIdV1, TextScanCallAbiFactV1, TextScanLeaseCapabilityV1,
-    TextScanValueLaneV1,
+    TextScanAotEntryIdV1, TextScanCallAbiFactV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
@@ -158,10 +157,7 @@ impl PreparedAotExecutableAdmissionV1 {
         self.registry.generation()
     }
 
-    pub(crate) fn registry_slot_for(
-        &self,
-        role: TextScanAdmittedRoleV1,
-    ) -> u16 {
+    pub(crate) fn registry_slot_for(&self, role: TextScanAdmittedRoleV1) -> u16 {
         self.registry.row(role).slot()
     }
 
@@ -169,10 +165,7 @@ impl PreparedAotExecutableAdmissionV1 {
         self.plan_stamp
     }
 
-    pub(crate) const fn entry_for(
-        &self,
-        role: TextScanAdmittedRoleV1,
-    ) -> TextScanEntryContractV1 {
+    pub(crate) const fn entry_for(&self, role: TextScanAdmittedRoleV1) -> TextScanEntryContractV1 {
         match role {
             TextScanAdmittedRoleV1::TextSliceRange => self.substring,
             TextScanAdmittedRoleV1::TextFindNeedle => self.index_of,

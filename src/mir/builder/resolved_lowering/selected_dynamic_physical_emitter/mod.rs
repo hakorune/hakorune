@@ -5,8 +5,8 @@
 //! its scoped entry, and never opens a second Builder/CFG owner or activates
 //! the production capability gate.
 
-mod i64_const;
 mod formal_header;
+mod i64_const;
 mod operation_cursor;
 mod targets;
 mod value_ledger;
@@ -33,12 +33,12 @@ use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64Phys
 use crate::mir::BasicBlockId;
 use targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 
+use formal_header::DynamicV2OpenedFormalHeaderV1;
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
 use value_ledger::{
     DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueLedgerV1,
     DynamicV2PhysicalValueViewV1,
 };
-use formal_header::DynamicV2OpenedFormalHeaderV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
@@ -203,10 +203,8 @@ fn issue_targets_and_formal_header(
     source_relation: &crate::mir::compiler::dynamic_full_body_recipe::
         DynamicAPrimeI64SourceRelationViewV1<'_>,
     brand: &DynamicV2PhysicalSessionBrandV1,
-) -> Result<
-    (DynamicV2PhysicalTargetSetV1, DynamicV2OpenedFormalHeaderV1),
-    DynamicV2I8EmitterRejectV1,
-> {
+) -> Result<(DynamicV2PhysicalTargetSetV1, DynamicV2OpenedFormalHeaderV1), DynamicV2I8EmitterRejectV1>
+{
     let targets = DynamicV2PhysicalTargetSetV1::issue(
         canonical,
         outer.builder_view_mut_for_lowering(),
@@ -271,13 +269,11 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         let input = demand.input();
         let physical_header = demand.physical_function_header();
         let function_name = physical_header.catalog().physical_symbol().to_owned();
-        operation_cursor::validate(&demand)
-            .map_err(|error| {
-                DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!("{error:?}"))
-            })?;
+        operation_cursor::validate(&demand).map_err(|error| {
+            DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!("{error:?}"))
+        })?;
         let (mut canonical, evidence) =
             validate_pre_session_authority(&demand, &schedule, &mut ledger, input)?;
-
         let mut outer = open_unpublished_outer(builder, &function_name);
         if let Err(error) = install_unpublished_function_header(
             &mut outer,

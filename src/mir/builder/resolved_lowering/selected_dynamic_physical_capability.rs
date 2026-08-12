@@ -24,12 +24,8 @@ use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CoreMethodResultKi
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationExecutionClassV2, LoopOperationV2, LoopValueKeyV1,
 };
-use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-use crate::box_callable::provider_admission::{
-    PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1,
-    ProviderAdmissionSealV1, TextScanAliasProjectionV1,
-};
+use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
 use super::selected_dynamic_physical_abi::PreparedSelectedDynamicV2EmissionPlanV1;
 
@@ -236,9 +232,7 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn compare_i64(
-        &self,
-    ) -> DynamicV2CompareI64CapabilityDemandV1 {
+    pub(in crate::mir) const fn compare_i64(&self) -> DynamicV2CompareI64CapabilityDemandV1 {
         self.compare_i64
     }
 
