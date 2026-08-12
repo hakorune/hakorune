@@ -41,6 +41,23 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
     port.with_selected_lowering_input(&key, |input| {
         let demand = issue_selected_a_prime_i64_physical_demand(&input).expect("A-prime demand");
         let plan = issue_selected_dynamic_v2_emission_plan(demand).expect("V2 plan");
+        let target = |item| {
+            plan.schedule_rows()
+                .iter()
+                .find(|row| row.item().raw() == item)
+                .map(|row| row.target())
+                .expect("scheduled operation")
+        };
+        assert_eq!(target(0), DynamicV2PhysicalBlockTargetV1::Header);
+        assert_eq!(target(8), DynamicV2PhysicalBlockTargetV1::BodyPrelude);
+        assert_eq!(target(11), DynamicV2PhysicalBlockTargetV1::ThenTerminal);
+        assert_eq!(target(13), DynamicV2PhysicalBlockTargetV1::Continuation);
+        plan.with_ledger(|ledger| {
+            assert_eq!(
+                ledger.outer_tail_target(),
+                DynamicV2PhysicalBlockTargetV1::After
+            );
+        });
         let mut builder = MirBuilder::new();
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, plan)
             .expect("unpublished canonical session");

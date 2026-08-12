@@ -13,8 +13,8 @@ use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
-    DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalScheduleRowV1,
-    PreparedSelectedDynamicV2EmissionPlanV1,
+    DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
+    DynamicV2PhysicalScheduleRowV1, PreparedSelectedDynamicV2EmissionPlanV1,
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
@@ -42,12 +42,12 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
 struct DynamicV2PhysicalSessionBrandV1(Arc<()>);
 
 #[derive(Debug)]
-struct DynamicV2OpaquePreludeTargetV1 {
+struct DynamicV2OpaqueBodyPreludeTargetV1 {
     brand: Arc<()>,
     block: BasicBlockId,
 }
 
-impl DynamicV2OpaquePreludeTargetV1 {
+impl DynamicV2OpaqueBodyPreludeTargetV1 {
     fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {
         Arc::ptr_eq(&self.brand, &brand.0)
     }
@@ -61,7 +61,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     schedule: Box<[DynamicV2PhysicalScheduleRowV1]>,
     ledger: DynamicV2NativePreflightLedgerV1,
     brand: DynamicV2PhysicalSessionBrandV1,
-    prelude_target: DynamicV2OpaquePreludeTargetV1,
+    body_prelude_target: DynamicV2OpaqueBodyPreludeTargetV1,
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
 }
 
@@ -158,6 +158,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .count()
             != 1
             || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
+            || evidence.target() != DynamicV2PhysicalBlockTargetV1::BodyPrelude
+            || ledger.outer_tail_target() != DynamicV2PhysicalBlockTargetV1::After
         {
             return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
         }
@@ -221,7 +223,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             schedule,
             ledger,
             brand,
-            prelude_target: DynamicV2OpaquePreludeTargetV1 {
+            body_prelude_target: DynamicV2OpaqueBodyPreludeTargetV1 {
                 brand: target_brand,
                 block: prelude_block,
             },
@@ -238,7 +240,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .i8_evidence
             .take()
             .ok_or(DynamicV2I8EmitterRejectV1::DuplicateI8Emission)?;
-        if !self.prelude_target.matches(&self.brand)
+        if !self.body_prelude_target.matches(&self.brand)
             || self
                 .schedule
                 .iter()
@@ -254,7 +256,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .ok_or(DynamicV2I8EmitterRejectV1::TargetMismatch)?;
         i64_const::emit(
             outer.builder_view_mut_for_lowering(),
-            &self.prelude_target,
+            &self.body_prelude_target,
             evidence,
             &self.brand,
         )

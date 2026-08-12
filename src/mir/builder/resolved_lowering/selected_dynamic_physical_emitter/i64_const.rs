@@ -1,5 +1,5 @@
 use super::{
-    DynamicV2I8EmitterRejectV1, DynamicV2OpaquePreludeTargetV1, DynamicV2PhysicalSessionBrandV1,
+    DynamicV2I8EmitterRejectV1, DynamicV2OpaqueBodyPreludeTargetV1, DynamicV2PhysicalSessionBrandV1,
 };
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
@@ -28,7 +28,7 @@ impl<'session> DynamicV2I64ProducerReceiptV1<'session> {
 
 pub(super) fn emit<'session>(
     builder: &mut MirBuilder,
-    target: &DynamicV2OpaquePreludeTargetV1,
+    target: &DynamicV2OpaqueBodyPreludeTargetV1,
     evidence: DynamicV2I8EvidenceV1,
     brand: &'session DynamicV2PhysicalSessionBrandV1,
 ) -> Result<DynamicV2I64ProducerReceiptV1<'session>, DynamicV2I8EmitterRejectV1> {

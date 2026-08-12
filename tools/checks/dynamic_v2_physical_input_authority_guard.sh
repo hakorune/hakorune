@@ -120,6 +120,12 @@ guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$S
   "selected emitter must project the physical symbol from the catalog admission"
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"
+guard_expect_fixed_in_file "$TAG" "DynamicV2PhysicalBlockTargetV1" "$SELECTED_ABI" \
+  "selected schedule must carry an explicit logical-to-physical block target"
+for target in Header BodyPrelude ThenTerminal Continuation After; do
+  guard_expect_fixed_in_file "$TAG" "${target}" "$SELECTED_ABI" \
+    "selected block-target projection is missing: ${target}"
+done
 if rg -F -q -- 'format!("{name}/' "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected physical symbol was reconstructed from the raw method name"
 fi
@@ -185,7 +191,7 @@ for forbidden in \
   fi
 done
 
-SCHEDULE_BODY="$(sed -n '/^fn build_schedule(/,/^fn segment_for_operation/p' "$SELECTED_ABI")"
+SCHEDULE_BODY="$(sed -n '/^fn build_schedule(/,/^fn schedule_for_operation/p' "$SELECTED_ABI")"
 if printf '%s\n' "$SCHEDULE_BODY" | rg -q -- "source_role|segment_for_role"; then
   guard_fail "$TAG" "physical schedule must derive from verified placement/control, not source-role policy"
 fi

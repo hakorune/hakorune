@@ -42,10 +42,23 @@ pub(in crate::mir) enum DynamicV2PhysicalScheduleSegmentV1 {
     Continuation,
 }
 
+/// Exact logical-to-physical block target derived from verified placement and
+/// control.  `DynamicV2PhysicalScheduleSegmentV1` is only an order label; it
+/// must not be used to merge the condition/header block with the loop body.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum DynamicV2PhysicalBlockTargetV1 {
+    Header,
+    BodyPrelude,
+    ThenTerminal,
+    Continuation,
+    After,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) struct DynamicV2PhysicalScheduleRowV1 {
     item: LoopItemKeyV1,
     segment: DynamicV2PhysicalScheduleSegmentV1,
+    target: DynamicV2PhysicalBlockTargetV1,
 }
 
 impl DynamicV2PhysicalScheduleRowV1 {
@@ -55,6 +68,10 @@ impl DynamicV2PhysicalScheduleRowV1 {
 
     pub(in crate::mir) const fn segment(self) -> DynamicV2PhysicalScheduleSegmentV1 {
         self.segment
+    }
+
+    pub(in crate::mir) const fn target(self) -> DynamicV2PhysicalBlockTargetV1 {
+        self.target
     }
 }
 
@@ -67,6 +84,7 @@ pub(super) struct DynamicV2I8EvidenceV1 {
     owner_loop: LoopNodeKeyV1,
     block: LoopBlockKeyV1,
     segment: DynamicV2PhysicalScheduleSegmentV1,
+    target: DynamicV2PhysicalBlockTargetV1,
 }
 
 impl DynamicV2I8EvidenceV1 {
@@ -92,6 +110,10 @@ impl DynamicV2I8EvidenceV1 {
 
     pub(super) const fn segment(&self) -> DynamicV2PhysicalScheduleSegmentV1 {
         self.segment
+    }
+
+    pub(super) const fn target(&self) -> DynamicV2PhysicalBlockTargetV1 {
+        self.target
     }
 }
 
@@ -149,6 +171,7 @@ pub(in crate::mir) struct DynamicV2NativePreflightLedgerV1 {
     completion_sites: [SourceStmtSiteV1; 2],
     inner_return_value: LoopValueKeyV1,
     outer_tail_binding: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
+    outer_tail_target: DynamicV2PhysicalBlockTargetV1,
 }
 
 impl DynamicV2NativePreflightLedgerV1 {
@@ -243,6 +266,7 @@ impl DynamicV2NativePreflightLedgerV1 {
             completion_sites,
             inner_return_value: source_relation.inner_return_value(),
             outer_tail_binding: source_relation.outer_tail_binding(),
+            outer_tail_target: DynamicV2PhysicalBlockTargetV1::After,
         })
     }
 
@@ -253,6 +277,10 @@ impl DynamicV2NativePreflightLedgerV1 {
             self.faults.len(),
             self.completion_sites.len(),
         )
+    }
+
+    pub(in crate::mir) fn outer_tail_target(&self) -> DynamicV2PhysicalBlockTargetV1 {
+        self.outer_tail_target
     }
 
     pub(super) fn take_i8_evidence(&mut self) -> Option<DynamicV2I8EvidenceV1> {
@@ -365,16 +393,16 @@ fn issue_i8_evidence(
     if placement.kind != DynamicFullLoopPhysicalItemKindV2::Operation {
         return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
     }
-    let segments = schedule
+    let rows = schedule
         .iter()
         .filter(|row| row.item == LoopItemKeyV1::new(I8))
-        .map(|row| (*row).segment())
+        .copied()
         .collect::<Vec<_>>();
-    let [segment] = segments.as_slice() else {
+    let [schedule_row] = rows.as_slice() else {
         return Err(SelectedDynamicV2PhysicalPlanRejectV1::I8Evidence);
     };
-    let segment = *segment;
-    if segment != DynamicV2PhysicalScheduleSegmentV1::Prelude
+    if schedule_row.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
+        || schedule_row.target() != DynamicV2PhysicalBlockTargetV1::BodyPrelude
         || placement.owner_loop != row.owner_loop()
         || placement.block != row.block()
     {
@@ -386,7 +414,8 @@ fn issue_i8_evidence(
         literal,
         owner_loop: row.owner_loop(),
         block: row.block(),
-        segment,
+        segment: schedule_row.segment(),
+        target: schedule_row.target(),
     })
 }
 
@@ -411,7 +440,8 @@ fn build_schedule(
         if !seen.insert(operation.item()) {
             return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationOrder);
         }
-        let segment = segment_for_operation(operation, control, program.placement_rows())?;
+        let (segment, target) =
+            schedule_for_operation(operation, control, program.placement_rows())?;
         let is_call = matches!(operation.operation(), LoopOperationV2::CallSlot { .. });
         if is_call != operation.call_role().is_some() {
             return Err(SelectedDynamicV2PhysicalPlanRejectV1::OperationCallRelation);
@@ -419,6 +449,7 @@ fn build_schedule(
         rows.push(DynamicV2PhysicalScheduleRowV1 {
             item: operation.item(),
             segment,
+            target,
         });
     }
     if rows.len() != EXPECTED_OPERATION_COUNT {
@@ -427,11 +458,17 @@ fn build_schedule(
     Ok(rows.into_boxed_slice())
 }
 
-fn segment_for_operation(
+fn schedule_for_operation(
     operation: &DynamicFullLoopOperationPhysicalRefV2<'_>,
     control: &DynamicLoopPhysicalControlViewV2<'_>,
     placements: &[DynamicFullLoopPhysicalItemPlacementV2],
-) -> Result<DynamicV2PhysicalScheduleSegmentV1, SelectedDynamicV2PhysicalPlanRejectV1> {
+) -> Result<
+    (
+        DynamicV2PhysicalScheduleSegmentV1,
+        DynamicV2PhysicalBlockTargetV1,
+    ),
+    SelectedDynamicV2PhysicalPlanRejectV1,
+> {
     let row = control
         .rows()
         .first()
@@ -498,7 +535,10 @@ fn segment_for_operation(
     if let LoopConditionV2::Predicate { block, .. } = row.condition() {
         if operation.block() == block {
             return if operation_order < if_order {
-                Ok(DynamicV2PhysicalScheduleSegmentV1::Prelude)
+                Ok((
+                    DynamicV2PhysicalScheduleSegmentV1::Prelude,
+                    DynamicV2PhysicalBlockTargetV1::Header,
+                ))
             } else {
                 Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
             };
@@ -506,7 +546,10 @@ fn segment_for_operation(
     }
     if operation.block() == branch.then_block() {
         return if operation_order < then_exit_order {
-            Ok(DynamicV2PhysicalScheduleSegmentV1::ThenTerminal)
+            Ok((
+                DynamicV2PhysicalScheduleSegmentV1::ThenTerminal,
+                DynamicV2PhysicalBlockTargetV1::ThenTerminal,
+            ))
         } else {
             Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
         };
@@ -515,9 +558,15 @@ fn segment_for_operation(
         return Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape);
     }
     if operation_order < if_order {
-        Ok(DynamicV2PhysicalScheduleSegmentV1::Prelude)
+        Ok((
+            DynamicV2PhysicalScheduleSegmentV1::Prelude,
+            DynamicV2PhysicalBlockTargetV1::BodyPrelude,
+        ))
     } else if operation_order > if_order {
-        Ok(DynamicV2PhysicalScheduleSegmentV1::Continuation)
+        Ok((
+            DynamicV2PhysicalScheduleSegmentV1::Continuation,
+            DynamicV2PhysicalBlockTargetV1::Continuation,
+        ))
     } else {
         Err(SelectedDynamicV2PhysicalPlanRejectV1::PlacementShape)
     }

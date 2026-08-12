@@ -38,7 +38,8 @@ pub(in crate::mir) use callable_module_transaction::{
 };
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleRowV1,
-    DynamicV2PhysicalScheduleSegmentV1, PreparedSelectedDynamicV2EmissionPlanV1,
+    DynamicV2PhysicalBlockTargetV1, DynamicV2PhysicalScheduleSegmentV1,
+    PreparedSelectedDynamicV2EmissionPlanV1,
     SelectedDynamicV2PhysicalPlanRejectV1,
 };
 pub(in crate::mir) use selected_dynamic_physical_capability::{
