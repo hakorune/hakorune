@@ -547,6 +547,43 @@ below 760 target and 800 hard stop.
 Non-claims: no W6 subfragment may land as a selectable production route; if
 the complete cell is not green, keep the current unpublished lane unchanged.
 
+#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-ISSUER-R0` — design stop prerequisite
+
+Decision: name the sole issuer of the admitted provider-registry generation
+before W6 can change the capability from `RejectBeforeEffect`. The current
+`AdmittedTextScanRegistryV1` stores a caller-supplied `NonZeroU64`; that value
+is not an authority and may not be replaced by an invocation ordinal, a host
+handle generation, or a test constant.
+
+Source authority + canonical issuer: the provider admission/immutable-registry
+owner must issue one move-only generation product together with the admitted
+TextScan rows and shared `PlanStamp`. `ProviderAdmissionSealV1` may consume
+that product, but it must not mint or re-lookup it. The issuer must be tied to
+the same admitted registry owner and reject foreign/stale generations.
+
+Non-authority: `ModuleInvocationBrandV1`, raw `NonZeroU64`, host lease
+generation, type-registry slot number, selector/name, runtime lookup, LLVM,
+VM, and the unpublished test canary. No new semantic `Verified*`/`Prepared*`
+meaning or second provider registry is allowed.
+
+Fail-fast boundary: missing/zero/foreign/stale generation, registry/alias
+collision, PlanStamp mismatch, or `RejectBeforeEffect` success disposition
+must reject before Builder/session/collector mutation. Until this row is
+accepted, W6 keeps provider/runtime/LLVM production callers at zero.
+
+Smallest next slice: read-only census the existing provider seed, admission,
+and invocation owners; then define one branded generation issuer/consumer
+boundary (or record `NoSafeSlice` if no existing owner can issue it). Do not
+land a generation-only provider product, production caller, registry lookup,
+fallback, retry, or VM adapter.
+
+Acceptance: generation issuer definition/caller = 1/1; admitted registry and
+PlanStamp share the issuer brand; duplicate/foreign/stale/zero generation
+negatives are green; raw generation input and test-only `legacy_test()` are
+production callers = 0; the existing unpublished canary remains unchanged.
+Non-claims: successful W6 activation, strict leaf/link cutover, collector
+publication, old-edge retirement, or RuntimeExecutablePlan activation.
+
 #### `SELECTED-CUTOVER-I0-G`
 
 The installed package adapter consumes the selected Dynamic program instead
