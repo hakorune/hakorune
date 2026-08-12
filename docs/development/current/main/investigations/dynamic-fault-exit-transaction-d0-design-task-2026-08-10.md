@@ -429,7 +429,7 @@ generated result-row projection tests                  = 6 passed
 dynamic_full_body_recipe tests                         = 33 passed
 selector cross-check / selector-only result authority = green / 0
 generated effect projection                            = 1 (typed enum + parity)
-single generated-row resolution per call relation      = 1
+single generated-row resolution per call relation      = 1; I6/I7 checks = 2
 provider/registry/LLVM/runtime/VM additions            = 0
 ```
 
@@ -438,8 +438,9 @@ reclassify the Dynamic envelope. `StringSubstring` and `StringIndexOf` must
 project `PureRead` from the generated rows. Status (header/effect BoxShape,
 2026-08-12): A-prime owns the catalog physical-header admission and one-way
 MIR effect projection; the canonical skeleton consumes it without fixing an
-effect, and the emitter no longer re-seals the source key. Provider/session
-activation remains open.
+effect, the emitter no longer re-seals the source key, and the existing
+RejectBeforeEffect capability now checks both generated call rows. Provider/
+session activation remains open.
 
 Activation order after the effect projection is fixed:
 
