@@ -24,9 +24,10 @@ and transport-only output wire are landed. The selected-package/canonical-plan
 handoff has a private input callback accessor landed; the identity co-seal
 helper and production handoff are the current bounded row.
 
-Next ordered task: finish the handoff BoxShape row, then reopen the atomic
-AOT/LLVM I0-B cell. Provider, wire, LLVM, runtime, and VM feature code is not
-authorized by the handoff row.
+Next ordered task: resolve the production bridge design below. The installed
+package loan and canonical lowering plan currently have no common production
+caller, so the handoff helper must not be added as an orphan. Provider, wire,
+LLVM, runtime, and VM feature code is not authorized by this stop.
 
 Production stop line: selected package loan and canonical resolved lowering
 plan/session must be co-sealed once. No raw AST/JoinIR route, selector/name
@@ -40,11 +41,53 @@ zero.
 ## Current row
 
 ```text
-work_mode = fast
-current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-COSEAL-I0
+work_mode = design_stop
+current_execution_row = DYNAMIC-V2-CALLSLOT-AOT-HANDOFF-PRODUCTION-BRIDGE-D0
 ```
 
-The row is BoxShape-only. It may add:
+The previous BoxShape slice landed the canonical-plan callback accessor and
+the focused identity test. The next step is a design stop because the two
+existing owners do not meet at one production boundary:
+
+```text
+package loan:
+  NormalCallableSemanticPackagePortAdapterV1
+    -> old raw AST/JoinIR route
+
+canonical plan/session:
+  resolved_lowering / callable transaction
+    -> canonical session / DraftSeal
+
+existing common production caller = 0
+```
+
+### Production bridge decision brief
+
+```text
+Decision:
+  Keep the handoff Builder-free and stop until one existing production
+  lowering callback can borrow both products; do not create an orphan helper.
+Source authority + canonical issuer:
+  Installed SelectedCallableLoweringInputRefV1 and the existing
+  CanonicalTrivialBindingSsaPlanV1/session owners; the bridge is issued only
+  at their first shared lowering callback.
+Non-authority:
+  source seed, raw AST/JoinIR, selector/name, ordinal/batch repair, a second
+  plan/Completion, and any VM/provider path.
+Fail-fast boundary:
+  no shared caller, foreign owner/function/forest/projection/root, ordinary
+  semantic variant, or plan re-verification rejects before Builder effect.
+Smallest next slice:
+  carry the already-created canonical plan into the selected package lowering
+  callback, then perform one private identity co-seal and consume existing
+  demand/session owners inside that callback.
+Non-claims:
+  no new semantic receipt, AOT provider cell, LLVM leaf, runtime lease, VM
+  feature, fallback, retry, or selected production switch in this D0.
+```
+
+After this design stop is accepted, the implementation row may add only the
+production bridge wiring described above. It may not add:
 
 1. one crate-private callback/accessor on
    `CanonicalTrivialBindingSsaPlanV1` for its existing
