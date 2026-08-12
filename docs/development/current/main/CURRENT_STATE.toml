@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, I0-C symbolic admission, I0-D checked ABI/parity projection, D1 Rust/JSON metadata projection, and the W3 test-only selected seam are landed. LLVM/link code remains closed until its complete activation boundary."
+latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, I0-B TextScan/export artifacts, I0-C symbolic admission, I0-D checked ABI/parity projection, D1 Rust/JSON metadata projection, W3 test-only selected seam, and the explicit --nyrt archive-presence boundary are landed. LLVM/link plan activation remains closed until its complete activation boundary."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_execution_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
@@ -47,7 +47,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, catalog-admission transport, I0-B TextScan contract/export projections, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; I0-C symbolic admission is the current work-branch checkpoint.",
   "2026-08-12: I0-C symbolic TextScan admission retains exact export symbols and receiver lanes in an immutable, PlanStamp-branded pre-link product; I0-D adds exact parameter descriptors and one shared Rust wire projection; production callers, LLVM hooks, runtime lookup, and Rust-VM consumers remain zero.",
-  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, one-shot lease owner, D1 Rust/JSON metadata projection, and the terminal test-only selected seam pass focused tests and guards; W3 LLVM hook/link remains closed, while emitted calls, RuntimeExecutablePlan, production callers, and Rust-VM consumers remain zero.",
+  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, one-shot lease owner, D1 Rust/JSON metadata projection, terminal test-only selected seam, and explicit --nyrt archive-presence boundary pass focused tests and guards; digest/symbol/ABI plan, emitted calls, production callers, and Rust-VM consumers remain zero.",
   "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
   "2026-08-12: Dynamic session begin was split into private outer-open and target/formal-header phases; public handoff and behavior remain unchanged.",
 ]

@@ -460,7 +460,10 @@ Acceptance: strict entries=2; lease issuer/consume=1; link
 finalizer/RuntimeExecutablePlan/exact image pin=1/1/1; test seam=1; production
 LLVM caller/CallOut=0; runtime lookup/fallback/retry/VM DynamicV2=0. Run ABI,
 wire, VM-fence, AOT-authority, in-place, leaf/lease, metadata, and explicit-link
-negative gates. Main still requires complete W0-W6 with new caller=1/old edge=0.
+negative gates. The explicit `--nyrt` archive-presence boundary is now one
+private link owner; digest/symbol/ABI/PlanStamp verification remains closed
+until the complete activation unit. Main still requires complete W0-W6 with
+new caller=1/old edge=0.
 
 #### `PHYSICAL-SESSION-I0-E`
 

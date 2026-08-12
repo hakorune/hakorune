@@ -21,11 +21,12 @@ HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
 METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
 RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
+LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -49,6 +50,9 @@ for file in "$RUST_METADATA" "$JSON_METADATA"; do
     guard_fail "$TAG" "I0-D1b metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+if (( $(wc -l < "$LINK_DRIVER" | tr -d '[:space:]') >= 800 )); then
+  guard_fail "$TAG" "link boundary reached hard 800-line boundary"
+fi
 
 if [[ "$(rg -n '^def load_selected_dynamic_v2_aot_admission\(' "$METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 metadata loader definition must be unique"
@@ -64,6 +68,9 @@ if [[ "$(rg -n '^pub\(crate\) fn project_dynamic_v2_aot_call_metadata\(' "$RUST_
 fi
 if [[ "$(rg -n '^pub\(crate\) fn insert_dynamic_v2_aot_call_admission_json\(' "$JSON_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1b JSON metadata emitter definition must be unique"
+fi
+if [[ "$(rg -n '^fn require_explicit_nyrt_archive\(' "$LINK_DRIVER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "W3 explicit --nyrt artifact boundary must have one owner"
 fi
 if rg -n \
   --glob '*.py' \
