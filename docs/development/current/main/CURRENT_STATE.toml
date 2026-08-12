@@ -8,7 +8,7 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 current_design_stop = "none"
 work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-current_blocker_token = "I0-D next bounded row: carry the immutable strict admission into per-call LLVM metadata and the single early consumer, then add post-link RuntimeExecutablePlan. Physical session, collector, production cutover, runtime lookup, generic String compatibility, Rust-VM work, fallback, retry, and pre-link image/address fabrication remain forbidden."
+current_blocker_token = "DYNAMIC-V2-AOT-METADATA-TRANSPORT-I0-D1: carry the immutable strict admission into per-call LLVM metadata and define one short early seam; production hook/link plan remain closed. Physical session, collector, production cutover, runtime lookup, generic String compatibility, Rust-VM work, fallback, retry, and pre-link image/address fabrication remain forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

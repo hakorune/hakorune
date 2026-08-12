@@ -409,78 +409,65 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
-##### I0-D implementation-preparation contract
+##### I0-D next bounded implementation-preparation task
 
-Accepted design subtask: `DYNAMIC-V2-STRICT-CALL-ABI-LEASE-D0` and its bounded
-`DYNAMIC-V2-STRICT-CALL-ABI-PARITY-I0-D0` BoxShape. The checked out-parameter
-ABI over existing `HakoDynamicV2CallOutV1` is the sole call shape; plain `i64`
-is rejected. The neutral header plus one shared Rust projection and Python
-projection own ABI revision, logical arity, exact parameter types/order, wire
-revision, and `u32` transport status.
-`src/runtime/dynamic_v2_lease.rs` will own opaque monotonic/generation-branded
-lease tokens; the strict leaf only consumes it. Kernel consumers must import
-the shared Rust wire and may not define a second `repr(C)` callout. The parity
-BoxShape and the work-branch strict leaf/lease checkpoint are green; the LLVM
-hook, link finalizer, VM change, and production caller remain closed until the
-complete activation boundary.
-
-Before editing the leaf, freeze these owners and the order of effects:
-
+`DYNAMIC-V2-AOT-METADATA-TRANSPORT-I0-D1` is the only next slice. The strict
+CodePoint entries and one-shot lease owner are a work-branch checkpoint; this
+row must not turn them into a production caller. First define the immutable
+per-call metadata projection, then name the later LLVM consumer.
 ```text
 PreparedAotExecutableAdmissionV1
-  -> strict CodePoint leaf (two declared entry symbols only)
-  -> per-function LLVM admission transport / early selected hook
-  -> object/link finalizer
-  -> RuntimeExecutablePlanV1 (post-link only)
+  -> one per-function selected-admission metadata projection
+  -> one short pre-generic LLVM hook definition
+  -> (later, same activation) post-link RuntimeExecutablePlanV1
 ```
 
-The current neutral export facts declare symbols and lanes, but a plain `i64`
-return cannot carry the I6 `EndAuthorized` lease. Before implementing either
-entry, the same neutral ABI owner must freeze the call signature and result
-transport: value tag/payload, status/fault, disposition, and lease token must
-travel through the existing result-wire projection (or an explicitly
-equivalent checked out-parameter ABI). Never overload a returned host handle,
-zero, or an unversioned side channel as the lease. The kernel, LLVM, and link
-layers must consume this one ABI projection; none may redefine it locally.
-
-The kernel leaf owns strict handle/lane checks and CodePoint substring/indexOf
-semantics. It must publish a fresh result handle through the existing host
-handle API, but the raw handle is not a lease token and `drop_handle` is not the
-End authority. I6 therefore needs one monotonic or generation-branded lease
-owner in this activation; I7 is an immediate I64 with no lease. Missing lease
-authority is `RejectBeforeEffect`, not a default token.
-
-The LLVM path transports the move-only symbolic admission per selected
-function, calls the selected hook exactly once before generic method lowering,
-and treats malformed/unsupported metadata as terminal. It may project symbols,
-lanes, and PlanStamp, but it does not re-search selectors, generated rows,
-registry entries, or providers. The result wire remains transport-only.
-
-The link finalizer is the sole owner of artifact digest, resolved address, and
-`RuntimeExecutablePlanV1`. It accepts only the explicit `libnyash_kernel`
-artifact, verifies both declared symbols plus ABI/profile/lane/lease facts,
-preserves the admission PlanStamp, and publishes no executable on missing,
-foreign, stale, duplicate, or mismatched artifacts. Pre-link code must contain
-no image/address/digest and no runtime lookup or fallback.
-
-I0-D may begin only when the following are named in code and guard output:
+Source authority is the existing symbolic admission plus the A-prime physical
+receipt for the exact call-site. The projection may retain only:
 
 ```text
-strict entry definitions                         = 2
-LLVM selected early consumer                     = 1
-post-link RuntimeExecutablePlan finalizer         = 1
-I6 fresh handle / lease / End                     = 1 / 1 / 1
-I7 ImmediateI64 / lease / End                     = 1 / 0 / 0
-generic fallthrough / fallback / retry            = 0 / 0 / 0
-pre-link image/address/digest                     = 0
-Rust-VM DynamicV2/provider callers                = 0
+function admission brand / PlanStamp
+block + instruction index
+I6/I7 role and declared entry ID/symbol
+ABI and wire revisions
+exact receiver/argument/result lane and lease capability
 ```
 
-Negative tests must cover invalid/dead/wrong-class handles, non-I64 lanes,
-invalid range and normal zero, missing or foreign `--nyrt` artifact, symbol or
-ABI drift, stale/foreign PlanStamp, duplicate finalizer, and link failure with
-zero executable publication. The test-only symbolic assertions excluded by the
-pre-cutover guard do not count as production callers.
+The Python side is a checked projection of `func_data["metadata"]`; it must not
+reconstruct a site by scanning MIR, AST, Recipe, selector text, or generic
+String names. A private HRTB/view or an owned metadata cell may cross the
+function-lowering boundary, but no borrowed Core row, registry, provider
+function, image, address, digest, or `RuntimeExecutablePlanV1` may escape.
+
+The metadata loader and hook definition belong in new small modules (target
+below 250 lines each). `function_metadata.py` (684 lines), generic
+`method_call.py`, `exports/string.rs`, and Rust VM modules are frozen. The
+dispatcher receives only a short early seam before generic method lowering;
+no provider/name/selector lookup is added there.
+
+Pre-effect rejection is terminal for selected malformed metadata: missing,
+foreign or stale PlanStamp; duplicate site; swapped I6/I7 role; wrong entry,
+symbol, ABI/wire revision, lane, generation, or lease contract; and unknown
+fields. An unselected ordinary call may remain `NotSelected`, but a selected
+failure may not fall through, retry, or use a generic route.
+
+Acceptance: one metadata projection issuer, one loader, one hook definition,
+exact admission/site/entry/lane/PlanStamp parity, production LLVM hook callers
+= 0, Rust-VM DynamicV2/provider/receipt/session callers = 0,
+selector/provider/registry lookup = 0, fallback/retry = 0, and all new
+Python/Rust sources below 650 lines (hard stop 800). Tests cover valid
+projection, missing/duplicate/foreign/stale/swapped/malformed metadata, and
+proof that selected rejection leaves Builder/collector state unchanged.
+
+This row does not emit a strict LLVM call, allocate a `CallOut`, consume a
+lease, issue an image/address/digest, create a `RuntimeExecutablePlanV1`, open
+the physical session, claim Completion, publish a draft, change production
+callers, or touch Rust VM. Those remain one later activation boundary with the
+already named physical session, link finalizer, collector, and cutover.
+
+The work-branch checkpoint may be tested internally, but it is not a mainline
+landing. Main still requires the complete activation unit and the same guard
+must flip atomically to new selected caller = 1 / old selected edge = 0.
 
 #### `PHYSICAL-SESSION-I0-E`
 
