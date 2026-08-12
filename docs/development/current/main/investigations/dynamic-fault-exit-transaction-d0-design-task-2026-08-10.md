@@ -285,7 +285,7 @@ fallback / retry                                                = 0 / 0
 preflight ledger Clone / clone-or-split production path          = 0 / 0
 ```
 
-### 2. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
+### 3. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
 
 This is one activation cell built in small owner modules. Intermediate code
 does not become an independently selectable provider or production route.

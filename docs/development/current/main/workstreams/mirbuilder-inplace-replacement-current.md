@@ -501,58 +501,28 @@ JoinIR contract and ordered convergence map live in
 records below are evidence only and must not schedule another route.
 
 Current decision and execution brief:
+
+This workstream is a historical convergence ledger, not a second live
+pointer. The sole current decision is read from:
+
 ```text
-Change:
-  S6A and S6B are closed. The S6C typed call/value architecture is accepted,
-  but the current numeric LoopRecipe cannot represent the smallest scan
-  exactly. The behavior-neutral demand/verifier split is closed. The current
-  bounded V2 implementation and verifier closeout landed at `f15056f903`;
-  resolver target/source-bound rows remain unopened.
-Contract:
-  keep the ordered M8 cohort on one recursive Recipe algebra; source Facts
-  own semantic roles and BindingRefs, producers alone mint Recipe keys, and
-  JoinSig alone owns conditional transfer/dataflow obligations. Legacy scan
-  builders and the If-only call schema are not source authority. The typed
-  cohort is `I64|Bool|Unit|Text` plus local CallSlot and TextEq only; source-
-  bound target/Home/effect contracts and downstream ABI projections remain outside the Recipe wire.
-Done:
-  S6A Facts/producer, exact Main.main ingress, typed C/D/U/R, duplicate-role
-  and source-site rejects, <800-line split, README, reference receipt, and
-  focused tests are green. S6B now closes
-  `apps/tests/loop_break_plan_subset_min.hako` with 2 bindings, 2 inputs,
-  3 blocks, 20 items, 17 values, 2 carriers, 1 break exit, 10 Core effects,
-  and 18 operation-source rows. The shared JoinSig arm model is green with
-  independent terminal payloads and normal backedge evidence. Module READMEs,
-  design SSOT, task, and reference receipt are synchronized.
-Stop:
-  missing typed call/value/schema authority, unresolved source-to-Recipe
-  mapping, unsealed source-role coverage, AST reread, guessed counts, opaque
-  call fallback, partial product, or a second selector/physical path returns
-  to design. NoSafeSlice is a development state, not a source disposition.
-ordered successor boundary:
-  LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
-  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0 (closed)
-  -> LANGUAGE-TYPED-CALLABLE-PROFILE-D0 (closed: CallableContract(query)) -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-D0 (closed)
-     -> FRONTEND-ORDERED-BOX-METHOD-INVENTORY-R0/R0A/R1/R2/R3/R4/R5 (closed) -> HAKO-PARSER-BOX-DECLARATION-CARRIER-D0/H6 typed syntax carriage before Hako parity
-     -> RESOLVER-DECLARED-QUERY-INSTANCE-CONTRACT-I0 (declared receipt only)
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0 (re-open after contract closes)
-  -> source-bound call relation
-  -> S6C ScanWithInit -> S6D -> S6E -> S6G -> M9
-  -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
-  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
-  -> LOOP-PHYSICAL-ALWAYS/IF/EXIT-COVERAGE-I0 (one BoxCount commit each)
-  -> LOOP-PRECUTOVER-AUTHORITY-G0
-  -> human LOOP-PRODUCTION-SELECTION-D0 -> M10b -> M11 -> M12
-  audited pre-cutover correction:
-  co-seal exact resolver Loop source, Core, item/carrier evidence, opaque entry
-  coverage, and Core-owned continuation once; then make JoinSig the sole
-  logical-transfer authority and Layout placement-only. Current split product
-  pairing and Recipe-derived Layout transfers are caller-zero debt, not a
-  production contract. Every implementation row updates the exact README and
-  docs/reference receipt in the same commit; M10b updates it again at cutover.
-  The first split row is BoxShape-only and may use a short refactor series;
-  schema, target, observer, and physical changes remain separate BoxCount
-  rows.
+docs/development/current/main/CURRENT_STATE.toml
+  -> current_execution_row
+  -> current_blocker_token
+  -> latest_card_path
+```
+
+For the selected Dynamic callable, the active card is:
+
+```text
+docs/development/current/main/investigations/
+  dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md
+```
+
+Its current implementation row is
+`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`. Older S6C/S6D/S6G briefs and route
+chronology remain evidence in git history or their owning cards; they do not
+schedule a new route from this workstream.
 ```
 ## Production invariants
 ```text
