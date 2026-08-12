@@ -4169,6 +4169,17 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "parser-postpass-source-handoff-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "selfhost-parser-mirbuilder-migration-order-ssot.md"
+classification_basis = "accepted parser postpass source/AST handoff authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "parser postpass source handoff is explicitly replaced"
+
+[[documents]]
 path = "provider-abi-shim-boundary-ssot.md"
 role = "authority"
 owner = "provider-abi-v1-ssot.md"
