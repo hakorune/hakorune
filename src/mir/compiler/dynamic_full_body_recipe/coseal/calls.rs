@@ -1,5 +1,9 @@
 //! Exact CallSlot/source/target relation verification.
 
+use crate::mir::core_method_op::CoreMethodOp;
+use crate::mir::core_method_result_kind::{
+    lookup_core_method_result_row_by_op_v1, CoreMethodResultKindV1,
+};
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueClassV2, LoopValueKeyV1,
     VerifiedLoopRecipeV2,
@@ -25,6 +29,7 @@ pub(super) enum DynamicFullLoopCallRelationRejectV2 {
     TargetDispatchMismatch,
     RecipeCallSlotMismatch,
     RecipeValueClassMismatch,
+    CoreMethodContractMismatch,
     ReusedTarget,
     TargetCountMismatch,
     UnexpectedTarget,
@@ -151,7 +156,7 @@ struct DynamicCallExpectationV2 {
     recipe_arguments: &'static [u32],
     recipe_argument_classes: &'static [LoopValueClassV2],
     recipe_result: LoopValueKeyV1,
-    recipe_result_class: LoopValueClassV2,
+    core_method_op: CoreMethodOp,
 }
 
 impl DynamicCallExpectationV2 {
@@ -172,7 +177,7 @@ impl DynamicCallExpectationV2 {
             recipe_arguments: &[6, 9],
             recipe_argument_classes: &[LoopValueClassV2::I64, LoopValueClassV2::I64],
             recipe_result: LoopValueKeyV1::new(10),
-            recipe_result_class: LoopValueClassV2::Dynamic,
+            core_method_op: CoreMethodOp::StringSubstring,
         }
     }
 
@@ -190,7 +195,7 @@ impl DynamicCallExpectationV2 {
             recipe_arguments: &[10],
             recipe_argument_classes: &[LoopValueClassV2::Dynamic],
             recipe_result: LoopValueKeyV1::new(11),
-            recipe_result_class: LoopValueClassV2::I64,
+            core_method_op: CoreMethodOp::StringIndexOf,
         }
     }
 }
@@ -201,6 +206,7 @@ fn verify_one<'a>(
     targets: &'a [VerifiedSourceBoundDynamicMemberCallV1],
     expected: DynamicCallExpectationV2,
 ) -> Result<&'a VerifiedSourceBoundDynamicMemberCallV1, DynamicFullLoopCallRelationRejectV2> {
+    let core_row = core_method_row(&expected)?;
     let call_site = expr_site(source, expected.call)?;
     let receiver_site = expr_site(source, expected.receiver_site)?;
     let receiver_binding = binding(source, expected.receiver_binding)?;
@@ -229,6 +235,9 @@ fn verify_one<'a>(
     {
         return Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch);
     }
+    if expected.selector != core_row.canonical {
+        return Err(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch);
+    }
     if target.arguments().len() != expected.arguments.len()
         || target
             .arguments()
@@ -250,6 +259,7 @@ fn verify_recipe_call(
     recipe: &VerifiedLoopRecipeV2,
     expected: &DynamicCallExpectationV2,
 ) -> Result<(), DynamicFullLoopCallRelationRejectV2> {
+    let core_row = core_method_row(expected)?;
     let recipe = recipe.as_recipe();
     let Some(row) = recipe.items.iter().find(|row| row.key == expected.item) else {
         return Err(DynamicFullLoopCallRelationRejectV2::RecipeCallSlotMismatch);
@@ -300,11 +310,35 @@ fn verify_recipe_call(
             .iter()
             .find(|row| row.key == *result)
             .map(|row| row.class)
-            != Some(expected.recipe_result_class)
+            != Some(recipe_value_class(core_row.result_kind)?)
     {
         return Err(DynamicFullLoopCallRelationRejectV2::RecipeValueClassMismatch);
     }
     Ok(())
+}
+
+fn core_method_row(
+    expected: &DynamicCallExpectationV2,
+) -> Result<
+    &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    DynamicFullLoopCallRelationRejectV2,
+> {
+    lookup_core_method_result_row_by_op_v1("StringBox", expected.core_method_op, expected.arity)
+        .ok_or(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch)
+}
+
+fn recipe_value_class(
+    kind: CoreMethodResultKindV1,
+) -> Result<LoopValueClassV2, DynamicFullLoopCallRelationRejectV2> {
+    match kind {
+        CoreMethodResultKindV1::StringValue | CoreMethodResultKindV1::Dynamic => {
+            Ok(LoopValueClassV2::Dynamic)
+        }
+        CoreMethodResultKindV1::I64Value => Ok(LoopValueClassV2::I64),
+        CoreMethodResultKindV1::BoolValue | CoreMethodResultKindV1::NoValue => {
+            Err(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch)
+        }
+    }
 }
 
 fn expr_site(

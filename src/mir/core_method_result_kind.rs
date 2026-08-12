@@ -1,8 +1,8 @@
 /*! Neutral result-kind view derived from `CoreMethodContractBox`.
  *
  * The `.hako` contract remains the semantic owner. The checked-in generated
- * table is a read-only projection; Builder and runtime behavior do not consume
- * it in the disconnected S0 row.
+ * table is a read-only projection. Selected semantic call-relation consumers
+ * may borrow a row, but they must not reissue its result/effect meaning.
  */
 
 use super::core_method_op::CoreMethodOp;
@@ -62,6 +62,24 @@ pub(crate) fn lookup_core_method_result_row_v1(
         .find(|row| row.matches(receiver_box, spelling, arity))
 }
 
+/// Resolve a generated callable row by its already selected core operation.
+///
+/// This is intentionally not a selector lookup. The semantic caller owns the
+/// source dispatch cross-check; this helper only projects the generated
+/// CoreMethodContractBox row that was selected by operation identity.
+#[allow(dead_code)]
+pub(crate) fn lookup_core_method_result_row_by_op_v1(
+    receiver_box: &str,
+    op: CoreMethodOp,
+    arity: u32,
+) -> Option<&'static CoreMethodContractResultRowV1> {
+    let mut rows = CORE_METHOD_CONTRACT_RESULT_ROWS_V1.iter().filter(|row| {
+        row.receiver_box == receiver_box && row.op == op && row.arities.contains(&arity)
+    });
+    let row = rows.next()?;
+    rows.next().is_none().then_some(row)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -111,6 +129,18 @@ mod tests {
             let row = lookup_core_method_result_row_v1(receiver, method, arity).unwrap();
             assert_eq!(row.result_kind, CoreMethodResultKindV1::Dynamic);
         }
+    }
+
+    #[test]
+    fn operation_projection_keeps_text_scan_result_kinds_in_generated_rows() {
+        let substring =
+            lookup_core_method_result_row_by_op_v1("StringBox", CoreMethodOp::StringSubstring, 2)
+                .expect("generated substring row");
+        let index_of =
+            lookup_core_method_result_row_by_op_v1("StringBox", CoreMethodOp::StringIndexOf, 1)
+                .expect("generated indexOf row");
+        assert_eq!(substring.result_kind, CoreMethodResultKindV1::StringValue);
+        assert_eq!(index_of.result_kind, CoreMethodResultKindV1::I64Value);
     }
 
     #[test]
