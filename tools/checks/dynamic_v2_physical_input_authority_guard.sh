@@ -18,6 +18,7 @@ SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physi
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
+SELECTED_FORMAL_HEADER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs"
 SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
 SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
@@ -30,6 +31,7 @@ guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$SELECTED_FORMAL_HEADER" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -55,7 +57,9 @@ guard_expect_fixed_in_file "$TAG" \
   "whole-program Dynamic demand HRTB test is missing"
 for formal_fact in \
   "src_binding" "pos_binding" "end_binding" "pred_chars_binding" \
-  "src_class" "pos_class" "end_class" "pred_chars_class"; do
+  "src_class" "pos_class" "end_class" "pred_chars_class" \
+  "DynamicFullBodyBindingRoleV1::Src" "Value(value(0))" \
+  "DynamicFullBodyBindingRoleV1::PredChars" "Value(value(3))"; do
   guard_expect_fixed_in_file "$TAG" "$formal_fact" "$APRIME_SOURCE" \
     "A-prime source relation is missing exact formal-lane fact: $formal_fact"
 done
@@ -185,6 +189,15 @@ for target_fact in \
   "let blocks = [enter, header, body_prelude, then_terminal, continuation, after]"; do
   guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
     "session-private target ownership is missing: ${target_fact}"
+done
+for formal_fact in \
+  "DynamicV2FormalSeedV1" \
+  "adopt_exact_formal_parameter" \
+  "claim_variable_use_binding" \
+  "emit_jump(function, enter, header)" \
+  "read_entry_receipt"; do
+  guard_expect_fixed_in_file "$TAG" "$formal_fact" "$SELECTED_FORMAL_HEADER" \
+    "formal Enter/Header admission is missing: ${formal_fact}"
 done
 for ledger_fact in \
   "DynamicV2PhysicalValueLedgerV1" \

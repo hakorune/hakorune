@@ -15,7 +15,8 @@ use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::{DynamicFullLoopRecipeCandidateV2, DynamicFullLoopRetainedSourceV1};
 pub(in crate::mir) use a_prime_source::{
-    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+    DynamicAPrimeFormalRelationRowV1, DynamicAPrimeI64SourceRelationRejectV1,
+    DynamicAPrimeI64SourceRelationViewV1,
 };
 use calls::{
     verify_dynamic_call_relations_v2, DynamicFullLoopCallRelationRejectV2,

@@ -13,7 +13,7 @@ use crate::mir::resolved_control_flow::if_control::{
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
-use crate::mir::BasicBlockId;
+use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
@@ -298,6 +298,56 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .as_ref()
             .map(|function| function.entry_block)
             .ok_or_else(|| "canonical physical target requires current function".to_owned())
+    }
+
+    /// Adopt one resolver-issued formal lane into the canonical identity/SSA
+    /// owner. The function skeleton has already reserved the parameter
+    /// ValueIds; this method only validates and publishes those exact values.
+    pub(in crate::mir::builder::resolved_lowering) fn adopt_exact_formal_parameter(
+        &mut self,
+        builder: &mut MirBuilder,
+        site: &crate::mir::resolved_semantics::SourceBindingSiteV1,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        ordinal: u32,
+    ) -> Result<ValueId, String> {
+        let index = usize::try_from(ordinal)
+            .map_err(|_| "[freeze:contract][formal_parameter/ordinal_overflow]".to_owned())?;
+        let (entry, value, ty) = {
+            let function = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .ok_or_else(|| "[freeze:contract][formal_parameter/function_missing]".to_owned())?;
+            if function.params.len() != function.signature.params.len()
+                || index >= function.params.len()
+                || builder.function_state.current_block != Some(function.entry_block)
+            {
+                return Err(
+                    "[freeze:contract][formal_parameter/reserved_entry_drift]".to_owned(),
+                );
+            }
+            let value = function.params[index];
+            if value != ValueId::new(ordinal) {
+                return Err(format!(
+                    "[freeze:contract][formal_parameter/value_drift] ordinal={ordinal} value={value:?}"
+                ));
+            }
+            (function.entry_block, value, function.signature.params[index].clone())
+        };
+        self.identity
+            .publish_declaration_exact(site, binding, entry, value)?;
+        builder.register_value_kind(
+            value,
+            hakorune_mir_core::MirValueKind::Parameter(ordinal),
+        );
+        if ty != MirType::Unknown {
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(value, ty);
+        }
+        Ok(value)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn finish_for_draft_seal(

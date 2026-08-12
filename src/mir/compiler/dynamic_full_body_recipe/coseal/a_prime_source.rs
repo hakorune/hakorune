@@ -41,6 +41,10 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     pos_binding: BindingRefV1,
     end_binding: BindingRefV1,
     pred_chars_binding: BindingRefV1,
+    src_declaration: &'program SourceBindingSiteV1,
+    pos_declaration: &'program SourceBindingSiteV1,
+    end_declaration: &'program SourceBindingSiteV1,
+    pred_chars_declaration: &'program SourceBindingSiteV1,
     induction_binding: BindingRefV1,
     induction_declaration: &'program SourceBindingSiteV1,
     initializer: &'program SourceExprSiteV1,
@@ -58,8 +62,45 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     induction_key: LoopBindingKeyV1,
     carrier_key: LoopCarrierKeyV1,
     entry_value: LoopValueKeyV1,
+    src_value: LoopValueKeyV1,
+    pos_value: LoopValueKeyV1,
+    end_value: LoopValueKeyV1,
+    pred_chars_value: LoopValueKeyV1,
     inner_return_value: LoopValueKeyV1,
     outer_tail_binding: LoopBindingKeyV1,
+}
+
+/// One borrowed formal lane from the already verified source/Recipe relation.
+/// This is a physical-session input view, not a second semantic contract.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir) struct DynamicAPrimeFormalRelationRowV1<'program> {
+    ordinal: u32,
+    declaration: &'program SourceBindingSiteV1,
+    binding: BindingRefV1,
+    recipe_value: LoopValueKeyV1,
+    class: DynamicFullLoopParameterClassV2,
+}
+
+impl<'program> DynamicAPrimeFormalRelationRowV1<'program> {
+    pub(in crate::mir) const fn ordinal(self) -> u32 {
+        self.ordinal
+    }
+
+    pub(in crate::mir) const fn declaration(self) -> &'program SourceBindingSiteV1 {
+        self.declaration
+    }
+
+    pub(in crate::mir) const fn binding(self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(in crate::mir) const fn recipe_value(self) -> LoopValueKeyV1 {
+        self.recipe_value
+    }
+
+    pub(in crate::mir) const fn class(self) -> DynamicFullLoopParameterClassV2 {
+        self.class
+    }
 }
 
 impl DynamicAPrimeI64SourceRelationViewV1<'_> {
@@ -147,6 +188,41 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.pred_chars_class
     }
 
+    pub(in crate::mir) fn formal_rows(
+        &self,
+    ) -> [DynamicAPrimeFormalRelationRowV1<'_>; 4] {
+        [
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 0,
+                declaration: self.src_declaration,
+                binding: self.src_binding,
+                recipe_value: self.src_value,
+                class: self.src_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 1,
+                declaration: self.pos_declaration,
+                binding: self.pos_binding,
+                recipe_value: self.pos_value,
+                class: self.pos_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 2,
+                declaration: self.end_declaration,
+                binding: self.end_binding,
+                recipe_value: self.end_value,
+                class: self.end_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 3,
+                declaration: self.pred_chars_declaration,
+                binding: self.pred_chars_binding,
+                recipe_value: self.pred_chars_value,
+                class: self.pred_chars_class,
+            },
+        ]
+    }
+
     pub(in crate::mir) const fn induction_key(&self) -> LoopBindingKeyV1 {
         self.induction_key
     }
@@ -223,6 +299,10 @@ pub(super) fn issue_view(
             .ok_or(DynamicAPrimeI64SourceRelationRejectV1::ClaimMismatch)
     };
     expected_binding(
+        DynamicFullBodyBindingRoleV1::Src,
+        DynamicFullLoopClaimTargetV2::Value(value(0)),
+    )?;
+    expected_binding(
         DynamicFullBodyBindingRoleV1::Pos,
         DynamicFullLoopClaimTargetV2::Value(value(1)),
     )?;
@@ -232,6 +312,10 @@ pub(super) fn issue_view(
     )?;
     let induction_key = LoopBindingKeyV1::new(0);
     let carrier_key = LoopCarrierKeyV1::new(0);
+    expected_binding(
+        DynamicFullBodyBindingRoleV1::PredChars,
+        DynamicFullLoopClaimTargetV2::Value(value(3)),
+    )?;
     expected_binding(
         DynamicFullBodyBindingRoleV1::Induction,
         DynamicFullLoopClaimTargetV2::Binding(induction_key),
@@ -305,6 +389,10 @@ pub(super) fn issue_view(
         pos_binding: pos.binding(),
         end_binding: end.binding(),
         pred_chars_binding: pred_chars.binding(),
+        src_declaration: src.declaration(),
+        pos_declaration: pos.declaration(),
+        end_declaration: end.declaration(),
+        pred_chars_declaration: pred_chars.declaration(),
         induction_binding: induction.binding(),
         induction_declaration: induction.declaration(),
         initializer,
@@ -322,6 +410,10 @@ pub(super) fn issue_view(
         induction_key,
         carrier_key,
         entry_value: value(1),
+        src_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::Src)?,
+        pos_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::Pos)?,
+        end_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::End)?,
+        pred_chars_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::PredChars)?,
         inner_return_value: value(14),
         outer_tail_binding: induction_key,
     };
@@ -339,6 +431,16 @@ fn parameter_class(
         .find(|row| row.ordinal == ordinal)
         .map(|row| row.class)
         .ok_or(DynamicAPrimeI64SourceRelationRejectV1::ParameterContract)
+}
+
+fn binding_value(
+    coverage: &VerifiedDynamicFullLoopClaimCoverageV2,
+    role: DynamicFullBodyBindingRoleV1,
+) -> Result<LoopValueKeyV1, DynamicAPrimeI64SourceRelationRejectV1> {
+    match coverage.binding_target(role) {
+        Some(DynamicFullLoopClaimTargetV2::Value(value)) => Ok(value),
+        _ => Err(DynamicAPrimeI64SourceRelationRejectV1::ClaimMismatch),
+    }
 }
 
 fn expected_source(

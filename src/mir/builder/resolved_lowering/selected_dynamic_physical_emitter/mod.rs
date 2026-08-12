@@ -5,6 +5,7 @@
 //! second Builder/CFG owner or activates the production capability gate.
 
 mod i64_const;
+mod formal_header;
 mod targets;
 mod value_ledger;
 
@@ -29,6 +30,7 @@ use value_ledger::{
     DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueLedgerV1,
     DynamicV2PhysicalValueViewV1,
 };
+use formal_header::DynamicV2OpenedFormalHeaderV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
@@ -40,6 +42,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     ConstantEmission(String),
     SessionOpen(String),
     PhysicalHeader(String),
+    FormalHeader(String),
     PhysicalValueLedger(String),
 }
 
@@ -55,6 +58,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     ledger: DynamicV2NativePreflightLedgerV1,
     brand: DynamicV2PhysicalSessionBrandV1,
     targets: DynamicV2PhysicalTargetSetV1,
+    formal_header: DynamicV2OpenedFormalHeaderV1,
     values: DynamicV2PhysicalValueLedgerV1,
     i8_evidence: Option<DynamicV2I8EvidenceV1>,
 }
@@ -190,6 +194,21 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 )
             }
         };
+        let formal_header = match formal_header::open(
+            &mut canonical,
+            outer.builder_view_mut_for_lowering(),
+            demand.source_relation(),
+            &targets,
+            &brand,
+        ) {
+            Ok(formal_header) => formal_header,
+            Err(error) => {
+                return Self::reject_begin(
+                    outer,
+                    DynamicV2I8EmitterRejectV1::FormalHeader(error),
+                )
+            }
+        };
         let values = DynamicV2PhysicalValueLedgerV1::new(&brand);
         Ok(Self {
             outer: Some(outer),
@@ -199,6 +218,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ledger,
             brand,
             targets,
+            formal_header,
             values,
             i8_evidence: Some(evidence),
         })

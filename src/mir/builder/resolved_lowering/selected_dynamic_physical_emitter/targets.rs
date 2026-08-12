@@ -132,6 +132,25 @@ impl DynamicV2PhysicalTargetSetV1 {
         })
     }
 
+    pub(super) fn with_enter_header<R>(
+        &self,
+        callback: impl FnOnce(
+            DynamicV2OpaquePhysicalTargetV1,
+            DynamicV2OpaquePhysicalTargetV1,
+        ) -> R,
+    ) -> R {
+        callback(
+            DynamicV2OpaquePhysicalTargetV1 {
+                brand: Arc::clone(&self.brand),
+                block: self.enter,
+            },
+            DynamicV2OpaquePhysicalTargetV1 {
+                brand: Arc::clone(&self.brand),
+                block: self.header,
+            },
+        )
+    }
+
     #[cfg(test)]
     pub(super) fn blocks_for_test(&self) -> [BasicBlockId; 6] {
         [

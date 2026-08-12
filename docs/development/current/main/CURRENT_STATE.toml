@@ -45,6 +45,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, canonical body-free skeleton, and I8 unpublished value ledger are green; full AOT activation remains next.",
+  "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; full AOT activation remains next.",
   "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
 ]

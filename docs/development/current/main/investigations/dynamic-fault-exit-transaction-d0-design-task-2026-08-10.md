@@ -436,10 +436,12 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   `Enter != Header`; full operation emission remains closed until the atomic
   AOT cell.
 
-  The existing A-prime source relation also retains the exact four formal
-  lanes (`src=0`, `pos=1`, `end=2`, `pred_chars=3`) and their binding/class
-  facts. This is a borrowed source relation only; physical seed materialization
-  and PHI opening remain a later session step.
+  Status (landed BoxShape, 2026-08-12): the same session now adopts the exact
+  four reserved formal lanes from that relation, claims the `pos` initializer,
+  publishes the induction seed at `Enter`, emits only `Enter -> Header`, and
+  reads the provisional Header current through canonical Binding SSA. This
+  remains an unpublished canary; value representation, loop backedge, Fault,
+  End, and full operation emission remain closed until the atomic AOT cell.
 
 DYNAMIC-V2-SESSION-PRIVATE-VALUE-LEDGER-R0
   The existing I8/V12 canary publishes its emitted physical value exactly once
