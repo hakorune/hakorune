@@ -21,7 +21,11 @@ use super::identity::ResolvedSsaIdentityStateV2;
 
 enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
-    DynamicProfileOwned { owner: FunctionOwnerIdV1 },
+    // The Dynamic profile's complete operation/control ledger is consumed by
+    // the selected physical session before the common terminal is opened.
+    // Until that terminal exists, this is intentionally a unit disposition:
+    // it must not retain an owner token that finish() cannot validate.
+    DynamicProfileOwned,
 }
 
 impl CanonicalIfControlConsumptionV1 {
@@ -38,10 +42,7 @@ impl CanonicalIfControlConsumptionV1 {
     fn finish(self) -> Result<(), FunctionIfControlUseErrorV1> {
         match self {
             Self::Resolved(ledger) => ledger.finish(),
-            Self::DynamicProfileOwned { owner } => {
-                let _ = owner;
-                Ok(())
-            }
+            Self::DynamicProfileOwned => Ok(()),
         }
     }
 }
@@ -241,9 +242,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             target_function,
             identity: ResolvedSsaIdentityStateV2::new(input.function()),
             semantics,
-            if_control: CanonicalIfControlConsumptionV1::DynamicProfileOwned {
-                owner: input.owner(),
-            },
+            if_control: CanonicalIfControlConsumptionV1::DynamicProfileOwned,
             completion,
             cfg: CanonicalCfgSessionV1::new(),
             phis: PhiTxn::begin("canonical_binding_ssa"),

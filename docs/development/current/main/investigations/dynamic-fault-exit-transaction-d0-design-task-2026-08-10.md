@@ -272,7 +272,9 @@ physical header effect source        = borrowed verified operation/effect plan
 authority validation before Builder mutation = 1
 legacy raw skeleton/body inference   = selected AOT path only, 0
 semantic block count chosen by emitter = 0
-DynamicProfileOwned owner validation  = exact or unit disposition
+  DynamicProfileOwned disposition       = explicit unit until the full
+                                         operation/control/cleanup cursor
+                                         validates profile close
 selected collector key               = CanonicalCallable, never LegacySymbol
 ```
 
@@ -393,8 +395,9 @@ DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   producer receipts, and V10 End evidence; it claims exactly two Completion
   sites and prepares the two physical Return terminators.  Missing, extra,
   duplicate, mixed-representation, or synthetic join/PHI evidence rejects.
-  DynamicProfileOwned is either a unit disposition or is checked against the
-  session owner at finish; a no-op owner discard is forbidden.
+  DynamicProfileOwned is an explicit unit disposition until the full
+  operation/control/cleanup cursor validates profile close; retaining an
+  unchecked owner token or silently discarding it is forbidden.
   Physical targets remain exact: condition B0 -> Header, body operations
   before If -> BodyPrelude in B1, then Return -> ThenTerminal in B2, body
   operations after If -> Continuation in B1, and callable After -> After.
