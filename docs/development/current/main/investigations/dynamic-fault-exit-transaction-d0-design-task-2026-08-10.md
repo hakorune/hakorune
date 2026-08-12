@@ -438,7 +438,8 @@ The D1b transport is a projection, not a semantic/provider receipt:
 `call_metadata.rs` consumes sealed admission/receipt facts and
 `dynamic_v2_aot_admission.rs` is the sole JSON emitter. Exact two typed rows,
 positive/negative tests, Python loader, and authority guard are green
-(2026-08-12); no production caller is open.
+(2026-08-12); the test-only seam now distinguishes `NotSelected` from
+terminal selected-metadata absence; no production caller is open.
 
 W3 owners (work branch only):
 

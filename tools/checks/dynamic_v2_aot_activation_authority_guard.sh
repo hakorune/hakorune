@@ -56,6 +56,9 @@ fi
 if [[ "$(rg -n '^def inspect_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 selected hook definition must be unique"
 fi
+if [[ "$(rg -n '^def require_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "I0-D1 terminal test seam definition must be unique"
+fi
 if [[ "$(rg -n '^pub\(crate\) fn project_dynamic_v2_aot_call_metadata\(' "$RUST_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1b Rust metadata issuer definition must be unique"
 fi

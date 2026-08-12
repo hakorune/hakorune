@@ -15,7 +15,10 @@ from builders.dynamic_v2_aot_admission import (
     DynamicV2AotAdmissionError,
     load_selected_dynamic_v2_aot_admission,
 )
-from instructions.mir_call.selected_dynamic_v2 import inspect_selected_dynamic_v2_call
+from instructions.mir_call.selected_dynamic_v2 import (
+    inspect_selected_dynamic_v2_call,
+    require_selected_dynamic_v2_call,
+)
 
 from test_a_prime_i64_capability import _valid_function_data
 
@@ -66,6 +69,8 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
     def test_absent_metadata_is_not_selected(self):
         self.assertIsNone(load_selected_dynamic_v2_aot_admission(_valid_function_data()))
         self.assertIsNone(inspect_selected_dynamic_v2_call(_valid_function_data(), 1, 3))
+        with self.assertRaises(DynamicV2AotAdmissionError):
+            require_selected_dynamic_v2_call(_valid_function_data(), 1, 3)
 
     def test_valid_admission_is_site_indexable(self):
         view = load_selected_dynamic_v2_aot_admission(_valid_admission_data())
@@ -73,6 +78,7 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
         self.assertEqual(view.invocation_ordinal, 9)
         self.assertEqual(view.require_call_site(1, 3).entry_id, 1)
         self.assertEqual(inspect_selected_dynamic_v2_call(_valid_admission_data(), 1, 4).role, "index_of")
+        self.assertEqual(require_selected_dynamic_v2_call(_valid_admission_data(), 1, 3).role, "substring")
 
     def test_unknown_or_duplicate_metadata_is_rejected(self):
         data = _valid_admission_data()
