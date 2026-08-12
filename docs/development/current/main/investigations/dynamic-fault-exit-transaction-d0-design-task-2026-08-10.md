@@ -409,12 +409,11 @@ executable and cannot fall back to the generic route. The selected compiler
 cutover is permitted only after a positive strict-link canary and every
 negative link gate are green.
 
-##### I0-D next bounded implementation-preparation task
+##### I0-D1 landed; `DYNAMIC-V2-AOT-METADATA-ISSUER-I0-D1b` next
 
-`DYNAMIC-V2-AOT-METADATA-TRANSPORT-I0-D1` is the only next slice. The strict
-CodePoint entries and one-shot lease owner are a work-branch checkpoint; this
-row must not turn them into a production caller. First define the immutable
-per-call metadata projection, then name the later LLVM consumer.
+The D1 transport projection is landed as a non-emitting work-branch seam.
+The next bounded row is the Rust typed issuer; it must still keep all
+production callers at zero.
 ```text
 PreparedAotExecutableAdmissionV1
   -> one per-function selected-admission metadata projection
@@ -422,8 +421,9 @@ PreparedAotExecutableAdmissionV1
   -> (later, same activation) post-link RuntimeExecutablePlanV1
 ```
 
-Source authority is the existing symbolic admission plus the A-prime physical
-receipt for the exact call-site. The projection may retain only:
+Source authority for D1b is the canonical physical-session co-seal of the
+existing `PreparedAotExecutableAdmissionV1`, `APrimeI64PhysicalReceiptV1`, and
+`ModuleInvocationBrandV1`. The owned transport projection may retain only:
 
 ```text
 function admission brand / PlanStamp
@@ -433,11 +433,10 @@ ABI and wire revisions
 exact receiver/argument/result lane and lease capability
 ```
 
-The Python side is a checked projection of `func_data["metadata"]`; it must not
-reconstruct a site by scanning MIR, AST, Recipe, selector text, or generic
-String names. A private HRTB/view or an owned metadata cell may cross the
-function-lowering boundary, but no borrowed Core row, registry, provider
-function, image, address, digest, or `RuntimeExecutablePlanV1` may escape.
+JSON/Python remain checked projections of this Rust product. They must not
+reconstruct a site from MIR, AST, Recipe, selector text, or generic String
+names; no Core row, registry, provider function, image, address, digest, or
+`RuntimeExecutablePlanV1` may escape the projection boundary.
 
 The metadata loader and hook definition belong in new small modules (target
 below 250 lines each). `function_metadata.py` (684 lines), generic
@@ -445,30 +444,25 @@ below 250 lines each). `function_metadata.py` (684 lines), generic
 dispatcher receives only a short early seam before generic method lowering;
 no provider/name/selector lookup is added there.
 
-Pre-effect rejection is terminal for selected malformed metadata: missing,
-foreign or stale PlanStamp; duplicate site; swapped I6/I7 role; wrong entry,
-symbol, ABI/wire revision, lane, generation, or lease contract; and unknown
-fields. An unselected ordinary call may remain `NotSelected`, but a selected
-failure may not fall through, retry, or use a generic route.
+Selected malformed metadata rejects before effect (missing/foreign/stale
+brand, duplicate/swap, wrong entry/ABI/lane/generation, unknown fields);
+ordinary absence remains `NotSelected`, and selected failure never falls
+through or retries. New modules target below 650 lines (hard stop 800); no
+LLVM call, `CallOut`, lease, image, executable plan, session, draft, collector,
+production caller, or Rust-VM route is opened in this preparation row.
 
-Acceptance: one metadata projection issuer, one loader, one hook definition,
-exact admission/site/entry/lane/PlanStamp parity, production LLVM hook callers
-= 0, Rust-VM DynamicV2/provider/receipt/session callers = 0,
-selector/provider/registry lookup = 0, fallback/retry = 0, and all new
-Python/Rust sources below 650 lines (hard stop 800). Tests cover valid
-projection, missing/duplicate/foreign/stale/swapped/malformed metadata, and
-proof that selected rejection leaves Builder/collector state unchanged.
+Receipt (2026-08-12): D1 loader/direct seam passes valid and negative site,
+lane, entry, and PlanStamp checks; no production caller was opened.
 
-This row does not emit a strict LLVM call, allocate a `CallOut`, consume a
-lease, issue an image/address/digest, create a `RuntimeExecutablePlanV1`, open
-the physical session, claim Completion, publish a draft, change production
-callers, or touch Rust VM. Those remain one later activation boundary with the
-already named physical session, link finalizer, collector, and cutover.
+D1b acceptance: Rust issuer = 1, JSON emitter = 1, Python loader = 1; exactly
+two typed call rows; admission/receipt/brand/generation parity; missing,
+foreign, stale, duplicate, swapped, unknown, and lane drift reject before
+LLVM/Builder effect. `PreparedAotExecutableAdmissionV1` is not resealed or
+cloned. LLVM emitted call, RuntimeExecutablePlan, physical session, collector,
+production caller, fallback/retry, and Rust-VM DynamicV2 caller stay zero.
 
-Receipt (2026-08-12): the non-emitting metadata loader and direct test seam
-pass valid/negative site, lane, entry, and PlanStamp checks; no production
-caller was opened. It is not a mainline landing. Main still requires the
-complete activation unit and an atomic new selected caller = 1 / old edge = 0.
+D1b is a work-branch checkpoint only. Main still requires the complete
+activation unit and an atomic new selected caller = 1 / old edge = 0.
 
 #### `PHYSICAL-SESSION-I0-E`
 
