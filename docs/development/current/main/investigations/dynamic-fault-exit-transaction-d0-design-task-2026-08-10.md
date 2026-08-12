@@ -124,8 +124,8 @@ selected cleanup rows are I6 fault, I7 fault, inner Return, and Backedge.
 2e9348d0bc  canonical plan input callback accessor + focused identity test
 38a5895d15  handoff D0 accepted; fast row opened
 b5caad2ce8  handoff implementation boundary recorded
-pending      capability plan impl split keeps capability.rs at 748 lines;
-             trivial_plan.rs owns the 73-line plan carrier/impl
+c3c4343367  capability plan impl split keeps capability.rs at 748 lines;
+            trivial_plan.rs owns the 73-line plan carrier/impl
 ```
 
 Focused checks currently used by this row:
