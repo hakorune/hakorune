@@ -490,9 +490,10 @@ foreign, and second-consume mismatch rejects before collector mutation/publicati
 Landed R0/R1 canary: `662e50847b` adds `FunctionDraftKeyV1::CatalogedBoxMethod`
 and retains the admission key in a move-only completed-draft projection;
 `7502802af9` routes that draft once through the invocation-owned
-`ModuleLoweringPortV1` branded collector terminal with the existing
-`CanonicalRejectDuplicate` policy. Publication and production cutover remain
-closed.
+`ModuleLoweringPortV1` branded collector terminal, and `d77a490713` adds
+symbol/arity-drift and unbranded-collector rejection evidence plus a guard
+for issuer/test-caller/production-caller counts. Publication and production
+cutover remain closed.
 Non-claims: no provider/runtime/LLVM/VM activation, legacy retirement, or
 production caller in R0; the selected production collector handoff is next.
 
