@@ -9,6 +9,7 @@ mod aot_admission;
 mod seal;
 
 pub(crate) use aot_admission::PreparedAotExecutableAdmissionV1;
+pub(crate) use admitted_registry::TextScanAdmittedRoleV1;
 pub(crate) use seal::{
     ProviderAdmissionRejectV1, ProviderAdmissionSealV1, TextScanAliasProjectionV1,
 };

@@ -10,6 +10,7 @@ use super::admitted_registry::{AdmittedTextScanRegistryV1, TextScanAdmittedRoleV
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct TextScanEntryContractV1 {
     entry: TextScanAotEntryIdV1,
+    symbol: &'static str,
     arity: u32,
     receiver_lane: TextScanValueLaneV1,
     argument_lanes: &'static [TextScanValueLaneV1],
@@ -20,6 +21,7 @@ pub(crate) struct TextScanEntryContractV1 {
 impl TextScanEntryContractV1 {
     pub(super) const fn from_fact(
         entry: TextScanAotEntryIdV1,
+        symbol: &'static str,
         arity: u32,
         receiver_lane: TextScanValueLaneV1,
         argument_lanes: &'static [TextScanValueLaneV1],
@@ -28,6 +30,7 @@ impl TextScanEntryContractV1 {
     ) -> Self {
         Self {
             entry,
+            symbol,
             arity,
             receiver_lane,
             argument_lanes,
@@ -38,6 +41,10 @@ impl TextScanEntryContractV1 {
 
     pub(crate) const fn entry(self) -> TextScanAotEntryIdV1 {
         self.entry
+    }
+
+    pub(crate) const fn symbol(self) -> &'static str {
+        self.symbol
     }
 
     pub(crate) const fn arity(self) -> u32 {

@@ -64,6 +64,9 @@ guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE' \
 guard_expect_fixed_in_file "$TAG" 'ModuleInvocationBrandV1' \
   "$ADMISSION_DIR/aot_admission.rs" \
   "symbolic admission must carry the existing compile-session PlanStamp"
+guard_expect_fixed_in_file "$TAG" "symbol: &'static str" \
+  "$ADMISSION_DIR/aot_admission.rs" \
+  "symbolic admission must retain the neutral export symbol"
 guard_expect_fixed_in_file "$TAG" 'RejectBeforeEffect' \
   "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
   "pre-link admission must remain non-production/reject-only"

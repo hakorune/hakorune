@@ -181,6 +181,7 @@ fn entry_contract(
     ) {
         Ok(TextScanEntryContractV1::from_fact(
             fact.entry,
+            fact.symbol,
             fact.arity,
             fact.receiver_lane,
             fact.argument_lanes,

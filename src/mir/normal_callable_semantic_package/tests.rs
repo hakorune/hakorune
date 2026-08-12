@@ -337,6 +337,20 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
         assert_eq!(admission.aot_admission().aliases(), ["String", "StringBox"]);
         assert_eq!(admission.aot_admission().registry_branch_count(), 1);
         assert_eq!(admission.aot_admission().registry_generation(), 1);
+        assert_eq!(
+            admission
+                .aot_admission()
+                .entry_for(crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextSliceRange)
+                .symbol(),
+            "hako.text.scan.substring.v1"
+        );
+        assert_eq!(
+            admission
+                .aot_admission()
+                .entry_for(crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextFindNeedle)
+                .symbol(),
+            "hako.text.scan.index_of.v1"
+        );
         let compare_i64 = admission.compare_i64();
         assert_eq!(
             compare_i64.item(),
