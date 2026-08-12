@@ -99,6 +99,11 @@ use std::collections::BTreeMap;
 /// should be added here unless they are module-level metadata.
 #[derive(Debug, Clone, Default)]
 pub struct FunctionMetadata {
+    /// Function-local checked-callout site plans.  The neutral MIR terminator
+    /// carries only an opaque site id; entry/ABI/shape/slot authority stays in
+    /// this table and is admitted exactly once by the canonical session.
+    checked_callout_site_plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
+
     /// Source file location
     pub source_file: Option<String>,
 
@@ -688,6 +693,22 @@ pub struct FunctionMetadata {
     /// Verifier-backed exact-numeric field proofs rebuilt from the current MIR
     /// during semantic refresh. These are contract evidence, not storage facts.
     pub exact_numeric_field_contract_proofs: Vec<TypeContractProof>,
+}
+
+impl FunctionMetadata {
+    pub(crate) fn admit_checked_callout_plan(
+        &mut self,
+        plan: crate::mir::checked_callout::CheckedCallOutSitePlanV1,
+    ) -> Result<(), crate::mir::checked_callout::CheckedCallOutPlanRejectV1> {
+        self.checked_callout_site_plans.admit(plan)
+    }
+
+    pub(crate) fn checked_callout_plan(
+        &self,
+        site: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+    ) -> Option<&crate::mir::checked_callout::CheckedCallOutSitePlanV1> {
+        self.checked_callout_site_plans.get(site)
+    }
 }
 
 impl FunctionMetadata {

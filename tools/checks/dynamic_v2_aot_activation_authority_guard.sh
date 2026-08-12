@@ -23,11 +23,14 @@ RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
 PLAN_OWNER="$ROOT_DIR/crates/nyash-llvm-compiler/src/runtime_executable_plan.rs"
+CALLOUT_OWNER="$ROOT_DIR/src/mir/checked_callout.rs"
+CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
+CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -82,6 +85,27 @@ fi
 if [[ "$(rg -n '^pub\(crate\) fn issue_runtime_executable_plan\(' "$PLAN_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "W3 post-link executable plan issuer must be unique"
 fi
+
+# CheckedCallOut R0 is neutral MIR plumbing only.  Keep the site-plan owner and
+# the two canonical session issuers unique while production/AOT callers remain 0.
+if [[ "$(rg -n '^pub\(crate\) struct CheckedCallOutSitePlanV1' "$CALLOUT_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "CheckedCallOut site-plan owner definition must be unique"
+fi
+if [[ "$(rg -n 'fn emit_checked_callout\(' "$CALLOUT_CFG" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "Canonical CFG CheckedCallOut issuer must be unique"
+fi
+if [[ "$(rg -n 'fn define_checked_callout_normal_result\(' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "Canonical Normal-result issuer must be unique"
+fi
+if rg -n 'lower_method_call|RuntimeExecutablePlan|dynamic_v2_text_scan|lookup_core_method' \
+  "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"; then
+  guard_fail "$TAG" "neutral CheckedCallOut R0 must not resolve provider, runtime, or generic method routes"
+fi
+for root in "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/src/backend" "$ROOT_DIR/src/runner" "$ROOT_DIR/src/runtime"; do
+  if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult' --glob '*.rs' --glob '*.py' "$root"; then
+    guard_fail "$TAG" "CheckedCallOut has an unapproved production/JSON/VM caller before R0 completion"
+  fi
+done
 if rg -n 'RuntimeExecutablePlanV1|issue_runtime_executable_plan\(' \
   --glob '*.rs' \
   --glob '!runtime_executable_plan.rs' \

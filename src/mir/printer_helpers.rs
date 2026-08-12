@@ -406,6 +406,26 @@ pub fn format_instruction(
             }
         }
 
+        MirInstruction::CheckedCallOut {
+            site_id,
+            receiver,
+            arguments,
+            normal_landing,
+            fault_landing,
+            ..
+        } => format!(
+            "checked_callout site={} recv={} args={:?} normal={} fault={}",
+            site_id.0, receiver, arguments, normal_landing, fault_landing
+        ),
+
+        MirInstruction::CheckedCallOutNormalResult { site_id, dst } => {
+            format!(
+                "{} checked_callout.normal_result site={}",
+                format_dst(dst, types),
+                site_id.0
+            )
+        }
+
         MirInstruction::Phi { dst, inputs, .. } => {
             let inputs_str = inputs
                 .iter()

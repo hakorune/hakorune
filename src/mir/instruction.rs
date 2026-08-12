@@ -461,6 +461,26 @@ pub enum MirInstruction {
     /// `ret %value` or `ret void`
     Return { value: Option<ValueId> },
 
+    /// Checked external call whose semantic outcome owns two canonical CFG
+    /// successors.  The function-local site plan carries entry/ABI/slot
+    /// authority; the terminator carries only the opaque site and operands.
+    CheckedCallOut {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+        normal_landing: super::BasicBlockId,
+        fault_landing: super::BasicBlockId,
+        effects: EffectMask,
+    },
+
+    /// Normal-only result projection for a preceding CheckedCallOut.  This is
+    /// an ordinary block-local SSA definition in the Normal landing block;
+    /// the terminator itself never defines a ValueId.
+    CheckedCallOutNormalResult {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        dst: ValueId,
+    },
+
     // === SSA Phi Function ===
     /// SSA phi function for merging values from different paths
     /// `%dst = phi [%val1 from %bb1, %val2 from %bb2, ...]`

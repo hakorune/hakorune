@@ -74,6 +74,7 @@ pub(crate) use raw_vm_reference_contract::{
     RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1, RawVmReferenceSourceProfileV1,
     RawVmReferenceSupportProfileV1,
 };
+pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)

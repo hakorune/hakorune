@@ -137,6 +137,7 @@ impl BasicBlock {
             MirInstruction::Branch { .. }
                 | MirInstruction::Jump { .. }
                 | MirInstruction::Return { .. }
+                | MirInstruction::CheckedCallOut { .. }
                 | MirInstruction::Throw { .. }
         )
     }
@@ -167,6 +168,14 @@ impl BasicBlock {
                 MirInstruction::Throw { .. } => {
                     // No normal successors for throw - control goes to exception handlers
                     // Exception edges are handled separately from normal control flow
+                }
+                MirInstruction::CheckedCallOut {
+                    normal_landing,
+                    fault_landing,
+                    ..
+                } => {
+                    successors.insert(*normal_landing);
+                    successors.insert(*fault_landing);
                 }
                 _ => unreachable!("Non-terminator instruction in terminator position"),
             }
@@ -202,6 +211,20 @@ impl BasicBlock {
                 target,
                 args: edge_args.clone(), // Phase 260 P2: No fallback, terminator SSOT
             }],
+            Some(MirInstruction::CheckedCallOut {
+                normal_landing,
+                fault_landing,
+                ..
+            }) => vec![
+                OutEdge {
+                    target: normal_landing,
+                    args: None,
+                },
+                OutEdge {
+                    target: fault_landing,
+                    args: None,
+                },
+            ],
             _ => Vec::new(),
         }
     }

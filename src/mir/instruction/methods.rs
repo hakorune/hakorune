@@ -70,7 +70,12 @@ impl MirInstruction {
             // Control flow (pure but affects execution)
             MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
-            | MirInstruction::Return { .. } => EffectMask::PURE,
+            | MirInstruction::Return { .. }
+            | MirInstruction::CheckedCallOutNormalResult { .. } => EffectMask::PURE,
+
+            // The effect is a verified cache projected from the function-local
+            // CheckedCallOut site plan.  No selector/provider lookup occurs here.
+            MirInstruction::CheckedCallOut { effects, .. } => *effects,
 
             // Box creation may allocate
             MirInstruction::NewBox { .. } => EffectMask::PURE.add(Effect::Alloc),
@@ -145,6 +150,7 @@ impl MirInstruction {
             | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
+            | MirInstruction::CheckedCallOut { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::DestroyOwned { .. }
@@ -155,6 +161,8 @@ impl MirInstruction {
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::Safepoint => None,
+
+            MirInstruction::CheckedCallOutNormalResult { dst, .. } => Some(*dst),
 
             MirInstruction::Catch {
                 exception_value, ..
@@ -220,7 +228,19 @@ impl MirInstruction {
             return used;
         }
         match self {
-            MirInstruction::Const { .. } | MirInstruction::Jump { .. } => Vec::new(),
+            MirInstruction::Const { .. }
+            | MirInstruction::Jump { .. }
+            | MirInstruction::CheckedCallOutNormalResult { .. } => Vec::new(),
+
+            MirInstruction::CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(arguments.iter().copied());
+                values
+            }
 
             MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
 

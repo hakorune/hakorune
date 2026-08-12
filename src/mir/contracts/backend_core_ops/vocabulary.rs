@@ -24,6 +24,8 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Branch { .. } => "Branch",
         MirInstruction::Jump { .. } => "Jump",
         MirInstruction::Return { .. } => "Return",
+        MirInstruction::CheckedCallOut { .. } => "CheckedCallOut",
+        MirInstruction::CheckedCallOutNormalResult { .. } => "CheckedCallOutNormalResult",
         MirInstruction::Phi { .. } => "Phi",
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",
@@ -92,6 +94,8 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "RefNew",
     "ReleaseStrong",
     "Return",
+    "CheckedCallOut",
+    "CheckedCallOutNormalResult",
     "Safepoint",
     "Select",
     "Store",
@@ -165,6 +169,8 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::RefNew { .. }
         | MirInstruction::ReleaseStrong { .. }
         | MirInstruction::Return { .. }
+        | MirInstruction::CheckedCallOut { .. }
+        | MirInstruction::CheckedCallOutNormalResult { .. }
         | MirInstruction::Safepoint
         | MirInstruction::Select { .. }
         | MirInstruction::Store { .. }

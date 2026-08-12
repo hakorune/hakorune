@@ -25,16 +25,15 @@ demand/emission plan opens the existing canonical CFG/SSA/PHI session inside
 that scoped loan.
 
 Current implementation status: W0-W3 semantic/header/admission, strict
-CodePoint entries, checked CallOut ABI, neutral lease owner, test-only metadata
-and link facts, and the I8 unpublished canary are landed. Production still uses
-the selected raw AST/JoinIR edge and every production CheckedCallOut/LLVM/link
-caller remains zero. The CheckedCallOut D0 is now exact; its implementation is
-blocked first by a generation-aware host-handle lease identity repair.
+CodePoint entries, checked CallOut ABI, generation-aware neutral lease owner,
+test-only metadata/link facts, the I8 unpublished canary, and neutral
+CheckedCallOut MIR R0 are landed. Production still uses the selected raw
+AST/JoinIR edge and every production CheckedCallOut/LLVM/link caller remains
+zero. The next bounded row is the full unpublished physical session.
 
-Next ordered task: `DYNAMIC-V2-LEASE-IDENTITY-R0`, followed by
-`DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0`. Both are non-production prerequisites
-of the remaining activation cell; neither is a provider/session fragment or a
-production route.
+Next ordered task: `PHYSICAL-SESSION-I0-E`. The lease identity and neutral
+CheckedCallOut R0 prerequisites are closed; W4 remains a non-production
+unpublished session until the complete activation cell is ready.
 
 Production stop line: provider/AOT/runtime activation and the selected
 production switch remain closed until both R0 prerequisites and the complete
@@ -67,8 +66,8 @@ Fail-fast boundary:
   validate before Builder mutation. Exact image/digest/symbol validation occurs
   only at link and must succeed before executable publication.
 Smallest next slice:
-  DYNAMIC-V2-LEASE-IDENTITY-R0; replace raw-handle lease storage with one
-  generation-aware host-handle identity before CheckedCallOut R0 or W4.
+  PHYSICAL-SESSION-I0-E; consume one move-only activation aggregate and one
+  Recipe-order cursor for the full unpublished physical session.
 Non-claims:
   no Dynamic registry, runtime lookup, VM feature, generic fallback, retry,
   legacy collector key, or production switch before all subrows are green.
@@ -355,6 +354,11 @@ Stop:
   terminator `dst_value`, cache drift, wrong lease shape, Fault payload,
   backend hidden semantic branch, fallback/retry or any source at 800 lines
   rejects the row.
+
+Receipt (2026-08-13):
+  neutral CheckedCallOut owner, function-local site-plan admission, canonical
+  two-edge CFG emission, Normal-landing SSA projection, test-only JSON parity,
+  and explicit LLVM/VM rejection are green; production callers remain zero.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text

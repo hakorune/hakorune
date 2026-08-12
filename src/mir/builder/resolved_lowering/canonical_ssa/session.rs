@@ -4,8 +4,9 @@ use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::checked_callout::{CheckedCallOutNormalResultProjectionV1, CheckedCallOutSiteIdV1};
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicCanonicalSessionAuthorityRefV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::resolved_control_flow::if_control::{
     FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1,
@@ -298,6 +299,81 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .as_ref()
             .map(|function| function.entry_block)
             .ok_or_else(|| "canonical physical target requires current function".to_owned())
+    }
+
+    /// Define the checked-call result only in its Normal landing block.  The
+    /// terminator has no destination, so the existing block-local definition
+    /// and dominance machinery remains the sole SSA authority.
+    pub(in crate::mir::builder::resolved_lowering) fn define_checked_callout_normal_result(
+        &mut self,
+        builder: &mut MirBuilder,
+        source: BasicBlockId,
+        normal_landing: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+        dst: ValueId,
+    ) -> Result<CheckedCallOutNormalResultProjectionV1, String> {
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "checked callout result requires current function".to_owned())?;
+        if function.metadata.checked_callout_plan(site_id).is_none() {
+            return Err("checked callout Normal projection has no admitted site plan".to_owned());
+        }
+        let source_term = function
+            .get_block(source)
+            .and_then(|block| block.terminator.as_ref())
+            .ok_or_else(|| "checked callout source has no terminator".to_owned())?;
+        match source_term {
+            crate::mir::MirInstruction::CheckedCallOut {
+                site_id: actual_site,
+                normal_landing: actual_normal,
+                ..
+            } if *actual_site == site_id && *actual_normal == normal_landing => {}
+            _ => return Err("checked callout source/Normal site mismatch".to_owned()),
+        }
+        let landing = function
+            .get_block(normal_landing)
+            .ok_or_else(|| "checked callout Normal landing is missing".to_owned())?;
+        if landing.is_sealed() {
+            return Err("checked callout Normal landing is already sealed".to_owned());
+        }
+        if landing.predecessors.len() != 1 || !landing.predecessors.contains(&source) {
+            return Err(
+                "checked callout Normal landing must have exactly one predecessor".to_owned(),
+            );
+        }
+        if landing.instructions.iter().any(|inst| {
+            matches!(
+                inst,
+                crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                    site_id: existing,
+                    ..
+                } if *existing == site_id
+            )
+        }) {
+            return Err("checked callout Normal projection was already issued".to_owned());
+        }
+        if function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|inst| inst.dst_value() == Some(dst))
+        {
+            return Err(
+                "checked callout Normal projection destination is already defined".to_owned(),
+            );
+        }
+        let projection = crate::mir::MirInstruction::CheckedCallOutNormalResult { site_id, dst };
+        function
+            .get_block_mut(normal_landing)
+            .expect("Normal landing was checked")
+            .insert_instruction_after_phis(projection);
+        Ok(CheckedCallOutNormalResultProjectionV1::new(
+            site_id,
+            normal_landing,
+            dst,
+        ))
     }
 
     /// Adopt one resolver-issued formal lane into the canonical identity/SSA

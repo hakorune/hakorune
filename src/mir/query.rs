@@ -107,6 +107,16 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 used
             }
             Return { value } => value.iter().copied().collect(),
+            CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(arguments.iter().copied());
+                values
+            }
+            CheckedCallOutNormalResult { .. } => Vec::new(),
             Branch { condition, .. } => vec![*condition],
             Jump { .. } => Vec::new(),
             Phi { inputs, .. } => inputs.iter().map(|(_, v)| *v).collect(),
@@ -172,13 +182,15 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | CopyOwned { dst, .. }
             | LocalContractWrite { dst, .. }
             | RecordValuePublish { dst, .. }
-            | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
+            | Select { dst, .. }
+            | CheckedCallOutNormalResult { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }
             | MemOp { dst: None, .. }
             | FieldSet { .. }
             | Call { dst: None, .. }
             | Return { .. }
+            | CheckedCallOut { .. }
             | Branch { .. }
             | Jump { .. }
             | Debug { .. }

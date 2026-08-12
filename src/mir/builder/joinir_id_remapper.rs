@@ -145,6 +145,16 @@ impl JoinIrIdRemapper {
                 .map(|args| args.values.clone())
                 .unwrap_or_default(),
             Return { value } => value.iter().copied().collect(),
+            CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut vals = vec![*receiver];
+                vals.extend(arguments.iter().copied());
+                vals
+            }
+            CheckedCallOutNormalResult { dst, .. } => vec![*dst],
             Phi { dst, inputs, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(inputs.iter().map(|(_, v)| *v));
@@ -595,6 +605,25 @@ impl JoinIrIdRemapper {
             },
             Return { value } => Return {
                 value: value.map(remap),
+            },
+            CheckedCallOut {
+                site_id,
+                receiver,
+                arguments,
+                normal_landing,
+                fault_landing,
+                effects,
+            } => CheckedCallOut {
+                site_id: *site_id,
+                receiver: remap(*receiver),
+                arguments: arguments.iter().map(|&value| remap(value)).collect(),
+                normal_landing: *normal_landing,
+                fault_landing: *fault_landing,
+                effects: *effects,
+            },
+            CheckedCallOutNormalResult { site_id, dst } => CheckedCallOutNormalResult {
+                site_id: *site_id,
+                dst: remap(*dst),
             },
             // Pass through unchanged
             Safepoint => inst.clone(),

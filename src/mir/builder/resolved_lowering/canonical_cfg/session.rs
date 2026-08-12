@@ -1,6 +1,7 @@
 use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
 use super::predecessors::derive_and_verify_predecessors;
 use crate::mir::builder::MirBuilder;
+use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
@@ -160,6 +161,60 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    /// Sole canonical CFG writer for the neutral CheckedCallOut terminator.
+    /// The function-local site plan is the authority for effect/ABI/shape;
+    /// this method only installs the terminator and its two CFG edges.
+    pub(in crate::mir::builder) fn emit_checked_callout(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+        normal_landing: BasicBlockId,
+        fault_landing: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        if source == normal_landing || source == fault_landing {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "source and landing blocks must be distinct".to_owned(),
+            ));
+        }
+        let effects = function
+            .metadata
+            .checked_callout_plan(site_id)
+            .ok_or_else(|| {
+                CanonicalCfgErrorV1::CheckedCallOut(format!(
+                    "missing function-local site plan for {site_id:?}"
+                ))
+            })?
+            .effects();
+        self.preflight_edge(function, source, &[normal_landing, fault_landing])?;
+        function
+            .metadata
+            .checked_callout_plan(site_id)
+            .expect("site plan remained present")
+            .validate_instruction(site_id, normal_landing, fault_landing, effects)
+            .map_err(|error| CanonicalCfgErrorV1::CheckedCallOut(format!("{error:?}")))?;
+        function
+            .get_block_mut(source)
+            .expect("source was checked")
+            .set_terminator(MirInstruction::CheckedCallOut {
+                site_id,
+                receiver,
+                arguments,
+                normal_landing,
+                fault_landing,
+                effects,
+            });
+        for target in [normal_landing, fault_landing] {
+            function
+                .get_block_mut(target)
+                .expect("target was checked")
+                .add_predecessor(source);
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn seal_block(
         &mut self,
         function: &mut MirFunction,
@@ -294,5 +349,97 @@ impl CanonicalCfgSessionV1 {
             return Err(CanonicalCfgErrorV1::SourceAfterSeal { source });
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::checked_callout::{
+        CheckedCallOutEntryIdV1, CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1,
+        CheckedCallOutSitePlanV1,
+    };
+    use crate::mir::function::{FunctionSignature, MirFunction};
+    use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+    use crate::mir::{EffectMask, MirType};
+
+    fn function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "checked_callout_test".to_owned(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    #[test]
+    fn checked_callout_is_the_only_two_edge_cfg_write() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        function
+            .metadata
+            .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
+                CheckedCallOutSiteIdV1(6),
+                CheckedCallOutEntryIdV1(17),
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(1),
+                },
+                EffectMask::READ,
+                ModuleInvocationBrandV1::legacy_test(),
+            ))
+            .expect("plan admission");
+        CanonicalCfgSessionV1::new()
+            .emit_checked_callout(
+                &mut function,
+                BasicBlockId::new(0),
+                CheckedCallOutSiteIdV1(6),
+                ValueId::new(0),
+                vec![ValueId::new(1), ValueId::new(2)],
+                BasicBlockId::new(1),
+                BasicBlockId::new(2),
+            )
+            .expect("checked callout");
+        let source = function.get_block(BasicBlockId::new(0)).unwrap();
+        assert_eq!(source.successors.len(), 2);
+        assert!(matches!(
+            source.terminator,
+            Some(MirInstruction::CheckedCallOut { .. })
+        ));
+        assert_eq!(source.terminator.as_ref().unwrap().dst_value(), None);
+    }
+
+    #[test]
+    fn checked_callout_rejects_same_normal_and_fault_landing() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function
+            .metadata
+            .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
+                CheckedCallOutSiteIdV1(7),
+                CheckedCallOutEntryIdV1(18),
+                CheckedCallOutNormalShapeV1::ImmediateI64,
+                EffectMask::READ,
+                ModuleInvocationBrandV1::legacy_test(),
+            ))
+            .expect("plan admission");
+        let error = CanonicalCfgSessionV1::new().emit_checked_callout(
+            &mut function,
+            BasicBlockId::new(0),
+            CheckedCallOutSiteIdV1(7),
+            ValueId::new(0),
+            vec![],
+            BasicBlockId::new(1),
+            BasicBlockId::new(1),
+        );
+        assert!(matches!(error, Err(CanonicalCfgErrorV1::CheckedCallOut(_))));
+        assert!(function
+            .get_block(BasicBlockId::new(0))
+            .unwrap()
+            .terminator
+            .is_none());
     }
 }

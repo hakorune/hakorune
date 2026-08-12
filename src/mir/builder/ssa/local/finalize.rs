@@ -32,6 +32,8 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Branch { .. } => "Branch",
         MirInstruction::Jump { .. } => "Jump",
         MirInstruction::Return { .. } => "Return",
+        MirInstruction::CheckedCallOut { .. } => "CheckedCallOut",
+        MirInstruction::CheckedCallOutNormalResult { .. } => "CheckedCallOutNormalResult",
         MirInstruction::Phi { .. } => "Phi",
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",

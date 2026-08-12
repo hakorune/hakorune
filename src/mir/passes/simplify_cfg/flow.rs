@@ -534,6 +534,17 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(value, from, to);
             }
         }
+        MirInstruction::CheckedCallOut {
+            receiver,
+            arguments,
+            ..
+        } => {
+            rewrite_value_use(receiver, from, to);
+            for argument in arguments {
+                rewrite_value_use(argument, from, to);
+            }
+        }
+        MirInstruction::CheckedCallOutNormalResult { .. } => {}
         MirInstruction::Phi { inputs, .. } => {
             for (_, incoming_value) in inputs {
                 rewrite_value_use(incoming_value, from, to);
