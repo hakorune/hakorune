@@ -411,58 +411,52 @@ negative link gate are green.
 
 ##### I0-D1 landed; `DYNAMIC-V2-AOT-METADATA-ISSUER-I0-D1b` next
 
-The D1 transport projection is landed as a non-emitting work-branch seam.
-The next bounded row is the Rust typed issuer; it must still keep all
-production callers at zero.
+Decision: D1b is a BoxShape transport projection, not a new semantic/provider authority.
+Source authority + canonical issuer: canonical physical-session co-seal of
+`PreparedAotExecutableAdmissionV1` + `APrimeI64PhysicalReceiptV1` +
+`ModuleInvocationBrandV1`; no raw key/name reconstruction.
+Non-authority: JSON/Python, LLVM, RuntimeExecutablePlan, registry/provider/image,
+generic String lowering, and Rust VM; all remain projections or closed lanes.
+Fail-fast boundary: missing/foreign/stale brand, generation, role, site, entry,
+ABI, wire, lane, lease, duplicate/swap, or unknown field rejects before effect.
+Smallest next slice: one Rust projection module and one JSON emitter, immediately
+checked by the existing Python loader; production callers remain zero.
+Non-claims: no LLVM `CallOut`, lease execution, image/address/digest, physical
+session, DraftSeal, collector, production switch, fallback/retry, or VM consumer.
+
+Implementation contract (work branch only):
+
 ```text
-PreparedAotExecutableAdmissionV1
-  -> one per-function selected-admission metadata projection
-  -> one short pre-generic LLVM hook definition
-  -> (later, same activation) post-link RuntimeExecutablePlanV1
+src/box_callable/provider_admission/call_metadata.rs
+  project_dynamic_v2_aot_call_metadata(&PreparedAotExecutableAdmissionV1,
+                                       &APrimeI64PhysicalReceiptV1)
+  -> owned DynamicV2AotCallMetadataProjectionV1
+
+src/runner/mir_json_emit/dynamic_v2_aot_admission.rs
+  insert_dynamic_v2_aot_call_admission_json(...)
 ```
 
-Source authority for D1b is the canonical physical-session co-seal of the
-existing `PreparedAotExecutableAdmissionV1`, `APrimeI64PhysicalReceiptV1`, and
-`ModuleInvocationBrandV1`. The owned transport projection may retain only:
+The Rust projection is a small, non-`Verified`/non-`Prepared` transport type:
+one `ModuleInvocationBrandV1`/registry generation and exactly two typed call
+rows (`substring`, `index_of`) carrying block/instruction, admitted entry,
+symbol, ABI/wire revisions, exact lanes, and lease capability. It must consume
+the already-sealed admission/receipt facts; no reseal, clone, Core-row lookup,
+selector lookup, or free-form getter is allowed. Register only the two modules.
+Do not wire `FunctionMetadata`, the LLVM dispatcher, `method_call.py`, the
+kernel export, RuntimeExecutablePlan, or any VM path in this row.
 
-```text
-function admission brand / PlanStamp
-block + instruction index
-I6/I7 role and declared entry ID/symbol
-ABI and wire revisions
-exact receiver/argument/result lane and lease capability
-```
+Acceptance: Rust issuer = 1, JSON emitter = 1, Python loader = 1; valid
+projection and negative tests for missing/foreign/stale/duplicate/swapped/
+unknown/lane drift; admission/receipt/brand/generation parity; ordinary
+absence remains `NotSelected`, selected malformed data is terminal. Existing
+guards must assert production callers = 0, LLVM emitted call = 0,
+RuntimeExecutablePlan/session/collector = 0, fallback/retry = 0, and Rust-VM
+DynamicV2 callers = 0. Keep each new source file below 650 lines (hard 800).
 
-JSON/Python remain checked projections of this Rust product. They must not
-reconstruct a site from MIR, AST, Recipe, selector text, or generic String
-names; no Core row, registry, provider function, image, address, digest, or
-`RuntimeExecutablePlanV1` may escape the projection boundary.
-
-The metadata loader and hook definition belong in new small modules (target
-below 250 lines each). `function_metadata.py` (684 lines), generic
-`method_call.py`, `exports/string.rs`, and Rust VM modules are frozen. The
-dispatcher receives only a short early seam before generic method lowering;
-no provider/name/selector lookup is added there.
-
-Selected malformed metadata rejects before effect (missing/foreign/stale
-brand, duplicate/swap, wrong entry/ABI/lane/generation, unknown fields);
-ordinary absence remains `NotSelected`, and selected failure never falls
-through or retries. New modules target below 650 lines (hard stop 800); no
-LLVM call, `CallOut`, lease, image, executable plan, session, draft, collector,
-production caller, or Rust-VM route is opened in this preparation row.
-
-Receipt (2026-08-12): D1 loader/direct seam passes valid and negative site,
-lane, entry, and PlanStamp checks; no production caller was opened.
-
-D1b acceptance: Rust issuer = 1, JSON emitter = 1, Python loader = 1; exactly
-two typed call rows; admission/receipt/brand/generation parity; missing,
-foreign, stale, duplicate, swapped, unknown, and lane drift reject before
-LLVM/Builder effect. `PreparedAotExecutableAdmissionV1` is not resealed or
-cloned. LLVM emitted call, RuntimeExecutablePlan, physical session, collector,
-production caller, fallback/retry, and Rust-VM DynamicV2 caller stay zero.
-
-D1b is a work-branch checkpoint only. Main still requires the complete
-activation unit and an atomic new selected caller = 1 / old edge = 0.
+Receipt (2026-08-12): D1 loader/direct seam is green for valid and negative
+site/lane/entry/PlanStamp cases; no production caller was opened. D1b remains a
+work-branch checkpoint; main requires the complete activation unit and an
+atomic new selected caller = 1 / old selected edge = 0.
 
 #### `PHYSICAL-SESSION-I0-E`
 
