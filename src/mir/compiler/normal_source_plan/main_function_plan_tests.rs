@@ -396,6 +396,8 @@ fn main_plan_retains_exact_role_unit_and_consumable_trivial_plan() {
     assert_eq!(plan.role(), unit.role());
     assert!(std::ptr::eq(plan.owner_for_test(), &unit));
     let lowering: CanonicalTrivialBindingSsaPlanV1<'_> = plan.into_lowering();
+    let input_owner = lowering.with_function_input(|input| input.owner());
+    assert_eq!(input_owner, lowering.completion().owner());
     assert!(lowering.completion().returns_value());
 }
 

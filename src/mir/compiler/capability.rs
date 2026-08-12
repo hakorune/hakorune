@@ -94,6 +94,17 @@ pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
 }
 
 impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
+    /// Borrow the already sealed canonical function input without exposing
+    /// plan parts.  The callback is intentionally the only handoff surface
+    /// for a selected-package co-seal; callers cannot re-pair a raw input
+    /// after consuming the plan or synthesize a second source authority.
+    pub(crate) fn with_function_input<R>(
+        &self,
+        callback: impl FnOnce(ResolvedFunctionLoweringInputV1<'a>) -> R,
+    ) -> R {
+        callback(self.function)
+    }
+
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {

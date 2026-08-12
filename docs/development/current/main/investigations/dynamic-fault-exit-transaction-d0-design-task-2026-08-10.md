@@ -2945,6 +2945,34 @@ The provider design is closed, but the capability matrix remains
 in this DAG are implemented. No provider code is authorized by the D0
 closeout alone.
 
+##### I7 result-class authority correction (worker audit, 2026-08-12)
+
+The accepted semantic contract adds one implementation constraint to the
+future I0-B cell: `TextFindNeedle` in the normalized `hako.text.scan@1`
+artifact is the sole authority for `I7/V11 = ImmediateI64`, `lease = 0`, and
+`End = 0`. The bounded `DynamicCallExpectationV2` in `calls.rs`, the
+`indexOf` selector/fingerprint, fixture constants, and the A-prime receipt's
+role strings are source-dispatch cross-checks only. They may not refine a
+result class or lifecycle.
+
+The required I0-B relation is therefore:
+
+```text
+normalized TextFindNeedle role contract
+  + exact I7 source/Recipe relation
+  + same admitted contract/provider/profile
+    -> I7 ImmediateI64 lane and no-lease/no-End projection
+```
+
+Missing, foreign, duplicate, ambiguous, byte/env-indexed, or lifecycle-drifted
+role contracts reject before effect. `calls.rs` must delegate result-class
+validation to the borrowed role-contract projection; it must not become a
+second provider/result authority. The A-prime post-session receipt must carry
+the admitted role/contract identity as a canonical-session projection rather
+than using `indexOf/1` strings as production truth. This correction does not
+alter the current handoff fast row and does not authorize a standalone I7
+receipt, ProviderSlot code, Rust VM work, or a selector-based fallback.
+
 ##### Provider-slot audit reconciliation (2026-08-12)
 
 The worker audit considered widening this contract to a `text.cursor` or
