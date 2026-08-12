@@ -26,14 +26,16 @@ that scoped loan.
 
 Current implementation status: W0-W3 semantic/header/admission, strict
 CodePoint entries, checked CallOut ABI, generation-aware neutral lease owner,
-test-only metadata/link facts, the I8 unpublished canary, and neutral
-CheckedCallOut MIR R0 are landed. Production still uses the selected raw
-AST/JoinIR edge and every production CheckedCallOut/LLVM/link caller remains
-zero. The next bounded row is the full unpublished physical session.
+test-only metadata/link facts, the complete unpublished physical session,
+exact-two DraftSeal preparation, cataloged Box-method collector handoff, and
+the selected adapter input/admission loan are landed. Production still uses
+the selected raw AST/JoinIR edge and every production CheckedCallOut/LLVM/link
+caller remains zero. The next row is the complete W6 activation cell.
 
-Next ordered task: `PHYSICAL-SESSION-I0-E`. The lease identity and neutral
-CheckedCallOut R0 prerequisites are closed; W4 remains a non-production
-unpublished session until the complete activation cell is ready.
+Next ordered task: `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`. All pre-cutover
+physical/session and key-handoff prerequisites are closed; W6 is the only
+route allowed to connect selected package input, physical session, exact-two
+DraftSeal, catalog collector, publication, and old-edge retirement.
 
 Production stop line: provider/AOT/runtime activation and the selected
 production switch remain closed until both R0 prerequisites and the complete
@@ -517,6 +519,33 @@ the authority guard fixes its issuer/caller census while selected physical,
 collector, publication, and production callers remain zero.
 Non-claims: no selected production cutover or old-edge deletion; the complete
 activation cell remains the only route to production.
+
+#### `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`
+
+Decision: one atomic activation cell only. The existing selected package loan
+must feed the existing A-prime demand, admitted physical session, exact-two
+DraftSeal, invocation-branded `CatalogedBoxMethod` collector terminal, and
+module publication; the selected raw AST/JoinIR edge is retired in the same
+commit. No partial production caller is a valid intermediate state.
+Source authority + canonical issuer: selected package input/admission,
+`VerifiedAPrimeI64PhysicalDemandV1`, `DynamicV2PhysicalEmissionSessionV1`,
+the existing canonical DraftSeal owner, and `ModuleLoweringPortV1` are reused
+in that order. No new semantic plan, registry, CFG, or collector authority.
+Non-authority: raw AST/body, selector/name/arity reconstruction,
+`CanonicalCallable` FreeStatic conversion, `LegacySymbol`, generic String,
+runtime registry lookup, provider/image reselection, LLVM-invented CFG, VM,
+fallback, and retry.
+Fail-fast: selected key/admission, physical header/effect, admitted site plan,
+lease/End, exact-two Completion, collector brand/key/symbol/arity, batch
+collision, module readiness, and old-edge census must all pass before live
+Builder/module mutation. Any mismatch discards the unpublished cell.
+Acceptance: selected production caller exactly 1; old selected edge 0;
+collector/publication exactly once; legacy key conversion, runtime lookup,
+fallback, retry, and Rust-VM DynamicV2 callers all 0; focused positive and
+negative tests plus existing authority guards green; every touched source file
+below 760 target and 800 hard stop.
+Non-claims: no W6 subfragment may land as a selectable production route; if
+the complete cell is not green, keep the current unpublished lane unchanged.
 
 #### `SELECTED-CUTOVER-I0-G`
 

@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F key authority is accepted as a cataloged Box-method collector shape, the move-only draft reaches an invocation-owned branded collector terminal, and the selected adapter now loans the exact input/admission pair for a bounded identity cross-check. Publication, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F key authority, invocation-owned branded collector handoff, drift/unbranded negatives, and the selected adapter input/admission loan are landed. The next row is the complete W6 activation cell; partial production callers remain forbidden."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "F R0/R1 key shape and unpublished handoff are landed: FunctionDraftKeyV1::CatalogedBoxMethod(CanonicalSameModuleCallableKeyV1) preserves owner/namespace/name/arity, ModuleLoweringPortV1 consumes that move-only draft through one invocation-branded collector terminal, and symbol/arity drift plus unbranded collection reject before mutation. The selected adapter input/admission loan is also landed as a non-escaping identity cross-check; production publication and selected cutover remain closed."
+current_design_stop = "F R0/R1 key shape, unpublished handoff, and selected adapter loan are landed. The next boundary is W6 complete activation: demand/session/collector/publication and selected old-edge retirement must be one activation unit; no intermediate production caller, demand/session caller, or fallback route may land."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0"
-current_blocker_token = "DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0: selected input/admission HRTB loan and identity cross-check landed; next selected activation must consume the same move-only cataloged Box-method key while rejecting FreeStatic coercion, LegacySymbol conversion, raw name/arity reconstruction, duplicate/collision, second finalization, publication, fallback, retry, and production caller until the complete activation cell is ready."
+current_execution_row = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
+current_blocker_token = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6: complete activation only; consume the selected package loan through the existing demand, physical session, exact-two DraftSeal, invocation-branded catalog collector, and atomic publication/old-edge retirement. Reject any partial caller, FreeStatic or LegacySymbol conversion, raw name/arity reconstruction, duplicate/collision, second finalization, fallback, retry, provider/runtime reselection, or VM route."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,9 +29,9 @@ current_execution_design = "docs/development/current/main/investigations/dynamic
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, E3 inner-return ThenTerminal handoff, E4 I13-I16 continuation/backedge Header PHI handoff, R0 cleanup/site-plan lifecycle co-seal, E5 profile close plus exact-two DraftSeal preparation, F's cataloged Box-method key and branded collector handoff with drift/unbranded negatives, and the selected adapter input/admission loan are landed; production callers remain zero and full collector activation remains next."
-next_design_card = "DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0"
+next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0"
+next_execution_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
