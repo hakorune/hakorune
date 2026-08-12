@@ -51,7 +51,11 @@ mod block_expr_tests;
 #[cfg(test)]
 mod callable_module_transaction_tests;
 #[cfg(test)]
-mod completion_tests;
+mod completion_test_support;
+#[cfg(test)]
+mod completion_consumption_tests;
+#[cfg(test)]
+mod completion_draft_seal_tests;
 #[cfg(test)]
 mod dynamic_loop_discard_tests;
 #[cfg(test)]
