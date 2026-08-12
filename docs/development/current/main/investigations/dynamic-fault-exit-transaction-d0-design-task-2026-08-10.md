@@ -317,11 +317,49 @@ MIRBUILDER-WORKSTREAM-ARCHIVE-R0
   rolling workstream current brief below 800 lines
   closed chronology -> archive/git history
 
-MIRBUILDER-PRIVATE-PHASE-SPLIT-R0
+MIRBUILDER-EMIT-INSTRUCTION-PHASE-SPLIT-R0
   keep one public emit_instruction writer; split private prepare/validate/
   physical-commit/post-metadata phases
-  split builder_build.rs by literal/read/assignment/new-expression ownership
+
+MIRBUILDER-BUILDER-BUILD-SPLIT-R0
+  keep the existing MirBuilder methods, visibility, callers, and emission order
+  builder_build.rs becomes a thin facade over:
+    literal_lowering.rs
+      literal dispatch + exact-numeric constant metadata
+    variable_read.rs
+      variable lookup + undefined-variable diagnostics
+    assignment_lowering.rs
+      assignment + local/typed-array contract publication
+      + previous strong-reference release
+    new_expression.rs
+      PreparedRawNewExpression + raw new route + legacy child descent
+  move file-local tests to one sibling test module
+  do not add a new lowering entry, receipt, fallback, env policy, or authority
+
+MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
+  run after selected production cutover and a caller/cfg census
+  keep builder.rs as the sole MirBuilder facade and preserve module paths,
+  re-exports, visibility, and cfg gates
+  reorder its declarations into:
+    state / session
+    source admission
+    semantic plans
+    physical lowering
+    draft collection / publication
+    legacy compatibility
+    tests / migration-only
+  move inline binding tests to a sibling test module
+  move historical phase/migration prose to archive or owning README
+  remove #[allow(dead_code)] or disconnected modules only after caller-zero;
+  classification alone never retires them
 ```
+
+Both rows are behavior-neutral refactor series of two to five commits. Their
+Done boundary is unchanged public callers and diagnostics, focused parity and
+failure tests, no new production edge, `git diff --check`, and every touched
+Rust file below 760 lines. If moving a method changes metadata/publication/
+release ordering or a module move changes its Rust path or cfg reachability,
+the series stops and returns to its parent commit.
 
 The current active card is intentionally compact. Its multi-thousand-line
 predecessor is retained only under `design/archive/` as historical evidence.
