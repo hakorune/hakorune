@@ -425,23 +425,23 @@ the unpublished emitter before target allocation. The next bounded row is
 canonical Normal-result/value-ledger publication, and final 1:1:1 census only.
 
 Design stop (2026-08-13): `PHYSICAL-SESSION-I0-E-RECIPE-ORDER-VALUE-CURSOR-D2`
-is required before D1 can emit a CheckedCallOut. The verified Recipe rows
-still name I6 operands as `V0/V6/V9` and I7 as `V3/V10`; only formal/header
-values and the I8 `V12` canary have canonical physical `ValueId` receipts
-today. No placeholder or guessed `ValueId` may be used to make a corridor
-appear green.
+is the next **BoxShape** row before D1 can emit a CheckedCallOut. It adds no
+semantic shape: one private cursor consumes the already verified V2 Recipe
+rows once and asks the existing canonical SSA owner for physical `ValueId`
+receipts. The V1 `loop_recipe_physicalizer` is not reusable here because its
+V1 ledger/targets would create a second cursor and second physical authority.
 
 ```text
-Decision: name one complete Recipe-operation -> canonical ValueId cursor first.
-Source authority + canonical issuer: PreparedDynamicLoopOperationProgramV2,
-  A-prime formal/source relation, and CanonicalSsaFunctionSessionV2 identity.
-Non-authority: targets, site plans, selectors, BasicBlock, LLVM, runtime, VM.
-Fail-fast boundary: missing/duplicate/foreign/stale/representation-mismatched
-  value relation rejects before CheckedCallOut or corridor mutation.
-Smallest next slice: `RECIPE-ORDER-VALUE-CURSOR-D2`; walk every operation row
-  exactly once, then close the two callout operand sets in the existing ledger.
-Non-claims: no placeholder values, lease/End, provider execution, LLVM, DraftSeal,
-  collector, fallback/retry, or production caller.
+Decision: implement one move-only V2 Recipe-order -> canonical `ValueId` cursor.
+Source authority + canonical issuer: `PreparedDynamicLoopOperationProgramV2::operation_rows()`;
+  `CanonicalSsaFunctionSessionV2` issues values and the existing V2 ledger retains receipts.
+Non-authority: V1 physicalizer, targets, site plans, selectors, BasicBlock, LLVM, runtime, VM.
+Fail-fast boundary: missing/duplicate/reordered/foreign/stale/representation-mismatched
+  rows, use-before-def, or caller-supplied/placeholder `ValueId` rejects before CFG mutation.
+Smallest next slice: consume all rows once; prove I6 `V0/[V6,V9]->V10`, I7 `V3/[V10]->V11`,
+  I8 `V12:I64`, and I9 `V11/V12->V13:Bool`; add negative tests and a reusable guard.
+Non-claims: no lease/End execution, provider/LLVM/VM, DraftSeal, collector, fallback/retry,
+  or production caller.
 ```
 
 #### `PHYSICAL-SESSION-I0-E`
