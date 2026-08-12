@@ -290,19 +290,11 @@ preflight ledger Clone / clone-or-split production path          = 0 / 0
 This is one activation cell built in small owner modules. Intermediate code
 does not become an independently selectable provider or production route.
 
-The first cold BoxShape is now landed in `src/box_callable/admitted.rs`:
-`BoxCallableRegistryDraftV1` is provider-fact input, the consuming
-`BoxCallableProviderAdmissionSealV1` rejects duplicate/foreign facts, and
-`AdmittedBoxCallableRegistryV1` is deterministic and non-Clone.  The spine is
-guarded with zero production callers; it is not a provider activation or a
-runtime route until the complete cell below consumes it.
-
-The normalized `hako.text.scan@1` contract projection is also landed in
-`src/box_callable/text_scan.rs`: `TextSliceRange` and `TextFindNeedle` are the
-complete CP-profile role set, with `String`/`StringBox` alias admission.  Its
-admission creates receiver-identity-bearing, stamped presealed branches, but
-its consumer count remains zero; the strict AOT leaf and canonical I6/I7
-receipts must consume this contract together in the activation cell.
+No provider contract, registry, executable branch, wire, LLVM leaf, runtime
+lease, or receipt is landed ahead of this cell.  The complete
+`hako.text.scan@1` contract, admission, executable branch, strict AOT leaf,
+canonical I6/I7 receipts, and lifecycle must land as one activation unit; an
+isolated preparatory authority is forbidden.
 
 Change:
   activate the complete `hako.text.scan@1` provider capability, strict AOT/LLVM
@@ -514,8 +506,6 @@ cargo check -q --lib
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
 bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
-bash tools/checks/dynamic_v2_provider_spine_guard.sh
-bash tools/checks/dynamic_v2_text_scan_contract_guard.sh
 bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
