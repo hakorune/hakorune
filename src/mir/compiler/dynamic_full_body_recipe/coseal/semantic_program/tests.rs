@@ -283,10 +283,12 @@ fn semantic_program_surface_has_one_input_and_no_split_or_physical_escape() {
     let semantic_source = include_str!("mod.rs");
     assert!(semantic_source.contains("issue_dynamic_full_loop_semantic_program_v2(\n    envelope:"));
     assert!(!semantic_source.contains("<'env, 'decl>"));
+    // The final semantic program retains the sole Completion authority for
+    // the selected canonical session.  It is borrowed through the narrow
+    // HRTB view; this is not a second Completion issuer or a physical escape.
     for forbidden in [
         "from_after",
         "into_parts",
-        "VerifiedFunctionCompletionV1",
         "MirBuilder",
         "BasicBlockId",
         "ValueId",

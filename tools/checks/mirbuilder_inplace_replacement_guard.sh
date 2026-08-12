@@ -27,6 +27,7 @@ LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0
 RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
 MATCH_OWNER="$ROOT_DIR/src/mir/builder/exprs_peek.rs"
 BUILDER_BUILD="$ROOT_DIR/src/mir/builder/builder_build.rs"
+RAW_NEW="$ROOT_DIR/src/mir/builder/new_expression.rs"
 ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
 ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
 ASSIGNMENT_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs"
@@ -93,6 +94,7 @@ guard_require_files \
   "$RAW_DISPATCH" \
   "$MATCH_OWNER" \
   "$BUILDER_BUILD" \
+  "$RAW_NEW" \
   "$ASSIGNMENT_DESCENT" \
   "$ASSIGNMENT_TESTS" \
   "$ASSIGNMENT_GUARD" \
@@ -162,9 +164,9 @@ if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
   guard_fail "$TAG" "retired generic cf_loop authority returned"
 fi
 guard_exact_counts <<EOF
-$BUILDER_BUILD|struct\\s+PreparedRawNewExpressionV1\\b|1|prepared raw New route
-$BUILDER_BUILD|fn\\s+lower_prepared_raw_new_expression_with_port_v1\\s*<Port>|1|prepared raw New lowering owner
-$BUILDER_BUILD|is_record_constructor_class\\(&class\\)|1|single raw New record classifier
+$RAW_NEW|struct\\s+PreparedRawNewExpressionV1\\b|1|prepared raw New route
+$RAW_NEW|fn\\s+lower_prepared_raw_new_expression_with_port_v1\\s*<Port>|1|prepared raw New lowering owner
+$RAW_NEW|is_record_constructor_class\\(&class\\)|1|single raw New record classifier
 $RAW_DISPATCH|PreparedRawNewExpressionV1::prepare\\s*\\(|1|sole raw New route issuer
 $RAW_DISPATCH|lower_prepared_raw_new_expression_with_port_v1\\s*\\(|1|sole prepared raw New caller
 EOF
@@ -178,8 +180,8 @@ do
     guard_fail "$TAG" "retired raw New edge returned: $retired_new_edge"
   fi
 done
-if rg -n -F 'RawLegacyChildLoweringPortV1' "$BUILDER_BUILD" >/dev/null; then
-  guard_fail "$TAG" "builder_build restored a caller-selected legacy New port"
+if rg -n -F 'RawLegacyChildLoweringPortV1' "$RAW_NEW" >/dev/null; then
+  guard_fail "$TAG" "new_expression restored a caller-selected legacy New port"
 fi
 guard_exact_counts <<EOF
 $CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
