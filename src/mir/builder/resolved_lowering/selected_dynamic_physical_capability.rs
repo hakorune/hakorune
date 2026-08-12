@@ -232,26 +232,38 @@ fn issue_compare_i64_demand(
     plan: &PreparedSelectedDynamicV2EmissionPlanV1<'_>,
 ) -> Result<DynamicV2CompareI64CapabilityDemandV1, SelectedDynamicV2PhysicalCapabilityRejectV1> {
     plan.with_operation_program(|program| {
-        let i7 = program
+        let i6_rows = program
             .operation_rows()
             .iter()
-            .find(|row| row.item() == LoopItemKeyV1::new(I7))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
-        let i6 = program
+            .filter(|row| row.item() == LoopItemKeyV1::new(I6))
+            .collect::<Vec<_>>();
+        let i7_rows = program
             .operation_rows()
             .iter()
-            .find(|row| row.item() == LoopItemKeyV1::new(I6))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable)?;
-        let i8 = program
+            .filter(|row| row.item() == LoopItemKeyV1::new(I7))
+            .collect::<Vec<_>>();
+        let i8_rows = program
             .operation_rows()
             .iter()
-            .find(|row| row.item() == LoopItemKeyV1::new(I8))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
-        let i9 = program
+            .filter(|row| row.item() == LoopItemKeyV1::new(I8))
+            .collect::<Vec<_>>();
+        let i9_rows = program
             .operation_rows()
             .iter()
-            .find(|row| row.item() == LoopItemKeyV1::new(I9))
-            .ok_or(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation)?;
+            .filter(|row| row.item() == LoopItemKeyV1::new(I9))
+            .collect::<Vec<_>>();
+        let [i6] = i6_rows.as_slice() else {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        };
+        let [i7] = i7_rows.as_slice() else {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
+        };
+        let [i8] = i8_rows.as_slice() else {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation);
+        };
+        let [i9] = i9_rows.as_slice() else {
+            return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::CompareI64Operation);
+        };
         let (left, right, result) = match i9.operation() {
             LoopOperationV2::CompareI64 {
                 op: crate::mir::loop_recipe_contract::LoopCompareI64OpV2::Less,
