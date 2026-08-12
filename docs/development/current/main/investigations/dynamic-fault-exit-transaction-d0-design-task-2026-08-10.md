@@ -324,10 +324,12 @@ physical symbol/header source       = existing catalog/source identity projectio
 raw method name -> physical symbol  = 0
 raw body return scan in canonical    = 0
 canonical skeleton input             = exact physical header + Completion contract
+physical header effect source        = borrowed verified operation/effect plan
 authority validation before Builder mutation = 1
 legacy raw skeleton/body inference   = selected AOT path only, 0
 semantic block count chosen by emitter = 0
 DynamicProfileOwned owner validation  = exact or unit disposition
+selected collector key               = CanonicalCallable, never LegacySymbol
 ```
 
 The selected physical symbol must come from the existing cataloged method
@@ -452,16 +454,21 @@ selectable authority. Any missing relation remains `RejectBeforeEffect`.
 ```text
 DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
   The package adapter's existing cataloged-method admission is the sole
-  physical-header source. It is moved into the selected Dynamic activation
-  input and retained through the unpublished session and collector; the
-  emitter must not re-seal the same source key. Foreign symbol, arity, owner,
-  target, or physical-header evidence rejects before Builder mutation.
+  physical-header source. Its symbol/arity/parameter-return representation
+  and verified operation-effect summary are borrowed into the selected
+  Dynamic activation input and retained through the unpublished session and
+  collector; the emitter must not re-seal the source key. Foreign symbol,
+  arity, owner, target, effect, or header evidence rejects before Builder
+  mutation. `begin` only orchestrates prepare -> validate -> open -> install;
+  it does not invent header/effect facts.
 
 DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
   The same session consumes the complete operation/control schedule, I6/I7
   producer receipts, and V10 End evidence; it claims exactly two Completion
   sites and prepares the two physical Return terminators.  Missing, extra,
   duplicate, mixed-representation, or synthetic join/PHI evidence rejects.
+  DynamicProfileOwned is either a unit disposition or is checked against the
+  session owner at finish; a no-op owner discard is forbidden.
   Physical targets remain exact: condition B0 -> Header, body operations
   before If -> BodyPrelude in B1, then Return -> ThenTerminal in B2, body
   operations after If -> Continuation in B1, and callable After -> After.
