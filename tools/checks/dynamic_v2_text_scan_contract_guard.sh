@@ -23,6 +23,9 @@ for required in \
   'TextFindNeedle' \
   'immediate_i64_no_lease' \
   'TextScanProviderAdmissionV1' \
+  'TextScanExecutableBranchV1' \
+  'dispatch_symbol' \
+  'receiver_matches' \
   'complete_two_role_contract_admits_one_provider_profile' \
   'contract_rejects_partial_role_or_alias_set' \
   'contract_rejects_foreign_requirement'; do

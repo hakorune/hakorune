@@ -5,7 +5,7 @@
 //! String surface, or Rust-VM consumer is allowed to depend on this module
 //! until the complete AOT activation cell is ready.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::admitted::{
     AdmittedBoxCallableRegistryV1, BoxCallableAdmissionContextV1,
@@ -14,6 +14,7 @@ use super::admitted::{
     BoxCallableRegistryDraftV1,
 };
 use super::{BoxCallableKey, BoxCallableRole, BoxCallableSource, BoxCallableTarget, BoxKey};
+use super::route_plan::MethodCallRoutePlan;
 
 pub(crate) const HAKO_TEXT_SCAN_CONTRACT_ID_V1: &str = "hako.text.scan@1";
 pub(crate) const HAKO_TEXT_SCAN_PROFILE_V1: &str = "utf8-codepoint-clamped-v1";
@@ -45,6 +46,13 @@ impl TextScanRoleV1 {
         match self {
             Self::TextSliceRange => "host_handle_end_authorized",
             Self::TextFindNeedle => "immediate_i64_no_lease",
+        }
+    }
+
+    pub(crate) const fn dispatch_symbol(self) -> &'static str {
+        match self {
+            Self::TextSliceRange => "nyrt_text_scan_substring_cp_v1",
+            Self::TextFindNeedle => "nyrt_text_scan_index_of_cp_v1",
         }
     }
 
@@ -139,6 +147,61 @@ pub(crate) struct AdmittedTextScanProviderV1 {
     registry: AdmittedBoxCallableRegistryV1,
     aliases: Box<[BoxKey]>,
     canonical_receiver: BoxKey,
+    branches: BTreeMap<TextScanRoleV1, TextScanExecutableBranchV1>,
+}
+
+/// Presealed executable projection for one complete contract role.  It keeps
+/// receiver identity and image/generation stamps together with the semantic
+/// route; it has no registry or selector lookup capability.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct TextScanExecutableBranchV1 {
+    role: TextScanRoleV1,
+    canonical_receiver: BoxKey,
+    receiver_aliases: Box<[BoxKey]>,
+    provider_id: String,
+    image_pin: String,
+    generation: u64,
+    plan_stamp: u64,
+    route: MethodCallRoutePlan,
+    dispatch_symbol: &'static str,
+}
+
+impl TextScanExecutableBranchV1 {
+    pub(crate) fn role(&self) -> TextScanRoleV1 {
+        self.role
+    }
+
+    pub(crate) fn receiver_matches(&self, receiver: &BoxKey) -> bool {
+        self.receiver_aliases.iter().any(|alias| alias == receiver)
+    }
+
+    pub(crate) fn canonical_receiver(&self) -> &BoxKey {
+        &self.canonical_receiver
+    }
+
+    pub(crate) fn provider_id(&self) -> &str {
+        &self.provider_id
+    }
+
+    pub(crate) fn image_pin(&self) -> &str {
+        &self.image_pin
+    }
+
+    pub(crate) fn generation(&self) -> u64 {
+        self.generation
+    }
+
+    pub(crate) fn plan_stamp(&self) -> u64 {
+        self.plan_stamp
+    }
+
+    pub(crate) fn route(&self) -> &MethodCallRoutePlan {
+        &self.route
+    }
+
+    pub(crate) fn dispatch_symbol(&self) -> &'static str {
+        self.dispatch_symbol
+    }
 }
 
 impl AdmittedTextScanProviderV1 {
@@ -156,6 +219,10 @@ impl AdmittedTextScanProviderV1 {
 
     pub(crate) fn canonical_receiver(&self) -> &BoxKey {
         &self.canonical_receiver
+    }
+
+    pub(crate) fn branch(&self, role: TextScanRoleV1) -> Option<&TextScanExecutableBranchV1> {
+        self.branches.get(&role)
     }
 
     pub(crate) fn plan_for(
@@ -288,11 +355,44 @@ impl TextScanProviderAdmissionV1 {
         )
         .map_err(TextScanContractRejectV1::Admission)?;
 
+        let aliases = expected_aliases.into_iter().collect::<Vec<_>>().into_boxed_slice();
+        let canonical_receiver = BoxKey::new("Text");
+        let mut branches = BTreeMap::new();
+        for role in TextScanRoleV1::ALL {
+            let canonical_alias = BoxKey::new("String");
+            let admitted_entry = registry
+                .get(&role.key_for(&canonical_alias))
+                .ok_or(TextScanContractRejectV1::Admission(
+                    BoxCallableAdmissionRejectV1::MissingMethodRoute,
+                ))?;
+            let route = admitted_entry
+                .method_route()
+                .cloned()
+                .ok_or(TextScanContractRejectV1::Admission(
+                    BoxCallableAdmissionRejectV1::MissingMethodRoute,
+                ))?;
+            let branch = TextScanExecutableBranchV1 {
+                role,
+                canonical_receiver: canonical_receiver.clone(),
+                receiver_aliases: aliases.clone(),
+                provider_id: provider_id.clone(),
+                image_pin: image_pin.clone(),
+                generation,
+                plan_stamp,
+                route,
+                dispatch_symbol: role.dispatch_symbol(),
+            };
+            if branches.insert(role, branch).is_some() {
+                return Err(TextScanContractRejectV1::DuplicateRoleAlias);
+            }
+        }
+
         Ok(AdmittedTextScanProviderV1 {
             contract,
             registry,
-            aliases: expected_aliases.into_iter().collect::<Vec<_>>().into_boxed_slice(),
-            canonical_receiver: BoxKey::new("Text"),
+            aliases,
+            canonical_receiver,
+            branches,
         })
     }
 }
@@ -345,6 +445,14 @@ mod tests {
         assert!(admitted
             .plan_for(TextScanRoleV1::TextFindNeedle, &BoxKey::new("String"))
             .is_some());
+        let branch = admitted
+            .branch(TextScanRoleV1::TextFindNeedle)
+            .expect("presealed index branch");
+        assert!(branch.receiver_matches(&BoxKey::new("StringBox")));
+        assert_eq!(branch.canonical_receiver().as_str(), "Text");
+        assert_eq!(branch.generation(), 23);
+        assert_eq!(branch.plan_stamp(), 17);
+        assert_eq!(branch.dispatch_symbol(), "nyrt_text_scan_index_of_cp_v1");
         assert_eq!(
             TextScanRoleV1::TextFindNeedle.result_lane(),
             "immediate_i64_no_lease"
