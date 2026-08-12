@@ -331,11 +331,11 @@ fn recipe_value_class(
     kind: CoreMethodResultKindV1,
 ) -> Result<LoopValueClassV2, DynamicFullLoopCallRelationRejectV2> {
     match kind {
-        CoreMethodResultKindV1::StringValue | CoreMethodResultKindV1::Dynamic => {
-            Ok(LoopValueClassV2::Dynamic)
-        }
+        CoreMethodResultKindV1::StringValue => Ok(LoopValueClassV2::Dynamic),
         CoreMethodResultKindV1::I64Value => Ok(LoopValueClassV2::I64),
-        CoreMethodResultKindV1::BoolValue | CoreMethodResultKindV1::NoValue => {
+        CoreMethodResultKindV1::BoolValue
+        | CoreMethodResultKindV1::NoValue
+        | CoreMethodResultKindV1::Dynamic => {
             Err(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch)
         }
     }
@@ -402,6 +402,14 @@ mod tests {
         assert_eq!(
             verify_one(&source, artifact.recipe(), &fixture.calls, expectation),
             Err(DynamicFullLoopCallRelationRejectV2::TargetDispatchMismatch)
+        );
+    }
+
+    #[test]
+    fn text_scan_contract_rejects_untyped_generated_result_projection() {
+        assert_eq!(
+            recipe_value_class(CoreMethodResultKindV1::Dynamic),
+            Err(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch)
         );
     }
 }
