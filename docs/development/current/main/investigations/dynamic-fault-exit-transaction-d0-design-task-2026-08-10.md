@@ -331,6 +331,43 @@ admission together so a caller cannot re-pair them. It validates all symbolic
 entry, ABI, generation, lane, lifecycle, and semantic brands before opening
 Builder state.
 
+##### I0-C implementation-preparation contract
+
+This is a work-branch BoxCount checkpoint, not a new production route. Before
+editing, freeze the following order and API boundary:
+
+```text
+retained DynamicFullLoopCallRelationV2 rows
+  -> one private HRTB TextScan view (I6 + I7, borrowed)
+  -> consuming ProviderAdmissionSeal
+  -> immutable deterministic admitted rows
+  -> move-only PreparedAotExecutableAdmissionV1
+```
+
+The view is created only inside the existing selected physical-capability
+consumer. It must use the `core_method` references already retained by the
+call relations and must not call a generated-row lookup, selector lookup, or
+surface scan. The callback returns only an owned admission cell; no borrowed
+row, raw registry, selector, provider function, or `CoreMethod` object may
+escape. The admitted rows are a canonical `Text` branch: `String` and
+`StringBox` are checked aliases, never two independently selectable branches.
+
+Required pre-effect checks are: exactly one I6 `StringSubstring/2` row and one
+I7 `StringIndexOf/1` row; same program/owner; CallSlot receiver/argument/result
+lanes; generated result/effect identity; one CodePoint profile; one ABI/export
+revision; matching alias slots; no duplicate or ambiguous export; and a
+compile/module-invocation `PlanStamp` that is borrowed from an existing owner.
+Any missing, foreign, swapped, stale, duplicate, or conflicting fact rejects
+before Builder/session mutation. The cell contains symbolic entry IDs only;
+image digest, resolved address, and `RuntimeExecutablePlanV1` are post-link
+products and are not invented here.
+
+Acceptance for this checkpoint is `admission issuer = 1`, immutable admitted
+registry = 1, canonical receiver branch = 1, symbolic executable cell = 1,
+and all production callers/LLVM hooks/Rust-VM consumers = 0. The next strict
+leaf/session consumer must be named before this cell is allowed to land on
+main; a provider-only or registry-only production commit is forbidden.
+
 #### `STRICT-AOT-LEAF-I0-D`
 
 Implement exactly the two entry IDs declared by the neutral artifact in a new
