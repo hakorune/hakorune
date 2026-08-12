@@ -142,10 +142,10 @@ Completion parts, `ValueId`, or `BasicBlockId`.
 
 ## Ordered implementation DAG
 
-### 1. `DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0` — current design stop
+### 1. `DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0` — accepted Decision
 
-The previously listed projection row is parked until this owner decision is
-closed.  The target is a Dynamic Loop with an inner If Return, so
+The previously listed projection row is now opened by this owner decision.
+The target is a Dynamic Loop with an inner If Return, so
 `CanonicalTrivialBindingSsaPlanV1`, `CanonicalLoweringPreflightV1`, and the
 first-family trivial analyzer are not valid session inputs.  Making them
 accept this shape would issue a second semantic plan, Completion, or If
@@ -190,6 +190,30 @@ foreign/arbitrary session pairing                            = 0
 ```
 
 Only after this D0 is accepted may the following parked BoxShape row open.
+
+The accepted private boundary is:
+
+```text
+VerifiedDynamicExitTransactionCoSealV1
+  -> with_canonical_session_authority(HRTB callback)
+       borrows the retained Completion and Dynamic Loop control disposition
+       and carries owner/target/source-root identity
+  -> existing A-prime demand/emission plan
+  -> CanonicalSsaFunctionSessionV2::new_selected_dynamic
+       Completion consumer = Owned | Borrowed
+       control consumer   = Resolved | DynamicProfileOwned
+```
+
+The HRTB callback is the only place where the borrowed authority and the
+mutable canonical session meet.  It cannot return the borrow, a session, or a
+semantic part.  `finish()` snapshots only the borrow-free physical claims and
+return kind needed by DraftSeal.  The Dynamic control disposition is a
+private view of the already sealed JoinClosure; it is not an empty
+`VerifiedResolvedFunctionIfControlV1`, and it is not reissued from the source.
+
+This closes the D0 design question.  The next row is the parked BoxShape
+projection, beginning with the completion consumer's `Owned | Borrowed`
+storage and borrow-free ready close.
 
 ### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — parked BoxShape
 

@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The selected Dynamic semantic-plan Decision is accepted. VerifiedDynamicExitTransactionCoSealV1 is the sole source/Recipe/JoinSig/Completion owner; CanonicalTrivialBindingSsaPlanV1 is a different family and will not be extended for the Loop plus inner Return cohort. The existing selected package HRTB loan and A-prime demand/emission plan are the only transport/pre-session owners. The current design stop selects the sole Dynamic canonical-session admission boundary before opening the BoxShape bridge. Provider/AOT/runtime activation, production cutover, and Rust-VM DynamicV2 work remain closed."
+status = "The selected Dynamic semantic-plan and canonical-session admission Decisions are accepted. VerifiedDynamicExitTransactionCoSealV1 is the sole source/Recipe/JoinSig/Completion owner; CanonicalTrivialBindingSsaPlanV1 is a different family and will not be extended for the Loop plus inner Return cohort. The installed package HRTB loan, private final-program session-authority callback, and A-prime demand/emission plan are the only transport/pre-session owners. The next BoxShape row implements borrowed Completion storage and a borrow-free ready close. Provider/AOT/runtime activation, production cutover, and Rust-VM DynamicV2 work remain closed."
 date = "2026-08-12"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0"
-work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0"
-current_blocker_token = "Choose the sole Dynamic canonical-session admission owner: the installed package's exactly-once same-source loan plus final VerifiedDynamicExitTransactionCoSealV1 must lend existing Completion and Dynamic Loop control to the existing canonical CFG/SSA/PHI session without reissuing or pairing a CanonicalTrivialBindingSsaPlanV1. Reject AST/header reconstruction, generic trivial-plan widening, raw parts, foreign session pairing, provider/LLVM/runtime/VM work, production switch, fallback, and retry."
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0"
+current_blocker_token = "Reuse the accepted final-program HRTB authority. Implement only the completion consumer's Owned|Borrowed internal storage and borrow-free ready close; preserve ordinary owned behavior. Do not add a semantic Completion issuer, extend CanonicalTrivialBindingSsaPlanV1, expose raw parts, open provider/LLVM/runtime/VM work, switch production, or add fallback/retry."
 hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
 callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
 callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
@@ -235,7 +235,7 @@ generic_raw_structured_demands_repair_task = "docs/development/current/main/inve
 generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
 generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
 generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The false typed-trivial-plan premise is retired. The final Dynamic program is the sole semantic plan and the existing A-prime demand/emission plan is the sole pre-session physical plan. The remaining design stop is selecting the one Dynamic canonical-session admission owner; the BoxShape projection row stays parked until that owner and lifetime boundary are fixed."
+current_execution_summary = "The false typed-trivial-plan premise is retired and the sole Dynamic canonical-session admission boundary is accepted. The final Dynamic program remains the semantic owner; the existing A-prime demand/emission plan remains the pre-session physical owner. R0-A now performs the behavior-neutral borrowed Completion consumer refactor before control projection and emitter handoff."
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
 generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
@@ -719,14 +719,14 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none"
+next_execution_card = "DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The Dynamic canonical-session Decision is accepted: the final Dynamic exit co-seal is the sole semantic plan, the existing A-prime demand/emission plan is the sole pre-session plan, and the generic trivial-plan family is excluded. The current design stop is DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0: choose the sole same-source Completion/control-to-canonical-session admission boundary before opening the parked BoxShape projection. Provider, LLVM, runtime, VM, and production routes remain closed."
+latest_card_summary = "The Dynamic canonical-session Decision is accepted: the final Dynamic exit co-seal is the sole semantic plan, the existing A-prime demand/emission plan is the sole pre-session plan, and the generic trivial-plan family is excluded. DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0 is the next BoxShape row; its first subcommit is completion consumer Owned|Borrowed storage with borrow-free ready close. Provider, LLVM, runtime, VM, and production routes remain closed."
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
