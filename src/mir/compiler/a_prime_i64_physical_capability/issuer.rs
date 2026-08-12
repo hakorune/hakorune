@@ -1,5 +1,6 @@
 //! Sole issuer for the bounded A-prime exact-I64 demand.
 
+use crate::mir::builder::{NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
@@ -22,6 +23,16 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     let SelectedCallableSemanticRefV1::Dynamic { program, .. } = input.semantic() else {
         return Err(APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic);
     };
+    let selected_key = input.selected_key().clone();
+    let physical_header = match &selected_key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => {
+            NormalCatalogedBoxMethodDraftAdmissionV1::seal(source_key.clone())
+                .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalHeader)?
+        }
+        SelectedNormalCallableKeyV1::TopLevel(_) => {
+            return Err(APrimeI64PhysicalDemandRejectV1::CallableIdentity)
+        }
+    };
     let identity = input.source_identity().clone();
     let source_relation = program
         .a_prime_source_relation_view()
@@ -38,11 +49,12 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?;
     Ok(from_parts(
         input.source(),
-        input.selected_key().clone(),
+        selected_key,
         identity,
         program,
         source_relation,
         operation_program,
+        physical_header,
     ))
 }
 

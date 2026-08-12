@@ -135,6 +135,11 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
                 APrimeI64PhysicalRequirementV1::DirectExactI64
         );
         assert_eq!(demand.identity().owner(), input.source().owner());
+        assert_eq!(
+            demand.physical_header().physical_symbol(),
+            "ParserScanLoopBox.skip_while/4"
+        );
+        assert_eq!(demand.physical_header().physical_arity(), 4);
         assert_eq!(demand.source_relation().completion_sites().len(), 2);
         demand.with_operation_program(|program| {
             assert_eq!(program.placement_rows().len(), 17);

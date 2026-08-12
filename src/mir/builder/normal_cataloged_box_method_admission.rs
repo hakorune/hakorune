@@ -9,8 +9,8 @@ use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NormalCatalogedBoxMethodAdmissionErrorV1 {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum NormalCatalogedBoxMethodAdmissionErrorV1 {
     PhysicalArityOverflow,
 }
 
@@ -28,7 +28,7 @@ impl std::error::Error for NormalCatalogedBoxMethodAdmissionErrorV1 {}
 /// One catalog-backed source identity paired with the existing physical draft
 /// contract.  It owns neither a body snapshot nor a collector borrow.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct NormalCatalogedBoxMethodDraftAdmissionV1 {
+pub(in crate::mir) struct NormalCatalogedBoxMethodDraftAdmissionV1 {
     source_key: CanonicalSameModuleCallableKeyV1,
     physical_symbol: Box<str>,
     physical_arity: usize,
@@ -39,7 +39,7 @@ pub(in crate::mir::builder) struct NormalCatalogedBoxMethodDraftAdmissionV1 {
 struct NormalCatalogedBoxMethodDraftAdmissionSealV1;
 
 impl NormalCatalogedBoxMethodDraftAdmissionV1 {
-    pub(in crate::mir::builder) fn seal(
+    pub(in crate::mir) fn seal(
         source_key: CanonicalSameModuleCallableKeyV1,
     ) -> Result<Self, NormalCatalogedBoxMethodAdmissionErrorV1> {
         let source_arity = usize::try_from(source_key.arity())
@@ -60,15 +60,15 @@ impl NormalCatalogedBoxMethodDraftAdmissionV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn source_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+    pub(in crate::mir) fn source_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.source_key
     }
 
-    pub(in crate::mir::builder) fn physical_symbol(&self) -> &str {
+    pub(in crate::mir) fn physical_symbol(&self) -> &str {
         &self.physical_symbol
     }
 
-    pub(in crate::mir::builder) const fn physical_arity(&self) -> usize {
+    pub(in crate::mir) const fn physical_arity(&self) -> usize {
         self.physical_arity
     }
 

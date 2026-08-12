@@ -433,10 +433,11 @@ single generated-row resolution per call relation      = 1
 provider/registry/LLVM/runtime/VM additions            = 0
 ```
 
-The effect row is required before the TextScan aggregate can claim to borrow
-the complete callable contract. `StringSubstring` and `StringIndexOf` must
-both project `PureRead` from generated rows; the aggregate may add only the
-shared UTF-8 code-point profile and cross-role lifecycle requirements.
+The generated effect row is borrowed by the TextScan co-seal; it does not
+reclassify the Dynamic envelope. `StringSubstring` and `StringIndexOf` must
+project `PureRead` from the generated rows. Status (header BoxShape, 2026-08-12):
+the A-prime demand owns the single catalog physical-header admission and the
+emitter no longer re-seals it; provider/session activation remains open.
 
 Activation order after the effect projection is fixed:
 

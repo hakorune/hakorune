@@ -10,7 +10,6 @@ use std::sync::Arc;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
-use crate::mir::builder::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
@@ -18,7 +17,7 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::builder::{SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1};
+use crate::mir::builder::SameModuleCallableNamespaceV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::function::MirParamDecl;
@@ -100,32 +99,27 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ));
         };
 
-        // The selected package's catalog key is the only physical-symbol
-        // authority.  A raw declaration name would produce `skip_while/4`
-        // instead of the admitted `ParserScanLoopBox.skip_while/4` symbol.
-        let selected_key = demand.selected_key().clone();
-        let admission = match selected_key {
-            SelectedNormalCallableKeyV1::Cataloged(source_key) => {
-                NormalCatalogedBoxMethodDraftAdmissionV1::seal(source_key).map_err(|error| {
-                    DynamicV2I8EmitterRejectV1::PhysicalHeader(error.to_string())
-                })?
-            }
-            SelectedNormalCallableKeyV1::TopLevel(_) => {
-                return Err(DynamicV2I8EmitterRejectV1::PhysicalHeader(
-                    "selected Dynamic canary requires a cataloged Box method".to_owned(),
-                ));
-            }
+        // The A-prime demand owns the single catalog-backed physical-header
+        // admission.  This emitter only borrows its checked projection; it
+        // never re-seals the selected key.
+        let (header_namespace, header_name, header_arity, function_name) = {
+            let admission = demand.physical_header();
+            (
+                admission.source_key().namespace(),
+                admission.source_key().name().to_owned(),
+                admission.physical_arity(),
+                admission.physical_symbol().to_owned(),
+            )
         };
-        if admission.source_key().namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
-            || admission.source_key().name() != name
-            || admission.physical_arity() != params.len()
+        if header_namespace != SameModuleCallableNamespaceV1::StaticBoxMethod
+            || header_name.as_str() != name.as_str()
+            || header_arity != params.len()
             || param_decls.len() != params.len()
         {
             return Err(DynamicV2I8EmitterRejectV1::PhysicalHeader(
                 "catalog physical header does not match selected declaration".to_owned(),
             ));
         }
-        let function_name = admission.physical_symbol().to_owned();
         let declared_param_decls = param_decls
             .iter()
             .map(|decl| MirParamDecl {

@@ -120,8 +120,13 @@ guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_EMITTER" \
 if rg -n -A6 -- "fn new_selected_dynamic" "$CANONICAL_SESSION" | rg -q -- "block_expr_count"; then
   guard_fail "$TAG" "Dynamic canonical semantic block count must not be selected by the physical emitter"
 fi
-guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$SELECTED_EMITTER" \
-  "selected emitter must project the physical symbol from the catalog admission"
+guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$APRIME_MODEL" \
+  "A-prime demand must own the single catalog-backed physical-header admission"
+guard_expect_fixed_in_file "$TAG" "physical_header" "$APRIME_MODEL" \
+  "selected physical session must consume the demand-owned header projection"
+if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITTER"; then
+  guard_fail "$TAG" "selected emitter must not re-seal the catalog physical header"
+fi
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"
 guard_expect_fixed_in_file "$TAG" "DynamicV2PhysicalBlockTargetV1" "$SELECTED_ABI" \
