@@ -670,6 +670,14 @@ bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 git diff --check
 ```
 
+Gate classification (2026-08-12): the focused `completion` command has one
+known parent-baseline failure in
+`mir::compiler::canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route`
+(`ReturnValueTypeMissing`, `ValueId(12)`). It reproduces at parent
+`b69f5e11fe` and is outside the selected Dynamic activation diff; it remains
+recorded as baseline debt, not a green production claim. All selected
+Dynamic/package/Recipe/emitter checks and the listed authority guards pass.
+
 ## Non-claims
 
 ```text
