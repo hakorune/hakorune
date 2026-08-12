@@ -326,7 +326,7 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
                 std::num::NonZeroU64::new(1).expect("test registry generation"),
                 crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
             )
-                .expect("exact V2 capability requirements");
+            .expect("exact V2 capability requirements");
         assert_eq!(
             admission.disposition(),
             crate::mir::builder::resolved_lowering::
@@ -340,14 +340,18 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
         assert_eq!(
             admission
                 .aot_admission()
-                .entry_for(crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextSliceRange)
+                .entry_for(
+                    crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextSliceRange
+                )
                 .symbol(),
             "hako.text.scan.substring.v1"
         );
         assert_eq!(
             admission
                 .aot_admission()
-                .entry_for(crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextFindNeedle)
+                .entry_for(
+                    crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextFindNeedle
+                )
                 .symbol(),
             "hako.text.scan.index_of.v1"
         );

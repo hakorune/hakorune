@@ -301,7 +301,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
             .collect::<Option<Vec<_>>>()
             .ok_or_else(|| {
                 "[freeze:contract][canonical_completion/operand_witness_missing]".to_string()
-        })?
+            })?
             .into_boxed_slice();
         let kind = self.expected.kind;
         Ok(ReadyFunctionCompletionV1 {
@@ -355,11 +355,9 @@ mod tests {
             .expect("explicit return site")
             .clone();
 
-        let mut consumer = ResolvedFunctionCompletionConsumptionV1::new_borrowed(
-            owner,
-            &completion,
-        )
-        .expect("borrowed completion");
+        let mut consumer =
+            ResolvedFunctionCompletionConsumptionV1::new_borrowed(owner, &completion)
+                .expect("borrowed completion");
         assert_eq!(consumer.owner(), owner);
         assert!(consumer.returns_value());
         consumer

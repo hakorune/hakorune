@@ -37,10 +37,9 @@ pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
 pub(in crate::mir) use selected_dynamic_physical_abi::{
-    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleRowV1,
-    DynamicV2PhysicalBlockTargetV1, DynamicV2PhysicalScheduleSegmentV1,
-    PreparedSelectedDynamicV2EmissionPlanV1,
-    SelectedDynamicV2PhysicalPlanRejectV1,
+    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
+    DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,
+    PreparedSelectedDynamicV2EmissionPlanV1, SelectedDynamicV2PhysicalPlanRejectV1,
 };
 pub(in crate::mir) use selected_dynamic_physical_capability::{
     issue_selected_dynamic_v2_physical_capability_admission,
@@ -53,11 +52,11 @@ mod block_expr_tests;
 #[cfg(test)]
 mod callable_module_transaction_tests;
 #[cfg(test)]
-mod completion_test_support;
-#[cfg(test)]
 mod completion_consumption_tests;
 #[cfg(test)]
 mod completion_draft_seal_tests;
+#[cfg(test)]
+mod completion_test_support;
 #[cfg(test)]
 mod dynamic_loop_discard_tests;
 #[cfg(test)]

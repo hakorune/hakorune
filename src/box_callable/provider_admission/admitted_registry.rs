@@ -95,15 +95,11 @@ mod tests {
         assert_eq!(registry.branch_count(), 1);
         assert_eq!(registry.generation(), 7);
         assert_eq!(
-            registry
-                .row(TextScanAdmittedRoleV1::TextSliceRange)
-                .entry(),
+            registry.row(TextScanAdmittedRoleV1::TextSliceRange).entry(),
             TextScanAotEntryIdV1::Substring
         );
         assert_eq!(
-            registry
-                .row(TextScanAdmittedRoleV1::TextFindNeedle)
-                .entry(),
+            registry.row(TextScanAdmittedRoleV1::TextFindNeedle).entry(),
             TextScanAotEntryIdV1::IndexOf
         );
     }

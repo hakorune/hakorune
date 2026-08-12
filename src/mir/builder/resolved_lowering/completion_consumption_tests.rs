@@ -1,4 +1,9 @@
+use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::completion_test_support::*;
+use super::draft_seal::{
+    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
+    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
+};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -8,12 +13,6 @@ use crate::mir::resolved_semantics::{
     SourceStmtSiteV1,
 };
 use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
-use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
-use super::draft_seal::{
-    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
-    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
-};
-
 
 #[test]
 fn explicit_value_return_is_emitted_exactly_once() {

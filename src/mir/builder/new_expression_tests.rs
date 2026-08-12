@@ -46,14 +46,10 @@ fn raw_new_route_preserves_record_error_precedence_before_effects() {
     )
     .err()
     .expect("record field initializer must reject");
-    let without_fields = PreparedRawNewExpressionV1::prepare(
-        &builder,
-        "Pair".to_owned(),
-        Vec::new(),
-        Vec::new(),
-    )
-    .err()
-    .expect("raw record construction must reject");
+    let without_fields =
+        PreparedRawNewExpressionV1::prepare(&builder, "Pair".to_owned(), Vec::new(), Vec::new())
+            .err()
+            .expect("raw record construction must reject");
 
     assert!(
         with_fields.starts_with("[box-init/record-reject]"),

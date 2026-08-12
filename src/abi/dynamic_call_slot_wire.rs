@@ -169,9 +169,7 @@ pub struct DynamicV2CallOutV1 {
 }
 
 impl DynamicV2CallOutV1 {
-    pub fn validate_transport(
-        &self,
-    ) -> Result<DynamicV2CallStatusV1, DynamicV2WireSchemaRejectV1> {
+    pub fn validate_transport(&self) -> Result<DynamicV2CallStatusV1, DynamicV2WireSchemaRejectV1> {
         if self.reserved != 0 {
             return Err(DynamicV2WireSchemaRejectV1::NonZeroReserved);
         }
@@ -240,19 +238,14 @@ impl DynamicV2CallOutV1 {
         Ok(status)
     }
 
-    pub fn validate_for_synchronous_emitter(
-        &self,
-    ) -> Result<(), DynamicV2WireSchemaRejectV1> {
+    pub fn validate_for_synchronous_emitter(&self) -> Result<(), DynamicV2WireSchemaRejectV1> {
         if self.validate_transport()? == DynamicV2CallStatusV1::Suspended {
             return Err(DynamicV2WireSchemaRejectV1::SuspendedNotSupported);
         }
         Ok(())
     }
 
-    pub fn validate_forwarded_arity(
-        &self,
-        argc: u32,
-    ) -> Result<(), DynamicV2WireSchemaRejectV1> {
+    pub fn validate_forwarded_arity(&self, argc: u32) -> Result<(), DynamicV2WireSchemaRejectV1> {
         if argc == DYNAMIC_V2_FORWARDED_NONE_V1 {
             return Err(DynamicV2WireSchemaRejectV1::ForwardedLaneOutOfRange);
         }

@@ -64,9 +64,7 @@ impl DynamicV2FormalSeedV1 {
         self.binding
     }
 
-    pub(super) const fn recipe_value(
-        self,
-    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
+    pub(super) const fn recipe_value(self) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.recipe_value
     }
 
@@ -105,8 +103,7 @@ pub(super) fn open(
     }
     let enter = enter_target.block();
     let header = header_target.block();
-    if canonical.entry_block(builder)? != enter
-        || relation.entry_value() != rows[1].recipe_value()
+    if canonical.entry_block(builder)? != enter || relation.entry_value() != rows[1].recipe_value()
     {
         return Err("[freeze:contract][formal_header/entry_drift]".to_owned());
     }
@@ -148,9 +145,12 @@ pub(super) fn open(
         .cfg
         .select_block(builder, header)
         .map_err(|error| error.to_string())?;
-    let header_current = canonical
-        .identity
-        .read_entry_receipt(builder, &mut canonical.phis, header, relation.induction_binding())?;
+    let header_current = canonical.identity.read_entry_receipt(
+        builder,
+        &mut canonical.phis,
+        header,
+        relation.induction_binding(),
+    )?;
     if header_current.owner() != relation.owner()
         || header_current.binding() != relation.induction_binding()
         || header_current.physical_block() != header

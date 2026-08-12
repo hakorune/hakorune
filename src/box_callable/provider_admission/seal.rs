@@ -4,16 +4,15 @@ use std::num::NonZeroU64;
 
 use crate::abi::text_scan_aot_export_facts::{
     TextScanAotEntryIdV1, TextScanAotExportFactV1, TextScanCallOutParameterV1,
-    TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1, TextScanValueLaneV1,
-    TEXT_SCAN_ABI_REVISION_V1, TEXT_SCAN_AOT_EXPORT_FACTS_V1,
-    TEXT_SCAN_CALL_ABI_REVISION_V1, TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
-    TextScanCallParameterTypeV1, TEXT_SCAN_CONTRACT_ID_V1,
+    TextScanCallParameterTypeV1, TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1,
+    TextScanValueLaneV1, TEXT_SCAN_ABI_REVISION_V1, TEXT_SCAN_AOT_EXPORT_FACTS_V1,
+    TEXT_SCAN_CALL_ABI_REVISION_V1, TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2, TEXT_SCAN_CONTRACT_ID_V1,
     TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED_V1, TEXT_SCAN_SYMBOL_INDEX_OF_V1,
     TEXT_SCAN_SYMBOL_SUBSTRING_V1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    CoreMethodEffectV1, CoreMethodResultKindV1, CoreMethodContractResultRowV1,
+    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
@@ -41,21 +40,12 @@ impl TextScanAliasProjectionV1 {
     /// Borrow the runtime type-registry vocabulary; this does not select a
     /// provider and does not retain a mutable registry reference.
     pub(crate) fn from_type_registry() -> Result<Self, ProviderAdmissionRejectV1> {
-        let slots = ["String", "StringBox"]
-            .map(|type_name| {
-                (
-                    crate::runtime::type_registry::resolve_slot_by_name(
-                        type_name,
-                        "substring",
-                        2,
-                    ),
-                    crate::runtime::type_registry::resolve_slot_by_name(
-                        type_name,
-                        "indexOf",
-                        1,
-                    ),
-                )
-            });
+        let slots = ["String", "StringBox"].map(|type_name| {
+            (
+                crate::runtime::type_registry::resolve_slot_by_name(type_name, "substring", 2),
+                crate::runtime::type_registry::resolve_slot_by_name(type_name, "indexOf", 1),
+            )
+        });
         let Some(substring_slot) = slots[0].0 else {
             return Err(ProviderAdmissionRejectV1::AliasMissing);
         };
@@ -212,9 +202,7 @@ fn expected_symbol(entry: TextScanAotEntryIdV1) -> &'static str {
     }
 }
 
-fn expected_parameter_types(
-    entry: TextScanAotEntryIdV1,
-) -> &'static [TextScanCallParameterTypeV1] {
+fn expected_parameter_types(entry: TextScanAotEntryIdV1) -> &'static [TextScanCallParameterTypeV1] {
     match entry {
         TextScanAotEntryIdV1::Substring => &[
             TextScanCallParameterTypeV1::U64,

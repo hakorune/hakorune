@@ -24,6 +24,7 @@ pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
+pub mod dynamic_v2_lease;
 pub(crate) mod exact_numeric_contract;
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod gc;
@@ -34,7 +35,6 @@ mod gc_trigger_policy;
 pub mod global_hooks;
 pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
 pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
-pub mod dynamic_v2_lease;
 mod host_handles_policy;
 pub mod leak_tracker;
 pub mod mirbuilder_emit;

@@ -127,16 +127,16 @@ unsafe extern "C" fn fake_str(
     0
 }
 
+#[path = "tests/dynamic_v2_text_scan.rs"]
+mod dynamic_v2_text_scan;
+#[path = "tests/dynamic_v2_wire.rs"]
+mod dynamic_v2_wire;
 #[path = "tests/filebox.rs"]
 mod filebox;
 #[path = "tests/mimalloc_parallel_stress.rs"]
 mod mimalloc_parallel_stress;
 #[path = "tests/string.rs"]
 mod string;
-#[path = "tests/dynamic_v2_wire.rs"]
-mod dynamic_v2_wire;
-#[path = "tests/dynamic_v2_text_scan.rs"]
-mod dynamic_v2_text_scan;
 
 #[test]
 fn future_spawn_instance_disable_rust_fallback_when_policy_is_off() {

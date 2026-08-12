@@ -167,8 +167,14 @@ mod tests {
         };
         assert_eq!(substring.call_abi.entry, substring.entry);
         assert_eq!(substring.call_abi.logical_arity, substring.arity);
-        assert_eq!(substring.call_abi.transport_return, TextScanCallTransportReturnV1::U32);
-        assert_eq!(substring.call_abi.out_parameter, TextScanCallOutParameterV1::Required);
+        assert_eq!(
+            substring.call_abi.transport_return,
+            TextScanCallTransportReturnV1::U32
+        );
+        assert_eq!(
+            substring.call_abi.out_parameter,
+            TextScanCallOutParameterV1::Required
+        );
         assert_eq!(index_of.call_abi.entry, index_of.entry);
         assert_eq!(index_of.call_abi.logical_arity, index_of.arity);
         assert_eq!(index_of.call_abi.out_wire_revision, 2);

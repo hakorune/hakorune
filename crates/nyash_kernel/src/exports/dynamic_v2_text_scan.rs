@@ -38,11 +38,7 @@ fn fault(out: *mut DynamicV2CallOutV1, code: DynamicV2CallFaultCodeV1) -> u32 {
     TEXT_SCAN_CALL_OK_V1
 }
 
-fn normal_host_handle(
-    out: *mut DynamicV2CallOutV1,
-    handle: u64,
-    lease: NonZeroU64,
-) -> u32 {
+fn normal_host_handle(out: *mut DynamicV2CallOutV1, handle: u64, lease: NonZeroU64) -> u32 {
     if out.is_null() {
         return TEXT_SCAN_CALL_INVALID_OUTPUT_V1;
     }
@@ -152,7 +148,10 @@ mod tests {
         assert_eq!(hako_text_scan_substring_v1(source, 1, 3, &mut out), 0);
         assert_eq!(out.validate_for_synchronous_emitter(), Ok(()));
         assert_eq!(out.result_tag, DynamicV2WireTagV1::HostHandle as u32);
-        assert_eq!(host_handles::with_str_handle(out.value_payload, str::to_owned), Some("é界".to_string()));
+        assert_eq!(
+            host_handles::with_str_handle(out.value_payload, str::to_owned),
+            Some("é界".to_string())
+        );
         let token = NonZeroU64::new(out.lease_token).expect("I6 lease");
         assert_eq!(dynamic_v2_lease::consume_end_authorized(token), Ok(()));
         host_handles::drop_handle(source);
@@ -177,7 +176,10 @@ mod tests {
         let mut out = empty_out();
         assert_eq!(hako_text_scan_substring_v1(0, 0, 1, &mut out), 0);
         assert_eq!(out.status, DynamicV2CallStatusV1::Fault as u32);
-        assert_eq!(out.fault_code, DynamicV2CallFaultCodeV1::InvalidReceiver as u32);
+        assert_eq!(
+            out.fault_code,
+            DynamicV2CallFaultCodeV1::InvalidReceiver as u32
+        );
         assert_eq!(out.validate_for_synchronous_emitter(), Ok(()));
         assert_eq!(hako_text_scan_index_of_v1(0, 0, std::ptr::null_mut()), 1);
     }
@@ -190,7 +192,10 @@ mod tests {
         assert_eq!(hako_text_scan_substring_v1(source, -5, 99, &mut out), 0);
         let result = out.value_payload;
         let token = NonZeroU64::new(out.lease_token).expect("lease");
-        assert_eq!(host_handles::with_str_handle(result, str::to_owned), Some("é界".to_string()));
+        assert_eq!(
+            host_handles::with_str_handle(result, str::to_owned),
+            Some("é界".to_string())
+        );
         assert_eq!(dynamic_v2_lease::consume_end_authorized(token), Ok(()));
         assert_eq!(hako_text_scan_index_of_v1(source, needle, &mut out), 0);
         assert_eq!(out.value_payload as i64, -1);
