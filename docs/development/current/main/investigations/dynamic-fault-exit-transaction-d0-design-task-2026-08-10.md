@@ -3624,3 +3624,120 @@ Split at roughly 650-700 lines, stop adding at 760, and keep 800 as the hard
 limit. Do not add these relations to `typed_schema_v2.rs` (757),
 `join_sig/flow.rs`, the LLVM resolver (about 768), or a standalone public
 `VerifiedCh*` product.
+
+##### I0-B implementation-readiness audit (2026-08-12, workers + clean-tree closeout)
+
+The design is implementation-ready only as one bounded AOT/LLVM activation
+cell. A partial provider registry, wire, hook, or runtime symbol is not an
+accepted intermediate commit because it would create an authority with no
+named production consumer. The shared tree was returned clean after this
+audit; no orphan provider skeleton is landed.
+
+The accepted capability is exactly one versioned slot, not the full String
+surface and not an I6-only pseudo-slot:
+
+```text
+hako.text.scan@1
+  profile: utf8-codepoint-clamped-v1
+  receiver: canonical Text
+  aliases: String | StringBox, canonicalized before admission
+  TextSliceRange  = substring/2
+      inputs  CanonicalText, ImmediateI64, ImmediateI64
+      result  CanonicalText, EndAuthorized lease
+  TextFindNeedle = indexOf/1
+      inputs  CanonicalText, CanonicalText
+      result  ImmediateI64, no lease and no End
+```
+
+The contract source is the sole semantic source for this slot. The selected
+A-prime requirement owns only the required contract id and the two role map;
+it does not restate CP semantics, lifecycle, or provider ABI. `hako.toml`,
+the lockfile, TypeRegistry, PluginLoader compatibility snapshots, selector
+strings, raw `String`/`StringBox` keys, LLVM/Python/Rust projections, and the
+Rust VM are non-authorities.
+
+The remaining implementation row is deliberately explicit:
+
+```text
+1. contract source -> normalized/generated projection
+2. A-prime requirement + exact I6/I7 source/Recipe relations
+3. provider export facts + String/StringBox alias co-seal
+4. one consuming ProviderAdmissionSeal
+5. immutable deterministic admitted registry
+6. receiver-identity RoutePlan -> RuntimeExecutablePlan
+7. separate call-in wire (header owner; Rust/Python checked projections)
+8. strict AOT/LLVM leaf using CodePoint primitives only
+9. I6 V10 result + monotonic lease/End; I7 ImmediateI64 with lease=0
+10. canonical-session I6/I7 materialization receipts
+11. LLVM early selected consumer before generic method lowering
+12. focused positive/negative tests and reusable authority guard
+```
+
+Steps 1--12 are one activation commit semantically, even if the files are
+split into small modules. The commit must not contain a provider plan without
+its consumer. The strict leaf may inspect only the admitted token, generation,
+receiver lane, and exact argument lanes. It must never perform registry,
+selector, provider, image, or compatibility lookup. The AOT path is the only
+production path; no Rust VM provider/adapter/receipt/session is to be added.
+
+The first strict kernel expectations are fixed here so the representation
+boundary cannot drift during implementation:
+
+```text
+I6 substring/2:
+  canonical StringBox text only
+  CodePoint substring with clamped [start,end)
+  HostHandle result + one non-reused lease token
+
+I7 indexOf/1:
+  canonical StringBox text pair only
+  CodePoint index, not-found = -1, zero is normal
+  ImmediateI64 result, lease token = 0, End = 0
+
+Fault:
+  invalid/foreign/dead handle, lane, generation, token, or role
+  -> Fault with no result and no lease; selected route never falls through
+```
+
+The strict leaf must publish an I6 result from a retained object identity,
+not use the raw host handle as a lease token. End removes a one-shot lease,
+checks retained identity before dropping the handle, and rejects stale,
+foreign, duplicate, or ABA-reused tokens. Existing compatibility exports
+such as `StringBox::invoke_surface`, environment-selected byte mode, and
+sentinel-zero conversions are forbidden on this selected path.
+
+Required mechanical acceptance for the activation cell:
+
+```text
+contract source / normalized generator                 = 1 / 1
+ProviderAdmissionSeal issuer                          = 1
+admitted registry mutable insert / Clone              = 0 / 0
+complete TextScan role coverage                       = 2
+I6/I7 same contract/provider/profile                   = 1
+String/StringBox canonical branch after alias seal    = 1
+receiver identity + generation + image/entry stamp    = present
+call-in wire normative owner                           = 1
+LLVM selected early consumer / strict leaf             = 1 / 1
+canonical I6/I7 session receipt                        = 1 / 1
+I6 lease issuer / End consumer                         = 1 / 1
+I7 lease / End                                         = 0 / 0
+selected generic/legacy fallthrough                    = 0
+runtime selector/provider/registry/image lookup        = 0
+Rust VM DynamicV2 provider/receipt/session consumer    = 0
+fallback / retry / sentinel-zero repair               = 0
+```
+
+Required negative cases include missing, foreign, duplicate, and ambiguous
+roles/provider/aliases; byte or environment index mode; I6/I7 result or
+lifecycle drift; wrong receiver/argument lane; wrong formal index; foreign
+generation/token/image; malformed Normal/Fault; stale or duplicate lease;
+and selected generic-method fallback. Any missing row is `RejectBeforeEffect`
+and keeps `DYNAMIC-V2-CALLSLOT-AOT-EXECUTABLE-CELL-I0-B` open.
+
+##### AGENTS.md audit receipt (2026-08-12)
+
+The local `AGENTS.md` entry contract was read in full. It agrees with the
+tracked current pointer, the active card, the AOT-only backend choice, the
+one-authority/no-orphan rule, and the 760/800-line budget. It is gitignored
+local guidance; no durable rule belongs there, so no `AGENTS.md` edit is
+needed. The tracked active card remains the durable task source.
