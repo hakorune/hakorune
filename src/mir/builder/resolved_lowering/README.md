@@ -63,9 +63,11 @@ the I6/V10 Dynamic discharge receipt; I7/V11 is exact I64 and has no lease or
 End row. If any capability is unavailable, the session rejects before its
 first Builder effect. E2 now materializes I6 Fault as a successorless terminal
 and I7 Fault as one canonical `CheckedCallOutEnd` for V10 followed by a
-successorless `CheckedCallOutFault`; it never rejoins `After`. The existing
-semantic rows remain evidence only; the remaining I10-I16/control/cleanup,
-DraftSeal, and publication work is closed.
+successorless `CheckedCallOutFault`; it never rejoins `After`. E3 now reads
+I11/V14 in ThenTerminal, consumes the I6 End cutpoint, claims the inner
+Completion return, and seals Then without emitting Return; DraftSeal remains
+the sole Return writer. I13-I16, backedge/PHI, profile close, DraftSeal, and
+publication remain closed.
 
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)

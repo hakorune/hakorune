@@ -1,6 +1,6 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, and E2 physical End/Fault terminals are landed. The next bounded row is the unpublished physical-session E; publication, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, and E3 inner-return ThenTerminal handoff are landed. The next bounded row is the unpublished physical-session E; publication, production activation, and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is at the unpublished E physical-session boundary. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 corridor, E1 I8/I9 control, and the typed End/Fault terminal R0 are landed; I10-I16/control/cleanup and terminal publication remain closed. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is at the unpublished E physical-session boundary. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 corridor, E1 I8/I9 control, E2 typed End/Fault terminals, and E3 inner-return ThenTerminal handoff are landed; I13-I16/backedge/PHI, profile close, and terminal publication remain closed. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, and R0 cleanup/site-plan lifecycle co-seal are landed; production callers remain zero. E3 is now the next unpublished physical-session boundary."
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, E3 inner-return ThenTerminal handoff, and R0 cleanup/site-plan lifecycle co-seal are landed; production callers remain zero. I13-I16/backedge/PHI, profile close, DraftSeal, collector, and publication remain next."
 next_design_card = "PHYSICAL-SESSION-I0-E"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_execution_card = "PHYSICAL-SESSION-I0-E"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: E2 unpublished fault terminals now stop I6 Fault without End and consume the single V10 lease exactly once on I7 Fault before successorless termination; I10-I16/control/cleanup and publication remain closed.",
+  "2026-08-13: E3 now reads I11/V14 in ThenTerminal, consumes the canonical I6 End cutpoint, claims the inner Completion return without emitting Return, and seals Then; E2 fault terminals remain closed and I13-I16/backedge/PHI/publication remain next.",
   "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
   "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut vocabulary/issuers plus the move-only cleanup/site-plan lifecycle co-seal landed; End/Fault execution, full E, publication, and production callers remain closed.",
