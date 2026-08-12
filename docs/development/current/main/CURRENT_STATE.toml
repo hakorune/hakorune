@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic-plan and canonical-session admission are accepted. TextScan ABI/lease/link facts are fixed, but metadata-only CallOut lowering cannot own runtime Normal/Fault CFG; the neutral checked-CallOut physical representation is now the design frontier. Production activation and Rust-VM DynamicV2 remain closed."
-date = "2026-08-12"
+status = "Selected Dynamic semantic/header/admission and checked CallOut ABI facts are accepted. The canonical MIR-owned CheckedCallOut D0 is closed with a site-local Normal-result projection. The next bounded implementation repairs raw-handle lease ABA before neutral CheckedCallOut R0; production activation and Rust-VM DynamicV2 remain closed."
+date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Metadata-only CallOut lowering would let LLVM create runtime Normal/Fault blocks absent from MIR and duplicate CanonicalSsaFunctionSessionV2 CFG authority. Freeze one neutral terminator-like checked CallOut physical op, its function-local site plan, opaque outcome/lease slots, exact Normal/Fault targets, and non-AOT rejection before any W4 code."
-work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0"
-current_blocker_token = "DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0: define the neutral checked CallOut physical instruction/side-table boundary so canonical MIR owns both Normal/Fault successors while LLVM owns only alloca/wire decode; fix result/outcome/lease slot identities, End relation, backend rejection, acceptance, and one bounded non-production R0 before PHYSICAL-SESSION-I0-E."
+current_design_stop = "none; CheckedCallOut D0 accepted with a terminator-owned site reference, function-local plan, Normal-landing result projection, site-local Normal/Fault landings, verified effect cache, and backend fail-stop contract-violation policy"
+work_mode = "fast"
+current_execution_row = "DYNAMIC-V2-LEASE-IDENTITY-R0"
+current_blocker_token = "DYNAMIC-V2-LEASE-IDENTITY-R0: make host_handles issue a non-wrapping generation-aware private lease identity and conditionally drop under the slot-table lock; store that identity in the one-shot DynamicV2 lease table, make the raw handle issuer private, and prove ordinary drop plus LIFO handle reuse cannot let an old End token drop the replacement object."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W3 ABI/lease/link facts are closed; the neutral checked-CallOut CFG/outcome representation is in design stop before W4. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts and CheckedCallOut D0 are closed; lease identity R0 is next, then neutral CheckedCallOut R0 before W4. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 semantic/header/admission/ABI/lease/test-only link facts are landed. Worker and source audits found that metadata-only CallOut execution would duplicate canonical CFG authority, so the active D0 now fixes one neutral checked-CallOut physical representation before W4; production callers remain zero."
-next_design_card = "DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0"
+latest_card_summary = "W0-W3 facts are landed and production callers remain zero. CheckedCallOut D0 now fixes one MIR terminator, one function-local site plan, one site-local Normal-result projection, typed I6/I7 shapes and backend fail-stop policy. The next safe slice repairs generation-aware lease identity before neutral CheckedCallOut R0."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "none until DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0 is accepted"
+next_execution_card = "DYNAMIC-V2-LEASE-IDENTITY-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,9 +45,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, catalog-admission transport, I0-B TextScan contract/export projections, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; I0-C symbolic admission is the current work-branch checkpoint.",
+  "2026-08-13: CheckedCallOut D0 is accepted with site-plan authority, site-local Normal/Fault landings, block-local Normal-result projection, verified effect cache, typed I6/I7 shape, and backend fail-stop policy; lease identity R0 is next.",
   "2026-08-12: I0-C symbolic TextScan admission retains exact export symbols and receiver lanes in an immutable, PlanStamp-branded pre-link product; I0-D adds exact parameter descriptors and one shared Rust wire projection; production callers, LLVM hooks, runtime lookup, and Rust-VM consumers remain zero.",
-  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, one-shot lease owner, D1 Rust/JSON metadata projection, terminal test-only selected seam, explicit --nyrt archive-presence boundary, and test-only artifact digest/entry/ABI/PlanStamp verifier pass focused tests and guards; emitted calls, production callers, and Rust-VM consumers remain zero.",
+  "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, initial one-shot lease token owner, D1 Rust/JSON metadata projection, terminal test-only selected seam, explicit --nyrt boundary, and test-only link verifier are landed; generation-aware lease identity remains the next safety repair and production callers stay zero.",
   "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
   "2026-08-12: Dynamic session begin was split into private outer-open and target/formal-header phases; public handoff and behavior remain unchanged.",
 ]

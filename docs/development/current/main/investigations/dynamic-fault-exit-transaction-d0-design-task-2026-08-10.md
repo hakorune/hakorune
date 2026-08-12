@@ -24,25 +24,23 @@ package port remains the exactly-once transport owner; the existing A-prime
 demand/emission plan opens the existing canonical CFG/SSA/PHI session inside
 that scoped loan.
 
-Current implementation status: exact-I64 semantic recut, exact-two Completion
-and DraftSeal machinery, the Rust-VM nonconsumer fence, neutral output wire,
-the I8 unpublished canary, and the complete R0 canonical-session projection
-series are landed. The selected emitter now consumes the exact package input,
-borrows the final Dynamic program only through its private HRTB authority,
-snapshots Completion/control expectations, and opens its unpublished canonical
-session internally. Production still uses the selected raw AST/JoinIR edge.
+Current implementation status: W0-W3 semantic/header/admission, strict
+CodePoint entries, checked CallOut ABI, neutral lease owner, test-only metadata
+and link facts, and the I8 unpublished canary are landed. Production still uses
+the selected raw AST/JoinIR edge and every production CheckedCallOut/LLVM/link
+caller remains zero. The CheckedCallOut D0 is now exact; its implementation is
+blocked first by a generation-aware host-handle lease identity repair.
 
-Next ordered task: implement the already-accepted AOT physical activation cell
-(`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`) with the complete provider contract,
-admission, strict LLVM leaf, I6/I7 receipts, End/lifecycle, and atomic selected
-production switch. No provider/runtime/LLVM implementation is implied by the
-completed R0 BoxShape row itself.
+Next ordered task: `DYNAMIC-V2-LEASE-IDENTITY-R0`, followed by
+`DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0`. Both are non-production prerequisites
+of the remaining activation cell; neither is a provider/session fragment or a
+production route.
 
 Production stop line: provider/AOT/runtime activation and the selected
-production switch remain closed until the complete activation cell is green. No
-trivial-plan widening, second Completion/If/profile, raw AST repair, arbitrary
-session pairing, fallback, retry, or Rust-VM DynamicV2 consumer may cross the
-seam.
+production switch remain closed until both R0 prerequisites and the complete
+activation cell are green. No trivial-plan widening, second
+Completion/If/profile, raw AST repair, arbitrary session pairing, fallback,
+retry, or Rust-VM DynamicV2 consumer may cross the seam.
 
 Retirement finish line: one atomic AOT activation consumes the selected package
 loan through exact-two DraftSeal, removes the selected old edge in the same
@@ -69,8 +67,8 @@ Fail-fast boundary:
   validate before Builder mutation. Exact image/digest/symbol validation occurs
   only at link and must succeed before executable publication.
 Smallest next slice:
-  DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0, assembled through the seven bounded
-  subrows below and landed as one production replacement.
+  DYNAMIC-V2-LEASE-IDENTITY-R0; replace raw-handle lease storage with one
+  generation-aware host-handle identity before CheckedCallOut R0 or W4.
 Non-claims:
   no Dynamic registry, runtime lookup, VM feature, generic fallback, retry,
   legacy collector key, or production switch before all subrows are green.
@@ -107,7 +105,7 @@ borrowed sole Completion
 a borrowed canonical-plan field, avoiding a self-reference and foreign-plan
 pairing surface.
 
-### Landed preflight invariants and one remaining transport correction
+### Landed preflight invariants
 
 The body-free physical header/effect work is already landed and remains a hard
 precondition of activation:
@@ -126,13 +124,11 @@ Header/Completion/control/executable validation finishes before the unpublished
 Builder session opens. `PureRead` is a callable semantic effect; it does not
 erase the Dynamic invocation outcome, Fault, suspension, or lifecycle axes.
 
-One transport correction remains in the activation cell. The cataloged-method
-adapter already owns one move-only `NormalCatalogedBoxMethodDraftAdmissionV1`,
-but the current A-prime issuer reseals another admission from a cloned selected
-key. The selected adapter must move its existing admission into the scoped
-package loan/A-prime demand, and the issuer-side `seal(source_key)` call must
-become zero. The same admission then supplies the physical header and the final
-`CanonicalCallable` collector key; no raw key is resealed downstream.
+The cataloged-method transport correction is landed. The adapter moves its one
+already-sealed `NormalCatalogedBoxMethodDraftAdmissionV1` into the scoped
+package loan/A-prime demand, and issuer-side `seal(source_key)` is zero. The
+same admission supplies the physical header and remains the future
+`CanonicalCallable` collector identity; no raw key is resealed downstream.
 
 ## Final owner graph
 
@@ -234,235 +230,129 @@ Stop:
   return join/PHI, legacy key, generic fallthrough, fallback, retry, sentinel
   repair, or Rust-VM dependency rejects the cell.
 
-The implementation is one activation product assembled by seven bounded
-subrows. These are work-branch checkpoints, not independent authorities or
-mainline production routes.
-
-| Order | Subrow | Sole responsibility | Output consumed by |
-| --- | --- | --- | --- |
-| 1 | `CANONICAL-CHILD-ADMISSION-I0-A` | move the adapter-owned catalog admission through the selected package loan; delete A-prime resealing | physical header and collector |
-| 2 | `TEXT-SCAN-EXPORT-CONTRACT-I0-B` | add one normalized ProviderSlot artifact, one neutral symbolic AOT export artifact, and checked ABI projections; defer String/StringBox alias co-seal | provider admission |
-| 3 | `TEXT-SCAN-ADMISSION-I0-C` | borrow exact retained I6/I7 rows; co-seal profile/export/aliases; consume draft facts into immutable rows and symbolic AOT admission | physical activation aggregate |
-| 4 | `STRICT-AOT-LEAF-I0-D` | implement the declared CodePoint entries and one LLVM early consumer; carry the symbolic admission unchanged | AOT object/link finalizer |
-| 5 | `PHYSICAL-SESSION-I0-E` | consume one move-only activation aggregate; emit I0-I16, outcomes, V10 End, carrier PHI/backedge and profile close | DraftSeal terminal |
-| 6 | `EXACT-TWO-COLLECTOR-I0-F` | claim retained Completion sites; prepare/commit two Returns; admit the draft as `CanonicalCallable` | package cutover |
-| 7 | `SELECTED-CUTOVER-I0-G` | route the installed loan to the new cell, require link-plan finalization for AOT executable publication, and delete the raw AST/JoinIR edge atomically | production |
-
-#### `CANONICAL-CHILD-ADMISSION-I0-A`
-
-At the cataloged static-method adapter, move the already-sealed
-`NormalCatalogedBoxMethodDraftAdmissionV1` into the exactly-once selected loan.
-The A-prime issuer consumes that admission while cross-checking the package
-key/source identity; it must not call `seal(source_key)` itself. The same
-move-only admission supplies the `APrimePhysicalFunctionHeaderV1` and is
-retained until the canonical collector handoff. A foreign key, wrong namespace
-or arity, double consume, or missing admission rejects before Builder effect.
-
-I0-A receipt (2026-08-12): the package loan now carries the admission through
-static and instance adapter scopes, the selected A-prime tests consume it by
-value, and the physical-input guard rejects issuer-side resealing and raw
-symbol reconstruction. This remains a pre-cutover transport/BoxShape change;
-the production caller is still zero.
-
-#### `TEXT-SCAN-EXPORT-CONTRACT-I0-B`
-
-The semantic source is one normalized artifact rooted at
-`lang/src/runtime/meta/provider_slot_contract_box.hako` with a generated
-manifest under `lang/src/runtime/meta/generated/`. It references the existing
-generated CoreMethod row identities rather than restating result/effect. It
-owns only `hako.text.scan@1`, the two roles, canonical Text, the fixed
-CodePoint/clamp profile, ordered lane demands, sync policy, and lifecycle.
-
-The physical provider-fact owner is one neutral header,
-`include/nyrt_dynamic_text_scan_v1.h`, with checked Rust/kernel/Python
-projections. It declares provider/version, ABI revision, opaque
-`ProviderExecutableEntryIdV1` values, exact symbol spellings, physical lane
-shapes, CodePoint capability, and lease capability. It does not restate
-CoreMethod result/effect. The existing generic String exports and allocator
-provider manifests are not inputs.
-
-The runtime type registry remains the sole String/StringBox vocabulary source.
-It lends a checked alias projection; `ProviderAdmissionSeal` is the only issuer
-of the normalized one-branch CanonicalText decision. Missing, duplicate, or
-conflicting aliases reject. No first-row-wins rule is permitted.
-
-I0-B implementation receipt (2026-08-12): the normalized Hako contract,
-deterministic manifest codegen, neutral C export facts, Rust/Python projections,
-negative tests, and closed-mode parity guard are landed. The manifest retains
-only role/op/arity/profile/lifecycle policy; CoreMethod result/effect remains
-the sole callable authority. ProviderAdmission, runtime registry admission,
-strict leaf, LLVM caller, session, VM, and production callers remain zero.
-
-#### `TEXT-SCAN-ADMISSION-I0-C`
-
-Use one private HRTB callback over the already-retained operation refs. It
-must find I6 and I7 exactly once, verify owner/program, CallSlot operands,
-`CoreMethodOp`/arity/result/effect, and immediately pass the borrowed pair to
-the consuming admission. The view has no public constructor, clone, raw row
-getter, or escapable lifetime. The existing generated by-op lookup remains in
-the initial call co-seal only; provider admission performs zero lookup.
-
-The current mutable `BoxCallableRegistry` remains a compatibility/draft input.
-Admitted state is a distinct immutable deterministic product with duplicate
-overwrite and mutable insert APIs absent. `String` and `StringBox` export facts
-canonicalize to one Text receiver branch only when provider/profile/ABI/entry
-all agree; ambiguity rejects before publication.
-
-Admission produces one move-only pre-MIR cell containing semantic route,
-canonical receiver, provider identity, registry generation, symbolic entry
-IDs, ABI/wire revisions, I6/I7 lane contracts, V10 lease capability, and one
-`PlanStamp` projected from the owning compile/module-invocation brand. It does
-not contain a guessed image, artifact digest, runtime address, registry
-reference, selector/name, Core result/effect copy, or raw provider getter.
-`drop_epoch`, host handles, filesystem timestamps, and an unrelated global
-counter are forbidden PlanStamp sources.
-
-The session entry becomes conceptually:
+The activation is one production product. Work-branch checkpoints may be
+small, but none is an independently selectable mainline route. Closed details
+live in `ParentHistory` and git:
 
 ```text
-DynamicV2PhysicalEmissionSessionV1::begin(
-  builder,
-  PreparedSelectedDynamicV2AotActivationV1,
-)
+W0  b7ecfd161a                         catalog admission transport
+W1  ca193378ce                         normalized TextScan/export authority
+W2  8e94d95d26..e721a300ec             symbolic admission/header/session seed
+W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, test-only link facts
 ```
 
-The aggregate owns the emission plan, compare/cleanup demands, and executable
-admission together so a caller cannot re-pair them. It validates all symbolic
-entry, ABI, generation, lane, lifecycle, and semantic brands before opening
-Builder state.
+All W0-W3 production LLVM/CallOut/link callers remain zero. The remaining
+order is lease identity R0, neutral CheckedCallOut R0, full physical session,
+exact-two collector, and atomic selected cutover.
 
-##### I0-C implementation-preparation contract
-
-This is a work-branch BoxCount checkpoint, not a new production route. Before
-editing, freeze the following order and API boundary:
+#### `DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0` — accepted
 
 ```text
-retained DynamicFullLoopCallRelationV2 rows
-  -> one private HRTB TextScan view (I6 + I7, borrowed)
-  -> consuming ProviderAdmissionSeal
-  -> immutable deterministic admitted rows
-  -> move-only PreparedAotExecutableAdmissionV1
+Decision: CheckedCallOut is one canonical MIR terminator; its Normal result is a separate first instruction in the site-local Normal landing, never a terminator dst or edge-defined value.
+Source authority + canonical issuer: retained AOT admission/call rows own entry and lanes, the exit transaction owns Normal/Fault meaning, the function-local site plan owns physical shape/effect/slots, and CanonicalSsaFunctionSessionV2 alone issues CFG and SSA state.
+Non-authority: instruction/cache/JSON/LLVM do not issue Recipe, provider, ABI, lifecycle, selector, result class, or successor meaning; runtime tokens and raw pointers never enter MIR.
+Fail-fast boundary: plan/terminator/projection cardinality, brands, shapes, distinct site-local landings, effect-cache parity, ABI/wire revisions, and backend policy reject before publication; unpublished-session failures discard.
+Smallest next slice: DYNAMIC-V2-LEASE-IDENTITY-R0, then DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0.
+Non-claims: no full cursor, LLVM production lowering, DraftSeal/collector, executable publication, cutover, fallback/retry, or VM parity.
 ```
 
-The view is created only inside the existing selected physical-capability
-consumer. It must use the `core_method` references already retained by the
-call relations and must not call a generated-row lookup, selector lookup, or
-surface scan. The callback returns only an owned admission cell; no borrowed
-row, raw registry, selector, provider function, or `CoreMethod` object may
-escape. The admitted rows are a canonical `Text` branch: `String` and
-`StringBox` are checked aliases, never two independently selectable branches.
-
-Required pre-effect checks are: exactly one I6 `StringSubstring/2` row and one
-I7 `StringIndexOf/1` row; same program/owner; CallSlot receiver/argument/result
-lanes; generated result/effect identity; one CodePoint profile; one ABI/export
-revision; matching alias slots; no duplicate or ambiguous export; and a
-compile/module-invocation `PlanStamp` that is borrowed from an existing owner.
-Any missing, foreign, swapped, stale, duplicate, or conflicting fact rejects
-before Builder/session mutation. The cell contains symbolic entry IDs only;
-image digest, resolved address, and `RuntimeExecutablePlanV1` are post-link
-products and are not invented here.
-
-Acceptance for this checkpoint is `admission issuer = 1`, immutable admitted
-registry = 1, canonical receiver branch = 1, symbolic executable cell = 1,
-and all production callers/LLVM hooks/Rust-VM consumers = 0. The next strict
-leaf/session consumer must be named before this cell is allowed to land on
-main; a provider-only or registry-only production commit is forbidden.
-
-#### `STRICT-AOT-LEAF-I0-D`
-
-Implement exactly the two entry IDs declared by the neutral artifact in a new
-kernel module; do not add logic to the near-limit generic `exports/string.rs`.
-The strict leaf uses fixed UTF-8 CodePoint semantics and strict handle/lane
-validation. It never calls the environment-selected/generic String surface,
-compat forwarding, parse/default-zero helpers, or the Rust VM.
-
-The LLVM selected early hook consumes the symbolic admission before generic
-method lowering and emits only its declared symbols. The existing neutral
-`DynamicV2CallOutV1` remains the result-wire layout owner and does not gain
-provider/selector meaning. Selected malformed or unsupported metadata is
-terminal and never falls through.
-
-MIRBuilder runs before object generation and link, so it cannot own a final
-artifact digest or function address. After object generation, the AOT link
-preflight consumes the symbolic admission, hashes/pins the exact
-`libnyash_kernel` artifact, verifies both declared entries and ABI, and alone
-issues `RuntimeExecutablePlanV1 { ProviderImageId, resolved entries,
-PlanStamp }`. Link failure or stale/foreign artifacts reject before executable
-publication; no runtime lookup or reselection is introduced.
-
-The two publication boundaries are deliberately distinct:
-
-```text
-pre-Builder:
-  PreparedAotExecutableAdmissionV1 only
-
-post-DraftSeal/collector:
-  atomic MIR-module candidate (intermediate compiler artifact)
-
-post-object/link:
-  RuntimeExecutablePlanV1 + successful link
-  -> executable publication
-```
-
-A failed link may leave discardable MIR/object diagnostics, but it publishes no
-executable and cannot fall back to the generic route. The selected compiler
-cutover is permitted only after a positive strict-link canary and every
-negative link gate are green.
-
-##### W3 landed; `DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0` design stop
-
-W3 has two strict entries, the checked C/Rust/Python CallOut ABI, one neutral
-one-shot lease owner, typed test-only metadata validation, explicit `--nyrt`,
-and a test-only post-link fact verifier. Production LLVM/CallOut/link callers
-remain zero. Git history owns the detailed W3 evidence.
-
-```text
-Decision: a neutral terminator-like checked CallOut physical op is required; metadata-only runtime branching would create a second CFG authority.
-Source authority + canonical issuer: existing AOT admission and A-prime call rows supply entry/lanes; the exit transaction supplies Normal/Fault meaning; CanonicalSsaFunctionSessionV2 alone issues blocks, edges, predecessors, and seals.
-Non-authority: the op and its side table do not issue Recipe, Completion, provider, ABI, result, lifecycle, or selector meaning; generic Call/String, LLVM-only blocks, fallback/retry, and Rust VM consumers are forbidden.
-Fail-fast boundary: admitted site/role/arity/lanes, ABI/wire/PlanStamp, and expected outcome/lease shape validate before Builder mutation; session-issued ValueIds, targets, and CFG edges validate only inside the unpublished session and discard on failure.
-Smallest next slice: close the D0 schema for a compact CheckedCallOut terminator plus function-local site plan and opaque outcome/lease slot IDs, then name one non-production R0 implementation slice.
-Non-claims: no LLVM emission, runtime lease consumption, full I0-I16 cursor, DraftSeal/collector, executable publication, selected cutover, or VM parity.
-```
-
-The instruction carries only physical site/entry identity, ordered `ValueId`
-operands, optional normal result `ValueId`, opaque outcome/lease slot IDs, and
-canonical Normal/Fault targets. The function-local site plan is projected once
-from the existing ABI/admission facts and copies only physical fields. Runtime
-payload, raw `CallOut*`, and lease
-tokens never become MIR `ValueId`s. LLVM owns `alloca` and wire decode, while
-the canonical CFG remains the sole owner of both successors. The D0 must also
-freeze backend rejection for every non-AOT consumer and the later End op's
-exact lease-slot relation before implementation begins.
-
-D0 closes only when the following representation contract is exact:
+The exact neutral representation is:
 
 ```text
 CheckedCallOut terminator:
-  site_id, receiver, ordered arguments, normal_result, normal_target, fault_target
-function-local site plan:
-  site_id, admitted entry ID, call ABI/wire revisions, result lane,
-  physical effect projection, outcome slot, optional lease slot, PlanStamp
+  site_id, receiver, ordered arguments,
+  normal_landing, fault_landing, verified_effect_cache
+  dst_value = None
+
+CheckedCallOutNormalResult:
+  site_id, dst
+  first instruction of normal_landing
+  ordinary block-local SSA definition
+
+function-local CheckedCallOutSitePlanV1:
+  site_id, admitted entry ID, call ABI revision, wire revision,
+  normal_shape = EndAuthorizedHandle { lease_slot } | ImmediateI64,
+  physical effect authority, outcome_slot, PlanStamp,
+  contract_violation_policy = BackendFailStopNoSuccessor
 ```
 
-`normal_result` is defined only on the Normal successor. Fault defines no
-result or lease; its target owns the existing cleanup/chronology projection.
-An I6 plan has one lease slot and a later exact End relation; I7 has no lease
-slot. Side-slot IDs are compiler-physical identities, never runtime tokens.
-The private in-process session brand is not serialized or reconstructed.
+Each terminator has exactly one plan and one Normal projection. Normal and
+Fault landings are distinct, site-local, and have exactly the CallOut source as
+their predecessor. The Normal projection is the only result definition; the
+terminator is never a generic `dst_value`, and no shared def-map, dominance, or
+PHI rule gains an edge-defined exception. Fault publishes no result or lease;
+after its site-local chronology is fixed it may jump through ordinary canonical
+edges to shared cleanup.
 
-The named implementation slice after D0 is
-`DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0`: add the neutral vocabulary, one
-terminator variant, function-local side-table storage, verifier/JSON roundtrip,
-and explicit non-AOT backend rejection, with production issuers/callers zero.
-Keep new modules below 650 lines and every source below the 800-line hard stop.
-R0 rejects duplicate/foreign site IDs, non-distinct successors, missing result,
-I6-without-lease, I7-with-lease, Fault payload publication, unsealed CFG edges,
-unknown ABI/wire revision, generic fallback, retry, and every VM consumer.
+The site plan is the physical-effect authority. The terminator carries only a
+verified cache for context-free `MirInstruction::effects()`, and verification
+requires equality. `CanonicalCfgSessionV1::emit_checked_callout` alone installs
+the terminator, successors and predecessors;
+`CanonicalSsaFunctionSessionV2::define_checked_callout_normal_result` alone
+installs the landing projection and ordinary SSA definition.
+
+Semantic `Fault` follows the MIR fault landing. Nonzero transport failure,
+malformed wire, unknown revision, or `Suspended` from the sync-only TextScan
+entry follows the non-rejoining backend fail-stop policy: it is not semantic
+Fault, creates no MIR-visible value or successor, and cannot fall back or
+rejoin. LLVM may emit the physical conditional branches, but their Normal/Fault
+targets and meaning come only from the MIR terminator.
+
+I6 has `EndAuthorizedHandle { lease_slot }`; I7 has `ImmediateI64`. The static
+lease slot is not a runtime token. Future End consumes the exact I6 slot once;
+I7 and every Fault path issue no lease and no End. JSON carries only neutral
+IDs/revisions/shapes. Function pointers, provider objects, session brands,
+runtime tokens and raw outcome storage are never serialized.
+
+#### `DYNAMIC-V2-LEASE-IDENTITY-R0` — next BoxShape
+
+Change:
+  replace token-to-raw-handle storage with one host-handle-owner-issued
+  generation-aware identity; make raw `issue_end_authorized(handle)` private.
+
+Contract:
+  `host_handles` alone captures `{ raw_handle, generation }` and conditionally
+  drops under the same slot-table lock. Every slot publication advances a
+  non-wrapping generation. The lease table stores that identity; the strict
+  public surface remains aggregate publish plus exactly-once End consume.
+
+Done:
+  valid aggregate publish/End is one-shot; ordinary drop followed by LIFO reuse
+  makes the old token reject as stale while the replacement object remains
+  live. Duplicate, foreign, zero, missing, generation mismatch and exhaustion
+  tests plus the existing authority guards are green.
+
+Stop:
+  raw handle alone, legacy generation zero, drop-epoch inference, unlocked
+  check-then-drop, reusable token, public raw issuer, fallback or VM work is
+  forbidden. This row opens no production caller.
+
+#### `DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0` — after lease identity
+
+Change:
+  add the neutral site-plan/terminator/Normal-projection vocabulary, one
+  canonical CFG issuer, verifier and Rust JSON roundtrip; keep all execution
+  backends explicitly unsupported.
+
+Contract:
+  one new small CheckedCallOut owner holds IDs, typed Normal shape and rejects.
+  Generic instruction/BasicBlock/CFG/SSA surfaces only project that owner;
+  result definition stays in the Normal landing and effect stays plan-owned.
+
+Done:
+  exact 1:1:1 plan/terminator/projection, two canonical successors, ordinary
+  Normal-block dominance, I6/I7 typed shapes and JSON parity are green. LLVM
+  and VM execution allowlists reject by name; production issuers/callers are 0.
+
+Stop:
+  duplicate/orphan/foreign site, shared or identical landing, result in
+  terminator `dst_value`, cache drift, wrong lease shape, Fault payload,
+  backend hidden semantic branch, fallback/retry or any source at 800 lines
+  rejects the row.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
-Entry precondition: the checked CallOut CFG/outcome representation D0 and its non-production R0 are closed.
+Entry precondition: lease identity R0 and checked CallOut physical R0 are closed.
 Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
 Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
 Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
@@ -490,19 +380,21 @@ selected edge=0, fallback=0, and retry=0.
 
 #### Work-branch and main landing boundary
 
-Implementation may use seven internal commits on this feature branch:
+Implementation may use bounded internal commits on this feature branch:
 
 ```text
 W0  move existing catalog admission through package/A-prime; delete reseal
 W1  normalized TextScan contract + neutral export facts + alias projection
 W2  consuming admission + immutable registry + symbolic AOT aggregate
-W3  strict runtime leaf + LLVM selected early hook + link-plan finalizer
-W4  full physical session
+W3  strict runtime leaf + checked ABI/metadata + test-only link verifier
+R0a generation-aware carrier lease identity
+R0b neutral CheckedCallOut MIR/JSON representation; backend execution closed
+W4  full physical session + selected LLVM CheckedCallOut physicalizer
 W5  exact-two DraftSeal + CanonicalCallable collector
 W6  package cutover + old-edge deletion + guards/docs
 ```
 
-Every W0-W5 checkpoint keeps production callers at zero and the capability
+Every checkpoint before W6 keeps production callers at zero and the capability
 closed. Main receives only the complete activation unit (squashed or otherwise
 presented as one indivisible activation commit). A provider-only, registry-only,
 LLVM-only, link-plan-only, lease-only, PHI-only, or partial-cursor main landing
