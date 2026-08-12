@@ -161,6 +161,14 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
     })
     .expect("catalog admission");
     port.with_selected_cataloged_lowering_input(admission, |input| {
+        input.with_selected_and_admission(|selected, admitted| {
+            assert_eq!(
+                selected.selected_key(),
+                &SelectedNormalCallableKeyV1::Cataloged(admitted.source_key().clone())
+            );
+            assert_eq!(admitted.physical_symbol(), "ParserScanLoopBox.skip_while/4");
+            assert_eq!(admitted.physical_arity(), 4);
+        });
         let owner = input.selected().source().owner();
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
             issue_selected_a_prime_i64_physical_demand(input)

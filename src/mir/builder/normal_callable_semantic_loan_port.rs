@@ -82,6 +82,18 @@ impl<'package, 'loan, 'port, 'collector>
         let inner = &mut *self.inner;
         self.package
             .with_selected_cataloged_lowering_input(admission, |input| {
+                input.with_selected_and_admission(|selected, admitted| {
+                    let expected = SelectedNormalCallableKeyV1::Cataloged(
+                        admitted.source_key().clone(),
+                    );
+                    if selected.selected_key() == &expected {
+                        Ok(())
+                    } else {
+                        Err(package_issue(
+                            NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
+                        ))
+                    }
+                })?;
                 let (selected, admission) = input.into_lowering_and_admission();
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(

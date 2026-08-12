@@ -31,11 +31,13 @@ SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_p
 SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
 CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
 CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
+PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -135,6 +137,17 @@ if rg -n 'commit_cataloged_box_method_completed\(' "$ROOT_DIR/src/mir" \
   --glob '*.rs' --glob '!**/tests.rs' --glob '!**/*_tests.rs' \
   --glob '!**/cataloged_box_method_collector_handoff.rs'; then
   guard_fail "$TAG" "cataloged Box-method collector terminal must have no production caller before selected cutover"
+fi
+if [[ "$(rg -n 'pub\(crate\) fn with_selected_and_admission<R>\(' "$PACKAGE_INSTALL" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected cataloged input/admission loan issuer must be unique"
+fi
+if [[ "$(rg -n 'input\.with_selected_and_admission\(' "$PACKAGE_ADAPTER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected package adapter must consume the bounded input/admission loan exactly once"
+fi
+guard_expect_fixed_in_file "$TAG" "into_lowering_and_admission" "$PACKAGE_ADAPTER" \
+  "legacy route must consume the same wrapper only after the selected loan closes"
+if rg -n 'with_selected_and_admission\([^)]*clone|selected_and_admission.*into_parts' "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"; then
+  guard_fail "$TAG" "selected input/admission loan must not clone or expose split parts"
 fi
 for file in "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

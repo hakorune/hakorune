@@ -59,6 +59,20 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
         &self.selected
     }
 
+    /// Lend the selected semantic input and its already-sealed catalog
+    /// admission together for one bounded cross-check. Neither borrowed view
+    /// can escape this callback, and the wrapper remains the only consuming
+    /// path for the admission.
+    pub(crate) fn with_selected_and_admission<R>(
+        &self,
+        callback: impl for<'view> FnOnce(
+            &'view SelectedCallableLoweringInputRefV1<'loan>,
+            &'view NormalCatalogedBoxMethodDraftAdmissionV1,
+        ) -> R,
+    ) -> R {
+        callback(&self.selected, &self.admission)
+    }
+
     pub(crate) fn into_lowering_and_admission(
         self,
     ) -> (
