@@ -44,6 +44,20 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
         let mut builder = MirBuilder::new();
         let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, plan)
             .expect("unpublished canonical session");
+        let function = session
+            .outer
+            .as_ref()
+            .expect("outer session")
+            .builder_view()
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("canonical skeleton");
+        assert_eq!(function.signature.name, "ParserScanLoopBox.skip_while/4");
+        assert_eq!(function.signature.params.len(), 4);
+        assert_eq!(function.signature.params[1], crate::mir::MirType::Integer);
+        assert_eq!(function.signature.params[2], crate::mir::MirType::Integer);
+        assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
         let receipt = session.emit_i8_const().expect("I8 receipt");
         receipt.with_value(|value| assert_ne!(value.as_u32(), 0));
         drop(receipt);

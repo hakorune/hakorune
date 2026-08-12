@@ -42,6 +42,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
+    selected_key: SelectedNormalCallableKeyV1,
 }
 
 #[derive(Clone, Copy)]
@@ -139,6 +140,16 @@ impl InstalledNormalCallableSemanticPackageV1 {
             .selected
             .batch_slot(key)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        // Reborrow the package's canonical key instead of trusting a
+        // caller-owned spelling. The batch-slot check above proves
+        // membership; this clone preserves that exact catalog identity for
+        // the later physical-header projection.
+        let selected_key = self
+            .selected
+            .keys()
+            .find(|candidate| *candidate == key)
+            .cloned()
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
         let parameters = self
             .parameter_contracts
             .iter()
@@ -163,6 +174,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                     parameter_contracts: parameters,
                     semantic,
                     source_identity,
+                    selected_key,
                 })
             })
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
@@ -221,5 +233,9 @@ impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
 
     pub(crate) fn source_identity(&self) -> &VerifiedResolvedCallableSourceIdentityV1 {
         &self.source_identity
+    }
+
+    pub(crate) fn selected_key(&self) -> &SelectedNormalCallableKeyV1 {
+        &self.selected_key
     }
 }

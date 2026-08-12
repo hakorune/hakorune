@@ -527,6 +527,23 @@ MIRBUILDER-BUILDER-BUILD-SPLIT-R0
     existing callers/visibility/emission order unchanged
     cargo check and focused raw-new/dispatch tests green
 
+  P0 preflight evidence (2026-08-12):
+    SelectedCallableLoweringInputRefV1 now retains the package-owned selected
+    catalog key; the A-prime demand carries that exact key without issuing a
+    second semantic identity.  The unpublished selected emitter derives
+    `ParserScanLoopBox.skip_while/4` through the existing cataloged-method
+    admission and rejects top-level, namespace, name, arity, and declaration
+    mismatches before opening a Builder session.  Its canonical skeleton uses
+    `create_resolved_function_skeleton` with declared header/return data and
+    does not inspect the raw body or call `contains_value_return`.  The HRTB
+    Dynamic authority and canary evidence are validated before Builder
+    mutation; the old body-aware skeleton remains compatibility-only.
+    Guard now freezes catalog-symbol projection, body-free skeleton use, and
+    validation-before-session order.  Focused selected-emitter test asserts
+    the catalog symbol and exact i64 return lane; cargo check and the focused
+    test are green.  This remains an unpublished canary; no provider, LLVM,
+    VM, or production caller was added.
+
 MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
   run after selected production cutover and a caller/cfg census
   keep builder.rs as the sole MirBuilder facade and preserve module paths,

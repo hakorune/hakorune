@@ -9,17 +9,19 @@ mod i64_const;
 use std::sync::Arc;
 
 use crate::ast::ASTNode;
-use crate::mir::builder::MirBuilder;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
+use crate::mir::builder::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalScheduleRowV1,
     PreparedSelectedDynamicV2EmissionPlanV1,
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
+use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1};
+use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::function::MirParamDecl;
-use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::BasicBlockId;
 
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
@@ -33,6 +35,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     BlockAllocation(String),
     ConstantEmission(String),
     SessionOpen(String),
+    PhysicalHeader(String),
 }
 
 #[derive(Debug)]
@@ -86,7 +89,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             name,
             params,
             param_decls,
-            body,
             return_type_name,
             attrs,
             uses,
@@ -97,7 +99,69 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 "selected fixture root must be a function".to_owned(),
             ));
         };
-        let function_name = format!("{name}/{}", params.len());
+
+        // The selected package's catalog key is the only physical-symbol
+        // authority.  A raw declaration name would produce `skip_while/4`
+        // instead of the admitted `ParserScanLoopBox.skip_while/4` symbol.
+        let selected_key = demand.selected_key().clone();
+        let admission = match selected_key {
+            SelectedNormalCallableKeyV1::Cataloged(source_key) => {
+                NormalCatalogedBoxMethodDraftAdmissionV1::seal(source_key).map_err(|error| {
+                    DynamicV2I8EmitterRejectV1::PhysicalHeader(error.to_string())
+                })?
+            }
+            SelectedNormalCallableKeyV1::TopLevel(_) => {
+                return Err(DynamicV2I8EmitterRejectV1::PhysicalHeader(
+                    "selected Dynamic canary requires a cataloged Box method".to_owned(),
+                ));
+            }
+        };
+        if admission.source_key().namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+            || admission.source_key().name() != name
+            || admission.physical_arity() != params.len()
+            || param_decls.len() != params.len()
+        {
+            return Err(DynamicV2I8EmitterRejectV1::PhysicalHeader(
+                "catalog physical header does not match selected declaration".to_owned(),
+            ));
+        }
+        let function_name = admission.physical_symbol().to_owned();
+        let declared_param_decls = param_decls
+            .iter()
+            .map(|decl| MirParamDecl {
+                name: decl.name.clone(),
+                declared_type_name: decl.declared_type_name.clone(),
+                implicit_receiver: false,
+            })
+            .collect::<Vec<_>>();
+
+        // Validate all borrowed semantic/control authority and the canary
+        // evidence before opening any Builder-owned session or skeleton.
+        let mut canonical = match demand.with_canonical_session_authority(|authority| {
+            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority, 0)
+        }) {
+            Ok(canonical) => canonical,
+            Err(error) => {
+                return Err(DynamicV2I8EmitterRejectV1::SessionOpen(error));
+            }
+        };
+        if canonical.owner() != demand.identity().owner() {
+            return Err(DynamicV2I8EmitterRejectV1::OwnerMismatch);
+        }
+        let evidence = match ledger.take_i8_evidence() {
+            Some(evidence) => evidence,
+            None => return Err(DynamicV2I8EmitterRejectV1::MissingI8Evidence),
+        };
+        if schedule
+            .iter()
+            .filter(|row| row.item() == evidence.item())
+            .count()
+            != 1
+            || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
+        {
+            return Err(DynamicV2I8EmitterRejectV1::TargetMismatch);
+        }
+
         let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
         let setup = (|| -> Result<(), DynamicV2I8EmitterRejectV1> {
             let draft_builder = outer.builder_view_mut_for_lowering();
@@ -105,21 +169,16 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 .function_state
                 .resolved_binding_state
                 .install(input.function())
-                .map_err(|error| {
-                    DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string())
-                })?;
+                .map_err(|error| DynamicV2I8EmitterRejectV1::SessionOpen(error.to_string()))?;
             draft_builder
-                .create_function_skeleton(function_name.clone(), params, body)
+                .create_resolved_function_skeleton(
+                    function_name.clone(),
+                    &declared_param_decls,
+                    return_type_name.as_deref(),
+                )
                 .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
             draft_builder.set_current_function_declared_signature(
-                param_decls
-                    .iter()
-                    .map(|decl| MirParamDecl {
-                        name: decl.name.clone(),
-                        declared_type_name: decl.declared_type_name.clone(),
-                        implicit_receiver: false,
-                    })
-                    .collect(),
+                declared_param_decls.clone(),
                 return_type_name.clone(),
             );
             draft_builder.set_current_function_runes(attrs);
@@ -142,41 +201,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         })();
         if let Err(error) = setup {
             return Self::reject_begin(outer, error);
-        }
-        let mut canonical = match demand.with_canonical_session_authority(|authority| {
-            CanonicalSsaFunctionSessionV2::new_selected_dynamic(input, authority, 0)
-        }) {
-            Ok(canonical) => canonical,
-            Err(error) => {
-                return Self::reject_begin(
-                    outer,
-                    DynamicV2I8EmitterRejectV1::SessionOpen(error),
-                )
-            }
-        };
-        if canonical.owner() != demand.identity().owner() {
-            return Self::reject_begin(outer, DynamicV2I8EmitterRejectV1::OwnerMismatch);
-        }
-        let evidence = match ledger.take_i8_evidence() {
-            Some(evidence) => evidence,
-            None => {
-                return Self::reject_begin(
-                    outer,
-                    DynamicV2I8EmitterRejectV1::MissingI8Evidence,
-                )
-            }
-        };
-        if schedule
-            .iter()
-            .filter(|row| row.item() == evidence.item())
-            .count()
-            != 1
-            || evidence.segment() != DynamicV2PhysicalScheduleSegmentV1::Prelude
-        {
-            return Self::reject_begin(
-                outer,
-                DynamicV2I8EmitterRejectV1::TargetMismatch,
-            );
         }
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
         let prelude_block =

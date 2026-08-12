@@ -116,6 +116,28 @@ guard_expect_fixed_in_file "$TAG" "with_canonical_session_authority" "$APRIME_MO
   "selected demand must expose only the scoped final-program authority view"
 guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_EMITTER" \
   "selected emitter must construct the Dynamic canonical session itself"
+guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$SELECTED_EMITTER" \
+  "selected emitter must project the physical symbol from the catalog admission"
+guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
+  "canonical selected skeleton must consume an exact header without body inference"
+if rg -F -q -- 'format!("{name}/' "$SELECTED_EMITTER"; then
+  guard_fail "$TAG" "selected physical symbol was reconstructed from the raw method name"
+fi
+if rg -F -q -- "create_function_skeleton(" "$SELECTED_EMITTER"; then
+  guard_fail "$TAG" "selected canonical emitter still uses the body-aware legacy skeleton"
+fi
+python3 - "$SELECTED_EMITTER" <<'PY'
+from pathlib import Path
+import sys
+
+text = Path(sys.argv[1]).read_text(encoding="utf-8")
+authority = text.index("with_canonical_session_authority")
+open_session = text.index("open_resolved_function_draft_seal_session_v1")
+if authority > open_session:
+    raise SystemExit(
+        "selected Dynamic authority validation must precede Builder session mutation"
+    )
+PY
 if rg -n -- "verify_function_completion_v1|empty_for_owned_loop_profile" \
   "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"; then
   guard_fail "$TAG" "selected Dynamic canary reissued Completion/If authority"

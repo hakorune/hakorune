@@ -38,6 +38,7 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .map_err(APrimeI64PhysicalDemandRejectV1::PhysicalDemand)?;
     Ok(from_parts(
         input.source(),
+        input.selected_key().clone(),
         identity,
         program,
         source_relation,

@@ -123,7 +123,7 @@ fn project_declared_signature_representation(function: &mut MirFunction) {
     }
 }
 
-fn source_type_name_to_mir(name: &str) -> MirType {
+pub(in crate::mir::builder) fn source_type_name_to_mir(name: &str) -> MirType {
     if let Some(exact) = ExactTrivialScalarAbiV1::classify(name) {
         return exact.mir_type();
     }

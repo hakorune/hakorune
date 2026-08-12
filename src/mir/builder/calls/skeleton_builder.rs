@@ -11,7 +11,9 @@
 use super::function_lowering;
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
+use crate::mir::function::MirParamDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+use crate::mir::{Effect, EffectMask, FunctionSignature, MirType};
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 2 - 関数スケルトン作成
@@ -23,22 +25,64 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let signature =
             function_lowering::prepare_static_method_signature(func_name.clone(), params, body);
+        self.install_function_skeleton(signature, Some("create_function_skeleton"))
+    }
+
+    /// Create a canonical skeleton from an already verified physical header.
+    ///
+    /// This entry deliberately does not inspect an AST body.  Return shape and
+    /// parameter representation are supplied by the upstream contract/plan;
+    /// the legacy body-aware entry remains available only to compatibility
+    /// lowering.
+    pub(in crate::mir::builder) fn create_resolved_function_skeleton(
+        &mut self,
+        func_name: String,
+        param_decls: &[MirParamDecl],
+        declared_return_type_name: Option<&str>,
+    ) -> Result<(), String> {
+        let signature = FunctionSignature {
+            name: func_name,
+            params: param_decls
+                .iter()
+                .map(|decl| {
+                    decl.declared_type_name
+                        .as_deref()
+                        .map(crate::mir::builder::builder_metadata::source_type_name_to_mir)
+                        .unwrap_or(MirType::Unknown)
+                })
+                .collect(),
+            return_type: declared_return_type_name
+                .map(crate::mir::builder::builder_metadata::source_type_name_to_mir)
+                .unwrap_or(MirType::Void),
+            effects: EffectMask::READ.add(Effect::ReadHeap),
+        };
+        self.install_function_skeleton(signature, Some("create_resolved_function_skeleton"))
+    }
+
+    fn install_function_skeleton(
+        &mut self,
+        signature: FunctionSignature,
+        trace_name: Option<&str>,
+    ) -> Result<(), String> {
+        let func_name = signature.name.clone();
         let entry = self.next_block_id();
         let function = self.new_function_with_metadata(signature, entry);
 
-        let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-        trace.emit_if(
-            "debug",
-            "create_function_skeleton",
-            &format!("Creating function: {}", func_name),
-            trace.is_enabled(),
-        );
-        trace.emit_if(
-            "debug",
-            "create_function_skeleton",
-            &format!("Entry block: {:?}", entry),
-            trace.is_enabled(),
-        );
+        if let Some(trace_name) = trace_name {
+            let trace = crate::mir::builder::control_flow::joinir::trace::trace();
+            trace.emit_if(
+                "debug",
+                trace_name,
+                &format!("Creating function: {}", func_name),
+                trace.is_enabled(),
+            );
+            trace.emit_if(
+                "debug",
+                trace_name,
+                &format!("Entry block: {:?}", entry),
+                trace.is_enabled(),
+            );
+        }
 
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
         self.function_state.current_function = Some(function);
@@ -65,19 +109,6 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let signature =
             function_lowering::prepare_method_signature(func_name, box_name, params, body);
-        let entry = self.next_block_id();
-        let function = self.new_function_with_metadata(signature, entry);
-
-        // Phase 136 Step 3/7: Use scope_ctx as SSOT
-        self.function_state.current_function = Some(function);
-        self.function_state.current_block = Some(entry);
-        // instance method 用の関数スコープ SlotRegistry もここで用意するよ。
-        self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
-        self.ensure_block_exists(entry)?;
-
-        // Region 観測レイヤ: instance method 用の FunctionRegion も積んでおくよ。
-        crate::mir::region::observer::observe_function_region(self);
-
-        Ok(())
+        self.install_function_skeleton(signature, None)
     }
 }

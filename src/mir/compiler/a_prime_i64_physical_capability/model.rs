@@ -1,10 +1,11 @@
 //! Builder-free A-prime physical-demand product.
 
+use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
-    DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopPhysicalDemandRejectV2,
-    DynamicFullLoopPhysicalInputRejectV2, DynamicInvocationCleanupRowViewV1,
-    DynamicCanonicalSessionAuthorityRefV1, PreparedDynamicLoopOperationProgramV2,
+    DynamicAPrimeI64SourceRelationViewV1, DynamicCanonicalSessionAuthorityRefV1,
+    DynamicFullLoopPhysicalDemandRejectV2, DynamicFullLoopPhysicalInputRejectV2,
+    DynamicInvocationCleanupRowViewV1, PreparedDynamicLoopOperationProgramV2,
     VerifiedDynamicExitTransactionCoSealV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -35,6 +36,7 @@ pub(in crate::mir) enum APrimeI64PhysicalRequirementV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
     input: ResolvedFunctionLoweringInputV1<'program>,
+    selected_key: SelectedNormalCallableKeyV1,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
@@ -45,6 +47,10 @@ pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
 impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     pub(in crate::mir) fn input(&self) -> ResolvedFunctionLoweringInputV1<'program> {
         self.input
+    }
+
+    pub(in crate::mir) fn selected_key(&self) -> &SelectedNormalCallableKeyV1 {
+        &self.selected_key
     }
 
     pub(in crate::mir) fn with_canonical_session_authority<R>(
@@ -89,6 +95,7 @@ impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
 
 pub(super) fn from_parts<'program>(
     input: ResolvedFunctionLoweringInputV1<'program>,
+    selected_key: SelectedNormalCallableKeyV1,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
@@ -96,6 +103,7 @@ pub(super) fn from_parts<'program>(
 ) -> VerifiedAPrimeI64PhysicalDemandV1<'program> {
     VerifiedAPrimeI64PhysicalDemandV1 {
         input,
+        selected_key,
         identity,
         program,
         source_relation,
