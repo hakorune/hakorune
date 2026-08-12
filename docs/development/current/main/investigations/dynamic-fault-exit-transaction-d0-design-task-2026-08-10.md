@@ -126,8 +126,8 @@ erase the Dynamic invocation outcome, Fault, suspension, or lifecycle axes.
 The cataloged-method transport correction is landed. The adapter moves its one
 already-sealed `NormalCatalogedBoxMethodDraftAdmissionV1` into the scoped
 package loan/A-prime demand, and issuer-side `seal(source_key)` is zero. The
-same admission supplies the physical header and remains the future
-`CanonicalCallable` collector identity; no raw key is resealed downstream.
+same admission supplies the physical header and remains the future cataloged
+Box-method collector identity; no raw key is resealed downstream.
 
 ## Final owner graph
 
@@ -197,7 +197,7 @@ Change:
   consume the retained I6/I7 CoreMethod rows into one complete TextScan
   AOT admission, lower the whole selected Loop through the existing canonical
   session and exact-two DraftSeal, finalize the exact linked executable plan,
-  admit the completed draft with a `CanonicalCallable` key, and delete the
+  admit the completed draft with a cataloged Box-method key, and delete the
   selected raw AST/JoinIR edge in the same activation unit.
 
 Contract:
@@ -218,7 +218,7 @@ Acceptance (not yet landed):
   receiver-bearing symbolic AOT admission, strict AOT/LLVM I6/I7 leaf, exact
   link-time RuntimeExecutablePlan, one V10 lease and End, I7 ImmediateI64 with
   no lease, full I0-I16/control/backedge close, two Completion claims and
-  physical Returns, one CanonicalCallable collector handoff, selected
+  physical Returns, one cataloged Box-method collector handoff, selected
   canonical caller=1, selected old edge=0, and all focused tests/guards green.
 
 Stop:
@@ -477,9 +477,9 @@ Landed R0 slice: `ca31203fba` adds the typed MIR vocabulary/issuers and `fe8e70b
 Non-claims: no full I8-I16/control/cleanup, provider/runtime activation, DraftSeal/collector, production caller, or VM parity in R0.
 ```
 
-#### `EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-D0`
+#### `EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-R0`
 
-Decision: design stop before collector implementation; the selected identity is
+Decision: accepted BoxShape; implement the selected identity as
 `SelectedNormalCallableKeyV1::Cataloged(CanonicalSameModuleCallableKeyV1)`.
 Source authority + canonical issuer: package catalog admission and the retained
 Box-method key; `CompletedFunctionDraftV1` must carry that identity once.
@@ -487,11 +487,11 @@ Non-authority: FreeStatic-only `CanonicalCallableKeyV1`, `LegacySymbol`, raw
 `MirFunction.signature.name/arity`, `into_legacy_collector_parts`, or re-sealing.
 Fail-fast boundary: owner/namespace/name/arity/symbol, collector brand, duplicate,
 foreign, and second-consume mismatch rejects before collector mutation/publication.
-Smallest next slice: choose an existing collector-native Box-method key or extend
-the key projection without a second semantic authority, then move the completed
-draft once into `CanonicalRejectDuplicate`; no collector code yet.
-Non-claims: no publication, production caller, cutover, provider/runtime/LLVM/VM,
-or legacy retirement until this key contract is accepted.
+Smallest next slice: add `FunctionDraftKeyV1::CatalogedBoxMethod`, retain the
+admission key in `CompletedFunctionDraftV1`, and hand it once to the existing
+`CanonicalRejectDuplicate` batch collector. No publication or cutover.
+Non-claims: no provider/runtime/LLVM/VM activation, legacy retirement, or
+production caller in R0.
 
 #### `SELECTED-CUTOVER-I0-G`
 
@@ -539,7 +539,7 @@ I6 receipt / lease / End                                      = 1 / 1 / 1
 I7 ImmediateI64 / lease / End                                 = 1 / 0 / 0
 Completion expected / claimed / physical Return               = 2 / 2 / 2
 synthetic return join / Return PHI                             = 0 / 0
-CanonicalCallable collector / legacy collector key            = 1 / 0
+selected Box-method collector key / legacy collector key       = 1 / 0
 adapter admission move / A-prime catalog reseal                = 1 / 0
 new selected caller / selected old edge                       = 1 / 0
 runtime lookup / generic fallthrough / fallback / retry        = 0 / 0 / 0 / 0
@@ -771,7 +771,7 @@ The activation implementation must add one reusable
 make it green only at W6. Before W6 it runs in closed mode and requires
 production caller=0; at W6 the same guard flips atomically to new=1/old=0. It
 owns export/header projection parity, single admission/alias/PlanStamp issuers,
-pre-link versus post-link plan boundaries, strict symbols, CanonicalCallable
+pre-link versus post-link plan boundaries, strict symbols, cataloged Box-key
 handoff, and zero VM/lookup/fallback/retry assertions. It is not claimed to
 exist or be green in the current docs-only task.
 
