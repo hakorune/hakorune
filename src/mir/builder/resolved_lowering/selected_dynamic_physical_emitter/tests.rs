@@ -274,6 +274,57 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         ));
         assert!(then_terminal.terminator.is_none());
         assert!(then_terminal.is_sealed());
+        let continuation = function
+            .get_block(target_blocks[4])
+            .expect("Continuation");
+        assert!(matches!(
+            continuation.instructions.as_slice(),
+            [
+                crate::mir::MirInstruction::Const {
+                    value: crate::mir::ConstValue::Integer(1),
+                    ..
+                },
+                crate::mir::MirInstruction::BinOp {
+                    op: crate::mir::BinaryOp::Add,
+                    ..
+                },
+                crate::mir::MirInstruction::CheckedCallOutEnd {
+                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                },
+            ]
+        ));
+        assert!(matches!(
+            continuation.terminator,
+            Some(crate::mir::MirInstruction::Jump { target, .. })
+                if target == target_blocks[1]
+        ));
+        assert!(continuation.is_sealed());
+        assert_eq!(continuation.predecessors.len(), 1);
+        assert!(continuation.predecessors.contains(&i7_normal_block));
+        let header = function
+            .get_block(target_blocks[1])
+            .expect("Header");
+        assert!(matches!(
+            header.terminator,
+            Some(crate::mir::MirInstruction::Branch {
+                then_bb,
+                else_bb,
+                ..
+            }) if then_bb == target_blocks[2] && else_bb == target_blocks[5]
+        ));
+        assert!(header.is_sealed());
+        let phi = header
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::Phi { inputs, .. } => Some(inputs),
+                _ => None,
+            })
+            .expect("Header induction PHI");
+        assert_eq!(phi.len(), 2);
+        assert!(phi.contains(&(target_blocks[0], crate::mir::ValueId::new(1))));
+        assert!(phi.iter().any(|(block, _)| *block == target_blocks[4]));
         assert!(session.current_instruction_count() >= 5);
         session.discard_unpublished();
         assert!(builder.function_state.current_function.is_none());

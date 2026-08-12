@@ -6,6 +6,7 @@
 //! the production capability gate.
 
 mod callout_corridor;
+mod continuation_backedge;
 mod fault_terminals;
 mod formal_header;
 mod i64_const;
@@ -363,6 +364,19 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &callout_corridor,
             &lifecycle,
             &cleanup,
+            &brand,
+        ) {
+            return Self::reject_begin(outer, error);
+        }
+        if let Err(error) = continuation_backedge::emit(
+            &mut canonical,
+            &mut outer,
+            &demand,
+            &formal_header,
+            &targets,
+            &callout_corridor,
+            &lifecycle,
+            &mut values,
             &brand,
         ) {
             return Self::reject_begin(outer, error);

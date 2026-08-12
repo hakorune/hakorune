@@ -173,7 +173,7 @@ pub(super) fn require_const(
     }
 }
 
-fn require_add(
+pub(super) fn require_add(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected_left: LoopValueKeyV1,
     expected_right: LoopValueKeyV1,
@@ -296,6 +296,26 @@ fn emit_jump(
         .map_err(|error| reject(error.to_string()))
 }
 
+fn emit_header_branch(
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+    source: crate::mir::BasicBlockId,
+    condition: crate::mir::ValueId,
+    then_block: crate::mir::BasicBlockId,
+    else_block: crate::mir::BasicBlockId,
+) -> Result<(), DynamicV2I8EmitterRejectV1> {
+    let function = outer
+        .builder_view_mut_for_lowering()
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| reject("missing function while emitting Header branch"))?;
+    canonical
+        .cfg
+        .emit_branch(function, source, condition, then_block, else_block)
+        .map_err(|error| reject(error.to_string()))
+}
+
 fn select_block(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
@@ -406,11 +426,14 @@ fn emit_program(
     }
 
     let induction = relation.induction_key();
-    let (header, body) = targets.with_role(DynamicV2PhysicalTargetRoleV1::Header, |header| {
-        targets.with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |body| {
-            (header, body)
-        })
-    });
+    let (header, body, after) =
+        targets.with_role(DynamicV2PhysicalTargetRoleV1::Header, |header| {
+            targets.with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |body| {
+                targets.with_role(DynamicV2PhysicalTargetRoleV1::After, |after| {
+                    (header, body, after)
+                })
+            })
+        });
     let header_block = header.block();
     let body_block = body.block();
     let current = formals.header_current_value();
@@ -449,7 +472,17 @@ fn emit_program(
             DynamicV2PhysicalRepresentationV1::ImmediateBool,
         )
         .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
-    emit_jump(canonical, outer, header_block, body_block)?;
+    if !after.matches(brand) {
+        return Err(reject("After target has a foreign session brand"));
+    }
+    emit_header_branch(
+        canonical,
+        outer,
+        header_block,
+        v5,
+        body_block,
+        after.block(),
+    )?;
     select_block(canonical, outer, body_block)?;
 
     require_read(&rows[2], V6, induction)?;
