@@ -379,6 +379,26 @@ TextScan role aggregate -> consuming admission -> immutable registry
 Each arrow is a named child of this activation cell, not an independently
 selectable authority. Any missing relation remains `RejectBeforeEffect`.
 
+The activation handoff is one consuming physical aggregate, not a sequence of
+landable provider/session fragments:
+
+```text
+admitted TextScan two-role executable cell
+  (receiver identity + image/PlanStamp + strict I6/I7 lanes + one-shot lease)
+        -> DynamicV2PhysicalEmissionSessionV1::begin(builder, plan, executable)
+        -> one session-owned operation/control/cleanup cursor
+        -> exact-two DraftSeal -> CanonicalCallable collector
+```
+
+The executable cell is move-only and carries no registry reference, selector
+lookup, or semantic result/effect authority. `begin` must reject before
+opening Builder state when either I6/I7 lane, receiver/image/PlanStamp, or the
+V10 lease capability is missing, foreign, duplicated, stale, or mismatched.
+There is no independently selectable provider-only commit, partial operation
+cursor, lease-only commit, VM adapter, generic String fallback, or retry. Until
+the complete aggregate is available, the current capability remains
+`RejectBeforeEffect` and production callers remain zero.
+
 ```text
 DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
   The package adapter's existing cataloged-method admission is the sole
