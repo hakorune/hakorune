@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, and the private move-only I6/I7 admitted-site-plan transport are landed. The D2 private Recipe-order preflight cursor is now connected before Builder mutation; canonical physical value issuance, full CallOut corridor, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, and the unpublished D1 formal->I0-I7 typed corridor are landed. Canonical physical value issuance now covers the bounded corridor; I8-I16/control/cleanup, terminal publication, production activation, and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
 current_design_stop = "D1 representation boundary accepted: formal Dynamic seeds remain canonical SSA receipts outside the physical ledger; Recipe/canonical emitters own ImmediateI64 and ImmediateBool; the already-admitted CheckedCallOut site plans own EndAuthorizedHandle/I6 and ImmediateI64/I7. The combined unpublished corridor may now consume these existing projections without MirType inference or a second authority."
 work_mode = "fast"
-current_execution_row = "PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1"
-current_blocker_token = "PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1: consume one combined formal->I0-I5->I6->I7 unpublished corridor; canonical SSA/CFG issues all ValueIds, the existing V2 ledger retains only operation/CallOut receipts, and missing/foreign/duplicate/order/shape drift discards before publication."
+current_execution_row = "PHYSICAL-SESSION-I0-E"
+current_blocker_token = "PHYSICAL-SESSION-I0-E: D1 formal->I0-I5->I6->I7 corridor is landed in one unpublished session; consume remaining I8-I16/control/cleanup and terminal evidence through the same canonical SSA/CFG and V2 ledger owners before any publication."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, and the D2 cursor preflight are landed; canonical value issuance and E0 corridor/result publication remain next. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane is active. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, and the unpublished D1 formal->I0-I7 corridor are landed; the remaining full physical session and terminal publication are next. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, and the D2 order/dependency preflight cursor are landed; production callers remain zero. The next design boundary is one combined typed V2 ledger + I6/I7 site-local corridor."
-next_design_card = "PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1"
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, and the unpublished D1 formal->I0-I7 typed corridor are landed; production callers remain zero. The next boundary is the remaining I8-I16/control/cleanup session and terminal."
+next_design_card = "PHYSICAL-SESSION-I0-E"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1"
+next_execution_card = "PHYSICAL-SESSION-I0-E"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: D2 private V2 Recipe-order cursor now consumes all 15 verified rows once before Builder mutation, rejects use-before-produce/duplicate/shape drift, and retains CoreMethod I6/I7 checks; it issues no physical ValueId or CallOut and leaves the corridor open.",
+  "2026-08-13: D1 unpublished physical corridor now consumes formal->I0-I5->I6->I7 once, emits site-local CheckedCallOut/Normal projections, and retains I4-I11 typed V2 receipts; remaining I8-I16/control/cleanup and terminal publication stay closed.",
   "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
   "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut local vocabulary/issuers landed with function-local site plans, canonical two-edge CFG, Normal-landing projection, test-only JSON parity, and LLVM/VM rejection; E0 function census/corridor closeout remains before PHYSICAL-SESSION-I0-E.",

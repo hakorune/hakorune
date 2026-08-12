@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 #[test]
-fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
+fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_session() {
     let source =
         include_str!("../../../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -142,55 +142,53 @@ fn i8_leaf_emits_one_immediate_i64_in_unpublished_session() {
             formal_header.header_current().physical_block(),
             target_blocks[1]
         );
-        let receipt = session.emit_i8_const().expect("I8 receipt");
-        let emitted_value = receipt.with_value(|value| {
-            assert_ne!(value.as_u32(), 0);
-            value
-        });
-        drop(receipt);
-        session
-            .with_physical_value_for_test(
-                crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12),
-                |view| {
-                    assert_eq!(view.producer().raw(), 8);
-                    assert_eq!(view.result().raw(), 12);
-                    assert_eq!(view.value(), emitted_value);
-                    assert_eq!(view.block(), target_blocks[2]);
-                },
-            )
-            .expect("I8 value must be ledger-published");
-        assert_eq!(
+        let immediate_i64 = crate::mir::builder::resolved_lowering::
+            selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1::ImmediateI64;
+        let immediate_bool = crate::mir::builder::resolved_lowering::
+            selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1::ImmediateBool;
+        let handle = crate::mir::builder::resolved_lowering::
+            selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1::EndAuthorizedHandle {
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+            };
+        for (result, representation) in [
+            (4, immediate_i64),
+            (5, immediate_bool),
+            (6, immediate_i64),
+            (7, immediate_i64),
+            (8, immediate_i64),
+            (9, immediate_i64),
+            (10, handle),
+            (11, immediate_i64),
+        ] {
             session
-                .with_physical_value_for_test(
-                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13),
+                .with_physical_value_for_test_as(
+                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(result),
+                    representation,
                     |_| (),
                 )
-                .expect_err("missing value must reject"),
-            value_ledger::DynamicV2PhysicalValueLedgerRejectV1::MissingResult
-        );
-        let duplicate_target = session
-            .targets
-            .with_role(DynamicV2PhysicalTargetRoleV1::BodyPrelude, |target| target);
-        assert_eq!(
-            session
-                .values
-                .publish(
-                    crate::mir::loop_recipe_contract::LoopItemKeyV1::new(8),
-                    crate::mir::loop_recipe_contract::LoopValueKeyV1::new(12),
-                    &duplicate_target,
-                    emitted_value,
-                    crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::
-                        DynamicV2PhysicalRepresentationV1::ImmediateI64,
+                .expect("combined corridor value must be ledger-published");
+        }
+        let function = session
+            .outer
+            .as_ref()
+            .expect("outer session")
+            .builder_view()
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("function remains unpublished");
+        let callout_count = function
+            .blocks
+            .values()
+            .filter(|block| {
+                matches!(
+                    block.terminator,
+                    Some(crate::mir::MirInstruction::CheckedCallOut { .. })
                 )
-                .expect_err("duplicate publication must reject"),
-            value_ledger::DynamicV2PhysicalValueLedgerRejectV1::DuplicateProducer
-        );
-        assert_eq!(session.current_instruction_count(), 2);
-        let error = session
-            .emit_i8_const()
-            .expect_err("duplicate I8 must reject");
-        assert_eq!(error, DynamicV2I8EmitterRejectV1::DuplicateI8Emission);
-        assert_eq!(session.current_instruction_count(), 2);
+            })
+            .count();
+        assert_eq!(callout_count, 2);
+        assert!(session.current_instruction_count() >= 5);
         session.discard_unpublished();
         assert!(builder.function_state.current_function.is_none());
     })

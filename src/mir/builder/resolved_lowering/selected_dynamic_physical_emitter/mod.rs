@@ -5,6 +5,7 @@
 //! its scoped entry, and never opens a second Builder/CFG owner or activates
 //! the production capability gate.
 
+mod callout_corridor;
 mod formal_header;
 mod i64_const;
 mod operation_cursor;
@@ -54,6 +55,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     PhysicalValueLedger(String),
     CheckedCallOutSitePlan(String),
     RecipeOperationCursor(String),
+    PhysicalCorridor(String),
 }
 
 #[derive(Debug)]
@@ -162,7 +164,7 @@ fn install_unpublished_function_header(
 fn install_checked_callout_site_plans(
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     site_plans: CheckedCallOutSitePlanPairV1,
-) -> Result<(), DynamicV2I8EmitterRejectV1> {
+) -> Result<callout_corridor::DynamicV2InstalledCallOutSitesV1, DynamicV2I8EmitterRejectV1> {
     let table = site_plans
         .consume(|i6, i7| {
             let mut table = CheckedCallOutPlanTableV1::default();
@@ -174,6 +176,26 @@ fn install_checked_callout_site_plans(
         .map_err(|error| {
             DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(format!("{error:?}"))
         })?;
+    let i6 = table
+        .get(crate::mir::checked_callout::CheckedCallOutSiteIdV1(0))
+        .ok_or_else(|| {
+            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
+                "missing installed I6 site plan".to_owned(),
+            )
+        })?;
+    let i7 = table
+        .get(crate::mir::checked_callout::CheckedCallOutSiteIdV1(1))
+        .ok_or_else(|| {
+            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
+                "missing installed I7 site plan".to_owned(),
+            )
+        })?;
+    let sites = callout_corridor::DynamicV2InstalledCallOutSitesV1::new(
+        i6.site_id(),
+        i7.site_id(),
+        i6.normal_shape(),
+        i7.normal_shape(),
+    );
     let builder = outer.builder_view_mut_for_lowering();
     let function = builder
         .function_state
@@ -185,7 +207,7 @@ fn install_checked_callout_site_plans(
             )
         })?;
     function.metadata.install_checked_callout_plan_table(table);
-    Ok(())
+    Ok(sites)
 }
 
 fn open_unpublished_outer<'builder>(
@@ -283,9 +305,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         ) {
             return Self::reject_begin(outer, error);
         }
-        if let Err(error) = install_checked_callout_site_plans(&mut outer, site_plans) {
-            return Self::reject_begin(outer, error);
-        }
+        let sites = match install_checked_callout_site_plans(&mut outer, site_plans) {
+            Ok(sites) => sites,
+            Err(error) => return Self::reject_begin(outer, error),
+        };
         let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
         let (targets, formal_header) = match issue_targets_and_formal_header(
             &mut canonical,
@@ -299,7 +322,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             Err(error) => return Self::reject_begin(outer, error),
         };
         let values = DynamicV2PhysicalValueLedgerV1::new(&brand);
-        Ok(Self {
+        let mut session = Self {
             outer: Some(outer),
             canonical: Some(canonical),
             demand,
@@ -314,7 +337,21 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             cleanup,
             aot,
             disposition,
-        })
+        };
+        if let Err(error) = callout_corridor::emit(
+            session.canonical.as_mut().expect("canonical session"),
+            session.outer.as_mut().expect("outer session"),
+            &session.demand,
+            &session.targets,
+            &session.formal_header,
+            &mut session.values,
+            &session.brand,
+            sites,
+        ) {
+            session.discard_unpublished();
+            return Err(error);
+        }
+        Ok(session)
     }
 
     /// Emit exactly one I8 leaf. A failure consumes the evidence and cannot be
@@ -372,6 +409,17 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             DynamicV2PhysicalRepresentationV1::ImmediateI64,
             callback,
         )
+    }
+
+    #[cfg(test)]
+    pub(super) fn with_physical_value_for_test_as<R>(
+        &self,
+        result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+        representation: DynamicV2PhysicalRepresentationV1,
+        callback: impl FnOnce(&DynamicV2PhysicalValueViewV1) -> R,
+    ) -> Result<R, DynamicV2PhysicalValueLedgerRejectV1> {
+        self.values
+            .with_value_for_test(result, representation, callback)
     }
 
     #[cfg(test)]

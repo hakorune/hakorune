@@ -447,11 +447,11 @@ Non-claims: no I9/control/backedge/cleanup completion, provider/LLVM/runtime act
   collector, production caller, fallback, retry, or VM parity.
 ```
 
-Implementation checkpoint (2026-08-13): the private D2 cursor consumes the
-complete 15-row array once before Builder mutation, proves dependency/order and
-retained I6/I7 CoreMethod shape, and issues no physical ValueId or CallOut. The
-combined D1 corridor is now the sole next implementation boundary; a partial
-I6/I7 leaf is explicitly NoSafeSlice.
+Implementation checkpoint (2026-08-13): D2 preflight remains the complete
+15-row dependency/order gate. D1 now consumes one unpublished session through
+formal -> I0-I5 -> site-local I6/I7 CheckedCallOut and Normal projections; the
+canonical SSA/CFG owners issue all ValueIds/edges and the sole V2 ledger retains
+I4-I11 typed receipts. I8-I16/control/cleanup and publication remain closed.
 
 #### `PHYSICAL-SESSION-I0-E`
 ```text
@@ -463,7 +463,7 @@ Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backe
 Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
-Internal BoxShape checkpoint (2026-08-13): physical target-role coverage requires all roles before block allocation (repeated schedule rows per role remain valid). Operation order remains the already-issued `operation_rows()` sequence; a numeric item-order guard was rejected by the fixture. The full consuming cursor and operation session remain open.
+Internal BoxShape checkpoint (2026-08-13): physical target-role coverage requires all roles before block allocation (repeated schedule rows per role remain valid). Operation order remains the already-issued `operation_rows()` sequence; a numeric item-order guard was rejected by the fixture. D1 corridor is landed; the full consuming cursor, I8-I16/control/cleanup session, and terminal remain open.
 
 #### `EXACT-TWO-COLLECTOR-I0-F`
 

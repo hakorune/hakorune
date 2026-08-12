@@ -33,6 +33,20 @@ pub(super) struct DynamicV2OpenedFormalHeaderV1 {
 }
 
 impl DynamicV2OpenedFormalHeaderV1 {
+    pub(super) fn value_for_recipe(
+        &self,
+        recipe_value: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+    ) -> Option<ValueId> {
+        self.formals
+            .iter()
+            .find(|formal| formal.recipe_value == recipe_value)
+            .map(|formal| formal.value)
+    }
+
+    pub(super) const fn header_current_value(&self) -> ValueId {
+        self.header_current.physical_value()
+    }
+
     #[cfg(test)]
     pub(super) fn formals(&self) -> &[DynamicV2FormalSeedV1; 4] {
         &self.formals

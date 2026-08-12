@@ -54,6 +54,13 @@ pub(super) struct DynamicV2OpaquePhysicalTargetV1 {
 }
 
 impl DynamicV2OpaquePhysicalTargetV1 {
+    pub(super) fn for_block(brand: &DynamicV2PhysicalSessionBrandV1, block: BasicBlockId) -> Self {
+        Self {
+            brand: Arc::clone(&brand.0),
+            block,
+        }
+    }
+
     pub(super) fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {
         Arc::ptr_eq(&self.brand, &brand.0)
     }

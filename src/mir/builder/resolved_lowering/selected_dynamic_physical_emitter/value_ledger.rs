@@ -134,4 +134,14 @@ impl DynamicV2PhysicalValueLedgerV1 {
         };
         Ok(callback(&view))
     }
+
+    #[cfg(test)]
+    pub(super) fn with_value_for_test<R>(
+        &self,
+        result: LoopValueKeyV1,
+        expected_representation: DynamicV2PhysicalRepresentationV1,
+        callback: impl FnOnce(&DynamicV2PhysicalValueViewV1) -> R,
+    ) -> Result<R, DynamicV2PhysicalValueLedgerRejectV1> {
+        self.with_value(result, expected_representation, callback)
+    }
 }
