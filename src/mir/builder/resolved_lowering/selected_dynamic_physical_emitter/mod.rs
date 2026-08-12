@@ -8,7 +8,6 @@ mod i64_const;
 
 use std::sync::Arc;
 
-use crate::ast::ASTNode;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
@@ -17,10 +16,8 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::builder::SameModuleCallableNamespaceV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
-use crate::mir::function::MirParamDecl;
 use crate::mir::BasicBlockId;
 
 pub(in crate::mir) use i64_const::DynamicV2I64ProducerReceiptV1;
@@ -83,51 +80,12 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         let input = demand.input();
-        let root = input.source().root();
-        let ASTNode::FunctionDeclaration {
-            name,
-            params,
-            param_decls,
-            return_type_name,
-            attrs,
-            uses,
-            ..
-        } = root
-        else {
-            return Err(DynamicV2I8EmitterRejectV1::SessionOpen(
-                "selected fixture root must be a function".to_owned(),
-            ));
-        };
-
         // The A-prime demand owns the single catalog-backed physical-header
         // admission.  This emitter only borrows its checked projection; it
-        // never re-seals the selected key.
-        let (header_namespace, header_name, header_arity, function_name) = {
-            let admission = demand.physical_header();
-            (
-                admission.source_key().namespace(),
-                admission.source_key().name().to_owned(),
-                admission.physical_arity(),
-                admission.physical_symbol().to_owned(),
-            )
-        };
-        if header_namespace != SameModuleCallableNamespaceV1::StaticBoxMethod
-            || header_name.as_str() != name.as_str()
-            || header_arity != params.len()
-            || param_decls.len() != params.len()
-        {
-            return Err(DynamicV2I8EmitterRejectV1::PhysicalHeader(
-                "catalog physical header does not match selected declaration".to_owned(),
-            ));
-        }
-        let declared_param_decls = param_decls
-            .iter()
-            .map(|decl| MirParamDecl {
-                name: decl.name.clone(),
-                declared_type_name: decl.declared_type_name.clone(),
-                implicit_receiver: false,
-            })
-            .collect::<Vec<_>>();
+        // never re-seals the selected key or reconstructs a raw AST header.
+        let physical_header = demand.physical_function_header();
+        let function_name = physical_header.catalog().physical_symbol().to_owned();
+        let declared_param_decls = physical_header.params().to_vec();
 
         // Validate all borrowed semantic/control authority and the canary
         // evidence before opening any Builder-owned session or skeleton.
@@ -170,16 +128,17 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 .create_resolved_function_skeleton(
                     function_name.clone(),
                     &declared_param_decls,
-                    return_type_name.as_deref(),
-                    demand.function_effects(),
+                    physical_header.return_type_name(),
+                    physical_header.effects(),
                 )
                 .map_err(DynamicV2I8EmitterRejectV1::SessionOpen)?;
             draft_builder.set_current_function_declared_signature(
                 declared_param_decls.clone(),
-                return_type_name.clone(),
+                physical_header.return_type_name().map(str::to_owned),
             );
-            draft_builder.set_current_function_runes(attrs);
-            draft_builder.set_current_function_declared_capability_uses(uses);
+            draft_builder.set_current_function_runes(physical_header.attrs());
+            draft_builder
+                .set_current_function_declared_capability_uses(physical_header.uses());
             let function = draft_builder
                 .function_state
                 .current_function

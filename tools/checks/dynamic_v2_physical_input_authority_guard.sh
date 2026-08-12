@@ -148,8 +148,8 @@ if rg -F -q -- "DynamicV2ProducerLaneV1" "$SELECTED_CAPABILITY" || \
 fi
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"
-guard_expect_fixed_in_file "$TAG" "demand.function_effects()" "$SELECTED_EMITTER" \
-  "canonical selected skeleton must consume the demand-owned effect projection"
+guard_expect_fixed_in_file "$TAG" "physical_header.effects()" "$SELECTED_EMITTER" \
+  "canonical selected skeleton must consume the demand-owned physical-header effect projection"
 if rg -n -A35 -- "fn create_resolved_function_skeleton" "$SKELETON_BUILDER" \
   | rg -q -- "EffectMask::READ|Effect::ReadHeap"; then
   guard_fail "$TAG" "canonical skeleton must not hardcode its function effect"

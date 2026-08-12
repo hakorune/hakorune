@@ -1,5 +1,6 @@
 //! Sole issuer for the bounded A-prime exact-I64 demand.
 
+use crate::ast::ASTNode;
 use crate::mir::builder::{NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
@@ -9,12 +10,14 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+use crate::mir::function::MirParamDecl;
 use crate::mir::normal_callable_semantic_package::{
     SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
 };
 
 use super::model::{
-    from_parts, APrimeI64PhysicalDemandRejectV1, VerifiedAPrimeI64PhysicalDemandV1,
+    from_parts, APrimeI64PhysicalDemandRejectV1, APrimePhysicalFunctionHeaderV1,
+    VerifiedAPrimeI64PhysicalDemandV1,
 };
 
 pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
@@ -50,6 +53,11 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     let function_effects = operation_program
         .physical_function_effects()
         .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionEffect)?;
+    let physical_function_header = issue_physical_function_header(
+        input.source().source().root(),
+        physical_header,
+        function_effects,
+    )?;
     Ok(from_parts(
         input.source(),
         selected_key,
@@ -57,8 +65,52 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         program,
         source_relation,
         operation_program,
-        physical_header,
-        function_effects,
+        physical_function_header,
+    ))
+}
+
+fn issue_physical_function_header(
+    root: &ASTNode,
+    catalog: NormalCatalogedBoxMethodDraftAdmissionV1,
+    effects: crate::mir::EffectMask,
+) -> Result<APrimePhysicalFunctionHeaderV1, APrimeI64PhysicalDemandRejectV1> {
+    let ASTNode::FunctionDeclaration {
+        name,
+        params,
+        param_decls,
+        return_type_name,
+        uses,
+        attrs,
+        ..
+    } = root
+    else {
+        return Err(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader);
+    };
+    if catalog.source_key().namespace()
+        != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+        || catalog.source_key().name() != name
+        || catalog.physical_arity() != params.len()
+        || param_decls.len() != params.len()
+        || return_type_name.as_deref() != Some("i64")
+    {
+        return Err(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader);
+    }
+    let params = param_decls
+        .iter()
+        .map(|decl| MirParamDecl {
+            name: decl.name.clone(),
+            declared_type_name: decl.declared_type_name.clone(),
+            implicit_receiver: false,
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+    Ok(APrimePhysicalFunctionHeaderV1::new(
+        catalog,
+        params,
+        return_type_name.clone().map(Into::into),
+        attrs.clone(),
+        uses.clone().into_boxed_slice(),
+        effects,
     ))
 }
 
