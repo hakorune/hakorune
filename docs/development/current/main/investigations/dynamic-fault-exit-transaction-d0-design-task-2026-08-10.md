@@ -28,11 +28,14 @@ Current implementation status: W0-W3 semantic/header/admission, strict
 CodePoint entries, checked CallOut ABI, generation-aware neutral lease owner,
 test-only metadata/link facts, the complete unpublished physical session,
 exact-two DraftSeal preparation, cataloged Box-method collector handoff, and
-the selected adapter input/admission loan are landed. Production still uses
-the selected raw AST/JoinIR edge and every production CheckedCallOut/LLVM/link
-caller remains zero. The next row is the complete W6 activation cell.
+the selected adapter input/admission loan are landed. Raw generation input is
+removed, but the collector-brand callback transport is the selected next
+BoxShape. Production still uses the selected raw AST/JoinIR edge and every
+production CheckedCallOut/LLVM/link caller remains zero.
 
-Next ordered task: `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`. All pre-cutover
+Next ordered task: `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-TRANSPORT-R0`.
+After this transport closes, `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` is the only
+route. All pre-cutover
 physical/session and key-handoff prerequisites are closed; W6 is the only
 route allowed to connect selected package input, physical session, exact-two
 DraftSeal, catalog collector, publication, and old-edge retirement.
@@ -547,19 +550,19 @@ below 760 target and 800 hard stop.
 Non-claims: no W6 subfragment may land as a selectable production route; if
 the complete cell is not green, keep the current unpublished lane unchanged.
 
-#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-R0` — accepted BoxShape prerequisite
+#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-TRANSPORT-R0` — accepted BoxShape
 
-Decision: use the existing invocation identity issuer as the sole source of the
-admitted provider-registry generation. The current `AdmittedTextScanRegistryV1`
-stores a caller-supplied `NonZeroU64`; replace that input with a projection of
-the already admitted `ModuleInvocationBrandV1` and do not add a counter.
+Decision: the existing invocation identity issuer remains the sole source of
+the admitted provider-registry generation, and the brand is transported from
+that owner before the admission call. The raw `NonZeroU64` input is removed;
+the selected capability must no longer accept a caller-supplied brand.
 
-Source authority + canonical issuer: the provider admission/immutable-registry
-owner consumes the `ModuleInvocationBrandV1` issued for the same activation.
-`AdmittedTextScanRegistryV1` stores that brand and derives its diagnostic
-generation from the brand's invocation ordinal; `ProviderAdmissionSealV1`
-and the executable admission retain the same brand. No provider lookup or
-second issuer is added.
+Source authority + canonical issuer: the existing `ModuleInvocationTokenV1` /
+`ModuleDraftCollectorV1::receipt_brand()` for the same module invocation is
+the source. A private invocation/child-port transport must lend that exact
+brand to the selected capability, where `ProviderAdmissionSealV1` consumes it
+once; `AdmittedTextScanRegistryV1` stores it and derives only a diagnostic
+ordinal projection. No provider lookup or second issuer is added.
 
 Non-authority: raw `NonZeroU64`, host lease generation, type-registry slot
 number, selector/name, runtime lookup, LLVM, VM, and the unpublished test
@@ -567,21 +570,26 @@ canary. `ModuleInvocationBrandV1` is the existing identity source, not a new
 semantic receipt. No new semantic `Verified*`/`Prepared*`
 meaning or second provider registry is allowed.
 
-Fail-fast boundary: missing/zero/foreign/stale brand, registry/alias collision,
-PlanStamp mismatch, or `RejectBeforeEffect` success disposition must reject
-before Builder/session/collector mutation. W6 keeps provider/runtime/LLVM
-production callers at zero until its complete activation cell is green.
+Fail-fast boundary: missing/unbranded invocation, foreign/stale brand,
+registry/alias collision, PlanStamp mismatch, or `RejectBeforeEffect` success
+disposition must reject before Builder/session/collector mutation. The
+admitted brand, collector brand, and eventual CheckedCallOut PlanStamp must
+compare equal. W6 keeps provider/runtime/LLVM production callers at zero.
 
-Smallest next slice: remove the external generation argument from the existing
-admission path, make the registry constructor private to the seal, and add
-brand/stale/zero negative coverage. Keep the canary and all production callers
-unchanged; the next consumer remains the complete W6 activation cell.
+Smallest next slice: add `ModuleLoweringPortV1::with_invocation_brand`, a
+`RawInvocationChildPortV1` delegate, and consume the HRTB callback immediately
+at selected provider admission. The callback must reject an unbranded
+collector, cannot escape or store the brand, and does not add a new durable
+receipt. Keep the canary and all production callers unchanged; the next
+consumer remains the complete W6 activation cell.
 
-Acceptance: generation issuer/consumer = existing invocation identity/one;
-admitted registry and PlanStamp share the exact brand; generation is only an
-ordinal projection; duplicate/foreign/stale/zero brand negatives are green;
-raw generation input and test-only `legacy_test()` are production callers = 0.
-This is a BoxShape correction only and does not open W6 production execution.
+Acceptance: production issuer/delegate/consumer = collector callback/module
+port/raw child port/selected admission exactly once; the callback has no raw
+brand constructor or escape; admitted registry and PlanStamp share the exact
+collector brand; generation is only an ordinal projection; unbranded,
+foreign/stale/zero brand negatives are green; raw generation input and
+test-only `legacy_test()` are production callers = 0. This BoxShape does not
+open W6 production execution.
 Non-claims: successful W6 activation, strict leaf/link cutover, collector
 publication, old-edge retirement, or RuntimeExecutablePlan activation.
 
