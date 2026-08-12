@@ -572,6 +572,9 @@ CURRENT-STATE-LIVE-SCHEMA-I0
 MIRBUILDER-WORKSTREAM-ARCHIVE-R0
   rolling workstream current brief below 800 lines
   closed chronology -> archive/git history
+  Status (landed BoxShape, 2026-08-12): closed chronology was compressed to
+  the archive/git pointer; live invariants, active queue, and parked lanes
+  remain in the current workstream.
 
 MIRBUILDER-EMIT-INSTRUCTION-PHASE-SPLIT-R0
   keep one public emit_instruction writer; split private prepare/validate/
