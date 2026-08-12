@@ -369,6 +369,8 @@ Acceptance: six targets, 15 operations, both call outcomes, V10 lease/End, backe
 Non-claims: no exact-two DraftSeal, CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
 ```
 
+Internal BoxShape checkpoint (2026-08-13): physical target-role coverage now rejects duplicate or missing roles before block allocation; full Recipe-order cursor and operation session remain open.
+
 #### `EXACT-TWO-COLLECTOR-I0-F`
 
 Derive inner/outer sites from the retained A-prime relation, claim both through

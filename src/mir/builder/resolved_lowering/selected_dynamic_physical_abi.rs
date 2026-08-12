@@ -73,6 +73,19 @@ impl DynamicV2PhysicalScheduleRowV1 {
     pub(in crate::mir) const fn target(self) -> DynamicV2PhysicalBlockTargetV1 {
         self.target
     }
+
+    #[cfg(test)]
+    pub(in crate::mir) const fn from_test_parts(
+        item: LoopItemKeyV1,
+        segment: DynamicV2PhysicalScheduleSegmentV1,
+        target: DynamicV2PhysicalBlockTargetV1,
+    ) -> Self {
+        Self {
+            item,
+            segment,
+            target,
+        }
+    }
 }
 
 /// Exact Builder-free handoff evidence for the first physical leaf.
