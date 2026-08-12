@@ -469,14 +469,14 @@ explicit-link negative gates. Main still requires complete W0-W6 with
 new caller=1/old edge=0.
 
 #### `PHYSICAL-SESSION-I0-E`
-
-Consume the complete Recipe-order cursor once. Preserve the landed six-block
-topology and formal adoption: `Enter != Header`, then BodyPrelude,
-ThenTerminal, Continuation, and After. Emit all 15 operations plus If/Return
-control, exact I64 induction PHI/backedge, I6 Normal/Fault and one V10 lease,
-I7 Normal/Fault with ImmediateI64/no lease, and exactly four cleanup rows.
-Backedge and I7 Fault both End the live V10 carrier exactly once. A complete
-cursor, not a collection of public `take_*` helpers, authorizes profile close.
+```text
+Decision: work-branch unpublished/test-only physical session; current capability remains closed.
+Source authority + issuer: existing A-prime demand, selected capability admission, target/formal/value ledgers, and canonical SSA session.
+Non-authority: no new Recipe/Completion/Collector/provider/RuntimePlan/LLVM/VM/fallback authority.
+Fail-fast: consume one aggregate before mutation; exact formal lanes, six targets, 15 operations, control, representation, V10 lease/End, and session brand must match.
+Smallest next slice: one consuming handoff, then one Recipe-order cursor for I0-I16/control/cleanup; unpublished discard on any mismatch.
+Non-claims: no exact-two DraftSeal, CanonicalCallable collector, CallOut/link publication, production caller, or selected cutover.
+```
 
 #### `EXACT-TWO-COLLECTOR-I0-F`
 
