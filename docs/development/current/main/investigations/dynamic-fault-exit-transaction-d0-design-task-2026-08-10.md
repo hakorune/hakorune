@@ -477,15 +477,21 @@ Landed R0 slice: `ca31203fba` adds the typed MIR vocabulary/issuers and `fe8e70b
 Non-claims: no full I8-I16/control/cleanup, provider/runtime activation, DraftSeal/collector, production caller, or VM parity in R0.
 ```
 
-#### `EXACT-TWO-COLLECTOR-I0-F`
+#### `EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-D0`
 
-Derive inner/outer sites from the retained A-prime relation, claim both through
-the existing site-keyed Completion consumer, and let DraftSeal remain the only
-physical Return writer. The session terminal passes the completed canonical
-draft directly to the existing collector with
-`FunctionDraftKeyV1::CanonicalCallable`; it never calls
-`into_legacy_collector_parts`, reopens a function session, or reruns type,
-return, signature, or name-based finalization.
+Decision: design stop before collector implementation; the selected identity is
+`SelectedNormalCallableKeyV1::Cataloged(CanonicalSameModuleCallableKeyV1)`.
+Source authority + canonical issuer: package catalog admission and the retained
+Box-method key; `CompletedFunctionDraftV1` must carry that identity once.
+Non-authority: FreeStatic-only `CanonicalCallableKeyV1`, `LegacySymbol`, raw
+`MirFunction.signature.name/arity`, `into_legacy_collector_parts`, or re-sealing.
+Fail-fast boundary: owner/namespace/name/arity/symbol, collector brand, duplicate,
+foreign, and second-consume mismatch rejects before collector mutation/publication.
+Smallest next slice: choose an existing collector-native Box-method key or extend
+the key projection without a second semantic authority, then move the completed
+draft once into `CanonicalRejectDuplicate`; no collector code yet.
+Non-claims: no publication, production caller, cutover, provider/runtime/LLVM/VM,
+or legacy retirement until this key contract is accepted.
 
 #### `SELECTED-CUTOVER-I0-G`
 

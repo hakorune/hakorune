@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. The next bounded row is the CanonicalCallable collector handoff; publication, production activation, and Rust-VM DynamicV2 remain closed."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F is paused at a collector-key design stop: the existing CanonicalCallable key is FreeStatic-only while the selected callable is a cataloged Box method; publication, production activation, and Rust-VM DynamicV2 remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Accepted F design: consume the completed unpublished canonical draft through the existing CanonicalCallable collector exactly once. The selected catalog admission, canonical draft identity, and collector batch are the only authorities; legacy collector keys, publication, provider/runtime activation, and Rust-VM DynamicV2 remain outside the lane."
-work_mode = "fast"
-current_execution_row = "EXACT-TWO-COLLECTOR-I0-F"
-current_blocker_token = "EXACT-TWO-COLLECTOR-I0-F: pass the completed canonical draft to FunctionDraftKeyV1::CanonicalCallable exactly once; reject legacy-key conversion, duplicate/collision, second finalization, publication, fallback, retry, and production caller before the selected cutover row."
+current_design_stop = "F design stop: retain the selected CanonicalSameModuleCallableKeyV1 (owner/namespace/name/arity) from package catalog admission through CompletedFunctionDraftV1 into one collector-native key. Do not coerce it to FunctionDraftKeyV1::CanonicalCallable (FreeStatic-only), LegacySymbol, or a name/arity reconstruction."
+work_mode = "design_stop"
+current_execution_row = "EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-D0"
+current_blocker_token = "EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-D0: define the collector-native Box-method key and move-only draft handoff before implementation; reject FreeStatic coercion, LegacySymbol conversion, raw name/arity reconstruction, duplicate/collision, second finalization, publication, fallback, retry, and production caller."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane has completed unpublished E profile close and exact-two DraftSeal preparation. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, D1 formal->I0-I7 corridor, E1 I8/I9 control, E2 typed End/Fault terminals, E3 inner-return ThenTerminal handoff, and E4 I13-I16 continuation/backedge Header PHI handoff are landed; CanonicalCallable collector handoff and publication remain closed. Ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane has completed unpublished E profile close and exact-two DraftSeal preparation. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, D1 formal->I0-I7 corridor, E1 I8/I9 control, E2 typed End/Fault terminals, E3 inner-return ThenTerminal handoff, and E4 I13-I16 continuation/backedge Header PHI handoff are landed; F is paused because the collector's FreeStatic CanonicalCallable key cannot represent the selected Box-method identity. Ordinary and legacy routes remain separate and selected production cutover is disabled."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, E3 inner-return ThenTerminal handoff, E4 I13-I16 continuation/backedge Header PHI handoff, R0 cleanup/site-plan lifecycle co-seal, and E5 profile close plus exact-two DraftSeal preparation are landed; production callers remain zero. CanonicalCallable collector and publication remain next."
-next_design_card = "EXACT-TWO-COLLECTOR-I0-F"
+latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, E3 inner-return ThenTerminal handoff, E4 I13-I16 continuation/backedge Header PHI handoff, R0 cleanup/site-plan lifecycle co-seal, and E5 profile close plus exact-two DraftSeal preparation are landed; production callers remain zero. F now design-stops on the Box-method collector key contract before any collector implementation."
+next_design_card = "EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "EXACT-TWO-COLLECTOR-I0-F"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
