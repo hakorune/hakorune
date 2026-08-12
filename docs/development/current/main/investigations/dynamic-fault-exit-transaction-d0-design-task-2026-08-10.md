@@ -381,6 +381,55 @@ Global fixed-topology deletion waits for all remaining callers to reach zero.
 H2/H3/H5 parity and the AOT mimalloc gate then run as independent siblings;
 both must be green before Hako producer activation.
 
+### 5. `MIRBUILDER-MODULE-DRAIN-CONVERGENCE-D0 -> I0` — after selected cutover
+
+This is a post-cutover publication cleanup, not a second module authority.
+First census every production lowering route, then converge the routes onto the
+existing one-shot `ModuleLoweringInvocationDrainOwnerV1` and post-drain
+finalization owner. The disconnected `module_invocation_cut0_p0` candidate is
+not production truth and must not be activated as a parallel drain.
+
+Done requires:
+
+```text
+production route census                                      = complete
+one production drain owner                                   = 1
+one production post-drain finalizer                          = 1
+duplicate drain/finalizer callers                            = 0
+legacy finalize_function_draft production callers             = 0
+candidate-only drain path promoted                           = 0
+one-shot drain / atomic publish                              = green
+```
+
+The row opens only after the selected AOT caller switch and old-edge
+retirement. It does not change semantic source, Recipe, JoinSig, Completion,
+provider, or VM ownership.
+
+### 6. `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0` — after legacy retirement
+
+After `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0`, perform a full production
+and test caller census for the fixed-role topology and its old issue APIs.
+Only when every caller is zero may the fixed-role receipt, legacy boundary
+receipt, and old `issue(...)` compatibility path be hard-deleted. A segment
+route is not considered complete merely because a new caller exists; the
+retirement row requires proof that no remaining route depends on the old
+topology.
+
+Done requires:
+
+```text
+fixed-role production callers                             = 0
+fixed-role test/guard callers                              = 0
+old issue(...) callers                                     = 0
+segment route completeness                                 = green
+fixed-role receipt / boundary types                        = deleted
+compatibility fallback                                     = 0
+```
+
+This is a post-cutover BoxShape/retirement row. It cannot be used to bypass
+the AOT capability gate or to delete an old path while it still owns a live
+production edge.
+
 ## hako.text.scan@1 semantic contract
 
 ```text
@@ -417,6 +466,9 @@ MIRBUILDER-LINE-BUDGET-R0
   verification seam; keep one analyzer authority and move only private
   helpers/tests. Freeze src/mir/builder.rs (787): no additions before its
   module-registry classification row below.
+  treat this as a pre-cutover hard gate for the 801/894-line files: no new
+  production authority or physical activation code may be added to them;
+  analyzer.rs is either split at the same private seam or frozen unchanged.
 
 CURRENT-STATE-LIVE-SCHEMA-I0
   CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
