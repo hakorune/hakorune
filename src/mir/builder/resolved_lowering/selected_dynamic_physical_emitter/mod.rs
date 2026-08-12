@@ -10,6 +10,7 @@ mod fault_terminals;
 mod formal_header;
 mod i64_const;
 mod i8_i9_control;
+mod inner_return_then;
 mod lifecycle_terminal;
 mod operation_cursor;
 mod targets;
@@ -58,6 +59,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     RecipeOperationCursor(String),
     PhysicalCorridor(String),
     LifecycleTerminal(String),
+    InnerReturn(String),
 }
 
 #[derive(Debug)]
@@ -349,6 +351,18 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &mut outer,
             &callout_corridor,
             &lifecycle,
+            &brand,
+        ) {
+            return Self::reject_begin(outer, error);
+        }
+        if let Err(error) = inner_return_then::emit(
+            &mut canonical,
+            &mut outer,
+            &demand,
+            &targets,
+            &callout_corridor,
+            &lifecycle,
+            &cleanup,
             &brand,
         ) {
             return Self::reject_begin(outer, error);

@@ -139,7 +139,7 @@ fn reject(message: impl Into<String>) -> DynamicV2I8EmitterRejectV1 {
     DynamicV2I8EmitterRejectV1::PhysicalCorridor(message.into())
 }
 
-fn require_read(
+pub(super) fn require_read(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected: LoopValueKeyV1,
     induction: crate::mir::loop_recipe_contract::LoopBindingKeyV1,

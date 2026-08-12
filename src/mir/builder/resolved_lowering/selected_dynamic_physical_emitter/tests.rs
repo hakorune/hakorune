@@ -227,22 +227,28 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             .get_block(i7_normal_block)
             .expect("I7 Normal landing");
         assert_eq!(i7_normal.predecessors.len(), 1);
-        assert!(matches!(
-            i7_normal.instructions.first(),
-            Some(crate::mir::MirInstruction::CheckedCallOutNormalResult {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
-                ..
+        let normal_result_index = i7_normal
+            .instructions
+            .iter()
+            .position(|instruction| {
+                matches!(
+                    instruction,
+                    crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+                        ..
+                    }
+                )
             })
-        ));
+            .expect("I7 Normal projection");
         assert!(matches!(
-            i7_normal.instructions.get(1),
+            i7_normal.instructions.get(normal_result_index + 1),
             Some(crate::mir::MirInstruction::Const {
                 value: crate::mir::ConstValue::Integer(0),
                 ..
             })
         ));
         assert!(matches!(
-            i7_normal.instructions.get(2),
+            i7_normal.instructions.get(normal_result_index + 2),
             Some(crate::mir::MirInstruction::Compare {
                 op: crate::mir::CompareOp::Lt,
                 ..
@@ -256,6 +262,18 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
                 ..
             }) if then_bb == target_blocks[3] && else_bb == target_blocks[4]
         ));
+        let then_terminal = function
+            .get_block(target_blocks[3])
+            .expect("ThenTerminal");
+        assert!(matches!(
+            then_terminal.instructions.last(),
+            Some(crate::mir::MirInstruction::CheckedCallOutEnd {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+            })
+        ));
+        assert!(then_terminal.terminator.is_none());
+        assert!(then_terminal.is_sealed());
         assert!(session.current_instruction_count() >= 5);
         session.discard_unpublished();
         assert!(builder.function_state.current_function.is_none());
