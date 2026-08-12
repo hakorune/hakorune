@@ -35,7 +35,7 @@ impl CanonicalIfControlConsumptionV1 {
     ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
         match self {
             Self::Resolved(ledger) => ledger.claim(statement),
-            Self::DynamicProfileOwned { .. } => Err(FunctionIfControlUseErrorV1::Unexpected),
+            Self::DynamicProfileOwned => Err(FunctionIfControlUseErrorV1::Unexpected),
         }
     }
 
