@@ -17,6 +17,15 @@ The Rust runtime currently supports a legacy performance/compatibility switch:
 
 This applies to both primitive `String` and `StringBox` paths. Long-term, the language-level SSOT is CP semantics; the env toggle exists to keep migrations reversible while the VM/runner paths are being unified.
 
+## Selected AOT TextScan profile
+
+The selected `hako.text.scan@1` AOT capability fixes the CodePoint/clamped
+profile for its two-role cohort (`substring/2` and `indexOf/1`). This is a
+capability contract projection, not a new global runtime toggle: the
+`CoreMethodContractBox` rows remain the result/effect authority, and the
+provider/export admission is a later step. It does not authorize Rust-VM
+parity or generic String compatibility fallback.
+
 ## Model
 - `StringBox`: immutable UTF‑8 string value. Public text APIs are CP‑indexed.
 - `Utf8CursorBox`: delegated implementation for scanning and slicing `StringBox` as CPs.

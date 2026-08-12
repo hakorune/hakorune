@@ -8,7 +8,7 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 current_design_stop = "none"
 work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-current_blocker_token = "The catalog admission now crosses the selected package loan exactly once. Next co-seal retained I6/I7 Core rows with one normalized TextScan contract, one neutral symbolic AOT export artifact, and the canonical String alias projection. MIRBuilder may consume only a symbolic PreparedAotExecutableAdmission; exact ProviderImageId/digest/resolved entries and RuntimeExecutablePlan are issued by the post-object link finalizer. Then close the strict LLVM leaf, full physical session, exact-two DraftSeal, CanonicalCallable collector, and atomic selected cutover. Selector/name re-search, pre-link image fabrication, generic String compatibility, Rust-VM work, fallback, retry, legacy keys, and early production switch are forbidden."
+current_blocker_token = "I0-B normalized TextScan contract and neutral symbolic AOT export projections are landed and guarded. Next consume the retained I6/I7 Core rows exactly once in I0-C: co-seal the shared profile and canonical String alias projection into one symbolic PreparedAotExecutableAdmission. ProviderAdmissionSeal, runtime registry admission, strict LLVM leaf, RuntimeExecutablePlan, physical session, collector, and production cutover remain closed. Selector/name re-search, pre-link image fabrication, generic String compatibility, Rust-VM work, fallback, retry, legacy keys, and early production switch are forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 latest_card = "dynamic-fault-exit-transaction-d0"
 latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, and catalog-admission transport are landed. The active atomic cell now has seven bounded subrows: catalog-admission transport, TextScan semantic/export artifacts, consuming provider admission, strict AOT/LLVM leaf plus link-time executable-plan finalization, full physical session, exact-two CanonicalCallable handoff, and selected cutover."
+latest_card_summary = "Dynamic canonical-session projection, I8 unpublished canary, catalog-admission transport, and I0-B TextScan/export artifacts are landed. The active atomic cell now has seven bounded subrows: catalog-admission transport, TextScan semantic/export artifacts, consuming provider admission, strict AOT/LLVM leaf plus link-time executable-plan finalization, full physical session, exact-two CanonicalCallable handoff, and selected cutover."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 next_execution_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, catalog-admission transport, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; full AOT activation remains next.",
+  "2026-08-12: CoreMethod generated result/effect projection, selected I6/I7 co-seal, physical header projection, catalog-admission transport, I0-B TextScan contract/export projections, canonical body-free skeleton, exact formal lanes, Enter/Header seed, and I8 unpublished value ledger are green; I0-C admission remains next.",
   "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
   "2026-08-12: Dynamic session begin was split into private outer-open and target/formal-header phases; public handoff and behavior remain unchanged.",
 ]

@@ -1,0 +1,62 @@
+// TextScan ProviderSlot contract seed.
+//
+// CoreMethodContractBox remains the owner of callable result/effect rows.
+// This box only groups the two complete TextScan roles and their shared
+// profile/lifecycle policy; it does not select a provider or emit ABI code.
+
+static box TextScanProviderSlotContractBox {
+  contract_id() { return "hako.text.scan@1" }
+  profile() { return "utf8-codepoint-clamped-v1" }
+  receiver() { return "Text" }
+  suspension() { return "non_suspending" }
+
+  contract_fields() {
+    local out = new ArrayBox()
+    out.push("contract_id")
+    out.push("profile")
+    out.push("receiver")
+    out.push("suspension")
+    out.push("roles")
+    return out
+  }
+
+  _role(role, core_op, dispatch, arity, lifecycle, policy) {
+    local row = new MapBox()
+    row.set("role", role)
+    row.set("core_op", core_op)
+    row.set("dispatch", dispatch)
+    row.set("arity", arity)
+    row.set("lifecycle", lifecycle)
+    row.set("policy", policy)
+    return row
+  }
+
+  _text_slice_range_role() {
+    return me._role(
+      "TextSliceRange",
+      "StringSubstring",
+      "substring",
+      "2",
+      "end_authorized",
+      "codepoint_half_open_clamped"
+    )
+  }
+
+  _text_find_needle_role() {
+    return me._role(
+      "TextFindNeedle",
+      "StringIndexOf",
+      "indexOf",
+      "1",
+      "none",
+      "codepoint_first_index_or_minus_one"
+    )
+  }
+
+  roles() {
+    local out = new ArrayBox()
+    out.push(me._text_slice_range_role())
+    out.push(me._text_find_needle_role())
+    return out
+  }
+}

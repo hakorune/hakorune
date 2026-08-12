@@ -241,7 +241,7 @@ mainline production routes.
 | Order | Subrow | Sole responsibility | Output consumed by |
 | --- | --- | --- | --- |
 | 1 | `CANONICAL-CHILD-ADMISSION-I0-A` | move the adapter-owned catalog admission through the selected package loan; delete A-prime resealing | physical header and collector |
-| 2 | `TEXT-SCAN-EXPORT-CONTRACT-I0-B` | add one normalized ProviderSlot artifact, one neutral symbolic AOT export artifact, and checked alias/ABI projections | provider admission |
+| 2 | `TEXT-SCAN-EXPORT-CONTRACT-I0-B` | add one normalized ProviderSlot artifact, one neutral symbolic AOT export artifact, and checked ABI projections; defer String/StringBox alias co-seal | provider admission |
 | 3 | `TEXT-SCAN-ADMISSION-I0-C` | borrow exact retained I6/I7 rows; co-seal profile/export/aliases; consume draft facts into immutable rows and symbolic AOT admission | physical activation aggregate |
 | 4 | `STRICT-AOT-LEAF-I0-D` | implement the declared CodePoint entries and one LLVM early consumer; carry the symbolic admission unchanged | AOT object/link finalizer |
 | 5 | `PHYSICAL-SESSION-I0-E` | consume one move-only activation aggregate; emit I0-I16, outcomes, V10 End, carrier PHI/backedge and profile close | DraftSeal terminal |
@@ -285,6 +285,13 @@ The runtime type registry remains the sole String/StringBox vocabulary source.
 It lends a checked alias projection; `ProviderAdmissionSeal` is the only issuer
 of the normalized one-branch CanonicalText decision. Missing, duplicate, or
 conflicting aliases reject. No first-row-wins rule is permitted.
+
+I0-B implementation receipt (2026-08-12): the normalized Hako contract,
+deterministic manifest codegen, neutral C export facts, Rust/Python projections,
+negative tests, and closed-mode parity guard are landed. The manifest retains
+only role/op/arity/profile/lifecycle policy; CoreMethod result/effect remains
+the sole callable authority. ProviderAdmission, runtime registry admission,
+strict leaf, LLVM caller, session, VM, and production callers remain zero.
 
 #### `TEXT-SCAN-ADMISSION-I0-C`
 

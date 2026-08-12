@@ -113,6 +113,8 @@ pub mod providers;
 // C‑ABI PoC shim (20.36/20.37)
 pub mod abi {
     pub(crate) mod dynamic_call_slot_wire;
+    #[allow(dead_code)]
+    pub(crate) mod text_scan_aot_export_facts;
     pub mod nyrt_shim;
     pub mod return_proof;
     pub mod runtime_decl_return_proof;
