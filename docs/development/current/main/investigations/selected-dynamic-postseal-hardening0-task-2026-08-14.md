@@ -1,5 +1,5 @@
 ---
-Status: Accepted; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, and DYN-ADMISSION-MODE-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, and DYN-ADMISSION-MODE-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -49,6 +49,43 @@ adds the following independently reproduced P0 boundaries:
 
 The feedback does not justify rebuilding MIRBuilder. It identifies post-cutover
 hardening around an otherwise single canonical lane.
+
+## Worker consolidation and task normalization (2026-08-14)
+
+The follow-up worker audits do not open another active card.  They are mapped
+to the existing bounded rows below; each row keeps one owner, one focused
+behavior test, and one reusable family guard.  A new top-level guard or a
+per-finding task file is not authorized by this audit.
+
+| Worker finding | Existing task owner | Scope decision |
+|---|---|---|
+| Empty/Occupied/Consumed clone scrubbing | B1 `SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0` | current fast row; expose `Scrubbed` and reject partial pairs |
+| optimizer/RC/refresh/canonicalizer/Method-ID mutation after seal; dropped final verify | post-seal `SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0` | one immutability fence plus strict compile-result consumption; no second receipt |
+| ambient verifier env weakening | `SELECTED-DYNAMIC-STRICT-VERIFIER-POLICY-R0` | selected-only strict policy; compatibility env remains ordinary-only |
+| selected arm dies at the retired PyVM fence | B2 `SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0` | PyVM stays retired; selected path skips it and reaches Boundary once |
+| launch `main` versus metadata-bearing helper identity | Boundary `DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0` | one zero-arg launch entry and one exact selected helper; no alias/copy |
+| executable/receipt visibility and rollback gap | B3 `DYNAMIC-V2-STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0` | attempt-unique bundle plus one directory publication |
+| Boundary mixed with `llvm-harness` feature/module names | B4 `LLVM-BOUNDARY-COMPAT-OWNERSHIP-D0` | split Boundary production from explicit llvmlite compat/oracle |
+| source-fact/header re-observation and callout parity/wire checks | parked P1 rows 6--13 | grouped hardening; no new semantic issuer or guard family |
+| physical ID minting, LocalSSA fail-open, lease capture rollback | parked P1 rows 10--15 | type/terminal hardening only when the touched owner is selected |
+| Linux-only selected target and line-budget drift | parked P1/P2 rows 17--18 | one platform fence and one reusable census; no mass split |
+| llvmlite archive movement/deletion | existing G3 graduation board | remains parked until selected P0s, external preservation, and separate deletion approval |
+
+The C ABI review is already owned by W6-C0-D/C1: it remains a thin
+`uint64_t lease_token -> uint32_t status` bridge to the Rust lease owner.  It
+does not become a new lease, CFG, wire, or semantic authority.  Likewise, the
+lexical-scope and declaration-mode findings are closed rows, not new queues.
+
+### Guard consolidation contract
+
+All rows above extend an existing lane guard or add a focused positive/negative
+test.  The reusable families are the current pointer guard, Dynamic admission
+authority guard, AOT activation guard, callslot/wire guard, VM nonconsumer
+fence, in-place replacement guard, and the later manifest-backed guard
+inventory.  New per-finding shell scripts, grep-only production claims,
+mutation-count-only fences, and always-green wrappers are forbidden.  The
+guard inventory may proceed as a read-only census, but migration/retirement
+waits until the selected P0 DAG is green.
 
 `dynamic_v2_aot_activation_authority_guard.sh` is green at this HEAD, but it
 checks the existence/count of the downstream selected call rather than control
