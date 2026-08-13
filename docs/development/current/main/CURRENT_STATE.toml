@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, G1 route/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed; G2 shared-smoke default is the current design stop. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, G1 route/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed; G2 shared-smoke default is executing. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0: choose one default-neutral shared env/helper/config transition using the closed 29-caller census, while preserving explicit harness compat. G3 remains separate."
-work_mode = "design_stop"
+current_design_stop = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0 accepted: default env/helper/config paths forward NYASH_LLVM_USE_HARNESS with default 0; the 13 explicit compat callers keep value 1. G3 remains separate."
+work_mode = "fast"
 current_execution_row = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0"
-current_blocker_token = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0: source authority is the closed caller census plus auto_detect.conf, llvm_static.conf, lib/env.sh, and test_runner_llvm_helpers.sh/result_checker.sh. Non-authority is labels, comments, and Python output. Fail-fast on default harness inheritance, auto-compat routing, fallback/retry, or G3 deletion. Acceptance: one default-neutral transition, explicit compat callers remain named, focused negative/guard evidence is green, and no production MIR/backend change."
+current_blocker_token = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0: source authority is the closed caller census plus auto_detect.conf, llvm_static.conf, lib/env.sh, and test_runner_llvm_helpers.sh/result_checker.sh. Non-authority is labels, comments, and Python output. Fail-fast on hardcoded default harness, explicit caller drift, fallback/retry, or G3 deletion. Acceptance: default harness=0, explicit compat callers remain named and green, focused negative/guard evidence is green, and no production MIR/backend change."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, G1 route/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed; G2 shared-smoke default is the current design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, G1 route/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed; G2 shared-smoke default is executing. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/llvm-na
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 source-backed ingress census, G1 route-boundary/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed. G2 shared-smoke default is the current design stop; G3 remains separate."
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 source-backed ingress census, G1 route-boundary/selected-runner retirement, G2 source census, G2 perf-oracle separation, and shared-smoke caller census are closed. G2 shared-smoke default is executing; G3 remains separate."
 next_design_card = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0"
+next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
