@@ -594,8 +594,8 @@ Non-authority: trace text, Python output, paths, names, `NYASH_LLVM_USE_HARNESS`
   selectors, and field contract
   (`request_id`, `entry_family`, `driver`, `export`, `recipe`, `compat_replay`,
   `python_child`, `artifact_result`).
-Evidence (2026-08-14): explicit replay produced one `stage=child`; `none` produced
-  zero child events and no object.
+Evidence (2026-08-14): opt-in guard records ordinary=0, named compat=1,
+  inherited replay=0 Python children; explicit replay has no child/object.
 Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
   fallback/retry change, or new semantic/backend authority.
 ## 2. Native library foundation
@@ -939,8 +939,8 @@ Non-authority: environment names, static labels, Python output, and archive-only
 Fail-fast: any unclassified caller, native-failure retry, or automatic child path
   blocks G1. Acceptance: `llvmlite-production-ingress-census-v0.json` has
   production=0, explicit keep roots enumerated, positive/negative evidence per row,
-  and one reusable guard; no route behavior, source deletion, G2/G3, or new
-  semantic/backend authority.
+  and one reusable guard; child observation ordinary=0, compat=1, replay=0;
+  no route behavior, source deletion, G2/G3, or new semantic/backend authority.
 
 ## 7. Later retirement
 

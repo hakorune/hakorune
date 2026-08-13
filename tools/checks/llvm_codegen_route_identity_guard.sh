@@ -165,6 +165,8 @@ need_fixed "$PLUGIN" 'CodegenRouteRequestV1::ExplicitHarnessCompat' \
   "named harness admission missing"
 need_fixed "$PLUGIN" 'validate_ordinary_ambient_replay' \
   "ordinary ambient replay gate missing"
+need_fixed "$PLUGIN" 'HAKO_LLVM_CHILD_OBSERVATION_CASE' \
+  "separate child observation case selector missing"
 need_fixed "$PLUGIN" '[env.codegen/ordinary] rejects ambient compat replay' \
   "ordinary ambient replay error contract missing"
 need_fixed "$ROUTE" 'if opts.route_request == CodegenRouteRequestV1::ExplicitHarnessCompat' \
@@ -189,5 +191,44 @@ need_fixed "$FAST_SMOKE" 'name: boundary-and-explicit-compat-smoke' "fast-smoke 
 need_fixed "$FAST_SMOKE" 'explicit compatibility replay' "fast-smoke replay label missing"
 need_fixed "$CABI_README" 'C ABI 自体は LLVM driver/provider の selector ではない' "C ABI selector boundary missing"
 need_fixed "$ENV_INVENTORY" 'Top-level LLVM compatibility-runner hint; not a direct `ny-llvmc` driver selector' "env selector classification drifted"
+
+# Optional process-level evidence. Static route checks stay cheap by default;
+# G0 closeout can opt in to three isolated test processes and prove that only
+# the named compat case reaches a Python child.
+if [[ "${LLVM_ROUTE_IDENTITY_CHILD_OBSERVATION:-0}" == "1" ]]; then
+  command -v strace >/dev/null 2>&1 || fail "strace is required for child observation"
+  test_name='runtime::plugin_loader_v2::enabled::compat_codegen_receiver::tests::child_observation_probe_is_opt_in_only'
+  for case_name in ordinary compat replay; do
+    trace_file="$(mktemp)"
+    case_replay=none
+    expected=0
+    if [[ "$case_name" == "compat" ]]; then
+      expected=1
+    elif [[ "$case_name" == "replay" ]]; then
+      case_replay=harness
+    fi
+    if HAKO_LLVM_CHILD_OBSERVATION=1 \
+      HAKO_LLVM_CHILD_OBSERVATION_CASE="$case_name" \
+      HAKO_BACKEND_COMPAT_REPLAY="$case_replay" \
+      NYASH_LLVM_USE_CAPI=0 \
+      HAKO_V1_EXTERN_PROVIDER_C_ABI=0 \
+      HAKO_ROOT="$ROOT" \
+      strace -f -e trace=process,execve -o "$trace_file" \
+      cargo test -q "$test_name" --lib -- --exact --nocapture >/dev/null 2>&1; then
+      status=0
+    else
+      status=$?
+    fi
+    [[ "$status" == "0" ]] || fail "child observation test failed: case=$case_name status=$status"
+    child_count="$(rg -c 'execve\("[^"]*/python(3)?"' "$trace_file" || true)"
+    child_count="${child_count:-0}"
+    if [[ "$case_name" == "compat" ]]; then
+      [[ "$child_count" -ge 1 ]] || fail "named compat child count is $child_count, expected >=1"
+    else
+      [[ "$child_count" == "0" ]] || fail "$case_name child count is $child_count, expected 0"
+    fi
+    echo "[$TAG] child-observation case=$case_name python_child=$child_count"
+  done
+fi
 
 echo "[$TAG] ok (selectors, precedence, known hazards, and route matrix are source-backed)"

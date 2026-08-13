@@ -151,6 +151,15 @@ def main() -> int:
         fail("manifest schema drifted")
     if data.get("status") != "g0-source-census" or data.get("production_claim"):
         fail("manifest must remain a non-production G0 census")
+    observation = data.get("child_observation")
+    if observation != {
+        "mode": "opt_in_strace",
+        "ordinary": 0,
+        "named_compat": 1,
+        "inherited_replay": 0,
+        "guard_env": "LLVM_ROUTE_IDENTITY_CHILD_OBSERVATION=1",
+    }:
+        fail("child observation contract drifted")
     rows = data.get("rows")
     if not isinstance(rows, list) or not rows:
         fail("manifest rows are empty")

@@ -9,6 +9,13 @@
     "Python output",
     "archive-only paths"
   ],
+  "child_observation": {
+    "mode": "opt_in_strace",
+    "ordinary": 0,
+    "named_compat": 1,
+    "inherited_replay": 0,
+    "guard_env": "LLVM_ROUTE_IDENTITY_CHILD_OBSERVATION=1"
+  },
   "rows": [
     {
       "id": "ny-llvmc-default-boundary",

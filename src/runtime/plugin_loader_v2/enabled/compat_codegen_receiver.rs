@@ -325,6 +325,27 @@ mod tests {
                         {"op":"ret","value":0}
                     ]}]}]
                 }"#;
+                match std::env::var("HAKO_LLVM_CHILD_OBSERVATION_CASE")
+                    .ok()
+                    .as_deref()
+                {
+                    Some("ordinary") => {
+                        let _ordinary = super::emit_object(mir_json, false);
+                        return;
+                    }
+                    Some("compat") => {
+                        let _compat = super::emit_object_compat_harness(mir_json, false);
+                        return;
+                    }
+                    Some("replay") => {
+                        let error = super::emit_object(mir_json, false)
+                            .expect_err("ordinary inherited replay must fail before child spawn");
+                        assert!(error.contains("emit_object_compat_harness"));
+                        return;
+                    }
+                    Some(other) => panic!("unknown child observation case: {other}"),
+                    None => {}
+                }
                 if std::env::var("HAKO_LLVM_CHILD_OBSERVATION_REPLAY")
                     .ok()
                     .as_deref()
