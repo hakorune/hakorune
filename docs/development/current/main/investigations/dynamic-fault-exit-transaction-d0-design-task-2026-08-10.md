@@ -244,7 +244,7 @@ live in `ParentHistory` and git:
 W0  b7ecfd161a                         catalog admission transport
 W1  ca193378ce                         normalized TextScan/export authority
 W2  8e94d95d26..e721a300ec             symbolic admission/header/session seed
-W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, u64 metadata bounds, test-only link facts
+W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, u64 metadata bounds, transport-only CheckedCallOut view, test-only link facts
 ```
 
 All W0-W3 production LLVM/CallOut/link callers remain zero. The remaining

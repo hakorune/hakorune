@@ -21,6 +21,10 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
 - `selected_dynamic_v2.py` is a non-emitting test/canary seam only. It is not
   imported by the dispatcher until the complete AOT activation cell is ready;
   it performs no provider lookup, LLVM emission, fallback, retry, or VM work.
+- `../builders/checked_callout_transport.py` is a strict JSON transport view
+  for the neutral MIR `CheckedCallOut` vocabulary. It is not imported by the
+  dispatcher and does not emit LLVM; malformed operations fail before a later
+  W6 physical consumer can observe them.
 
 ## Shared SSOT
 

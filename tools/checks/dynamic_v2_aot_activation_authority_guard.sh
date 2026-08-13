@@ -19,6 +19,8 @@ LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
 METADATA="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_aot_admission.py"
 HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
 METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
+CALLOUT_TRANSPORT="$ROOT_DIR/src/llvm_py/builders/checked_callout_transport.py"
+CALLOUT_TRANSPORT_TEST="$ROOT_DIR/src/llvm_py/tests/test_checked_callout_transport.py"
 RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
@@ -38,7 +40,7 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -54,6 +56,12 @@ for file in "$METADATA" "$HOOK" "$METADATA_TEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "I0-D1 metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+for file in "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "CheckedCallOut transport view reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
 for file in "$RUST_METADATA" "$JSON_METADATA"; do
@@ -79,6 +87,13 @@ if [[ "$(rg -n '^def inspect_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d
 fi
 if [[ "$(rg -n '^def require_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 terminal test seam definition must be unique"
+fi
+if [[ "$(rg -n '^def parse_checked_callout_transport\(' "$CALLOUT_TRANSPORT" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "CheckedCallOut transport parser definition must be unique"
+fi
+if rg -n 'checked_callout_transport' "$ROOT_DIR/src/llvm_py/instructions" "$ROOT_DIR/src/llvm_py/builders" \
+  --glob '*.py' --glob '!checked_callout_transport.py'; then
+  guard_fail "$TAG" "transport-only CheckedCallOut view must have no production importer before W6"
 fi
 if [[ "$(rg -n '^pub\(crate\) fn project_dynamic_v2_aot_call_metadata\(' "$RUST_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1b Rust metadata issuer definition must be unique"
@@ -185,7 +200,10 @@ if rg -n 'lower_method_call|RuntimeExecutablePlan|dynamic_v2_text_scan|lookup_co
   guard_fail "$TAG" "neutral CheckedCallOut R0 must not resolve provider, runtime, or generic method routes"
 fi
 for root in "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/src/backend" "$ROOT_DIR/src/runtime"; do
-  if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult|CheckedCallOutEnd|CheckedCallOutFault' --glob '*.rs' --glob '*.py' "$root"; then
+  if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult|CheckedCallOutEnd|CheckedCallOutFault' \
+    --glob '*.rs' --glob '*.py' \
+    --glob '!src/llvm_py/builders/checked_callout_transport.py' \
+    --glob '!src/llvm_py/tests/test_checked_callout_transport.py' "$root"; then
     guard_fail "$TAG" "CheckedCallOut has an unapproved production/JSON/VM caller before R0 completion"
   fi
 done
