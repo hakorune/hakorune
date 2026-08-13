@@ -116,6 +116,25 @@ green result must not be used as evidence for repository-wide llvmlite
 deletion. Conversely, keeping an explicit oracle does not authorize a native
 failure fallback or a second production physicalizer.
 
+### Feedback reconciliation (DOC1, 2026-08-13)
+
+The recommended retirement shape is accepted without opening a new task:
+
+```text
+G1  production reachability retirement
+    Boundary/native failure -> typed fail-fast; Python/llvmlite fallback = 0
+G2  default build/CI/perf independence
+    Python/llvmlite remains only in explicitly named compat/oracle/monitor jobs
+G3  source/archive retirement
+    separate approval after an independent oracle and fixture/archive census
+```
+
+MIRBuilder or Boundary completion alone closes none of G1/G2/G3. W6-E must
+first provide the selected caller, old-edge, artifact-receipt, and no-fallback
+evidence. Until then the board remains parked, `--driver harness` and
+`NYASH_LLVM_USE_HARNESS=1` remain explicit non-production keep roots, and no
+llvmlite source deletion or new llvmlite semantic lowering is authorized.
+
 ```text
 W6-E receipt and caller census
   -> LLVMLITE-PROD0-G0 (G1: automatic production retirement)
