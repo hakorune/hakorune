@@ -546,67 +546,39 @@ Worker premise audit: consumed. Independent runtime/Boundary and static
 archive reviews agree this is a thin FFI BoxShape, not a second lease
 authority. C1 remains forbidden until a separate design-stop audit closes.
 
+#### W6-C1-A — `DYNAMIC-V2-W6-BOUNDARY-C1-A-PARAMETERIZED-ENTRY-SIGNATURE-R0`
+
+Design-stop correction: the generic C entry header currently emits `i64 @symbol()`
+with no parameters, while selected Dynamic requires the exact four formal `i64`
+values. Preserve the legacy no-parameter header for old seeds, but add one shared
+parameterized signature owner and a selected-metadata hard gate before any C1 callout.
+
+```text
+Source authority + issuer: MIR function params/signature and selected site-id metadata.
+Non-authority: C1 helper, block/index coordinates, selector/name lookup, fallback.
+Reject before effect: parameter count/order/value-id or return/effect mismatch.
+Acceptance: selected header has exact four `%r<ValueId>` parameters; old header is
+never used for selected Dynamic; generic no-param seeds remain unchanged.
+Non-claims: no CheckedCallOut emission, lease End, link, RuntimePlan, publication,
+production caller, VM, fallback, or retry.
+```
+
+Bounded files: `hako_llvmc_ffi_route.inc` (shared signature helper),
+`hako_llvmc_ffi_pure_compile.inc` (selected gate), and focused C/IR negative tests.
+Keep existing generic lowering/dispatch files untouched and below their current
+line budgets. After this row is green, resume W6-C1 with one new
+`hako_llvmc_ffi_checked_callout_lowering.inc` included exactly once: it consumes
+site-id metadata, preserves MIR Normal/Fault targets, uses the neutral lease C ABI,
+and traps malformed transport/Suspended/nonzero End without fallback.
+
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
-Design-stop audit (2026-08-13) consumed the worker premise:
-
-```text
-Decision: C1 is an object-only Boundary projection of the existing CheckedCallOut CFG.
-Source authority + canonical issuer: site-id candidate metadata plus canonical CFG/SSA owners.
-Non-authority: C/LLVM CFG invention, selector/provider lookup, A-prime coordinates, VM/Python.
-Fail-fast boundary: site/entry/ABI/wire/shape/target drift, malformed wire, Suspended, or nonzero End status traps.
-Smallest next slice: one <700-line C include, included once, physicalizing both sites and existing End chronology.
-Non-claims: no link/receipt/RuntimePlan/live publication/production caller/old-edge deletion/fallback/retry.
-```
-
-Only after C0-D is accepted, add the selected physicalizer to the actual default
-Boundary backend:
-
-```text
-lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc
-  included exactly once by hako_llvmc_ffi_pure_compile.inc
-```
-
-The C lowerer consumes the exact site-id metadata and emits:
-
-```text
-I6 substring: EndAuthorizedHandle + nonzero lease on Normal
-I7 indexOf:   ImmediateI64 + lease zero on Normal
-semantic Fault: branch to the MIR-provided fault landing
-invalid transport / malformed wire / unexpected Suspended:
-  backend fail-stop or trap, no semantic successor, no fallback
-```
-
-LLVM/C may emit the physical conditional branch required by the MIR
-CheckedCallOut terminator, but it may not invent a successor, resolve a
-selector/name, or reclassify an ABI failure as a semantic Fault. Keep the new
-C owner below 700 lines; do not enlarge the existing 776/788-line generic
-dispatch/lowering files.
-
-Implementation slice: consume the C0-C final candidate projection by `site_id` once,
-emit only the selected object-level callout lowering, and keep the include
-edge exactly one. Add a focused Boundary fixture plus positive/negative
-metadata and wire tests; do not call A-prime `take_once`, static link, or a
-runtime plan from this row.
-
-Acceptance:
-
-```text
-Boundary C-ABI CheckedCallOut physicalizer               = 1
-site-id -> admitted entry mapping                        = exact 2
-I6/I7 ABI and Normal shape                               = exact
-MIR Normal/Fault target identity                         = preserved
-malformed wire/status/Suspended                          = fail-stop
-Python/native/harness/VM production consumer             = 0
-selector/name/provider/runtime registry lookup           = 0
-generic method fallback / retry                          = 0 / 0
-production selected caller new/old                       = 0 / 1
-```
-
-Guards: dedicated C include `= 1`, new owner `<700` lines, old coordinate
-locator/lookup `= 0`, generic `mir_call`/fallback/retry `= 0/0/0`, C1
-production consumer `= 1` only inside the selected object path, and static
-receipt/RuntimeExecutablePlan/live executable publication `= 0`.
+The accepted C1 contract remains: one `<700`-line C owner, exact two site-id to
+admitted-entry mappings, I6 EndAuthorized/nonzero lease, I7 ImmediateI64/lease zero,
+MIR-owned Normal/Fault branches, and site-local trap for malformed wire/status or
+Suspended. C/LLVM must not invent CFG, reselect providers, or use old coordinates.
+No static link/receipt/RuntimePlan/live publication/production caller/old-edge
+deletion/fallback/retry is claimed here; production remains `new=0 old=1`.
 
 ### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I0`
 
