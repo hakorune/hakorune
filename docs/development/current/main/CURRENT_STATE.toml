@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Hako AOT generic/FFI replay admission is closed by the named compat C ABI pair. The next design stop is LLVMLITE-PROD0-G0: census every production Python/llvmlite ingress, prove native failure has no harness retry, and preserve explicit compat/oracle roots without opening G2/G3 or source deletion."
+current_design_stop = "Hako AOT generic/FFI replay admission is closed by the named compat C ABI pair. The next design stop is LLVMLITE-PROD0-G0-CENSUS-R0: build one source-backed matrix for every production Python/llvmlite ingress, retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root without opening G1 switch, G2/G3, or source deletion."
 work_mode = "design_stop"
-current_execution_row = "LLVMLITE-PROD0-G0"
-current_blocker_token = "LLVMLITE-PROD0-G0: production llvmlite/Python ingress must be censused and classified before G1. Source authority is route/child-process observation plus W6 Boundary artifact receipt. Non-authority is explicit compat/oracle keep, NYASH_LLVM_USE_HARNESS, Python output, and ambient replay. Fail-fast native failure -> harness retry=0; acceptance requires selected Boundary caller=1, old selected edge=0, automatic Python/llvmlite consumer=0, generic C implicit harness=0, and unsupported native input typed-fail."
+current_execution_row = "LLVMLITE-PROD0-G0-CENSUS-R0"
+current_blocker_token = "LLVMLITE-PROD0-G0-CENSUS-R0: build one source-backed matrix for every active Python/llvmlite ingress, retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root. Source authority is caller/child-process ownership plus the W6 Boundary receipt. Non-authority is environment names, static labels, Python output, and archive-only code. Fail-fast on any unclassified caller, native-failure retry, or automatic child path. Acceptance: production=0, explicit keep roots enumerated, every row has positive/negative evidence, and a reusable guard; no route behavior or source deletion."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and the named hako_aot compat C ABI are closed; G1 production retirement is the design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and the named hako_aot compat C ABI are closed; G0 source-backed ingress census is the design stop before G1. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,8 +28,8 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and named hako_aot compat C ABI are closed. G1 production retirement is the active design stop."
-next_design_card = "LLVMLITE-PROD0-G0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and named hako_aot compat C ABI are closed. G0 source-backed ingress census is the active design stop."
+next_design_card = "LLVMLITE-PROD0-G0-CENSUS-R0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G1 production retirement is next design stop.",
+  "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
 ]
