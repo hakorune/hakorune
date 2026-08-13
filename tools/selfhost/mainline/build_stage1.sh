@@ -23,6 +23,7 @@
 #     --artifact-kind <kind> : launcher-exe | stage1-cli (default: launcher-exe)
 #     --timeout-secs <secs>  : fail-fast timeout for Stage-B→MIR→EXE build (default: 900, 0 disables).
 #     --reuse-if-fresh <0|1> : reuse existing output if metadata/deps are unchanged (default: 1).
+#     --compat-replay <mode> : none | harness; harness requires explicit admission.
 #     --force-rebuild         : disable reuse check for this invocation.
 #     -h|--help      : show usage and exit.
 #
@@ -38,11 +39,17 @@ is_truthy() {
 artifact_metadata_matches() {
   local meta_path="$1"
   [ -f "$meta_path" ] || return 1
-  local meta_kind meta_entry
+  local meta_kind meta_entry meta_recipe meta_replay meta_admission
   meta_kind="$(awk -F= '$1=="artifact_kind"{print $2}' "$meta_path" | tail -n 1)"
   meta_entry="$(awk -F= '$1=="entry"{print substr($0, index($0, "=")+1)}' "$meta_path" | tail -n 1)"
+  meta_recipe="$(awk -F= '$1=="compile_recipe"{print $2}' "$meta_path" | tail -n 1)"
+  meta_replay="$(awk -F= '$1=="compat_replay"{print $2}' "$meta_path" | tail -n 1)"
+  meta_admission="$(awk -F= '$1=="replay_admission"{print substr($0, index($0, "=")+1)}' "$meta_path" | tail -n 1)"
   [ "$meta_kind" = "$ARTIFACT_KIND" ] || return 1
   [ "$meta_entry" = "$ENTRY" ] || return 1
+  [ "$meta_recipe" = "${HAKO_BACKEND_COMPILE_RECIPE}" ] || return 1
+  [ "$meta_replay" = "${STAGE1_COMPAT_REPLAY}" ] || return 1
+  [ "$meta_admission" = "${STAGE1_REPLAY_ADMISSION}" ] || return 1
   return 0
 }
 
@@ -111,7 +118,7 @@ usage() {
 build_stage1.sh — Build Hakorune Stage1 bootstrap artifact
 
 Usage:
-  tools/selfhost/mainline/build_stage1.sh [--artifact-kind <launcher-exe|stage1-cli>] [--out <exe_path>] [--entry <entry.hako>] [--timeout-secs <secs>] [--reuse-if-fresh <0|1>] [--force-rebuild]
+  tools/selfhost/mainline/build_stage1.sh [--artifact-kind <launcher-exe|stage1-cli>] [--out <exe_path>] [--entry <entry.hako>] [--timeout-secs <secs>] [--reuse-if-fresh <0|1>] [--compat-replay <none|harness>] [--force-rebuild]
 
 Defaults:
   artifact-kind: launcher-exe
@@ -135,6 +142,8 @@ Notes:
     Set --timeout-secs 0 to disable timeout.
   - Default reuse mode is enabled (`--reuse-if-fresh 1`) to speed up daily loops.
     Use `--force-rebuild` when you need a full rebuild.
+  - Replay defaults to `none`; `--compat-replay harness` is the explicit
+    compatibility admission. An inherited harness value is rejected.
 USAGE
 }
 
@@ -143,7 +152,6 @@ source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
 source "$ROOT/tools/selfhost/lib/identity_routes.sh"
 
 export HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}"
-export HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}"
 
 ARTIFACT_KIND="${HAKORUNE_STAGE1_ARTIFACT_KIND:-launcher-exe}"
 
@@ -244,6 +252,7 @@ ENTRY="${HAKORUNE_STAGE1_ENTRY:-}"
 OUT="${HAKORUNE_STAGE1_OUT:-}"
 TIMEOUT_SECS="$TIMEOUT_SECS_DEFAULT"
 REUSE_IF_FRESH="${HAKORUNE_STAGE1_REUSE_IF_FRESH:-1}"
+COMPAT_REPLAY_ARG=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -267,6 +276,10 @@ while [ $# -gt 0 ]; do
       REUSE_IF_FRESH="$2"
       shift 2
       ;;
+    --compat-replay)
+      COMPAT_REPLAY_ARG="$2"
+      shift 2
+      ;;
     --force-rebuild|--no-reuse)
       REUSE_IF_FRESH=0
       shift
@@ -282,6 +295,16 @@ while [ $# -gt 0 ]; do
       ;;
   esac
 done
+
+if ! STAGE1_COMPAT_REPLAY="$(stage1_contract_resolve_backend_replay "$COMPAT_REPLAY_ARG")"; then
+  exit 2
+fi
+if [[ -n "$COMPAT_REPLAY_ARG" ]]; then
+  STAGE1_REPLAY_ADMISSION="cli:--compat-replay=${STAGE1_COMPAT_REPLAY}"
+else
+  STAGE1_REPLAY_ADMISSION="default:none"
+fi
+export HAKO_BACKEND_COMPAT_REPLAY="$STAGE1_COMPAT_REPLAY"
 
 if [ "$ARTIFACT_KIND" != "launcher-exe" ] && [ "$ARTIFACT_KIND" != "stage1-cli" ]; then
   echo "[stage1] --artifact-kind must be launcher-exe|stage1-cli: $ARTIFACT_KIND" >&2
@@ -338,6 +361,7 @@ echo "[stage1] building Stage1 bootstrap artifact" >&2
 echo "         artifact: $ARTIFACT_KIND" >&2
 echo "         entry : $ENTRY" >&2
 echo "         output: $OUT" >&2
+echo "         replay: $STAGE1_COMPAT_REPLAY (admission=$STAGE1_REPLAY_ADMISSION)" >&2
 if [ "$TIMEOUT_SECS" -gt 0 ]; then
   echo "         timeout: ${TIMEOUT_SECS}s" >&2
 else
@@ -524,5 +548,8 @@ fi
 {
   echo "artifact_kind=${ARTIFACT_KIND}"
   echo "entry=${ENTRY}"
+  echo "compile_recipe=${HAKO_BACKEND_COMPILE_RECIPE}"
+  echo "compat_replay=${STAGE1_COMPAT_REPLAY}"
+  echo "replay_admission=${STAGE1_REPLAY_ADMISSION}"
 } > "$META_OUT"
 echo "[stage1] metadata: $META_OUT" >&2

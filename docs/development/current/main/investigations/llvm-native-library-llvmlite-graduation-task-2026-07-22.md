@@ -557,16 +557,17 @@ Fail-fast: bad status/wire/ABI/suspension traps before a semantic successor;
   no new receipt, alternate ABI, publication, VM parity, or deletion.
 ```
 
-### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (design stop)
+### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (accepted D0; R0 active)
 
 ```text
-Decision: clean Stage1 defaults are `pure-first/none` with no Python child;
-  inherited `compat_replay=harness` remains an explicit-admission design stop.
-Source authority + issuer: `build_stage1`/`stage3` defaults, `stage1_contract`
-  env boundary, replay selector, child command, and child evidence.
+Decision: `build_stage1.sh --compat-replay <none|harness>` is the sole Stage1
+  replay admission; default is `pure-first/none`, and inherited `harness`
+  without the option fails before bootstrap child/object creation.
+Source authority + issuer: build invocation policy plus `stage1_contract` value
+  validation; the artifact metadata records replay mode and admission label.
 Non-authority: Python output, `NYASH_LLVM_USE_HARNESS` alone, or env text alone.
-Fail-fast: unrequested replay or missing receipt stops before Python child.
-Next: accept the census and choose one explicit admission/receipt boundary.
+Fail-fast: invalid/mismatched/inherited replay stops before Python child.
+Next: implement one helper, update build/stage3 callsites, and test both modes.
 Non-claims: no code, fallback, provider reorder, G1/G2/G3, or source deletion.
 ```
 

@@ -23,6 +23,10 @@ HARNESS_SCRIPT="$ROOT/tools/run_llvm_harness.sh"
 FAST_SMOKE="$ROOT/.github/workflows/fast-smoke.yml"
 CABI_README="$ROOT/lang/c-abi/README.md"
 ENV_INVENTORY="$ROOT/docs/development/current/main/design/environment-variables-inventory-ssot.md"
+STAGE1_BUILD="$ROOT/tools/selfhost/mainline/build_stage1.sh"
+STAGE1_CONTRACT="$ROOT/tools/selfhost/lib/stage1_contract.sh"
+SELFHOST_README="$ROOT/tools/selfhost/README.md"
+ENV_REFERENCE="$ROOT/docs/reference/environment-variables.md"
 
 fail() {
   echo "[$TAG] FAIL: $*" >&2
@@ -43,6 +47,10 @@ for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGI
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
+need_file "$STAGE1_BUILD"
+need_file "$STAGE1_CONTRACT"
+need_file "$SELFHOST_README"
+need_file "$ENV_REFERENCE"
 
 # The source-derived route owner must remain one ordered chokepoint.
 need_fixed "$ROUTE_ENTRY" 'route::try_compile_via_capi_keep' "CAPI route entry missing"
@@ -116,6 +124,25 @@ need_fixed "$AOT" 'hako_aot_require_explicit_harness_replay' \
   "direct AOT replay gate missing"
 need_fixed "$AOT" 'direct-aot-replay-required' \
   "direct AOT replay failure missing"
+need_fixed "$STAGE1_CONTRACT" 'stage1_contract_resolve_backend_replay' \
+  "Stage1 replay admission helper missing"
+need_fixed "$STAGE1_CONTRACT" 'replay-unadmitted' \
+  "Stage1 inherited replay fail-fast missing"
+need_fixed "$STAGE1_BUILD" '--compat-replay <none|harness>' \
+  "Stage1 explicit replay option missing"
+need_fixed "$STAGE1_BUILD" 'replay_admission=' \
+  "Stage1 replay admission receipt missing"
+need_fixed "$STAGE1_BUILD" 'compat_replay=${STAGE1_COMPAT_REPLAY}' \
+  "Stage1 replay metadata missing"
+need_fixed "$STAGE1_BUILD" 'compile_recipe=${HAKO_BACKEND_COMPILE_RECIPE}' \
+  "Stage1 recipe metadata missing"
+need_fixed "$SELFHOST_README" '--compat-replay harness' \
+  "Stage1 explicit replay documentation missing"
+need_fixed "$ENV_REFERENCE" 'Stage1 buildでは環境変数だけでは受理せず' \
+  "Stage1 environment admission documentation missing"
+if rg -Fq -- 'export HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}"' "$STAGE1_BUILD"; then
+  fail "Stage1 build still accepts inherited replay as an implicit admission"
+fi
 if rg -Fq -- 'Err(_e) => Ok(None)' "$PLUGIN"; then
   fail "codegen plugin still converts backend failure to None"
 fi
