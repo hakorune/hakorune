@@ -544,7 +544,6 @@ Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
 `BidError::PluginError`; focused tests, route guard, fmt, pointer guard, and
 diff check are green. Generic C/hako_aot ingress remains design-only; no
 provider order or source deletion changes here.
-
 ### Boundary C ABI role lock (DOC2)
 ```text
 Decision: versioned C ABI is a thin transport bridge, never semantic authority.
@@ -569,16 +568,17 @@ Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
 ```
 ### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted D0; design stop)
 ```text
-Decision: `env.codegen` is a compatibility host port; it may reach the
-  llvmlite harness only through a named compatibility admission, never by
-  inheriting ambient recipe/replay from an ordinary call.
-Source authority + issuer: env.codegen host port plus backend route/C-ABI request;
-  boundary admission owns explicit keep selection. Non-authority: harness hint,
-  Python output, provider labels, generic C fallback, or plugin `None`. Fail-fast
-  before hako_aot child: reject unqualified/inherited replay; pure-first/none
-  stays typed unsupported.
-Smallest next slice: choose one typed admission or explicit caller contract;
-  prove child-count=0/1 for default/explicit keep with route evidence.
+Decision: `env.codegen` is a compatibility host port; ordinary calls never
+  inherit ambient recipe/replay. Candidate `CodegenRouteRequestV1` is issued
+  once at the caller/route boundary and moved through C-ABI; ambient reads stay
+  inside a legacy adapter only.
+Source authority + issuer: env.codegen caller plus backend route/C-ABI request;
+  admission owns explicit keep selection. Non-authority: harness hint, Python
+  output, provider labels, generic C fallback, or plugin `None`.
+Fail-fast before hako_aot child: reject unqualified/inherited replay; pure-first/
+  none stays typed unsupported. Root-first LLVM text -> opt/llc is not this ingress.
+Smallest next slice: accept request shape/issuer/precedence, then prove default
+  child=0 and explicit keep child=1 with route evidence.
 Non-claims: no provider reorder, production switch, G2/G3 retirement, or
   llvmlite source deletion.
 ```
