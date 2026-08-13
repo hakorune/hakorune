@@ -856,11 +856,11 @@ Non-claims:
   production switch; until the final commit new=0 / old=1 remains mandatory.
 ```
 
-Design closeout: worker audits agree on the existing
-`PreparedModuleExternalCommitV1` as the candidate owner and on a root-only
-candidate export seam. The first implementation substep may prepare that
-candidate and consume one child receipt, but it may not expose `commit`, switch
-the selected callback, or retire the old edge.
+Landed D0-C0: commit `2c0b9c585b` adds the root-only HRTB
+`PreparedModuleExternalCommitV1::with_candidate_module` seam and a focused
+borrow-without-clone test. It exposes no commit or mutable Builder state and
+does not switch the selected callback or retire the old edge. The next slice
+is the one-shot candidate/child-receipt aggregate around this seam.
 
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside
