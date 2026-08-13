@@ -2,7 +2,7 @@
 Status: Design stop; inventory task only
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
-Current-row: LLVMLITE-KEEP0-RET0-I0-INVENTORY
+Current-row: LLVMLITE-KEEP0-RET0-I0-GUARD-D0
 Scope: frozen llvmlite keep-lane source, consumer, fixture/golden, artifact, and restore inventory
 ---
 
@@ -95,6 +95,31 @@ Do not invent an external URI, repository, tag, or checksum. The placement
 policy remains `backend-legacy-preservation-and-archive-ssot.md`; this child
 task does not create a competing archive root.
 
+### Baseline inventory receipt (2026-08-14)
+
+`llvmlite-keep0-ret0-inventory-v0.json` now records 255 tracked keep-root
+paths, 8 restore/monitor support paths, 83 source-qualified G0/G2/shared-smoke
+consumer rows, and 119 fixture/golden candidates. Four platform artifact rows
+are explicit `blocked`/`unavailable`; archive owner, URI, tag, checksums, and
+deletion approval remain null. The manifest was checked against `git ls-files`
+and all three source manifests; the reusable guard is still a follow-on gap.
+
+## Next design stop: LLVMLITE-KEEP0-RET0-I0-GUARD-D0
+
+```text
+Decision: add one G3-specific inventory guard; do not extend G0/G2 guards.
+Source authority + canonical issuer: the inventory manifest plus git ls-files and the three source manifests.
+Non-authority: keep labels, comments, Python output, MIRBuilder completion, Boundary defaults, and missing archive URI.
+Fail-fast boundary: schema/status, root drift, duplicate or missing source-qualified row IDs, invalid classifications, and missing evidence fields.
+Smallest next slice: guard the 255 roots, 8 support roots, 83 consumer rows, 119 candidates, 4 artifact rows, and 3 restore entries.
+Non-claims: no guard implementation in this design stop, source movement/deletion, archive publication, new semantics, fallback, or retry.
+```
+
+The later implementation must be a reusable focused guard at
+`tools/checks/llvm_llvmlite_keep0_inventory_guard.py`; it must consume the
+manifest as data, compare exact tracked sets, and remain independent of the
+G0/G2 route/default guards.
+
 ## Acceptance
 
 The row is complete only when all of the following are mechanically observable:
@@ -121,8 +146,9 @@ The row is complete only when all of the following are mechanically observable:
 Stop and return to design review if the inventory requires source movement,
 new llvmlite lowering, a second oracle authority, fallback/retry, or an
 external archive owner that has not been supplied. After this inventory is
-accepted, a separate approval may choose archive publication; only a later
-row may decide source deletion after zero-or-archived consumer evidence.
+accepted and its guard is green, a separate approval may choose archive
+publication; only a later row may decide source deletion after zero-or-archived
+consumer evidence.
 
 The next row is not selected by this card. It must be chosen from the manifest
 gaps after the inventory guard is green.
