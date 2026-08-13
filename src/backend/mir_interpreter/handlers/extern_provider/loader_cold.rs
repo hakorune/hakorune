@@ -31,6 +31,7 @@ impl MirInterpreter {
                 self.emit_mirbuilder_program_json(&program_json)
             }
             "env.codegen.emit_object"
+            | "env.codegen.emit_object_compat_harness"
             | "env.codegen.compile_ll_text"
             | "env.codegen.link_object" => {
                 return self.dispatch_loader_cold_codegen_extern(extern_name, args);

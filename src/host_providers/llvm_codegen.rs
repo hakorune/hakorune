@@ -25,6 +25,24 @@ pub struct Opts {
     pub timeout_ms: Option<u64>,
     pub compile_recipe: Option<String>,
     pub compat_replay: Option<String>,
+    pub(crate) route_request: CodegenRouteRequestV1,
+}
+
+/// Physical route admission for the MIR(JSON) compatibility port.
+/// This is not a semantic receipt; it only identifies the caller's transport
+/// policy and keeps ordinary env.codegen calls away from ambient keep lanes.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum CodegenRouteRequestV1 {
+    LegacyAmbientKeep,
+    BoundaryPureFirst,
+    ExplicitHarnessCompat,
+}
+
+impl Opts {
+    /// Select the explicit harness compatibility admission from another crate.
+    pub fn select_explicit_harness_compat(&mut self) {
+        self.route_request = CodegenRouteRequestV1::ExplicitHarnessCompat;
+    }
 }
 
 mod capi_transport;

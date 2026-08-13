@@ -566,7 +566,7 @@ Receipt: helper, build/stage3 wiring, positive/negative tests, metadata,
   route/pointer guards, shell syntax, and diff checks are green.
 Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
 ```
-### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted D0; design stop)
+### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted R0; fast)
 ```text
 Decision: `env.codegen.emit_object` stays Boundary/pure-first and never inherits
   ambient recipe/replay. Only a named `emit_object_compat_harness` method may
@@ -577,8 +577,8 @@ Source authority + issuer: named env.codegen method plus route/C-ABI request;
   hint, Python output, provider labels, generic C fallback, or plugin `None`.
 Fail-fast before hako_aot child: ordinary inherited replay rejects; pure-first/
   none stays typed unsupported. Root-first LLVM text -> opt/llc is not this ingress.
-Smallest next slice: prove ordinary child=0, named compat child=1, and ambient
-  replay on ordinary method rejects before child creation.
+Receipt (2026-08-14): named receiver/route admission landed; cargo check, focused tests,
+  fmt, guards, and diff check are green. Child-count observation remains next evidence.
 Non-claims: no provider reorder, production switch, G2/G3 retirement, or
   llvmlite source deletion.
 ```

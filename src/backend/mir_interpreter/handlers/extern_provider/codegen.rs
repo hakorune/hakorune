@@ -55,6 +55,23 @@ impl MirInterpreter {
                     Err(self.err_invalid("extern_invoke env.codegen.emit_object expects 1 arg"))
                 }
             }
+            ("env.codegen", "emit_object_compat_harness") => {
+                if let Some(s) = first_arg_str {
+                    match crate::runtime::plugin_loader_v2::compat_codegen_receiver::emit_object_compat_harness(
+                        &s, false,
+                    ) {
+                        Ok(p) => Ok(VMValue::String(p)),
+                        Err(e) => Err(self.err_with_context(
+                            "env.codegen.emit_object_compat_harness",
+                            &e.to_string(),
+                        )),
+                    }
+                } else {
+                    Err(self.err_invalid(
+                        "extern_invoke env.codegen.emit_object_compat_harness expects 1 arg",
+                    ))
+                }
+            }
             ("env.codegen", "compile_ll_text") => {
                 let ll_text = match first_arg_str {
                     Some(s) => s,
@@ -188,6 +205,28 @@ impl MirInterpreter {
                     Ok(p) => Ok(VMValue::String(p)),
                     Err(e) => Err(ErrorBuilder::with_context(
                         "env.codegen.emit_object",
+                        &e.to_string(),
+                    )),
+                }
+            }
+            "env.codegen.emit_object_compat_harness" => {
+                if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
+                    return Ok(VMValue::String(String::new()));
+                }
+                if args.is_empty() {
+                    return Err(ErrorBuilder::arg_count_mismatch(
+                        "env.codegen.emit_object_compat_harness",
+                        1,
+                        args.len(),
+                    ));
+                }
+                let mir_json = self.reg_load(args[0])?.to_string();
+                match crate::runtime::plugin_loader_v2::compat_codegen_receiver::emit_object_compat_harness(
+                    &mir_json, true,
+                ) {
+                    Ok(p) => Ok(VMValue::String(p)),
+                    Err(e) => Err(ErrorBuilder::with_context(
+                        "env.codegen.emit_object_compat_harness",
                         &e.to_string(),
                     )),
                 }

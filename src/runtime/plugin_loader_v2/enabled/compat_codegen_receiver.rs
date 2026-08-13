@@ -23,6 +23,13 @@ pub(super) fn handle_codegen(
                 .unwrap_or_default();
             codegen_result_to_bid(emit_object(&mir_json, false))
         }
+        "emit_object_compat_harness" => {
+            let mir_json = args
+                .first()
+                .map(|b| b.to_string_box().value)
+                .unwrap_or_default();
+            codegen_result_to_bid(emit_object_compat_harness(&mir_json, false))
+        }
         "link_object" => {
             let obj_path = args
                 .first()
@@ -66,14 +73,38 @@ pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String,
     } else {
         mir_json.to_string()
     };
-    let result = crate::host_providers::llvm_codegen::mir_json_text_object::compile_object_from_mir_json_text_boundary(
-        &input,
-        codegen_opts(None),
-    )
-    .map(|p| p.to_string_lossy().into_owned())
-    .map_err(|e| e.to_string());
+    let result = compile_object_with_opts(&input, codegen_opts(None))
+        .map(|p| p.to_string_lossy().into_owned())
+        .map_err(|e| e.to_string());
     trace_result("emit_object", &result);
     result
+}
+
+/// Explicit compatibility admission. Ordinary callers cannot reach this
+/// route through an ambient provider or by retrying a Boundary failure.
+pub(crate) fn emit_object_compat_harness(
+    mir_json: &str,
+    patch_version: bool,
+) -> Result<String, String> {
+    let input = if patch_version {
+        patch_mir_json_version(mir_json)
+    } else {
+        mir_json.to_string()
+    };
+    let result = compile_object_with_opts(&input, compat_harness_codegen_opts(None))
+        .map(|p| p.to_string_lossy().into_owned())
+        .map_err(|e| e.to_string());
+    trace_result("emit_object_compat_harness", &result);
+    result
+}
+
+fn compile_object_with_opts(
+    mir_json: &str,
+    opts: crate::host_providers::llvm_codegen::Opts,
+) -> Result<PathBuf, String> {
+    crate::host_providers::llvm_codegen::mir_json_text_object::compile_object_from_mir_json_text_boundary(
+        mir_json, opts,
+    )
 }
 
 pub(crate) fn compile_ll_text(ll_text: &str, out: Option<String>) -> Result<String, String> {
@@ -139,8 +170,6 @@ pub(crate) fn optional_codegen_text(text: String) -> Option<String> {
 }
 
 fn codegen_opts(out: Option<PathBuf>) -> crate::host_providers::llvm_codegen::Opts {
-    let (compile_recipe, compat_replay) =
-        crate::config::env::backend_codegen_request_defaults(None, None);
     crate::host_providers::llvm_codegen::Opts {
         out,
         nyrt: std::env::var("NYASH_EMIT_EXE_NYRT").ok().map(PathBuf::from),
@@ -149,8 +178,26 @@ fn codegen_opts(out: Option<PathBuf>) -> crate::host_providers::llvm_codegen::Op
             .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
             .or(Some("0".to_string())),
         timeout_ms: None,
-        compile_recipe,
-        compat_replay,
+        compile_recipe: Some("pure-first".to_string()),
+        compat_replay: Some("none".to_string()),
+        route_request:
+            crate::host_providers::llvm_codegen::CodegenRouteRequestV1::BoundaryPureFirst,
+    }
+}
+
+fn compat_harness_codegen_opts(out: Option<PathBuf>) -> crate::host_providers::llvm_codegen::Opts {
+    crate::host_providers::llvm_codegen::Opts {
+        out,
+        nyrt: std::env::var("NYASH_EMIT_EXE_NYRT").ok().map(PathBuf::from),
+        opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
+            .ok()
+            .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
+            .or(Some("0".to_string())),
+        timeout_ms: None,
+        compile_recipe: Some("pure-first".to_string()),
+        compat_replay: Some("harness".to_string()),
+        route_request:
+            crate::host_providers::llvm_codegen::CodegenRouteRequestV1::ExplicitHarnessCompat,
     }
 }
 
@@ -200,8 +247,9 @@ fn trace_result(route: &str, result: &Result<String, String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::codegen_result_to_bid;
+    use super::{codegen_opts, codegen_result_to_bid, compat_harness_codegen_opts};
     use crate::bid::BidError;
+    use crate::host_providers::llvm_codegen::CodegenRouteRequestV1;
 
     #[test]
     fn codegen_result_preserves_success_path() {
@@ -217,5 +265,24 @@ mod tests {
             codegen_result_to_bid(Err("backend failed".to_string())),
             Err(BidError::PluginError)
         ));
+    }
+
+    #[test]
+    fn ordinary_env_codegen_request_is_boundary_and_non_replay() {
+        let opts = codegen_opts(None);
+        assert_eq!(opts.compile_recipe.as_deref(), Some("pure-first"));
+        assert_eq!(opts.compat_replay.as_deref(), Some("none"));
+        assert_eq!(opts.route_request, CodegenRouteRequestV1::BoundaryPureFirst);
+    }
+
+    #[test]
+    fn named_compat_request_is_the_only_harness_admission() {
+        let opts = compat_harness_codegen_opts(None);
+        assert_eq!(opts.compile_recipe.as_deref(), Some("pure-first"));
+        assert_eq!(opts.compat_replay.as_deref(), Some("harness"));
+        assert_eq!(
+            opts.route_request,
+            CodegenRouteRequestV1::ExplicitHarnessCompat
+        );
     }
 }

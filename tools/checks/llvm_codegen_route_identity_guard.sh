@@ -151,6 +151,18 @@ need_fixed "$PLUGIN" 'fn codegen_result_to_bid' \
 need_fixed "$PLUGIN" 'BidError::PluginError' \
   "codegen plugin typed failure mapping missing"
 need_fixed "$PLUGIN" 'll_text_to_object' "compile_ll_text owner disappeared"
+need_fixed "$PLUGIN" '"emit_object_compat_harness"' \
+  "named env.codegen compatibility admission missing"
+need_fixed "$PLUGIN" 'CodegenRouteRequestV1::BoundaryPureFirst' \
+  "ordinary env.codegen Boundary admission missing"
+need_fixed "$PLUGIN" 'CodegenRouteRequestV1::ExplicitHarnessCompat' \
+  "named harness admission missing"
+need_fixed "$ROUTE" 'if opts.route_request == CodegenRouteRequestV1::ExplicitHarnessCompat' \
+  "named harness route must bypass generic C-ABI probing"
+need_fixed "$ROUTE" 'CodegenRouteRequestV1::ExplicitHarnessCompat => {' \
+  "named harness route must select its explicit provider"
+need_fixed "$ROUTE" 'Boundary route rejects compat replay inheritance' \
+  "ordinary inherited replay failure missing"
 
 # The task card and check index are the tracked documentation owners.
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0' "identity guard task missing"

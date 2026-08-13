@@ -5,7 +5,7 @@ use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_compare_driver::mir_json_to_object_hako_ll_compare;
 use super::normalize::validate_backend_mir_shape;
 use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
-use super::Opts;
+use super::{CodegenRouteRequestV1, Opts};
 
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
@@ -136,6 +136,13 @@ pub(super) fn try_compile_via_capi_keep(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
+    validate_route_request(opts)?;
+    if opts.route_request == CodegenRouteRequestV1::ExplicitHarnessCompat {
+        // The named compatibility admission is intentionally a direct
+        // harness/provider lane.  Do not let a generic C-ABI probe silently
+        // change the meaning of that explicit request.
+        return Ok(None);
+    }
     if !(crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi()) {
         return Ok(None);
     }
@@ -168,6 +175,13 @@ pub(super) fn try_compile_via_explicit_provider_keep(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
+    match opts.route_request {
+        CodegenRouteRequestV1::ExplicitHarnessCompat => {
+            return mir_json_to_object_llvmlite(mir_json, opts).map(Some);
+        }
+        CodegenRouteRequestV1::BoundaryPureFirst => return Ok(None),
+        CodegenRouteRequestV1::LegacyAmbientKeep => {}
+    }
     match crate::config::env::llvm_emit_provider().as_deref() {
         Some("llvmlite") => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
         Some("ny-llvmc") => mir_json_to_object_ny_llvmc(mir_json, opts).map(Some),
@@ -179,6 +193,7 @@ pub(super) fn try_compile_via_boundary_default(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
+    validate_route_request(opts)?;
     match compile_via_capi_keep_internal(mir_json, opts) {
         Ok(out_path) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
@@ -209,13 +224,46 @@ fn capi_boundary_unavailable(error: &str) -> bool {
         || error.contains("dlsym failed")
 }
 
+fn validate_route_request(opts: &Opts) -> Result<(), String> {
+    match opts.route_request {
+        CodegenRouteRequestV1::LegacyAmbientKeep => Ok(()),
+        CodegenRouteRequestV1::BoundaryPureFirst => {
+            if opts.compile_recipe.as_deref() != Some("pure-first") {
+                return Err(
+                    "[llvmemit/request] Boundary route requires compile_recipe=pure-first"
+                        .to_string(),
+                );
+            }
+            if matches!(opts.compat_replay.as_deref(), Some(value) if value != "none") {
+                return Err(
+                    "[llvmemit/request] Boundary route rejects compat replay inheritance"
+                        .to_string(),
+                );
+            }
+            Ok(())
+        }
+        CodegenRouteRequestV1::ExplicitHarnessCompat => {
+            if opts.compile_recipe.as_deref() != Some("pure-first")
+                || opts.compat_replay.as_deref() != Some("harness")
+            {
+                return Err(
+                    "[llvmemit/request] explicit harness route requires pure-first/harness"
+                        .to_string(),
+                );
+            }
+            Ok(())
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
         compile_symbol_for_keep_recipe, hako_ll_bridge_lane, llvm_route_trace_enabled,
-        required_hako_ll_context_field, HakoLlBridgeLane, COMPILE_SYMBOL_DEFAULT,
-        COMPILE_SYMBOL_PURE_FIRST,
+        required_hako_ll_context_field, validate_route_request, CodegenRouteRequestV1,
+        HakoLlBridgeLane, COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
     };
+    use crate::host_providers::llvm_codegen::defaults::boundary_default_object_opts;
 
     #[test]
     fn keep_recipe_prefers_pure_first_symbol_when_explicit() {
@@ -265,5 +313,24 @@ mod tests {
         std::env::set_var("NYASH_LLVM_ROUTE_TRACE", "0");
         assert!(!llvm_route_trace_enabled());
         std::env::remove_var("NYASH_LLVM_ROUTE_TRACE");
+    }
+
+    #[test]
+    fn boundary_request_rejects_inherited_harness_replay() {
+        let mut opts = boundary_default_object_opts(None, None, None, None);
+        opts.route_request = CodegenRouteRequestV1::BoundaryPureFirst;
+        opts.compile_recipe = Some("pure-first".to_string());
+        opts.compat_replay = Some("harness".to_string());
+        let err = validate_route_request(&opts).expect_err("ambient replay must stop");
+        assert!(err.contains("rejects compat replay inheritance"));
+    }
+
+    #[test]
+    fn explicit_harness_request_requires_exact_recipe_and_replay() {
+        let mut opts = boundary_default_object_opts(None, None, None, None);
+        opts.route_request = CodegenRouteRequestV1::ExplicitHarnessCompat;
+        opts.compile_recipe = Some("pure-first".to_string());
+        opts.compat_replay = Some("harness".to_string());
+        validate_route_request(&opts).expect("named compat admission should validate");
     }
 }

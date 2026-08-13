@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1 replay admission is closed; the next design stop is env.codegen replay ingress. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1 replay admission is closed; env.codegen named compat admission is the active bounded implementation row. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Stage1 replay admission is closed. The next design stop is env.codegen: an unqualified plugin/extern call must not inherit pure-first or replay environment into hako_aot/llvmlite; only a named compatibility admission may reach the explicit harness keep lane. G1/G2/G3 and source deletion remain unopened."
-work_mode = "design_stop"
+current_design_stop = "Stage1 replay admission is closed. The accepted fast row is env.codegen: ordinary emit_object is Boundary/pure-first with no ambient recipe/replay; only named emit_object_compat_harness may reach the explicit harness keep lane. G1/G2/G3 and source deletion remain unopened."
+work_mode = "fast"
 current_execution_row = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0"
-current_blocker_token = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0: design-stop is closed around a named env.codegen.emit_object_compat_harness admission. Ordinary emit_object remains Boundary/pure-first and never inherits ambient recipe/replay; a private CodegenRouteRequestV1 may be shared internally. Non-authority is NYASH_LLVM_USE_HARNESS alone, Python output, provider labels, or generic C fallback. Fail-fast is before hako_aot/--driver harness child creation. Smallest next slice: prove ordinary child=0, named compat child=1, and inherited replay on ordinary emit_object rejects before child creation."
+current_blocker_token = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0: implement one named emit_object_compat_harness admission while ordinary emit_object remains Boundary/pure-first and ambient-free. A private CodegenRouteRequestV1 may be shared internally. Non-authority is NYASH_LLVM_USE_HARNESS alone, Python output, provider labels, or generic C fallback. Fail-fast is before hako_aot/--driver harness child creation. Acceptance: ordinary child=0, named compat child=1, inherited replay on ordinary emit_object rejects before child creation, and route evidence is explicit."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed; env.codegen replay ingress is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed; named env.codegen compat admission is the bounded fast row. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed. env.codegen replay ingress is the next design stop."
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed. env.codegen named compat admission is the active bounded fast row."
 next_design_card = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "none"
+next_execution_card = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0"
 next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

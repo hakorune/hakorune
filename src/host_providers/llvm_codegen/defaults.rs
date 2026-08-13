@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use super::Opts;
+use super::{CodegenRouteRequestV1, Opts};
 
 pub(super) const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 
@@ -44,6 +44,7 @@ pub fn boundary_default_object_opts(
         timeout_ms,
         compile_recipe: None,
         compat_replay: None,
+        route_request: CodegenRouteRequestV1::LegacyAmbientKeep,
     }
 }
 
