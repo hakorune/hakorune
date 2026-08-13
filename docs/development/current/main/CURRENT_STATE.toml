@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6 handoffs, C1 Boundary physicalizer, static-link receipt owner, and selected package-to-Boundary route are landed. The existing MirModule commit and static artifact publication owners now complete the selected live launch; ordinary compatibility remains source-scoped."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. The next design stop is the staged llvmlite route census; ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6 final-live publication is closed using the existing root MirModule external commit and Boundary/static-artifact receipt transactions in order. The next design stop is the existing LLVMLITE-ROUTE0-CENSUS0 route inventory; no cross-process rollback or second backend is introduced."
-work_mode = "closeout"
-current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0-CLOSEOUT"
-current_blocker_token = "W6-E-CLOSEOUT: selected package adapter=1, Boundary runner=1, selected raw/JoinIR=0, ordinary compatibility=1, MirModule commit=1, static artifact receipt/rename=1, and selected artifact launch are evidenced by focused tests and guards. Next design row: LLVMLITE-ROUTE0-CENSUS0. No new owner, fallback, retry, VM, RuntimeExecutablePlan, or source deletion."
+current_design_stop = "W6 final-live publication is closed. LLVMLITE-ROUTE0-CENSUS0 is now a design stop: classify every executable LLVM ingress and actual Python selector before any G1 production retirement; no fallback or source deletion is opened."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-ROUTE0-CENSUS0"
+current_blocker_token = "LLVMLITE-ROUTE0-CENSUS0: source-site matrix must classify ny-llvmc default/harness/native, hako_aot, env.codegen, provider_keep, stage1, tools, CI, and monitor routes. Source authority: actual driver/provider/replay selectors and child-command observations. Non-authority: names, comments, NYASH_LLVM_USE_HARNESS alone, generic export fallback, or historical commands. Fail-fast boundary: unknown Python reachability, pure-first to generic fallback, or unclassified ingress remains design stop. Smallest slice: D0 identity/observe matrix plus one guard; no G1/G2/G3 retirement, source deletion, or behavior switch."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. Ordinary compatibility remains source-scoped; the next selected row is the staged llvmlite route census."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. The selected next row is the staged llvmlite route census; ordinary compatibility remains source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,10 +25,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card = "dynamic-v2-w6-production-activation-task"
-latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D/C1/C6 and the final selected package -> MirModule commit -> Boundary receipt/rename -> executable launch route are landed and focused-gated. The next design row is the existing staged LLVMLITE-ROUTE0-CENSUS0 inventory; G1/G2/G3 remain separate and no source deletion is implied."
+current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
+latest_card = "llvm-native-library-llvmlite-graduation-task"
+latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
+latest_card_summary = "W6 final-live is closed. The current D0 is a source-site route identity/observe census for actual Python/llvmlite reachability; G1/G2/G3 remain ordered and source deletion is not implied."
 next_design_card = "LLVMLITE-ROUTE0-CENSUS0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"

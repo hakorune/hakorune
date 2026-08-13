@@ -367,6 +367,24 @@ one semantic behavior delta may belong to only one I0.
 
 ### `LLVMLITE-ROUTE0-CENSUS0`
 
+#### `LLVMLITE-ROUTE0-CENSUS0-D0-IDENTITY-OBSERVE` (current design stop)
+
+```text
+Decision: classify executable LLVM ingress by actual driver/provider/replay, not names.
+Source authority + canonical issuer: driver dispatch, provider selection, and child-command observation.
+Non-authority: comments, NYASH_LLVM_USE_HARNESS alone, generic-export fallback, or historical command names.
+Fail-fast boundary: unknown Python reachability, pure-first -> generic fallback, or unclassified ingress stays stopped.
+Smallest next slice: source-site matrix plus one reusable route guard; behavior and retirement remain closed.
+Non-claims: no G1/G2/G3 retirement, source deletion, new backend, or fallback change.
+```
+
+Current census leads are `hako_aot_compile_json` hardcoding `--driver harness`,
+`provider_keep.rs` directly selecting llvmlite, `capi_transport.rs` falling
+from pure-first to a generic export, and `fast-smoke` explicitly using
+`compat_replay=harness`. The default `ny-llvmc` Boundary and stage1
+`pure-first/replay=none` routes are separate observations, not proof that all
+other ingresses are Python-free.
+
 Create a source-derived route inventory. One row represents one exact ingress
 and carries:
 
