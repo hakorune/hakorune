@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, and W6-C0-C post-seal candidate handoff are landed. Publication-boundary D0 is accepted; Boundary C-ABI physicalization, static artifact receipt, RuntimeExecutablePlan, and live publication remain later rows."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, and W6-C0-C post-seal candidate handoff are landed. C0-D must freeze the Boundary-visible one-shot lease End ABI before C1; publication-boundary D0 is accepted and production remains closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-A1, W6-B, C0-A, C0-B, and C0-C are closed with clone-scrub-safe final candidate metadata; C1 Boundary C-ABI physicalization and later static artifact/runtime publication remain gated."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
-current_blocker_token = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0: consume the exact site-id final candidate metadata in one Boundary C-ABI physicalizer, preserving MIR Normal/Fault targets and rejecting malformed transport before any static link or live publication; production remains new=0 and old=1."
+current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. C0-C is closed with clone-scrub-safe final candidate metadata; C0-D must freeze the one-shot Boundary-visible lease End ABI before C1 physicalization."
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-FREEZE-R0"
+current_blocker_token = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-FREEZE-R0: name one checked C-callable End consumer backed by runtime dynamic_v2_lease, with exact status/error, stale/duplicate rejection, and archive export; do not substitute drop_handle/raw handles or begin C1 before acceptance."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, W6-B mixed normal drain, C0-A/C0-B site-id handoff, and C0-C clone-scrub-safe candidate handoff are landed; C1 Boundary C-ABI physicalization is next while the selected old raw/JoinIR edge remains the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, W6-B mixed normal drain, C0-A/C0-B site-id handoff, and C0-C clone-scrub-safe candidate handoff are landed; C0-D lease End ABI freeze precedes C1 while the selected old raw/JoinIR edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0, W6-S source organization, W6-A1 physical evidence close, W6-B mixed CatalogedBoxMethod normal drain, C0-A/C0-B site-id transport, and C0-C clone-scrub-safe candidate handoff are landed. C1 Boundary C-ABI, static artifact receipt/publication, and final selected caller/old-edge replacement remain later rows. RuntimeExecutablePlan is parked; production remains closed."
-next_design_card = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
+latest_card_summary = "W6 D0, W6-S source organization, W6-A1 physical evidence close, W6-B mixed CatalogedBoxMethod normal drain, C0-A/C0-B site-id transport, and C0-C clone-scrub-safe candidate handoff are landed. C0-D lease End ABI freeze precedes C1 Boundary C-ABI, static artifact receipt/publication, and final selected caller/old-edge replacement. RuntimeExecutablePlan is parked; production remains closed."
+next_design_card = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-FREEZE-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

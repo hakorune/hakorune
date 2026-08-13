@@ -523,10 +523,6 @@ live `take_once` consumer remains `0` until a C1/backend consumer;
 site-id locator exact, old coordinate locator/default receipt `= 0`,
 production callers `new=0 old=1`.
 
-Observed closeout (2026-08-13): canonical close now emits the site-id receipt
-from corridor/formal/Completion evidence and installs it once; focused tests,
-`cargo check --lib`, and authority guards are green. C0-B remains next.
-
 #### W6-C0-B — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
 
 ```text
@@ -546,9 +542,6 @@ Non-claims: no C/link/RuntimePlan/live publication/production caller/VM.
 Acceptance: candidate JSON key/consumer/slot issuer `= 1/1/1`, exact two
 site-id entries, coordinate locator/lookup `= 0`, production `new=0 old=1`.
 
-Observed closeout (2026-08-13): C0-B issues the projection and has one JSON
-observer, but install precedes DraftSeal clone-scrub; C0-C moves both values
-to the final detached candidate. C/LLVM/runtime publication remains closed.
 #### W6-C0-C — `DYNAMIC-V2-W6-CANDIDATE-METADATA-POSTSEAL-HANDOFF-R0`
 
 ```text
@@ -565,12 +558,20 @@ Non-claims: no C/LLVM/link/RuntimePlan/live publication/production caller/VM.
 
 Acceptance: final candidate JSON has exactly one receipt and one Dynamic key; clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`, production `new=0 old=1`.
 
-Observed closeout (2026-08-13): C0-C carries both issued values through the
-detached DraftSeal projection into the final candidate exactly once; focused
-tests, `cargo check --lib`, and authority guards are green. C1 is next.
+#### W6-C0-D — `DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-FREEZE-R0`
+
+Decision: freeze one Boundary-visible one-shot End consumer before C1.
+Source authority + canonical issuer: runtime `dynamic_v2_lease` consume owner;
+the C symbol is a checked ABI projection, not a new lease table.
+Non-authority: `drop_handle`, raw handles, C token maps, Python/VM lookup, Fault conversion.
+Fail-fast boundary: zero/foreign/stale/duplicate token, ABI drift, or missing export rejects before C1.
+Smallest next slice: specify one C End signature/status map/archive export and negative matrix; no implementation before acceptance.
+Non-claims: no CheckedCallOut physicalizer, static link, RuntimePlan, or cutover.
+Acceptance: one Rust consumer + one Boundary projection; raw substitution `= 0`; duplicate/stale/foreign reject; `new=0 old=1`.
+
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
-Only after C0 is green, add the selected physicalizer to the actual default
+Only after C0-D is accepted, add the selected physicalizer to the actual default
 Boundary backend:
 
 ```text
