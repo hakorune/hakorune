@@ -113,6 +113,34 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
             with self.assertRaises(DynamicV2AotAdmissionError):
                 load_selected_dynamic_v2_aot_admission(data)
 
+    def test_u64_metadata_boundaries_are_checked(self):
+        max_u64 = (1 << 64) - 1
+        data = _valid_admission_data()
+        admission = data["metadata"]["dynamic_v2_aot_call_admission_v1"]
+        admission["registry_generation"] = max_u64
+        admission["plan_stamp"] = {
+            "compiler_domain": max_u64,
+            "invocation_ordinal": max_u64,
+        }
+        view = load_selected_dynamic_v2_aot_admission(data)
+        self.assertEqual(view.registry_generation, max_u64)
+        self.assertEqual(view.compiler_domain, max_u64)
+        self.assertEqual(view.invocation_ordinal, max_u64)
+
+        for field, value in (
+            ("registry_generation", max_u64 + 1),
+            ("compiler_domain", max_u64 + 1),
+            ("invocation_ordinal", max_u64 + 1),
+        ):
+            data = _valid_admission_data()
+            admission = data["metadata"]["dynamic_v2_aot_call_admission_v1"]
+            if field in admission["plan_stamp"]:
+                admission["plan_stamp"][field] = value
+            else:
+                admission[field] = value
+            with self.assertRaises(DynamicV2AotAdmissionError):
+                load_selected_dynamic_v2_aot_admission(data)
+
     def test_site_lookup_must_not_repair_or_fallback(self):
         data = _valid_admission_data()
         with self.assertRaises(DynamicV2AotAdmissionError):

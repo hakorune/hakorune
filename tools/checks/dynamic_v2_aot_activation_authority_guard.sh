@@ -72,6 +72,8 @@ fi
 if [[ "$(rg -n '^def load_selected_dynamic_v2_aot_admission\(' "$METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 metadata loader definition must be unique"
 fi
+guard_expect_fixed_in_file "$TAG" "def _required_u64(" "$METADATA" \
+  "I0-D1 metadata loader must enforce the Rust u64 boundary"
 if [[ "$(rg -n '^def inspect_selected_dynamic_v2_call\(' "$HOOK" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "I0-D1 selected hook definition must be unique"
 fi

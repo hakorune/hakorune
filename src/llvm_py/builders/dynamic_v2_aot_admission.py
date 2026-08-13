@@ -33,6 +33,7 @@ from builders.dynamic_v2_text_scan_export_facts import (
 SCHEMA_VERSION = 1
 METADATA_KEY = "dynamic_v2_aot_call_admission_v1"
 WIRE_REVISION = CALL_OUT_WIRE_REVISION
+U64_MAX = (1 << 64) - 1
 
 _ROOT_KEYS = {
     "schema_version",
@@ -117,6 +118,13 @@ def _required_int(value: Any, label: str, *, positive: bool = False) -> int:
         raise DynamicV2AotAdmissionError(f"{label} must be an integer")
     if value < (1 if positive else 0):
         raise DynamicV2AotAdmissionError(f"{label} must be positive")
+    return value
+
+
+def _required_u64(value: Any, label: str, *, positive: bool = False) -> int:
+    value = _required_int(value, label, positive=positive)
+    if value > U64_MAX:
+        raise DynamicV2AotAdmissionError(f"{label} exceeds u64")
     return value
 
 
@@ -263,13 +271,13 @@ def load_selected_dynamic_v2_aot_admission(
         raise DynamicV2AotAdmissionError("ABI revision mismatch")
     if _required_int(raw.get("wire_revision"), "wire_revision", positive=True) != WIRE_REVISION:
         raise DynamicV2AotAdmissionError("wire revision mismatch")
-    generation = _required_int(raw.get("registry_generation"), "registry_generation", positive=True)
+    generation = _required_u64(raw.get("registry_generation"), "registry_generation", positive=True)
     stamp = raw.get("plan_stamp")
     if not isinstance(stamp, dict):
         raise DynamicV2AotAdmissionError("plan_stamp must be an object")
     _reject_unknown(stamp, _STAMP_KEYS, "plan_stamp")
-    compiler_domain = _required_int(stamp.get("compiler_domain"), "compiler_domain", positive=True)
-    invocation_ordinal = _required_int(stamp.get("invocation_ordinal"), "invocation_ordinal", positive=True)
+    compiler_domain = _required_u64(stamp.get("compiler_domain"), "compiler_domain", positive=True)
+    invocation_ordinal = _required_u64(stamp.get("invocation_ordinal"), "invocation_ordinal", positive=True)
     calls = raw.get("calls")
     if not isinstance(calls, list) or len(calls) != 2:
         raise DynamicV2AotAdmissionError("selected admission requires exactly two calls")
