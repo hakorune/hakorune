@@ -374,7 +374,7 @@ Decision: classify executable LLVM ingress by actual driver/provider/replay, not
 Source authority + canonical issuer: driver dispatch, provider selection, and child-command observation.
 Non-authority: comments, NYASH_LLVM_USE_HARNESS alone, generic-export fallback, or historical command names.
 Fail-fast boundary: unknown Python reachability, pure-first -> generic fallback, or unclassified ingress stays stopped.
-Smallest next slice: source-site matrix plus one reusable route guard; behavior and retirement remain closed.
+Smallest next slice: source-site matrix, child-command observation, and one reusable route guard; behavior and retirement remain closed.
 Non-claims: no G1/G2/G3 retirement, source deletion, new backend, or fallback change.
 ```
 
@@ -394,8 +394,12 @@ Initial source-site matrix (D0 observation, not a production decision):
 | `ny-llvmc --driver native` | native canary | Unreachable observed |
 | `hako_aot_compile_json` | hard-coded `--driver harness` | Reachable |
 | `provider_keep.rs` | `HAKO_LLVM_EMIT_PROVIDER=llvmlite` | Reachable |
-| `route.rs` CAPI/default | CAPI then generic symbol fallback | Unknown until drift guard |
-| `env.codegen.emit_object/compile_ll_text` | plugin compat receiver | Unknown until child observation |
+| `route.rs` CAPI/default | CAPI selection; generic export may enter `hako_aot`/harness | Reachability is route-dependent; symbol fallback remains a drift stop |
+| `env.codegen.emit_object` with CAPI + generic recipe | generic C export -> `hako_aot_compile_json` -> `--driver harness` | Reachable |
+| `env.codegen.emit_object` with CAPI + `pure-first`, replay=none | pure-first C export | Unreachable observed; unsupported shape stops |
+| `env.codegen.emit_object` with explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` and CAPI disabled | provider_keep -> Python harness | Reachable keep |
+| `env.codegen.emit_object` with explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` and CAPI disabled | `ny-llvmc` Boundary | Unreachable observed |
+| `env.codegen.compile_ll_text` | external `opt`/`llc` tool seam | Unreachable observed (not a llvmlite route) |
 | stage1 mainline | `pure-first`, `replay=none` | Unreachable observed |
 | `tools/ny_mir_builder.sh` llvmlite branch | explicit backend flag | Reachable keep |
 | `fast-smoke` compat job | `compat_replay=harness` | Reachable keep |
@@ -403,7 +407,45 @@ Initial source-site matrix (D0 observation, not a production decision):
 
 The D0 implementation may only turn `Unknown` into an observed classification
 or a typed stop; it may not silently reinterpret a generic C export as the
-Boundary route or change any production behavior.
+Boundary route or change any production behavior. In particular, a CAPI flag
+does not prove Boundary-only execution: the generic C export can deliberately
+enter the compatibility `hako_aot_compile_json -> --driver harness` route.
+
+### Worker route-observation receipt (D0, 2026-08-13)
+
+The read-only route audit closed the previously unknown plugin ingress as
+route-dependent rather than Boundary-only:
+
+```text
+compat_codegen_receiver::emit_object
+  -> mir_json_text_object::route
+  -> CAPI generic export (when CAPI flags are enabled and recipe is absent)
+  -> hako_llvmc_compile_json
+  -> hako_aot_compile_json
+  -> ny-llvmc --driver harness
+  -> Python/llvmlite
+```
+
+The same ingress with `pure-first` and `compat_replay=none` remains a pure
+lane and rejects unsupported shapes; `replay=harness` is the only explicit
+replay into Python. `compile_ll_text` is a separate Rust thin seam over
+external `opt`/`llc` and must not be counted as llvmlite reachability.
+
+Two identity hazards remain open for the next bounded guard, without changing
+behavior in D0:
+
+1. `capi_transport.rs` can try a generic compile symbol after the requested
+   pure-first symbol is absent. This is a route-identity drift and must be
+   observed or typed-stopped before G1; it is not evidence of a successful
+   Boundary route.
+2. `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is not a direct-provider receipt when
+   CAPI flags win earlier in `route.rs`; the actual selected C export and
+   child command are the authority.
+
+The plugin receiver currently converts `emit_object`/`compile_ll_text` errors
+to `Ok(None)`. Whether that compatibility-facing loss of typed failure is
+accepted or changed is a separate route-contract decision; it does not count
+as Python reachability evidence and remains outside D0 behavior changes.
 
 Create a source-derived route inventory. One row represents one exact ingress
 and carries:
@@ -445,6 +487,24 @@ unknown Python reachability = 0
 manual aggregate route count = 0
 source-site reverse census is bijective
 production behavior delta = 0
+```
+
+### D0 bounded guard task (implementation remains closed in `design_stop`)
+
+```text
+Task: LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0
+Owner: existing route/driver/provider source census; no new backend owner
+Shape: one reusable static guard plus source-derived matrix, no runtime change
+Guard inputs: CAPI flags, recipe, compat replay, provider, selected C export,
+              driver, child command, and plugin ingress
+Positive: pure-first+none has Python=0; explicit harness/provider is Reachable;
+          compile_ll_text is external-tool-only; generic C export is compat
+          harness reachability, not Boundary-only
+Negative: missing requested pure-first symbol, implicit generic fallback,
+          provider/CAPI precedence drift, unknown child command, and untyped
+          ingress remain a typed stop / red census
+Non-claims: no G1/G2/G3 retirement, source deletion, fallback removal,
+            provider precedence change, or plugin error-policy change
 ```
 
 ### `LLVMLITE-ROUTE0-IDENTITY0`
