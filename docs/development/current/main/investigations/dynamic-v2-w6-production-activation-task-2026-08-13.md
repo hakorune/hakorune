@@ -878,7 +878,7 @@ Non-claims:
   receipt, second backend, or llvmlite fallback.
 ```
 
-#### W6-E-C3 — `DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0`
+#### W6-E-C3 — `DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0` (landed `b4f68ddc92`)
 
 ```text
 Decision: return the existing root-consumed Boundary receipt fence and hold it through selected executable launch.
@@ -887,6 +887,17 @@ Non-authority: runner census, JSON parser, llvmlite, VM, fallback, RuntimeExecut
 Fail-fast boundary: missing/invalid receipt or descriptor/digest/site/ABI/wire/PlanStamp drift rejects before `run_emitted_executable`.
 Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenceV1`; runner consumes it while ordinary compatibility stays unchanged.
 Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
+```
+
+#### W6-E-C4 — `DYNAMIC-V2-W6-CANDIDATE-ARTIFACT-RECEIPT-R0`
+
+```text
+Decision: fix the existing child-rename/root-validation publication order before any live caller switch.
+Source authority + canonical issuer: StaticAotArtifactPublicationTxnV1 and root consume_static_artifact_receipt; no new receipt issuer.
+Non-authority: runner census, JSON parser, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, and cross-process rollback claims.
+Fail-fast boundary: candidate digest/descriptor/site/ABI/wire/PlanStamp and receipt-path drift are explicit before selected caller retirement; current new=0/old=1 remains.
+Smallest next slice: choose pre-rename acknowledgement or document the existing ordered two-transaction fence, then add one focused positive/negative gate without a second publication owner.
+Non-claims: no live artifact/caller publication, crash recovery, or llvmlite G1/G2/G3 activation until the order and retirement census close.
 ```
 
 ## Negative matrix

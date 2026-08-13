@@ -7,8 +7,8 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 
 current_design_stop = "W6-E compiler-side route ownership is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. The runner census-checks one sealed pair, enters Boundary before VM/fallback, and holds the root-consumed receipt fence through execution. No separate transition product, emitter-to-PreparedModuleExternalCommit seam, or global callback state is allowed. The remaining stop is candidate↔artifact co-seal and final live publication; child rename-before-root-validation remains a non-claim."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0"
-current_blocker_token = "W6-E-C3: return the existing root-consumed Boundary receipt fence to the selected runner and hold it through executable launch; preserve ordinary compatibility and keep final artifact/live publication, crash recovery, and new=1/old=0 open."
+current_execution_row = "DYNAMIC-V2-W6-CANDIDATE-ARTIFACT-RECEIPT-R0"
+current_blocker_token = "W6-E-C4: choose and implement the existing Boundary publication order so candidate/receipt validation is explicit before any selected live caller switch; preserve ordinary compatibility, avoid cross-process rollback claims, and keep new=0/old=1 until the receipt retirement census closes."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3 are landed; D0-C4 proves the same-candidate package-adapter handoff, D0-D accepts the existing root collector/external-commit owner, and C2/C3 route one sealed pair through Boundary while returning the consumed receipt fence before execution. Final candidate↔artifact co-seal/live publication remains open."
-next_design_card = "DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0"
+latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3 are landed; D0-C4 proves the same-candidate package-adapter handoff, D0-D accepts the existing root collector/external-commit owner, and C2/C3 route one sealed pair through Boundary while returning the consumed receipt fence before execution. C4 now fixes the child-rename/root-validation publication order; final live caller switch remains open."
+next_design_card = "DYNAMIC-V2-W6-CANDIDATE-ARTIFACT-RECEIPT-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0"
+next_execution_card = "DYNAMIC-V2-W6-CANDIDATE-ARTIFACT-RECEIPT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
