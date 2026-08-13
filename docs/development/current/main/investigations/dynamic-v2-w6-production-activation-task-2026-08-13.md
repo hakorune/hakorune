@@ -73,9 +73,8 @@ Fail-fast boundary:
   missing/duplicate defined strict symbol rejects executable publication.
   Neither failure may enter fallback.
 Smallest next slice:
-  Implement one root-owned activation using the existing candidate/external
-  commit and static-artifact receipt owners, with pre-state new=0/old=1 and
-  post-state new=1/old=0 while ordinary compatibility remains 1.
+  Implement one root-owned final-live publication over existing owners.
+  Selected package/Boundary=1 each; selected raw/JoinIR=0; final-live=0 -> 1; ordinary compatibility=1.
 Non-claims:
   No cross-process rollback, RuntimeExecutablePlan, second backend, llvmlite
   G1/G2/G3 retirement, or ordinary compatibility retirement is claimed here.
@@ -684,12 +683,14 @@ check`, and the W6 authority guard are green. All touched sources are below the
 This is the only production BoxCount. In one activation commit:
 
 ```text
-selected package production callback                    0 -> 1
-selected old raw AST/JoinIR edge                         1 -> 0
+selected package production callback                    = 1 (landed)
+selected Boundary candidate/runner                      = 1 (landed)
+selected old raw AST/JoinIR edge                         = 0 (landed)
 CatalogedBoxMethod collector/mixed normal drain          = 1
 atomic MirModule publication                             = 1
 Boundary C-ABI CheckedCallOut physicalizer               = 1
 static artifact receipt / executable publication         = 1 / 1
+final live publication                                    0 -> 1
 RuntimeExecutablePlan issuer/install                     = 0 / 0
 LegacySymbol / FreeStatic conversion                     = 0 / 0
 runtime lookup / generic fallthrough / fallback / retry  = 0 / 0 / 0 / 0
@@ -709,12 +710,12 @@ Non-authority:
   raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan, llvmlite,
   VM, fallback, retry, and any reconstructed receipt/PlanStamp.
 Fail-fast boundary:
-  brand/key/site/ABI/wire/descriptor/digest/link mismatch, or a root old-edge
-  census different from the R4 release condition, rejects before final
-  artifact rename; no live Builder or edge mutation.
+  brand/key/site/ABI/wire/descriptor/digest/link mismatch, or a selected-lane
+  census different from policy, rejects before final artifact rename; no live
+  Builder or artifact mutation.
 Smallest next slice:
-  root cutover preflight consumes the completed candidate and collector brand;
-  the child consumes only the dedicated published-artifact receipt.
+  root final-live preflight consumes candidate/brand; child consumes only receipt.
+  selected raw/JoinIR=0; ordinary compatibility explicit; no selected-old deletion.
 Non-claims:
   no crash-recovery transaction, RuntimeExecutablePlan, second backend, or
   durable old-edge witness product.
