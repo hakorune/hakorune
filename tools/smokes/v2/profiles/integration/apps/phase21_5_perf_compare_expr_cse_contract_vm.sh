@@ -9,7 +9,7 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_compare_expr_cse_contract_vm"
 KEY="compare_reuse_small"
-BACKEND="${PERF_COMPARE_EXPR_CSE_BACKEND:-llvmlite}"
+BACKEND="${PERF_COMPARE_EXPR_CSE_BACKEND:-}"
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/perf_hot_trace_contract.sh"

@@ -103,21 +103,21 @@
     },
     {
       "id": "g2-perf-method-call-hot-trace",
-      "class": "default_pending",
+      "class": "explicit_oracle",
       "automatic_production": false,
-      "python_dependency": "one",
+      "python_dependency": "explicit",
       "owner": "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_method_call_hot_trace_contract_vm.sh",
       "selector": "PERF_METHOD_CALL_HOT_TRACE_BACKEND",
-      "evidence": ["PERF_METHOD_CALL_HOT_TRACE_BACKEND:-llvmlite", "perf_hot_trace_require_llvmlite_backend"]
+      "evidence": ["BACKEND=\"${PERF_METHOD_CALL_HOT_TRACE_BACKEND:-}\"", "perf_hot_trace_require_llvmlite_backend"]
     },
     {
       "id": "g2-perf-compare-expr-cse",
-      "class": "default_pending",
+      "class": "explicit_oracle",
       "automatic_production": false,
-      "python_dependency": "one",
+      "python_dependency": "explicit",
       "owner": "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_compare_expr_cse_contract_vm.sh",
       "selector": "PERF_COMPARE_EXPR_CSE_BACKEND",
-      "evidence": ["PERF_COMPARE_EXPR_CSE_BACKEND:-llvmlite", "perf_hot_trace_require_llvmlite_backend"]
+      "evidence": ["BACKEND=\"${PERF_COMPARE_EXPR_CSE_BACKEND:-}\"", "perf_hot_trace_require_llvmlite_backend"]
     },
     {
       "id": "g2-perf-phase2100-probe",

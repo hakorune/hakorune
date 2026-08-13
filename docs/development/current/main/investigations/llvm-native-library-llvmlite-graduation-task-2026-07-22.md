@@ -152,14 +152,14 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-`LLVMLITE-AUTO0-G2-CENSUS-R1` is the current design stop: the source-backed
-manifest must include auto-detected `llvm_static` selection and the root
-`tools/build_llvm.sh` selector before behavior changes. Source authority is the
-workflow/config/helper/perf/build selector itself; non-authority is labels,
-comments, and Python output. Fail-fast on an unclassified default/compat root,
-automatic harness inheritance, default llvmlite perf, fallback/retry, or G3
-deletion. Acceptance: every observed root has one class/evidence row and the
-guard is green; the perf capsule, shared smoke behavior, and G3 stay separate.
+`LLVMLITE-AUTO0-G2-CENSUS-R1` and `LLVMLITE-AUTO0-G2-PERF-ORACLE-R0` are
+closed: 17 source-backed roots are classified, the guard reports 5 pending
+roots, and default hotpath/full no longer injects the two llvmlite oracles.
+The next design stop is `LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0`. Its source
+authority is the shared smoke config/helper chain; non-authority is labels,
+comments, and Python output. Fail-fast on inherited harness defaults,
+auto-detected compat routing, fallback/retry, or G3 deletion. Shared-smoke
+behavior and G3 remain separate from the closed perf row.
 
 ### G3 — archive or delete the keep lane
 

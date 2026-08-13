@@ -114,13 +114,40 @@ def main() -> int:
         "g2-smoke-shared-env",
         "g2-smoke-runner-helper",
         "g2-perf-microbench",
-        "g2-perf-method-call-hot-trace",
-        "g2-perf-compare-expr-cse",
         "g2-smoke-static-config",
         "g2-smoke-auto-detect",
     }
     if not required_pending.issubset(pending):
         fail("known G2 blocker rows disappeared from the pending set")
+
+    bundle = read_source("tools/perf/run_phase21_5_perf_gate_bundle.sh")
+    for toggle in (
+        "PERF_GATE_METHOD_CALL_HOT_TRACE_CHECK",
+        "PERF_GATE_COMPARE_EXPR_CSE_CHECK",
+    ):
+        if toggle in bundle:
+            fail(f"perf bundle still selects oracle toggle by default: {toggle}")
+
+    selectors = {
+        "g2-perf-method-call-hot-trace": (
+            "tools/smokes/v2/profiles/integration/apps/"
+            "phase21_5_perf_method_call_hot_trace_contract_vm.sh",
+            'BACKEND="${PERF_METHOD_CALL_HOT_TRACE_BACKEND:-}"',
+        ),
+        "g2-perf-compare-expr-cse": (
+            "tools/smokes/v2/profiles/integration/apps/"
+            "phase21_5_perf_compare_expr_cse_contract_vm.sh",
+            'BACKEND="${PERF_COMPARE_EXPR_CSE_BACKEND:-}"',
+        ),
+    }
+    for row_id, (owner, empty_default) in selectors.items():
+        text = read_source(owner)
+        if empty_default not in text:
+            fail(f"{row_id}: direct oracle default is not empty")
+        if ":-llvmlite" in text:
+            fail(f"{row_id}: implicit llvmlite selector remains")
+        if "perf_hot_trace_require_llvmlite_backend" not in text:
+            fail(f"{row_id}: explicit llvmlite gate is missing")
 
     print(
         f"[{TAG}] ok (rows={len(rows)}, classes={counts}, "
