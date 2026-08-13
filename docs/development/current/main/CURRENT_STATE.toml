@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Generic C/hako_aot fail-fast is closed. The next design stop is whether Stage1 compatibility replay has any automatic ingress; explicit replay/keep remains allowed. G1 production retirement and G2/G3 remain unopened."
+current_design_stop = "Generic C/hako_aot fail-fast is closed. Stage1 clean defaults are pure-first/none with no Python child; the next design stop is whether an inherited compat_replay=harness value has an explicit Stage1 admission and receipt. G1 production retirement and G2/G3 remain unopened."
 work_mode = "design_stop"
 current_execution_row = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
-current_blocker_token = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0: census Stage1 compat_replay=harness reachability and distinguish explicit keep admission from automatic production ingress. Source authority + canonical issuer are Stage1 invocation policy, route replay selector, child command, and child evidence. Non-authority is Python output, NYASH_LLVM_USE_HARNESS alone, generic C/AOT gates already closed, explicit keep jobs, or source deletion. Fail-fast boundary is unrequested replay or missing receipt before Python child. Smallest slice: read-only census and accepted design brief; no code, fallback, provider reorder, G1/G2/G3 retirement, or deletion in design_stop."
+current_blocker_token = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0: clean Stage1 defaults are pure-first/none and do not reach Python; build_stage1/stage3 still preserve an inherited compat_replay=harness value, so explicit Stage1 admission and receipt remain unresolved. Source authority + canonical issuer are Stage1 invocation policy, stage1_contract env boundary, route replay selector, child command, and child evidence. Non-authority is Python output, NYASH_LLVM_USE_HARNESS alone, generic C/AOT gates already closed, explicit keep jobs, or source deletion. Fail-fast boundary is unrequested replay or missing receipt before Python child. Smallest slice: accept the read-only census and choose one explicit admission/receipt boundary; no code, fallback, provider reorder, G1/G2/G3 retirement, or deletion in design_stop."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: F0/plugin typed errors and generic C/hako_aot fail-fast are closed; C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and diff checks are green. Stage1 replay census remains design-stop; G1/G2/G3 are not claimed.",
+  "2026-08-14: F0/plugin typed errors and generic C/hako_aot fail-fast are closed; C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and diff checks are green. Stage1 clean default is pure-first/none with no Python child; inherited replay admission remains design-stop, G1/G2/G3 are not claimed.",
 ]
