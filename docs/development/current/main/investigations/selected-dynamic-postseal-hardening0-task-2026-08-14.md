@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, and SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0 closed; next fast row is SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; next fast row is DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 restores the selected Boundary handoff without re-opening PyVM or fallback.
+Smallest next slice: DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 proves the zero-argument launch entry and metadata-bearing selected helper as distinct identities.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -446,6 +446,13 @@ Long term, retire the no-op injector wrapper/plan/report fields after a caller
 census. If future ordinary physical normalization is required, it belongs to
 the unpublished compiler postprocess before external commit; method meaning
 belongs earlier in source/Facts/Recipe/canonical lowering.
+
+Closeout evidence (2026-08-14): selected now skips PyVM when unrequested,
+rejects an explicit PyVM request, scans the existing legacy-callsite classifier
+before backend effects, and reaches the single selected Boundary caller without
+ordinary harness/mock fallback.  Focused route/legacy-callsite tests, LLVM
+feature and default `cargo check --lib`, AOT/text/pointer guards, and diff check
+are green; selected production remains `0/old=1`.  Helper identity is next.
 
 ## Boundary design: DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
 
