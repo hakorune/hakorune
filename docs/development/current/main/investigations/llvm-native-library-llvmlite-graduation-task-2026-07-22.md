@@ -920,9 +920,14 @@ Retire zero-consumer direct Python helpers and stale wrapper APIs only after a
 source and cfg census. Do not delete shared oracle code here.
 
 ### `LLVMLITE-PROD0-G0`
-
-Required terminal counts:
-
+#### `LLVMLITE-PROD0-G0-D1-ROUTE-REQUEST-BOUNDARY` (design stop)
+Decision: separate ordinary Boundary, explicit llvmlite keep, and selected Dynamic Boundary; do not flip `llvm_use_harness()` alone.
+Source authority + canonical issuer: route plan, driver/provider/replay selection, actual child command, and selected Boundary artifact receipt.
+Non-authority: HarnessExecutorBox names, `NYASH_LLVM_USE_HARNESS` alone (legacy hint), labels, Python output, or a second lookup.
+Fail-fast boundary: unknown ingress, selected Dynamic harness/replay inheritance, native retry, generic C implicit harness, plugin `Err=>Ok(None)`, or untyped unsupported input.
+Smallest next slice: close the ingress matrix and typed ordinary/explicit-keep/selected-Boundary request policy; behavior, provider precedence, fallback, and source deletion stay unopened.
+Non-claims: `default=false` alone is not G1; ordinary compatibility and explicit keep/oracle lanes remain source-scoped.
+Required G1 acceptance after the boundary is implemented:
 ```text
 automatic production Python ingresses = 0
 default production llvmlite reachability = Unreachable
