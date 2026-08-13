@@ -103,6 +103,13 @@ DYN-PROD-BASELINE-R0
        -> LLVM-BOUNDARY-COMPAT-FEATURE-R0
   -> MAIN-INTEGRATION-EVIDENCE-R0
   -> resume LLVMLITE-ORACLE-COVERAGE-D0
+
+DYN-PROD-BASELINE-R0
+  -> GUARD-SURFACE-CONSOLIDATION-D0       # read-only inventory may proceed
+
+all selected P0 rows + accepted guard D0
+  -> GUARD-FAMILY-MANIFEST-MIGRATION-R0
+  -> GUARD-HISTORICAL-RETIRE-R0
 ```
 
 No row may be combined with another semantic family or with G3 source
@@ -115,6 +122,10 @@ Do not activate the runner reachability fix before the post-seal immutability,
 strict verifier, and compile-result fences are closed.  Making a dead route
 reachable before those barriers would expose an unverified candidate rather
 than repair production.
+
+The guard inventory/design sibling does not block P0 implementation.  Its
+file movement, wrapper retirement, and quick-profile recut wait until the
+selected P0 barriers are green so guard cleanup cannot hide a live failure.
 
 ## Row B0: DYN-PROD-BASELINE-R0
 
@@ -430,6 +441,102 @@ explicit compat feature + driver Python spawn                 = 1
 selected fallback / retry                                     = 0 / 0
 ```
 
+## Guard surface consolidation task
+
+Status: queued design sibling.  Immediate rule: new task-specific top-level
+guard scripts are frozen; accepted P0 rows extend an existing reusable family
+guard or add a real focused behavior test.
+
+### Measured baseline
+
+The 2026-08-14 tracked census is:
+
+```text
+tools/checks tracked files                         = 3,654
+tracked shell scripts                              = 3,283
+guard-named scripts                                = 2,899
+tracked shell lines                                = 345,570
+dev_gate quick steps                               = 66
+check-scripts index lines / named scripts          = 701 / 2,526
+scripts referencing historical phase docs         = 2,017
+scripts with no literal src/ owner (heuristic)     = 1,793
+k2_* + rust_lifecycle_mirbuilder_* shell scripts   = 2,570
+manifest guard rows / proof apps                   = 28 / 18
+exact duplicate script contents                    = 0
+```
+
+This is a topology problem rather than a disk-size problem.  Many scripts
+encode one historical card token or exact prose row, while the daily public
+surface and product behavior are much smaller.  Exact duplicate count zero
+means the cleanup must extract parameters into manifests; blind deduplication
+will not work.
+
+### GUARD-SURFACE-CONSOLIDATION-D0
+
+Classification: design/census only.  It changes no compiler behavior and
+deletes no proof.
+
+Decision inputs:
+
+1. Generate one source-backed inventory row for every tracked check with:
+   owner family, public callers/profiles, active-card dependency, behavior vs
+   source-authority vs codegen vs documentation-only class, unique evidence,
+   and proposed disposition.
+2. Classify each row exactly once:
+
+```text
+stable_public_entry
+family_manifest_case
+focused_behavior_test
+historical_archive
+delete_after_equivalent_coverage
+unknown_retain
+```
+
+3. Treat production graph, source authority, codegen parity, and executable
+   behavior as evidence.  A historical card's status/prose is not product
+   authority.
+4. Fix the exact current P0 guards in their owning rows.  Do not count a green
+   grep/caller census as execution reachability evidence.
+
+Done:
+
+```text
+inventory coverage / duplicate classification = 100% / 0
+unknown rows                                    = explicitly retained
+deletion / move / quick-profile behavior change = 0 / 0 / 0
+selected P0 guard additions                     = new top-level scripts 0
+```
+
+### Implementation series after selected P0 close
+
+1. `GUARD-PUBLIC-ENTRY-CUT-R0`
+   - keep only stable daily/family launchers in the human index;
+   - move historical lookup to a generated inventory plus git history.
+2. `GUARD-FAMILY-MANIFEST-MIGRATION-R0`
+   - migrate `k2_*` and `rust_lifecycle_mirbuilder_*` per-row shells first;
+   - reuse `run_row_guard.sh`/one generic runner and data-only manifests;
+   - keep behavior tests as tests rather than converting them to grep rows.
+3. `GUARD-QUICK-PROFILE-RECUT-R0`
+   - expose roughly 10--15 named groups instead of 66 individual public
+     steps, while retaining the selected behavior and authority checks inside
+     those groups;
+   - remove retired llvmlite daily dependencies only under the accepted G3
+     ownership boundary.
+4. `GUARD-HISTORICAL-RETIRE-R0`
+   - archive or delete only zero-caller wrappers with equivalent manifest,
+     source, test, or git-history coverage;
+   - unknown-owner and unique behavior rows remain.
+5. `GUARD-SURFACE-CLOSEOUT-R0`
+   - record before/after entry, file, line, quick-time, and failure-signal
+     counts;
+   - prove current P0 negatives still fail and daily gates stay green.
+
+The initial editorial target is at most about 50 human-facing stable entries,
+not a semantic hard cap.  The D0 inventory owns the exact retirement count.
+No mass deletion, blanket skip, generated always-green wrapper, or guard-only
+replacement for a behavior test is allowed.
+
 ## Main integration and G3 resume
 
 `MAIN-INTEGRATION-EVIDENCE-R0` runs in a clean detached worktree and records
@@ -518,6 +625,8 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 
 ## Cross-row stop line
 
+- Do not add a new task-specific top-level guard while an existing family
+  guard, focused test, or manifest row can own the evidence.
 - Do not turn a slot observation into a new semantic receipt.
 - Do not remove `Clone` repository-wide as an incidental fix.
 - Do not use mutation-count zero as a selected post-seal fence.
