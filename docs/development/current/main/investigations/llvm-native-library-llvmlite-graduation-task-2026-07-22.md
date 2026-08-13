@@ -88,6 +88,21 @@ This feedback is taskized by the existing G1/G2/G3 rows; it does not open a
 new backend or a new fallback lane. The rows are ordered and may not be
 collapsed into “MIRBuilder finished, therefore llvmlite is deleted”.
 
+The graduation boundary is deliberately two-dimensional:
+
+```text
+MIRBuilder / Boundary completion
+  = canonical MIR is emitted and the selected native artifact path is closed
+
+llvmlite graduation
+  = every Python ingress is censused, observed, and retired in stages
+```
+
+The first line is necessary but not sufficient for the second. A MIRBuilder
+green result must not be used as evidence for repository-wide llvmlite
+deletion. Conversely, keeping an explicit oracle does not authorize a native
+failure fallback or a second production physicalizer.
+
 ```text
 W6-E receipt and caller census
   -> LLVMLITE-PROD0-G0 (G1: automatic production retirement)
@@ -121,6 +136,13 @@ Owner: `LLVMLITE-KEEP0-RET0`, only after an independent semantic oracle,
 fixture/golden preservation, and a zero-or-archived consumer census exist.
 Source deletion is a separate approval and must preserve the source/artifact
 archive needed for historical bug reproduction. G1 and G2 never imply G3.
+
+The keep lane is frozen during G1/G2: no new semantic lowering, ABI authority,
+fallback, or production caller may be added to `src/llvm_py/**`, the harness,
+or the explicit `--driver harness` path. Its only permitted outputs are
+named compatibility/oracle evidence and preserved fixtures. A later G3
+decision must record the archive location, fixture/golden inventory, and the
+zero-or-archived consumer census before any source removal.
 
 All three rows require positive route receipts, negative fallback/retry
 evidence, and a documented red classification. Until G1 starts, the current
