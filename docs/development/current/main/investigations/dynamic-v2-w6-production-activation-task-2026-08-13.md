@@ -575,10 +575,14 @@ and traps malformed transport/Suspended/nonzero End without fallback.
 #### W6-C1-A1 — `DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0`
 
 Before C1 callout emission, carry the existing typed contract through the final
-candidate metadata without re-inference: four formal lanes, i64 return, verified
-function effect, each site result shape, lease slot, Normal-result destination,
-ABI/wire revision, and PlanStamp. Rust candidate metadata is the issuer; C/LLVM
-only checks the borrowed site-id projection. Missing or foreign facts reject before
+candidate metadata without re-inference. The existing physical-session close is
+the issuer: borrow `APrimePhysicalFunctionHeaderV1`, opened formal ValueIds,
+`ReadyFunctionDraftSealV1` return observations, and the consumed
+`CheckedCallOutPlanTableV1` once, then extend the existing projection (no parallel
+V2 product). It must carry four formal role/lane/ValueId rows, exact i64 return,
+verified function `EffectMask`, both site IDs, entry/ABI/wire, Normal shape,
+outcome/lease slots, Normal-result dst, and one PlanStamp. C/LLVM only checks
+this borrowed site-id projection; missing/foreign/swapped facts reject before
 object emission. No provider lookup, wire reinterpretation, link, RuntimePlan,
 publication, VM, fallback, or production caller is opened.
 
