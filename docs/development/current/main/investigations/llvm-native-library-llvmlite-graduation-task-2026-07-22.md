@@ -385,6 +385,26 @@ from pure-first to a generic export, and `fast-smoke` explicitly using
 `pure-first/replay=none` routes are separate observations, not proof that all
 other ingresses are Python-free.
 
+Initial source-site matrix (D0 observation, not a production decision):
+
+| source site | actual selector | Python reachability |
+| --- | --- | --- |
+| `ny-llvmc` default | Boundary driver | Unreachable observed |
+| `ny-llvmc --driver harness` | `harness_driver` | Reachable |
+| `ny-llvmc --driver native` | native canary | Unreachable observed |
+| `hako_aot_compile_json` | hard-coded `--driver harness` | Reachable |
+| `provider_keep.rs` | `HAKO_LLVM_EMIT_PROVIDER=llvmlite` | Reachable |
+| `route.rs` CAPI/default | CAPI then generic symbol fallback | Unknown until drift guard |
+| `env.codegen.emit_object/compile_ll_text` | plugin compat receiver | Unknown until child observation |
+| stage1 mainline | `pure-first`, `replay=none` | Unreachable observed |
+| `tools/ny_mir_builder.sh` llvmlite branch | explicit backend flag | Reachable keep |
+| `fast-smoke` compat job | `compat_replay=harness` | Reachable keep |
+| perf AOT helpers | reject harness/llvmlite/replay | Unreachable by policy |
+
+The D0 implementation may only turn `Unknown` into an observed classification
+or a typed stop; it may not silently reinterpret a generic C export as the
+Boundary route or change any production behavior.
+
 Create a source-derived route inventory. One row represents one exact ingress
 and carries:
 
