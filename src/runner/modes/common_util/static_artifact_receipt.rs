@@ -11,20 +11,9 @@ use std::path::Path;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+use crate::mir::StaticArtifactReceiptConsumedFenceV1;
+
 const SCHEMA_VERSION: u64 = 1;
-
-/// Borrow-free proof that one child artifact receipt passed the root validator.
-///
-/// The validator owns the only constructor.  The future W6 aggregate consumes
-/// this marker by value; receipt fields are never copied into a second root
-/// witness or reconstructed from JSON.
-#[derive(Debug)]
-pub(crate) struct StaticArtifactReceiptConsumedFenceV1 {
-    _seal: StaticArtifactReceiptConsumedFenceSealV1,
-}
-
-#[derive(Debug)]
-struct StaticArtifactReceiptConsumedFenceSealV1;
 
 pub(crate) fn consume_static_artifact_receipt(
     receipt_path: &Path,
@@ -55,9 +44,7 @@ pub(crate) fn consume_static_artifact_receipt(
             .get("symbol_census")
             .ok_or_else(|| "static artifact receipt missing symbol_census".to_owned())?,
     )?;
-    Ok(StaticArtifactReceiptConsumedFenceV1 {
-        _seal: StaticArtifactReceiptConsumedFenceSealV1,
-    })
+    Ok(StaticArtifactReceiptConsumedFenceV1::issue_from_root_validator())
 }
 
 fn validate_descriptor_against_input(descriptor: &Value, input_json: &Path) -> Result<(), String> {

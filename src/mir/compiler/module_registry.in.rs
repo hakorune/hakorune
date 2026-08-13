@@ -175,6 +175,7 @@ pub(in crate::mir) mod resolved_callable_module_preflight;
 mod resolved_direct_accum_cutover;
 #[allow(dead_code)]
 mod resolved_nested_predicate_cutover;
+pub(in crate::mir) mod selected_dynamic_w6_activation;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
 #[allow(dead_code)]
