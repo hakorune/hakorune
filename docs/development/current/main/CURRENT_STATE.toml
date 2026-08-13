@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, and declaration-mode admission are closed; the current fast row is scrubbed metadata. Subsequent rows close post-seal immutability plus strict final verification, selected runner dominance, launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership. Source-fact/header and callout/lease hardening remain grouped P1 rows. GUARD-SURFACE-CONSOLIDATION-D0 is a queued inventory sibling: new task-specific guard files are frozen, and bulk migration/retirement waits for the selected P0 barriers."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, and the linear metadata fence are closed. The current fast row is post-seal immutability plus strict final verification; subsequent rows close selected runner dominance, launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership. Source-fact/header and callout/lease hardening remain grouped P1 rows. GUARD-SURFACE-CONSOLIDATION-D0 is a queued inventory sibling: new task-specific guard files are frozen, and bulk migration/retirement waits for the selected P0 barriers."
 work_mode = "fast"
-current_execution_row = "SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0"
-current_blocker_token = "SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0: make Empty/Occupied/Consumed metadata observations distinct; reject scrubbed clones and partial selected pairs before ordinary routing. No metadata clone fallback, post-seal mutation, archive movement, deletion, or unrelated dirty compiler edit."
+current_execution_row = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0"
+current_blocker_token = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0: keep the sealed selected module immutable through compiler postprocess and consume final verification before any backend or publication effect. No selected Method-ID/optimizer/RC/refresh mutation, verifier weakening, clone fallback, archive movement, deletion, or unrelated dirty compiler edit."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Worker findings are normalized into one selected-dynamic postseal repair card with no new per-finding guard files. Lexical scope now has a typed callback transaction, fallible KeepAlive close, panic restoration, and four migrated production callers. Dynamic admission now uses the resolved declaration mode as its sole gate, with StaticBoxMethod-only probing and focused 18-test green evidence. The current next row is the Empty/Occupied/Consumed metadata fence; later postseal, runner, helper-identity, bundle-publication, and Boundary/llvmlite ownership rows remain queued. The recorded completion baseline failure is unchanged."
+latest_card_summary = "Worker findings are normalized into one selected-dynamic postseal repair card with no new per-finding guard files. Lexical scope now has a typed callback transaction, Dynamic admission is declaration-mode bounded, and the linear metadata fence now distinguishes Empty/Occupied/Scrubbed while rejecting selected clones and partial pairs before ordinary routing. Focused B1 tests, cargo check, and the AOT/text/pointer guards are green; selected production remains 0/old=1. The next row is post-seal immutability plus strict final verification; runner, helper-identity, bundle-publication, and Boundary/llvmlite ownership rows remain queued. The recorded completion baseline failure is unchanged."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0"
+next_execution_card = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -47,7 +47,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
   "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
@@ -59,4 +58,5 @@ landed_tail = [
   "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
   "2026-08-14: LEXICAL-SCOPE-SAFE-TRANSACTION-R0 replaced the production raw-pointer Drop guard with a callback-scoped transaction, fallible KeepAlive close, and exactly-once restoration across success/Err/panic; lexical (6) and block-driver (6) focused tests passed. The existing UnsafeOrFFI inventory red is stale parent-fixture debt, not this row.",
   "2026-08-14: DYN-ADMISSION-MODE-FENCE-R0 now gates Dynamic admission from the resolved declaration mode: StaticBoxMethod-only probing, Instance/TopLevel ordinary ownership, and no AST mode recheck. Package admission tests (18) and the reused TextScan authority guard are green; selected production remains 0/old=1.",
+  "2026-08-14: SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0 now exposes one private Empty/Occupied/Scrubbed observation for the paired receipt/admission slots; route census and JSON share it, selected clones and partial pairs reject, and focused tests plus AOT/text/pointer guards are green; next is post-seal immutability.",
 ]

@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, and DYN-ADMISSION-MODE-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, and SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -316,6 +316,16 @@ second install/take             -> existing one-shot rejection preserved
 
 Guard the sole production census caller and forbid selected-route module/result
 clone before census. Keep ordinary compatibility clone behavior unchanged.
+
+Closeout evidence (2026-08-14):
+
+```text
+implementation: private LinearSlotObservation + one FunctionMetadata pair view
+route/JSON: both consume the same pair observation; raw is_some census is gone
+negative: selected clone, receipt-only partial, and scrubbed JSON export reject
+checks: cargo fmt --check; cargo check --lib; focused B1 tests; AOT/text/pointer guards
+result: green; selected production remains 0/old=1; no fallback/retry/archive action
+```
 
 ## Post-seal design: SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0
 

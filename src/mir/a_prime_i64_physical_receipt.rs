@@ -6,6 +6,7 @@
 //! empty and the LLVM loader keeps the legacy path unchanged.
 
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
+use crate::mir::linear_metadata_slot::LinearSlotObservation;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeSet;
 
@@ -390,6 +391,16 @@ pub(crate) enum APrimeI64PhysicalReceiptSlotRejectV1 {
 }
 
 impl APrimeI64PhysicalReceiptSlotV1 {
+    pub(crate) fn observe(&self) -> LinearSlotObservation<'_, APrimeI64PhysicalReceiptV1> {
+        match &self.state {
+            APrimeI64PhysicalReceiptSlotState::Empty => LinearSlotObservation::Empty,
+            APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => {
+                LinearSlotObservation::Occupied(receipt)
+            }
+            APrimeI64PhysicalReceiptSlotState::Consumed => LinearSlotObservation::Scrubbed,
+        }
+    }
+
     pub(crate) fn borrow(&self) -> Option<&APrimeI64PhysicalReceiptV1> {
         match &self.state {
             APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => Some(receipt),
@@ -630,12 +641,15 @@ mod tests {
     fn receipt_slot_is_linear_and_clone_scrubs_capability() {
         let mut slot = APrimeI64PhysicalReceiptSlotV1::default();
         assert!(slot.borrow().is_none());
+        assert_eq!(slot.observe(), LinearSlotObservation::Empty);
         slot.install_for_test(valid_receipt())
             .expect("first receipt install");
         assert!(slot.borrow().is_some());
+        assert!(matches!(slot.observe(), LinearSlotObservation::Occupied(_)));
 
         let mut cloned = slot.clone();
         assert!(cloned.borrow().is_none());
+        assert_eq!(cloned.observe(), LinearSlotObservation::Scrubbed);
         assert_eq!(
             cloned.take_once(),
             Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)

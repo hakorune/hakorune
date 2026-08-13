@@ -4,6 +4,13 @@
 //! It does not select a provider, inspect MIR, or issue a semantic result.
 
 use crate::abi::text_scan_aot_export_facts::{TextScanAotEntryIdV1, TextScanValueLaneV1};
+#[cfg(test)]
+use crate::abi::text_scan_aot_export_facts::{
+    TextScanCallAbiFactV1, TextScanCallOutParameterV1, TextScanCallParameterTypeV1,
+    TextScanCallTransportReturnV1, TextScanLeaseCapabilityV1, TEXT_SCAN_CALL_ABI_REVISION_V1,
+    TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2, TEXT_SCAN_SYMBOL_INDEX_OF_V1,
+    TEXT_SCAN_SYMBOL_SUBSTRING_V1,
+};
 use crate::mir::a_prime_i64_physical_receipt::{
     APrimeI64LaneV1, APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
 };
@@ -219,6 +226,115 @@ impl DynamicV2AotCallMetadataProjectionV1 {
 
     pub(crate) const fn function_effects(&self) -> EffectMask {
         self.function_effects
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_test() -> Self {
+        let substring_abi = TextScanCallAbiFactV1 {
+            entry: TextScanAotEntryIdV1::Substring,
+            logical_arity: 2,
+            abi_revision: TEXT_SCAN_CALL_ABI_REVISION_V1,
+            out_wire_revision: TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
+            transport_return: TextScanCallTransportReturnV1::U32,
+            out_parameter: TextScanCallOutParameterV1::Required,
+            parameter_types: &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::I64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ],
+        };
+        let index_of_abi = TextScanCallAbiFactV1 {
+            entry: TextScanAotEntryIdV1::IndexOf,
+            logical_arity: 1,
+            abi_revision: TEXT_SCAN_CALL_ABI_REVISION_V1,
+            out_wire_revision: TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
+            transport_return: TextScanCallTransportReturnV1::U32,
+            out_parameter: TextScanCallOutParameterV1::Required,
+            parameter_types: &[
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::U64,
+                TextScanCallParameterTypeV1::OutPointer,
+            ],
+        };
+        let substring = TextScanEntryContractV1::from_fact(
+            TextScanAotEntryIdV1::Substring,
+            TEXT_SCAN_SYMBOL_SUBSTRING_V1,
+            2,
+            TextScanValueLaneV1::HostHandle,
+            &[
+                TextScanValueLaneV1::ImmediateI64,
+                TextScanValueLaneV1::ImmediateI64,
+            ],
+            TextScanValueLaneV1::HostHandle,
+            TextScanLeaseCapabilityV1::EndAuthorized,
+            substring_abi,
+        );
+        let index_of = TextScanEntryContractV1::from_fact(
+            TextScanAotEntryIdV1::IndexOf,
+            TEXT_SCAN_SYMBOL_INDEX_OF_V1,
+            1,
+            TextScanValueLaneV1::HostHandle,
+            &[TextScanValueLaneV1::HostHandle],
+            TextScanValueLaneV1::ImmediateI64,
+            TextScanLeaseCapabilityV1::None,
+            index_of_abi,
+        );
+        Self {
+            schema_version: 2,
+            contract_id: "hako.text.scan@1",
+            profile: 1,
+            abi_revision: 1,
+            wire_revision: TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2,
+            registry_generation: 7,
+            plan_stamp: ModuleInvocationBrandV1::test_with_ordinal(7),
+            formal_parameters: [
+                DynamicV2AotFormalProjectionV1::new(
+                    DynamicV2AotFormalRoleV1::Src,
+                    ValueId::new(0),
+                    APrimeI64LaneV1::OpaqueHandle,
+                ),
+                DynamicV2AotFormalProjectionV1::new(
+                    DynamicV2AotFormalRoleV1::Pos,
+                    ValueId::new(1),
+                    APrimeI64LaneV1::ImmediateI64,
+                ),
+                DynamicV2AotFormalProjectionV1::new(
+                    DynamicV2AotFormalRoleV1::End,
+                    ValueId::new(2),
+                    APrimeI64LaneV1::ImmediateI64,
+                ),
+                DynamicV2AotFormalProjectionV1::new(
+                    DynamicV2AotFormalRoleV1::PredChars,
+                    ValueId::new(3),
+                    APrimeI64LaneV1::OpaqueHandle,
+                ),
+            ],
+            return_lane: APrimeI64LaneV1::ImmediateI64,
+            function_effects: EffectMask::READ,
+            calls: [
+                DynamicV2AotCallSiteProjectionV1 {
+                    role: DynamicV2AotCallRoleV1::Substring,
+                    site_id: CheckedCallOutSiteIdV1(0),
+                    entry: substring,
+                    normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                    },
+                    outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1(0),
+                    normal_result_dst: ValueId::new(20),
+                    effects: EffectMask::READ,
+                },
+                DynamicV2AotCallSiteProjectionV1 {
+                    role: DynamicV2AotCallRoleV1::IndexOf,
+                    site_id: CheckedCallOutSiteIdV1(1),
+                    entry: index_of,
+                    normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
+                    outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1(1),
+                    normal_result_dst: ValueId::new(21),
+                    effects: EffectMask::READ,
+                },
+            ],
+        }
     }
 }
 

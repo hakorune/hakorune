@@ -13,6 +13,13 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
     let Some(receipt) = metadata.a_prime_i64_physical_receipt() else {
         return;
     };
+    insert_a_prime_i64_physical_receipt_value_json(obj, receipt);
+}
+
+pub(super) fn insert_a_prime_i64_physical_receipt_value_json(
+    obj: &mut serde_json::Map<String, serde_json::Value>,
+    receipt: &crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1,
+) {
     debug_assert!(receipt.validate().is_ok());
     let value = json!({
         "schema_version": receipt.schema_version(),

@@ -108,7 +108,7 @@ pub(super) fn build_mir_json_root(
         let params: Vec<_> = f.params.iter().map(|v| v.as_u32()).collect();
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
-        let mut metadata_json = build_function_metadata_json(f);
+        let mut metadata_json = build_function_metadata_json(f)?;
         if let Ok(control_edge_args) = control_edge_args {
             metadata_json["control_edge_args_v1"] = control_edge_args.to_json();
         }

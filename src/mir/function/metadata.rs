@@ -109,7 +109,7 @@ pub struct FunctionMetadata {
 
     /// Candidate-only Dynamic AOT projection. The canonical physical session
     /// installs it once; JSON borrows it without rebuilding site/ABI facts.
-    dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,
+    pub(super) dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,
 
     /// Source file location
     pub source_file: Option<String>,
@@ -606,7 +606,7 @@ pub struct FunctionMetadata {
     /// issuer and ordinary functions leave it absent. The slot is deliberately
     /// clone-scrubbing: install only after the final metadata/prepared-draft
     /// snapshot, then let the live consumer take it once.
-    a_prime_i64_physical_receipt: APrimeI64PhysicalReceiptSlotV1,
+    pub(super) a_prime_i64_physical_receipt: APrimeI64PhysicalReceiptSlotV1,
 
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.

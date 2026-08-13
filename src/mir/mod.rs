@@ -50,6 +50,7 @@ pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub mod edge_args;
+pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabulary
 pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
@@ -58,6 +59,8 @@ pub(crate) mod raw_vm_reference_contract;
 #[cfg(test)]
 #[path = "shared_loop_source_window_tests.rs"]
 pub(crate) mod shared_loop_source_window;
+#[cfg(test)]
+pub(crate) mod test_support;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,

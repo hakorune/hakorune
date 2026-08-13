@@ -6,6 +6,8 @@
 
 use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 
+use crate::mir::linear_metadata_slot::LinearSlotObservation;
+
 #[derive(Debug, PartialEq, Eq)]
 enum State {
     Empty,
@@ -46,6 +48,16 @@ pub(crate) enum DynamicV2AotMetadataSlotRejectV1 {
 }
 
 impl DynamicV2AotMetadataSlotV1 {
+    pub(crate) fn observe(
+        &self,
+    ) -> LinearSlotObservation<'_, DynamicV2AotCallMetadataProjectionV1> {
+        match &self.state {
+            State::Empty => LinearSlotObservation::Empty,
+            State::Occupied(projection) => LinearSlotObservation::Occupied(projection),
+            State::Consumed => LinearSlotObservation::Scrubbed,
+        }
+    }
+
     pub(crate) fn borrow(&self) -> Option<&DynamicV2AotCallMetadataProjectionV1> {
         match &self.state {
             State::Occupied(projection) => Some(projection),
@@ -76,7 +88,9 @@ mod tests {
     fn clone_scrubs_candidate_projection() {
         let slot = DynamicV2AotMetadataSlotV1::default();
         assert!(slot.borrow().is_none());
+        assert_eq!(slot.observe(), LinearSlotObservation::Empty);
         let clone = slot.clone();
         assert!(clone.borrow().is_none());
+        assert_eq!(clone.observe(), LinearSlotObservation::Scrubbed);
     }
 }

@@ -183,17 +183,25 @@ pub(crate) fn selected_dynamic_receipt_path(exe_out: &str) -> PathBuf {
 pub(crate) fn selected_dynamic_aot_metadata_present(
     module: &crate::mir::MirModule,
 ) -> Result<bool, String> {
+    use crate::mir::function::DynamicV2MetadataPairObservation;
+
     let mut selected = 0usize;
     for (name, function) in &module.functions {
-        let has_receipt = function.metadata.a_prime_i64_physical_receipt().is_some();
-        let has_admission = function.metadata.dynamic_v2_aot_metadata().is_some();
-        if has_receipt != has_admission {
-            return Err(format!(
-                "selected Dynamic metadata pair is partial for function {name}"
-            ));
-        }
-        if has_receipt {
-            selected += 1;
+        match function.metadata.selected_dynamic_metadata_observation() {
+            DynamicV2MetadataPairObservation::Ordinary => {}
+            DynamicV2MetadataPairObservation::Selected { .. } => {
+                selected += 1;
+            }
+            DynamicV2MetadataPairObservation::Scrubbed => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is scrubbed for function {name}"
+                ));
+            }
+            DynamicV2MetadataPairObservation::Partial => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is partial for function {name}"
+                ));
+            }
         }
     }
     match selected {
@@ -580,7 +588,9 @@ mod tests {
         with_retained_mir_path,
     };
 
-    use crate::mir::MirModule;
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+    };
 
     #[test]
     fn rejects_native_backend_selector_for_runner_route() {
@@ -608,6 +618,64 @@ mod tests {
     fn selected_dynamic_census_keeps_ordinary_module_on_generic_route() {
         let module = MirModule::new("ordinary".to_owned());
         assert!(!selected_dynamic_aot_metadata_present(&module).unwrap());
+    }
+
+    #[test]
+    fn selected_dynamic_census_rejects_scrubbed_clone() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "ParserScanLoopBox.skip_while/4".to_owned(),
+                params: vec![MirType::Unknown; 4],
+                return_type: MirType::Integer,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        function
+            .metadata
+            .install_dynamic_v2_aot_metadata_for_test(
+                crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(),
+            )
+            .expect("admission install");
+
+        let scrubbed_function = function.clone();
+        let mut module = MirModule::new("selected".to_owned());
+        module.add_function(function);
+        assert!(selected_dynamic_aot_metadata_present(&module).unwrap());
+
+        let mut cloned_module = MirModule::new("scrubbed-clone".to_owned());
+        cloned_module.add_function(scrubbed_function);
+        let error = selected_dynamic_aot_metadata_present(&cloned_module).unwrap_err();
+        assert!(error.contains("scrubbed"));
+    }
+
+    #[test]
+    fn selected_dynamic_census_rejects_partial_pair() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "partial/4".to_owned(),
+                params: vec![MirType::Unknown; 4],
+                return_type: MirType::Integer,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        let mut module = MirModule::new("partial".to_owned());
+        module.add_function(function);
+        let error = selected_dynamic_aot_metadata_present(&module).unwrap_err();
+        assert!(error.contains("partial"));
     }
 
     #[test]

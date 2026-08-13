@@ -324,6 +324,16 @@ if [[ "$(rg -n 'HarnessExecutorBox::try_execute_selected_dynamic\(module\)' \
   "$SELECTED_RUNNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected Dynamic Boundary execution caller must be unique"
 fi
+guard_expect_fixed_in_file "$TAG" 'selected_dynamic_metadata_observation()' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
+  "selected route census must consume the co-sealed linear metadata observation"
+guard_expect_fixed_in_file "$TAG" 'selected_dynamic_metadata_observation()' \
+  "$ROOT_DIR/src/runner/mir_json_emit/metadata.rs" \
+  "JSON metadata must consume the same co-sealed linear metadata observation"
+if rg -n 'a_prime_i64_physical_receipt\(\)\.is_some|dynamic_v2_aot_metadata\(\)\.is_some' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs"; then
+  guard_fail "$TAG" "selected route census must not collapse scrubbed metadata into Option::None"
+fi
 guard_expect_fixed_in_file "$TAG" 'backend: "ny_llvmc_selected_dynamic_exe"' "$SELECTED_RUNNER" \
   "selected Dynamic execution must report the dedicated Boundary backend"
 guard_expect_fixed_in_file "$TAG" 'if selected_dynamic {' "$SELECTED_RUNNER" \

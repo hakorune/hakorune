@@ -7,6 +7,7 @@
  */
 
 mod display;
+mod dynamic_metadata_observation;
 mod dynamic_v2_aot_metadata_slot;
 mod facts;
 mod fastmem;
@@ -20,6 +21,7 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub(crate) use dynamic_metadata_observation::DynamicV2MetadataPairObservation;
 pub use facts::{
     CountingLoopFact, DirectArrayExtentFact, DirectArrayExtentProofKind, FastPathObligation,
     LoopRangeFact, RangeIndexFact, RangeIndexFactOriginKind, RegionStabilityFact,

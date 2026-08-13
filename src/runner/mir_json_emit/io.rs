@@ -109,4 +109,45 @@ mod tests {
         assert!(json.contains("\"name\": \"main\""));
         std::fs::remove_file(path).expect("cleanup candidate JSON");
     }
+
+    #[test]
+    fn selected_candidate_export_rejects_scrubbed_metadata_clone() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "ParserScanLoopBox.skip_while/4".to_owned(),
+                params: vec![MirType::Unknown; 4],
+                return_type: MirType::Integer,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        function
+            .metadata
+            .install_dynamic_v2_aot_metadata_for_test(
+                crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(),
+            )
+            .expect("admission install");
+
+        let scrubbed = function.clone();
+        let mut module = MirModule::new("scrubbed-candidate".to_owned());
+        module.add_function(scrubbed);
+        let path = std::env::temp_dir().join(format!(
+            "hakorune_scrubbed_candidate_{}_{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let error = emit_mir_json_for_selected_dynamic_candidate(&module, &path)
+            .expect_err("scrubbed selected metadata must reject");
+        assert!(error.contains("invalid selected Dynamic metadata lifecycle"));
+        assert!(!path.exists());
+    }
 }
