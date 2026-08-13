@@ -13,6 +13,7 @@ mod direct_accum_adapter;
 mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
+pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
 pub(in crate::mir::builder) use draft_seal_owner::CompletedCatalogedBoxCallableDraftV1;
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
@@ -102,7 +103,6 @@ use crate::mir::{MirFunction, MirModule};
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
-use draft_seal::ReadyFunctionDraftSealV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use if_recipe_adapter::{
     admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1,

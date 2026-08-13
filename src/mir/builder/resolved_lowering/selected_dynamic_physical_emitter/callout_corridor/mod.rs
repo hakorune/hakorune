@@ -6,6 +6,7 @@
 use super::targets::DynamicV2OpaquePhysicalTargetV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::checked_callout::{CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1};
+use crate::mir::ValueId;
 
 #[derive(Debug)]
 pub(super) struct DynamicV2InstalledCallOutSitesV1 {
@@ -53,9 +54,15 @@ impl DynamicV2InstalledCallOutSitesV1 {
 #[derive(Debug)]
 pub(super) struct DynamicV2CallOutCorridorV1 {
     i6_site: CheckedCallOutSiteIdV1,
+    i6_receiver: ValueId,
+    i6_arguments: [ValueId; 2],
+    i6_result: ValueId,
     i6_normal: DynamicV2OpaquePhysicalTargetV1,
     i6_fault: DynamicV2OpaquePhysicalTargetV1,
     i7_site: CheckedCallOutSiteIdV1,
+    i7_receiver: ValueId,
+    i7_argument: ValueId,
+    i7_result: ValueId,
     i7_normal: DynamicV2OpaquePhysicalTargetV1,
     i7_fault: DynamicV2OpaquePhysicalTargetV1,
 }
@@ -63,17 +70,29 @@ pub(super) struct DynamicV2CallOutCorridorV1 {
 impl DynamicV2CallOutCorridorV1 {
     pub(super) fn new(
         i6_site: CheckedCallOutSiteIdV1,
+        i6_receiver: ValueId,
+        i6_arguments: [ValueId; 2],
+        i6_result: ValueId,
         i6_normal: DynamicV2OpaquePhysicalTargetV1,
         i6_fault: DynamicV2OpaquePhysicalTargetV1,
         i7_site: CheckedCallOutSiteIdV1,
+        i7_receiver: ValueId,
+        i7_argument: ValueId,
+        i7_result: ValueId,
         i7_normal: DynamicV2OpaquePhysicalTargetV1,
         i7_fault: DynamicV2OpaquePhysicalTargetV1,
     ) -> Self {
         Self {
             i6_site,
+            i6_receiver,
+            i6_arguments,
+            i6_result,
             i6_normal,
             i6_fault,
             i7_site,
+            i7_receiver,
+            i7_argument,
+            i7_result,
             i7_normal,
             i7_fault,
         }
@@ -81,6 +100,18 @@ impl DynamicV2CallOutCorridorV1 {
 
     pub(super) const fn i6_site(&self) -> CheckedCallOutSiteIdV1 {
         self.i6_site
+    }
+
+    pub(super) const fn i6_receiver(&self) -> ValueId {
+        self.i6_receiver
+    }
+
+    pub(super) const fn i6_arguments(&self) -> [ValueId; 2] {
+        self.i6_arguments
+    }
+
+    pub(super) const fn i6_result(&self) -> ValueId {
+        self.i6_result
     }
 
     pub(super) fn with_i6_normal<R>(
@@ -99,6 +130,18 @@ impl DynamicV2CallOutCorridorV1 {
 
     pub(super) const fn i7_site(&self) -> CheckedCallOutSiteIdV1 {
         self.i7_site
+    }
+
+    pub(super) const fn i7_receiver(&self) -> ValueId {
+        self.i7_receiver
+    }
+
+    pub(super) const fn i7_argument(&self) -> ValueId {
+        self.i7_argument
+    }
+
+    pub(super) const fn i7_result(&self) -> ValueId {
+        self.i7_result
     }
 
     pub(super) fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {

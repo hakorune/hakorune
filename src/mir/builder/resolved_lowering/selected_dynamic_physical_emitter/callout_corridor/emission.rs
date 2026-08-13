@@ -477,7 +477,6 @@ fn emit_program(
     let i6_fault = new_landing(canonical, outer, brand)?;
     let i7_normal = new_landing(canonical, outer, brand)?;
     let i7_fault = new_landing(canonical, outer, brand)?;
-    let receiver = formal_value(formals, V0)?;
     let substring_arg0 = value(values, V6, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
     let substring_arg1 = value(values, V9, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
     emit_checked_callout(
@@ -485,7 +484,7 @@ fn emit_program(
         outer,
         body_block,
         sites.i6(),
-        receiver,
+        formal_value(formals, V0)?,
         vec![substring_arg0, substring_arg1],
         i6_normal.block(),
         i6_fault.block(),
@@ -576,9 +575,15 @@ fn emit_program(
 
     let corridor = DynamicV2CallOutCorridorV1::new(
         sites.i6(),
+        receiver,
+        [substring_arg0, substring_arg1],
+        i6_projection.dst(),
         i6_normal,
         i6_fault,
         sites.i7(),
+        formal_value(formals, V3)?,
+        substring_value,
+        i7_projection.dst(),
         i7_normal,
         i7_fault,
     );

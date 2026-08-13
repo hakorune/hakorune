@@ -518,8 +518,10 @@ Smallest next slice: site-id keyed call rows; coordinates are diagnostics only
 Non-claims: no JSON/C/link/RuntimePlan/publication/caller/VM/fallback/retry.
 ```
 
-Acceptance: `receipt issuer/install/consume = 1/1/1`, site-id locator exact,
-old coordinate locator/default receipt `= 0`, production callers `new=0 old=1`.
+Acceptance: `receipt issuer/install/borrowed observer = 1/1/1`, while the
+live `take_once` consumer remains `0` until C0-B candidate metadata handoff;
+site-id locator exact, old coordinate locator/default receipt `= 0`,
+production callers `new=0 old=1`.
 
 #### W6-C0-B — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
 

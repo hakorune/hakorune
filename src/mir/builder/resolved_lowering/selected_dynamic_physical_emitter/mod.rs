@@ -6,6 +6,7 @@
 //! the production capability gate.
 
 mod callout_corridor;
+mod a_prime_receipt;
 mod continuation_backedge;
 mod fault_terminals;
 mod formal_header;
@@ -497,6 +498,39 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!("{error:?}")));
             }
         };
+        let receipt = match a_prime_receipt::issue(
+            &self.demand,
+            &self.formal_header,
+            &self.callout_corridor,
+            &ready,
+            &self.brand,
+        ) {
+            Ok(receipt) => receipt,
+            Err(error) => {
+                outer.discard_unpublished();
+                return Err(error);
+            }
+        };
+        let function = match outer
+            .builder_view_mut_for_lowering()
+            .function_state
+            .current_function
+            .as_mut()
+        {
+            Some(function) => function,
+            None => {
+                outer.discard_unpublished();
+                return Err(DynamicV2I8EmitterRejectV1::DraftSeal(
+                    "selected function missing while installing A-prime receipt".to_owned(),
+                ));
+            }
+        };
+        if let Err(error) = function.metadata.install_a_prime_i64_physical_receipt(receipt) {
+            outer.discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
+                "A-prime receipt install rejected: {error:?}"
+            )));
+        }
         let Some(outer_site) = self
             .demand
             .source_relation()

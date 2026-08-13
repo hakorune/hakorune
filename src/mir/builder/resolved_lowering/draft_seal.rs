@@ -18,6 +18,7 @@ use crate::mir::builder::emission::value_lifecycle_definition::{
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::FunctionMetadata;
+use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirType, ValueId};
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
@@ -31,9 +32,33 @@ pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
 
 #[derive(Debug)]
-pub(super) struct ReadyFunctionDraftSealV1 {
+pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {
     completion: ReadyFunctionCompletionV1,
     current_block: BasicBlockId,
+}
+
+/// Borrowed projection of the already site-keyed Completion witnesses.  This
+/// is transport evidence for the selected physical receipt; it does not issue
+/// a second return or Completion authority and cannot outlive the ready seal.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder::resolved_lowering) struct ReadyFunctionReturnObservationV1 {
+    site: SourceStmtSiteV1,
+    block: BasicBlockId,
+    value: ValueId,
+}
+
+impl ReadyFunctionReturnObservationV1 {
+    pub(in crate::mir::builder::resolved_lowering) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn value(&self) -> ValueId {
+        self.value
+    }
 }
 
 /// Detached exit-only plan used by the PREPARE0 fixtures.  It owns no live
@@ -178,6 +203,34 @@ impl ReadyFunctionDraftSealV1 {
 
     pub(super) fn into_completion(self) -> ReadyFunctionCompletionV1 {
         self.completion
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn return_observations(
+        &self,
+    ) -> Result<[ReadyFunctionReturnObservationV1; 2], String> {
+        let claims = self.completion.explicit_claims();
+        if claims.len() != 2 {
+            return Err(format!(
+                "selected Dynamic receipt requires exactly two returns, got {}",
+                claims.len()
+            ));
+        }
+        let mut observations = Vec::with_capacity(2);
+        for claim in claims {
+            let super::completion_consumption::ExplicitReturnWitnessV1::Value(witness) =
+                claim.witness()
+            else {
+                return Err("selected Dynamic receipt requires value returns".to_owned());
+            };
+            observations.push(ReadyFunctionReturnObservationV1 {
+                site: claim.site().clone(),
+                block: witness.block(),
+                value: witness.value(),
+            });
+        }
+        observations
+            .try_into()
+            .map_err(|_| "selected Dynamic return observation cardinality drift".to_owned())
     }
 }
 
