@@ -82,6 +82,50 @@ default build/CI/perf gates, and G3 separately decides source/archive removal.
 The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
 named keep/oracle lanes; they may not become a new production authority.
 
+## Post-W6 graduation acceptance matrix (DOC0, 2026-08-13)
+
+This feedback is taskized by the existing G1/G2/G3 rows; it does not open a
+new backend or a new fallback lane. The rows are ordered and may not be
+collapsed into “MIRBuilder finished, therefore llvmlite is deleted”.
+
+```text
+W6-E receipt and caller census
+  -> LLVMLITE-PROD0-G0 (G1: automatic production retirement)
+  -> LLVMLITE-AUTO0      (G2: default build/CI/perf independence)
+  -> LLVMLITE-KEEP0-RET0 (G3: source/archive retirement, separate approval)
+```
+
+### G1 — remove production reachability
+
+Owner: W6-E Boundary artifact receipt plus route/child-process census.
+
+Acceptance is all of the following: selected new caller `= 1`, selected old
+edge `= 0`, Boundary artifact receipt `= 1`, automatic Python/llvmlite
+consumer `= 0`, native failure -> harness retry `= 0`, generic C export ->
+implicit harness `= 0`, and unsupported native input becomes a typed
+fail-fast. The explicit harness/oracle roots remain available but are not
+production callers.
+
+### G2 — remove default dependency
+
+Owner: `LLVMLITE-AUTO0` ingress rows plus build/CI/perf census.
+
+Acceptance is default build Python requirement `= 0`, default execution and
+perf gates Python child count `= 0`, and every surviving llvmlite job is
+explicitly named `compat`, `oracle`, `monitor`, or `historical`. No new
+production lowering is added to the keep lane.
+
+### G3 — archive or delete the keep lane
+
+Owner: `LLVMLITE-KEEP0-RET0`, only after an independent semantic oracle,
+fixture/golden preservation, and a zero-or-archived consumer census exist.
+Source deletion is a separate approval and must preserve the source/artifact
+archive needed for historical bug reproduction. G1 and G2 never imply G3.
+
+All three rows require positive route receipts, negative fallback/retry
+evidence, and a documented red classification. Until G1 starts, the current
+MirBuilder W6 lane and its `new=0 / old=1` production state remain unchanged.
+
 ## Corrected current truth
 
 The current repository has three distinct ny-llvmc routes:
