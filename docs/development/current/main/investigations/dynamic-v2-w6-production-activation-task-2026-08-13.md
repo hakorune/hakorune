@@ -501,7 +501,46 @@ already-issued site-id projection to the candidate MIR JSON path. The second
 adds one Boundary C-ABI physicalizer. Neither row changes the production
 caller; both keep `new=0`, `old=1`.
 
-#### W6-C0 — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
+#### W6-C0-A — `DYNAMIC-V2-W6-PHYSICAL-RECEIPT-ISSUER-D0`
+
+```text
+Decision:
+  Connect the existing APrimeI64PhysicalReceiptV1 only if the canonical
+  physical session issues it once at final close; it remains transport
+  evidence and never the CheckedCallOut site locator.
+Source authority + canonical issuer:
+  Existing APrime receipt schema plus the completed CheckedCallOut census,
+  operation/lifecycle cursors, and exact-two physical close; canonical session
+  is the sole issuer.
+Non-authority:
+  test-only seal_for_test, block/instruction_index as AOT identity, JSON,
+  Python/LLVM, provider admission, selector/name lookup, or a fabricated
+  empty/default receipt.
+Fail-fast boundary:
+  missing/duplicate call rows, stale PlanStamp/site pair, incomplete
+  operation/cleanup/lease close, or post-DraftSeal install rejects before
+  metadata/backend mutation; no partial receipt is retained.
+Smallest next slice:
+  Define the minimum close-time input and one consuming issuer below the line
+  budget. If the schema requires evidence the canonical session does not own,
+  revise the projection contract; never reconstruct it from MIR block/index.
+Non-claims:
+  No candidate JSON handoff, C lowerer, static link, RuntimeExecutablePlan,
+  live publication, production caller, VM path, fallback, or retry.
+```
+
+Acceptance:
+
+```text
+canonical physical receipt issuer                         = exactly 1
+test-only receipt issuer                                  = 0 production
+receipt install/consume                                   = 1 / 1
+site-id locator from block/instruction_index               = 0
+empty/default/fabricated receipt                          = 0
+production selected caller new/old                        = 0 / 1
+```
+
+#### W6-C0-B — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
 
 ```text
 Decision:
@@ -521,12 +560,12 @@ Fail-fast boundary:
   missing retained physical evidence, or projection install after publication
   rejects the candidate before backend execution. No fallback or retry.
 Smallest next slice:
-  Add one clone-scrubbing FunctionMetadata slot/borrow path for the existing
-  owned projection, install it only from the unpublished selected session after
-  the canonical site-plan census, and call the existing JSON insertion helper
-  from build_function_metadata_json exactly once. If the selected session has
-  no already-issued physical receipt, stop at NoSafeSlice; do not fabricate a
-  receipt or rebuild it from block/index coordinates.
+  After C0-A is green, add one clone-scrubbing FunctionMetadata slot/borrow
+  path for the existing owned projection, install it only from the unpublished
+  selected session after the canonical site-plan census, and call the existing
+  JSON insertion helper from build_function_metadata_json exactly once. If
+  C0-A cannot provide an already-issued physical receipt, stop at NoSafeSlice;
+  do not fabricate a receipt or rebuild it from block/index coordinates.
 Non-claims:
   No C lowering, LLVM consumer, static link, RuntimeExecutablePlan, live
   publication, production caller, VM path, or old-edge retirement.
