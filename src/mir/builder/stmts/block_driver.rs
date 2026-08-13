@@ -4,6 +4,7 @@
 //! owns only scope lifetime, suffix-step sequencing, termination, last-value,
 //! and empty-block Void publication.
 
+use crate::mir::builder::vars::lexical_scope::try_with_lexical_scope;
 use crate::mir::builder::MirBuilder;
 use crate::mir::utils::is_current_block_terminated;
 use crate::mir::ValueId;
@@ -32,62 +33,64 @@ where
         .map(|bb| bb.as_u32())
         .unwrap_or(0);
     builder.hint_scope_enter(scope_id);
-    let _lex_scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
-    let mut last_value = None;
-    let total = port.len();
+    try_with_lexical_scope(builder, |builder| -> Result<ValueId, String> {
+        let mut last_value = None;
+        let total = port.len();
 
-    trace.emit_if(
-        "debug",
-        "build_block",
-        &format!("Processing {} statements", total),
-        trace.is_enabled(),
-    );
-
-    let mut index = 0;
-    while index < total {
         trace.emit_if(
             "debug",
             "build_block",
-            &format!(
-                "Statement {}/{}  current_block={:?}  current_function={}",
-                index + 1,
-                total,
-                builder.function_state.current_block,
-                builder
-                    .function_state
-                    .current_function
-                    .as_ref()
-                    .map(|function| function.signature.name.as_str())
-                    .unwrap_or("none")
-            ),
+            &format!("Processing {} statements", total),
             trace.is_enabled(),
         );
-        last_value = Some(port.lower_statement(builder, index)?);
-        index += 1;
 
-        if is_current_block_terminated(builder)? {
+        let mut index = 0;
+        while index < total {
             trace.emit_if(
                 "debug",
                 "build_block",
-                &format!("Block terminated after statement {}", index),
+                &format!(
+                    "Statement {}/{}  current_block={:?}  current_function={}",
+                    index + 1,
+                    total,
+                    builder.function_state.current_block,
+                    builder
+                        .function_state
+                        .current_function
+                        .as_ref()
+                        .map(|function| function.signature.name.as_str())
+                        .unwrap_or("none")
+                ),
                 trace.is_enabled(),
             );
-            break;
-        }
-    }
+            last_value = Some(port.lower_statement(builder, index)?);
+            index += 1;
 
-    let output = match last_value {
-        Some(value) => value,
-        None => crate::mir::builder::emission::constant::emit_void(builder)?,
-    };
-    if !builder.is_current_block_terminated() {
-        builder.hint_scope_leave(scope_id);
-    }
-    trace.emit_if(
-        "debug",
-        "build_block",
-        &format!("Completed, returning value {:?}", output),
-        trace.is_enabled(),
-    );
-    Ok(output)
+            if is_current_block_terminated(builder)? {
+                trace.emit_if(
+                    "debug",
+                    "build_block",
+                    &format!("Block terminated after statement {}", index),
+                    trace.is_enabled(),
+                );
+                break;
+            }
+        }
+
+        let output = match last_value {
+            Some(value) => value,
+            None => crate::mir::builder::emission::constant::emit_void(builder)?,
+        };
+        if !builder.is_current_block_terminated() {
+            builder.hint_scope_leave(scope_id);
+        }
+        trace.emit_if(
+            "debug",
+            "build_block",
+            &format!("Completed, returning value {:?}", output),
+            trace.is_enabled(),
+        );
+        Ok(output)
+    })
+    .map_err(|error| error.to_string())
 }

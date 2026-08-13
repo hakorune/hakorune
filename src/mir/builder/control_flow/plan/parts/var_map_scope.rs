@@ -1,4 +1,5 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::vars::lexical_scope::try_with_lexical_scope;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 use std::collections::{BTreeMap, BTreeSet};
@@ -49,9 +50,8 @@ where
     let scope_locals = collect_scope_local_vars(body);
 
     let mut scoped_bindings = branch_bindings.clone();
-    builder.push_lexical_scope();
-    let result = f(builder, &mut scoped_bindings);
-    builder.pop_lexical_scope();
+    let result = try_with_lexical_scope(builder, |builder| f(builder, &mut scoped_bindings))
+        .map_err(|error| error.to_string());
 
     builder.function_state.variable_ctx.variable_map = pre_builder_map.clone();
     *branch_bindings = pre_bindings.clone();

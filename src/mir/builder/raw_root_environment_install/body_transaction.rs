@@ -113,24 +113,29 @@ impl InstalledRawRootEnvironmentV1 {
                 }
             }
         };
-        let lower_result = {
-            let builder = session.builder_mut();
-            let _scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
-            match recipe.script() {
-                Some(script) => builder
-                    .lower_script_body_recipe_v1(script)
-                    .map(RawBodyLoweringResultV1::Script)
-                    .map_err(|error| error.to_string()),
-                None => builder
-                    .lower_linear_scalar_recipe_v1(&recipe)
-                    .map(|result| match recipe.entry().route() {
-                        RawRootBodyRouteV1::Script => RawBodyLoweringResultV1::Script(
-                            legacy_script_terminal_from_root_result(builder, result),
-                        ),
-                        RawRootBodyRouteV1::AppMain0 { .. } => RawBodyLoweringResultV1::App(result),
-                    }),
-            }
-        };
+        let lower_result =
+            {
+                let builder = session.builder_mut();
+                super::super::vars::lexical_scope::try_with_lexical_scope(builder, |builder| {
+                    match recipe.script() {
+                        Some(script) => builder
+                            .lower_script_body_recipe_v1(script)
+                            .map(RawBodyLoweringResultV1::Script)
+                            .map_err(|error| error.to_string()),
+                        None => builder
+                            .lower_linear_scalar_recipe_v1(&recipe)
+                            .map(|result| match recipe.entry().route() {
+                                RawRootBodyRouteV1::Script => RawBodyLoweringResultV1::Script(
+                                    legacy_script_terminal_from_root_result(builder, result),
+                                ),
+                                RawRootBodyRouteV1::AppMain0 { .. } => {
+                                    RawBodyLoweringResultV1::App(result)
+                                }
+                            }),
+                    }
+                })
+                .map_err(|error| error.to_string())
+            };
         let lowered = match lower_result {
             Ok(lowered) => lowered,
             Err(error) => {

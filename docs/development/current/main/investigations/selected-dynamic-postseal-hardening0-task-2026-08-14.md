@@ -1,5 +1,5 @@
 ---
-Status: Accepted; DYN-PROD-BASELINE-R0 closed; next fast row is LEXICAL-SCOPE-SAFE-TRANSACTION-R0
+Status: Accepted; DYN-PROD-BASELINE-R0 and LEXICAL-SCOPE-SAFE-TRANSACTION-R0 closed; next fast row is DYN-ADMISSION-MODE-FENCE-R0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -189,11 +189,19 @@ Change:
 Done:
 
 ```text
-lexical_scope production unsafe / raw pointer lifetime claim = 0 / 0
-success / Err / panic restore count                           = 1 / 1 / 1
+lexical_scope.rs production unsafe / raw pointer lifetime    = 0 / 0
+success / Err / panic restoration tests                      = 1 / 1 / 1
 injected KeepAlive close failure                             = typed error
+production callers migrated to scoped transaction           = 4
 scope chronology / Recipe / CFG / accepted source delta      = 0
 ```
+
+Evidence: `cargo check -q --lib`, lexical-scope focused tests (6 passed), and
+block-driver focused tests (6 passed).  The legacy Drop guard is isolated in a
+`#[cfg(test)]` compatibility module; production lowering has no raw pointer or
+Drop-owned scope.  The existing UnsafeOrFFI inventory guard remains a known
+baseline-red check because its parent task-order fixture is stale; that red is
+not attributed to this row.
 
 Stop if an escape-proof API cannot preserve current callers without changing
 scope or KeepAlive meaning; return to a bounded ownership design instead of

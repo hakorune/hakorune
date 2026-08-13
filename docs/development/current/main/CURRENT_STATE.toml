@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed, but a worker audit invalidated the claimed end-to-end selected launch. The selected runner currently exits at the PyVM nonconsumer fence before Boundary, final module verification can be discarded, Boundary selects the zero-argument launch entry while selected metadata belongs to a helper, Dynamic admission is not declaration-mode bounded, and LexicalScopeGuard has an unsound safe raw-pointer API. These P0 corrections join the four accepted post-W6 hardening rows; G3 oracle/archive work and main integration remain parked."
+status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed, but a worker audit invalidated the claimed end-to-end selected launch. The selected runner currently exits at the PyVM nonconsumer fence before Boundary, final module verification can be discarded, Boundary selects the zero-argument launch entry while selected metadata belongs to a helper, and Dynamic admission is not declaration-mode bounded. The lexical-scope raw-pointer API is now replaced by a typed scoped transaction; the remaining P0 corrections join the accepted post-W6 hardening rows. G3 oracle/archive work and main integration remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
 current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG. DYN-PROD-BASELINE-R0 remains the bounded behavior-neutral entry; subsequent rows close lexical-scope safety, declaration-mode admission, scrubbed metadata, post-seal immutability plus strict final verification, selected runner dominance, launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership. GUARD-SURFACE-CONSOLIDATION-D0 is a queued inventory sibling: new task-specific guard files are frozen now, but bulk migration/retirement waits for the selected P0 barriers."
 work_mode = "fast"
-current_execution_row = "LEXICAL-SCOPE-SAFE-TRANSACTION-R0"
-current_blocker_token = "LEXICAL-SCOPE-SAFE-TRANSACTION-R0: replace the lifetime-free raw-pointer LexicalScopeGuard with a typed scoped transaction, propagate KeepAlive close failure, and prove success/error/panic restoration exactly once. No Recipe, CFG, source acceptance, fallback/retry, archive movement, deletion, or unrelated dirty compiler edit."
+current_execution_row = "DYN-ADMISSION-MODE-FENCE-R0"
+current_blocker_token = "DYN-ADMISSION-MODE-FENCE-R0: use resolved declaration mode as the sole Dynamic admission gate; lend only StaticBoxMethod rows, keep Instance/TopLevel ordinary-owned, and reject unsupported modes before Dynamic Facts. No AST mode recheck, fallback/retry, archive movement, deletion, or unrelated dirty compiler edit."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Expanded worker audit found that the selected route is not yet end-to-end executable and taskized the full P0 repair DAG. B0 synchronized the TextScan admission definition/focused/production caller census, owner README, and check index; both HEAD and parent reproduce the recorded completion baseline failure. Guard-surface census measured 3,654 tracked check files and 2,899 guard-named scripts; bulk cleanup remains queued behind selected P0 correctness."
+latest_card_summary = "Expanded worker audit found that the selected route is not yet end-to-end executable and taskized the full P0 repair DAG. B0 synchronized the TextScan admission census and owner docs; the lexical-scope row now has a typed callback transaction, fallible KeepAlive close, panic restoration, four migrated production callers, and focused green tests. The recorded completion baseline failure remains unchanged; guard-surface cleanup and later P0 rows stay queued."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "LEXICAL-SCOPE-SAFE-TRANSACTION-R0"
+next_execution_card = "DYN-ADMISSION-MODE-FENCE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -58,5 +58,5 @@ landed_tail = [
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
   "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
-  "2026-08-14: G1 selected-runner fence code landed, but the post-W6 worker audit found its selected branch exits before Boundary; the prior early-return dominance claim is invalidated and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 owns the correction. Ordinary explicit PyVM/compat remains separate.",
+  "2026-08-14: LEXICAL-SCOPE-SAFE-TRANSACTION-R0 replaced the production raw-pointer Drop guard with a callback-scoped transaction, fallible KeepAlive close, and exactly-once restoration across success/Err/panic; lexical (6) and block-driver (6) focused tests passed. The existing UnsafeOrFFI inventory red is stale parent-fixture debt, not this row.",
 ]

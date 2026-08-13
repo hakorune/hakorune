@@ -106,17 +106,20 @@ impl OpenScriptPhysicalEntrySessionV1 {
         mut self,
         recipe: &RawScriptBodyRecipeV1,
     ) -> Result<CompletedScriptPhysicalFunctionV1, (Self, ScriptPhysicalEntrySessionErrorV1)> {
-        let terminal = {
-            let scope =
-                super::super::vars::lexical_scope::LexicalScopeGuard::new(&mut self.candidate);
-            let lowered = self
-                .candidate
-                .lower_script_body_recipe_v1(recipe)
-                .map_err(|error| ScriptPhysicalEntrySessionErrorV1::Lowering(error.to_string()));
-            drop(scope);
-            match lowered {
-                Ok(terminal) => terminal,
-                Err(error) => return Err((self, error)),
+        let terminal = match super::super::vars::lexical_scope::try_with_lexical_scope(
+            &mut self.candidate,
+            |candidate| {
+                candidate
+                    .lower_script_body_recipe_v1(recipe)
+                    .map_err(|error| error.to_string())
+            },
+        ) {
+            Ok(terminal) => terminal,
+            Err(error) => {
+                return Err((
+                    self,
+                    ScriptPhysicalEntrySessionErrorV1::Lowering(error.to_string()),
+                ))
             }
         };
         let prepared = match PreparedScriptPhysicalExitCoreV1::prepare(

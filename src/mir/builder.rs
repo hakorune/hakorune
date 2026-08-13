@@ -726,7 +726,7 @@ mod binding_id_tests {
         let mut builder = MirBuilder::new();
 
         // Simulate function entry scope
-        builder.push_lexical_scope();
+        builder.push_lexical_scope_for_test();
 
         // Declare outer x
         // Phase 136 P0: Use SSOT allocator for function scope simulation
@@ -739,7 +739,7 @@ mod binding_id_tests {
         assert_eq!(outer_bid.raw(), 0);
 
         // Enter inner scope and shadow x
-        builder.push_lexical_scope();
+        builder.push_lexical_scope_for_test();
         // Phase 136 P0: Use SSOT allocator for function scope simulation
         let inner_vid = builder.next_value_id();
         builder
@@ -750,14 +750,14 @@ mod binding_id_tests {
         assert_eq!(inner_bid.raw(), 1);
 
         // Exit inner scope - should restore outer binding
-        builder.pop_lexical_scope();
+        builder.pop_lexical_scope_for_test();
         // Phase 2-6: Check binding_ctx (SSOT)
         let restored_bid = builder.function_state.binding_ctx.lookup("x").unwrap();
         assert_eq!(restored_bid, outer_bid);
         assert_eq!(restored_bid.raw(), 0);
 
         // Cleanup
-        builder.pop_lexical_scope();
+        builder.pop_lexical_scope_for_test();
     }
 
     #[test]
