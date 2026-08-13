@@ -15,6 +15,11 @@ guard_require_files "$TAG" \
   "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
   "$ROOT_DIR/docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
+BRAND_PORT="$ROOT_DIR/src/mir/builder/module_lowering_invocation.rs"
+RAW_CHILD="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
+COLLECTOR="$ROOT_DIR/src/mir/builder/module_draft_collector.rs"
+guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"
+
 ADMISSION_DIR="$ROOT_DIR/src/box_callable/provider_admission"
 
 for file in "$ADMISSION_DIR"/*.rs; do
@@ -43,6 +48,19 @@ if rg -n 'NonZeroU64|registry_generation[[:space:]]*:' \
 fi
 if [[ "$(rg -n 'AdmittedTextScanRegistryV1::new' "$ADMISSION_DIR/seal.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "the admitted registry must be constructed by the seal exactly once"
+fi
+if [[ "$(rg -n 'with_invocation_brand<R>' "$BRAND_PORT" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "module port must expose exactly one invocation-brand callback"
+fi
+if [[ "$(rg -n 'with_invocation_brand<R>' "$RAW_CHILD" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "raw child port must delegate exactly one invocation-brand callback"
+fi
+if [[ "$(rg -n 'receipt_brand\(\)' "$BRAND_PORT" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "module brand callback must source the collector receipt brand"
+fi
+if rg -n 'ModuleInvocationBrandV1::(legacy_test|test_with_ordinal)' \
+  "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"; then
+  guard_fail "$TAG" "production brand transport must not mint a test brand"
 fi
 
 if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \

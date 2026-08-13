@@ -13,10 +13,48 @@ use super::recursive_child_lowering::{
 use super::recursive_child_lowering_rawport_tests::{
     birth_collector, collector, collector_with_return_type, instructions, int, new_expr,
 };
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::{
     BasicBlockId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirModule,
     MirType,
 };
+
+#[test]
+fn raw_invocation_port_lends_collector_brand_once() {
+    let brand = ModuleInvocationBrandV1::legacy_test();
+    let mut builder = MirBuilder::new();
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        ModuleDraftCollectorV1::with_brand(brand),
+    );
+    invocation.with_module_port(|_builder, module_port| {
+        let port = RawInvocationChildPortV1::new(module_port);
+        let observed = port
+            .with_invocation_brand(|observed| observed)
+            .expect("branded collector");
+        assert_eq!(observed, brand);
+    });
+}
+
+#[test]
+fn raw_invocation_port_rejects_unbranded_collector_before_callback() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, collector());
+    invocation.with_module_port(|_builder, module_port| {
+        let port = RawInvocationChildPortV1::new(module_port);
+        let mut called = false;
+        let error = port
+            .with_invocation_brand(|_| {
+                called = true;
+            })
+            .expect_err("unbranded collector must reject");
+        assert_eq!(
+            error,
+            super::module_draft_collector::CollectorReceiptBrandErrorV1::CollectorUnbranded
+        );
+        assert!(!called);
+    });
+}
 
 #[test]
 fn raw_invocation_port_reborrows_one_collector_backed_header_view() {

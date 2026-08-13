@@ -335,7 +335,12 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
     }
 }
 
-pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'program>(
+/// Consume one invocation-owned brand inside the selected admission seam.
+/// Production callers must obtain `plan_stamp` through the collector-backed
+/// HRTB on `RawInvocationChildPortV1`; this helper never issues a brand.
+pub(in crate::mir::builder) fn issue_selected_dynamic_v2_physical_capability_admission_from_brand<
+    'program,
+>(
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
     plan_stamp: ModuleInvocationBrandV1,
 ) -> Result<
@@ -360,6 +365,17 @@ pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'p
         aot,
         disposition: DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect,
     })
+}
+
+#[cfg(test)]
+pub(in crate::mir) fn issue_selected_dynamic_v2_physical_capability_admission<'program>(
+    plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
+    plan_stamp: ModuleInvocationBrandV1,
+) -> Result<
+    SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program>,
+    SelectedDynamicV2PhysicalCapabilityRejectV1,
+> {
+    issue_selected_dynamic_v2_physical_capability_admission_from_brand(plan, plan_stamp)
 }
 
 fn issue_compare_i64_demand(

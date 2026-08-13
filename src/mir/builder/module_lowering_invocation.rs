@@ -19,6 +19,7 @@ use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPort
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use crate::ast::ASTNode;
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
@@ -209,6 +210,20 @@ impl ModuleLoweringPortV1<'_> {
             collector,
             _seal: ModuleLoweringPortSealV1,
         }
+    }
+
+    /// Lend the invocation-owned collector brand for one non-escaping use.
+    /// The collector is the sole source; an unbranded invocation cannot enter
+    /// a brand-sensitive admission boundary.
+    pub(in crate::mir::builder) fn with_invocation_brand<R>(
+        &self,
+        observe: impl FnOnce(ModuleInvocationBrandV1) -> R,
+    ) -> Result<R, CollectorReceiptBrandErrorV1> {
+        let brand = self
+            .collector
+            .receipt_brand()
+            .ok_or(CollectorReceiptBrandErrorV1::CollectorUnbranded)?;
+        Ok(observe(brand))
     }
 
     pub(in crate::mir::builder) fn with_headers<R>(

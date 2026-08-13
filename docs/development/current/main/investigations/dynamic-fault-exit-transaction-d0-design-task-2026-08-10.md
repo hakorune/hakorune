@@ -29,9 +29,10 @@ CodePoint entries, checked CallOut ABI, generation-aware neutral lease owner,
 test-only metadata/link facts, the complete unpublished physical session,
 exact-two DraftSeal preparation, cataloged Box-method collector handoff, and
 the selected adapter input/admission loan are landed. Raw generation input is
-removed, but the collector-brand callback transport is the selected next
-BoxShape. Production still uses the selected raw AST/JoinIR edge and every
-production CheckedCallOut/LLVM/link caller remains zero.
+removed, and the collector-brand callback transport is now landed as a
+BoxShape. Selected admission consumption remains W6-only. Production still
+uses the selected raw AST/JoinIR edge and every production
+CheckedCallOut/LLVM/link caller remains zero.
 
 Next ordered task: `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-TRANSPORT-R0`.
 After this transport closes, `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` is the only
@@ -576,20 +577,20 @@ disposition must reject before Builder/session/collector mutation. The
 admitted brand, collector brand, and eventual CheckedCallOut PlanStamp must
 compare equal. W6 keeps provider/runtime/LLVM production callers at zero.
 
-Smallest next slice: add `ModuleLoweringPortV1::with_invocation_brand`, a
-`RawInvocationChildPortV1` delegate, and consume the HRTB callback immediately
-at selected provider admission. The callback must reject an unbranded
-collector, cannot escape or store the brand, and does not add a new durable
-receipt. Keep the canary and all production callers unchanged; the next
-consumer remains the complete W6 activation cell.
+Smallest next slice: this BoxShape lands
+`ModuleLoweringPortV1::with_invocation_brand` and its
+`RawInvocationChildPortV1` delegate, with an unbranded negative. The callback
+cannot escape or store the brand and does not add a new durable receipt.
+Selected admission must consume this callback only inside the complete W6
+activation cell; the canary and all production callers remain unchanged.
 
-Acceptance: production issuer/delegate/consumer = collector callback/module
-port/raw child port/selected admission exactly once; the callback has no raw
-brand constructor or escape; admitted registry and PlanStamp share the exact
-collector brand; generation is only an ordinal projection; unbranded,
-foreign/stale/zero brand negatives are green; raw generation input and
-test-only `legacy_test()` are production callers = 0. This BoxShape does not
-open W6 production execution.
+Acceptance: collector callback issuer and raw-child delegate are exactly one;
+the callback has no raw brand constructor or escape; unbranded rejection is
+green; selected admission consumer remains W6-only; admitted registry and
+PlanStamp must share the exact collector brand when W6 opens; generation is
+only an ordinal projection; raw generation input and test-only `legacy_test()`
+are production callers = 0. This BoxShape does not open W6 production
+execution.
 Non-claims: successful W6 activation, strict leaf/link cutover, collector
 publication, old-edge retirement, or RuntimeExecutablePlan activation.
 

@@ -42,8 +42,10 @@ pub(in crate::mir) use selected_dynamic_physical_abi::{
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,
     PreparedSelectedDynamicV2EmissionPlanV1, SelectedDynamicV2PhysicalPlanRejectV1,
 };
+#[cfg(test)]
+pub(in crate::mir) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission;
+pub(in crate::mir::builder) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission_from_brand;
 pub(in crate::mir) use selected_dynamic_physical_capability::{
-    issue_selected_dynamic_v2_physical_capability_admission,
     DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
     DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };

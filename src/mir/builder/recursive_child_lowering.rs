@@ -358,6 +358,15 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.module_port.with_headers(observe)
     }
 
+    /// Delegate the invocation-owned brand without retaining it in the raw
+    /// child port. This keeps provider admission tied to its collector.
+    pub(in crate::mir::builder) fn with_invocation_brand<R>(
+        &self,
+        observe: impl FnOnce(crate::mir::module_invocation_identity::ModuleInvocationBrandV1) -> R,
+    ) -> Result<R, super::module_draft_collector::CollectorReceiptBrandErrorV1> {
+        self.module_port.with_invocation_brand(observe)
+    }
+
     /// Transport one parser-issued method observation through the raw child
     /// port for exactly one callable lowering scope.  This is diagnostic
     /// provenance only; it never selects a route or repairs source identity.
