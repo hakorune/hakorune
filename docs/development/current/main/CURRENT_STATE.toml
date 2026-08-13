@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, W6-E-D0-B receipt transport, single selected-metadata Boundary runner census, receipt-fence handoff, and explicit selected NyRT archive handoff are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; C6 final live publication is a design stop."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, W6-E-D0-B receipt transport, single selected-metadata Boundary runner census, receipt-fence handoff, and explicit selected NyRT archive handoff are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; the final live activation is the selected R0 implementation row."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-E-C6 is closed. Keep compiler MIR-module publication and backend executable publication as two ordered transactions: existing NormalDefaultPublishedPipelineV1/external-commit owns the MirModule, Boundary/static-artifact receipt owns the executable. Final live publication remains a design stop; no cross-process rollback or second backend is introduced."
-work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0"
-current_blocker_token = "W6-E-FINAL-LIVE-PUBLICATION-D0: decide the final live-publication boundary without adding an authority. Source: selected package/admission -> canonical DraftSeal/collector -> existing root external commit; artifact: Boundary/static-link receipt. Non-authority: test canary, runner census, child JSON, RuntimeExecutablePlan, llvmlite, VM, fallback/retry. Fail before executable/live install on metadata, receipt, digest, ABI/wire, PlanStamp, or old-edge census drift. Smallest slice: accept the two-transaction order and exact selected/old/ordinary caller census."
+current_design_stop = "W6-E-C6 and the final publication boundary design are closed. The selected R0 must reuse the existing root MirModule external commit and Boundary/static-artifact receipt transactions in order; no cross-process rollback or second backend is introduced."
+work_mode = "fast"
+current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0"
+current_blocker_token = "W6-E-FINAL-LIVE-ACTIVATION-R0: implement one selected activation over the existing two transaction owners. Source: sealed selected package/admission -> canonical DraftSeal/collector -> NormalDefaultPublishedPipelineV1 external commit. Artifact: published MirModule -> Boundary/static-link receipt -> existing artifact publication/launch. Non-authority: test canary, child JSON, RuntimeExecutablePlan, llvmlite, VM, fallback/retry, or a third coordinator. Fail before caller/artifact mutation on brand/key/site/ABI/wire/descriptor/digest/link/receipt drift or pre/post census mismatch. Smallest slice: pre-state new=0 old=1 ordinary=1; commit the existing owners once; post-state new=1 old=0 ordinary=1. Non-claims: no cross-process rollback and no G1/G2/G3 llvmlite retirement."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed and unpublished. C6 shared LLVM-ingress materialization and its scoped census are green. The remaining D0 is the two-transaction final live-publication boundary; ordinary compatibility remains source-scoped and final publication is closed."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed. C6 shared LLVM-ingress materialization and its scoped census are green. The active row is the final live activation over the two existing publication owners; ordinary compatibility remains source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3/C4/D0-D and C5 are landed; C6 shared SourceBacked|Compatibility materialization is implemented, README-synchronized, and green under focused tests/guards. The next design stop fixes the two-transaction final live-publication boundary; final caller switch and llvmlite G1 remain closed."
-next_design_card = "DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0"
+latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3/C4/D0-D and C5 are landed; C6 shared SourceBacked|Compatibility materialization is implemented, README-synchronized, and green under focused tests/guards. The next R0 reuses the two existing publication owners for the final selected caller/artifact activation; llvmlite G1 remains closed."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0"
+next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

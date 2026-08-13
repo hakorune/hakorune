@@ -48,14 +48,15 @@ consume the static artifact receipt before live executable publication. No
 RuntimeExecutablePlan, llvmlite fallback, second collector, or cross-process
 rollback claim is opened here.
 
-## `DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0`
+## `DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0`
 
 ```text
 Decision:
   Keep compiler MIR-module publication and backend executable publication as
-  two ordered transactions. Fix the CatalogedBoxMethod mixed normal drain, use a
-  static link receipt rather than RuntimeExecutablePlan, and name one
-  temporary-artifact observation/publication owner before W6 code starts.
+  two ordered transactions. “Live” means the selected compiler route publishes
+  the MirModule through the existing root owner, then the selected Boundary
+  route validates and publishes the static artifact through its existing owner.
+  Reuse both owners; do not add a third transaction or receipt.
 Source authority + canonical issuer:
   The existing selected package/admission loan, canonical DraftSeal,
   ModuleDraftCollector/ModuleBuilderInvocationSession, published MirModule,
@@ -72,14 +73,13 @@ Fail-fast boundary:
   missing/duplicate defined strict symbol rejects executable publication.
   Neither failure may enter fallback.
 Smallest next slice:
-  Accept this publication split, the exact mixed normal collector drain, and the
-  explicit link ABI plus static artifact observation/publication owner; then
-  execute the BoxShape source split.
+  Implement one root-owned activation using the existing candidate/external
+  commit and static-artifact receipt owners, with pre-state new=0/old=1 and
+  post-state new=1/old=0 while ordinary compatibility remains 1.
 Non-claims:
-  No production caller, LLVM/C physicalizer, executable publication, old-edge
-  deletion, fallback/retry, or VM parity is authorized by this D0.
+  No cross-process rollback, RuntimeExecutablePlan, second backend, llvmlite
+  G1/G2/G3 retirement, or ordinary compatibility retirement is claimed here.
 ```
-
 ### Why the publication boundary is two transactions
 
 The global pipeline SSOT is normative:
@@ -720,33 +720,33 @@ Non-claims:
   durable old-edge witness product.
 ```
 
-#### W6-E-D0 — `DYNAMIC-V2-W6-CROSS-CRATE-HANDOFF-D0` (design stop)
+#### W6-E-D0-HISTORY — `DYNAMIC-V2-W6-CROSS-CRATE-HANDOFF-D0` (closed predecessor)
 
-The prepared aggregate is not implementable until the Builder crate and the
-separate `ny-llvmc` process have one explicit candidate/artifact handoff. Do
-not invent a local receipt, re-open the old lowering route, or switch a caller
-as a workaround.
+This is the closed cross-crate handoff predecessor. Do not resume it as a
+second current frontier or invent a local receipt, re-open the old lowering
+route, or switch a caller as a workaround.
 
 ```text
-Decision: keep W6-E closed at a cross-process handoff design stop.
+Decision: the cross-process handoff predecessor is closed; R0 consumes its
+  existing site-id candidate and receipt channels without reopening semantics.
 Source authority + canonical issuer: selected package/admission -> canonical
   session/DraftSeal/collector; ny-llvmc -> static artifact receipt.
 Non-authority: raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan,
   llvmlite, VM, fallback, retry, and reconstructed receipt/PlanStamp.
 Fail-fast boundary: candidate brand/key/site metadata must match the Boundary
   descriptor, archive, digest, ABI/wire, and root R4 census before rename.
-Smallest next slice: define one site-id MIR-JSON handoff for selected physical
-  metadata and one dedicated child receipt channel; let ny-llvmc consume the
-  input once through prepare -> published receipt, without semantic
-  re-selection or old-edge witness transport.
-Non-claims: no production caller, old-edge deletion, or final publication yet.
+Smallest next slice: R0 consumes the existing site-id MIR-JSON handoff and
+  dedicated child receipt once, then reuses the two publication owners without
+  semantic re-selection or old-edge witness transport.
+Non-claims: no third transaction, rollback, or new receipt authority.
 ```
 
-D0 exit requires: selected caller exactly one, selected Dynamic old edge zero,
-ordinary compatibility edge explicitly preserved, one ny-llvmc prepare/receipt/
-rename consumer, PlanStamp or candidate-digest co-seal across the process
-boundary, and focused positive/negative/rename-failure evidence. Until then
-`new=0`, `old=1`, fallback/retry/VM=0 remain mandatory.
+Historical D0 exit receipt: selected caller exactly one, selected Dynamic old
+edge zero, ordinary compatibility edge explicitly preserved, one ny-llvmc
+prepare/receipt/rename consumer, PlanStamp or candidate-digest co-seal across
+the process boundary, and focused positive/negative/rename-failure evidence.
+R0 must preserve these checks while moving the live caller switch into the
+existing owners.
 
 #### W6-E-D0-A — `DYNAMIC-V2-W6-ROOT-CENSUS-POLICY-D0` (accepted)
 
@@ -964,8 +964,8 @@ Python/native/harness/VM production physicalizer         = 0
 CatalogedBoxMethod mixed normal drain                    = 1
 static artifact receipt post-link issuer                 = 1
 RuntimeExecutablePlan production issuer                  = 0
-selected pre-C6 live caller census                       = 0 / 1
-selected final live caller switch                        = design stop
+selected pre-final-live caller census                     = 0 / 1
+selected final live caller switch                         = W6-E-FINAL-LIVE-ACTIVATION-R0
 ```
 
 ## Post-cutover queue
