@@ -138,7 +138,7 @@ W6-E receipt and caller census
   -> LLVMLITE-KEEP0-RET0 (G3: source/archive retirement, separate approval)
 ```
 
-### G1 — remove production reachability
+### G1 — remove production reachability (`LLVMLITE-PROD0-G1-REACHABILITY-R0`)
 
 Owner: W6-E Boundary artifact receipt plus route/child-process census.
 

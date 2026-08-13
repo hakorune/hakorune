@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, and hako_aot FFI replay admissions are closed; the next design stop is staged llvmlite production retirement. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, and G0 llvmlite ingress census are closed; the next design stop is G1 automatic production reachability retirement. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LLVMLITE-PROD0-G0-CENSUS-R0 is accepted as a behavior-neutral source census. Build the manifest and reusable guard before opening G1; G2/G3, route behavior, and source deletion remain closed."
-work_mode = "fast"
-current_execution_row = "LLVMLITE-PROD0-G0-CENSUS-R0"
-current_blocker_token = "LLVMLITE-PROD0-G0-CENSUS-R0: build one source-backed matrix for every active Python/llvmlite ingress, retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root. Source authority is caller/child-process ownership plus the W6 Boundary receipt. Non-authority is environment names, static labels, Python output, and archive-only code. Fail-fast on any unclassified caller, native-failure retry, or automatic child path. Acceptance: production=0, explicit keep roots enumerated, every row has positive/negative evidence, and a reusable guard; no route behavior or source deletion."
+current_design_stop = "LLVMLITE-PROD0-G1-REACHABILITY-R0 is the next design stop. Decide the single existing route owner that replaces LegacyAmbientKeep with an explicit Boundary request and decide whether the non-Python mock fallback becomes typed fail-fast; G2/G3, source deletion, and unrelated MIR changes remain closed."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-PROD0-G1-REACHABILITY-R0"
+current_blocker_token = "LLVMLITE-PROD0-G1-REACHABILITY-R0: use the existing route/driver/provider owner to retire automatic Python/llvmlite reachability. Source authority is CodegenRouteRequestV1 plus the W6 Boundary receipt and child census. Non-authority is environment hints, labels, Python output, and mock output. Fail-fast boundary: no LegacyAmbientKeep in the selected automatic route, no native failure to Python retry, and unsupported native input remains typed. Acceptance: selected Boundary caller=1, old selected edge=0, automatic Python child=0, fallback/retry=0; explicit keep roots remain named. No G2/G3 or source deletion."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and the named hako_aot compat C ABI are closed; G0 source-backed ingress census is active before G1. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, and G0 source-backed ingress census are closed; G1 automatic reachability design stop is next. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, and named hako_aot compat C ABI are closed. G0 source-backed ingress census is active before G1."
-next_design_card = "LLVMLITE-PROD0-G0-CENSUS-R0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, and G0 source-backed ingress census are closed. G1 automatic reachability is the next design stop."
+next_design_card = "LLVMLITE-PROD0-G1-REACHABILITY-R0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "LLVMLITE-PROD0-G0-CENSUS-R0"
-next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
