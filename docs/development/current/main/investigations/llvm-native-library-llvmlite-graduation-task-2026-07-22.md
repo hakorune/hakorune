@@ -508,73 +508,40 @@ Non-claims: no G1/G2/G3 retirement, source deletion, fallback removal,
 ```
 
 S0 receipt (2026-08-13): `tools/checks/llvm_codegen_route_identity_guard.sh`
-is green. It pins the source-derived CAPI -> explicit-provider -> Boundary
-precedence, the generic-C-to-harness compatibility ingress, explicit
-llvmlite/ny-llvmc selectors, the external `compile_ll_text` tool seam, and
-the two still-open hazards (CAPI symbol fallback and plugin `Ok(None)`). No
-runtime route, fallback, provider order, or source file changed. The next
-design stop is `LLVMLITE-ROUTE0-IDENTITY0`, which may correct labels and
-receipts but may not silently change route behavior.
+is green. Identity0/OBSERVE0 then fixed selector labels and child evidence;
+G1-D1 now fences selected-Dynamic route inheritance before child spawn. The
+remaining source-backed hazards are generic C -> hako_aot -> harness reachability,
+pure-first symbol fallback, and plugin `Err=>Ok(None)`. No route behavior changed.
 
-### `LLVMLITE-ROUTE0-IDENTITY0`
+### `LLVMLITE-ROUTE0-IDENTITY0` (closed)
 
-Separate actual selector from descriptive or stale flags.
-Current row: `LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0` (behavior-free docs/label batch).
+Identity0/OBSERVE0 are closed behavior-free selector/child-evidence batches.
+The route guard remains the regression gate; explicit keep/oracle lanes remain
+source-scoped and no llvmlite source deletion is implied.
 
-#### Identity0 design brief (current design stop, 2026-08-13)
+### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0`
 
 ```text
-Decision: labels must name actual driver/provider/replay selectors; generic-C
-  -> hako_aot -> harness remains visibly compatibility-scoped.
-Source authority + canonical issuer: route.rs/driver dispatch, provider,
-  CAPI recipe/symbol, and observed child command.
-Non-authority: NYASH_LLVM_USE_HARNESS alone, --harness path, names/comments,
-  job labels, or "Boundary" on a compatibility wrapper.
-Fail-fast: selector/label drift, unnamed Python child, or generic C described
-  as Boundary-only remains a red census.
-Smallest slice: docs/tool-label parity for ny-llvmc README, harness usage,
-  fast-smoke, and C-ABI wording; behavior and precedence stay unchanged.
-Non-claims: no G1/G2/G3 retirement, fallback/provider changes, plugin policy,
-  or llvmlite source deletion.
+Decision: retire automatic generic-C/API -> hako_aot -> harness reachability;
+  keep explicit `--driver harness`, provider_keep, and replay lanes unchanged.
+Source authority + canonical issuer: route plan/driver/provider/replay choice,
+  exact CAPI symbol, hako_aot child command, plugin result, and child evidence.
+Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
+  llvmlite output, or plugin `Err=>Ok(None)` as a success signal.
+Fail-fast boundary: pure-first symbol loss, recipe-unset generic export,
+  implicit hako_aot harness, CAPI-unavailable, plugin error, or unsupported
+  input must stop with typed failure; no native retry or second lookup.
+Smallest next slice: design the complete ingress matrix and typed error/receipt
+  contract for stage1 replay, env.codegen, generic CAPI, and hako_aot; no code
+  or fallback/provider-order/source-deletion change in this design stop.
+Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
+  generic backend expansion, or llvmlite source deletion.
 ```
 
-Identity0 acceptance: `--driver harness` is the direct ny-llvmc selector,
-`HAKO_LLVM_EMIT_PROVIDER=llvmlite` is provider_keep only with CAPI disabled,
-`HAKO_BACKEND_COMPAT_REPLAY=harness` is explicit replay, and
-`NYASH_LLVM_USE_HARNESS=1` is only a top-level runner input. `compile_ll_text`
-is the external `opt/llc` seam. Each keep/non-keep label must match its actual
-selector; the existing route guard remains the only regression gate.
-
-Worker identity receipt (read-only, 2026-08-13):
-
-```text
-tools/run_llvm_harness.sh       = NYASH hint -> hakorune runner -> usually Boundary; name is misleading
-nyash-llvmc/README.md           = incorrectly parallels NYASH hint with --driver harness; replay wording needs explicit replay
-fast-smoke.yml                  = Boundary smokes and explicit replay share one job without route assertion
-lang/c-abi/README.md            = C ABI is transport, not an llvmlite selector; hako_aot is compatibility ingress
-environment inventory           = omits recipe/replay/provider/CAPI selectors and misstates the harness default
-```
-
-The next implementation slice is documentation/label parity for these five
-surfaces plus the existing route guard. It must not rename a live command,
-change provider precedence, add a child-command receipt, or alter runtime
-failure semantics; those are later identity/observe or G1 decisions.
-
-```text
-actual llvmlite selector:
-  --driver harness
-  explicit llvmlite provider
-  explicit compat_replay=harness
-
-not sufficient evidence:
-  NYASH_LLVM_USE_HARNESS=1
-  --harness PATH without --driver harness
-  filename/comment containing llvmlite or harness
-```
-
-Fix tool names, comments, README examples, and gates so every claimed route is
-backed by an actual selection receipt. Behavior changes belong to later
-retirement rows, not this truth-sync row.
+Acceptance to unlock implementation: automatic Python ingress is zero for the
+selected default route; each explicit keep root has one route receipt; missing
+pure-first symbols and CAPI/plugin failures are typed stops; generic C exports
+never implicitly select harness; unsupported inputs never retry through Python.
 
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0`
 
