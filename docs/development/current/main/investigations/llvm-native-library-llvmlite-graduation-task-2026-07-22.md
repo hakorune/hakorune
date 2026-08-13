@@ -4,8 +4,8 @@ Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` C6 acceptance and
-scoped receipt/caller evidence
+Reserved activation: after `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` acceptance
+and scoped receipt/caller evidence
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
@@ -88,8 +88,8 @@ receipt/caller evidence. The remaining `W6-E-FINAL-LIVE-PUBLICATION-D0`
 design stop must keep compiler MIR publication and backend executable
 publication as two ordered transactions; it does not create a new transaction
 or retire ordinary compatibility. Until that final W6 boundary is accepted,
-this board remains parked. Once W6-E and its scoped receipt/caller evidence
-exist, G1
+this board remains parked. Once final W6 live publication and its scoped
+receipt/caller evidence exist, G1
 retires automatic production reachability, G2 removes Python/llvmlite from
 default build/CI/perf gates, and G3 separately decides source/archive removal.
 The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
