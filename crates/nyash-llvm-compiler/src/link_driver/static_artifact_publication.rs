@@ -8,6 +8,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use serde_json::json;
+
 use super::static_artifact_descriptor::{
     expected_descriptor_from_json, observe_descriptor, require_archive_call_symbols,
     require_object_call_symbols, sha256_file, StaticAotArtifactDescriptorV1,
@@ -97,6 +99,54 @@ impl PublishedStaticLinkedAotArtifactReceiptV1 {
 
     pub(super) fn observed(&self) -> &StaticLinkedAotArtifactReceiptV1 {
         &self.receipt
+    }
+
+    /// Write one post-rename artifact receipt to its dedicated machine-readable
+    /// path. The root/Builder side performs the cross-process co-check; this
+    /// child method only serializes facts observed by the publication owner.
+    pub(super) fn write_receipt_json(
+        &self,
+        input_json: &Path,
+        receipt_path: &Path,
+    ) -> Result<(), StaticArtifactRejectV1> {
+        let input_digest = sha256_file(input_json)?;
+        let descriptor = &self.receipt.descriptor;
+        let value = json!({
+            "schema_version": 1,
+            "status": "published",
+            "input_sha256": hex_digest(&input_digest),
+            "published_path": self.published_path.display().to_string(),
+            "object_path": self.receipt.object_path.display().to_string(),
+            "runtime_archive_path": self.receipt.runtime_archive_path.display().to_string(),
+            "object_digest": hex_digest(&self.receipt.object_digest),
+            "runtime_archive_digest": hex_digest(&self.receipt.runtime_archive_digest),
+            "executable_digest": hex_digest(&self.receipt.executable_digest),
+            "descriptor_digest": hex_digest(&self.receipt.descriptor_digest),
+            "descriptor": {
+                "profile": descriptor.profile,
+                "abi_revision": descriptor.abi_revision,
+                "wire_revision": descriptor.wire_revision,
+                "compiler_domain": descriptor.compiler_domain,
+                "invocation_ordinal": descriptor.invocation_ordinal,
+                "registry_generation": descriptor.registry_generation,
+                "contract_id": descriptor.contract_id,
+                "entries": descriptor.entries.iter().map(|entry| json!({
+                    "site_id": entry.site_id,
+                    "entry_id": entry.entry_id,
+                    "logical_arity": entry.logical_arity,
+                    "symbol": entry.symbol,
+                })).collect::<Vec<_>>(),
+            },
+            "symbol_census": {
+                "required": self.receipt.symbol_census.required,
+                "object_undefined": self.receipt.symbol_census.object_undefined,
+                "archive_defined": self.receipt.symbol_census.archive_defined,
+                "executable_defined": self.receipt.symbol_census.executable_defined,
+            },
+        });
+        let bytes = serde_json::to_vec_pretty(&value)
+            .map_err(|_| StaticArtifactRejectV1::ReceiptWriteFailed)?;
+        write_receipt_atomically(receipt_path, &bytes)
     }
 }
 
@@ -223,6 +273,22 @@ impl StaticAotArtifactPublicationTxnV1 {
             }
         }
     }
+}
+
+fn hex_digest(digest: &[u8; 32]) -> String {
+    digest.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+fn write_receipt_atomically(path: &Path, bytes: &[u8]) -> Result<(), StaticArtifactRejectV1> {
+    let temporary = candidate_path_for(path)?;
+    let result = (|| {
+        fs::write(&temporary, bytes).map_err(|_| StaticArtifactRejectV1::ReceiptWriteFailed)?;
+        fs::rename(&temporary, path).map_err(|_| StaticArtifactRejectV1::ReceiptWriteFailed)
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(temporary);
+    }
+    result
 }
 
 fn candidate_path_for(final_path: &Path) -> Result<PathBuf, StaticArtifactRejectV1> {

@@ -175,6 +175,7 @@ fn build_ny_llvmc_emit_exe_command(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
 ) -> Result<std::process::Command, String> {
     let mut cmd = std::process::Command::new(ny_llvmc);
     cmd.arg("--in")
@@ -186,6 +187,9 @@ fn build_ny_llvmc_emit_exe_command(
     apply_ny_llvmc_driver_arg(&mut cmd)?;
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
+    if let Some(receipt_json) = receipt_json {
+        cmd.arg("--receipt-json").arg(receipt_json);
+    }
     Ok(cmd)
 }
 
@@ -241,13 +245,20 @@ fn run_ny_llvmc_emit_exe(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
 ) -> Result<(), String> {
     let ny_llvmc = resolve_ny_llvmc();
     if !ny_llvmc.exists() {
         return Err(hint_ny_llvmc_missing(&ny_llvmc));
     }
-    let mut cmd =
-        build_ny_llvmc_emit_exe_command(&ny_llvmc, json_path, exe_out, nyrt_dir, extra_libs)?;
+    let mut cmd = build_ny_llvmc_emit_exe_command(
+        &ny_llvmc,
+        json_path,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        receipt_json,
+    )?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
 
@@ -273,12 +284,22 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
 ) -> Result<(), String> {
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
-    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs);
+    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs, receipt_json);
     match result {
         Ok(()) => {
+            if let Some(receipt_json) = receipt_json {
+                if let Err(err) = crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_receipt(
+                    receipt_json,
+                    &json_path,
+                    Some(Path::new(exe_out)),
+                ) {
+                    return Err(with_retained_mir_path(err, &json_path));
+                }
+            }
             let _ = std::fs::remove_file(&json_path);
             Ok(())
         }
@@ -306,6 +327,7 @@ pub fn ny_llvmc_emit_exe_lib(
         exe_out,
         nyrt_dir,
         extra_libs,
+        None,
     )
 }
 
@@ -377,6 +399,35 @@ pub fn ny_llvmc_emit_exe_bin(
         exe_out,
         nyrt_dir,
         extra_libs,
+        None,
+    )
+}
+
+/// Emit a selected Dynamic candidate through the dedicated Boundary receipt
+/// channel. This remains pre-cutover; normal production callers are unchanged.
+pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
+    module: &crate::mir::MirModule,
+    exe_out: &str,
+    receipt_json: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    crate::mir::backend_capability::enforce_mir_backend_supported(
+        module,
+        "ny-llvmc-selected-dynamic-exe",
+    )?;
+    let receipt_path = Path::new(receipt_json);
+    emit_json_and_run_ny_llvmc_emit_exe(
+        |json_path| {
+            crate::runner::mir_json_emit::emit_mir_json_for_selected_dynamic_candidate(
+                module, json_path,
+            )
+            .map_err(|e| format!("MIR JSON emit error: {}", e))
+        },
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        Some(receipt_path),
     )
 }
 
@@ -401,7 +452,8 @@ pub fn run_executable(
 #[cfg(test)]
 mod tests {
     use super::{
-        append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend, with_retained_mir_path,
+        append_ny_llvmc_extra_libs_arg, build_ny_llvmc_emit_exe_command,
+        ny_llvmc_driver_arg_from_backend, with_retained_mir_path,
     };
 
     #[test]
@@ -455,5 +507,25 @@ mod tests {
         );
         assert!(err.contains("ny-llvmc failed"));
         assert!(err.contains("retained_mir=tmp/nyash_cli_emit_123.json"));
+    }
+
+    #[test]
+    fn selected_receipt_flag_is_forwarded_to_boundary_command() {
+        let cmd = build_ny_llvmc_emit_exe_command(
+            std::path::Path::new("ny-llvmc"),
+            std::path::Path::new("candidate.json"),
+            "candidate.exe",
+            Some("target/release"),
+            None,
+            Some(std::path::Path::new("receipt.json")),
+        )
+        .expect("command");
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|arg| arg.to_string_lossy().into_owned())
+            .collect();
+        assert!(args
+            .windows(2)
+            .any(|pair| pair == ["--receipt-json", "receipt.json"]));
     }
 }

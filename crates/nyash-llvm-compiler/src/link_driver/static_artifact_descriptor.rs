@@ -67,6 +67,7 @@ pub(super) enum StaticArtifactRejectV1 {
     UnexpectedSymbolState,
     LinkFailed,
     PublishFailed,
+    ReceiptWriteFailed,
 }
 
 impl std::fmt::Display for StaticArtifactRejectV1 {

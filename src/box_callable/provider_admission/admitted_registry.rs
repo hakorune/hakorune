@@ -101,12 +101,7 @@ mod tests {
     #[test]
     fn admitted_rows_are_deterministic_and_complete() {
         let stamp = ModuleInvocationBrandV1::test_with_ordinal(7);
-        let registry = AdmittedTextScanRegistryV1::new(
-            301,
-            302,
-            stamp,
-        )
-        .expect("admit rows");
+        let registry = AdmittedTextScanRegistryV1::new(301, 302, stamp).expect("admit rows");
         assert_eq!(registry.branch_count(), 1);
         assert_eq!(registry.generation(), 7);
         assert_eq!(registry.plan_stamp(), stamp);

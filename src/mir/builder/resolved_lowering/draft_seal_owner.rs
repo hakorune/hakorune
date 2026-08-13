@@ -5,6 +5,8 @@
 //! return the exact unpublished owner and `commit` is the only operation that
 //! extracts the function or restores the caller context.
 
+use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
+use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
 use crate::mir::builder::calls::{
     CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
 };
@@ -12,8 +14,6 @@ use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
 };
-use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
-use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
@@ -64,12 +64,18 @@ impl SelectedDynamicCandidateMetadataV1 {
         receipt: APrimeI64PhysicalReceiptV1,
         projection: DynamicV2AotCallMetadataProjectionV1,
     ) -> Self {
-        Self { receipt, projection }
+        Self {
+            receipt,
+            projection,
+        }
     }
 
     pub(super) fn into_parts(
         self,
-    ) -> (APrimeI64PhysicalReceiptV1, DynamicV2AotCallMetadataProjectionV1) {
+    ) -> (
+        APrimeI64PhysicalReceiptV1,
+        DynamicV2AotCallMetadataProjectionV1,
+    ) {
         (self.receipt, self.projection)
     }
 }

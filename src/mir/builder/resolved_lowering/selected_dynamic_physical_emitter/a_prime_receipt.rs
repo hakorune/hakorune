@@ -30,7 +30,9 @@ pub(super) fn issue(
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<APrimeI64PhysicalReceiptV1, DynamicV2I8EmitterRejectV1> {
     if !corridor.matches(brand) {
-        return Err(reject("A-prime receipt corridor has a foreign session brand"));
+        return Err(reject(
+            "A-prime receipt corridor has a foreign session brand",
+        ));
     }
     let pos = formals
         .value_for_recipe(V1)
@@ -64,12 +66,14 @@ pub(super) fn issue(
                 .into_iter()
                 .zip(corridor.i6_arguments())
                 .enumerate()
-                .map(|(ordinal, (role, value_id))| APrimeI64CallArgumentReceiptV1 {
-                    ordinal,
-                    role: role.into(),
-                    value_id,
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                })
+                .map(
+                    |(ordinal, (role, value_id))| APrimeI64CallArgumentReceiptV1 {
+                        ordinal,
+                        role: role.into(),
+                        value_id,
+                        lane: APrimeI64LaneV1::ImmediateI64,
+                    },
+                )
                 .collect(),
             result_value_id: corridor.i6_result(),
             result_lane: APrimeI64LaneV1::OpaqueHandle,
@@ -92,9 +96,7 @@ pub(super) fn issue(
         },
     ];
     let completion_sites = demand.source_relation().completion_sites();
-    let observations = ready
-        .return_observations()
-        .map_err(|error| reject(error))?;
+    let observations = ready.return_observations().map_err(|error| reject(error))?;
     let mut returns = [None, None];
     for observation in observations {
         let slot = if *observation.site() == *completion_sites[0] {
@@ -102,10 +104,14 @@ pub(super) fn issue(
         } else if *observation.site() == *completion_sites[1] {
             &mut returns[1]
         } else {
-            return Err(reject("Completion return site is foreign to A-prime relation"));
+            return Err(reject(
+                "Completion return site is foreign to A-prime relation",
+            ));
         };
         if slot.is_some() {
-            return Err(reject("duplicate Completion return site in A-prime receipt"));
+            return Err(reject(
+                "duplicate Completion return site in A-prime receipt",
+            ));
         }
         *slot = Some(APrimeI64ReturnReceiptV1 {
             site: if *observation.site() == *completion_sites[0] {

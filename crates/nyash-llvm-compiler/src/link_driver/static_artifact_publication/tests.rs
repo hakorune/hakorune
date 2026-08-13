@@ -306,6 +306,20 @@ fn actual_artifacts_issue_one_receipt_before_consuming_commit() {
     assert_eq!(receipt.published_path(), final_path);
     assert_eq!(receipt.observed().final_path(), final_path);
     assert!(final_path.is_file());
+    let transport_path = root.join("artifact-receipt.json");
+    receipt
+        .write_receipt_json(&json, &transport_path)
+        .expect("write dedicated receipt");
+    let transport: serde_json::Value =
+        serde_json::from_slice(&fs::read(&transport_path).expect("receipt bytes"))
+            .expect("receipt JSON");
+    assert_eq!(transport["schema_version"], 1);
+    assert_eq!(transport["status"], "published");
+    assert_eq!(
+        transport["descriptor"]["entries"].as_array().unwrap().len(),
+        2
+    );
+    assert!(transport.get("candidate_path").is_none());
     fs::remove_dir_all(root).expect("remove fixture");
 }
 

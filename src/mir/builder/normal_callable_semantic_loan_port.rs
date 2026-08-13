@@ -83,9 +83,8 @@ impl<'package, 'loan, 'port, 'collector>
         self.package
             .with_selected_cataloged_lowering_input(admission, |input| {
                 input.with_selected_and_admission(|selected, admitted| {
-                    let expected = SelectedNormalCallableKeyV1::Cataloged(
-                        admitted.source_key().clone(),
-                    );
+                    let expected =
+                        SelectedNormalCallableKeyV1::Cataloged(admitted.source_key().clone());
                     if selected.selected_key() == &expected {
                         Ok(())
                     } else {

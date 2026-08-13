@@ -719,13 +719,15 @@ Non-authority:
   raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan, llvmlite,
   VM, fallback, retry, and any reconstructed receipt/PlanStamp.
 Fail-fast boundary:
-  brand/key/site/ABI/wire/descriptor/digest/link/old-edge census mismatch
-  rejects before final artifact rename; no live Builder or edge mutation.
+  brand/key/site/ABI/wire/descriptor/digest/link mismatch, or a root old-edge
+  census different from the R4 release condition, rejects before final
+  artifact rename; no live Builder or edge mutation.
 Smallest next slice:
-  PreparedSelectedDynamicW6ActivationV1 consumes the completed candidate,
-  prepared static receipt, collector brand, and old-edge witness exactly once.
+  root cutover preflight consumes the completed candidate and collector brand;
+  the child consumes only the dedicated published-artifact receipt.
 Non-claims:
-  no crash-recovery transaction, RuntimeExecutablePlan, or second backend.
+  no crash-recovery transaction, RuntimeExecutablePlan, second backend, or
+  durable old-edge witness product.
 ```
 
 #### W6-E-D0 — `DYNAMIC-V2-W6-CROSS-CRATE-HANDOFF-D0` (design stop)
@@ -742,10 +744,11 @@ Source authority + canonical issuer: selected package/admission -> canonical
 Non-authority: raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan,
   llvmlite, VM, fallback, retry, and reconstructed receipt/PlanStamp.
 Fail-fast boundary: candidate brand/key/site metadata must match the Boundary
-  descriptor, archive, digest, ABI/wire, and old-edge witness before rename.
-Smallest next slice: define one site-id MIR-JSON handoff carrying candidate
-  brand, selected physical metadata, and old-edge witness; let ny-llvmc consume
-  it once through prepare -> published receipt, without semantic re-selection.
+  descriptor, archive, digest, ABI/wire, and root R4 census before rename.
+Smallest next slice: define one site-id MIR-JSON handoff for selected physical
+  metadata and one dedicated child receipt channel; let ny-llvmc consume the
+  input once through prepare -> published receipt, without semantic
+  re-selection or old-edge witness transport.
 Non-claims: no production caller, old-edge deletion, or final publication yet.
 ```
 
@@ -755,40 +758,63 @@ rename consumer, PlanStamp or candidate-digest co-seal across the process
 boundary, and focused positive/negative/rename-failure evidence. Until then
 `new=0`, `old=1`, fallback/retry/VM=0 remain mandatory.
 
-#### W6-E-D0-A — `DYNAMIC-V2-W6-ROOT-WITNESS-ISSUER-D0` (design stop)
+#### W6-E-D0-A — `DYNAMIC-V2-W6-ROOT-CENSUS-POLICY-D0` (accepted)
 
-The worker census found one missing issuer in the preceding contract: the
-repository has caller-count guards for the selected old edge, but no typed
-root-side witness product that can be consumed exactly once. A guard result is
-observation evidence, not an activation receipt, so it must not be copied into
-MIR JSON or guessed into a new `Verified*`/`Prepared*` value.
+The R4 manifest is the policy source for the selected old edge, but it is not a
+runtime witness issuer. A guard result is observation evidence, not an
+activation receipt. W6 therefore keeps the old-edge fact in the root cutover
+preflight and does not create a witness product or copy the fact into MIR JSON.
 
 ```text
 Decision:
-  keep the old-edge witness root-only; the child receives no semantic edge
-  witness. The site-id MIR JSON remains a one-way projection of the existing
-  Dynamic metadata, and the child emits only its versioned published-artifact
-  receipt through a dedicated machine-readable channel (not mixed logs).
+  use `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` as the retirement
+  policy and have the root W6 coordinator check old=1 before child rename and
+  old=0 after the selected commit. The child receives no old-edge fact; the
+  site-id MIR JSON remains a one-way projection of existing Dynamic metadata.
 Source authority + canonical issuer:
-  selected physical/site/ABI facts = existing Builder projection;
-  artifact facts = StaticAotArtifactPublicationTxnV1; old-edge fact issuer is
-  currently missing and must be selected by this design row.
+  R4 manifest = retirement policy; root W6 cutover preflight = direct
+  before/after census action; selected physical/site/ABI facts = existing
+  Builder projection; artifact facts = StaticAotArtifactPublicationTxnV1.
 Non-authority:
-  guard text, block/index locators, child JSON, llvmlite, RuntimeExecutablePlan,
-  stdout diagnostics, and a reconstructed root receipt.
+  guard text as a receipt, block/index locators, child JSON, llvmlite,
+  RuntimeExecutablePlan, stdout diagnostics, and any reconstructed witness.
 Fail-fast boundary:
-  no implementation or caller switch until a root-only witness issuer is
-  named and its brand/selected key/old-edge census is checked before rename.
+  R4 policy drift, old-edge before-count != 1, ordinary compatibility route
+  loss, or post-commit old-count != 0 rejects rename/caller switch.
 Smallest next slice:
-  decide whether an existing root cutover preflight can issue a non-semantic,
-  move-only old-edge witness, or revise W6-E to keep that census entirely in
-  the root transaction. Then freeze the dedicated child-receipt transport.
+  freeze the dedicated child artifact-receipt transport and keep the old-edge
+  census entirely in the root transaction.
 Non-claims:
-  no new semantic authority, MIR metadata key, sidecar-as-authority, receipt
-  mirror, production caller, rename, fallback, or retry.
+  no new semantic authority, MIR metadata key, sidecar-as-authority, witness
+  product, production caller, rename, fallback, or retry.
 ```
 
-Until D0-A is accepted, the next execution card remains `none` and the
+#### W6-E-D0-B — `DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0` (fast-ready)
+
+```text
+Decision:
+  transport one versioned child-published artifact receipt through a dedicated
+  machine-readable path; diagnostics stay on stderr and old-edge census stays
+  root-only.
+Source authority + canonical issuer:
+  existing dynamic_v2_aot_call_admission_v2 projection; child
+  StaticAotArtifactPublicationTxnV1 publishes the receipt after rename.
+Non-authority:
+  JSON parser, block/index/logs, selector lookup, RuntimeExecutablePlan,
+  llvmlite, fallback, retry, and any old-edge witness field.
+Fail-fast boundary:
+  missing/duplicate/foreign receipt, candidate digest/PlanStamp/site/ABI/wire/
+  descriptor mismatch, or pre-rename publication rejects before Builder or
+  caller mutation.
+Smallest next slice:
+  freeze the `--receipt-json` schema and clone-safe selected MIR JSON export;
+  root consumes exactly one receipt while production remains new=0 / old=1.
+Non-claims:
+  no caller switch, old-edge deletion, RuntimeExecutablePlan, or final
+  publication transaction.
+```
+
+Until D0-B is closed, only its bounded transport row may execute; the
 mandatory production counts remain `new=0 / old=1`.
 
 The prepared aggregate performs all fallible work before commit:
@@ -797,7 +823,7 @@ The prepared aggregate performs all fallible work before commit:
 candidate collector/module + site-id metadata
   -> Boundary object + explicit archive link
   -> descriptor/symbol/digest/PlanStamp receipt
-  -> collector/brand and old-edge witness co-check
+  -> collector/brand and root old-edge census co-check
 ```
 
 Its commit has one filesystem step followed only by infallible in-memory

@@ -549,8 +549,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(error);
             }
         };
-        let candidate = crate::mir::builder::resolved_lowering::
-            SelectedDynamicCandidateMetadataV1::new(receipt, projection);
+        let candidate =
+            crate::mir::builder::resolved_lowering::SelectedDynamicCandidateMetadataV1::new(
+                receipt, projection,
+            );
         let Some(outer_site) = self
             .demand
             .source_relation()
@@ -565,7 +567,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ));
         };
         let open = ready.open(outer);
-        let prepared = match open.prepare_exact_two_with_candidate_metadata(&outer_site, candidate) {
+        let prepared = match open.prepare_exact_two_with_candidate_metadata(&outer_site, candidate)
+        {
             Ok(prepared) => prepared,
             Err(rejected) => {
                 let detail = format!("{:?}", rejected.error());

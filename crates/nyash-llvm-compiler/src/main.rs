@@ -65,6 +65,14 @@ struct Args {
     /// Extra linker libs/flags appended when emitting an executable (single string, space-separated).
     #[arg(long, value_name = "FLAGS", help_heading = "Stable CLI")]
     libs: Option<String>,
+
+    /// Write one versioned post-rename static artifact receipt to this path.
+    #[arg(
+        long = "receipt-json",
+        value_name = "FILE",
+        help_heading = "Implementation Detail"
+    )]
+    receipt_json: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -90,6 +98,7 @@ fn main() -> Result<()> {
 
     // Determine emit kind
     let emit_exe = matches!(args.emit, EmitKind::Exe);
+    validate_receipt_args(&args, emit_exe)?;
 
     if args.dummy {
         return run_dummy_mode(&args, emit_exe);
@@ -110,7 +119,25 @@ fn run_dummy_mode(args: &Args, emit_exe: bool) -> Result<()> {
         args.nyrt.as_ref(),
         args.libs.as_deref(),
         "dummy object",
+        None,
+        None,
     )
+}
+
+fn validate_receipt_args(args: &Args, emit_exe: bool) -> Result<()> {
+    if args.receipt_json.is_none() {
+        return Ok(());
+    }
+    if !emit_exe {
+        anyhow::bail!("--receipt-json requires --emit exe");
+    }
+    if args.driver != DriverKind::Boundary {
+        anyhow::bail!("--receipt-json is available only for the Boundary driver");
+    }
+    if args.nyrt.is_none() {
+        anyhow::bail!("--receipt-json requires explicit --nyrt <DIR>");
+    }
+    Ok(())
 }
 
 fn run_compile_mode(args: &Args, emit_exe: bool) -> Result<()> {
@@ -147,6 +174,7 @@ mod tests {
         assert!(!args.dummy);
         assert!(args.nyrt.is_none());
         assert!(args.libs.is_none());
+        assert!(args.receipt_json.is_none());
     }
 
     #[test]
@@ -168,6 +196,7 @@ mod tests {
         assert_eq!(args.emit, EmitKind::Exe);
         assert_eq!(args.nyrt, Some(PathBuf::from("target/release")));
         assert_eq!(args.libs.as_deref(), Some("-lssl -lcrypto"));
+        assert!(args.receipt_json.is_none());
     }
 
     #[test]
@@ -182,6 +211,22 @@ mod tests {
         let args =
             Args::try_parse_from(["ny-llvmc", "--out", "out.o", "--driver", "harness"]).unwrap();
         assert_eq!(args.driver, DriverKind::Harness);
+    }
+
+    #[test]
+    fn receipt_json_requires_explicit_runtime_directory() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--out",
+            "out.exe",
+            "--emit",
+            "exe",
+            "--receipt-json",
+            "receipt.json",
+        ])
+        .unwrap();
+        let error = validate_receipt_args(&args, true).unwrap_err();
+        assert!(error.to_string().contains("explicit --nyrt"));
     }
 
     #[test]

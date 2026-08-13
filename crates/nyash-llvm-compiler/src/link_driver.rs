@@ -20,11 +20,48 @@ pub(super) fn finalize_emit_output(
     nyrt_dir: Option<&PathBuf>,
     extra_libs: Option<&str>,
     object_label: &str,
+    input_json: Option<&Path>,
+    receipt_json: Option<&Path>,
 ) -> Result<()> {
     if emit_exe {
+        if let Some(receipt_path) = receipt_json {
+            let input_json =
+                input_json.context("--receipt-json requires a non-dummy MIR JSON input")?;
+            if driver != DriverKind::Boundary {
+                bail!("--receipt-json is available only for the Boundary driver");
+            }
+            let nyrt_dir = nyrt_dir.context(
+                "--receipt-json requires explicit --nyrt <DIR> for the static artifact receipt",
+            )?;
+            let runtime_archive = require_explicit_nyrt_archive(Some(nyrt_dir))?;
+            let prepared = static_artifact_publication::StaticAotArtifactPublicationTxnV1::prepare(
+                input_json,
+                obj_path,
+                out_path,
+                &runtime_archive,
+                extra_libs,
+            )
+            .map_err(|error| anyhow::anyhow!(error))?;
+            let published = prepared.commit().map_err(|error| anyhow::anyhow!(error))?;
+            published
+                .write_receipt_json(input_json, receipt_path)
+                .map_err(|error| anyhow::anyhow!(error))?;
+            println!(
+                "[ny-llvmc] published artifact receipt: {}",
+                receipt_path.display()
+            );
+            println!(
+                "[ny-llvmc] executable written: {}",
+                published.published_path().display()
+            );
+            return Ok(());
+        }
         link_executable_via_driver(driver, obj_path, out_path, nyrt_dir, extra_libs)?;
         println!("[ny-llvmc] executable written: {}", out_path.display());
     } else {
+        if receipt_json.is_some() {
+            bail!("--receipt-json requires --emit exe");
+        }
         println!(
             "[ny-llvmc] {} written: {}",
             object_label,

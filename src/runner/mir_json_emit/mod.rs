@@ -48,7 +48,8 @@ use decls::{
     collect_static_data_plan_values, collect_typed_object_plan_values,
 };
 pub use io::{
-    emit_mir_json_for_harness, emit_mir_json_for_harness_bin, emit_mir_json_string_for_harness_bin,
+    emit_mir_json_for_harness, emit_mir_json_for_harness_bin,
+    emit_mir_json_for_selected_dynamic_candidate, emit_mir_json_string_for_harness_bin,
 };
 #[cfg(test)]
 use order::ordered_harness_functions;

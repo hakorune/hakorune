@@ -613,13 +613,19 @@ if rg -n -U '#\[derive\([^]]*Clone[^]]*\)\]\npub\(super\) struct (StaticAotArtif
   "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST"; then
   guard_fail "$TAG" "static artifact owner must not clone/split/reselect or open another execution route"
 fi
-if rg -n 'StaticAotArtifactPublicationTxnV1::prepare\(' "$ROOT_DIR/crates/nyash-llvm-compiler/src" \
-  --glob '*.rs' --glob '!**/tests.rs'; then
-  guard_fail "$TAG" "static artifact preparation must have zero production callers before W6-E"
+PREPARE_FILES="$(rg -l 'StaticAotArtifactPublicationTxnV1::prepare\(' \
+  "$ROOT_DIR/crates/nyash-llvm-compiler/src" --glob '*.rs' --glob '!**/tests.rs' || true)"
+if [[ "$PREPARE_FILES" != "$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs" ]]; then
+  guard_fail "$TAG" "static artifact preparation must have exactly one named child owner"
 fi
-if rg -n '\.commit\(\)' "$ROOT_DIR/crates/nyash-llvm-compiler/src" \
-  --glob '*.rs' --glob '!**/tests.rs' | rg 'artifact|publication|prepared'; then
-  guard_fail "$TAG" "static artifact publication must have zero production callers before W6-E"
+if [[ "$(rg -n 'StaticAotArtifactPublicationTxnV1::prepare\(' \
+  "$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "static artifact preparation must have one child call site"
+fi
+COMMIT_FILES="$(rg -l 'prepared\.commit\(\)' "$ROOT_DIR/crates/nyash-llvm-compiler/src" \
+  --glob '*.rs' --glob '!**/tests.rs' | sort -u)"
+if [[ "$COMMIT_FILES" != "$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs" ]]; then
+  guard_fail "$TAG" "static artifact publication must have exactly one named child owner"
 fi
 for file in \
   "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN" \

@@ -110,9 +110,7 @@ fn map_key(key: &FunctionDraftKeyV1) -> Result<RawPhysicalDrainKeyV1, RawDrainMa
         )),
         FunctionDraftKeyV1::CanonicalResolvedOwner(_)
         | FunctionDraftKeyV1::CanonicalCallable(_)
-        | FunctionDraftKeyV1::CatalogedBoxMethod(_) => {
-            Err(RawDrainManifestErrorV1::UnsupportedKey)
-        }
+        | FunctionDraftKeyV1::CatalogedBoxMethod(_) => Err(RawDrainManifestErrorV1::UnsupportedKey),
     }
 }
 

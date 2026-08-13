@@ -19,6 +19,7 @@ pub mod safety_gate;
 pub mod selfhost;
 pub mod selfhost_exe;
 pub mod source_hint;
+pub(crate) mod static_artifact_receipt;
 pub mod user_box_factory;
 pub mod verifier_gate;
 pub mod vm_execution;
