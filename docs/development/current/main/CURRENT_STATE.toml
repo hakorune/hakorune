@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, and W6-A1 physical evidence cursor are landed. Publication-boundary D0 is accepted; W6-B is the next bounded mixed CatalogedBoxMethod normal-drain slice."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, and W6-B mixed normal collector drain are landed. Publication-boundary D0 is accepted; W6-C is the next bounded Boundary C-ABI physicalizer slice."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-A1 is closed; W6-B extends the existing mixed CatalogedBoxMethod normal drain without a second collector or legacy-key conversion. Boundary C-ABI, static artifact receipt, and RuntimeExecutablePlan remain later rows."
+current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-A1 and W6-B are closed; W6-C must physicalize the existing CheckedCallOut site-id plan through the Boundary C-ABI without a second CFG/registry or runtime lookup. Static artifact receipt and RuntimeExecutablePlan remain later rows."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-CATALOGED-DRAIN-I0"
-current_blocker_token = "DYNAMIC-V2-W6-CATALOGED-DRAIN-I0: consume the completed CatalogedBoxMethod draft through the existing mixed normal collector drain exactly once; preserve canonical key/symbol/arity and brand, reject legacy conversion and duplicate drain, keep new caller=0 and old edge=1."
+current_execution_row = "DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0"
+current_blocker_token = "DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0: consume the canonical CheckedCallOut site-id plan through the Boundary C-ABI exactly once; preserve admitted entry, ABI/wire revisions, Normal/Fault landing identity, and I6/I7 shape, reject selector/name lookup, generic fallback, malformed transport, and keep new caller=0 and old edge=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, and W6-A1 evidence close are accepted; W6-B now extends the existing mixed normal drain while the selected old raw/JoinIR edge remains the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, and W6-B mixed normal drain are accepted; W6-C now connects the canonical site-id plan to the Boundary C-ABI while the selected old raw/JoinIR edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0, W6-S source organization, and W6-A1 physical evidence close are accepted. W6-B now consumes the completed CatalogedBoxMethod draft through the existing mixed normal collector drain; Boundary C-ABI physicalization, static artifact receipt/publication, and the final selected caller/old-edge atomic replacement remain later rows. RuntimeExecutablePlan is parked; production remains closed."
-next_design_card = "DYNAMIC-V2-W6-CATALOGED-DRAIN-I0"
+latest_card_summary = "W6 D0, W6-S source organization, W6-A1 physical evidence close, and W6-B mixed CatalogedBoxMethod normal drain are accepted. W6-C now physicalizes the canonical CheckedCallOut site-id plan through the Boundary C-ABI; static artifact receipt/publication and the final selected caller/old-edge atomic replacement remain later rows. RuntimeExecutablePlan is parked; production remains closed."
+next_design_card = "DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-CATALOGED-DRAIN-I0"
+next_execution_card = "DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: transport-only CheckedCallOut MIR JSON emit/parse round-trip and schema/diet-ledger sync landed; LLVM/VM execution and production W6 remain closed.",
   "2026-08-13: private unpublished W6 orchestration and focused canary verified collector brand -> selected admission -> unpublished session -> exact-two draft -> branded collector receipt; production W6 remains closed.",
   "2026-08-13: E5 now claims the outer Completion, seals the remaining physical corridor, and prepares exact-two DraftSeal through the existing owner; CanonicalCallable collector/publication remain next.",
-  "2026-08-13: CheckedCallOut E0 function closeout verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity; later corridor/session rows are recorded in the predecessor card and git.",
 ]
