@@ -4,8 +4,8 @@ Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` C5 receipt-gated
-selected-caller evidence
+Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` C6 acceptance and
+scoped receipt/caller evidence
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
