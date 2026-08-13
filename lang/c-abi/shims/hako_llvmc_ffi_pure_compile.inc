@@ -23,6 +23,7 @@ typedef struct hako_llvmc_generic_pure_program_view {
   size_t block_count;
   hako_llvmc_entry_rune_selection selection;
   hako_llvmc_generic_pure_function_view entry;
+  int selected_dynamic;
 } hako_llvmc_generic_pure_program_view;
 
 static int hako_llvmc_read_generic_pure_function_view(
@@ -53,6 +54,8 @@ static int hako_llvmc_read_generic_pure_program_view(
     yyjson_val* root,
     hako_llvmc_generic_pure_program_view* out) {
   yyjson_val* fns;
+  hako_llvmc_selected_dynamic_identity_view selected_view;
+  int selected_census;
   if (!out) return 0;
   memset(out, 0, sizeof(*out));
   fns = yyjson_obj_get(root, "functions");
@@ -60,7 +63,12 @@ static int hako_llvmc_read_generic_pure_program_view(
   out->functions = fns;
   out->function_count = yyjson_arr_size(fns);
   if (out->function_count < 1) return 0;
-  out->fn = hako_llvmc_find_entry_function(fns);
+  selected_census = hako_llvmc_census_selected_dynamic_identity(root, &selected_view);
+  if (selected_census < 0) return 0;
+  out->selected_dynamic = selected_census == 1;
+  out->fn = out->selected_dynamic
+      ? selected_view.helper_fn
+      : hako_llvmc_find_entry_function(fns);
   if (!(out->fn && yyjson_is_obj(out->fn))) return 0;
   out->entry_index = out->function_count;
   for (size_t i = 0; i < out->function_count; i++) {
@@ -275,6 +283,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* blocks = active_function->blocks;
       size_t generic_pure_block_count = active_function->block_count;
       hako_llvmc_entry_rune_selection selection = active_function->selection;
+      if (program.selected_dynamic) {
+        /* The selected helper's function name is canonical; never emit a launch alias. */
+        selection.symbol = NULL;
+      }
       if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
         yyjson_doc_free(d);

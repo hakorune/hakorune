@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust pre-backend launch/helper fence and production-shaped dual-function negatives landed; next fast child is the C side of DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust fixture and C dual-view/physicalizer are landed; next fast child is DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -11,9 +11,9 @@ Scope: selected Dynamic admission, post-seal lifecycle, publication, Boundary re
 This card accepts the post-W6 audit without reopening Recipe, CheckedCallOut
 meaning, Completion, or DraftSeal semantics.  A broader worker audit found
 that the selected infrastructure is not yet an end-to-end executable route:
-the Rust runner now has a strict PyVM/verification fence and a pre-backend
-launch/helper identity check, while Boundary still needs its matching dual
-view.  Upstream declaration-mode admission and one safe lexical-scope owner
+the Rust runner and Boundary now share a strict PyVM/verification and
+launch/helper identity fence, while object/link/receipt/launch evidence remains
+open.  Upstream declaration-mode admission and one safe lexical-scope owner
 also required correction.  The selected canonical core remains the authority;
 these rows make every boundary from admission through launch fail closed.
 
@@ -461,8 +461,8 @@ before backend effects, and reaches the single selected Boundary caller without
 ordinary harness/mock fallback.  The Rust pre-backend identity fence adds
 exactly one zero-argument launch, one distinct four-argument selected helper,
 the production-shaped dual-function JSON fixture, and nine focused
-negative/positive tests; C dual-view/physicalization and
-end-to-end launch remain open.  Focused route/identity tests, LLVM feature and
+  negative/positive tests; C dual-view/physicalization is now landed and
+  end-to-end launch remains open.  Focused route/identity tests, LLVM feature and
 default `cargo check --lib`, AOT/text/pointer guards, and diff check are green;
 selected production remains `0/old=1`.
 
@@ -487,20 +487,21 @@ helper cannot be renamed or aliased to `ny_main`, because the runtime invokes
 The bounded series first lands a production-shaped `main + selected helper`
 fixture, then one C owner censuses the exact helper and sends that function to
 the existing CheckedCallOut physicalizer, and finally proves object -> link ->
-receipt -> zero-argument launch end to end.  Missing/duplicate metadata,
+receipt -> zero-argument launch end to end.  The fixture and C dual-view/
+physicalizer child are landed; only the final object/link/receipt/launch child
+remains.  Missing/duplicate metadata,
 metadata on the launch entry, missing/duplicate/nonzero-argument main, helper
 arity drift, generic CheckedCallOut fallback, or a descriptor sourced from
 main all reject before publication.  Metadata copying and by-name reselection
 are forbidden.
 
 The first child `...-PRODUCTION-SHAPE-FIXTURE-R0` is landed as a test-only
-dual-function JSON shape fixture plus identity negatives.  It must not make the
-Boundary lowerer invent launch-to-helper arguments or emit a fake zero-argument
-stub.  The next `...-PHYSICALIZER-R0` child owns the C dual view and forwards
-the already-selected helper into the existing physicalizer; `...-END-TO-END-R0`
-owns link/receipt/launch evidence.  Until those children land, a production
-shaped candidate is either fully validated or rejected before object effects;
-the old single-function smoke is not evidence for the new identity contract.
+dual-function JSON shape fixture plus identity negatives.  The
+`...-PHYSICALIZER-R0` child now owns one borrowed C dual view, forwards the
+already-selected helper into the existing physicalizer, preserves ordinary
+entry behavior, and rejects helper/launch identity drift before object output.
+`...-END-TO-END-R0` owns link/receipt/launch evidence.  No launch-to-helper
+arguments, fake zero-argument stub, metadata copy, or alias is emitted.
 
 ## Row B3: DYNAMIC-V2-STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0
 

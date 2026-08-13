@@ -127,9 +127,10 @@ static int hako_llvmc_c1_validate_call_row(yyjson_val* call, long long site) {
 }
 
 static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
-  yyjson_val* fns = root ? yyjson_obj_get(root, "functions") : NULL;
-  yyjson_val* fn = hako_llvmc_find_entry_function(fns);
-  yyjson_val* metadata = hako_llvmc_c1_metadata(fn);
+  hako_llvmc_selected_dynamic_identity_view identity;
+  int identity_census = hako_llvmc_census_selected_dynamic_identity(root, &identity);
+  yyjson_val* fn = NULL;
+  yyjson_val* metadata = NULL;
   yyjson_val* formals;
   yyjson_val* params;
   yyjson_val* calls;
@@ -147,7 +148,11 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
   uint64_t invocation_ordinal = 0;
   const char* roles[4] = {"src", "pos", "end", "pred_chars"};
   const char* lanes[4] = {"opaque_handle", "immediate_i64", "immediate_i64", "opaque_handle"};
-  if (!metadata) return 1; /* ordinary functions remain on the old lane */
+  if (identity_census < 0) return 0;
+  if (identity_census == 0) return 1; /* ordinary functions remain on the old lane */
+  fn = identity.helper_fn;
+  metadata = hako_llvmc_c1_metadata(fn);
+  if (!metadata) return 0;
   if (hako_llvmc_c1_int(metadata, "schema_version", &ok) != 2 || !ok ||
       !hako_llvmc_c1_text_eq(metadata, "contract_id", "hako.text.scan@1") ||
       hako_llvmc_c1_int(metadata, "profile", &ok) != 1 || !ok ||

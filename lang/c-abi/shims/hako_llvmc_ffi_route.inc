@@ -77,6 +77,100 @@ static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns) {
   return fallback ? fallback : yyjson_arr_get_first(fns);
 }
 
+/*
+ * Selected Dynamic has two physical identities.  Keep this census beside the
+ * ordinary entry finder, but never make the ordinary finder choose the
+ * selected helper.  The returned view borrows the one parsed JSON document;
+ * it does not copy metadata or invent a launch-to-helper call.
+ */
+typedef struct hako_llvmc_selected_dynamic_identity_view {
+  yyjson_val* launch_fn;
+  size_t launch_index;
+  yyjson_val* helper_fn;
+  size_t helper_index;
+  yyjson_val* helper_metadata;
+} hako_llvmc_selected_dynamic_identity_view;
+
+static int hako_llvmc_selected_dynamic_metadata_flags(
+    yyjson_val* fn,
+    int* has_receipt,
+    int* has_admission) {
+  yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+  yyjson_val* receipt = metadata ? yyjson_obj_get(metadata, "a_prime_i64_physical_receipt") : NULL;
+  yyjson_val* admission = metadata
+      ? yyjson_obj_get(metadata, "dynamic_v2_aot_call_admission_v2")
+      : NULL;
+  if (has_receipt) *has_receipt = receipt && yyjson_is_obj(receipt);
+  if (has_admission) *has_admission = admission && yyjson_is_obj(admission);
+  if ((receipt && !yyjson_is_obj(receipt)) ||
+      (admission && !yyjson_is_obj(admission))) return -1;
+  return 0;
+}
+
+/* 1 = selected dual view, 0 = ordinary module, -1 = malformed selected view. */
+static int hako_llvmc_census_selected_dynamic_identity(
+    yyjson_val* root,
+    hako_llvmc_selected_dynamic_identity_view* out) {
+  yyjson_val* fns = root ? yyjson_obj_get(root, "functions") : NULL;
+  size_t launch_count = 0;
+  size_t helper_count = 0;
+  size_t selected_markers = 0;
+  int launch_has_zero_params = 0;
+  if (out) memset(out, 0, sizeof(*out));
+  if (!(fns && yyjson_is_arr(fns))) return -1;
+
+  for (size_t i = 0; i < yyjson_arr_size(fns); i++) {
+    yyjson_val* fn = yyjson_arr_get(fns, i);
+    yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+    yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+    const char* name = fn ? yyjson_get_str(yyjson_obj_get(fn, "name")) : NULL;
+    int has_receipt = 0;
+    int has_admission = 0;
+    int marker_status = hako_llvmc_selected_dynamic_metadata_flags(
+        fn, &has_receipt, &has_admission);
+    if (!name || marker_status < 0) return -1;
+
+    if (strcmp(name, "main") == 0 || strcmp(name, "ny_main") == 0) {
+      launch_count++;
+      if (launch_count == 1) {
+        launch_has_zero_params =
+            params && yyjson_is_arr(params) && yyjson_arr_size(params) == 0;
+        if (out) {
+          out->launch_fn = fn;
+          out->launch_index = i;
+        }
+      }
+      if (has_receipt || has_admission) return -1;
+    }
+
+    if (has_receipt || has_admission) {
+      selected_markers++;
+      if (!has_receipt || !has_admission || !metadata) return -1;
+      if (strcmp(name, "ParserScanLoopBox.skip_while/4") != 0 ||
+          yyjson_arr_size(params) != 4 || helper_count != 0) return -1;
+      for (size_t p = 0; p < yyjson_arr_size(params); p++) {
+        yyjson_val* value = yyjson_arr_get(params, p);
+        if (!value || !yyjson_is_int(value) || yyjson_get_sint(value) < 0) return -1;
+        for (size_t prior = 0; prior < p; prior++) {
+          yyjson_val* prior_value = yyjson_arr_get(params, prior);
+          if (yyjson_get_sint(prior_value) == yyjson_get_sint(value)) return -1;
+        }
+      }
+      helper_count++;
+      if (out) {
+        out->helper_fn = fn;
+        out->helper_index = i;
+        out->helper_metadata = metadata;
+      }
+    }
+  }
+
+  if (selected_markers == 0) return 0;
+  if (launch_count != 1 || !launch_has_zero_params || helper_count != 1 || !out ||
+      out->launch_fn == out->helper_fn) return -1;
+  return 1;
+}
+
 static int hako_llvmc_rune_trace_enabled(void) {
   const char* v = getenv("NYASH_RUNE_TRACE");
   return (v && v[0] == '1');
@@ -198,10 +292,10 @@ static int hako_llvmc_selected_dynamic_parameter_signature_valid(yyjson_val* fn)
 }
 
 static int hako_llvmc_selected_dynamic_entry_signature_gate(yyjson_val* root) {
-  yyjson_val* fns = root ? yyjson_obj_get(root, "functions") : NULL;
-  yyjson_val* fn = hako_llvmc_find_entry_function(fns);
-  if (!fn || !hako_llvmc_selected_dynamic_admission_present(fn)) return 1;
-  return hako_llvmc_selected_dynamic_parameter_signature_valid(fn);
+  hako_llvmc_selected_dynamic_identity_view view;
+  int census = hako_llvmc_census_selected_dynamic_identity(root, &view);
+  if (census <= 0) return census == 0 ? 1 : 0;
+  return hako_llvmc_selected_dynamic_parameter_signature_valid(view.helper_fn);
 }
 
 static int hako_llvmc_emit_selected_dynamic_entry_header(
@@ -209,9 +303,10 @@ static int hako_llvmc_emit_selected_dynamic_entry_header(
     const hako_llvmc_entry_rune_selection* selection,
     yyjson_val* fn) {
   yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
-  const char* symbol = hako_llvmc_effective_entry_symbol(selection);
+  const char* symbol = fn ? yyjson_get_str(yyjson_obj_get(fn, "name")) : NULL;
   const char* callconv_prefix = hako_llvmc_entry_callconv_prefix(selection);
-  if (!f || !hako_llvmc_selected_dynamic_parameter_signature_valid(fn)) return 0;
+  if (!f || !symbol || !symbol[0] ||
+      !hako_llvmc_selected_dynamic_parameter_signature_valid(fn)) return 0;
   fprintf(f, "define %si64 @\"%s\"(", callconv_prefix, symbol);
   for (size_t i = 0; i < 4; i++) {
     yyjson_val* value = yyjson_arr_get(params, i);

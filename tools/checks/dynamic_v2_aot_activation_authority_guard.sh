@@ -49,6 +49,7 @@ CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dy
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 C1A_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+C1A_PROGRAM_VIEW="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 C1A_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 C1A_HEADER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_selected_dynamic_entry_header.inc"
 C1_OWNER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc"
@@ -68,7 +69,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
-guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
+guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER"
 guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS"
@@ -79,6 +80,13 @@ guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RU
 if [[ "$(rg -n '^static int hako_llvmc_selected_dynamic_parameter_signature_valid\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "C1-A selected Dynamic parameter-signature validator must have one owner"
 fi
+if [[ "$(rg -n '^static int hako_llvmc_census_selected_dynamic_identity\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1-A selected launch/helper identity census must have one owner"
+fi
+guard_expect_fixed_in_file "$TAG" "launch_has_zero_params" "$C1A_ROUTE" \
+  "C1-A dual identity census must require a zero-argument launch"
+guard_expect_fixed_in_file "$TAG" "ParserScanLoopBox.skip_while/4" "$C1A_ROUTE" \
+  "C1-A dual identity census must require the selected helper identity"
 
 # Rust owns the first selected launch/helper identity fence.  The C dual view
 # remains a later child; do not let the route bypass this pre-backend check.
@@ -592,6 +600,9 @@ fi
 if [[ "$(rg -n '^static int hako_llvmc_c1_validate_projection\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "C1 projection validator must have one owner"
 fi
+if [[ "$(rg -n 'hako_llvmc_census_selected_dynamic_identity\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 projection validator must consume the selected dual view exactly once"
+fi
 if [[ "$(rg -n '^static int hako_llvmc_c1_emit_callout\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "C1 CheckedCallOut emitter must have one owner"
 fi
@@ -613,6 +624,12 @@ guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_SUBSTRING' "$C1_OWNER" 
   "C1 must use the existing direct substring symbol"
 guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_INDEX_OF' "$C1_OWNER" \
   "C1 must use the existing direct indexOf symbol"
+guard_expect_fixed_in_file "$TAG" 'program.selected_dynamic' "$C1A_PROGRAM_VIEW" \
+  "selected program view must keep the helper active without emitting a launch alias"
+guard_expect_fixed_in_file "$TAG" 'selection.symbol = NULL' "$C1A_PROGRAM_VIEW" \
+  "selected helper must not inherit a zero-argument launch alias"
+guard_expect_fixed_in_file "$TAG" 'ParserScanLoopBox.skip_while/4' "$C1_SMOKE" \
+  "C1 smoke must exercise a dual-function selected helper fixture"
 if rg -n 'require_call_site|lookup_core_method|drop_handle|release_h|mir_call|fallback|retry' "$C1_OWNER"; then
   guard_fail "$TAG" "C1 owner must not use selector lookup, generic calls, raw release, fallback, or retry"
 fi
