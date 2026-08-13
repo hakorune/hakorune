@@ -5,10 +5,10 @@ date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6 final-live publication, ROUTE0 observation/guard, and the Identity0 authority decision are closed. The current fast slice is docs/label parity only; G1/G2/G3 retirement, fallback removal, provider precedence changes, and source deletion remain unopened."
-work_mode = "fast"
-current_execution_row = "LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0"
-current_blocker_token = "LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0: source authority is the existing route/driver/provider/child-command matrix and identity guard. Non-authority is stale names, comments, NYASH_LLVM_USE_HARNESS alone, --harness paths, job labels, or generic-export labels. Fail-fast boundary is a docs/tool/CI/env claim that differs from the actual selector or hides generic C -> hako_aot -> harness reachability. Smallest slice: synchronize five existing documentation surfaces without changing runtime behavior; no G1/G2/G3 retirement, source deletion, fallback removal, provider precedence change, or plugin error-policy change."
+current_design_stop = "W6 final-live publication, ROUTE0 observation/guard, and Identity0 docs/label parity are closed. LLVMLITE-ROUTE0-OBSERVE0 is now a design stop for one route receipt/child-command observation boundary; G1/G2/G3 retirement, fallback removal, provider precedence changes, and source deletion remain unopened."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-ROUTE0-OBSERVE0"
+current_blocker_token = "LLVMLITE-ROUTE0-OBSERVE0: source authority is the existing route/driver/provider/child-command matrix and the identity guard. Non-authority is receipt text, Python output, names, comments, NYASH_LLVM_USE_HARNESS alone, or a second route lookup after failure. Fail-fast boundary is an unknown selected driver/export/recipe/replay/child command, a receipt that changes selection or retries, or a plugin failure hidden as a route success. Smallest slice: design one diagnostic-only receipt at the selected boundary with no new semantic authority; no G1/G2/G3 retirement, source deletion, fallback removal, provider precedence change, or plugin error-policy change."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 observation/guard, and Identity0 authority are closed. The current fast slice synchronizes five tool/README/CI/env/C-ABI surfaces with actual selectors; G1/G2/G3 remain ordered and source deletion is not implied."
-next_design_card = "LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0"
+latest_card_summary = "W6 final-live, ROUTE0 observation/guard, and Identity0 docs/label parity are closed. The current design stop defines one diagnostic-only route receipt boundary; G1/G2/G3 remain ordered and source deletion is not implied."
+next_design_card = "LLVMLITE-ROUTE0-OBSERVE0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-13: W6-E-C5 selected terminal now requires the explicit existing NyRT archive path in addition to the consumed Boundary receipt fence; ordinary modules retain compatibility and final live publication remains closed.",
+  "2026-08-13: ROUTE0 identity guard and five-surface docs/label parity are green; actual CAPI/provider/driver/replay selectors are separated from runner hints, and next is diagnostic-only route observation.",
 ]
