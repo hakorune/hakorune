@@ -619,21 +619,18 @@ Acceptance observed: dedicated C owner `<700`, include/dispatch/declaration
 consumers `=1`, direct sites `=2`, End calls `=3`, raw release/lookup/
 fallback/retry/VM consumers `=0`; `new=0`, `old=1`.
 
-### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I0`
+### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I1` (landed)
 
 Do not promote the test-only `RuntimeExecutablePlanV1`. The static Boundary
 lane directly calls linked symbols and has no runtime function-pointer table,
 dynamic provider image, or `dlsym` consumer. Keep that type parked until a
 real dynamic-image execution route exists.
 
-The first bounded I0 slice is landed: the selected Rust Boundary caller
-resolves `libnyash_kernel.a` from `--nyrt` once and consumes the versioned
-`hako_llvmc_link_obj_v2` ABI; the C path performs no archive env/fallback
-rediscovery. Positive explicit-archive and missing-archive smoke are green.
-The remaining D0/I1 work is the artifact-bound descriptor and static receipt.
-
-The D0 first fixes one Rust link-invocation owner and these observation
-sources:
+The selected Rust Boundary caller resolves `libnyash_kernel.a` from `--nyrt`
+once and consumes the versioned `hako_llvmc_link_obj_v2` ABI. The C path does
+not rediscover an archive through env/fallback. One neutral fixed descriptor
+is emitted into the selected object from the final typed candidate metadata;
+ordinary objects emit none. One Rust transaction owns:
 
 ```text
 temporary output path and atomic final rename owner
@@ -643,15 +640,11 @@ ABI / wire / PlanStamp artifact descriptor or paired-manifest owner
 candidate cleanup on every failure
 ```
 
-It also replaces the environment-mediated `hako_llvmc_link_obj` archive
-selection with the explicit link ABI chosen by the D0. Compatibility callers
-may remain behind a named keep boundary, but the selected W6 route has exactly
-one explicit archive-path call and zero environment rediscovery.
-
-ABI, wire, and PlanStamp must be observed from an artifact-bound descriptor or
-manifest emitted by the same compilation, not copied from the expected input
-and called “observed”. Once this representation is accepted, the I0 link owner
-validates:
+The descriptor retains canonical site IDs, entry IDs/symbols/arities,
+contract/profile, ABI/wire, registry generation, and PlanStamp in a versioned
+192-byte layout. The transaction compares the actual object and executable
+descriptor with the final candidate JSON, verifies unresolved object symbols
+and exact archive/executable definitions, and records:
 
 ```text
 temporary executable path and final destination
@@ -663,12 +656,12 @@ call ABI revision / wire revision
 carried ModuleInvocationBrandV1 PlanStamp
 ```
 
-`StaticAotArtifactPublicationTxnV1` is the only selected W6 owner for the
-temporary object/executable paths, descriptor observation, failure cleanup,
-receipt issuance, and final atomic rename. Only a complete observation issues one move-only
-`StaticLinkedAotArtifactReceiptV1` and prepares executable publication.
-Missing, duplicate, stale, foreign, or mismatched observations delete or
-abandon the candidate and publish nothing executable.
+`StaticAotArtifactPublicationTxnV1` is the only temporary path, link,
+observation, cleanup, receipt, and future final-rename owner. Only complete
+actual-artifact observations issue `StaticLinkedAotArtifactReceiptV1`.
+Missing/duplicate/foreign/mismatched observations and link failure remove the
+candidate and preserve the prior final path. W6-D has no production prepare or
+commit caller; W6-E is the sole consumer allowed to publish it.
 
 Acceptance:
 
@@ -682,6 +675,13 @@ RuntimeExecutablePlan / dlsym / provider reselection     = 0 / 0 / 0
 link failure executable publication                      = 0
 executable final-path publication before W6-E            = 0
 ```
+
+Evidence: eight focused tests include a Boundary-generated object -> exact
+archive -> real executable -> Rust receipt run, header/Rust layout parity,
+entry-scope rejection, duplicate/missing symbols, descriptor drift, and
+cleanup. Selected/ordinary C descriptor census, explicit-link smoke, `cargo
+check`, and the W6 authority guard are green. All touched sources are below the
+760-line split gate; `new=0`, `old=1`.
 
 ### W6-E — `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`
 

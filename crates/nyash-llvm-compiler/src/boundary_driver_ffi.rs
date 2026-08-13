@@ -33,7 +33,23 @@ pub(super) fn link_object_to_exe(
 ) -> Result<()> {
     ensure_output_parent(out_exe);
     let archive = require_explicit_nyrt_archive(nyrt_dir)?;
-    call_link_symbol_v2(obj, out_exe, &archive, extra_libs)
+    link_object_to_exe_with_archive(obj, out_exe, &archive, extra_libs)
+}
+
+pub(super) fn link_object_to_exe_with_archive(
+    obj: &Path,
+    out_exe: &Path,
+    runtime_archive: &Path,
+    extra_libs: Option<&str>,
+) -> Result<()> {
+    ensure_output_parent(out_exe);
+    if !runtime_archive.is_file() {
+        bail!(
+            "explicit runtime archive is missing: {}",
+            runtime_archive.display()
+        );
+    }
+    call_link_symbol_v2(obj, out_exe, runtime_archive, extra_libs)
 }
 
 fn ensure_output_parent(path: &Path) {

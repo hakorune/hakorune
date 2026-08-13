@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A/B/C/D handoffs, C1-A/A1 typed transport co-seal, C1 Boundary C/LLVM physicalizer, and W6-D explicit archive link ABI are landed. Static artifact receipt/publication and production remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, and W6-D artifact-bound static link receipt owner are landed. Executable final-path publication and production remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "C1 and W6-D-I0 are landed and observed green: one Boundary physicalizer consumes the typed site-id projection once, MIR owns Normal/Fault/End, the C ABI only bridges lease status, and the selected link ABI receives one explicit runtime archive path without env rediscovery. Next design stop is W6-D artifact-bound descriptor/static receipt; publication and production remain closed."
+current_design_stop = "W6-D is landed: one fixed object descriptor projects the final candidate metadata, and one Rust transaction observes real object/archive/executable digests, exact symbols, ABI/wire/PlanStamp, and issues a move-only static link receipt. W6-E is the sole remaining production BoxCount; publication is still caller-zero and selected new/old callers remain 0/1."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
-current_blocker_token = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0-I1: co-seal one artifact-bound descriptor and static link receipt from post-link digest/symbol/ABI/wire/PlanStamp observations; publication remains closed; new=0 old=1."
+current_execution_row = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
+current_blocker_token = "W6-E: consume the completed selected candidate and prepared static artifact transaction in one production callback, publish module/executable once, delete the old selected raw edge in the same activation, and keep fallback/retry/VM at zero; current new=0 old=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, W6-B mixed normal drain, C0-A/C0-B site-id handoff, and C0-C clone-scrub-safe candidate handoff are landed; C0-D lease End ABI freeze precedes C1 while the selected old raw/JoinIR edge remains the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed and unpublished. W6-E alone may switch the selected production caller and retire the old raw/JoinIR edge atomically; until then the old edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0 through C1-A/A1, the C1 Boundary physicalizer, and D0-I0 explicit archive link ABI are landed with positive/negative smoke, cargo check, focused tests, and authority guards green. Next design stop is one artifact-bound static link receipt owner. Publication and production remain closed; RuntimeExecutablePlan is parked."
-next_design_card = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects and validates actual object/archive/executable descriptor, symbols, digests, ABI/wire, and PlanStamp through one move-only receipt owner. Focused actual-artifact tests, C smoke, cargo check, and authority guards are green. W6-E production activation remains closed; RuntimeExecutablePlan is parked."
+next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
+next_execution_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6-D-I1 landed one fixed selected-object descriptor plus one Rust static artifact transaction: actual object/archive/executable identity, descriptors, exact symbol census, digests, ABI/wire, and PlanStamp co-seal one move-only receipt; Boundary-generated end-to-end and negative tests, C smoke, cargo check, and authority guards are green, final rename/production caller=0, new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
   "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
   "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
-  "2026-08-13: private I6/I7 CallOut corridor now retains both site IDs, verifies all four landing brands, and rejects lifecycle/corridor site-pair drift; production W6 remains closed.",
 ]

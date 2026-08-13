@@ -55,6 +55,12 @@ C1_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowe
 C1_PRESCAN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
 C1_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi.c"
 C1_SMOKE="$ROOT_DIR/tools/checks/dynamic_v2_checked_callout_physicalizer_smoke.sh"
+ARTIFACT_DESCRIPTOR_HEADER="$ROOT_DIR/include/hako_dynamic_v2_artifact_descriptor_v1.h"
+ARTIFACT_DESCRIPTOR_EMITTER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc"
+ARTIFACT_DESCRIPTOR_OPEN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_ir_open.inc"
+ARTIFACT_DESCRIPTOR_RUST="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver/static_artifact_descriptor.rs"
+ARTIFACT_PUBLICATION_RUST="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver/static_artifact_publication.rs"
+ARTIFACT_PUBLICATION_TESTS="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver/static_artifact_publication/tests.rs"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
@@ -63,6 +69,8 @@ guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
 guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
+guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
+guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS"
 
 # C1-A is the only selected-entry signature owner.  The legacy no-parameter
 # header remains available for old seeds, but selected Dynamic must pass the
@@ -544,6 +552,81 @@ for file in "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE"; do
   lines=$(wc -l < "$file" | tr -d '[:space:]')
   if (( lines >= 800 )); then
     guard_fail "$TAG" "W6-D link boundary reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+
+# W6-D-I1: the selected object owns one fixed descriptor projection and the
+# Rust transaction issues one move-only receipt from actual object/archive/
+# executable observations.  Publication and the selected production switch
+# remain caller-zero until W6-E.
+if [[ "$(grep -F -c '#include "hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc"' "$C1_SHIM")" != 1 ]]; then
+  guard_fail "$TAG" "artifact descriptor emitter include must be exactly once"
+fi
+if [[ "$(grep -F -c '#include "hako_llvmc_ffi_pure_compile_ir_open.inc"' "$C1_PRESCAN")" != 1 ]]; then
+  guard_fail "$TAG" "artifact descriptor emission must have one IR-open consumer"
+fi
+if [[ "$(rg -n '^static int hako_llvmc_c1_emit_artifact_descriptor\(' "$ARTIFACT_DESCRIPTOR_EMITTER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "artifact descriptor emitter must have one owner"
+fi
+for token in \
+  'HAKO_DYNAMIC_V2_ARTIFACT_DESCRIPTOR_SCHEMA UINT32_C(1)' \
+  'HAKO_DYNAMIC_V2_ARTIFACT_DESCRIPTOR_SIZE UINT32_C(192)' \
+  'HAKO_DYNAMIC_V2_ARTIFACT_ENTRY_COUNT UINT32_C(2)' \
+  'HAKO_DYNAMIC_V2_ARTIFACT_DESCRIPTOR_SYMBOL' \
+  'HAKO_DYNAMIC_V2_ARTIFACT_DESCRIPTOR_SECTION'; do
+  guard_expect_fixed_in_file "$TAG" "$token" "$ARTIFACT_DESCRIPTOR_HEADER" \
+    "artifact descriptor layout drifted: $token"
+done
+guard_expect_fixed_in_file "$TAG" 'HAKO_DYNAMIC_V2_ARTIFACT_ENTRY_OFFSET_SITE_ID' "$ARTIFACT_DESCRIPTOR_HEADER" \
+  "artifact descriptor entries must retain canonical CheckedCallOut site identity"
+if [[ "$(rg -n '^pub\(super\) struct StaticLinkedAotArtifactReceiptV1' "$ARTIFACT_PUBLICATION_RUST" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "static linked artifact receipt owner must be unique"
+fi
+if [[ "$(rg -n '^pub\(super\) struct StaticAotArtifactPublicationTxnV1' "$ARTIFACT_PUBLICATION_RUST" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "static artifact publication transaction owner must be unique"
+fi
+guard_expect_fixed_in_file "$TAG" 'expected_descriptor_from_json(input_json)' "$ARTIFACT_PUBLICATION_RUST" \
+  "static transaction must co-check the final candidate metadata"
+guard_expect_fixed_in_file "$TAG" 'observe_descriptor(object_path)' "$ARTIFACT_PUBLICATION_RUST" \
+  "static transaction must observe the real object descriptor"
+guard_expect_fixed_in_file "$TAG" 'require_archive_call_symbols(runtime_archive' "$ARTIFACT_PUBLICATION_RUST" \
+  "static transaction must observe exact archive symbols"
+guard_expect_fixed_in_file "$TAG" 'observe_descriptor(&candidate_path)' "$ARTIFACT_PUBLICATION_RUST" \
+  "static transaction must observe the linked candidate descriptor"
+guard_expect_fixed_in_file "$TAG" 'object_path: PathBuf' "$ARTIFACT_PUBLICATION_RUST" \
+  "static receipt must retain exact object identity"
+guard_expect_fixed_in_file "$TAG" 'runtime_archive_path: PathBuf' "$ARTIFACT_PUBLICATION_RUST" \
+  "static receipt must retain exact runtime archive identity"
+guard_expect_fixed_in_file "$TAG" 'candidate_path: PathBuf' "$ARTIFACT_PUBLICATION_RUST" \
+  "static receipt must retain the observed temporary executable identity"
+guard_expect_fixed_in_file "$TAG" 'symbol_census: StaticArtifactSymbolCensusV1' "$ARTIFACT_PUBLICATION_RUST" \
+  "static receipt must retain exact symbol census evidence"
+guard_expect_fixed_in_file "$TAG" 'rust_projection_matches_the_neutral_header_layout' "$ARTIFACT_DESCRIPTOR_RUST" \
+  "Rust descriptor mirror must be checked against the neutral header"
+guard_expect_fixed_in_file "$TAG" 'descriptor_symbol.section_index() != Some(section.index())' "$ARTIFACT_DESCRIPTOR_RUST" \
+  "descriptor symbol must belong to the exact descriptor section"
+guard_expect_fixed_in_file "$TAG" 'boundary_generated_object_survives_exact_link_and_receipt_observation' "$ARTIFACT_PUBLICATION_TESTS" \
+  "Boundary-generated object must have an actual object-to-executable receipt test"
+if rg -n -U '#\[derive\([^]]*Clone[^]]*\)\]\npub\(super\) struct (StaticAotArtifact|StaticLinked|PreparedStatic)' \
+  "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" || \
+  rg -n 'impl[[:space:]]+Clone|into_parts|dlsym|RuntimeExecutablePlan|fallback|retry|selector|lookup_core_method' \
+  "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST"; then
+  guard_fail "$TAG" "static artifact owner must not clone/split/reselect or open another execution route"
+fi
+if rg -n 'StaticAotArtifactPublicationTxnV1::prepare\(' "$ROOT_DIR/crates/nyash-llvm-compiler/src" \
+  --glob '*.rs' --glob '!**/tests.rs'; then
+  guard_fail "$TAG" "static artifact preparation must have zero production callers before W6-E"
+fi
+if rg -n '\.commit\(\)' "$ROOT_DIR/crates/nyash-llvm-compiler/src" \
+  --glob '*.rs' --glob '!**/tests.rs' | rg 'artifact|publication|prepared'; then
+  guard_fail "$TAG" "static artifact publication must have zero production callers before W6-E"
+fi
+for file in \
+  "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN" \
+  "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS" "$C1_PRESCAN"; do
+  lines=$(wc -l < "$file" | tr -d '[:space:]')
+  if (( lines >= 760 )); then
+    guard_fail "$TAG" "W6-D-I1 touched source reached the 760-line split gate: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
 

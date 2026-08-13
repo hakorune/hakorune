@@ -99,9 +99,25 @@ int hako_llvmc_link_obj_v2(
 `runtime_archive_path` is resolved once by the Rust `--nyrt` caller and is
 passed as an exact archive path. The selected route does not temporarily set
 or rediscover `NYASH_EMIT_EXE_NYRT`; the unversioned four-argument symbol is
-compatibility-only. This ABI change only fixes link-input authority. Static
-artifact descriptor observation, receipt issuance, and final publication stay
-closed until the W6-D owner is landed.
+compatibility-only. This ABI fixes link-input authority; it does not publish an
+executable or issue runtime addresses.
+
+### `include/hako_dynamic_v2_artifact_descriptor_v1.h`
+
+Selected Dynamic Boundary objects and linked executables contain exactly one
+fixed `.hako_dynamic_v2_descriptor` section and the global descriptor symbol
+named by this header. The layout carries the two canonical CheckedCallOut site
+IDs, entry IDs/symbols/arities, contract/profile, ABI/wire revisions, registry
+generation, and PlanStamp. It is a physical projection of final candidate
+metadata, not another semantic or provider authority.
+
+The Rust W6-D transaction observes the actual object, explicit runtime archive,
+and temporary executable; it checks descriptor parity and exact symbol state,
+records all three artifact digests, and issues one move-only static link
+receipt. Failure removes the temporary candidate and preserves the previous
+final path. Final rename and production activation remain exclusively W6-E;
+`RuntimeExecutablePlan`, `dlopen`/`dlsym`, provider reselection, fallback, and
+retry are not part of this static direct-symbol lane.
 
 ## 3. Lifecycle Extension Symbols
 

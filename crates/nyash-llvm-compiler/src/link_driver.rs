@@ -7,6 +7,11 @@ use anyhow::{bail, Context, Result};
 use super::boundary_driver;
 use super::DriverKind;
 
+#[allow(dead_code)]
+mod static_artifact_descriptor;
+#[allow(dead_code)]
+mod static_artifact_publication;
+
 pub(super) fn finalize_emit_output(
     driver: DriverKind,
     obj_path: &Path,

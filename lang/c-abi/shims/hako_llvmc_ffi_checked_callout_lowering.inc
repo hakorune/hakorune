@@ -34,6 +34,16 @@ static long long hako_llvmc_c1_int(yyjson_val* object, const char* key, int* ok)
   return hako_llvmc_c1_value_int(value, ok);
 }
 
+static int hako_llvmc_c1_u64(
+    yyjson_val* object,
+    const char* key,
+    uint64_t* out) {
+  yyjson_val* value = object ? yyjson_obj_get(object, key) : NULL;
+  if (!value || !out || !yyjson_is_uint(value)) return 0;
+  *out = yyjson_get_uint(value);
+  return 1;
+}
+
 static const char* hako_llvmc_c1_text(yyjson_val* object, const char* key) {
   yyjson_val* value = object ? yyjson_obj_get(object, key) : NULL;
   return value && yyjson_is_str(value) ? yyjson_get_str(value) : NULL;
@@ -132,6 +142,9 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
   size_t result_count = 0;
   size_t fault_count = 0;
   size_t end_count = 0;
+  uint64_t registry_generation = 0;
+  uint64_t compiler_domain = 0;
+  uint64_t invocation_ordinal = 0;
   const char* roles[4] = {"src", "pos", "end", "pred_chars"};
   const char* lanes[4] = {"opaque_handle", "immediate_i64", "immediate_i64", "opaque_handle"};
   if (!metadata) return 1; /* ordinary functions remain on the old lane */
@@ -140,13 +153,17 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
       hako_llvmc_c1_int(metadata, "profile", &ok) != 1 || !ok ||
       hako_llvmc_c1_int(metadata, "abi_revision", &ok) != 1 || !ok ||
       hako_llvmc_c1_int(metadata, "wire_revision", &ok) != 2 || !ok ||
-      hako_llvmc_c1_int(metadata, "registry_generation", &ok) <= 0 || !ok ||
+      !hako_llvmc_c1_u64(metadata, "registry_generation", &registry_generation) ||
+      registry_generation == 0 ||
       !hako_llvmc_c1_text_eq(metadata, "return_type", "i64") ||
       !hako_llvmc_c1_text_eq(metadata, "return_lane", "immediate_i64")) return 0;
   {
     yyjson_val* stamp = yyjson_obj_get(metadata, "plan_stamp");
-    if (!stamp || hako_llvmc_c1_int(stamp, "compiler_domain", &ok) <= 0 || !ok ||
-        hako_llvmc_c1_int(stamp, "invocation_ordinal", &ok) <= 0 || !ok) return 0;
+    if (!stamp ||
+        !hako_llvmc_c1_u64(stamp, "compiler_domain", &compiler_domain) ||
+        compiler_domain == 0 ||
+        !hako_llvmc_c1_u64(stamp, "invocation_ordinal", &invocation_ordinal) ||
+        invocation_ordinal == 0) return 0;
   }
   formals = yyjson_obj_get(metadata, "formal_parameters");
   params = fn ? yyjson_obj_get(fn, "params") : NULL;

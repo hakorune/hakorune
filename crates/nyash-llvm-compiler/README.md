@@ -48,6 +48,15 @@
    - invalid emit kind や link/runtime prerequisites missing は fail-fast する
    - silent fallback しない
 
+Selected Dynamic W6 additionally embeds one versioned artifact descriptor in
+the Boundary-produced object. `StaticAotArtifactPublicationTxnV1` links only
+to a same-directory temporary executable, observes the real object, exact
+runtime archive, and executable, then issues one move-only receipt over their
+digests, required symbols, descriptor, ABI/wire, and PlanStamp. W6-D does not
+publish the final path; only the W6-E consuming commit may perform that rename.
+This static direct-symbol lane does not issue `RuntimeExecutablePlanV1` and
+does not use `dlopen`, `dlsym`, provider reselection, fallback, or retry.
+
 ## Current Implementation Note
 
 - current `ny-llvmc` default route first enters the boundary-owned C ABI lane

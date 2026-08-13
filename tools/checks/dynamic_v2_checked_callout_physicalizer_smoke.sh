@@ -15,12 +15,12 @@ fi
 
 bash "$ROOT_DIR/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
-python3 - "$BASE" "$TMP_DIR/valid.json" "$TMP_DIR/invalid.json" <<'PY'
+python3 - "$BASE" "$TMP_DIR/valid.json" "$TMP_DIR/invalid.json" "$TMP_DIR/ordinary.json" <<'PY'
 import copy
 import json
 import sys
 
-base_path, valid_path, invalid_path = sys.argv[1:]
+base_path, valid_path, invalid_path, ordinary_path = sys.argv[1:]
 data = json.load(open(base_path, encoding="utf-8"))
 function = data["functions"][0]
 function["name"] = "ParserScanLoopBox.skip_while/4"
@@ -31,8 +31,11 @@ admission = {
     "profile": 1,
     "abi_revision": 1,
     "wire_revision": 2,
-    "registry_generation": 7,
-    "plan_stamp": {"compiler_domain": 1, "invocation_ordinal": 9},
+    "registry_generation": 18446744073709551613,
+    "plan_stamp": {
+        "compiler_domain": 18446744073709551615,
+        "invocation_ordinal": 18446744073709551614,
+    },
     "return_type": "i64",
     "return_lane": "immediate_i64",
     "formal_parameters": [
@@ -92,6 +95,18 @@ json.dump(data, open(valid_path, "w", encoding="utf-8"))
 invalid = copy.deepcopy(data)
 invalid["functions"][0]["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][1]["wire_revision"] = 99
 json.dump(invalid, open(invalid_path, "w", encoding="utf-8"))
+json.dump({
+    "kind": "MIR",
+    "schema_version": "1.0",
+    "metadata": {"extern_c": []},
+    "functions": [{
+        "name": "ny_main",
+        "blocks": [{"id": 0, "instructions": [
+            {"op": "const", "dst": 1, "value": {"type": "i64", "value": 0}},
+            {"op": "ret", "value": 1},
+        ]}],
+    }],
+}, open(ordinary_path, "w", encoding="utf-8"))
 PY
 
 python3 - "$FFI" "$TMP_DIR/valid.json" "$TMP_DIR/valid.o" <<'PY'
@@ -121,6 +136,39 @@ if ! nm -u "$TMP_DIR/valid.o" | grep -Fq 'hako.text.scan.index_of.v1'; then
 fi
 if ! nm -u "$TMP_DIR/valid.o" | grep -Fq 'nyrt_dynamic_v2_lease_consume_end_authorized_v1'; then
   echo "[$TAG] positive object is missing the sole lease C ABI consumer" >&2
+  exit 1
+fi
+if [[ "$(nm -g --defined-only "$TMP_DIR/valid.o" | grep -Fc 'hako_dynamic_v2_static_artifact_descriptor_v1')" -ne 1 ]]; then
+  echo "[$TAG] positive object must define one artifact descriptor" >&2
+  exit 1
+fi
+if [[ "$(readelf -W -S "$TMP_DIR/valid.o" | grep -Fc '.hako_dynamic_v2_descriptor')" -ne 1 ]]; then
+  echo "[$TAG] positive object must retain one artifact descriptor section" >&2
+  exit 1
+fi
+
+python3 - "$FFI" "$TMP_DIR/ordinary.json" "$TMP_DIR/ordinary.o" <<'PY'
+import ctypes
+import os
+import sys
+
+ffi_path, json_path, obj_path = sys.argv[1:]
+lib = ctypes.CDLL(ffi_path)
+compile_fn = lib.hako_llvmc_compile_json_pure_first
+compile_fn.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.POINTER(ctypes.c_void_p)]
+compile_fn.restype = ctypes.c_int
+error = ctypes.c_void_p()
+result = compile_fn(json_path.encode(), obj_path.encode(), ctypes.byref(error))
+if result != 0 or not os.path.exists(obj_path):
+    message = ctypes.cast(error, ctypes.c_char_p).value.decode() if error.value else "(no error)"
+    raise SystemExit(f"ordinary C1 physicalization failed: rc={result}: {message}")
+PY
+if nm -g --defined-only "$TMP_DIR/ordinary.o" | grep -Fq 'hako_dynamic_v2_static_artifact_descriptor_v1'; then
+  echo "[$TAG] ordinary object unexpectedly defines a Dynamic V2 descriptor" >&2
+  exit 1
+fi
+if readelf -W -S "$TMP_DIR/ordinary.o" | grep -Fq '.hako_dynamic_v2_descriptor'; then
+  echo "[$TAG] ordinary object unexpectedly retains a Dynamic V2 descriptor section" >&2
   exit 1
 fi
 

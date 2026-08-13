@@ -38,6 +38,12 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   and passes it as an argument; this path never asks the C shim to rediscover
   `NYASH_EMIT_EXE_NYRT` or a fallback directory. The legacy four-argument
   symbol remains a compatibility owner only.
+- `hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc` is the sole selected
+  object-descriptor emitter. It copies the already validated candidate
+  metadata into the fixed layout from
+  `include/hako_dynamic_v2_artifact_descriptor_v1.h`; it does not select a
+  provider, rediscover a call site, or issue a link receipt. Ordinary objects
+  emit no descriptor. The Rust W6-D transaction is the sole post-link observer.
 - Generic-method route tuple facts must have one registry owner. The tuple
   `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
   not be re-listed independently in route policy, generic method match,
