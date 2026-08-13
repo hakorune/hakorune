@@ -50,6 +50,7 @@ fn codegen_result_to_bid(result: Result<String, String>) -> BidResult<Option<Box
 }
 
 pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String, String> {
+    validate_ordinary_ambient_replay(crate::config::env::backend_compat_replay().as_deref())?;
     // Explicit compat chokepoint: this branch still owns the MIR(JSON text) -> object
     // contract until upstream accept paths retire in order. The legacy helper is
     // no longer called here directly; this chokepoint now sits on a dedicated
@@ -78,6 +79,16 @@ pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String,
         .map_err(|e| e.to_string());
     trace_result("emit_object", &result);
     result
+}
+
+fn validate_ordinary_ambient_replay(replay: Option<&str>) -> Result<(), String> {
+    if matches!(replay, Some(value) if value != "none") {
+        return Err(format!(
+            "[env.codegen/ordinary] rejects ambient compat replay={:?}; use emit_object_compat_harness",
+            replay
+        ));
+    }
+    Ok(())
 }
 
 /// Explicit compatibility admission. Ordinary callers cannot reach this
@@ -247,7 +258,10 @@ fn trace_result(route: &str, result: &Result<String, String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{codegen_opts, codegen_result_to_bid, compat_harness_codegen_opts};
+    use super::{
+        codegen_opts, codegen_result_to_bid, compat_harness_codegen_opts,
+        validate_ordinary_ambient_replay,
+    };
     use crate::bid::BidError;
     use crate::host_providers::llvm_codegen::CodegenRouteRequestV1;
 
@@ -284,5 +298,62 @@ mod tests {
             opts.route_request,
             CodegenRouteRequestV1::ExplicitHarnessCompat
         );
+    }
+
+    #[test]
+    fn ordinary_ambient_replay_is_rejected_before_route() {
+        assert!(validate_ordinary_ambient_replay(None).is_ok());
+        assert!(validate_ordinary_ambient_replay(Some("none")).is_ok());
+        let error = validate_ordinary_ambient_replay(Some("harness"))
+            .expect_err("ordinary route must reject inherited harness replay");
+        assert!(error.contains("emit_object_compat_harness"));
+    }
+
+    #[test]
+    fn child_observation_probe_is_opt_in_only() {
+        if std::env::var("HAKO_LLVM_CHILD_OBSERVATION").ok().as_deref() != Some("1") {
+            return;
+        }
+        let worker = std::thread::Builder::new()
+            .name("env-codegen-child-observation".to_string())
+            .stack_size(32 * 1024 * 1024)
+            .spawn(|| {
+                let mir_json = r#"{
+                    "schema_version":"1.0",
+                    "functions":[{"name":"main","blocks":[{"id":0,"instructions":[
+                        {"op":"const","dst":0,"value":{"type":"i64","value":0}},
+                        {"op":"ret","value":0}
+                    ]}]}]
+                }"#;
+                if std::env::var("HAKO_LLVM_CHILD_OBSERVATION_REPLAY")
+                    .ok()
+                    .as_deref()
+                    == Some("1")
+                {
+                    let error = super::emit_object(mir_json, false)
+                        .expect_err("ordinary inherited replay must fail before child spawn");
+                    assert!(error.contains("emit_object_compat_harness"));
+                    return;
+                }
+                if std::env::var("HAKO_LLVM_CHILD_OBSERVATION_COMPAT")
+                    .ok()
+                    .as_deref()
+                    == Some("1")
+                {
+                    let _compat = super::emit_object_compat_harness(mir_json, false);
+                    return;
+                }
+                let _ordinary = super::emit_object(mir_json, false);
+                if std::env::var("HAKO_LLVM_CHILD_OBSERVATION_ORDINARY")
+                    .ok()
+                    .as_deref()
+                    == Some("1")
+                {
+                    return;
+                }
+                let _compat = super::emit_object_compat_harness(mir_json, false);
+            })
+            .expect("observation thread should start");
+        worker.join().expect("observation thread should finish");
     }
 }

@@ -157,6 +157,10 @@ need_fixed "$PLUGIN" 'CodegenRouteRequestV1::BoundaryPureFirst' \
   "ordinary env.codegen Boundary admission missing"
 need_fixed "$PLUGIN" 'CodegenRouteRequestV1::ExplicitHarnessCompat' \
   "named harness admission missing"
+need_fixed "$PLUGIN" 'validate_ordinary_ambient_replay' \
+  "ordinary ambient replay gate missing"
+need_fixed "$PLUGIN" '[env.codegen/ordinary] rejects ambient compat replay' \
+  "ordinary ambient replay error contract missing"
 need_fixed "$ROUTE" 'if opts.route_request == CodegenRouteRequestV1::ExplicitHarnessCompat' \
   "named harness route must bypass generic C-ABI probing"
 need_fixed "$ROUTE" 'CodegenRouteRequestV1::ExplicitHarnessCompat => {' \

@@ -566,22 +566,23 @@ Receipt: helper, build/stage3 wiring, positive/negative tests, metadata,
   route/pointer guards, shell syntax, and diff checks are green.
 Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
 ```
-### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted R0; fast)
-```text
-Decision: `env.codegen.emit_object` stays Boundary/pure-first and never inherits
-  ambient recipe/replay. Only a named `emit_object_compat_harness` method may
-  admit the explicit harness keep lane; a private `CodegenRouteRequestV1` core
-  may be shared, but the public method is the admission boundary.
-Source authority + issuer: named env.codegen method plus route/C-ABI request;
-  ordinary and compat callers consume separate methods. Non-authority: harness
-  hint, Python output, provider labels, generic C fallback, or plugin `None`.
-Fail-fast before hako_aot child: ordinary inherited replay rejects; pure-first/
-  none stays typed unsupported. Root-first LLVM text -> opt/llc is not this ingress.
-Receipt (2026-08-14): named receiver/route admission landed; cargo check, focused tests,
-  fmt, guards, and diff check are green. Child-count observation remains next evidence.
-Non-claims: no provider reorder, production switch, G2/G3 retirement, or
-  llvmlite source deletion.
-```
+### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (closed R0; fast)
+Decision: ordinary `env.codegen.emit_object` is fixed Boundary/pure-first and
+  rejects inherited replay; only named `emit_object_compat_harness` admits the
+  explicit harness keep lane. Source authority: named receiver plus route request.
+Non-authority: hints, Python output, provider labels, generic C fallback, plugin `None`.
+Fail-fast: ambient replay other than `none` rejects before route/child creation.
+Receipt (2026-08-14): focused Rust tests=7; ordinary child=0, named child=1,
+  inherited replay child=0 observed by opt-in strace; route/pointer guards, fmt,
+  and diff check are green. Non-claims: no G1/G2/G3 retirement or source deletion.
+### `LLVMLITE-AUTO0-HAKO-AOT-RET0` (accepted D0; fast)
+Decision: census direct `hako_aot_compile_json` and generic-C ingress before production
+  retirement; only explicit harness replay may remain a keep lane.
+Source authority: AOT replay gate, exact child command, and route receipt.
+Non-authority: `NYASH_LLVM_USE_HARNESS`, generic fallback, Python output.
+Fail-fast: default/direct AOT and inherited replay stop before child creation.
+Smallest next slice: positive explicit-keep plus negative default/replay child census.
+Non-claims: no G1/G2/G3 retirement, source deletion, or new backend.
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0` (closed)
 Decision: reuse `NYASH_LLVM_ROUTE_TRACE` as diagnostic events; no durable route
   receipt or second selector. Source authority: route/driver dispatch emits one
