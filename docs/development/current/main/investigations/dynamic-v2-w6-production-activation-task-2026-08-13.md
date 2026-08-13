@@ -892,12 +892,12 @@ Non-claims: no long-lived candidate↔artifact product, cross-process rollback, 
 #### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (design stop)
 
 ```text
-Decision: do not invent a third transaction or transition product; C5 receipt-gated Boundary launch is landed, but final selected live publication waits for an explicit existing root owner/API.
-Source authority + canonical issuer: package-adapter selected handoff; existing PreparedModuleExternalCommitV1 for MIR publication; StaticAotArtifactPublicationTxnV1 plus root consume_static_artifact_receipt for the artifact fence.
-Non-authority: runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
-Fail-fast boundary: missing/foreign receipt, candidate/artifact/PlanStamp/site/ABI/wire drift, or selected old/new/ordinary census mismatch leaves the live Builder and selected old edge unchanged.
-Smallest next slice: name and accept the existing root owner/API for the final selected callback switch, then add one scoped before/after census; no code until that issuer/consumer is explicit.
-Acceptance: selected Boundary caller=1, selected raw/JoinIR edge=0, ordinary compatibility edge=1, receipt/path fence=1, fallback/retry/VM=0; final live new=1/old=0 remains open.
+Decision: keep a design stop; the root commit owner is explicit, but the LLVM ingress materialization relation to the source-backed selected package is not.
+Source authority + canonical issuer: `NormalCompileRequestV1::for_mir_mode_callable_source` -> callable transform/package issuer -> `NormalDefaultPublishedPipelineV1` -> `prepare_external_commit` -> `PreparedBuilderExternalCommitV1::commit`.
+Non-authority: `for_llvm_source` compatibility AST request, runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
+Fail-fast boundary: missing source-backed callable relation, foreign package/admission, receipt/site/ABI/wire drift, or selected/ordinary census mismatch leaves the live Builder and ordinary edge unchanged.
+Smallest next slice: document and accept one LLVM-ingress source-backed materialization relation plus one scoped before/after census; no guessed callback, transition product, or AST-to-package re-inference.
+Acceptance: adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, selected Boundary=1, receipt/path fence=1, fallback/retry/VM=0; final LLVM-ingress live switch remains open.
 Non-claims: no ordinary compatibility retirement, llvmlite G1/G2/G3 activation, source deletion, cross-process recovery, RuntimeExecutablePlan, or guessed transition state.
 ```
 ## Negative matrix

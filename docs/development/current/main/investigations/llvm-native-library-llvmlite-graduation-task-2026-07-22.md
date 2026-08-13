@@ -83,8 +83,9 @@ fallback = 0, retry = 0, VM consumer = 0
 `W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` has landed the existing
 receipt-gated selected runner terminal, including the explicit runtime-archive
 path required by the Boundary link ABI. The remaining `W6-E-C6
-FINAL-LIVE-PUBLICATION-D0` design stop must name the existing root owner/API
-and scoped before/after census before G1 starts. Neither row creates a new
+FINAL-LIVE-PUBLICATION-D0` design stop must define the LLVM-ingress
+source-backed callable materialization relation and scoped before/after census;
+the root commit owner is already explicit. Neither row creates a new
 transaction or retires ordinary compatibility. Until C6 is accepted, this
 board remains parked. Once C6 and its scoped receipt/caller evidence exist, G1
 retires automatic production reachability, G2 removes Python/llvmlite from
