@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/ring2-provider-link-abi-lifecycle-ssot.md
+  - docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
   - docs/reference/mir/loop-recipe-contract.md
 ---
 
