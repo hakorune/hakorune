@@ -519,7 +519,7 @@ Non-claims: no JSON/C/link/RuntimePlan/publication/caller/VM/fallback/retry.
 ```
 
 Acceptance: `receipt issuer/install/borrowed observer = 1/1/1`, while the
-live `take_once` consumer remains `0` until C0-B candidate metadata handoff;
+live `take_once` consumer remains `0` until a C1/backend consumer;
 site-id locator exact, old coordinate locator/default receipt `= 0`,
 production callers `new=0 old=1`.
 
@@ -546,7 +546,12 @@ Non-claims: no C/link/RuntimePlan/live publication/production caller/VM.
 Acceptance: candidate JSON key/consumer/slot issuer `= 1/1/1`, exact two
 site-id entries, coordinate locator/lookup `= 0`, production `new=0 old=1`.
 
-#### W6-C1 — `BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
+Observed closeout (2026-08-13): the selected unpublished close now projects
+the canonical plan table into one clone-scrubbing FunctionMetadata slot, and
+candidate JSON borrows that slot once; A-prime `take_once`, C/LLVM/runtime
+publication, and production caller counts remain closed (`new=0 old=1`).
+
+#### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
 Only after C0 is green, add the selected physicalizer to the actual default
 Boundary backend:

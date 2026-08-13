@@ -269,19 +269,28 @@ if rg -n \
   "$ROOT_DIR/src/llvm_py/builders" "$ROOT_DIR/src/llvm_py/instructions"; then
   guard_fail "$TAG" "I0-D1 metadata/hook must have zero production Python callers"
 fi
-if rg -n \
-  --glob '*.rs' \
-  --glob '!call_metadata.rs' \
-  'project_dynamic_v2_aot_call_metadata\(' \
-  "$ROOT_DIR/src"; then
-  guard_fail "$TAG" "I0-D1b Rust metadata issuer must have zero production callers"
+projection_callers=()
+while IFS= read -r file; do
+  case "$file" in
+    "$SELECTED_EMITTER") projection_callers+=("$file") ;;
+    *_tests.rs|*/tests.rs) ;;
+    *) guard_fail "$TAG" "C0-B Rust metadata projection gained an unapproved caller: ${file#"$ROOT_DIR/"}" ;;
+  esac
+done < <(rg -l --glob '*.rs' --glob '!call_metadata.rs' \
+  'project_dynamic_v2_aot_call_metadata\(' "$ROOT_DIR/src" || true)
+if [[ "${#projection_callers[@]}" -ne 1 ]]; then
+  guard_fail "$TAG" "C0-B Rust metadata projection must have exactly one selected-session caller"
 fi
-if rg -n \
-  --glob '*.rs' \
-  --glob '!dynamic_v2_aot_admission.rs' \
-  'insert_dynamic_v2_aot_call_admission_json\(' \
-  "$ROOT_DIR/src"; then
-  guard_fail "$TAG" "I0-D1b JSON metadata emitter must have zero production callers"
+json_callers=()
+while IFS= read -r file; do
+  case "$file" in
+    "$ROOT_DIR/src/runner/mir_json_emit/metadata.rs") json_callers+=("$file") ;;
+    *) guard_fail "$TAG" "C0-B JSON metadata emitter gained an unapproved caller: ${file#"$ROOT_DIR/"}" ;;
+  esac
+done < <(rg -l --glob '*.rs' --glob '!dynamic_v2_aot_admission.rs' \
+  'insert_dynamic_v2_aot_call_admission_json\(' "$ROOT_DIR/src" || true)
+if [[ "${#json_callers[@]}" -ne 1 ]]; then
+  guard_fail "$TAG" "C0-B JSON metadata emitter must have exactly one metadata consumer"
 fi
 if rg -n 'lookup_core_method|selector|PreparedAotExecutableAdmissionV1::|into_parts|clone\(' "$RUST_METADATA" "$JSON_METADATA"; then
   guard_fail "$TAG" "I0-D1b projection must borrow retained facts without reseal, lookup, selector, or clone"

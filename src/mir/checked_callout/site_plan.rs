@@ -100,6 +100,18 @@ impl CheckedCallOutSitePlanV1 {
         self.site_id
     }
 
+    pub(crate) const fn admitted_entry(&self) -> CheckedCallOutEntryIdV1 {
+        self.admitted_entry
+    }
+
+    pub(crate) const fn call_abi_revision(&self) -> u32 {
+        self.call_abi_revision
+    }
+
+    pub(crate) const fn wire_revision(&self) -> u32 {
+        self.wire_revision
+    }
+
     pub(crate) const fn effects(&self) -> EffectMask {
         self.effects
     }
@@ -305,6 +317,16 @@ impl CheckedCallOutSitePlanPairV1 {
     ) -> R {
         callback(self.i6, self.i7)
     }
+
+    #[cfg(test)]
+    pub(crate) fn into_plan_table_for_test(self) -> CheckedCallOutPlanTableV1 {
+        self.consume(|i6, i7| {
+            let mut table = CheckedCallOutPlanTableV1::default();
+            table.admit(i6).expect("test I6 plan");
+            table.admit(i7).expect("test I7 plan");
+            table
+        })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -337,6 +359,27 @@ impl CheckedCallOutPlanTableV1 {
         self.plans.get(&site)
     }
 
+    /// Borrow the canonical entry -> site mapping after the session has
+    /// installed the exact function-local plan table.  Consumers may not
+    /// reconstruct a second site-plan pair from entry names or coordinates.
+    pub(crate) fn site_id_for_entry(
+        &self,
+        entry: CheckedCallOutEntryIdV1,
+    ) -> Option<CheckedCallOutSiteIdV1> {
+        self.plans
+            .values()
+            .find_map(|plan| (plan.admitted_entry() == entry).then_some(plan.site_id()))
+    }
+
+    pub(crate) fn plan_for_entry(
+        &self,
+        entry: CheckedCallOutEntryIdV1,
+    ) -> Option<&CheckedCallOutSitePlanV1> {
+        self.plans
+            .values()
+            .find(|plan| plan.admitted_entry() == entry)
+    }
+
     pub(super) fn contains_site(&self, site: CheckedCallOutSiteIdV1) -> bool {
         self.plans.contains_key(&site)
     }
@@ -347,7 +390,7 @@ impl CheckedCallOutPlanTableV1 {
         self.plans.iter()
     }
 
-    pub(super) fn len(&self) -> usize {
+    pub(crate) fn len(&self) -> usize {
         self.plans.len()
     }
 

@@ -7,6 +7,7 @@
  */
 
 mod display;
+mod dynamic_v2_aot_metadata_slot;
 mod facts;
 mod fastmem;
 mod function_impl;

@@ -5,8 +5,8 @@
 //! its scoped entry, and never opens a second Builder/CFG owner or activates
 //! the production capability gate.
 
-mod callout_corridor;
 mod a_prime_receipt;
+mod callout_corridor;
 mod continuation_backedge;
 mod fault_terminals;
 mod formal_header;
@@ -511,6 +511,39 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(error);
             }
         };
+        let projection = {
+            let function = match outer
+                .builder_view_mut_for_lowering()
+                .function_state
+                .current_function
+                .as_ref()
+            {
+                Some(function) => function,
+                None => {
+                    outer.discard_unpublished();
+                    return Err(DynamicV2I8EmitterRejectV1::DraftSeal(
+                        "selected function missing while projecting AOT metadata".to_owned(),
+                    ));
+                }
+            };
+            crate::box_callable::provider_admission::project_dynamic_v2_aot_call_metadata(
+                &self.aot,
+                &receipt,
+                function.metadata.checked_callout_site_plan_table(),
+            )
+            .map_err(|error| {
+                DynamicV2I8EmitterRejectV1::DraftSeal(format!(
+                    "Dynamic AOT metadata projection rejected: {error:?}"
+                ))
+            })
+        };
+        let projection = match projection {
+            Ok(projection) => projection,
+            Err(error) => {
+                outer.discard_unpublished();
+                return Err(error);
+            }
+        };
         let function = match outer
             .builder_view_mut_for_lowering()
             .function_state
@@ -525,10 +558,22 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 ));
             }
         };
-        if let Err(error) = function.metadata.install_a_prime_i64_physical_receipt(receipt) {
+        if let Err(error) = function
+            .metadata
+            .install_a_prime_i64_physical_receipt(receipt)
+        {
             outer.discard_unpublished();
             return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
                 "A-prime receipt install rejected: {error:?}"
+            )));
+        }
+        if let Err(error) = function
+            .metadata
+            .install_dynamic_v2_aot_metadata(projection)
+        {
+            outer.discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
+                "Dynamic AOT metadata install rejected: {error:?}"
             )));
         }
         let Some(outer_site) = self

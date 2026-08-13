@@ -3,6 +3,7 @@ use super::agg_local::build_agg_local_scalarization_routes_json;
 use super::array_metadata::insert_array_metadata_json;
 use super::array_write::insert_array_write_metadata_json;
 use super::core_metadata::insert_core_metadata_json;
+use super::dynamic_v2_aot_admission::insert_dynamic_v2_aot_call_admission_json;
 use super::exact_numeric::insert_exact_numeric_metadata_json;
 use super::fastmem_metadata::insert_fastmem_metadata_json;
 use super::local_contracts::insert_local_contract_metadata_json;
@@ -482,6 +483,9 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_parameter_contract_metadata_json(obj, metadata);
         insert_a_prime_i64_physical_receipt_json(obj, metadata);
+        if let Some(projection) = metadata.dynamic_v2_aot_metadata() {
+            insert_dynamic_v2_aot_call_admission_json(obj, projection);
+        }
         insert_return_contract_metadata_json(obj, metadata);
         insert_local_contract_metadata_json(obj, metadata);
         insert_record_contract_metadata_json(obj, metadata);

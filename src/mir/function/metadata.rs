@@ -1,3 +1,6 @@
+use super::dynamic_v2_aot_metadata_slot::{
+    DynamicV2AotMetadataSlotRejectV1, DynamicV2AotMetadataSlotV1,
+};
 use super::facts::{
     CountingLoopFact, DirectArrayExtentFact, FastPathObligation, LoopRangeFact, RangeIndexFact,
     RegionStabilityFact, RequiredFastPathRegion, SpanAccessPlan, SpanBorrowFact,
@@ -103,6 +106,10 @@ pub struct FunctionMetadata {
     /// carries only an opaque site id; entry/ABI/shape/slot authority stays in
     /// this table and is admitted exactly once by the canonical session.
     checked_callout_site_plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
+
+    /// Candidate-only Dynamic AOT projection. The canonical physical session
+    /// installs it once; JSON borrows it without rebuilding site/ABI facts.
+    dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,
 
     /// Source file location
     pub source_file: Option<String>,
@@ -717,6 +724,12 @@ impl FunctionMetadata {
         self.checked_callout_site_plans.get(site)
     }
 
+    pub(crate) fn checked_callout_site_plan_table(
+        &self,
+    ) -> &crate::mir::checked_callout::CheckedCallOutPlanTableV1 {
+        &self.checked_callout_site_plans
+    }
+
     pub(crate) fn verify_checked_callout_function(
         &self,
         function: &crate::mir::MirFunction,
@@ -729,6 +742,21 @@ impl FunctionMetadata {
 }
 
 impl FunctionMetadata {
+    /// Borrow the candidate-only Dynamic AOT projection for JSON observation.
+    pub(crate) fn dynamic_v2_aot_metadata(
+        &self,
+    ) -> Option<&crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1>
+    {
+        self.dynamic_v2_aot_metadata.borrow()
+    }
+
+    pub(in crate::mir) fn install_dynamic_v2_aot_metadata(
+        &mut self,
+        projection: crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1,
+    ) -> Result<(), DynamicV2AotMetadataSlotRejectV1> {
+        self.dynamic_v2_aot_metadata.install(projection)
+    }
+
     /// Borrow the transport receipt for JSON observation only. The live
     /// physical consumer must use `take_a_prime_i64_physical_receipt`.
     pub(crate) fn a_prime_i64_physical_receipt(&self) -> Option<&APrimeI64PhysicalReceiptV1> {
