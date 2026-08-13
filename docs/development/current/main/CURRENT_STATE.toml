@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, G1 route/selected-runner retirement, and all G2 source/default/perf/caller/smoke boundaries are closed; G3 llvmlite archive/deletion is at the bounded source/consumer/fixture inventory design stop. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic through receipt-gated Boundary launch and G0-G2 llvmlite production/default retirement are landed. A post-W6 audit accepted four pre-integration hardening rows: linear metadata must reject scrubbed clones, selected MIR must bypass every post-seal mutator, executable+receipt publication must become one bundle transaction, and Boundary ownership must split from llvmlite compat. G3 oracle/archive work is parked until those rows close."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LLVMLITE-ORACLE-COVERAGE-D0: classify the 119 fixture/golden candidates, add the six replay dependencies, and map every supported llvmlite opcode to an independently-issued oracle case or archive-only disposition before selecting an exact archive destination."
-work_mode = "design_stop"
-current_execution_row = "LLVMLITE-ORACLE-COVERAGE-D0"
-current_blocker_token = "LLVMLITE-ORACLE-COVERAGE-D0: source authority is inventory-v0, source-backed G0/G2/shared-smoke rows, tracked replay dependencies, reviewed expected results, and the supported-opcode census. Non-authority is llvmlite output, object existence, raw grep, transport tests, or general archive-movement consent. Fail-fast on any unclassified candidate/dependency, missing independent expected-result issuer, uncovered opcode, fallback/retry, or new lowering. Acceptance: classify 119 candidates, add six closure paths, and map every supported opcode; no exact archive path, source move/deletion, external publication, or artifact claim."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 design is accepted. DYN-PROD-BASELINE-R0 is the bounded behavior-neutral entry; later rows fail-close scrubbed metadata, post-seal mutation, artifact bundle publication, and Boundary/llvmlite feature ownership before G3 resumes."
+work_mode = "fast"
+current_execution_row = "DYN-PROD-BASELINE-R0"
+current_blocker_token = "DYN-PROD-BASELINE-R0: update the stale TextScan admission guard to exact definition/test/production callers, synchronize current owner README/check-index text, and classify the outstanding completion red using a clean worktree and exact parent evidence. No route, Recipe, MIR, fixture, source acceptance, fallback/retry, archive movement, deletion, or unrelated dirty compiler edit."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md"
+current_execution_design = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "llvmlite-keep0-ret0-inventory"
-latest_card_path = "docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md"
-latest_card_summary = "W6 through selected executable launch and G0-G2 llvmlite production/default retirement are closed. G3 inventory and guard are landed. Repository-owner policy consent permits a later in-repo archive move, but exact placement, external publication, and deletion remain separate approvals. LLVMLITE-ORACLE-COVERAGE-D0 now proves the independent replay closure before any move."
-next_design_card = "LLVMLITE-ORACLE-COVERAGE-D0"
-next_design_card_path = "docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card = "selected-dynamic-postseal-hardening0"
+latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+latest_card_summary = "Post-W6 audit accepted four pre-integration corrections without reopening MIR semantics: scrubbed linear metadata is never ordinary, selected MIR has no post-seal mutable seam, executable+receipt becomes one bundle publication, and Boundary build/runner ownership separates from llvmlite compat. G3 resumes after hardening and clean integration evidence."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "DYN-PROD-BASELINE-R0"
+next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

@@ -1,8 +1,8 @@
 ---
-Status: Design stop; inventory, guard, and archive-approval split closed
+Status: Parked at LLVMLITE-ORACLE-COVERAGE-D0; resume after selected Dynamic post-seal hardening and integration evidence
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
-Current-row: LLVMLITE-ORACLE-COVERAGE-D0
+Current-row: LLVMLITE-ORACLE-COVERAGE-D0 (parked)
 Scope: frozen llvmlite keep-lane source, consumer, fixture/golden, artifact, and restore inventory
 ---
 
@@ -11,6 +11,13 @@ Scope: frozen llvmlite keep-lane source, consumer, fixture/golden, artifact, and
 This is the bounded child task for G3. It prepares the evidence needed for a
 later archive/deletion decision; it does not move or delete source, create an
 external archive, or change any route.
+
+G3 execution is temporarily parked by
+`selected-dynamic-postseal-hardening0-task-2026-08-14.md`. In particular,
+Boundary production must stop depending on the `llvm-harness` feature/module
+owner before any llvmlite archive move. The inventory and guard remain valid;
+resume this card at `LLVMLITE-ORACLE-COVERAGE-D0` after the named hardening and
+clean integration-evidence rows close.
 
 ## Six-line brief
 
