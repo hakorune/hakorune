@@ -140,14 +140,14 @@ W6-E receipt and caller census
 
 ### G1 — remove production reachability (`LLVMLITE-PROD0-G1-REACHABILITY-R0`)
 
-Owner: W6-E Boundary artifact receipt plus route/child-process census.
-
-Acceptance is all of the following: selected Dynamic Boundary caller `= 1`,
-selected Dynamic old raw/JoinIR edge `= 0`, ordinary compatibility edge may
-remain `= 1`, Boundary artifact receipt/fence `= 1`, automatic
-Python/llvmlite consumer `= 0`, native failure -> harness retry `= 0`,
-generic C export -> implicit harness `= 0`, and unsupported native input
-becomes a typed fail-fast. The explicit harness/oracle roots remain available
+Owner: W6-E Boundary artifact receipt plus route/child-process census; split as
+`G1-ROUTE-BOUNDARY-R0` (LegacyAmbientKeep -> explicit Boundary) and
+`G1-RUNNER-FAILFAST-R0` (selected automatic mock fallback -> typed failure).
+Acceptance: selected Dynamic Boundary caller `= 1`, old raw/JoinIR edge `= 0`,
+ordinary compatibility may remain `= 1`, Boundary artifact receipt/fence `= 1`,
+automatic Python/llvmlite consumer `= 0`, native retry `= 0`, generic C ->
+implicit harness `= 0`, selected automatic mock fallback `= 0`, and unsupported
+native input is typed fail-fast. Explicit harness/oracle roots remain available
 but are not production callers.
 
 ### G2 — remove default dependency
