@@ -878,15 +878,15 @@ Non-claims:
   receipt, second backend, or llvmlite fallback.
 ```
 
-#### W6-E-C2 — `DYNAMIC-V2-W6-CANDIDATE-BOUNDARY-HANDOFF-R0`
+#### W6-E-C3 — `DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0`
 
 ```text
-Decision: route exactly one sealed selected metadata pair to Boundary before VM/fallback.
-Source authority + canonical issuer: package-adapter DraftSeal metadata; existing Boundary/static receipt owner.
-Non-authority: runner census, JSON, llvmlite, VM, selector lookup, and a second receipt issuer.
-Fail-fast boundary: partial/foreign/duplicate pair or Boundary/artifact drift rejects before backend publication.
-Smallest next slice: consume the existing candidate through the selected Boundary receipt path; keep ordinary compatibility unchanged.
-Non-claims: no cross-process rollback, RuntimeExecutablePlan, or final live artifact switch until receipt/retirement census closes.
+Decision: return the existing root-consumed Boundary receipt fence and hold it through selected executable launch.
+Source authority + canonical issuer: selected sealed metadata/candidate JSON; `consume_static_artifact_receipt` is the sole fence issuer.
+Non-authority: runner census, JSON parser, llvmlite, VM, fallback, RuntimeExecutablePlan, or a second receipt/transaction owner.
+Fail-fast boundary: missing/invalid receipt or descriptor/digest/site/ABI/wire/PlanStamp drift rejects before `run_emitted_executable`.
+Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenceV1`; runner consumes it while ordinary compatibility stays unchanged.
+Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
 ```
 
 ## Negative matrix

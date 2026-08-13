@@ -328,6 +328,14 @@ guard_expect_fixed_in_file "$TAG" 'backend: "ny_llvmc_selected_dynamic_exe"' "$S
   "selected Dynamic execution must report the dedicated Boundary backend"
 guard_expect_fixed_in_file "$TAG" 'if selected_dynamic {' "$SELECTED_RUNNER" \
   "selected Dynamic metadata must branch before ordinary fallback"
+guard_expect_fixed_in_file "$TAG" \
+  'StaticArtifactReceiptConsumedFenceV1, String>' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
+  "selected Boundary emitter must return the consumed receipt fence"
+if [[ "$(rg -n '_receipt_fence' \
+  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected runner must consume one artifact receipt fence before execution"
+fi
 if rg -n 'lookup_core_method|into_parts|\.clone\(|RuntimeExecutablePlanV1::clone' "$PLAN_OWNER"; then
   guard_fail "$TAG" "W3 post-link plan owner must not re-resolve or clone semantic facts"
 fi

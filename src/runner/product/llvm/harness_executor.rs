@@ -24,16 +24,17 @@ impl HarnessExecutorBox {
         let receipt =
             crate::runner::modes::common_util::exec::selected_dynamic_receipt_path(exe_out);
         let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
-        crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_selected_dynamic_bin(
-            module,
-            exe_out,
-            receipt.to_string_lossy().as_ref(),
-            None,
-            libs.as_deref(),
-        )
-        .map_err(|error| {
-            LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
-        })?;
+        let _receipt_fence =
+            crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_selected_dynamic_bin(
+                module,
+                exe_out,
+                receipt.to_string_lossy().as_ref(),
+                None,
+                libs.as_deref(),
+            )
+            .map_err(|error| {
+                LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
+            })?;
         run_emitted_executable(exe_out)
     }
 

@@ -327,22 +327,43 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
 ) -> Result<(), String> {
+    emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
+        emit_json,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        receipt_json,
+    )
+    .map(|_| ())
+}
+
+/// Execute one Boundary artifact attempt and return its consumed receipt fence
+/// when the caller supplied a receipt path.  The selected Dynamic runner keeps
+/// that fence alive through process execution; ordinary callers intentionally
+/// discard the optional transport fence at this compatibility boundary.
+fn emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
+    emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
+) -> Result<Option<crate::mir::StaticArtifactReceiptConsumedFenceV1>, String> {
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
     let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs, receipt_json);
     match result {
         Ok(()) => {
-            if let Some(receipt_json) = receipt_json {
-                if let Err(err) = crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_receipt(
+            let consumed_receipt = if let Some(receipt_json) = receipt_json {
+                Some(crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_receipt(
                     receipt_json,
                     &json_path,
                     Some(Path::new(exe_out)),
-                ) {
-                    return Err(with_retained_mir_path(err, &json_path));
-                }
-            }
+                ).map_err(|err| with_retained_mir_path(err, &json_path))?)
+            } else {
+                None
+            };
             let _ = std::fs::remove_file(&json_path);
-            Ok(())
+            Ok(consumed_receipt)
         }
         Err(err) => Err(with_retained_mir_path(err, &json_path)),
     }
@@ -452,13 +473,13 @@ pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
     receipt_json: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
-) -> Result<(), String> {
+) -> Result<crate::mir::StaticArtifactReceiptConsumedFenceV1, String> {
     crate::mir::backend_capability::enforce_mir_backend_supported(
         module,
         "ny-llvmc-selected-dynamic-exe",
     )?;
     let receipt_path = Path::new(receipt_json);
-    emit_json_and_run_ny_llvmc_emit_exe(
+    emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
         |json_path| {
             crate::runner::mir_json_emit::emit_mir_json_for_selected_dynamic_candidate(
                 module, json_path,
@@ -469,7 +490,8 @@ pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
         nyrt_dir,
         extra_libs,
         Some(receipt_path),
-    )
+    )?
+    .ok_or_else(|| "selected Dynamic Boundary receipt fence missing".to_owned())
 }
 
 /// Run an executable with arguments and a timeout.
