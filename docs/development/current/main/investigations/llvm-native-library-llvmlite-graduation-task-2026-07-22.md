@@ -578,21 +578,18 @@ retirement rows, not this truth-sync row.
 
 ### `LLVMLITE-ROUTE0-OBSERVE0`
 
-Add one route receipt at the selected boundary. It records:
-
-```text
-request id
-entry family
-driver
-library export
-recipe
-compat replay
-Python child started: yes/no
-artifact result
-```
-
-The receipt is test/diagnostic observation, not semantic authority. It may not
-select a backend, retry, alter an error, or read a second route after failure.
+Decision: add one diagnostic-only route observation at the existing boundary;
+  it must not become a selector, semantic receipt, or fallback trigger.
+Source authority + canonical issuer: existing route/driver dispatch emits the
+  selected driver/export/recipe/replay; the child-process observer reports the
+  actual command once, without re-running route selection.
+Non-authority: trace text, Python output, artifact path, names, or a second
+  lookup after failure. Fail-fast: missing/duplicate/contradictory observation.
+Smallest slice: fields `request_id`, `entry_family`, `driver`, `export`,
+  `recipe`, `compat_replay`, `python_child`, and `artifact_result`; keep all
+  behavior, fallback, and error policy unchanged.
+Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder, or new
+  semantic/backend authority. The observation is discarded after diagnostics.
 
 ## 2. Native library foundation
 
