@@ -856,12 +856,13 @@ Non-claims:
   production switch; until the final commit new=0 / old=1 remains mandatory.
 ```
 
-Landed D0-C0: commit `2c0b9c585b` adds the root-only HRTB
-`PreparedModuleExternalCommitV1::with_candidate_module` seam and a focused
-borrow-without-clone test. D0-C1 changes the root validator's unit result into
-the non-Clone `StaticArtifactReceiptConsumedFenceV1`; it carries no receipt
-fields and is ready for one aggregate consume. Neither slice exposes commit,
-switches the selected callback, or retires the old edge.
+Landed D0-C0 (`2c0b9c585b`) adds the root-only HRTB
+`PreparedModuleExternalCommitV1::with_candidate_module` seam. D0-C1
+(`3a280cdb1e`) changes the root validator's unit result into the non-Clone
+`StaticArtifactReceiptConsumedFenceV1`. D0-C2 (`5b9e245dd5`) co-seals that
+fence with the existing prepared candidate in
+`PreparedSelectedDynamicW6ActivationV1`; it exposes only borrow/discard, not
+commit, callback switch, or old-edge retirement.
 
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside
