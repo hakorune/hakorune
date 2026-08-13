@@ -152,14 +152,14 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-`LLVMLITE-AUTO0-G2-CENSUS-R1` and `LLVMLITE-AUTO0-G2-PERF-ORACLE-R0` are
-closed: 17 source-backed roots are classified, the guard reports 5 pending
-roots, and default hotpath/full no longer injects the two llvmlite oracles.
-The next design stop is `LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0`. Its source
-authority is the shared smoke config/helper chain; non-authority is labels,
-comments, and Python output. Fail-fast on inherited harness defaults,
-auto-detected compat routing, fallback/retry, or G3 deletion. Shared-smoke
-behavior and G3 remain separate from the closed perf row.
+`LLVMLITE-AUTO0-G2-CENSUS-R1` and `LLVMLITE-AUTO0-G2-PERF-ORACLE-R0` are closed
+at route selection: 17 roots classified, 5 pending, and default hotpath/full
+no longer injects the two oracles. Explicit selector admission is green; the
+full oracle smoke is a known baseline red because release artifacts are stale.
+Next design stop: `LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0`, owned by the shared
+smoke config/helper chain. Non-authority is labels/comments/Python output;
+fail-fast on inherited harness, auto-compat routing, fallback/retry, or G3.
+Shared-smoke behavior and G3 remain separate from the closed perf row.
 
 ### G3 — archive or delete the keep lane
 
