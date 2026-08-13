@@ -367,7 +367,7 @@ one semantic behavior delta may belong to only one I0.
 
 ### `LLVMLITE-ROUTE0-CENSUS0`
 
-#### `LLVMLITE-ROUTE0-CENSUS0-D0-IDENTITY-OBSERVE` (current design stop)
+#### `LLVMLITE-ROUTE0-CENSUS0-D0-IDENTITY-OBSERVE` (closed D0 receipt; next stop is `LLVMLITE-ROUTE0-IDENTITY0`)
 
 ```text
 Decision: classify executable LLVM ingress by actual driver/provider/replay, not names.
@@ -489,7 +489,7 @@ source-site reverse census is bijective
 production behavior delta = 0
 ```
 
-### D0 bounded guard task (implementation remains closed in `design_stop`)
+### D0 bounded guard task (`LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0`)
 
 ```text
 Task: LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0
@@ -506,6 +506,15 @@ Negative: missing requested pure-first symbol, implicit generic fallback,
 Non-claims: no G1/G2/G3 retirement, source deletion, fallback removal,
             provider precedence change, or plugin error-policy change
 ```
+
+S0 receipt (2026-08-13): `tools/checks/llvm_codegen_route_identity_guard.sh`
+is green. It pins the source-derived CAPI -> explicit-provider -> Boundary
+precedence, the generic-C-to-harness compatibility ingress, explicit
+llvmlite/ny-llvmc selectors, the external `compile_ll_text` tool seam, and
+the two still-open hazards (CAPI symbol fallback and plugin `Ok(None)`). No
+runtime route, fallback, provider order, or source file changed. The next
+design stop is `LLVMLITE-ROUTE0-IDENTITY0`, which may correct labels and
+receipts but may not silently change route behavior.
 
 ### `LLVMLITE-ROUTE0-IDENTITY0`
 
