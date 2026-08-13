@@ -163,9 +163,10 @@ surviving llvmlite job explicitly named. No behavior change or G3 deletion.
 
 ### G3 — archive or delete the keep lane
 
-Owner: `LLVMLITE-KEEP0-RET0`, after independent oracle, fixture/golden preservation, zero-or-archived census.
-Source deletion is a separate approval and must preserve the source/artifact
-archive needed for historical bug reproduction. G1 and G2 never imply G3.
+Owner: `LLVMLITE-KEEP0-RET0`. This row has two ordered decisions: first archive
+the frozen source/artifact and fixture/golden evidence, then separately approve
+source deletion only after the zero-or-archived consumer census. G1 and G2 never
+imply either G3 decision.
 
 The keep lane is frozen during G1/G2: no new semantic lowering, ABI authority,
 fallback, or production caller may be added to `src/llvm_py/**`, the harness,
@@ -931,7 +932,7 @@ Source authority: route plan, driver/provider/replay request, child command, and
 Receipt: route policy and named C/API admissions are closed; no G1/G2/G3 or
   source deletion is claimed.
 
-#### `LLVMLITE-PROD0-G0-CENSUS-R0` (fast; active)
+#### `LLVMLITE-PROD0-G0-CENSUS-R0` (closed; 2026-08-14)
 Decision: build one source-backed matrix for every active Python/llvmlite ingress,
   retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root.
 Source authority: caller/child-process owner plus the existing W6 Boundary receipt.
