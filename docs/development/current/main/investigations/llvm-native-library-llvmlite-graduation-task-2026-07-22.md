@@ -4,7 +4,8 @@ Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` caller-zero evidence
+Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` C5 receipt-gated
+selected-caller evidence
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
@@ -66,17 +67,24 @@ Smallest next slice: after W6-E, run ROUTE0 census/identity/observe, then close 
 Non-claims: no source deletion, new llvmlite semantics, or current W6 production switch is claimed here.
 ```
 
-The W6 prerequisite is observable, not a prose milestone:
+The W6 prerequisite is observable, not a prose milestone. The caller census is
+scoped to the selected Dynamic lane; ordinary compatibility is not silently
+retired by this board:
 
 ```text
-selected canonical caller = 1
-selected old caller = 0
+selected Dynamic Boundary caller = 1
+selected Dynamic old raw/JoinIR edge = 0
+ordinary compatibility edge = 1 (allowed until its own retirement row)
 Boundary artifact receipt = 1
 Python/llvmlite production consumer = 0
 fallback = 0, retry = 0, VM consumer = 0
 ```
 
-Until that receipt exists, this board remains parked. Once it exists, G1
+`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` must close the existing
+receipt-gated selected runner terminal, including the explicit runtime-archive
+path required by the Boundary link ABI, before G1 starts. It does not create a
+new transaction or retire ordinary compatibility. Until that receipt and
+scoped caller census exist, this board remains parked. Once they exist, G1
 retires automatic production reachability, G2 removes Python/llvmlite from
 default build/CI/perf gates, and G3 separately decides source/archive removal.
 The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
@@ -114,12 +122,13 @@ W6-E receipt and caller census
 
 Owner: W6-E Boundary artifact receipt plus route/child-process census.
 
-Acceptance is all of the following: selected new caller `= 1`, selected old
-edge `= 0`, Boundary artifact receipt `= 1`, automatic Python/llvmlite
-consumer `= 0`, native failure -> harness retry `= 0`, generic C export ->
-implicit harness `= 0`, and unsupported native input becomes a typed
-fail-fast. The explicit harness/oracle roots remain available but are not
-production callers.
+Acceptance is all of the following: selected Dynamic Boundary caller `= 1`,
+selected Dynamic old raw/JoinIR edge `= 0`, ordinary compatibility edge may
+remain `= 1`, Boundary artifact receipt/fence `= 1`, automatic
+Python/llvmlite consumer `= 0`, native failure -> harness retry `= 0`,
+generic C export -> implicit harness `= 0`, and unsupported native input
+becomes a typed fail-fast. The explicit harness/oracle roots remain available
+but are not production callers.
 
 ### G2 — remove default dependency
 
