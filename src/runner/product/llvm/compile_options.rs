@@ -43,6 +43,15 @@ impl LlvmCompileOptions {
 pub struct CompileOptionsBox;
 
 impl CompileOptionsBox {
+    pub(crate) fn compile_normal_callable(
+        outcome: nyash_rust::r#macro::NormalCallableTransformOutcomeV1,
+        filename: Option<&str>,
+        imports: HashMap<String, String>,
+        options: LlvmCompileOptions,
+    ) -> Result<MirModule, String> {
+        MirCompilerBox::compile_normal_callable(outcome, filename, imports, options)
+    }
+
     pub fn compile(
         ast: ASTNode,
         filename: Option<&str>,

@@ -12,6 +12,7 @@ pub mod exec;
 pub mod hako;
 pub mod io;
 pub mod legacy;
+pub(crate) mod normal_callable;
 pub mod plugin_guard;
 pub mod provider_registry;
 pub mod resolve;

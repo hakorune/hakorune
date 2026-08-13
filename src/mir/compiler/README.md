@@ -19,6 +19,18 @@ module, entry-block, or FunctionRegion state.
   exact callable modules, including singleton self recursion. Neither retries
   through the other.
 
+### Normal callable runner materialization
+
+The MIR and LLVM runner frontdoors share one parser/transform materialization
+helper in `runner/modes/common_util/normal_callable.rs`. It issues the
+parser-backed `SourceBacked` callable product once and routes the explicit
+`Compatibility` cohort through the existing AST compile request with exactly
+one compatibility-only `normalize_core_pass`. The source-backed branch goes
+directly to its typed MIR request (`for_mir_mode_callable_source` or
+`for_llvm_callable_source`); it never re-enters the AST normalizer. This is a
+transport boundary only: it issues no new semantic receipt, fallback, retry,
+or production backend route.
+
 Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
 to atomic SA3-B.

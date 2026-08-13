@@ -50,6 +50,38 @@ fn callable_source_request_retains_atomic_final_program_owner() {
 }
 
 #[test]
+fn llvm_callable_source_request_keeps_llvm_caller_identity() {
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "static box Scan { run(x) { return x } }",
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("callable-aware parse");
+        let transformed =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).expect("exact transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("static exact source must remain source-backed")
+        };
+        let request = NormalCompileRequestV1::for_llvm_callable_source(
+            source,
+            Some("scan.hako"),
+            HashMap::new(),
+        );
+        let (program, source, imports, admission, _) = request.into_parts();
+        assert!(program.is_callable_source_backed());
+        assert_eq!(source.source_file(), Some("scan.hako"));
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::LlvmSourceCompiler
+            )
+        );
+    });
+}
+
+#[test]
 fn normal_ingress_materializes_required_callable_main_without_changing_script() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_BUILD_STATIC_MAIN_ENTRY", "1", || {

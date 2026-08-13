@@ -24,24 +24,25 @@ impl NyashRunner {
                 }
             };
 
-        let parsed =
-            match crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-                &prepared.code,
-                self.parser_build_config(),
-            ) {
-                Ok(parsed) => parsed,
-                Err(e) => {
-                    crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                        filename,
-                        &prepared.code,
-                        &e,
-                    );
-                    process::exit(1);
-                }
-            };
-        let transformed = match crate::r#macro::transform_normal_callable_program_v1(parsed) {
+        let transformed = match crate::runner::modes::common_util::normal_callable::
+            materialize_normal_callable_program_v1(&prepared.code, self.parser_build_config())
+        {
             Ok(transformed) => transformed,
-            Err(rejected) => {
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::Parse(e),
+            ) => {
+                crate::runner::modes::common_util::diag::print_parse_error_with_context(
+                    filename,
+                    &prepared.code,
+                    &e,
+                );
+                process::exit(1);
+            }
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::Transform(rejected),
+            ) => {
                 eprintln!("❌ MIR source transform error: {:?}", rejected);
                 process::exit(1);
             }

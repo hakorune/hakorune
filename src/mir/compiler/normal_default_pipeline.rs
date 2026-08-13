@@ -243,6 +243,21 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_llvm_callable_source(
+        source: VerifiedFinalCallableProgramSourceV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_callable_source(source),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::LlvmSourceCompiler,
+            ),
+        )
+    }
+
     pub fn for_minimal_mir_json(
         ast: ASTNode,
         source_file: Option<&str>,

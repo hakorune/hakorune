@@ -50,48 +50,36 @@ impl NyashRunner {
                 }
             };
 
-        // Parse to AST (main)
-        let ast = match self.parse_source(&prepared.code) {
-            Ok(ast) => ast,
-            Err(e) => {
+        let materialized = match crate::runner::modes::common_util::normal_callable::
+            materialize_normal_callable_program_v1(&prepared.code, self.parser_build_config())
+        {
+            Ok(materialized) => materialized,
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::Parse(e),
+            ) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
                     filename,
                     &prepared.code,
                     &e,
                 );
-                // Enhanced context: list merged prelude files if any.
-                let preludes =
-                    crate::runner::modes::common_util::resolve::clone_last_merged_preludes();
-                if !preludes.is_empty() {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[parse/context] merged prelude files ({}):",
-                        preludes.len()
-                    ));
-                    let show = std::cmp::min(16, preludes.len());
-                    for p in preludes.iter().take(show) {
-                        crate::runtime::get_global_ring0()
-                            .log
-                            .debug(&format!("  - {}", p));
-                    }
-                    if preludes.len() > show {
-                        crate::runtime::get_global_ring0()
-                            .log
-                            .debug(&format!("  ... ({} more)", preludes.len() - show));
-                    }
-                }
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("Parse error: {}", e)));
             }
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::Transform(rejected),
+            ) => report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                "Normal callable source transform error: {:?}",
+                rejected
+            ))),
         };
-        // Macro expansion (env-gated) after merge
-        let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
-        let ast = crate::runner::modes::macro_child::normalize_core_pass(&ast);
 
         let pipeline_plan = LlvmPipelinePlan::current_default();
         let mut pipeline_report = LlvmPipelineReport::new(&pipeline_plan);
 
         // Compile to MIR
-        let mut module = match compile_options::CompileOptionsBox::compile(
-            ast,
+        let mut module = match compile_options::CompileOptionsBox::compile_normal_callable(
+            materialized,
             Some(filename),
             prepared.imports,
             pipeline_plan.compile_options,
