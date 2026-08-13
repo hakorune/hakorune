@@ -523,6 +523,10 @@ live `take_once` consumer remains `0` until C0-B candidate metadata handoff;
 site-id locator exact, old coordinate locator/default receipt `= 0`,
 production callers `new=0 old=1`.
 
+Observed closeout (2026-08-13): canonical close now emits the site-id receipt
+from corridor/formal/Completion evidence and installs it once; focused tests,
+`cargo check --lib`, and authority guards are green. C0-B remains next.
+
 #### W6-C0-B — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
 
 ```text
