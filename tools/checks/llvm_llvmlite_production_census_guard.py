@@ -99,11 +99,11 @@ ROW_EVIDENCE = {
         ("tools/test/lib/shlib.sh", "tools/llvmlite_harness.py"),
     ),
     "smoke-v2-harness-helper": (
-        ("tools/smokes/v2/lib/test_runner_llvm_helpers.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/lib/test_runner_llvm_helpers.sh", 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"'),
         ("tools/smokes/v2/lib/test_runner_llvm_helpers.sh", "run_nyash_llvm"),
     ),
     "smoke-v2-result-checker": (
-        ("tools/smokes/v2/lib/result_checker.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/lib/result_checker.sh", 'local llvm_harness="${NYASH_LLVM_USE_HARNESS:-0}"'),
         ("tools/smokes/v2/lib/result_checker.sh", "llvm_output"),
     ),
     "debug-phi-llvmlite": (
@@ -159,7 +159,7 @@ ROW_EVIDENCE = {
         ("tools/smokes/v2/lib/env.sh", "Smoke Environment Configuration"),
     ),
     "smoke-static-config": (
-        ("tools/smokes/v2/configs/llvm_static.conf", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/configs/llvm_static.conf", 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"'),
         ("tools/smokes/v2/configs/llvm_static.conf", "llvm_static.conf"),
     ),
     "smoke-matrix-config": (

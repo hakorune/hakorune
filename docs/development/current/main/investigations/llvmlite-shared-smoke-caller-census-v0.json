@@ -13,6 +13,7 @@
   ],
   "allowed_classes": [
     "helper_owner",
+    "default_boundary",
     "default_pending",
     "explicit_compat"
   ],
@@ -21,13 +22,13 @@
       "id": "owner-llvm-helper",
       "class": "helper_owner",
       "path": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
-      "evidence": ["run_nyash_llvm()", "NYASH_LLVM_USE_HARNESS=1"]
+      "evidence": ["run_nyash_llvm()", "NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\""]
     },
     {
       "id": "owner-result-checker",
       "class": "helper_owner",
       "path": "tools/smokes/v2/lib/result_checker.sh",
-      "evidence": ["check_parity()", "NYASH_LLVM_USE_HARNESS=1"]
+      "evidence": ["check_parity()", "local llvm_harness=\"${NYASH_LLVM_USE_HARNESS:-0}\""]
     },
     {
       "id": "compat-json-lint",
@@ -109,85 +110,85 @@
     },
     {
       "id": "pending-m2-binop",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/quick/core/parity_m2_binop_add_vm_llvm.sh",
       "evidence": ["run_nyash_llvm"]
     },
     {
       "id": "pending-m2-const-ret",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/quick/core/parity_m2_const_ret_vm_llvm.sh",
       "evidence": ["run_nyash_llvm"]
     },
     {
       "id": "pending-parity-compare-basic",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_compare_basic.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-concat",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_concat_string_number.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-early-return",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_early_return.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-hello",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_hello.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-if-else",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_if_else_phi.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-if-without-else",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_if_without_else_phi.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-loop-break",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_loop_break_continue.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-loop-sum",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_loop_sum.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-nested-if",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_nested_if.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-precedence",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_precedence_arith.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-scope-assign",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_scope_assign.sh",
       "evidence": ["check_parity"]
     },
     {
       "id": "pending-parity-unary-not",
-      "class": "default_pending",
+      "class": "default_boundary",
       "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_unary_not.sh",
       "evidence": ["check_parity"]
     }

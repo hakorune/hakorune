@@ -108,7 +108,7 @@ def validate_caller_census() -> None:
         if row_class == "explicit_compat":
             if "run_nyash_llvm" not in text or "NYASH_LLVM_USE_HARNESS=1" not in text:
                 fail(f"{row_id}: explicit compat caller lacks explicit harness selector")
-        elif row_class == "default_pending":
+        elif row_class in {"default_pending", "default_boundary"}:
             if "NYASH_LLVM_USE_HARNESS=1" in text and path not in {
                 "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
                 "tools/smokes/v2/lib/result_checker.sh",
@@ -127,6 +127,24 @@ def validate_caller_census() -> None:
         f"explicit_compat={sum(value == 'explicit_compat' for value in paths.values())}, "
         f"default_pending={sum(value == 'default_pending' for value in paths.values())})"
     )
+
+
+def validate_shared_default_boundary() -> None:
+    required = {
+        "tools/smokes/v2/lib/env.sh": 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"',
+        "tools/smokes/v2/configs/llvm_static.conf": 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"',
+        "tools/smokes/v2/lib/test_runner_llvm_helpers.sh": 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"',
+        "tools/smokes/v2/lib/result_checker.sh": 'local llvm_harness="${NYASH_LLVM_USE_HARNESS:-0}"',
+    }
+    for owner, needle in required.items():
+        text = read_source(owner)
+        if needle not in text:
+            fail(f"shared default boundary missing neutral selector in {owner}")
+        if "NYASH_LLVM_USE_HARNESS=1" in text:
+            fail(f"shared default boundary still hardcodes harness in {owner}")
+    config = read_source("tools/smokes/v2/configs/auto_detect.conf")
+    if "config_type=\"llvm_static\"" not in config:
+        fail("auto-detect llvm_static route disappeared")
 
 
 def main() -> int:
@@ -192,11 +210,7 @@ def main() -> int:
 
     # These are the current G2 blockers, not a production-success assertion.
     required_pending = {
-        "g2-smoke-shared-env",
-        "g2-smoke-runner-helper",
         "g2-perf-microbench",
-        "g2-smoke-static-config",
-        "g2-smoke-auto-detect",
     }
     if not required_pending.issubset(pending):
         fail("known G2 blocker rows disappeared from the pending set")
@@ -231,6 +245,7 @@ def main() -> int:
             fail(f"{row_id}: explicit llvmlite gate is missing")
 
     validate_caller_census()
+    validate_shared_default_boundary()
 
     print(
         f"[{TAG}] ok (rows={len(rows)}, classes={counts}, "

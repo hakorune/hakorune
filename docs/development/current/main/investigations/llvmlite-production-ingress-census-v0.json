@@ -178,8 +178,8 @@
       "python_child": "explicit",
       "native_retry": false,
       "owner": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
-      "selector": "NYASH_LLVM_USE_HARNESS=1",
-      "positive_evidence": "v2 smoke helper enables the named compatibility environment",
+      "selector": "NYASH_LLVM_USE_HARNESS forwarded from explicit caller",
+      "positive_evidence": "v2 smoke helper forwards the named compatibility selector",
       "negative_evidence": "helper belongs to smoke profiles, not product execution"
     },
     {
@@ -189,8 +189,8 @@
       "python_child": "explicit",
       "native_retry": false,
       "owner": "tools/smokes/v2/lib/result_checker.sh",
-      "selector": "NYASH_LLVM_USE_HARNESS=1",
-      "positive_evidence": "result checker invokes the explicit LLVM compatibility lane",
+      "selector": "llvm_harness forwarded from explicit caller",
+      "positive_evidence": "result checker forwards the explicit LLVM compatibility selector",
       "negative_evidence": "result checker is not a production caller"
     },
     {
@@ -200,7 +200,7 @@
       "python_child": "explicit",
       "native_retry": false,
       "owner": "tools/debug/phi/phi_trace_run.sh",
-      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "selector": "NYASH_LLVM_USE_HARNESS default 0",
       "positive_evidence": "debug trace runner opts into the harness",
       "negative_evidence": "debug tracing is outside product execution"
     },

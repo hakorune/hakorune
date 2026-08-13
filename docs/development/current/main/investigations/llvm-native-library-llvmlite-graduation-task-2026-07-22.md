@@ -152,13 +152,13 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-`LLVMLITE-AUTO0-G2-CENSUS-R1` and `LLVMLITE-AUTO0-G2-PERF-ORACLE-R0` are closed
-at route selection: 17 roots classified, 5 pending, and default hotpath/full
-no longer injects the two oracles. Explicit selector admission is green; the
-full oracle smoke is a known baseline red because release artifacts are stale.
-Caller census is closed (29 paths: 13 explicit compat, 14 pending, 2 owners).
-`LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0` is accepted: default paths forward `NYASH_LLVM_USE_HARNESS` with default `0`, while explicit compat keeps `1`.
-Source authority is the shared config/helper chain; fail-fast on hardcoded default harness, caller drift, fallback/retry, or G3. Behavior/G3 remain separate from the closed perf row.
+G2 census, perf-oracle, caller census, and shared-smoke default are closed at
+the boundary: 17 roots, 7 default-boundary, 1 pending microbench, and 29
+callers (13 explicit compat, 14 default-boundary, 2 owners). Explicit selector
+admission is green; the full oracle smoke remains a known stale-artifact red.
+Next design stop: `LLVMLITE-AUTO0-G2-MICROBENCH-R0`, owned by `tools/perf/microbench.sh`.
+Non-authority is labels/comments/Python output; fail-fast on default harness,
+fallback/retry, or G3. Behavior/G3 remain separate.
 
 ### G3 — archive or delete the keep lane
 

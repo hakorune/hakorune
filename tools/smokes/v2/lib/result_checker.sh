@@ -121,6 +121,7 @@ check_parity() {
     fi
 
     local vm_output llvm_output vm_exit llvm_exit
+    local llvm_harness="${NYASH_LLVM_USE_HARNESS:-0}"
 
     # Rust VM 実行
     if [ "$program" = "-c" ]; then
@@ -139,13 +140,13 @@ check_parity() {
 
     # LLVM（Pythonハーネス）実行
     if [ "$program" = "-c" ]; then
-        if llvm_output=$(timeout "$timeout" bash -c "PYTHONPATH=\"${PYTHONPATH:-$NYASH_ROOT}\" NYASH_NY_LLVM_COMPILER=\"${NYASH_NY_LLVM_COMPILER:-$NYASH_ROOT/target/release/ny-llvmc}\" NYASH_EMIT_EXE_NYRT=\"${NYASH_EMIT_EXE_NYRT:-$NYASH_ROOT/target/release}\" NYASH_LLVM_USE_HARNESS=1 NYASH_DISABLE_PLUGINS=1 $NYASH_BIN --backend llvm -c \"$code\" 2>&1"); then
+        if llvm_output=$(timeout "$timeout" bash -c "PYTHONPATH=\"${PYTHONPATH:-$NYASH_ROOT}\" NYASH_NY_LLVM_COMPILER=\"${NYASH_NY_LLVM_COMPILER:-$NYASH_ROOT/target/release/ny-llvmc}\" NYASH_EMIT_EXE_NYRT=\"${NYASH_EMIT_EXE_NYRT:-$NYASH_ROOT/target/release}\" NYASH_LLVM_USE_HARNESS=\"$llvm_harness\" NYASH_DISABLE_PLUGINS=1 $NYASH_BIN --backend llvm -c \"$code\" 2>&1"); then
             llvm_exit=0
         else
             llvm_exit=$?
         fi
     else
-        if llvm_output=$(timeout "$timeout" bash -c "PYTHONPATH=\"${PYTHONPATH:-$NYASH_ROOT}\" NYASH_NY_LLVM_COMPILER=\"${NYASH_NY_LLVM_COMPILER:-$NYASH_ROOT/target/release/ny-llvmc}\" NYASH_EMIT_EXE_NYRT=\"${NYASH_EMIT_EXE_NYRT:-$NYASH_ROOT/target/release}\" NYASH_LLVM_USE_HARNESS=1 NYASH_DISABLE_PLUGINS=1 $NYASH_BIN --backend llvm \"$program\" 2>&1"); then
+        if llvm_output=$(timeout "$timeout" bash -c "PYTHONPATH=\"${PYTHONPATH:-$NYASH_ROOT}\" NYASH_NY_LLVM_COMPILER=\"${NYASH_NY_LLVM_COMPILER:-$NYASH_ROOT/target/release/ny-llvmc}\" NYASH_EMIT_EXE_NYRT=\"${NYASH_EMIT_EXE_NYRT:-$NYASH_ROOT/target/release}\" NYASH_LLVM_USE_HARNESS=\"$llvm_harness\" NYASH_DISABLE_PLUGINS=1 $NYASH_BIN --backend llvm \"$program\" 2>&1"); then
             llvm_exit=0
         else
             llvm_exit=$?

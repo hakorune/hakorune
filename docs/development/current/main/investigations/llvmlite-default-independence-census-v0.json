@@ -58,21 +58,21 @@
     },
     {
       "id": "g2-smoke-shared-env",
-      "class": "default_pending",
+      "class": "default_boundary",
       "automatic_production": false,
-      "python_dependency": "route-dependent",
+      "python_dependency": "zero",
       "owner": "tools/smokes/v2/lib/env.sh",
       "selector": "NYASH_LLVM_USE_HARNESS default",
-      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-1}\"", "NYASH_LLVM_BACKEND"]
+      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\"", "NYASH_LLVM_BACKEND"]
     },
     {
       "id": "g2-smoke-runner-helper",
-      "class": "default_pending",
+      "class": "default_boundary",
       "automatic_production": false,
-      "python_dependency": "route-dependent",
+      "python_dependency": "zero",
       "owner": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
       "selector": "run_nyash_llvm",
-      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "run_nyash_llvm"]
+      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\"", "run_nyash_llvm"]
     },
     {
       "id": "g2-smoke-exe-runner",
@@ -130,18 +130,18 @@
     },
     {
       "id": "g2-smoke-static-config",
-      "class": "default_pending",
+      "class": "default_boundary",
       "automatic_production": false,
-      "python_dependency": "one",
+      "python_dependency": "zero",
       "owner": "tools/smokes/v2/configs/llvm_static.conf",
       "selector": "llvm_static profile",
-      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "export NYASH_BACKEND=\"llvm\""]
+      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\"", "export NYASH_BACKEND=\"llvm\""]
     },
     {
       "id": "g2-smoke-auto-detect",
-      "class": "default_pending",
+      "class": "default_boundary",
       "automatic_production": false,
-      "python_dependency": "route-dependent",
+      "python_dependency": "zero",
       "owner": "tools/smokes/v2/configs/auto_detect.conf",
       "selector": "CI/LLVM availability -> llvm_static",
       "evidence": ["config_type=\"llvm_static\"", "source \"$config_file\""]
