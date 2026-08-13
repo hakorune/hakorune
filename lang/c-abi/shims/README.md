@@ -25,7 +25,8 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   consumes the existing admission marker and exact four MIR formal ValueIds;
   it rejects signature drift before object emission and does not infer return,
   effect, site shape, lease, ABI, wire, or PlanStamp facts. Those remaining
-  typed facts stay closed in the C1-A1 candidate-transport design stop.
+  typed facts are carried by the existing C1-A1 candidate transport; C1
+  callout physicalization remains closed until that transport is consumed.
 - Generic-method route tuple facts must have one registry owner. The tuple
   `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
   not be re-listed independently in route policy, generic method match,

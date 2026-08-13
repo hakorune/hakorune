@@ -28,6 +28,7 @@ CALLOUT_TRANSPORT_TEST="$ROOT_DIR/src/llvm_py/tests/test_checked_callout_transpo
 CALLOUT_TEST_PLAN="$ROOT_DIR/src/llvm_py/builders/checked_callout_test_plan.py"
 CALLOUT_TEST_PLAN_TEST="$ROOT_DIR/src/llvm_py/tests/test_checked_callout_test_plan.py"
 RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
+RUST_METADATA_TEST="$ROOT_DIR/src/box_callable/provider_admission/call_metadata_tests.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
 PLAN_OWNER="$ROOT_DIR/crates/nyash-llvm-compiler/src/runtime_executable_plan.rs"
@@ -54,7 +55,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
 
 # C1-A is the only selected-entry signature owner.  The legacy no-parameter
@@ -120,7 +121,7 @@ for file in "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST"; do
     guard_fail "$TAG" "test-only CheckedCallOut planner reached its 650-line cap: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
-for file in "$RUST_METADATA" "$JSON_METADATA"; do
+for file in "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "I0-D1b metadata file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
@@ -333,12 +334,21 @@ if rg -n 'lookup_core_method|selector|PreparedAotExecutableAdmissionV1::|into_pa
   guard_fail "$TAG" "I0-D1b projection must borrow retained facts without reseal, lookup, selector, or clone"
 fi
 guard_expect_fixed_in_file "$TAG" 'DynamicV2AotCallMetadataProjectionV1' "$RUST_METADATA" "Rust typed metadata projection is missing"
+guard_expect_fixed_in_file "$TAG" 'DynamicV2AotFormalProjectionV1' "$RUST_METADATA" "formal ValueId/lane transport projection is missing"
+guard_expect_fixed_in_file "$TAG" 'normal_result_dst' "$RUST_METADATA" "Normal-result destination transport is missing"
+guard_expect_fixed_in_file "$TAG" 'function_effects' "$RUST_METADATA" "verified function effect transport is missing"
+guard_expect_fixed_in_file "$TAG" 'normal_shape' "$RUST_METADATA" "per-site Normal shape transport is missing"
 guard_expect_fixed_in_file "$TAG" 'dynamic_v2_aot_call_admission_v2' "$JSON_METADATA" "JSON metadata key projection is missing"
+guard_expect_fixed_in_file "$TAG" 'formal_parameters' "$JSON_METADATA" "JSON formal parameter transport is missing"
+guard_expect_fixed_in_file "$TAG" 'normal_result_dst' "$JSON_METADATA" "JSON Normal-result destination transport is missing"
 guard_expect_fixed_in_file "$TAG" 'site_id' "$RUST_METADATA" "AOT metadata projection must use canonical CheckedCallOut site identity"
 guard_expect_fixed_in_file "$TAG" 'site_id' "$METADATA" "Python AOT metadata loader must require canonical site identity"
+guard_expect_fixed_in_file "$TAG" 'formal_parameters' "$METADATA" "Python AOT metadata loader must require formal transport"
+guard_expect_fixed_in_file "$TAG" 'normal_result_dst' "$METADATA" "Python AOT metadata loader must require Normal-result transport"
+guard_expect_fixed_in_file "$TAG" '_required_u16' "$METADATA" "Python AOT metadata loader must bound typed effect fields"
 RUST_METADATA_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$RUST_METADATA")"
-if printf '%s\n' "$RUST_METADATA_BODY" | rg -n 'block|instruction_index' || \
-   rg -n 'block|instruction_index' "$JSON_METADATA"; then
+if printf '%s\n' "$RUST_METADATA_BODY" | rg -n 'instruction_index|(^|[[:space:]])block[[:space:]]*:' || \
+   rg -n 'instruction_index|(^|[[:space:]])block[[:space:]]*:' "$JSON_METADATA"; then
   guard_fail "$TAG" "AOT downstream metadata must not expose the old block/instruction locator"
 fi
 if rg -n 'require_call_edge|instruction_index|\["block"\]' "$METADATA"; then

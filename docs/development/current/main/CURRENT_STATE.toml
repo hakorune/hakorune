@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, W6-C0-C post-seal candidate handoff, and C0-D neutral one-shot lease End C ABI projection are landed. C1 Boundary physicalization remains design-stop; production remains closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, W6-C0-C post-seal candidate handoff, C0-D neutral one-shot lease End C ABI projection, and C1-A1 typed candidate transport co-seal are landed. C1 Boundary physicalization remains design-stop; production remains closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "C1-A signature BoxShape is ready, but C1-A1 is required: typed formal lanes, return/effect, per-site shape/lease/destination, ABI/wire, and PlanStamp must travel to the Boundary without re-inference. C1 callout/wire/End physicalization, link/publication, and production remain closed."
+current_design_stop = "C1-A1 typed transport is landed: the existing candidate projection now carries formal lanes, return/effect, per-site shape/lease/destination, ABI/wire, and PlanStamp. C1 CheckedCallOut/wire/End physicalization is the next design-stop; link/publication and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0"
-current_blocker_token = "DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0: candidate metadata currently omits formal lanes, return/effect, per-site shape/lease/dst, and complete ABI/wire/PlanStamp cross-check; close this before C1 physicalization; new=0 old=1."
+current_execution_row = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
+current_blocker_token = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0: define one MIR-faithful C/LLVM physicalizer consuming the typed site-id projection; semantic Fault/Normal CFG and End remain MIR-owned; new=0 old=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0 through C0-D are landed. C1-A parameterized selected-entry signature and hard gate are implemented locally; C1-A1 now closes typed transport co-seal before object-only callout physicalization. Static publication and production remain closed. RuntimeExecutablePlan is parked."
-next_design_card = "DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0"
+latest_card_summary = "W6 D0 through C0-D and C1-A1 typed transport co-seal are landed. C1-A parameterized selected-entry signature and hard gate remain in the work branch; the next design-stop is one MIR-faithful CheckedCallOut physicalizer. Static publication and production remain closed. RuntimeExecutablePlan is parked."
+next_design_card = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "none"
-next_execution_card_path = "none until C1-A1 Decision"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: private I6/I7 CallOut corridor now retains both site IDs, verifies all four landing brands, and rejects lifecycle/corridor site-pair drift; production W6 remains closed.",
   "2026-08-13: test-only CheckedCallOut PlanStamp JSON round-trip now preserves compiler domain and rejects zero domain/ordinal parts; backend execution and production W6 remain closed.",
   "2026-08-13: CheckedCallOut JSON parser now rejects u16 overflow and unknown effect bits; transport-only scope and LLVM/VM/runtime closure remain unchanged.",
-  "2026-08-13: transport-only CheckedCallOut MIR JSON emit/parse round-trip and schema/diet-ledger sync landed; LLVM/VM execution and production W6 remain closed.",
 ]

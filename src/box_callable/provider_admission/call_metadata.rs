@@ -12,6 +12,7 @@ use crate::mir::checked_callout::{
     CheckedCallOutSiteIdV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::{EffectMask, MirFunction, MirType, ValueId};
 
 use super::admitted_registry::TextScanAdmittedRoleV1;
 use super::aot_admission::{PreparedAotExecutableAdmissionV1, TextScanEntryContractV1};
@@ -25,6 +26,11 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     CallSiteRoleMismatch,
     AdmissionEntryMismatch,
     MissingSitePlan,
+    FunctionSignatureMismatch,
+    FormalLaneMismatch,
+    FormalValueMismatch,
+    MissingNormalResult,
+    DuplicateNormalResult,
     ReceiverLaneMismatch,
     ArgumentLaneMismatch,
     ResultLaneMismatch,
@@ -35,6 +41,58 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
 pub(crate) enum DynamicV2AotCallRoleV1 {
     Substring,
     IndexOf,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DynamicV2AotFormalRoleV1 {
+    Src,
+    Pos,
+    End,
+    PredChars,
+}
+
+impl DynamicV2AotFormalRoleV1 {
+    pub(crate) const fn as_str(self) -> &'static str {
+        match self {
+            Self::Src => "src",
+            Self::Pos => "pos",
+            Self::End => "end",
+            Self::PredChars => "pred_chars",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct DynamicV2AotFormalProjectionV1 {
+    role: DynamicV2AotFormalRoleV1,
+    value_id: ValueId,
+    lane: APrimeI64LaneV1,
+}
+
+impl DynamicV2AotFormalProjectionV1 {
+    pub(crate) const fn new(
+        role: DynamicV2AotFormalRoleV1,
+        value_id: ValueId,
+        lane: APrimeI64LaneV1,
+    ) -> Self {
+        Self {
+            role,
+            value_id,
+            lane,
+        }
+    }
+
+    pub(crate) const fn role(self) -> DynamicV2AotFormalRoleV1 {
+        self.role
+    }
+
+    pub(crate) const fn value_id(self) -> ValueId {
+        self.value_id
+    }
+
+    pub(crate) const fn lane(self) -> APrimeI64LaneV1 {
+        self.lane
+    }
 }
 
 impl DynamicV2AotCallRoleV1 {
@@ -65,6 +123,10 @@ pub(crate) struct DynamicV2AotCallSiteProjectionV1 {
     role: DynamicV2AotCallRoleV1,
     site_id: CheckedCallOutSiteIdV1,
     entry: TextScanEntryContractV1,
+    normal_shape: CheckedCallOutNormalShapeV1,
+    outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1,
+    normal_result_dst: ValueId,
+    effects: EffectMask,
 }
 
 impl DynamicV2AotCallSiteProjectionV1 {
@@ -79,6 +141,24 @@ impl DynamicV2AotCallSiteProjectionV1 {
     pub(crate) const fn entry(&self) -> TextScanEntryContractV1 {
         self.entry
     }
+
+    pub(crate) const fn normal_shape(&self) -> CheckedCallOutNormalShapeV1 {
+        self.normal_shape
+    }
+
+    pub(crate) const fn outcome_slot(
+        &self,
+    ) -> crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1 {
+        self.outcome_slot
+    }
+
+    pub(crate) const fn normal_result_dst(&self) -> ValueId {
+        self.normal_result_dst
+    }
+
+    pub(crate) const fn effects(&self) -> EffectMask {
+        self.effects
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -90,6 +170,9 @@ pub(crate) struct DynamicV2AotCallMetadataProjectionV1 {
     wire_revision: u32,
     registry_generation: u64,
     plan_stamp: ModuleInvocationBrandV1,
+    formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    return_lane: APrimeI64LaneV1,
+    function_effects: EffectMask,
     calls: [DynamicV2AotCallSiteProjectionV1; 2],
 }
 
@@ -125,6 +208,18 @@ impl DynamicV2AotCallMetadataProjectionV1 {
     pub(crate) fn calls(&self) -> &[DynamicV2AotCallSiteProjectionV1; 2] {
         &self.calls
     }
+
+    pub(crate) const fn formal_parameters(&self) -> &[DynamicV2AotFormalProjectionV1; 4] {
+        &self.formal_parameters
+    }
+
+    pub(crate) const fn return_lane(&self) -> APrimeI64LaneV1 {
+        self.return_lane
+    }
+
+    pub(crate) const fn function_effects(&self) -> EffectMask {
+        self.function_effects
+    }
 }
 
 /// Co-seal the existing AOT admission and canonical physical receipt.
@@ -135,20 +230,26 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
     site_plans: &CheckedCallOutPlanTableV1,
+    function: &MirFunction,
+    formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    expected_effects: EffectMask,
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     receipt
         .validate()
         .map_err(DynamicV2AotCallMetadataRejectV1::InvalidReceipt)?;
+    validate_function_transport(function, formal_parameters, expected_effects)?;
     let substring = project_call(
         admission,
         receipt,
         site_plans,
+        function,
         DynamicV2AotCallRoleV1::Substring,
     )?;
     let index_of = project_call(
         admission,
         receipt,
         site_plans,
+        function,
         DynamicV2AotCallRoleV1::IndexOf,
     )?;
     Ok(DynamicV2AotCallMetadataProjectionV1 {
@@ -159,14 +260,57 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
         wire_revision: substring.entry().call_abi().out_wire_revision,
         registry_generation: admission.registry_generation(),
         plan_stamp: admission.plan_stamp(),
+        formal_parameters,
+        return_lane: APrimeI64LaneV1::ImmediateI64,
+        function_effects: function.signature.effects,
         calls: [substring, index_of],
     })
+}
+
+fn validate_function_transport(
+    function: &MirFunction,
+    formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    expected_effects: EffectMask,
+) -> Result<(), DynamicV2AotCallMetadataRejectV1> {
+    if function.params.len() != 4
+        || function.signature.params.len() != 4
+        || function.signature.return_type != MirType::Integer
+        || function.signature.effects != expected_effects
+    {
+        return Err(DynamicV2AotCallMetadataRejectV1::FunctionSignatureMismatch);
+    }
+    let expected_roles = [
+        DynamicV2AotFormalRoleV1::Src,
+        DynamicV2AotFormalRoleV1::Pos,
+        DynamicV2AotFormalRoleV1::End,
+        DynamicV2AotFormalRoleV1::PredChars,
+    ];
+    for (index, row) in formal_parameters.iter().copied().enumerate() {
+        if row.role != expected_roles[index] || function.params[index] != row.value_id {
+            return Err(if row.role != expected_roles[index] {
+                DynamicV2AotCallMetadataRejectV1::FormalLaneMismatch
+            } else {
+                DynamicV2AotCallMetadataRejectV1::FormalValueMismatch
+            });
+        }
+        if index == 1 || index == 2 {
+            if row.lane != APrimeI64LaneV1::ImmediateI64
+                || function.signature.params[index] != MirType::Integer
+            {
+                return Err(DynamicV2AotCallMetadataRejectV1::FormalLaneMismatch);
+            }
+        } else if row.lane != APrimeI64LaneV1::OpaqueHandle {
+            return Err(DynamicV2AotCallMetadataRejectV1::FormalLaneMismatch);
+        }
+    }
+    Ok(())
 }
 
 fn project_call(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
     site_plans: &CheckedCallOutPlanTableV1,
+    function: &MirFunction,
     role: DynamicV2AotCallRoleV1,
 ) -> Result<DynamicV2AotCallSiteProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     let entry = admission.entry_for(role.admitted_role());
@@ -195,6 +339,7 @@ fn project_call(
         return Err(DynamicV2AotCallMetadataRejectV1::MissingSitePlan);
     }
     let site_id = plan.site_id();
+    let normal_result_dst = normal_result_for_site(function, site_id)?;
     let edge = receipt
         .call_edge(site_id)
         .ok_or(DynamicV2AotCallMetadataRejectV1::MissingCallSite)?;
@@ -224,7 +369,50 @@ fn project_call(
         role,
         site_id,
         entry,
+        normal_shape: plan.normal_shape(),
+        outcome_slot: plan.outcome_slot(),
+        normal_result_dst,
+        effects: plan.effects(),
     })
+}
+
+fn normal_result_for_site(
+    function: &MirFunction,
+    site_id: CheckedCallOutSiteIdV1,
+) -> Result<ValueId, DynamicV2AotCallMetadataRejectV1> {
+    let mut normal_landing = None;
+    for block in function.blocks.values() {
+        if let Some(crate::mir::MirInstruction::CheckedCallOut {
+            site_id: observed,
+            normal_landing: landing,
+            ..
+        }) = block.terminator.as_ref()
+        {
+            if *observed == site_id {
+                normal_landing = Some(*landing);
+                break;
+            }
+        }
+    }
+    let landing = normal_landing.ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)?;
+    let block = function
+        .get_block(landing)
+        .ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)?;
+    let mut result = None;
+    for instruction in &block.instructions {
+        if let crate::mir::MirInstruction::CheckedCallOutNormalResult {
+            site_id: observed,
+            dst,
+        } = instruction
+        {
+            if *observed == site_id {
+                if result.replace(*dst).is_some() {
+                    return Err(DynamicV2AotCallMetadataRejectV1::DuplicateNormalResult);
+                }
+            }
+        }
+    }
+    result.ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)
 }
 
 fn lane_from_text(lane: TextScanValueLaneV1) -> APrimeI64LaneV1 {
@@ -235,206 +423,5 @@ fn lane_from_text(lane: TextScanValueLaneV1) -> APrimeI64LaneV1 {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::a_prime_i64_physical_receipt::{
-        APrimeI64BackendFamilyV1, APrimeI64CallArgumentReceiptV1, APrimeI64CallEdgeReceiptV1,
-        APrimeI64ParameterReceiptV1, APrimeI64ReturnReceiptV1, A_PRIME_I64_FORMAL_PARAMETER_COUNT,
-    };
-    use crate::mir::checked_callout::{
-        CheckedCallOutAdmittedSiteInputV1, CheckedCallOutLeaseSlotIdV1,
-        CheckedCallOutNormalShapeV1, CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1,
-    };
-    use crate::mir::core_method_op::CoreMethodOp;
-    use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_RESULT_ROWS_V1;
-    use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-    use crate::mir::{BasicBlockId, EffectMask, ValueId};
-
-    #[test]
-    fn projection_keeps_exact_two_typed_sites_and_stamp() {
-        let admission = admission();
-        let receipt = receipt();
-        let site_plans = site_plans();
-        let projection = project_dynamic_v2_aot_call_metadata(&admission, &receipt, &site_plans)
-            .expect("valid admission/receipt projection");
-        assert_eq!(projection.calls().len(), 2);
-        assert_eq!(projection.calls()[0].role().as_str(), "substring");
-        assert_eq!(projection.calls()[1].role().as_str(), "index_of");
-        assert_eq!(
-            projection.calls()[0].entry().entry(),
-            TextScanAotEntryIdV1::Substring
-        );
-        assert_eq!(
-            projection.calls()[1].entry().entry(),
-            TextScanAotEntryIdV1::IndexOf
-        );
-        assert_eq!(projection.calls()[0].site_id().0, 0);
-        assert_eq!(projection.calls()[1].site_id().0, 1);
-        assert_eq!(projection.registry_generation(), 7);
-        assert_eq!(
-            projection.plan_stamp(),
-            ModuleInvocationBrandV1::test_with_ordinal(7)
-        );
-    }
-
-    #[test]
-    fn malformed_receipt_is_rejected_before_projection() {
-        let admission = admission();
-        let error = APrimeI64PhysicalReceiptV1::seal_for_test(
-            APrimeI64BackendFamilyV1::Llvm,
-            A_PRIME_I64_FORMAL_PARAMETER_COUNT,
-            vec![
-                APrimeI64ParameterReceiptV1 {
-                    role: "pos".into(),
-                    formal_parameter_index: 0,
-                    value_id: ValueId::new(2),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-                APrimeI64ParameterReceiptV1 {
-                    role: "end".into(),
-                    formal_parameter_index: 2,
-                    value_id: ValueId::new(3),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-            ],
-            vec![],
-            vec![],
-        )
-        .expect_err("wrong formal lane must reject");
-        assert!(matches!(
-            error,
-            APrimeI64PhysicalReceiptRejectV1::ParameterRoleIndexMismatch
-        ));
-        let _ = admission;
-    }
-
-    fn admission() -> PreparedAotExecutableAdmissionV1 {
-        let substring = CORE_METHOD_CONTRACT_RESULT_ROWS_V1
-            .iter()
-            .find(|row| row.op == CoreMethodOp::StringSubstring)
-            .expect("substring core row");
-        let index_of = CORE_METHOD_CONTRACT_RESULT_ROWS_V1
-            .iter()
-            .find(|row| row.op == CoreMethodOp::StringIndexOf)
-            .expect("indexOf core row");
-        let aliases = super::super::seal::TextScanAliasProjectionV1::from_type_registry()
-            .expect("type aliases");
-        super::super::seal::ProviderAdmissionSealV1::consume_text_scan(
-            substring,
-            index_of,
-            aliases,
-            ModuleInvocationBrandV1::test_with_ordinal(7),
-        )
-        .expect("TextScan admission")
-    }
-
-    fn site_plans() -> CheckedCallOutPlanTableV1 {
-        let pair = CheckedCallOutSitePlanPairV1::from_admitted(
-            CheckedCallOutAdmittedSiteInputV1 {
-                entry: CheckedCallOutEntryIdV1(1),
-                call_abi_revision: 1,
-                wire_revision: 2,
-                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                    lease_slot: CheckedCallOutLeaseSlotIdV1(0),
-                },
-                effects: EffectMask::READ,
-            },
-            CheckedCallOutAdmittedSiteInputV1 {
-                entry: CheckedCallOutEntryIdV1(2),
-                call_abi_revision: 1,
-                wire_revision: 2,
-                normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
-                effects: EffectMask::READ,
-            },
-            ModuleInvocationBrandV1::test_with_ordinal(7),
-        )
-        .expect("valid CheckedCallOut site pair");
-        pair.into_plan_table_for_test()
-    }
-
-    fn receipt() -> APrimeI64PhysicalReceiptV1 {
-        APrimeI64PhysicalReceiptV1::seal_for_test(
-            APrimeI64BackendFamilyV1::Llvm,
-            A_PRIME_I64_FORMAL_PARAMETER_COUNT,
-            vec![
-                APrimeI64ParameterReceiptV1 {
-                    role: "pos".into(),
-                    formal_parameter_index: 1,
-                    value_id: ValueId::new(2),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-                APrimeI64ParameterReceiptV1 {
-                    role: "end".into(),
-                    formal_parameter_index: 2,
-                    value_id: ValueId::new(3),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-            ],
-            vec![call("substring", 0), call("index_of", 1)],
-            vec![
-                APrimeI64ReturnReceiptV1 {
-                    site: "inner".into(),
-                    block: BasicBlockId::new(8),
-                    value_id: ValueId::new(30),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-                APrimeI64ReturnReceiptV1 {
-                    site: "outer".into(),
-                    block: BasicBlockId::new(9),
-                    value_id: ValueId::new(31),
-                    lane: APrimeI64LaneV1::ImmediateI64,
-                },
-            ],
-        )
-        .expect("valid receipt")
-    }
-
-    fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
-        APrimeI64CallEdgeReceiptV1 {
-            site_id: CheckedCallOutSiteIdV1(site_id),
-            role: role.into(),
-            target_fingerprint: if role == "substring" {
-                "substring/2".into()
-            } else {
-                "indexOf/1".into()
-            },
-            receiver_role: if role == "substring" {
-                "src"
-            } else {
-                "pred_chars"
-            }
-            .into(),
-            receiver_value_id: ValueId::new(if role == "substring" { 10 } else { 14 }),
-            receiver_lane: APrimeI64LaneV1::OpaqueHandle,
-            arguments: if role == "substring" {
-                vec![
-                    APrimeI64CallArgumentReceiptV1 {
-                        ordinal: 0,
-                        role: "start".into(),
-                        value_id: ValueId::new(12),
-                        lane: APrimeI64LaneV1::ImmediateI64,
-                    },
-                    APrimeI64CallArgumentReceiptV1 {
-                        ordinal: 1,
-                        role: "end".into(),
-                        value_id: ValueId::new(13),
-                        lane: APrimeI64LaneV1::ImmediateI64,
-                    },
-                ]
-            } else {
-                vec![APrimeI64CallArgumentReceiptV1 {
-                    ordinal: 0,
-                    role: "ch".into(),
-                    value_id: ValueId::new(20),
-                    lane: APrimeI64LaneV1::OpaqueHandle,
-                }]
-            },
-            result_value_id: ValueId::new(if role == "substring" { 20 } else { 21 }),
-            result_lane: if role == "substring" {
-                APrimeI64LaneV1::OpaqueHandle
-            } else {
-                APrimeI64LaneV1::ImmediateI64
-            },
-        }
-    }
-}
+#[path = "call_metadata_tests.rs"]
+mod tests;

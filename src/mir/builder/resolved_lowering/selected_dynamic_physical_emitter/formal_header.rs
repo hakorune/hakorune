@@ -3,6 +3,10 @@
 //! This module consumes the already verified A-prime formal relation. It does
 //! not classify values, choose providers, or issue operation/cleanup meaning.
 
+use crate::box_callable::provider_admission::{
+    DynamicV2AotFormalProjectionV1, DynamicV2AotFormalRoleV1,
+};
+use crate::mir::a_prime_i64_physical_receipt::APrimeI64LaneV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
@@ -33,6 +37,26 @@ pub(super) struct DynamicV2OpenedFormalHeaderV1 {
 }
 
 impl DynamicV2OpenedFormalHeaderV1 {
+    pub(super) fn transport_rows(&self) -> [DynamicV2AotFormalProjectionV1; 4] {
+        let roles = [
+            DynamicV2AotFormalRoleV1::Src,
+            DynamicV2AotFormalRoleV1::Pos,
+            DynamicV2AotFormalRoleV1::End,
+            DynamicV2AotFormalRoleV1::PredChars,
+        ];
+        std::array::from_fn(|index| {
+            DynamicV2AotFormalProjectionV1::new(
+                roles[index],
+                self.formals[index].value,
+                if index == 1 || index == 2 {
+                    APrimeI64LaneV1::ImmediateI64
+                } else {
+                    APrimeI64LaneV1::OpaqueHandle
+                },
+            )
+        })
+    }
+
     pub(super) fn value_for_recipe(
         &self,
         recipe_value: crate::mir::loop_recipe_contract::LoopValueKeyV1,

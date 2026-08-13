@@ -586,6 +586,12 @@ this borrowed site-id projection; missing/foreign/swapped facts reject before
 object emission. No provider lookup, wire reinterpretation, link, RuntimePlan,
 publication, VM, fallback, or production caller is opened.
 
+Observed closeout: the existing Rust projection now transports the four formal
+ValueIds/lanes, i64 return lane, verified EffectMask, site shape/slot/result
+facts, and PlanStamp into strict JSON/Python transport views; focused Rust and
+Python tests plus the authority guard are green. C1 physicalization remains
+closed (`new=0`, `old=1`).
+
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
 The accepted C1 contract remains: one `<700`-line C owner, exact two site-id to

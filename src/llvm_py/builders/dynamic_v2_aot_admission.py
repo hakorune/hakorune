@@ -43,9 +43,14 @@ _ROOT_KEYS = {
     "wire_revision",
     "registry_generation",
     "plan_stamp",
+    "return_type",
+    "return_lane",
+    "function_effects",
+    "formal_parameters",
     "calls",
 }
 _STAMP_KEYS = {"compiler_domain", "invocation_ordinal"}
+_FORMAL_KEYS = {"role", "value_id", "lane"}
 _CALL_KEYS = {
     "role",
     "site_id",
@@ -57,6 +62,10 @@ _CALL_KEYS = {
     "argument_lanes",
     "result_lane",
     "lease",
+    "normal_shape",
+    "outcome_slot",
+    "normal_result_dst",
+    "effects",
 }
 
 
@@ -76,6 +85,17 @@ class DynamicV2AotCallView:
     argument_lanes: Tuple[str, ...]
     result_lane: str
     lease: str
+    normal_shape: str
+    outcome_slot: int
+    normal_result_dst: int
+    effects: int
+
+
+@dataclass(frozen=True)
+class DynamicV2AotFormalView:
+    role: str
+    value_id: int
+    lane: str
 
 
 @dataclass(frozen=True)
@@ -88,6 +108,10 @@ class DynamicV2AotAdmissionView:
     registry_generation: int
     compiler_domain: int
     invocation_ordinal: int
+    return_type: str
+    return_lane: str
+    function_effects: int
+    formal_parameters: Tuple[DynamicV2AotFormalView, ...]
     calls: Tuple[DynamicV2AotCallView, ...]
 
     def require_call_site(self, site_id: int) -> DynamicV2AotCallView:
@@ -136,6 +160,13 @@ def _required_texts(value: Any, label: str) -> Tuple[str, ...]:
     if not isinstance(value, list) or any(not isinstance(item, str) or not item for item in value):
         raise DynamicV2AotAdmissionError(f"{label} must be a text array")
     return tuple(value)
+
+
+def _required_u16(value: Any, label: str) -> int:
+    value = _required_int(value, label)
+    if value > 0xFFFF:
+        raise DynamicV2AotAdmissionError(f"{label} exceeds u16")
+    return value
 
 
 def _metadata(func_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -200,6 +231,12 @@ def _validate_call(
     argument_lanes = _required_texts(raw.get("argument_lanes"), "call.argument_lanes")
     result_lane = _required_text(raw.get("result_lane"), "call.result_lane")
     lease = _required_text(raw.get("lease"), "call.lease")
+    normal_shape = _required_text(raw.get("normal_shape"), "call.normal_shape")
+    outcome_slot = _required_int(raw.get("outcome_slot"), "call.outcome_slot")
+    normal_result_dst = _required_int(
+        raw.get("normal_result_dst"), "call.normal_result_dst"
+    )
+    effects = _required_u16(raw.get("effects"), "call.effects")
     lane_names = {VALUE_HOST_HANDLE: "opaque_handle", VALUE_IMMEDIATE_I64: "immediate_i64"}
     lease_names = {LEASE_NONE: "none", LEASE_END_AUTHORIZED: "end_authorized"}
     expected_from_fact = {
@@ -237,6 +274,11 @@ def _validate_call(
     expected_arg_lanes = tuple(arg.lane for arg in receipt_call.arguments)
     if expected_arg_lanes != argument_lanes or receipt_call.result_lane != result_lane:
         raise DynamicV2AotAdmissionError(f"{role} A-prime lane mismatch")
+    expected_shape = (
+        "end_authorized_handle" if lease == "end_authorized" else "immediate_i64"
+    )
+    if normal_shape != expected_shape:
+        raise DynamicV2AotAdmissionError(f"{role} normal shape mismatch")
     return DynamicV2AotCallView(
         role=role,
         site_id=site_id,
@@ -248,6 +290,10 @@ def _validate_call(
         argument_lanes=argument_lanes,
         result_lane=result_lane,
         lease=lease,
+        normal_shape=normal_shape,
+        outcome_slot=outcome_slot,
+        normal_result_dst=normal_result_dst,
+        effects=effects,
     )
 
 
@@ -279,6 +325,38 @@ def load_selected_dynamic_v2_aot_admission(
     _reject_unknown(stamp, _STAMP_KEYS, "plan_stamp")
     compiler_domain = _required_u64(stamp.get("compiler_domain"), "compiler_domain", positive=True)
     invocation_ordinal = _required_u64(stamp.get("invocation_ordinal"), "invocation_ordinal", positive=True)
+    if _required_text(raw.get("return_type"), "return_type") != "i64":
+        raise DynamicV2AotAdmissionError("selected return type mismatch")
+    if _required_text(raw.get("return_lane"), "return_lane") != "immediate_i64":
+        raise DynamicV2AotAdmissionError("selected return lane mismatch")
+    function_effects = _required_u16(raw.get("function_effects"), "function_effects")
+    raw_formals = raw.get("formal_parameters")
+    if not isinstance(raw_formals, list) or len(raw_formals) != 4:
+        raise DynamicV2AotAdmissionError(
+            "selected admission requires exactly four formal parameters"
+        )
+    expected_formals = (
+        ("src", "opaque_handle"),
+        ("pos", "immediate_i64"),
+        ("end", "immediate_i64"),
+        ("pred_chars", "opaque_handle"),
+    )
+    formal_parameters = []
+    for index, raw_formal in enumerate(raw_formals):
+        if not isinstance(raw_formal, dict):
+            raise DynamicV2AotAdmissionError("formal parameter rows must be objects")
+        _reject_unknown(raw_formal, _FORMAL_KEYS, "formal parameter")
+        role = _required_text(raw_formal.get("role"), "formal.role")
+        value_id = _required_int(raw_formal.get("value_id"), "formal.value_id")
+        lane = _required_text(raw_formal.get("lane"), "formal.lane")
+        expected_role, expected_lane = expected_formals[index]
+        if (role, lane) != (expected_role, expected_lane):
+            raise DynamicV2AotAdmissionError("formal parameter role/lane mismatch")
+        formal_parameters.append(
+            DynamicV2AotFormalView(role=role, value_id=value_id, lane=lane)
+        )
+    if len({row.value_id for row in formal_parameters}) != 4:
+        raise DynamicV2AotAdmissionError("formal parameter ValueIds must be unique")
     calls = raw.get("calls")
     if not isinstance(calls, list) or len(calls) != 2:
         raise DynamicV2AotAdmissionError("selected admission requires exactly two calls")
@@ -299,5 +377,9 @@ def load_selected_dynamic_v2_aot_admission(
         registry_generation=generation,
         compiler_domain=compiler_domain,
         invocation_ordinal=invocation_ordinal,
+        return_type="i64",
+        return_lane="immediate_i64",
+        function_effects=function_effects,
+        formal_parameters=tuple(formal_parameters),
         calls=parsed,
     )

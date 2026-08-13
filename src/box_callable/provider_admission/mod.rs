@@ -13,6 +13,7 @@ pub(crate) use admitted_registry::TextScanAdmittedRoleV1;
 pub(crate) use aot_admission::PreparedAotExecutableAdmissionV1;
 pub(crate) use call_metadata::{
     project_dynamic_v2_aot_call_metadata, DynamicV2AotCallMetadataProjectionV1,
+    DynamicV2AotFormalProjectionV1, DynamicV2AotFormalRoleV1,
 };
 pub(crate) use seal::{
     ProviderAdmissionRejectV1, ProviderAdmissionSealV1, TextScanAliasProjectionV1,

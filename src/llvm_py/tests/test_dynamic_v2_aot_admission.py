@@ -33,6 +33,15 @@ def _valid_admission_data():
         "wire_revision": 2,
         "registry_generation": 7,
         "plan_stamp": {"compiler_domain": 1, "invocation_ordinal": 9},
+        "return_type": "i64",
+        "return_lane": "immediate_i64",
+        "function_effects": 16,
+        "formal_parameters": [
+            {"role": "src", "value_id": 0, "lane": "opaque_handle"},
+            {"role": "pos", "value_id": 1, "lane": "immediate_i64"},
+            {"role": "end", "value_id": 2, "lane": "immediate_i64"},
+            {"role": "pred_chars", "value_id": 3, "lane": "opaque_handle"},
+        ],
         "calls": [
             {
                 "role": "substring",
@@ -45,6 +54,10 @@ def _valid_admission_data():
                 "argument_lanes": ["immediate_i64", "immediate_i64"],
                 "result_lane": "opaque_handle",
                 "lease": "end_authorized",
+                "normal_shape": "end_authorized_handle",
+                "outcome_slot": 0,
+                "normal_result_dst": 20,
+                "effects": 16,
             },
             {
                 "role": "index_of",
@@ -57,6 +70,10 @@ def _valid_admission_data():
                 "argument_lanes": ["opaque_handle"],
                 "result_lane": "immediate_i64",
                 "lease": "none",
+                "normal_shape": "immediate_i64",
+                "outcome_slot": 1,
+                "normal_result_dst": 21,
+                "effects": 16,
             },
         ],
     }
@@ -74,7 +91,12 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
         view = load_selected_dynamic_v2_aot_admission(_valid_admission_data())
         self.assertEqual(view.registry_generation, 7)
         self.assertEqual(view.invocation_ordinal, 9)
+        self.assertEqual(view.return_type, "i64")
+        self.assertEqual(view.return_lane, "immediate_i64")
+        self.assertEqual(view.function_effects, 16)
+        self.assertEqual(view.formal_parameters[1].role, "pos")
         self.assertEqual(view.require_call_site(0).entry_id, 1)
+        self.assertEqual(view.require_call_site(0).normal_result_dst, 20)
         self.assertEqual(inspect_selected_dynamic_v2_call(_valid_admission_data(), 1).role, "index_of")
         self.assertEqual(require_selected_dynamic_v2_call(_valid_admission_data(), 0).role, "substring")
 
@@ -105,6 +127,15 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
             ),
             lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][1].update(
                 {"result_lane": "opaque_handle"}
+            ),
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][0].update(
+                {"normal_shape": "immediate_i64"}
+            ),
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["formal_parameters"][1].update(
+                {"lane": "opaque_handle"}
+            ),
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"].update(
+                {"return_lane": "opaque_handle"}
             ),
             lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][0].update(
                 {"site_id": 99}

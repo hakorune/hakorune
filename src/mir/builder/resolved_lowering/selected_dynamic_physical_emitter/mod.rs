@@ -512,6 +512,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             }
         };
         let projection = {
+            let formal_parameters = self.formal_header.transport_rows();
+            let expected_effects = self.demand.function_effects();
             let function = match outer
                 .builder_view_mut_for_lowering()
                 .function_state
@@ -530,6 +532,9 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 &self.aot,
                 &receipt,
                 function.metadata.checked_callout_site_plan_table(),
+                function,
+                formal_parameters,
+                expected_effects,
             )
             .map_err(|error| {
                 DynamicV2I8EmitterRejectV1::DraftSeal(format!(
