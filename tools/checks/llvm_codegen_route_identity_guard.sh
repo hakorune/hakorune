@@ -105,6 +105,17 @@ if rg -Fq -- 'or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))' "$CAPI"; t
 fi
 need_fixed "$CAPI" '.get(compile_symbol)' \
   "CAPI requested-symbol lookup missing"
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_require_pure_first_recipe' \
+  "generic C recipe gate missing"
+need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \
+  "generic C recipe failure missing"
+if rg -Fq -- 'compile_json_via_default_forwarder' "$CAPI_ROUTE"; then
+  fail "generic C export still forwards recipe-unset input to hako_aot"
+fi
+need_fixed "$AOT" 'hako_aot_require_explicit_harness_replay' \
+  "direct AOT replay gate missing"
+need_fixed "$AOT" 'direct-aot-replay-required' \
+  "direct AOT replay failure missing"
 if rg -Fq -- 'Err(_e) => Ok(None)' "$PLUGIN"; then
   fail "codegen plugin still converts backend failure to None"
 fi

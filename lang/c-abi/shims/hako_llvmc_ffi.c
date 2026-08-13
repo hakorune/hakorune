@@ -7,10 +7,9 @@
 // selector.
 // Supported seeds still try the pure-first boundary subset here, and
 // unsupported shapes in that lane replay the explicit `--driver harness`
-// keep lane directly from this shim.
-// The default export surface still presents as a thin hako_aot forwarder,
-// while recipe-aware callers can use an explicit pure-first export so route
-// selection no longer depends on this shim's generic symbol.
+// keep lane only when `HAKO_BACKEND_COMPAT_REPLAY=harness` is explicit.
+// The generic export requires `HAKO_BACKEND_COMPILE_RECIPE=pure-first`; the
+// recipe-aware pure-first export remains the direct production entry.
 
 #include <stddef.h>
 #include <stdlib.h>

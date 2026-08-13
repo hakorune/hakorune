@@ -507,6 +507,17 @@ static const char* hako_aot_resolve_nyrt_dir(char* buf, size_t buflen) {
   return NULL;
 }
 
+static int hako_aot_require_explicit_harness_replay(char** err_out) {
+  const char* replay = getenv("HAKO_BACKEND_COMPAT_REPLAY");
+  if (replay && strcmp(replay, "harness") == 0) {
+    return 0;
+  }
+  hako_set_last_error("UNSUPPORTED");
+  return hako_aot_set_err(
+      err_out,
+      "[freeze:route][direct-aot-replay-required] set HAKO_BACKEND_COMPAT_REPLAY=harness");
+}
+
 int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char** err_out) {
   if (hako_aot_use_ffi()) {
     return hako_aot_try_ffi_compile(mir_json_path, obj_path, err_out);
@@ -515,6 +526,9 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
   if (!mir_json_path || !*mir_json_path || !obj_path || !*obj_path) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "invalid args");
+  }
+  if (hako_aot_require_explicit_harness_replay(err_out) != 0) {
+    return -1;
   }
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";

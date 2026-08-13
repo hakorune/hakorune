@@ -254,67 +254,6 @@ static void hako_llvmc_log_selected_entry_runes(yyjson_val* fn0) {
   }
 }
 
-static void hako_llvmc_entry_rune_selection_from_json_file(
-    const char* json_in,
-    hako_llvmc_entry_rune_selection* out) {
-  yyjson_read_err rerr;
-  yyjson_doc* d;
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn0;
-  if (!out) {
-    return;
-  }
-  out->symbol = NULL;
-  out->callconv = NULL;
-  d = yyjson_read_file(json_in, 0, NULL, &rerr);
-  if (!d) {
-    return;
-  }
-  root = yyjson_doc_get_root(d);
-  fns = yyjson_obj_get(root, "functions");
-  fn0 = hako_llvmc_find_entry_function(fns);
-  hako_llvmc_select_entry_runes(fn0, out);
-  yyjson_doc_free(d);
-}
-
-static void hako_llvmc_log_selected_entry_runes_from_json(const char* json_in) {
-  yyjson_read_err rerr;
-  yyjson_doc* d;
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn0;
-  if (!hako_llvmc_rune_trace_enabled()) {
-    return;
-  }
-  d = yyjson_read_file(json_in, 0, NULL, &rerr);
-  if (!d) {
-    return;
-  }
-  root = yyjson_doc_get_root(d);
-  fns = yyjson_obj_get(root, "functions");
-  fn0 = hako_llvmc_find_entry_function(fns);
-  hako_llvmc_log_selected_entry_runes(fn0);
-  yyjson_doc_free(d);
-}
-
-static int hako_llvmc_forward_compile_to_aot_without_ffi(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out) {
-  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
-  char prev_buf[64];
-  int had_prev = prev_raw && prev_raw[0];
-  if (had_prev) {
-    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
-  }
-  hako_llvmc_log_selected_entry_runes_from_json(json_in);
-  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
-  int rc = hako_aot_compile_json(json_in, obj_out, err_out);
-  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
-  return rc;
-}
-
 static int hako_llvmc_forward_link_to_aot_without_ffi(
     const char* obj_in,
     const char* exe_out,
@@ -351,10 +290,6 @@ static int hako_llvmc_forward_link_to_aot_v2_without_ffi(
   return rc;
 }
 
-static int forward_compile_json_to_aot(const char* json_in, const char* obj_out, char** err_out) {
-  return hako_llvmc_forward_compile_to_aot_without_ffi(json_in, obj_out, err_out);
-}
-
 static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
   return hako_llvmc_forward_link_to_aot_without_ffi(obj_in, exe_out, extra_ldflags, err_out);
 }
@@ -371,13 +306,6 @@ static int forward_link_obj_to_aot_v2(
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
 
-static int compile_json_via_default_forwarder(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out) {
-  return forward_compile_json_to_aot(json_in, obj_out, err_out);
-}
-
 static int compile_json_via_explicit_compat_harness_replay(
     const char* json_in,
     const char* obj_out,
@@ -393,15 +321,15 @@ static int compile_json_via_pure_first_lane(
   return compile_json_compat_pure(json_in, obj_out, err_out);
 }
 
-static int compile_json_with_selected_route(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out,
-    int pure_first_selected) {
-  if (!pure_first_selected) {
-    return compile_json_via_default_forwarder(json_in, obj_out, err_out);
+static int hako_llvmc_require_pure_first_recipe(char** err_out) {
+  const char* recipe = hako_llvmc_backend_compile_recipe();
+  if (recipe && strcmp(recipe, "pure-first") == 0) {
+    return 0;
   }
-  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+  hako_set_last_error("UNSUPPORTED");
+  return set_err_owned(
+      err_out,
+      "[freeze:route][generic-capi-recipe-required] set HAKO_BACKEND_COMPILE_RECIPE=pure-first");
 }
 
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
@@ -414,12 +342,15 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
         err_out,
         "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first");
   }
-  return compile_json_with_selected_route(json_in, obj_out, err_out, capi_pure_enabled());
+  if (hako_llvmc_require_pure_first_recipe(err_out) != 0) {
+    return -1;
+  }
+  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
 
 // Recipe-aware daily callers use this explicit pure-first transport entry so
 // generic route selection stays outside the C shim.
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out, char** err_out) {
-  return compile_json_with_selected_route(json_in, obj_out, err_out, 1);
+  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
