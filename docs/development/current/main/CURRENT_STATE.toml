@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census and strict transport-only JSON round-trip, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F key authority, invocation-owned branded collector handoff, drift/unbranded negatives, the selected adapter input/admission loan, brand-only registry-generation transport, and the private unpublished W6 orchestration with its focused canary are landed. Production W6 remains closed and partial production callers remain forbidden."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, and private W6 orchestration are landed. Production W6 remains closed. The current design stop fixes the CatalogedBoxMethod canonical drain and static post-link artifact receipt/publication owners before Boundary C-ABI lowering or the selected caller switch can start."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "The collector-backed brand transport and private unpublished W6 orchestration/canary are landed. W6 remains the only production route: selected admission, full physical session, DraftSeal, collector publication, LLVM/link, and old-edge retirement must still activate atomically; all production callers remain closed."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
-current_blocker_token = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6: the private orchestration and focused canary prove collector brand -> admission -> unpublished session -> exact-two draft -> collector receipt. The production cell still must consume the selected package loan, strict AOT/LLVM/link, publish once, and retire the old edge atomically; no partial caller, lookup, fallback, retry, or VM route may open."
+current_design_stop = "Compiler atomic MirModule publication and backend executable publication are separate ordered transactions. Before W6 implementation, fix the CatalogedBoxMethod canonical-drain projection, explicit runtime-archive link ABI, artifact-bound ABI/wire/PlanStamp descriptor, and one temporary-artifact cleanup/receipt/publication owner. RuntimeExecutablePlan is parked because direct static calls have no runtime-address consumer."
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0"
+current_blocker_token = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0: accept the two-transaction boundary plus four exact choices: CatalogedBoxMethod canonical-drain projection, explicit Boundary link archive argument, artifact-bound ABI/wire/PlanStamp descriptor, and one candidate cleanup/receipt/publication owner. RuntimeExecutablePlan, Python/native/harness/VM stay non-authorities; code and cutover remain closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> collector lane has completed unpublished E profile close and exact-two DraftSeal preparation. W0-W3 facts, lease identity R0, CheckedCallOut census, site-plan transport, D2 preflight, D1 formal->I0-I7 corridor, E1 I8/I9 control, E2 typed End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 I13-I16 continuation/backedge Header PHI handoff, F cataloged Box-method key authority, R1 invocation-owned branded collector handoff, drift/unbranded rejection evidence, the selected adapter input/admission loan, brand transport, and the private unpublished W6 orchestration/canary are landed. Production publication remains closed; ordinary and legacy routes remain separate and selected production cutover is disabled."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Production publication remains closed. W6 is paused because the canonical drain lacks CatalogedBoxMethod support and the static link has no artifact-bound ABI/wire/PlanStamp receipt/publication owner. The selected old raw/JoinIR edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,14 +25,14 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card = "dynamic-fault-exit-transaction-d0"
-latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-latest_card_summary = "W0-W3 facts, CheckedCallOut D0/R0 issuers, generation-aware lease identity, E0 function-level 1:1:1 census, private I6/I7 admitted-site-plan transport, D2 preflight, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 fault terminals, E3 inner-return ThenTerminal handoff, E4 I13-I16 continuation/backedge Header PHI handoff, R0 cleanup/site-plan lifecycle co-seal, E5 profile close plus exact-two DraftSeal preparation, F's cataloged Box-method key and branded collector handoff with drift/unbranded negatives, the selected adapter input/admission loan, brand transport, and the private unpublished W6 orchestration/canary are landed. Raw generation input is removed; production W6 remains closed and production callers remain zero."
-next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
-next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+latest_card = "dynamic-v2-w6-production-activation-task"
+latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+latest_card_summary = "W6 is taskized as publication-boundary D0, source split, evidence consumption, CatalogedBoxMethod canonical drain, Boundary C-ABI CheckedCallOut physicalization, static post-link artifact receipt/publication, and one final selected caller/old-edge atomic replacement. RuntimeExecutablePlan is parked; no production row is executable until D0 fixes both publication owners."
+next_design_card = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0"
+next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+next_execution_card = "none until DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0 is accepted"
+next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6 is taskized behind a publication-boundary design stop: CatalogedBoxMethod canonical drain and static artifact receipt/publication ownership must be fixed; runtime-address RuntimeExecutablePlan remains parked.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
   "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
@@ -54,7 +55,5 @@ landed_tail = [
   "2026-08-13: transport-only CheckedCallOut MIR JSON emit/parse round-trip and schema/diet-ledger sync landed; LLVM/VM execution and production W6 remain closed.",
   "2026-08-13: private unpublished W6 orchestration and focused canary verified collector brand -> selected admission -> unpublished session -> exact-two draft -> branded collector receipt; production W6 remains closed.",
   "2026-08-13: E5 now claims the outer Completion, seals the remaining physical corridor, and prepares exact-two DraftSeal through the existing owner; CanonicalCallable collector/publication remain next.",
-  "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
-  "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
-  "2026-08-13: neutral CheckedCallOut vocabulary/issuers plus the move-only cleanup/site-plan lifecycle co-seal landed; End/Fault execution, full E, publication, and production callers remain closed.",
+  "2026-08-13: CheckedCallOut E0 function closeout verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity; later corridor/session rows are recorded in the predecessor card and git.",
 ]

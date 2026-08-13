@@ -152,17 +152,11 @@ docs/development/current/main/CURRENT_STATE.toml
   -> latest_card_path
 ```
 
-For the selected Dynamic callable, the active card is:
-
-```text
-docs/development/current/main/investigations/
-  dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md
-```
-
-Its current implementation row is
-`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`. Older S6C/S6D/S6G briefs and route
-chronology remain evidence in git history or their owning cards; they do not
-schedule a new route from this workstream.
+For the selected Dynamic callable, resolve the active card and row only from
+`latest_card_path` and `current_execution_row` above. This historical ledger
+does not mirror either value. Older S6C/S6D/S6G briefs and route chronology
+remain evidence in git history or their owning cards; they do not schedule a
+new route from this workstream.
 ```
 ## Production invariants
 ```text

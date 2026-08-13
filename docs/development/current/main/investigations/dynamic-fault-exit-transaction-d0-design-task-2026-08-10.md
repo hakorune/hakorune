@@ -1,9 +1,10 @@
 ---
-Status: active compact card
+Status: closed predecessor; do not resume from this card
 Date: 2026-08-12
 Scope: selected Dynamic callable, canonical session admission, hako.text.scan@1,
   AOT/LLVM production activation
 ParentHistory: docs/development/current/main/design/archive/dynamic-fault-exit-transaction-d0-history-2026-08-10.md
+Successor: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
@@ -14,6 +15,11 @@ Related:
 ---
 
 # Dynamic callable current card
+
+> This card closes the semantic/header/admission/session/DraftSeal predecessor
+> series. The live W6 publication boundary and implementation DAG are owned by
+> the `Successor` card above. Historical “next slice” wording below is evidence,
+> not a restart selector.
 
 ## Current capsule
 
@@ -73,8 +79,8 @@ Fail-fast boundary:
   validate before Builder mutation. Exact image/digest/symbol validation occurs
   only at link and must succeed before executable publication.
 Smallest next slice:
-  PHYSICAL-SESSION-I0-E; consume one move-only activation aggregate and one
-  Recipe-order cursor for the full unpublished physical session.
+  The successor card's `DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0`; the physical
+  session named by the former brief is landed and no longer a live selector.
 Non-claims:
   no Dynamic registry, runtime lookup, VM feature, generic fallback, retry,
   legacy collector key, or production switch before all subrows are green.
