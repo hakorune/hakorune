@@ -889,15 +889,15 @@ Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenc
 Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
 ```
 
-#### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (design stop)
+#### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (fast implementation; final live publication closed)
 
 ```text
-Decision: keep a design stop; the root commit owner is explicit, but the LLVM ingress materialization relation to the source-backed selected package and the ownership/order of `normalize_core_pass` are not.
+Decision: accept one shared normal-callable materialization helper; SourceBacked is exact and bypasses `normalize_core_pass`, while Compatibility remains the existing AST request with exactly one compatibility-only `normalize_core_pass`.
 Source authority + canonical issuer: `parse_normal_callable_program_with_build_config` -> `transform_normal_callable_program_v1` -> `VerifiedFinalCallableProgramSourceV1`/`issue_normal_callable_semantic_package_v1` -> one shared materialization helper -> `NormalDefaultPublishedPipelineV1` -> `prepare_external_commit`/`PreparedBuilderExternalCommitV1::commit`.
-Non-authority: `for_llvm_source` compatibility AST request, runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
-Fail-fast boundary: missing source-backed callable relation, foreign package/admission, receipt/site/ABI/wire drift, or selected/ordinary census mismatch leaves the live Builder and ordinary edge unchanged.
-Smallest next slice: accept one shared materialization helper (`normal-callable parser/transform -> SourceBacked|Compatibility`; SourceBacked -> existing callable request, Compatibility -> existing AST request), explicitly decide `normalize_core_pass` is excluded or source-preserving, and take one scoped census; no guessed callback, transition product, or AST-to-package re-inference.
-Acceptance: package-adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, selected Boundary candidate/runner=1, receipt/path fence=1, fallback/retry/VM=0; final LLVM-ingress live caller remains 0 until the shared materialization helper is accepted.
+Non-authority: raw `parse_source` outside the helper, `for_llvm_source` as anything beyond the Compatibility request constructor, runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
+Fail-fast boundary: parser/transform rejection, SourceBacked exact-preservation drift, SourceBacked reaching `normalize_core_pass`, duplicate Compatibility normalization, foreign package/admission, receipt/site/ABI/wire drift, or selected/ordinary census mismatch leaves the live Builder and ordinary edge unchanged.
+Smallest next slice: implement one shared helper (`normal-callable parser/transform -> SourceBacked|Compatibility`; SourceBacked -> existing callable request, Compatibility -> existing AST request plus one compatibility-only normalization) and one scoped census; no guessed callback, transition product, or AST-to-package re-inference.
+Acceptance: shared helper=1, source-backed request constructors (MIR/LLVM)=1 each, SourceBacked normalize=0, Compatibility normalize=1 exactly, package-adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, selected Boundary candidate/runner=1, receipt/path fence=1, fallback/retry/VM=0; final LLVM-ingress live caller remains 0.
 Non-claims: no ordinary compatibility retirement, llvmlite G1/G2/G3 activation, source deletion, cross-process recovery, RuntimeExecutablePlan, or guessed transition state.
 ```
 ## Negative matrix
