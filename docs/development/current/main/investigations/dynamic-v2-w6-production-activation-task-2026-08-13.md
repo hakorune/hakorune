@@ -728,6 +728,33 @@ Non-claims:
   no crash-recovery transaction, RuntimeExecutablePlan, or second backend.
 ```
 
+#### W6-E-D0 — `DYNAMIC-V2-W6-CROSS-CRATE-HANDOFF-D0` (design stop)
+
+The prepared aggregate is not implementable until the Builder crate and the
+separate `ny-llvmc` process have one explicit candidate/artifact handoff. Do
+not invent a local receipt, re-open the old lowering route, or switch a caller
+as a workaround.
+
+```text
+Decision: keep W6-E closed at a cross-process handoff design stop.
+Source authority + canonical issuer: selected package/admission -> canonical
+  session/DraftSeal/collector; ny-llvmc -> static artifact receipt.
+Non-authority: raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan,
+  llvmlite, VM, fallback, retry, and reconstructed receipt/PlanStamp.
+Fail-fast boundary: candidate brand/key/site metadata must match the Boundary
+  descriptor, archive, digest, ABI/wire, and old-edge witness before rename.
+Smallest next slice: define one site-id MIR-JSON handoff carrying candidate
+  brand, selected physical metadata, and old-edge witness; let ny-llvmc consume
+  it once through prepare -> published receipt, without semantic re-selection.
+Non-claims: no production caller, old-edge deletion, or final publication yet.
+```
+
+D0 exit requires: selected caller exactly one, selected Dynamic old edge zero,
+ordinary compatibility edge explicitly preserved, one ny-llvmc prepare/receipt/
+rename consumer, PlanStamp or candidate-digest co-seal across the process
+boundary, and focused positive/negative/rename-failure evidence. Until then
+`new=0`, `old=1`, fallback/retry/VM=0 remain mandatory.
+
 The prepared aggregate performs all fallible work before commit:
 
 ```text

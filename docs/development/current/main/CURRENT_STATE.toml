@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, and W6-D artifact-bound static link receipt owner are landed. Executable final-path publication and production remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, and W6-D artifact-bound static link receipt owner are landed. W6-E is at a cross-crate handoff design stop; executable final-path publication and production remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-D is landed: one fixed object descriptor projects the final candidate metadata, and one Rust transaction observes real object/archive/executable digests, exact symbols, ABI/wire/PlanStamp, and issues a move-only static link receipt. W6-E is the sole remaining production BoxCount: a prepared aggregate must consume the candidate, receipt, collector brand, and old-edge witness once before final artifact rename and infallible caller/module cutover; selected new/old callers remain 0/1."
-work_mode = "fast"
+current_design_stop = "W6-D is landed. W6-E now stops at the missing Builder-crate <-> separate ny-llvmc-process handoff: one site-id MIR-JSON candidate/receipt transport must co-seal selected brand, physical metadata, PlanStamp or candidate digest, and old-edge witness before any rename or caller mutation. No local shadow receipt or production switch is allowed."
+work_mode = "design_stop"
 current_execution_row = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
-current_blocker_token = "W6-E: define and consume one PreparedSelectedDynamicW6ActivationV1 over the completed candidate, prepared static receipt, collector brand, and old-edge witness; final artifact rename is the only fallible commit step, followed by infallible module/caller cutover; current new=0 old=1 and fallback/retry/VM=0."
+current_blocker_token = "W6-E-D0: define one cross-crate site-id MIR-JSON handoff from selected package/DraftSeal/collector to ny-llvmc static receipt; co-seal candidate brand or digest, ABI/wire/PlanStamp, and old-edge witness before rename; current new=0 old=1 and fallback/retry/VM=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename failure cleans the candidate and preserves the old final path. W6-E remains one prepared activation aggregate over candidate module, static receipt, collector brand, and old-edge witness; production stays new=0 old=1."
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. W6-E-D0 records the missing cross-crate site-id candidate/artifact handoff; no shadow receipt or production switch is allowed, so new=0 old=1 remains."
 next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+next_execution_card = "none (await W6-E-D0 handoff acceptance)"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
