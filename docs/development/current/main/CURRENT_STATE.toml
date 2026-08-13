@@ -1,11 +1,11 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic through receipt-gated Boundary launch and G0-G2 llvmlite production/default retirement are landed. A post-W6 audit accepted four pre-integration hardening rows: linear metadata must reject scrubbed clones, selected MIR must bypass every post-seal mutator, executable+receipt publication must become one bundle transaction, and Boundary ownership must split from llvmlite compat. G3 oracle/archive work is parked until those rows close."
+status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed, but a worker audit invalidated the claimed end-to-end selected launch. The selected runner currently exits at the PyVM nonconsumer fence before Boundary, final module verification can be discarded, Boundary selects the zero-argument launch entry while selected metadata belongs to a helper, Dynamic admission is not declaration-mode bounded, and LexicalScopeGuard has an unsound safe raw-pointer API. These P0 corrections join the four accepted post-W6 hardening rows; G3 oracle/archive work and main integration remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 design is accepted. DYN-PROD-BASELINE-R0 is the bounded behavior-neutral entry; later rows fail-close scrubbed metadata, post-seal mutation, artifact bundle publication, and Boundary/llvmlite feature ownership before G3 resumes."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG. DYN-PROD-BASELINE-R0 remains the bounded behavior-neutral entry; subsequent rows close lexical-scope safety, declaration-mode admission, scrubbed metadata, post-seal immutability plus strict final verification, selected runner dominance, launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership before G3 resumes."
 work_mode = "fast"
 current_execution_row = "DYN-PROD-BASELINE-R0"
 current_blocker_token = "DYN-PROD-BASELINE-R0: update the stale TextScan admission guard to exact definition/test/production callers, synchronize current owner README/check-index text, and classify the outstanding completion red using a clean worktree and exact parent evidence. No route, Recipe, MIR, fixture, source acceptance, fallback/retry, archive movement, deletion, or unrelated dirty compiler edit."
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, G1 route/selected-runner retirement, and all G2 boundaries are closed; G3 is at the source/consumer/fixture/artifact inventory design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector infrastructure is landed, as are the Boundary object/link/receipt components. End-to-end selected execution is not currently closed: admission mode, post-seal final verification, runner dominance, and launch-entry/helper identity must be repaired before the Boundary launch claim is restored. G0-G2 llvmlite production/default retirement remains policy; G3 archive work is parked. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Post-W6 audit accepted four pre-integration corrections without reopening MIR semantics: scrubbed linear metadata is never ordinary, selected MIR has no post-seal mutable seam, executable+receipt becomes one bundle publication, and Boundary build/runner ownership separates from llvmlite compat. G3 resumes after hardening and clean integration evidence."
+latest_card_summary = "Expanded worker audit found that the selected route is not yet end-to-end executable: an over-strong PyVM fence blocks Boundary, final verification and post-seal immutability are not enforced, and Boundary confuses the launch entry with the metadata-bearing helper. Upstream declaration-mode admission and a safe lexical-scope transaction are also P0. The existing linear-slot, artifact-bundle, and feature-owner corrections remain required; G3 resumes only after the full repair DAG and clean integration evidence."
 next_design_card = "none"
 next_design_card_path = "none"
 next_execution_card = "DYN-PROD-BASELINE-R0"
@@ -58,5 +58,5 @@ landed_tail = [
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
   "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
-  "2026-08-14: G1 selected-runner fail-fast landed: selected Dynamic Boundary early-return dominates PyVM/object/ordinary harness/fallback, selected region has no mock fallback, and census/pointer/diff guards are green; ordinary compat mock remains separate.",
+  "2026-08-14: G1 selected-runner fence code landed, but the post-W6 worker audit found its selected branch exits before Boundary; the prior early-return dominance claim is invalidated and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 owns the correction. Ordinary explicit PyVM/compat remains separate.",
 ]
