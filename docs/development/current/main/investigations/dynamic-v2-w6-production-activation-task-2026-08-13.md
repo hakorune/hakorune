@@ -546,10 +546,28 @@ Non-claims: no C/link/RuntimePlan/live publication/production caller/VM.
 Acceptance: candidate JSON key/consumer/slot issuer `= 1/1/1`, exact two
 site-id entries, coordinate locator/lookup `= 0`, production `new=0 old=1`.
 
-Observed closeout (2026-08-13): the selected unpublished close now projects
-the canonical plan table into one clone-scrubbing FunctionMetadata slot, and
-candidate JSON borrows that slot once; A-prime `take_once`, C/LLVM/runtime
-publication, and production caller counts remain closed (`new=0 old=1`).
+Observed closeout (2026-08-13): C0-B issues the projection and has one JSON
+observer, but install precedes DraftSeal clone-scrub; C0-C moves both values
+to the final detached candidate. C/LLVM/runtime publication remains closed.
+#### W6-C0-C — `DYNAMIC-V2-W6-CANDIDATE-METADATA-POSTSEAL-HANDOFF-R0`
+
+```text
+Decision: preserve clone-scrubbing slots and carry the already-issued receipt
+  plus Dynamic projection as one move-only payload; install only on final draft.
+Source authority + canonical issuer: existing close/projection issuers;
+  DraftSeal's detached projection is the sole final FunctionMetadata image.
+Non-authority: clone exceptions, JSON reissue/take_once repair, site-plan
+  reconstruction, and second provider/admission/metadata issuer.
+Fail-fast boundary: PlanStamp/site-pair drift, consumed/occupied final slot,
+  or pre-final install rejects with candidate/MIR publication unchanged.
+Smallest next slice: private post-seal payload + one prepare/commit handoff
+  after projection clone but before `into_session_commit_input`; JSON borrow stays.
+Non-claims: no C/LLVM/link/RuntimePlan/live publication/production caller/VM.
+```
+
+Acceptance: final candidate JSON has exactly one receipt and one Dynamic key;
+clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`,
+production `new=0 old=1`.
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
