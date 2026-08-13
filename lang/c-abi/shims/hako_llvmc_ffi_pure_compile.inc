@@ -497,3 +497,14 @@ __attribute__((visibility("default")))
 int hako_llvmc_link_obj(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
   return forward_link_obj_to_aot(obj_in, exe_out, extra_ldflags, err_out);
 }
+
+__attribute__((visibility("default")))
+int hako_llvmc_link_obj_v2(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  return forward_link_obj_to_aot_v2(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
+}

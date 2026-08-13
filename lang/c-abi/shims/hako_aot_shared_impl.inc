@@ -407,6 +407,29 @@ static int hako_aot_try_ffi_link(const char* obj_path, const char* exe_path, con
   dlclose(h);
   return rc;
 }
+
+static int hako_aot_try_ffi_link_v2(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  void* h = hako_aot_open_ffi_lib();
+  if (!h) {
+    hako_set_last_error("UNSUPPORTED");
+    return hako_aot_set_err(err_out, "FFI library not found");
+  }
+  typedef int (*ffi_link_v2_fn)(const char*, const char*, const char*, const char*, char**);
+  ffi_link_v2_fn fn = (ffi_link_v2_fn)dlsym(h, "hako_llvmc_link_obj_v2");
+  if (!fn) {
+    dlclose(h);
+    hako_set_last_error("UNSUPPORTED");
+    return hako_aot_set_err(err_out, "FFI symbol missing: hako_llvmc_link_obj_v2");
+  }
+  int rc = fn(obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
+  dlclose(h);
+  return rc;
+}
 #else
 static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_path, char** err_out) {
   (void)mir_json_path;
@@ -418,6 +441,20 @@ static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_p
 static int hako_aot_try_ffi_link(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
   (void)obj_path;
   (void)exe_path;
+  (void)extra_ldflags;
+  hako_set_last_error("UNSUPPORTED");
+  return hako_aot_set_err(err_out, "FFI unsupported on this platform");
+}
+
+static int hako_aot_try_ffi_link_v2(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  (void)obj_path;
+  (void)exe_path;
+  (void)runtime_archive_path;
   (void)extra_ldflags;
   hako_set_last_error("UNSUPPORTED");
   return hako_aot_set_err(err_out, "FFI unsupported on this platform");
@@ -477,6 +514,80 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
   return hako_aot_finish_compile_success(obj_path, err_out, logpath);
 }
 
+static int hako_aot_link_obj_with_archive(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  if (!obj_path || !*obj_path || !exe_path || !*exe_path ||
+      !runtime_archive_path || !*runtime_archive_path) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "invalid explicit link args");
+  }
+  if (!hako_aot_file_exists(obj_path)) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "object not found");
+  }
+  if (!hako_aot_file_exists(runtime_archive_path)) {
+    hako_set_last_error("NOT_FOUND");
+    return hako_aot_set_err(err_out, "explicit runtime archive not found");
+  }
+  const char* linker = getenv("CC");
+  if (!linker || !*linker) linker = "cc";
+  char logpath[1024];
+  if (hako_aot_build_link_log_path(logpath, sizeof(logpath)) != 0) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "command too long");
+  }
+  char shim_flag[1024] = "";
+  const char* archive_dir = runtime_archive_path;
+  const char* last_slash = strrchr(runtime_archive_path, '/');
+  char archive_dir_buf[1024];
+  if (last_slash) {
+    size_t dir_len = (size_t)(last_slash - runtime_archive_path);
+    if (dir_len == 0 || dir_len >= sizeof(archive_dir_buf)) {
+      hako_set_last_error("VALIDATION");
+      return hako_aot_set_err(err_out, "runtime archive path too long");
+    }
+    memcpy(archive_dir_buf, runtime_archive_path, dir_len);
+    archive_dir_buf[dir_len] = '\0';
+    archive_dir = archive_dir_buf;
+  }
+  const char* os_libs = hako_aot_link_os_libs(err_out);
+  if (!os_libs) {
+    return -1;
+  }
+  char cmd[8192];
+  if (hako_aot_build_link_command(
+          cmd,
+          sizeof(cmd),
+          linker,
+          hako_aot_link_pie_avoid_flag(),
+          hako_aot_link_gc_sections_flag(),
+          exe_path,
+          obj_path,
+          runtime_archive_path,
+          hako_aot_resolve_shim_flag(shim_flag, sizeof(shim_flag), archive_dir),
+          os_libs,
+          logpath) != 0) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "command too long");
+  }
+  if (hako_aot_append_linker_option_keeps(cmd, sizeof(cmd), extra_ldflags) != 0) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "command too long");
+  }
+  if (hako_aot_run_command_or_project_fail(
+          cmd,
+          err_out,
+          logpath,
+          "LINK_FAILED") != 0) {
+    return -1;
+  }
+  return hako_aot_finish_success_command(logpath);
+}
+
 int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
   if (hako_aot_use_ffi()) {
     return hako_aot_try_ffi_link(obj_path, exe_path, extra_ldflags, err_out);
@@ -501,44 +612,20 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
     hako_set_last_error("NOT_FOUND");
     return hako_aot_set_err(err_out, "libhako_kernel.a not found (NYASH_EMIT_EXE_NYRT)");
   }
-  const char* linker = getenv("CC");
-  if (!linker || !*linker) linker = "cc";
-  char logpath[1024];
-  if (hako_aot_build_link_log_path(logpath, sizeof(logpath)) != 0) {
-    hako_set_last_error("VALIDATION");
-    return hako_aot_set_err(err_out, "command too long");
+  return hako_aot_link_obj_with_archive(
+      obj_path, exe_path, lib, extra_ldflags, err_out);
+}
+
+int hako_aot_link_obj_v2(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  if (hako_aot_use_ffi()) {
+    return hako_aot_try_ffi_link_v2(
+        obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
   }
-  char shim_flag[1024] = "";
-  const char* os_libs = hako_aot_link_os_libs(err_out);
-  if (!os_libs) {
-    return -1;
-  }
-  char cmd[8192];
-  if (hako_aot_build_link_command(
-          cmd,
-          sizeof(cmd),
-          linker,
-          hako_aot_link_pie_avoid_flag(),
-          hako_aot_link_gc_sections_flag(),
-          exe_path,
-          obj_path,
-          lib,
-          hako_aot_resolve_shim_flag(shim_flag, sizeof(shim_flag), dir),
-          os_libs,
-          logpath) != 0) {
-    hako_set_last_error("VALIDATION");
-    return hako_aot_set_err(err_out, "command too long");
-  }
-  if (hako_aot_append_linker_option_keeps(cmd, sizeof(cmd), extra_ldflags) != 0) {
-    hako_set_last_error("VALIDATION");
-    return hako_aot_set_err(err_out, "command too long");
-  }
-  if (hako_aot_run_command_or_project_fail(
-          cmd,
-          err_out,
-          logpath,
-          "LINK_FAILED") != 0) {
-    return -1;
-  }
-  return hako_aot_finish_success_command(logpath);
+  return hako_aot_link_obj_with_archive(
+      obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
 }

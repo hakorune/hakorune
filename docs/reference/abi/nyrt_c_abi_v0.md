@@ -83,6 +83,26 @@ reconstruct a site from block coordinates, or turn a backend contract failure
 into semantic Fault/fallback. Link, artifact validation, and live publication
 remain later W6 transactions.
 
+### W6 explicit static link boundary
+
+The selected Boundary W6 route uses the versioned link symbol:
+
+```c
+int hako_llvmc_link_obj_v2(
+    const char* object_path,
+    const char* temporary_executable_path,
+    const char* runtime_archive_path,
+    const char* extra_link_flags,
+    char** error_out);
+```
+
+`runtime_archive_path` is resolved once by the Rust `--nyrt` caller and is
+passed as an exact archive path. The selected route does not temporarily set
+or rediscover `NYASH_EMIT_EXE_NYRT`; the unversioned four-argument symbol is
+compatibility-only. This ABI change only fixes link-input authority. Static
+artifact descriptor observation, receipt issuance, and final publication stay
+closed until the W6-D owner is landed.
+
 ## 3. Lifecycle Extension Symbols
 
 Lifecycle-specific handle operations are currently exported from NyRT kernel FFI:

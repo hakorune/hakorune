@@ -33,6 +33,11 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   End consumer through the versioned C ABI. It must not resolve coordinates,
   selectors, providers, registries, generic `mir_call`, VM routes, fallback,
   or retry. Link/publication remains a later W6 transaction.
+- The selected W6 link path uses the versioned `hako_llvmc_link_obj_v2`
+  boundary. Rust resolves the exact `libnyash_kernel.a` path from `--nyrt`
+  and passes it as an argument; this path never asks the C shim to rediscover
+  `NYASH_EMIT_EXE_NYRT` or a fallback directory. The legacy four-argument
+  symbol remains a compatibility owner only.
 - Generic-method route tuple facts must have one registry owner. The tuple
   `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
   not be re-listed independently in route policy, generic method match,

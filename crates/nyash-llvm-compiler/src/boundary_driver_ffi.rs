@@ -12,8 +12,13 @@ extern "C" {
 }
 
 type CompileFn = unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
-type LinkFn =
-    unsafe extern "C" fn(*const c_char, *const c_char, *const c_char, *mut *mut c_char) -> c_int;
+type LinkFnV2 = unsafe extern "C" fn(
+    *const c_char,
+    *const c_char,
+    *const c_char,
+    *const c_char,
+    *mut *mut c_char,
+) -> c_int;
 
 pub(super) fn emit_object_from_json(input: &Path, out: &Path) -> Result<()> {
     ensure_output_parent(out);
@@ -27,7 +32,8 @@ pub(super) fn link_object_to_exe(
     extra_libs: Option<&str>,
 ) -> Result<()> {
     ensure_output_parent(out_exe);
-    call_link_symbol(obj, out_exe, nyrt_dir, extra_libs)
+    let archive = require_explicit_nyrt_archive(nyrt_dir)?;
+    call_link_symbol_v2(obj, out_exe, &archive, extra_libs)
 }
 
 fn ensure_output_parent(path: &Path) {
@@ -80,14 +86,14 @@ where
     )
 }
 
-unsafe fn with_link_symbol<T, F>(action: F) -> Result<T>
+unsafe fn with_link_symbol_v2<T, F>(action: F) -> Result<T>
 where
-    F: FnOnce(LinkFn) -> Result<T>,
+    F: FnOnce(LinkFnV2) -> Result<T>,
 {
     let lib = open_ffi_library()?;
-    let func: LinkFn = *lib
-        .get(b"hako_llvmc_link_obj\0")
-        .context("missing symbol hako_llvmc_link_obj")?;
+    let func: LinkFnV2 = *lib
+        .get(b"hako_llvmc_link_obj_v2\0")
+        .context("missing symbol hako_llvmc_link_obj_v2")?;
     action(func)
 }
 
@@ -109,16 +115,18 @@ fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
     }
 }
 
-fn call_link_symbol(
+fn call_link_symbol_v2(
     obj: &Path,
     out_exe: &Path,
-    nyrt_dir: Option<&Path>,
+    runtime_archive: &Path,
     extra_libs: Option<&str>,
 ) -> Result<()> {
     let cobj =
         CString::new(obj.to_string_lossy().as_bytes()).context("invalid object path for C ABI")?;
     let cexe = CString::new(out_exe.to_string_lossy().as_bytes())
         .context("invalid executable path for C ABI")?;
+    let carchive = CString::new(runtime_archive.to_string_lossy().as_bytes())
+        .context("invalid runtime archive path for C ABI")?;
     let libs_owned = extra_libs
         .filter(|value| !value.trim().is_empty())
         .map(CString::new)
@@ -128,23 +136,31 @@ fn call_link_symbol(
         .as_ref()
         .map(|value| value.as_ptr())
         .unwrap_or(std::ptr::null());
-    let nyrt_owned = nyrt_dir
-        .map(|path| path.to_string_lossy().to_string())
-        .filter(|value| !value.trim().is_empty());
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
-        with_link_symbol(|func| {
-            with_env_override("NYASH_EMIT_EXE_NYRT", nyrt_owned.as_deref(), || {
-                let rc = func(
-                    cobj.as_ptr(),
-                    cexe.as_ptr(),
-                    libs_ptr,
-                    &mut err_ptr as *mut *mut c_char,
-                );
-                interpret_result(rc, err_ptr, out_exe, "exe not produced")
-            })
+        with_link_symbol_v2(|func| {
+            let rc = func(
+                cobj.as_ptr(),
+                cexe.as_ptr(),
+                carchive.as_ptr(),
+                libs_ptr,
+                &mut err_ptr as *mut *mut c_char,
+            );
+            interpret_result(rc, err_ptr, out_exe, "exe not produced")
         })
     }
+}
+
+fn require_explicit_nyrt_archive(nyrt_dir: Option<&Path>) -> Result<std::path::PathBuf> {
+    let dir = nyrt_dir.context("explicit --nyrt <DIR> is required for Boundary exe linking")?;
+    let archive = dir.join("libnyash_kernel.a");
+    if !archive.is_file() {
+        bail!(
+            "libnyash_kernel.a not found in {} (Boundary v2 requires an explicit archive path)",
+            dir.display()
+        );
+    }
+    Ok(archive)
 }
 
 unsafe fn open_ffi_library() -> Result<Library> {

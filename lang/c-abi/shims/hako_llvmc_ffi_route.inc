@@ -327,12 +327,41 @@ static int hako_llvmc_forward_link_to_aot_without_ffi(
   return rc;
 }
 
+static int hako_llvmc_forward_link_to_aot_v2_without_ffi(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
+  char prev_buf[64];
+  int had_prev = prev_raw && prev_raw[0];
+  if (had_prev) {
+    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
+  }
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
+  int rc = hako_aot_link_obj_v2(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
+  return rc;
+}
+
 static int forward_compile_json_to_aot(const char* json_in, const char* obj_out, char** err_out) {
   return hako_llvmc_forward_compile_to_aot_without_ffi(json_in, obj_out, err_out);
 }
 
 static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
   return hako_llvmc_forward_link_to_aot_without_ffi(obj_in, exe_out, extra_ldflags, err_out);
+}
+
+static int forward_link_obj_to_aot_v2(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  return hako_llvmc_forward_link_to_aot_v2_without_ffi(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
 }
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);

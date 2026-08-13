@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A/B/C/D handoffs, C1-A/A1 typed transport co-seal, and C1 Boundary C/LLVM physicalizer are landed. Static link/publication and production remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A/B/C/D handoffs, C1-A/A1 typed transport co-seal, C1 Boundary C/LLVM physicalizer, and W6-D explicit archive link ABI are landed. Static artifact receipt/publication and production remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "C1 is landed and observed green: one Boundary physicalizer consumes the typed site-id projection once, MIR owns Normal/Fault/End, and the C ABI only bridges lease status. Next design stop is W6-D static artifact receipt/link; publication and production remain closed."
-work_mode = "closeout"
+current_design_stop = "C1 and W6-D-I0 are landed and observed green: one Boundary physicalizer consumes the typed site-id projection once, MIR owns Normal/Fault/End, the C ABI only bridges lease status, and the selected link ABI receives one explicit runtime archive path without env rediscovery. Next design stop is W6-D artifact-bound descriptor/static receipt; publication and production remain closed."
+work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
-current_blocker_token = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0: define one explicit artifact/link receipt owner with digest/symbol/ABI/wire/PlanStamp observation; no live publication before W6-E; new=0 old=1."
+current_blocker_token = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0-I1: co-seal one artifact-bound descriptor and static link receipt from post-link digest/symbol/ABI/wire/PlanStamp observations; publication remains closed; new=0 old=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0 through C1-A/A1 and the C1 Boundary physicalizer are landed with positive/negative smoke, cargo check, focused tests, and authority guards green. Next design stop is one explicit static link/artifact receipt owner. Publication and production remain closed; RuntimeExecutablePlan is parked."
+latest_card_summary = "W6 D0 through C1-A/A1, the C1 Boundary physicalizer, and D0-I0 explicit archive link ABI are landed with positive/negative smoke, cargo check, focused tests, and authority guards green. Next design stop is one artifact-bound static link receipt owner. Publication and production remain closed; RuntimeExecutablePlan is parked."
 next_design_card = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
   "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
   "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
   "2026-08-13: private I6/I7 CallOut corridor now retains both site IDs, verifies all four landing brands, and rejects lifecycle/corridor site-pair drift; production W6 remains closed.",
-  "2026-08-13: test-only CheckedCallOut PlanStamp JSON round-trip now preserves compiler domain and rejects zero domain/ordinal parts; backend execution and production W6 remain closed.",
 ]

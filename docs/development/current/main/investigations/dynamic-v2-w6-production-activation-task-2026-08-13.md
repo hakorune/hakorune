@@ -626,6 +626,12 @@ lane directly calls linked symbols and has no runtime function-pointer table,
 dynamic provider image, or `dlsym` consumer. Keep that type parked until a
 real dynamic-image execution route exists.
 
+The first bounded I0 slice is landed: the selected Rust Boundary caller
+resolves `libnyash_kernel.a` from `--nyrt` once and consumes the versioned
+`hako_llvmc_link_obj_v2` ABI; the C path performs no archive env/fallback
+rediscovery. Positive explicit-archive and missing-archive smoke are green.
+The remaining D0/I1 work is the artifact-bound descriptor and static receipt.
+
 The D0 first fixes one Rust link-invocation owner and these observation
 sources:
 

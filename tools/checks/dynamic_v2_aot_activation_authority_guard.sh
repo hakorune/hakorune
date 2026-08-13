@@ -513,4 +513,38 @@ if (( $(wc -l < "$C1_OWNER" | tr -d '[:space:]') >= 700 )); then
   guard_fail "$TAG" "C1 owner reached its 700-line design boundary"
 fi
 
+# W6-D-I0: the selected Boundary link path receives one explicit archive
+# argument. Legacy hako_llvmc_link_obj remains compatibility-only; the Rust
+# Boundary driver must not rediscover the archive through an environment.
+LINK_FFI="$ROOT_DIR/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
+LINK_C_HEADER="$ROOT_DIR/lang/c-abi/include/hako_aot.h"
+LINK_C_IMPL="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
+LINK_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+LINK_SMOKE="$ROOT_DIR/tools/checks/dynamic_v2_w6_explicit_link_abi_smoke.sh"
+guard_require_files "$TAG" "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE" "$LINK_SMOKE"
+if [[ ! -x "$LINK_SMOKE" ]]; then
+  guard_fail "$TAG" "W6-D explicit-link smoke must be executable"
+fi
+if [[ "$(rg -n '\.get\(b\"hako_llvmc_link_obj_v2\\0' "$LINK_FFI" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected Rust Boundary driver must load hako_llvmc_link_obj_v2 exactly once"
+fi
+if [[ "$(rg -n '^int hako_llvmc_link_obj_v2\(' "$LINK_C_IMPL" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "versioned C link export must have one issuer"
+fi
+if [[ "$(rg -n '^static int forward_link_obj_to_aot_v2\(' "$LINK_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "versioned link forwarder must have one issuer"
+fi
+guard_expect_fixed_in_file "$TAG" 'runtime_archive_path' "$LINK_C_HEADER" \
+  "explicit archive path must be part of the C ABI"
+if rg -n -F 'hako_llvmc_link_obj\0' "$LINK_FFI" || \
+   rg -n -F 'NYASH_EMIT_EXE_NYRT' "$LINK_FFI"; then
+  guard_fail "$TAG" "selected Rust Boundary link path must not use legacy symbol or archive env override"
+fi
+for file in "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE"; do
+  lines=$(wc -l < "$file" | tr -d '[:space:]')
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "W6-D link boundary reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+
 echo "[$TAG] ok"
