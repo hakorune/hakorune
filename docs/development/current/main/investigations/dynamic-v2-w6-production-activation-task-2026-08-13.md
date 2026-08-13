@@ -556,7 +556,8 @@ parameterized signature owner and a selected-metadata hard gate before any C1 ca
 ```text
 Source authority + issuer: MIR function params/signature and selected site-id metadata.
 Non-authority: C1 helper, block/index coordinates, selector/name lookup, fallback.
-Reject before effect: parameter count/order/value-id or return/effect mismatch.
+Reject before effect: parameter count/order/value-id mismatch. Return/effect transport
+is a separate C1-A1 gate; this row does not infer or duplicate it.
 Acceptance: selected header has exact four `%r<ValueId>` parameters; old header is
 never used for selected Dynamic; generic no-param seeds remain unchanged.
 Non-claims: no CheckedCallOut emission, lease End, link, RuntimePlan, publication,
@@ -570,6 +571,16 @@ line budgets. After this row is green, resume W6-C1 with one new
 `hako_llvmc_ffi_checked_callout_lowering.inc` included exactly once: it consumes
 site-id metadata, preserves MIR Normal/Fault targets, uses the neutral lease C ABI,
 and traps malformed transport/Suspended/nonzero End without fallback.
+
+#### W6-C1-A1 — `DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0`
+
+Before C1 callout emission, carry the existing typed contract through the final
+candidate metadata without re-inference: four formal lanes, i64 return, verified
+function effect, each site result shape, lease slot, Normal-result destination,
+ABI/wire revision, and PlanStamp. Rust candidate metadata is the issuer; C/LLVM
+only checks the borrowed site-id projection. Missing or foreign facts reject before
+object emission. No provider lookup, wire reinterpretation, link, RuntimePlan,
+publication, VM, fallback, or production caller is opened.
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 

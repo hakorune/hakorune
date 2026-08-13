@@ -229,6 +229,22 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
   }
 
+  /* Selected Dynamic must not fall through to a no-parameter or harness lane. */
+  do {
+    yyjson_read_err rerr_signature;
+    yyjson_doc* signature_doc = yyjson_read_file(json_in, 0, NULL, &rerr_signature);
+    yyjson_val* signature_root;
+    if (!signature_doc) break;
+    signature_root = yyjson_doc_get_root(signature_doc);
+    if (!hako_llvmc_selected_dynamic_entry_signature_gate(signature_root)) {
+      yyjson_doc_free(signature_doc);
+      return set_err_owned(
+          err_out,
+          "selected Dynamic entry requires exactly four unique nonnegative formal ValueIds");
+    }
+    yyjson_doc_free(signature_doc);
+  } while (0);
+
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {

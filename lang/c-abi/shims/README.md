@@ -21,6 +21,11 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 - Same-module `.inc` partitions may publish backend-local register type/origin
   facts from metadata, but MIRBuilder owns the semantic truth that produces
   those facts.
+- The selected Dynamic entry header is a narrow C1-A physical projection: it
+  consumes the existing admission marker and exact four MIR formal ValueIds;
+  it rejects signature drift before object emission and does not infer return,
+  effect, site shape, lease, ABI, wire, or PlanStamp facts. Those remaining
+  typed facts stay closed in the C1-A1 candidate-transport design stop.
 - Generic-method route tuple facts must have one registry owner. The tuple
   `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
   not be re-listed independently in route policy, generic method match,

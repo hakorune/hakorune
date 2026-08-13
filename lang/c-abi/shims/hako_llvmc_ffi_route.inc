@@ -160,6 +160,63 @@ static void hako_llvmc_emit_entry_header(
   fprintf(f, "define %si64 @\"%s\"() {\n", callconv_prefix, symbol);
 }
 
+/*
+ * Selected Dynamic entry signatures are a physical projection of the MIR
+ * function parameter list.  Keep the historical no-parameter header above
+ * for the old seed lane; the selected lane must never silently reuse it.
+ */
+static int hako_llvmc_selected_dynamic_admission_present(yyjson_val* fn) {
+  yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+  yyjson_val* admission = metadata
+      ? yyjson_obj_get(metadata, "dynamic_v2_aot_call_admission_v2")
+      : NULL;
+  return admission && yyjson_is_obj(admission);
+}
+
+static int hako_llvmc_selected_dynamic_parameter_signature_valid(yyjson_val* fn) {
+  yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+  size_t count;
+  long long values[4];
+  if (!(params && yyjson_is_arr(params))) return 0;
+  count = yyjson_arr_size(params);
+  if (count != 4) return 0;
+  for (size_t i = 0; i < count; i++) {
+    yyjson_val* value = yyjson_arr_get(params, i);
+    if (!(value && yyjson_is_int(value))) return 0;
+    values[i] = (long long)yyjson_get_sint(value);
+    if (values[i] < 0) return 0;
+    for (size_t prior = 0; prior < i; prior++) {
+      if (values[prior] == values[i]) return 0;
+    }
+  }
+  return 1;
+}
+
+static int hako_llvmc_selected_dynamic_entry_signature_gate(yyjson_val* root) {
+  yyjson_val* fns = root ? yyjson_obj_get(root, "functions") : NULL;
+  yyjson_val* fn = hako_llvmc_find_entry_function(fns);
+  if (!fn || !hako_llvmc_selected_dynamic_admission_present(fn)) return 1;
+  return hako_llvmc_selected_dynamic_parameter_signature_valid(fn);
+}
+
+static int hako_llvmc_emit_selected_dynamic_entry_header(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection,
+    yyjson_val* fn) {
+  yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+  const char* symbol = hako_llvmc_effective_entry_symbol(selection);
+  const char* callconv_prefix = hako_llvmc_entry_callconv_prefix(selection);
+  if (!f || !hako_llvmc_selected_dynamic_parameter_signature_valid(fn)) return 0;
+  fprintf(f, "define %si64 @\"%s\"(", callconv_prefix, symbol);
+  for (size_t i = 0; i < 4; i++) {
+    yyjson_val* value = yyjson_arr_get(params, i);
+    long long reg = (long long)yyjson_get_sint(value);
+    fprintf(f, "%si64 %%r%lld", i ? ", " : "", reg);
+  }
+  fprintf(f, ") {\n");
+  return 1;
+}
+
 static void hako_llvmc_emit_entry_alias_if_needed(
     FILE* f,
     const hako_llvmc_entry_rune_selection* selection) {

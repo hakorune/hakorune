@@ -46,12 +46,44 @@ CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_hand
 CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+C1A_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+C1A_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
+C1A_HEADER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_selected_dynamic_entry_header.inc"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
+
+# C1-A is the only selected-entry signature owner.  The legacy no-parameter
+# header remains available for old seeds, but selected Dynamic must pass the
+# exact four-formal gate before the C1 physicalizer can be enabled.
+if [[ "$(rg -n '^static int hako_llvmc_selected_dynamic_parameter_signature_valid\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1-A selected Dynamic parameter-signature validator must have one owner"
+fi
+if [[ "$(rg -n '^static int hako_llvmc_emit_selected_dynamic_entry_header\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1-A parameterized selected-entry header issuer must have one owner"
+fi
+if [[ "$(grep -F -c '#include "hako_llvmc_ffi_selected_dynamic_entry_header.inc"' "$C1A_LOWERING")" != 1 ]]; then
+  guard_fail "$TAG" "C1-A selected-entry header include must be exactly once"
+fi
+guard_expect_fixed_in_file "$TAG" "dynamic_v2_aot_call_admission_v2" "$C1A_ROUTE" \
+  "C1-A selected gate must be tied to the existing candidate admission metadata"
+guard_expect_fixed_in_file "$TAG" "count != 4" "$C1A_ROUTE" \
+  "C1-A selected Dynamic signature must require exactly four formal values"
+guard_expect_fixed_in_file "$TAG" "selected_dynamic_parameter_signature_mismatch" "$C1A_HEADER" \
+  "C1-A mismatch must fail before C1 physicalization"
+if rg -n 'hako_llvmc_emit_entry_header\(f, &selection\)' "$C1A_LOWERING"; then
+  guard_fail "$TAG" "generic lowering must not directly choose the legacy header for selected Dynamic"
+fi
+for file in "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "C1-A source reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
 
 for file in "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

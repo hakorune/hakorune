@@ -465,7 +465,7 @@
         goto GEN_ABORT;
       }
       // Unboxer (declare opportunistically; low cost)
-      hako_llvmc_emit_entry_header(f, &selection);
+      #include "hako_llvmc_ffi_selected_dynamic_entry_header.inc"
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,
