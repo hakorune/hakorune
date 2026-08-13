@@ -820,37 +820,35 @@ channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
 root validator, and the named-owner guard. Focused child/root tests and the
 W6 authority guards are green; the child receipt is not an old-edge witness.
 
-#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design accepted; fast)
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design stop; callback owner missing)
 
 ```text
 Decision:
-  freeze one root-only coordinator boundary before implementation. It may
-  consume the completed candidate, one validated child receipt, and one
-  collector brand only after the cross-process failure boundary is explicit;
-  the selected callback switch and old-edge retirement remain one infallible
-  cutover.
+  keep one root-only coordinator boundary, but do not implement its final
+  commit yet. The actual Dynamic emitter must first export a prepared module
+  candidate and a canonical selected-production callback transition; only then
+  may the root consume them in one infallible cutover.
 Source authority + canonical issuer:
   Builder candidate/collector and R4 policy stay root-owned; ny-llvmc alone
   issues the published artifact receipt; the coordinator only consumes it.
+  The missing callback transition issuer must be named before implementation.
 Non-authority:
   child receipt fields, guard text, block/index locators, raw JoinIR, llvmlite,
   RuntimeExecutablePlan, fallback, retry, and any second witness product.
 Fail-fast boundary:
-  before old=1, ordinary compatibility is present, candidate/brand/site/
-  ABI/wire/PlanStamp/descriptor/digest match, receipt is consumed once, and
-  every pre-cutover failure leaves live Builder, callback, and old edge
-  unchanged. Child rename-before-root-validation is a known non-claim, not a
-  reason to invent a second rollback owner.
+  before any commit, old=1, ordinary compatibility is present, candidate/
+  brand/site/ABI/wire/PlanStamp/descriptor/digest match, receipt is consumed
+  once, and a foreign/missing callback transition rejects without changing
+  live Builder, callback, or old edge. Child rename-before-root-validation is
+  a known non-claim, not a reason to invent a second rollback owner.
 Smallest next slice:
-  name `PreparedSelectedDynamicW6ActivationV1` in
-  `src/mir/compiler/selected_dynamic_w6_activation.rs`, around the existing
-  `PreparedModuleExternalCommitV1`, candidate exporter,
-  child receipt consumer, and direct root R4 census. The aggregate owns no
-  copied witness fields: it consumes the candidate once, consumes one validated
-  receipt once, then exposes one infallible `commit` terminal. The current
-  canary returns only a collector receipt and is not this owner. Do not
-  implement or switch callers until this owner, terminal, and child-rename
-  failure non-claim have one named consumer.
+  define (without publishing a new semantic receipt yet) the named seam from
+  the real Dynamic emitter to `PreparedModuleExternalCommitV1`, then define
+  one move-only selected-production callback transition for the root to
+  consume. The current `PreparedSelectedDynamicW6RootReadyV1` is a D0 canary
+  over a test candidate; it is not the production candidate owner. Do not add
+  `RootReady::commit` or switch callers until both issuers and their one named
+  consumer are closed.
 Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
   production switch; until the final commit new=0 / old=1 remains mandatory.
@@ -865,20 +863,21 @@ fence with the existing prepared candidate in
 commit, callback switch, or old-edge retirement.
 
 D0-C3 is now landed in the same owner: `consume_after_root_r4_preflight`
-consumes the aggregate once, lets the root callback perform the direct R4
+consumes the D0 aggregate once, lets the root callback perform the direct R4
 policy/old-edge/compatibility census, and returns only opaque ready/discard
-typestate. The census result is not retained as a witness and the final
-commit/callback switch remains closed; focused positive/rejection tests keep
-the live Builder unchanged.
+typestate. The census result is not retained as a witness. Focused
+positive/rejection tests keep the live Builder unchanged; this does not prove
+that the real Dynamic emitter can produce the external-commit candidate or
+that a selected callback transition exists.
 
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside
 the current claim; stronger rollback is a separate BoxCount only if required.
 
-Until D0-C is closed, only its bounded coordinator row may execute; the
-mandatory production counts remain `new=0 / old=1`.
+Until the D0-C4 owner/seam design is closed, no commit or caller mutation may
+execute; the mandatory production counts remain `new=0 / old=1`.
 
-The prepared aggregate performs all fallible work before commit:
+The eventual prepared aggregate must perform all fallible work before commit:
 
 ```text
 candidate collector/module + site-id metadata
@@ -887,18 +886,14 @@ candidate collector/module + site-id metadata
   -> collector/brand and root old-edge census co-check
 ```
 
-Its commit has one filesystem step followed only by infallible in-memory
-steps: rename the verified temporary executable to its final path, consume the
-prepared Builder/module commit, and switch the selected callback while retiring
-the selected raw edge in the same state transition. A rename failure leaves the
-old final artifact, live Builder, and old edge unchanged. The receipt must enter
-a post-rename published state (not retain a stale temporary path), and the
-transaction must add negative coverage for rename failure, concurrent final
-path ownership, and object/archive cleanup. The cutover callback consumes the
-existing package loan exactly once; it may not re-open raw AST lowering, call
-`lower_loop_or_freeze_v1`, retry another route, or retain a dual-production
-branch. After cutover, compiler or link failure remains fail-fast and never
-revives the deleted old edge.
+Its eventual commit has one filesystem step followed only by infallible
+in-memory steps: rename the verified temporary executable to its final path,
+consume the prepared Builder/module commit, and switch the selected callback
+while retiring the selected raw edge in the same state transition. This is a
+future contract, not a landed production path. The cutover callback must
+consume the existing package loan exactly once; it may not re-open raw AST
+lowering, call `lower_loop_or_freeze_v1`, retry another route, or retain a
+dual-production branch.
 
 ## Negative matrix
 
