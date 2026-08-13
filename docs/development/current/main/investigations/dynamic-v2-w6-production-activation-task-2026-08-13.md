@@ -755,6 +755,42 @@ rename consumer, PlanStamp or candidate-digest co-seal across the process
 boundary, and focused positive/negative/rename-failure evidence. Until then
 `new=0`, `old=1`, fallback/retry/VM=0 remain mandatory.
 
+#### W6-E-D0-A — `DYNAMIC-V2-W6-ROOT-WITNESS-ISSUER-D0` (design stop)
+
+The worker census found one missing issuer in the preceding contract: the
+repository has caller-count guards for the selected old edge, but no typed
+root-side witness product that can be consumed exactly once. A guard result is
+observation evidence, not an activation receipt, so it must not be copied into
+MIR JSON or guessed into a new `Verified*`/`Prepared*` value.
+
+```text
+Decision:
+  keep the old-edge witness root-only; the child receives no semantic edge
+  witness. The site-id MIR JSON remains a one-way projection of the existing
+  Dynamic metadata, and the child emits only its versioned published-artifact
+  receipt through a dedicated machine-readable channel (not mixed logs).
+Source authority + canonical issuer:
+  selected physical/site/ABI facts = existing Builder projection;
+  artifact facts = StaticAotArtifactPublicationTxnV1; old-edge fact issuer is
+  currently missing and must be selected by this design row.
+Non-authority:
+  guard text, block/index locators, child JSON, llvmlite, RuntimeExecutablePlan,
+  stdout diagnostics, and a reconstructed root receipt.
+Fail-fast boundary:
+  no implementation or caller switch until a root-only witness issuer is
+  named and its brand/selected key/old-edge census is checked before rename.
+Smallest next slice:
+  decide whether an existing root cutover preflight can issue a non-semantic,
+  move-only old-edge witness, or revise W6-E to keep that census entirely in
+  the root transaction. Then freeze the dedicated child-receipt transport.
+Non-claims:
+  no new semantic authority, MIR metadata key, sidecar-as-authority, receipt
+  mirror, production caller, rename, fallback, or retry.
+```
+
+Until D0-A is accepted, the next execution card remains `none` and the
+mandatory production counts remain `new=0 / old=1`.
+
 The prepared aggregate performs all fallible work before commit:
 
 ```text
