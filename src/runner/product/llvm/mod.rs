@@ -102,6 +102,14 @@ impl NyashRunner {
             }
         };
 
+        let selected_dynamic =
+            match crate::runner::modes::common_util::exec::selected_dynamic_aot_metadata_present(
+                &module,
+            ) {
+                Ok(selected) => selected,
+                Err(error) => report::emit_error_and_exit(LlvmRunError::fatal(error)),
+            };
+
         // Inject method_id for BoxCall where resolvable (by-id path)
         #[allow(unused_mut)]
         let _injected = if pipeline_plan.method_id_injector_enabled {
@@ -112,7 +120,13 @@ impl NyashRunner {
         pipeline_report.method_id_injector_mutation_count = _injected;
 
         // Dev/Test helper: allow executing via PyVM harness when requested
-        match pyvm_executor::PyVmExecutorBox::try_execute(&module) {
+        match if selected_dynamic {
+            Err(LlvmRunError::fatal(
+                "selected Dynamic candidate is Boundary-only; VM execution is rejected",
+            ))
+        } else {
+            pyvm_executor::PyVmExecutorBox::try_execute(&module)
+        } {
             Ok(code) => {
                 pipeline_report.execution_backend = "pyvm";
                 PipelineReportBox::emit_if_requested(&pipeline_report);
@@ -131,11 +145,11 @@ impl NyashRunner {
         if let Some(out_path) = requested_object_output_path() {
             pipeline_report.execution_backend = "obj_out";
             PipelineReportBox::emit_if_requested(&pipeline_report);
-            emit_requested_object_or_exit(&module, &out_path);
+            emit_requested_object_or_exit(&module, &out_path, selected_dynamic);
             return;
         }
 
-        match execute_via_harness_or_fallback(&module) {
+        match execute_via_harness_or_fallback(&module, selected_dynamic) {
             Ok(outcome) => {
                 pipeline_report.execution_backend = outcome.backend;
                 pipeline_report.llvm_fallback_used = outcome.fallback_used;
@@ -186,7 +200,17 @@ struct LlvmExecutionOutcome {
 
 fn execute_via_harness_or_fallback(
     module: &nyash_rust::mir::MirModule,
+    selected_dynamic: bool,
 ) -> Result<LlvmExecutionOutcome, LlvmRunError> {
+    if selected_dynamic {
+        let code = harness_executor::HarnessExecutorBox::try_execute_selected_dynamic(module)?;
+        return Ok(LlvmExecutionOutcome {
+            code,
+            backend: "ny_llvmc_selected_dynamic_exe",
+            fallback_used: false,
+            fallback_reason: "none",
+        });
+    }
     match harness_executor::HarnessExecutorBox::try_execute(module) {
         Ok(code) => Ok(LlvmExecutionOutcome {
             code,
@@ -211,7 +235,16 @@ fn requested_object_output_path() -> Option<String> {
     std::env::var("NYASH_LLVM_OBJ_OUT").ok()
 }
 
-fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path: &str) {
+fn emit_requested_object_or_exit(
+    _module: &nyash_rust::mir::MirModule,
+    _out_path: &str,
+    selected_dynamic: bool,
+) {
+    if selected_dynamic {
+        report::emit_error_and_exit(LlvmRunError::fatal(
+            "selected Dynamic object emission is not a live Boundary artifact route; request --emit-exe",
+        ));
+    }
     #[cfg(feature = "llvm-harness")]
     {
         if let Err(e) =

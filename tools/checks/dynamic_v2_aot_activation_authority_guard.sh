@@ -308,6 +308,26 @@ if rg -n 'RuntimeExecutablePlanV1|issue_runtime_executable_plan\(' \
   "$ROOT_DIR/crates/nyash-llvm-compiler/src"; then
   guard_fail "$TAG" "W3 executable plan must remain disconnected from production callers"
 fi
+
+# W6-E selected execution is a physical projection of the already-sealed
+# metadata pair.  Keep the census and Boundary caller single-owned; ordinary
+# modules remain on the existing compatibility path and selected failures do
+# not enter its fallback branch.
+SELECTED_RUNNER="$ROOT_DIR/src/runner/product/llvm/mod.rs"
+SELECTED_CENSUS_CALLERS="$(rg -l --glob '*.rs' \
+  'exec::selected_dynamic_aot_metadata_present' \
+  "$ROOT_DIR/src/runner/product/llvm" || true)"
+if [[ "$SELECTED_CENSUS_CALLERS" != "$SELECTED_RUNNER" ]]; then
+  guard_fail "$TAG" "selected Dynamic metadata census must have exactly one runner caller"
+fi
+if [[ "$(rg -n 'HarnessExecutorBox::try_execute_selected_dynamic\(module\)' \
+  "$SELECTED_RUNNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected Dynamic Boundary execution caller must be unique"
+fi
+guard_expect_fixed_in_file "$TAG" 'backend: "ny_llvmc_selected_dynamic_exe"' "$SELECTED_RUNNER" \
+  "selected Dynamic execution must report the dedicated Boundary backend"
+guard_expect_fixed_in_file "$TAG" 'if selected_dynamic {' "$SELECTED_RUNNER" \
+  "selected Dynamic metadata must branch before ordinary fallback"
 if rg -n 'lookup_core_method|into_parts|\.clone\(|RuntimeExecutablePlanV1::clone' "$PLAN_OWNER"; then
   guard_fail "$TAG" "W3 post-link plan owner must not re-resolve or clone semantic facts"
 fi

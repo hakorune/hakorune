@@ -15,6 +15,35 @@ use nyash_rust::mir::MirModule;
 pub struct HarnessExecutorBox;
 
 impl HarnessExecutorBox {
+    /// Execute a selected Dynamic candidate through the native Boundary
+    /// artifact path.  This path deliberately bypasses the compatibility
+    /// harness request and has no fallback: a Boundary failure is terminal.
+    #[cfg(feature = "llvm-harness")]
+    pub fn try_execute_selected_dynamic(module: &MirModule) -> Result<i32, LlvmRunError> {
+        let exe_out = "tmp/nyash_llvm_run";
+        let receipt =
+            crate::runner::modes::common_util::exec::selected_dynamic_receipt_path(exe_out);
+        let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
+        crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_selected_dynamic_bin(
+            module,
+            exe_out,
+            receipt.to_string_lossy().as_ref(),
+            None,
+            libs.as_deref(),
+        )
+        .map_err(|error| {
+            LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
+        })?;
+        run_emitted_executable(exe_out)
+    }
+
+    #[cfg(not(feature = "llvm-harness"))]
+    pub fn try_execute_selected_dynamic(_module: &MirModule) -> Result<i32, LlvmRunError> {
+        Err(LlvmRunError::fatal(
+            "selected Dynamic Boundary requires the LLVM runner feature",
+        ))
+    }
+
     /// Execute via LLVM harness if available
     ///
     /// This function:

@@ -153,6 +153,47 @@ fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     tmp_dir.join(format!("nyash_cli_emit_{}.json", std::process::id()))
 }
 
+/// Return the deterministic receipt path for one selected Dynamic executable
+/// attempt.  The path is transport-only: the receipt is issued by ny-llvmc
+/// and consumed by `emit_json_and_run_ny_llvmc_emit_exe` before this function
+/// returns.  It is not a route or semantic authority.
+pub(crate) fn selected_dynamic_receipt_path(exe_out: &str) -> PathBuf {
+    PathBuf::from(format!(
+        "{}.selected-dynamic-receipt-{}.json",
+        exe_out,
+        std::process::id()
+    ))
+}
+
+/// Census the already-sealed selected Dynamic metadata pair on a candidate
+/// module.  This is a physical route query, not a second semantic issuer:
+/// the package adapter/session already issued both slots.  A partial pair or
+/// more than one pair is rejected before any backend process is spawned.
+pub(crate) fn selected_dynamic_aot_metadata_present(
+    module: &crate::mir::MirModule,
+) -> Result<bool, String> {
+    let mut selected = 0usize;
+    for (name, function) in &module.functions {
+        let has_receipt = function.metadata.a_prime_i64_physical_receipt().is_some();
+        let has_admission = function.metadata.dynamic_v2_aot_metadata().is_some();
+        if has_receipt != has_admission {
+            return Err(format!(
+                "selected Dynamic metadata pair is partial for function {name}"
+            ));
+        }
+        if has_receipt {
+            selected += 1;
+        }
+    }
+    match selected {
+        0 => Ok(false),
+        1 => Ok(true),
+        count => Err(format!(
+            "selected Dynamic metadata pair count={count} expected=1"
+        )),
+    }
+}
+
 fn build_ny_llvmc_emit_obj_command(
     ny_llvmc: &std::path::Path,
     json_path: &std::path::Path,
@@ -453,8 +494,11 @@ pub fn run_executable(
 mod tests {
     use super::{
         append_ny_llvmc_extra_libs_arg, build_ny_llvmc_emit_exe_command,
-        ny_llvmc_driver_arg_from_backend, with_retained_mir_path,
+        ny_llvmc_driver_arg_from_backend, selected_dynamic_aot_metadata_present,
+        selected_dynamic_receipt_path, with_retained_mir_path,
     };
+
+    use crate::mir::MirModule;
 
     #[test]
     fn rejects_native_backend_selector_for_runner_route() {
@@ -476,6 +520,21 @@ mod tests {
             ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(),
             None
         );
+    }
+
+    #[test]
+    fn selected_dynamic_census_keeps_ordinary_module_on_generic_route() {
+        let module = MirModule::new("ordinary".to_owned());
+        assert!(!selected_dynamic_aot_metadata_present(&module).unwrap());
+    }
+
+    #[test]
+    fn selected_dynamic_receipt_path_is_process_scoped() {
+        let path = selected_dynamic_receipt_path("tmp/out");
+        assert!(path
+            .to_string_lossy()
+            .contains("tmp/out.selected-dynamic-receipt-"));
+        assert!(path.to_string_lossy().ends_with(".json"));
     }
 
     #[test]

@@ -862,18 +862,31 @@ Fail-fast boundary:
   compatibility, and pre-state `old=1/new=0` are checked before the existing
   root commit; rejection leaves the live Builder and old edge unchanged.
 Smallest next slice:
-  switch the adapter branch and retire the selected Dynamic raw/JoinIR edge in
-  the same W6-E activation commit. Reuse the existing root collector and
+  consume the candidate's already-sealed A-prime/AOT metadata pair through
+  one runner census and enter the existing selected Boundary artifact path
+  before VM/fallback. Reuse the existing root collector and
   `prepare_external_commit`; do not add a transition product or publication
   seam.
 Acceptance:
-  selected adapter handoff `= 1`, selected Dynamic raw edge `= 0`, ordinary
-  compatibility edge remains explicit, existing collector/external-commit
-  issuers remain `= 1`, and final state is `new=1/old=0` with fallback/retry/VM
-  `= 0`.
+  selected adapter handoff `= 1`, selected Dynamic raw edge `= 0`, one runner
+  census caller and one selected Boundary caller, partial/duplicate metadata
+  rejected before backend spawn, ordinary compatibility edge remains explicit,
+  and selected Boundary failure never enters VM/fallback/retry. Final artifact
+  receipt/live publication and the new/old runtime caller census remain open.
 Non-claims:
   no cross-process atomic rollback, RuntimeExecutablePlan, new semantic
   receipt, second backend, or llvmlite fallback.
+```
+
+#### W6-E-C2 — `DYNAMIC-V2-W6-CANDIDATE-BOUNDARY-HANDOFF-R0`
+
+```text
+Decision: route exactly one sealed selected metadata pair to Boundary before VM/fallback.
+Source authority + canonical issuer: package-adapter DraftSeal metadata; existing Boundary/static receipt owner.
+Non-authority: runner census, JSON, llvmlite, VM, selector lookup, and a second receipt issuer.
+Fail-fast boundary: partial/foreign/duplicate pair or Boundary/artifact drift rejects before backend publication.
+Smallest next slice: consume the existing candidate through the selected Boundary receipt path; keep ordinary compatibility unchanged.
+Non-claims: no cross-process rollback, RuntimeExecutablePlan, or final live artifact switch until receipt/retirement census closes.
 ```
 
 ## Negative matrix
