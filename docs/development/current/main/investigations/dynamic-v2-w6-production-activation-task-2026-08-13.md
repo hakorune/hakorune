@@ -28,36 +28,25 @@ The selected Dynamic semantic program, A-prime demand, catalog physical
 header, TextScan admission, strict runtime entries, checked CallOut ABI,
 generation-aware lease owner, canonical CheckedCallOut MIR vocabulary,
 site-id transport, full unpublished physical session, exact-two DraftSeal,
-and branded `CatalogedBoxMethod` collector canary are landed.
+CatalogedBoxMethod drain, Boundary/static-artifact owners, and the selected
+package-adapter compiler handoff are landed.
 
-Production remains closed:
+The compiler-side route is now:
 
 ```text
-selected old raw AST/JoinIR edge                         = 1
-selected Dynamic production caller                      = 0
-Boundary C-ABI CheckedCallOut production physicalizer   = 0
-static post-link artifact receipt production issuer     = 0
-Rust-VM DynamicV2 production consumer                   = 0
+selected Dynamic package-adapter handoff                = 1
+selected Dynamic raw AST/JoinIR edge                     = 0
+ordinary compatibility edge                              = 1
+Boundary/static artifact candidate owners                = 1 / 1
+live artifact/executable publication                    = 0
+Rust-VM DynamicV2 production consumer                    = 0
 ```
 
-The remaining work is not another semantic redesign. It is the final
-authority-preserving connection from the completed MIR lane to the actual
-default AOT backend and the retirement of the old selected edge. Two physical
-publication owners are still missing from the implemented graph:
-
-1. the existing normal collector drain does not admit
-   `FunctionDraftKeyV1::CatalogedBoxMethod` in its mixed legacy/cataloged
-   mode;
-2. no production owner links to a temporary executable, observes the static
-   artifact, issues a link receipt, and publishes the verified executable.
-
-The existing test-only `RuntimeExecutablePlanV1` is not that owner. It requires
-runtime function addresses, while the Boundary AOT lane emits direct symbol
-calls into a statically linked executable. ASLR-era runtime addresses and
-provider-image lifetime are not part of this W6.
-
-Until those two boundaries are fixed, the complete W6 main landing is
-`NoSafeSlice`.
+The remaining work is the ordered compiler/backend handoff: consume the
+completed candidate through the existing root external-commit owner, then
+consume the static artifact receipt before live executable publication. No
+RuntimeExecutablePlan, llvmlite fallback, second collector, or cross-process
+rollback claim is opened here.
 
 ## `DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0`
 
@@ -820,70 +809,72 @@ channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
 root validator, and the named-owner guard. Focused child/root tests and the
 W6 authority guards are green; the child receipt is not an old-edge witness.
 
-#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (test canary landed; production implementation stopped)
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (test canary landed)
 
 ```text
 Decision:
-  keep one root candidate transaction. The package adapter is the sole
-  selected-Dynamic route owner: its exactly-once loan chooses the canonical
-  emitter or ordinary child path. Both feed the existing root
-  ModuleBuilderInvocationSession/ModuleLoweringPort/collector; the existing
-  session.prepare_external_commit() remains the sole external-commit issuer.
+  one root candidate transaction remains the only publication path. The
+  package adapter owns selected-Dynamic lowering handoff; the existing root
+  ModuleBuilderInvocationSession/collector and session.prepare_external_commit()
+  remain the candidate and external-commit owners.
 Source authority + canonical issuer:
-  SelectedCallableSemanticRefV1::Dynamic and its sealed admission select once;
-  NormalDefaultPublishedPipelineV1 is the sole root publication consumer.
+  sealed selected package/admission -> canonical session/DraftSeal/collector;
+  NormalDefaultPublishedPipelineV1 consumes the existing root commit product.
 Non-authority:
-  disconnected test invocations, child receipts, raw AST/JoinIR,
-  LegacySymbol, direct emitter-to-external-commit adapters, global callbacks,
-  llvmlite, RuntimeExecutablePlan, fallback, retry, second witnesses.
+  test canaries, child receipts, raw AST/JoinIR, LegacySymbol conversion,
+  emitter-created commits, global callbacks, llvmlite, RuntimeExecutablePlan,
+  fallback, retry, or a second witness.
 Fail-fast boundary:
   package/admission/brand, site/ABI/wire/PlanStamp, DraftSeal,
-  key/symbol/arity, artifact receipt, old=1, and ordinary compatibility must
-  match before final commit; missing/foreign/duplicate selected input leaves
-  the live Builder and old edge unchanged.
-Smallest next slice:
-  D0-C4 implements package loan -> same candidate collector -> canonical
-  Dynamic emitter, while ordinary compatibility keeps the existing child path.
-  The current PreparedSelectedDynamicW6RootReadyV1 stays a test canary.
-  Acceptance: the disconnected/test adapter branch caller=1, ordinary
-  production compatibility remains on the old edge, same-candidate drain and
-  root external-commit issuer=1, and negatives fail before effect. No
-  production Dynamic caller is opened here; the branch and old-edge switch
-  belong together in W6-E.
+  key/symbol/arity, artifact receipt, old=1, and ordinary compatibility all
+  remain checked before any future commit; rejection leaves live Builder and
+  old edge unchanged.
+Acceptance landed:
+  D0-C0..C3 provide root borrow/fence/co-seal/R4 consume-discard typestate;
+  D0-C4 (`0469ff1e07`) proves package-owned selected input -> same candidate
+  collector -> canonical emitter in a disconnected test canary. Production
+  remains `new=0 / old=1`; ordinary compatibility is unchanged.
 Non-claims:
-  no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
-  production switch; `new=0 / old=1` remains mandatory.
+  no production caller, callback switch, old-edge deletion, alternate backend,
+  RuntimeExecutablePlan, fallback, retry, or crash-recovery claim.
 ```
 
-Landed D0-C0 (`2c0b9c585b`) adds the root-only candidate borrow; D0-C1
-(`3a280cdb1e`) adds the non-Clone receipt fence; D0-C2 (`5b9e245dd5`)
-co-seals them in `PreparedSelectedDynamicW6ActivationV1`; D0-C3 consumes the
-aggregate once through the root R4 preflight and returns opaque ready/discard
-typestate. These canaries do not prove the selected adapter branch.
-
-The coordinator does not reconstruct receipts or enter the child publication
-transaction. Child rename followed by process loss remains outside the claim.
-Landed D0-C4 (`0469ff1e07`) adds only the disconnected/test adapter canary;
-the pre-cutover guards still forbid a production caller or old-edge mutation,
-so production stays `new=0 / old=1` until W6-E.
-
-The eventual prepared aggregate must perform all fallible work before commit:
+#### W6-E-D0-D — `DYNAMIC-V2-W6-ROOT-TRANSITION-OWNER-D0` (accepted correction)
 
 ```text
-candidate collector/module + site-id metadata
-  -> Boundary object + explicit archive link
-  -> descriptor/symbol/digest/PlanStamp receipt
-  -> collector/brand and root old-edge census co-check
+Decision:
+  no separate SelectedDynamicProductionTransitionV1 is needed. The sealed
+  package adapter is the selected-Dynamic route owner: Dynamic lowers through
+  the existing unpublished emitter, Ordinary keeps the source-scoped
+  compatibility route, and the existing root candidate/external-commit
+  lifecycle remains the sole publication owner.
+Source authority + canonical issuer:
+  SelectedCallableSemanticRefV1::Dynamic selects once; the adapter consumes
+  the package-owned selected input once; ModuleDraftCollectorV1 and
+  ModuleBuilderInvocationSessionV1 remain the candidate and external-commit
+  issuers.
+Non-authority:
+  Cell<Option<Fn>>, global callback state, emitter-created commit, second
+  collector, child receipt as route witness, raw AST/JoinIR re-entry, or
+  durable old-edge witness.
+Fail-fast boundary:
+  selected key/admission/brand, candidate/artifact fence, ordinary
+  compatibility, and pre-state `old=1/new=0` are checked before the existing
+  root commit; rejection leaves the live Builder and old edge unchanged.
+Smallest next slice:
+  switch the adapter branch and retire the selected Dynamic raw/JoinIR edge in
+  the same W6-E activation commit. Reuse the existing root collector and
+  `prepare_external_commit`; do not add a transition product or publication
+  seam.
+Acceptance:
+  selected adapter handoff `= 1`, selected Dynamic raw edge `= 0`, ordinary
+  compatibility edge remains explicit, existing collector/external-commit
+  issuers remain `= 1`, and final state is `new=1/old=0` with fallback/retry/VM
+  `= 0`.
+Non-claims:
+  no cross-process atomic rollback, RuntimeExecutablePlan, new semantic
+  receipt, second backend, or llvmlite fallback.
 ```
-
-Its eventual commit has one filesystem step followed only by infallible
-in-memory steps: rename the verified temporary executable to its final path,
-consume the prepared Builder/module commit, and switch the selected callback
-while retiring the selected raw edge in the same state transition. This is a
-future contract, not a landed production path. The cutover callback must
-consume the existing package loan exactly once; it may not re-open raw AST
-lowering, call `lower_loop_or_freeze_v1`, retry another route, or retain a
-dual-production branch.
 
 ## Negative matrix
 

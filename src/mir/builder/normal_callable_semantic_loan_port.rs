@@ -1,8 +1,9 @@
 //! Thin Builder adapter over the installed semantic-package port.
 //!
 //! Selection, exact source pairing, and exactly-once consumption stay in the
-//! package. This adapter owns only the scoped raw lineage and Builder-local
-//! lowering-state installation required by the existing physical route.
+//! package. This adapter owns the selected Dynamic handoff into the canonical
+//! unpublished emitter and the ordinary scoped raw lineage used for
+//! compatibility lowering.
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -40,35 +41,6 @@ impl<'package, 'loan, 'port, 'collector>
 
     pub(super) fn complete(self) -> Result<(), String> {
         self.package.complete().map_err(package_issue)
-    }
-
-    /// Test-only proof that the selected package loan can feed the existing
-    /// candidate collector without opening a raw source scope. Production
-    /// callers remain closed until the W6-E atomic switch retires the old
-    /// selected edge.
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn lower_selected_dynamic_canary_for_test(
-        &mut self,
-        builder: &mut MirBuilder,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-    ) -> Result<
-        crate::mir::builder::module_invocation_owner_chain::InvocationBranded<
-            crate::mir::builder::module_draft_collector::CollectedDraftAdmissionReceiptV1,
-        >,
-        String,
-    > {
-        let inner = &mut *self.inner;
-        self.package
-            .with_selected_cataloged_lowering_input(admission, |input| {
-                validate_selected_cataloged_input(&input)?;
-                crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6(
-                    builder,
-                    inner.module_port,
-                    input,
-                    |_| Ok(()),
-                )
-            })
-            .map_err(package_issue)?
     }
 
     fn with_callable_source_scope<R>(
@@ -112,6 +84,15 @@ impl<'package, 'loan, 'port, 'collector>
         self.package
             .with_selected_cataloged_lowering_input(admission, |input| {
                 validate_selected_cataloged_input(&input)?;
+                if matches!(
+                    input.selected().semantic(),
+                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
+                ) {
+                    return Err(
+                        "[freeze:contract][mir/callable-semantic-package/dynamic-instance-route]"
+                            .to_owned(),
+                    );
+                }
                 let (selected, admission) = input.into_lowering_and_admission();
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
@@ -355,21 +336,53 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        self.with_cataloged_callable_source_scope(admission, |inner, transport, admission| {
-            inner
-                .lower_normal_cataloged_static_box_method_with_source_v1(
-                    builder,
-                    admission,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                    transport,
-                )
-                .map_err(|error| error.to_string())
-        })
+        let inner = &mut *self.inner;
+        self.package
+            .with_selected_cataloged_lowering_input(admission, |input| {
+                validate_selected_cataloged_input(&input)?;
+                if matches!(
+                    input.selected().semantic(),
+                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
+                ) {
+                    // The existing root collector owns the durable candidate
+                    // inventory; this scoped receipt only proves the handoff
+                    // completed and must not become a second publication path.
+                    let _collector_receipt =
+                        crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6(
+                            builder,
+                            inner.module_port,
+                            input,
+                            |_| Ok(()),
+                        )
+                        .map_err(|error| {
+                            format!(
+                                "[freeze:contract][mir/selected-dynamic/production-handoff] {error}"
+                            )
+                        })?;
+                    return Ok(());
+                }
+                let (selected, admission) = input.into_lowering_and_admission();
+                let lineage =
+                    super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
+                        admission.source_key().clone(),
+                    );
+                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                    inner
+                        .lower_normal_cataloged_static_box_method_with_source_v1(
+                            builder,
+                            admission,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                            transport,
+                        )
+                        .map_err(|error| error.to_string())
+                })
+            })
+            .map_err(package_issue)?
     }
 
     #[allow(clippy::too_many_arguments)]

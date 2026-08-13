@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. D0-C0/C1/C2 candidate borrow, receipt fence, candidate/fence co-seal, D0-C3 root-R4 consume/discard typestate, and the D0-C4 test-only same-candidate adapter canary are landed; the production branch and final cutover remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; final Boundary/artifact/live publication remains closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "D0-C4 design is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. No separate emitter-to-PreparedModuleExternalCommit seam or global callback state is allowed. Pre-cutover implementation may only prove the branch through a disconnected/test canary; the production caller and old-edge retirement belong to one W6-E atomic transition. Child rename-before-root-validation remains a non-claim."
+current_design_stop = "W6-E compiler-side route ownership is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. No separate transition product, emitter-to-PreparedModuleExternalCommit seam, or global callback state is allowed. The remaining stop is Boundary/artifact/live publication and its final receipt; child rename-before-root-validation remains a non-claim."
 work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
-current_blocker_token = "W6-E-D0-C4: prove the selected package-adapter branch through the same root candidate collector without opening a production caller; preserve ordinary compatibility and reuse the existing root prepare_external_commit issuer. Reject missing/foreign/duplicate selected input before effect, keep new=0 old=1 and fallback/retry/VM=0, then carry the proven branch into the single W6-E caller-switch commit."
+current_blocker_token = "W6-E: complete the selected package-adapter route through the existing root candidate/external-commit lifecycle and Boundary artifact receipt; preserve ordinary compatibility, reject missing/foreign/duplicate selected input before effect, and finish with selected Dynamic new=1, selected raw edge=0, fallback/retry/VM=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9; D0-C0/C1/C2 plus D0-C3 root-ready consume/discard are landed. D0-C4 accepts a same-candidate package-adapter canary and existing root external-commit issuer; production remains new=0 old=1 until W6-E atomic cutover."
+latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3 are landed; D0-C4 proves the same-candidate package-adapter handoff, and D0-D accepts the existing root collector/external-commit owner without a transition product. The selected Dynamic branch is now routed through the adapter; final Boundary/artifact/live publication remains the next W6-E stop."
 next_design_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
@@ -36,6 +36,7 @@ next_execution_card_path = "docs/development/current/main/investigations/dynamic
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
+parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
 
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -45,6 +46,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6-E compiler-side route ownership now uses the package adapter's sealed Dynamic/Ordinary branch; selected Dynamic bypasses the raw JoinIR handoff, ordinary compatibility remains explicit, and the existing collector/external-commit owner is unchanged. Boundary/artifact/live publication remains closed.",
   "2026-08-13: D0-C4 test-only adapter canary now consumes the package-owned selected input/admission into the existing candidate collector without opening a raw source scope; focused canary, pre-cutover, AOT, batch, pointer, and diff gates are green, production remains new=0 old=1.",
   "2026-08-13: W6-D-I2 separated temporary static-artifact observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename-failure cleanup and old-final preservation are focused-tested. W6-D-I1 descriptor/digest/symbol/ABI/wire/PlanStamp evidence remains green; production new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
@@ -56,5 +58,4 @@ landed_tail = [
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
-  "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
 ]

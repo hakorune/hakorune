@@ -45,9 +45,9 @@ guard_expect_fixed_in_file "$TAG" \
   "issue_selected_a_prime_i64_physical_demand" "$A_PRIME_ISSUER" \
   "the selected A-prime demand must have one named issuer"
 
-# Before cutover the old AST/JoinIR terminal is intentionally retained. There
-# must be exactly one non-test caller, and it is the located-child handoff. A
-# second caller would create a competing production physical authority.
+# The ordinary compatibility AST/JoinIR terminal remains explicit. The
+# selected Dynamic branch must not call it; its package adapter handoff is the
+# sole selected-Dynamic production owner.
 old_callers=()
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
@@ -57,60 +57,18 @@ while IFS= read -r file; do
   old_callers+=("$file")
 done < <(rg -l --glob '*.rs' -F 'lower_with_existing_route_v1(' "$BUILDER_DIR" || true)
 if [[ "${#old_callers[@]}" -ne 1 || "${old_callers[0]:-}" != "$RECURSIVE" ]]; then
-  guard_fail "$TAG" "legacy selected physical edge drifted; expected exactly recursive_child_lowering.rs"
+  guard_fail "$TAG" "ordinary compatibility physical edge drifted; expected exactly recursive_child_lowering.rs"
 fi
 
-# The new V2 demand is still Builder-free and test/canary-only until the named
-# physical-session/cutover rows. Its production caller count must remain zero.
-new_callers=()
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  [[ "$file" == "$DEMAND_ISSUER" || "$file" == */tests.rs || "$file" == *_tests.rs ]] && continue
-  production_file="$(mktemp "${TMPDIR:-/tmp}/loop-precutover-demand.XXXXXX")"
-  sed '/^#\[cfg(test)\]/,$d' "$file" >"$production_file"
-  if rg -F -q -- 'issue_dynamic_full_loop_operation_physical_demand_v2(' "$production_file"; then
-    new_callers+=("$file")
-  fi
-  rm -f "$production_file"
-done < <(rg -l --glob '*.rs' -F 'issue_dynamic_full_loop_operation_physical_demand_v2(' "$DEMAND_ROOT" || true)
-if [[ "${#new_callers[@]}" -ne 0 ]]; then
-  guard_fail "$TAG" "new Dynamic physical demand gained a pre-cutover production caller: ${new_callers[*]}"
+# W6-E opens one selected-Dynamic production handoff in the package adapter.
+# Lower-level issuer counts remain owned by the dedicated AOT activation guard.
+handoff_count="$(rg -F -o -- 'assemble_unpublished_selected_dynamic_w6(' "$LOAN_PORT" | wc -l | tr -d '[:space:]')"
+if [[ "$handoff_count" -ne 1 ]]; then
+  guard_fail "$TAG" "selected Dynamic package-adapter handoff must have one production caller: found $handoff_count"
 fi
-
-# The selected A-prime demand is the next named physical-session input, not a
-# second pre-cutover route. Keep it test/canary-only until VM/LLVM capability,
-# site-keyed Completion, and the fresh session are all closed.
-a_prime_callers=()
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  case "$file" in
-    "$A_PRIME_ISSUER"|*/tests.rs|*_tests.rs) continue ;;
-    "$EMITTER_DIR/mod.rs") continue ;;
-  esac
-  a_prime_callers+=("$file")
-done < <(rg -l --glob '*.rs' -F 'issue_selected_a_prime_i64_physical_demand(' "$ROOT_DIR/src/mir" || true)
-if [[ "${#a_prime_callers[@]}" -ne 0 ]]; then
-  guard_fail "$TAG" "selected A-prime demand gained a pre-cutover production caller: ${a_prime_callers[*]}"
-fi
-
-# The I8 emitter is a selected-fixture canary only.  Keep the plan-consuming
-# session entry and its leaf out of production until the I7/End gate closes.
-for pattern in \
-  'DynamicV2PhysicalEmissionSessionV1::begin(' \
-  'DynamicV2PhysicalEmissionSessionV1::emit_i8_const(' \
-  'issue_selected_dynamic_v2_emission_plan('; do
-  emitter_callers=()
-  while IFS= read -r file; do
-    [[ -z "$file" ]] && continue
-    case "$file" in
-      */tests.rs|*_tests.rs|"$DEMAND_ISSUER"|"$A_PRIME_ISSUER"|"$EMITTER_ABI"|"$EMITTER_DIR/mod.rs") continue ;;
-    esac
-    emitter_callers+=("$file")
-  done < <(rg -l --glob '*.rs' -F "$pattern" "$ROOT_DIR/src/mir" || true)
-  if [[ "${#emitter_callers[@]}" -ne 0 ]]; then
-    guard_fail "$TAG" "pre-cutover emitter gained a production caller for ${pattern}: ${emitter_callers[*]}"
-  fi
-done
+guard_expect_fixed_in_file "$TAG" \
+  'dynamic-instance-route' "$LOAN_PORT" \
+  "cataloged instance/Dynamic mismatch must fail before the ordinary route"
 
 for file in "$RECURSIVE" "$RAW_LOOP" "$LOAN_PORT" "$ROOT_LOWERING" "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
@@ -119,4 +77,4 @@ for file in "$RECURSIVE" "$RAW_LOOP" "$LOAN_PORT" "$ROOT_LOWERING" "$DEMAND_ISSU
   fi
 done
 
-echo "[$TAG] ok (legacy production edge=1, V2/A-prime/emitter production callers=0)"
+echo "[$TAG] ok (ordinary compatibility edge=1, selected Dynamic raw edge=0, adapter handoff=1)"

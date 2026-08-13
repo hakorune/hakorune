@@ -1,9 +1,9 @@
 //! Family-native V2 physical emitter boundary for the selected Dynamic cohort.
 //!
-//! This module is a canary-only handoff. It consumes one admitted activation,
-//! installs its exact site plans, opens the canonical unpublished owners inside
-//! its scoped entry, and never opens a second Builder/CFG owner or activates
-//! the production capability gate.
+//! This module is the selected Dynamic handoff. It consumes one admitted
+//! activation, installs its exact site plans, opens the canonical unpublished
+//! owners inside its scoped entry, and never opens a second Builder/CFG owner
+//! or publication path.
 
 mod a_prime_receipt;
 mod callout_corridor;
@@ -95,7 +95,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     callout_corridor: callout_corridor::DynamicV2CallOutCorridorV1,
 }
 
-/// Validate semantic authority and the canary evidence before opening the
+/// Validate semantic authority and selected activation evidence before opening the
 /// Builder-owned function session. This private phase only co-seals existing
 /// receipts; it does not issue a new semantic product.
 fn validate_pre_session_authority<'program>(
@@ -420,8 +420,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 
     /// Close the unpublished Dynamic profile through the existing canonical
-    /// Completion/DraftSeal owners. The returned draft is not collected or
-    /// published; this is the final physical-session canary only.
+    /// Completion/DraftSeal owners. The returned draft is handed to the
+    /// existing root collector; publication remains outside this emitter.
     pub(super) fn finish_unpublished_draft(
         mut self,
     ) -> Result<
@@ -585,7 +585,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         ))
     }
 
-    /// Explicit terminal for the unpublished canary.
+    /// Explicit terminal for an unpublished selected-Dynamic candidate.
     pub(super) fn discard_unpublished(mut self) {
         self.canonical.take();
         self.outer
@@ -650,10 +650,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 }
 
-/// Assemble one unpublished selected Dynamic W6 canary through the existing
+/// Assemble one unpublished selected Dynamic W6 candidate through the existing
 /// package loan, invocation brand, physical session, DraftSeal, and collector
-/// terminal. This is an orchestration seam only: no production caller or
-/// module publication is opened here.
+/// terminal. The adapter is the route owner; root publication remains owned by
+/// the existing candidate/external-commit lifecycle.
 pub(in crate::mir::builder) fn assemble_unpublished_selected_dynamic_w6<'program, 'builder>(
     builder: &'builder mut MirBuilder,
     module_port: &mut ModuleLoweringPortV1<'_>,

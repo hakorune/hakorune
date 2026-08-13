@@ -348,7 +348,8 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
 }
 
 #[test]
-fn package_adapter_canary_uses_same_candidate_collector_without_raw_scope() {
+fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collector_without_raw_scope(
+) {
     let source =
         include_str!("../../../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -390,7 +391,7 @@ fn package_adapter_canary_uses_same_candidate_collector_without_raw_scope() {
             &mut builder,
             collector,
         );
-    let receipt = invocation.with_module_port(|builder, module_port| {
+    invocation.with_module_port(|builder, module_port| {
         let mut raw_port =
             crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(
                 module_port,
@@ -398,16 +399,26 @@ fn package_adapter_canary_uses_same_candidate_collector_without_raw_scope() {
         let package_port = installed.begin_lowering(&context).expect("loan");
         let mut adapter = crate::mir::builder::normal_callable_semantic_loan_port::
             NormalCallableSemanticPackagePortAdapterV1::new(&mut raw_port, package_port);
-        let receipt = adapter
-            .lower_selected_dynamic_canary_for_test(builder, admission)
-            .expect("selected adapter canary");
+        use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
+        adapter
+            .lower_cataloged_static_box_method(
+                builder,
+                admission,
+                Vec::new(),
+                Vec::new(),
+                None,
+                Vec::new(),
+                Vec::new(),
+                crate::ast::DeclarationAttrs::default(),
+            )
+            .expect("selected adapter production branch");
         // This focused fixture loans one selected row from a larger package;
         // the root lifecycle owns the package-wide completion census.
         drop(adapter);
-        receipt
+        module_port.with_headers(|headers| {
+            assert!(headers.contains_symbol("ParserScanLoopBox.skip_while/4"));
+            assert_eq!(headers.symbol_count(), 1);
+        });
     });
-    assert_eq!(receipt.payload().symbol(), "ParserScanLoopBox.skip_while/4");
-    assert_eq!(receipt.payload().arity(), 4);
-    assert_eq!(receipt.brand(), brand);
     assert!(builder.function_state.current_function.is_none());
 }
