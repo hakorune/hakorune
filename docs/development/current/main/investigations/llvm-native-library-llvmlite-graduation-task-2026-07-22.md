@@ -154,11 +154,12 @@ but are not production callers.
 
 G2 census, perf-oracle, caller census, and shared-smoke default are closed at
 the boundary: 17 roots, 7 default-boundary, 1 pending microbench, and 29
-callers (13 explicit compat, 14 default-boundary, 2 owners). Explicit selector
-admission is green; the full oracle smoke remains a known stale-artifact red.
-Next design stop: `LLVMLITE-AUTO0-G2-MICROBENCH-R0`, owned by `tools/perf/microbench.sh`.
-Non-authority is labels/comments/Python output; fail-fast on default harness,
-fallback/retry, or G3. Behavior/G3 remain separate.
+callers (13 explicit compat, 14 default-boundary, 2 owners); selector admission
+is green and the full oracle smoke is a known stale-artifact red.
+`LLVMLITE-AUTO0-G2-MICROBENCH-R0` is accepted: non-`--exe` `--backend llvm`
+forwards `NYASH_LLVM_USE_HARNESS` default `0`; explicit `=1` is named
+oracle/compat. Authority/issuer: `microbench.sh` + existing `aot_helpers.sh` /
+Boundary `ny-llvmc`; non-authority is labels, Python output, and counters; fail-fast on implicit harness/fallback/retry/G3; next slice is selector+guard+docs.
 
 ### G3 — archive or delete the keep lane
 
