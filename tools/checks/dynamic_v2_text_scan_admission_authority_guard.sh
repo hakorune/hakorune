@@ -20,8 +20,10 @@ RAW_CHILD="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
 COLLECTOR="$ROOT_DIR/src/mir/builder/module_draft_collector.rs"
 EMITTER_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+PRODUCTION_CALLER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+FACADE="$ROOT_DIR/src/mir/builder/resolved_lowering/mod.rs"
 guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR" "$EMITTER_TESTS"
-guard_require_files "$TAG" "$EMITTER"
+guard_require_files "$TAG" "$EMITTER" "$PRODUCTION_CALLER" "$FACADE"
 
 ADMISSION_DIR="$ROOT_DIR/src/box_callable/provider_admission"
 
@@ -75,16 +77,21 @@ guard_expect_fixed_in_file "$TAG" "commit_cataloged_box_method_completed(complet
   "the W6 orchestrator must carry the completed draft to the branded collector terminal"
 guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$EMITTER_TESTS" \
   "the focused canary must consume the private W6 orchestrator"
+guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$PRODUCTION_CALLER" \
+  "the selected package adapter must be the sole named production caller"
+guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$FACADE" \
+  "the resolved-lowering facade must expose the single private orchestrator"
 assembly_files=()
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
   case "$file" in
-    "$EMITTER"|"$EMITTER_TESTS") assembly_files+=("$file") ;;
+    "$EMITTER"|"$EMITTER_TESTS"|"$PRODUCTION_CALLER") assembly_files+=("$file") ;;
+    "$FACADE") : ;; # crate facade re-export, not an invocation caller
     *) guard_fail "$TAG" "the private W6 orchestrator gained an unexpected caller: $file" ;;
   esac
 done < <(rg -l --glob '*.rs' -F 'assemble_unpublished_selected_dynamic_w6' "$ROOT_DIR/src/mir" || true)
-if [[ "${#assembly_files[@]}" -ne 2 ]]; then
-  guard_fail "$TAG" "the private W6 orchestrator must have exactly one definition and one focused caller"
+if [[ "${#assembly_files[@]}" -ne 3 ]]; then
+  guard_fail "$TAG" "the private W6 orchestrator must have exactly one definition, one focused caller, and one named production caller"
 fi
 
 if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \

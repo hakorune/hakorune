@@ -1,5 +1,5 @@
 ---
-Status: Accepted; next fast row is DYN-PROD-BASELINE-R0
+Status: Accepted; DYN-PROD-BASELINE-R0 closed; next fast row is LEXICAL-SCOPE-SAFE-TRANSACTION-R0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -66,17 +66,20 @@ bash tools/checks/dynamic_v2_text_scan_admission_authority_guard.sh
 -> unexpected caller: src/mir/builder/normal_callable_semantic_loan_port.rs
 ```
 
-This is accepted allowlist drift: the guard still encodes the pre-W6
-definition-plus-test caller set and does not admit the landed single production
-caller. `dynamic_v2_aot_activation_authority_guard.sh` and the current pointer
-guard remain green. Do not waive the red; repair its exact caller contract in
-the first row.
+This was accepted allowlist drift: the guard encoded the pre-W6
+definition-plus-test caller set and did not admit the landed single production
+caller. B0 now admits the resolved-lowering facade plus exactly one definition,
+one focused test caller, and `normal_callable_semantic_loan_port.rs` as the
+named production caller; a second production caller remains fatal.
+`dynamic_v2_aot_activation_authority_guard.sh` and the current pointer guard
+remain green.
 
 Owner documentation is also stale. In particular,
-`src/mir/builder/resolved_lowering/README.md` still describes End, profile
-close, DraftSeal, publication, and production selection as closed. The W6 card
-also names a `completion` failure without the exact parent command/SHA/result
-needed to classify it as baseline debt.
+`src/mir/builder/resolved_lowering/README.md` had described End, profile close,
+DraftSeal, publication, and production selection as closed. B0 updates the
+current graph to distinguish the landed candidate/unpublished handoff from
+still-closed live publication and Boundary execution. The focused completion
+red is now classified below with its exact parent reproduction.
 
 ## Ordered hardening DAG
 
@@ -155,6 +158,18 @@ TextScan admission guard / AOT guard / pointer guard            = green
 owner README current graph                                       = landed route
 completion red                                                   = green or exact parent-classified
 route / Recipe / MIR / fixture changes                           = 0
+```
+
+Closeout evidence (2026-08-14):
+
+```text
+guard: bash tools/checks/dynamic_v2_text_scan_admission_authority_guard.sh = ok
+guard: bash tools/checks/dynamic_v2_aot_activation_authority_guard.sh      = ok
+guard: bash tools/checks/current_state_pointer_guard.sh                     = ok
+completion clean HEAD b0629d7b7b: cargo test -q --lib completion = 107 passed, 1 failed
+completion parent b69f5e11fe: cargo test -q --lib completion = 107 passed, 1 failed
+shared failure: canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route
+  -> ReturnValueTypeMissing(ValueId(12)); baseline debt, not a B0 regression
 ```
 
 ## Safety preemption: LEXICAL-SCOPE-SAFE-TRANSACTION-R0

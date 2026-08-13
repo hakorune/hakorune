@@ -26,31 +26,32 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
-## Current selected Dynamic V2 preflight
+## Current selected Dynamic V2 handoff
 
 The selected A-prime demand is a source/parameter/identity wrapper around the
 single co-sealed `PreparedDynamicLoopOperationProgramV2`. It is not a second
-physical-demand authority. The current `selected_dynamic_physical_abi` module
-consumes that demand once and issues a Builder-free, move-only V2-native
-preflight plan. The plan validates the complete operation order, keeps the
-source-role projection only as a diagnostic cross-check, derives segment
-boundaries from exact placement/control, validates the CallSlot relation,
-and checks the bounded I10 disposition without
+physical-demand authority. The selected physical handoff consumes that demand
+once and issues a Builder-free, move-only V2-native plan. The plan validates
+the complete operation order, keeps the source-role projection only as a
+diagnostic cross-check, derives segment boundaries from exact placement/control,
+validates the CallSlot relation, and checks the bounded I10 disposition before
 opening a session or allocating `ValueId`/`BasicBlockId`.
 
-This is deliberately a preflight slice, not a production emitter. A later
-session handoff must consume the private plan ledger and provide named
-`CompareI64` normal-result and Dynamic temporary-cleanup capabilities. Until
-those receipts exist, the selected canary rejects before the first Builder
-effect. V1 conversion, raw Recipe/JoinIR re-reading, name/ordinal repair,
-fallback, and retry are not valid alternatives.
+The selected package adapter is the one named production caller of this
+handoff. It remains a candidate/unpublished route: the session can close its
+physical profile, exact-two DraftSeal, and cataloged collector receipt, while
+live module publication, Boundary execution, and old-edge retirement remain
+later W6 work. The admission guard fixes the definition/focused-test/
+production-caller census and rejects any second production caller. V1
+conversion, raw Recipe/JoinIR re-reading, name/ordinal repair, fallback, and
+retry are not valid alternatives.
 
 The selected lifecycle R0 co-seals the retained four cleanup rows with the
 admitted I6/I7 site plans before opening Builder state. `CheckedCallOutEnd` is
 the sole physical lease-consumption vocabulary and `CheckedCallOutFault` is
-the non-rejoining canonical fault terminal. This handoff does not execute a
-lease, emit the full I8-I16 cursor, publish a draft, or open an LLVM/VM/
-production caller; those remain later activation work.
+the non-rejoining canonical fault terminal. The E1-E5 session now consumes the
+bounded I8-I16 cursor and closes the unpublished profile/DraftSeal/collector
+candidate; it does not open the LLVM/VM execution lane or publish a live module.
 
 The current implementation row is the family-native V2 emitter, not another
 semantic product. E1 now provides the first bounded continuation
@@ -68,8 +69,9 @@ I11/V14 in ThenTerminal, consumes the I6 End cutpoint, claims the inner
 Completion return, and seals Then without emitting Return; DraftSeal remains
 the sole Return writer. E4 now consumes I13/V15, I14/V16, I15/V17, and I16's
 induction assignment in Continuation, emits the Backedge I6 End, jumps back to
-Header, and seals the canonical Header PHI with Enter and Continuation inputs;
-profile close, DraftSeal, and publication remain closed.
+Header, and seals the canonical Header PHI with Enter and Continuation inputs.
+E5 closes the profile and hands the exact-two DraftSeal and cataloged collector
+receipt to the unpublished candidate path; live publication remains closed.
 
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
@@ -87,12 +89,14 @@ are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
 inference, `MirType` repair, `nyash.integer.get_h`, fallback, and retry are
 forbidden.
 
-The landed I0 slice issues these two Builder-free requirements and a
-move-only `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition
-is explicitly `RejectBeforeEffect` until the physical End leaf is implemented;
-it has no production caller. The I8/I9 continuation may be exercised by a real selected-fixture, unpublished-session canary
-so its receipt boundary is tested, but that canary is not a capability-gate
-bypass or a production handoff. The handoff must consume the plan, move the
+The selected handoff issues these two Builder-free requirements and a move-only
+`SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition remains
+explicitly `RejectBeforeEffect` as an unpublished/pre-executable fence; the
+package adapter is its one named production caller, while live module and
+Boundary execution callers remain closed. The I8/I9 continuation may be
+exercised by a real selected-fixture, unpublished-session canary so its receipt
+boundary is tested, but that canary is not a capability-gate bypass or a live
+publication. The handoff must consume the plan, move the
 private ledger, and own a session-issued opaque target set. The consuming
 handoff co-seals I8/V12/literal-0/placement/Prelude once; the emitter does not
 rescan the whole operation program outside its private V2 cursor. The cursor
