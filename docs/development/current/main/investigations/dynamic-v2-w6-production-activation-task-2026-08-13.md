@@ -44,8 +44,9 @@ authority-preserving connection from the completed MIR lane to the actual
 default AOT backend and the retirement of the old selected edge. Two physical
 publication owners are still missing from the implemented graph:
 
-1. the existing canonical module drain does not admit
-   `FunctionDraftKeyV1::CatalogedBoxMethod`;
+1. the existing normal collector drain does not admit
+   `FunctionDraftKeyV1::CatalogedBoxMethod` in its mixed legacy/cataloged
+   mode;
 2. no production owner links to a temporary executable, observes the static
    artifact, issues a link receipt, and publishes the verified executable.
 
@@ -62,7 +63,7 @@ Until those two boundaries are fixed, the complete W6 main landing is
 ```text
 Decision:
   Keep compiler MIR-module publication and backend executable publication as
-  two ordered transactions. Fix the CatalogedBoxMethod canonical drain, use a
+  two ordered transactions. Fix the CatalogedBoxMethod mixed normal drain, use a
   static link receipt rather than RuntimeExecutablePlan, and name one
   temporary-artifact observation/publication owner before W6 code starts.
 Source authority + canonical issuer:
@@ -81,7 +82,7 @@ Fail-fast boundary:
   missing/duplicate defined strict symbol rejects executable publication.
   Neither failure may enter fallback.
 Smallest next slice:
-  Accept this publication split, the exact CatalogedBoxMethod drain, and the
+  Accept this publication split, the exact mixed normal collector drain, and the
   explicit link ABI plus static artifact observation/publication owner; then
   execute the BoxShape source split.
 Non-claims:
@@ -109,7 +110,7 @@ Compiler transaction
   -> full unpublished physical session
   -> exact-two DraftSeal
   -> CatalogedBoxMethod collector preflight
-  -> canonical module drain
+  -> mixed normal collector drain
   -> candidate MirModule
   -> atomic MirModule publish once
 
@@ -143,7 +144,7 @@ It does not merge the two runtime publication authorities.
 This D0 is accepted only when all four representation/owner choices are
 explicit. Merely naming a future receipt is not enough.
 
-#### 1. Cataloged Box-method drain projection
+#### 1. Cataloged Box-method mixed normal-drain projection
 
 Preferred shape:
 
@@ -151,17 +152,25 @@ Preferred shape:
 NormalCatalogedBoxMethodDraftAdmissionV1
 + completed exact-two draft
 + ModuleInvocationBrandV1
-  -> canonical physical cataloged-method row
+  -> one move-only CatalogedBoxMethodDrainProjectionV1
      key = CanonicalSameModuleCallableKeyV1
      symbol + arity = moved admission projections
-  -> CanonicalPhysicalDrainManifestV1 cataloged-method family
-  -> existing prepare_canonical_drain
+  -> existing normal collector drain lifecycle
+     (mixed legacy + cataloged terminal)
 ```
 
-The new manifest row is a physical projection of the retained admission, not a
-new catalog/source identity. `prepare_canonical_drain` maps it only to
-`FunctionDraftKeyV1::CatalogedBoxMethod`. A free-static callable row,
-`LegacySymbol`, name formatting, or a second collector is rejected.
+This projection is a physical transport of the retained admission, not a new
+catalog/source identity. Extend the existing
+`PreparedNormalCollectorDrainLifecycleV1`/`ModuleDraftCollectorV1` path with a
+mixed terminal: `LegacySymbol` rows keep `LegacyReplaceWholePair`, while the
+cataloged projection uses `CanonicalRejectDuplicate` and inserts the exact
+`FunctionDraftKeyV1::CatalogedBoxMethod` row. The compiler-level
+`CanonicalPhysicalDrainManifestV1` remains unchanged and must not gain a
+CatalogedBoxMethod variant; the normal selected package path does not own its
+canonical-source continuation family.
+
+A free-static callable row, `LegacySymbol` conversion, reconstructed
+name/arity key, second collector, or a second module transaction is rejected.
 
 #### 2. Explicit Boundary link call ABI
 
@@ -186,26 +195,35 @@ not rediscover it from an environment variable or fallback directory.
 #### 3. Artifact-bound descriptor
 
 ABI revision, wire revision, and PlanStamp cannot be copied from expected
-input into an “observed” struct. Select one artifact-bound representation:
+input into an “observed” struct. Select the generated-object representation;
+the sidecar alternative is not part of W6:
 
 ```text
-preferred: generated-object descriptor symbol retained in the executable
-alternative: digest-co-sealed sidecar emitted and renamed with the executable
+selected: generated-object descriptor symbol retained in the executable
+         in a dedicated non-discarded descriptor section
+rejected: digest-co-sealed sidecar emitted and renamed with the executable
 ```
 
-The representation must bind exact entry IDs/symbols, ABI/wire revisions, and
+The selected descriptor binds exact entry IDs/symbols, ABI/wire revisions, and
 the compile invocation brand to the linked artifact. The link verifier reads
-that representation after link and rejects missing, duplicate, or foreign
-descriptors.
+the retained descriptor symbol after link and rejects missing, duplicate, or
+foreign descriptors. The descriptor is a compile fact; executable and runtime
+archive digests remain post-link observations in the static receipt.
 
 #### 4. Candidate cleanup and publication owner
 
-Name one owner for:
+Name one owner in `crates/nyash-llvm-compiler/src/link_driver.rs`:
+
+```text
+StaticAotArtifactPublicationTxnV1
+```
+
+It owns:
 
 ```text
 temporary object
 temporary executable
-temporary descriptor/sidecar when selected
+retained object descriptor observation
 failure cleanup
 final atomic rename
 StaticLinkedAotArtifactReceiptV1 issue
@@ -263,7 +281,7 @@ VerifiedDynamicExitTransactionCoSealV1
   -> canonical CFG/SSA/PHI/Completion close
   -> exact-two DraftSeal
   -> CatalogedBoxMethod collector
-  -> canonical module drain
+  -> mixed normal collector drain
   -> atomic MirModule publication
 ```
 
@@ -379,9 +397,11 @@ production caller                                      = 0
 
 ### W6-B — `DYNAMIC-V2-W6-CATALOGED-DRAIN-I0`
 
-Extend the existing canonical module drain to consume the already-defined
-`FunctionDraftKeyV1::CatalogedBoxMethod` row. Do not create a second
-collector, module transaction, or key family.
+Extend the existing normal collector drain to consume the already-defined
+`FunctionDraftKeyV1::CatalogedBoxMethod` row alongside existing legacy rows.
+Do not add a CatalogedBoxMethod arm to the compiler-level
+`CanonicalPhysicalDrainManifestV1`; do not create a second collector, module
+transaction, or key family.
 
 The drain co-checks:
 
@@ -391,7 +411,18 @@ selected catalog key
 + invocation brand
 + completed exact-two draft
 + whole-batch collision census
+  -> existing mixed normal collector-drain terminal
   -> existing candidate MirModule transaction
+```
+
+The selected projection is move-only and is issued from the completed
+cataloged draft/admission pair. The mixed terminal accepts exactly
+`LegacySymbol` plus the cataloged row for this bounded cohort:
+
+```text
+LegacySymbol       -> LegacyReplaceWholePair
+CatalogedBoxMethod -> CanonicalRejectDuplicate + exact symbol/arity
+CanonicalCallable/Main/arbitrary -> reject in this terminal
 ```
 
 Forbidden conversions:
@@ -405,13 +436,19 @@ CatalogedBoxMethod -> reconstructed name/arity key
 Acceptance:
 
 ```text
-CatalogedBoxMethod canonical drain owner                = 1
-collector handoff / canonical drain consumption         = 1 / 1
+CatalogedBoxMethod mixed normal-drain owner              = 1
+collector handoff / normal-drain consumption             = 1 / 1
 legacy/free-static conversion                           = 0 / 0
 second finalization or second function session          = 0
 failure before module commit leaves live Builder equal  = green
 production selected caller                              = 0
 ```
+
+Negative cases include foreign/unbranded receipt, key or symbol/arity drift,
+duplicate key/symbol, cataloged row paired with `LegacyReplaceWholePair`,
+CatalogedBoxMethod -> LegacySymbol/CanonicalCallable conversion, replacement
+disposition drift, symbol-index drift, missing projection, projection-count
+mismatch, and a second drain attempt.
 
 ### W6-C — `DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0`
 
@@ -486,7 +523,9 @@ call ABI revision / wire revision
 carried ModuleInvocationBrandV1 PlanStamp
 ```
 
-Only a complete observation issues one move-only
+`StaticAotArtifactPublicationTxnV1` is the only selected W6 owner for the
+temporary object/executable paths, descriptor observation, failure cleanup,
+receipt issuance, and final atomic rename. Only a complete observation issues one move-only
 `StaticLinkedAotArtifactReceiptV1` and prepares executable publication.
 Missing, duplicate, stale, foreign, or mismatched observations delete or
 abandon the candidate and publish nothing executable.
@@ -511,7 +550,7 @@ This is the only production BoxCount. In one activation commit:
 ```text
 selected package production callback                    0 -> 1
 selected old raw AST/JoinIR edge                         1 -> 0
-CatalogedBoxMethod collector/canonical drain             = 1
+CatalogedBoxMethod collector/mixed normal drain          = 1
 atomic MirModule publication                             = 1
 Boundary C-ABI CheckedCallOut physicalizer               = 1
 static artifact receipt / executable publication         = 1 / 1
@@ -588,7 +627,7 @@ CheckedCallOut plan-table install                        = 1
 compare/cleanup/AOT evidence terminal                    = 1 / 1 / 1
 Boundary C physicalizer                                  = 1
 Python/native/harness/VM production physicalizer         = 0
-CatalogedBoxMethod drain                                 = 1
+CatalogedBoxMethod mixed normal drain                    = 1
 static artifact receipt post-link issuer                 = 1
 RuntimeExecutablePlan production issuer                  = 0
 selected new/old production caller before W6-E           = 0 / 1

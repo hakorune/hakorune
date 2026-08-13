@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, and private W6 orchestration are landed. Production W6 remains closed. The current design stop fixes the CatalogedBoxMethod canonical drain and static post-link artifact receipt/publication owners before Boundary C-ABI lowering or the selected caller switch can start."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, and private W6 orchestration are landed. Production W6 remains closed. The current design stop fixes the mixed normal collector drain for CatalogedBoxMethod and the static post-link artifact receipt/publication owners before Boundary C-ABI lowering or the selected caller switch can start."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Compiler atomic MirModule publication and backend executable publication are separate ordered transactions. Before W6 implementation, fix the CatalogedBoxMethod canonical-drain projection, explicit runtime-archive link ABI, artifact-bound ABI/wire/PlanStamp descriptor, and one temporary-artifact cleanup/receipt/publication owner. RuntimeExecutablePlan is parked because direct static calls have no runtime-address consumer."
+current_design_stop = "Compiler atomic MirModule publication and backend executable publication are separate ordered transactions. Before W6 implementation, fix the CatalogedBoxMethod mixed normal-collector drain projection (without extending CanonicalPhysicalDrainManifestV1), explicit runtime-archive link ABI, one retained generated-object ABI/wire/PlanStamp descriptor, and one StaticAotArtifactPublicationTxnV1 cleanup/receipt/publication owner. RuntimeExecutablePlan is parked because direct static calls have no runtime-address consumer."
 work_mode = "design_stop"
 current_execution_row = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0"
-current_blocker_token = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0: accept the two-transaction boundary plus four exact choices: CatalogedBoxMethod canonical-drain projection, explicit Boundary link archive argument, artifact-bound ABI/wire/PlanStamp descriptor, and one candidate cleanup/receipt/publication owner. RuntimeExecutablePlan, Python/native/harness/VM stay non-authorities; code and cutover remain closed."
+current_blocker_token = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0: accept the two-transaction boundary plus four exact choices: CatalogedBoxMethod mixed normal-drain projection, explicit Boundary link archive argument, retained generated-object ABI/wire/PlanStamp descriptor, and one StaticAotArtifactPublicationTxnV1 cleanup/receipt/publication owner. CanonicalPhysicalDrainManifestV1 is unchanged; RuntimeExecutablePlan, Python/native/harness/VM stay non-authorities; code and cutover remain closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Production publication remains closed. W6 is paused because the canonical drain lacks CatalogedBoxMethod support and the static link has no artifact-bound ABI/wire/PlanStamp receipt/publication owner. The selected old raw/JoinIR edge remains the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Production publication remains closed. W6 is paused because the mixed normal collector drain lacks CatalogedBoxMethod support and the static link has no artifact-bound ABI/wire/PlanStamp receipt/publication owner. The selected old raw/JoinIR edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 is taskized as publication-boundary D0, source split, evidence consumption, CatalogedBoxMethod canonical drain, Boundary C-ABI CheckedCallOut physicalization, static post-link artifact receipt/publication, and one final selected caller/old-edge atomic replacement. RuntimeExecutablePlan is parked; no production row is executable until D0 fixes both publication owners."
+latest_card_summary = "W6 is taskized as publication-boundary D0, source split, evidence consumption, CatalogedBoxMethod mixed normal-drain projection, Boundary C-ABI CheckedCallOut physicalization, static post-link artifact receipt/publication, and one final selected caller/old-edge atomic replacement. RuntimeExecutablePlan is parked; no production row is executable until D0 fixes both publication owners."
 next_design_card = "DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "none until DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0 is accepted"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6 is taskized behind a publication-boundary design stop: CatalogedBoxMethod canonical drain and static artifact receipt/publication ownership must be fixed; runtime-address RuntimeExecutablePlan remains parked.",
+  "2026-08-13: W6 is taskized behind a publication-boundary design stop: CatalogedBoxMethod mixed normal-drain projection and static artifact receipt/publication ownership must be fixed; runtime-address RuntimeExecutablePlan remains parked.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
   "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
