@@ -21,6 +21,8 @@ HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
 METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
 CALLOUT_TRANSPORT="$ROOT_DIR/src/llvm_py/builders/checked_callout_transport.py"
 CALLOUT_TRANSPORT_TEST="$ROOT_DIR/src/llvm_py/tests/test_checked_callout_transport.py"
+CALLOUT_TEST_PLAN="$ROOT_DIR/src/llvm_py/builders/checked_callout_test_plan.py"
+CALLOUT_TEST_PLAN_TEST="$ROOT_DIR/src/llvm_py/tests/test_checked_callout_test_plan.py"
 RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
@@ -40,7 +42,7 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -62,6 +64,12 @@ for file in "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "CheckedCallOut transport view reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+for file in "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 650 )); then
+    guard_fail "$TAG" "test-only CheckedCallOut planner reached its 650-line cap: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
 for file in "$RUST_METADATA" "$JSON_METADATA"; do
@@ -92,7 +100,7 @@ if [[ "$(rg -n '^def parse_checked_callout_transport\(' "$CALLOUT_TRANSPORT" | w
   guard_fail "$TAG" "CheckedCallOut transport parser definition must be unique"
 fi
 if rg -n 'checked_callout_transport' "$ROOT_DIR/src/llvm_py/instructions" "$ROOT_DIR/src/llvm_py/builders" \
-  --glob '*.py' --glob '!checked_callout_transport.py'; then
+  --glob '*.py' --glob '!checked_callout_transport.py' --glob '!checked_callout_test_plan.py'; then
   guard_fail "$TAG" "transport-only CheckedCallOut view must have no production importer before W6"
 fi
 if [[ "$(rg -n '^pub\(crate\) fn project_dynamic_v2_aot_call_metadata\(' "$RUST_METADATA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
@@ -203,7 +211,9 @@ for root in "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/s
   if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult|CheckedCallOutEnd|CheckedCallOutFault' \
     --glob '*.rs' --glob '*.py' \
     --glob '!src/llvm_py/builders/checked_callout_transport.py' \
-    --glob '!src/llvm_py/tests/test_checked_callout_transport.py' "$root"; then
+    --glob '!src/llvm_py/tests/test_checked_callout_transport.py' \
+    --glob '!src/llvm_py/builders/checked_callout_test_plan.py' \
+    --glob '!src/llvm_py/tests/test_checked_callout_test_plan.py' "$root"; then
     guard_fail "$TAG" "CheckedCallOut has an unapproved production/JSON/VM caller before R0 completion"
   fi
 done
@@ -243,6 +253,7 @@ if rg -n \
   --glob '!**/tests/**' \
   --glob '!**/dynamic_v2_aot_admission.py' \
   --glob '!**/selected_dynamic_v2.py' \
+  --glob '!**/checked_callout_test_plan.py' \
   'selected_dynamic_v2|dynamic_v2_aot_admission' \
   "$ROOT_DIR/src/llvm_py/builders" "$ROOT_DIR/src/llvm_py/instructions"; then
   guard_fail "$TAG" "I0-D1 metadata/hook must have zero production Python callers"
@@ -265,7 +276,20 @@ if rg -n 'lookup_core_method|selector|PreparedAotExecutableAdmissionV1::|into_pa
   guard_fail "$TAG" "I0-D1b projection must borrow retained facts without reseal, lookup, selector, or clone"
 fi
 guard_expect_fixed_in_file "$TAG" 'DynamicV2AotCallMetadataProjectionV1' "$RUST_METADATA" "Rust typed metadata projection is missing"
-guard_expect_fixed_in_file "$TAG" 'dynamic_v2_aot_call_admission_v1' "$JSON_METADATA" "JSON metadata key projection is missing"
+guard_expect_fixed_in_file "$TAG" 'dynamic_v2_aot_call_admission_v2' "$JSON_METADATA" "JSON metadata key projection is missing"
+guard_expect_fixed_in_file "$TAG" 'site_id' "$RUST_METADATA" "AOT metadata projection must use canonical CheckedCallOut site identity"
+guard_expect_fixed_in_file "$TAG" 'site_id' "$METADATA" "Python AOT metadata loader must require canonical site identity"
+RUST_METADATA_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$RUST_METADATA")"
+if printf '%s\n' "$RUST_METADATA_BODY" | rg -n 'block|instruction_index' || \
+   rg -n 'block|instruction_index' "$JSON_METADATA"; then
+  guard_fail "$TAG" "AOT downstream metadata must not expose the old block/instruction locator"
+fi
+if rg -n 'require_call_edge|instruction_index|\["block"\]' "$METADATA"; then
+  guard_fail "$TAG" "Python AOT metadata loader must not locate selected calls by the old block/index pair"
+fi
+if rg -n 'llvmlite|IRBuilder|lower_instruction|RuntimeExecutablePlan|dynamic_v2_text_scan|mir_call' "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST"; then
+  guard_fail "$TAG" "test-only CheckedCallOut planner must remain detached from LLVM/runtime/dispatcher"
+fi
 
 guard_expect_fixed_in_file "$TAG" '"role_count": 2' "$MANIFEST" "TextScan contract must have exactly two roles"
 guard_expect_fixed_in_file "$TAG" 'TextScanProviderSlotContract = "provider_slot_contract_box.hako"' "$MODULE" "Hako module must expose the TextScan contract source"

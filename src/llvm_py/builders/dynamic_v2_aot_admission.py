@@ -30,8 +30,8 @@ from builders.dynamic_v2_text_scan_export_facts import (
 )
 
 
-SCHEMA_VERSION = 1
-METADATA_KEY = "dynamic_v2_aot_call_admission_v1"
+SCHEMA_VERSION = 2
+METADATA_KEY = "dynamic_v2_aot_call_admission_v2"
 WIRE_REVISION = CALL_OUT_WIRE_REVISION
 U64_MAX = (1 << 64) - 1
 
@@ -48,8 +48,7 @@ _ROOT_KEYS = {
 _STAMP_KEYS = {"compiler_domain", "invocation_ordinal"}
 _CALL_KEYS = {
     "role",
-    "block",
-    "instruction_index",
+    "site_id",
     "entry_id",
     "symbol",
     "abi_revision",
@@ -68,8 +67,7 @@ class DynamicV2AotAdmissionError(ValueError):
 @dataclass(frozen=True)
 class DynamicV2AotCallView:
     role: str
-    block: int
-    instruction_index: int
+    site_id: int
     entry_id: int
     symbol: str
     abi_revision: int
@@ -92,15 +90,15 @@ class DynamicV2AotAdmissionView:
     invocation_ordinal: int
     calls: Tuple[DynamicV2AotCallView, ...]
 
-    def require_call_site(self, block: int, instruction_index: int) -> DynamicV2AotCallView:
+    def require_call_site(self, site_id: int) -> DynamicV2AotCallView:
         matches = tuple(
             row
             for row in self.calls
-            if row.block == block and row.instruction_index == instruction_index
+            if row.site_id == site_id
         )
         if len(matches) != 1:
             raise DynamicV2AotAdmissionError(
-                f"selected call site is not unique: ({block}, {instruction_index})"
+                f"selected call site is not unique: {site_id}"
             )
         return matches[0]
 
@@ -178,10 +176,14 @@ def _validate_call(
     if expected is None:
         raise DynamicV2AotAdmissionError(f"unknown selected call role: {role}")
 
-    block = _required_int(raw.get("block"), "call.block")
-    instruction_index = _required_int(raw.get("instruction_index"), "call.instruction_index")
+    site_id = _required_int(raw.get("site_id"), "call.site_id")
+    expected_role_by_site = {0: "substring", 1: "index_of"}
+    if site_id not in expected_role_by_site:
+        raise DynamicV2AotAdmissionError("selected site_id is outside the canonical pair")
+    if role != expected_role_by_site[site_id]:
+        raise DynamicV2AotAdmissionError("selected role does not match canonical site")
     try:
-        receipt_call = receipt.require_call_edge(block, instruction_index)
+        receipt_call = receipt.require_call_role(role)
     except APrimeI64CapabilityError as error:
         raise DynamicV2AotAdmissionError(str(error)) from error
     if receipt_call.role != role:
@@ -237,8 +239,7 @@ def _validate_call(
         raise DynamicV2AotAdmissionError(f"{role} A-prime lane mismatch")
     return DynamicV2AotCallView(
         role=role,
-        block=block,
-        instruction_index=instruction_index,
+        site_id=site_id,
         entry_id=entry_id,
         symbol=symbol,
         abi_revision=abi_revision,
@@ -285,7 +286,7 @@ def load_selected_dynamic_v2_aot_admission(
     parsed = tuple(_validate_call(row, receipt) for row in calls)
     if {row.role for row in parsed} != {"substring", "index_of"}:
         raise DynamicV2AotAdmissionError("selected calls must cover substring/index_of")
-    if len({(row.block, row.instruction_index) for row in parsed}) != len(parsed):
+    if len({row.site_id for row in parsed}) != len(parsed):
         raise DynamicV2AotAdmissionError("selected call sites must be unique")
     if len({row.entry_id for row in parsed}) != len(parsed):
         raise DynamicV2AotAdmissionError("selected entry IDs must be unique")

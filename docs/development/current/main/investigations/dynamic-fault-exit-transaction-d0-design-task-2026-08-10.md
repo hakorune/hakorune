@@ -244,12 +244,12 @@ live in `ParentHistory` and git:
 W0  b7ecfd161a                         catalog admission transport
 W1  ca193378ce                         normalized TextScan/export authority
 W2  8e94d95d26..e721a300ec             symbolic admission/header/session seed
-W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, u64 metadata bounds, transport-only CheckedCallOut view, test-only link facts
+W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, u64 metadata bounds, transport-only CheckedCallOut view, site-id AOT projection remains pre-cutover
 ```
 
-All W0-W3 production LLVM/CallOut/link callers remain zero. The remaining
-order is lease identity R0, neutral CheckedCallOut R0, full physical session,
-exact-two collector, and atomic selected cutover.
+All W0-W3 production LLVM/CallOut/link callers remain zero. Their transport
+facts are closed; the remaining order is the single W6 activation cell: strict
+LLVM/link, exact-two collector publication, and atomic selected cutover.
 
 #### `DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0` — accepted
 
@@ -258,7 +258,8 @@ Decision: CheckedCallOut is one canonical MIR terminator; its Normal result is a
 Source authority + canonical issuer: retained AOT admission/call rows own entry and lanes, the exit transaction owns Normal/Fault meaning, the function-local site plan owns physical shape/effect/slots, and CanonicalSsaFunctionSessionV2 alone issues CFG and SSA state.
 Non-authority: instruction/cache/JSON/LLVM do not issue Recipe, provider, ABI, lifecycle, selector, result class, or successor meaning; runtime tokens and raw pointers never enter MIR.
 Fail-fast boundary: plan/terminator/projection cardinality, brands, shapes, distinct site-local landings, effect-cache parity, ABI/wire revisions, and backend policy reject before publication; unpublished-session failures discard.
-Smallest next slice: DYNAMIC-V2-LEASE-IDENTITY-R0, then DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0.
+Smallest next slice: the W6 activation cell; transport-only site identity and
+CheckedCallOut execution remain closed until that cell is complete.
 Non-claims: no full cursor, LLVM production lowering, DraftSeal/collector, executable publication, cutover, fallback/retry, or VM parity.
 ```
 

@@ -46,16 +46,16 @@ pub(crate) struct CheckedCallOutSitePlanV1 {
 /// provide only already-admitted ABI facts; site/slot identities are issued by
 /// the pair constructor below.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) struct CheckedCallOutAdmittedSiteInputV1 {
-    pub(in crate::mir) entry: CheckedCallOutEntryIdV1,
-    pub(in crate::mir) call_abi_revision: u32,
-    pub(in crate::mir) wire_revision: u32,
-    pub(in crate::mir) normal_shape: CheckedCallOutNormalShapeV1,
-    pub(in crate::mir) effects: EffectMask,
+pub(crate) struct CheckedCallOutAdmittedSiteInputV1 {
+    pub(crate) entry: CheckedCallOutEntryIdV1,
+    pub(crate) call_abi_revision: u32,
+    pub(crate) wire_revision: u32,
+    pub(crate) normal_shape: CheckedCallOutNormalShapeV1,
+    pub(crate) effects: EffectMask,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum CheckedCallOutSitePlanPairRejectV1 {
+pub(crate) enum CheckedCallOutSitePlanPairRejectV1 {
     InvalidI6,
     InvalidI7,
     NonDistinctEntry,
@@ -65,7 +65,7 @@ pub(in crate::mir) enum CheckedCallOutSitePlanPairRejectV1 {
 /// Exactly the two admitted TextScan call plans.  It cannot be cloned or
 /// split; the selected session consumes it into its function-local plan table.
 #[derive(Debug)]
-pub(in crate::mir) struct CheckedCallOutSitePlanPairV1 {
+pub(crate) struct CheckedCallOutSitePlanPairV1 {
     i6: CheckedCallOutSitePlanV1,
     i7: CheckedCallOutSitePlanV1,
 }
@@ -218,7 +218,25 @@ impl CheckedCallOutSitePlanV1 {
 }
 
 impl CheckedCallOutSitePlanPairV1 {
-    pub(in crate::mir) fn from_admitted(
+    /// Borrow the canonical site identity for an already-admitted entry.
+    ///
+    /// The pair is the only owner of the entry -> site projection.  AOT
+    /// transport consumers must borrow this mapping; they must not infer a
+    /// site from a block, instruction index, selector, or role spelling.
+    pub(crate) fn site_id_for_entry(
+        &self,
+        entry: CheckedCallOutEntryIdV1,
+    ) -> Option<CheckedCallOutSiteIdV1> {
+        if self.i6.admitted_entry == entry {
+            Some(self.i6.site_id)
+        } else if self.i7.admitted_entry == entry {
+            Some(self.i7.site_id)
+        } else {
+            None
+        }
+    }
+
+    pub(crate) fn from_admitted(
         i6: CheckedCallOutAdmittedSiteInputV1,
         i7: CheckedCallOutAdmittedSiteInputV1,
         plan_stamp: ModuleInvocationBrandV1,

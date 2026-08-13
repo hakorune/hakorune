@@ -108,6 +108,13 @@ class APrimeI64CapabilityView:
             )
         return rows[0]
 
+    def require_call_role(self, role: str) -> APrimeI64CallEdgeRow:
+        """Borrow the retained source call fact without using a physical locator."""
+        rows = [row for row in self.call_edges if row.role == role]
+        if len(rows) != 1:
+            raise APrimeI64CapabilityError(f"call role is not unique: {role}")
+        return rows[0]
+
     def require_return(self, site: str) -> APrimeI64ReturnRow:
         rows = [row for row in self.returns if row.site == site]
         if len(rows) != 1:

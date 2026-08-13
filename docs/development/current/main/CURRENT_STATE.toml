@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; A-prime block/instruction locators remain source evidence only, and production callers remain zero.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
   "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
   "2026-08-13: private I6/I7 CallOut corridor now retains both site IDs, verifies all four landing brands, and rejects lifecycle/corridor site-pair drift; production W6 remains closed.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: CheckedCallOut E0 function closeout now verifies plan:terminator:Normal projection 1:1:1, final site-local predecessors, effect/PlanStamp and slot parity at canonical finish; Normal ValueIds are minted by canonical SSA, while the private I6/I7 corridor remains open.",
   "2026-08-13: W4 target-topology BoxShape keeps complete role coverage while preserving the Recipe-issued operation order; a hardcoded numeric order check was rejected by the fixture, and the full unpublished physical session remains next.",
   "2026-08-13: neutral CheckedCallOut vocabulary/issuers plus the move-only cleanup/site-plan lifecycle co-seal landed; End/Fault execution, full E, publication, and production callers remain closed.",
-  "2026-08-13: lease identity R0 landed with text-only capture, non-wrapping slot generation, conditional drop, collision-preserving insertion, and LIFO stale-token proof; it unblocked neutral CheckedCallOut R0.",
 ]

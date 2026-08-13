@@ -7,6 +7,9 @@ use crate::abi::text_scan_aot_export_facts::{TextScanAotEntryIdV1, TextScanValue
 use crate::mir::a_prime_i64_physical_receipt::{
     APrimeI64LaneV1, APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
 };
+use crate::mir::checked_callout::{
+    CheckedCallOutEntryIdV1, CheckedCallOutSiteIdV1, CheckedCallOutSitePlanPairV1,
+};
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
 use super::admitted_registry::TextScanAdmittedRoleV1;
@@ -18,6 +21,7 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     MissingCallRole,
     DuplicateCallRole,
     AdmissionEntryMismatch,
+    MissingSitePlan,
     ReceiverLaneMismatch,
     ArgumentLaneMismatch,
     ResultLaneMismatch,
@@ -56,8 +60,7 @@ impl DynamicV2AotCallRoleV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct DynamicV2AotCallSiteProjectionV1 {
     role: DynamicV2AotCallRoleV1,
-    block: crate::mir::BasicBlockId,
-    instruction_index: usize,
+    site_id: CheckedCallOutSiteIdV1,
     entry: TextScanEntryContractV1,
 }
 
@@ -66,12 +69,8 @@ impl DynamicV2AotCallSiteProjectionV1 {
         &self.role
     }
 
-    pub(crate) const fn block(&self) -> crate::mir::BasicBlockId {
-        self.block
-    }
-
-    pub(crate) const fn instruction_index(&self) -> usize {
-        self.instruction_index
+    pub(crate) const fn site_id(&self) -> CheckedCallOutSiteIdV1 {
+        self.site_id
     }
 
     pub(crate) const fn entry(&self) -> TextScanEntryContractV1 {
@@ -132,14 +131,25 @@ impl DynamicV2AotCallMetadataProjectionV1 {
 pub(crate) fn project_dynamic_v2_aot_call_metadata(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
+    site_plans: &CheckedCallOutSitePlanPairV1,
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     receipt
         .validate()
         .map_err(DynamicV2AotCallMetadataRejectV1::InvalidReceipt)?;
-    let substring = project_call(admission, receipt, DynamicV2AotCallRoleV1::Substring)?;
-    let index_of = project_call(admission, receipt, DynamicV2AotCallRoleV1::IndexOf)?;
+    let substring = project_call(
+        admission,
+        receipt,
+        site_plans,
+        DynamicV2AotCallRoleV1::Substring,
+    )?;
+    let index_of = project_call(
+        admission,
+        receipt,
+        site_plans,
+        DynamicV2AotCallRoleV1::IndexOf,
+    )?;
     Ok(DynamicV2AotCallMetadataProjectionV1 {
-        schema_version: 1,
+        schema_version: 2,
         contract_id: admission.contract_id(),
         profile: admission.profile(),
         abi_revision: admission.abi_revision(),
@@ -153,6 +163,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
 fn project_call(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
+    site_plans: &CheckedCallOutSitePlanPairV1,
     role: DynamicV2AotCallRoleV1,
 ) -> Result<DynamicV2AotCallSiteProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     let matches = receipt
@@ -169,6 +180,9 @@ fn project_call(
     if entry.entry() != role.expected_entry() {
         return Err(DynamicV2AotCallMetadataRejectV1::AdmissionEntryMismatch);
     }
+    let site_id = site_plans
+        .site_id_for_entry(CheckedCallOutEntryIdV1(entry.entry() as u32))
+        .ok_or(DynamicV2AotCallMetadataRejectV1::MissingSitePlan)?;
     if entry.arity() as usize != edge.arguments.len()
         || entry.call_abi().logical_arity as usize != edge.arguments.len()
     {
@@ -190,8 +204,7 @@ fn project_call(
     }
     Ok(DynamicV2AotCallSiteProjectionV1 {
         role,
-        block: edge.block,
-        instruction_index: edge.instruction_index,
+        site_id,
         entry,
     })
 }
@@ -210,16 +223,20 @@ mod tests {
         APrimeI64BackendFamilyV1, APrimeI64CallArgumentReceiptV1, APrimeI64CallEdgeReceiptV1,
         APrimeI64ParameterReceiptV1, APrimeI64ReturnReceiptV1, A_PRIME_I64_FORMAL_PARAMETER_COUNT,
     };
+    use crate::mir::checked_callout::{
+        CheckedCallOutAdmittedSiteInputV1, CheckedCallOutLeaseSlotIdV1, CheckedCallOutNormalShapeV1,
+    };
     use crate::mir::core_method_op::CoreMethodOp;
     use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_RESULT_ROWS_V1;
     use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-    use crate::mir::{BasicBlockId, ValueId};
+    use crate::mir::{BasicBlockId, EffectMask, ValueId};
 
     #[test]
     fn projection_keeps_exact_two_typed_sites_and_stamp() {
         let admission = admission();
         let receipt = receipt();
-        let projection = project_dynamic_v2_aot_call_metadata(&admission, &receipt)
+        let site_plans = site_plans();
+        let projection = project_dynamic_v2_aot_call_metadata(&admission, &receipt, &site_plans)
             .expect("valid admission/receipt projection");
         assert_eq!(projection.calls().len(), 2);
         assert_eq!(projection.calls()[0].role().as_str(), "substring");
@@ -232,6 +249,8 @@ mod tests {
             projection.calls()[1].entry().entry(),
             TextScanAotEntryIdV1::IndexOf
         );
+        assert_eq!(projection.calls()[0].site_id().0, 0);
+        assert_eq!(projection.calls()[1].site_id().0, 1);
         assert_eq!(projection.registry_generation(), 7);
         assert_eq!(
             projection.plan_stamp(),
@@ -288,6 +307,29 @@ mod tests {
             ModuleInvocationBrandV1::test_with_ordinal(7),
         )
         .expect("TextScan admission")
+    }
+
+    fn site_plans() -> CheckedCallOutSitePlanPairV1 {
+        CheckedCallOutSitePlanPairV1::from_admitted(
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(1),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                },
+                effects: EffectMask::READ,
+            },
+            CheckedCallOutAdmittedSiteInputV1 {
+                entry: CheckedCallOutEntryIdV1(2),
+                call_abi_revision: 1,
+                wire_revision: 2,
+                normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
+                effects: EffectMask::READ,
+            },
+            ModuleInvocationBrandV1::test_with_ordinal(7),
+        )
+        .expect("valid CheckedCallOut site pair")
     }
 
     fn receipt() -> APrimeI64PhysicalReceiptV1 {

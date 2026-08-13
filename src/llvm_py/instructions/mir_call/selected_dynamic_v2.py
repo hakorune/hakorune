@@ -16,20 +16,20 @@ from builders.dynamic_v2_aot_admission import (
 
 
 def inspect_selected_dynamic_v2_call(
-    func_data: Dict[str, Any], block: int, instruction_index: int
+    func_data: Dict[str, Any], site_id: int
 ) -> Optional[DynamicV2AotCallView]:
-    """Return the sealed call metadata at a site, without emitting LLVM."""
+    """Return the sealed call metadata at a canonical site, without emitting LLVM."""
 
     admission: Optional[DynamicV2AotAdmissionView] = load_selected_dynamic_v2_aot_admission(
         func_data
     )
     if admission is None:
         return None
-    return admission.require_call_site(block, instruction_index)
+    return admission.require_call_site(site_id)
 
 
 def require_selected_dynamic_v2_call(
-    func_data: Dict[str, Any], block: int, instruction_index: int
+    func_data: Dict[str, Any], site_id: int
 ) -> DynamicV2AotCallView:
     """Require a selected site; absence is terminal for this test seam.
 
@@ -38,7 +38,7 @@ def require_selected_dynamic_v2_call(
     importing the seam into the production LLVM dispatcher.
     """
 
-    call = inspect_selected_dynamic_v2_call(func_data, block, instruction_index)
+    call = inspect_selected_dynamic_v2_call(func_data, site_id)
     if call is None:
         raise DynamicV2AotAdmissionError("selected Dynamic V2 metadata is absent")
     return call

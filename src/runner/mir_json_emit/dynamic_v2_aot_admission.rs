@@ -28,8 +28,7 @@ pub(crate) fn insert_dynamic_v2_aot_call_admission_json(
             let entry = call.entry();
             json!({
                 "role": call.role().as_str(),
-                "block": call.block().as_u32(),
-                "instruction_index": call.instruction_index(),
+                "site_id": call.site_id().0,
                 "entry_id": entry.entry() as u32,
                 "symbol": entry.symbol(),
                 "abi_revision": projection.abi_revision(),
@@ -46,7 +45,7 @@ pub(crate) fn insert_dynamic_v2_aot_call_admission_json(
             })
         }).collect::<Vec<_>>(),
     });
-    obj.insert("dynamic_v2_aot_call_admission_v1".to_string(), value);
+    obj.insert("dynamic_v2_aot_call_admission_v2".to_string(), value);
 }
 
 fn lane_name(lane: TextScanValueLaneV1) -> &'static str {

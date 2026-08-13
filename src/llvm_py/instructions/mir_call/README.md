@@ -16,8 +16,10 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
 ## Selected Dynamic V2 boundary
 
 - `../builders/dynamic_v2_aot_admission.py` validates the immutable per-call
-  symbolic admission projection (site, entry, ABI/wire, lanes, lease, and
-  PlanStamp) against the retained A-prime receipt.
+  symbolic admission projection (canonical `site_id`, entry, ABI/wire, lanes,
+  lease, and PlanStamp) against the retained A-prime receipt. The receipt's
+  block/instruction locator remains source evidence only and is not an AOT
+  downstream identity.
 - `selected_dynamic_v2.py` is a non-emitting test/canary seam only. It is not
   imported by the dispatcher until the complete AOT activation cell is ready;
   it performs no provider lookup, LLVM emission, fallback, retry, or VM work.
@@ -25,6 +27,9 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
   for the neutral MIR `CheckedCallOut` vocabulary. It is not imported by the
   dispatcher and does not emit LLVM; malformed operations fail before a later
   W6 physical consumer can observe them.
+- `../builders/checked_callout_test_plan.py` is a closed-mode fixture validator
+  that joins the transport view and admission facts for focused tests only; it
+  is not an LLVM or runtime caller.
 
 ## Shared SSOT
 
