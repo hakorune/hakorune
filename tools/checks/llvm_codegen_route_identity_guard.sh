@@ -97,12 +97,16 @@ for field in request_id entry_family driver export recipe compat_replay python_c
   need_fixed "$CARD" "\`$field\`" "OBSERVE0-R0 field missing: $field"
 done
 
-# Keep the currently observed hazards visible until their later G1 rows change
-# behavior. Removing either pattern without changing this guard is drift.
-need_fixed "$CAPI" 'or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))' \
-  "CAPI symbol-fallback observation disappeared without a route-row update"
+# F0 closes the requested-symbol fallback. A missing pure-first symbol must
+# fail at the CAPI lookup rather than silently entering the generic harness
+# ingress. The generic recipe/no-recipe route remains a later G1 row.
+if rg -Fq -- 'or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))' "$CAPI"; then
+  fail "CAPI requested-symbol fallback is still present"
+fi
+need_fixed "$CAPI" '.get(compile_symbol)' \
+  "CAPI requested-symbol lookup missing"
 need_fixed "$PLUGIN" 'Err(_e) => Ok(None)' \
-  "plugin compatibility failure policy changed without a route-row update"
+  "plugin compatibility failure policy changed outside its later G1 row"
 need_fixed "$PLUGIN" 'll_text_to_object' "compile_ll_text owner disappeared"
 
 # The task card and check index are the tracked documentation owners.

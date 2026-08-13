@@ -47,8 +47,7 @@ pub(super) fn compile_via_capi(
             unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
             .get(compile_symbol)
-            .or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))
-            .map_err(|e| format!("dlsym failed: {}", e))?;
+            .map_err(|e| format!("dlsym failed for requested compile symbol: {}", e))?;
         let cin = CString::new(json_in.to_string_lossy().as_bytes())
             .map_err(|_| "invalid json path".to_string())?;
         let cout = CString::new(obj_out.to_string_lossy().as_bytes())
