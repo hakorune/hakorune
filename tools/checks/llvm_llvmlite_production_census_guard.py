@@ -88,6 +88,58 @@ ROW_EVIDENCE = {
         (".github/workflows/fast-smoke.yml", "llvmlite"),
         (".github/workflows/fast-smoke.yml", "workflow_dispatch"),
     ),
+    "ny-llvmc-harness-input": (
+        ("crates/nyash-llvm-compiler/src/compile_input.rs", "resolve_harness_path"),
+        ("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary"),
+    ),
+    "ny-mir-builder-rust-tool": (
+        ("src/bin/ny_mir_builder.rs", "NYASH_LLVM_USE_HARNESS"),
+        ("src/bin/ny_mir_builder.rs", 'std::env::remove_var("NYASH_LLVM_USE_HARNESS")'),
+    ),
+    "run-llvm-harness-tool": (
+        ("tools/run_llvm_harness.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/run_llvm_harness.sh", "themselves select `ny-llvmc --driver harness`"),
+    ),
+    "perf-llvmlite-opt-in": (
+        ("tools/perf/run_all.sh", "NYASH_LLVM_RUN_LLVMLITE"),
+        ("tools/perf/run_all.sh", "llvmlite (opt-in)"),
+    ),
+    "smoke-default-harness-env": (
+        ("tools/smokes/v2/lib/env.sh", "NYASH_LLVM_USE_HARNESS"),
+        ("tools/smokes/v2/lib/env.sh", "Smoke Environment Configuration"),
+    ),
+    "smoke-static-config": (
+        ("tools/smokes/v2/configs/llvm_static.conf", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/configs/llvm_static.conf", "llvm_static.conf"),
+    ),
+    "smoke-matrix-config": (
+        ("tools/smokes/v2/configs/matrix.conf", "export NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/configs/matrix.conf", "matrix.conf"),
+    ),
+    "smoke-llvmlite-probe": (
+        ("tools/smokes/v2/profiles/integration/core/phase2100/run_probe_llvmlite.sh", "NYASH_LLVM_RUN_LLVMLITE"),
+        ("tools/smokes/v2/profiles/integration/core/phase2100/run_probe_llvmlite.sh", "deprecated by default"),
+    ),
+    "llvm-py-keep-root": (
+        ("src/llvm_py/README.md", "explicit compat/probe keep"),
+        ("src/llvm_py/README.md", "current daily owner ではなく"),
+    ),
+    "hako-compat-provider-box": (
+        ("lang/src/compat/codegen/llvm_emit_compat_box.hako", "does not own the llvmlite lane"),
+        ("lang/src/compat/codegen/llvm_emit_compat_box.hako", "llvmlite is not routed through LLVMEmitBox"),
+    ),
+    "legacy-pyvm-reference": (
+        ("src/runner/modes/common_util/legacy/pyvm.rs", "run_pyvm_harness_lib"),
+        ("src/runner/modes/common_util/legacy/pyvm.rs", "tools/historical/pyvm/pyvm_runner.py"),
+    ),
+    "selfhost-python-reference": (
+        ("src/runner/selfhost.rs", "NYASH_NY_COMPILER_USE_PY"),
+        ("src/runner/selfhost.rs", "Python MVP (optional)"),
+    ),
+    "llvm-build-stale-label": (
+        ("tools/build/build_llvm.sh", "llvmlite"),
+        ("tools/build/build_llvm.sh", "cargo build"),
+    ),
 }
 
 
@@ -117,6 +169,19 @@ def main() -> int:
         "ny-mir-builder-tool",
         "runner-llvmlite-helper",
         "runner-non-python-fallback",
+        "ny-llvmc-harness-input",
+        "ny-mir-builder-rust-tool",
+        "run-llvm-harness-tool",
+        "perf-llvmlite-opt-in",
+        "smoke-default-harness-env",
+        "smoke-static-config",
+        "smoke-matrix-config",
+        "smoke-llvmlite-probe",
+        "llvm-py-keep-root",
+        "hako-compat-provider-box",
+        "legacy-pyvm-reference",
+        "selfhost-python-reference",
+        "llvm-build-stale-label",
     }
     missing = required.difference(ids)
     if missing:

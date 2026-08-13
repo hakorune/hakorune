@@ -163,6 +163,149 @@
       "selector": "manual compatibility smoke",
       "positive_evidence": "workflow is explicitly manual/compat scoped",
       "negative_evidence": "not a default production build gate"
+    },
+    {
+      "id": "ny-llvmc-harness-input",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "crates/nyash-llvm-compiler/src/compile_input.rs",
+      "selector": "resolve_harness_path",
+      "positive_evidence": "harness path is an explicit driver input",
+      "negative_evidence": "default driver remains Boundary"
+    },
+    {
+      "id": "ny-mir-builder-rust-tool",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "src/bin/ny_mir_builder.rs",
+      "selector": "emit=ll",
+      "positive_evidence": "tool explicitly enables harness for LLVM text debug",
+      "negative_evidence": "object/exe path removes harness hint"
+    },
+    {
+      "id": "run-llvm-harness-tool",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/run_llvm_harness.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "script is named compatibility/probe runner",
+      "negative_evidence": "script documents that names/hints do not select ny-llvmc"
+    },
+    {
+      "id": "perf-llvmlite-opt-in",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/perf/run_all.sh",
+      "selector": "NYASH_LLVM_RUN_LLVMLITE=1",
+      "positive_evidence": "perf route is opt-in",
+      "negative_evidence": "default perf path does not run llvmlite"
+    },
+    {
+      "id": "smoke-default-harness-env",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/lib/env.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS",
+      "positive_evidence": "smoke-only environment owner",
+      "negative_evidence": "smoke environment is not a product route"
+    },
+    {
+      "id": "smoke-static-config",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/configs/llvm_static.conf",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "legacy smoke compatibility configuration",
+      "negative_evidence": "configuration is not the Boundary driver selector"
+    },
+    {
+      "id": "smoke-matrix-config",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/configs/matrix.conf",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "matrix smoke compatibility axis",
+      "negative_evidence": "matrix is not a default product route"
+    },
+    {
+      "id": "smoke-llvmlite-probe",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/profiles/integration/core/phase2100/run_probe_llvmlite.sh",
+      "selector": "NYASH_LLVM_RUN_LLVMLITE=1",
+      "positive_evidence": "probe is deprecated-by-default and opt-in",
+      "negative_evidence": "unset opt-in exits without running reps"
+    },
+    {
+      "id": "llvm-py-keep-root",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "src/llvm_py",
+      "selector": "compat/probe keep",
+      "positive_evidence": "README marks Python as non-daily keep",
+      "negative_evidence": "README forbids new production authority"
+    },
+    {
+      "id": "hako-compat-provider-box",
+      "class": "non_authority_compat",
+      "automatic_production": false,
+      "python_child": "none",
+      "native_retry": false,
+      "owner": "lang/src/compat/codegen/llvm_emit_compat_box.hako",
+      "selector": "HAKO_LLVM_EMIT_PROVIDER",
+      "positive_evidence": "compat box explicitly skips llvmlite ownership",
+      "negative_evidence": "llvmlite is not routed through this box"
+    },
+    {
+      "id": "legacy-pyvm-reference",
+      "class": "non_llvmlite_reference",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "src/runner/modes/common_util/legacy/pyvm.rs",
+      "selector": "SMOKES_USE_PYVM",
+      "positive_evidence": "legacy PyVM reference child",
+      "negative_evidence": "path is not an llvmlite provider"
+    },
+    {
+      "id": "selfhost-python-reference",
+      "class": "non_llvmlite_reference",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "src/runner/selfhost.rs",
+      "selector": "NYASH_NY_COMPILER_USE_PY",
+      "positive_evidence": "optional Python MVP parser child",
+      "negative_evidence": "does not select llvmlite object emission"
+    },
+    {
+      "id": "llvm-build-stale-label",
+      "class": "tool_label_non_authority",
+      "automatic_production": false,
+      "python_child": "none",
+      "native_retry": false,
+      "owner": "tools/build/build_llvm.sh",
+      "selector": "historical llvmlite label",
+      "positive_evidence": "tool comments mention the historical harness",
+      "negative_evidence": "no llvmlite selector is issued by the build command"
     }
   ]
 }
