@@ -578,18 +578,19 @@ retirement rows, not this truth-sync row.
 
 ### `LLVMLITE-ROUTE0-OBSERVE0`
 
-Decision: add one diagnostic-only route observation at the existing boundary;
-  it must not become a selector, semantic receipt, or fallback trigger.
-Source authority + canonical issuer: existing route/driver dispatch emits the
-  selected driver/export/recipe/replay; the child-process observer reports the
-  actual command once, without re-running route selection.
-Non-authority: trace text, Python output, artifact path, names, or a second
-  lookup after failure. Fail-fast: missing/duplicate/contradictory observation.
-Smallest slice: fields `request_id`, `entry_family`, `driver`, `export`,
-  `recipe`, `compat_replay`, `python_child`, and `artifact_result`; keep all
-  behavior, fallback, and error policy unchanged.
-Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder, or new
-  semantic/backend authority. The observation is discarded after diagnostics.
+Decision: reuse the existing `NYASH_LLVM_ROUTE_TRACE` as diagnostic events;
+  do not add a durable route-receipt type or a second selector.
+Source authority + canonical issuer: route/driver dispatch emits one selection
+  event; the actual child-command owner emits one child event.
+Non-authority: trace text, Python output, artifact paths, names,
+  `NYASH_LLVM_USE_HARNESS`, or any lookup after failure.
+Fail-fast boundary: unknown/duplicate/contradictory driver, export, recipe,
+  replay, child command, or artifact result; missing child evidence stays open.
+Smallest slice: define the diagnostic field set (`request_id`, `entry_family`,
+  `driver`, `export`, `recipe`, `compat_replay`, `python_child`,
+  `artifact_result`) and a reusable observer/guard without changing behavior.
+Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
+  fallback/retry change, or new semantic/backend authority.
 
 ## 2. Native library foundation
 
