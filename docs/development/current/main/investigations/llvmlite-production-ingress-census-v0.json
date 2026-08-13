@@ -1,0 +1,168 @@
+{
+  "schema": "llvmlite-production-ingress-census-v0",
+  "status": "g0-source-census",
+  "production_claim": false,
+  "source_authority": "caller or child-process owner plus the W6 Boundary artifact receipt",
+  "non_authority": [
+    "environment names",
+    "static labels",
+    "Python output",
+    "archive-only paths"
+  ],
+  "rows": [
+    {
+      "id": "ny-llvmc-default-boundary",
+      "class": "automatic_boundary",
+      "automatic_production": true,
+      "python_child": "zero",
+      "native_retry": false,
+      "owner": "crates/nyash-llvm-compiler/src/main.rs",
+      "selector": "DriverKind::Boundary",
+      "positive_evidence": "default driver is Boundary",
+      "negative_evidence": "explicit harness is a separate driver"
+    },
+    {
+      "id": "env-codegen-ordinary-boundary",
+      "class": "automatic_boundary",
+      "automatic_production": true,
+      "python_child": "zero",
+      "native_retry": false,
+      "owner": "src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs",
+      "selector": "CodegenRouteRequestV1::BoundaryPureFirst",
+      "positive_evidence": "ordinary emit_object uses BoundaryPureFirst",
+      "negative_evidence": "ordinary inherited compat replay is rejected"
+    },
+    {
+      "id": "hako-aot-generic",
+      "class": "automatic_boundary",
+      "automatic_production": true,
+      "python_child": "zero",
+      "native_retry": false,
+      "owner": "lang/c-abi/shims/hako_aot_shared_impl.inc",
+      "selector": "hako_aot_compile_json",
+      "positive_evidence": "ambient replay rejects before child/object",
+      "negative_evidence": "aot-compat-admission-required"
+    },
+    {
+      "id": "hako-aot-named-compat",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "lang/c-abi/include/hako_aot.h",
+      "selector": "hako_aot_compile_json_compat_harness",
+      "positive_evidence": "named compat C ABI export",
+      "negative_evidence": "generic entry never inherits harness replay"
+    },
+    {
+      "id": "hako-llvmc-named-compat",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
+      "selector": "hako_llvmc_compile_json_compat_harness",
+      "positive_evidence": "named FFI compat export",
+      "negative_evidence": "generic FFI replay is rejected"
+    },
+    {
+      "id": "provider-llvmlite-keep",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "src/host_providers/llvm_codegen/provider_keep.rs",
+      "selector": "mir_json_to_object_llvmlite",
+      "positive_evidence": "explicit provider keep implementation",
+      "negative_evidence": "provider is not the Boundary default"
+    },
+    {
+      "id": "ny-llvmc-harness-driver",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "crates/nyash-llvm-compiler/src/harness_driver.rs",
+      "selector": "--driver harness",
+      "positive_evidence": "Python child is explicit driver behavior",
+      "negative_evidence": "main default remains Boundary"
+    },
+    {
+      "id": "ny-mir-builder-tool",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "tools/ny_mir_builder.sh",
+      "selector": "NYASH_LLVM_BACKEND=llvmlite",
+      "positive_evidence": "explicit debug/compat backend branch",
+      "negative_evidence": "no default production selection claim"
+    },
+    {
+      "id": "llvmlite-harness-script",
+      "class": "explicit_keep",
+      "automatic_production": false,
+      "python_child": "one",
+      "native_retry": false,
+      "owner": "tools/llvmlite_harness.py",
+      "selector": "explicit harness script",
+      "positive_evidence": "historical compat/oracle implementation",
+      "negative_evidence": "no automatic caller is permitted by G0"
+    },
+    {
+      "id": "runner-llvmlite-helper",
+      "class": "zero_consumer_candidate",
+      "automatic_production": false,
+      "python_child": "none",
+      "native_retry": false,
+      "owner": "src/runner/modes/common_util/exec.rs",
+      "selector": "llvmlite_emit_obj_lib",
+      "positive_evidence": "legacy helper definition is retained",
+      "negative_evidence": "source caller census is zero"
+    },
+    {
+      "id": "runner-non-python-fallback",
+      "class": "non_python_fallback",
+      "automatic_production": false,
+      "python_child": "none",
+      "native_retry": false,
+      "owner": "src/runner/product/llvm/mod.rs",
+      "selector": "FallbackExecutorBox::execute",
+      "positive_evidence": "fallback is a mock executor, not llvmlite",
+      "negative_evidence": "no Python retry is classified here"
+    },
+    {
+      "id": "perf-manual-harness",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/perf/microbench.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "manual perf keep root",
+      "negative_evidence": "AOT perf helper rejects harness/provider routes"
+    },
+    {
+      "id": "smoke-compat-monitor",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep",
+      "selector": "HAKO_LLVM_EMIT_PROVIDER=llvmlite",
+      "positive_evidence": "named monitor keep root",
+      "negative_evidence": "monitor is not a production route"
+    },
+    {
+      "id": "ci-manual-compat",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": ".github/workflows/fast-smoke.yml",
+      "selector": "manual compatibility smoke",
+      "positive_evidence": "workflow is explicitly manual/compat scoped",
+      "negative_evidence": "not a default production build gate"
+    }
+  ]
+}

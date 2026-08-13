@@ -931,15 +931,16 @@ Source authority: route plan, driver/provider/replay request, child command, and
 Receipt: route policy and named C/API admissions are closed; no G1/G2/G3 or
   source deletion is claimed.
 
-#### `LLVMLITE-PROD0-G0-CENSUS-R0` (design stop; next)
+#### `LLVMLITE-PROD0-G0-CENSUS-R0` (fast; active)
 Decision: build one source-backed matrix for every active Python/llvmlite ingress,
   retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root.
 Source authority: caller/child-process owner plus the existing W6 Boundary receipt.
 Non-authority: environment names, static labels, Python output, and archive-only code.
 Fail-fast: any unclassified caller, native-failure retry, or automatic child path
-  blocks G1. Acceptance: matrix has production=0, explicit keep roots enumerated,
-  each row has positive/negative evidence, and a reusable guard; no route behavior,
-  source deletion, G2/G3, or new semantic/backend authority.
+  blocks G1. Acceptance: `llvmlite-production-ingress-census-v0.json` has
+  production=0, explicit keep roots enumerated, positive/negative evidence per row,
+  and one reusable guard; no route behavior, source deletion, G2/G3, or new
+  semantic/backend authority.
 
 ## 7. Later retirement
 

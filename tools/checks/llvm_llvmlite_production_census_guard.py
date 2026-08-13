@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""G0 source-backed llvmlite ingress census; no route behavior changes."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+TAG = "llvm-llvmlite-production-census-guard"
+MANIFEST = ROOT / "docs/development/current/main/investigations/llvmlite-production-ingress-census-v0.json"
+
+
+def fail(message: str) -> None:
+    print(f"[{TAG}] FAIL: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def source(path: str) -> str:
+    target = ROOT / path
+    if not target.exists():
+        fail(f"missing owner path: {path}")
+    return target.read_text(encoding="utf-8")
+
+
+def need(path: str, needle: str, label: str) -> None:
+    if needle not in source(path):
+        fail(f"{label}: {path} does not contain {needle!r}")
+
+
+ROW_EVIDENCE = {
+    "ny-llvmc-default-boundary": (
+        ("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary"),
+        ("crates/nyash-llvm-compiler/src/main.rs", "DriverKind::Harness"),
+    ),
+    "env-codegen-ordinary-boundary": (
+        ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst"),
+        ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "validate_ordinary_ambient_replay"),
+    ),
+    "hako-aot-generic": (
+        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
+        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "aot-compat-admission-required"),
+    ),
+    "hako-aot-named-compat": (
+        ("lang/c-abi/include/hako_aot.h", "hako_aot_compile_json_compat_harness"),
+        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
+    ),
+    "hako-llvmc-named-compat": (
+        ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_compile_json_compat_harness"),
+        ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_reject_ambient_harness_replay"),
+    ),
+    "provider-llvmlite-keep": (
+        ("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_llvmlite"),
+        ("src/host_providers/llvm_codegen/route.rs", "CodegenRouteRequestV1::ExplicitHarnessCompat"),
+    ),
+    "ny-llvmc-harness-driver": (
+        ("crates/nyash-llvm-compiler/src/harness_driver.rs", 'Command::new("python3")'),
+        ("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary"),
+    ),
+    "ny-mir-builder-tool": (
+        ("tools/ny_mir_builder.sh", "NYASH_LLVM_BACKEND=llvmlite"),
+        ("tools/ny_mir_builder.sh", "explicit compat/debug keep only"),
+    ),
+    "llvmlite-harness-script": (
+        ("tools/llvmlite_harness.py", "NYASH_LLVM_USE_HARNESS"),
+        ("src/llvm_py/README.md", "explicit compat/probe keep"),
+    ),
+    "runner-llvmlite-helper": (
+        ("src/runner/modes/common_util/exec.rs", "fn llvmlite_emit_obj_lib"),
+        ("src/runner/modes/common_util/exec.rs", "pub fn llvmlite_emit_obj_lib"),
+    ),
+    "runner-non-python-fallback": (
+        ("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute"),
+        ("src/runner/product/llvm/fallback_executor.rs", "LLVM harness requested"),
+    ),
+    "perf-manual-harness": (
+        ("tools/perf/microbench.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1"),
+    ),
+    "smoke-compat-monitor": (
+        ("tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/_llvmlite_provider_stopline_common.sh", "HAKO_LLVM_EMIT_PROVIDER=llvmlite"),
+        ("tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/README.md", "monitor-only keep"),
+    ),
+    "ci-manual-compat": (
+        (".github/workflows/fast-smoke.yml", "llvmlite"),
+        (".github/workflows/fast-smoke.yml", "workflow_dispatch"),
+    ),
+}
+
+
+def main() -> int:
+    if not MANIFEST.is_file():
+        fail("census manifest is missing")
+    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    if data.get("schema") != "llvmlite-production-ingress-census-v0":
+        fail("manifest schema drifted")
+    if data.get("status") != "g0-source-census" or data.get("production_claim"):
+        fail("manifest must remain a non-production G0 census")
+    rows = data.get("rows")
+    if not isinstance(rows, list) or not rows:
+        fail("manifest rows are empty")
+
+    ids = [row.get("id") for row in rows]
+    if len(ids) != len(set(ids)) or any(not item for item in ids):
+        fail("manifest row ids must be unique and non-empty")
+    required = {
+        "ny-llvmc-default-boundary",
+        "env-codegen-ordinary-boundary",
+        "hako-aot-generic",
+        "hako-aot-named-compat",
+        "hako-llvmc-named-compat",
+        "provider-llvmlite-keep",
+        "ny-llvmc-harness-driver",
+        "ny-mir-builder-tool",
+        "runner-llvmlite-helper",
+        "runner-non-python-fallback",
+    }
+    missing = required.difference(ids)
+    if missing:
+        fail(f"required census rows missing: {sorted(missing)}")
+
+    production = [row for row in rows if row.get("automatic_production")]
+    if any(row.get("python_child") != "zero" for row in production):
+        fail("automatic production row reaches Python/llvmlite")
+    if any(row.get("native_retry") for row in rows):
+        fail("native failure retry is still classified in the census")
+    for row in rows:
+        for key in ("owner", "selector", "positive_evidence", "negative_evidence"):
+            if not isinstance(row.get(key), str) or not row[key].strip():
+                fail(f"row {row.get('id')} lacks {key}")
+        target = ROOT / row["owner"]
+        if not target.exists():
+            fail(f"row {row['id']} owner is missing: {row['owner']}")
+
+    if set(ROW_EVIDENCE) != set(ids):
+        fail("row evidence map and manifest rows have drifted")
+    for row_id, evidence in ROW_EVIDENCE.items():
+        for path, needle in evidence:
+            need(path, needle, f"row {row_id} source evidence")
+
+    # Source-backed selectors and child boundaries. These are deliberately
+    # exact strings; labels and environment names alone cannot satisfy G0.
+    need("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary", "Boundary default")
+    need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst", "ordinary env.codegen route")
+    need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::ExplicitHarnessCompat", "named env.codegen keep")
+    need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay", "generic AOT replay fence")
+    need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_compile_json_compat_harness", "named AOT keep")
+    need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_compile_json_compat_harness", "named C FFI keep")
+    need("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_llvmlite", "provider keep owner")
+    need("crates/nyash-llvm-compiler/src/harness_driver.rs", 'Command::new("python3")', "explicit harness child")
+    need("tools/ny_mir_builder.sh", "NYASH_LLVM_BACKEND=llvmlite", "explicit tool keep")
+    need("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute", "non-Python fallback classification")
+    need("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1", "perf Boundary fence")
+
+    # The helper is a deletion candidate, not a production claim. Its exact
+    # symbol must have no caller outside its defining source file.
+    result = subprocess.run(
+        ["rg", "-l", "llvmlite_emit_obj_lib", "src", "crates", "tools", "lang"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode not in (0, 1):
+        fail("caller census command failed")
+    callers = {
+        line.strip()
+        for line in result.stdout.splitlines()
+        if line.strip() and line.strip() != "tools/checks/llvm_llvmlite_production_census_guard.py"
+    }
+    if callers != {"src/runner/modes/common_util/exec.rs"}:
+        fail(f"zero-consumer helper has unexpected callers: {sorted(callers)}")
+
+    print(f"[{TAG}] ok (rows={len(rows)}, automatic_python_ingress=0, native_retry=0, keep_roots={sum(row['class'] in {'explicit_keep', 'manual_keep'} for row in rows)})")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
