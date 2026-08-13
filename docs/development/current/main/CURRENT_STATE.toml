@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1 and env.codegen replay admissions are closed; direct hako_aot census is the active bounded row. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1 and env.codegen replay admissions are closed; hako_aot FFI admission is the active design stop. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Stage1 and env.codegen replay admissions are closed. The accepted fast row is direct hako_aot ingress census: default/direct AOT must not reach Python, while only explicit harness replay may remain a keep lane. G1/G2/G3 and source deletion remain unopened."
-work_mode = "fast"
-current_execution_row = "LLVMLITE-AUTO0-HAKO-AOT-RET0"
-current_blocker_token = "LLVMLITE-AUTO0-HAKO-AOT-RET0: census direct hako_aot_compile_json and generic-C ingress. Source authority is the explicit AOT replay gate and exact child command; non-authority is NYASH_LLVM_USE_HARNESS, generic fallback, or Python output. Fail-fast before child: default/direct AOT and inherited replay reject. Acceptance: default child=0, explicit harness keep child=1, inherited replay child=0, and route evidence is explicit."
+current_design_stop = "Stage1 and env.codegen replay admissions are closed. The next design stop is hako_aot FFI admission: generic AOT/FFI must reject unadmitted replay before dlsym/child/object, while only a named compat C export may keep harness replay. G1/G2/G3 and source deletion remain unopened."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0"
+current_blocker_token = "LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0: hako_aot_compile_json currently bypasses its replay gate when HAKO_AOT_USE_FFI=1. Source authority must be one Rust route request plus a matching generic/compat C export pair. Non-authority is ambient replay, HAKO_AOT_USE_FFI, NYASH_LLVM_USE_HARNESS, provider names, or Python output. Fail-fast before dlsym/child/object. Acceptance: generic default/replay reject, named compat keep=1, direct keep=1, tracked daily hako_aot caller=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, and env.codegen admissions are closed; direct hako_aot census is the bounded fast row. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, and env.codegen admissions are closed; hako_aot FFI admission is the design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, and env.codegen admissions are closed. direct hako_aot census is the active bounded fast row."
-next_design_card = "LLVMLITE-AUTO0-HAKO-AOT-RET0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, and env.codegen admissions are closed. hako_aot FFI admission is the active design stop."
+next_design_card = "LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "LLVMLITE-AUTO0-HAKO-AOT-RET0"
-next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: Stage1 and env.codegen replay admissions closed: ordinary env.codegen child=0, named compat child=1, inherited replay child=0 via opt-in strace probe; focused tests/route/pointer guards are green; direct hako_aot census is next.",
+  "2026-08-14: Stage1/env.codegen replay admissions closed; direct AOT non-FFI default child=0 and explicit keep child=1, but FFI pure-first plus ambient harness reaches child=1 by bypassing the direct gate; hako_aot FFI admission is design stop.",
 ]

@@ -170,6 +170,7 @@ need_fixed "$ROUTE" 'Boundary route rejects compat replay inheritance' \
 
 # The task card and check index are the tracked documentation owners.
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0' "identity guard task missing"
+need_fixed "$CARD" 'LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0' "hako_aot FFI admission design stop missing"
 need_fixed "$CARD" 'generic C export -> `hako_aot_compile_json`' "generic C harness route missing from matrix"
 need_fixed "$CARD" 'compile_ll_text' "external-tool route missing from matrix"
 need_fixed "$INDEX" 'tools/checks/llvm_codegen_route_identity_guard.sh' "check index entry missing"

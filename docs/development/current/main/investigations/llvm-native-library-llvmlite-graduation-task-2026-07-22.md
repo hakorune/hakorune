@@ -552,7 +552,6 @@ Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease ta
   generation checks, and release semantics. Fail-fast: bad status/wire/ABI/suspension
   traps before a semantic successor; no Python fallback. No alternate ABI/publication.
 ```
-
 ### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (closed by R0)
 ```text
 Decision: `build_stage1.sh --compat-replay <none|harness>` is the sole Stage1
@@ -575,14 +574,16 @@ Fail-fast: ambient replay other than `none` rejects before route/child creation.
 Receipt (2026-08-14): focused Rust tests=7; ordinary child=0, named child=1,
   inherited replay child=0 observed by opt-in strace; route/pointer guards, fmt,
   and diff check are green. Non-claims: no G1/G2/G3 retirement or source deletion.
-### `LLVMLITE-AUTO0-HAKO-AOT-RET0` (accepted D0; fast)
-Decision: census direct `hako_aot_compile_json` and generic-C ingress before production
-  retirement; only explicit harness replay may remain a keep lane.
-Source authority: AOT replay gate, exact child command, and route receipt.
-Non-authority: `NYASH_LLVM_USE_HARNESS`, generic fallback, Python output.
-Fail-fast: default/direct AOT and inherited replay stop before child creation.
-Smallest next slice: positive explicit-keep plus negative default/replay child census.
-Non-claims: no G1/G2/G3 retirement, source deletion, or new backend.
+### `LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0` (design stop)
+Decision: split generic AOT/FFI from a named harness-compat C ABI; ambient replay
+  cannot be an admission. Source authority: one Rust route request and matching C export.
+Non-authority: `HAKO_AOT_USE_FFI`, inherited replay, `NYASH_LLVM_USE_HARNESS`,
+  provider names, generic fallback, Python output. Fail-fast: generic/FFI rejects
+  unadmitted harness before dlsym/child/object. Evidence: non-FFI direct default=child 0,
+  explicit keep=1; FFI pure-first + ambient harness currently reaches child=1.
+Smallest next slice: caller census, versioned generic/compat export pair, and four-case
+  C ABI smoke (generic default/replay reject, named keep positive, direct keep positive).
+Non-claims: provider reorder, G1/G2/G3, llvmlite deletion, or driver behavior changes.
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0` (closed)
 Decision: reuse `NYASH_LLVM_ROUTE_TRACE` as diagnostic events; no durable route
   receipt or second selector. Source authority: route/driver dispatch emits one
@@ -598,7 +599,6 @@ Evidence (2026-08-14): explicit replay produced one `stage=child`; `none` produc
 Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
   fallback/retry change, or new semantic/backend authority.
 ## 2. Native library foundation
-
 ### `LLVM-NATIVELIB0-CENSUS0`
 
 Inventory every exported symbol, caller, allocator/free convention, dynamic
