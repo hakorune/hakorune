@@ -29,6 +29,7 @@ EXPECTED_IDS = {
     "g2-perf-compare-expr-cse",
     "g2-perf-phase2100-probe",
     "g2-smoke-static-config",
+    "g2-smoke-auto-detect",
     "g2-smoke-matrix-config",
     "g2-perf-boundary-fence",
     "g2-build-llvm-tool",
@@ -109,7 +110,16 @@ def main() -> int:
         counts[row_class] = counts.get(row_class, 0) + 1
 
     # These are the current G2 blockers, not a production-success assertion.
-    if not {"g2-smoke-shared-env", "g2-smoke-runner-helper", "g2-perf-method-call-hot-trace"}.issubset(pending):
+    required_pending = {
+        "g2-smoke-shared-env",
+        "g2-smoke-runner-helper",
+        "g2-perf-microbench",
+        "g2-perf-method-call-hot-trace",
+        "g2-perf-compare-expr-cse",
+        "g2-smoke-static-config",
+        "g2-smoke-auto-detect",
+    }
+    if not required_pending.issubset(pending):
         fail("known G2 blocker rows disappeared from the pending set")
 
     print(

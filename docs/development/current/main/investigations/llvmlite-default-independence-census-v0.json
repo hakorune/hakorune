@@ -130,12 +130,21 @@
     },
     {
       "id": "g2-smoke-static-config",
-      "class": "explicit_compat",
+      "class": "default_pending",
       "automatic_production": false,
       "python_dependency": "one",
       "owner": "tools/smokes/v2/configs/llvm_static.conf",
       "selector": "llvm_static profile",
       "evidence": ["NYASH_LLVM_USE_HARNESS=1", "export NYASH_BACKEND=\"llvm\""]
+    },
+    {
+      "id": "g2-smoke-auto-detect",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "route-dependent",
+      "owner": "tools/smokes/v2/configs/auto_detect.conf",
+      "selector": "CI/LLVM availability -> llvm_static",
+      "evidence": ["config_type=\"llvm_static\"", "source \"$config_file\""]
     },
     {
       "id": "g2-smoke-matrix-config",
@@ -157,12 +166,12 @@
     },
     {
       "id": "g2-build-llvm-tool",
-      "class": "neutral_tooling",
+      "class": "explicit_compat",
       "automatic_production": false,
       "python_dependency": "explicit",
-      "owner": "tools/build/build_llvm.sh",
-      "selector": "build helper",
-      "evidence": ["llvmlite", "cargo build --release --features llvm"]
+      "owner": "tools/build_llvm.sh",
+      "selector": "NYASH_LLVM_COMPILER=harness",
+      "evidence": ["NYASH_LLVM_COMPILER=crate", "NYASH_LLVM_COMPILER=harness"]
     }
   ]
 }

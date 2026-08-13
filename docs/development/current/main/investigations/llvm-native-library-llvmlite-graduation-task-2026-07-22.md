@@ -152,14 +152,14 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-`LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0` is accepted; source-backed `LLVMLITE-AUTO0-G2-CENSUS-R0` is closed with 16 classified roots and 5 pending
-default capsules. Next design stop: `LLVMLITE-AUTO0-G2-CAPSULE-D1`.
-Source authority: workflow/job, Cargo/build, shared smoke, perf selectors;
-non-authority: labels, keep tags, comments, Python output.
-Fail-fast: unclassified root, default Python install/import, shared
-`NYASH_LLVM_USE_HARNESS=1`, or method-call llvmlite perf default.
-Acceptance: every observed root has explicit class/evidence; behavior and G3
-deletion remain closed.
+`LLVMLITE-AUTO0-G2-CENSUS-R1` is the current design stop: the source-backed
+manifest must include auto-detected `llvm_static` selection and the root
+`tools/build_llvm.sh` selector before behavior changes. Source authority is the
+workflow/config/helper/perf/build selector itself; non-authority is labels,
+comments, and Python output. Fail-fast on an unclassified default/compat root,
+automatic harness inheritance, default llvmlite perf, fallback/retry, or G3
+deletion. Acceptance: every observed root has one class/evidence row and the
+guard is green; the perf capsule, shared smoke behavior, and G3 stay separate.
 
 ### G3 — archive or delete the keep lane
 

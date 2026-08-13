@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, G1 route/selected-runner retirement, and the G2 source-backed census are closed; the next design stop is G2 default-build/CI/perf capsule separation. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, and G1 route/selected-runner retirement are closed; G2 source-backed census repair is the current design stop. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LLVMLITE-AUTO0-G2-CAPSULE-D1: census is closed; decide the one default smoke/perf capsule normalization that removes the five pending default roots while preserving explicit compat/oracle/monitor/historical keep capsules. G3 source/archive retirement remains separate."
+current_design_stop = "LLVMLITE-AUTO0-G2-CENSUS-R1: repair the source-backed census before any behavior change by classifying auto-detected llvm_static selection and the root tools/build_llvm.sh selector. The perf capsule, shared smoke behavior, and G3 remain separate."
 work_mode = "design_stop"
-current_execution_row = "LLVMLITE-AUTO0-G2-CAPSULE-D1"
-current_blocker_token = "LLVMLITE-AUTO0-G2-CAPSULE-D1: source authority is the classified G2 manifest plus each workflow/helper/perf selector; decide default-neutral env/helper behavior and explicit method-call/compare perf selection before editing. Non-authority is labels, comments, Python output, or new backend semantics. Fail-fast on mixed default/keep ownership, inherited NYASH_LLVM_USE_HARNESS=1, default llvmlite perf, fallback/retry, or G3 deletion. Acceptance: one bounded BoxShape/behavior row with positive/negative/guard evidence and no automatic Python ingress."
+current_execution_row = "LLVMLITE-AUTO0-G2-CENSUS-R1"
+current_blocker_token = "LLVMLITE-AUTO0-G2-CENSUS-R1: source authority is the workflow/config/helper/perf/build selector itself; non-authority is labels, comments, and Python output. Fail-fast on an unclassified default/compat root, automatic harness inheritance, default llvmlite perf, fallback/retry, or G3 deletion. Acceptance: every observed root has one manifest class/evidence row, the census guard is green, and no behavior or production route changes."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, G1 route/selected-runner retirement, and G2 source-backed census are closed; G2 capsule separation is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, and G1 route/selected-runner retirement are closed; G2 source-backed census repair is the current design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,8 +28,8 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 source-backed ingress census, G1 route-boundary retirement, G1 selected-runner fail-fast, and G2 source-backed default-build/CI/perf census are closed. G2 capsule separation is the next design stop; behavior and G3 remain separate."
-next_design_card = "LLVMLITE-AUTO0-G2-CAPSULE-D1"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 source-backed ingress census, and G1 route-boundary/selected-runner retirement are closed. G2 census repair is the current design stop; perf behavior and G3 remain separate."
+next_design_card = "LLVMLITE-AUTO0-G2-CENSUS-R1"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
