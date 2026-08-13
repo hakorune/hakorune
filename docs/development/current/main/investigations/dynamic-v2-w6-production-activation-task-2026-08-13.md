@@ -842,10 +842,15 @@ Fail-fast boundary:
   unchanged. Child rename-before-root-validation is a known non-claim, not a
   reason to invent a second rollback owner.
 Smallest next slice:
-  name `PreparedSelectedDynamicW6ActivationV1` around the existing candidate
-  exporter, child receipt consumer, and root R4 census; do not implement or
-  switch callers until the aggregate's owner, exact consume terminal, and
-  child-rename failure non-claim have a single named consumer.
+  name `PreparedSelectedDynamicW6ActivationV1` in
+  `src/mir/compiler/selected_dynamic_w6_activation.rs`, around the existing
+  `PreparedModuleExternalCommitV1`, candidate exporter,
+  child receipt consumer, and direct root R4 census. The aggregate owns no
+  copied witness fields: it consumes the candidate once, consumes one validated
+  receipt once, then exposes one infallible `commit` terminal. The current
+  canary returns only a collector receipt and is not this owner. Do not
+  implement or switch callers until this owner, terminal, and child-rename
+  failure non-claim have one named consumer.
 Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
   production switch; until the final commit new=0 / old=1 remains mandatory.
