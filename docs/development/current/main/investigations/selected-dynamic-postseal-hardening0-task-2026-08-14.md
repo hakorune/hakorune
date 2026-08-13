@@ -105,8 +105,9 @@ negative/positive tests above exist.
 
 ### Audit normalization and task DAG (2026-08-14)
 
-The latest worker/pro review is fully absorbed here; it creates no new card
-and no new per-finding guard.  The execution order is:
+The latest worker/pro review (including C ABI, PyVM, verifier, artifact,
+archive, and guard-surface audits) is fully absorbed here; it creates no new
+card and no new per-finding guard.  The execution order is:
 
 ```text
 closed: mode fence + lexical transaction + linear slots
