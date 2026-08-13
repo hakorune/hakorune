@@ -40,6 +40,17 @@
       "negative_evidence": "ordinary inherited compat replay is rejected"
     },
     {
+      "id": "route-default-legacy-ambient",
+      "class": "route_identity_pending",
+      "automatic_production": false,
+      "python_child": "route-dependent",
+      "native_retry": false,
+      "owner": "src/host_providers/llvm_codegen/defaults.rs",
+      "selector": "CodegenRouteRequestV1::LegacyAmbientKeep",
+      "positive_evidence": "default object opts retain legacy ambient route identity",
+      "negative_evidence": "G1 must replace the ambient request with an explicit Boundary request"
+    },
+    {
       "id": "hako-aot-generic",
       "class": "automatic_boundary",
       "automatic_production": true,
@@ -137,6 +148,17 @@
       "selector": "FallbackExecutorBox::execute",
       "positive_evidence": "fallback is a mock executor, not llvmlite",
       "negative_evidence": "no Python retry is classified here"
+    },
+    {
+      "id": "runner-harness-or-fallback",
+      "class": "route_identity_pending",
+      "automatic_production": false,
+      "python_child": "route-dependent",
+      "native_retry": false,
+      "owner": "src/runner/product/llvm/mod.rs",
+      "selector": "execute_via_harness_or_fallback",
+      "positive_evidence": "Boundary failure can end in a separate mock fallback",
+      "negative_evidence": "the fallback is not a Python retry and remains a G1 typed-fail-fast decision"
     },
     {
       "id": "perf-manual-harness",

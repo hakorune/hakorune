@@ -40,6 +40,10 @@ ROW_EVIDENCE = {
         ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst"),
         ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "validate_ordinary_ambient_replay"),
     ),
+    "route-default-legacy-ambient": (
+        ("src/host_providers/llvm_codegen/defaults.rs", "CodegenRouteRequestV1::LegacyAmbientKeep"),
+        ("src/host_providers/llvm_codegen/route.rs", "CodegenRouteRequestV1::LegacyAmbientKeep => Ok(())"),
+    ),
     "hako-aot-generic": (
         ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
         ("lang/c-abi/shims/hako_aot_shared_impl.inc", "aot-compat-admission-required"),
@@ -75,6 +79,10 @@ ROW_EVIDENCE = {
     "runner-non-python-fallback": (
         ("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute"),
         ("src/runner/product/llvm/fallback_executor.rs", "LLVM harness requested"),
+    ),
+    "runner-harness-or-fallback": (
+        ("src/runner/product/llvm/mod.rs", "execute_via_harness_or_fallback"),
+        ("src/runner/product/llvm/mod.rs", "fallback_used"),
     ),
     "perf-manual-harness": (
         ("tools/perf/microbench.sh", "NYASH_LLVM_USE_HARNESS=1"),
@@ -171,6 +179,7 @@ def main() -> int:
         "ny-llvmc-default-boundary",
         "env-codegen-ordinary-boundary",
         "hako-aot-generic",
+        "route-default-legacy-ambient",
         "hako-aot-named-compat",
         "hako-llvmc-named-compat",
         "provider-llvmlite-keep",
@@ -178,6 +187,7 @@ def main() -> int:
         "ny-mir-builder-tool",
         "runner-llvmlite-helper",
         "runner-non-python-fallback",
+        "runner-harness-or-fallback",
         "ny-llvmc-harness-input",
         "ny-mir-builder-rust-tool",
         "run-llvm-harness-tool",
