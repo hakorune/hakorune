@@ -1,11 +1,8 @@
 use super::*;
 use crate::mir::builder::{
-    issue_selected_dynamic_v2_emission_plan,
-    issue_selected_dynamic_v2_physical_capability_admission, CanonicalSameModuleCallableKeyV1,
-    CompilationContext, MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1,
-    SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, CompilationContext, MirBuilder,
+    NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
 };
-use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
@@ -56,10 +53,14 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         );
     package_port.with_selected_cataloged_lowering_input(admission, |input| {
         invocation.with_module_port(|builder, module_port| {
-        let demand = issue_selected_a_prime_i64_physical_demand(input).expect("A-prime demand");
-        let plan = issue_selected_dynamic_v2_emission_plan(demand).expect("V2 plan");
+            let receipt = assemble_unpublished_selected_dynamic_w6(
+                builder,
+                module_port,
+                input,
+                |session| {
         let target = |item| {
-            plan.schedule_rows()
+            session
+                .schedule
                 .iter()
                 .find(|row| row.item().raw() == item)
                 .map(|row| row.target())
@@ -69,25 +70,10 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert_eq!(target(8), DynamicV2PhysicalBlockTargetV1::BodyPrelude);
         assert_eq!(target(11), DynamicV2PhysicalBlockTargetV1::ThenTerminal);
         assert_eq!(target(13), DynamicV2PhysicalBlockTargetV1::Continuation);
-        plan.with_ledger(|ledger| {
-            assert_eq!(
-                ledger.outer_tail_target(),
-                DynamicV2PhysicalBlockTargetV1::After
-            );
-        });
-        let capability = module_port
-            .with_invocation_brand(|brand| {
-                let capability = issue_selected_dynamic_v2_physical_capability_admission(plan, brand)
-                    .expect("physical capability admission");
-                assert_eq!(capability.aot_admission().plan_stamp(), brand);
-                capability
-            })
-            .expect("collector brand must reach selected admission");
-        let activation = capability
-            .prepare_aot_activation()
-            .expect("checked CallOut site-plan transport");
-        let mut session = DynamicV2PhysicalEmissionSessionV1::begin(builder, activation)
-            .expect("unpublished canonical session");
+        assert_eq!(
+            session.ledger.outer_tail_target(),
+            DynamicV2PhysicalBlockTargetV1::After
+        );
         assert_eq!(session.lifecycle.i6_site().0, 0);
         assert_eq!(session.lifecycle.i7_site().0, 1);
         assert_eq!(session.lifecycle.lease_slot().0, 0);
@@ -337,20 +323,14 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(phi.contains(&(target_blocks[0], crate::mir::ValueId::new(1))));
         assert!(phi.iter().any(|(block, _)| *block == target_blocks[4]));
         assert!(session.current_instruction_count() >= 5);
-        let completed = session
-            .finish_unpublished_draft()
-            .expect("profile close and exact-two DraftSeal");
-        assert_eq!(completed.key().owner(), "ParserScanLoopBox");
-        assert_eq!(completed.key().name(), "skip_while");
-        assert_eq!(completed.draft().signature.name, "ParserScanLoopBox.skip_while/4");
-        assert_eq!(completed.draft().signature.return_type, crate::mir::MirType::Integer);
+                    Ok(())
+                },
+            )
+            .expect("unpublished Dynamic W6 assembly");
         assert!(builder.function_state.current_function.is_none());
-        let receipt = module_port
-            .commit_cataloged_box_method_completed(completed)
-            .expect("branded cataloged Box-method collector handoff");
-        assert_eq!(receipt.brand(), brand);
         assert_eq!(receipt.payload().symbol(), "ParserScanLoopBox.skip_while/4");
         assert_eq!(receipt.payload().arity(), 4);
+        assert_eq!(receipt.brand(), brand);
         assert_eq!(receipt.payload().policy(), crate::mir::builder::module_draft_collector::DraftPublicationPolicyV1::CanonicalRejectDuplicate);
         })
     })

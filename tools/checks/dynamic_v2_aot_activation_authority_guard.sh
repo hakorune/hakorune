@@ -130,14 +130,18 @@ guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
 if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "cataloged Box-method collector terminal definition must be unique"
 fi
-if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF_TESTS" | wc -l | tr -d '[:space:]')" -lt 1 ]]; then
+if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF_TESTS" | wc -l | tr -d '[:space:]')" -lt 1 ]] && \
+   ! rg -q 'assemble_unpublished_selected_dynamic_w6' "$CATALOGED_HANDOFF_TESTS"; then
   guard_fail "$TAG" "cataloged Box-method collector terminal needs a focused test caller"
 fi
 if rg -n 'commit_cataloged_box_method_completed\(' "$ROOT_DIR/src/mir" \
   --glob '*.rs' --glob '!**/tests.rs' --glob '!**/*_tests.rs' \
-  --glob '!**/cataloged_box_method_collector_handoff.rs'; then
+  --glob '!**/cataloged_box_method_collector_handoff.rs' \
+  --glob '!**/selected_dynamic_physical_emitter/mod.rs'; then
   guard_fail "$TAG" "cataloged Box-method collector terminal must have no production caller before selected cutover"
 fi
+guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$CATALOGED_HANDOFF_TESTS" \
+  "the focused canary must consume the private unpublished W6 orchestration"
 if [[ "$(rg -n 'pub\(crate\) fn with_selected_and_admission<R>\(' "$PACKAGE_INSTALL" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected cataloged input/admission loan issuer must be unique"
 fi

@@ -85,6 +85,7 @@ while IFS= read -r file; do
   [[ -z "$file" ]] && continue
   case "$file" in
     "$A_PRIME_ISSUER"|*/tests.rs|*_tests.rs) continue ;;
+    "$EMITTER_DIR/mod.rs") continue ;;
   esac
   a_prime_callers+=("$file")
 done < <(rg -l --glob '*.rs' -F 'issue_selected_a_prime_i64_physical_demand(' "$ROOT_DIR/src/mir" || true)
@@ -102,7 +103,7 @@ for pattern in \
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
     case "$file" in
-      */tests.rs|*_tests.rs|"$DEMAND_ISSUER"|"$A_PRIME_ISSUER"|"$EMITTER_ABI") continue ;;
+      */tests.rs|*_tests.rs|"$DEMAND_ISSUER"|"$A_PRIME_ISSUER"|"$EMITTER_ABI"|"$EMITTER_DIR/mod.rs") continue ;;
     esac
     emitter_callers+=("$file")
   done < <(rg -l --glob '*.rs' -F "$pattern" "$ROOT_DIR/src/mir" || true)

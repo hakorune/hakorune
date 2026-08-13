@@ -29,7 +29,6 @@ mod nested_predicate_physicalizer;
 mod ownership;
 mod selected_dynamic_physical_abi;
 mod selected_dynamic_physical_capability;
-#[cfg(test)]
 mod selected_dynamic_physical_emitter;
 mod semantic_stack;
 mod trivial_ssa;

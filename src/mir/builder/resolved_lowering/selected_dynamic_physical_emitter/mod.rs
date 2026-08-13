@@ -22,6 +22,9 @@ use std::sync::Arc;
 
 use crate::box_callable::provider_admission::PreparedAotExecutableAdmissionV1;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
+use crate::mir::builder::module_draft_collector::CollectedDraftAdmissionReceiptV1;
+use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
@@ -36,7 +39,10 @@ use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::checked_callout::{CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1};
+use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
+use crate::mir::normal_callable_semantic_package::SelectedCatalogedCallableLoweringInputV1;
+#[cfg(test)]
 use crate::mir::BasicBlockId;
 use targets::DynamicV2PhysicalTargetSetV1;
 
@@ -555,6 +561,56 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     pub(super) fn i7_fault_block_for_test(&self) -> BasicBlockId {
         self.callout_corridor.with_i7_fault(|target| target.block())
     }
+}
+
+/// Assemble one unpublished selected Dynamic W6 canary through the existing
+/// package loan, invocation brand, physical session, DraftSeal, and collector
+/// terminal. This is an orchestration seam only: no production caller or
+/// module publication is opened here.
+pub(super) fn assemble_unpublished_selected_dynamic_w6<'program, 'builder>(
+    builder: &'builder mut MirBuilder,
+    module_port: &mut ModuleLoweringPortV1<'_>,
+    input: SelectedCatalogedCallableLoweringInputV1<'program>,
+    inspect: impl FnOnce(
+        &mut DynamicV2PhysicalEmissionSessionV1<'program, 'builder>,
+    ) -> Result<(), String>,
+) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, String> {
+    let demand = issue_selected_a_prime_i64_physical_demand(input)
+        .map_err(|error| format!("A-prime demand rejected: {error:?}"))?;
+    let plan =
+        crate::mir::builder::resolved_lowering::issue_selected_dynamic_v2_emission_plan(demand)
+            .map_err(|error| format!("physical plan rejected: {error:?}"))?;
+    let (capability, brand) = module_port
+        .with_invocation_brand(|brand| {
+            (
+                crate::mir::builder::resolved_lowering::
+                    issue_selected_dynamic_v2_physical_capability_admission_from_brand(
+                        plan, brand,
+                    ),
+                brand,
+            )
+        })
+        .map_err(|error| format!("collector brand unavailable: {error:?}"))?;
+    let capability =
+        capability.map_err(|error| format!("physical capability rejected: {error:?}"))?;
+    if capability.plan_stamp() != brand {
+        return Err("collector brand and admission PlanStamp diverged".to_owned());
+    }
+    let activation = capability
+        .prepare_aot_activation()
+        .map_err(|error| format!("AOT activation rejected: {error:?}"))?;
+    let mut session = DynamicV2PhysicalEmissionSessionV1::begin(builder, activation)
+        .map_err(|error| format!("physical session rejected: {error:?}"))?;
+    if let Err(error) = inspect(&mut session) {
+        session.discard_unpublished();
+        return Err(error);
+    }
+    let completed = session
+        .finish_unpublished_draft()
+        .map_err(|error| format!("DraftSeal rejected: {error:?}"))?;
+    module_port
+        .commit_cataloged_box_method_completed(completed)
+        .map_err(|error| format!("collector admission rejected: {error}"))
 }
 
 #[cfg(test)]

@@ -228,6 +228,12 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
         self.disposition
     }
 
+    /// Borrow only the compile-session brand needed by the unpublished W6
+    /// orchestration. The admitted registry remains opaque to the emitter.
+    pub(in crate::mir) const fn plan_stamp(&self) -> ModuleInvocationBrandV1 {
+        self.aot.plan_stamp()
+    }
+
     #[cfg(test)]
     pub(in crate::mir) const fn aot_admission(&self) -> &PreparedAotExecutableAdmissionV1 {
         &self.aot

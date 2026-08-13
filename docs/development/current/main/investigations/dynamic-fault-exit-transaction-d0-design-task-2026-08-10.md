@@ -578,16 +578,19 @@ disposition must reject before Builder/session/collector mutation. The
 admitted brand, collector brand, and eventual CheckedCallOut PlanStamp must
 compare equal. W6 keeps provider/runtime/LLVM production callers at zero.
 
-Smallest next slice: the callback transport and test-only W6 assembly canary
-are landed. The canary consumes the collector brand through
+Smallest next slice: `DYNAMIC-V2-AOT-W6-ASSEMBLY-ORCHESTRATOR-R0` is landed as
+a private BoxShape; the callback transport and private unpublished W6
+orchestration seam are landed, and the focused canary is its only caller. The
+canary consumes the collector brand through
 `ModuleLoweringPortV1::with_invocation_brand`, runs the existing admission,
 unpublished physical session, exact-two DraftSeal, and branded collector
 terminal, then discards publication. The production consumer remains inside
 the complete W6 activation cell.
 
 Acceptance: collector callback issuer and raw-child delegate are exactly one;
-the test-only assembly observes one exact brand through admission, unpublished
-session, exact-two draft, and collector receipt; unbranded rejection is green;
+the private orchestration has exactly one focused canary caller and observes one
+exact brand through admission, unpublished session, exact-two draft, and
+collector receipt; unbranded rejection is green;
 admitted registry and PlanStamp equal the collector brand; generation is only
 an ordinal projection; raw generation input and test-only `legacy_test()` are
 production callers = 0. This canary does not open W6 production execution.
