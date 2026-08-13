@@ -1,6 +1,6 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. D0-C0/C1/C2 candidate borrow, receipt fence, candidate/fence co-seal, and D0-C3 root-R4 consume/discard typestate are landed; D0-C4 now has an accepted same-candidate adapter-to-root design, while its implementation and final production cutover remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. D0-C0/C1/C2 candidate borrow, receipt fence, candidate/fence co-seal, D0-C3 root-R4 consume/discard typestate, and the D0-C4 test-only same-candidate adapter canary are landed; the production branch and final cutover remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: D0-C4 test-only adapter canary now consumes the package-owned selected input/admission into the existing candidate collector without opening a raw source scope; focused canary, pre-cutover, AOT, batch, pointer, and diff gates are green, production remains new=0 old=1.",
   "2026-08-13: W6-D-I2 separated temporary static-artifact observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename-failure cleanup and old-final preservation are focused-tested. W6-D-I1 descriptor/digest/symbol/ABI/wire/PlanStamp evidence remains green; production new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
   "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",
-  "2026-08-13: LLVM-side CheckedCallOut transport view now strictly parses the four neutral MIR JSON operations with u32/u16 bounds and no dispatcher/LLVM caller; production W6 remains closed.",
 ]

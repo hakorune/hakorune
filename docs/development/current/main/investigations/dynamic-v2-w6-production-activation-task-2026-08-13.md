@@ -820,7 +820,7 @@ channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
 root validator, and the named-owner guard. Focused child/root tests and the
 W6 authority guards are green; the child receipt is not an old-edge witness.
 
-#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (accepted design; implementation stopped)
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (test canary landed; production implementation stopped)
 
 ```text
 Decision:
@@ -863,8 +863,9 @@ typestate. These canaries do not prove the selected adapter branch.
 
 The coordinator does not reconstruct receipts or enter the child publication
 transaction. Child rename followed by process loss remains outside the claim.
-Until D0-C4 focused gates close, final commit and caller mutation remain
-forbidden; production stays `new=0 / old=1`.
+Landed D0-C4 (`0469ff1e07`) adds only the disconnected/test adapter canary;
+the pre-cutover guards still forbid a production caller or old-edge mutation,
+so production stays `new=0 / old=1` until W6-E.
 
 The eventual prepared aggregate must perform all fallible work before commit:
 
