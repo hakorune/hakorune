@@ -1,18 +1,13 @@
-//! The bounded unpublished V2 physical corridor.
-//!
-//! This module consumes the existing Recipe-order operation rows exactly once
-//! for the first physical corridor.  It does not issue semantic facts, select
-//! providers, infer MIR types, or own a second CFG/SSA/value ledger.  The
-//! canonical session issues ValueIds and CFG edges; this module only projects
-//! already admitted operation and CheckedCallOut facts into that session.
+//! CheckedCallOut corridor emission over the already-admitted session facts.
 
-use super::formal_header::DynamicV2OpenedFormalHeaderV1;
-use super::i8_i9_control;
-use super::targets::{
+use super::super::formal_header::DynamicV2OpenedFormalHeaderV1;
+use super::super::i8_i9_control;
+use super::super::targets::{
     DynamicV2OpaquePhysicalTargetV1, DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1,
 };
-use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
-use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
+use super::super::value_ledger::DynamicV2PhysicalValueLedgerV1;
+use super::super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
+use super::{reject, DynamicV2CallOutCorridorV1, DynamicV2InstalledCallOutSitesV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::{constant, loop_operation};
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
@@ -39,135 +34,7 @@ const V9: LoopValueKeyV1 = LoopValueKeyV1::new(9);
 const V10: LoopValueKeyV1 = LoopValueKeyV1::new(10);
 const V11: LoopValueKeyV1 = LoopValueKeyV1::new(11);
 
-#[derive(Debug)]
-pub(super) struct DynamicV2InstalledCallOutSitesV1 {
-    i6: CheckedCallOutSiteIdV1,
-    i7: CheckedCallOutSiteIdV1,
-    i6_shape: CheckedCallOutNormalShapeV1,
-    i7_shape: CheckedCallOutNormalShapeV1,
-}
-
-impl DynamicV2InstalledCallOutSitesV1 {
-    pub(super) const fn new(
-        i6: CheckedCallOutSiteIdV1,
-        i7: CheckedCallOutSiteIdV1,
-        i6_shape: CheckedCallOutNormalShapeV1,
-        i7_shape: CheckedCallOutNormalShapeV1,
-    ) -> Self {
-        Self {
-            i6,
-            i7,
-            i6_shape,
-            i7_shape,
-        }
-    }
-
-    pub(super) const fn i6(&self) -> CheckedCallOutSiteIdV1 {
-        self.i6
-    }
-
-    pub(super) const fn i7(&self) -> CheckedCallOutSiteIdV1 {
-        self.i7
-    }
-
-    pub(super) const fn i6_shape(&self) -> CheckedCallOutNormalShapeV1 {
-        self.i6_shape
-    }
-
-    pub(super) const fn i7_shape(&self) -> CheckedCallOutNormalShapeV1 {
-        self.i7_shape
-    }
-}
-
-/// The session-private continuation produced by the two admitted CallOuts.
-/// The Normal/Fault landing identities stay opaque and move with the session;
-/// later leaves may not reconstruct them from logical target names.
-#[derive(Debug)]
-pub(super) struct DynamicV2CallOutCorridorV1 {
-    i6_site: CheckedCallOutSiteIdV1,
-    i6_normal: DynamicV2OpaquePhysicalTargetV1,
-    i6_fault: DynamicV2OpaquePhysicalTargetV1,
-    i7_site: CheckedCallOutSiteIdV1,
-    i7_normal: DynamicV2OpaquePhysicalTargetV1,
-    i7_fault: DynamicV2OpaquePhysicalTargetV1,
-}
-
-impl DynamicV2CallOutCorridorV1 {
-    pub(super) fn new(
-        i6_site: CheckedCallOutSiteIdV1,
-        i6_normal: DynamicV2OpaquePhysicalTargetV1,
-        i6_fault: DynamicV2OpaquePhysicalTargetV1,
-        i7_site: CheckedCallOutSiteIdV1,
-        i7_normal: DynamicV2OpaquePhysicalTargetV1,
-        i7_fault: DynamicV2OpaquePhysicalTargetV1,
-    ) -> Self {
-        Self {
-            i6_site,
-            i6_normal,
-            i6_fault,
-            i7_site,
-            i7_normal,
-            i7_fault,
-        }
-    }
-
-    pub(super) const fn i6_site(&self) -> CheckedCallOutSiteIdV1 {
-        self.i6_site
-    }
-
-    pub(super) fn with_i6_normal<R>(
-        &self,
-        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
-    ) -> R {
-        callback(&self.i6_normal)
-    }
-
-    pub(super) fn with_i6_fault<R>(
-        &self,
-        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
-    ) -> R {
-        callback(&self.i6_fault)
-    }
-
-    pub(super) const fn i7_site(&self) -> CheckedCallOutSiteIdV1 {
-        self.i7_site
-    }
-
-    pub(super) fn matches(&self, brand: &DynamicV2PhysicalSessionBrandV1) -> bool {
-        self.i6_normal.matches(brand)
-            && self.i6_fault.matches(brand)
-            && self.i7_normal.matches(brand)
-            && self.i7_fault.matches(brand)
-    }
-
-    pub(super) fn site_pair_matches(
-        &self,
-        i6_site: CheckedCallOutSiteIdV1,
-        i7_site: CheckedCallOutSiteIdV1,
-    ) -> bool {
-        self.i6_site == i6_site && self.i7_site == i7_site
-    }
-
-    pub(super) fn with_i7_normal<R>(
-        &self,
-        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
-    ) -> R {
-        callback(&self.i7_normal)
-    }
-
-    pub(super) fn with_i7_fault<R>(
-        &self,
-        callback: impl FnOnce(&DynamicV2OpaquePhysicalTargetV1) -> R,
-    ) -> R {
-        callback(&self.i7_fault)
-    }
-}
-
-fn reject(message: impl Into<String>) -> DynamicV2I8EmitterRejectV1 {
-    DynamicV2I8EmitterRejectV1::PhysicalCorridor(message.into())
-}
-
-pub(super) fn require_read(
+pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter) fn require_read(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected: LoopValueKeyV1,
     induction: crate::mir::loop_recipe_contract::LoopBindingKeyV1,
@@ -185,7 +52,7 @@ pub(super) fn require_read(
     }
 }
 
-pub(super) fn require_const(
+pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter) fn require_const(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected: LoopValueKeyV1,
     literal: i64,
@@ -201,7 +68,7 @@ pub(super) fn require_const(
     }
 }
 
-pub(super) fn require_add(
+pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter) fn require_add(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected_left: LoopValueKeyV1,
     expected_right: LoopValueKeyV1,
@@ -223,7 +90,7 @@ pub(super) fn require_add(
     }
 }
 
-pub(super) fn require_compare(
+pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter) fn require_compare(
     row: &crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopOperationPhysicalRefV2<'_>,
     expected_left: LoopValueKeyV1,
     expected_right: LoopValueKeyV1,
@@ -405,7 +272,7 @@ fn publish_i64(
     publish_i64_alias(values, row, result, target, value)
 }
 
-pub(super) fn emit(
+pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter) fn emit(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     demand: &VerifiedAPrimeI64PhysicalDemandV1<'_>,

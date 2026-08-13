@@ -302,12 +302,12 @@ visibility, issuers, callers, instruction order, or accepted shapes.
 
 ```text
 src/mir/checked_callout.rs (778)
-  -> checked_callout/mod.rs          facade/re-exports
+  -> checked_callout.rs              facade/re-exports
   -> checked_callout/site_plan.rs    IDs, shape, plan, JSON projection
   -> checked_callout/census.rs       function 1:1:1 verifier
   -> checked_callout/tests.rs        focused tests
 
-selected_dynamic_physical_emitter/callout_corridor.rs (731)
+src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor.rs (731)
   -> callout_corridor/mod.rs         corridor model/orchestration
   -> callout_corridor/emission.rs    I0-I7 emission body
 ```
@@ -324,6 +324,12 @@ each touched activation source                          < 650 target
 any activation source                                   < 700 mandatory gate
 all Rust source                                         < 800 hard stop
 ```
+
+Observed closeout: the split is landed with checked-callout sources at
+14/360/197/245 lines and corridor sources at 139/598 lines; focused
+`checked_callout` (14) and `selected_dynamic_physical_emitter` (3) tests,
+`cargo check --lib`, and the current-state, activation, physical-input, VM,
+and pre-cutover guards are green. Production counts remain new=0, old=1.
 
 Do not combine this BoxShape with evidence semantics, backend vocabulary, or
 the production caller switch.

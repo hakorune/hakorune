@@ -27,12 +27,16 @@ RUST_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 JSON_METADATA="$ROOT_DIR/src/runner/mir_json_emit/dynamic_v2_aot_admission.rs"
 LINK_DRIVER="$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs"
 PLAN_OWNER="$ROOT_DIR/crates/nyash-llvm-compiler/src/runtime_executable_plan.rs"
-CALLOUT_OWNER="$ROOT_DIR/src/mir/checked_callout.rs"
+CALLOUT_OWNER="$ROOT_DIR/src/mir/checked_callout/site_plan.rs"
+CALLOUT_CENSUS="$ROOT_DIR/src/mir/checked_callout/census.rs"
+CALLOUT_FACADE="$ROOT_DIR/src/mir/checked_callout.rs"
+CALLOUT_TESTS="$ROOT_DIR/src/mir/checked_callout/tests.rs"
 CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
-CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor.rs"
+CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/mod.rs"
+CALLOUT_CORRIDOR_EMISSION="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/emission.rs"
 SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
 CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
 CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
@@ -42,7 +46,14 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+
+for file in "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 700 )); then
+    guard_fail "$TAG" "W6-S source split file reached the mandatory 700-line gate: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -130,7 +141,7 @@ fi
 if [[ "$(rg -n 'fn define_checked_callout_normal_result\(' "$CALLOUT_SSA" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "Canonical Normal-result issuer must be unique"
 fi
-if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_CENSUS" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "CheckedCallOut function census owner must be unique"
 fi
 guard_expect_fixed_in_file "$TAG" "CheckedCallOutSitePlanPairV1" "$CALLOUT_OWNER" \
