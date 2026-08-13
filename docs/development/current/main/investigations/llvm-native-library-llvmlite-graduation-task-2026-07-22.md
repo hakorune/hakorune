@@ -591,6 +591,8 @@ Smallest slice: define the diagnostic field set (`request_id`, `entry_family`,
   `artifact_result`) and a reusable observer/guard without changing behavior.
 Acceptance: the existing route-identity guard pins both producer owners,
   trace-default-off, child-command selectors, and this field contract.
+Evidence (2026-08-14): FFI build and explicit replay produced one successful
+  `stage=child` event; `replay=none` produced zero child events and no object.
 Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
   fallback/retry change, or new semantic/backend authority.
 

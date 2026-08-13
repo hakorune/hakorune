@@ -62,6 +62,20 @@ static int hako_aot_env_truthy(const char* raw) {
   return 0;
 }
 
+static int hako_aot_route_trace_enabled(void) {
+  const char* value = getenv("NYASH_LLVM_ROUTE_TRACE");
+  if (!value || !value[0]) return 0;
+  return strcmp(value, "1") == 0 || strcmp(value, "on") == 0 ||
+         strcmp(value, "true") == 0 || strcmp(value, "yes") == 0;
+}
+
+static void hako_aot_emit_child_trace(const char* result) {
+  if (!hako_aot_route_trace_enabled()) return;
+  fprintf(stderr,
+          "[llvm-route/trace] stage=child result=%s reason=ny-llvmc extra=driver=harness\n",
+          (result && result[0]) ? result : "unknown");
+}
+
 #if !defined(_WIN32)
 #include <dlfcn.h>
 static void* hako_aot_open_ffi_lib_path(const char* lib_path) {
@@ -238,6 +252,21 @@ static int hako_aot_run_command_or_project_fail(
     const char* log_path,
     const char* fallback) {
   int rc = system(cmd);
+  if (rc != 0) {
+    return hako_aot_finish_failed_command(err_out, log_path, fallback);
+  }
+  return 0;
+}
+
+static int hako_aot_run_compile_command_or_project_fail(
+    const char* cmd,
+    const char* artifact_path,
+    char** err_out,
+    const char* log_path,
+    const char* fallback) {
+  int rc = system(cmd);
+  hako_aot_emit_child_trace(
+      (rc == 0 && hako_aot_file_exists(artifact_path)) ? "success" : "failure");
   if (rc != 0) {
     return hako_aot_finish_failed_command(err_out, log_path, fallback);
   }
@@ -504,8 +533,9 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
     return hako_aot_set_err(err_out, "command too long");
   }
   (void)hako_aot_write_command_seed(logpath, cmd);
-  if (hako_aot_run_command_or_project_fail(
+  if (hako_aot_run_compile_command_or_project_fail(
           cmd,
+          obj_path,
           err_out,
           logpath,
           "COMPILE_FAILED") != 0) {

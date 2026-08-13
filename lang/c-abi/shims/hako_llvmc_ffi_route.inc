@@ -29,6 +29,11 @@ static int compile_json_compat_harness_keep(const char* json_in, const char* obj
   }
   remove(obj_out);
   rc = system(cmd);
+  hako_llvmc_emit_route_trace(
+      "child",
+      (rc == 0 && hako_llvmc_file_exists(obj_out)) ? "success" : "failure",
+      "ny-llvmc",
+      "driver=harness");
   if (rc == 0 && hako_llvmc_file_exists(obj_out)) {
     remove(log_path);
     return 0;

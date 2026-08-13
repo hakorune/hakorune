@@ -77,6 +77,12 @@ need_fixed "$CAPI_ROUTE" '\"%s\" --driver harness --in' \
   "CAPI child-command owner drifted"
 need_fixed "$AOT" '\"%s\" --driver harness --in' \
   "generic AOT child-command owner drifted"
+need_fixed "$CAPI_ROUTE" '"child"' "CAPI child observation producer missing"
+need_fixed "$CAPI_ROUTE" '"driver=harness"' "CAPI child observation shape drifted"
+need_fixed "$AOT" 'hako_aot_emit_child_trace(' \
+  "generic AOT child observation producer missing"
+need_fixed "$AOT" 'stage=child result=%s reason=ny-llvmc extra=driver=harness' \
+  "generic AOT child observation shape drifted"
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-OBSERVE0-R0' "OBSERVE0-R0 row missing"
 for field in request_id entry_family driver export recipe compat_replay python_child artifact_result; do
   need_fixed "$CARD" "\`$field\`" "OBSERVE0-R0 field missing: $field"
