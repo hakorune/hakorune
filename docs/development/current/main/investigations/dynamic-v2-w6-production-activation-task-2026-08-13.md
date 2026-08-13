@@ -845,9 +845,11 @@ Smallest next slice:
   D0-C4 implements package loan -> same candidate collector -> canonical
   Dynamic emitter, while ordinary compatibility keeps the existing child path.
   The current PreparedSelectedDynamicW6RootReadyV1 stays a test canary.
-  Acceptance: selected branch caller=1, ordinary branch preserved, same-
-  candidate drain and root external-commit issuer=1, negatives fail before
-  effect. No second callback product or old-edge switch yet.
+  Acceptance: the disconnected/test adapter branch caller=1, ordinary
+  production compatibility remains on the old edge, same-candidate drain and
+  root external-commit issuer=1, and negatives fail before effect. No
+  production Dynamic caller is opened here; the branch and old-edge switch
+  belong together in W6-E.
 Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
   production switch; `new=0 / old=1` remains mandatory.
