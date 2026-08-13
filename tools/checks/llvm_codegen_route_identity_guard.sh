@@ -10,10 +10,13 @@ CARD="$ROOT/docs/development/current/main/investigations/llvm-native-library-llv
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
 ROUTE_ENTRY="$ROOT/src/host_providers/llvm_codegen/mir_json_text_object.rs"
 ROUTE="$ROOT/src/host_providers/llvm_codegen/route.rs"
+BOUNDARY_FFI="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
 CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
 AOT="$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
+C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
+CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
 HARNESS_SCRIPT="$ROOT/tools/run_llvm_harness.sh"
 FAST_SMOKE="$ROOT/.github/workflows/fast-smoke.yml"
@@ -35,6 +38,7 @@ need_fixed() {
 }
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
+  "$C_COMMON" "$CAPI_ROUTE" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
@@ -55,6 +59,28 @@ need_fixed "$ROUTE" 'Some("llvmlite") => mir_json_to_object_llvmlite' "explicit 
 need_fixed "$ROUTE" 'Some("ny-llvmc") => mir_json_to_object_ny_llvmc' "explicit ny-llvmc selector missing"
 need_fixed "$PROVIDER" 'tools/llvmlite_harness.py' "Python harness owner missing"
 need_fixed "$AOT" '--driver harness' "generic C -> hako_aot harness selector missing"
+
+# OBSERVE0-R0 keeps route selection and actual child evidence on separate
+# existing owners.  This is a static census only; it must not create a
+# durable receipt or infer child reachability from a runner hint.
+need_fixed "$ROUTE" '[llvm-route/select] owner={} recipe={} compat_replay={}' \
+  "Hako route selection observation owner drifted"
+need_fixed "$ROUTE" 'fn llvm_route_trace_enabled()' "Hako trace gate owner missing"
+need_fixed "$ROUTE" 'Some("1" | "on" | "true" | "yes")' "Hako trace default-off gate drifted"
+need_fixed "$BOUNDARY_FFI" '[llvm-route/select] owner=boundary recipe={}' \
+  "Boundary route selection observation owner drifted"
+need_fixed "$C_COMMON" 'static int hako_llvmc_route_trace_enabled(void)' \
+  "C child trace gate owner missing"
+need_fixed "$C_COMMON" 'if (!hako_llvmc_route_trace_enabled()) return;' \
+  "C trace must remain diagnostic-only and default-off"
+need_fixed "$CAPI_ROUTE" '\"%s\" --driver harness --in' \
+  "CAPI child-command owner drifted"
+need_fixed "$AOT" '\"%s\" --driver harness --in' \
+  "generic AOT child-command owner drifted"
+need_fixed "$CARD" 'LLVMLITE-ROUTE0-OBSERVE0-R0' "OBSERVE0-R0 row missing"
+for field in request_id entry_family driver export recipe compat_replay python_child artifact_result; do
+  need_fixed "$CARD" "\`$field\`" "OBSERVE0-R0 field missing: $field"
+done
 
 # Keep the currently observed hazards visible until their later G1 rows change
 # behavior. Removing either pattern without changing this guard is drift.

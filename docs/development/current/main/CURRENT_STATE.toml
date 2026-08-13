@@ -5,10 +5,10 @@ date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6 final-live publication, ROUTE0 observation/guard, and Identity0 docs/label parity are closed. LLVMLITE-ROUTE0-OBSERVE0 is now a design stop for one route receipt/child-command observation boundary; G1/G2/G3 retirement, fallback removal, provider precedence changes, and source deletion remain unopened."
+current_design_stop = "W6 final-live publication, ROUTE0 identity/guard, and Identity0 docs/label parity are closed. OBSERVE0-R0's behavior-free static guard is landed; the remaining design stop is whether actual child evidence can be emitted by the existing C child owner without a durable receipt. G1/G2/G3 retirement, fallback removal, provider precedence changes, and source deletion remain unopened."
 work_mode = "design_stop"
-current_execution_row = "LLVMLITE-ROUTE0-OBSERVE0"
-current_blocker_token = "LLVMLITE-ROUTE0-OBSERVE0: source authority is the existing route/driver/provider/child-command matrix and identity guard. The route dispatcher is the selection issuer; the actual child-command owner is the only child-evidence issuer. Non-authority is a durable receipt type, trace text, Python output, names, comments, NYASH_LLVM_USE_HARNESS alone, or a second lookup after failure. Fail-fast boundary is unknown/duplicate/contradictory driver/export/recipe/replay/child/artifact evidence, or a plugin failure hidden as route success. Smallest slice: design one diagnostic-only observer over the existing trace events, with no semantic authority; no G1/G2/G3 retirement, source deletion, fallback removal, provider precedence change, or plugin error-policy change."
+current_execution_row = "LLVMLITE-ROUTE0-OBSERVE0-R0"
+current_blocker_token = "LLVMLITE-ROUTE0-OBSERVE0-R0: the existing route identity guard now pins trace-default-off, selection/child owner source sites, and the diagnostic field contract without behavior change. Source authority remains route/driver selection plus the actual child-command owner; non-authority is a durable receipt type, trace text, Python output, names, NYASH_LLVM_USE_HARNESS, or a second lookup. Remaining design stop: decide whether child evidence can reuse the existing C owner and trace without a new receipt; unknown/duplicate/contradictory driver/export/recipe/replay/child/artifact evidence must stay fail-fast. G1/G2/G3 retirement, source deletion, fallback removal, provider precedence change, and plugin error-policy change remain unopened."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,8 +28,8 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 observation/guard, and Identity0 docs/label parity are closed. The current design stop defines one diagnostic-only route receipt boundary; G1/G2/G3 remain ordered and source deletion is not implied."
-next_design_card = "LLVMLITE-ROUTE0-OBSERVE0"
+latest_card_summary = "W6 final-live, ROUTE0 observation/guard, and Identity0 docs/label parity are closed. OBSERVE0-R0's behavior-free guard is landed; child evidence remains a design stop, and G1/G2/G3 remain ordered with source deletion not implied."
+next_design_card = "LLVMLITE-ROUTE0-OBSERVE0-R0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-13: ROUTE0 identity guard and five-surface docs/label parity are green; actual CAPI/provider/driver/replay selectors are separated from runner hints, and next is diagnostic-only route observation.",
+  "2026-08-14: OBSERVE0-R0 extends the reusable route identity guard with trace-default-off, selection/child owner sites, and diagnostic field contract; behavior and retirement remain closed while child evidence stays a design stop.",
 ]

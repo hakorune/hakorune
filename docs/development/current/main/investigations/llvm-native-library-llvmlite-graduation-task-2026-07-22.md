@@ -576,7 +576,7 @@ Fix tool names, comments, README examples, and gates so every claimed route is
 backed by an actual selection receipt. Behavior changes belong to later
 retirement rows, not this truth-sync row.
 
-### `LLVMLITE-ROUTE0-OBSERVE0`
+### `LLVMLITE-ROUTE0-OBSERVE0-R0`
 
 Decision: reuse the existing `NYASH_LLVM_ROUTE_TRACE` as diagnostic events;
   do not add a durable route-receipt type or a second selector.
@@ -589,6 +589,8 @@ Fail-fast boundary: unknown/duplicate/contradictory driver, export, recipe,
 Smallest slice: define the diagnostic field set (`request_id`, `entry_family`,
   `driver`, `export`, `recipe`, `compat_replay`, `python_child`,
   `artifact_result`) and a reusable observer/guard without changing behavior.
+Acceptance: the existing route-identity guard pins both producer owners,
+  trace-default-off, child-command selectors, and this field contract.
 Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
   fallback/retry change, or new semantic/backend authority.
 
