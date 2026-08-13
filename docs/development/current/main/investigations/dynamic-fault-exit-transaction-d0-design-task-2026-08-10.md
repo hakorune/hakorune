@@ -866,27 +866,28 @@ bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
 bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
 bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
+bash tools/checks/dynamic_v2_aot_activation_authority_guard.sh
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 git diff --check
 ```
 
-The activation implementation must add one reusable
-`tools/checks/dynamic_v2_aot_activation_authority_guard.sh` during W0/W1 and
-make it green only at W6. Before W6 it runs in closed mode and requires
-production caller=0; at W6 the same guard flips atomically to new=1/old=0. It
-owns export/header projection parity, single admission/alias/PlanStamp issuers,
-pre-link versus post-link plan boundaries, strict symbols, cataloged Box-key
-handoff, and zero VM/lookup/fallback/retry assertions. It is not claimed to
-exist or be green in the current docs-only task.
+`tools/checks/dynamic_v2_aot_activation_authority_guard.sh` is now landed and
+green in closed pre-cutover mode. Before W6 it requires production caller=0;
+the complete W6 cell must flip the same guard atomically to new=1/old=0. It
+owns export/header projection parity, single admission/alias/PlanStamp
+issuers, pre-link versus post-link plan boundaries, strict symbols, cataloged
+Box-key handoff, the private unpublished orchestration caller census, and zero
+VM/lookup/fallback/retry assertions.
 
-Gate classification (2026-08-12): the focused `completion` command has one
+Gate classification (2026-08-13): the focused `completion` command has one
 known parent-baseline failure in
 `mir::compiler::canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route`
 (`ReturnValueTypeMissing`, `ValueId(12)`). It reproduces at parent
 `b69f5e11fe` and is outside the selected Dynamic activation diff; it remains
 recorded as baseline debt, not a green production claim. All currently
 existing selected Dynamic/package/Recipe/emitter checks and authority guards
-pass; the activation guard described above is a future acceptance item.
+pass; the activation guard is green in its closed pre-cutover mode, while the
+W6 production flip remains unclaimed.
 
 ## Non-claims
 
