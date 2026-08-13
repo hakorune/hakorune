@@ -842,13 +842,14 @@ Fail-fast boundary:
   live Builder, callback, or old edge. Child rename-before-root-validation is
   a known non-claim, not a reason to invent a second rollback owner.
 Smallest next slice:
-  define (without publishing a new semantic receipt yet) the named seam from
-  the real Dynamic emitter to `PreparedModuleExternalCommitV1`, then define
-  one move-only selected-production callback transition for the root to
+  `D0-C4` — define (without publishing a new semantic receipt yet) the named
+  seam from the real Dynamic emitter to `PreparedModuleExternalCommitV1`, then
+  define one move-only selected-production callback transition for the root to
   consume. The current `PreparedSelectedDynamicW6RootReadyV1` is a D0 canary
-  over a test candidate; it is not the production candidate owner. Do not add
-  `RootReady::commit` or switch callers until both issuers and their one named
-  consumer are closed.
+  over a test candidate; it is not the production candidate owner. Acceptance:
+  real emitter candidate, callback transition issuer, and one root consumer;
+  missing/foreign candidate or transition rejects before effect. Do not add
+  `RootReady::commit` or switch callers until this row is closed.
 Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
   production switch; until the final commit new=0 / old=1 remains mandatory.
