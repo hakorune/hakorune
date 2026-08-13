@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. The next design stop is the staged llvmlite route census; ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1 replay admission is closed; the next design stop is env.codegen replay ingress. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Stage1 replay admission is closed: build_stage1 owns one explicit --compat-replay entrance, defaults to pure-first/none, and records the admission in artifact metadata. The next fast row is the typed Stage1 boundary implementation; G1 production retirement and G2/G3 remain unopened."
-work_mode = "fast"
-current_execution_row = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
-current_blocker_token = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0: implement the accepted build_stage1 --compat-replay admission, reject inherited harness without that option, keep pure-first/none as the default, and record replay_admission in artifact metadata. Source authority + canonical issuer are build_stage1 invocation policy plus stage1_contract validation; non-authority is Python output, NYASH_LLVM_USE_HARNESS alone, generic C/AOT gates, or source deletion. Fail-fast boundary is before bootstrap child/object creation. Smallest slice: one shell admission helper, build/stage3 callsites, positive/negative contract tests, and the existing route guard."
+current_design_stop = "Stage1 replay admission is closed. The next design stop is env.codegen: an unqualified plugin/extern call must not inherit pure-first or replay environment into hako_aot/llvmlite; only a named compatibility admission may reach the explicit harness keep lane. G1/G2/G3 and source deletion remain unopened."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0"
+current_blocker_token = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0: classify and close env.codegen's replay admission before any code change. Source authority is the env.codegen host port plus backend route/C-ABI request; canonical issuer is the explicit compatibility admission at that boundary. Non-authority is NYASH_LLVM_USE_HARNESS alone, Python output, provider labels, or a generic C fallback. Fail-fast boundary is before hako_aot/--driver harness child creation. Smallest next slice: one accepted six-line design brief, then a typed admission or explicit caller contract with positive/negative child-count evidence."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, and generic C/hako_aot fail-fast are closed; Stage1 replay census is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed; env.codegen replay ingress is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, and generic C/hako_aot fail-fast are closed. Stage1 replay census is the next design stop."
-next_design_card = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, and Stage1 replay admission are closed. env.codegen replay ingress is the next design stop."
+next_design_card = "LLVMLITE-AUTO0-ENV-CODEGEN-RET0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: F0/plugin typed errors and generic C/hako_aot fail-fast are closed; C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and diff checks are green. Stage1 replay admission is accepted as one explicit build option; implementation row remains active, G1/G2/G3 are not claimed.",
+  "2026-08-14: Stage1 replay admission closed: build_stage1/stage3 use one explicit --compat-replay entrance, inherited harness fails before child/object creation, artifact metadata records the admission, focused contract and route guards are green; env.codegen replay ingress is the next design stop.",
 ]

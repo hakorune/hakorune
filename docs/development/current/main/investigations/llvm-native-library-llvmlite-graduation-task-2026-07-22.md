@@ -546,51 +546,56 @@ diff check are green. Generic C/hako_aot ingress remains design-only; no
 provider order or source deletion changes here.
 
 ### Boundary C ABI role lock (DOC2)
-
 ```text
 Decision: versioned C ABI is a thin transport bridge, never semantic authority.
 Source authority + issuer: MIR/site plan plus sole Rust lease owner.
-Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease
-  table, generation checks, or release semantics.
-Fail-fast: bad status/wire/ABI/suspension traps before a semantic successor;
-  no Python fallback. Next: one core-ABI symbol/header and Boundary consumer;
-  no new receipt, alternate ABI, publication, VM parity, or deletion.
+Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease table,
+  generation checks, and release semantics. Fail-fast: bad status/wire/ABI/suspension
+  traps before a semantic successor; no Python fallback. No alternate ABI/publication.
 ```
 
-### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (accepted D0; R0 active)
-
+### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (closed by R0)
 ```text
 Decision: `build_stage1.sh --compat-replay <none|harness>` is the sole Stage1
-  replay admission; default is `pure-first/none`, and inherited `harness`
-  without the option fails before bootstrap child/object creation.
-Source authority + issuer: build invocation policy plus `stage1_contract` value
-  validation; the artifact metadata records replay mode and admission label.
-Non-authority: Python output, `NYASH_LLVM_USE_HARNESS` alone, or env text alone.
-Fail-fast: invalid/mismatched/inherited replay stops before Python child.
-Next: implement one helper, update build/stage3 callsites, and test both modes.
-Non-claims: no code, fallback, provider reorder, G1/G2/G3, or source deletion.
+  replay admission; default is `pure-first/none`; inherited `harness` without
+  the option fails before bootstrap child/object creation.
+Source authority + issuer: build invocation policy plus `stage1_contract` validation;
+  artifact metadata records replay mode/admission. Non-authority: Python output,
+  `NYASH_LLVM_USE_HARNESS` alone, or env text. Fail-fast: invalid/mismatched/
+  inherited replay stops before Python child.
+Receipt: helper, build/stage3 wiring, positive/negative tests, metadata,
+  route/pointer guards, shell syntax, and diff checks are green.
+Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
 ```
-
-### `LLVMLITE-ROUTE0-OBSERVE0-R0`
-
-Decision: reuse the existing `NYASH_LLVM_ROUTE_TRACE` as diagnostic events;
-  do not add a durable route-receipt type or a second selector.
-Source authority + canonical issuer: route/driver dispatch emits one selection
-  event; the actual child-command owner emits one child event.
-Non-authority: trace text, Python output, artifact paths, names,
-  `NYASH_LLVM_USE_HARNESS`, or any lookup after failure.
-Fail-fast boundary: unknown/duplicate/contradictory driver, export, recipe,
-  replay, child command, or artifact result; missing child evidence stays open.
-Smallest slice: define the diagnostic field set (`request_id`, `entry_family`,
-  `driver`, `export`, `recipe`, `compat_replay`, `python_child`,
-  `artifact_result`) and a reusable observer/guard without changing behavior.
-Acceptance: the existing route-identity guard pins both producer owners,
-  trace-default-off, child-command selectors, and this field contract.
-Evidence (2026-08-14): FFI build and explicit replay produced one successful
-  `stage=child` event; `replay=none` produced zero child events and no object.
+### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted D0; design stop)
+```text
+Decision: `env.codegen` is a compatibility host port; it may reach the
+  llvmlite harness only through a named compatibility admission, never by
+  inheriting ambient recipe/replay from an ordinary call.
+Source authority + issuer: env.codegen host port plus backend route/C-ABI request;
+  boundary admission owns explicit keep selection. Non-authority: harness hint,
+  Python output, provider labels, generic C fallback, or plugin `None`. Fail-fast
+  before hako_aot child: reject unqualified/inherited replay; pure-first/none
+  stays typed unsupported.
+Smallest next slice: choose one typed admission or explicit caller contract;
+  prove child-count=0/1 for default/explicit keep with route evidence.
+Non-claims: no provider reorder, production switch, G2/G3 retirement, or
+  llvmlite source deletion.
+```
+### `LLVMLITE-ROUTE0-OBSERVE0-R0` (closed)
+Decision: reuse `NYASH_LLVM_ROUTE_TRACE` as diagnostic events; no durable route
+  receipt or second selector. Source authority: route/driver dispatch emits one
+  selection event; child-command owner emits one child event.
+Non-authority: trace text, Python output, paths, names, `NYASH_LLVM_USE_HARNESS`,
+  or lookup after failure. Fail-fast: contradictory selectors/child/artifact
+  evidence stop. Acceptance: route guard pins both producers, trace default-off,
+  selectors, and field contract
+  (`request_id`, `entry_family`, `driver`, `export`, `recipe`, `compat_replay`,
+  `python_child`, `artifact_result`).
+Evidence (2026-08-14): explicit replay produced one `stage=child`; `none` produced
+  zero child events and no object.
 Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
   fallback/retry change, or new semantic/backend authority.
-
 ## 2. Native library foundation
 
 ### `LLVM-NATIVELIB0-CENSUS0`
