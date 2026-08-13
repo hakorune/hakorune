@@ -516,7 +516,7 @@ Identity0/OBSERVE0 are closed behavior-free selector/child-evidence batches.
 The route guard remains the regression gate; explicit keep/oracle lanes remain
 source-scoped and no llvmlite source deletion is implied.
 
-### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0` (design stop)
+### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0` (closed by R0)
 
 ```text
 Decision: design the retirement of automatic generic-C/API -> hako_aot ->
@@ -533,12 +533,10 @@ Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
   generic backend expansion, or llvmlite source deletion.
 ```
 
-`LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0` is next: recipe-unset generic C fails
-before a child; direct AOT requires explicit
-`HAKO_BACKEND_COMPAT_REPLAY=harness`; pure-first/replay and named keep lanes
-remain unchanged. Acceptance: typed error + no object/child for missing gates,
-unsupported pure-first/replay=none, preserved replay receipt, and explicit keep
-success; no fallback, provider reorder, G2/G3, or source deletion.
+R0 receipt (2026-08-14): recipe-unset generic C and non-replay direct AOT fail
+before a child/object; pure-first/replay and named keep lanes remain unchanged.
+C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and
+diff check are green. No fallback, provider reorder, G2/G3, or source deletion.
 
 F0 receipt (2026-08-14, closed): one requested CAPI symbol lookup; missing pure-first symbols return typed dlsym failure.
 Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
@@ -546,24 +544,6 @@ Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
 `BidError::PluginError`; focused tests, route guard, fmt, pointer guard, and
 diff check are green. Generic C/hako_aot ingress remains design-only; no
 provider order or source deletion changes here.
-
-### `LLVMLITE-AUTO0-PLUGIN-ERROR-RET0`
-
-```text
-Decision: codegen plugin failures must remain typed `BidResult::Err`; do not
-  turn `compile_ll_text`, `emit_object`, or `link_object` errors into `None`.
-Source authority + canonical issuer: compat_codegen_receiver plus existing
-  hostbridge `Result<String,String>` owner; explicit keep routes unchanged.
-Non-authority: MIR hostbridge, generic C/hako_aot routing, provider names,
-  NYASH hint, llvmlite output, and unrelated optional `None` values.
-Fail-fast: backend/plugin error -> `BidError::PluginError` before false success.
-Smallest next slice: one result adapter helper, success/error tests, and guard.
-Non-claims: no generic ingress retirement, provider reorder, G2/G3, or deletion.
-```
-
-Closeout (2026-08-14): all three codegen methods preserve success and map
-backend errors to `Err(BidError::PluginError)`; focused tests, guards, fmt, and
-diff check are green. Direct MIR hostbridge/keep lanes are unchanged.
 
 ### Boundary C ABI role lock (DOC2)
 
@@ -575,6 +555,17 @@ Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease
 Fail-fast: bad status/wire/ABI/suspension traps before a semantic successor;
   no Python fallback. Next: one core-ABI symbol/header and Boundary consumer;
   no new receipt, alternate ABI, publication, VM parity, or deletion.
+```
+
+### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (design stop)
+
+```text
+Decision: census Stage1 `compat_replay=harness`; explicit keep is not automatic.
+Source authority + issuer: Stage1 invocation policy, replay selector, child,
+  and child evidence. Non-authority: Python output or env hint alone.
+Fail-fast: unrequested replay or missing receipt stops before Python child.
+Next: read-only route census and one accepted implementation row.
+Non-claims: no code, fallback, provider reorder, G1/G2/G3, or source deletion.
 ```
 
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0`

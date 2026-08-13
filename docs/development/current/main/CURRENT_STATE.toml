@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Generic C/hako_aot ingress design is accepted: recipe-unset generic C and non-replay direct AOT fail before Python; explicit pure-first+replay and keep lanes remain. The next fast row is the typed fail-fast implementation. G2/G3 remain unopened."
-work_mode = "fast"
-current_execution_row = "LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0"
-current_blocker_token = "LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0: make recipe-unset generic hako_llvmc_compile_json and non-replay direct hako_aot_compile_json return typed failure before spawning harness. Source authority + canonical issuer are existing route selectors, C exports, hako_aot child owner, and child evidence. Non-authority is llvmlite output, provider names, NYASH_LLVM_USE_HARNESS alone, explicit pure-first+replay, explicit provider/driver keep lanes, or source deletion. Fail-fast boundary is missing/foreign recipe or missing explicit compat replay; no object and no Python child. Smallest slice: C export/AOT gate, focused positive/negative route tests, and existing route guard."
+current_design_stop = "Generic C/hako_aot fail-fast is closed. The next design stop is whether Stage1 compatibility replay has any automatic ingress; explicit replay/keep remains allowed. G1 production retirement and G2/G3 remain unopened."
+work_mode = "design_stop"
+current_execution_row = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
+current_blocker_token = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0: census Stage1 compat_replay=harness reachability and distinguish explicit keep admission from automatic production ingress. Source authority + canonical issuer are Stage1 invocation policy, route replay selector, child command, and child evidence. Non-authority is Python output, NYASH_LLVM_USE_HARNESS alone, generic C/AOT gates already closed, explicit keep jobs, or source deletion. Fail-fast boundary is unrequested replay or missing receipt before Python child. Smallest slice: read-only census and accepted design brief; no code, fallback, provider reorder, G1/G2/G3 retirement, or deletion in design_stop."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, and generic-ingress design are closed; the selected fast row is LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, and generic C/hako_aot fail-fast are closed; Stage1 replay census is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0 exact CAPI lookup, plugin typed errors, and generic-ingress design are closed. The typed fail-fast row is selected next."
-next_design_card = "LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0/plugin typed errors, and generic C/hako_aot fail-fast are closed. Stage1 replay census is the next design stop."
+next_design_card = "LLVMLITE-AUTO0-STAGE1-REPLAY-RET0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-next_execution_card = "LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: F0 exact CAPI symbol lookup and plugin codegen typed-error propagation are closed; focused tests, route guard, fmt, and diff checks are green. Generic C/hako_aot ingress remains design-stop; G1/G2/G3 are not claimed.",
+  "2026-08-14: F0/plugin typed errors and generic C/hako_aot fail-fast are closed; C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and diff checks are green. Stage1 replay census remains design-stop; G1/G2/G3 are not claimed.",
 ]
