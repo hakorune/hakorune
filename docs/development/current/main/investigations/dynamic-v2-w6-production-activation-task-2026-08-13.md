@@ -496,37 +496,92 @@ in-place-replacement guards are green; production remains `new=0`, `old=1`.
 
 ### W6-C — `DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0`
 
-Add the selected CheckedCallOut physicalizer to the actual default backend:
+W6-C is deliberately split into two bounded rows. The first connects an
+already-issued site-id projection to the candidate MIR JSON path. The second
+adds one Boundary C-ABI physicalizer. Neither row changes the production
+caller; both keep `new=0`, `old=1`.
+
+#### W6-C0 — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
+
+```text
+Decision:
+  Connect the existing DynamicV2AotCallMetadataProjectionV1 exactly once to
+  candidate function metadata JSON. Do not issue a second site, entry, ABI,
+  or A-prime semantic receipt.
+Source authority + canonical issuer:
+  CheckedCallOutSitePlanTable/function census owns site_id, entry, shape,
+  Normal/Fault relation, and PlanStamp; PreparedAotExecutableAdmission owns
+  admitted entry/ABI/wire facts. The existing Rust projection only co-seals
+  those facts with the retained preflight evidence.
+Non-authority:
+  APrime block/instruction_index, Python/llvmlite, C, selector/name lookup,
+  generic mir_call, runtime registry, and any new provider/semantic table.
+Fail-fast boundary:
+  missing/duplicate/swapped site, entry/shape/ABI/wire/PlanStamp mismatch,
+  missing retained physical evidence, or projection install after publication
+  rejects the candidate before backend execution. No fallback or retry.
+Smallest next slice:
+  Add one clone-scrubbing FunctionMetadata slot/borrow path for the existing
+  owned projection, install it only from the unpublished selected session after
+  the canonical site-plan census, and call the existing JSON insertion helper
+  from build_function_metadata_json exactly once. If the selected session has
+  no already-issued physical receipt, stop at NoSafeSlice; do not fabricate a
+  receipt or rebuild it from block/index coordinates.
+Non-claims:
+  No C lowering, LLVM consumer, static link, RuntimeExecutablePlan, live
+  publication, production caller, VM path, or old-edge retirement.
+```
+
+Acceptance:
+
+```text
+candidate JSON metadata key                               = 1
+site-id -> admitted entry rows                            = exact 2
+APrime block/instruction_index used as locator            = 0
+JSON emitter projection consumer                          = 1
+projection slot issuer                                    = 1
+selector/name/provider/runtime lookup                     = 0
+production selected caller new/old                        = 0 / 1
+```
+
+#### W6-C1 — `BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
+
+Only after C0 is green, add the selected physicalizer to the actual default
+Boundary backend:
 
 ```text
 lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc
-  included once by hako_llvmc_ffi_pure_compile.inc
+  included exactly once by hako_llvmc_ffi_pure_compile.inc
 ```
 
-The Rust JSON call-in transports canonical `site_id` metadata once. The C
-lowerer consumes the exact admitted entries and emits:
+The C lowerer consumes the exact site-id metadata and emits:
 
 ```text
 I6 substring: EndAuthorizedHandle + nonzero lease on Normal
 I7 indexOf:   ImmediateI64 + lease zero on Normal
-semantic Fault: branch to MIR fault landing
+semantic Fault: branch to the MIR-provided fault landing
 invalid transport / malformed wire / unexpected Suspended:
   backend fail-stop or trap, no semantic successor, no fallback
 ```
 
-Normal/Fault target identity comes only from MIR. The C lowerer may emit the
-physical branches but cannot invent a successor or reclassify a wire failure
-as semantic Fault.
+LLVM/C may emit the physical conditional branch required by the MIR
+CheckedCallOut terminator, but it may not invent a successor, resolve a
+selector/name, or reclassify an ABI failure as a semantic Fault. Keep the new
+C owner below 700 lines; do not enlarge the existing 776/788-line generic
+dispatch/lowering files.
 
 Acceptance:
 
 ```text
 Boundary C-ABI CheckedCallOut physicalizer               = 1
 site-id -> admitted entry mapping                        = exact 2
-I6/I7 ABI and normal shape                               = exact
+I6/I7 ABI and Normal shape                               = exact
+MIR Normal/Fault target identity                         = preserved
+malformed wire/status/Suspended                          = fail-stop
 Python/native/harness/VM production consumer             = 0
 selector/name/provider/runtime registry lookup           = 0
 generic method fallback / retry                          = 0 / 0
+production selected caller new/old                       = 0 / 1
 ```
 
 ### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I0`
