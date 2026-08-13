@@ -462,7 +462,8 @@ rejects an explicit PyVM request, scans the existing legacy-callsite classifier
 before backend effects, and reaches the single selected Boundary caller without
 ordinary harness/mock fallback.  The Rust pre-backend identity fence adds
 exactly one zero-argument launch, one distinct four-argument selected helper,
-and nine focused negative/positive tests; C dual-view/physicalization and
+the production-shaped dual-function JSON fixture, and nine focused
+negative/positive tests; C dual-view/physicalization and
 end-to-end launch remain open.  Focused route/identity tests, LLVM feature and
 default `cargo check --lib`, AOT/text/pointer guards, and diff check are green;
 selected production remains `0/old=1`.
@@ -494,8 +495,8 @@ arity drift, generic CheckedCallOut fallback, or a descriptor sourced from
 main all reject before publication.  Metadata copying and by-name reselection
 are forbidden.
 
-The first child is `...-PRODUCTION-SHAPE-FIXTURE-R0`: it adds only the dual
-function fixture and identity/descriptor negatives.  It must not make the
+The first child `...-PRODUCTION-SHAPE-FIXTURE-R0` is landed as a test-only
+dual-function JSON shape fixture plus identity negatives.  It must not make the
 Boundary lowerer invent launch-to-helper arguments or emit a fake zero-argument
 stub.  The next `...-PHYSICALIZER-R0` child owns the C dual view and forwards
 the already-selected helper into the existing physicalizer; `...-END-TO-END-R0`
