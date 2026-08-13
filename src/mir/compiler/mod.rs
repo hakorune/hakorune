@@ -1,4 +1,5 @@
 use super::builder::{CanonicalResolvedBuildErrorV1, MirBuilder};
+use super::function::DynamicV2MetadataPairObservation;
 use super::function::MirModule;
 use super::optimizer::MirOptimizer;
 use super::passes::rc_insertion::insert_rc_instructions;
@@ -152,6 +153,7 @@ enum CanonicalFinishScheduleV1 {
 enum MirFinishScheduleV1 {
     Canonical(CanonicalFinishScheduleV1),
     Legacy,
+    SelectedDynamic,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -169,8 +171,41 @@ impl MirFinishScheduleV1 {
             Self::Canonical(CanonicalFinishScheduleV1::CurrentCanonicalAPlus) | Self::Legacy => {
                 LegacyRcInsertionScheduleV1::Run
             }
+            Self::SelectedDynamic => LegacyRcInsertionScheduleV1::Skip,
         }
     }
+}
+
+/// Select the post-build schedule from the already-sealed module metadata.
+/// The pair observation is the sole selected-route authority; this helper does
+/// not inspect names, AST, or MIR instructions to reconstruct the decision.
+fn finish_schedule_for_normal_module(module: &MirModule) -> Result<MirFinishScheduleV1, String> {
+    let mut selected_function: Option<&str> = None;
+    for (name, function) in &module.functions {
+        match function.metadata.selected_dynamic_metadata_observation() {
+            DynamicV2MetadataPairObservation::Ordinary => {}
+            DynamicV2MetadataPairObservation::Selected { .. } => {
+                if selected_function.replace(name.as_str()).is_some() {
+                    return Err("selected Dynamic metadata pair count exceeds one".to_owned());
+                }
+            }
+            DynamicV2MetadataPairObservation::Scrubbed => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is scrubbed for function {name}"
+                ));
+            }
+            DynamicV2MetadataPairObservation::Partial => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is partial for function {name}"
+                ));
+            }
+        }
+    }
+    Ok(if selected_function.is_some() {
+        MirFinishScheduleV1::SelectedDynamic
+    } else {
+        MirFinishScheduleV1::Legacy
+    })
 }
 
 fn require_canonical_verification(
@@ -208,6 +243,22 @@ fn set_candidate_source_hint(candidate: &mut MirBuilder, source_file: Option<&st
 pub struct MirCompileResult {
     pub module: MirModule,
     pub verification_result: Result<(), Vec<VerificationError>>,
+}
+
+impl MirCompileResult {
+    /// Consume a compile result only after its final verification succeeded.
+    /// This is the selected physical boundary; ordinary compatibility callers
+    /// may continue to inspect the legacy result fields explicitly.
+    pub fn into_verified_module(self) -> Result<MirModule, String> {
+        match self.verification_result {
+            Ok(()) => Ok(self.module),
+            Err(errors) => Err(errors
+                .into_iter()
+                .map(|error| error.to_string())
+                .collect::<Vec<_>>()
+                .join("; ")),
+        }
+    }
 }
 
 /// MIR compiler - converts AST to MIR/SSA form
@@ -548,6 +599,17 @@ impl MirCompiler {
         mut module: MirModule,
         schedule: MirFinishScheduleV1,
     ) -> Result<MirCompileResult, String> {
+        if schedule == MirFinishScheduleV1::SelectedDynamic {
+            // DraftSeal and the selected metadata pair are already closed at
+            // this boundary.  No generic optimizer, RC insertion, metadata
+            // refresh, or callsite canonicalizer may borrow the sealed module.
+            let verification_result = MirVerifier::new_strict().verify_module(&module);
+            return Ok(MirCompileResult {
+                module,
+                verification_result,
+            });
+        }
+
         // Builder attaches declaration runes before each function body is fully
         // lowered. Refresh once after module build so optimizer consumers see
         // body-dependent rune facts such as verified required InlinePlan.

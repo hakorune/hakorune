@@ -15,7 +15,7 @@ use crate::mir::builder::{
 };
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
-use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
+use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum NormalPreparedSourceCallerV1 {
@@ -442,7 +442,19 @@ impl NormalDefaultPublishedPipelineV1 {
         match result_contract {
             CurrentNormalCompileResultContractV1::ReportPreTransformVerification => {}
         }
-        let result = compiler.finish_built_module(module, MirFinishScheduleV1::Legacy)?;
+        let finish_schedule = finish_schedule_for_normal_module(&module)?;
+        let result = compiler.finish_built_module(module, finish_schedule)?;
+        if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic {
+            // The selected module must not be published or handed to a
+            // backend until the strict post-seal result has been consumed.
+            result.verification_result.as_ref().map_err(|errors| {
+                errors
+                    .iter()
+                    .map(|error| error.to_string())
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            })?;
+        }
         let prepared = session
             .prepare_external_commit()
             .map_err(|error| error.to_string())?;

@@ -4,7 +4,7 @@
 
 use nyash_rust::{
     ast::ASTNode,
-    mir::{MirCompiler, MirModule, NormalCompileRequestV1},
+    mir::{MirCompileResult, MirCompiler, MirModule, NormalCompileRequestV1},
 };
 use std::collections::HashMap;
 
@@ -45,7 +45,7 @@ impl MirCompilerBox {
         filename: Option<&str>,
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,
-    ) -> Result<MirModule, String> {
+    ) -> Result<MirCompileResult, String> {
         let request = match outcome {
             crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) => {
                 NormalCompileRequestV1::for_llvm_callable_source(source, filename, imports)
@@ -70,13 +70,13 @@ impl MirCompilerBox {
     ) -> Result<MirModule, String> {
         let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
             .map_err(|error| format!("MIR compilation error: {error}"))?;
-        Self::compile_request(request, options)
+        Self::compile_request(request, options).map(|result| result.module)
     }
 
     fn compile_request(
         request: NormalCompileRequestV1,
         options: LlvmCompileOptions,
-    ) -> Result<MirModule, String> {
+    ) -> Result<MirCompileResult, String> {
         let _rw_future = match options.future_rewrite_route {
             FutureRewriteRoute::EnvFutureExterns => {
                 Some(EnvVarRestore::set("NYASH_REWRITE_FUTURE", "1"))
@@ -91,6 +91,6 @@ impl MirCompilerBox {
         crate::console_println!("📊 MIR Module compiled successfully!");
         crate::console_println!("📊 Functions: {}", compile_result.module.functions.len());
 
-        Ok(compile_result.module)
+        Ok(compile_result)
     }
 }

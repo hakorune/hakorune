@@ -7,6 +7,10 @@ pub fn check_no_legacy_ops(function: &MirFunction) -> Result<(), Vec<Verificatio
     if std::env::var("NYASH_VERIFY_ALLOW_LEGACY").ok().as_deref() == Some("1") {
         return Ok(());
     }
+    check_no_legacy_ops_strict(function)
+}
+
+pub fn check_no_legacy_ops_strict(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
     for (bid, block) in &function.blocks {
         for (idx, sp) in block.all_spanned_instructions_enumerated() {

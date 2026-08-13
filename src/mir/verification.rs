@@ -40,12 +40,26 @@ pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder
 pub struct MirVerifier {
     /// Current verification errors
     errors: Vec<VerificationError>,
+    /// Selected Dynamic uses an environment-independent verification policy.
+    strict_policy: bool,
 }
 
 impl MirVerifier {
     /// Create a new MIR verifier
     pub fn new() -> Self {
-        Self { errors: Vec::new() }
+        Self {
+            errors: Vec::new(),
+            strict_policy: false,
+        }
+    }
+
+    /// Construct the verification policy used after selected Dynamic sealing.
+    /// Compatibility environment variables must not weaken this barrier.
+    pub fn new_strict() -> Self {
+        Self {
+            errors: Vec::new(),
+            strict_policy: true,
+        }
     }
 
     /// Verify an entire MIR module
@@ -53,7 +67,7 @@ impl MirVerifier {
         self.errors.clear();
 
         // Stage‑B/selfhost 専用: dev verify を一時緩和するためのトグル
-        if !crate::config::env::stageb_dev_verify_enabled() {
+        if !self.strict_policy && !crate::config::env::stageb_dev_verify_enabled() {
             return Ok(());
         }
 
@@ -193,7 +207,8 @@ impl MirVerifier {
         let mut local_errors = Vec::new();
 
         // Dominator computation is expensive; compute once per function and reuse.
-        let (preds, def_block, dominators) = if crate::config::env::verify_allow_no_phi() {
+        let skip_phi_checks = !self.strict_policy && crate::config::env::verify_allow_no_phi();
+        let (preds, def_block, dominators) = if skip_phi_checks {
             (None, None, None)
         } else {
             (
@@ -208,7 +223,8 @@ impl MirVerifier {
 
         // 2. Check dominance relations
         if let Some((def_block, dominators)) = def_block.as_ref().zip(dominators.as_ref()) {
-            if let Err(mut dom_errors) = dom::check_dominance_with(function, def_block, dominators)
+            if let Err(mut dom_errors) =
+                dom::check_dominance_with_policy(function, def_block, dominators, skip_phi_checks)
             {
                 local_errors.append(&mut dom_errors);
             }
@@ -238,9 +254,13 @@ impl MirVerifier {
             .zip(dominators.as_ref())
             .map(|((p, d), doms)| (p, d, doms))
         {
-            if let Err(mut merge_errors) =
-                cfg::check_merge_uses_with(function, preds, def_block, dominators)
-            {
+            if let Err(mut merge_errors) = cfg::check_merge_uses_with_policy(
+                function,
+                preds,
+                def_block,
+                dominators,
+                skip_phi_checks,
+            ) {
                 local_errors.append(&mut merge_errors);
             }
         } else if let Err(mut merge_errors) = self.verify_merge_uses(function) {
@@ -256,12 +276,15 @@ impl MirVerifier {
         collect_errors!(local_errors, self.verify_await_checkpoints(function));
 
         // 9. PHI-off strict edge-copy policy (optional)
-        if crate::config::env::mir_no_phi() && crate::config::env::verify_edge_copy_strict() {
+        if !self.strict_policy
+            && crate::config::env::mir_no_phi()
+            && crate::config::env::verify_edge_copy_strict()
+        {
             collect_errors!(local_errors, self.verify_edge_copy_strict(function));
         }
 
         // 10. Ret-block purity (optional, dev-only)
-        if crate::config::env::verify_ret_purity() {
+        if !self.strict_policy && crate::config::env::verify_ret_purity() {
             collect_errors!(local_errors, self.verify_ret_block_purity(function));
         }
 
@@ -497,7 +520,11 @@ impl MirVerifier {
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents
     /// Skips check when NYASH_VERIFY_ALLOW_LEGACY=1
     fn verify_no_legacy_ops(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-        legacy::check_no_legacy_ops(function)
+        if self.strict_policy {
+            legacy::check_no_legacy_ops_strict(function)
+        } else {
+            legacy::check_no_legacy_ops(function)
+        }
     }
 
     /// Ensure that each Await instruction (or ExternCall(env.future.await)) is immediately
@@ -553,4 +580,57 @@ impl Default for MirVerifier {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::MirVerifier;
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+        MirType,
+    };
+
+    fn invalid_strict_module() -> MirModule {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "strict/0".to_owned(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("entry block")
+            .set_terminator(MirInstruction::Return { value: None });
+        function.metadata.declared_return_type_name = Some("i64".to_owned());
+        crate::mir::type_contracts::return_exit::refresh_function_return_exit_contract(
+            &mut function,
+        );
+        let mut module = MirModule::new("strict".to_owned());
+        module.add_function(function);
+        module
+    }
+
+    #[test]
+    fn strict_policy_rejects_invalid_return_without_ambient_configuration() {
+        let module = invalid_strict_module();
+        let mut verifier = MirVerifier::new_strict();
+        assert!(verifier.verify_module(&module).is_err());
+    }
+
+    #[test]
+    fn strict_policy_ignores_compatibility_verifier_switches() {
+        crate::test_support::with_env_vars(
+            &[
+                ("NYASH_STAGEB_DEV_VERIFY", Some("0")),
+                ("NYASH_VERIFY_ALLOW_NO_PHI", Some("1")),
+                ("NYASH_MIR_NO_PHI", Some("1")),
+                ("NYASH_VERIFY_ALLOW_LEGACY", Some("1")),
+            ],
+            || {
+                let module = invalid_strict_module();
+                let mut verifier = MirVerifier::new_strict();
+                assert!(verifier.verify_module(&module).is_err());
+            },
+        );
+    }
+}

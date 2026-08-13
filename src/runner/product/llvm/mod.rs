@@ -78,13 +78,13 @@ impl NyashRunner {
         let mut pipeline_report = LlvmPipelineReport::new(&pipeline_plan);
 
         // Compile to MIR
-        let mut module = match compile_options::CompileOptionsBox::compile_normal_callable(
+        let compile_result = match compile_options::CompileOptionsBox::compile_normal_callable(
             materialized,
             Some(filename),
             prepared.imports,
             pipeline_plan.compile_options,
         ) {
-            Ok(m) => m,
+            Ok(result) => result,
             Err(e) => {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
             }
@@ -92,15 +92,30 @@ impl NyashRunner {
 
         let selected_dynamic =
             match crate::runner::modes::common_util::exec::selected_dynamic_aot_metadata_present(
-                &module,
+                &compile_result.module,
             ) {
                 Ok(selected) => selected,
                 Err(error) => report::emit_error_and_exit(LlvmRunError::fatal(error)),
             };
 
+        let mut module = if selected_dynamic {
+            compile_result
+                .into_verified_module()
+                .unwrap_or_else(|error| {
+                    report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                        "selected MIR verification failed: {error}"
+                    )))
+                })
+        } else {
+            // Ordinary compatibility retains its historical result handling;
+            // the selected lane is the only route that consumes the strict
+            // verification fence here.
+            compile_result.module
+        };
+
         // Inject method_id for BoxCall where resolvable (by-id path)
         #[allow(unused_mut)]
-        let _injected = if pipeline_plan.method_id_injector_enabled {
+        let _injected = if !selected_dynamic && pipeline_plan.method_id_injector_enabled {
             method_id_injector::MethodIdInjectorBox::inject(&mut module)
         } else {
             0

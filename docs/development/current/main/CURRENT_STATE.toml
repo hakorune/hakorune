@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed, but a worker audit invalidated the claimed end-to-end selected launch. The selected runner currently exits at the PyVM nonconsumer fence before Boundary, final module verification can be discarded, and Boundary selects the zero-argument launch entry while selected metadata belongs to a helper. Lexical scope is now typed and Dynamic admission is now declaration-mode bounded; the remaining P0 corrections join the accepted post-W6 hardening rows. G3 oracle/archive work and main integration remain parked."
+status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed, but a worker audit invalidated the claimed end-to-end selected launch. The selected runner currently exits at the retired PyVM nonconsumer fence before Boundary, while Boundary selects the zero-argument launch entry and selected metadata belongs to a helper. Lexical scope is typed, Dynamic admission is declaration-mode bounded, and selected post-seal verification is now strict and consumed; the remaining P0 corrections join the accepted post-W6 hardening rows. G3 oracle/archive work and main integration remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, and the linear metadata fence are closed. The current fast row is post-seal immutability plus strict final verification; subsequent rows close selected runner dominance, launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership. Source-fact/header and callout/lease hardening remain grouped P1 rows. GUARD-SURFACE-CONSOLIDATION-D0 is a queued inventory sibling: new task-specific guard files are frozen, and bulk migration/retirement waits for the selected P0 barriers."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal immutability, and strict final verification are closed. The current fast row is selected runner dominance; subsequent rows close launch-entry/helper identity, artifact bundle publication, and Boundary/llvmlite feature ownership. Source-fact/header and callout/lease hardening remain grouped P1 rows. GUARD-SURFACE-CONSOLIDATION-D0 is a queued inventory sibling: new task-specific guard files are frozen, and bulk migration/retirement waits for the selected P0 barriers."
 work_mode = "fast"
-current_execution_row = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0"
-current_blocker_token = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0: keep the sealed selected module immutable through compiler postprocess and consume final verification before any backend or publication effect. No selected Method-ID/optimizer/RC/refresh mutation, verifier weakening, clone fallback, archive movement, deletion, or unrelated dirty compiler edit."
+current_execution_row = "SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0"
+current_blocker_token = "SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0: selected metadata must reach Boundary exactly once after strict verification, without the retired PyVM stage, Method-ID mutation, fallback, retry, archive movement, deletion, or unrelated dirty compiler edit."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector infrastructure is landed, as are the Boundary object/link/receipt components. End-to-end selected execution is not currently closed: admission mode, post-seal final verification, runner dominance, and launch-entry/helper identity must be repaired before the Boundary launch claim is restored. G0-G2 llvmlite production/default retirement remains policy; G3 archive work is parked. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector infrastructure is landed, as are strict post-seal verification and the Boundary object/link/receipt components. End-to-end selected execution is not currently closed: runner dominance and launch-entry/helper identity must be repaired before the Boundary launch claim is restored. G0-G2 llvmlite production/default retirement remains policy; G3 archive work is parked. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Worker/pro findings are normalized into one selected-dynamic postseal repair DAG with no new per-finding guard files. Lexical scope is typed, Dynamic admission is declaration-mode bounded, and the linear metadata fence rejects selected clones/partial pairs before ordinary routing. The addendum keeps PyVM retired, assigns postseal/strict-verify, runner, helper-identity, artifact-bundle, Boundary/llvmlite ownership, and guard-surface work to existing rows, and records NYASH_VERIFY_ALLOW_LEGACY in the strict policy scope. Focused B1 tests, cargo check, and AOT/text/pointer guards are green; selected production remains 0/old=1."
+latest_card_summary = "Worker/pro findings are normalized into one selected-dynamic postseal repair DAG with no new per-finding guard files. Lexical scope, declaration-mode admission, linear metadata, post-seal immutability, and strict verification are closed; the selected runner remains the next bounded row. The addendum keeps PyVM retired, assigns runner, helper-identity, artifact-bundle, Boundary/llvmlite ownership, and guard-surface work to existing rows, and records NYASH_VERIFY_ALLOW_LEGACY in the strict policy scope. Focused D0 tests, cargo check, and AOT/text/pointer guards are green; selected production remains 0/old=1."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0"
+next_execution_card = "SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
+  "2026-08-14: SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0 now selects the sealed schedule, skips generic post-seal mutators, enforces env-independent strict verification, consumes compile verification before commit, and bypasses selected Method-ID mutation; focused tests/checks/guards green, production new=0 old=1, B2 runner dominance next.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",

@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, and SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, and SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0 closed; next fast row is SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: DYN-PROD-BASELINE-R0 synchronizes the stale production caller guard/docs and classifies the outstanding completion red without changing behavior.
+Smallest next slice: SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 restores the selected Boundary handoff without re-opening PyVM or fallback.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -397,6 +397,14 @@ The implementation series is:
 Any injected selected mutation or final verification error must yield external
 commit/backend/launch counts `0/0/0`.  Do not issue a second semantic receipt;
 the existing canonical MIR and verifier are the authorities.
+
+Closeout evidence (2026-08-14): selected finish now skips generic post-seal
+mutators, uses an env-independent strict verifier, and consumes verification
+before external commit.  The LLVM adapter preserves `MirCompileResult`; selected
+routes consume `into_verified_module()` and bypass Method-ID injection while
+ordinary routes remain unchanged.  Focused schedule/strict-policy tests,
+`cargo check --lib`, fmt, AOT/text/pointer guards, and `git diff --check` are
+green; selected production remains `0/old=1`.  B2 runner dominance is next.
 
 ## Row B2: SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0
 

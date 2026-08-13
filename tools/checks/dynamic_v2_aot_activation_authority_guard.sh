@@ -314,6 +314,9 @@ fi
 # modules remain on the existing compatibility path and selected failures do
 # not enter its fallback branch.
 SELECTED_RUNNER="$ROOT_DIR/src/runner/product/llvm/mod.rs"
+COMPILER_OWNER="$ROOT_DIR/src/mir/compiler/mod.rs"
+NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
+LLVM_MIR_COMPILER="$ROOT_DIR/src/runner/product/llvm/mir_compiler.rs"
 SELECTED_CENSUS_CALLERS="$(rg -l --glob '*.rs' \
   'exec::selected_dynamic_aot_metadata_present' \
   "$ROOT_DIR/src/runner/product/llvm" || true)"
@@ -338,6 +341,28 @@ guard_expect_fixed_in_file "$TAG" 'backend: "ny_llvmc_selected_dynamic_exe"' "$S
   "selected Dynamic execution must report the dedicated Boundary backend"
 guard_expect_fixed_in_file "$TAG" 'if selected_dynamic {' "$SELECTED_RUNNER" \
   "selected Dynamic metadata must branch before ordinary fallback"
+guard_expect_fixed_in_file "$TAG" 'finish_schedule_for_normal_module' "$COMPILER_OWNER" \
+  "selected post-seal schedule must be selected from the sealed metadata pair"
+guard_expect_fixed_in_file "$TAG" 'MirFinishScheduleV1::SelectedDynamic' "$COMPILER_OWNER" \
+  "selected post-seal schedule must have a distinct immutable branch"
+guard_expect_fixed_in_file "$TAG" 'MirVerifier::new_strict()' "$COMPILER_OWNER" \
+  "selected post-seal module must use the environment-independent verifier"
+guard_expect_fixed_in_file "$TAG" 'finish_schedule_for_normal_module(&module)' "$NORMAL_PIPELINE" \
+  "normal pipeline must classify the selected schedule before external commit"
+guard_expect_fixed_in_file "$TAG" 'verification_result.as_ref()' "$NORMAL_PIPELINE" \
+  "normal pipeline must consume selected final verification before commit"
+guard_expect_fixed_in_file "$TAG" 'MirCompileResult' "$LLVM_MIR_COMPILER" \
+  "LLVM adapter must retain the compile verification product"
+guard_expect_fixed_in_file "$TAG" 'Ok(compile_result)' "$LLVM_MIR_COMPILER" \
+  "LLVM adapter must not drop verification by returning only the module"
+if ! rg -n -U 'compile_result\s*\.into_verified_module\(\)' "$SELECTED_RUNNER" >/dev/null; then
+  guard_fail "$TAG" "selected runner must consume the final verification fence before backend effects"
+fi
+guard_expect_fixed_in_file "$TAG" 'if !selected_dynamic && pipeline_plan.method_id_injector_enabled' "$SELECTED_RUNNER" \
+  "selected sealed modules must bypass the post-seal Method-ID mutator"
+if rg -n 'let _injected = if pipeline_plan\.method_id_injector_enabled' "$SELECTED_RUNNER"; then
+  guard_fail "$TAG" "selected runner must not expose an unconditional post-seal Method-ID mutator"
+fi
 guard_expect_fixed_in_file "$TAG" \
   'StaticArtifactReceiptConsumedFenceV1, String>' \
   "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
