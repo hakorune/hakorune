@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: test-only CheckedCallOut PlanStamp JSON round-trip now preserves compiler domain and rejects zero domain/ordinal parts; backend execution and production W6 remain closed.",
   "2026-08-13: CheckedCallOut JSON parser now rejects u16 overflow and unknown effect bits; transport-only scope and LLVM/VM/runtime closure remain unchanged.",
   "2026-08-13: transport-only CheckedCallOut MIR JSON emit/parse round-trip and schema/diet-ledger sync landed; LLVM/VM execution and production W6 remain closed.",
   "2026-08-13: private unpublished W6 orchestration and focused canary verified collector brand -> selected admission -> unpublished session -> exact-two draft -> branded collector receipt; production W6 remains closed.",
@@ -56,5 +57,4 @@ landed_tail = [
   "2026-08-13: CheckedCallOut D0 is accepted with site-plan authority, site-local Normal/Fault landings, block-local Normal-result projection, verified effect cache, typed I6/I7 shape, and backend fail-stop policy.",
   "2026-08-12: I0-C symbolic TextScan admission retains exact export symbols and receiver lanes in an immutable, PlanStamp-branded pre-link product; I0-D adds exact parameter descriptors and one shared Rust wire projection; production callers, LLVM hooks, runtime lookup, and Rust-VM consumers remain zero.",
   "2026-08-12: I0-D work-branch strict CodePoint TextScan entries, initial one-shot lease token owner, D1 Rust/JSON metadata projection, terminal test-only selected seam, explicit --nyrt boundary, and test-only link verifier are landed; generation-aware lease identity remains the next safety repair and production callers stay zero.",
-  "2026-08-12: Dynamic canonical-session projection and exact Completion/DraftSeal ownership are landed; no provider, LLVM, VM, fallback, retry, or production caller was opened.",
 ]

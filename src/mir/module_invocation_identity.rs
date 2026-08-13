@@ -54,6 +54,28 @@ impl ModuleInvocationBrandV1 {
             invocation_ordinal: NonZeroU64::new(ordinal).expect("non-zero test ordinal"),
         }
     }
+
+    #[cfg(test)]
+    pub(crate) fn test_with_parts(compiler_domain: u64, ordinal: u64) -> Self {
+        Self::try_test_with_parts(compiler_domain, ordinal).expect("non-zero test brand parts")
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn try_test_with_parts(
+        compiler_domain: u64,
+        ordinal: u64,
+    ) -> Result<Self, &'static str> {
+        let Some(compiler_domain) = NonZeroU64::new(compiler_domain) else {
+            return Err("non-zero test domain");
+        };
+        let Some(invocation_ordinal) = NonZeroU64::new(ordinal) else {
+            return Err("non-zero test ordinal");
+        };
+        Ok(Self {
+            compiler_domain,
+            invocation_ordinal,
+        })
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

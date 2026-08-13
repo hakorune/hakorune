@@ -195,6 +195,9 @@ impl CheckedCallOutSitePlanV1 {
             u32::try_from(number("outcome_slot")?)
                 .map_err(|_| "outcome slot overflow".to_owned())?,
         );
+        let compiler_domain = value["plan_stamp"]["compiler_domain"]
+            .as_u64()
+            .ok_or_else(|| "missing compiler domain".to_owned())?;
         let ordinal = value["plan_stamp"]["invocation_ordinal"]
             .as_u64()
             .ok_or_else(|| "missing invocation ordinal".to_owned())?;
@@ -208,7 +211,8 @@ impl CheckedCallOutSitePlanV1 {
             normal_shape,
             effects,
             outcome_slot,
-            plan_stamp: ModuleInvocationBrandV1::test_with_ordinal(ordinal),
+            plan_stamp: ModuleInvocationBrandV1::try_test_with_parts(compiler_domain, ordinal)
+                .map_err(str::to_owned)?,
         })
     }
 }
@@ -567,7 +571,6 @@ mod tests {
             .unwrap();
         (function, plans)
     }
-
     #[test]
     fn plan_json_roundtrip_preserves_site_shape_and_stamp() {
         let plan = CheckedCallOutSitePlanV1::from_test(
@@ -585,9 +588,30 @@ mod tests {
         assert_eq!(roundtrip, plan);
         assert_eq!(json["site_id"], 6);
         assert_eq!(json["normal_shape"]["kind"], "end_authorized_handle");
+        assert_eq!(json["plan_stamp"]["compiler_domain"], 1);
         assert_eq!(json["plan_stamp"]["invocation_ordinal"], 1);
     }
-
+    #[test]
+    fn plan_json_roundtrip_preserves_foreign_domain_and_rejects_zero_parts() {
+        let plan = CheckedCallOutSitePlanV1::from_test(
+            CheckedCallOutSiteIdV1(8),
+            CheckedCallOutEntryIdV1(19),
+            CheckedCallOutNormalShapeV1::ImmediateI64,
+            EffectMask::READ,
+            ModuleInvocationBrandV1::test_with_parts(7, 3),
+        );
+        let json = plan.to_json_for_test();
+        let roundtrip =
+            CheckedCallOutSitePlanV1::from_json_for_test(&json).expect("foreign domain roundtrip");
+        assert_eq!(roundtrip, plan);
+        let reject_zero = |field: &str| {
+            let mut invalid = json.clone();
+            invalid["plan_stamp"][field] = serde_json::json!(0);
+            CheckedCallOutSitePlanV1::from_json_for_test(&invalid).unwrap_err()
+        };
+        assert!(reject_zero("compiler_domain").contains("non-zero test domain"));
+        assert!(reject_zero("invocation_ordinal").contains("non-zero test ordinal"));
+    }
     #[test]
     fn duplicate_site_and_wrong_effect_are_rejected() {
         let plan = CheckedCallOutSitePlanV1::from_test(
