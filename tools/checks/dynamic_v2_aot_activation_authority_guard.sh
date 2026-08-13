@@ -363,6 +363,13 @@ guard_expect_fixed_in_file "$TAG" 'if !selected_dynamic && pipeline_plan.method_
 if rg -n 'let _injected = if pipeline_plan\.method_id_injector_enabled' "$SELECTED_RUNNER"; then
   guard_fail "$TAG" "selected runner must not expose an unconditional post-seal Method-ID mutator"
 fi
+guard_expect_fixed_in_file "$TAG" 'decide_pyvm_stage' "$SELECTED_RUNNER" \
+  "selected runner must classify the retired PyVM stage before Boundary"
+guard_expect_fixed_in_file "$TAG" 'SkipSelected' "$SELECTED_RUNNER" \
+  "selected runner must skip PyVM and continue to Boundary when it is not requested"
+if rg -n 'selected Dynamic candidate is Boundary-only; VM execution is rejected' "$SELECTED_RUNNER"; then
+  guard_fail "$TAG" "selected runner must not terminate at the retired PyVM fence"
+fi
 guard_expect_fixed_in_file "$TAG" \
   'StaticArtifactReceiptConsumedFenceV1, String>' \
   "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \

@@ -113,6 +113,12 @@ impl NyashRunner {
             compile_result.module
         };
 
+        if selected_dynamic {
+            if let Err(error) = reject_selected_dynamic_legacy_callsites(&module) {
+                report::emit_error_and_exit(LlvmRunError::fatal(error));
+            }
+        }
+
         // Inject method_id for BoxCall where resolvable (by-id path)
         #[allow(unused_mut)]
         let _injected = if !selected_dynamic && pipeline_plan.method_id_injector_enabled {
@@ -122,26 +128,31 @@ impl NyashRunner {
         };
         pipeline_report.method_id_injector_mutation_count = _injected;
 
-        // Dev/Test helper: allow executing via PyVM harness when requested
-        match if selected_dynamic {
-            Err(LlvmRunError::fatal(
-                "selected Dynamic candidate is Boundary-only; VM execution is rejected",
-            ))
-        } else {
-            pyvm_executor::PyVmExecutorBox::try_execute(&module)
-        } {
-            Ok(code) => {
-                pipeline_report.execution_backend = "pyvm";
-                PipelineReportBox::emit_if_requested(&pipeline_report);
-                exit_reporter::ExitReporterBox::emit_and_exit(code);
-            }
-            Err(e) if e.code == 0 && e.msg == "PyVM not requested" => {
-                // Continue to next executor
-            }
-            Err(e) => {
-                pipeline_report.execution_backend = "pyvm_error";
-                PipelineReportBox::emit_if_requested(&pipeline_report);
-                report::emit_error_and_exit(e);
+        // PyVM remains an explicit compatibility helper.  A selected Dynamic
+        // module bypasses this stage so the Boundary owner is reachable; an
+        // explicit PyVM request is still a typed pre-effect rejection.
+        match decide_pyvm_stage(
+            selected_dynamic,
+            crate::config::env::env_bool("SMOKES_USE_PYVM"),
+        ) {
+            Err(message) => report::emit_error_and_exit(LlvmRunError::fatal(message)),
+            Ok(PyVmStageDecision::SkipSelected) => {}
+            Ok(PyVmStageDecision::RunCompatibility) => {
+                match pyvm_executor::PyVmExecutorBox::try_execute(&module) {
+                    Ok(code) => {
+                        pipeline_report.execution_backend = "pyvm";
+                        PipelineReportBox::emit_if_requested(&pipeline_report);
+                        exit_reporter::ExitReporterBox::emit_and_exit(code);
+                    }
+                    Err(e) if e.code == 0 && e.msg == "PyVM not requested" => {
+                        // Continue to next executor
+                    }
+                    Err(e) => {
+                        pipeline_report.execution_backend = "pyvm_error";
+                        PipelineReportBox::emit_if_requested(&pipeline_report);
+                        report::emit_error_and_exit(e);
+                    }
+                }
             }
         }
 
@@ -192,6 +203,53 @@ impl NyashRunner {
             }
         }
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum PyVmStageDecision {
+    SkipSelected,
+    RunCompatibility,
+}
+
+fn decide_pyvm_stage(
+    selected_dynamic: bool,
+    pyvm_requested: bool,
+) -> Result<PyVmStageDecision, &'static str> {
+    if selected_dynamic {
+        if pyvm_requested {
+            return Err("selected Dynamic Boundary route rejects an explicit PyVM request");
+        }
+        return Ok(PyVmStageDecision::SkipSelected);
+    }
+    Ok(PyVmStageDecision::RunCompatibility)
+}
+
+fn reject_selected_dynamic_legacy_callsites(module: &crate::mir::MirModule) -> Result<(), String> {
+    for (function_name, function) in &module.functions {
+        for (block_id, block) in &function.blocks {
+            for (instruction_index, instruction) in block.instructions.iter().enumerate() {
+                if let Some(reason) =
+                    crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(
+                        instruction,
+                    )
+                {
+                    return Err(format!(
+                        "selected Dynamic legacy callsite rejected: function={function_name} block={block_id:?} instruction={instruction_index} reason={reason}"
+                    ));
+                }
+            }
+            if let Some(terminator) = block.terminator.as_ref() {
+                if let Some(reason) =
+                    crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(terminator)
+                {
+                    return Err(format!(
+                        "selected Dynamic legacy callsite rejected: function={function_name} block={block_id:?} terminator reason={reason}"
+                    ));
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 struct LlvmExecutionOutcome {
@@ -267,6 +325,70 @@ fn emit_requested_object_or_exit(
         report::emit_error_and_exit(LlvmRunError::fatal(
             "LLVM backend not available (object emit)",
         ));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{decide_pyvm_stage, reject_selected_dynamic_legacy_callsites, PyVmStageDecision};
+
+    #[test]
+    fn selected_without_pyvm_reaches_boundary_stage() {
+        assert_eq!(
+            decide_pyvm_stage(true, false),
+            Ok(PyVmStageDecision::SkipSelected)
+        );
+    }
+
+    #[test]
+    fn selected_explicit_pyvm_is_rejected_before_execution() {
+        assert!(decide_pyvm_stage(true, true).is_err());
+    }
+
+    #[test]
+    fn ordinary_route_keeps_compatibility_pyvm_stage() {
+        assert_eq!(
+            decide_pyvm_stage(false, false),
+            Ok(PyVmStageDecision::RunCompatibility)
+        );
+        assert_eq!(
+            decide_pyvm_stage(false, true),
+            Ok(PyVmStageDecision::RunCompatibility)
+        );
+    }
+
+    #[test]
+    fn selected_legacy_callsite_scan_rejects_missing_callee() {
+        let mut module = crate::mir::MirModule::new("selected".to_owned());
+        let entry = crate::mir::BasicBlockId::new(0);
+        let mut function = crate::mir::MirFunction::new(
+            crate::mir::FunctionSignature {
+                name: "selected".to_owned(),
+                params: vec![],
+                return_type: crate::mir::MirType::Void,
+                effects: crate::mir::EffectMask::PURE,
+            },
+            entry,
+        );
+        function.blocks.get_mut(&entry).unwrap().instructions.push(
+            crate::mir::MirInstruction::Call {
+                dst: None,
+                func: crate::mir::ValueId::INVALID,
+                callee: None,
+                args: vec![],
+                effects: crate::mir::EffectMask::PURE,
+            },
+        );
+        module.add_function(function);
+
+        let error = reject_selected_dynamic_legacy_callsites(&module).unwrap_err();
+        assert!(error.contains("call-missing-callee"));
+    }
+
+    #[test]
+    fn selected_legacy_callsite_scan_accepts_canonical_method() {
+        let module = crate::mir::MirModule::new("selected".to_owned());
+        assert!(reject_selected_dynamic_legacy_callsites(&module).is_ok());
     }
 }
 
