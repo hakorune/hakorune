@@ -7,6 +7,7 @@
 
 use super::callout_corridor::{require_compare, require_const, DynamicV2CallOutCorridorV1};
 use super::i64_const;
+use super::operation_cursor::DynamicV2PhysicalOperationCensusV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
@@ -14,7 +15,10 @@ use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::loop_operation;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
-use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::{
+    DynamicV2CompareI64CapabilityDemandV1, DynamicV2PhysicalRepresentationV1,
+    DynamicV2ProducerFamilyV1,
+};
 use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::{BasicBlockId, CompareOp, MirInstruction};
@@ -131,6 +135,8 @@ pub(super) fn emit(
     values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
     evidence: DynamicV2I8EvidenceV1,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     if !corridor.matches(brand) {
         return Err(reject("I7 corridor has a foreign session brand"));
@@ -150,53 +156,80 @@ pub(super) fn emit(
             "I8/I9 continuation requires exactly 15 operation rows",
         ));
     }
+    if compare_i64.item() != I9
+        || compare_i64.left() != V11
+        || compare_i64.right() != V12
+        || compare_i64.result() != V13
+        || compare_i64.v11().producer().raw() != 7
+        || compare_i64.v11().result() != V11
+        || compare_i64.v11().family() != DynamicV2ProducerFamilyV1::DynamicCallSlot
+        || compare_i64.v11().representation() != DynamicV2PhysicalRepresentationV1::ImmediateI64
+        || compare_i64.v12().producer().raw() != 8
+        || compare_i64.v12().result() != V12
+        || compare_i64.v12().family() != DynamicV2ProducerFamilyV1::ConstI64
+        || compare_i64.v12().representation() != DynamicV2PhysicalRepresentationV1::ImmediateI64
+    {
+        return Err(reject("I9 compare demand was not consumed by its emitter"));
+    }
     require_const(&rows[8], V12, 0)?;
     require_compare(&rows[9], V11, V12, V13)?;
     validate_i7_normal_predecessor(outer, corridor)?;
 
-    corridor.with_i7_normal(|normal| {
-        let block = normal.block();
-        let value_v12 = canonical
-            .issue_physical_value_id(outer.builder_view_mut_for_lowering())
-            .map_err(reject)?;
-        let _receipt = i64_const::emit_with_dst(
-            outer.builder_view_mut_for_lowering(),
-            normal,
-            evidence,
-            brand,
-            values,
-            value_v12,
-        )?;
-        let value_v11 = value_at(values, V11, block)?;
-        let value_v12 = value_at(values, V12, block)?;
-        let value_v13 = canonical
-            .issue_physical_value_id(outer.builder_view_mut_for_lowering())
-            .map_err(reject)?;
-        loop_operation::emit_compare_i64_at_with_dst(
-            outer.builder_view_mut_for_lowering(),
-            block,
-            value_v13,
-            CompareOp::Lt,
-            value_v11,
-            value_v12,
-        )
-        .map_err(reject)?;
-        canonical
-            .publish_physical_value_type(
+    corridor
+        .with_i7_normal(|normal| {
+            let block = normal.block();
+            let value_v12 = canonical
+                .issue_physical_value_id(outer.builder_view_mut_for_lowering())
+                .map_err(reject)?;
+            let _receipt = i64_const::emit_with_dst(
                 outer.builder_view_mut_for_lowering(),
+                normal,
+                evidence,
+                brand,
+                values,
+                value_v12,
+            )?;
+            let value_v11 = value_at(values, V11, block)?;
+            let value_v12 = value_at(values, V12, block)?;
+            let value_v13 = canonical
+                .issue_physical_value_id(outer.builder_view_mut_for_lowering())
+                .map_err(reject)?;
+            loop_operation::emit_compare_i64_at_with_dst(
+                outer.builder_view_mut_for_lowering(),
+                block,
                 value_v13,
-                crate::mir::MirType::Bool,
+                CompareOp::Lt,
+                value_v11,
+                value_v12,
             )
             .map_err(reject)?;
-        values
-            .publish(
-                I9,
-                V13,
-                normal,
-                value_v13,
-                DynamicV2PhysicalRepresentationV1::ImmediateBool,
-            )
-            .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
-        emit_branch(canonical, outer, block, value_v13, targets)
-    })
+            canonical
+                .publish_physical_value_type(
+                    outer.builder_view_mut_for_lowering(),
+                    value_v13,
+                    crate::mir::MirType::Bool,
+                )
+                .map_err(reject)?;
+            values
+                .publish(
+                    I9,
+                    V13,
+                    normal,
+                    value_v13,
+                    DynamicV2PhysicalRepresentationV1::ImmediateBool,
+                )
+                .map_err(|error| reject(format!("physical value ledger: {error:?}")))?;
+            emit_branch(canonical, outer, block, value_v13, targets)
+        })
+        .and_then(|()| {
+            operation_census
+                .claim_operation(I8)
+                .map_err(|error| reject(format!("I8 physical operation claim: {error:?}")))?;
+            operation_census
+                .claim_operation(I9)
+                .map_err(|error| reject(format!("I9 physical operation claim: {error:?}")))?;
+            operation_census
+                .claim_if()
+                .map_err(|error| reject(format!("If physical claim: {error:?}")))
+        })
 }

@@ -89,7 +89,7 @@ impl DynamicV2ProducerReceiptRequirementV1 {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
     item: LoopItemKeyV1,
     left: LoopValueKeyV1,
@@ -102,38 +102,38 @@ pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
 }
 
 impl DynamicV2CompareI64CapabilityDemandV1 {
-    pub(in crate::mir) const fn item(self) -> LoopItemKeyV1 {
+    pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
         self.item
     }
 
-    pub(in crate::mir) const fn left(self) -> LoopValueKeyV1 {
+    pub(in crate::mir) const fn left(&self) -> LoopValueKeyV1 {
         self.left
     }
 
-    pub(in crate::mir) const fn right(self) -> LoopValueKeyV1 {
+    pub(in crate::mir) const fn right(&self) -> LoopValueKeyV1 {
         self.right
     }
 
-    pub(in crate::mir) const fn result(self) -> LoopValueKeyV1 {
+    pub(in crate::mir) const fn result(&self) -> LoopValueKeyV1 {
         self.result
     }
 
-    pub(in crate::mir) const fn v11(self) -> DynamicV2ProducerReceiptRequirementV1 {
+    pub(in crate::mir) const fn v11(&self) -> DynamicV2ProducerReceiptRequirementV1 {
         self.v11
     }
 
-    pub(in crate::mir) const fn v12(self) -> DynamicV2ProducerReceiptRequirementV1 {
+    pub(in crate::mir) const fn v12(&self) -> DynamicV2ProducerReceiptRequirementV1 {
         self.v12
     }
 
     pub(in crate::mir) const fn substring_core(
-        self,
+        &self,
     ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
         self.substring_core
     }
 
     pub(in crate::mir) const fn index_of_core(
-        self,
+        &self,
     ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
         self.index_of_core
     }
@@ -240,8 +240,8 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn compare_i64(&self) -> DynamicV2CompareI64CapabilityDemandV1 {
-        self.compare_i64
+    pub(in crate::mir) const fn compare_i64(&self) -> &DynamicV2CompareI64CapabilityDemandV1 {
+        &self.compare_i64
     }
 
     #[cfg(test)]

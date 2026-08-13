@@ -2,6 +2,7 @@
 
 use super::super::formal_header::DynamicV2OpenedFormalHeaderV1;
 use super::super::i8_i9_control;
+use super::super::operation_cursor::DynamicV2PhysicalOperationCensusV1;
 use super::super::targets::{
     DynamicV2OpaquePhysicalTargetV1, DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1,
 };
@@ -12,7 +13,9 @@ use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::{constant, loop_operation};
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::DynamicV2I8EvidenceV1;
-use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::{
+    DynamicV2CompareI64CapabilityDemandV1, DynamicV2PhysicalRepresentationV1,
+};
 use crate::mir::checked_callout::{CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1};
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
@@ -282,6 +285,8 @@ pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter
     brand: &DynamicV2PhysicalSessionBrandV1,
     sites: DynamicV2InstalledCallOutSitesV1,
     i8_evidence: DynamicV2I8EvidenceV1,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
 ) -> Result<DynamicV2CallOutCorridorV1, DynamicV2I8EmitterRejectV1> {
     demand.with_operation_program(|program| {
         emit_program(
@@ -295,6 +300,8 @@ pub(in crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter
             brand,
             sites,
             i8_evidence,
+            compare_i64,
+            operation_census,
         )
     })
 }
@@ -312,6 +319,8 @@ fn emit_program(
     brand: &DynamicV2PhysicalSessionBrandV1,
     sites: DynamicV2InstalledCallOutSitesV1,
     i8_evidence: DynamicV2I8EvidenceV1,
+    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
 ) -> Result<DynamicV2CallOutCorridorV1, DynamicV2I8EmitterRejectV1> {
     let rows = program.operation_rows();
     if rows.len() != 15 {
@@ -573,6 +582,11 @@ fn emit_program(
         i7_normal,
         i7_fault,
     );
+    for raw in 0..8 {
+        operation_census
+            .claim_operation(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(raw))
+            .map_err(|error| reject(format!("physical operation claim {raw}: {error:?}")))?;
+    }
     i8_i9_control::emit(
         canonical,
         outer,
@@ -582,6 +596,8 @@ fn emit_program(
         values,
         brand,
         i8_evidence,
+        compare_i64,
+        operation_census,
     )?;
     Ok(corridor)
 }

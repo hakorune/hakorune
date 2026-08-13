@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, and W6-S behavior-preserving source split are landed. Publication-boundary D0 is accepted; production W6 remains closed while existing evidence is consumed exactly once before backend/publication implementation."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, and W6-S behavior-preserving source split are landed. Publication-boundary D0 is accepted; W6-A1 now closes the physical evidence cursor while AOT backend handoff remains deferred to the static artifact owner."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-S is closed; the next fast slice is W6-A evidence consumption inside the unpublished session. RuntimeExecutablePlan remains parked because direct static calls have no runtime-address consumer."
+current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-S is closed; W6-A1 is the bounded physical evidence cursor. AOT backend handoff remains deferred to the static artifact owner, and RuntimeExecutablePlan remains parked because direct static calls have no runtime-address consumer."
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0"
-current_blocker_token = "DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0: consume existing compare demand, four cleanup rows, 17-item physical census, and AOT handoff exactly once inside the unpublished session; keep new caller=0 and old edge=1; no provider/backend/cutover."
+current_execution_row = "DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0"
+current_blocker_token = "DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0: consume compare=1, cleanup=4, and 15 operations+If+Exit=17 exactly once inside the unpublished session; keep AOT artifact handoff=0, new caller=0, and old edge=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0 and W6-S source organization are accepted; W6-A now consumes retained evidence exactly once, with the selected old raw/JoinIR edge still the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0 and W6-S source organization are accepted; W6-A1 consumes physical evidence exactly once while AOT backend handoff stays closed, with the selected old raw/JoinIR edge still the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0 and W6-S source organization are accepted. W6-A now consumes compare/cleanup/17-item/AOT evidence exactly once, followed by CatalogedBoxMethod mixed normal-drain projection, Boundary C-ABI CheckedCallOut physicalization, static post-link artifact receipt/publication, and one final selected caller/old-edge atomic replacement. RuntimeExecutablePlan is parked; production remains closed."
-next_design_card = "DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0"
+latest_card_summary = "W6 D0 and W6-S source organization are accepted. W6-A1 now consumes compare/cleanup/17-item physical evidence exactly once; AOT backend handoff remains closed until the static artifact owner is ready, followed by CatalogedBoxMethod mixed normal-drain projection, Boundary C-ABI CheckedCallOut physicalization, static post-link artifact receipt/publication, and one final selected caller/old-edge atomic replacement. RuntimeExecutablePlan is parked; production remains closed."
+next_design_card = "DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0"
+next_execution_card = "DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-13: W6 AOT metadata now projects canonical CheckedCallOut site_id; the test-only transport planner co-checks admitted role/shape rows, while A-prime block/instruction locators remain source evidence only.",
   "2026-08-13: Python AOT metadata projection now enforces u64 bounds for registry generation and PlanStamp domain/ordinal, preserving Rust transport semantics; production W6 remains closed.",

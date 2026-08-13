@@ -9,7 +9,11 @@ use super::callout_corridor::{
     require_add, require_const, require_read, DynamicV2CallOutCorridorV1,
 };
 use super::formal_header::DynamicV2OpenedFormalHeaderV1;
-use super::lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1;
+use super::lifecycle_terminal::{
+    DynamicV2PhysicalCleanupCursorV1, DynamicV2PhysicalCleanupCutPointV1,
+    DynamicV2PhysicalLifecycleTerminalPlanV1,
+};
+use super::operation_cursor::DynamicV2PhysicalOperationCensusV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
@@ -93,6 +97,8 @@ fn emit_program(
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
+    cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
     values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
@@ -217,6 +223,14 @@ fn emit_program(
             lifecycle.lease_slot(),
         )
         .map_err(reject)?;
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::Backedge)
+        .map_err(|error| reject(format!("Backedge cleanup claim: {error:?}")))?;
+    for item in [I13, I14, I15, I16] {
+        operation_census
+            .claim_operation(item)
+            .map_err(|error| reject(format!("{item:?} physical operation claim: {error:?}")))?;
+    }
 
     let (enter, header) =
         targets.with_enter_header(|enter, header| (enter.block(), header.block()));
@@ -307,12 +321,25 @@ pub(super) fn emit(
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
+    cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
     values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     demand.with_operation_program(|program| {
         emit_program(
-            canonical, outer, program, demand, formals, targets, corridor, lifecycle, values, brand,
+            canonical,
+            outer,
+            program,
+            demand,
+            formals,
+            targets,
+            corridor,
+            lifecycle,
+            cleanup,
+            operation_census,
+            values,
+            brand,
         )
     })
 }

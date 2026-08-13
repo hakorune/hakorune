@@ -13,7 +13,7 @@ use std::collections::BTreeSet;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicAPrimeI64SourceRelationViewV1, DynamicFullLoopOperationPhysicalRefV2,
-    DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
+    DynamicFullLoopPhysicalItemKindV2, DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::core_method_op::CoreMethodOp;
@@ -45,6 +45,10 @@ const V17: LoopValueKeyV1 = LoopValueKeyV1::new(17);
 pub(super) enum DynamicV2RecipeOperationCursorRejectV1 {
     RowCount,
     DuplicateItem,
+    PhysicalOrder {
+        expected: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+        actual: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
     UseBeforeProduce(LoopValueKeyV1),
     DuplicateResult(LoopValueKeyV1),
     BindingDrift,
@@ -53,6 +57,79 @@ pub(super) enum DynamicV2RecipeOperationCursorRejectV1 {
     CoreMethodShape,
     MissingCallRole,
     MissingRequiredShape,
+}
+
+/// Move-only physical evidence cursor for the complete selected program.
+///
+/// The operation rows remain the semantic/order authority.  This cursor only
+/// records that the already-selected physical leaves claimed every row,
+/// control item, and exit exactly once before the session can close.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct DynamicV2PhysicalOperationCensusV1 {
+    expected_operation_count: usize,
+    expected_if_count: usize,
+    expected_exit_count: usize,
+    operation_order: Box<[crate::mir::loop_recipe_contract::LoopItemKeyV1]>,
+    next_operation: usize,
+    remaining_if: usize,
+    remaining_exit: usize,
+}
+
+impl DynamicV2PhysicalOperationCensusV1 {
+    pub(super) const fn operation_count(&self) -> usize {
+        self.expected_operation_count
+    }
+
+    pub(super) const fn if_count(&self) -> usize {
+        self.expected_if_count
+    }
+
+    pub(super) const fn exit_count(&self) -> usize {
+        self.expected_exit_count
+    }
+
+    pub(super) fn claim_operation(
+        &mut self,
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    ) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+        if self.operation_order.get(self.next_operation).copied() != Some(item) {
+            return Err(DynamicV2RecipeOperationCursorRejectV1::PhysicalOrder {
+                expected: self.operation_order[self.next_operation],
+                actual: item,
+            });
+        }
+        self.next_operation += 1;
+        Ok(())
+    }
+
+    pub(super) fn claim_if(&mut self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+        if self.remaining_if == 0 {
+            return Err(DynamicV2RecipeOperationCursorRejectV1::DuplicateItem);
+        }
+        self.remaining_if -= 1;
+        Ok(())
+    }
+
+    pub(super) fn claim_exit(&mut self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+        if self.remaining_exit == 0 {
+            return Err(DynamicV2RecipeOperationCursorRejectV1::DuplicateItem);
+        }
+        self.remaining_exit -= 1;
+        Ok(())
+    }
+
+    /// Consume the cursor only after every selected physical leaf has claimed
+    /// its row.  No partial evidence can silently disappear at session close.
+    pub(super) fn close(self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+        if self.next_operation == self.operation_order.len()
+            && self.remaining_if == 0
+            && self.remaining_exit == 0
+        {
+            Ok(())
+        } else {
+            Err(DynamicV2RecipeOperationCursorRejectV1::MissingRequiredShape)
+        }
+    }
 }
 
 #[derive(Debug, Default)]
@@ -109,10 +186,44 @@ pub(super) struct DynamicV2RecipeOperationCursorV1<'program> {
 
 pub(super) fn validate(
     demand: &VerifiedAPrimeI64PhysicalDemandV1<'_>,
-) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+) -> Result<DynamicV2PhysicalOperationCensusV1, DynamicV2RecipeOperationCursorRejectV1> {
     demand.with_operation_program(|program| {
+        let placements = program.placement_rows();
+        if placements.len()
+            != crate::mir::compiler::dynamic_full_body_recipe::
+                DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2
+        {
+            return Err(DynamicV2RecipeOperationCursorRejectV1::MissingRequiredShape);
+        }
+        let operation_count = placements
+            .iter()
+            .filter(|row| row.kind() == DynamicFullLoopPhysicalItemKindV2::Operation)
+            .count();
+        let if_count = placements
+            .iter()
+            .filter(|row| row.kind() == DynamicFullLoopPhysicalItemKindV2::If)
+            .count();
+        let exit_count = placements
+            .iter()
+            .filter(|row| row.kind() == DynamicFullLoopPhysicalItemKindV2::Exit)
+            .count();
+        let expected_operation_items = program
+            .operation_rows()
+            .iter()
+            .map(|row| row.item())
+            .collect::<Box<[_]>>();
+        let census = DynamicV2PhysicalOperationCensusV1 {
+            expected_operation_count: operation_count,
+            expected_if_count: if_count,
+            expected_exit_count: exit_count,
+            operation_order: expected_operation_items,
+            next_operation: 0,
+            remaining_if: if_count,
+            remaining_exit: exit_count,
+        };
         DynamicV2RecipeOperationCursorV1::new(program.operation_rows())
             .consume_all(demand.source_relation())
+            .map(|()| census)
     })
 }
 
@@ -332,8 +443,11 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
 
 #[cfg(test)]
 mod tests {
-    use super::{DynamicV2RecipeOperationCursorRejectV1, ProducedValuesV1};
-    use crate::mir::loop_recipe_contract::LoopValueKeyV1;
+    use super::{
+        DynamicV2PhysicalOperationCensusV1, DynamicV2RecipeOperationCursorRejectV1,
+        ProducedValuesV1,
+    };
+    use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 
     #[test]
     fn produced_value_cursor_rejects_use_before_definition() {
@@ -358,5 +472,35 @@ mod tests {
                 LoopValueKeyV1::new(4)
             ))
         );
+    }
+
+    #[test]
+    fn physical_evidence_cursor_rejects_reorder_and_duplicate_claims() {
+        let mut cursor = DynamicV2PhysicalOperationCensusV1 {
+            expected_operation_count: 2,
+            expected_if_count: 1,
+            expected_exit_count: 1,
+            operation_order: vec![LoopItemKeyV1::new(0), LoopItemKeyV1::new(1)].into_boxed_slice(),
+            next_operation: 0,
+            remaining_if: 1,
+            remaining_exit: 1,
+        };
+        assert!(matches!(
+            cursor.claim_operation(LoopItemKeyV1::new(1)),
+            Err(DynamicV2RecipeOperationCursorRejectV1::PhysicalOrder { .. })
+        ));
+        cursor
+            .claim_operation(LoopItemKeyV1::new(0))
+            .expect("first physical claim");
+        assert!(matches!(
+            cursor.claim_operation(LoopItemKeyV1::new(0)),
+            Err(DynamicV2RecipeOperationCursorRejectV1::PhysicalOrder { .. })
+        ));
+        cursor
+            .claim_operation(LoopItemKeyV1::new(1))
+            .expect("second physical claim");
+        cursor.claim_if().expect("If claim");
+        cursor.claim_exit().expect("Exit claim");
+        cursor.close().expect("all physical evidence closed");
     }
 }

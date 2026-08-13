@@ -5,12 +5,15 @@
 //! row, canonical binding read, V10 End cutpoint, and exact Completion claim.
 
 use super::callout_corridor::{require_read, DynamicV2CallOutCorridorV1};
-use super::lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1;
+use super::lifecycle_terminal::{
+    DynamicV2PhysicalCleanupCursorV1, DynamicV2PhysicalCleanupCutPointV1,
+    DynamicV2PhysicalLifecycleTerminalPlanV1,
+};
+use super::operation_cursor::DynamicV2PhysicalOperationCensusV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
-use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2TemporaryDischargeRowV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowKindV1;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopOperationV2, LoopValueKeyV1};
@@ -63,13 +66,15 @@ fn validate_then_predecessor(
 
 fn inner_site(
     demand: &VerifiedAPrimeI64PhysicalDemandV1<'_>,
-    cleanup: &[DynamicV2TemporaryDischargeRowV1; 4],
+    cleanup: &DynamicV2PhysicalCleanupCursorV1,
 ) -> Result<crate::mir::resolved_semantics::SourceStmtSiteV1, DynamicV2I8EmitterRejectV1> {
     let site = cleanup
-        .iter()
-        .find(|row| row.kind() == DynamicInvocationCleanupRowKindV1::InnerReturn)
-        .and_then(|row| row.inner_return_site())
-        .cloned()
+        .with_row(DynamicV2PhysicalCleanupCutPointV1::InnerReturn, |row| {
+            (row.kind() == DynamicInvocationCleanupRowKindV1::InnerReturn)
+                .then(|| row.inner_return_site().cloned())
+        })
+        .map_err(|error| reject(format!("InnerReturn cleanup row unavailable: {error:?}")))?
+        .flatten()
         .ok_or_else(|| reject("InnerReturn cleanup site is missing"))?;
     let expected = demand
         .source_relation()
@@ -93,7 +98,8 @@ fn emit_program(
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
-    cleanup: &[DynamicV2TemporaryDischargeRowV1; 4],
+    cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     let rows = program.operation_rows();
@@ -147,6 +153,15 @@ fn emit_program(
             lifecycle.lease_slot(),
         )
         .map_err(reject)?;
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::InnerReturn)
+        .map_err(|error| reject(format!("InnerReturn cleanup claim: {error:?}")))?;
+    operation_census
+        .claim_operation(I11)
+        .map_err(|error| reject(format!("I11 physical operation claim: {error:?}")))?;
+    operation_census
+        .claim_exit()
+        .map_err(|error| reject(format!("Exit physical claim: {error:?}")))?;
     canonical
         .completion
         .claim_explicit_return(
@@ -191,12 +206,22 @@ pub(super) fn emit(
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
-    cleanup: &[DynamicV2TemporaryDischargeRowV1; 4],
+    cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
+    operation_census: &mut DynamicV2PhysicalOperationCensusV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     demand.with_operation_program(|program| {
         emit_program(
-            canonical, outer, program, demand, targets, corridor, lifecycle, cleanup, brand,
+            canonical,
+            outer,
+            program,
+            demand,
+            targets,
+            corridor,
+            lifecycle,
+            cleanup,
+            operation_census,
+            brand,
         )
     })
 }

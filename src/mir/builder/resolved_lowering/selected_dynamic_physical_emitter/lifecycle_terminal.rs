@@ -30,6 +30,70 @@ pub(super) enum DynamicV2PhysicalLifecycleTerminalRejectV1 {
     PlanStamp,
     CleanupCoverage,
     CleanupAction,
+    CleanupConsumption,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum DynamicV2PhysicalCleanupCutPointV1 {
+    I6Fault,
+    I7Fault,
+    InnerReturn,
+    Backedge,
+}
+
+impl DynamicV2PhysicalCleanupCutPointV1 {
+    const fn index(self) -> usize {
+        match self {
+            Self::I6Fault => 0,
+            Self::I7Fault => 1,
+            Self::InnerReturn => 2,
+            Self::Backedge => 3,
+        }
+    }
+}
+
+/// Session-private exact-once cursor for the four existing cleanup rows.
+/// It transports no semantic meaning; the row issuer and cleanup locations
+/// remain the existing A-prime/Recipe products and profile census.
+#[derive(Debug)]
+pub(super) struct DynamicV2PhysicalCleanupCursorV1 {
+    rows: [Option<DynamicV2TemporaryDischargeRowV1>; 4],
+}
+
+impl DynamicV2PhysicalCleanupCursorV1 {
+    pub(super) fn issue(rows: [DynamicV2TemporaryDischargeRowV1; 4]) -> Self {
+        Self {
+            rows: rows.map(Some),
+        }
+    }
+
+    pub(super) fn with_row<R>(
+        &self,
+        cut: DynamicV2PhysicalCleanupCutPointV1,
+        callback: impl FnOnce(&DynamicV2TemporaryDischargeRowV1) -> R,
+    ) -> Result<R, DynamicV2PhysicalLifecycleTerminalRejectV1> {
+        self.rows[cut.index()]
+            .as_ref()
+            .map(callback)
+            .ok_or(DynamicV2PhysicalLifecycleTerminalRejectV1::CleanupConsumption)
+    }
+
+    pub(super) fn claim(
+        &mut self,
+        cut: DynamicV2PhysicalCleanupCutPointV1,
+    ) -> Result<DynamicV2TemporaryDischargeRowV1, DynamicV2PhysicalLifecycleTerminalRejectV1> {
+        self.rows[cut.index()]
+            .take()
+            .ok_or(DynamicV2PhysicalLifecycleTerminalRejectV1::CleanupConsumption)
+    }
+
+    pub(super) fn close(self) -> Result<(), DynamicV2PhysicalLifecycleTerminalRejectV1> {
+        if self.rows.iter().any(Option::is_some) {
+            Err(DynamicV2PhysicalLifecycleTerminalRejectV1::CleanupConsumption)
+        } else {
+            Ok(())
+        }
+    }
 }
 
 /// Move-only physical lifecycle plan.  It records only the exact I6 lease

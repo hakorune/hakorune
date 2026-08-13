@@ -334,6 +334,38 @@ and pre-cutover guards are green. Production counts remain new=0, old=1.
 Do not combine this BoxShape with evidence semantics, backend vocabulary, or
 the production caller switch.
 
+### W6-A1 — `DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0`
+
+Close only the physical evidence already retained by the unpublished session.
+This is the safe first part of W6-A; AOT backend handoff remains closed until
+the static artifact owner is implemented.
+
+```text
+compare demand              = move-only, consumed by I9 exactly once
+cleanup rows                = private cursor, issue=1 / claims=4 / close=1
+physical census             = 15 operations + 1 If + 1 Exit, claim/close once
+profile/DraftSeal before close = reject
+AOT artifact/backend handoff = 0
+new production caller       = 0
+selected old edge           = 1
+```
+
+The cursor may only consume existing A-prime/Recipe/cleanup evidence. It may
+not issue semantic rows, reissue site plans, reinterpret `RejectBeforeEffect`,
+or introduce a provider, LLVM, RuntimeExecutablePlan, VM, fallback, or retry
+consumer.
+
+Focused acceptance requires exact End locations (`I7 Fault`, `ThenTerminal`,
+`Continuation`) and rejects missing, duplicate, foreign, reordered, or
+unclosed evidence before profile close and DraftSeal.
+
+Observed W6-A1 closeout: the move-only compare consumer, four-row cleanup
+cursor, ordered 15-operation/If/Exit cursor, and profile-before-close fence are
+implemented. Focused selected-emitter tests (4), `cargo check --lib`, the
+current-state/AOT/physical-input/VM/pre-cutover guards, and `git diff --check`
+are green; AOT/backend handoff remains 0 and production counts remain new=0,
+old=1.
+
 ### W6-A — `DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0`
 
 Close the physical session evidence that is currently retained and then
@@ -395,7 +427,7 @@ compare demand consumer                                 = 1
 cleanup cursor issue / consume / close                  = 1 / 4 / 1
 17-item physical census                                 = 1
 unpublished RejectBeforeEffect fence                    = 1
-AOT admission backend handoff                           = 1
+AOT admission backend handoff                           = 0 (deferred to W6-D)
 site-plan table reissue                                 = 0
 pre-link static artifact receipt                        = 0
 production caller                                      = 0

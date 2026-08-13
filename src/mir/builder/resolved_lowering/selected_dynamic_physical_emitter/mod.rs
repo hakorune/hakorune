@@ -86,8 +86,8 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     targets: DynamicV2PhysicalTargetSetV1,
     formal_header: DynamicV2OpenedFormalHeaderV1,
     values: DynamicV2PhysicalValueLedgerV1,
-    compare_i64: DynamicV2CompareI64CapabilityDemandV1,
-    cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
+    cleanup_cursor: Option<lifecycle_terminal::DynamicV2PhysicalCleanupCursorV1>,
+    operation_census: operation_cursor::DynamicV2PhysicalOperationCensusV1,
     aot: PreparedAotExecutableAdmissionV1,
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
     lifecycle: lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1,
@@ -307,11 +307,13 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &cleanup,
         )
         .map_err(|error| DynamicV2I8EmitterRejectV1::LifecycleTerminal(format!("{error:?}")))?;
+        let mut cleanup_cursor =
+            lifecycle_terminal::DynamicV2PhysicalCleanupCursorV1::issue(cleanup);
         let (demand, schedule, mut ledger) = plan.into_emitter_parts();
         let input = demand.input();
         let physical_header = demand.physical_function_header();
         let function_name = physical_header.catalog().physical_symbol().to_owned();
-        operation_cursor::validate(&demand).map_err(|error| {
+        let mut operation_census = operation_cursor::validate(&demand).map_err(|error| {
             DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!("{error:?}"))
         })?;
         let (mut canonical, evidence) =
@@ -352,6 +354,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &brand,
             sites,
             evidence,
+            compare_i64,
+            &mut operation_census,
         ) {
             Ok(corridor) => corridor,
             Err(error) => return Self::reject_begin(outer, error),
@@ -361,18 +365,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &mut outer,
             &callout_corridor,
             &lifecycle,
-            &brand,
-        ) {
-            return Self::reject_begin(outer, error);
-        }
-        if let Err(error) = inner_return_then::emit(
-            &mut canonical,
-            &mut outer,
-            &demand,
-            &targets,
-            &callout_corridor,
-            &lifecycle,
-            &cleanup,
+            &mut cleanup_cursor,
             &brand,
         ) {
             return Self::reject_begin(outer, error);
@@ -385,7 +378,22 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &targets,
             &callout_corridor,
             &lifecycle,
+            &mut cleanup_cursor,
+            &mut operation_census,
             &mut values,
+            &brand,
+        ) {
+            return Self::reject_begin(outer, error);
+        }
+        if let Err(error) = inner_return_then::emit(
+            &mut canonical,
+            &mut outer,
+            &demand,
+            &targets,
+            &callout_corridor,
+            &lifecycle,
+            &mut cleanup_cursor,
+            &mut operation_census,
             &brand,
         ) {
             return Self::reject_begin(outer, error);
@@ -400,8 +408,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             targets,
             formal_header,
             values,
-            compare_i64,
-            cleanup,
+            cleanup_cursor: Some(cleanup_cursor),
+            operation_census,
             aot,
             disposition,
             lifecycle,
@@ -426,6 +434,28 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             .outer
             .take()
             .ok_or_else(|| DynamicV2I8EmitterRejectV1::DraftSeal("outer session missing".into()))?;
+        let cleanup_cursor = match self.cleanup_cursor.take() {
+            Some(cursor) => cursor,
+            None => {
+                outer.discard_unpublished();
+                return Err(DynamicV2I8EmitterRejectV1::LifecycleTerminal(
+                    "physical cleanup cursor missing".to_owned(),
+                ));
+            }
+        };
+        if let Err(error) = cleanup_cursor.close() {
+            outer.discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::LifecycleTerminal(format!(
+                "physical cleanup cursor drift: {error:?}"
+            )));
+        }
+        let operation_census = self.operation_census;
+        if let Err(error) = operation_census.close() {
+            outer.discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!(
+                "physical operation census drift: {error:?}"
+            )));
+        }
         let profile = match profile_close::emit(
             &mut canonical,
             &mut outer,

@@ -6,7 +6,10 @@
 //! runtime/provider decision is made here.
 
 use super::callout_corridor::DynamicV2CallOutCorridorV1;
-use super::lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1;
+use super::lifecycle_terminal::{
+    DynamicV2PhysicalCleanupCursorV1, DynamicV2PhysicalCleanupCutPointV1,
+    DynamicV2PhysicalLifecycleTerminalPlanV1,
+};
 use super::targets::DynamicV2OpaquePhysicalTargetV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
@@ -48,6 +51,7 @@ pub(super) fn emit(
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
+    cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     if !corridor.matches(brand) {
@@ -62,6 +66,9 @@ pub(super) fn emit(
     corridor.with_i6_fault(|i6_fault| {
         emit_fault_terminal(canonical, outer, i6_fault, brand, lifecycle.i6_site())
     })?;
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::I6Fault)
+        .map_err(|error| reject(format!("I6 Fault cleanup claim: {error:?}")))?;
 
     corridor.with_i7_fault(|i7_fault| {
         if !i7_fault.matches(brand) {
@@ -90,5 +97,9 @@ pub(super) fn emit(
             .cfg
             .emit_checked_callout_fault(function, block, lifecycle.i7_site())
             .map_err(|error| reject(error.to_string()))
-    })
+    })?;
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::I7Fault)
+        .map(|_| ())
+        .map_err(|error| reject(format!("I7 Fault cleanup claim: {error:?}")))
 }
