@@ -141,8 +141,8 @@ W6-E receipt and caller census
 ### G1 — remove production reachability (`LLVMLITE-PROD0-G1-REACHABILITY-R0`)
 
 Owner: W6-E Boundary artifact receipt plus route/child-process census;
-`G1-ROUTE-BOUNDARY-R0` is landed (default BoundaryPureFirst, named Stage1
-ExplicitHarnessCompat), while `G1-RUNNER-FAILFAST-R0` remains separate.
+route landed (BoundaryPureFirst/Stage1 ExplicitHarnessCompat); `G1-RUNNER-FAILFAST-R0` is the
+selected early-return guard only, ordinary mock compatibility non-production.
 Acceptance: selected Dynamic Boundary caller `= 1`, old raw/JoinIR edge `= 0`,
 ordinary compatibility may remain `= 1`, Boundary artifact receipt/fence `= 1`,
 automatic Python/llvmlite consumer `= 0`, native retry `= 0`, generic C ->

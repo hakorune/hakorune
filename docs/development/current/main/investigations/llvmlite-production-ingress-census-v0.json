@@ -150,15 +150,15 @@
       "negative_evidence": "no Python retry is classified here"
     },
     {
-      "id": "runner-harness-or-fallback",
-      "class": "route_identity_pending",
-      "automatic_production": false,
-      "python_child": "route-dependent",
+      "id": "runner-selected-boundary",
+      "class": "automatic_boundary",
+      "automatic_production": true,
+      "python_child": "zero",
       "native_retry": false,
-      "owner": "src/runner/product/llvm/mod.rs",
-      "selector": "execute_via_harness_or_fallback",
-      "positive_evidence": "Boundary failure can end in a separate mock fallback",
-      "negative_evidence": "the fallback is not a Python retry and remains a G1 typed-fail-fast decision"
+      "owner": "src/runner/product/llvm/harness_executor.rs",
+      "selector": "HarnessExecutorBox::try_execute_selected_dynamic",
+      "positive_evidence": "selected Dynamic uses the Boundary executor directly",
+      "negative_evidence": "selected branch cannot enter PyVM, object-only, ordinary harness, or mock fallback"
     },
     {
       "id": "test-shlib-llvmlite-keep",

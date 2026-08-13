@@ -31,6 +31,14 @@ def need(path: str, needle: str, label: str) -> None:
         fail(f"{label}: {path} does not contain {needle!r}")
 
 
+def need_ordered(path: str, first: str, second: str, label: str) -> None:
+    text = source(path)
+    first_at = text.find(first)
+    second_at = text.find(second)
+    if first_at < 0 or second_at < 0 or first_at >= second_at:
+        fail(f"{label}: expected {first!r} before {second!r} in {path}")
+
+
 ROW_EVIDENCE = {
     "ny-llvmc-default-boundary": (
         ("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary"),
@@ -82,9 +90,9 @@ ROW_EVIDENCE = {
         ("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute"),
         ("src/runner/product/llvm/fallback_executor.rs", "LLVM harness requested"),
     ),
-    "runner-harness-or-fallback": (
-        ("src/runner/product/llvm/mod.rs", "execute_via_harness_or_fallback"),
-        ("src/runner/product/llvm/mod.rs", "fallback_used"),
+    "runner-selected-boundary": (
+        ("src/runner/product/llvm/harness_executor.rs", "try_execute_selected_dynamic"),
+        ("src/runner/product/llvm/mod.rs", "selected_dynamic_aot_metadata_present"),
     ),
     "test-shlib-llvmlite-keep": (
         ("tools/test/lib/shlib.sh", "--harness"),
@@ -221,7 +229,7 @@ def main() -> int:
         "ny-mir-builder-tool",
         "runner-llvmlite-helper",
         "runner-non-python-fallback",
-        "runner-harness-or-fallback",
+        "runner-selected-boundary",
         "test-shlib-llvmlite-keep",
         "smoke-v2-harness-helper",
         "smoke-v2-result-checker",
@@ -283,7 +291,30 @@ def main() -> int:
     need("crates/nyash-llvm-compiler/src/harness_driver.rs", 'Command::new("python3")', "explicit harness child")
     need("tools/ny_mir_builder.sh", "NYASH_LLVM_BACKEND=llvmlite", "explicit tool keep")
     need("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute", "non-Python fallback classification")
+    need("src/runner/product/llvm/mod.rs", "execute_via_harness_or_fallback", "runner orchestration owner")
+    need("src/runner/product/llvm/harness_executor.rs", "try_execute_selected_dynamic", "selected Boundary executor")
+    need("src/runner/product/llvm/mod.rs", "selected Dynamic candidate is Boundary-only; VM execution is rejected", "selected VM fence")
+    need("src/runner/product/llvm/mod.rs", "selected Dynamic object emission is not a live Boundary artifact route", "selected object fence")
     need("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1", "perf Boundary fence")
+
+    runner = source("src/runner/product/llvm/mod.rs")
+    selected_marker = "if selected_dynamic {\n        let code = harness_executor::HarnessExecutorBox::try_execute_selected_dynamic(module)?;"
+    ordinary_marker = "match harness_executor::HarnessExecutorBox::try_execute(module)"
+    need_ordered(
+        "src/runner/product/llvm/mod.rs",
+        selected_marker,
+        ordinary_marker,
+        "selected Boundary dominance",
+    )
+    selected_at = runner.find(selected_marker)
+    ordinary_at = runner.find(ordinary_marker, selected_at + len(selected_marker))
+    if selected_at < 0 or ordinary_at < 0 or selected_at >= ordinary_at:
+        fail("selected Boundary executor must dominate ordinary harness/fallback dispatch")
+    selected_region = runner[selected_at:ordinary_at]
+    if "FallbackExecutorBox::execute" in selected_region:
+        fail("selected Boundary branch must not contain mock fallback")
+    if "try_execute_selected_dynamic(module)?" not in selected_region:
+        fail("selected Boundary branch lost its sole executor")
 
     # The helper is a deletion candidate, not a production claim. Its exact
     # symbol must have no caller outside its defining source file.
