@@ -492,6 +492,15 @@ arity drift, generic CheckedCallOut fallback, or a descriptor sourced from
 main all reject before publication.  Metadata copying and by-name reselection
 are forbidden.
 
+The first child is `...-PRODUCTION-SHAPE-FIXTURE-R0`: it adds only the dual
+function fixture and identity/descriptor negatives.  It must not make the
+Boundary lowerer invent launch-to-helper arguments or emit a fake zero-argument
+stub.  The next `...-PHYSICALIZER-R0` child owns the C dual view and forwards
+the already-selected helper into the existing physicalizer; `...-END-TO-END-R0`
+owns link/receipt/launch evidence.  Until those children land, a production
+shaped candidate is either fully validated or rejected before object effects;
+the old single-function smoke is not evidence for the new identity contract.
+
 ## Row B3: DYNAMIC-V2-STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0
 
 The accepted target is an attempt-unique same-filesystem bundle:
