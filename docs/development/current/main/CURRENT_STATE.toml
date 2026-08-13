@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, W6-E-D0-B receipt transport, single selected-metadata Boundary runner census, receipt-fence handoff, and explicit selected NyRT archive handoff are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; the final live activation is the selected R0 implementation row."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6 handoffs, C1 Boundary physicalizer, static-link receipt owner, and selected package-to-Boundary route are landed. The existing MirModule commit and static artifact publication owners now complete the selected live launch; ordinary compatibility remains source-scoped."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-E-C6 and the final publication boundary design are closed. The selected R0 must reuse the existing root MirModule external commit and Boundary/static-artifact receipt transactions in order; no cross-process rollback or second backend is introduced."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0"
-current_blocker_token = "W6-E-FINAL-LIVE-ACTIVATION-R0: complete the selected final-live publication over the existing two transaction owners. Source: sealed selected package/admission -> canonical DraftSeal/collector -> NormalDefaultPublishedPipelineV1 external commit. Artifact: published MirModule -> Boundary/static-link receipt -> existing artifact publication/launch. Non-authority: test canary, child JSON, RuntimeExecutablePlan, llvmlite, VM, fallback/retry, or a third coordinator. Fail before caller/artifact mutation on brand/key/site/ABI/wire/descriptor/digest/link/receipt drift or pre/post census mismatch. Smallest slice: selected package adapter=1, selected Boundary runner=1, selected raw/JoinIR edge=0, ordinary compatibility=1; publish the final live artifact through the existing owners once. Non-claims: no selected-old deletion, cross-process rollback, or G1/G2/G3 llvmlite retirement."
+current_design_stop = "W6 final-live publication is closed using the existing root MirModule external commit and Boundary/static-artifact receipt transactions in order. The next design stop is the existing LLVMLITE-ROUTE0-CENSUS0 route inventory; no cross-process rollback or second backend is introduced."
+work_mode = "closeout"
+current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0-CLOSEOUT"
+current_blocker_token = "W6-E-CLOSEOUT: selected package adapter=1, Boundary runner=1, selected raw/JoinIR=0, ordinary compatibility=1, MirModule commit=1, static artifact receipt/rename=1, and selected artifact launch are evidenced by focused tests and guards. Next design row: LLVMLITE-ROUTE0-CENSUS0. No new owner, fallback, retry, VM, RuntimeExecutablePlan, or source deletion."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed. C6 shared LLVM-ingress materialization and its scoped census are green. The active row is the final live activation over the two existing publication owners; ordinary compatibility remains source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. Ordinary compatibility remains source-scoped; the next selected row is the staged llvmlite route census."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3/C4/D0-D and C5 are landed; C6 shared SourceBacked|Compatibility materialization is implemented, README-synchronized, and green under focused tests/guards. The next R0 reuses the two existing publication owners for the final selected caller/artifact activation; llvmlite G1 remains closed."
-next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+latest_card_summary = "W6-D/C1/C6 and the final selected package -> MirModule commit -> Boundary receipt/rename -> executable launch route are landed and focused-gated. The next design row is the existing staged LLVMLITE-ROUTE0-CENSUS0 inventory; G1/G2/G3 remain separate and no source deletion is implied."
+next_design_card = "LLVMLITE-ROUTE0-CENSUS0"
+next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -46,7 +46,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6-E compiler-side route ownership now uses the package adapter's sealed Dynamic/Ordinary branch; selected Dynamic bypasses the raw JoinIR handoff, ordinary compatibility remains explicit, and the existing collector/external-commit owner is unchanged. Boundary/artifact/live publication remains closed.",
+  "2026-08-13: W6 final-live closeout: selected package adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, existing MirModule commit=1, Boundary/static artifact receipt+rename=1, and selected executable launch are green; llvmlite remains staged.",
   "2026-08-13: D0-C4 test-only adapter canary now consumes the package-owned selected input/admission into the existing candidate collector without opening a raw source scope; focused canary, pre-cutover, AOT, batch, pointer, and diff gates are green, production remains new=0 old=1.",
   "2026-08-13: W6-D-I2 separated temporary static-artifact observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename-failure cleanup and old-final preservation are focused-tested. W6-D-I1 descriptor/digest/symbol/ABI/wire/PlanStamp evidence remains green; production new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",

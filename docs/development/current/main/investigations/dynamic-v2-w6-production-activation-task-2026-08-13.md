@@ -1,5 +1,5 @@
 ---
-Status: active design task
+Status: closed implementation receipt; next lane is the staged llvmlite route census
 Date: 2026-08-13
 Scope: selected Dynamic W6 production activation, CatalogedBoxMethod drain,
   Boundary C-ABI CheckedCallOut lowering, static post-link artifact receipt,
@@ -38,7 +38,7 @@ selected Dynamic package-adapter handoff                = 1
 selected Dynamic raw AST/JoinIR edge                     = 0
 ordinary compatibility edge                              = 1
 Boundary/static artifact candidate owners                = 1 / 1
-live artifact/executable publication                    = 0
+live artifact/executable publication                    = 1 (temporary published path and launch)
 Rust-VM DynamicV2 production consumer                    = 0
 ```
 
@@ -48,7 +48,7 @@ consume the static artifact receipt before live executable publication. No
 RuntimeExecutablePlan, llvmlite fallback, second collector, or cross-process
 rollback claim is opened here.
 
-## `DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0`
+## `DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0-CLOSEOUT`
 
 ```text
 Decision:
@@ -73,8 +73,8 @@ Fail-fast boundary:
   missing/duplicate defined strict symbol rejects executable publication.
   Neither failure may enter fallback.
 Smallest next slice:
-  Implement one root-owned final-live publication over existing owners.
-  Selected package/Boundary=1 each; selected raw/JoinIR=0; final-live=0 -> 1; ordinary compatibility=1.
+  Close out the existing root-owned final-live publication: selected
+  package/Boundary=1 each, selected raw/JoinIR=0, final-live=1, ordinary=1.
 Non-claims:
   No cross-process rollback, RuntimeExecutablePlan, second backend, llvmlite
   G1/G2/G3 retirement, or ordinary compatibility retirement is claimed here.
@@ -690,7 +690,7 @@ CatalogedBoxMethod collector/mixed normal drain          = 1
 atomic MirModule publication                             = 1
 Boundary C-ABI CheckedCallOut physicalizer               = 1
 static artifact receipt / executable publication         = 1 / 1
-final live publication                                    0 -> 1
+final live publication                                    = 1 (landed)
 RuntimeExecutablePlan issuer/install                     = 0 / 0
 LegacySymbol / FreeStatic conversion                     = 0 / 0
 runtime lookup / generic fallthrough / fallback / retry  = 0 / 0 / 0 / 0
@@ -965,13 +965,13 @@ Python/native/harness/VM production physicalizer         = 0
 CatalogedBoxMethod mixed normal drain                    = 1
 static artifact receipt post-link issuer                 = 1
 RuntimeExecutablePlan production issuer                  = 0
-selected pre-final-live caller census                     = 0 / 1
-selected final live caller switch                         = W6-E-FINAL-LIVE-ACTIVATION-R0
+selected package/Boundary caller census                    = 1 / 1
+selected raw/JoinIR edge                                   = 0; ordinary compatibility = 1
 ```
 
 ## Post-cutover queue
 
-Only after W6-E caller-zero evidence:
+After W6-E final-live evidence:
 
 1. delete the selected raw JoinIR edge, legacy finalizer remnants, reject-only
    canary shells, and stale block/index AOT locator definitions;

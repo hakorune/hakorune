@@ -603,8 +603,8 @@ done
 
 # W6-D-I1: the selected object owns one fixed descriptor projection and the
 # Rust transaction issues one move-only receipt from actual object/archive/
-# executable observations.  Publication and the selected production switch
-# remain caller-zero until W6-E.
+# executable observations.  The selected Boundary runner consumes that
+# receipt; ordinary compatibility remains a separate explicit edge.
 if [[ "$(grep -F -c '#include "hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc"' "$C1_SHIM")" != 1 ]]; then
   guard_fail "$TAG" "artifact descriptor emitter include must be exactly once"
 fi

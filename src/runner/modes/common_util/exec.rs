@@ -476,8 +476,9 @@ pub fn ny_llvmc_emit_exe_bin(
     )
 }
 
-/// Emit a selected Dynamic candidate through the dedicated Boundary receipt
-/// channel. This remains pre-cutover; normal production callers are unchanged.
+/// Emit the selected Dynamic module through the dedicated Boundary receipt
+/// channel. The selected runner consumes this fence before launching the
+/// published temporary artifact; ordinary compatibility uses its own route.
 pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
     module: &crate::mir::MirModule,
     exe_out: &str,
