@@ -820,7 +820,7 @@ channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
 root validator, and the named-owner guard. Focused child/root tests and the
 W6 authority guards are green; the child receipt is not an old-edge witness.
 
-#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design stop)
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design accepted; fast)
 
 ```text
 Decision:
@@ -855,6 +855,12 @@ Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
   production switch; until the final commit new=0 / old=1 remains mandatory.
 ```
+
+Design closeout: worker audits agree on the existing
+`PreparedModuleExternalCommitV1` as the candidate owner and on a root-only
+candidate export seam. The first implementation substep may prepare that
+candidate and consume one child receipt, but it may not expose `commit`, switch
+the selected callback, or retire the old edge.
 
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside
