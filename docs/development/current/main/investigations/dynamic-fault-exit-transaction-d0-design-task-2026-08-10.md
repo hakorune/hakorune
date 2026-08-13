@@ -34,9 +34,10 @@ BoxShape. Selected admission consumption remains W6-only. Production still
 uses the selected raw AST/JoinIR edge and every production
 CheckedCallOut/LLVM/link caller remains zero.
 
-Next ordered task: `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-TRANSPORT-R0`.
-After this transport closes, `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` is the only
-route. All pre-cutover
+Next ordered task: `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`.
+The test-only assembly canary now proves the collector-brand-to-unpublished
+owner chain without opening production. W6 is the only production route. All
+pre-cutover
 physical/session and key-handoff prerequisites are closed; W6 is the only
 route allowed to connect selected package input, physical session, exact-two
 DraftSeal, catalog collector, publication, and old-edge retirement.
@@ -577,20 +578,19 @@ disposition must reject before Builder/session/collector mutation. The
 admitted brand, collector brand, and eventual CheckedCallOut PlanStamp must
 compare equal. W6 keeps provider/runtime/LLVM production callers at zero.
 
-Smallest next slice: this BoxShape lands
-`ModuleLoweringPortV1::with_invocation_brand` and its
-`RawInvocationChildPortV1` delegate, with an unbranded negative. The callback
-cannot escape or store the brand and does not add a new durable receipt.
-Selected admission must consume this callback only inside the complete W6
-activation cell; the canary and all production callers remain unchanged.
+Smallest next slice: the callback transport and test-only W6 assembly canary
+are landed. The canary consumes the collector brand through
+`ModuleLoweringPortV1::with_invocation_brand`, runs the existing admission,
+unpublished physical session, exact-two DraftSeal, and branded collector
+terminal, then discards publication. The production consumer remains inside
+the complete W6 activation cell.
 
 Acceptance: collector callback issuer and raw-child delegate are exactly one;
-the callback has no raw brand constructor or escape; unbranded rejection is
-green; selected admission consumer remains W6-only; admitted registry and
-PlanStamp must share the exact collector brand when W6 opens; generation is
-only an ordinal projection; raw generation input and test-only `legacy_test()`
-are production callers = 0. This BoxShape does not open W6 production
-execution.
+the test-only assembly observes one exact brand through admission, unpublished
+session, exact-two draft, and collector receipt; unbranded rejection is green;
+admitted registry and PlanStamp equal the collector brand; generation is only
+an ordinal projection; raw generation input and test-only `legacy_test()` are
+production callers = 0. This canary does not open W6 production execution.
 Non-claims: successful W6 activation, strict leaf/link cutover, collector
 publication, old-edge retirement, or RuntimeExecutablePlan activation.
 

@@ -39,13 +39,23 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             4,
         ),
     );
-    let mut port = installed.begin_lowering(&context).expect("loan");
+    let mut package_port = installed.begin_lowering(&context).expect("loan");
     let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
         SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
         SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
     })
     .expect("catalog admission");
-    port.with_selected_cataloged_lowering_input(admission, |input| {
+    let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let mut builder = MirBuilder::new();
+    let collector =
+        crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+    let mut invocation =
+        crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
+            &mut builder,
+            collector,
+        );
+    package_port.with_selected_cataloged_lowering_input(admission, |input| {
+        invocation.with_module_port(|builder, module_port| {
         let demand = issue_selected_a_prime_i64_physical_demand(input).expect("A-prime demand");
         let plan = issue_selected_dynamic_v2_emission_plan(demand).expect("V2 plan");
         let target = |item| {
@@ -65,16 +75,18 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
                 DynamicV2PhysicalBlockTargetV1::After
             );
         });
-        let capability = issue_selected_dynamic_v2_physical_capability_admission(
-            plan,
-            crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
-        )
-        .expect("physical capability admission");
+        let capability = module_port
+            .with_invocation_brand(|brand| {
+                let capability = issue_selected_dynamic_v2_physical_capability_admission(plan, brand)
+                    .expect("physical capability admission");
+                assert_eq!(capability.aot_admission().plan_stamp(), brand);
+                capability
+            })
+            .expect("collector brand must reach selected admission");
         let activation = capability
             .prepare_aot_activation()
             .expect("checked CallOut site-plan transport");
-        let mut builder = MirBuilder::new();
-        let mut session = DynamicV2PhysicalEmissionSessionV1::begin(&mut builder, activation)
+        let mut session = DynamicV2PhysicalEmissionSessionV1::begin(builder, activation)
             .expect("unpublished canonical session");
         assert_eq!(session.lifecycle.i6_site().0, 0);
         assert_eq!(session.lifecycle.i7_site().0, 1);
@@ -333,22 +345,14 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert_eq!(completed.draft().signature.name, "ParserScanLoopBox.skip_while/4");
         assert_eq!(completed.draft().signature.return_type, crate::mir::MirType::Integer);
         assert!(builder.function_state.current_function.is_none());
-        let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
-        let collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
-        let mut invocation =
-            crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
-                &mut builder,
-                collector,
-            );
-        let receipt = invocation
-            .with_module_port(|_builder, port| {
-                port.commit_cataloged_box_method_completed(completed)
-            })
+        let receipt = module_port
+            .commit_cataloged_box_method_completed(completed)
             .expect("branded cataloged Box-method collector handoff");
         assert_eq!(receipt.brand(), brand);
         assert_eq!(receipt.payload().symbol(), "ParserScanLoopBox.skip_while/4");
         assert_eq!(receipt.payload().arity(), 4);
         assert_eq!(receipt.payload().policy(), crate::mir::builder::module_draft_collector::DraftPublicationPolicyV1::CanonicalRejectDuplicate);
+        })
     })
     .expect("selected loan");
 }

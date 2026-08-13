@@ -18,7 +18,8 @@ guard_require_files "$TAG" \
 BRAND_PORT="$ROOT_DIR/src/mir/builder/module_lowering_invocation.rs"
 RAW_CHILD="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
 COLLECTOR="$ROOT_DIR/src/mir/builder/module_draft_collector.rs"
-guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"
+EMITTER_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
+guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR" "$EMITTER_TESTS"
 
 ADMISSION_DIR="$ROOT_DIR/src/box_callable/provider_admission"
 
@@ -62,6 +63,12 @@ if rg -n 'ModuleInvocationBrandV1::(legacy_test|test_with_ordinal)' \
   "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR"; then
   guard_fail "$TAG" "production brand transport must not mint a test brand"
 fi
+guard_expect_fixed_in_file "$TAG" ".with_invocation_brand(|brand|" "$EMITTER_TESTS" \
+  "the unpublished W6 canary must consume the collector-backed brand callback"
+guard_expect_fixed_in_file "$TAG" "capability.aot_admission().plan_stamp(), brand" "$EMITTER_TESTS" \
+  "the W6 canary must compare admission PlanStamp with the collector brand"
+guard_expect_fixed_in_file "$TAG" "commit_cataloged_box_method_completed(completed)" "$EMITTER_TESTS" \
+  "the W6 canary must carry the completed draft to the branded collector terminal"
 
 if rg -n 'lookup_core_method|lookup_core_method_result_row|selector|lower_method_call|RuntimeExecutablePlan|function_address|image_digest|Vm|Interpreter' \
   "$ADMISSION_DIR"; then
