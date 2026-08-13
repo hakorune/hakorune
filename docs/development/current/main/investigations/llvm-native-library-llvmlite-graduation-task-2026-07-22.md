@@ -520,6 +520,45 @@ receipts but may not silently change route behavior.
 
 Separate actual selector from descriptive or stale flags.
 
+#### Identity0 design brief (current design stop, 2026-08-13)
+
+```text
+Decision: labels must name actual driver/provider/replay selectors; generic-C
+  -> hako_aot -> harness remains visibly compatibility-scoped.
+Source authority + canonical issuer: route.rs/driver dispatch, provider,
+  CAPI recipe/symbol, and observed child command.
+Non-authority: NYASH_LLVM_USE_HARNESS alone, --harness path, names/comments,
+  job labels, or "Boundary" on a compatibility wrapper.
+Fail-fast: selector/label drift, unnamed Python child, or generic C described
+  as Boundary-only remains a red census.
+Smallest slice: docs/tool-label parity for ny-llvmc README, harness usage,
+  fast-smoke, and C-ABI wording; behavior and precedence stay unchanged.
+Non-claims: no G1/G2/G3 retirement, fallback/provider changes, plugin policy,
+  or llvmlite source deletion.
+```
+
+Identity0 acceptance: `--driver harness` is the direct ny-llvmc selector,
+`HAKO_LLVM_EMIT_PROVIDER=llvmlite` is provider_keep only with CAPI disabled,
+`HAKO_BACKEND_COMPAT_REPLAY=harness` is explicit replay, and
+`NYASH_LLVM_USE_HARNESS=1` is only a top-level runner input. `compile_ll_text`
+is the external `opt/llc` seam. Each keep/non-keep label must match its actual
+selector; the existing route guard remains the only regression gate.
+
+Worker identity receipt (read-only, 2026-08-13):
+
+```text
+tools/run_llvm_harness.sh       = NYASH hint -> hakorune runner -> usually Boundary; name is misleading
+nyash-llvmc/README.md           = incorrectly parallels NYASH hint with --driver harness; replay wording needs explicit replay
+fast-smoke.yml                  = Boundary smokes and explicit replay share one job without route assertion
+lang/c-abi/README.md            = C ABI is transport, not an llvmlite selector; hako_aot is compatibility ingress
+environment inventory           = omits recipe/replay/provider/CAPI selectors and misstates the harness default
+```
+
+The next implementation slice is documentation/label parity for these five
+surfaces plus the existing route guard. It must not rename a live command,
+change provider precedence, add a child-command receipt, or alter runtime
+failure semantics; those are later identity/observe or G1 decisions.
+
 ```text
 actual llvmlite selector:
   --driver harness
