@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. W6-E-D0-C0/C1/C2 candidate borrow, receipt fence, and candidate/fence co-seal plus D0-C3 root-R4 consume/discard typestate are landed; the actual Dynamic candidate-to-external-commit seam and selected callback owner are still absent, so commit and production cutover remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. D0-C0/C1/C2 candidate borrow, receipt fence, candidate/fence co-seal, and D0-C3 root-R4 consume/discard typestate are landed; D0-C4 now has an accepted same-candidate adapter-to-root design, while its implementation and final production cutover remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-D and D0-B are landed. D0-C0/C1/C2 provide the root borrow, non-Clone receipt fence, and candidate/fence co-seal; D0-C3 consumes the test aggregate through a root-owned R4 callback into opaque ready/discard typestate. The actual selected Dynamic emitter still returns a collector receipt rather than PreparedModuleExternalCommit, and no canonical selected callback transition owner exists. Define that owner/seam before any final commit API; child rename-before-root-validation remains a non-claim and production caller mutation remains closed."
-work_mode = "design_stop"
+current_design_stop = "D0-C4 design is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. No separate emitter-to-PreparedModuleExternalCommit seam or global callback state is allowed. Implementation must still prove the selected branch, same-candidate drain, and exact root publication before any caller switch; child rename-before-root-validation remains a non-claim."
+work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
-current_blocker_token = "W6-E-D0-C4: name and close the canonical selected-production callback transition plus the Dynamic-emitter -> PreparedModuleExternalCommit export seam before adding RootReady::commit; reject missing/foreign candidate or transition before effect, keep new=0 old=1 and fallback/retry/VM=0."
+current_blocker_token = "W6-E-D0-C4: implement the selected package-adapter branch into the same root candidate collector, preserve ordinary compatibility, and reuse the existing root prepare_external_commit issuer; reject missing/foreign/duplicate selected input before effect, keep new=0 old=1 and fallback/retry/VM=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9; D0-C0/C1/C2 plus D0-C3 root-ready consume/discard are landed. The next design stop is the missing selected callback owner and actual Dynamic-candidate external-commit seam; new=0 old=1 remains."
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9; D0-C0/C1/C2 plus D0-C3 root-ready consume/discard are landed. D0-C4 accepts the same-candidate package-adapter branch and existing root external-commit issuer; implementation remains new=0 old=1."
 next_design_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
+next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

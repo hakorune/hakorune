@@ -820,63 +820,49 @@ channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
 root validator, and the named-owner guard. Focused child/root tests and the
 W6 authority guards are green; the child receipt is not an old-edge witness.
 
-#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design stop; callback owner missing)
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (accepted design; implementation stopped)
 
 ```text
 Decision:
-  keep one root-only coordinator boundary, but do not implement its final
-  commit yet. The actual Dynamic emitter must first export a prepared module
-  candidate and a canonical selected-production callback transition; only then
-  may the root consume them in one infallible cutover.
+  keep one root candidate transaction. The package adapter is the sole
+  selected-Dynamic route owner: its exactly-once loan chooses the canonical
+  emitter or ordinary child path. Both feed the existing root
+  ModuleBuilderInvocationSession/ModuleLoweringPort/collector; the existing
+  session.prepare_external_commit() remains the sole external-commit issuer.
 Source authority + canonical issuer:
-  Builder candidate/collector and R4 policy stay root-owned; ny-llvmc alone
-  issues the published artifact receipt; the coordinator only consumes it.
-  The missing callback transition issuer must be named before implementation.
+  SelectedCallableSemanticRefV1::Dynamic and its sealed admission select once;
+  NormalDefaultPublishedPipelineV1 is the sole root publication consumer.
 Non-authority:
-  child receipt fields, guard text, block/index locators, raw JoinIR, llvmlite,
-  RuntimeExecutablePlan, fallback, retry, and any second witness product.
+  disconnected test invocations, child receipts, raw AST/JoinIR,
+  LegacySymbol, direct emitter-to-external-commit adapters, global callbacks,
+  llvmlite, RuntimeExecutablePlan, fallback, retry, second witnesses.
 Fail-fast boundary:
-  before any commit, old=1, ordinary compatibility is present, candidate/
-  brand/site/ABI/wire/PlanStamp/descriptor/digest match, receipt is consumed
-  once, and a foreign/missing callback transition rejects without changing
-  live Builder, callback, or old edge. Child rename-before-root-validation is
-  a known non-claim, not a reason to invent a second rollback owner.
+  package/admission/brand, site/ABI/wire/PlanStamp, DraftSeal,
+  key/symbol/arity, artifact receipt, old=1, and ordinary compatibility must
+  match before final commit; missing/foreign/duplicate selected input leaves
+  the live Builder and old edge unchanged.
 Smallest next slice:
-  `D0-C4` — define (without publishing a new semantic receipt yet) the named
-  seam from the real Dynamic emitter to `PreparedModuleExternalCommitV1`, then
-  define one move-only selected-production callback transition for the root to
-  consume. The current `PreparedSelectedDynamicW6RootReadyV1` is a D0 canary
-  over a test candidate; it is not the production candidate owner. Acceptance:
-  real emitter candidate, callback transition issuer, and one root consumer;
-  missing/foreign candidate or transition rejects before effect. Do not add
-  `RootReady::commit` or switch callers until this row is closed.
+  D0-C4 implements package loan -> same candidate collector -> canonical
+  Dynamic emitter, while ordinary compatibility keeps the existing child path.
+  The current PreparedSelectedDynamicW6RootReadyV1 stays a test canary.
+  Acceptance: selected branch caller=1, ordinary branch preserved, same-
+  candidate drain and root external-commit issuer=1, negatives fail before
+  effect. No second callback product or old-edge switch yet.
 Non-claims:
   no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
-  production switch; until the final commit new=0 / old=1 remains mandatory.
+  production switch; `new=0 / old=1` remains mandatory.
 ```
 
-Landed D0-C0 (`2c0b9c585b`) adds the root-only HRTB
-`PreparedModuleExternalCommitV1::with_candidate_module` seam. D0-C1
-(`3a280cdb1e`) changes the root validator's unit result into the non-Clone
-`StaticArtifactReceiptConsumedFenceV1`. D0-C2 (`5b9e245dd5`) co-seals that
-fence with the existing prepared candidate in
-`PreparedSelectedDynamicW6ActivationV1`; it exposes only borrow/discard, not
-commit, callback switch, or old-edge retirement.
+Landed D0-C0 (`2c0b9c585b`) adds the root-only candidate borrow; D0-C1
+(`3a280cdb1e`) adds the non-Clone receipt fence; D0-C2 (`5b9e245dd5`)
+co-seals them in `PreparedSelectedDynamicW6ActivationV1`; D0-C3 consumes the
+aggregate once through the root R4 preflight and returns opaque ready/discard
+typestate. These canaries do not prove the selected adapter branch.
 
-D0-C3 is now landed in the same owner: `consume_after_root_r4_preflight`
-consumes the D0 aggregate once, lets the root callback perform the direct R4
-policy/old-edge/compatibility census, and returns only opaque ready/discard
-typestate. The census result is not retained as a witness. Focused
-positive/rejection tests keep the live Builder unchanged; this does not prove
-that the real Dynamic emitter can produce the external-commit candidate or
-that a selected callback transition exists.
-
-The coordinator must not reconstruct a receipt or reach into the child
-publication transaction. A child rename followed by process loss is outside
-the current claim; stronger rollback is a separate BoxCount only if required.
-
-Until the D0-C4 owner/seam design is closed, no commit or caller mutation may
-execute; the mandatory production counts remain `new=0 / old=1`.
+The coordinator does not reconstruct receipts or enter the child publication
+transaction. Child rename followed by process loss remains outside the claim.
+Until D0-C4 focused gates close, final commit and caller mutation remain
+forbidden; production stays `new=0 / old=1`.
 
 The eventual prepared aggregate must perform all fallible work before commit:
 
