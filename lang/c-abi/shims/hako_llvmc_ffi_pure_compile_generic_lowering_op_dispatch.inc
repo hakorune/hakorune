@@ -1,3 +1,53 @@
+          if (strcmp(op, "checked_callout")==0) {
+            if (hako_llvmc_c1_emit_callout(f, fn_metadata, ins, bid, ii) < 0) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_projection_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_normal_result")==0) {
+            int lane = hako_llvmc_c1_emit_normal_result(f, fn_metadata, ins);
+            long long dst = read_int(ins, "dst");
+            if (lane < 0 || !dst) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_normal_result_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            set_type(dst, T_I64);
+            if (lane == 1) {
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_end")==0) {
+            if (hako_llvmc_c1_emit_end(f, ins, bid, ii) < 0) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_end_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_fault")==0) {
+            int site_ok = 0;
+            long long site = hako_llvmc_c1_int(ins, "site_id", &site_ok);
+            if (!site_ok || site < 0 || site > 1 ||
+                !hako_llvmc_c1_call_for_site(fn_metadata, site)) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_fault_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            /* MIR marks this as a successorless terminal.  A semantic
+             * provider Fault already reached its MIR landing; only malformed
+             * transport/status took the trap paths in the CallOut emitter. */
+            EMIT("  unreachable\n");
+            continue;
+          }
           if (strcmp(op, "const")==0) {
             long long dst = read_int(ins, "dst");
             const char* sval = get_str_const(dst);

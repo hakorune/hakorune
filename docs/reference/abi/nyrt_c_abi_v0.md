@@ -62,6 +62,27 @@ generation check, and handle release remain solely in
 backend contract failure, not as a semantic Fault or fallback. This is a
 projection for the static Boundary lane, not a second lifecycle authority.
 
+### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
+
+The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot
+wire and TextScan entry declarations. The headers own fixed-width transport,
+entry, ABI, and wire vocabulary only:
+
+- `hako.text.scan.substring.v1` has logical arguments `(receiver, start, end)`
+  and produces an EndAuthorized host-handle result;
+- `hako.text.scan.index_of.v1` has logical arguments `(receiver, needle)` and
+  produces an ImmediateI64 result with no lease;
+- both entries write semantic Normal/Fault and payload/disposition/lease data
+  to `HakoDynamicV2CallOutV1`; the `uint32_t` return is transport status.
+
+The canonical MIR `CheckedCallOut` plan/census owns site identity, CFG
+successors, Normal projection, and End chronology. The C physicalizer consumes
+that site-id projection and emits direct calls plus local trap paths for
+malformed transport, wire, or lease status. It does not choose a provider,
+reconstruct a site from block coordinates, or turn a backend contract failure
+into semantic Fault/fallback. Link, artifact validation, and live publication
+remain later W6 transactions.
+
 ## 3. Lifecycle Extension Symbols
 
 Lifecycle-specific handle operations are currently exported from NyRT kernel FFI:

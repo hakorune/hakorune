@@ -242,6 +242,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           err_out,
           "selected Dynamic entry requires exactly four unique nonnegative formal ValueIds");
     }
+    if (!hako_llvmc_c1_validate_projection(signature_root)) {
+      yyjson_doc_free(signature_doc);
+      return set_err_owned(
+          err_out,
+          "selected Dynamic CheckedCallOut projection is missing or inconsistent");
+    }
     yyjson_doc_free(signature_doc);
   } while (0);
 

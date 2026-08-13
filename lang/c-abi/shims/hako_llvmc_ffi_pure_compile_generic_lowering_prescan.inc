@@ -753,6 +753,7 @@
         fprintf(f, "declare void @llvm.trap()\n");
       }
       #include "hako_llvmc_ffi_pure_compile_generic_declarations_emit.inc"
+      hako_llvmc_c1_emit_declarations(f, fn_metadata);
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {
         fclose(f);

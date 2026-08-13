@@ -50,6 +50,11 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 C1A_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 C1A_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 C1A_HEADER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_selected_dynamic_entry_header.inc"
+C1_OWNER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc"
+C1_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
+C1_PRESCAN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
+C1_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi.c"
+C1_SMOKE="$ROOT_DIR/tools/checks/dynamic_v2_checked_callout_physicalizer_smoke.sh"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
@@ -57,6 +62,7 @@ guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
+guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
 
 # C1-A is the only selected-entry signature owner.  The legacy no-parameter
 # header remains available for old seeds, but selected Dynamic must pass the
@@ -466,5 +472,45 @@ for file in "$STRICT_LEAF" "$LEASE" "$SELECTED_LIFECYCLE"; do
     guard_fail "$TAG" "I0-D strict leaf/lease file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+
+# C1 Boundary physicalization is one transport-only owner.  It consumes the
+# typed site-id projection once, emits the two direct entries and lowers the
+# three canonical End cutpoints through the sole Rust lease ABI consumer.
+if [[ "$(grep -F -c '#include "hako_llvmc_ffi_checked_callout_lowering.inc"' "$C1_SHIM")" != 1 ]]; then
+  guard_fail "$TAG" "C1 checked-callout lowering include must be exactly once"
+fi
+if [[ "$(rg -n '^static int hako_llvmc_c1_validate_projection\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 projection validator must have one owner"
+fi
+if [[ "$(rg -n '^static int hako_llvmc_c1_emit_callout\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 CheckedCallOut emitter must have one owner"
+fi
+if [[ "$(rg -n '^static int hako_llvmc_c1_emit_end\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 End emitter must have one owner"
+fi
+if [[ "$(rg -n 'hako_llvmc_c1_emit_callout\(' "$C1_DISPATCH" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 dispatch consumer must be exactly once"
+fi
+if [[ "$(rg -n 'hako_llvmc_c1_emit_declarations\(' "$C1_PRESCAN" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 declaration prescan consumer must be exactly once"
+fi
+if [[ "$(rg -n 'hako_llvmc_c1_emit_end\(' "$C1_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "C1 End issuer definition must be unique"
+fi
+guard_expect_fixed_in_file "$TAG" 'nyrt_dynamic_v2_lease_consume_end_authorized_v1' "$C1_OWNER" \
+  "C1 End must use the sole neutral lease C ABI"
+guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_SUBSTRING' "$C1_OWNER" \
+  "C1 must use the existing direct substring symbol"
+guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_INDEX_OF' "$C1_OWNER" \
+  "C1 must use the existing direct indexOf symbol"
+if rg -n 'require_call_site|lookup_core_method|drop_handle|release_h|mir_call|fallback|retry' "$C1_OWNER"; then
+  guard_fail "$TAG" "C1 owner must not use selector lookup, generic calls, raw release, fallback, or retry"
+fi
+if rg -n 'Provider|Registry|RuntimeExecutablePlan|VM|Interpreter|selector|name lookup' "$C1_OWNER"; then
+  guard_fail "$TAG" "C1 owner must not open provider, registry, executable-plan, or VM authority"
+fi
+if (( $(wc -l < "$C1_OWNER" | tr -d '[:space:]') >= 700 )); then
+  guard_fail "$TAG" "C1 owner reached its 700-line design boundary"
+fi
 
 echo "[$TAG] ok"

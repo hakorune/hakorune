@@ -594,29 +594,30 @@ closed (`new=0`, `old=1`).
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
-Design-stop brief (worker consensus):
+Observed closeout (2026-08-13):
 
 ```text
-Decision: one <700-line Boundary C/LLVM physicalizer consumes the existing
-  typed site-id projection; it is a physical BoxShape, not a new authority.
-Source authority + issuer: canonical MIR CheckedCallOut plan/census and the
-  existing DynamicV2AotCallMetadataProjectionV1; Rust dynamic_v2_lease is the
-  sole End consumer behind nyrt_dynamic_v2_lease_consume_end_authorized_v1.
-Non-authority: block/index coordinates, selector/name/Python lookup, generic
-  mir_call, provider/runtime registry, VM, RuntimeExecutablePlan, and C-owned
-  CFG/lease state.
-Fail-fast: reject before object emission on site/formal/entry/ABI/wire/shape/
-  PlanStamp drift; malformed or Suspended wire and every nonzero End status
-  trap locally with no semantic Fault successor, fallback, or retry.
-Smallest slice: include one checked_callout lowering owner exactly once; direct
-  I6/I7 calls decode the fixed wire, preserve MIR Normal/Fault targets, save the
-  I6 token once, and lower the three existing End cutpoints through the C ABI.
-Non-claims: no link/receipt/publication/RuntimePlan/production switch/old-edge
-  deletion; until the full cell is green, `new=0 old=1` remains required.
+Decision: one 350-line Boundary C/LLVM physicalizer consumes the existing
+  typed site-id projection; it adds no semantic authority.
+Source authority + issuer: canonical MIR CheckedCallOut plan/census and
+  DynamicV2AotCallMetadataProjectionV1; Rust dynamic_v2_lease remains the sole
+  End consumer behind the versioned uint64->uint32 C ABI.
+Non-authority: coordinates, selectors, providers, registries, generic mir_call,
+  VM, RuntimeExecutablePlan, C-owned CFG/lease state, fallback, and retry.
+Observed: direct I6/I7 calls decode the fixed 48-byte wire, preserve MIR
+  Normal/Fault targets, save the I6 token once, and lower exactly three End
+  cutpoints through the sole lease symbol. Malformed/Suspended wire and every
+  nonzero End status trap locally with no semantic Fault successor.
+Evidence: C shared-library build, positive object symbol census, metadata-drift
+  negative smoke, Rust/Python focused tests, cargo check, and authority guards
+  are green. Production remains closed: `new=0`, `old=1`.
+Non-claims: no static link receipt, executable publication, RuntimePlan,
+  production switch, or selected old-edge deletion.
 ```
 
-Acceptance: dedicated C owner `<700`, consumer `=1`, direct sites `=2`, End
-calls `=3`, raw release/lookup/fallback/retry/VM consumers `=0`.
+Acceptance observed: dedicated C owner `<700`, include/dispatch/declaration
+consumers `=1`, direct sites `=2`, End calls `=3`, raw release/lookup/
+fallback/retry/VM consumers `=0`; `new=0`, `old=1`.
 
 ### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I0`
 
