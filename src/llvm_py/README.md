@@ -17,7 +17,8 @@ mainline backend route は `ny-llvm / ny-llvmc` に固定されていて、こ�
 - Python/llvmlite line は explicit opt-in probe/canary keep としてだけ保守する
 - `tools/llvmlite_harness.py` は `"[llvmlite-keep]"` tag で keep lane を self-identify する
 - compat harness は `llvm_builder.py` CLI を `runpy` で再入せず、narrow library seam を直接呼ぶ
-- この repo から retire するのはまだ先で、retire する場合も source + artifact を external archive repo に保存してからだけ行う
+- W6-EのBoundary artifact receiptとcaller-zero証拠後に、G1（本番到達性）→G2（通常build/CI依存）→G3（source/archive）の順で退役する。各段階の正本は [llvmlite graduation task board](../../docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md) とし、ここでは新しい意味論やfallbackを追加しない
+- G3でこのrepoから退役する場合も、独立oracle、fixture/golden、全consumerのzero-or-archiveを確認し、source + artifactをexternal archiveへ保存してから別承認で行う
 
 ## 📂 構造
 ```

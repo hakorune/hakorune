@@ -1,10 +1,10 @@
 ---
-Status: Parked execution board; current production mutation is forbidden
+Status: Parked post-W6 handoff board; current production mutation is forbidden
 Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `MODULE-FINALIZE-VERIFY-CUT0`
+Reserved activation: after `DYNAMIC-V2-AOT-ACTIVATION-I0-W6` caller-zero evidence
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
@@ -12,6 +12,7 @@ Related:
   - crates/nyash-llvm-compiler/README.md
   - src/host_providers/llvm_codegen/README.md
   - src/llvm_py/README.md
+  - docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 ---
 
 # LLVM Native Library And llvmlite Graduation Task Board
@@ -53,6 +54,33 @@ emitter and hands LLVM text to the native library.
 
 `ny-llvmc --driver native` remains a const/print/ret canary. Growing it into a
 second LLVM lowerer is forbidden.
+
+## MIRBuilder W6 handoff lock (2026-08-13)
+
+```text
+Decision: W6-E must close the Boundary route before llvmlite graduation begins.
+Source authority + canonical issuer: W6-E caller census, Boundary artifact receipt, and this board's G1/G2/G3 rows.
+Non-authority: llvmlite output, harness fallback, Python route, native canary, and default build environment.
+Fail-fast boundary: Boundary failure or unsupported MIR is a typed error; no harness retry/fallback; unknown Python ingress blocks G1.
+Smallest next slice: after W6-E, run ROUTE0 census/identity/observe, then close G1, G2, and G3 in order.
+Non-claims: no source deletion, new llvmlite semantics, or current W6 production switch is claimed here.
+```
+
+The W6 prerequisite is observable, not a prose milestone:
+
+```text
+selected canonical caller = 1
+selected old caller = 0
+Boundary artifact receipt = 1
+Python/llvmlite production consumer = 0
+fallback = 0, retry = 0, VM consumer = 0
+```
+
+Until that receipt exists, this board remains parked. Once it exists, G1
+retires automatic production reachability, G2 removes Python/llvmlite from
+default build/CI/perf gates, and G3 separately decides source/archive removal.
+The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
+named keep/oracle lanes; they may not become a new production authority.
 
 ## Corrected current truth
 

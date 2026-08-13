@@ -65,7 +65,8 @@ Wiring（Rust 側）
 
 Mainline note
 - current daily/mainline route は `ny-llvmc` の default boundary route だよ。
-- `llvmlite` は retire 済みではないが、hot-path design owner でもない。
+- W6-EのBoundary artifact receiptと caller-zero 証拠が揃った後、llvmlite は G1（本番到達性）→G2（通常build/CI依存）→G3（source/archive）の段階退役へ進む。G1/G2/G3の受理条件は [graduation task board](../../development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md) が正本。
+- 退役完了までは明示的compat/oracle keep laneとして凍結し、hot-path design ownerには戻さない。Boundary失敗からharnessへの自動fallback/retryは常に禁止。
 - perf / route collapse / EXE daily acceptance は `ny-llvmc` 側で読む。
 
 Tools / CLI（統合フロー）

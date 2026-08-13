@@ -66,6 +66,27 @@ families still reach harness automatically. llvmlite graduation therefore
 requires an ingress census and individual retirement; it is not implied by
 the default-route setting.
 
+### W6-E handoff and llvmlite retirement
+
+The selected Dynamic W6 lane hands off to the graduation board only after the
+Boundary artifact receipt and caller census are complete:
+
+```text
+new selected caller = 1
+selected old edge = 0
+Boundary artifact receipt = 1
+Python/harness/VM production consumers = 0
+fallback = 0, retry = 0
+```
+
+After that handoff, `LLVMLITE-PROD0-G0` (G1) removes automatic production
+reachability and makes unsupported native capability a typed fail-fast.
+`LLVMLITE-AUTO0`/G2 then removes Python and llvmlite from default build, CI,
+and perf gates while keeping explicitly named oracle jobs. `LLVMLITE-KEEP0-RET0`
+(G3) is a later, separately approved source/archive decision requiring an
+independent oracle and a zero-or-archived consumer census. No native or Hako
+failure may retry through llvmlite at any stage.
+
 ### Bootstrap / canary lane
 
 - `crates/nyash-llvm-compiler/src/native_driver.rs`
