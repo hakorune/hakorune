@@ -1,12 +1,12 @@
 ---
-Status: Fast implementation; inventory guard only
+Status: Design stop; inventory and guard closed
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
-Current-row: LLVMLITE-KEEP0-RET0-I0-GUARD-R0
+Current-row: LLVMLITE-KEEP0-RET0-ARCHIVE-D0
 Scope: frozen llvmlite keep-lane source, consumer, fixture/golden, artifact, and restore inventory
 ---
 
-# LLVMLITE-KEEP0-RET0-I0-INVENTORY
+# LLVMLITE-KEEP0-RET0 inventory and archive admission
 
 This is the bounded child task for G3. It prepares the evidence needed for a
 later archive/deletion decision; it does not move or delete source, create an
@@ -104,7 +104,7 @@ are explicit `blocked`/`unavailable`; archive owner, URI, tag, checksums, and
 deletion approval remain null. The manifest was checked against `git ls-files`
 and all three source manifests; the reusable guard is still a follow-on gap.
 
-## Guard implementation: LLVMLITE-KEEP0-RET0-I0-GUARD-R0
+## Closed child: LLVMLITE-KEEP0-RET0-I0-GUARD-R0
 
 ```text
 Decision: add one G3-specific inventory guard; do not extend G0/G2 guards.
@@ -119,6 +119,11 @@ The implementation is a reusable focused guard at
 `tools/checks/llvm_llvmlite_keep0_inventory_guard.py`; it must consume the
 manifest as data, compare exact tracked sets, and remain independent of the
 G0/G2 route/default guards.
+
+The guard is landed and green. It verifies exact tracked/support roots,
+source-qualified G0/G2/shared-smoke row IDs, fixture candidates, platform
+artifact gaps, restore entries, nullable archive fields, and duplicate-root /
+duplicate-consumer negative cases. It does not publish or delete anything.
 
 ## Acceptance
 
@@ -145,10 +150,24 @@ The row is complete only when all of the following are mechanically observable:
 
 Stop and return to design review if the inventory requires source movement,
 new llvmlite lowering, a second oracle authority, fallback/retry, or an
-external archive owner that has not been supplied. After this inventory is
-accepted and its guard is green, a separate approval may choose archive
-publication; only a later row may decide source deletion after zero-or-archived
-consumer evidence.
+external archive owner that has not been supplied. After this inventory and
+guard are green, archive publication remains a separate design stop; only a
+later row may decide source deletion after zero-or-archived consumer evidence.
 
-The next row is not selected by this card. It must be chosen from the manifest
-gaps after the inventory guard is green.
+## Next design stop: LLVMLITE-KEEP0-RET0-ARCHIVE-D0
+
+```text
+Decision: admit archive publication only from an owner-supplied registration and preservation bundle.
+Source authority + canonical issuer: backend-legacy-preservation-and-archive-ssot.md, inventory-v0, and the archive owner's registration.
+Non-authority: keep labels, current-repo archive names, MIRBuilder completion, Python output, and unowned URI/artifact names.
+Fail-fast boundary: missing owner/URI/tag, source snapshot, platform artifact, checksum/provenance, restore procedure, consumer evidence, current-doc reference, or separate deletion approval.
+Smallest next slice: define the admission fields and review receipt for the external bundle; do not publish or move source yet.
+Non-claims: archive published, artifacts preserved, consumers zero, deletion approved, fallback/retry removed, or new llvmlite semantics.
+```
+
+Acceptance for the next design stop is only a reviewable contract: explicit
+owner, repository/URI, tag, source commit, source bundle, platform artifacts,
+`SHA256SUMS`, build manifest, smoke result, restore instructions, current-doc
+link, consumer zero-or-archived evidence, and a separate deletion approval.
+Until each field has an owner-issued value, the inventory keeps it nullable and
+the repository remains unchanged.
