@@ -1,8 +1,9 @@
 //! Normal candidate collector drain and final module-publication lifecycle.
 //!
-//! This owner preserves the selected normal LegacySymbol admission semantics,
-//! while binding the collector to the already-issued candidate-session brand.
-//! It neither reads source nor opens another module/publication route.
+//! This owner preserves the selected normal LegacySymbol and CatalogedBoxMethod
+//! admission semantics, while binding the collector to the already-issued
+//! candidate-session brand. It neither reads source nor opens another
+//! module/publication route.
 
 use std::collections::BTreeSet;
 
@@ -97,8 +98,9 @@ impl PreparedNormalCollectorDrainLifecycleV1<'_> {
 }
 
 impl ModuleDraftCollectorV1 {
-    /// Consume exactly one normal candidate's final legacy rows after source-
-    /// free correspondence, session-brand, and module-collision preflight.
+    /// Consume exactly one normal candidate's final LegacySymbol/CatalogedBoxMethod
+    /// rows after source-free correspondence, session-brand, and module-collision
+    /// preflight.
     pub(in crate::mir::builder) fn prepare_normal_collector_drain<'module>(
         self,
         target: &'module mut MirModule,
@@ -151,25 +153,38 @@ impl SealedNormalCollectorDrainReceiptV1 {
                     key: key.clone(),
                 });
             }
-            if !matches!(key, FunctionDraftKeyV1::LegacySymbol(symbol) if symbol == admission.symbol.as_ref())
-            {
-                return Err(NormalCollectorDrainLifecycleErrorV1::NonLegacyKey {
-                    key: key.clone(),
-                });
-            }
-            if admission.policy != DraftPublicationPolicyV1::LegacyReplaceWholePair {
-                return Err(NormalCollectorDrainLifecycleErrorV1::NonLegacyPolicy {
-                    key: key.clone(),
-                });
-            }
-            if !matches!(
-                &admission.replacement,
-                CollectedDraftReplacementDispositionV1::Inserted
-                    | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
-            ) {
-                return Err(NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
-                    key: key.clone(),
-                });
+            match key {
+                FunctionDraftKeyV1::LegacySymbol(symbol)
+                    if symbol == admission.symbol.as_ref()
+                        && admission.policy == DraftPublicationPolicyV1::LegacyReplaceWholePair
+                        && matches!(
+                            &admission.replacement,
+                            CollectedDraftReplacementDispositionV1::Inserted
+                                | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
+                        ) => {}
+                FunctionDraftKeyV1::CatalogedBoxMethod(_)
+                    if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate
+                        && matches!(
+                            &admission.replacement,
+                            CollectedDraftReplacementDispositionV1::Inserted
+                        ) => {}
+                _ => {
+                    return Err(match key {
+                        FunctionDraftKeyV1::LegacySymbol(_) => {
+                            NormalCollectorDrainLifecycleErrorV1::NonLegacyPolicy {
+                                key: key.clone(),
+                            }
+                        }
+                        FunctionDraftKeyV1::CatalogedBoxMethod(_) => {
+                            NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
+                                key: key.clone(),
+                            }
+                        }
+                        _ => {
+                            NormalCollectorDrainLifecycleErrorV1::NonLegacyKey { key: key.clone() }
+                        }
+                    });
+                }
             }
             if collector.key_by_symbol.get(admission.symbol.as_ref()) != Some(key)
                 || !symbols.insert(admission.symbol.as_ref())
@@ -209,10 +224,14 @@ mod tests {
     }
 
     fn draft(symbol: &str) -> MirFunction {
+        draft_with_arity(symbol, 0)
+    }
+
+    fn draft_with_arity(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
             FunctionSignature {
                 name: symbol.to_owned(),
-                params: Vec::new(),
+                params: vec![MirType::Integer; arity],
                 return_type: MirType::Integer,
                 effects: EffectMask::PURE,
             },
@@ -232,6 +251,78 @@ mod tests {
             .seal(draft(symbol))
             .unwrap()
             .collect();
+    }
+
+    fn collect_cataloged(collector: &mut ModuleDraftCollectorV1) {
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        );
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CatalogedBoxMethod(key),
+                "ParserScanLoopBox.skip_while/4".to_owned(),
+                4,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft_with_arity("ParserScanLoopBox.skip_while/4", 4))
+            .unwrap()
+            .collect();
+    }
+
+    #[test]
+    fn mixed_normal_drain_accepts_legacy_and_cataloged_rows() {
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        collect(&mut collector, "legacy/0");
+        collect_cataloged(&mut collector);
+        let mut target = MirModule::new("normal".to_owned());
+
+        collector
+            .prepare_normal_collector_drain(&mut target, brand())
+            .unwrap()
+            .commit();
+
+        assert_eq!(
+            target.function_names(),
+            vec!["ParserScanLoopBox.skip_while/4", "legacy/0"]
+        );
+    }
+
+    #[test]
+    fn normal_drain_rejects_cataloged_legacy_policy_without_publication() {
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        );
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CatalogedBoxMethod(key),
+                "ParserScanLoopBox.skip_while/4".to_owned(),
+                4,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft_with_arity("ParserScanLoopBox.skip_while/4", 4))
+            .unwrap()
+            .collect();
+        let mut target = MirModule::new("normal".to_owned());
+
+        let rejected = collector
+            .prepare_normal_collector_drain(&mut target, brand())
+            .unwrap_err();
+        assert!(matches!(
+            rejected.error(),
+            NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
+                key: FunctionDraftKeyV1::CatalogedBoxMethod(_)
+            }
+        ));
+        let (collector, _) = rejected.into_parts();
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(target.function_names().is_empty());
     }
 
     #[test]

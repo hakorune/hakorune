@@ -488,6 +488,12 @@ CatalogedBoxMethod -> LegacySymbol/CanonicalCallable conversion, replacement
 disposition drift, symbol-index drift, missing projection, projection-count
 mismatch, and a second drain attempt.
 
+Observed closeout (2026-08-13): the existing normal drain now accepts the
+mixed `LegacySymbol` + `CatalogedBoxMethod` rows with their original policy,
+brand, key, symbol, and arity. Focused lifecycle tests (7 passed), `cargo
+check --lib`, current-state, AOT/physical-input, VM-fence, pre-cutover, and
+in-place-replacement guards are green; production remains `new=0`, `old=1`.
+
 ### W6-C — `DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0`
 
 Add the selected CheckedCallOut physicalizer to the actual default backend:
