@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, and W6-B mixed normal collector drain are landed. Publication-boundary D0 is accepted; W6-C0-A must first connect the existing physical receipt issuer to the canonical session before site-id candidate metadata handoff or Boundary C-ABI physicalization."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, and W6-B mixed normal collector drain are landed. Publication-boundary D0 is accepted; W6-C0-A must first recut the physical receipt to site-id identity and connect its sole issuer before candidate metadata handoff or Boundary C-ABI physicalization."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-A1 and W6-B are closed; W6-C0-A must define the one canonical close-time issuer for the existing physical receipt before W6-C0-B site-id candidate metadata handoff or W6-C1 Boundary C-ABI physicalization. Static artifact receipt and RuntimeExecutablePlan remain later rows."
+current_design_stop = "D0 accepted: compiler MirModule publication and backend executable publication remain separate ordered transactions. W6-A1 and W6-B are closed; W6-C0-A must recut the physical receipt to canonical site-id identity and define its one close-time issuer before W6-C0-B candidate metadata handoff or W6-C1 Boundary C-ABI physicalization. Static artifact receipt and RuntimeExecutablePlan remain later rows."
 work_mode = "design_stop"
-current_execution_row = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-ISSUER-D0"
-current_blocker_token = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-ISSUER-D0: name the existing physical receipt source and canonical session issuer, define the close-time co-seal without using block/index as AOT identity, and reject fabricated/default/reissued receipts before metadata/backend mutation; production remains new=0 and old=1."
+current_execution_row = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-D0"
+current_blocker_token = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-D0: recut APrime call-edge identity to CheckedCallOutSiteIdV1, retain coordinates only as diagnostics if needed, define the canonical close-time issuer, and reject fabricated/default/reissued receipts before metadata/backend mutation; production remains new=0 and old=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, and W6-B mixed normal drain are accepted; W6-C0-A is a design stop for the missing canonical physical-receipt issuer, after which C0-B metadata and C1 Boundary C-ABI work may proceed while the selected old raw/JoinIR edge remains the sole production path."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector canary is landed and unpublished. Publication-boundary D0, W6-S source organization, W6-A1 evidence close, and W6-B mixed normal drain are accepted; W6-C0-A is a design stop for the site-id receipt recut and canonical issuer, after which C0-B metadata and C1 Boundary C-ABI work may proceed while the selected old raw/JoinIR edge remains the sole production path."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,8 +28,8 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0, W6-S source organization, W6-A1 physical evidence close, and W6-B mixed CatalogedBoxMethod normal drain are accepted. W6-C0-A now stops at the missing canonical physical-receipt issuer; C0-B site-id candidate metadata and C1 Boundary C-ABI remain gated behind that issuer. Static artifact receipt/publication and the final selected caller/old-edge atomic replacement remain later rows. RuntimeExecutablePlan is parked; production remains closed."
-next_design_card = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-ISSUER-D0"
+latest_card_summary = "W6 D0, W6-S source organization, W6-A1 physical evidence close, and W6-B mixed CatalogedBoxMethod normal drain are accepted. W6-C0-A now stops at the site-id receipt recut and missing canonical issuer; C0-B candidate metadata and C1 Boundary C-ABI remain gated behind it. Static artifact receipt/publication and final selected caller/old-edge replacement remain later rows. RuntimeExecutablePlan is parked; production remains closed."
+next_design_card = "DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "none (design_stop)"
 next_execution_card_path = "none"
