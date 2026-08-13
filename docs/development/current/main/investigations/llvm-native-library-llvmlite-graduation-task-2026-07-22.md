@@ -529,12 +529,16 @@ Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
 Fail-fast boundary: pure-first symbol loss, recipe-unset generic export,
   implicit hako_aot harness, CAPI-unavailable, plugin error, or unsupported
   input must stop with typed failure; no native retry or second lookup.
-Smallest next slice: compare generic-export recipe/replay gate versus an
-  explicit compat API, then name one bounded fail-fast implementation row;
-  no code, provider-order, fallback, G2/G3, or source-deletion change here.
 Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
   generic backend expansion, or llvmlite source deletion.
 ```
+
+`LLVMLITE-AUTO0-GENERIC-CAPI-FAILFAST-R0` is next: recipe-unset generic C fails
+before a child; direct AOT requires explicit
+`HAKO_BACKEND_COMPAT_REPLAY=harness`; pure-first/replay and named keep lanes
+remain unchanged. Acceptance: typed error + no object/child for missing gates,
+unsupported pure-first/replay=none, preserved replay receipt, and explicit keep
+success; no fallback, provider reorder, G2/G3, or source deletion.
 
 F0 receipt (2026-08-14, closed): one requested CAPI symbol lookup; missing pure-first symbols return typed dlsym failure.
 Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
