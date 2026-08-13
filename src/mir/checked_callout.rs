@@ -631,7 +631,7 @@ mod tests {
             crate::mir::contracts::backend_core_ops::instruction_tag(&term),
             "CheckedCallOut"
         );
-        assert!(!crate::mir::contracts::backend_core_ops::is_supported_mir_json_terminator(&term));
+        assert!(crate::mir::contracts::backend_core_ops::is_supported_mir_json_terminator(&term));
         assert!(!crate::mir::contracts::backend_core_ops::is_supported_vm_terminator(&term));
         assert!(
             crate::mir::contracts::backend_core_ops::llvm_json_ops_for_instruction(&term)

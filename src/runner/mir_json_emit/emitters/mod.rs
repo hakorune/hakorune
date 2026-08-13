@@ -292,6 +292,13 @@ fn emit_instruction(
             ..
         } => calls::emit_call(dst, func, callee.as_ref(), args, effects)
             .ok_or_else(|| "MIR JSON emit contract violation: failed to emit Call".to_string()),
+        I::CheckedCallOutNormalResult { site_id, dst } => Ok(
+            control_flow::emit_checked_callout_normal_result(site_id, dst),
+        ),
+        I::CheckedCallOutEnd {
+            site_id,
+            lease_slot,
+        } => Ok(control_flow::emit_checked_callout_end(site_id, lease_slot)),
         I::NewBox {
             dst,
             box_type,

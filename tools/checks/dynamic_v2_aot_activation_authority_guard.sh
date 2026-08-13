@@ -173,11 +173,33 @@ if rg -n 'lower_method_call|RuntimeExecutablePlan|dynamic_v2_text_scan|lookup_co
   "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA"; then
   guard_fail "$TAG" "neutral CheckedCallOut R0 must not resolve provider, runtime, or generic method routes"
 fi
-for root in "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/src/backend" "$ROOT_DIR/src/runner" "$ROOT_DIR/src/runtime"; do
-  if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult' --glob '*.rs' --glob '*.py' "$root"; then
+for root in "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/crates/nyash_kernel" "$ROOT_DIR/src/backend" "$ROOT_DIR/src/runtime"; do
+  if [[ -d "$root" ]] && rg -n 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult|CheckedCallOutEnd|CheckedCallOutFault' --glob '*.rs' --glob '*.py' "$root"; then
     guard_fail "$TAG" "CheckedCallOut has an unapproved production/JSON/VM caller before R0 completion"
   fi
 done
+# MIR JSON v0 is the sole transport-only exception: it may parse/emit the
+# neutral vocabulary for round-trip inspection, but it must not dispatch it to
+# LLVM, VM, runtime, or a selected production caller.
+for file in \
+  "$ROOT_DIR/src/runner/mir_json_v0/checked_callout.rs" \
+  "$ROOT_DIR/src/runner/mir_json_emit/emitters/control_flow.rs" \
+  "$ROOT_DIR/src/runner/mir_json_emit/emitters/mod.rs" \
+  "$ROOT_DIR/src/runner/mir_json_emit/tests/checked_callout_transport.rs"; do
+  if [[ ! -f "$file" ]]; then
+    guard_fail "$TAG" "CheckedCallOut transport owner is missing: ${file#"$ROOT_DIR/"}"
+  fi
+done
+while IFS= read -r file; do
+  case "$file" in
+    "$ROOT_DIR/src/runner/mir_json_v0/checked_callout.rs"|\
+    "$ROOT_DIR/src/runner/mir_json_emit/emitters/control_flow.rs"|\
+    "$ROOT_DIR/src/runner/mir_json_emit/emitters/mod.rs"|\
+    "$ROOT_DIR/src/runner/mir_json_emit/tests/checked_callout_transport.rs") ;;
+    *) guard_fail "$TAG" "CheckedCallOut has an unapproved runner caller: ${file#"$ROOT_DIR/"}" ;;
+  esac
+done < <(rg -l 'MirInstruction::CheckedCallOut|CheckedCallOutNormalResult|CheckedCallOutEnd|CheckedCallOutFault' \
+  "$ROOT_DIR/src/runner" --glob '*.rs' --glob '*.py' || true)
 if rg -n 'RuntimeExecutablePlanV1|issue_runtime_executable_plan\(' \
   --glob '*.rs' \
   --glob '!runtime_executable_plan.rs' \

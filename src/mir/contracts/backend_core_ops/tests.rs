@@ -281,10 +281,10 @@ fn memop_v0_dialect_is_json_and_llvm_supported() {
 
 #[test]
 fn instruction_diet_ledger_counts_match_ssot() {
-    assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 43);
+    assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 47);
     assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
     assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-    assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 59);
+    assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 63);
 }
 
 #[test]

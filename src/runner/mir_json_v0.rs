@@ -9,6 +9,8 @@ use serde_json::Value;
 mod array_write;
 #[path = "mir_json_v0/call.rs"]
 mod call;
+#[path = "mir_json_v0/checked_callout.rs"]
+mod checked_callout;
 #[path = "mir_json_v0/helpers.rs"]
 mod helpers;
 #[path = "mir_json_v0/lifecycle.rs"]
@@ -23,7 +25,7 @@ use helpers::*;
 use lifecycle::parse_value_transport_or_lifecycle;
 
 /// Parse minimal MIR JSON v0 (no schema_version, root has `functions` and each function has `blocks`).
-/// Supported ops (minimal): const, copy, copy_owned, destroy_owned, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
+/// Supported ops (minimal): const, copy, copy_owned, destroy_owned, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier, checked_callout, checked_callout_normal_result, checked_callout_end, checked_callout_fault.
 pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
     let value: Value = serde_json::from_str(json).map_err(|e| format!("invalid JSON: {}", e))?;
     let functions = value
@@ -398,6 +400,16 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                             then_edge_args: None,
                             else_edge_args: None,
                         });
+                    }
+                    "checked_callout"
+                    | "checked_callout_normal_result"
+                    | "checked_callout_end"
+                    | "checked_callout_fault" => {
+                        let instruction = checked_callout::parse(op, inst)?;
+                        if let Some(dst) = instruction.dst_value() {
+                            max_value_id = max_value_id.max(dst.as_u32() + 1);
+                        }
+                        block_ref.add_instruction(instruction);
                     }
                     "jump" => {
                         let target = require_u64(inst, "target", "jump target")? as u32;
