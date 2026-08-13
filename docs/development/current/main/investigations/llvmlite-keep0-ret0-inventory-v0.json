@@ -6,7 +6,8 @@
   "working_tree": "dirty: unrelated pre-existing Rust changes are not part of this snapshot",
   "source_authority": ["tracked keep-root paths from git ls-files","llvmlite-production-ingress-census-v0.json","llvmlite-default-independence-census-v0.json","llvmlite-shared-smoke-caller-census-v0.json","explicit owner paths and the archive policy"],
   "archive_placement_authority": "docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md",
-  "non_authority": ["keep labels","comments","Python output","MIRBuilder completion","default Boundary status","historical archive names"],
+  "non_authority": ["keep labels","comments","Python output","MIRBuilder completion","default Boundary status","historical archive names","raw text-reference sweeps without route-owner evidence"],
+  "consumer_scope": "source-backed route owners from the G0/G2/shared-smoke manifests; broad textual references remain reference_only unless an executable owner and selector are named",
   "counts": {
     "tracked_keep_root_paths": 255,
     "support_restore_paths": 8,

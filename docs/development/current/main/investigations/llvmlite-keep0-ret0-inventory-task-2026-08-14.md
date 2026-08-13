@@ -79,6 +79,12 @@ selector/driver evidence, class, and whether it is production, explicit
 compat/oracle, reference-only, or already archived. Duplicate row IDs and
 unclassified direct consumers are errors.
 
+Consumer scope is source-backed route ownership, not a raw text grep. Mentions
+in historical docs, archived smoke names, capability tests, guard descriptions,
+or README examples are `reference_only` unless a G0/G2/shared-smoke row names
+the executable owner and selector. A broad reference sweep is useful for
+review, but it cannot prove a runtime consumer or zero-consumer deletion state.
+
 Archive fields are deliberately nullable until an owner exists:
 
 ```text
