@@ -548,6 +548,17 @@ authority. C1 remains forbidden until a separate design-stop audit closes.
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
+Design-stop audit (2026-08-13) consumed the worker premise:
+
+```text
+Decision: C1 is an object-only Boundary projection of the existing CheckedCallOut CFG.
+Source authority + canonical issuer: site-id candidate metadata plus canonical CFG/SSA owners.
+Non-authority: C/LLVM CFG invention, selector/provider lookup, A-prime coordinates, VM/Python.
+Fail-fast boundary: site/entry/ABI/wire/shape/target drift, malformed wire, Suspended, or nonzero End status traps.
+Smallest next slice: one <700-line C include, included once, physicalizing both sites and existing End chronology.
+Non-claims: no link/receipt/RuntimePlan/live publication/production caller/old-edge deletion/fallback/retry.
+```
+
 Only after C0-D is accepted, add the selected physicalizer to the actual default
 Boundary backend:
 
