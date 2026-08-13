@@ -700,11 +700,49 @@ runtime lookup / generic fallthrough / fallback / retry  = 0 / 0 / 0 / 0
 Rust-VM DynamicV2 production consumer                    = 0
 ```
 
-The cutover callback consumes the existing package loan exactly once. It may
-not re-open raw AST lowering, call `lower_loop_or_freeze_v1`, retry another
-route, or retain a dual-production branch. The activation commit is merged
-only when every terminal count is green. After cutover, a per-request compiler
-or link failure remains fail-fast and must never revive the deleted old edge.
+Accepted pre-implementation contract:
+
+```text
+Decision:
+  W6-E is one prepared activation owner over the two existing transactions;
+  it is not a third MIR or artifact authority.
+Source authority + canonical issuer:
+  selected package/admission -> canonical session/DraftSeal/collector;
+  Boundary link -> StaticAotArtifactPublicationTxnV1 receipt.
+Non-authority:
+  raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan, llvmlite,
+  VM, fallback, retry, and any reconstructed receipt/PlanStamp.
+Fail-fast boundary:
+  brand/key/site/ABI/wire/descriptor/digest/link/old-edge census mismatch
+  rejects before final artifact rename; no live Builder or edge mutation.
+Smallest next slice:
+  PreparedSelectedDynamicW6ActivationV1 consumes the completed candidate,
+  prepared static receipt, collector brand, and old-edge witness exactly once.
+Non-claims:
+  no crash-recovery transaction, RuntimeExecutablePlan, or second backend.
+```
+
+The prepared aggregate performs all fallible work before commit:
+
+```text
+candidate collector/module + site-id metadata
+  -> Boundary object + explicit archive link
+  -> descriptor/symbol/digest/PlanStamp receipt
+  -> collector/brand and old-edge witness co-check
+```
+
+Its commit has one filesystem step followed only by infallible in-memory
+steps: rename the verified temporary executable to its final path, consume the
+prepared Builder/module commit, and switch the selected callback while retiring
+the selected raw edge in the same state transition. A rename failure leaves the
+old final artifact, live Builder, and old edge unchanged. The receipt must enter
+a post-rename published state (not retain a stale temporary path), and the
+transaction must add negative coverage for rename failure, concurrent final
+path ownership, and object/archive cleanup. The cutover callback consumes the
+existing package loan exactly once; it may not re-open raw AST lowering, call
+`lower_loop_or_freeze_v1`, retry another route, or retain a dual-production
+branch. After cutover, compiler or link failure remains fail-fast and never
+revives the deleted old edge.
 
 ## Negative matrix
 
