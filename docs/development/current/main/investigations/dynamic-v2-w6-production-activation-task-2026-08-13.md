@@ -864,6 +864,13 @@ fence with the existing prepared candidate in
 `PreparedSelectedDynamicW6ActivationV1`; it exposes only borrow/discard, not
 commit, callback switch, or old-edge retirement.
 
+D0-C3 is now landed in the same owner: `consume_after_root_r4_preflight`
+consumes the aggregate once, lets the root callback perform the direct R4
+policy/old-edge/compatibility census, and returns only opaque ready/discard
+typestate. The census result is not retained as a witness and the final
+commit/callback switch remains closed; focused positive/rejection tests keep
+the live Builder unchanged.
+
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside
 the current claim; stronger rollback is a separate BoxCount only if required.

@@ -243,7 +243,8 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
 pub(crate) use compiler::selected_dynamic_w6_activation::{
-    PreparedSelectedDynamicW6ActivationV1, StaticArtifactReceiptConsumedFenceV1,
+    PreparedSelectedDynamicW6ActivationV1, PreparedSelectedDynamicW6RootReadyV1,
+    SelectedDynamicW6RootPreflightErrorV1, StaticArtifactReceiptConsumedFenceV1,
 };
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
