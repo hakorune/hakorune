@@ -14,6 +14,11 @@ CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
 AOT="$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
+NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
+HARNESS_SCRIPT="$ROOT/tools/run_llvm_harness.sh"
+FAST_SMOKE="$ROOT/.github/workflows/fast-smoke.yml"
+CABI_README="$ROOT/lang/c-abi/README.md"
+ENV_INVENTORY="$ROOT/docs/development/current/main/design/environment-variables-inventory-ssot.md"
 
 fail() {
   echo "[$TAG] FAIL: $*" >&2
@@ -29,7 +34,8 @@ need_fixed() {
   rg -Fq -- "$pattern" "$file" || fail "$label (${file#$ROOT/})"
 }
 
-for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT"; do
+for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
+  "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
 
@@ -63,5 +69,14 @@ need_fixed "$CARD" 'LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0' "identity guard t
 need_fixed "$CARD" 'generic C export -> `hako_aot_compile_json`' "generic C harness route missing from matrix"
 need_fixed "$CARD" 'compile_ll_text' "external-tool route missing from matrix"
 need_fixed "$INDEX" 'tools/checks/llvm_codegen_route_identity_guard.sh' "check index entry missing"
+
+# Identity0 documentation surfaces must describe the actual selectors.
+need_fixed "$NYLLVM_README" 'explicit ny-llvmc keep lane: `--driver harness`' "ny-llvmc README selector wording drifted"
+need_fixed "$NYLLVM_README" 'not a direct `ny-llvmc --driver` selector' "runner hint distinction missing"
+need_fixed "$HARNESS_SCRIPT" 'historical script name and NYASH_LLVM_USE_HARNESS hint' "harness script identity note missing"
+need_fixed "$FAST_SMOKE" 'name: boundary-and-explicit-compat-smoke' "fast-smoke route label drifted"
+need_fixed "$FAST_SMOKE" 'explicit compatibility replay' "fast-smoke replay label missing"
+need_fixed "$CABI_README" 'C ABI 自体は LLVM driver/provider の selector ではない' "C ABI selector boundary missing"
+need_fixed "$ENV_INVENTORY" 'Top-level LLVM compatibility-runner hint; not a direct `ny-llvmc` driver selector' "env selector classification drifted"
 
 echo "[$TAG] ok (selectors, precedence, known hazards, and route matrix are source-backed)"

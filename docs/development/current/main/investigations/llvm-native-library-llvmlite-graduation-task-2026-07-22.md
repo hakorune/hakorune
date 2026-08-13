@@ -519,6 +519,7 @@ receipts but may not silently change route behavior.
 ### `LLVMLITE-ROUTE0-IDENTITY0`
 
 Separate actual selector from descriptive or stale flags.
+Current row: `LLVMLITE-ROUTE0-IDENTITY0-DOC-PARITY-S0` (behavior-free docs/label batch).
 
 #### Identity0 design brief (current design stop, 2026-08-13)
 

@@ -3,11 +3,14 @@
 Responsibility
 - Provide a portable, minimal C ABI surface used by the LLVM line.
 - Read‑only GC externs first (`hako_gc_stats`, `hako_gc_roots_snapshot`), plus memory/console/time/local-env helpers.
-- backend-zero では `.hako` caller から object/exe emission を受ける thin backend boundary の有力置き場でもある。
-- legacy `llvm_ir/AotFacade` caller は archive 化し、daily route は `LlvmBackendBox -> hako_aot` へ寄せる。
+- backend-zero では `.hako` caller から object/exe emission を受ける thin transport boundary の置き場でもある。
+- C ABI 自体は LLVM driver/provider の selector ではない。実際の route は
+  `ny-llvmc --driver`、CAPI recipe/replay、または明示 provider が選ぶ。
+- generic `hako_aot` は互換 ingress として残り、daily Boundary と同一視しない。
 
 Inputs/Outputs
-- In: Extern calls from Hakorune code compiled to LLVM (llvmlite harness / ny-llvmc).
+- In: Extern calls from Hakorune code compiled to LLVM; the selected
+  `ny-llvmc`/CAPI route may be Boundary or an explicitly named compat lane.
 - Out: Simple values (i64) or newly allocated `char*` (caller frees with `hako_mem_free`).
 
 Contracts
