@@ -1,11 +1,11 @@
 ---
-Status: Parked post-W6 handoff board; current production mutation is forbidden
+Status: Post-W6 graduation board; current production mutation is forbidden
 Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` acceptance
-and scoped receipt/caller evidence
+Reserved activation: W6 final-live receipt/caller evidence is landed; G1/G2/G3
+remain independently gated
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
@@ -59,7 +59,8 @@ second LLVM lowerer is forbidden.
 ## MIRBuilder W6 handoff lock (2026-08-13)
 
 ```text
-Decision: W6-E must close the Boundary route before llvmlite graduation begins.
+Decision: W6-E Boundary route closeout is prerequisite evidence for llvmlite
+graduation; the current pointer records that selected route as landed.
 Source authority + canonical issuer: W6-E caller census, Boundary artifact receipt, and this board's G1/G2/G3 rows.
 Non-authority: llvmlite output, harness fallback, Python route, native canary, and default build environment.
 Fail-fast boundary: Boundary failure or unsupported MIR is a typed error; no harness retry/fallback; unknown Python ingress blocks G1.
@@ -80,18 +81,13 @@ Python/llvmlite production consumer = 0
 fallback = 0, retry = 0, VM consumer = 0
 ```
 
-`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` has landed the existing
-receipt-gated selected runner terminal, including the explicit runtime-archive
-path required by the Boundary link ABI. `W6-E-C6` has now landed the shared
-LLVM-ingress SourceBacked|Compatibility materialization boundary and scoped
-receipt/caller evidence. The remaining `W6-E-FINAL-LIVE-PUBLICATION-D0`
-design stop must keep compiler MIR publication and backend executable
-publication as two ordered transactions; it does not create a new transaction
-or retire ordinary compatibility. Until that final W6 boundary is accepted,
-this board remains parked. Once final W6 live publication and its scoped
-receipt/caller evidence exist, G1
-retires automatic production reachability, G2 removes Python/llvmlite from
-default build/CI/perf gates, and G3 separately decides source/archive removal.
+`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` and `W6-E-C6` landed the
+receipt-gated selected runner terminal, runtime-archive path, shared
+LLVM-ingress materialization boundary, and scoped receipt/caller evidence.
+Compiler MIR publication and backend executable publication remain two ordered
+transactions; ordinary compatibility is not retired here. G1 retires automatic
+production reachability, G2 removes Python/llvmlite from default build/CI/perf
+gates, and G3 separately decides source/archive removal.
 The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
 named keep/oracle lanes; they may not become a new production authority.
 
@@ -520,11 +516,12 @@ Identity0/OBSERVE0 are closed behavior-free selector/child-evidence batches.
 The route guard remains the regression gate; explicit keep/oracle lanes remain
 source-scoped and no llvmlite source deletion is implied.
 
-### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0`
+### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0` (design stop)
 
 ```text
-Decision: retire automatic generic-C/API -> hako_aot -> harness reachability;
-  keep explicit `--driver harness`, provider_keep, and replay lanes unchanged.
+Decision: design the retirement of automatic generic-C/API -> hako_aot ->
+  harness reachability; keep explicit `--driver harness`, provider_keep, and
+  replay lanes unchanged.
 Source authority + canonical issuer: route plan/driver/provider/replay choice,
   exact CAPI symbol, hako_aot child command, plugin result, and child evidence.
 Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
@@ -532,38 +529,49 @@ Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
 Fail-fast boundary: pure-first symbol loss, recipe-unset generic export,
   implicit hako_aot harness, CAPI-unavailable, plugin error, or unsupported
   input must stop with typed failure; no native retry or second lookup.
-Smallest next slice: `LLVMLITE-AUTO0-CAPI-SYMBOL-FAILFAST-F0` removes only the
-  requested CAPI symbol fallback; generic ingress and plugin policy remain a
-  design stop with no provider-order or source-deletion change.
+Smallest next slice: compare generic-export recipe/replay gate versus an
+  explicit compat API, then name one bounded fail-fast implementation row;
+  no code, provider-order, fallback, G2/G3, or source-deletion change here.
 Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
   generic backend expansion, or llvmlite source deletion.
 ```
 
-F0 receipt (2026-08-14, closed): `compile_via_capi` performs exactly one
-requested-symbol lookup; missing pure-first symbols return a typed dlsym error
-and never try the generic symbol. `llvm_codegen_route_identity_guard.sh`,
-`current_state_pointer_guard.sh`, `cargo fmt --all -- --check`, route-focused
-tests (2 passed), and `git diff --check` are green. This does not claim
-automatic Python ingress zero, plugin error propagation, or G1 close.
+F0 receipt (2026-08-14, closed): one requested CAPI symbol lookup; missing pure-first symbols return typed dlsym failure.
+Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
+`link_object` preserve success paths and map backend errors to
+`BidError::PluginError`; focused tests, route guard, fmt, pointer guard, and
+diff check are green. Generic C/hako_aot ingress remains design-only; no
+provider order or source deletion changes here.
 
-Ingress matrix to close before code:
+### `LLVMLITE-AUTO0-PLUGIN-ERROR-RET0`
 
 ```text
-stage1 replay=harness       = explicit keep; receipt required; no auto retry
-env.codegen no recipe       = generic C is not an implicit Boundary; typed stop
-generic CAPI symbol         = exact recipe symbol only; no `.or_else(generic)`
-hako_aot_compile_json       = harness child only from explicit keep admission
-plugin emit/compile error   = typed Err or explicit non-retry None contract
+Decision: codegen plugin failures must remain typed `BidResult::Err`; do not
+  turn `compile_ll_text`, `emit_object`, or `link_object` errors into `None`.
+Source authority + canonical issuer: compat_codegen_receiver plus existing
+  hostbridge `Result<String,String>` owner; explicit keep routes unchanged.
+Non-authority: MIR hostbridge, generic C/hako_aot routing, provider names,
+  NYASH hint, llvmlite output, and unrelated optional `None` values.
+Fail-fast: backend/plugin error -> `BidError::PluginError` before false success.
+Smallest next slice: one result adapter helper, success/error tests, and guard.
+Non-claims: no generic ingress retirement, provider reorder, G2/G3, or deletion.
 ```
 
-Worker source census (2026-08-14): `mir_json_text_object.rs` owns CAPI/provider/
-Boundary order; `route.rs` owns request classification; `capi_transport.rs`
-owns the selected symbol; `hako_llvmc_ffi_route.inc` owns C exports;
-`hako_aot_shared_impl.inc` owns the child command; and
-`compat_codegen_receiver.rs` owns the plugin result boundary. The existing
-`llvm_codegen_route_identity_guard.sh` is the shared gate. This matrix changes
-no behavior and does not authorize a fallback, provider reorder, or source
-deletion; it only names the implementation evidence required next.
+Closeout (2026-08-14): all three codegen methods preserve success and map
+backend errors to `Err(BidError::PluginError)`; focused tests, guards, fmt, and
+diff check are green. Direct MIR hostbridge/keep lanes are unchanged.
+
+### Boundary C ABI role lock (DOC2)
+
+```text
+Decision: versioned C ABI is a thin transport bridge, never semantic authority.
+Source authority + issuer: MIR/site plan plus sole Rust lease owner.
+Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease
+  table, generation checks, or release semantics.
+Fail-fast: bad status/wire/ABI/suspension traps before a semantic successor;
+  no Python fallback. Next: one core-ABI symbol/header and Boundary consumer;
+  no new receipt, alternate ABI, publication, VM parity, or deletion.
+```
 
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0`
 

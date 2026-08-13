@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "G1 generic C/hako_aot/plugin automatic reachability remains a design stop after F0 exact CAPI symbol lookup closeout. G2/G3 retirement, fallback policy, provider precedence, and source deletion remain unopened."
+current_design_stop = "G1 generic C/hako_aot automatic reachability remains a design stop after F0 and plugin-error closeout. G2/G3 retirement, fallback policy, provider precedence, and source deletion remain unopened."
 work_mode = "design_stop"
 current_execution_row = "LLVMLITE-AUTO0-GENERIC-CAPI-RET0"
-current_blocker_token = "LLVMLITE-AUTO0-GENERIC-CAPI-RET0: F0 exact CAPI symbol lookup is closed; retire remaining automatic generic C/API -> hako_aot -> harness reachability while preserving explicit keep/oracle lanes. Source authority + canonical issuer are route plan, driver/provider/replay selection, exact CAPI symbol, hako_aot child command, plugin result, and child evidence. Non-authority is generic recipe fallback, provider names, NYASH_LLVM_USE_HARNESS alone, llvmlite output, plugin Err=>Ok(None), or a second lookup. Fail-fast boundary is recipe-unset generic export, implicit harness ingress, CAPI/plugin failure, or unsupported input. Smallest next slice: design the remaining generic ingress and plugin error contract; no code, provider-order change, G2/G3 retirement, or source deletion."
+current_blocker_token = "LLVMLITE-AUTO0-GENERIC-CAPI-RET0: design the remaining automatic recipe-unset generic C -> hako_aot -> harness ingress and its typed fail-fast boundary. Source authority + canonical issuer are route plan, exact CAPI symbol, hako_aot child command, plugin result, and child evidence. Non-authority is llvmlite output, provider names, NYASH_LLVM_USE_HARNESS alone, explicit keep/oracle routes, or source deletion. Fail-fast boundary is recipe-unset generic export, implicit hako_aot harness, CAPI/plugin failure, or unsupported input before Python ingress. Smallest slice: accepted design brief and one bounded implementation row; no code, provider reorder, fallback, G2/G3 retirement, or deletion in design_stop."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0 exact CAPI symbol lookup is closed; the selected next design stop is LLVMLITE-AUTO0-GENERIC-CAPI-RET0. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0 and the bounded plugin error adapter are closed; generic C/hako_aot ingress is the next design stop. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, and F0 exact CAPI symbol lookup are closed. Generic ingress retirement remains a design stop."
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 selected-Dynamic route fencing, F0 exact CAPI lookup, and plugin typed-error propagation are closed. Generic C/hako_aot ingress retirement remains a design stop."
 next_design_card = "LLVMLITE-AUTO0-GENERIC-CAPI-RET0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"
@@ -57,5 +57,5 @@ landed_tail = [
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
-  "2026-08-14: F0 exact CAPI compile-symbol lookup is closed: requested symbol is resolved once, missing pure-first symbol is typed fail-fast, generic fallback is forbidden by route guard; generic ingress and plugin error policy remain design-stop.",
+  "2026-08-14: F0 exact CAPI symbol lookup and plugin codegen typed-error propagation are closed; focused tests, route guard, fmt, and diff checks are green. Generic C/hako_aot ingress remains design-stop; G1/G2/G3 are not claimed.",
 ]
