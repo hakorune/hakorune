@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; next fast row is DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust pre-backend launch/helper fence landed; next fast child is the C side of DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -11,12 +11,11 @@ Scope: selected Dynamic admission, post-seal lifecycle, publication, Boundary re
 This card accepts the post-W6 audit without reopening Recipe, CheckedCallOut
 meaning, Completion, or DraftSeal semantics.  A broader worker audit found
 that the selected infrastructure is not yet an end-to-end executable route:
-the runner stops at its PyVM nonconsumer fence, final module verification is
-not a strict commit barrier, and Boundary confuses the zero-argument launch
-entry with the metadata-bearing selected helper.  Upstream declaration-mode
-admission and one safe lexical-scope owner also require correction.  The
-selected canonical core remains the authority; these rows make every boundary
-from admission through launch fail closed.
+the Rust runner now has a strict PyVM/verification fence and a pre-backend
+launch/helper identity check, while Boundary still needs its matching dual
+view.  Upstream declaration-mode admission and one safe lexical-scope owner
+also required correction.  The selected canonical core remains the authority;
+these rows make every boundary from admission through launch fail closed.
 
 ## Six-line brief
 
@@ -461,9 +460,12 @@ belongs earlier in source/Facts/Recipe/canonical lowering.
 Closeout evidence (2026-08-14): selected now skips PyVM when unrequested,
 rejects an explicit PyVM request, scans the existing legacy-callsite classifier
 before backend effects, and reaches the single selected Boundary caller without
-ordinary harness/mock fallback.  Focused route/legacy-callsite tests, LLVM
-feature and default `cargo check --lib`, AOT/text/pointer guards, and diff check
-are green; selected production remains `0/old=1`.  Helper identity is next.
+ordinary harness/mock fallback.  The Rust pre-backend identity fence adds
+exactly one zero-argument launch, one distinct four-argument selected helper,
+and five focused negative/positive tests; C dual-view/physicalization and
+end-to-end launch remain open.  Focused route/identity tests, LLVM feature and
+default `cargo check --lib`, AOT/text/pointer guards, and diff check are green;
+selected production remains `0/old=1`.
 
 ## Boundary design: DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
 

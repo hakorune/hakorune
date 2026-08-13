@@ -98,6 +98,14 @@ impl NyashRunner {
                 Err(error) => report::emit_error_and_exit(LlvmRunError::fatal(error)),
             };
 
+        if selected_dynamic {
+            if let Err(error) = crate::runner::modes::common_util::selected_dynamic_identity::
+                validate_selected_dynamic_launch_helper_identity(&compile_result.module)
+            {
+                report::emit_error_and_exit(LlvmRunError::fatal(error));
+            }
+        }
+
         let mut module = if selected_dynamic {
             compile_result
                 .into_verified_module()

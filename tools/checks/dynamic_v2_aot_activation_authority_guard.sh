@@ -39,6 +39,7 @@ CALLOUT_TESTS="$ROOT_DIR/src/mir/checked_callout/tests.rs"
 CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
+SELECTED_IDENTITY="$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_identity.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/mod.rs"
 CALLOUT_CORRIDOR_EMISSION="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/emission.rs"
@@ -66,7 +67,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_LOWERING" "$C1A_HEADER"
 guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
@@ -78,6 +79,19 @@ guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RU
 if [[ "$(rg -n '^static int hako_llvmc_selected_dynamic_parameter_signature_valid\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "C1-A selected Dynamic parameter-signature validator must have one owner"
 fi
+
+# Rust owns the first selected launch/helper identity fence.  The C dual view
+# remains a later child; do not let the route bypass this pre-backend check.
+if [[ "$(rg -n '^pub\(crate\) fn validate_selected_dynamic_launch_helper_identity\(' "$SELECTED_IDENTITY" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected Rust launch/helper identity validator must have one owner"
+fi
+if [[ "$(rg -n 'validate_selected_dynamic_launch_helper_identity\(' "$ROOT_DIR/src/runner/product/llvm/mod.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "selected runner must consume the launch/helper identity fence exactly once"
+fi
+guard_expect_fixed_in_file "$TAG" "SELECTED_HELPER_ARITY: usize = 4" "$SELECTED_IDENTITY" \
+  "selected helper identity must require the exact four-parameter shape"
+guard_expect_fixed_in_file "$TAG" "zero-argument main or ny_main launch" "$SELECTED_IDENTITY" \
+  "selected helper identity must require a zero-argument launch"
 if [[ "$(rg -n '^static int hako_llvmc_emit_selected_dynamic_entry_header\(' "$C1A_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "C1-A parameterized selected-entry header issuer must have one owner"
 fi

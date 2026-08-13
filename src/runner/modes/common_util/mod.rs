@@ -19,6 +19,7 @@ pub mod resolve;
 pub mod safety_gate;
 pub mod selfhost;
 pub mod selfhost_exe;
+pub(crate) mod selected_dynamic_identity;
 pub mod source_hint;
 pub(crate) mod static_artifact_receipt;
 pub mod user_box_factory;
