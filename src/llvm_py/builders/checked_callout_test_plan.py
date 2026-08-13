@@ -88,6 +88,39 @@ def _unique_by_site(items: Sequence[Any], label: str) -> dict[int, Any]:
     return result
 
 
+def _validate_site_contract(
+    terminator: CheckedCallOutTerminatorView,
+    call: Any,
+) -> None:
+    """Cross-check transport shape against the already-issued admission row.
+
+    The admission loader remains the sole role/entry/ABI authority.  This
+    helper only proves that a test fixture's neutral transport site consumes
+    the row that was already selected; it never derives a role from a site.
+    """
+
+    expected_arguments = {
+        "substring": 2,
+        "index_of": 1,
+    }
+    expected_result = {
+        "substring": "opaque_handle",
+        "index_of": "immediate_i64",
+    }
+    expected_lease = {
+        "substring": "end_authorized",
+        "index_of": "none",
+    }
+    if call.site_id != terminator.site_id:
+        raise CheckedCallOutTestPlanError("transport site does not match admission site")
+    if len(terminator.arguments) != expected_arguments[call.role]:
+        raise CheckedCallOutTestPlanError(f"{call.role} argument lane count drift")
+    if call.result_lane != expected_result[call.role]:
+        raise CheckedCallOutTestPlanError(f"{call.role} result lane drift")
+    if call.lease != expected_lease[call.role]:
+        raise CheckedCallOutTestPlanError(f"{call.role} lease shape drift")
+
+
 def validate_checked_callout_test_fixture(
     operations: Sequence[Mapping[str, Any]],
     function_data: Mapping[str, Any],
@@ -118,6 +151,21 @@ def validate_checked_callout_test_fixture(
     site_ids = tuple(sorted(terminator_by_site))
     if site_ids != (0, 1):
         raise CheckedCallOutTestPlanError("fixture sites must be the canonical pair (0, 1)")
+    admission_by_site = {call.site_id: call for call in admission.calls}
+    if set(admission_by_site) != set(terminator_by_site):
+        raise CheckedCallOutTestPlanError("transport sites must cover admitted sites")
+    for site in site_ids:
+        _validate_site_contract(terminator_by_site[site], admission_by_site[site])
+    all_landings = tuple(
+        landing
+        for site in site_ids
+        for landing in (
+            terminator_by_site[site].normal_landing,
+            terminator_by_site[site].fault_landing,
+        )
+    )
+    if len(set(all_landings)) != len(all_landings):
+        raise CheckedCallOutTestPlanError("CheckedCallOut landing blocks must be site-local")
     if set(projection_by_site) != set(terminator_by_site):
         raise CheckedCallOutTestPlanError("Normal projections must cover both terminators")
     if set(fault_by_site) != set(terminator_by_site):

@@ -28,8 +28,9 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
   dispatcher and does not emit LLVM; malformed operations fail before a later
   W6 physical consumer can observe them.
 - `../builders/checked_callout_test_plan.py` is a closed-mode fixture validator
-  that joins the transport view and admission facts for focused tests only; it
-  is not an LLVM or runtime caller.
+  that joins the transport view and already-issued admission rows, co-checks
+  each site's role/arity/result/lease shape, and is not an LLVM or runtime
+  caller.
 
 ## Shared SSOT
 

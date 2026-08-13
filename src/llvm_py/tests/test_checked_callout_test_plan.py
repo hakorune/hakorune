@@ -75,6 +75,17 @@ class TestCheckedCallOutTestPlan(unittest.TestCase):
         with self.assertRaises(CheckedCallOutTestPlanError):
             validate_checked_callout_test_fixture(operations, _valid_admission_data())
 
+    def test_transport_shape_must_match_admitted_site(self):
+        operations = _valid_operations()
+        operations[0]["args"] = [6]
+        with self.assertRaises(CheckedCallOutTestPlanError):
+            validate_checked_callout_test_fixture(operations, _valid_admission_data())
+
+        operations = _valid_operations()
+        operations[4]["normal"] = operations[0]["normal"]
+        with self.assertRaises(CheckedCallOutTestPlanError):
+            validate_checked_callout_test_fixture(operations, _valid_admission_data())
+
 
 if __name__ == "__main__":
     unittest.main()
