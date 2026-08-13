@@ -172,6 +172,9 @@ keep labels, Python output, MIRBuilder completion, or default-route status.
 Fail-fast on deletion before archive/evidence, fallback/retry, or new semantics.
 Next slice is archive/consumer/fixture inventory only; non-claims are source
 deletion, new backend authority, production switch, and fallback removal.
+Manifest fields are source commit/tree, artifact checksums, fixture/golden paths,
+consumer rows, restore command, archive URI/tag, and separate deletion approval;
+no external archive path is invented before its owner exists.
 
 ## Corrected current truth
 
