@@ -208,12 +208,8 @@ def main() -> int:
             pending.append(row_id)
         counts[row_class] = counts.get(row_class, 0) + 1
 
-    # These are the current G2 blockers, not a production-success assertion.
-    required_pending = {
-        "g2-perf-microbench",
-    }
-    if not required_pending.issubset(pending):
-        fail("known G2 blocker rows disappeared from the pending set")
+    if pending:
+        fail(f"G2 pending rows remain after default-boundary close: {sorted(pending)}")
 
     bundle = read_source("tools/perf/run_phase21_5_perf_gate_bundle.sh")
     for toggle in (
@@ -243,6 +239,14 @@ def main() -> int:
             fail(f"{row_id}: implicit llvmlite selector remains")
         if "perf_hot_trace_require_llvmlite_backend" not in text:
             fail(f"{row_id}: explicit llvmlite gate is missing")
+
+    microbench = read_source("tools/perf/microbench.sh")
+    if 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"' not in microbench:
+        fail("g2-perf-microbench: Boundary-neutral harness default is missing")
+    if "Boundary is the default; explicit =1 keeps the frozen llvmlite oracle." not in microbench:
+        fail("g2-perf-microbench: explicit oracle boundary comment is missing")
+    if "NYASH_LLVM_USE_HARNESS=1 \"$BIN\" --backend llvm" in microbench:
+        fail("g2-perf-microbench: hardcoded harness invocation remains")
 
     validate_caller_census()
     validate_shared_default_boundary()

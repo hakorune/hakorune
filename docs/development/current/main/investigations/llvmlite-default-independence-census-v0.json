@@ -94,12 +94,12 @@
     },
     {
       "id": "g2-perf-microbench",
-      "class": "default_pending",
+      "class": "default_boundary",
       "automatic_production": false,
-      "python_dependency": "route-dependent",
+      "python_dependency": "zero",
       "owner": "tools/perf/microbench.sh",
-      "selector": "--backend llvm",
-      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "NYASH_LLVM_BACKEND=crate"]
+      "selector": "--backend llvm (Boundary default; explicit NYASH_LLVM_USE_HARNESS=1 oracle)",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\"", "Boundary is the default; explicit =1 keeps the frozen llvmlite oracle.", "NYASH_LLVM_BACKEND=crate"]
     },
     {
       "id": "g2-perf-method-call-hot-trace",

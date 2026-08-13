@@ -152,32 +152,26 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-G2 census, perf-oracle, caller census, and shared-smoke default are closed at
-the boundary: 17 roots, 7 default-boundary, 1 pending microbench, and 29
-callers (13 explicit compat, 14 default-boundary, 2 owners); selector admission
-is green and the full oracle smoke is a known stale-artifact red.
-`LLVMLITE-AUTO0-G2-MICROBENCH-R0` is accepted: non-`--exe` `--backend llvm`
-forwards `NYASH_LLVM_USE_HARNESS` default `0`; explicit `=1` is named
-oracle/compat. Authority/issuer: `microbench.sh` + existing `aot_helpers.sh` /
-Boundary `ny-llvmc`; non-authority is labels, Python output, and counters; fail-fast on implicit harness/fallback/retry/G3; next slice is selector+guard+docs.
+G2 census, perf-oracle, caller census, shared-smoke default, and microbench
+are closed at the boundary: 17 roots, 8 default-boundary, 29 callers (13
+explicit compat, 14 default-boundary, 2 owners); selector admission is green
+and the full oracle smoke remains a known stale-artifact red.
+`LLVMLITE-AUTO0-G2-MICROBENCH-R0` receipt: non-`--exe` `--backend llvm` now
+forwards `NYASH_LLVM_USE_HARNESS` default `0`; explicit `=1` remains named
+oracle/compat. The case owner is split below 800 lines; no new backend/counter.
+G3 is now the separate design stop; G2 fail-fast remains implicit harness/fallback/retry=0.
 
 ### G3 — archive or delete the keep lane
 
-Owner: `LLVMLITE-KEEP0-RET0`. This row has two ordered decisions: first archive
-the frozen source/artifact and fixture/golden evidence, then separately approve
-source deletion only after the zero-or-archived consumer census. G1 and G2 never
-imply either G3 decision.
-
-The keep lane is frozen during G1/G2: no new semantic lowering, ABI authority,
-fallback, or production caller may be added to `src/llvm_py/**`, the harness,
-or the explicit `--driver harness` path. Its only permitted outputs are
-named compatibility/oracle evidence and preserved fixtures. A later G3
-decision must record the archive location, fixture/golden inventory, and the
-zero-or-archived consumer census before any source removal.
-
-All three rows require positive route receipts, negative fallback/retry
-evidence, and a documented red classification. Until G1 starts, the current
-MirBuilder W6 lane and its `new=0 / old=1` production state remain unchanged.
+`LLVMLITE-KEEP0-RET0` is the current design stop. Decision: archive frozen
+source/artifact and fixture/golden evidence first; source deletion needs later
+approval after a zero-or-archived consumer census. Source authority + archive
+issuer: G0/G2 census, `src/llvm_py/**`, `tools/llvmlite_harness.py`, explicit
+keep callers, and fixture inventory; archive policy owns placement. Non-authority:
+keep labels, Python output, MIRBuilder completion, or default-route status.
+Fail-fast on deletion before archive/evidence, fallback/retry, or new semantics.
+Next slice is archive/consumer/fixture inventory only; non-claims are source
+deletion, new backend authority, production switch, and fallback removal.
 
 ## Corrected current truth
 

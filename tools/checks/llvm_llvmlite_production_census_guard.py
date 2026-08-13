@@ -127,7 +127,8 @@ ROW_EVIDENCE = {
         ("tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh", "compat/probe keep harness"),
     ),
     "perf-manual-harness": (
-        ("tools/perf/microbench.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/perf/microbench.sh", 'NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"'),
+        ("tools/perf/microbench.sh", "explicit =1 keeps the frozen llvmlite oracle"),
         ("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1"),
     ),
     "smoke-compat-monitor": (
