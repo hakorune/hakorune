@@ -76,6 +76,16 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         );
         assert_eq!(session.lifecycle.i6_site().0, 0);
         assert_eq!(session.lifecycle.i7_site().0, 1);
+        assert_eq!(session.callout_corridor.i6_site().0, 0);
+        assert_eq!(session.callout_corridor.i7_site().0, 1);
+        assert!(session.callout_corridor.site_pair_matches(
+            session.lifecycle.i6_site(),
+            session.lifecycle.i7_site(),
+        ));
+        assert!(!session.callout_corridor.site_pair_matches(
+            session.lifecycle.i7_site(),
+            session.lifecycle.i6_site(),
+        ));
         assert_eq!(session.lifecycle.lease_slot().0, 0);
         assert_eq!(session.lifecycle.end_cutpoints().len(), 3);
         let target_blocks = session.target_blocks_for_test();

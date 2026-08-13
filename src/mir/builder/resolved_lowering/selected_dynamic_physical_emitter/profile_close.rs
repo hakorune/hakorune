@@ -220,7 +220,10 @@ pub(super) fn emit(
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<DynamicV2PhysicalProfileCloseV1, DynamicV2I8EmitterRejectV1> {
-    if lifecycle.end_cutpoints().len() != 3 || !corridor.matches(brand) {
+    if lifecycle.end_cutpoints().len() != 3
+        || !corridor.matches(brand)
+        || !corridor.site_pair_matches(lifecycle.i6_site(), lifecycle.i7_site())
+    {
         return Err(reject("profile lifecycle/corridor brand mismatch"));
     }
     validate_corridor(outer, targets, corridor, brand)?;

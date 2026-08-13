@@ -456,7 +456,9 @@ Non-claims: no I9/control/backedge/cleanup completion, provider/LLVM/runtime act
 
 Implementation checkpoint (2026-08-13): D2 preflight remains the complete
 15-row dependency/order gate. D1 now consumes one unpublished session through
-formal -> I0-I5 -> site-local I6/I7 CheckedCallOut and Normal projections; E1
+formal -> I0-I5 -> site-local I6/I7 CheckedCallOut and Normal projections;
+the corridor retains both site IDs and verifies all four landing brands
+against the lifecycle pair. E1
 and E2 close I8/I9 and Fault/End terminals, E3 closes I11/inner Completion,
 E4 consumes I13-I16 and seals the Enter+Continuation Header PHI path, and E5
 claims the outer Completion and prepares exact-two DraftSeal. Canonical SSA/CFG

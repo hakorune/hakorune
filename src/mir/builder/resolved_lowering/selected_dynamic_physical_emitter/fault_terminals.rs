@@ -53,6 +53,11 @@ pub(super) fn emit(
     if !corridor.matches(brand) {
         return Err(reject("Fault corridor has a foreign session brand"));
     }
+    if !corridor.site_pair_matches(lifecycle.i6_site(), lifecycle.i7_site()) {
+        return Err(reject(
+            "Fault corridor site pair diverges from lifecycle plan",
+        ));
+    }
 
     corridor.with_i6_fault(|i6_fault| {
         emit_fault_terminal(canonical, outer, i6_fault, brand, lifecycle.i6_site())

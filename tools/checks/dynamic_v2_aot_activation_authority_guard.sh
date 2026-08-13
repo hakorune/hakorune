@@ -28,6 +28,7 @@ CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.r
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor.rs"
 SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
 CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
 CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
@@ -37,7 +38,7 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_OWNER" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 
 python3 "$CODEGEN_TEST"
 python3 "$CODEGEN" --check
@@ -117,6 +118,12 @@ guard_expect_fixed_in_file "$TAG" "consume_for_session" "$SELECTED_CAPABILITY" \
   "the selected session must consume the activation aggregate exactly once"
 guard_expect_fixed_in_file "$TAG" "install_checked_callout_site_plans" "$SELECTED_EMITTER" \
   "the emitter must install admitted plans before corridor allocation"
+guard_expect_fixed_in_file "$TAG" "i6_site: CheckedCallOutSiteIdV1" "$CALLOUT_CORRIDOR" \
+  "the private corridor must retain the I6 site identity"
+guard_expect_fixed_in_file "$TAG" "self.i6_normal.matches(brand)" "$CALLOUT_CORRIDOR" \
+  "the private corridor must verify both I6 landing brands"
+guard_expect_fixed_in_file "$TAG" "site_pair_matches" "$CALLOUT_CORRIDOR" \
+  "the private corridor must reject lifecycle/site-pair drift"
 guard_expect_fixed_in_file "$TAG" "CheckedCallOutEnd" "$SELECTED_LIFECYCLE" \
   "the selected lifecycle owner must project the typed End instruction"
 guard_expect_fixed_in_file "$TAG" "CheckedCallOutFault" "$SELECTED_LIFECYCLE" \
