@@ -368,70 +368,10 @@ old=1.
 
 ### W6-A — `DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0`
 
-Close the physical session evidence that is currently retained and then
-silently dropped.
-
-#### Compare demand
-
-Move the existing `DynamicV2CompareI64CapabilityDemandV1` into the I9
-physical emitter. It must co-check the already-issued I9 row, V11/V12 producer
-families, `ImmediateI64` representation, and non-faulting compare, then become
-unavailable.
-
-#### Cleanup cursor
-
-Replace the borrowed four-row cleanup array with one session-private,
-move-only consumption cursor:
-
-```text
-I6 Fault       -> consume no-End row
-I7 Fault       -> consume End(V10) row
-Inner Return   -> consume End(V10) row
-Backedge       -> consume End(V10) row
-close          -> no row remains
-```
-
-Profile close and DraftSeal are forbidden before cursor close. The terminal
-must verify location as well as total count:
-
-```text
-I7 Fault / ThenTerminal / Continuation each contain End exactly once
-all other blocks contain End zero
-```
-
-#### Operation/control/exit close
-
-Co-check the existing physical projections as one complete census:
-
-```text
-15 operation rows + 1 If control + 1 Exit = 17 exact items
-```
-
-This is a physical consumption terminal, not a second semantic program.
-Operation order remains Recipe-issued; If/Exit meaning remains owned by the
-existing control and Completion products. Missing, duplicate, orphan, or
-reordered items reject before publication.
-
-#### Disposition and AOT handoff
-
-`RejectBeforeEffect` must be explicitly consumed by the unpublished canary
-fence. It must never be reinterpreted as executable success. After DraftSeal,
-the pre-link AOT admission is moved into the backend handoff instead of being
-dropped. Executable-ready state can be issued only from the static post-link
-artifact owner selected by D0.
-
-Acceptance:
-
-```text
-compare demand consumer                                 = 1
-cleanup cursor issue / consume / close                  = 1 / 4 / 1
-17-item physical census                                 = 1
-unpublished RejectBeforeEffect fence                    = 1
-AOT admission backend handoff                           = 0 (deferred to W6-D)
-site-plan table reissue                                 = 0
-pre-link static artifact receipt                        = 0
-production caller                                      = 0
-```
+Closed by W6-A1. The selected session consumes the move-only compare demand,
+the four exact cleanup rows, and the ordered 15-operation/If/Exit census
+before profile close and DraftSeal. The unpublished fence remains non-
+executable; backend handoff is owned by the current C0-D/C1/W6-D queue.
 
 ### W6-B — `DYNAMIC-V2-W6-CATALOGED-DRAIN-I0`
 
@@ -558,16 +498,50 @@ Non-claims: no C/LLVM/link/RuntimePlan/live publication/production caller/VM.
 
 Acceptance: final candidate JSON has exactly one receipt and one Dynamic key; clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`, production `new=0 old=1`.
 
-#### W6-C0-D — `DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-FREEZE-R0`
+#### W6-C0-D — `DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-I0`
 
-Decision: freeze one Boundary-visible one-shot End consumer before C1.
-Source authority + canonical issuer: runtime `dynamic_v2_lease` consume owner;
-the C symbol is a checked ABI projection, not a new lease table.
-Non-authority: `drop_handle`, raw handles, C token maps, Python/VM lookup, Fault conversion.
-Fail-fast boundary: zero/foreign/stale/duplicate token, ABI drift, or missing export rejects before C1.
-Smallest next slice: specify one C End signature/status map/archive export and negative matrix; no implementation before acceptance.
-Non-claims: no CheckedCallOut physicalizer, static link, RuntimePlan, or cutover.
-Acceptance: one Rust consumer + one Boundary projection; raw substitution `= 0`; duplicate/stale/foreign reject; `new=0 old=1`.
+```text
+Decision: expose one uint64 token -> uint32 status C ABI wrapper; all lease
+  meaning, table mutation, generation check, and handle release stay in the
+  existing runtime dynamic_v2_lease::consume_end_authorized owner.
+Source authority + canonical issuer: runtime dynamic_v2_lease is the sole
+  consume issuer; the kernel FFI wrapper is a checked ABI projection only.
+Non-authority: C/LLVM, HostHandle/drop_handle/release_h, raw token tests,
+  lease_slot, Python/VM, provider/registry, and semantic Fault.
+Fail-fast boundary: zero, foreign/unknown, duplicate, and stale-identity inputs
+  return bounded statuses before C1; a later non-OK C1 result traps without a
+  semantic successor, fallback, or retry.
+Smallest next slice: add the neutral header, one Rust FFI adapter, focused
+  status tests, staticlib symbol census, README receipt, and reusable guard.
+Non-claims: no CheckedCallOut physicalizer, link/receipt/publication,
+  RuntimeExecutablePlan, production caller, or old-edge deletion.
+```
+
+Exact frozen ABI:
+
+```c
+#define NYRT_DYNAMIC_V2_LEASE_ABI_REVISION_V1 UINT32_C(1)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_OK UINT32_C(0)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_INVALID_TOKEN UINT32_C(1)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_UNKNOWN_OR_ALREADY_CONSUMED UINT32_C(2)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_STALE_HANDLE_IDENTITY UINT32_C(3)
+uint32_t nyrt_dynamic_v2_lease_consume_end_authorized_v1(uint64_t lease_token);
+```
+
+The C header owns the numeric ABI/status vocabulary. The adapter maps zero
+without entering the Rust owner and otherwise maps its two existing reject
+variants without adding a lease table. `libnyash_kernel.a` must define the
+symbol exactly once. C1 later passes the I6 site-local wire lease token;
+non-OK is a backend contract violation, never semantic Fault.
+
+Acceptance: valid consume succeeds exactly once; zero, foreign/duplicate, and
+stale reject without dropping a replacement handle; archive symbol `= 1`;
+production raw `consume_end_authorized` adapter `= 1`; C/LLVM
+`drop_handle|release_h`, fallback, retry, and VM consumer `= 0`; `new=0 old=1`.
+
+Worker premise audit: consumed. Independent runtime/Boundary and static
+archive reviews agree this is a thin FFI BoxShape, not a second lease
+authority. C1 remains forbidden until this row is green and pushed.
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
