@@ -1,6 +1,6 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census and transport-only JSON round-trip, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F key authority, invocation-owned branded collector handoff, drift/unbranded negatives, the selected adapter input/admission loan, brand-only registry-generation transport, and the private unpublished W6 orchestration with its focused canary are landed. Production W6 remains closed and partial production callers remain forbidden."
+status = "Selected Dynamic semantic/header/admission, checked CallOut ABI facts, generation-aware lease identity, neutral MIR CheckedCallOut census and strict transport-only JSON round-trip, the D2 Recipe-order preflight cursor, the unpublished D1 formal->I0-I7 typed corridor, E1 I8/I9 control, E2 physical End/Fault terminals, E3 inner-return ThenTerminal handoff, E4 continuation/backedge Header PHI handoff, and E5 profile close plus exact-two DraftSeal preparation are landed. F key authority, invocation-owned branded collector handoff, drift/unbranded negatives, the selected adapter input/admission loan, brand-only registry-generation transport, and the private unpublished W6 orchestration with its focused canary are landed. Production W6 remains closed and partial production callers remain forbidden."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
@@ -45,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-13: CheckedCallOut JSON parser now rejects u16 overflow and unknown effect bits; transport-only scope and LLVM/VM/runtime closure remain unchanged.",
   "2026-08-13: transport-only CheckedCallOut MIR JSON emit/parse round-trip and schema/diet-ledger sync landed; LLVM/VM execution and production W6 remain closed.",
   "2026-08-13: private unpublished W6 orchestration and focused canary verified collector brand -> selected admission -> unpublished session -> exact-two draft -> branded collector receipt; production W6 remains closed.",
   "2026-08-13: E5 now claims the outer Completion, seals the remaining physical corridor, and prepares exact-two DraftSeal through the existing owner; CanonicalCallable collector/publication remain next.",

@@ -121,6 +121,8 @@ guard_expect_fixed_in_file "$TAG" "CheckedCallOutEnd" "$SELECTED_LIFECYCLE" \
   "the selected lifecycle owner must project the typed End instruction"
 guard_expect_fixed_in_file "$TAG" "CheckedCallOutFault" "$SELECTED_LIFECYCLE" \
   "the selected lifecycle owner must project the non-rejoining Fault terminal"
+guard_expect_fixed_in_file "$TAG" "fn parse_effect_mask" "$ROOT_DIR/src/runner/mir_json_v0/checked_callout.rs" \
+  "CheckedCallOut JSON transport must reject unknown effect bits"
 guard_expect_fixed_in_file "$TAG" "lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue" "$SELECTED_EMITTER" \
   "the selected session must consume cleanup/site facts before Builder open"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \

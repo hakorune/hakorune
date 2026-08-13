@@ -1,4 +1,4 @@
-use crate::mir::{EffectMask, MirInstruction, ValueId};
+use crate::mir::{Effect, EffectMask, MirInstruction, ValueId};
 use serde_json::Value;
 
 use super::helpers::require_u64;
@@ -28,11 +28,36 @@ fn required_args(node: &Value) -> Result<Vec<ValueId>, String> {
         .collect()
 }
 
+fn parse_effect_mask(node: &Value) -> Result<EffectMask, String> {
+    let bits = u16::try_from(require_u64(node, "effects", "checked_callout effects")?)
+        .map_err(|_| "checked_callout effects overflow u16".to_owned())?;
+    let known = (Effect::Pure as u16)
+        | (Effect::Mut as u16)
+        | (Effect::Io as u16)
+        | (Effect::Control as u16)
+        | (Effect::ReadHeap as u16)
+        | (Effect::WriteHeap as u16)
+        | (Effect::P2P as u16)
+        | (Effect::FFI as u16)
+        | (Effect::Panic as u16)
+        | (Effect::Alloc as u16)
+        | (Effect::Global as u16)
+        | (Effect::Async as u16)
+        | (Effect::Unsafe as u16)
+        | (Effect::Debug as u16)
+        | (Effect::Barrier as u16);
+    if bits & !known != 0 {
+        return Err(format!(
+            "checked_callout effects contain unknown bits: 0x{bits:04x}"
+        ));
+    }
+    Ok(EffectMask::from_bits(bits))
+}
+
 pub(super) fn parse(op: &str, node: &Value) -> Result<MirInstruction, String> {
     match op {
         "checked_callout" => {
-            let effects = u16::try_from(require_u64(node, "effects", "checked_callout effects")?)
-                .map_err(|_| "checked_callout effects overflow u16".to_owned())?;
+            let effects = parse_effect_mask(node)?;
             Ok(MirInstruction::CheckedCallOut {
                 site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(id(
                     node,
@@ -51,7 +76,7 @@ pub(super) fn parse(op: &str, node: &Value) -> Result<MirInstruction, String> {
                     "fault",
                     "checked_callout fault landing",
                 )?),
-                effects: EffectMask::from_bits(effects),
+                effects,
             })
         }
         "checked_callout_normal_result" => Ok(MirInstruction::CheckedCallOutNormalResult {
@@ -101,5 +126,34 @@ mod tests {
         });
         let error = parse("checked_callout", &node).unwrap_err();
         assert!(error.contains("normal landing"));
+    }
+
+    #[test]
+    fn checked_callout_effect_overflow_and_unknown_bits_are_rejected() {
+        let overflow = serde_json::json!({
+            "op": "checked_callout",
+            "site_id": 0,
+            "receiver": 1,
+            "args": [],
+            "normal": 1,
+            "fault": 2,
+            "effects": u64::from(u16::MAX) + 1,
+        });
+        assert!(parse("checked_callout", &overflow)
+            .unwrap_err()
+            .contains("overflow u16"));
+
+        let unknown = serde_json::json!({
+            "op": "checked_callout",
+            "site_id": 0,
+            "receiver": 1,
+            "args": [],
+            "normal": 1,
+            "fault": 2,
+            "effects": 0x8000,
+        });
+        assert!(parse("checked_callout", &unknown)
+            .unwrap_err()
+            .contains("unknown bits"));
     }
 }

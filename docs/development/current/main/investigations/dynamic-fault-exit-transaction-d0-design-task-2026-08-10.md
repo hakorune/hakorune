@@ -616,8 +616,9 @@ W1  normalized TextScan contract + neutral export facts + alias projection
 W2  consuming admission + immutable registry + symbolic AOT aggregate
 W3  strict runtime leaf + checked ABI/metadata + test-only link verifier
 R0a generation-aware carrier lease identity
-R0b neutral CheckedCallOut MIR/JSON representation is transport-only and round-trips
-through the Rust v0 parser/emitter; backend execution remains closed
+R0b neutral CheckedCallOut MIR/JSON representation is transport-only, round-trips
+through the Rust v0 parser/emitter, and rejects malformed effect bits; backend
+execution remains closed
 W4  full physical session + selected LLVM CheckedCallOut physicalizer
 W5  exact-two DraftSeal + CanonicalCallable collector
 W6  package cutover + old-edge deletion + guards/docs
