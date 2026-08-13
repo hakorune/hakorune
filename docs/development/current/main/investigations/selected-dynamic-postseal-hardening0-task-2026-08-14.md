@@ -103,35 +103,33 @@ dominance; it therefore does not prove that Boundary is reachable.  Local
 structural green remains non-production evidence until the execution-shaped
 negative/positive tests above exist.
 
-### Audit normalization addendum (2026-08-14)
+### Audit normalization and task DAG (2026-08-14)
 
-The latest worker/pro review creates no new top-level task or guard family.
-Its findings are assigned to the existing DAG as follows:
+The latest worker/pro review is fully absorbed here; it creates no new card
+and no new per-finding guard.  The execution order is:
 
 ```text
-post-seal generic mutators + dropped verification
-  -> POSTSEAL-IMMUTABILITY-R0 / STRICT-VERIFIER-POLICY-R0 / COMPILE-VERIFICATION-FENCE-R0
-selected PyVM fence killing Boundary
-  -> RUNNER-DOMINANCE-R0 (PyVM remains retired; only the accidental early fatal is removed)
-main/helper launch identity
-  -> BOUNDARY-SELECTED-HELPER-IDENTITY-D0
-exe/receipt visibility and rollback
-  -> STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0
-Boundary/llvmlite feature entanglement
-  -> LLVM-BOUNDARY-COMPAT-OWNERSHIP-D0
-ambient verifier legacy/no-PHI switches
-  -> STRICT-VERIFIER-POLICY-R0 (include NYASH_VERIFY_ALLOW_LEGACY)
-guard proliferation and stale wrappers
-  -> GUARD-SURFACE-CONSOLIDATION-D0, after the selected P0 rows
+closed: mode fence + lexical transaction + linear slots
+  -> closed: post-seal mutator fence + strict final verification
+  -> closed: selected runner dominance (PyVM remains retired)
+  -> CURRENT: C dual launch/helper view + CheckedCallOut physicalizer
+  -> B3: attempt-unique artifact bundle publication/consumption
+  -> B4: llvm-boundary vs llvmlite-compat feature ownership
+  -> MAIN-INTEGRATION-EVIDENCE-R0
+  -> parked G3 oracle/archive/deletion DAG
 ```
 
-PyVM is therefore not being restored: selected production must reject an
-explicit PyVM request, skip the retired PyVM stage when absent, and reach the
-Boundary owner exactly once.  No row may use `mutation_count == 0`, a green
-grep, or an `Option::None` observation as reachability/immutability evidence.
-The C ABI remains a thin lease-status bridge; it is not a new semantic, CFG,
-wire, or guard authority.  All rows retain the same non-claims: no fallback,
-retry, VM consumer, source movement, deletion, or main integration.
+The parked P1 bundle owns source-fact/header projection, callout effect and
+CFG/wire parity, physical-ID issuance, lease rollback, LocalSSA fail-closed
+terminals, activation disposition typestate, ProviderSlot typed carrier,
+platform fencing, stale-name retirement, and the reusable line census.  The
+guard organization task owns inventory/manifest migration and wrapper
+retirement only after the selected P0 DAG is green.  PyVM is not restored:
+explicit requests reject, absence skips the retired stage, and selected
+Boundary is reached once; `mutation_count == 0`, green grep, and `None` are
+never execution evidence.  The C ABI remains only the thin lease-status
+bridge.  No fallback, retry, VM consumer, source move, deletion, or main
+integration is claimed by this task map.
 
 ## Immediate baseline debt
 
