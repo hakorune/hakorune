@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, and G0 llvmlite ingress census are closed; the next design stop is G1 automatic production reachability retirement. Ordinary compatibility remains source-scoped and no source deletion is implied."
+status = "W6 selected Dynamic semantic/header/admission, full physical session, exact-two DraftSeal, CatalogedBoxMethod collector, MirModule commit, Boundary/static-link receipt, and selected executable launch are landed. Stage1, env.codegen, hako_aot FFI, G0 census, and G1 route/selected-runner retirement are closed; the next design stop is G2 default-build/CI/perf independence. Ordinary compatibility remains source-scoped and no source deletion is implied."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "G1-RUNNER-FAILFAST-R0 landed: selected Dynamic uses the existing W6 metadata/receipt gate and HarnessExecutorBox::try_execute_selected_dynamic early-return; the dominance/no-fallback guard is green. Open G2 default-build/CI/perf independence as the next separate design decision; G3 source/archive retirement remains later."
+current_design_stop = "LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0 accepted: split default and explicit keep capsules using workflow/build owners, shared smoke env/helpers, and perf selectors; census/guard classification comes before behavior changes. G3 source/archive retirement remains later."
 work_mode = "design_stop"
 current_execution_row = "G2"
-current_blocker_token = "G2: audit default build, execution, CI, and perf ingress so Python/llvmlite is not required by ordinary routes. Source authority is each named build/CI/perf owner plus the existing census guard. Non-authority is explicit compat/oracle/monitor output and historical fixtures. Fail-fast boundary is an unclassified or automatic Python ingress; acceptance is default Python requirement=0, default execution/perf child=0, and every surviving llvmlite job explicitly named compat/oracle/monitor/historical. G3 source deletion stays separate."
+current_blocker_token = "LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0: source-census workflow/job definitions, Cargo/build features, shared smoke env/helpers, and perf selectors into default vs explicit compat/oracle/monitor/historical capsules. Non-authority is Boundary labels, keep tags, comments, and Python output. Fail-fast on default Python install/import, shared NYASH_LLVM_USE_HARNESS=1, or method-call llvmlite perf default. Acceptance: default build Python=0, default execution/perf child=0, every surviving llvmlite job explicitly named; no behavior change or G3 deletion in this row."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, and G0 source-backed ingress census are closed; G1 automatic reachability design stop is next. Ordinary compatibility and explicit keep lanes remain source-scoped."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt -> executable launch chain is landed. F0, plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 census, and G1 route/selected-runner retirement are closed; G2 default-build/CI/perf independence design stop is next. Ordinary compatibility and explicit keep lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"

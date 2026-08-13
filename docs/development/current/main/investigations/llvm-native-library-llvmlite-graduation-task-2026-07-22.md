@@ -152,17 +152,18 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-Owner: `LLVMLITE-AUTO0` ingress rows plus build/CI/perf census.
-
-Acceptance is default build Python requirement `= 0`, default execution and
-perf gates Python child count `= 0`, and every surviving llvmlite job is
-explicitly named `compat`, `oracle`, `monitor`, or `historical`. No new
-production lowering is added to the keep lane.
+`LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0` is the current design row: split default
+and explicit compat/oracle/monitor/historical capsules before behavior changes.
+Source authority: workflow/job, Cargo/build, shared smoke, perf selectors;
+non-authority: labels, keep tags, comments, Python output.
+Fail-fast: default Python install/import, shared `NYASH_LLVM_USE_HARNESS=1`, or
+method-call llvmlite perf default. Next: one source-backed census/guard.
+Acceptance: default build Python=0, default execution/perf child=0, every
+surviving llvmlite job explicitly named. No behavior change or G3 deletion.
 
 ### G3 — archive or delete the keep lane
 
-Owner: `LLVMLITE-KEEP0-RET0`, only after an independent semantic oracle,
-fixture/golden preservation, and a zero-or-archived consumer census exist.
+Owner: `LLVMLITE-KEEP0-RET0`, after independent oracle, fixture/golden preservation, zero-or-archived census.
 Source deletion is a separate approval and must preserve the source/artifact
 archive needed for historical bug reproduction. G1 and G2 never imply G3.
 
@@ -201,8 +202,7 @@ Therefore these statements are false:
 "ny-llvmc itself only supports const/ret/print"
 "all llvmlite use is already explicit"
 "libhako_llvmc_ffi is already an in-process LLVM library"
-"--harness PATH alone selects the llvmlite driver"
-"NYASH_LLVM_USE_HARNESS=1 alone proves llvmlite execution"
+"--harness PATH alone selects the llvmlite driver" / "NYASH_LLVM_USE_HARNESS=1 alone proves llvmlite execution"
 ```
 
 ### Remaining automatic Python reachability
