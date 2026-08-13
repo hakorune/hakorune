@@ -1,8 +1,8 @@
 ---
-Status: Design stop; inventory task only
+Status: Fast implementation; inventory guard only
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
-Current-row: LLVMLITE-KEEP0-RET0-I0-GUARD-D0
+Current-row: LLVMLITE-KEEP0-RET0-I0-GUARD-R0
 Scope: frozen llvmlite keep-lane source, consumer, fixture/golden, artifact, and restore inventory
 ---
 
@@ -104,7 +104,7 @@ are explicit `blocked`/`unavailable`; archive owner, URI, tag, checksums, and
 deletion approval remain null. The manifest was checked against `git ls-files`
 and all three source manifests; the reusable guard is still a follow-on gap.
 
-## Next design stop: LLVMLITE-KEEP0-RET0-I0-GUARD-D0
+## Guard implementation: LLVMLITE-KEEP0-RET0-I0-GUARD-R0
 
 ```text
 Decision: add one G3-specific inventory guard; do not extend G0/G2 guards.
@@ -112,10 +112,10 @@ Source authority + canonical issuer: the inventory manifest plus git ls-files an
 Non-authority: keep labels, comments, Python output, MIRBuilder completion, Boundary defaults, and missing archive URI.
 Fail-fast boundary: schema/status, root drift, duplicate or missing source-qualified row IDs, invalid classifications, and missing evidence fields.
 Smallest next slice: guard the 255 roots, 8 support roots, 83 consumer rows, 119 candidates, 4 artifact rows, and 3 restore entries.
-Non-claims: no guard implementation in this design stop, source movement/deletion, archive publication, new semantics, fallback, or retry.
+Non-claims: no source movement/deletion, archive publication, new semantics, fallback, or retry.
 ```
 
-The later implementation must be a reusable focused guard at
+The implementation is a reusable focused guard at
 `tools/checks/llvm_llvmlite_keep0_inventory_guard.py`; it must consume the
 manifest as data, compare exact tracked sets, and remain independent of the
 G0/G2 route/default guards.
