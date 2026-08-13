@@ -568,17 +568,17 @@ Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
 ```
 ### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (accepted D0; design stop)
 ```text
-Decision: `env.codegen` is a compatibility host port; ordinary calls never
-  inherit ambient recipe/replay. Candidate `CodegenRouteRequestV1` is issued
-  once at the caller/route boundary and moved through C-ABI; ambient reads stay
-  inside a legacy adapter only.
-Source authority + issuer: env.codegen caller plus backend route/C-ABI request;
-  admission owns explicit keep selection. Non-authority: harness hint, Python
-  output, provider labels, generic C fallback, or plugin `None`.
-Fail-fast before hako_aot child: reject unqualified/inherited replay; pure-first/
+Decision: `env.codegen.emit_object` stays Boundary/pure-first and never inherits
+  ambient recipe/replay. Only a named `emit_object_compat_harness` method may
+  admit the explicit harness keep lane; a private `CodegenRouteRequestV1` core
+  may be shared, but the public method is the admission boundary.
+Source authority + issuer: named env.codegen method plus route/C-ABI request;
+  ordinary and compat callers consume separate methods. Non-authority: harness
+  hint, Python output, provider labels, generic C fallback, or plugin `None`.
+Fail-fast before hako_aot child: ordinary inherited replay rejects; pure-first/
   none stays typed unsupported. Root-first LLVM text -> opt/llc is not this ingress.
-Smallest next slice: accept request shape/issuer/precedence, then prove default
-  child=0 and explicit keep child=1 with route evidence.
+Smallest next slice: prove ordinary child=0, named compat child=1, and ambient
+  replay on ordinary method rejects before child creation.
 Non-claims: no provider reorder, production switch, G2/G3 retirement, or
   llvmlite source deletion.
 ```
