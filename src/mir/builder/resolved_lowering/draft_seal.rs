@@ -512,6 +512,38 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    /// Install selected Dynamic candidate metadata on the detached final
+    /// projection only.  The live FunctionMetadata was intentionally cloned
+    /// before this move, so clone-scrubbing remains a one-way publication
+    /// fence while the candidate still receives the issued values exactly once.
+    pub(super) fn install_selected_dynamic_candidate(
+        mut self,
+        candidate: super::draft_seal_owner::SelectedDynamicCandidateMetadataV1,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        let (receipt, projection) = candidate.into_parts();
+        self.metadata
+            .projection
+            .function
+            .metadata
+            .install_a_prime_i64_physical_receipt(receipt)
+            .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "selected Dynamic A-prime receipt install rejected: {error:?}"
+                ))
+            })?;
+        self.metadata
+            .projection
+            .function
+            .metadata
+            .install_dynamic_v2_aot_metadata(projection)
+            .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "selected Dynamic AOT metadata install rejected: {error:?}"
+                ))
+            })?;
+        Ok(self)
+    }
+
     #[cfg(test)]
     pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
         match &self.metadata.projection.exit {

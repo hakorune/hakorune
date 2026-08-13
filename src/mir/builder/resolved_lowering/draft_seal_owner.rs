@@ -12,6 +12,8 @@ use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
 };
+use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
+use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
@@ -47,6 +49,29 @@ pub(super) struct FunctionDraftSealReceiptV1 {
     pub(super) signature: super::draft_seal::PreparedFunctionSignatureV1,
     pub(super) phi: super::draft_seal::PreparedFunctionPhiClosureReceiptV1,
     pub(super) stale_fact_count: usize,
+}
+
+/// Move-only candidate metadata that crosses the DraftSeal clone boundary.
+/// The values are issued by the selected physical close; this box only keeps
+/// them together until the detached final draft is ready to receive them.
+pub(in crate::mir::builder) struct SelectedDynamicCandidateMetadataV1 {
+    receipt: APrimeI64PhysicalReceiptV1,
+    projection: DynamicV2AotCallMetadataProjectionV1,
+}
+
+impl SelectedDynamicCandidateMetadataV1 {
+    pub(super) fn new(
+        receipt: APrimeI64PhysicalReceiptV1,
+        projection: DynamicV2AotCallMetadataProjectionV1,
+    ) -> Self {
+        Self { receipt, projection }
+    }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (APrimeI64PhysicalReceiptV1, DynamicV2AotCallMetadataProjectionV1) {
+        (self.receipt, self.projection)
+    }
 }
 
 /// F handoff retaining the selected cataloged Box-method identity.
@@ -189,8 +214,27 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
     /// any projection work; rejection still owns the live session and can
     /// discard it, but it cannot leak a second claim authority.
     pub(super) fn prepare_exact_two(
+        self,
+        outer_site: &SourceStmtSiteV1,
+    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
+        self.prepare_exact_two_inner(outer_site, None)
+    }
+
+    /// Selected Dynamic handoff. The candidate metadata is installed only on
+    /// the detached projection after its clone-scrubbing boundary, never on
+    /// the live function before `prepare_exact_two` clones it.
+    pub(super) fn prepare_exact_two_with_candidate_metadata(
+        self,
+        outer_site: &SourceStmtSiteV1,
+        candidate: SelectedDynamicCandidateMetadataV1,
+    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
+        self.prepare_exact_two_inner(outer_site, Some(candidate))
+    }
+
+    fn prepare_exact_two_inner(
         mut self,
         outer_site: &SourceStmtSiteV1,
+        candidate: Option<SelectedDynamicCandidateMetadataV1>,
     ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
         let ready = self
             .ready
@@ -220,7 +264,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         let (completion, exit_set) = exit_plan.into_parts();
         let plan_result = {
             let builder = self.session.builder_view();
-            prepare_detached_plan_with_exit_set(builder, exit_set)
+            prepare_detached_plan_with_exit_set(builder, exit_set, candidate)
         };
         let plan = match plan_result {
             Ok(plan) => plan,
@@ -391,12 +435,13 @@ fn prepare_detached_plan(
     builder: &MirBuilder,
     exit: PreparedFunctionExitV1,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
-    prepare_detached_plan_with_exit_set(builder, PreparedFunctionExitSetV1::single(exit))
+    prepare_detached_plan_with_exit_set(builder, PreparedFunctionExitSetV1::single(exit), None)
 }
 
 fn prepare_detached_plan_with_exit_set(
     builder: &MirBuilder,
     exit: PreparedFunctionExitSetV1,
+    candidate: Option<SelectedDynamicCandidateMetadataV1>,
 ) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
     let projection = FunctionDraftSealProjectionV1::project_from_builder_exit_set(builder, exit)
         .map_err(|(_exit, error)| {
@@ -436,10 +481,21 @@ fn prepare_detached_plan_with_exit_set(
                 FunctionDraftSealErrorV1::Projection(error),
             )
         })?;
-    stale.verify().map_err(|error| {
+    let mut plan = stale.verify().map_err(|error| {
         (
             FunctionDraftSealStageV1::Verification,
             FunctionDraftSealErrorV1::Projection(error),
         )
-    })
+    })?;
+    if let Some(candidate) = candidate {
+        plan = plan
+            .install_selected_dynamic_candidate(candidate)
+            .map_err(|error| {
+                (
+                    FunctionDraftSealStageV1::Metadata,
+                    FunctionDraftSealErrorV1::Projection(error),
+                )
+            })?;
+    }
+    Ok(plan)
 }

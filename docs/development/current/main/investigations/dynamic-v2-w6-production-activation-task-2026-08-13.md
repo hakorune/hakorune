@@ -554,21 +554,20 @@ to the final detached candidate. C/LLVM/runtime publication remains closed.
 ```text
 Decision: preserve clone-scrubbing slots and carry the already-issued receipt
   plus Dynamic projection as one move-only payload; install only on final draft.
-Source authority + canonical issuer: existing close/projection issuers;
-  DraftSeal's detached projection is the sole final FunctionMetadata image.
+Source authority + canonical issuer: existing close/projection issuers; DraftSeal's detached projection is the sole final FunctionMetadata image.
 Non-authority: clone exceptions, JSON reissue/take_once repair, site-plan
   reconstruction, and second provider/admission/metadata issuer.
 Fail-fast boundary: PlanStamp/site-pair drift, consumed/occupied final slot,
   or pre-final install rejects with candidate/MIR publication unchanged.
-Smallest next slice: private post-seal payload + one prepare/commit handoff
-  after projection clone but before `into_session_commit_input`; JSON borrow stays.
+Smallest next slice: private post-seal payload + one prepare/commit handoff after projection clone but before `into_session_commit_input`; JSON borrow stays.
 Non-claims: no C/LLVM/link/RuntimePlan/live publication/production caller/VM.
 ```
 
-Acceptance: final candidate JSON has exactly one receipt and one Dynamic key;
-clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`,
-production `new=0 old=1`.
+Acceptance: final candidate JSON has exactly one receipt and one Dynamic key; clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`, production `new=0 old=1`.
 
+Observed closeout (2026-08-13): C0-C carries both issued values through the
+detached DraftSeal projection into the final candidate exactly once; focused
+tests, `cargo check --lib`, and authority guards are green. C1 is next.
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 
 Only after C0 is green, add the selected physicalizer to the actual default
@@ -595,7 +594,7 @@ selector/name, or reclassify an ABI failure as a semantic Fault. Keep the new
 C owner below 700 lines; do not enlarge the existing 776/788-line generic
 dispatch/lowering files.
 
-Implementation slice: consume the C0-B candidate projection by `site_id` once,
+Implementation slice: consume the C0-C final candidate projection by `site_id` once,
 emit only the selected object-level callout lowering, and keep the include
 edge exactly one. Add a focused Boundary fixture plus positive/negative
 metadata and wire tests; do not call A-prime `take_once`, static link, or a

@@ -544,38 +544,8 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(error);
             }
         };
-        let function = match outer
-            .builder_view_mut_for_lowering()
-            .function_state
-            .current_function
-            .as_mut()
-        {
-            Some(function) => function,
-            None => {
-                outer.discard_unpublished();
-                return Err(DynamicV2I8EmitterRejectV1::DraftSeal(
-                    "selected function missing while installing A-prime receipt".to_owned(),
-                ));
-            }
-        };
-        if let Err(error) = function
-            .metadata
-            .install_a_prime_i64_physical_receipt(receipt)
-        {
-            outer.discard_unpublished();
-            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
-                "A-prime receipt install rejected: {error:?}"
-            )));
-        }
-        if let Err(error) = function
-            .metadata
-            .install_dynamic_v2_aot_metadata(projection)
-        {
-            outer.discard_unpublished();
-            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
-                "Dynamic AOT metadata install rejected: {error:?}"
-            )));
-        }
+        let candidate = crate::mir::builder::resolved_lowering::
+            SelectedDynamicCandidateMetadataV1::new(receipt, projection);
         let Some(outer_site) = self
             .demand
             .source_relation()
@@ -590,7 +560,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ));
         };
         let open = ready.open(outer);
-        let prepared = match open.prepare_exact_two(&outer_site) {
+        let prepared = match open.prepare_exact_two_with_candidate_metadata(&outer_site, candidate) {
             Ok(prepared) => prepared,
             Err(rejected) => {
                 let detail = format!("{:?}", rejected.error());
