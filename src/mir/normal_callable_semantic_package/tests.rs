@@ -520,6 +520,23 @@ fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
 }
 
 #[test]
+fn instance_shaped_scan_loop_stays_ordinary_owned() {
+    let source = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako")
+        .replace("static box ParserScanLoopBox", "box ParserScanLoopBox");
+    let package = issue(&source).expect("instance-shaped scan loop remains admissible ordinary");
+
+    assert!(matches!(
+        package.dynamic_projection(),
+        NormalCallableDynamicProjectionRefV1::ValidUnselected
+    ));
+    assert!(package
+        .batch()
+        .declarations()
+        .any(|declaration| declaration.mode()
+            == ResolvedCallableDeclarationModeV1::InstanceBoxMethod));
+}
+
+#[test]
 fn zero_dynamic_candidates_are_valid_unselected_without_default_or_name_selection() {
     let package = issue("static box Api { run(value) { return value } }")
         .expect("fully observed non-Dynamic package");

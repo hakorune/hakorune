@@ -91,11 +91,14 @@ the other. `prepare_install`/`commit` is the only catalog installation path,
 and `with_selected_lowering_input(key, callback)` is the only production
 lowering surface.
 
-Dynamic admission may observe every complete-batch row, but production
-selection is restricted to rows present in the sealed selected-map. A valid
-unselected row remains in the complete batch and cannot steal the selected
-route. Missing, duplicate, foreign, or repaired identity is terminal; the
-AST-only compatibility catalog is never a retry path.
+Dynamic admission uses the resolved declaration mode from each complete-batch
+row and lends only `StaticBoxMethod` rows to the bounded Dynamic issuer.
+Instance and top-level rows remain ordinary-owned without Dynamic source or
+parameter probing; production selection is still restricted to rows present
+in the sealed selected-map. A valid unselected row remains in the complete
+batch and cannot steal the selected route. Missing, duplicate, foreign, or
+repaired identity is terminal; the AST-only compatibility catalog is never a
+retry path.
 
 This audit does not authorize a new physical target catalog or a raw
 `CallSlot` getter. Exact source-bound target retention for a future V2

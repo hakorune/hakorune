@@ -4,6 +4,7 @@ use crate::mir::builder::{
 use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
+use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::callable_semantic_batch::{
     issue_resolved_callable_semantic_batch_v1, ResolvedCallableSemanticBatchIssueV1,
     ResolvedCallableSemanticBatchLoanErrorV1,
@@ -90,6 +91,13 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
     };
     let mut candidate = None;
     for declaration in batch.declarations() {
+        // The resolved batch row is the sole declaration-mode authority.  The
+        // bounded Dynamic lowerer accepts only static Box methods; instance
+        // and top-level rows remain ordinary-owned and must not be probed by
+        // Dynamic source/parameter admission.
+        if declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod {
+            continue;
+        }
         let batch_slot = declaration.batch_slot();
         let admission = batch
             .with_lowering_input(batch_slot, admit_dynamic_callable_v1)

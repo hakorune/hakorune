@@ -1,5 +1,5 @@
 ---
-Status: Accepted; DYN-PROD-BASELINE-R0 and LEXICAL-SCOPE-SAFE-TRANSACTION-R0 closed; next fast row is DYN-ADMISSION-MODE-FENCE-R0
+Status: Accepted; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, and DYN-ADMISSION-MODE-FENCE-R0 closed; next fast row is SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -231,6 +231,15 @@ ordinary fallback newly introduced                       = 0
 Stop if ordinary ownership cannot be preserved from the existing resolved
 mode.  Do not teach A-prime or the emitter to lower Instance/TopLevel as an
 incidental repair.
+
+Evidence (2026-08-14): the package issuer now checks the existing resolved
+`ResolvedCallableDeclarationModeV1` row before Dynamic admission and lends only
+`StaticBoxMethod`.  The parser-scan static fixture remains selected; the
+instance-shaped scan fixture remains `ValidUnselected`; the mixed top-level +
+selected fixture remains one complete batch with only the selected static row
+entering Dynamic.  The existing TextScan admission guard now fixes this mode
+gate in the sole package issuer.  Focused package tests: 18 passed; `cargo
+check -q --lib` and the selected/AOT/current pointer guards remain green.
 
 ## Row B1: SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0
 

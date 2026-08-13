@@ -13,6 +13,7 @@ guard_require_files "$TAG" \
   "$ROOT_DIR/src/box_callable/provider_admission/admitted_registry.rs" \
   "$ROOT_DIR/src/box_callable/provider_admission/aot_admission.rs" \
   "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs" \
+  "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "$ROOT_DIR/docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
 
 BRAND_PORT="$ROOT_DIR/src/mir/builder/module_lowering_invocation.rs"
@@ -24,6 +25,8 @@ PRODUCTION_CALLER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.
 FACADE="$ROOT_DIR/src/mir/builder/resolved_lowering/mod.rs"
 guard_require_files "$TAG" "$BRAND_PORT" "$RAW_CHILD" "$COLLECTOR" "$EMITTER_TESTS"
 guard_require_files "$TAG" "$EMITTER" "$PRODUCTION_CALLER" "$FACADE"
+
+PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
 
 ADMISSION_DIR="$ROOT_DIR/src/box_callable/provider_admission"
 
@@ -81,6 +84,10 @@ guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$P
   "the selected package adapter must be the sole named production caller"
 guard_expect_fixed_in_file "$TAG" "assemble_unpublished_selected_dynamic_w6" "$FACADE" \
   "the resolved-lowering facade must expose the single private orchestrator"
+guard_expect_fixed_in_file "$TAG" \
+  "declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod" \
+  "$PACKAGE_ISSUER" \
+  "Dynamic admission must be gated by the resolved declaration mode"
 assembly_files=()
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
