@@ -95,6 +95,19 @@ impl<'a> PreparedModuleExternalCommitV1<'a> {
         &self.evidence
     }
 
+    /// Lend the already-prepared candidate module to one root-owned observer.
+    ///
+    /// The callback is higher-ranked so no module borrow can escape into a
+    /// receipt, candidate aggregate, or future commit product.  This is the
+    /// only D0-C export seam: it does not clone the module, expose mutable
+    /// Builder state, or re-issue any artifact evidence.
+    pub(in crate::mir) fn with_candidate_module<R>(
+        &self,
+        observe: impl for<'module> FnOnce(&'module crate::mir::MirModule) -> R,
+    ) -> R {
+        observe(&self.module)
+    }
+
     /// Test-only read boundary for immutable candidate observation.  The
     /// prepared product remains unpublished and no mutable Builder or commit
     /// capability is exposed through this view.
