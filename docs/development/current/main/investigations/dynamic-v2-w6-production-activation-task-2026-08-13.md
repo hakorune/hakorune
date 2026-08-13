@@ -577,6 +577,12 @@ selector/name, or reclassify an ABI failure as a semantic Fault. Keep the new
 C owner below 700 lines; do not enlarge the existing 776/788-line generic
 dispatch/lowering files.
 
+Implementation slice: consume the C0-B candidate projection by `site_id` once,
+emit only the selected object-level callout lowering, and keep the include
+edge exactly one. Add a focused Boundary fixture plus positive/negative
+metadata and wire tests; do not call A-prime `take_once`, static link, or a
+runtime plan from this row.
+
 Acceptance:
 
 ```text
@@ -590,6 +596,11 @@ selector/name/provider/runtime registry lookup           = 0
 generic method fallback / retry                          = 0 / 0
 production selected caller new/old                       = 0 / 1
 ```
+
+Guards: dedicated C include `= 1`, new owner `<700` lines, old coordinate
+locator/lookup `= 0`, generic `mir_call`/fallback/retry `= 0/0/0`, C1
+production consumer `= 1` only inside the selected object path, and static
+receipt/RuntimeExecutablePlan/live executable publication `= 0`.
 
 ### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I0`
 
