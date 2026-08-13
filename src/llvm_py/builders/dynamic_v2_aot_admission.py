@@ -183,7 +183,7 @@ def _validate_call(
     if role != expected_role_by_site[site_id]:
         raise DynamicV2AotAdmissionError("selected role does not match canonical site")
     try:
-        receipt_call = receipt.require_call_role(role)
+        receipt_call = receipt.require_call_site(site_id)
     except APrimeI64CapabilityError as error:
         raise DynamicV2AotAdmissionError(str(error)) from error
     if receipt_call.role != role:

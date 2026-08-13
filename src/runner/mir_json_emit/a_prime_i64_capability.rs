@@ -27,9 +27,8 @@ pub(super) fn insert_a_prime_i64_physical_receipt_json(
             "lane": row.lane.as_str(),
         })).collect::<Vec<_>>(),
         "call_edges": receipt.call_edges().iter().map(|row| json!({
+            "site_id": row.site_id.0,
             "role": &row.role,
-            "block": row.block.as_u32(),
-            "instruction_index": row.instruction_index,
             "target_fingerprint": &row.target_fingerprint,
             "receiver_role": &row.receiver_role,
             "receiver_value_id": row.receiver_value_id.as_u32(),
@@ -90,7 +89,7 @@ mod tests {
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
-            vec![call("substring", 4), call("index_of", 5)],
+            vec![call("substring", 0), call("index_of", 1)],
             vec![
                 APrimeI64ReturnReceiptV1 {
                     site: "inner".into(),
@@ -124,11 +123,10 @@ mod tests {
         assert_eq!(value["retry"], false);
     }
 
-    fn call(role: &str, instruction_index: usize) -> APrimeI64CallEdgeReceiptV1 {
+    fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
         APrimeI64CallEdgeReceiptV1 {
+            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(site_id),
             role: role.into(),
-            block: BasicBlockId::new(3),
-            instruction_index,
             target_fingerprint: if role == "substring" {
                 "substring/2".into()
             } else {

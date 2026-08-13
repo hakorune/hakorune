@@ -20,6 +20,8 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     InvalidReceipt(APrimeI64PhysicalReceiptRejectV1),
     MissingCallRole,
     DuplicateCallRole,
+    MissingCallSite,
+    CallSiteRoleMismatch,
     AdmissionEntryMismatch,
     MissingSitePlan,
     ReceiverLaneMismatch,
@@ -166,16 +168,6 @@ fn project_call(
     site_plans: &CheckedCallOutSitePlanPairV1,
     role: DynamicV2AotCallRoleV1,
 ) -> Result<DynamicV2AotCallSiteProjectionV1, DynamicV2AotCallMetadataRejectV1> {
-    let matches = receipt
-        .call_edges()
-        .iter()
-        .filter(|edge| edge.role == role.as_str())
-        .collect::<Vec<_>>();
-    let edge = match matches.as_slice() {
-        [] => return Err(DynamicV2AotCallMetadataRejectV1::MissingCallRole),
-        [edge] => edge,
-        _ => return Err(DynamicV2AotCallMetadataRejectV1::DuplicateCallRole),
-    };
     let entry = admission.entry_for(role.admitted_role());
     if entry.entry() != role.expected_entry() {
         return Err(DynamicV2AotCallMetadataRejectV1::AdmissionEntryMismatch);
@@ -183,6 +175,12 @@ fn project_call(
     let site_id = site_plans
         .site_id_for_entry(CheckedCallOutEntryIdV1(entry.entry() as u32))
         .ok_or(DynamicV2AotCallMetadataRejectV1::MissingSitePlan)?;
+    let edge = receipt
+        .call_edge(site_id)
+        .ok_or(DynamicV2AotCallMetadataRejectV1::MissingCallSite)?;
+    if edge.role != role.as_str() {
+        return Err(DynamicV2AotCallMetadataRejectV1::CallSiteRoleMismatch);
+    }
     if entry.arity() as usize != edge.arguments.len()
         || entry.call_abi().logical_arity as usize != edge.arguments.len()
     {
@@ -350,7 +348,7 @@ mod tests {
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ],
-            vec![call("substring", 4), call("index_of", 5)],
+            vec![call("substring", 0), call("index_of", 1)],
             vec![
                 APrimeI64ReturnReceiptV1 {
                     site: "inner".into(),
@@ -369,11 +367,10 @@ mod tests {
         .expect("valid receipt")
     }
 
-    fn call(role: &str, instruction_index: usize) -> APrimeI64CallEdgeReceiptV1 {
+    fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
         APrimeI64CallEdgeReceiptV1 {
+            site_id: CheckedCallOutSiteIdV1(site_id),
             role: role.into(),
-            block: BasicBlockId::new(3),
-            instruction_index,
             target_fingerprint: if role == "substring" {
                 "substring/2".into()
             } else {

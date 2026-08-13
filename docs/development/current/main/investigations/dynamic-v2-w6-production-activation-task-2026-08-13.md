@@ -501,7 +501,7 @@ already-issued site-id projection to the candidate MIR JSON path. The second
 adds one Boundary C-ABI physicalizer. Neither row changes the production
 caller; both keep `new=0`, `old=1`.
 
-#### W6-C0-A — `DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-D0`
+#### W6-C0-A — `DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-R0`
 
 ```text
 Decision: recut APrime call-edge identity to CheckedCallOutSiteIdV1 and issue
