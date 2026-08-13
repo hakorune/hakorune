@@ -892,11 +892,11 @@ Non-claims: no long-lived candidate↔artifact product, cross-process rollback, 
 #### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (design stop)
 
 ```text
-Decision: keep a design stop; the root commit owner is explicit, but the LLVM ingress materialization relation to the source-backed selected package is not.
+Decision: keep a design stop; the root commit owner is explicit, but the LLVM ingress materialization relation to the source-backed selected package and the ownership/order of `normalize_core_pass` are not.
 Source authority + canonical issuer: `parse_normal_callable_program_with_build_config` -> `transform_normal_callable_program_v1` -> `VerifiedFinalCallableProgramSourceV1`/`issue_normal_callable_semantic_package_v1` -> one shared materialization helper -> `NormalDefaultPublishedPipelineV1` -> `prepare_external_commit`/`PreparedBuilderExternalCommitV1::commit`.
 Non-authority: `for_llvm_source` compatibility AST request, runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
 Fail-fast boundary: missing source-backed callable relation, foreign package/admission, receipt/site/ABI/wire drift, or selected/ordinary census mismatch leaves the live Builder and ordinary edge unchanged.
-Smallest next slice: accept one shared materialization helper (`normal-callable parser/transform -> SourceBacked|Compatibility`; SourceBacked -> existing callable request, Compatibility -> existing AST request) plus one scoped census; no guessed callback, transition product, or AST-to-package re-inference.
+Smallest next slice: accept one shared materialization helper (`normal-callable parser/transform -> SourceBacked|Compatibility`; SourceBacked -> existing callable request, Compatibility -> existing AST request), explicitly decide `normalize_core_pass` is excluded or source-preserving, and take one scoped census; no guessed callback, transition product, or AST-to-package re-inference.
 Acceptance: package-adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, selected Boundary candidate/runner=1, receipt/path fence=1, fallback/retry/VM=0; final LLVM-ingress live caller remains 0 until the shared materialization helper is accepted.
 Non-claims: no ordinary compatibility retirement, llvmlite G1/G2/G3 activation, source deletion, cross-process recovery, RuntimeExecutablePlan, or guessed transition state.
 ```
