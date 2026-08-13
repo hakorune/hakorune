@@ -93,6 +93,36 @@ dominance; it therefore does not prove that Boundary is reachable.  Local
 structural green remains non-production evidence until the execution-shaped
 negative/positive tests above exist.
 
+### Audit normalization addendum (2026-08-14)
+
+The latest worker/pro review creates no new top-level task or guard family.
+Its findings are assigned to the existing DAG as follows:
+
+```text
+post-seal generic mutators + dropped verification
+  -> POSTSEAL-IMMUTABILITY-R0 / STRICT-VERIFIER-POLICY-R0 / COMPILE-VERIFICATION-FENCE-R0
+selected PyVM fence killing Boundary
+  -> RUNNER-DOMINANCE-R0 (PyVM remains retired; only the accidental early fatal is removed)
+main/helper launch identity
+  -> BOUNDARY-SELECTED-HELPER-IDENTITY-D0
+exe/receipt visibility and rollback
+  -> STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0
+Boundary/llvmlite feature entanglement
+  -> LLVM-BOUNDARY-COMPAT-OWNERSHIP-D0
+ambient verifier legacy/no-PHI switches
+  -> STRICT-VERIFIER-POLICY-R0 (include NYASH_VERIFY_ALLOW_LEGACY)
+guard proliferation and stale wrappers
+  -> GUARD-SURFACE-CONSOLIDATION-D0, after the selected P0 rows
+```
+
+PyVM is therefore not being restored: selected production must reject an
+explicit PyVM request, skip the retired PyVM stage when absent, and reach the
+Boundary owner exactly once.  No row may use `mutation_count == 0`, a green
+grep, or an `Option::None` observation as reachability/immutability evidence.
+The C ABI remains a thin lease-status bridge; it is not a new semantic, CFG,
+wire, or guard authority.  All rows retain the same non-claims: no fallback,
+retry, VM consumer, source movement, deletion, or main integration.
+
 ## Immediate baseline debt
 
 One stable guard is red at this HEAD and at both `HEAD^` and the G0-G2 close
