@@ -14,20 +14,14 @@ pub(super) fn handle_codegen(
                 .map(|b| b.to_string_box().value)
                 .unwrap_or_default();
             let out = args.get(1).map(|b| b.to_string_box().value);
-            match compile_ll_text(&ll_text, out) {
-                Ok(p) => Ok(Some(Box::new(StringBox::new(p)) as Box<dyn NyashBox>)),
-                Err(_e) => Ok(None),
-            }
+            codegen_result_to_bid(compile_ll_text(&ll_text, out))
         }
         "emit_object" => {
             let mir_json = args
                 .first()
                 .map(|b| b.to_string_box().value)
                 .unwrap_or_default();
-            match emit_object(&mir_json, false) {
-                Ok(p) => Ok(Some(Box::new(StringBox::new(p)) as Box<dyn NyashBox>)),
-                Err(_e) => Ok(None),
-            }
+            codegen_result_to_bid(emit_object(&mir_json, false))
         }
         "link_object" => {
             let obj_path = args
@@ -36,13 +30,16 @@ pub(super) fn handle_codegen(
                 .unwrap_or_default();
             let exe_out = args.get(1).map(|b| b.to_string_box().value);
             let extra = args.get(2).map(|b| b.to_string_box().value);
-            match link_object(&obj_path, exe_out, extra) {
-                Ok(p) => Ok(Some(Box::new(StringBox::new(p)) as Box<dyn NyashBox>)),
-                Err(_e) => Ok(None),
-            }
+            codegen_result_to_bid(link_object(&obj_path, exe_out, extra))
         }
         _ => Err(BidError::PluginError),
     }
+}
+
+fn codegen_result_to_bid(result: Result<String, String>) -> BidResult<Option<Box<dyn NyashBox>>> {
+    result
+        .map(|path| Some(Box::new(StringBox::new(path)) as Box<dyn NyashBox>))
+        .map_err(|_| BidError::PluginError)
 }
 
 pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String, String> {
@@ -198,5 +195,27 @@ fn trace_result(route: &str, result: &Result<String, String>) {
         Err(error_text) => crate::runtime::get_global_ring0()
             .log
             .debug(&format!("[compat/codegen:{}:err] {}", route, error_text)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::codegen_result_to_bid;
+    use crate::bid::BidError;
+
+    #[test]
+    fn codegen_result_preserves_success_path() {
+        let value = codegen_result_to_bid(Ok("/tmp/out.o".to_string()))
+            .expect("success should remain success")
+            .expect("success should carry a path");
+        assert_eq!(value.to_string_box().value, "/tmp/out.o");
+    }
+
+    #[test]
+    fn codegen_result_maps_failure_to_typed_plugin_error() {
+        assert!(matches!(
+            codegen_result_to_bid(Err("backend failed".to_string())),
+            Err(BidError::PluginError)
+        ));
     }
 }

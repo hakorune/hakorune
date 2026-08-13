@@ -105,8 +105,13 @@ if rg -Fq -- 'or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))' "$CAPI"; t
 fi
 need_fixed "$CAPI" '.get(compile_symbol)' \
   "CAPI requested-symbol lookup missing"
-need_fixed "$PLUGIN" 'Err(_e) => Ok(None)' \
-  "plugin compatibility failure policy changed outside its later G1 row"
+if rg -Fq -- 'Err(_e) => Ok(None)' "$PLUGIN"; then
+  fail "codegen plugin still converts backend failure to None"
+fi
+need_fixed "$PLUGIN" 'fn codegen_result_to_bid' \
+  "codegen plugin typed-result adapter missing"
+need_fixed "$PLUGIN" 'BidError::PluginError' \
+  "codegen plugin typed failure mapping missing"
 need_fixed "$PLUGIN" 'll_text_to_object' "compile_ll_text owner disappeared"
 
 # The task card and check index are the tracked documentation owners.
