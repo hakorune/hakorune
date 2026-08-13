@@ -83,8 +83,8 @@ mod tests {
         )
     }
 
-    fn selected_helper(arity: usize) -> MirFunction {
-        let mut helper = function("ParserScanLoopBox.skip_while/4", arity);
+    fn selected_helper_named(name: &str, arity: usize) -> MirFunction {
+        let mut helper = function(name, arity);
         helper
             .metadata
             .install_a_prime_i64_physical_receipt_for_test(
@@ -98,6 +98,10 @@ mod tests {
             )
             .expect("admission install");
         helper
+    }
+
+    fn selected_helper(arity: usize) -> MirFunction {
+        selected_helper_named("ParserScanLoopBox.skip_while/4", arity)
     }
 
     fn valid_module() -> MirModule {
@@ -144,5 +148,50 @@ mod tests {
         module.add_function(selected_helper(3));
         let error = validate_selected_dynamic_launch_helper_identity(&module).unwrap_err();
         assert!(error.contains("exactly 4"));
+    }
+
+    #[test]
+    fn rejects_selected_metadata_on_launch_entry() {
+        let mut module = MirModule::new("metadata-on-launch".to_owned());
+        module.add_function(selected_helper_named("main", 4));
+        module.add_function(function("helper", 4));
+        let error = validate_selected_dynamic_launch_helper_identity(&module).unwrap_err();
+        assert!(error.contains("zero parameters"));
+    }
+
+    #[test]
+    fn rejects_duplicate_selected_helpers() {
+        let mut module = MirModule::new("duplicate-helper".to_owned());
+        module.add_function(function("main", 0));
+        module.add_function(selected_helper_named("helper_a", 4));
+        module.add_function(selected_helper_named("helper_b", 4));
+        let error = validate_selected_dynamic_launch_helper_identity(&module).unwrap_err();
+        assert!(error.contains("unique"));
+    }
+
+    #[test]
+    fn rejects_partial_selected_metadata() {
+        let mut module = MirModule::new("partial-helper".to_owned());
+        module.add_function(function("main", 0));
+        let mut helper = function("helper", 4);
+        helper
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        module.add_function(helper);
+        let error = validate_selected_dynamic_launch_helper_identity(&module).unwrap_err();
+        assert!(error.contains("partial"));
+    }
+
+    #[test]
+    fn rejects_scrubbed_selected_metadata() {
+        let mut module = MirModule::new("scrubbed-helper".to_owned());
+        module.add_function(function("main", 0));
+        let scrubbed = selected_helper(4).clone();
+        module.add_function(scrubbed);
+        let error = validate_selected_dynamic_launch_helper_identity(&module).unwrap_err();
+        assert!(error.contains("scrubbed"));
     }
 }

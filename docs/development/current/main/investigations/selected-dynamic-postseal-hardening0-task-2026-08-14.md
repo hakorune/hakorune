@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust pre-backend launch/helper fence landed; next fast child is the C side of DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust pre-backend launch/helper fence and production-shaped dual-function negatives landed; next fast child is the C side of DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -462,7 +462,7 @@ rejects an explicit PyVM request, scans the existing legacy-callsite classifier
 before backend effects, and reaches the single selected Boundary caller without
 ordinary harness/mock fallback.  The Rust pre-backend identity fence adds
 exactly one zero-argument launch, one distinct four-argument selected helper,
-and five focused negative/positive tests; C dual-view/physicalization and
+and nine focused negative/positive tests; C dual-view/physicalization and
 end-to-end launch remain open.  Focused route/identity tests, LLVM feature and
 default `cargo check --lib`, AOT/text/pointer guards, and diff check are green;
 selected production remains `0/old=1`.
