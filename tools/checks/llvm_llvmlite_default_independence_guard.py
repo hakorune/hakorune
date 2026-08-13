@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -14,7 +15,12 @@ MANIFEST = ROOT / (
     "docs/development/current/main/investigations/"
     "llvmlite-default-independence-census-v0.json"
 )
+CALLER_MANIFEST = ROOT / (
+    "docs/development/current/main/investigations/"
+    "llvmlite-shared-smoke-caller-census-v0.json"
+)
 SCHEMA = "llvmlite-default-independence-census-v0"
+CALLER_SCHEMA = "llvmlite-shared-smoke-caller-census-v0"
 EXPECTED_IDS = {
     "g2-ci-min-gate-default",
     "g2-ci-min-gate-llvm-phi",
@@ -46,6 +52,81 @@ def read_source(relative: str) -> str:
     if not path.is_file():
         fail(f"missing source owner: {relative}")
     return path.read_text(encoding="utf-8")
+
+
+def rg_paths(pattern: str) -> set[str]:
+    result = subprocess.run(
+        ["rg", "-l", pattern, "tools/smokes/v2", "--glob", "*.sh"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode not in (0, 1):
+        fail(f"caller census rg failed for {pattern!r}: {result.stderr.strip()}")
+    return {line for line in result.stdout.splitlines() if line}
+
+
+def validate_caller_census() -> None:
+    if not CALLER_MANIFEST.is_file():
+        fail("shared smoke caller census is missing")
+    try:
+        data = json.loads(CALLER_MANIFEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"invalid shared smoke caller census JSON: {exc}")
+    if data.get("schema") != CALLER_SCHEMA:
+        fail("shared smoke caller census schema drifted")
+    if data.get("status") != "g2-caller-census":
+        fail("shared smoke caller census status drifted")
+    if data.get("production_claim") or data.get("behavior_change") or data.get("g3_deletion"):
+        fail("shared smoke caller census may not claim behavior or retirement")
+    rows = data.get("rows")
+    allowed = set(data.get("allowed_classes", []))
+    if not isinstance(rows, list) or not rows or not allowed:
+        fail("shared smoke caller census rows/classes are missing")
+    ids: set[str] = set()
+    paths: dict[str, str] = {}
+    for row in rows:
+        row_id = row.get("id")
+        row_class = row.get("class")
+        path = row.get("path")
+        if not isinstance(row_id, str) or not row_id or row_id in ids:
+            fail("shared smoke caller census ids must be unique")
+        if row_class not in allowed:
+            fail(f"{row_id}: unknown caller class {row_class!r}")
+        if not isinstance(path, str) or not path or path in paths:
+            fail(f"{row_id}: caller path is missing or duplicated")
+        ids.add(row_id)
+        paths[path] = row_class
+        text = read_source(path)
+        evidence = row.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            fail(f"{row_id}: caller evidence is empty")
+        for needle in evidence:
+            if not isinstance(needle, str) or not needle or needle not in text:
+                fail(f"{row_id}: missing caller evidence {needle!r}")
+        if row_class == "explicit_compat":
+            if "run_nyash_llvm" not in text or "NYASH_LLVM_USE_HARNESS=1" not in text:
+                fail(f"{row_id}: explicit compat caller lacks explicit harness selector")
+        elif row_class == "default_pending":
+            if "NYASH_LLVM_USE_HARNESS=1" in text and path not in {
+                "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
+                "tools/smokes/v2/lib/result_checker.sh",
+            }:
+                fail(f"{row_id}: pending caller already has an explicit harness selector")
+
+    observed = rg_paths("run_nyash_llvm") | rg_paths("check_parity")
+    if set(paths) != observed:
+        fail(f"shared smoke caller universe drifted: {sorted(set(paths) ^ observed)}")
+    if paths.get("tools/smokes/v2/lib/test_runner_llvm_helpers.sh") != "helper_owner":
+        fail("LLVM helper owner is missing")
+    if paths.get("tools/smokes/v2/lib/result_checker.sh") != "helper_owner":
+        fail("result checker owner is missing")
+    print(
+        f"[{TAG}] shared-smoke callers ok (rows={len(paths)}, "
+        f"explicit_compat={sum(value == 'explicit_compat' for value in paths.values())}, "
+        f"default_pending={sum(value == 'default_pending' for value in paths.values())})"
+    )
 
 
 def main() -> int:
@@ -148,6 +229,8 @@ def main() -> int:
             fail(f"{row_id}: implicit llvmlite selector remains")
         if "perf_hot_trace_require_llvmlite_backend" not in text:
             fail(f"{row_id}: explicit llvmlite gate is missing")
+
+    validate_caller_census()
 
     print(
         f"[{TAG}] ok (rows={len(rows)}, classes={counts}, "
