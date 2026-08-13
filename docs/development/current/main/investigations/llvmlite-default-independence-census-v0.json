@@ -1,0 +1,168 @@
+{
+  "schema": "llvmlite-default-independence-census-v0",
+  "status": "g2-source-census",
+  "production_claim": false,
+  "behavior_change": false,
+  "g3_deletion": false,
+  "source_authority": "workflow/job, Cargo/build, shared smoke helper, perf selector, or explicit tool owner",
+  "non_authority": [
+    "keep labels",
+    "comments",
+    "Python output",
+    "Boundary route names without a source selector"
+  ],
+  "allowed_classes": [
+    "default_boundary",
+    "default_pending",
+    "explicit_compat",
+    "explicit_oracle",
+    "historical_disabled",
+    "neutral_tooling"
+  ],
+  "rows": [
+    {
+      "id": "g2-ci-min-gate-default",
+      "class": "default_boundary",
+      "automatic_production": true,
+      "python_dependency": "zero",
+      "owner": ".github/workflows/min-gate.yml",
+      "selector": "cargo build/test default jobs",
+      "evidence": ["cargo check --all-targets -q", "workflow_dispatch"]
+    },
+    {
+      "id": "g2-ci-min-gate-llvm-phi",
+      "class": "historical_disabled",
+      "automatic_production": false,
+      "python_dependency": "conditional",
+      "owner": ".github/workflows/min-gate.yml",
+      "selector": "llvm-phi-smoke",
+      "evidence": ["if: ${{ false }}", "llvm-harness"]
+    },
+    {
+      "id": "g2-ci-portability-default",
+      "class": "default_boundary",
+      "automatic_production": true,
+      "python_dependency": "zero",
+      "owner": ".github/workflows/portability-ci.yml",
+      "selector": "cargo build --release --bin hakorune",
+      "evidence": ["cargo build", "workflow_dispatch"]
+    },
+    {
+      "id": "g2-ci-fast-smoke-compat",
+      "class": "explicit_compat",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": ".github/workflows/fast-smoke.yml",
+      "selector": "workflow_dispatch + compat_replay=harness",
+      "evidence": ["workflow_dispatch", "pip install llvmlite", "HAKO_BACKEND_COMPAT_REPLAY=harness"]
+    },
+    {
+      "id": "g2-smoke-shared-env",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "route-dependent",
+      "owner": "tools/smokes/v2/lib/env.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS default",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-1}\"", "NYASH_LLVM_BACKEND"]
+    },
+    {
+      "id": "g2-smoke-runner-helper",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "route-dependent",
+      "owner": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
+      "selector": "run_nyash_llvm",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "run_nyash_llvm"]
+    },
+    {
+      "id": "g2-smoke-exe-runner",
+      "class": "explicit_compat",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": "tools/smokes/v2/lib/llvm_exe_runner.sh",
+      "selector": "import llvmlite preflight",
+      "evidence": ["python3 -c \"import llvmlite\"", "test_skip"]
+    },
+    {
+      "id": "g2-perf-run-all",
+      "class": "explicit_oracle",
+      "automatic_production": false,
+      "python_dependency": "opt-in",
+      "owner": "tools/perf/run_all.sh",
+      "selector": "NYASH_LLVM_RUN_LLVMLITE=1",
+      "evidence": ["NYASH_LLVM_RUN_LLVMLITE:-0", "llvmlite (opt-in)"]
+    },
+    {
+      "id": "g2-perf-microbench",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "route-dependent",
+      "owner": "tools/perf/microbench.sh",
+      "selector": "--backend llvm",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "NYASH_LLVM_BACKEND=crate"]
+    },
+    {
+      "id": "g2-perf-method-call-hot-trace",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_method_call_hot_trace_contract_vm.sh",
+      "selector": "PERF_METHOD_CALL_HOT_TRACE_BACKEND",
+      "evidence": ["PERF_METHOD_CALL_HOT_TRACE_BACKEND:-llvmlite", "perf_hot_trace_require_llvmlite_backend"]
+    },
+    {
+      "id": "g2-perf-compare-expr-cse",
+      "class": "default_pending",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_compare_expr_cse_contract_vm.sh",
+      "selector": "PERF_COMPARE_EXPR_CSE_BACKEND",
+      "evidence": ["PERF_COMPARE_EXPR_CSE_BACKEND:-llvmlite", "perf_hot_trace_require_llvmlite_backend"]
+    },
+    {
+      "id": "g2-perf-phase2100-probe",
+      "class": "explicit_oracle",
+      "automatic_production": false,
+      "python_dependency": "opt-in",
+      "owner": "tools/smokes/v2/profiles/integration/core/phase2100/run_probe_llvmlite.sh",
+      "selector": "NYASH_LLVM_RUN_LLVMLITE=1",
+      "evidence": ["NYASH_LLVM_RUN_LLVMLITE:-0", "deprecated by default"]
+    },
+    {
+      "id": "g2-smoke-static-config",
+      "class": "explicit_compat",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": "tools/smokes/v2/configs/llvm_static.conf",
+      "selector": "llvm_static profile",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "export NYASH_BACKEND=\"llvm\""]
+    },
+    {
+      "id": "g2-smoke-matrix-config",
+      "class": "explicit_compat",
+      "automatic_production": false,
+      "python_dependency": "one",
+      "owner": "tools/smokes/v2/configs/matrix.conf",
+      "selector": "llvm matrix axis",
+      "evidence": ["NYASH_LLVM_USE_HARNESS=1", "MATRIX_BACKENDS"]
+    },
+    {
+      "id": "g2-perf-boundary-fence",
+      "class": "default_boundary",
+      "automatic_production": true,
+      "python_dependency": "zero",
+      "owner": "tools/perf/lib/aot_helpers.sh",
+      "selector": "perf AOT route",
+      "evidence": ["must not use NYASH_LLVM_USE_HARNESS=1", "must not use HAKO_LLVM_EMIT_PROVIDER=llvmlite"]
+    },
+    {
+      "id": "g2-build-llvm-tool",
+      "class": "neutral_tooling",
+      "automatic_production": false,
+      "python_dependency": "explicit",
+      "owner": "tools/build/build_llvm.sh",
+      "selector": "build helper",
+      "evidence": ["llvmlite", "cargo build --release --features llvm"]
+    }
+  ]
+}

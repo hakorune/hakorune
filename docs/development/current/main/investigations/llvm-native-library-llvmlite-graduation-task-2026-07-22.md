@@ -152,14 +152,14 @@ but are not production callers.
 
 ### G2 — remove default dependency
 
-`LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0` is the current design row: split default
-and explicit compat/oracle/monitor/historical capsules before behavior changes.
+`LLVMLITE-AUTO0-G2-DEFAULT-INDEPENDENCE-D0` is accepted; source-backed `LLVMLITE-AUTO0-G2-CENSUS-R0` is closed with 16 classified roots and 5 pending
+default capsules. Next design stop: `LLVMLITE-AUTO0-G2-CAPSULE-D1`.
 Source authority: workflow/job, Cargo/build, shared smoke, perf selectors;
 non-authority: labels, keep tags, comments, Python output.
-Fail-fast: default Python install/import, shared `NYASH_LLVM_USE_HARNESS=1`, or
-method-call llvmlite perf default. Next: one source-backed census/guard.
-Acceptance: default build Python=0, default execution/perf child=0, every
-surviving llvmlite job explicitly named. No behavior change or G3 deletion.
+Fail-fast: unclassified root, default Python install/import, shared
+`NYASH_LLVM_USE_HARNESS=1`, or method-call llvmlite perf default.
+Acceptance: every observed root has explicit class/evidence; behavior and G3
+deletion remain closed.
 
 ### G3 — archive or delete the keep lane
 
