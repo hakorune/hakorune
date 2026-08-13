@@ -543,6 +543,25 @@ selected default route; each explicit keep root has one route receipt; missing
 pure-first symbols and CAPI/plugin failures are typed stops; generic C exports
 never implicitly select harness; unsupported inputs never retry through Python.
 
+Ingress matrix to close before code:
+
+```text
+stage1 replay=harness       = explicit keep; receipt required; no auto retry
+env.codegen no recipe       = generic C is not an implicit Boundary; typed stop
+generic CAPI symbol         = exact recipe symbol only; no `.or_else(generic)`
+hako_aot_compile_json       = harness child only from explicit keep admission
+plugin emit/compile error   = typed Err or explicit non-retry None contract
+```
+
+Worker source census (2026-08-14): `mir_json_text_object.rs` owns CAPI/provider/
+Boundary order; `route.rs` owns request classification; `capi_transport.rs`
+owns the selected symbol; `hako_llvmc_ffi_route.inc` owns C exports;
+`hako_aot_shared_impl.inc` owns the child command; and
+`compat_codegen_receiver.rs` owns the plugin result boundary. The existing
+`llvm_codegen_route_identity_guard.sh` is the shared gate. This matrix changes
+no behavior and does not authorize a fallback, provider reorder, or source
+deletion; it only names the implementation evidence required next.
+
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0`
 
 Decision: reuse the existing `NYASH_LLVM_ROUTE_TRACE` as diagnostic events;
