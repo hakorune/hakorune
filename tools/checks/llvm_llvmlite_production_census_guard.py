@@ -84,6 +84,38 @@ ROW_EVIDENCE = {
         ("src/runner/product/llvm/mod.rs", "execute_via_harness_or_fallback"),
         ("src/runner/product/llvm/mod.rs", "fallback_used"),
     ),
+    "test-shlib-llvmlite-keep": (
+        ("tools/test/lib/shlib.sh", "--harness"),
+        ("tools/test/lib/shlib.sh", "tools/llvmlite_harness.py"),
+    ),
+    "smoke-v2-harness-helper": (
+        ("tools/smokes/v2/lib/test_runner_llvm_helpers.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/lib/test_runner_llvm_helpers.sh", "run_nyash_llvm"),
+    ),
+    "smoke-v2-result-checker": (
+        ("tools/smokes/v2/lib/result_checker.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/v2/lib/result_checker.sh", "llvm_output"),
+    ),
+    "debug-phi-llvmlite": (
+        ("tools/debug/phi/phi_trace_run.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/debug/phi/phi_trace_run.sh", "phi_trace_check.py"),
+    ),
+    "curated-llvm-keep": (
+        ("tools/smokes/curated_llvm.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/smokes/curated_llvm.sh", "Curated LLVM smoke runner"),
+    ),
+    "cache-llvmlite-keep": (
+        ("tools/cache/phase29x_l2_object_cache.sh", "NYASH_LLVM_USE_HARNESS=1"),
+        ("tools/cache/phase29x_l2_object_cache.sh", "phase29x_l2_object_cache"),
+    ),
+    "debug-phi-bridge-keep": (
+        ("tools/debug/phi/phi_trace_bridge_try.sh", "--harness"),
+        ("tools/debug/phi/phi_trace_bridge_try.sh", "tools/llvmlite_harness.py"),
+    ),
+    "phase29ck-identity-keep": (
+        ("tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh", "python3 \"$HARNESS\""),
+        ("tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh", "compat/probe keep harness"),
+    ),
     "perf-manual-harness": (
         ("tools/perf/microbench.sh", "NYASH_LLVM_USE_HARNESS=1"),
         ("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1"),
@@ -188,6 +220,14 @@ def main() -> int:
         "runner-llvmlite-helper",
         "runner-non-python-fallback",
         "runner-harness-or-fallback",
+        "test-shlib-llvmlite-keep",
+        "smoke-v2-harness-helper",
+        "smoke-v2-result-checker",
+        "debug-phi-llvmlite",
+        "curated-llvm-keep",
+        "cache-llvmlite-keep",
+        "debug-phi-bridge-keep",
+        "phase29ck-identity-keep",
         "ny-llvmc-harness-input",
         "ny-mir-builder-rust-tool",
         "run-llvm-harness-tool",

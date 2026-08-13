@@ -161,6 +161,94 @@
       "negative_evidence": "the fallback is not a Python retry and remains a G1 typed-fail-fast decision"
     },
     {
+      "id": "test-shlib-llvmlite-keep",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/test/lib/shlib.sh",
+      "selector": "ny-llvmc --harness tools/llvmlite_harness.py",
+      "positive_evidence": "shared test helper passes the harness explicitly",
+      "negative_evidence": "test helper is not a default product driver"
+    },
+    {
+      "id": "smoke-v2-harness-helper",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "v2 smoke helper enables the named compatibility environment",
+      "negative_evidence": "helper belongs to smoke profiles, not product execution"
+    },
+    {
+      "id": "smoke-v2-result-checker",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/lib/result_checker.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "result checker invokes the explicit LLVM compatibility lane",
+      "negative_evidence": "result checker is not a production caller"
+    },
+    {
+      "id": "debug-phi-llvmlite",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/debug/phi/phi_trace_run.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "debug trace runner opts into the harness",
+      "negative_evidence": "debug tracing is outside product execution"
+    },
+    {
+      "id": "curated-llvm-keep",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/curated_llvm.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "curated LLVM smoke explicitly selects the keep lane",
+      "negative_evidence": "curated smoke is not a product caller"
+    },
+    {
+      "id": "cache-llvmlite-keep",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/cache/phase29x_l2_object_cache.sh",
+      "selector": "NYASH_LLVM_USE_HARNESS=1",
+      "positive_evidence": "legacy object-cache probe explicitly opts into the harness",
+      "negative_evidence": "cache probe is not a production route"
+    },
+    {
+      "id": "debug-phi-bridge-keep",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/debug/phi/phi_trace_bridge_try.sh",
+      "selector": "ny-llvmc --harness tools/llvmlite_harness.py",
+      "positive_evidence": "bridge trace helper passes the harness explicitly",
+      "negative_evidence": "bridge debugging is outside product execution"
+    },
+    {
+      "id": "phase29ck-identity-keep",
+      "class": "manual_keep",
+      "automatic_production": false,
+      "python_child": "explicit",
+      "native_retry": false,
+      "owner": "tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh",
+      "selector": "python3 tools/llvmlite_harness.py",
+      "positive_evidence": "phase29ck probes the explicit keep identity",
+      "negative_evidence": "identity smoke is not a product acceptance route"
+    },
+    {
       "id": "perf-manual-harness",
       "class": "manual_keep",
       "automatic_production": false,
