@@ -858,9 +858,10 @@ Non-claims:
 
 Landed D0-C0: commit `2c0b9c585b` adds the root-only HRTB
 `PreparedModuleExternalCommitV1::with_candidate_module` seam and a focused
-borrow-without-clone test. It exposes no commit or mutable Builder state and
-does not switch the selected callback or retire the old edge. The next slice
-is the one-shot candidate/child-receipt aggregate around this seam.
+borrow-without-clone test. D0-C1 changes the root validator's unit result into
+the non-Clone `StaticArtifactReceiptConsumedFenceV1`; it carries no receipt
+fields and is ready for one aggregate consume. Neither slice exposes commit,
+switches the selected callback, or retires the old edge.
 
 The coordinator must not reconstruct a receipt or reach into the child
 publication transaction. A child rename followed by process loss is outside

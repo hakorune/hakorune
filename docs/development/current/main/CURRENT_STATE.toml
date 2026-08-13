@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. W6-E-D0-C candidate-module borrow seam landed at 2c0b9c585b; the root aggregate and production cutover remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. W6-E-D0-C0 candidate-module borrow and D0-C1 receipt-consumption fence are landed; the root aggregate and production cutover remain closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-D and D0-B are landed. D0-C design is accepted and D0-C0 now exposes only an HRTB borrow from PreparedModuleExternalCommitV1. The next fast slice must consume one child receipt into the root aggregate and perform direct R4 preflight without a copied witness; child rename-before-root-validation remains a non-claim and production caller mutation remains closed."
+current_design_stop = "W6-D and D0-B are landed. D0-C design is accepted; D0-C0 exposes only an HRTB borrow from PreparedModuleExternalCommitV1 and D0-C1 now returns a non-Clone root receipt-consumption fence. The next fast slice must co-seal that fence with the candidate and perform direct R4 preflight without a copied witness; child rename-before-root-validation remains a non-claim and production caller mutation remains closed."
 work_mode = "fast"
 current_execution_row = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
-current_blocker_token = "W6-E-D0-C: build the root-only one-shot candidate/child-receipt aggregate around PreparedModuleExternalCommitV1::with_candidate_module; consume one validated receipt and direct R4 preflight without exposing commit or switching callers; keep new=0 old=1, fallback/retry/VM=0."
+current_blocker_token = "W6-E-D0-C: co-seal the non-Clone StaticArtifactReceiptConsumedFenceV1 with the root candidate around PreparedModuleExternalCommitV1::with_candidate_module; perform direct R4 preflight without exposing commit or switching callers; keep new=0 old=1, fallback/retry/VM=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9; D0-C0 candidate-module borrow landed at 2c0b9c585b, and the one-shot receipt aggregate is next, so new=0 old=1 remains."
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9; D0-C0 candidate borrow and D0-C1 receipt fence are landed, and the co-sealed aggregate is next, so new=0 old=1 remains."
 next_design_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
