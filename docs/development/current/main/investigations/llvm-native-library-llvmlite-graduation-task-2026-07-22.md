@@ -509,9 +509,10 @@ Non-claims: no G1/G2/G3 retirement, source deletion, fallback removal,
 
 S0 receipt (2026-08-13): `tools/checks/llvm_codegen_route_identity_guard.sh`
 is green. Identity0/OBSERVE0 then fixed selector labels and child evidence;
-G1-D1 now fences selected-Dynamic route inheritance before child spawn. The
-remaining source-backed hazards are generic C -> hako_aot -> harness reachability,
-pure-first symbol fallback, and plugin `Err=>Ok(None)`. No route behavior changed.
+G1-D1 now fences selected-Dynamic route inheritance before child spawn. F0
+closed the pure-first CAPI symbol fallback with focused route/guard evidence.
+The remaining source-backed hazards are generic C -> hako_aot -> harness
+reachability and plugin `Err=>Ok(None)`; no provider order changed.
 
 ### `LLVMLITE-ROUTE0-IDENTITY0` (closed)
 
@@ -531,17 +532,19 @@ Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
 Fail-fast boundary: pure-first symbol loss, recipe-unset generic export,
   implicit hako_aot harness, CAPI-unavailable, plugin error, or unsupported
   input must stop with typed failure; no native retry or second lookup.
-Smallest next slice: design the complete ingress matrix and typed error/receipt
-  contract for stage1 replay, env.codegen, generic CAPI, and hako_aot; no code
-  or fallback/provider-order/source-deletion change in this design stop.
+Smallest next slice: `LLVMLITE-AUTO0-CAPI-SYMBOL-FAILFAST-F0` removes only the
+  requested CAPI symbol fallback; generic ingress and plugin policy remain a
+  design stop with no provider-order or source-deletion change.
 Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
   generic backend expansion, or llvmlite source deletion.
 ```
 
-Acceptance to unlock implementation: automatic Python ingress is zero for the
-selected default route; each explicit keep root has one route receipt; missing
-pure-first symbols and CAPI/plugin failures are typed stops; generic C exports
-never implicitly select harness; unsupported inputs never retry through Python.
+F0 receipt (2026-08-14, closed): `compile_via_capi` performs exactly one
+requested-symbol lookup; missing pure-first symbols return a typed dlsym error
+and never try the generic symbol. `llvm_codegen_route_identity_guard.sh`,
+`current_state_pointer_guard.sh`, `cargo fmt --all -- --check`, route-focused
+tests (2 passed), and `git diff --check` are green. This does not claim
+automatic Python ingress zero, plugin error propagation, or G1 close.
 
 Ingress matrix to close before code:
 
