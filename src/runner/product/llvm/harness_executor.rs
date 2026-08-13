@@ -5,7 +5,7 @@
 use super::error::LlvmRunError;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
-use nyash_rust::mir::MirModule;
+use nyash_rust::mir::{MirModule, StaticArtifactReceiptConsumedFenceV1};
 
 /// Harness executor Box
 ///
@@ -35,7 +35,7 @@ impl HarnessExecutorBox {
             .map_err(|error| {
                 LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
             })?;
-        run_emitted_executable(exe_out)
+        run_selected_dynamic_after_receipt(_receipt_fence, exe_out)
     }
 
     #[cfg(not(feature = "llvm-harness"))]
@@ -76,6 +76,14 @@ impl HarnessExecutorBox {
             "LLVM harness feature not enabled (built without --features llvm)",
         ))
     }
+}
+
+#[cfg(feature = "llvm-harness")]
+fn run_selected_dynamic_after_receipt(
+    _receipt_fence: StaticArtifactReceiptConsumedFenceV1,
+    exe_out: &str,
+) -> Result<i32, LlvmRunError> {
+    run_emitted_executable(exe_out)
 }
 
 #[cfg(feature = "llvm-harness")]
