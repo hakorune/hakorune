@@ -23,13 +23,17 @@ impl HarnessExecutorBox {
         let exe_out = "tmp/nyash_llvm_run";
         let receipt =
             crate::runner::modes::common_util::exec::selected_dynamic_receipt_path(exe_out);
+        let nyrt_dir = crate::runner::modes::common_util::exec::selected_dynamic_nyrt_dir()
+            .map_err(|error| {
+                LlvmRunError::fatal(format!("selected Dynamic NyRT archive error: {error}"))
+            })?;
         let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
         let _receipt_fence =
             crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_selected_dynamic_bin(
                 module,
                 exe_out,
                 receipt.to_string_lossy().as_ref(),
-                None,
+                Some(nyrt_dir.as_str()),
                 libs.as_deref(),
             )
             .map_err(|error| {

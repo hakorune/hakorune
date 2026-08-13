@@ -889,15 +889,15 @@ Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenc
 Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
 ```
 
-#### W6-E-C4 — `DYNAMIC-V2-W6-CANDIDATE-ARTIFACT-RECEIPT-R0` (fence order landed)
+#### W6-E-C5 — `DYNAMIC-V2-W6-STATIC-RECEIPT-GATED-LIVE-INSTALL-R0`
 
 ```text
-Decision: adopt the existing ordered two-transaction fence; child artifact rename/receipt is post-link observation, while root fence gates selected execution and live caller work.
-Source authority + canonical issuer: StaticAotArtifactPublicationTxnV1 and root consume_static_artifact_receipt; no new receipt issuer.
-Non-authority: runner census, JSON parser, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, and cross-process rollback claims.
-Fail-fast boundary: candidate digest/descriptor/site/ABI/wire/PlanStamp and receipt-path drift reject before execution; current new=0/old=1 remains.
-Smallest next slice: use the receipt-gated selected runner helper and existing publication owner; no pre-rename acknowledgement or second transaction owner.
-Non-claims: no cross-process rollback, crash recovery, final live caller switch, or llvmlite G1/G2/G3 activation.
+Decision: keep compiler and Boundary artifact transactions separate; connect the existing receipt fence to the selected terminal and pass explicit `--nyrt` once.
+Source authority + canonical issuer: StaticAotArtifactPublicationTxnV1 -> PublishedStaticLinkedAotArtifactReceiptV1 -> consume_static_artifact_receipt -> StaticArtifactReceiptConsumedFenceV1.
+Non-authority: runner census, JSON parser, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, second transaction, and cross-process rollback.
+Fail-fast boundary: missing/duplicate receipt, digest/descriptor/site/ABI/wire/PlanStamp/path/symbol drift, or missing explicit archive rejects before launch.
+Smallest next slice: selected runner resolves/verifies the existing runtime archive once, passes it to Boundary, and keeps selected new=0/old=1.
+Acceptance: selected Dynamic Boundary caller=1, selected Dynamic old raw/JoinIR edge=0, ordinary compatibility edge=1, launch-after-receipt=1, fallback/retry/VM=0; non-claims: no ordinary compatibility retirement, final live caller switch, cross-process recovery, RuntimeExecutablePlan, or llvmlite G1/G2/G3 activation.
 ```
 
 ## Negative matrix

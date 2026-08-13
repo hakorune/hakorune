@@ -332,6 +332,20 @@ guard_expect_fixed_in_file "$TAG" \
   'StaticArtifactReceiptConsumedFenceV1, String>' \
   "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
   "selected Boundary emitter must return the consumed receipt fence"
+guard_expect_fixed_in_file "$TAG" \
+  'pub(crate) fn selected_dynamic_nyrt_dir()' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
+  "selected Boundary must resolve one explicit NyRT archive directory"
+guard_expect_fixed_in_file "$TAG" \
+  'Some(nyrt_dir.as_str())' \
+  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+  "selected Boundary must pass the explicit NyRT archive directory"
+if rg -n -A16 'pub fn ny_llvmc_emit_exe_selected_dynamic_bin\(' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" | rg -q 'nyrt_dir\.ok_or_else'; then
+  :
+else
+  guard_fail "$TAG" "selected Boundary emitter must reject an omitted explicit NyRT directory"
+fi
 if [[ "$(rg -n 'let _receipt_fence' \
   "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected runner must consume one artifact receipt fence before execution"

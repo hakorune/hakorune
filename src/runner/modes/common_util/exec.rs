@@ -52,6 +52,17 @@ fn default_nyrt_dir() -> String {
         .unwrap_or_else(|| "target/release".to_string())
 }
 
+/// Resolve and verify the runtime archive directory for the selected Boundary
+/// lane.  Unlike ordinary compatibility execution, this path must always
+/// pass an explicit `--nyrt` value to `ny-llvmc`; the harness environment must
+/// not suppress the link input.
+#[cfg(feature = "llvm-harness")]
+pub(crate) fn selected_dynamic_nyrt_dir() -> Result<String, String> {
+    let dir = default_nyrt_dir();
+    verify_nyrt_dir(&dir)?;
+    Ok(dir)
+}
+
 fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Result<(), String> {
     let default_nyrt = default_nyrt_dir();
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
@@ -474,6 +485,9 @@ pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<crate::mir::StaticArtifactReceiptConsumedFenceV1, String> {
+    let nyrt_dir = nyrt_dir.ok_or_else(|| {
+        "selected Dynamic Boundary requires an explicit --nyrt archive directory".to_owned()
+    })?;
     crate::mir::backend_capability::enforce_mir_backend_supported(
         module,
         "ny-llvmc-selected-dynamic-exe",
@@ -487,7 +501,7 @@ pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
             .map_err(|e| format!("MIR JSON emit error: {}", e))
         },
         exe_out,
-        nyrt_dir,
+        Some(nyrt_dir),
         extra_libs,
         Some(receipt_path),
     )?
