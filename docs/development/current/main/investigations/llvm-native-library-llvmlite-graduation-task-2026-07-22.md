@@ -156,10 +156,10 @@ but are not production callers.
 at route selection: 17 roots classified, 5 pending, and default hotpath/full
 no longer injects the two oracles. Explicit selector admission is green; the
 full oracle smoke is a known baseline red because release artifacts are stale.
-Next design stop: `LLVMLITE-AUTO0-G2-SMOKE-DEFAULT-R0`, owned by the shared
-smoke config/helper chain. Non-authority is labels/comments/Python output;
-fail-fast on inherited harness, auto-compat routing, fallback/retry, or G3.
-Shared-smoke behavior and G3 remain separate from the closed perf row.
+Next design stop: `LLVMLITE-AUTO0-G2-SMOKE-CALLER-CENSUS-R0`, owned by the
+shared smoke config/helper chain and its caller set. Non-authority is
+labels/comments/Python output; fail-fast on unclassified caller, inherited
+harness, auto-compat routing, fallback/retry, or G3; behavior/G3 remain separate from the closed perf row.
 
 ### G3 — archive or delete the keep lane
 
