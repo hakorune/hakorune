@@ -78,14 +78,25 @@ lexical-scope and declaration-mode findings are closed rows, not new queues.
 
 ### Guard consolidation contract
 
-All rows above extend an existing lane guard or add a focused positive/negative
-test.  The reusable families are the current pointer guard, Dynamic admission
-authority guard, AOT activation guard, callslot/wire guard, VM nonconsumer
-fence, in-place replacement guard, and the later manifest-backed guard
-inventory.  New per-finding shell scripts, grep-only production claims,
-mutation-count-only fences, and always-green wrappers are forbidden.  The
-guard inventory may proceed as a read-only census, but migration/retirement
-waits until the selected P0 DAG is green.
+`GUARD-SURFACE-CONSOLIDATION-D0` is the single organization task for the
+findings below.  It is a read-only inventory first; it does not open a new
+semantic row, create a per-finding shell script, or delete proof.
+
+```text
+live P0 behavior/authority  -> owning existing family guard + focused test
+source/ABI/CFG parity        -> callslot/AOT/VM family guard
+post-seal/verification       -> in-place replacement + pointer guard
+artifact/platform/archive    -> manifest-backed evidence, after P0 close
+historical wrappers          -> archive/delete only after caller census
+```
+
+The inventory records one owner, one caller/profile, one evidence kind, and
+one disposition for every tracked check.  `stable_public_entry`,
+`family_manifest_case`, `focused_behavior_test`, `historical_archive`,
+`delete_after_equivalent_coverage`, and `unknown_retain` are the only allowed
+classes.  Unknown rows remain retained; a green grep, mutation count, or
+`Option::None` is never execution evidence.  Migration/retirement waits until
+the selected P0 DAG is green and never touches unrelated dirty compiler files.
 
 `dynamic_v2_aot_activation_authority_guard.sh` is green at this HEAD, but it
 checks the existence/count of the downstream selected call rather than control
