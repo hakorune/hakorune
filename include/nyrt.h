@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "nyrt_dynamic_v2_lease_v1.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -511,8 +511,10 @@ Non-authority: C/LLVM, HostHandle/drop_handle/release_h, raw token tests,
 Fail-fast boundary: zero, foreign/unknown, duplicate, and stale-identity inputs
   return bounded statuses before C1; a later non-OK C1 result traps without a
   semantic successor, fallback, or retry.
-Smallest next slice: add the neutral header, one Rust FFI adapter, focused
-  status tests, staticlib symbol census, README receipt, and reusable guard.
+Observed closeout (2026-08-13): the neutral header, one Rust FFI adapter,
+  status tests, C/C++ syntax checks, staticlib symbol census, README receipt,
+  and reusable guard are green. C1 remains design-stop; no backend consumer
+  or production caller was opened.
 Non-claims: no CheckedCallOut physicalizer, link/receipt/publication,
   RuntimeExecutablePlan, production caller, or old-edge deletion.
 ```
@@ -534,14 +536,15 @@ variants without adding a lease table. `libnyash_kernel.a` must define the
 symbol exactly once. C1 later passes the I6 site-local wire lease token;
 non-OK is a backend contract violation, never semantic Fault.
 
-Acceptance: valid consume succeeds exactly once; zero, foreign/duplicate, and
-stale reject without dropping a replacement handle; archive symbol `= 1`;
-production raw `consume_end_authorized` adapter `= 1`; C/LLVM
-`drop_handle|release_h`, fallback, retry, and VM consumer `= 0`; `new=0 old=1`.
+Acceptance observed: valid consume succeeds exactly once; zero and
+foreign/duplicate reject; stale rejection remains covered by the Rust runtime
+owner test; archive symbol `= 1`; production raw `consume_end_authorized`
+adapter `= 1`; C/LLVM `drop_handle|release_h`, fallback, retry, and VM
+consumer `= 0`; `new=0 old=1`.
 
 Worker premise audit: consumed. Independent runtime/Boundary and static
 archive reviews agree this is a thin FFI BoxShape, not a second lease
-authority. C1 remains forbidden until this row is green and pushed.
+authority. C1 remains forbidden until a separate design-stop audit closes.
 
 #### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
 

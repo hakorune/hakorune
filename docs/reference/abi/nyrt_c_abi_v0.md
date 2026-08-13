@@ -45,6 +45,23 @@ Host reverse-call ABI for plugins:
 
 TLV values are used at this boundary.
 
+### `include/nyrt_dynamic_v2_lease_v1.h`
+
+The selected Boundary AOT lane uses this versioned C calling-convention
+projection for the physical `CheckedCallOutEnd` cutpoint:
+
+- `nyrt_dynamic_v2_lease_consume_end_authorized_v1(uint64_t) -> uint32_t`
+- `0`: the existing Rust one-shot lease was consumed;
+- `1`: zero/invalid token;
+- `2`: unknown or already-consumed token;
+- `3`: stale handle identity.
+
+The header owns only fixed-width ABI/status vocabulary. The lease table,
+generation check, and handle release remain solely in
+`runtime::dynamic_v2_lease`. Boundary lowering treats a non-zero status as a
+backend contract failure, not as a semantic Fault or fallback. This is a
+projection for the static Boundary lane, not a second lifecycle authority.
+
 ## 3. Lifecycle Extension Symbols
 
 Lifecycle-specific handle operations are currently exported from NyRT kernel FFI:

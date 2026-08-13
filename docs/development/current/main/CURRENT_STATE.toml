@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, and W6-C0-C post-seal candidate handoff are landed. C0-D's Boundary-visible one-shot lease End ABI is accepted for one bounded implementation before C1; production remains closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S source split, W6-A1 physical evidence cursor, W6-B mixed normal collector drain, W6-C0-A site-id receipt issuer/install, W6-C0-B candidate metadata handoff, W6-C0-C post-seal candidate handoff, and C0-D neutral one-shot lease End C ABI projection are landed. C1 Boundary physicalization remains design-stop; production remains closed."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Accepted: C0-D is one thin uint64-to-u32 kernel FFI projection over the sole runtime dynamic_v2_lease consume owner. C1 remains closed until the header, adapter, negative tests, archive symbol census, README, and guard are green."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-I0"
-current_blocker_token = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-I0: implement only the accepted neutral header and one kernel FFI adapter over runtime dynamic_v2_lease; prove exact status mapping and one staticlib symbol, keep C1/new callers at 0 and old edge at 1."
+current_design_stop = "C0-D is landed: one thin uint64-to-u32 kernel FFI projection over the sole runtime dynamic_v2_lease consume owner, with no C1/backend semantics. Next design stop is C1 CheckedCallOut physicalization; production remains closed."
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
+current_blocker_token = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0: audit site-id CheckedCallOut lowering, Normal/Fault CFG ownership, C ABI status fail-stop, and backend non-consumers before any C1 implementation; new=0 old=1."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6 D0 through C0-C are landed. C0-D's neutral one-shot End C ABI is accepted for one thin kernel FFI implementation before C1 Boundary physicalization; static artifact publication and final selected caller/old-edge replacement remain closed. RuntimeExecutablePlan is parked."
-next_design_card = "none"
+latest_card_summary = "W6 D0 through C0-D are landed, including the neutral one-shot End C ABI projection and exact static archive symbol census. C1 Boundary physicalization is the next design-stop; static artifact publication and final selected caller/old-edge replacement remain closed. RuntimeExecutablePlan is parked."
+next_design_card = "DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6-C0-B/C now carry the canonical site-id plan, A-prime receipt, and Dynamic projection through DraftSeal into one final clone-scrub-safe candidate JSON handoff; C/LLVM/runtime publication and production callers remain closed, new=0 old=1.",
+  "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",

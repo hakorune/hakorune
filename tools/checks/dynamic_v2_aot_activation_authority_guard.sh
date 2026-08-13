@@ -10,12 +10,16 @@ MODULE="$ROOT_DIR/lang/src/runtime/meta/hako_module.toml"
 CODEGEN="$ROOT_DIR/tools/provider_slot_contract_manifest_codegen.py"
 MANIFEST="$ROOT_DIR/lang/src/runtime/meta/generated/provider_slot_contract_manifest.json"
 HEADER="$ROOT_DIR/include/nyrt_dynamic_text_scan_v1.h"
+LEASE_HEADER="$ROOT_DIR/include/nyrt_dynamic_v2_lease_v1.h"
+NYRT_HEADER="$ROOT_DIR/include/nyrt.h"
 RUST="$ROOT_DIR/src/abi/text_scan_aot_export_facts.rs"
 PYTHON="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py"
 CODEGEN_TEST="$ROOT_DIR/tools/checks/lib/provider_slot_contract_codegen_tests.py"
 PROJECTION_TEST="$ROOT_DIR/tools/checks/lib/text_scan_export_projection_tests.py"
 STRICT_LEAF="$ROOT_DIR/crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs"
 LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
+LEASE_ADAPTER="$ROOT_DIR/crates/nyash_kernel/src/ffi/dynamic_v2_lease.rs"
+LEASE_FFI_MOD="$ROOT_DIR/crates/nyash_kernel/src/ffi/mod.rs"
 METADATA="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_aot_admission.py"
 HOOK="$ROOT_DIR/src/llvm_py/instructions/mir_call/selected_dynamic_v2.py"
 METADATA_TEST="$ROOT_DIR/src/llvm_py/tests/test_dynamic_v2_aot_admission.py"
@@ -46,7 +50,8 @@ PACKAGE_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
+guard_require_command "$TAG" llvm-nm
+guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 
 for file in "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
@@ -363,6 +368,38 @@ if [[ "$(rg -n '^pub fn publish_end_authorized_text\(' "$LEASE" | wc -l | tr -d 
 fi
 if [[ "$(rg -n '^pub fn consume_end_authorized' "$LEASE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "neutral lease owner must expose exactly one End consumer"
+fi
+if [[ "$(rg -n '#\[export_name = \"nyrt_dynamic_v2_lease_consume_end_authorized_v1\"\]' "$LEASE_ADAPTER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "neutral lease C ABI adapter symbol must be defined exactly once"
+fi
+if [[ "$(rg -n 'dynamic_v2_lease::consume_end_authorized' "$LEASE_ADAPTER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "neutral lease adapter must call the Rust owner exactly once"
+fi
+if rg -n 'drop_handle|release_h|HostHandle' "$LEASE_ADAPTER"; then
+  guard_fail "$TAG" "neutral lease adapter must not own raw handle lifecycle"
+fi
+for pair in \
+  'NYRT_DYNAMIC_V2_LEASE_ABI_REVISION_V1 UINT32_C(1)' \
+  'NYRT_DYNAMIC_V2_LEASE_CONSUME_OK UINT32_C(0)' \
+  'NYRT_DYNAMIC_V2_LEASE_CONSUME_INVALID_TOKEN UINT32_C(1)' \
+  'NYRT_DYNAMIC_V2_LEASE_CONSUME_UNKNOWN_OR_ALREADY_CONSUMED UINT32_C(2)' \
+  'NYRT_DYNAMIC_V2_LEASE_CONSUME_STALE_HANDLE_IDENTITY UINT32_C(3)'; do
+  guard_expect_fixed_in_file "$TAG" "$pair" "$LEASE_HEADER" "lease C ABI vocabulary drifted: $pair"
+done
+guard_expect_fixed_in_file "$TAG" 'nyrt_dynamic_v2_lease_consume_end_authorized_v1' "$LEASE_HEADER" \
+  "lease C ABI declaration is missing"
+guard_expect_fixed_in_file "$TAG" '#include "nyrt_dynamic_v2_lease_v1.h"' "$NYRT_HEADER" \
+  "core NyRT header must reference the versioned lease ABI fragment"
+guard_expect_fixed_in_file "$TAG" 'pub mod dynamic_v2_lease;' "$LEASE_FFI_MOD" \
+  "kernel FFI module must wire the neutral lease adapter"
+LEASE_ARCHIVE="${CARGO_TARGET_DIR_EFFECTIVE:-$ROOT_DIR/target}/release/libnyash_kernel.a"
+if [[ -f "$LEASE_ARCHIVE" ]]; then
+  lease_symbol_count="$(llvm-nm -g --defined-only "$LEASE_ARCHIVE" 2>/dev/null | awk '$NF == "nyrt_dynamic_v2_lease_consume_end_authorized_v1" {count++} END {print count + 0}')"
+  if [[ "$lease_symbol_count" != 1 ]]; then
+    guard_fail "$TAG" "static NyRT archive must define the lease End symbol exactly once (got $lease_symbol_count)"
+  fi
+else
+  echo "[$TAG] informational: static NyRT archive not built; source/export checks still apply"
 fi
 LEASE_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$LEASE")"
 if [[ "$(printf '%s\n' "$LEASE_BODY" | rg -n 'capture_text_lease_identity|drop_if_lease_identity_matches' | wc -l | tr -d '[:space:]')" -lt 3 ]]; then

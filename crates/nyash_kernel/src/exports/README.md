@@ -27,5 +27,9 @@ Treat them as public symbol-family exports, not as ownership boundaries.
 - `dynamic_v2_text_scan` is also kept as an internal module import. Its two
   `export_name` symbols are a strict AOT checkpoint, not a selected production
   caller or a second provider registry.
+- `ffi::dynamic_v2_lease` owns the single neutral C ABI projection for
+  `CheckedCallOutEnd`. It maps fixed-width status values to the existing
+  `nyash_rust::runtime::dynamic_v2_lease` owner; it does not own a table,
+  generation policy, handle release, or semantic Fault.
 - Do not replace a glob export with explicit symbols until that family has a
   wiring test or inventory note that pins the exported symbol set.
