@@ -303,8 +303,31 @@ fn actual_artifacts_issue_one_receipt_before_consuming_commit() {
     assert_ne!(archive_digest, &[0; 32]);
     assert_ne!(executable_digest, &[0; 32]);
     let receipt = prepared.commit().expect("atomic commit");
-    assert_eq!(receipt.final_path(), final_path);
+    assert_eq!(receipt.published_path(), final_path);
+    assert_eq!(receipt.observed().final_path(), final_path);
     assert!(final_path.is_file());
+    fs::remove_dir_all(root).expect("remove fixture");
+}
+
+#[test]
+fn rename_failure_keeps_candidate_and_final_path_unpublished() {
+    let root = root("rename_failure");
+    let (json, object, archive) = build_fixture(&root, false, true);
+    let final_path = root.join("program");
+    let prepared = StaticAotArtifactPublicationTxnV1::prepare_with_linker(
+        &json,
+        &object,
+        &final_path,
+        &archive,
+        system_linker,
+    )
+    .expect("prepare static artifact");
+    let candidate_path = prepared.receipt().artifact_paths().2.to_path_buf();
+    fs::create_dir(&final_path).expect("reserve an invalid final path");
+    let error = prepared.commit().expect_err("rename must reject");
+    assert_eq!(error, StaticArtifactRejectV1::PublishFailed);
+    assert!(!candidate_path.exists());
+    assert!(final_path.is_dir());
     fs::remove_dir_all(root).expect("remove fixture");
 }
 

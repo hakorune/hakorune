@@ -80,6 +80,26 @@ impl StaticLinkedAotArtifactReceiptV1 {
     }
 }
 
+/// The post-rename state.  The pre-rename receipt remains an observation of
+/// the temporary candidate; W6-E must consume this state after the final path
+/// has been atomically installed.  Keeping the states distinct prevents a
+/// caller from treating a temporary path as a published executable.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct PublishedStaticLinkedAotArtifactReceiptV1 {
+    receipt: StaticLinkedAotArtifactReceiptV1,
+    published_path: PathBuf,
+}
+
+impl PublishedStaticLinkedAotArtifactReceiptV1 {
+    pub(super) fn published_path(&self) -> &Path {
+        &self.published_path
+    }
+
+    pub(super) fn observed(&self) -> &StaticLinkedAotArtifactReceiptV1 {
+        &self.receipt
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct PreparedStaticAotArtifactPublicationV1 {
     receipt: Option<StaticLinkedAotArtifactReceiptV1>,
@@ -95,15 +115,19 @@ impl PreparedStaticAotArtifactPublicationV1 {
     /// W6-E consuming commit.  W6-D deliberately has no production caller.
     pub(super) fn commit(
         mut self,
-    ) -> Result<StaticLinkedAotArtifactReceiptV1, StaticArtifactRejectV1> {
+    ) -> Result<PublishedStaticLinkedAotArtifactReceiptV1, StaticArtifactRejectV1> {
         let final_path = self.receipt().final_path().to_path_buf();
         let candidate_path = self.receipt().candidate_path.clone();
         fs::rename(&candidate_path, &final_path)
             .map_err(|_| StaticArtifactRejectV1::PublishFailed)?;
-        Ok(self
+        let receipt = self
             .receipt
             .take()
-            .expect("prepared static artifact receipt consumed once"))
+            .expect("prepared static artifact receipt consumed once");
+        Ok(PublishedStaticLinkedAotArtifactReceiptV1 {
+            published_path: final_path,
+            receipt,
+        })
     }
 }
 

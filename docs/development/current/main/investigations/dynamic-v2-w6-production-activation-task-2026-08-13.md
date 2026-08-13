@@ -676,6 +676,12 @@ link failure executable publication                      = 0
 executable final-path publication before W6-E            = 0
 ```
 
+The receipt has two explicit states: the pre-rename observation is
+`StaticLinkedAotArtifactReceiptV1`, while the W6-E consumer receives only
+`PublishedStaticLinkedAotArtifactReceiptV1` after the final rename. Rename
+failure cleans the temporary candidate and leaves the prior final path
+unchanged; no consumer may treat a temporary path as published.
+
 Evidence: eight focused tests include a Boundary-generated object -> exact
 archive -> real executable -> Rust receipt run, header/Rust layout parity,
 entry-scope rejection, duplicate/missing symbols, descriptor drift, and

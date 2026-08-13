@@ -28,7 +28,7 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects and validates actual object/archive/executable descriptor, symbols, digests, ABI/wire, and PlanStamp through one move-only receipt owner. W6-E is taskized as one prepared activation aggregate over candidate module, static receipt, collector brand, and old-edge witness; final artifact rename precedes infallible module/caller cutover. RuntimeExecutablePlan remains parked and production callers stay new=0 old=1."
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename failure cleans the candidate and preserves the old final path. W6-E remains one prepared activation aggregate over candidate module, static receipt, collector brand, and old-edge witness; production stays new=0 old=1."
 next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 next_execution_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
@@ -45,7 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6-D-I1 landed one fixed selected-object descriptor plus one Rust static artifact transaction: actual object/archive/executable identity, descriptors, exact symbol census, digests, ABI/wire, and PlanStamp co-seal one move-only receipt; Boundary-generated end-to-end and negative tests, C smoke, cargo check, and authority guards are green, final rename/production caller=0, new=0 old=1.",
+  "2026-08-13: W6-D-I2 separated temporary static-artifact observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename-failure cleanup and old-final preservation are focused-tested. W6-D-I1 descriptor/digest/symbol/ABI/wire/PlanStamp evidence remains green; production new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
   "2026-08-13: C1 Boundary C/LLVM physicalizer landed as one transport-only owner: typed site-id projection, direct TextScan I6/I7 calls, fixed-wire validation, MIR Normal/Fault preservation, and exactly three lease End calls; positive object symbol census, metadata-drift negative smoke, cargo check, focused tests, and authority guards green, production new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
