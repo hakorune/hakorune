@@ -509,5 +509,5 @@
     "deletion_approval": null
   },
   "fail_fast": ["unclassified root/consumer/fixture","duplicate consumer row ID","missing checksum/provenance/restore evidence","invented archive URI","source move/deletion","fallback/retry","new llvmlite semantics"],
-  "next_gap": "external archive owner/URI, independent-oracle classification, artifact preservation, and reusable inventory guard remain unresolved"
+  "next_gap": "inventory guard is closed; independent-oracle classification and dependency closure, exact in-repo placement, external archive owner/URI/tag, and platform artifact preservation remain unresolved"
 }
