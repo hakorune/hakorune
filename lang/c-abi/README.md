@@ -26,10 +26,17 @@ Layout
   - `hako_hostbridge.h` — broader C ABI surface
   - `hako_aot.h` — canonical AOT compile/link header
 - `shims/` — libc-backed reference implementation for canaries (`hako_kernel.c`)
-  - `hako_aot.c` — AOT compile/link helper boundary の first cutover target
+- `hako_aot.c` — AOT compile/link helper boundary の first cutover target
   - `hako_diag_mem_shared_impl.inc` — TLS diagnostics / libc memory の shared source truth
   - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
   - public path-owner names are `mir_json_path` / `obj_path` / `exe_path` under `hako_aot.h`
+
+Replay admission
+- `hako_aot_compile_json` is the generic AOT entry and rejects inherited
+  harness replay before FFI lookup, child spawn, or object creation.
+- `hako_aot_compile_json_compat_harness` is the versioned, explicit
+  compatibility/oracle keep entry. It is not a production fallback and must
+  remain separately censused for the staged llvmlite G1/G2/G3 retirement.
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.

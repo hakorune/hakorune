@@ -419,6 +419,29 @@ static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_p
   return rc;
 }
 
+static int hako_aot_try_ffi_compile_compat_harness(
+    const char* mir_json_path,
+    const char* obj_path,
+    char** err_out) {
+  void* h = hako_aot_open_ffi_lib();
+  if (!h) {
+    hako_set_last_error("UNSUPPORTED");
+    return hako_aot_set_err(err_out, "FFI library not found");
+  }
+  typedef int (*ffi_compile_fn)(const char*, const char*, char**);
+  ffi_compile_fn fn = (ffi_compile_fn)dlsym(h, "hako_llvmc_compile_json_compat_harness");
+  if (!fn) {
+    dlclose(h);
+    hako_set_last_error("UNSUPPORTED");
+    return hako_aot_set_err(
+        err_out,
+        "FFI symbol missing: hako_llvmc_compile_json_compat_harness");
+  }
+  int rc = fn(mir_json_path, obj_path, err_out);
+  dlclose(h);
+  return rc;
+}
+
 static int hako_aot_try_ffi_link(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
   void* h = hako_aot_open_ffi_lib();
   if (!h) {
@@ -467,6 +490,16 @@ static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_p
   return hako_aot_set_err(err_out, "FFI unsupported on this platform");
 }
 
+static int hako_aot_try_ffi_compile_compat_harness(
+    const char* mir_json_path,
+    const char* obj_path,
+    char** err_out) {
+  (void)mir_json_path;
+  (void)obj_path;
+  hako_set_last_error("UNSUPPORTED");
+  return hako_aot_set_err(err_out, "FFI unsupported on this platform");
+}
+
 static int hako_aot_try_ffi_link(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
   (void)obj_path;
   (void)exe_path;
@@ -507,29 +540,22 @@ static const char* hako_aot_resolve_nyrt_dir(char* buf, size_t buflen) {
   return NULL;
 }
 
-static int hako_aot_require_explicit_harness_replay(char** err_out) {
+static int hako_aot_reject_ambient_harness_replay(char** err_out) {
   const char* replay = getenv("HAKO_BACKEND_COMPAT_REPLAY");
-  if (replay && strcmp(replay, "harness") == 0) {
+  if (!replay || !*replay || strcmp(replay, "none") == 0) {
     return 0;
   }
   hako_set_last_error("UNSUPPORTED");
   return hako_aot_set_err(
       err_out,
-      "[freeze:route][direct-aot-replay-required] set HAKO_BACKEND_COMPAT_REPLAY=harness");
+      "[freeze:route][aot-compat-admission-required] use hako_aot_compile_json_compat_harness");
 }
 
-int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char** err_out) {
-  if (hako_aot_use_ffi()) {
-    return hako_aot_try_ffi_compile(mir_json_path, obj_path, err_out);
-  }
+static int hako_aot_compile_json_direct_harness(
+    const char* mir_json_path,
+    const char* obj_path,
+    char** err_out) {
   hako_aot_ensure_default_opt_env();
-  if (!mir_json_path || !*mir_json_path || !obj_path || !*obj_path) {
-    hako_set_last_error("VALIDATION");
-    return hako_aot_set_err(err_out, "invalid args");
-  }
-  if (hako_aot_require_explicit_harness_replay(err_out) != 0) {
-    return -1;
-  }
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
   if (!hako_aot_file_exists(llvmc)) {
@@ -548,14 +574,40 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
   }
   (void)hako_aot_write_command_seed(logpath, cmd);
   if (hako_aot_run_compile_command_or_project_fail(
-          cmd,
-          obj_path,
-          err_out,
-          logpath,
-          "COMPILE_FAILED") != 0) {
+          cmd, obj_path, err_out, logpath, "COMPILE_FAILED") != 0) {
     return -1;
   }
   return hako_aot_finish_compile_success(obj_path, err_out, logpath);
+}
+
+int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char** err_out) {
+  if (!mir_json_path || !*mir_json_path || !obj_path || !*obj_path) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "invalid args");
+  }
+  if (hako_aot_use_ffi()) {
+    if (hako_aot_reject_ambient_harness_replay(err_out) != 0) {
+      return -1;
+    }
+    return hako_aot_try_ffi_compile(mir_json_path, obj_path, err_out);
+  }
+  return hako_aot_set_err(
+      err_out,
+      "[freeze:route][aot-compat-admission-required] use hako_aot_compile_json_compat_harness");
+}
+
+int hako_aot_compile_json_compat_harness(
+    const char* mir_json_path,
+    const char* obj_path,
+    char** err_out) {
+  if (!mir_json_path || !*mir_json_path || !obj_path || !*obj_path) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "invalid args");
+  }
+  if (hako_aot_use_ffi()) {
+    return hako_aot_try_ffi_compile_compat_harness(mir_json_path, obj_path, err_out);
+  }
+  return hako_aot_compile_json_direct_harness(mir_json_path, obj_path, err_out);
 }
 
 static int hako_aot_link_obj_with_archive(

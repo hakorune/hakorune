@@ -332,6 +332,16 @@ static int hako_llvmc_require_pure_first_recipe(char** err_out) {
       "[freeze:route][generic-capi-recipe-required] set HAKO_BACKEND_COMPILE_RECIPE=pure-first");
 }
 
+static int hako_llvmc_reject_ambient_harness_replay(char** err_out) {
+  if (!compat_harness_replay_enabled()) {
+    return 0;
+  }
+  hako_set_last_error("UNSUPPORTED");
+  return set_err_owned(
+      err_out,
+      "[freeze:route][generic-capi-compat-admission-required] use hako_llvmc_compile_json_compat_harness");
+}
+
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
 // Signature must match: int (*)(const char*, const char*, char**)
 __attribute__((visibility("default")))
@@ -345,6 +355,9 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
   if (hako_llvmc_require_pure_first_recipe(err_out) != 0) {
     return -1;
   }
+  if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
+    return -1;
+  }
   return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
 
@@ -352,5 +365,18 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
 // generic route selection stays outside the C shim.
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out, char** err_out) {
+  if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
+    return -1;
+  }
   return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+}
+
+// Explicit compatibility ABI.  It does not read replay environment state;
+// reaching this symbol is itself the named admission.
+__attribute__((visibility("default")))
+int hako_llvmc_compile_json_compat_harness(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
 }

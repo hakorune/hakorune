@@ -574,16 +574,16 @@ Fail-fast: ambient replay other than `none` rejects before route/child creation.
 Receipt (2026-08-14): focused Rust tests=7; ordinary child=0, named child=1,
   inherited replay child=0 observed by opt-in strace; route/pointer guards, fmt,
   and diff check are green. Non-claims: no G1/G2/G3 retirement or source deletion.
-### `LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0` (design stop)
-Decision: split generic AOT/FFI from a named harness-compat C ABI; ambient replay
-  cannot be an admission. Source authority: one Rust route request and matching C export.
-Non-authority: `HAKO_AOT_USE_FFI`, inherited replay, `NYASH_LLVM_USE_HARNESS`,
-  provider names, generic fallback, Python output. Fail-fast: generic/FFI rejects
-  unadmitted harness before dlsym/child/object. Evidence: non-FFI direct default=child 0,
-  explicit keep=1; FFI pure-first + ambient harness currently reaches child=1.
-Smallest next slice: caller census, versioned generic/compat export pair, and four-case
-  C ABI smoke (generic default/replay reject, named keep positive, direct keep positive).
-Non-claims: provider reorder, G1/G2/G3, llvmlite deletion, or driver behavior changes.
+### `LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-F0` (closed, 2026-08-14)
+Decision: generic AOT/FFI now rejects inherited harness replay; only the versioned
+  named `*_compat_harness` C ABI may enter the frozen keep lane. Source authority is
+  the named export, not `HAKO_AOT_USE_FFI` or ambient replay.
+Non-authority: inherited replay, `NYASH_LLVM_USE_HARNESS`, provider names, fallback,
+  and Python output. Fail-fast is before FFI `dlsym`, child spawn, or object creation.
+Receipt: direct generic reject, named direct keep, generic FFI replay reject, and named
+  FFI keep all pass `llvm_hako_aot_ffi_admission_smoke.sh`; build, route/pointer guards,
+  and diff check are green. Tracked daily hako_aot caller census remains zero.
+Non-claims: no provider reorder, G1/G2/G3 retirement, source deletion, or driver switch.
 ### `LLVMLITE-ROUTE0-OBSERVE0-R0` (closed)
 Decision: reuse `NYASH_LLVM_ROUTE_TRACE` as diagnostic events; no durable route
   receipt or second selector. Source authority: route/driver dispatch emits one

@@ -120,10 +120,16 @@ need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \
 if rg -Fq -- 'compile_json_via_default_forwarder' "$CAPI_ROUTE"; then
   fail "generic C export still forwards recipe-unset input to hako_aot"
 fi
-need_fixed "$AOT" 'hako_aot_require_explicit_harness_replay' \
-  "direct AOT replay gate missing"
-need_fixed "$AOT" 'direct-aot-replay-required' \
-  "direct AOT replay failure missing"
+need_fixed "$AOT" 'hako_aot_reject_ambient_harness_replay' \
+  "generic AOT ambient replay gate missing"
+need_fixed "$AOT" 'aot-compat-admission-required' \
+  "generic AOT replay failure missing"
+need_fixed "$AOT" 'hako_aot_compile_json_compat_harness' \
+  "named AOT compatibility export missing"
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_reject_ambient_harness_replay' \
+  "generic C ambient replay gate missing"
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_compile_json_compat_harness' \
+  "named C compatibility export missing"
 need_fixed "$STAGE1_CONTRACT" 'stage1_contract_resolve_backend_replay' \
   "Stage1 replay admission helper missing"
 need_fixed "$STAGE1_CONTRACT" 'replay-unadmitted' \
@@ -170,7 +176,7 @@ need_fixed "$ROUTE" 'Boundary route rejects compat replay inheritance' \
 
 # The task card and check index are the tracked documentation owners.
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0' "identity guard task missing"
-need_fixed "$CARD" 'LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-D0' "hako_aot FFI admission design stop missing"
+need_fixed "$CARD" 'LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-F0' "hako_aot FFI admission receipt missing"
 need_fixed "$CARD" 'generic C export -> `hako_aot_compile_json`' "generic C harness route missing from matrix"
 need_fixed "$CARD" 'compile_ll_text' "external-tool route missing from matrix"
 need_fixed "$INDEX" 'tools/checks/llvm_codegen_route_identity_guard.sh' "check index entry missing"
