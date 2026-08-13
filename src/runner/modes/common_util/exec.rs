@@ -205,6 +205,49 @@ pub(crate) fn selected_dynamic_aot_metadata_present(
     }
 }
 
+fn validate_selected_dynamic_boundary_route_values(
+    compile_recipe: Option<&str>,
+    compat_replay: Option<&str>,
+    emit_provider: Option<&str>,
+    legacy_capi_pure: Option<&str>,
+) -> Result<(), String> {
+    if let Some(recipe) = compile_recipe {
+        if recipe != "pure-first" {
+            return Err(format!(
+                "selected Dynamic Boundary rejects HAKO_BACKEND_COMPILE_RECIPE={recipe:?}; expected pure-first or unset"
+            ));
+        }
+    }
+    if let Some(replay) = compat_replay {
+        if replay != "none" {
+            return Err(format!(
+                "selected Dynamic Boundary rejects HAKO_BACKEND_COMPAT_REPLAY={replay:?}; expected none or unset"
+            ));
+        }
+    }
+    if let Some(provider) = emit_provider {
+        return Err(format!(
+            "selected Dynamic Boundary rejects explicit HAKO_LLVM_EMIT_PROVIDER={provider:?}"
+        ));
+    }
+    if matches!(legacy_capi_pure, Some("1" | "on" | "true" | "yes")) {
+        return Err(
+            "selected Dynamic Boundary rejects deprecated HAKO_CAPI_PURE; use the fixed pure-first route"
+                .to_owned(),
+        );
+    }
+    Ok(())
+}
+
+fn validate_selected_dynamic_boundary_route_request() -> Result<(), String> {
+    validate_selected_dynamic_boundary_route_values(
+        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
+        std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok().as_deref(),
+        std::env::var("HAKO_LLVM_EMIT_PROVIDER").ok().as_deref(),
+        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+    )
+}
+
 fn build_ny_llvmc_emit_obj_command(
     ny_llvmc: &std::path::Path,
     json_path: &std::path::Path,
@@ -486,6 +529,7 @@ pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<crate::mir::StaticArtifactReceiptConsumedFenceV1, String> {
+    validate_selected_dynamic_boundary_route_request()?;
     let nyrt_dir = nyrt_dir.ok_or_else(|| {
         "selected Dynamic Boundary requires an explicit --nyrt archive directory".to_owned()
     })?;
@@ -532,7 +576,8 @@ mod tests {
     use super::{
         append_ny_llvmc_extra_libs_arg, build_ny_llvmc_emit_exe_command,
         ny_llvmc_driver_arg_from_backend, selected_dynamic_aot_metadata_present,
-        selected_dynamic_receipt_path, with_retained_mir_path,
+        selected_dynamic_receipt_path, validate_selected_dynamic_boundary_route_values,
+        with_retained_mir_path,
     };
 
     use crate::mir::MirModule;
@@ -563,6 +608,33 @@ mod tests {
     fn selected_dynamic_census_keeps_ordinary_module_on_generic_route() {
         let module = MirModule::new("ordinary".to_owned());
         assert!(!selected_dynamic_aot_metadata_present(&module).unwrap());
+    }
+
+    #[test]
+    fn selected_dynamic_boundary_accepts_only_fixed_route_values() {
+        assert!(validate_selected_dynamic_boundary_route_values(None, None, None, None).is_ok());
+        assert!(validate_selected_dynamic_boundary_route_values(
+            Some("pure-first"),
+            Some("none"),
+            None,
+            Some("0"),
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn selected_dynamic_boundary_rejects_compat_route_inheritance() {
+        for (recipe, replay, provider, legacy) in [
+            (Some("harness"), None, None, None),
+            (None, Some("harness"), None, None),
+            (None, None, Some("llvmlite"), None),
+            (None, None, None, Some("1")),
+        ] {
+            assert!(validate_selected_dynamic_boundary_route_values(
+                recipe, replay, provider, legacy
+            )
+            .is_err());
+        }
     }
 
     #[test]

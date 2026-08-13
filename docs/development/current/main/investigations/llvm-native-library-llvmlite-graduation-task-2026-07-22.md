@@ -920,7 +920,7 @@ Retire zero-consumer direct Python helpers and stale wrapper APIs only after a
 source and cfg census. Do not delete shared oracle code here.
 
 ### `LLVMLITE-PROD0-G0`
-#### `LLVMLITE-PROD0-G0-D1-ROUTE-REQUEST-BOUNDARY` (design stop)
+#### `LLVMLITE-PROD0-G0-D1-ROUTE-REQUEST-BOUNDARY` (closed)
 Decision: separate ordinary Boundary, explicit llvmlite keep, and selected Dynamic Boundary; do not flip `llvm_use_harness()` alone.
 Source authority + canonical issuer: route plan, driver/provider/replay selection, actual child command, and selected Boundary artifact receipt.
 Non-authority: HarnessExecutorBox names, `NYASH_LLVM_USE_HARNESS` alone (legacy hint), labels, Python output, or a second lookup.

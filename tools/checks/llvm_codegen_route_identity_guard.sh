@@ -11,6 +11,7 @@ INDEX="$ROOT/docs/tools/check-scripts-index.md"
 ROUTE_ENTRY="$ROOT/src/host_providers/llvm_codegen/mir_json_text_object.rs"
 ROUTE="$ROOT/src/host_providers/llvm_codegen/route.rs"
 BOUNDARY_FFI="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
+RUNNER_EXEC="$ROOT/src/runner/modes/common_util/exec.rs"
 CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
@@ -38,7 +39,7 @@ need_fixed() {
 }
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
-  "$C_COMMON" "$CAPI_ROUTE" \
+  "$RUNNER_EXEC" "$C_COMMON" "$CAPI_ROUTE" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
@@ -81,6 +82,14 @@ need_fixed "$CAPI_ROUTE" '"child"' "CAPI child observation producer missing"
 need_fixed "$CAPI_ROUTE" '"driver=harness"' "CAPI child observation shape drifted"
 need_fixed "$AOT" 'hako_aot_emit_child_trace(' \
   "generic AOT child observation producer missing"
+need_fixed "$RUNNER_EXEC" 'validate_selected_dynamic_boundary_route_request()?' \
+  "selected Dynamic route-request gate missing"
+need_fixed "$RUNNER_EXEC" 'expected pure-first or unset' \
+  "selected Dynamic recipe boundary drifted"
+need_fixed "$RUNNER_EXEC" 'expected none or unset' \
+  "selected Dynamic replay boundary drifted"
+need_fixed "$RUNNER_EXEC" 'rejects explicit HAKO_LLVM_EMIT_PROVIDER' \
+  "selected Dynamic provider inheritance gate missing"
 need_fixed "$AOT" 'stage=child result=%s reason=ny-llvmc extra=driver=harness' \
   "generic AOT child observation shape drifted"
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-OBSERVE0-R0' "OBSERVE0-R0 row missing"
