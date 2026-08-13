@@ -346,3 +346,68 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
     })
     .expect("selected loan");
 }
+
+#[test]
+fn package_adapter_canary_uses_same_candidate_collector_without_raw_scope() {
+    let source =
+        include_str!("../../../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .expect("parser fixture");
+    let transformed =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).expect("callable transform");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("fixture must remain source-backed")
+    };
+    let mut resolver = FunctionSemanticResolverSessionV1::new(194).expect("resolver");
+    let package =
+        issue_normal_callable_semantic_package_v1(&mut resolver, source).expect("semantic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("catalog install")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let mut builder = MirBuilder::new();
+    let collector =
+        crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+    let mut invocation =
+        crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
+            &mut builder,
+            collector,
+        );
+    let receipt = invocation.with_module_port(|builder, module_port| {
+        let mut raw_port =
+            crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(
+                module_port,
+            );
+        let package_port = installed.begin_lowering(&context).expect("loan");
+        let mut adapter = crate::mir::builder::normal_callable_semantic_loan_port::
+            NormalCallableSemanticPackagePortAdapterV1::new(&mut raw_port, package_port);
+        let receipt = adapter
+            .lower_selected_dynamic_canary_for_test(builder, admission)
+            .expect("selected adapter canary");
+        // This focused fixture loans one selected row from a larger package;
+        // the root lifecycle owns the package-wide completion census.
+        drop(adapter);
+        receipt
+    });
+    assert_eq!(receipt.payload().symbol(), "ParserScanLoopBox.skip_while/4");
+    assert_eq!(receipt.payload().arity(), 4);
+    assert_eq!(receipt.brand(), brand);
+    assert!(builder.function_state.current_function.is_none());
+}

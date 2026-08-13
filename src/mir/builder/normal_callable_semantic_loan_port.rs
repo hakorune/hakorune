@@ -42,6 +42,35 @@ impl<'package, 'loan, 'port, 'collector>
         self.package.complete().map_err(package_issue)
     }
 
+    /// Test-only proof that the selected package loan can feed the existing
+    /// candidate collector without opening a raw source scope. Production
+    /// callers remain closed until the W6-E atomic switch retires the old
+    /// selected edge.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn lower_selected_dynamic_canary_for_test(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+    ) -> Result<
+        crate::mir::builder::module_invocation_owner_chain::InvocationBranded<
+            crate::mir::builder::module_draft_collector::CollectedDraftAdmissionReceiptV1,
+        >,
+        String,
+    > {
+        let inner = &mut *self.inner;
+        self.package
+            .with_selected_cataloged_lowering_input(admission, |input| {
+                validate_selected_cataloged_input(&input)?;
+                crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6(
+                    builder,
+                    inner.module_port,
+                    input,
+                    |_| Ok(()),
+                )
+            })
+            .map_err(package_issue)?
+    }
+
     fn with_callable_source_scope<R>(
         &mut self,
         key: SelectedNormalCallableKeyV1,
@@ -82,17 +111,7 @@ impl<'package, 'loan, 'port, 'collector>
         let inner = &mut *self.inner;
         self.package
             .with_selected_cataloged_lowering_input(admission, |input| {
-                input.with_selected_and_admission(|selected, admitted| {
-                    let expected =
-                        SelectedNormalCallableKeyV1::Cataloged(admitted.source_key().clone());
-                    if selected.selected_key() == &expected {
-                        Ok(())
-                    } else {
-                        Err(package_issue(
-                            NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
-                        ))
-                    }
-                })?;
+                validate_selected_cataloged_input(&input)?;
                 let (selected, admission) = input.into_lowering_and_admission();
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
@@ -108,6 +127,23 @@ impl<'package, 'loan, 'port, 'collector>
 
 fn package_issue(error: NormalCallableSemanticPackageInstallIssueV1) -> String {
     format!("[freeze:contract][mir/callable-semantic-package/port] {error:?}")
+}
+
+fn validate_selected_cataloged_input(
+    input: &crate::mir::normal_callable_semantic_package::SelectedCatalogedCallableLoweringInputV1<
+        '_,
+    >,
+) -> Result<(), String> {
+    input.with_selected_and_admission(|selected, admitted| {
+        let expected = SelectedNormalCallableKeyV1::Cataloged(admitted.source_key().clone());
+        if selected.selected_key() == &expected {
+            Ok(())
+        } else {
+            Err(package_issue(
+                NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
+            ))
+        }
+    })
 }
 
 fn with_selected_source_scope<'port, 'collector, R>(

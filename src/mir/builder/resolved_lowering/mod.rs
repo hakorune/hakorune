@@ -51,6 +51,8 @@ pub(in crate::mir) use selected_dynamic_physical_capability::{
     DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
     DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };
+#[cfg(test)]
+pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6;
 
 #[cfg(test)]
 mod block_expr_tests;

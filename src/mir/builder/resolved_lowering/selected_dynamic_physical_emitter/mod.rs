@@ -654,7 +654,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
 /// package loan, invocation brand, physical session, DraftSeal, and collector
 /// terminal. This is an orchestration seam only: no production caller or
 /// module publication is opened here.
-pub(super) fn assemble_unpublished_selected_dynamic_w6<'program, 'builder>(
+pub(in crate::mir::builder) fn assemble_unpublished_selected_dynamic_w6<'program, 'builder>(
     builder: &'builder mut MirBuilder,
     module_port: &mut ModuleLoweringPortV1<'_>,
     input: SelectedCatalogedCallableLoweringInputV1<'program>,
