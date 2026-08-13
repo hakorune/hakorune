@@ -61,6 +61,7 @@ pub(super) fn try_dispatch(
             );
             opts.compile_recipe = Some("pure-first".to_string());
             opts.compat_replay = Some("harness".to_string());
+            opts.select_explicit_harness_compat();
             Some(
                 match nyash_rust::host_providers::llvm_codegen::mir_json_text_object::compile_object_from_mir_json_text_boundary(&mir_json, opts) {
                     Ok(obj_path) => crate::plugin::materialize_owned_string(

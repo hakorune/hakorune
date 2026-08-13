@@ -41,14 +41,14 @@
     },
     {
       "id": "route-default-legacy-ambient",
-      "class": "route_identity_pending",
-      "automatic_production": false,
-      "python_child": "route-dependent",
+      "class": "automatic_boundary",
+      "automatic_production": true,
+      "python_child": "zero",
       "native_retry": false,
       "owner": "src/host_providers/llvm_codegen/defaults.rs",
-      "selector": "CodegenRouteRequestV1::LegacyAmbientKeep",
-      "positive_evidence": "default object opts retain legacy ambient route identity",
-      "negative_evidence": "G1 must replace the ambient request with an explicit Boundary request"
+      "selector": "CodegenRouteRequestV1::BoundaryPureFirst",
+      "positive_evidence": "default object opts explicitly select BoundaryPureFirst with pure-first/none",
+      "negative_evidence": "named Stage1 compat caller must explicitly select ExplicitHarnessCompat"
     },
     {
       "id": "hako-aot-generic",

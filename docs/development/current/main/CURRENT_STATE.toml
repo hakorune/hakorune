@@ -5,10 +5,10 @@ date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LLVMLITE-PROD0-G1-REACHABILITY-R0 is split into route and runner rows. Open G1-ROUTE-BOUNDARY-R0 first; G1-RUNNER-FAILFAST-R0 remains a separate design decision. G2/G3, source deletion, and unrelated MIR changes remain closed."
+current_design_stop = "G1-ROUTE-BOUNDARY-R0 landed: boundary_default_object_opts emits explicit BoundaryPureFirst with pure-first/none and Stage1 sets ExplicitHarnessCompat at its named caller. Open G1-RUNNER-FAILFAST-R0 as the next separate design decision."
 work_mode = "design_stop"
-current_execution_row = "G1-ROUTE-BOUNDARY-R0"
-current_blocker_token = "G1-ROUTE-BOUNDARY-R0: use the existing CodegenRouteRequestV1 and boundary_default_object_opts owner to replace LegacyAmbientKeep with an explicit BoundaryPureFirst envelope. Non-authority is environment hints, provider labels, Python output, and mock output. Fail-fast before provider/child: missing pure-first recipe, inherited replay, ambient provider, or CAPI failure. Acceptance: automatic default request=BoundaryPureFirst, selected Boundary caller=1, old selected edge=0, automatic Python child=0, native retry=0; ExplicitHarnessCompat remains the only named keep. G1-RUNNER-FAILFAST-R0 is separate."
+current_execution_row = "G1-RUNNER-FAILFAST-R0"
+current_blocker_token = "G1-RUNNER-FAILFAST-R0: use execute_via_harness_or_fallback and FallbackExecutorBox as the existing runner owners to reject unsupported/native-failure paths with a typed error. Non-authority is Python output, mock output, environment hints, and the already-closed route default. Fail-fast before any Python child or retry: unsupported native input, Boundary failure, or missing explicit compat admission must not enter harness or mock fallback. Acceptance: automatic selected Boundary path has mock fallback=0, Python child=0, native retry=0, unsupported input=typed error; explicit harness/oracle remains named and non-production. G2/G3 stay separate."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,8 +28,8 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 latest_card = "llvm-native-library-llvmlite-graduation-task"
 latest_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, and G0 source-backed ingress census are closed. G1 route-boundary design stop is next; runner fail-fast is separate."
-next_design_card = "G1-ROUTE-BOUNDARY-R0"
+latest_card_summary = "W6 final-live, ROUTE0 identity/guard, Identity0 parity, OBSERVE0-R0 child-event evidence, G1-D1 route fencing, F0/plugin typed errors, generic C/hako_aot fail-fast, Stage1 replay, env.codegen admissions, named hako_aot compat C ABI, G0 source-backed ingress census, and G1 route-boundary retirement are closed. G1 runner fail-fast is the next design stop; G2/G3 remain separate."
+next_design_card = "G1-RUNNER-FAILFAST-R0"
 next_design_card_path = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -46,7 +46,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-13: W6 final-live closeout: selected package adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, existing MirModule commit=1, Boundary/static artifact receipt+rename=1, and selected executable launch are green; llvmlite remains staged.",
   "2026-08-13: D0-C4 test-only adapter canary now consumes the package-owned selected input/admission into the existing candidate collector without opening a raw source scope; focused canary, pre-cutover, AOT, batch, pointer, and diff gates are green, production remains new=0 old=1.",
   "2026-08-13: W6-D-I2 separated temporary static-artifact observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1; rename-failure cleanup and old-final preservation are focused-tested. W6-D-I1 descriptor/digest/symbol/ABI/wire/PlanStamp evidence remains green; production new=0 old=1.",
   "2026-08-13: W6-D-I0 landed one versioned explicit-archive link ABI: Rust resolves libnyash_kernel.a from --nyrt once, Boundary passes the exact path, C performs no NYASH_EMIT_EXE_NYRT/fallback rediscovery, and positive/negative link smoke plus ABI guards are green; receipt/publication remain closed, new=0 old=1.",
@@ -58,4 +57,5 @@ landed_tail = [
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-13: W6-S source organization landed (checked CallOut facade/site-plan/census/tests and corridor model/emission split); focused tests and W6 authority/physical-input/VM/pre-cutover guards are green, with production caller counts unchanged.",
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
+  "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
 ]

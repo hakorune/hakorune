@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""G0 source-backed llvmlite ingress census; no route behavior changes."""
+"""Source-backed llvmlite ingress census and G1 route fence."""
 
 from __future__ import annotations
 
@@ -41,7 +41,9 @@ ROW_EVIDENCE = {
         ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "validate_ordinary_ambient_replay"),
     ),
     "route-default-legacy-ambient": (
-        ("src/host_providers/llvm_codegen/defaults.rs", "CodegenRouteRequestV1::LegacyAmbientKeep"),
+        ("src/host_providers/llvm_codegen/defaults.rs", "CodegenRouteRequestV1::BoundaryPureFirst"),
+        ("src/host_providers/llvm_codegen/defaults.rs", 'compile_recipe: Some("pure-first".to_string())'),
+        ("src/host_providers/llvm_codegen/defaults.rs", 'compat_replay: Some("none".to_string())'),
         ("src/host_providers/llvm_codegen/route.rs", "CodegenRouteRequestV1::LegacyAmbientKeep => Ok(())"),
     ),
     "hako-aot-generic": (
@@ -268,6 +270,10 @@ def main() -> int:
     # Source-backed selectors and child boundaries. These are deliberately
     # exact strings; labels and environment names alone cannot satisfy G0.
     need("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary", "Boundary default")
+    need("src/host_providers/llvm_codegen/defaults.rs", "CodegenRouteRequestV1::BoundaryPureFirst", "Boundary object default route")
+    need("src/host_providers/llvm_codegen/defaults.rs", 'compile_recipe: Some("pure-first".to_string())', "Boundary object pure-first recipe")
+    need("src/host_providers/llvm_codegen/defaults.rs", 'compat_replay: Some("none".to_string())', "Boundary object replay fence")
+    need("crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs", "select_explicit_harness_compat", "named Stage1 compat admission")
     need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst", "ordinary env.codegen route")
     need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::ExplicitHarnessCompat", "named env.codegen keep")
     need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay", "generic AOT replay fence")
