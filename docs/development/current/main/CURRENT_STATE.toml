@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, W6-E-D0-B receipt transport, single selected-metadata Boundary runner census, receipt-fence handoff, and explicit selected NyRT archive handoff are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; final artifact/live publication remains closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, W6-E-D0-B receipt transport, single selected-metadata Boundary runner census, receipt-fence handoff, and explicit selected NyRT archive handoff are landed. The package-adapter selected Dynamic branch now hands off to the existing candidate collector while ordinary compatibility remains source-scoped; C6 final live publication is a design stop."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-E compiler-side route ownership is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. The runner census-checks one sealed pair, enters Boundary before VM/fallback, holds the root-consumed receipt fence through execution, and supplies the explicit NyRT archive path required by the link ABI. No separate transition product, emitter-to-PreparedModuleExternalCommit seam, or global callback state is allowed. The remaining stop is final live publication; child rename-before-root-validation remains a non-claim."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-STATIC-RECEIPT-GATED-LIVE-INSTALL-R0"
-current_blocker_token = "W6-E-C5: pass the verified existing NyRT archive path through the receipt-gated selected Boundary terminal before any selected live caller switch; preserve ordinary compatibility, avoid cross-process rollback claims, and keep selected new=0/old=1 until the final scoped census closes."
+current_design_stop = "W6-E compiler-side route ownership is accepted: the package adapter is the sole selected Dynamic route owner, it feeds the existing root candidate collector, and the existing root lifecycle remains the sole external-commit owner. C5 receipt-gated Boundary launch and explicit NyRT handoff are landed. The remaining C6 stop is to name and accept the existing root owner/API for final selected live publication plus one scoped before/after census; no third transaction, transition product, global callback, ordinary retirement, or cross-process rollback claim is allowed."
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0"
+current_blocker_token = "W6-E-C6: identify the existing root owner/API for the final selected live caller switch and define the scoped before/after census; do not implement a guessed transition product, and keep live selected new=0/old=1 until the owner and fail-fast boundary are accepted."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed and unpublished. The package adapter now owns selected Dynamic lowering; one runner census routes the sealed pair to Boundary before VM/fallback, passes the explicit NyRT archive path, and holds the consumed receipt fence through execution. Ordinary compatibility remains source-scoped; final live publication remains open."
+active_lane_status = "The selected Program -> Facts -> Recipe -> canonical session -> exact-two DraftSeal -> branded CatalogedBoxMethod collector -> Boundary object/link receipt chain is landed and unpublished. The package adapter now owns selected Dynamic lowering; one runner census routes the sealed pair to Boundary before VM/fallback, passes the explicit NyRT archive path, and holds the consumed receipt fence through execution. Ordinary compatibility remains source-scoped; C6 final live publication remains a design stop."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,10 +28,10 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3 are landed; D0-C4 proves the same-candidate package-adapter handoff, D0-D accepts the existing root collector/external-commit owner, and C2/C3 route one sealed pair through Boundary while returning the consumed receipt fence before execution. C5 now fixes the explicit NyRT archive handoff at the receipt-gated selected terminal; final live caller switch remains open."
-next_design_card = "DYNAMIC-V2-W6-STATIC-RECEIPT-GATED-LIVE-INSTALL-R0"
+latest_card_summary = "W6-D embeds one fixed descriptor in selected Boundary objects and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-C0/C1/C2/C3 are landed; D0-C4 proves the same-candidate package-adapter handoff, D0-D accepts the existing root collector/external-commit owner, and C2/C3 route one sealed pair through Boundary while returning the consumed receipt fence before execution. C5 fixes the explicit NyRT archive handoff; C6 now stops before final live publication until the existing root owner/API and scoped census are explicit."
+next_design_card = "DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-STATIC-RECEIPT-GATED-LIVE-INSTALL-R0"
+next_execution_card = "none (design stop: accept the root owner/API and census before execution)"
 next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

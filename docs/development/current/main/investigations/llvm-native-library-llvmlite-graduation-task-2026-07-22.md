@@ -80,11 +80,13 @@ Python/llvmlite production consumer = 0
 fallback = 0, retry = 0, VM consumer = 0
 ```
 
-`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` must close the existing
+`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` has landed the existing
 receipt-gated selected runner terminal, including the explicit runtime-archive
-path required by the Boundary link ABI, before G1 starts. It does not create a
-new transaction or retire ordinary compatibility. Until that receipt and
-scoped caller census exist, this board remains parked. Once they exist, G1
+path required by the Boundary link ABI. The remaining `W6-E-C6
+FINAL-LIVE-PUBLICATION-D0` design stop must name the existing root owner/API
+and scoped before/after census before G1 starts. Neither row creates a new
+transaction or retires ordinary compatibility. Until C6 is accepted, this
+board remains parked. Once C6 and its scoped receipt/caller evidence exist, G1
 retires automatic production reachability, G2 removes Python/llvmlite from
 default build/CI/perf gates, and G3 separately decides source/archive removal.
 The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain

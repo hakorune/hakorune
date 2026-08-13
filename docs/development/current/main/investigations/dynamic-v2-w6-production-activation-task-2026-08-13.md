@@ -889,17 +889,17 @@ Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenc
 Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
 ```
 
-#### W6-E-C5 — `DYNAMIC-V2-W6-STATIC-RECEIPT-GATED-LIVE-INSTALL-R0`
+#### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (design stop)
 
 ```text
-Decision: keep compiler and Boundary artifact transactions separate; connect the existing receipt fence to the selected terminal and pass explicit `--nyrt` once.
-Source authority + canonical issuer: StaticAotArtifactPublicationTxnV1 -> PublishedStaticLinkedAotArtifactReceiptV1 -> consume_static_artifact_receipt -> StaticArtifactReceiptConsumedFenceV1.
-Non-authority: runner census, JSON parser, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, second transaction, and cross-process rollback.
-Fail-fast boundary: missing/duplicate receipt, digest/descriptor/site/ABI/wire/PlanStamp/path/symbol drift, or missing explicit archive rejects before launch.
-Smallest next slice: selected runner resolves/verifies the existing runtime archive once, passes it to Boundary, and keeps selected new=0/old=1.
-Acceptance: selected Dynamic Boundary caller=1, selected Dynamic old raw/JoinIR edge=0, ordinary compatibility edge=1, launch-after-receipt=1, fallback/retry/VM=0; non-claims: no ordinary compatibility retirement, final live caller switch, cross-process recovery, RuntimeExecutablePlan, or llvmlite G1/G2/G3 activation.
+Decision: do not invent a third transaction or transition product; C5 receipt-gated Boundary launch is landed, but final selected live publication waits for an explicit existing root owner/API.
+Source authority + canonical issuer: package-adapter selected handoff; existing PreparedModuleExternalCommitV1 for MIR publication; StaticAotArtifactPublicationTxnV1 plus root consume_static_artifact_receipt for the artifact fence.
+Non-authority: runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
+Fail-fast boundary: missing/foreign receipt, candidate/artifact/PlanStamp/site/ABI/wire drift, or selected old/new/ordinary census mismatch leaves the live Builder and selected old edge unchanged.
+Smallest next slice: name and accept the existing root owner/API for the final selected callback switch, then add one scoped before/after census; no code until that issuer/consumer is explicit.
+Acceptance: selected Boundary caller=1, selected raw/JoinIR edge=0, ordinary compatibility edge=1, receipt/path fence=1, fallback/retry/VM=0; final live new=1/old=0 remains open.
+Non-claims: no ordinary compatibility retirement, llvmlite G1/G2/G3 activation, source deletion, cross-process recovery, RuntimeExecutablePlan, or guessed transition state.
 ```
-
 ## Negative matrix
 
 ```text
@@ -964,8 +964,8 @@ Python/native/harness/VM production physicalizer         = 0
 CatalogedBoxMethod mixed normal drain                    = 1
 static artifact receipt post-link issuer                 = 1
 RuntimeExecutablePlan production issuer                  = 0
-selected new/old production caller before W6-E           = 0 / 1
-selected new/old production caller at W6-E               = 1 / 0
+selected pre-C6 live caller census                       = 0 / 1
+selected final live caller switch                        = design stop
 ```
 
 ## Post-cutover queue
