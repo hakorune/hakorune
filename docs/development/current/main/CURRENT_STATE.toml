@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, and W6-D artifact-bound static link receipt owner are landed. W6-E is at a cross-crate handoff design stop; executable final-path publication and production remain closed."
+status = "The selected Dynamic semantic/header/admission, checked CallOut/site-id transport, full unpublished physical session, exact-two DraftSeal, CatalogedBoxMethod collector canary, private W6 orchestration, W6-S/A/B/C handoffs, C1 Boundary physicalizer, W6-D artifact-bound static link receipt owner, and W6-E-D0-B receipt transport are landed. W6-E-D0-C root cutover coordination is at a design stop before production."
 date = "2026-08-13"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "W6-D is landed. The root-only old-edge witness question is closed as policy: R4 manifest is the retirement contract and the W6 root cutover preflight performs the direct before/after census; no witness product or child witness field exists. The remaining bounded row is the dedicated child artifact-receipt channel and clone-safe selected MIR JSON export; no rename or caller mutation is allowed."
-work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0"
-current_blocker_token = "W6-E-D0-B: implement one dedicated child artifact-receipt JSON channel and clone-safe selected MIR JSON export; validate candidate digest/site/ABI/wire/PlanStamp/descriptor exactly once; keep old-edge census root-only and current new=0 old=1 with fallback/retry/VM=0."
+current_design_stop = "W6-D and D0-B are landed. R4 remains retirement policy and the root coordinator must perform the direct before/after census; no witness product or child witness field exists. D0-C now freezes the root-only activation aggregate boundary; child rename-before-root-validation remains a declared non-claim, and no caller mutation is allowed until one owner and one consume terminal are named."
+work_mode = "design_stop"
+current_execution_row = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
+current_blocker_token = "W6-E-D0-C: prepare one root-only selected Dynamic activation aggregate; consume the completed candidate, collector brand, and one validated child receipt; require R4 old=1 before and old=0 after the same infallible cutover; keep new=0 old=1 until the aggregate is complete, with fallback/retry/VM=0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -28,11 +28,11 @@ mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investi
 current_execution_design = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
 latest_card = "dynamic-v2-w6-production-activation-task"
 latest_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. W6-E-D0-A accepts R4 manifest policy plus root-only direct old-edge census; W6-E-D0-B is the bounded dedicated child receipt/clone-safe MIR JSON transport row, with no shadow witness or production switch, so new=0 old=1 remains."
-next_design_card = "DYNAMIC-V2-AOT-ACTIVATION-I0-W6"
+latest_card_summary = "W6-D now embeds one fixed descriptor in selected Boundary objects, observes actual object/archive/executable facts, and separates temporary observation from post-rename PublishedStaticLinkedAotArtifactReceiptV1. D0-A accepts R4 policy plus root-only census; D0-B is closed at 9179e319f9 with dedicated receipt transport and clone-safe MIR JSON; D0-C is the next root-only coordinator row, so new=0 old=1 remains."
+next_design_card = "DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0"
 next_design_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
-next_execution_card = "DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

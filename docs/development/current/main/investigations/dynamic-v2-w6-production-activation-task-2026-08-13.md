@@ -789,7 +789,7 @@ Non-claims:
   product, production caller, rename, fallback, or retry.
 ```
 
-#### W6-E-D0-B — `DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0` (fast-ready)
+#### W6-E-D0-B — `DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0` (closed)
 
 ```text
 Decision:
@@ -814,7 +814,47 @@ Non-claims:
   publication transaction.
 ```
 
-Until D0-B is closed, only its bounded transport row may execute; the
+Landed receipt: commit `9179e319f9` adds the versioned child `--receipt-json`
+channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
+root validator, and the named-owner guard. Focused child/root tests and the
+W6 authority guards are green; the child receipt is not an old-edge witness.
+
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (design stop)
+
+```text
+Decision:
+  freeze one root-only coordinator boundary before implementation. It may
+  consume the completed candidate, one validated child receipt, and one
+  collector brand only after the cross-process failure boundary is explicit;
+  the selected callback switch and old-edge retirement remain one infallible
+  cutover.
+Source authority + canonical issuer:
+  Builder candidate/collector and R4 policy stay root-owned; ny-llvmc alone
+  issues the published artifact receipt; the coordinator only consumes it.
+Non-authority:
+  child receipt fields, guard text, block/index locators, raw JoinIR, llvmlite,
+  RuntimeExecutablePlan, fallback, retry, and any second witness product.
+Fail-fast boundary:
+  before old=1, ordinary compatibility is present, candidate/brand/site/
+  ABI/wire/PlanStamp/descriptor/digest match, receipt is consumed once, and
+  every pre-cutover failure leaves live Builder, callback, and old edge
+  unchanged. Child rename-before-root-validation is a known non-claim, not a
+  reason to invent a second rollback owner.
+Smallest next slice:
+  name `PreparedSelectedDynamicW6ActivationV1` around the existing candidate
+  exporter, child receipt consumer, and root R4 census; do not implement or
+  switch callers until the aggregate's owner, exact consume terminal, and
+  child-rename failure non-claim have a single named consumer.
+Non-claims:
+  no crash recovery, RuntimeExecutablePlan, alternate backend, or partial
+  production switch; until the final commit new=0 / old=1 remains mandatory.
+```
+
+The coordinator must not reconstruct a receipt or reach into the child
+publication transaction. A child rename followed by process loss is outside
+the current claim; stronger rollback is a separate BoxCount only if required.
+
+Until D0-C is closed, only its bounded coordinator row may execute; the
 mandatory production counts remain `new=0 / old=1`.
 
 The prepared aggregate performs all fallible work before commit:
