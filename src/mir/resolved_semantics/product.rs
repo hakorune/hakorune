@@ -6,6 +6,7 @@ use hakorune_mir_core::BindingId;
 use super::body_shape::VerifiedResolvedMethodCallSourceV1;
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::enum_variant_demand::EnumVariantAdmissionV1;
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
@@ -42,6 +43,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
     pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    pub(crate) expression_source: ResolvedExpressionSourceInventoryV1,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
 
@@ -297,6 +299,10 @@ impl VerifiedResolvedFunctionV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
         self.core.data.method_calls.iter()
+    }
+
+    pub(crate) const fn expression_source(&self) -> &ResolvedExpressionSourceInventoryV1 {
+        &self.core.data.expression_source
     }
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {

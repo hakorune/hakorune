@@ -23,6 +23,15 @@ pub(crate) struct ResolvedLoopRegionBundleV1 {
     loop_pair: ResolvedScopeRegionPairV1,
 }
 
+/// Resolver-owned placement of one expression relative to an exact Loop.
+///
+/// This is a source relation, not a physical block or Recipe item identity.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedLoopPlacementV1 {
+    Condition,
+    Body,
+}
+
 impl ResolvedLoopRegionBundleV1 {
     pub(crate) const fn loop_pair(self) -> ResolvedScopeRegionPairV1 {
         self.loop_pair
@@ -298,6 +307,31 @@ impl VerifiedResolvedFunctionV1 {
             region.origin(),
             site.node(),
         ))
+    }
+
+    /// Classifies one expression against a sealed Loop source site.
+    ///
+    /// The Loop index first proves the selected source identity. Only then is
+    /// its canonical structural path used to distinguish Condition and Body.
+    pub(crate) fn resolved_loop_placement(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<ResolvedLoopPlacementV1>, ResolvedLoopRegionLookupErrorV1> {
+        self.loop_region_bundle(loop_site)?;
+        let loop_segments = loop_site.node().segments();
+        let site_segments = site.node().segments();
+        let Some(relative) = site_segments.get(loop_segments.len()..) else {
+            return Ok(None);
+        };
+        if !site_segments.starts_with(loop_segments) {
+            return Ok(None);
+        }
+        Ok(match relative.first() {
+            Some(SourcePathSegmentV1::LoopCondition) => Some(ResolvedLoopPlacementV1::Condition),
+            Some(SourcePathSegmentV1::LoopBody(_)) => Some(ResolvedLoopPlacementV1::Body),
+            _ => None,
+        })
     }
 
     /// Returns only the sealed cardinality for future source/flow bijection.

@@ -15,9 +15,10 @@ use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use super::{
-    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedLoopRegionLookupErrorV1,
-    ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1, VerifiedResolvedFunctionV1,
-    VerifiedResolvedLoopSourceV1, VerifiedResolvedSourceSiteInventoryV1,
+    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1,
+    VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
+    VerifiedResolvedSourceSiteInventoryV1,
 };
 
 /// The source families intentionally exposed by the first callable ledger.
@@ -186,6 +187,25 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.assignment_targets()
     }
 
+    pub(crate) fn binary_expression_sources(
+        &self,
+    ) -> impl Iterator<Item = &super::ResolvedBinaryExpressionSourceV1> {
+        self.function.expression_source().binaries()
+    }
+
+    pub(crate) fn initializer_relations(
+        &self,
+    ) -> impl Iterator<Item = &super::ResolvedInitializerRelationV1> {
+        self.function.expression_source().initializers()
+    }
+
+    pub(crate) fn literal_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedLiteralSourceV1> {
+        self.function.expression_source().literal(site)
+    }
+
     /// Borrows the complete resolver-sealed Loop site inventory.
     pub(crate) fn loop_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.function.loop_sites()
@@ -264,6 +284,14 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         site: &SourceExprSiteV1,
     ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
         self.function.loop_body_contains_site(loop_site, site)
+    }
+
+    pub(crate) fn resolved_loop_placement(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<ResolvedLoopPlacementV1>, ResolvedLoopRegionLookupErrorV1> {
+        self.function.resolved_loop_placement(loop_site, site)
     }
 }
 

@@ -67,6 +67,22 @@ and target together. It does not choose by selector, narrow with
 open S6C production. A source row, frame, or target mismatch rejects before any
 Facts/Recipe or physical effect.
 
+## S6C explicit typed-input contract I0
+
+`expression_source.rs` extends the same resolver seal with passive, AST-free
+binary/literal/local-initializer rows. The S6C issuer borrows those rows plus
+the callable source ledger and requires the exact annotated cohort
+`(StringBox, StringBox)`, `local i: i64 = 0`, one `length/0`, one
+`substring/2`, `Less`, `TextEq`, two `Add` rows, and their canonical
+`Condition | Body` placement. Parameter names are not type authority.
+
+The resulting non-`Clone` `VerifiedS6CTypedInputRelationV1` owns the exact
+bindings, initializer, binary source relations, and Loop membership. Missing
+or wrong annotations, literal/operator/call/placement drift, duplicates, and
+swapped receiver/operands reject before a source-bound call relation, Facts,
+Recipe, Builder/MIR, physicalization, fallback, or production effect. The
+unannotated historical fixture remains a `MissingTypeEvidence` negative.
+
 ## Instance declaration/signature I0
 
 The bounded resolver declaration slice is landed in

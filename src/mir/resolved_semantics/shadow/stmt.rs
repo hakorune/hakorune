@@ -81,13 +81,30 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::Local {
                 variables,
                 initial_values,
+                declared_type_names,
                 ..
-            } => self.resolve_declaration(statement, variables, initial_values, path, false, true),
+            } => self.resolve_declaration(
+                statement,
+                variables,
+                initial_values,
+                Some(declared_type_names),
+                path,
+                false,
+                true,
+            ),
             ASTNode::Outbox {
                 variables,
                 initial_values,
                 ..
-            } => self.resolve_declaration(statement, variables, initial_values, path, true, false),
+            } => self.resolve_declaration(
+                statement,
+                variables,
+                initial_values,
+                None,
+                path,
+                true,
+                false,
+            ),
             ASTNode::Assignment { target, value, .. } => {
                 self.record_effect(
                     Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget).expr(),
@@ -282,6 +299,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         statement: &'ast ASTNode,
         variables: &[String],
         initial_values: &'ast [Option<Box<ASTNode>>],
+        declared_type_names: Option<&[Option<String>]>,
         path: &ShadowSourcePathV0,
         outbox: bool,
         resolve_initializers: bool,
@@ -323,7 +341,26 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             } else {
                 ShadowBindingKindV0::Local { ordinal }
             };
-            let binding = self.declare_binding(name, kind, origin)?;
+            let binding = self.declare_binding(name, kind, origin.clone())?;
+            if !outbox {
+                let initializer_site =
+                    initial_values.get(index).and_then(Option::as_ref).map(|_| {
+                        Self::stmt_expr_path(
+                            statement,
+                            path,
+                            ExprChildRoleV1::LocalInitializer(ordinal),
+                        )
+                        .expr()
+                    });
+                self.record_local_initializer_source(
+                    origin,
+                    binding,
+                    declared_type_names
+                        .and_then(|types| types.get(index))
+                        .and_then(Option::as_deref),
+                    initializer_site,
+                );
+            }
             if !outbox
                 && matches!(initial_values.get(index), Some(Some(initial)) if matches!(initial.as_ref(), ASTNode::ArrayLiteral { .. }))
             {

@@ -24,6 +24,7 @@ mod direct_call;
 mod direct_call_verifier;
 mod enum_match_demand;
 mod enum_variant_demand;
+mod expression_source;
 mod function_root;
 mod function_view;
 pub(crate) mod generic_g0;
@@ -120,6 +121,10 @@ pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
+pub(crate) use expression_source::{
+    ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
+    ResolvedLiteralSourceV1,
+};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
     ResolvedOwnerLoweringRootsV1,
@@ -165,9 +170,10 @@ pub(crate) use loop_family_window::{
 pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub use loop_region::ResolvedLoopRegionVerificationErrorV1;
 pub(crate) use loop_region::{
-    LoopExecutionFrameKeyV1, ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1,
-    ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceForestMemberV1,
-    VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceV1,
+    LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
+    VerifiedResolvedLoopSourceForestMemberV1, VerifiedResolvedLoopSourceForestV1,
+    VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
@@ -250,8 +256,8 @@ pub(crate) use shadow::{
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 pub(crate) use source_path_policy::{
-    is_statement_expression_surface_v1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1,
-    ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
+    assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,
+    ExprChildRoleV1, ExprChildSyntaxV1, ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
 };
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,

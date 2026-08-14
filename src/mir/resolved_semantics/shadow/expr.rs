@@ -35,6 +35,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
         self.record_expression_site(path.expr());
         self.record_expression_shape(expr, path.expr());
+        self.record_expression_source(expr, path.expr());
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),

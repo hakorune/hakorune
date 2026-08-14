@@ -12,6 +12,7 @@ use super::body_shape::{
 };
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
+use super::expression_source::seal_shadow_expression_source_v1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
@@ -298,7 +299,7 @@ impl FunctionSemanticResolverSessionV1 {
 fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
-    draft: ShadowResolvedFunctionV0,
+    mut draft: ShadowResolvedFunctionV0,
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     callable_index: Option<&VerifiedCallableIndexV1>,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
@@ -465,6 +466,9 @@ fn canonicalize_draft(
             Ok((site.clone(), target))
         })
         .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
+    let expression_source =
+        seal_shadow_expression_source_v1(std::mem::take(&mut draft.expression_source), binding_ref)
+            .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
     let resolved_exits = draft
         .resolved_exits
         .iter()
@@ -549,6 +553,7 @@ fn canonicalize_draft(
         assignment_targets,
         direct_call_targets,
         method_calls,
+        expression_source,
         resolved_exits,
     };
     let mut source_sites = ResolvedSourceSiteInventoryDraftV1::default();

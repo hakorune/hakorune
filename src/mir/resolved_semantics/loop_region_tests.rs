@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::loop_region::{
     build_source_forest_for_test, build_verified_loop_region_index_v1,
@@ -176,6 +177,7 @@ fn loop_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),
     }
 }

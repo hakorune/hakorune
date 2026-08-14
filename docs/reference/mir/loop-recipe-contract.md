@@ -71,6 +71,22 @@ is a cross-check only; `only_loop_site`, AST/MIR inference, and CoreMethod
 relookup are forbidden. S6C remains closed until its complete source/Facts/
 Recipe producer is separately co-sealed.
 
+## S6C explicit typed-input prerequisite I0
+
+The resolver now seals one AST-free typed-input/source-frame prerequisite for
+the first forward `ScanWithInit` cohort. Its sole type authority is explicit
+source spelling: two ordinary `StringBox` parameters and one local
+`i: i64 = 0`. It retains exact resolver bindings, the literal initializer,
+`Less`, `TextEq`, two `Add` relations, and canonical Loop `Condition | Body`
+placement. Names, call-site literals, CoreMethod result kinds, MIR types, and
+selected-Dynamic receipts cannot supply missing type evidence.
+
+This product is not a Recipe or a source-bound call relation. Missing,
+foreign, duplicate, swapped, or shape-drifted input rejects before Recipe
+keys, Facts, Builder/MIR, physical IDs, fallback, or production. The later
+source-bound row must borrow this exact product and the existing callable and
+CoreMethod target authorities; it may not reconstruct them.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation

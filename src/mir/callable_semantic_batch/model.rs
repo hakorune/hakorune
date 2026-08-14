@@ -265,6 +265,15 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
     pub(crate) fn parameters(&self) -> Option<&[VerifiedResolvedCallableParameterSourceRefV1<'_>]> {
         self.parameters.as_deref()
     }
+
+    pub(super) fn source_ledger(
+        &self,
+    ) -> Result<
+        crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+        crate::mir::resolved_semantics::CallableSourceLedgerRejectV1,
+    > {
+        self.semantic.forest.callable_source_ledger(self.owner())
+    }
 }
 
 impl VerifiedResolvedCallableParameterSourceRefV1<'_> {

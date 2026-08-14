@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
+use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
@@ -85,6 +86,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     pub(super) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(super) match_control_sites: BTreeSet<SourceExprSiteV1>,
     pub(in crate::mir::resolved_semantics) body_shape: ShadowBodyShapeDraftV0,
+    pub(in crate::mir::resolved_semantics) expression_source: ShadowExpressionSourceDraftV1,
 }
 pub(super) fn traverse_shadow_root_v1<'ast, 'schema>(
     input: ShadowRootTraversalInputV1<'ast, 'schema>,
@@ -233,6 +235,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             qmark_propagation_sites: BTreeSet::new(),
             match_control_sites: BTreeSet::new(),
             body_shape: ShadowBodyShapeDraftV0::default(),
+            expression_source: ShadowExpressionSourceDraftV1::default(),
         }
     }
 
@@ -262,6 +265,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 qmark_propagation_sites: self.qmark_propagation_sites,
                 match_control_sites: self.match_control_sites,
                 body_shape: self.body_shape,
+                expression_source: self.expression_source,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }

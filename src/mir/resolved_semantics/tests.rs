@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
@@ -140,6 +141,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
         )]),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::from([(
             ResolvedExitSiteV1::Statement(exit_site),
             ResolvedExitRecordV1::new(
