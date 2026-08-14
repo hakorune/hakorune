@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, and GUARD-SURFACE-CONSOLIDATION-D0 inventory closeout are closed with named parent-baseline reds; the next row is GUARD-PUBLIC-ENTRY-CUT-R0, with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, and GUARD-PUBLIC-ENTRY-CUT-R0 are closed with named parent-baseline reds; the next row is GUARD-FAMILY-MANIFEST-MIGRATION-R0, with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -759,6 +759,24 @@ Smallest next slice: emit one generated owner/disposition inventory and use it
 to propose a <=50-entry human index without changing any check behavior.
 Non-claims: no script move/delete, manifest semantics change, new guard,
 compiler change, fallback, archive publication, or llvmlite retirement.
+```
+
+#### GUARD-FAMILY-MANIFEST-MIGRATION-R0 (queued design)
+
+```text
+Decision: migrate only manifest-backed families through the existing generic
+runner; keep wrapper names stable until one equivalent behavior owner exists.
+Source authority + canonical issuer: guard_rows.toml and its includes,
+proof_apps.toml and its includes, plus run_row_guard.sh/run_proof_app.sh.
+Non-authority: filename prefixes, executable mode, historical card prose, or
+grep-only caller counts cannot authorize a wrapper move or deletion.
+Fail-fast boundary: duplicate/missing manifest IDs, command-path drift, missing
+owner/profile, or mode mismatch remains an explicit retained baseline error.
+Smallest next slice: classify the 103 family rows and 212 proof-app rows, then
+convert one hako-alloc family only after its positive/negative behavior tests
+and wrapper parity are observed.
+Non-claims: no script deletion, new guard, compiler behavior, fallback,
+archive publication, or llvmlite retirement.
 ```
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
