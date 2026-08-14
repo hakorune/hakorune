@@ -1,7 +1,7 @@
 ---
 Status: Current T2 design stop; explicitly selected by CURRENT_STATE
 Date: 2026-08-14
-Decision: resume at S6C authority closure, not at the already-landed schema rows
+Decision: resume at the CoreMethod manifest/Home issuer D0 before S6C; do not bypass the dependency
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -10,18 +10,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema and neutral operation split are
-  landed; S6C still needs one exact resolver/CoreMethod-backed
+  landed; the CoreMethod manifest/Home issuer D0 is the current dependency.
+  S6C still needs one exact resolver/CoreMethod-backed
   `length/substring/TextEq` source relation and one complete Facts-to-Recipe
-  issuer before implementation is safe.
+  issuer after that D0 closes.
 - **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
   are closed, and no forward `ScanWithInit` Facts/producer or production
   physical selector is active.
-- **Next ordered task:** keep the S6C audit result as a T2 dependency stop:
-  the existing declaration/Home/Query issuers cover only the bounded `I64`/
-  `Unit` user-instance cohort, and the CoreMethod manifest does not issue a
-  neutral `Text` receiver/result Home target contract. Open the new
-  `LOOP-CORE-METHOD-INSTANCE-TARGET-D0` design dependency first; keep S6C
-  `NoSafeSlice` if that contract boundary is absent.
+- **Next ordered task:** complete
+  `LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0`: the existing declaration/Home/
+  Query issuers cover only the bounded `I64`/`Unit` user-instance cohort, and
+  the CoreMethod manifest does not yet issue a neutral `Text` receiver/result
+  Home target contract. Keep S6C `NoSafeSlice` if that boundary is absent.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
