@@ -380,6 +380,36 @@ Smallest next slice: specify issuer input/output, exact StringLen/0 and StringSu
 Non-claims: no source-bound call product, Facts/Recipe producer, Builder/MIR/Boundary route, fallback, retry, or production switch.
 ```
 
+### D0 exact typed Home contract (design-only)
+
+The issuer input is one generated CoreMethod row plus the same manifest/schema
+brand, an exact operation/arity, and an explicit Home capability schema. Its
+design-only output is a non-forgeable target contract with a distinct target
+brand and dedicated typed relations:
+
+```text
+StringLen / arity 0:
+  receiver = StringBoxReceiver
+  parameters = []
+  result = I64ToCaller
+  effect = PureRead
+
+StringSubstring / arity 2:
+  receiver = StringBoxReceiver
+  parameters = [I64Parameter, I64Parameter]
+  result = TextToCaller
+  effect = PureRead
+```
+
+`StringBoxReceiver`, `I64Parameter`, `I64ToCaller`, and `TextToCaller` are
+semantic relation shapes, not aliases for `Handle`, `Trivial`,
+`FromReceiver`, or `FromParameter`. The target brand, manifest/schema brand,
+and relation-batch brand must be co-sealed. Missing Home, a union-arity row,
+foreign/mixed brands, inferred Text, wrong result/effect, or duplicate target
+rejects before any target receipt. This D0 only fixes the issuer contract and
+negative matrix; it does not add the issuer or a `Verified*`/`Prepared*`
+product.
+
 Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
 until the manifest-backed CoreMethod Home issuer exists and its positive /
 negative / guard evidence satisfies the source-backed receipt gate. No
