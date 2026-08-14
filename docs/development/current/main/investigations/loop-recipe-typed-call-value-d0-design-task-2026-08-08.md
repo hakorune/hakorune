@@ -1,5 +1,5 @@
 ---
-Status: Recipe I0 landed; JOINIR consumer is the next design boundary
+Status: Recipe I0 landed; JOINIR consumer is a design stop until owner and row facade are fixed
 Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -25,23 +25,28 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
 
-## Resumption brief
+## JOINIR consumer design stop — 2026-08-15
 
 ```text
-Decision: consume VerifiedS6CScanWithInitFactsV1 once and retain one exact V2
-Recipe/role-map/Join product; the next consumer must borrow that combined
-product and source Artifact remains a later design boundary.
-Source authority + canonical issuer: Facts owns source truth; the S6C Recipe
-producer alone issues Recipe-local keys; existing V2 issuers own verify/Join.
-Non-authority: AST/name/order, source rewalk, MIR, physical IDs, raw JoinSig,
-an Artifact/source claim reconstructed from a Facts borrow, fallback, or retry.
-Fail-fast boundary: exact role map, V2 structural verification, and sole-root
-carrier Join closure plus its logical transfer view all close before the
-product becomes borrowable; only private read facades are lent afterward.
-Smallest next slice: design the JOINIR consumer façade and its fail-fast
-handoff without accepting a Recipe-only input.
-Non-claims: no Artifact/provenance, physical consumer, selector, production
-caller, Builder/MIR, backend, legacy deletion, fallback, or retry.
+Decision: NoSafeSlice until one neutral S6C JOINIR consumer owner and its
+row-level private façade are fixed; the old MIR/name/fallback lowerers are not
+the consumer. The landed combined product remains the only input authority.
+Source authority + canonical issuer: Facts owns source truth; the Recipe
+producer owns V2 keys/role seal; the existing V2 issuer owns Join/After; only
+VerifiedS6CScanWithInitRecipeProductV2::with_product lends the combined view.
+Non-authority: Recipe-only APIs, raw Recipe/JoinSig, LoopToJoinLowerer,
+LoopViewBuilder, AST/name/order/MIR lookup, Artifact claims, physical IDs,
+selector, fallback, retry, or production callers.
+Fail-fast boundary: product-only input, exact role/domain coverage, typed
+CallSlot receiver/args/Home/effect parity, and Join branch/After/Return/Tail
+separation must be checked before any logical handoff.
+Smallest next slice: design `s6c_joinir_consumer` as a private product-first
+façade at the future LoopToJoinLowerer seam (its current MIR/name/fallback
+`lower` remains non-consumer), plus a private HRTB row view for item/value/
+control rows; choose a neutral logical output without opening JoinModule/MIR/
+physicalization. No code or new semantic product is issued yet.
+Non-claims: no Artifact/provenance, selector, Builder/MIR, physical IDs,
+backend, production caller, fallback/retry, or legacy retirement.
 ```
 
 ## Landed Recipe I0 implementation receipt — 2026-08-15
