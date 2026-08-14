@@ -1,7 +1,7 @@
 ---
-Status: complete Facts D0/I0 landed; Recipe I0 is current design stop
+Status: Recipe I0 design accepted; bounded implementation is current
 Date: 2026-08-14
-Decision: retain exact resolver source closure, then issue one S6C Facts owner before one Recipe-key producer
+Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -9,19 +9,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 ## Current Capsule
 
-- **Current decision:** the V2 typed schema, CoreMethod target, Resolver
-  callable contract, typed-input product, source-bound relation, exact unary
-  rows, Exit/Tail co-seal, complete Recipe target map, and complete Facts D0
-  are landed/accepted. Facts I0 is now a caller-zero non-Clone source product
-  with an HRTB view and exact body-shape closure.
+- **Current decision:** the complete non-Clone S6C Facts product is landed. One
+  sole Recipe producer will consume it by value and retain Facts, the verified
+  V2 Recipe, an exact named role-to-key map, and the existing V2 Join closure
+  in one non-Clone product. `LoopRecipeArtifactV2` is not issued in this row.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
-  witness, and fixed source-bound relation are closed. No `ScanWithInit`
-  Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0` — design the sole
-  Recipe-key producer that consumes the complete Facts product once.
+  witness, fixed source-bound relation, Exit/Tail co-seal, and Facts I0 are
+  closed. The Recipe producer and production selector remain caller-zero.
+- **Next ordered task:** implement `LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0` as the
+  one fixed T2 BoxCount below.
 - **Production stop line:** no scan selector, physical route, fallback, or
-  production caller is opened by this design row.
+  production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
@@ -29,150 +28,126 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: Facts I0 is closed as one non-Clone product over the resolver's
-same-seal source closure; the next row may only consume it to issue Recipe keys.
-Source authority + canonical issuer: ShadowResolver seals source/body shape;
-loop_structural_facts issues Facts; the following Recipe owner issues keys.
-Non-authority: source order, AST/name/fixture navigation, MIR, physical IDs,
-family-count inference, fallback, retry, or a second Facts issuer.
-Fail-fast boundary: compound/duplicate/swapped/foreign/orphan roles and any
-extra statement/expression/effect/relation reject before Facts publication.
-Smallest next slice: design one consuming Recipe producer and its exact target
-map/JoinSig handoff; do not implement physical routing in this row.
-Non-claims: no new source authority, Builder/MIR, physical canary, selector,
-fallback/retry, legacy deletion, or backend change.
+Decision: consume VerifiedS6CScanWithInitFactsV1 once and issue one exact V2
+Recipe/role-map/Join product; source Artifact remains a later design boundary.
+Source authority + canonical issuer: Facts owns source truth; the S6C Recipe
+producer alone issues Recipe-local keys; existing V2 issuers own verify/Join.
+Non-authority: AST/name/order, source rewalk, MIR, physical IDs, raw JoinSig,
+an Artifact/source claim reconstructed from a Facts borrow, fallback, or retry.
+Fail-fast boundary: exact role map, V2 structural verification, and sole-root
+carrier Join closure all close before the product becomes borrowable.
+Smallest next slice: add one producer/model module, focused tests, existing
+module exports, and same-slice README/reference receipt in one bounded commit.
+Non-claims: no Artifact/provenance, physical consumer, selector, production
+caller, Builder/MIR, backend, legacy deletion, fallback, or retry.
 ```
 
-## Accepted complete Facts D0 and fixed implementation — 2026-08-14
+## Accepted Recipe I0 design — 2026-08-14
 
-Six read-only audits agree that the landed typed input, call relation, and
-Exit/Tail co-seal are sound but insufficient for a complete Facts product.
-The missing evidence is exact assignment form and closed source coverage.
-
-Two concrete counterexamples reject a family-count-only solution:
+Six read-only audits confirmed that the fixed map is representable by the
+existing V2 schema and Join issuer. They also exposed one deliberate boundary:
+Facts has no consuming `LoopRecipeSourceBindingV1` terminal. Recipe I0 therefore
+must not invent a borrow-based source claim merely to manufacture
+`LoopRecipeArtifactV2`. Retaining the original Facts beside the verified Recipe
+is the smaller source-to-Recipe co-seal; Artifact/provenance stays closed until
+a named consumer proves it necessary.
 
 ```text
-i += i + 1
-  -> has the same canonical target/value paths and StepAdd shape as a plain
-     assignment, but its semantics are not the accepted index write.
-
-42;  // likewise a variable, FieldAccess, New, Await, Array, Map, BlockExpr...
-  -> can add accepted source syntax without changing current method/binary/
-     assignment/exit family counts, so Recipe could silently drop meaning.
+VerifiedS6CScanWithInitRecipeProductV2
+  facts: VerifiedS6CScanWithInitFactsV1
+  recipe: VerifiedLoopRecipeV2
+  roles: private exact S6C role-to-key seal
+  join: VerifiedLoopJoinClosureV2
 ```
 
-The accepted authority chain is therefore:
+The product is non-Clone and has no `into_parts`, raw Recipe/JoinSig getter, or
+owned constituent getter. One HRTB callback lends the same Facts view, verified
+Recipe, named role map, and `logical_transfer_view()`. The role map is the sole
+semantic-role-to-Recipe-key authority; downstream code must not rediscover
+length/substring/If/Return/update roles by item order or operation shape.
 
 ```text
-one ShadowResolver traversal/seal
-  -> resolved source inventory
-  -> root VerifiedResolvedBodyShapeInventoryV1
-       (all statement/expression shapes, BodyEffect, BodyShapeRelation)
-  -> exact assignment source { statement, target, value, Plain|Compound }
-  -> VerifiedS6CTypedInputRelationV1 retains exact Plain index update
-  -> VerifiedSourceBoundS6CCallRelationV1
-  -> VerifiedS6CExitTailSourceCoSealV1 + private source-closure seal
-  -> sole VerifiedS6CScanWithInitFactsV1 issuer
+produce_s6c_scan_with_init_recipe_v2(facts by value)
+  -> borrow the already verified named Facts roles
+  -> issue the fixed private Recipe-local key table exactly once
+  -> materialize the exact map below
+  -> LoopRecipeVerifierV2::verify
+  -> co-check the named role map against the verified Recipe
+  -> issue_sole_root_carrier_join_closure_v2 exactly once
+  -> publish the one non-Clone product
 ```
 
-`VerifiedResolvedBodyShapeInventoryV1` already seals statement and expression
-site equality during resolver traversal. The selected callable forest must
-transport that exact root product; Facts must not start a second traversal or
-promote a family count/point lookup into coverage authority. Assignment form
-is recorded once during the same traversal in a split neutral source module.
+`CallSlot` deliberately carries no target/Home/effect. Those authorities stay
+inside the retained source-bound Facts relation and are paired with exact
+Recipe item/value keys only through the combined product view. The generic V2
+verifier owns canonical keys, references, value classes, definition order,
+carrier availability, blocks, and exits; it is not a source-role classifier.
 
-### Fixed Facts I0 series (one row, two commits)
+### Exact target map
 
 ```text
-Commit A — source transport and exact update
-  * carry the same-seal root body-shape inventory beside the selected callable
-    forest into the callable semantic batch;
-  * add resolver-owned ResolvedAssignmentFormV1::{Plain, Compound} with exact
-    statement/target/value sites in resolved_semantics/assignment_source.rs;
-  * retain exactly one Plain Body BindingRebind(index) whose value is the
-    already sealed StepAdd; grouped/foreign/duplicate/drifted writes reject.
+L0 root; K0 Condition; K1 Body; K2 TextEq-then; B0 index:I64
+C0 = { owner L0, binding B0, class I64, entry V2 }
+inputs = V0 subject:Text, V1 needle:Text, V2 initialized-index:I64
 
-Commit B — closed surface and sole Facts product
-  * compare the exact expected S6C role-site union with every root body
-    statement/expression shape, BodyEffect, and BodyShapeRelation;
-  * allow only explicitly co-sealed identity aliases between roles;
-  * retain only a private closure seal in the existing ownership chain;
-  * issue one non-Clone VerifiedS6CScanWithInitFactsV1 and HRTB named view;
-    Clone, raw constructor, owned constituent getter, and into_parts remain 0.
+K0: I0 Read(B0)->V3
+    I1 CallSlot(V0,[])->V4                         length
+    I2 Less(V3,V4)->V5
+K1: I3 Read(B0)->V6
+    I4 ConstI64(1)->V7
+    I5 Add(V6,V7)->V8
+    I6 CallSlot(V0,[V6,V8])->V9                   substring
+    I7 TextEq(V9,V1)->V10
+    I8 If(V10, then K2)
+    I11 Read(B0)->V12
+    I12 ConstI64(1)->V13
+    I13 Add(V12,V13)->V14
+    I14 Write(B0,V14)
+K2: I9 Read(B0)->V11
+    I10 Exit(E0 = Return(V11))
 ```
 
-Bounded implementation surface and file budget:
+Cardinality is exact: Loop 1, Blocks 3, Binding 1, Inputs 3, Carrier 1,
+Values 15, Items 15, Exits 1. The items are 13 operations + If + Loop Return.
+The callable Tail `return -1` stays in retained Facts/Completion and is absent
+from Recipe items, values, exits, and JoinSig Return rows.
+
+### One implementation-coupled commit
 
 ```text
-src/mir/resolved_semantics/assignment_source.rs              new neutral row
-src/mir/callable_semantic_batch/{model,issuer}.rs             same-seal transport
-src/mir/loop_structural_facts/s6c_typed_input.rs              retain exact update
-src/mir/loop_structural_facts/s6c_scan_with_init.rs           sole Facts owner
-src/mir/loop_structural_facts/s6c_scan_with_init_tests.rs     focused matrix
-src/mir/resolved_semantics/body_shape.rs                      frozen at 770 lines
+Change:
+  add loop_recipe_contract/s6c_scan_with_init.rs plus
+  s6c_scan_with_init_tests.rs; consume Facts once and issue the exact product;
+  old authority: none.
+Contract:
+  only the producer mints S6C keys; typed_schema_v2.rs (757) stays frozen;
+  source Artifact, physical identities, selectors, and legacy builders stay 0.
+Done:
+  exact positive map/product view; wrong role/call/placement/Tail-import tests;
+  generic V2 key/domain/use-before-def and Join negatives remain green; update
+  loop_recipe_contract/README.md and docs/reference/mir/loop-recipe-contract.md.
+Stop:
+  any second source walk/Facts issuer, raw external key input, source-binding
+  reconstruction, raw JoinSig/After, MIR/physical/fallback/retry requirement.
 ```
 
-The positive must seal all 16 semantic roles, exact owner/function/Loop frame,
-and the complete source surface without depending on source order. A source
-with comments/whitespace must remain equivalent. Each new/touched production
-file remains below 760 lines; 800 is a hard stop and compression is forbidden.
+No new top-level guard is added. Reuse the S6C/Loop/CoreMethod/pointer guard
+families and keep new/touched production sources below 760 lines (800 hard
+stop). `sunset = n/a`, `net_proof_delta = 0`.
 
-This is one fixed T2 BoxShape, not two new task tokens. Commit A may not issue
-Facts; commit B may not issue Recipe keys. Stop and return to design if either
-commit requires a second AST walk, source order/name/fixture navigation, MIR,
-Recipe/selector/physical IDs, or a separately transferable source-closure
-receipt. No new top-level guard is added; focused tests reuse the existing
-Loop/CoreMethod/pointer guard families.
-
-Required negatives include compound or duplicate assignment, wrong update
-binding/operand/literal, missing role, extra pure expression, extra direct or
-method call, FieldAccess/New/Await/aggregate/block expression, extra
-statement/effect/relation, nested or foreign control frame, swapped/foreign
-Exit/Tail, and nonempty cleanup. Comments and whitespace emit no body-shape
-rows and remain allowed.
-
-The ordered frontier is now:
+The ordered frontier is:
 
 ```text
 landed S6C source/CoreMethod/typed-input/call/unary/ExitTail authorities
   -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0             CLOSED T2
-  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CLOSED T2 BoxShape (A+B)
-  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            CURRENT T2 BoxCount
+  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CLOSED T2 BoxShape
+  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            READY T2 BoxCount
   -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0           T2 consumer
   -> S6C parity/canary
   -> bounded selector/caller cutover
   -> latest-HEAD integration evidence
   -> legacy retirement
 ```
-
-### Accepted complete S6C target map
-
-The mapping is fixed. Facts I0 may implement only the accepted source closure;
-Recipe key issuance remains closed until its following row:
-
-```text
-source roles = subject Text, needle Text, initialized index I64
-Recipe       = 1 Loop, 3 Blocks, 1 Binding, 3 Inputs, 1 Carrier
-values       = V0..V14 (15)
-items        = I0..I14 (13 operations + If + Loop Return)
-calls        = length(subject) in Condition; substring(subject,index,index+1) in Body
-control      = Less condition; TextEq If; Loop Return(index)
-step         = read index; const 1; add; write index
-callable     = outer Tail Return(-1), absent from Recipe items/values/exits
-```
-
-`VerifiedS6CScanWithInitFactsV1` will own the consumed Exit/Tail chain plus a
-private exact source-closure seal. It remains non-Clone. A later sole S6C
-producer alone mints canonical V2 node/block/binding/value/item/carrier/exit
-keys, verifies through `LoopRecipeVerifierV2`, and derives JoinSig/After only
-through `issue_sole_root_carrier_join_closure_v2()`. Facts never contain
-Recipe keys, and no `into_parts` API may split the landed source relation.
-
-The Exit/Tail row must reject missing, duplicate, swapped, or foreign exits;
-wrong region ancestry/target function/index binding/literal; Tail inside the
-Loop; Loop Return outside it; unmodeled break/continue/throw/await/cleanup;
-partial Completion; and any AST/order/MIR inference. New S6C sources belong
-in split modules below 760 lines; `typed_schema_v2.rs` (757) is frozen.
 
 ### Accepted Exit/Tail I0 contract
 
