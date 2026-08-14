@@ -947,9 +947,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
       fence, consumed immediately before Builder open; the session stores no
       disposition and no executable/backend/runtime meaning is issued.
     - focused emitter/package tests, cargo check, fmt, existing AOT/text/physical-input/pointer guards, and diff check are green; selected production remains new=0/old=1 with fallback/retry=0.
-11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0`
-    - make Site/Entry/Outcome/Lease IDs private and mint them once;
-    - consumers borrow issued IDs instead of reconstructing raw `0/1` values.
+11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0` (design stop; worker census)
+    - Decision: private tuple fields; the canonical pair issuer mints Site/Outcome/Lease once, while Entry remains an admitted provider projection and JSON decode stays a checked transport ingress.
+    - Authority/non-authority: `CheckedCallOutSitePlanPairV1` and admitted entry facts own identity; raw `0/1`, receipt/Boundary re-minting, and transport parsing do not.
+    - Fail-fast/slice: swapped, duplicate, foreign, or unallowlisted constructor/consumer rejects before effect; add private fields/accessors, replace production magic IDs with borrowed pair/table identities, and decide wire-ingress conversion in the same existing guard. No new guard family or semantic receipt.
 12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0`
     - carry the verified canonical site/result/landing/End census to Boundary;
     - reject operand, landing, predecessor, projection, or End-placement drift;

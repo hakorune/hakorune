@@ -8,7 +8,7 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 remains the sole active task card. Admission, lexical scope, post-seal/strict verification, runner, launch/helper, B3/B4, guard/index, line-budget, source-fact, catalog-header, Normal-result, DraftSeal-evidence, B1 clone-scrub, and activation-disposition rows are closed with focused evidence. GUARD-FAMILY-MANIFEST-MIGRATION-R0 and GUARD-HISTORICAL-RETIRE-R0 remain NoSafeSlice. The next design stop is CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0; callout/lease hardening, G3 archive work, and live cutover remain parked."
 work_mode = "design_stop"
 current_execution_row = "CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0"
-current_blocker_token = "CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0: decide the single private issuer for site/entry/outcome/lease IDs and require consumers to borrow issued IDs; reject swapped, duplicate, foreign, or raw-minted physical IDs before effect."
+current_blocker_token = "CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0: fix one canonical Site/Outcome/Lease pair issuer, keep Entry as admitted provider identity, and define checked JSON transport ingress; reject swapped, duplicate, foreign, or raw-minted IDs before effect."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
