@@ -792,6 +792,12 @@ The one closeout row whose wrapper/implementation/proof runner are already
 executable (`hako-alloc-id-brand-first-pilot-closeout`) instead stops on its
 semantic next-row selection (`MIMAP-145A` is not `selected current`).  It is
 therefore not a safe migration candidate either.
+An inventory-backed run of all six rows whose wrapper and implementation are
+already executable found no green candidate: one has a child dependency mode
+failure, two have stale README/owner evidence, two have missing manifest IDs,
+and the ID-brand row has the stale next-row status.  The family migration is
+therefore retained as a design boundary, not silently converted into chmod or
+manifest repair work.
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;
