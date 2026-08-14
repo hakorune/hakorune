@@ -730,6 +730,24 @@ selected P0 guard additions                     = new top-level scripts 0
 
 ### Implementation series after selected P0 close
 
+#### GUARD-PUBLIC-ENTRY-CUT-R0 (queued design)
+
+```text
+Decision: shrink only the human-facing navigation; retain the machine-readable
+compatibility ledger and every unclassified check.
+Source authority + canonical issuer: check-scripts-index's stable table,
+guard_rows.toml/proof_apps.toml manifests, and the source-backed inventory
+generator; these are observed, not replaced by a new guard.
+Non-authority: filename counts, grep-only caller guesses, executable mode, or
+historical prose may not authorize retirement.
+Fail-fast boundary: missing owner/disposition, manifest/index drift, or an
+unmapped compatibility name keeps the row unknown_retain and blocks removal.
+Smallest next slice: emit one generated owner/disposition inventory and use it
+to propose a <=50-entry human index without changing any check behavior.
+Non-claims: no script move/delete, manifest semantics change, new guard,
+compiler change, fallback, archive publication, or llvmlite retirement.
+```
+
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;
    - move historical lookup to a generated inventory plus git history.
