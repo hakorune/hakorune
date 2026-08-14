@@ -1,7 +1,7 @@
 ---
 Status: Resolver callable-contract I0 landed; current pointer is S6C binary/input D0 design stop
 Date: 2026-08-14
-Decision: co-seal existing Resolver MethodCall source rows, explicit LoopBody frame membership, and the existing manifest target in one non-Clone I0 product; design the missing AST-free binary/operator and typed-input source boundary before opening the source-bound relation/S6C producer
+Decision: co-seal existing Resolver MethodCall source rows, explicit LoopBody frame membership, and the existing manifest target in one non-Clone I0 product; design the missing AST-free binary/operator, typed-input, and Condition|Body placement source boundary before opening the source-bound relation/S6C producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -42,9 +42,10 @@ IDs, physical order, and task-map history.
 Fail-fast boundary: missing Text/Home contract, foreign/mixed owner or frame,
 missing/duplicate/swapped source relation, or unknown effect/suspension/control
 rejects before the I0 product is issued.
-Smallest next slice: T2-design `ResolvedBinaryExpressionSourceV1` and the
-resolver-owned subject/needle/index typed-input relation, then co-seal their
-coverage with the landed length/substring callable contract. Leave
+Smallest next slice: T2-design `ResolvedBinaryExpressionSourceV1`, the
+resolver-owned subject/needle/index typed-input relation, and a canonical
+`ResolvedLoopPlacementV1::{Condition,Body}` view, then co-seal their coverage
+with the landed length/substring callable contract. Leave
 implementation and Facts/Recipe issuance closed until every issuer is named.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
@@ -212,9 +213,9 @@ frame tuple must fail closed and return the pointer to the D0 boundary.
 
 ```text
 Decision: keep S6C at NoSafeSlice until Resolver owns an operator-bearing
-binary source row and a typed subject/needle/index input relation; co-seal
-those with the landed length/substring callable contract before any Facts or
-Recipe producer is opened.
+binary source row, a typed subject/needle/index input relation, and canonical
+Condition|Body placement; co-seal those with the landed length/substring
+callable contract before any Facts or Recipe producer is opened.
 Source authority + canonical issuer: the existing resolver source inventory,
 binding/declaration ledger, and the landed callable-contract issuer are
 reusable primitives; the missing issuer must preserve binary operator/result
@@ -224,13 +225,15 @@ walks, LoopRecipeV2's structural TextEq/CallSlot wire, MIR/ResultKind bits,
 selected-Dynamic substring/indexOf receipts, selector/name lookup, or guessed
 value classes/effects.
 Fail-fast boundary: missing/foreign/duplicate/swapped owner, operator, result
-site, operands, binding/initializer, Text/I64 class, LoopBody frame, effect,
-control, or return/tail coverage rejects before source-bound relation, Facts,
-Recipe key, Builder/MIR, or production effect.
+site, operands, binding/initializer, Text/I64 class, Condition|Body placement,
+Loop frame, effect, control, or return/tail coverage rejects before
+source-bound relation, Facts, Recipe key, Builder/MIR, or production effect.
 Smallest next slice: design `ResolvedBinaryExpressionSourceV1` for TextEq,
-Less, and Add plus one resolver-owned typed input/initializer relation for
-subject:Text, needle:Text, and initialized index:I64; define exact cardinality
-and the later source-bound consumer without implementing it here.
+Less, and Add, one resolver-owned typed input/initializer relation for
+subject:Text, needle:Text, and initialized index:I64, and a placement view that
+admits `length` in Condition while keeping substring/TextEq/step in Body;
+define exact cardinality and the later source-bound consumer without
+implementing it here.
 Non-claims: no S6C Facts/Recipe, Recipe key, source-bound receipt, physical
 lowering, production selector, fallback/retry, or legacy retirement.
 ```
@@ -238,7 +241,7 @@ lowering, production selector, fallback/retry, or legacy retirement.
 The current audit proves only the following partial bridge:
 
 ```text
-length/0 + substring/2
+length/0 + substring/2 (only when the selected call is already in Body)
   -> Resolver MethodCall source row
   -> LoopBody frame containment
   -> StringBox/Text CoreMethod target
@@ -250,6 +253,11 @@ carry owner/origin but no value class, and existing binary source rows erase
 the operator/result relation. Therefore the next implementation cannot be a
 Facts observer or Recipe producer. It must first close this D0 or remain
 `NoSafeSlice`.
+
+The actual fixture also places `s.length()` in `LoopCondition`, not Body. The
+landed I0's Body-only containment must not be widened ad hoc by a consumer; D0
+must issue a canonical placement view with `Condition` and `Body` variants and
+co-seal the exact placement for every call/operator row.
 
 The fixture itself is also not a typed source authority yet:
 `apps/tests/scan_with_init_ok_min.hako` declares `find_ok(s, ch)` without
