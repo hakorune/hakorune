@@ -68,9 +68,7 @@ mod source_site;
 mod source_site_inventory;
 mod verifier;
 
-pub(crate) use assignment_source::{
-    issue_assignment_source_v1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
-};
+pub(crate) use assignment_source::{ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1};
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
     BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,

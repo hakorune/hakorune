@@ -41,7 +41,7 @@ impl ResolvedAssignmentSourceV1 {
     }
 }
 
-pub(crate) fn issue_assignment_source_v1(
+fn issue_assignment_source_v1(
     statement_site: SourceStmtSiteV1,
     target_site: SourceExprSiteV1,
     value_site: SourceExprSiteV1,

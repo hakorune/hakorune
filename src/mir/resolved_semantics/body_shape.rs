@@ -8,9 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
-use super::assignment_source::{
-    issue_assignment_source_v1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
-};
+use super::assignment_source::ResolvedAssignmentSourceV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1};
 use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::product::VerifiedResolvedFunctionV1;
