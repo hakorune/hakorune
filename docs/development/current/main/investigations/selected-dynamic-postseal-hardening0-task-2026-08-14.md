@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: design-review the existing DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0 P1 row; no implementation is authorized until its catalog-owned header projection is fixed.
+Smallest next slice: accept the catalog-owned physical-header projection BoxShape, then implement only the package-loan to A-prime handoff.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -934,9 +934,9 @@ These do not block the P0 DAG unless a touched file makes them necessary:
    - package admission and route-neutral catalog/fixture owners issue once;
      call-row derivation borrows the exact product and rejects foreign owner
      before ledger traversal; focused coseal tests, batch guard, and check pass.
-7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0`
-   - carry one private catalog-owned header projection into A-prime;
-   - remove raw AST name/parameter/return/attrs/uses re-observation.
+7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0` (accepted BoxShape implementation)
+   - installed catalog row issues one private owned header projection; A-prime
+     consumes it and performs no AST/root/header re-observation.
 8. `DYN-CALLOUT-NORMAL-RESULT-TYPE-R0`
    - have the canonical normal-result issuer co-seal ValueId, site shape,
      MIR type, physical representation, and value-ledger publication;
