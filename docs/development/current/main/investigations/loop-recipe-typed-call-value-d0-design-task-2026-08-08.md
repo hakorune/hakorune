@@ -63,6 +63,24 @@ therefore:
   substring/indexOf receipts are a different owner and are not evidence.
 ```
 
+Audit anchors (these are evidence pointers, not new authorities):
+
+```text
+src/mir/resolved_semantics/instance_method_declaration.rs
+  ResolverSemanticValueTypeV1 = I64 | Unit; no Text declaration/result class.
+src/mir/resolved_semantics/home_abi.rs
+  HomeCapabilitySchemaV1 = I64UnitTrivial; no StringBox/Text Home projection.
+src/mir/generated/core_method_contract_rows.rs
+  StringLen/StringSubstring rows provide receiver_box, arity, op,
+  result_kind, and PureRead only; no source-site or Home relation.
+src/mir/source_call_target/model.rs
+  source target vocabulary is Static or DynamicMember; no resolver-issued
+  instance CoreMethod target capability exists.
+src/mir/loop_recipe_contract/schema_v2.rs
+  CallSlot is deliberately receiver/args/result keys only and cannot repair
+  any of the missing source/target/Home axes.
+```
+
 The ordered task DAG is now explicit and bounded:
 
 ```text
