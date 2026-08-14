@@ -58,11 +58,12 @@ scope containing the Lambda definition.
 ## Resolver callable-contract I0
 
 `ResolverCoreMethodCallableContractIssuerV1` is the bounded Loop bridge. It
-borrows one exact `VerifiedResolvedMethodCallSourceV1`, proves every call,
-receiver, argument, and result site is inside the selected sealed `LoopBody`,
-and consumes the existing generated `VerifiedCoreMethodInstanceTargetV1`.
-The resulting non-`Clone` product owns the source sites, resolver Loop frame,
-and target together. It does not choose by selector, narrow with
+borrows one exact `VerifiedResolvedMethodCallSourceV1` and the caller's
+non-Clone Loop membership, proves every call/receiver/argument/result site has
+the target's exact canonical placement (`StringLen/0 = Condition`,
+`StringSubstring/2 = Body`), and consumes the existing generated target. The
+resulting non-`Clone` product owns the source sites, frame/site projection,
+placement, and target; it does not issue another membership. It does not choose by selector, narrow with
 `only_loop_site`, inspect AST/MIR/Recipe data, issue a source-bound relation, or
 open S6C production. A source row, frame, or target mismatch rejects before any
 Facts/Recipe or physical effect.

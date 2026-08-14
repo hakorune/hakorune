@@ -60,10 +60,11 @@ relation must borrow the target and add owner/frame and exact call-site facts.
 ## Resolver callable-contract bridge I0
 
 The bounded resolver bridge now co-seals one exact
-`VerifiedResolvedMethodCallSourceV1`, its selected sealed `LoopBody` frame, and
-the existing CoreMethod target. The issuer verifies owner/source-inventory
-membership, lexical receiver binding, ordered argument sites, result-site
-identity, explicit LoopBody containment, StringBox/Text Home, operation/arity,
+`VerifiedResolvedMethodCallSourceV1`, a borrowed selected Loop membership,
+canonical placement, and the existing CoreMethod target. `StringLen/0` is
+accepted only in `Condition`; `StringSubstring/2` only in `Body`. The issuer
+verifies owner/source-inventory membership, lexical receiver binding, ordered
+argument sites, result-site identity, placement, StringBox/Text Home, operation/arity,
 PureRead, and non-suspending/non-control policy. The resulting non-`Clone`
 product is still resolver-only: it issues no Recipe key, source-bound relation,
 Facts/Recipe row, physical ID, ABI, fallback, or production edge. Selector text

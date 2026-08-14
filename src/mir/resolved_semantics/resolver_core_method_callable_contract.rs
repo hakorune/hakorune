@@ -1,7 +1,7 @@
 //! Resolver-owned contract for one bounded Loop MethodCall.
 //!
 //! This is the first bridge between the resolver's exact source row, its
-//! sealed LoopBody frame, and an already-issued CoreMethod target.  It does
+//! sealed Loop placement/frame, and an already-issued CoreMethod target. It
 //! not select by spelling, issue a Recipe relation, or expose MIR identity.
 
 use super::body_shape::{ResolvedMethodCallReceiverSourceV1, VerifiedResolvedMethodCallSourceV1};
@@ -17,7 +17,8 @@ use super::ids::FunctionOwnerIdV1;
 use super::records::ResolvedLexicalRefV1;
 use super::source_site::{SourceExprSiteV1, SourceStmtSiteV1};
 use super::{
-    LoopExecutionFrameKeyV1, ResolvedLoopRegionLookupErrorV1, ResolvedMethodCallArgumentSourceV1,
+    LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1,
+    ResolvedMethodCallArgumentSourceV1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CORE_METHOD_MANIFEST_BRAND_V1};
@@ -29,19 +30,41 @@ pub(crate) enum ResolverCoreMethodCallableContractRejectV1 {
     ForeignSourceRow,
     MissingSourceSite(SourceExprSiteV1),
     Loop(ResolvedLoopRegionLookupErrorV1),
-    OutsideLoopBody(SourceExprSiteV1),
+    ForeignLoopMembership,
+    PlacementMismatch {
+        site: SourceExprSiteV1,
+        expected: ResolvedLoopPlacementV1,
+        actual: Option<ResolvedLoopPlacementV1>,
+    },
     UnsupportedReceiver,
     ReceiverBindingMismatch(SourceExprSiteV1),
     ResultSiteMismatch,
-    ArgumentCardinality { expected: u32, actual: usize },
-    ArgumentOrdinal { expected: u32, actual: u32 },
+    ArgumentCardinality {
+        expected: u32,
+        actual: usize,
+    },
+    ArgumentOrdinal {
+        expected: u32,
+        actual: u32,
+    },
     Target(CoreMethodInstanceTargetRejectV1),
     TargetManifestBrandMismatch,
     TargetSchemaMismatch,
     TargetReceiverMismatch,
     TargetPolicyMismatch,
-    TargetOperationMismatch { op: CoreMethodOp, arity: u32 },
-    TargetArityMismatch { expected: u32, actual: u32 },
+    TargetOperationMismatch {
+        op: CoreMethodOp,
+        arity: u32,
+    },
+    TargetPlacementMismatch {
+        op: CoreMethodOp,
+        expected: ResolvedLoopPlacementV1,
+        actual: ResolvedLoopPlacementV1,
+    },
+    TargetArityMismatch {
+        expected: u32,
+        actual: u32,
+    },
     TargetParameterMismatch,
     TargetEffectMismatch,
     TargetResultMismatch,
@@ -57,7 +80,9 @@ pub(crate) struct VerifiedResolverCoreMethodCallableContractV1 {
     receiver: ResolvedMethodCallReceiverSourceV1,
     arguments: Box<[ResolvedMethodCallArgumentSourceV1]>,
     result_site: SourceExprSiteV1,
-    loop_membership: VerifiedCallableLoopMembershipV1,
+    loop_site: SourceStmtSiteV1,
+    frame: LoopExecutionFrameKeyV1,
+    placement: ResolvedLoopPlacementV1,
     target: VerifiedCoreMethodInstanceTargetV1,
 }
 
@@ -86,12 +111,16 @@ impl VerifiedResolverCoreMethodCallableContractV1 {
         &self.result_site
     }
 
-    pub(crate) fn loop_membership(&self) -> &VerifiedCallableLoopMembershipV1 {
-        &self.loop_membership
+    pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
+        &self.loop_site
     }
 
     pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
-        self.loop_membership.frame()
+        &self.frame
+    }
+
+    pub(crate) const fn placement(&self) -> ResolvedLoopPlacementV1 {
+        self.placement
     }
 
     pub(crate) fn target(&self) -> &VerifiedCoreMethodInstanceTargetV1 {
@@ -106,7 +135,8 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     pub(crate) fn issue(
         ledger: &CallableSemanticSourceLedgerView<'_>,
         call: &VerifiedResolvedMethodCallSourceV1,
-        selected_loop: &SourceStmtSiteV1,
+        membership: &VerifiedCallableLoopMembershipV1,
+        placement: ResolvedLoopPlacementV1,
         target: VerifiedCoreMethodInstanceTargetV1,
     ) -> Result<
         VerifiedResolverCoreMethodCallableContractV1,
@@ -114,6 +144,11 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     > {
         if call.owner() != ledger.owner() {
             return Err(ResolverCoreMethodCallableContractRejectV1::ForeignCallOwner);
+        }
+        if membership.source().function_origin() != ledger.function_origin()
+            || membership.source().source_kind() != ledger.source_kind()
+        {
+            return Err(ResolverCoreMethodCallableContractRejectV1::ForeignLoopMembership);
         }
         let exact_row = ledger
             .method_calls()
@@ -188,21 +223,32 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             }
         }
 
-        let membership = ledger
-            .resolved_loop_source(selected_loop)
-            .map_err(ResolverCoreMethodCallableContractRejectV1::Loop)?;
+        let expected_placement = required_target_placement(&target)?;
+        if placement != expected_placement {
+            return Err(
+                ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
+                    op: target.row().row().op,
+                    expected: expected_placement,
+                    actual: placement,
+                },
+            );
+        }
         for site in std::iter::once(call.site())
             .chain(std::iter::once(call.receiver_site()))
             .chain(call.arguments().iter().map(|argument| argument.site()))
             .chain(std::iter::once(call.result_site()))
         {
-            if !ledger
-                .loop_body_contains_site(selected_loop, site)
-                .map_err(ResolverCoreMethodCallableContractRejectV1::Loop)?
-            {
-                return Err(ResolverCoreMethodCallableContractRejectV1::OutsideLoopBody(
-                    site.clone(),
-                ));
+            let actual = ledger
+                .resolved_loop_placement(membership.source().site(), site)
+                .map_err(ResolverCoreMethodCallableContractRejectV1::Loop)?;
+            if actual != Some(placement) {
+                return Err(
+                    ResolverCoreMethodCallableContractRejectV1::PlacementMismatch {
+                        site: site.clone(),
+                        expected: placement,
+                        actual,
+                    },
+                );
             }
         }
 
@@ -215,9 +261,23 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             receiver,
             arguments: call.arguments().to_vec().into_boxed_slice(),
             result_site: call.result_site().clone(),
-            loop_membership: membership,
+            loop_site: membership.source().site().clone(),
+            frame: membership.frame().clone(),
+            placement,
             target,
         })
+    }
+}
+
+fn required_target_placement(
+    target: &VerifiedCoreMethodInstanceTargetV1,
+) -> Result<ResolvedLoopPlacementV1, ResolverCoreMethodCallableContractRejectV1> {
+    match (target.row().row().op, target.row().arity()) {
+        (CoreMethodOp::StringLen, 0) => Ok(ResolvedLoopPlacementV1::Condition),
+        (CoreMethodOp::StringSubstring, 2) => Ok(ResolvedLoopPlacementV1::Body),
+        (op, arity) => {
+            Err(ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity })
+        }
     }
 }
 

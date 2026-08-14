@@ -1,5 +1,5 @@
 ---
-Status: exact-call witness R0 landed; callable placement I0 is current
+Status: callable placement I0 landed; source-bound relation I0 is current
 Date: 2026-08-14
 Decision: retain exact call sites, make the existing callable contract placement-aware, then co-seal one non-Clone S6C source-bound relation
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -13,12 +13,11 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   callable contract, and explicit S6C typed-input product are landed. The
   source-bound relation D0 is accepted as three bounded cells.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
-  CoreMethod/Home target, callable contract, typed-input I0, and exact call
-  witness R0 are closed with focused evidence. No source-bound relation,
+  CoreMethod/Home target, placement-aware callable contract, typed-input I0,
+  and exact call witness R0 are closed. No source-bound relation,
   `ScanWithInit` Facts/Recipe producer, or production selector is active.
-- **Next ordered task:** `LOOP-RESOLVER-CALLABLE-PLACEMENT-I0` — extend the
-  existing callable issuer from Body-only to exact `Condition | Body`
-  placement without changing target, frame, Home, effect, or failure owner.
+- **Next ordered task:** `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0` — consume
+  typed input and two same-session targets into the fixed non-Clone relation.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -39,9 +38,9 @@ ResultKind, Recipe keys, selected-Dynamic receipts, and physical IDs.
 Fail-fast boundary: missing/foreign/duplicate/swapped call, binding, operand,
 frame, target, Home/effect/policy, or typed-input relation rejects before a
 source-bound product, Facts/Recipe, Builder, or physical effect.
-Smallest next slice: `LOOP-RESOLVER-CALLABLE-PLACEMENT-I0`; accept length/0
-only in Condition and substring/2 only in Body through the existing issuer.
-No source-bound aggregate, Facts, Recipe, or production route is opened.
+Smallest next slice: `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0`; use the
+retained sites and borrowed membership to issue exact length/substring
+contracts, then move them with typed input into one fixed aggregate.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -112,8 +111,8 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                            -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0  CLOSED
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CLOSED
                                 -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CLOSED T0
-                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CURRENT T1
-                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CURRENT T1
                                      -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                           -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                                -> S6C parity / canary / later production rows
@@ -175,29 +174,22 @@ physical ABI, production selector, fallback, retry, or legacy retirement.
 I0 acceptance:
 
 ```text
-API: issue_method_call_loop_body_membership(function, call, selected_loop)
-     -> exact resolver frame witness;
-     issue_resolver_core_method_callable_contract(function, call,
-     selected_loop, target) -> non-Clone product.
+API: issue(ledger, call, borrowed_membership, placement, target)
+     -> non-Clone callable contract.
 Source checks: call/receiver/all args/result in one owner inventory;
   args.len == target arity; ordinals are exactly 0..arity; result_site=call;
   selector is only a canonical/alias cross-check; target is never selected by
   selector.
-Frame checks: selected loop has one sealed bundle; call is a descendant of
-  that loop's LoopBody, not LoopCondition/outside/another loop; no implicit
-  only_loop_site selection.
+Frame checks: membership origin/kind equals ledger; every site has the exact
+  requested placement; length/0 = Condition and substring/2 = Body.
 Target checks: manifest/schema/target brand, StringBox receiver,
   StringLen/0 -> I64 or StringSubstring/2 -> Text, PureRead,
   NonSuspendingNonControl, and explicit Home relations.
-Ownership: target is consumed by value; source/frame rows are borrowed only
-  during validation and the resulting product owns exact source sites plus
-  the resolver frame witness; Clone/into_parts/raw constructors are absent.
+Ownership: membership is borrowed, target is consumed, and the contract owns
+  exact sites plus frame/site/placement projections; no membership is reissued.
 Negative: foreign/mixed owner/frame/brand, missing/duplicate/swapped site,
-  call outside LoopBody, nested/ambiguous frame, QualifiedUnbound/CurrentOwner/
-  Other receiver, wrong op/arity/result/Home/effect/policy, and name/MIR
-inference. Production caller = 0; S6C producer = 0. Evidence: two focused
-resolver tests pass; the callable-source-ledger family (8 tests) passes; the
-CoreMethod manifest, Loop precutover, pointer, and diff guards pass.
+  placement drift/outside Loop, QualifiedUnbound/CurrentOwner/Other receiver,
+  wrong op/arity/result/Home/effect/policy, and name/MIR inference.
 ```
 
 The code-facing I0 must stay below the 760-line split trigger and 800-line
@@ -246,12 +238,12 @@ reproduces at parent `f9f2389a4c` and is classified baseline debt. The stable
 resolver guard also names an already-missing `direct_call_tests.rs` at that
 parent, so its early red is stale guard inventory rather than this I0.
 
-The landed I0 proves the following typed-input/frame bridge:
+The landed placement I0 proves the following bridge:
 
 ```text
-length/0 + substring/2 (only when the selected call is already in Body)
+length/0 in Condition + substring/2 in Body
   -> Resolver MethodCall source row
-  -> LoopBody frame containment
+  -> borrowed exact Loop membership + placement
   -> StringBox/Text CoreMethod target
 ```
 
@@ -259,11 +251,6 @@ It also retains `TextEq(Text, Text) -> Bool`, `i < length`, both `i + 1`
 relations, `i = i + 1`, and exact subject/needle/index bindings. This remains
 a prerequisite only: the next D0 must define one source-bound call product
 before any Facts observer or Recipe producer opens.
-
-The actual fixture places `s.length()` in `LoopCondition`, not Body. The
-landed I0's Body-only containment must not be widened ad hoc by a consumer; the
-accepted I0 must issue a canonical placement view with `Condition` and `Body`
-variants and co-seal the exact placement for every call/operator row.
 
 The current fixture `apps/tests/scan_with_init_ok_min.hako` declares
 `find_ok(s, ch)` without parameter annotations, while `FunctionSyntaxViewV1`
@@ -282,52 +269,14 @@ LoopBody, extra unsupported effect/control, and `return -1` incorrectly
 absorbed into Loop Facts. No AST/name/MIR inference or selected-Dynamic receipt
 reuse may satisfy any of these rows.
 
-### Resolver contract D0 witness and I0 boundary
+### Resolver placement contract receipt
 
-The D0 must close one exact resolver-side witness before any code-facing
-relation product is issued:
-
-```text
-source rows:
-  VerifiedResolvedMethodCallSourceV1
-    = owner + call/receiver/argument/result sites + resolver receiver class
-      + selector/arity (cross-check only, never target selection)
-
-frame rows:
-  VerifiedCallableLoopMembershipV1 / LoopExecutionFrameKeyV1
-    = same resolver owner + one exact LoopBody containment witness
-      + scope/region pair; never only_loop_site() on a multi-loop owner
-
-contract rows:
-  explicit StringBox/Text receiver and Home relation
-  StringLen/0 -> I64 and StringSubstring/2 -> Text/StringValue
-  PureRead + non-suspending + non-control policy
-  generated manifest/schema brand cross-check
-```
-
-The bridge must prove `method_call.site` is an expression descendant of the
-selected frame's sealed `LoopBody` source path and that receiver, every
-ordered argument, and the result site belong to the same owner inventory. A
-call outside the frame, a nested/foreign frame, or a multi-loop owner without
-an explicit selected frame is unresolved/rejected; it is never repaired by a
-route-local path scan or `only_loop_site()`.
-
-The later I0 may use a short-lived borrowed callback while validating, then
-issue a non-`Clone` source-bound product that owns only call/receiver/argument/
-result sites and the frame witness. It may move/borrow the existing
-`VerifiedCoreMethodInstanceTargetV1`; it may not reissue generated rows or
-store AST, selector authority, Recipe keys, `ValueId`, `BasicBlockId`, ABI, or
-physical layout. The exact owned-vs-HRTB choice is an I0 decision, not a D0
-guess.
-
-I0 acceptance is therefore: one named resolver issuer, one owner/frame bridge,
-exact call/receiver/argument/result cardinality (`args.len == arity`, ordinal
-coverage `0..arity`, `result_site == call_site`), same manifest/schema brand,
-and negative tests for foreign/mixed/duplicate/swapped sites, call-outside-
-LoopBody, nested/ambiguous frame, `QualifiedUnbound`/`CurrentOwner`/`Other`
-receiver, wrong StringBox/result/Home/effect/policy, and name/MIR inference.
-Until these are design-accepted, source-bound relation I0 and S6C remain
-closed.
+The existing resolver issuer is now placement-aware. It borrows the typed
+product's non-Clone membership, consumes the exact target, and retains only
+source sites plus frame/site/placement projections. Condition/Body drift,
+outside/foreign membership, and target-placement mismatch reject before issue.
+It still issues no source-bound relation, Facts, Recipe key, MIR identity, or
+physical layout.
 
 The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
 parked row for user-declared instance methods. It must not be relabeled as the
@@ -548,8 +497,8 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                       -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0 CLOSED
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 CLOSED
                                 -> LOOP-S6C-EXACT-CALL-WITNESS-R0 CLOSED T0
-                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CURRENT T1
-                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CURRENT T1
                                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                      -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                           -> S6C parity / canary / later production rows
