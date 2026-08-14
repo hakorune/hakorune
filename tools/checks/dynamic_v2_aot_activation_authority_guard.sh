@@ -338,6 +338,9 @@ fi
 # modules remain on the existing compatibility path and selected failures do
 # not enter its fallback branch.
 SELECTED_RUNNER="$ROOT_DIR/src/runner/product/llvm/mod.rs"
+BOUNDARY_EXECUTOR="$ROOT_DIR/src/runner/product/llvm/boundary_executor.rs"
+HARNESS_EXECUTOR="$ROOT_DIR/src/runner/product/llvm/harness_executor.rs"
+guard_require_files "$TAG" "$BOUNDARY_EXECUTOR" "$HARNESS_EXECUTOR"
 COMPILER_OWNER="$ROOT_DIR/src/mir/compiler/mod.rs"
 NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
 LLVM_MIR_COMPILER="$ROOT_DIR/src/runner/product/llvm/mir_compiler.rs"
@@ -347,9 +350,18 @@ SELECTED_CENSUS_CALLERS="$(rg -l --glob '*.rs' \
 if [[ "$SELECTED_CENSUS_CALLERS" != "$SELECTED_RUNNER" ]]; then
   guard_fail "$TAG" "selected Dynamic metadata census must have exactly one runner caller"
 fi
-if [[ "$(rg -n 'HarnessExecutorBox::try_execute_selected_dynamic\(module\)' \
+if [[ "$(rg -n 'BoundaryExecutorBox::try_execute_selected_dynamic\(module\)' \
   "$SELECTED_RUNNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "selected Dynamic Boundary execution caller must be unique"
+fi
+guard_expect_fixed_in_file "$TAG" 'pub struct BoundaryExecutorBox;' "$BOUNDARY_EXECUTOR" \
+  "selected Boundary physical owner must be separate from the compatibility harness"
+if rg -n 'try_execute_selected_dynamic' "$HARNESS_EXECUTOR"; then
+  guard_fail "$TAG" "compatibility harness must not own the selected Boundary route"
+fi
+BOUNDARY_LINES=$(wc -l < "$BOUNDARY_EXECUTOR" | tr -d '[:space:]')
+if (( BOUNDARY_LINES >= 760 )); then
+  guard_fail "$TAG" "Boundary executor reached the 760-line design split gate"
 fi
 guard_expect_fixed_in_file "$TAG" 'selected_dynamic_metadata_observation()' \
   "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
@@ -404,7 +416,7 @@ guard_expect_fixed_in_file "$TAG" \
   "selected Boundary must resolve one explicit NyRT archive directory"
 guard_expect_fixed_in_file "$TAG" \
   'Some(nyrt_dir.as_str())' \
-  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+  "$ROOT_DIR/src/runner/product/llvm/boundary_executor.rs" \
   "selected Boundary must pass the explicit NyRT archive directory"
 if rg -n 'nyrt_dir\.ok_or_else' "$SELECTED_BUNDLE_OWNER" >/dev/null; then
   :
@@ -412,7 +424,7 @@ else
   guard_fail "$TAG" "selected Boundary emitter must reject an omitted explicit NyRT directory"
 fi
 guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' \
-  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+  "$ROOT_DIR/src/runner/product/llvm/boundary_executor.rs" \
   "selected runner must consume the path-bound fence before launch"
 if rg -n 'lookup_core_method|into_parts|\.clone\(|RuntimeExecutablePlanV1::clone' "$PLAN_OWNER"; then
   guard_fail "$TAG" "W3 post-link plan owner must not re-resolve or clone semantic facts"
@@ -770,10 +782,10 @@ guard_expect_fixed_in_file "$TAG" 'prepare_bundle_with_linker' "$ROOT_DIR/crates
   "B3 child CLI must use the bundle owner"
 guard_expect_fixed_in_file "$TAG" 'selected_dynamic_bundle_path' "$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs" \
   "selected runner must derive one attempt-unique bundle path"
-guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' "$ROOT_DIR/src/runner/product/llvm/boundary_executor.rs" \
   "selected runner must not launch an independent executable path"
 if rg -n 'selected_dynamic_receipt_path|run_selected_dynamic_after_receipt' \
-  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs"; then
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" "$ROOT_DIR/src/runner/product/llvm/boundary_executor.rs" "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs"; then
   guard_fail "$TAG" "selected Dynamic must not retain the old pathless receipt launch seam"
 fi
 ROOT_LINES=$(wc -l < "$ROOT_RECEIPT" | tr -d '[:space:]')

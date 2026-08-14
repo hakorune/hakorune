@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, and B3 path-bound root-fence cleanup are closed; B4 Boundary/compat ownership follows
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, and B4 executor split are closed; B4 feature recut follows
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -571,9 +571,10 @@ llvm-harness
   production code must not cfg on it after recut
 ```
 
-`LLVM-BOUNDARY-EXECUTOR-S0` first performs a behavior-neutral physical split:
-`BoundaryExecutorBox` and Boundary NyRT/process helpers leave
-`harness_executor` and llvmlite helpers. `LLVM-BOUNDARY-COMPAT-FEATURE-R0` then
+`LLVM-BOUNDARY-EXECUTOR-S0` is closed as a behavior-neutral physical split:
+`BoundaryExecutorBox` and the selected Boundary process helper now live apart
+from `harness_executor`; the existing feature behavior is unchanged.
+`LLVM-BOUNDARY-COMPAT-FEATURE-R0` then
 atomically moves the selected production caller to `llvm-boundary`, removes the
 old selected `llvm-harness` cfg edge, gates every Python owner under
 `llvmlite-compat`, and updates G0/G2/G3 inventories and guards.

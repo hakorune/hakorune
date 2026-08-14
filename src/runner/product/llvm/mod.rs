@@ -2,6 +2,7 @@ use super::super::NyashRunner;
 use std::fs;
 
 // Modularized boxes for LLVM mode
+mod boundary_executor;
 mod compile_options;
 mod error;
 mod exit_reporter;
@@ -272,7 +273,7 @@ fn execute_via_harness_or_fallback(
     selected_dynamic: bool,
 ) -> Result<LlvmExecutionOutcome, LlvmRunError> {
     if selected_dynamic {
-        let code = harness_executor::HarnessExecutorBox::try_execute_selected_dynamic(module)?;
+        let code = boundary_executor::BoundaryExecutorBox::try_execute_selected_dynamic(module)?;
         return Ok(LlvmExecutionOutcome {
             code,
             backend: "ny_llvmc_selected_dynamic_exe",

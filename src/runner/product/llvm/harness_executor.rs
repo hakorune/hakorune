@@ -1,66 +1,21 @@
-//! LLVM harness executor (native executable generation and execution)
+//! LLVM compatibility-harness executor (native executable generation).
 //!
-//! Handles execution via LLVM harness when available (feature-gated).
+//! The selected Dynamic Boundary owner lives in `boundary_executor`; this
+//! module is the explicit compatibility lane and keeps its historical
+//! feature-gated behavior until the feature recut is complete.
 
+#[cfg(feature = "llvm-harness")]
+use super::boundary_executor::run_emitted_executable;
 use super::error::LlvmRunError;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
 use nyash_rust::mir::MirModule;
 
-/// Harness executor Box
-///
-/// **Responsibility**: Execute via LLVM harness (native executable generation and execution)
-/// **Input**: &MirModule
-/// **Output**: Result<i32, LlvmRunError> (Ok(exit_code) if executed, Err if failed)
+/// Compatibility harness executor.
 pub struct HarnessExecutorBox;
 
 impl HarnessExecutorBox {
-    /// Execute a selected Dynamic candidate through the native Boundary
-    /// artifact path.  This path deliberately bypasses the compatibility
-    /// harness request and has no fallback: a Boundary failure is terminal.
-    #[cfg(feature = "llvm-harness")]
-    pub fn try_execute_selected_dynamic(module: &MirModule) -> Result<i32, LlvmRunError> {
-        let exe_out = "tmp/nyash_llvm_run";
-        let bundle = crate::runner::modes::common_util::selected_dynamic_artifact_bundle::
-            selected_dynamic_bundle_path(exe_out);
-        let nyrt_dir = crate::runner::modes::common_util::exec::selected_dynamic_nyrt_dir()
-            .map_err(|error| {
-                LlvmRunError::fatal(format!("selected Dynamic NyRT archive error: {error}"))
-            })?;
-        let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
-        let _receipt_fence =
-            crate::runner::modes::common_util::selected_dynamic_artifact_bundle::emit_selected_dynamic(
-                module,
-                bundle.to_string_lossy().as_ref(),
-                Some(nyrt_dir.as_str()),
-                libs.as_deref(),
-            )
-            .map_err(|error| {
-                LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
-            })?;
-        _receipt_fence
-            .launch_and_cleanup(|program| {
-                run_emitted_executable(program.to_string_lossy().as_ref())
-                    .map_err(|error| error.msg)
-            })
-            .map_err(LlvmRunError::fatal)
-    }
-
-    #[cfg(not(feature = "llvm-harness"))]
-    pub fn try_execute_selected_dynamic(_module: &MirModule) -> Result<i32, LlvmRunError> {
-        Err(LlvmRunError::fatal(
-            "selected Dynamic Boundary requires the LLVM runner feature",
-        ))
-    }
-
-    /// Execute via LLVM harness if available
-    ///
-    /// This function:
-    /// 1. Generates a native executable via ny-llvmc
-    /// 2. Executes the generated executable
-    /// 3. Returns the exit code
-    ///
-    /// Returns Ok(exit_code) on success, Err(LlvmRunError) on failure.
+    /// Execute via the explicit LLVM compatibility harness.
     #[cfg(feature = "llvm-harness")]
     pub fn try_execute(module: &MirModule) -> Result<i32, LlvmRunError> {
         log_harness_runtime_state();
@@ -129,18 +84,4 @@ fn emit_executable_via_ny_llvmc(module: &MirModule, exe_out: &str) -> Result<(),
             e
         ))
     })
-}
-
-#[cfg(feature = "llvm-harness")]
-fn run_emitted_executable(exe_out: &str) -> Result<i32, LlvmRunError> {
-    match crate::runner::modes::common_util::exec::run_executable(exe_out, &[], 20_000) {
-        Ok((code, _timed_out, stdout_text)) => {
-            if !stdout_text.is_empty() {
-                print!("{}", stdout_text);
-            }
-            crate::console_println!("✅ LLVM (harness) execution completed (exit={})", code);
-            Ok(code)
-        }
-        Err(e) => Err(LlvmRunError::fatal(format!("run executable error: {}", e))),
-    }
 }
