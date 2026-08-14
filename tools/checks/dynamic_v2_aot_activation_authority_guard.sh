@@ -229,6 +229,15 @@ guard_expect_fixed_in_file "$TAG" "PreparedSelectedDynamicV2AotActivationV1" "$S
   "site-plan transport must remain one move-only activation aggregate"
 guard_expect_fixed_in_file "$TAG" "consume_for_session" "$SELECTED_CAPABILITY" \
   "the selected session must consume the activation aggregate exactly once"
+guard_expect_fixed_in_file "$TAG" "consume_for_unpublished_session" "$SELECTED_CAPABILITY" \
+  "the negative-only capability disposition must become a private unpublished-session fence"
+guard_expect_fixed_in_file "$TAG" "DynamicV2UnpublishedSessionReadinessV1" "$SELECTED_EMITTER" \
+  "the selected session must receive only the private unpublished-session fence"
+guard_expect_fixed_in_file "$TAG" "readiness.consume_before_open();" "$SELECTED_EMITTER" \
+  "the unpublished-session fence must be consumed at the Builder-open boundary"
+if rg -n 'DynamicV2PhysicalCapabilityDispositionV1|disposition:' "$SELECTED_EMITTER"; then
+  guard_fail "$TAG" "the physical session must not retain the negative-only capability disposition"
+fi
 guard_expect_fixed_in_file "$TAG" "install_checked_callout_site_plans" "$SELECTED_EMITTER" \
   "the emitter must install admitted plans before corridor allocation"
 guard_expect_fixed_in_file "$TAG" "i6_site: CheckedCallOutSiteIdV1" "$CALLOUT_CORRIDOR" \

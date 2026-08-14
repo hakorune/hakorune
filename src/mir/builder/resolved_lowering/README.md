@@ -92,15 +92,19 @@ and emits only through Canonical SSA/CFG/identity owners; it does not invent a
 PHI or Return. A move-only admission gate co-seals only those two physical
 receipts; it is not a semantic, Fault, Completion, Recipe, or JoinSig owner.
 Missing/foreign/ambiguous producer receipts or an unavailable End primitive
-are `RejectBeforeEffect`. Generic compare, scope cleanup, name/last-use
+are `RejectBeforeEffect`. The selected canary consumes that negative-only
+disposition into a private unpublished-session fence immediately before
+Builder open; the session does not retain a disposition and no executable
+readiness is issued. Generic compare, scope cleanup, name/last-use
 inference, `MirType` repair, `nyash.integer.get_h`, fallback, and retry are
 forbidden.
 
 The selected handoff issues these two Builder-free requirements and a move-only
 `SelectedDynamicV2PhysicalCapabilityAdmissionV1`. Its disposition remains
-explicitly `RejectBeforeEffect` as an unpublished/pre-executable fence; the
-package adapter is its one named production caller, while live module and
-Boundary execution callers remain closed. The I8/I9 continuation may be
+explicitly `RejectBeforeEffect` until `prepare_aot_activation` consumes it into
+the private unpublished-session fence; the package adapter is its one named
+production caller, while live module and Boundary execution callers remain
+closed. The I8/I9 continuation may be
 exercised by a real selected-fixture, unpublished-session canary so its receipt
 boundary is tested, but that canary is not a capability-gate bypass or a live
 publication. The handoff must consume the plan, move the

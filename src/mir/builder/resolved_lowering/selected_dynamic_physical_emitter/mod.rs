@@ -33,8 +33,8 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
 };
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::{
-    DynamicV2CompareI64CapabilityDemandV1, DynamicV2PhysicalCapabilityDispositionV1,
-    DynamicV2TemporaryDischargeRowV1, PreparedSelectedDynamicV2AotActivationV1,
+    DynamicV2CompareI64CapabilityDemandV1, DynamicV2TemporaryDischargeRowV1,
+    DynamicV2UnpublishedSessionReadinessV1, PreparedSelectedDynamicV2AotActivationV1,
 };
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
@@ -90,7 +90,6 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     cleanup_cursor: Option<lifecycle_terminal::DynamicV2PhysicalCleanupCursorV1>,
     operation_census: operation_cursor::DynamicV2PhysicalOperationCensusV1,
     aot: PreparedAotExecutableAdmissionV1,
-    disposition: DynamicV2PhysicalCapabilityDispositionV1,
     lifecycle: lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1,
     callout_corridor: callout_corridor::DynamicV2CallOutCorridorV1,
 }
@@ -279,19 +278,17 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         builder: &'builder mut MirBuilder,
         activation: PreparedSelectedDynamicV2AotActivationV1<'program>,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
-        activation.consume_for_session(
-            |plan, compare_i64, cleanup, aot, site_plans, disposition| {
-                Self::begin_from_parts(
-                    builder,
-                    plan,
-                    compare_i64,
-                    cleanup,
-                    aot,
-                    site_plans,
-                    disposition,
-                )
-            },
-        )
+        activation.consume_for_session(|plan, compare_i64, cleanup, aot, site_plans, readiness| {
+            Self::begin_from_parts(
+                builder,
+                plan,
+                compare_i64,
+                cleanup,
+                aot,
+                site_plans,
+                readiness,
+            )
+        })
     }
 
     fn begin_from_parts(
@@ -301,7 +298,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
         aot: PreparedAotExecutableAdmissionV1,
         site_plans: CheckedCallOutSitePlanPairV1,
-        disposition: DynamicV2PhysicalCapabilityDispositionV1,
+        readiness: DynamicV2UnpublishedSessionReadinessV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let lifecycle = lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue(
             &site_plans,
@@ -319,6 +316,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         })?;
         let (mut canonical, evidence) =
             validate_pre_session_authority(&demand, &schedule, &mut ledger, input)?;
+        readiness.consume_before_open();
         let mut outer = open_unpublished_outer(builder, &function_name);
         if let Err(error) = install_unpublished_function_header(
             &mut outer,
@@ -412,7 +410,6 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             cleanup_cursor: Some(cleanup_cursor),
             operation_census,
             aot,
-            disposition,
             lifecycle,
             callout_corridor,
         };

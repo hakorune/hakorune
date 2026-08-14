@@ -198,9 +198,35 @@ pub(in crate::mir) enum DynamicV2PhysicalCapabilityDispositionV1 {
     RejectBeforeEffect,
 }
 
+/// A private fence proving that the negative-only capability disposition was
+/// consumed for an unpublished canary session.  This is deliberately not an
+/// executable/readiness receipt and never survives the session-open boundary.
+#[derive(Debug)]
+pub(in crate::mir) struct DynamicV2UnpublishedSessionReadinessV1 {
+    _seal: (),
+}
+
+impl DynamicV2PhysicalCapabilityDispositionV1 {
+    pub(in crate::mir) fn consume_for_unpublished_session(
+        self,
+    ) -> DynamicV2UnpublishedSessionReadinessV1 {
+        match self {
+            Self::RejectBeforeEffect => DynamicV2UnpublishedSessionReadinessV1 { _seal: () },
+        }
+    }
+}
+
+impl DynamicV2UnpublishedSessionReadinessV1 {
+    /// Consume the canary-only fence immediately before opening Builder-owned
+    /// unpublished state.  No executable, backend, or runtime meaning is
+    /// issued by this transition.
+    pub(in crate::mir) fn consume_before_open(self) {}
+}
+
 /// Move-only pair of physical capability demands.  The current pair carries
 /// the exact requirements but has no backend leaf yet, so its disposition is
-/// an explicit pre-effect rejection rather than an implicit no-op.
+/// an explicit pre-effect rejection.  Successful canary construction must
+/// consume it into the private unpublished-session fence below Builder open.
 #[derive(Debug)]
 pub(in crate::mir) struct SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
@@ -220,7 +246,7 @@ pub(in crate::mir) struct PreparedSelectedDynamicV2AotActivationV1<'program> {
     cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
     aot: PreparedAotExecutableAdmissionV1,
     site_plans: CheckedCallOutSitePlanPairV1,
-    disposition: DynamicV2PhysicalCapabilityDispositionV1,
+    readiness: DynamicV2UnpublishedSessionReadinessV1,
 }
 
 impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
@@ -307,13 +333,14 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
         {
             return Err(SelectedDynamicV2PhysicalCapabilityRejectV1::ProducerReceiptUnavailable);
         }
+        let readiness = disposition.consume_for_unpublished_session();
         Ok(PreparedSelectedDynamicV2AotActivationV1 {
             plan,
             compare_i64,
             cleanup,
             aot,
             site_plans,
-            disposition,
+            readiness,
         })
     }
 }
@@ -327,7 +354,7 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
             [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
             PreparedAotExecutableAdmissionV1,
             CheckedCallOutSitePlanPairV1,
-            DynamicV2PhysicalCapabilityDispositionV1,
+            DynamicV2UnpublishedSessionReadinessV1,
         ) -> R,
     ) -> R {
         callback(
@@ -336,7 +363,7 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
             self.cleanup,
             self.aot,
             self.site_plans,
-            self.disposition,
+            self.readiness,
         )
     }
 }

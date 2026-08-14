@@ -942,11 +942,11 @@ These do not block the P0 DAG unless a touched file makes them necessary:
    - Decision: Completion and `FunctionDraftSealReceiptV1` are proof-only DraftSeal evidence; retire them explicitly before collector handoff, never reissue them as publication authority.
    - Authority: `ResolvedFunctionCompletionConsumptionV1` and `PreparedFunctionDraftSealPlanV1` issue/verify; `CompletedFunctionDraftV1` owns the exact-once retirement terminal.
    - Slice: private `consume_non_authority_evidence()` terminal, focused positive/negative handoff tests, and one existing authority-guard extension; no new semantic receipt or guard family.
-10. `DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0` (queued after B1 fixture fix)
-    - consume `RejectBeforeEffect` once into a private unpublished-session
-      readiness token before Builder open; the session stores no disposition.
-    - keep explicit reject paths separate; no `ExecutableReady`, backend, or
-      runtime meaning is issued, and double/foreign/missing transitions reject.
+10. `DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0` (closed 2026-08-14 BoxShape)
+    - `RejectBeforeEffect` now moves once into a private unpublished-session
+      fence, consumed immediately before Builder open; the session stores no
+      disposition and no executable/backend/runtime meaning is issued.
+    - focused emitter/package tests, cargo check, fmt, existing AOT/text/physical-input/pointer guards, and diff check are green; selected production remains new=0/old=1 with fallback/retry=0.
 11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0`
     - make Site/Entry/Outcome/Lease IDs private and mint them once;
     - consumers borrow issued IDs instead of reconstructing raw `0/1` values.

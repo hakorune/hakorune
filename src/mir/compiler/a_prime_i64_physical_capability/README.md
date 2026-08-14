@@ -49,4 +49,7 @@ plan's plan-consuming handoff, receives an opaque `Prelude` target issued by
 the canonical unpublished session, and never accepts a raw
 `BasicBlockId`/`ValueId` or re-reads Recipe/source roles. The capability gate
 remains `RejectBeforeEffect` until the I7, I8, and physical End leaves are all
-available; this canary does not open a production caller or bypass that gate.
+available. The selected canary may consume that negative-only disposition into
+a private unpublished-session fence immediately before Builder open; this
+issues no executable/backend/runtime readiness and does not open a production
+caller or bypass the gate.
