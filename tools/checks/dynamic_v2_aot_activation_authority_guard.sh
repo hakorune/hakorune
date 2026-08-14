@@ -52,6 +52,7 @@ C1A_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 C1A_PROGRAM_VIEW="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 C1A_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 C1A_HEADER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_selected_dynamic_entry_header.inc"
+C1A_LAUNCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc"
 C1_OWNER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc"
 C1_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
 C1_PRESCAN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
@@ -69,7 +70,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
-guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER"
+guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER" "$C1A_LAUNCH"
 guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS"
@@ -628,6 +629,12 @@ guard_expect_fixed_in_file "$TAG" 'program.selected_dynamic' "$C1A_PROGRAM_VIEW"
   "selected program view must keep the helper active without emitting a launch alias"
 guard_expect_fixed_in_file "$TAG" 'selection.symbol = NULL' "$C1A_PROGRAM_VIEW" \
   "selected helper must not inherit a zero-argument launch alias"
+guard_expect_fixed_in_file "$TAG" '#include "hako_llvmc_ffi_selected_launch_emit.inc"' "$C1A_HEADER" \
+  "selected physicalization must emit the borrowed launch body before the helper"
+guard_expect_fixed_in_file "$TAG" 'same_module_function_emit_function_pipeline' "$C1A_LAUNCH" \
+  "selected launch must reuse the existing function-body owner"
+guard_expect_fixed_in_file "$TAG" '"ny_main"' "$C1A_LAUNCH" \
+  "selected launch must define the canonical zero-argument runtime symbol"
 guard_expect_fixed_in_file "$TAG" 'ParserScanLoopBox.skip_while/4' "$C1_SMOKE" \
   "C1 smoke must exercise a dual-function selected helper fixture"
 if rg -n 'require_call_site|lookup_core_method|drop_handle|release_h|mir_call|fallback|retry' "$C1_OWNER"; then

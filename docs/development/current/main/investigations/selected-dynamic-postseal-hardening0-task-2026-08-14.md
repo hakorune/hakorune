@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, and SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0 closed; Rust fixture and C dual-view/physicalizer are landed; next fast child is DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; next fast child is B3 artifact bundle publication
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -10,10 +10,11 @@ Scope: selected Dynamic admission, post-seal lifecycle, publication, Boundary re
 
 This card accepts the post-W6 audit without reopening Recipe, CheckedCallOut
 meaning, Completion, or DraftSeal semantics.  A broader worker audit found
-that the selected infrastructure is not yet an end-to-end executable route:
+that the selected infrastructure was not yet an end-to-end executable route:
 the Rust runner and Boundary now share a strict PyVM/verification and
-launch/helper identity fence, while object/link/receipt/launch evidence remains
-open.  Upstream declaration-mode admission and one safe lexical-scope owner
+launch/helper identity fence, while object/link/receipt/launch evidence was open.
+The candidate route now proves those stages; live publication remains open under
+the B3 bundle owner.  Upstream declaration-mode admission and one safe lexical-scope owner
 also required correction.  The selected canonical core remains the authority;
 these rows make every boundary from admission through launch fail closed.
 
@@ -113,8 +114,8 @@ card and no new per-finding guard.  The execution order is:
 closed: mode fence + lexical transaction + linear slots
   -> closed: post-seal mutator fence + strict final verification
   -> closed: selected runner dominance (PyVM remains retired)
-  -> CURRENT: C dual launch/helper view + CheckedCallOut physicalizer
-  -> B3: attempt-unique artifact bundle publication/consumption
+  -> closed: C dual launch/helper view + CheckedCallOut physicalizer + candidate object/link/receipt/launch
+  -> CURRENT: B3 attempt-unique artifact bundle publication/consumption
   -> B4: llvm-boundary vs llvmlite-compat feature ownership
   -> MAIN-INTEGRATION-EVIDENCE-R0
   -> parked G3 oracle/archive/deletion DAG
@@ -485,12 +486,12 @@ Boundary C validator and artifact descriptor inspect the launch entry.  The
 helper cannot be renamed or aliased to `ny_main`, because the runtime invokes
 `ny_main()` with zero arguments.
 
-The bounded series first lands a production-shaped `main + selected helper`
-fixture, then one C owner censuses the exact helper and sends that function to
-the existing CheckedCallOut physicalizer, and finally proves object -> link ->
-receipt -> zero-argument launch end to end.  The fixture and C dual-view/
-physicalizer child are landed; only the final object/link/receipt/launch child
-remains.  Missing/duplicate metadata,
+The bounded series first landed a production-shaped `main + selected helper`
+fixture, then one C owner censused the exact helper and sent that function to
+the existing CheckedCallOut physicalizer, and finally proved object -> link ->
+receipt -> zero-argument launch end to end.  The fixture, C dual-view/
+physicalizer, helper-aware descriptor projection, and candidate launch test are
+landed; only B3 live bundle publication remains.  Missing/duplicate metadata,
 metadata on the launch entry, missing/duplicate/nonzero-argument main, helper
 arity drift, generic CheckedCallOut fallback, or a descriptor sourced from
 main all reject before publication.  Metadata copying and by-name reselection

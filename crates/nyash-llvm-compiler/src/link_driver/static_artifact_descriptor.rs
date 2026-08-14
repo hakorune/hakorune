@@ -89,32 +89,58 @@ pub(super) fn expected_descriptor_from_json(
         .and_then(Value::as_array)
         .filter(|functions| !functions.is_empty())
         .ok_or(StaticArtifactRejectV1::InvalidJson)?;
-    let entry_index = functions
-        .iter()
-        .position(|function| function.get("name").and_then(Value::as_str) == Some("main"))
-        .or_else(|| {
-            functions.iter().position(|function| {
-                function.get("name").and_then(Value::as_str) == Some("ny_main")
-            })
-        })
-        .unwrap_or(0);
-    let selected = functions
-        .iter()
-        .enumerate()
-        .filter_map(|(index, function)| {
-            function
-                .get("metadata")
-                .and_then(|metadata| metadata.get("dynamic_v2_aot_call_admission_v2"))
-                .map(|metadata| (index, metadata))
-        });
-    let rows = selected.collect::<Vec<_>>();
+    let mut rows = Vec::new();
+    for (index, function) in functions.iter().enumerate() {
+        let Some(metadata) = function.get("metadata") else {
+            continue;
+        };
+        let Some(admission) = metadata.get("dynamic_v2_aot_call_admission_v2") else {
+            continue;
+        };
+        if !admission.is_object()
+            || !metadata
+                .get("a_prime_i64_physical_receipt")
+                .is_some_and(Value::is_object)
+        {
+            return Err(StaticArtifactRejectV1::InvalidDescriptor);
+        }
+        rows.push((index, admission));
+    }
     let Some((index, metadata)) = rows.first().copied() else {
         return Ok(None);
     };
     if rows.len() != 1 {
         return Err(StaticArtifactRejectV1::DuplicateDescriptor);
     }
-    if index != entry_index {
+
+    let launches = functions
+        .iter()
+        .enumerate()
+        .filter(|(_, function)| {
+            matches!(
+                function.get("name").and_then(Value::as_str),
+                Some("main" | "ny_main")
+            )
+        })
+        .collect::<Vec<_>>();
+    let Some((launch_index, launch)) = launches.first().copied() else {
+        return Err(StaticArtifactRejectV1::ForeignDescriptor);
+    };
+    if launches.len() != 1
+        || launch
+            .get("params")
+            .and_then(Value::as_array)
+            .map_or(true, |params| !params.is_empty())
+        || launch.get("metadata").map_or(false, |metadata| {
+            !metadata.is_null() && !metadata.as_object().is_some_and(|m| m.is_empty())
+        })
+    {
+        return Err(StaticArtifactRejectV1::ForeignDescriptor);
+    }
+    if index == launch_index
+        || functions[index].get("name").and_then(Value::as_str)
+            != Some("ParserScanLoopBox.skip_while/4")
+    {
         return Err(StaticArtifactRejectV1::ForeignDescriptor);
     }
     Ok(Some(descriptor_from_json(metadata)?))

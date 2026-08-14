@@ -23,6 +23,7 @@ typedef struct hako_llvmc_generic_pure_program_view {
   size_t block_count;
   hako_llvmc_entry_rune_selection selection;
   hako_llvmc_generic_pure_function_view entry;
+  hako_llvmc_generic_pure_function_view launch;
   int selected_dynamic;
 } hako_llvmc_generic_pure_program_view;
 
@@ -66,6 +67,14 @@ static int hako_llvmc_read_generic_pure_program_view(
   selected_census = hako_llvmc_census_selected_dynamic_identity(root, &selected_view);
   if (selected_census < 0) return 0;
   out->selected_dynamic = selected_census == 1;
+  if (out->selected_dynamic &&
+      !hako_llvmc_read_generic_pure_function_view(
+          selected_view.launch_fn,
+          selected_view.launch_index,
+          0,
+          &out->launch)) {
+    return 0;
+  }
   out->fn = out->selected_dynamic
       ? selected_view.helper_fn
       : hako_llvmc_find_entry_function(fns);

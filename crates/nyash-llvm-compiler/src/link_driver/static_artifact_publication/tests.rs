@@ -21,9 +21,17 @@ fn write_candidate_json(path: &Path) -> StaticAotArtifactDescriptorV1 {
     let value = serde_json::json!({
         "kind": "MIR",
         "functions": [{
+            "name": "main",
+            "params": [],
+            "metadata": {},
+            "blocks": [{"id": 0, "instructions": [
+                {"op": "ret", "value": null}
+            ]}]
+        }, {
             "name": "ParserScanLoopBox.skip_while/4",
             "params": [0, 1, 2, 3],
             "metadata": {
+                "a_prime_i64_physical_receipt": {"schema_version": 1},
                 "dynamic_v2_aot_call_admission_v2": {
                     "schema_version": 2,
                     "contract_id": "hako.text.scan@1",
@@ -169,6 +177,7 @@ __attribute__((used)) static void* required[] = {{
 }};
 __attribute__((used, section(".hako_dynamic_v2_descriptor")))
 const unsigned char hako_dynamic_v2_static_artifact_descriptor_v1[192] = {{ {initializer} }};
+int64_t ny_main(void) {{ return 0; }}
 "#
     );
     fs::write(path, source).expect("write object source");
@@ -188,7 +197,8 @@ uint32_t text_find(void) __asm__("hako.text.scan.index_of.v1");
 uint32_t text_slice(void) {{ return 0; }}
 uint32_t text_find(void) {{ return 0; }}
 {lease}
-int main(void) {{ return 0; }}
+extern int64_t ny_main(void);
+int main(void) {{ return (int)ny_main(); }}
 "#
     );
     fs::write(path, source).expect("write runtime source");
@@ -320,6 +330,10 @@ fn actual_artifacts_issue_one_receipt_before_consuming_commit() {
         2
     );
     assert!(transport.get("candidate_path").is_none());
+    assert!(Command::new(&final_path)
+        .status()
+        .expect("launch published artifact")
+        .success());
     fs::remove_dir_all(root).expect("remove fixture");
 }
 
@@ -368,8 +382,15 @@ fn boundary_generated_object_survives_exact_link_and_receipt_observation() {
     .expect("prepare Boundary artifact");
     assert_eq!(prepared.receipt().symbol_census(), (3, 3, 3, 3));
     assert!(!final_path.exists());
-    drop(prepared);
-    assert!(!final_path.exists());
+    let published = prepared.commit().expect("publish Boundary artifact");
+    let receipt_path = root.join("boundary-receipt.json");
+    published
+        .write_receipt_json(&json, &receipt_path)
+        .expect("write Boundary receipt");
+    assert!(Command::new(&final_path)
+        .status()
+        .expect("launch Boundary artifact")
+        .success());
     fs::remove_dir_all(root).expect("remove fixture");
 }
 
@@ -380,7 +401,9 @@ fn non_entry_selected_metadata_is_rejected_before_artifact_observation() {
     let json = root.join("candidate.json");
     let selected = serde_json::json!({
         "name": "helper",
-        "metadata": {"dynamic_v2_aot_call_admission_v2": {
+        "metadata": {
+            "a_prime_i64_physical_receipt": {"schema_version": 1},
+            "dynamic_v2_aot_call_admission_v2": {
             "contract_id": "hako.text.scan@1",
             "profile": 1,
             "abi_revision": 1,

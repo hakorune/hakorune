@@ -188,8 +188,12 @@ if ! nm -g --defined-only "$TMP_DIR/valid.o" | grep -Fq 'ParserScanLoopBox.skip_
   echo "[$TAG] positive object must define the selected helper symbol" >&2
   exit 1
 fi
-if nm -g --defined-only "$TMP_DIR/valid.o" | grep -Fq 'ny_main'; then
-  echo "[$TAG] selected helper must not be emitted as a zero-argument ny_main alias" >&2
+if [[ "$(nm -g --defined-only "$TMP_DIR/valid.o" | grep -Fc 'ny_main')" -ne 1 ]]; then
+  echo "[$TAG] selected object must define exactly one runtime ny_main launch" >&2
+  exit 1
+fi
+if [[ "$(nm -g --defined-only "$TMP_DIR/valid.o" | grep -Fc 'ParserScanLoopBox.skip_while/4')" -ne 1 ]]; then
+  echo "[$TAG] selected object must define exactly one selected helper" >&2
   exit 1
 fi
 

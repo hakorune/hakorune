@@ -567,6 +567,10 @@
         long long cv = 0;
         long long base = resolve_copy_source_reg(v);
         char value_ref[64];
+        if (!v) {
+          EMIT("  ret i64 0\n");
+          return 1;
+        }
         if (has_const(base, &cv)) {
           EMIT("  ret i64 %lld\n", cv);
         } else if (get_type(base) == T_I1) {
