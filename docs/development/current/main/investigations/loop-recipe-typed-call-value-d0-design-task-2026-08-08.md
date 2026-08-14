@@ -358,6 +358,12 @@ issuer checks one owner/frame brand, one receiver site, exactly `arity`
 ordered argument sites, and one result site when the target has a result.
 Foreign, duplicate, or swapped sites reject before Facts/Recipe.
 
+Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
+until the manifest-backed CoreMethod Home issuer exists and its positive /
+negative / guard evidence satisfies the source-backed receipt gate. No
+`Verified*`/`Prepared*` semantic receipt, source-bound consumer, Facts/Recipe
+producer, Dynamic import, or production switch is authorized by this D0.
+
 The generated `StringSubstring` row currently advertises the union arity
 `[1, 2]`. The target issuer must specialize it by operation and exact arity;
 the S6C target identity is
