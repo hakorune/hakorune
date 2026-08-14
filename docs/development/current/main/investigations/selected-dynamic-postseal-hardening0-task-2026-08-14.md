@@ -779,6 +779,12 @@ Non-claims: no script deletion, new guard, compiler behavior, fallback,
 archive publication, or llvmlite retirement.
 ```
 
+The current manifest inventory is intentionally a named baseline: 102 loaded
+rows (74 `hako-alloc-closeout`) report 44 public closeout wrappers outside the
+manifest and widespread non-executable wrapper/implementation modes.  This
+does not authorize chmod, wrapper deletion, or manifest invention; the family
+row remains open until one owner-backed parity batch is selected.
+
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;
    - move historical lookup to a generated inventory plus git history.
