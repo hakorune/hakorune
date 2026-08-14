@@ -952,13 +952,11 @@ These do not block the P0 DAG unless a touched file makes them necessary:
     - Selected capability, emitter, lifecycle, profile close, receipt, printer, and test callers no longer mint or inspect raw physical IDs; the existing AOT authority guard fixes the owner/accessor and raw-consumer census without a new guard family.
     - `cargo check --lib`, checked-callout (14), selected-emitter (5), provider-admission (6), fmt, guard, pointer, and diff checks are green; selected production remains new=0/old=1.
 12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0` (closed 2026-08-14 BoxShape)
-    - Decision/authority: lend one non-Clone/HRTB view of the closed canonical CFG/SSA census and site-plan/profile evidence to AOT/JSON/Boundary; no plan rebuild, semantic receipt, or C/JSON CFG authority.
-    - View: exact sites, source/Normal/Fault blocks+predecessors, receiver/args, Normal projection, effect, entry/ABI/wire/shape/slots/PlanStamp, and End cuts.
-    - Reject before effect: orphan/duplicate site, plan/terminator/projection, operand/landing/predecessor/End/receipt-set drift, or malformed transport.
-    - Acceptance: the Rust Census view is consumed once by the existing AOT projection; JSON/Python carry exact source/operand/landing/result/End facts; Boundary C rejects site/operand/landing/predecessor/projection/End drift; the canonical smoke fixture and physical negatives pass; the existing AOT guard remains green. Non-claims: no opcode/schema/new C ABI/cutover/fallback/VM/PyVM/llvmlite; selected production remains new=0/old=1.
-13. `DYN-CALLOUT-WIRE-FAILSTOP-R0`
-    - trap on I6 zero handle, unknown Fault codes, Suspended, malformed wire,
-      or transport errors; only known semantic Fault reaches MIR Fault.
+    - Decision/authority: one non-Clone/HRTB canonical CFG/SSA census view feeds AOT/JSON/Boundary; no plan rebuild or second CFG authority. View carries exact sites, source/Normal/Fault blocks+predecessors, operands, projection, effect, ABI/wire/shape/slots/PlanStamp, and End cuts.
+    - Reject/acceptance: orphan/duplicate site, plan/terminator/projection, operand/landing/predecessor/End/receipt-set drift is rejected before effect; existing AOT projection consumes the view once, JSON/Python carry the facts, Boundary C and canonical smoke/negative fixtures pass. No opcode/schema/new C ABI/cutover/fallback/VM/PyVM/llvmlite; selected production remains new=0/old=1.
+13. `DYN-CALLOUT-WIRE-FAILSTOP-R0` (closed 2026-08-14 BoxShape)
+    - Fixed header/Rust wire remains sole authority; C1 now traps I6 zero host payload and Fault outside 1..8 while preserving I7 zero and known semantic Fault landing. No ABI/enum/new guard/fallback/retry/VM/cutover.
+    - Rust 11 + Python 11 wire tests, C1 physicalizer smoke, wire/AOT guards, cargo check/fmt, pointer guard, and diff check are green; selected production remains new=0/old=1.
 14. `DYN-LEASE-PUBLISH-ATOMICITY-R0`
     - issue handle plus lease identity in one host-handle owner transition;
     - restore the handle on every identity/token publication failure.

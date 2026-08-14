@@ -90,6 +90,13 @@ facts with the emitted MIR JSON topology (including exact landing incoming
 edges) before object emission; JSON is transport and does not become a second
 CFG or cleanup authority.
 
+Wire failures are backend contract violations, not semantic Faults: C1 traps
+on nonzero transport status, unknown status/tag/disposition, Suspended,
+malformed reserved/lease fields, an I6 EndAuthorized host-handle payload of
+zero, or a Fault code outside the header's fixed `1..=8` range. I7's
+ImmediateI64 zero is valid. Only a known semantic Fault code reaches the MIR
+Fault landing.
+
 ### W6 explicit static link boundary
 
 The selected Boundary W6 route uses the versioned link symbol:

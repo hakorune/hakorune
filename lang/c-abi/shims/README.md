@@ -39,6 +39,11 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   cutpoints are cross-checked against the emitted MIR JSON before any object
   is produced. JSON and C remain consumers; neither rebuilds a site plan or
   predecessor/cleanup authority.
+- C1's wire checks are fail-stop projections of the shared CallSlot contract:
+  I6 EndAuthorized host handles must carry a non-zero payload, I7
+  ImmediateI64 may carry zero, and semantic Fault codes must be in the fixed
+  `1..=8` header range. Unknown status/tag/disposition, Suspended, malformed
+  fields, or transport/lease failures trap locally and never become MIR Fault.
 - The selected W6 link path uses the versioned `hako_llvmc_link_obj_v2`
   boundary. Rust resolves the exact `libnyash_kernel.a` path from `--nyrt`
   and passes it as an argument; this path never asks the C shim to rediscover

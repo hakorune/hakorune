@@ -484,11 +484,17 @@ static int hako_llvmc_c1_emit_callout(
   fprintf(f, "  %%c1_fault_code_norm_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_fault_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_forwarded_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_forwarded_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_reserved_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_reserved_ptr\n", site, block_id, instruction_index, site);
+  fprintf(f, "  %%c1_value_%lld_%lld_%zu = load i64, ptr %%c1_out_%lld_value_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_lease_%lld_%lld_%zu = load i64, ptr %%c1_out_%lld_lease_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_continuation_%lld_%lld_%zu = load i64, ptr %%c1_out_%lld_continuation_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_tag_ok_%lld_%lld_%zu = icmp eq i32 %%c1_tag_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, site == 0 ? HAKO_DYNAMIC_V2_TAG_HOST_HANDLE : HAKO_DYNAMIC_V2_TAG_IMMEDIATE_I64);
   fprintf(f, "  %%c1_disp_ok_%lld_%lld_%zu = icmp eq i32 %%c1_disp_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, site == 0 ? HAKO_DYNAMIC_V2_DISPOSITION_END_AUTHORIZED : HAKO_DYNAMIC_V2_DISPOSITION_NONE);
   fprintf(f, "  %%c1_lease_ok_%lld_%lld_%zu = icmp %s i64 %%c1_lease_%lld_%lld_%zu, 0\n", site, block_id, instruction_index, site == 0 ? "ne" : "eq", site, block_id, instruction_index);
+  if (site == 0) {
+    fprintf(f, "  %%c1_value_ok_%lld_%lld_%zu = icmp ne i64 %%c1_value_%lld_%lld_%zu, 0\n", site, block_id, instruction_index, site, block_id, instruction_index);
+  } else {
+    fprintf(f, "  %%c1_value_ok_%lld_%lld_%zu = or i1 false, true\n", site, block_id, instruction_index);
+  }
   fprintf(f, "  %%c1_fault_none_%lld_%lld_%zu = icmp eq i32 %%c1_fault_code_norm_%lld_%lld_%zu, 0\n", site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_forwarded_none_%lld_%lld_%zu = icmp eq i32 %%c1_forwarded_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_FORWARDED_NONE_V1);
   fprintf(f, "  %%c1_reserved_zero_%lld_%lld_%zu = icmp eq i32 %%c1_reserved_%lld_%lld_%zu, 0\n", site, block_id, instruction_index, site, block_id, instruction_index);
@@ -499,11 +505,14 @@ static int hako_llvmc_c1_emit_callout(
   fprintf(f, "  %%c1_norm_ok4_%lld_%lld_%zu = and i1 %%c1_norm_ok3_%lld_%lld_%zu, %%c1_forwarded_none_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_norm_ok5_%lld_%lld_%zu = and i1 %%c1_norm_ok4_%lld_%lld_%zu, %%c1_reserved_zero_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_norm_ok6_%lld_%lld_%zu = and i1 %%c1_norm_ok5_%lld_%lld_%zu, %%c1_continuation_zero_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
-  fprintf(f, "  br i1 %%c1_norm_ok6_%lld_%lld_%zu, label %%bb%lld, label %%c1_trap_normal_%lld_%lld_%zu\n", site, block_id, instruction_index, normal, site, block_id, instruction_index);
+  fprintf(f, "  %%c1_norm_ok7_%lld_%lld_%zu = and i1 %%c1_norm_ok6_%lld_%lld_%zu, %%c1_value_ok_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
+  fprintf(f, "  br i1 %%c1_norm_ok7_%lld_%lld_%zu, label %%bb%lld, label %%c1_trap_normal_%lld_%lld_%zu\n", site, block_id, instruction_index, normal, site, block_id, instruction_index);
   fprintf(f, "c1_trap_normal_%lld_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n", site, block_id, instruction_index);
   fprintf(f, "c1_validate_fault_%lld_%lld_%zu:\n", site, block_id, instruction_index);
   fprintf(f, "  %%c1_fault_code_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_fault_ptr\n", site, block_id, instruction_index, site);
-  fprintf(f, "  %%c1_fault_code_ok_%lld_%lld_%zu = icmp ne i32 %%c1_fault_code_%lld_%lld_%zu, 0\n", site, block_id, instruction_index, site, block_id, instruction_index);
+  fprintf(f, "  %%c1_fault_code_low_%lld_%lld_%zu = icmp uge i32 %%c1_fault_code_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_FAULT_INVALID_RECEIVER);
+  fprintf(f, "  %%c1_fault_code_high_%lld_%lld_%zu = icmp ule i32 %%c1_fault_code_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_FAULT_INVALID_RESULT);
+  fprintf(f, "  %%c1_fault_code_ok_%lld_%lld_%zu = and i1 %%c1_fault_code_low_%lld_%lld_%zu, %%c1_fault_code_high_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_fault_tag_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_tag_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_fault_disp_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_disp_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_fault_forwarded_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_forwarded_ptr\n", site, block_id, instruction_index, site);

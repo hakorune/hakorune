@@ -447,4 +447,19 @@ mod tests {
             Err(DynamicV2WireSchemaRejectV1::NonZeroReserved)
         );
     }
+
+    #[test]
+    fn unknown_fault_code_rejects_before_fault_landing() {
+        let mut out = normal_end_authorized();
+        out.status = DynamicV2CallStatusV1::Fault as u32;
+        out.fault_code = 9;
+        out.result_tag = DynamicV2WireTagV1::Invalid as u32;
+        out.disposition = DynamicV2CallDispositionV1::None as u32;
+        out.value_payload = 0;
+        out.lease_token = 0;
+        assert_eq!(
+            out.validate_transport(),
+            Err(DynamicV2WireSchemaRejectV1::UnknownFaultCode(9))
+        );
+    }
 }

@@ -756,6 +756,16 @@ guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_SUBSTRING' "$C1_OWNER" 
   "C1 must use the existing direct substring symbol"
 guard_expect_fixed_in_file "$TAG" 'HAKO_TEXT_SCAN_SYMBOL_INDEX_OF' "$C1_OWNER" \
   "C1 must use the existing direct indexOf symbol"
+guard_expect_fixed_in_file "$TAG" 'c1_value_ok_' "$C1_OWNER" \
+  "C1 must fail-stop a zero I6 host-handle payload while preserving I7 zero"
+guard_expect_fixed_in_file "$TAG" 'c1_fault_code_low_' "$C1_OWNER" \
+  "C1 must enforce the lower bound of the fixed Fault code range"
+guard_expect_fixed_in_file "$TAG" 'c1_fault_code_high_' "$C1_OWNER" \
+  "C1 must enforce the upper bound of the fixed Fault code range"
+guard_expect_fixed_in_file "$TAG" 'HAKO_DYNAMIC_V2_FAULT_INVALID_RECEIVER' "$C1_OWNER" \
+  "C1 Fault range must use the shared wire constants"
+guard_expect_fixed_in_file "$TAG" 'HAKO_DYNAMIC_V2_FAULT_INVALID_RESULT' "$C1_OWNER" \
+  "C1 Fault range must use the shared wire constants"
 guard_expect_fixed_in_file "$TAG" 'program.selected_dynamic' "$C1A_PROGRAM_VIEW" \
   "selected program view must keep the helper active without emitting a launch alias"
 guard_expect_fixed_in_file "$TAG" 'selection.symbol = NULL' "$C1A_PROGRAM_VIEW" \
