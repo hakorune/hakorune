@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, private logical JOINIR input façade, source-retaining logical output I0, canonical Length/Substring call-view R0, typed consumer result D0, and caller-zero logical consumer I0 are landed. The next physical consumer remains a separate design stop; JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, private logical JOINIR input façade, source-retaining logical output I0, canonical Length/Substring call-view R0, typed consumer result D0, and caller-zero logical consumer I0 are landed. The next physical ingress is now an explicit design stop: identify the existing context/operation-effect/continuation issuers before any physical consumer. JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none; logical consumer I0 landed; next physical consumer requires a fresh design stop"
-work_mode = "closeout"
-current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-I0"
-current_blocker_token = "S6C logical consumer I0 is landed; before any physical consumer, use a fresh worker design stop. Keep JoinModule/MIR, physical IDs, Artifact, selector, fallback, retry, and production caller closed."
+current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-D0"
+work_mode = "design_stop"
+current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-D0"
+current_blocker_token = "Physical ingress issuer is not yet co-sealed. Name existing owner/frame/scope, operation/effect, continuation/After, source-call, and host/session authorities before any Prepared*, Builder, MIR, physical ID, layout, selector, fallback, retry, or production effect. If they cannot be named without re-inference, stop as NoSafeSlice::MissingS6CPhysicalIngressIssuer."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C logical consumer closeout)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, private logical JOINIR input façade, caller-zero logical output I0, canonical source-call view R0, typed result D0, and caller-zero logical consumer I0 are landed. The next physical consumer is a fresh design stop. JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C physical ingress design stop)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, private logical JOINIR input façade, caller-zero logical output I0, canonical source-call view R0, typed result D0, and caller-zero logical consumer I0 are landed. The current D0 only names and co-seals existing prephysical authorities for a future ingress façade. JoinModule/MIR output, Builder/SSA/PHI, physical IDs/layout, Artifact/source binding, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-consumer-i0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "joinir-loop-s6c-logical-output-consumer-i0"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-consumer-i0-2026-08-15.md"
-latest_card_summary = "S6C consumer I0 landed: it uses only the sealed output HRTB facade and returns typed Consumed/reject. The next physical consumer requires a fresh design stop; JoinModule, physical output, Artifact, and production remain closed."
-next_design_card = "none"
-next_design_card_path = "none"
+latest_card = "joinir-loop-m8-loopv0-scans-s6c-physical-ingress-d0"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-d0-2026-08-15.md"
+latest_card_summary = "Physical ingress D0: audit/co-seal existing owner/frame/scope, operation/effect, continuation/After, source-call, and host/session authorities through one private prephysical HRTB; physicalization remains closed until issuer and capability are proven."
+next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-D0"
+next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-d0-2026-08-15.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: S6C physical ingress D0 opened a fresh design stop after logical consumer I0. Worker audits agree that the next safe slice is one Builder-free private HRTB ingress only after existing context/operation-effect/continuation/host issuers are co-sealed; JoinModule/MIR, physical IDs/layout, selector, fallback, retry, and production remain closed.",
   "2026-08-15: S6C logical consumer I0 landed one 122-line caller-zero owner: a fallible try_with_output HRTB checks fixed domains, Length/Substring source parity, branch/Return summary/Backedge/After shape, and returns only typed Consumed or named reject; focused 8/8, cargo check, format, diff, pointer, and Loop guards green; full contract 132/1 with the same known baseline red.",
   "2026-08-15: S6C logical consumer D0 accepted the typed I0 dialect: one private HRTB consumer over the sealed output returns a typed Consumed terminal or named reject; no Option/unit/fallback or new semantic authority, JoinModule/MIR, physical output, or production caller.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0 landed one canonical role-wise Length/Substring view: each fixed CallSlot row is paired with its retained source contract inside the private output façade, raw input() escape is removed, six focused S6C tests plus cargo check/format/diff/pointer/Loop guards are green, and the typed consumer D0 is now accepted.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-14: LOOP-S6C-UNARY-SOURCE-ROW-I0 plus LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 landed one resolver-owned unary site/operator/operand row and one non-Clone Completion/call/If-region co-seal; focused resolver/S6C suites, cargo check, Loop/CoreMethod/pointer guards, and diff check are green; Facts/Recipe/physical production remain closed.",
   "2026-08-14: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 at cce7c1dade: cargo check, normal_callable_semantic_package, dynamic_full_body_recipe, selected_dynamic_physical_emitter, seven existing authority/route guards, pointer guard, in-place guard, and diff check green; completion is 107 passed/1 failed with the same ReturnValueTypeMissing(ValueId(12)) at parent b295288251, classified baseline; selected production remains new=0/old=1.",
   "2026-08-14: DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0 closed the negative-only RejectBeforeEffect handoff: one private unpublished-session fence is consumed immediately before Builder open, the session stores no disposition, focused emitter/package tests plus cargo check/fmt, existing authority guards, pointer guard, and diff check are green; production remains new=0 old=1.",
-  "2026-08-14: MAIN-INTEGRATION-EVIDENCE-R0 clean detached SHA 145921e7d5: cargo check, three selected W6 suites, selected guards, LLVM census/route guards, and diff check green; completion ReturnValueTypeMissing and generic legacy executable guard reds reproduce at parent baseline; selected production remains new=0 old=1.",
 ]
