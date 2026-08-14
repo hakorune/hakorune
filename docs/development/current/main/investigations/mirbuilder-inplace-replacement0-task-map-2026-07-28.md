@@ -13,9 +13,11 @@ Final convergence pointer (serial, after Loop retirement):
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 Current execution row:
-  - Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`
+  - Deferred; select the active row only through `CURRENT_STATE.toml` after the
+    selected-Dynamic hardening card closes.
 Current execution task:
-  - docs/development/current/main/investigations/loop-recipe-operation-physical-demand-p0-task-2026-08-07.md
+  - No implicit Loop execution from this historical frontmatter; retarget
+    `CURRENT_STATE.toml` explicitly before resuming the Loop frontier.
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -61,8 +63,9 @@ P0 = parity after that switch
 ## Active Loop physicalization order
 
 This is the compact order for the current Loop frontier. It is subordinate to
-`CURRENT_STATE.toml`; it exists so the task map cannot silently fall back to
-the retired prepare-only row.
+`CURRENT_STATE.toml`; it is parked while another active card is selected and
+must not silently fall back to the retired prepare-only row or resume before an
+explicit pointer retarget.
 
 ```text
 1. LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0

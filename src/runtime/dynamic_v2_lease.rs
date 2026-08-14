@@ -87,7 +87,13 @@ fn insert_lease_identity(
 fn issue_end_authorized(handle: u64) -> Result<NonZeroU64, LeaseIssueRejectV1> {
     let identity = host_handles::capture_text_lease_identity(handle)
         .ok_or(LeaseIssueRejectV1::InvalidHandle)?;
-    insert_lease_identity(identity).map_err(|(error, _)| error)
+    match insert_lease_identity(identity) {
+        Ok(token) => Ok(token),
+        Err((error, identity)) => {
+            let _ = host_handles::drop_if_lease_identity_matches(identity);
+            Err(error)
+        }
+    }
 }
 
 /// Create a fresh text result and admit its End lease as one aggregate.  The
@@ -96,10 +102,7 @@ fn issue_end_authorized(handle: u64) -> Result<NonZeroU64, LeaseIssueRejectV1> {
 pub fn publish_end_authorized_text(
     text: impl Into<String>,
 ) -> Result<EndAuthorizedTextV1, LeaseIssueRejectV1> {
-    let handle = host_handles::to_handle_text(text);
-    let Some(identity) = host_handles::capture_text_lease_identity(handle) else {
-        return Err(LeaseIssueRejectV1::InvalidHandle);
-    };
+    let (handle, identity) = host_handles::to_handle_text_with_lease_identity(text);
     let token = match insert_lease_identity(identity) {
         Ok(token) => token,
         Err((error, identity)) => {
@@ -168,11 +171,27 @@ mod tests {
             insert_lease_in_table(&mut table, token, second_identity).expect_err("collision");
         assert_eq!(error, LeaseIssueRejectV1::Exhausted);
         assert_eq!(table.len(), 1);
+        assert_eq!(
+            host_handles::with_str_handle_ready(first, str::to_owned),
+            Some("first".to_owned())
+        );
+        assert_eq!(
+            host_handles::with_str_handle_ready(second, str::to_owned),
+            Some("second".to_owned())
+        );
         let preserved = table.remove(&token).expect("original lease preserved");
         assert!(host_handles::drop_if_lease_identity_matches(preserved));
         assert!(host_handles::drop_if_lease_identity_matches(
             second_identity
         ));
+        assert_eq!(
+            host_handles::with_str_handle_ready(first, str::to_owned),
+            None
+        );
+        assert_eq!(
+            host_handles::with_str_handle_ready(second, str::to_owned),
+            None
+        );
     }
 
     #[test]

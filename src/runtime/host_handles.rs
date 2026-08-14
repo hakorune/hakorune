@@ -9,6 +9,8 @@
 #[path = "host_handles/perf_observe.rs"]
 mod perf_observe;
 pub use perf_observe::PerfObserveSnapshot;
+#[path = "host_handles/lease_identity.rs"]
+mod lease_identity;
 #[path = "host_handles/text_read.rs"]
 mod text_read;
 
@@ -29,6 +31,10 @@ use super::object_identity::{
 };
 use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
+pub(crate) use lease_identity::{
+    capture_text_lease_identity, drop_if_lease_identity_matches,
+    to_handle_text_with_lease_identity, HostHandleLeaseIdentityV1,
+};
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
 
@@ -62,24 +68,6 @@ thread_local! {
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
     StableText(String),
-}
-
-/// Generation-branded identity owned by the reusable host-handle table.
-///
-/// This is separate from the legacy `BoxIdentity` projection: lease End must
-/// distinguish a reused raw slot while the public object identity surface
-/// remains compatibility-shaped.
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub(crate) struct HostHandleLeaseIdentityV1 {
-    handle: u64,
-    generation: u64,
-}
-
-impl HostHandleLeaseIdentityV1 {
-    #[inline(always)]
-    pub(crate) const fn generation(&self) -> u64 {
-        self.generation
-    }
 }
 
 impl HandlePayload {
@@ -244,6 +232,11 @@ impl Registry {
 
     #[inline(always)]
     fn alloc_payload(&self, payload: HandlePayload) -> u64 {
+        self.alloc_payload_with_generation(payload).0
+    }
+
+    #[inline(always)]
+    pub(super) fn alloc_payload_with_generation(&self, payload: HandlePayload) -> (u64, u64) {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
 
@@ -258,7 +251,7 @@ impl Registry {
             let generation = next_lease_generation(table.lease_generations[idx]);
             table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
-            return h;
+            return (h, generation);
         }
 
         let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
@@ -278,7 +271,7 @@ impl Registry {
             table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
         }
-        h
+        (h, generation)
     }
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
@@ -457,40 +450,6 @@ impl Registry {
             host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
             DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
         }
-    }
-
-    #[inline(always)]
-    fn capture_text_lease_identity(&self, h: u64) -> Option<HostHandleLeaseIdentityV1> {
-        let table = self.table.read();
-        let payload = slot_ref(&table, h)?;
-        payload.as_str_fast()?;
-        let idx = usize::try_from(h).ok()?;
-        let generation = table.lease_generations.get(idx).copied()?;
-        (generation != 0).then_some(HostHandleLeaseIdentityV1 {
-            handle: h,
-            generation,
-        })
-    }
-
-    #[inline(always)]
-    fn drop_if_lease_identity_matches(&self, identity: HostHandleLeaseIdentityV1) -> bool {
-        let mut table = self.table.write();
-        let Ok(idx) = usize::try_from(identity.handle) else {
-            return false;
-        };
-        let matches = table.lease_generations.get(idx).copied() == Some(identity.generation)
-            && table.slots.get(idx).is_some_and(Option::is_some);
-        if !matches {
-            return false;
-        }
-        table.slots[idx] = None;
-        host_handles_policy::recycle_handle(
-            self.alloc_policy_mode(),
-            &mut table.free,
-            identity.handle,
-        );
-        DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
-        true
     }
 }
 
@@ -752,19 +711,6 @@ pub fn identity_snapshot() -> Vec<ObjectIdentityDescriptor> {
 #[inline(always)]
 pub fn drop_handle(h: u64) {
     reg().drop_handle(h)
-}
-
-/// Capture the live identity used by the one-shot DynamicV2 lease owner.
-#[inline(always)]
-pub(crate) fn capture_text_lease_identity(h: u64) -> Option<HostHandleLeaseIdentityV1> {
-    reg().capture_text_lease_identity(h)
-}
-
-/// Drop only if the raw slot still contains the captured lease identity.
-/// The comparison and removal happen under one slot-table write lock.
-#[inline(always)]
-pub(crate) fn drop_if_lease_identity_matches(identity: HostHandleLeaseIdentityV1) -> bool {
-    reg().drop_if_lease_identity_matches(identity)
 }
 
 /// Monotonic epoch incremented when any handle is dropped.

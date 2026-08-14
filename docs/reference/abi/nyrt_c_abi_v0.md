@@ -61,6 +61,10 @@ generation check, and handle release remain solely in
 `runtime::dynamic_v2_lease`. Boundary lowering treats a non-zero status as a
 backend contract failure, not as a semantic Fault or fallback. This is a
 projection for the static Boundary lane, not a second lifecycle authority.
+Fresh End-authorized text publication obtains the handle and its reusable-slot
+generation identity in one host-handle registry write-lock transition before
+the existing lease table admits the token. Token collision/exhaustion rolls
+back only that new identity; it never releases an existing generation.
 
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 

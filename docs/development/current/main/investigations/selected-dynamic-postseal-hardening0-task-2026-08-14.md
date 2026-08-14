@@ -957,9 +957,9 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 13. `DYN-CALLOUT-WIRE-FAILSTOP-R0` (closed 2026-08-14 BoxShape)
     - Fixed header/Rust wire remains sole authority; C1 now traps I6 zero host payload and Fault outside 1..8 while preserving I7 zero and known semantic Fault landing. No ABI/enum/new guard/fallback/retry/VM/cutover.
     - Rust 11 + Python 11 wire tests, C1 physicalizer smoke, wire/AOT guards, cargo check/fmt, pointer guard, and diff check are green; selected production remains new=0/old=1.
-14. `DYN-LEASE-PUBLISH-ATOMICITY-R0`
-    - issue handle plus lease identity in one host-handle owner transition;
-    - restore the handle on every identity/token publication failure.
+14. `DYN-LEASE-PUBLISH-ATOMICITY-R0` (closed 2026-08-14 BoxShape)
+    - Decision/authority: private host-handle child owns the lock-scoped `(handle, generation identity)` allocation; collision/exhaustion preserves the old entry and drops only the matching new identity. Rust lease/host tests, kernel TextScan tests, C1/AOT/pointer guards, check/fmt, and diff checks are green.
+    - Nonclaims: no raw `drop_handle` rollback authority, C ABI/schema, strict-leaf semantics, fallback/retry, production cutover, or VM/llvmlite route.
 15. `LOCAL-SSA-CHECKED-TERMINAL-R0`
     - migrate production callers away from `unwrap_or(original ValueId)` and
       `LegacyFacade -> Ok(original)` fail-open wrappers;

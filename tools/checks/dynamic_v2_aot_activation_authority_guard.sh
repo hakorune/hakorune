@@ -18,6 +18,7 @@ CODEGEN_TEST="$ROOT_DIR/tools/checks/lib/provider_slot_contract_codegen_tests.py
 PROJECTION_TEST="$ROOT_DIR/tools/checks/lib/text_scan_export_projection_tests.py"
 STRICT_LEAF="$ROOT_DIR/crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs"
 LEASE="$ROOT_DIR/src/runtime/dynamic_v2_lease.rs"
+LEASE_IDENTITY="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
 LEASE_ADAPTER="$ROOT_DIR/crates/nyash_kernel/src/ffi/dynamic_v2_lease.rs"
 LEASE_FFI_MOD="$ROOT_DIR/crates/nyash_kernel/src/ffi/mod.rs"
 METADATA="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_aot_admission.py"
@@ -690,6 +691,10 @@ guard_expect_fixed_in_file "$TAG" '#include "nyrt_dynamic_v2_lease_v1.h"' "$NYRT
   "core NyRT header must reference the versioned lease ABI fragment"
 guard_expect_fixed_in_file "$TAG" 'pub mod dynamic_v2_lease;' "$LEASE_FFI_MOD" \
   "kernel FFI module must wire the neutral lease adapter"
+guard_expect_fixed_in_file "$TAG" 'to_handle_text_with_lease_identity' "$LEASE" \
+  "fresh text publication must consume the atomic handle/identity owner"
+guard_expect_fixed_in_file "$TAG" 'alloc_text_with_lease_identity' "$LEASE_IDENTITY" \
+  "host-handle lease identity child must own the lock-scoped allocation"
 LEASE_ARCHIVE="${CARGO_TARGET_DIR_EFFECTIVE:-$ROOT_DIR/target}/release/libnyash_kernel.a"
 if [[ -f "$LEASE_ARCHIVE" ]]; then
   lease_symbol_count="$(llvm-nm -g --defined-only "$LEASE_ARCHIVE" 2>/dev/null | awk '$NF == "nyrt_dynamic_v2_lease_consume_end_authorized_v1" {count++} END {print count + 0}')"
@@ -716,10 +721,16 @@ fi
 if printf '%s\n' "$STRICT_BODY" | rg -n 'A_Prime|a_prime|Vm|Interpreter|lower_method_call|RuntimeExecutablePlan'; then
   guard_fail "$TAG" "strict leaf must not open VM, MIR, LLVM, or executable-plan routes"
 fi
-for file in "$STRICT_LEAF" "$LEASE" "$SELECTED_LIFECYCLE"; do
+for file in "$STRICT_LEAF" "$LEASE" "$LEASE_IDENTITY" "$SELECTED_LIFECYCLE"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "I0-D strict leaf/lease file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+for file in "$LEASE" "$LEASE_IDENTITY"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 760 )); then
+    guard_fail "$TAG" "lease owner source reached its 760-line split boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
 
