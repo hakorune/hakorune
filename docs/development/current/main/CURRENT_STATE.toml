@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, resolver unary source rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted. The next design stop names the sole complete ScanWithInit Facts product before any Recipe key. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, resolver unary source rows, Exit/Tail co-seal, complete Recipe target map, and complete Facts design are landed/accepted. The current fixed two-commit BoxShape retains resolver-owned assignment form and same-seal body-shape closure, then issues the sole non-Clone ScanWithInit Facts product before any Recipe key. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Design the sole complete VerifiedS6CScanWithInitFactsV1. It may only consume the landed typed-input/source-bound-call relation and Exit/Tail co-seal, own exact semantic role/site/coverage relations, and lend a non-splittable view to one later Recipe producer."
-work_mode = "design_stop"
-current_execution_row = "LOOP-S6C-SCAN-WITH-INIT-FACTS-D0"
-current_blocker_token = "Name the Facts aggregate field set, canonical issuer, exact role cardinalities, owner/frame/source-site parity, and fail-fast matrix without minting Recipe keys. Missing/duplicate/swapped/foreign/orphan input, call, binary, update, If, Loop Return, or callable Tail evidence must reject before Facts issuance. No AST/order/name/MIR inference, fallback, or physical route."
+current_design_stop = "none; LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 accepted one fixed two-commit T2 BoxShape using resolver same-seal body-shape coverage and an exact plain-assignment source relation before the sole Facts issuer"
+work_mode = "fast"
+current_execution_row = "LOOP-S6C-SCAN-WITH-INIT-FACTS-I0"
+current_blocker_token = "Implement the accepted fixed two-commit Facts BoxShape. Commit A transports the root VerifiedResolvedBodyShapeInventoryV1 from the same resolver seal and records an exact Plain/Compound assignment source row, then retains the exact S6C index update. Commit B compares all expected S6C statement/expression/effect/relation evidence with that closed body surface and issues one non-Clone VerifiedS6CScanWithInitFactsV1 with an HRTB view. Stop if a second AST walk, source order/name/MIR/Recipe inference, a transferable source-closure receipt, fallback, or physical route is required."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C complete Facts D0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation, resolver unary rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted. The active design stop fixes one complete Facts owner before Recipe keys. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C complete Facts I0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation, resolver unary rows, Exit/Tail co-seal, complete Recipe target map, and complete Facts design are landed/accepted. The current fixed implementation closes exact resolver source coverage and issues one Facts owner before Recipe keys. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed source-bound relation, unary source rows, and Exit/Tail co-seal are closed. Complete Facts D0 is current before Recipe keys or physical production."
-next_design_card = "LOOP-S6C-SCAN-WITH-INIT-FACTS-D0"
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed source-bound relation, unary source rows, Exit/Tail co-seal, and complete Facts D0 are closed. Facts I0 is the current fixed two-commit BoxShape before Recipe keys or physical production."
+next_design_card = "LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "none"
+next_execution_card = "LOOP-S6C-SCAN-WITH-INIT-FACTS-I0"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-14: LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 accepted one fixed two-commit T2 BoxShape: carry the same-seal root body-shape inventory and exact Plain/Compound assignment source, retain the exact index update, close all expected statement/expression/effect/relation evidence, then issue one non-Clone Facts owner; family-count-only closure was rejected by extra-pure-expression and compound-assignment counterexamples; Recipe/physical production remain closed.",
   "2026-08-14: LOOP-S6C-UNARY-SOURCE-ROW-I0 plus LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 landed one resolver-owned unary site/operator/operand row and one non-Clone Completion/call/If-region co-seal; focused resolver/S6C suites, cargo check, Loop/CoreMethod/pointer guards, and diff check are green; Facts/Recipe/physical production remain closed.",
   "2026-08-14: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 at cce7c1dade: cargo check, normal_callable_semantic_package, dynamic_full_body_recipe, selected_dynamic_physical_emitter, seven existing authority/route guards, pointer guard, in-place guard, and diff check green; completion is 107 passed/1 failed with the same ReturnValueTypeMissing(ValueId(12)) at parent b295288251, classified baseline; selected production remains new=0/old=1.",
   "2026-08-14: DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0 closed the negative-only RejectBeforeEffect handoff: one private unpublished-session fence is consumed immediately before Builder open, the session stores no disposition, focused emitter/package tests plus cargo check/fmt, existing authority guards, pointer guard, and diff check are green; production remains new=0 old=1.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-14: DYN-CALLOUT-NORMAL-RESULT-TYPE-R0 closed one typed Normal-result boundary: canonical SSA now co-seals I6 StringBox and I7 Integer from the existing route projection, while the private ledger retains EndAuthorizedHandle/ImmediateI64; selected focused tests, authority/physical-input/current-state guards, and diff check are green; production remains new=0 old=1.",
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
   "2026-08-14: LEXICAL-SCOPE-SAFE-TRANSACTION-R0 replaced the production raw-pointer Drop guard with a callback-scoped transaction, fallible KeepAlive close, and exactly-once restoration across success/Err/panic; lexical (6) and block-driver (6) focused tests passed. The existing UnsafeOrFFI inventory red is stale parent-fixture debt, not this row.",
-  "2026-08-14: LOOP-CORE-METHOD-INSTANCE-TARGET-I0 landed the generated manifest brand and dedicated StringBox/Text Home issuer; StringLen/0 and StringSubstring/2 specialize exact receiver/parameter/result/PureRead relations, foreign/wrong/union/duplicate negatives reject before capability issue, and the manifest guard, focused five-test suite, fmt, pointer, and Loop guards are green; source-bound/S6C production remains closed.",
 ]

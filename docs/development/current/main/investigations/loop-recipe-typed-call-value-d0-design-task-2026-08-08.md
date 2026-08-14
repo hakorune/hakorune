@@ -1,7 +1,7 @@
 ---
-Status: unary source row and Exit/Tail co-seal closed; complete Facts D0 is current
+Status: complete Facts D0 accepted; fixed two-commit Facts I0 is current
 Date: 2026-08-14
-Decision: separate Loop Return(index) from callable Tail(-1), then issue one S6C Facts owner and one Recipe-key producer
+Decision: retain exact resolver source closure, then issue one S6C Facts owner before one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -11,15 +11,15 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
   callable contract, typed-input product, source-bound relation, exact unary
-  rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted.
-  The sole complete Facts product is the current design boundary.
+  rows, Exit/Tail co-seal, complete Recipe target map, and complete Facts D0
+  are landed/accepted. Facts I0 is a fixed two-commit BoxShape.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-FACTS-D0` — fix the one
-  non-Clone aggregate that consumes all landed S6C source products without
-  minting Recipe keys.
+- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-FACTS-I0` — transport the
+  resolver's same-seal root body-shape and exact assignment form/update, close
+  all S6C source evidence, and issue one non-Clone Facts owner.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -29,104 +29,126 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: issue one complete, non-Clone S6C Facts aggregate; do not let later
-Recipe code re-pair typed inputs, calls, control, updates, Return, or Tail.
-Source authority + canonical issuer: the landed typed-input/source-bound-call
-relation and Exit/Tail co-seal; loop_structural_facts is the sole Facts issuer.
-Non-authority: Recipe target map, source order, AST/name/fixture navigation,
-MIR/ResultKind, Dynamic receipts, selectors, or physical effects.
-Fail-fast boundary: missing/duplicate/swapped/foreign/orphan role, owner/frame/
-site drift, incomplete operation/control/exit coverage rejects before Facts.
-Smallest next slice: fix the aggregate field/cardinality contract and one
-bounded issuer API; implementation waits for this D0 acceptance.
+Decision: implement one fixed two-commit Facts BoxShape: retain same-seal body
+shape plus assignment form/update, close the exact surface, then issue Facts.
+Source authority + canonical issuer: one ShadowResolver seal issues the source
+inventory/body shape/assignment row; loop_structural_facts alone issues Facts.
+Non-authority: family counts alone, generic point lookup as role proof,
+source order, AST/name/fixture navigation, MIR, Recipe keys, or physical IDs.
+Fail-fast boundary: missing/duplicate/swapped/foreign/orphan roles, compound
+update, or any extra statement/expression/effect/relation rejects before Facts.
+Smallest next slice: commit A transports body shape and exact update evidence;
+commit B closes coverage and issues one non-Clone Facts product/HRTB view.
 Non-claims: no Recipe key, JoinSig, Builder/MIR, physical canary, production
 selector, fallback/retry, legacy deletion, or backend change.
 ```
 
-## Authority census and bounded task DAG — 2026-08-14
+## Accepted complete Facts D0 and fixed implementation — 2026-08-14
 
-The read-only S6C audit is complete. Its CoreMethod/Home dependency is now
-implemented as the bounded I0 below; this section remains a census, not a
-source-bound or Facts receipt:
+Six read-only audits agree that the landed typed input, call relation, and
+Exit/Tail co-seal are sound but insufficient for a complete Facts product.
+The missing evidence is exact assignment form and closed source coverage.
+
+Two concrete counterexamples reject a family-count-only solution:
 
 ```text
-closed evidence:
-  LoopRecipeV2 { Text, CallSlot, TextEq } is a structural wire only;
-  CoreMethodContractBox/generated rows own StringLen/StringSubstring
-  op/arity/result/effect and runtime-owner metadata;
-  resolver declaration, Home, Query, body-carrier, and contract products
-  exist for the bounded user-instance I64/Unit cohort;
-  the separate generated-brand StringBox/Home target issuer now covers
-  StringLen/0 and StringSubstring/2.
+i += i + 1
+  -> has the same canonical target/value paths and StepAdd shape as a plain
+     assignment, but its semantics are not the accepted index write.
 
-remaining authority:
-  no complete S6C Facts-to-Recipe producer consumes the landed fixed
-  source-bound relation and owns exact role coverage plus Recipe keys.
-
-therefore:
-  the Resolver callable-contract and source-bound relation close the exact
-  source/frame/target bridge; the complete S6C Facts/Recipe producer remains
-  unopened. The unannotated `find_ok(s, ch)` fixture is
-  `MissingTypeEvidence`; selected-Dynamic substring/indexOf receipts are a
-  different owner and are not evidence.
+42;  // likewise a variable, FieldAccess, New, Await, Array, Map, BlockExpr...
+  -> can add accepted source syntax without changing current method/binary/
+     assignment/exit family counts, so Recipe could silently drop meaning.
 ```
 
-Audit anchors (these are evidence pointers, not new authorities):
+The accepted authority chain is therefore:
 
 ```text
-src/mir/resolved_semantics/instance_method_declaration.rs
-  ResolverSemanticValueTypeV1 = I64 | Unit; no Text declaration/result class.
-src/mir/resolved_semantics/home_abi.rs
-  HomeCapabilitySchemaV1 = I64UnitTrivial; no StringBox/Text Home projection.
-src/mir/generated/core_method_contract_rows.rs
-  StringLen/StringSubstring rows provide receiver_box, arity, op,
-  result_kind, and PureRead only; no source-site or Home relation.
-src/mir/source_call_target/model.rs
-  source target vocabulary is Static or DynamicMember; no resolver-issued
-  instance CoreMethod target capability exists.
-src/mir/loop_recipe_contract/schema_v2.rs
-  CallSlot is deliberately receiver/args/result keys only and cannot repair
-  any of the missing source/target/Home axes.
-src/mir/resolved_semantics/body_shape.rs
-  VerifiedResolvedMethodCallSourceV1 provides exact AST-free call site,
-  receiver expression, ordered argument sites, result site, owner, selector,
-  and arity, but intentionally no target/Home/effect policy.
-src/mir/resolved_semantics/callable_source_ledger.rs
-  CallableSemanticSourceLedgerView provides method-call rows and resolver
-  Loop membership/frame products; the landed Resolver callable-contract I0
-  now co-seals the call-site-to-loop-frame bridge with the target capability.
+one ShadowResolver traversal/seal
+  -> resolved source inventory
+  -> root VerifiedResolvedBodyShapeInventoryV1
+       (all statement/expression shapes, BodyEffect, BodyShapeRelation)
+  -> exact assignment source { statement, target, value, Plain|Compound }
+  -> VerifiedS6CTypedInputRelationV1 retains exact Plain index update
+  -> VerifiedSourceBoundS6CCallRelationV1
+  -> VerifiedS6CExitTailSourceCoSealV1 + private source-closure seal
+  -> sole VerifiedS6CScanWithInitFactsV1 issuer
 ```
 
-The ordered task DAG is now explicit and bounded:
+`VerifiedResolvedBodyShapeInventoryV1` already seals statement and expression
+site equality during resolver traversal. The selected callable forest must
+transport that exact root product; Facts must not start a second traversal or
+promote a family count/point lookup into coverage authority. Assignment form
+is recorded once during the same traversal in a split neutral source module.
+
+### Fixed Facts I0 series (one row, two commits)
 
 ```text
-S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
-  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
-       -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CLOSED (bounded manifest evidence)
-            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CLOSED (accepted design)
-                 -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  CLOSED bounded bridge
-                      -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0  CLOSED (accepted explicit-annotation design)
-                           -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0  CLOSED
-                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CLOSED
-                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CLOSED T0
-                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
-                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
-                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CLOSED T2 (target map; NoSafeSlice dependency named)
-                                                    -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CLOSED T2
-                                                         -> LOOP-S6C-UNARY-SOURCE-ROW-D0 CLOSED T2
-                                                              -> LOOP-S6C-UNARY-SOURCE-ROW-I0 CLOSED T1
-                                                                   -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 CLOSED T2
-                                                                        -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 CURRENT T2
-                                                                             -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
-                                                                   -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 T2
-                                                                        -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
-                                               -> S6C parity / canary / later production rows
+Commit A — source transport and exact update
+  * carry the same-seal root body-shape inventory beside the selected callable
+    forest into the callable semantic batch;
+  * add resolver-owned ResolvedAssignmentFormV1::{Plain, Compound} with exact
+    statement/target/value sites in resolved_semantics/assignment_source.rs;
+  * retain exactly one Plain Body BindingRebind(index) whose value is the
+    already sealed StepAdd; grouped/foreign/duplicate/drifted writes reject.
+
+Commit B — closed surface and sole Facts product
+  * compare the exact expected S6C role-site union with every root body
+    statement/expression shape, BodyEffect, and BodyShapeRelation;
+  * allow only explicitly co-sealed identity aliases between roles;
+  * retain only a private closure seal in the existing ownership chain;
+  * issue one non-Clone VerifiedS6CScanWithInitFactsV1 and HRTB named view;
+    Clone, raw constructor, owned constituent getter, and into_parts remain 0.
+```
+
+Bounded implementation surface and file budget:
+
+```text
+src/mir/resolved_semantics/assignment_source.rs              new neutral row
+src/mir/callable_semantic_batch/{model,issuer}.rs             same-seal transport
+src/mir/loop_structural_facts/s6c_typed_input.rs              retain exact update
+src/mir/loop_structural_facts/s6c_scan_with_init.rs           sole Facts owner
+src/mir/loop_structural_facts/s6c_scan_with_init_tests.rs     focused matrix
+src/mir/resolved_semantics/body_shape.rs                      frozen at 770 lines
+```
+
+The positive must seal all 16 semantic roles, exact owner/function/Loop frame,
+and the complete source surface without depending on source order. A source
+with comments/whitespace must remain equivalent. Each new/touched production
+file remains below 760 lines; 800 is a hard stop and compression is forbidden.
+
+This is one fixed T2 BoxShape, not two new task tokens. Commit A may not issue
+Facts; commit B may not issue Recipe keys. Stop and return to design if either
+commit requires a second AST walk, source order/name/fixture navigation, MIR,
+Recipe/selector/physical IDs, or a separately transferable source-closure
+receipt. No new top-level guard is added; focused tests reuse the existing
+Loop/CoreMethod/pointer guard families.
+
+Required negatives include compound or duplicate assignment, wrong update
+binding/operand/literal, missing role, extra pure expression, extra direct or
+method call, FieldAccess/New/Await/aggregate/block expression, extra
+statement/effect/relation, nested or foreign control frame, swapped/foreign
+Exit/Tail, and nonempty cleanup. Comments and whitespace emit no body-shape
+rows and remain allowed.
+
+The ordered frontier is now:
+
+```text
+landed S6C source/CoreMethod/typed-input/call/unary/ExitTail authorities
+  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0             CLOSED T2
+  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CURRENT T2 BoxShape (A+B)
+  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            T2 BoxCount
+  -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0           T2 consumer
+  -> S6C parity/canary
+  -> bounded selector/caller cutover
+  -> latest-HEAD integration evidence
+  -> legacy retirement
 ```
 
 ### Accepted complete S6C target map
 
-The mapping is fixed, but does not authorize implementation before the
-Exit/Tail co-seal lands:
+The mapping is fixed. Facts I0 may implement only the accepted source closure;
+Recipe key issuance remains closed until its following row:
 
 ```text
 source roles = subject Text, needle Text, initialized index I64
@@ -139,8 +161,8 @@ step         = read index; const 1; add; write index
 callable     = outer Tail Return(-1), absent from Recipe items/values/exits
 ```
 
-`VerifiedS6CScanWithInitFactsV1` will own the consumed source-bound relation
-plus the accepted Exit/Tail evidence. It remains non-Clone. A later sole S6C
+`VerifiedS6CScanWithInitFactsV1` will own the consumed Exit/Tail chain plus a
+private exact source-closure seal. It remains non-Clone. A later sole S6C
 producer alone mints canonical V2 node/block/binding/value/item/carrier/exit
 keys, verifies through `LoopRecipeVerifierV2`, and derives JoinSig/After only
 through `issue_sole_root_carrier_join_closure_v2()`. Facts never contain
