@@ -404,6 +404,22 @@ Use the smallest ceremony tier that matches the novelty of the cell:
   owner, publication terminal, failure owner, or policy boundary. Require a
   full design-stop brief before implementation.
 
+The token suffix does not select the tier. Classify the actual boundary:
+
+```text
+T0  source/Facts/Recipe, accepted shape, issuer, failure terminal,
+    identity/ABI/schema, and production route are unchanged; a complete
+    caller/cfg census proves a private mechanical move only
+T1  an existing owner gains one bounded field or witness while truth and
+    failure ownership stay fixed
+T2  any authority, identity, accepted shape, ABI/schema, publication,
+    failure stage, lifetime/concurrency/rollback rule changes or is unknown
+```
+
+A one-line accessor can therefore be T2 when its constructor or foreign-ID
+surface is unclassified, while an `I0`-named private move can be T0. Do not
+infer ceremony from `R0`/`S0`/`I0` spelling.
+
 When the same owner-chain pattern appears in two routes, the next repeated
 route is a **batch-proof trigger**. Before adding a third hand-expanded cell,
 define one generic proof parameterized by a route specification. Preserve
@@ -426,6 +442,11 @@ requires the scaffold, but the active card must reserve that deletion row and
 state the zero-consumer evidence. Repeated net additions with no retired
 scaffold are a cleanup/design-review trigger, not a reason to relax the
 contract.
+
+A durable T0 refactor that adds no disconnected or temporary proof records
+uses `sunset = n/a` and `net_proof_delta = 0`; it does not invent placeholder
+retirement metadata. The full sunset record above is mandatory only when a
+temporary/disconnected proof, adapter, fixture, or guard is added or retained.
 
 When a row changes temporary proof scaffolding, record these fields in the
 existing reusable proof inventory or guard metadata:
@@ -589,6 +610,26 @@ new rows inserted after the series starts. When the terminal lands, the next
 row must return to the product-facing path. A newly found problem may preempt
 only when the unchanged production gate fails at that exact owner; record the
 return row instead of opening another general foundation.
+
+Use this hardening admission classifier before inserting an audit finding:
+
+```text
+LiveBlocker     named current production/candidate reproducer reaches effect
+                or publication
+CutoverBlocker  the exact selected future-cutover path reaches the owner and
+                its unchanged gate fails or cannot prove RejectBeforeEffect
+LatentParked    neither reachability nor a named gate failure is present
+CleanupParked   naming, LOC, generalization, or future platform/family only
+```
+
+Only `LiveBlocker` and `CutoverBlocker` may preempt an unlocked product row.
+Reachable UB, corruption, or irreversible-effect risk on that exact path also
+counts as a blocker. Stop the hardening tail when both blocker counts reach
+zero, run the predeclared closeout gate, and retarget `CURRENT_STATE.toml`
+explicitly to the named product row. Reopen only for a named gate failure, a
+caller census changing from zero to nonzero, a new selected consumer, a
+touched owner invalidating its proof, or a source/ABI/identity authority
+change; grep-only suspicion and score/style findings do not reopen it.
 
 This budget does not weaken source authority, atomic co-seal, fail-fast, or
 full-coverage requirements. It changes task selection: correctness gaps stop

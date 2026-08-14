@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, GUARD-PUBLIC-ENTRY-CUT-R0, and the first line-budget facade split are closed with named parent-baseline reds; family-manifest migration is retained as NoSafeSlice and the next design row remains in the existing P1 queue, with zero new top-level guards
+Status: Hardening implementation tail closed for task selection; LiveBlocker=0 and CutoverBlocker=0; one latest-HEAD detached integration return gate remains before explicit Loop M8 S6C retarget; latent P1/P2, G3, and live cutover are parked
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -21,60 +21,24 @@ these rows make every boundary from admission through launch fail closed.
 ## Six-line brief
 
 ```text
-Decision: close the audited admission/safety/post-seal/Boundary gaps before resuming llvmlite G3 archive work or integrating the branch.
-Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
-Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
-Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: accept the catalog-owned physical-header projection BoxShape, then implement only the package-loan to A-prime handoff.
-Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
+Decision: stop the Dynamic hardening tail: live/cutover blocker count is zero; park latent P1/P2 findings, rerun the latest-HEAD detached integration gate once, then return explicitly to the Loop product frontier.
+Source authority + canonical issuer: the landed selected semantic package, canonical session/DraftSeal, Boundary artifact fence, and the unchanged selected candidate/integration gates.
+Non-authority: grep-only suspicion, no-caller LocalSSA wrappers, future provider/platform generalization, LOC/style findings, llvmlite output, or another audit score.
+Fail-fast boundary: only a named live/candidate reproducer, exact selected-cutover gate failure, or reachable UB/corruption/irreversible effect may reopen this card before Loop.
+Smallest next slice: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 in a clean detached worktree; classify every red, then retarget CURRENT_STATE to JOINIR-LOOP-M8-LOOPV0-SCANS-S6C.
+Non-claims: no LocalSSA/provider/platform/line-budget implementation, live cutover, G3 archive/delete, fallback/retry, Loop implementation, or second writer lane.
 ```
 
-## Audit verdict
+## Closed audit boundary
 
-The original four P0 findings remain accepted.  The expanded worker audit
-adds the following independently reproduced P0 boundaries:
-
-| Finding | Current evidence | Classification |
-|---|---|---|
-| clone-scrubbed selected metadata becomes ordinary | both linear slots map `Occupied -> Consumed` on clone; both `borrow()` methods map `Empty` and `Consumed` to `None`; selected census sees only `is_some()` | latent correctness P0; current live selected caller moves the module and censuses before clone, so no current reproduction was found |
-| Method-ID injector runs after seal | runner censuses selected metadata, then lends `&mut MirModule` to the default-enabled injector | structural P0; the current pass is an explicit no-op returning zero, so no current bytes are mutated |
-| executable is renamed before receipt publication | child commits the candidate executable to the final path, then writes/renames receipt JSON | publication P0; root refuses launch without a valid receipt, but artifact visibility and prior-final rollback are not atomic |
-| Boundary production is gated by `llvm-harness` | selected path lives in `HarnessExecutorBox`, `selected_dynamic_nyrt_dir` is feature-gated, and `llvm = ["llvm-harness"]` | ownership P0; selected execution uses Boundary/ny-llvmc and does not spawn Python, but G3 cannot archive the harness boundary safely while these owners are mixed |
-| selected Boundary dispatch is unreachable | the selected arm constructs a fatal PyVM-rejection error and immediately exits; the later `try_execute_selected_dynamic` call is dead for every selected input | live route P0; PyVM remains retired from selected production, but its fence currently blocks Boundary too |
-| selected final verification is not a commit barrier | normal finish retains a pre-transform verifier `Err`, mutates the module afterward, commits it, and the LLVM adapter returns only `.module` | publication P0; JSON/Boundary are not verifier substitutes |
-| selected verifier policy is ambient | `NYASH_STAGEB_DEV_VERIFY=0`, `NYASH_VERIFY_ALLOW_NO_PHI=1`, or `NYASH_MIR_NO_PHI` can skip/weaken checks used by the selected lane | verification P0; selected production needs an env-independent strict policy |
-| Boundary launch and helper identities disagree | Rust selects the module by exactly one metadata-bearing helper, while C and the artifact descriptor inspect the zero-argument `main`/`ny_main` entry | physical identity P0; a four-argument helper may not be aliased to the runtime launch entry |
-| Dynamic admission is not declaration-mode bounded | package admission probes every resolved declaration although A-prime/lowering accepts only `StaticBoxMethod`; Instance/TopLevel exact shapes can be selected or fail before ordinary ownership | upstream acceptance P0; mode comes only from the resolved batch row |
-| lexical scope guard is a safe unsound API | `LexicalScopeGuard` stores a lifetime-free raw `*mut MirBuilder`, dereferences it in safe `Drop`, and hides KeepAlive close errors | MirBuilder safety P0; replace it with an escape-proof fallible scope transaction |
-
-The feedback does not justify rebuilding MIRBuilder. It identifies post-cutover
-hardening around an otherwise single canonical lane.
-
-## Worker consolidation and task normalization (2026-08-14)
-
-The follow-up worker audits do not open another active card.  They are mapped
-to the existing bounded rows below; each row keeps one owner, one focused
-behavior test, and one reusable family guard.  A new top-level guard or a
-per-finding task file is not authorized by this audit.
-
-| Worker finding | Existing task owner | Scope decision |
-|---|---|---|
-| Empty/Occupied/Consumed clone scrubbing | B1 `SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0` | current fast row; expose `Scrubbed` and reject partial pairs |
-| optimizer/RC/refresh/canonicalizer/Method-ID mutation after seal; dropped final verify | post-seal `SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0` | one immutability fence plus strict compile-result consumption; no second receipt |
-| ambient verifier env weakening | `SELECTED-DYNAMIC-STRICT-VERIFIER-POLICY-R0` | selected-only strict policy; compatibility env remains ordinary-only |
-| selected arm dies at the retired PyVM fence | B2 `SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0` | PyVM stays retired; selected path skips it and reaches Boundary once |
-| launch `main` versus metadata-bearing helper identity | Boundary `DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0` | one zero-arg launch entry and one exact selected helper; no alias/copy |
-| executable/receipt visibility and rollback gap | B3 `DYNAMIC-V2-STATIC-ARTIFACT-BUNDLE-PUBLICATION-D0` | attempt-unique bundle plus one directory publication |
-| Boundary mixed with `llvm-harness` feature/module names | B4 `LLVM-BOUNDARY-COMPAT-OWNERSHIP-D0` | split Boundary production from explicit llvmlite compat/oracle |
-| source-fact/header re-observation and callout parity/wire checks | parked P1 rows 6--13 | grouped hardening; no new semantic issuer or guard family |
-| physical ID minting, LocalSSA fail-open, lease capture rollback | parked P1 rows 10--15 | type/terminal hardening only when the touched owner is selected |
-| Linux-only selected target and line-budget drift | parked P1/P2 rows 17--18 | one platform fence and one reusable census; no mass split |
-| llvmlite archive movement/deletion | existing G3 graduation board | remains parked until selected P0s, external preservation, and separate deletion approval |
-
-The C ABI review is already owned by W6-C0-D/C1: it remains a thin
-`uint64_t lease_token -> uint32_t status` bridge to the Rust lease owner.  It
-does not become a new lease, CFG, wire, or semantic authority.  Likewise, the
-lexical-scope and declaration-mode findings are closed rows, not new queues.
+The landed chain now covers declaration mode, lexical safety, clone scrubbing,
+post-seal immutability, strict verification, runner reachability, launch/helper
+identity, attempt-unique artifact publication, Boundary/compat feature
+ownership, physical census/wire parity, and atomic lease publication. Git
+history and the focused tests own their detailed evidence. The C ABI remains a
+thin `uint64_t lease_token -> uint32_t status` bridge to the Rust lease owner;
+it owns no lease, CFG, wire, or semantic meaning. New findings use the
+hardening admission rule below and do not create another card or guard family.
 
 ### GUARD-SURFACE-CONSOLIDATION-D0
 
@@ -172,7 +136,8 @@ closed: mode fence + lexical transaction + linear slots
   -> closed: B3 attempt-unique artifact bundle publication/consumption and path-bound launch fence
   -> closed: B4 llvm-boundary vs llvmlite-compat feature ownership
   -> closed: selected post-seal mutation fence + strict verification retention + selected runner reachability
-  -> CURRENT: MAIN-INTEGRATION-EVIDENCE-R0
+  -> CURRENT CLOSEOUT: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0
+  -> RETURN: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C (T2 design stop)
   -> parked G3 oracle/archive/deletion DAG
 ```
 
@@ -895,6 +860,13 @@ smoke was corrected in `145921e7d5`, after which the AOT authority guard passed.
 The integration row is therefore closed as evidence classification, not as a
 claim that the baseline debt or live production cutover is complete.
 
+That SHA is a classified baseline, not proof for the latest branch head.
+`MIRBUILDER-LATEST-HEAD-INTEGRATION-R0` is the one predeclared return gate:
+rerun the same detached family at the exact current SHA, classify every red
+against its parent, and record selected `new=0 / old=1`. It changes no code or
+route. When it closes, this hardening card stops and `CURRENT_STATE.toml`
+retargets explicitly to `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`.
+
 Only after every P0 row in the ordered DAG and integration evidence may
 `LLVMLITE-ORACLE-COVERAGE-D0` resume. Its acceptance is refined to:
 
@@ -909,7 +881,13 @@ consumer identity = 48 unique owner+selector edges; 50 source row IDs retained
 
 ## Parked P1/P2 cleanup
 
-These do not block the P0 DAG unless a touched file makes them necessary:
+These do not block the product frontier. `LiveBlocker = 0` and
+`CutoverBlocker = 0` at this census: a row may reopen only when a named
+production/candidate reproducer reaches effect/publication, the exact selected
+cutover consumes its owner and the unchanged gate fails, a caller changes
+from zero to nonzero, or a touched authority/ABI/identity owner invalidates the
+closed proof. Grep-only suspicion, naming/LOC/style, future families/platforms,
+and another audit score remain parked.
 
 1. `DYN-CALLOUT-EFFECT-R0`
    - project each site effect from its retained exact CoreMethod row;
@@ -960,21 +938,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 14. `DYN-LEASE-PUBLISH-ATOMICITY-R0` (closed 2026-08-14 BoxShape)
     - Decision/authority: private host-handle child owns the lock-scoped `(handle, generation identity)` allocation; collision/exhaustion preserves the old entry and drops only the matching new identity. Rust lease/host tests, kernel TextScan tests, C1/AOT/pointer guards, check/fmt, and diff checks are green.
     - Nonclaims: no raw `drop_handle` rollback authority, C ABI/schema, strict-leaf semantics, fallback/retry, production cutover, or VM/llvmlite route.
-15. `LOCAL-SSA-CHECKED-TERMINAL-R0`
-    - migrate production callers away from `unwrap_or(original ValueId)` and
-      `LegacyFacade -> Ok(original)` fail-open wrappers;
-    - keep any remaining compatibility fallback explicitly fenced.
-16. `TEXT-SCAN-PROVIDER-CONTRACT-TYPED-CARRIER-R0`
-    - generate the ProviderSlot role/profile/lifecycle carrier from its Hako
-      source and remove hand-written Rust mirrors;
-    - keep CoreMethod result/effect and neutral C ABI under their existing,
-      separate authorities.
-17. `DYN-BOUNDARY-PLATFORM-FENCE-R0`
-    - document Linux x86_64 as the currently supported selected target and
-      reject other targets before output until their backend rows exist.
-18. `MIRBUILDER-LINE-BUDGET-CENSUS-R0`
-    - warn at 760 and fail at 800 using one reusable census;
-    - split only owners touched by an accepted row, never as a mass refactor.
+15--18. PARKED: LocalSSA failure-terminal migration is T2 but has no selected
+    or cutover caller; typed ProviderSlot carrier is future SSOT cleanup;
+    non-Linux selected platforms are future-family work; line-budget census is
+    touch-triggered cleanup only. None may insert a row before S6C.
 
 ## Cross-row stop line
 

@@ -1,27 +1,40 @@
 ---
-Status: Design closed; next bounded BoxCount row
-Date: 2026-08-08
-Decision: accepted architecture; the first implementation row is schema-only and does not issue resolver targets
-Scope: M8 LoopV0 scan ingress; one profile-neutral Recipe vocabulary, no physical activation
+Status: Accepted next T2 design stop; pending explicit CURRENT_STATE retarget
+Date: 2026-08-14
+Decision: resume at S6C authority closure, not at the already-landed schema rows
+Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
 # LOOP-RECIPE-TYPED-CALL-VALUE-D0
 
 ## Current Capsule
 
-- **Current decision:** S6C scans cannot issue a truthful portable Recipe with
-  the current numeric-only `LoopRecipeV1` vocabulary.
-- **Current implementation status:** the typed boundary is accepted, but no
-  schema, instance-target issuer, observer, producer, Builder, or physicalizer
-  change is landed for S6C.
-- **Next ordered task:** first perform the behavior-neutral source split in
-  `LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0`; then implement the typed schema and
-  instance-call target as separate BoxCount rows.
+- **Current decision:** the V2 typed schema and neutral operation split are
+  landed; S6C still needs one exact resolver/CoreMethod-backed
+  `length/substring/TextEq` source relation and one complete Facts-to-Recipe
+  issuer before implementation is safe.
+- **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
+  are closed, and no forward `ScanWithInit` Facts/producer or production
+  physical selector is active.
+- **Next ordered task:** after the selected-Dynamic latest-HEAD integration
+  closeout, retarget `CURRENT_STATE.toml` here and audit whether the existing
+  neutral resolver/CoreMethod owners can issue the complete S6C relation.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
+
+## Resumption brief
+
+```text
+Decision: resume Loop at JOINIR-LOOP-M8-LOOPV0-SCANS-S6C as one T2 authority design stop; do not replay closed rows 1--10 or select production row 11 early.
+Source authority + canonical issuer: resolved forward ScanWithInit source, resolver-issued instance-call/CoreMethod contracts, existing typed input/Home/effect owners, and one future S6C Facts-to-Recipe producer.
+Non-authority: selected-Dynamic substring/indexOf receipts, raw AST/name lookup, legacy scan builders, MIR/CheckedCallOut IDs, physical operation order, and task-map history.
+Fail-fast boundary: missing/foreign/duplicate target, result/Home/effect/site relation, incomplete role coverage, or Loop Return versus callable Tail drift remains NoSafeSlice before Facts/Recipe publication.
+Smallest next slice: read-only issuer/caller census for exact length/substring/TextEq and input/condition/body/step/Return coverage; accept one bounded BoxCount only if every required authority already exists or one named neutral issuer can be added.
+Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
+```
 
 ## Change
 

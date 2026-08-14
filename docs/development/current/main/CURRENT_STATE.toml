@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Clean integration evidence at 145921e7d5 remains classified as baseline; latest per-row evidence is current while a fresh detached full rerun remains pending. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Family-manifest and historical retirement remain retained; GUARD-QUICK-PROFILE-RECUT-R0, GUARD-SURFACE-CLOSEOUT-R0, line-budget facade split, source-fact issuer-once, catalog-header projection, Normal-result type, DraftSeal evidence, activation disposition, physical-ID issuer, CFG/operand parity, Boundary wire fail-stop, and lease publication atomicity rows are closed. The next bounded design stop is LOCAL-SSA-CHECKED-TERMINAL-R0; live cutover and G3 remain parked."
+status = "Selected Dynamic/AOT exit hardening has no remaining live or cutover blocker: source-fact, catalog-header, Normal-result, DraftSeal, activation, physical-ID, CFG/operand parity, wire fail-stop, and lease publication rows are closed. LocalSSA/provider/platform/line-budget findings are parked because they have no selected/cutover caller. The one return gate is a fresh latest-HEAD detached integration rerun; after classification the pointer returns explicitly to Loop M8 S6C. Live cutover and G3 remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 remains the sole active task card. Admission, lexical scope, post-seal/strict verification, runner, launch/helper, B3/B4, guard/index, line-budget, source-fact, catalog-header, Normal-result, DraftSeal-evidence, B1 clone-scrub, activation-disposition, physical-ID, CFG/operand parity, Boundary wire fail-stop, and lease publication atomicity rows are closed with focused evidence. GUARD-FAMILY-MANIFEST-MIGRATION-R0 and GUARD-HISTORICAL-RETIRE-R0 remain NoSafeSlice. The next design stop is LOCAL-SSA-CHECKED-TERMINAL-R0; G3 archive work and live cutover remain parked."
-work_mode = "design_stop"
-current_execution_row = "LOCAL-SSA-CHECKED-TERMINAL-R0"
-current_blocker_token = "LOCAL-SSA-CHECKED-TERMINAL-R0: census production callers of fail-open LocalSSA/pin wrappers and name one existing fallible terminal owner before implementation; no unwrap_or(original) or legacy Ok(original) may weaken selected publication."
+current_design_stop = "The Dynamic hardening tail is accepted closed for task selection: LiveBlocker=0 and CutoverBlocker=0. The active closeout is MIRBUILDER-LATEST-HEAD-INTEGRATION-R0; its successor is the existing T2 Loop design stop JOINIR-LOOP-M8-LOOPV0-SCANS-S6C."
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-LATEST-HEAD-INTEGRATION-R0"
+current_blocker_token = "Run the selected latest-HEAD integration family in a clean detached worktree, classify every red against the parent baseline, record selected new=0/old=1, then retarget CURRENT_STATE explicitly to JOINIR-LOOP-M8-LOOPV0-SCANS-S6C."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "Selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> CatalogedBoxMethod and W6 Boundary candidate evidence are landed; CheckedCallOut Normal-result typing co-seals I6 StringBox and I7 Integer with the private ledger. Completion/DraftSeal evidence retires once before collector handoff, activation disposition becomes a private unpublished-session fence before Builder open, physical IDs have one canonical pair issuer with private accessors, and the closed CFG/operand parity view is consumed once by AOT/JSON/Boundary. Post-seal, strict-verification, runner, launch-helper, B3, and B4 fences are closed. Guard inventory is complete at 19 human entries without touching compatibility scripts. B1/disposition/physical-ID/parity tests are green; root descriptor site-set bijection and fresh detached full integration remain evidence followups; live cutover remains closed, G3 parked, ordinary compatibility source-scoped."
+active_lane_status = "Two-front display under one MirBuilder replacement goal: Loop compiler physicalization is the product frontier and is paused at M8 S6C; selected Dynamic/AOT was the exit-path hardening detour and now has no live/cutover blocker. Run one latest-HEAD detached integration closeout, then return explicitly to S6C. LocalSSA/provider/platform/line-budget hardening, live Dynamic cutover, G3, and compatibility cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,9 +29,9 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "One selected-dynamic repair DAG remains; no per-finding cards or new guard files. Mode/lexical/post-seal/strict verification/runner, B3/B4, launch/helper, integration, guard/index, line-budget, source-fact, catalog-header, Normal-result, DraftSeal, clone-scrub, disposition, physical-ID, CFG/operand parity, Boundary wire fail-stop, and lease publication atomicity rows are closed. Next design stop: audit the existing LocalSSA fallible terminal boundary; Loop physicalization remains parked until CURRENT_STATE explicitly retargets it. Family-manifest/historical-retire remain NoSafeSlice; PyVM retired; G3 and live cutover parked; selected production new=0/old=1."
-next_design_card = "LOCAL-SSA-CHECKED-TERMINAL-R0"
-next_design_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+latest_card_summary = "Selected Dynamic/AOT exit hardening is at its predeclared return gate. LiveBlocker=0 and CutoverBlocker=0; LocalSSA/provider/platform/line-budget findings are parked. Fresh latest-HEAD detached integration is current; successful classification returns the pointer to Loop M8 S6C. Family-manifest/historical-retire remain NoSafeSlice; G3 and live cutover parked; selected production new=0/old=1."
+next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C"
+next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 

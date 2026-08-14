@@ -12,12 +12,11 @@ Final convergence pointer (serial, after Loop retirement):
   - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
-Current execution row:
-  - Deferred; select the active row only through `CURRENT_STATE.toml` after the
-    selected-Dynamic hardening card closes.
-Current execution task:
-  - No implicit Loop execution from this historical frontmatter; retarget
-    `CURRENT_STATE.toml` explicitly before resuming the Loop frontier.
+Current Loop product frontier:
+  - `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C` (T2 design stop)
+Resume gate:
+  - finish the selected-Dynamic latest-HEAD integration closeout, then retarget
+    `CURRENT_STATE.toml` explicitly; this frontmatter is not a live pointer.
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -68,28 +67,24 @@ must not silently fall back to the retired prepare-only row or resume before an
 explicit pointer retarget.
 
 ```text
-1. LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0
-   full Callable/G0 demand + prepare_all; Builder effect zero
-2. LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0
-   flat file -> one directory facade; delete old flat module, behavior unchanged
-3. LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0
-   canonical logical-block -> physical-block receipt
-4. LOOP-RECIPE-OPERATION-EMITTER-CONST-S0
-   private ConstI64 leaf canary; exact placement/discard/fresh reuse
-5. LOOP-RECIPE-OPERATION-EMITTER-READ-S1
-6. LOOP-RECIPE-OPERATION-EMITTER-BINARY-S2
-7. LOOP-RECIPE-OPERATION-EMITTER-COMPARE-S3
-8. LOOP-RECIPE-OPERATION-EMITTER-WRITE-S4
-9. LOOP-RECIPE-OPERATION-PROGRAM-CALLABLE-P0
-   all seven Callable operations exactly once, then continuation
-10. LOOP-RECIPE-OPERATION-PROGRAM-GENERIC-G0-P0
-    all fifteen G0 operations plus item-3 carrier seed
-11. production operation physicalizer selection
-    one selector, no retry/fallback/reselection
-12. M8/M9 all-ingress Recipe coverage
-13. M10b activation, then M11/M12 legacy retirement
-14. REPO-FINAL-CONVERGENCE-AUDIT0-G0
+1--5. CLOSED: demand, module split, block receipt, Const, Read
+6--8. CLOSED-BY-INTEGRATION: Binary, Compare, Write through the common
+      five-family dispatcher and its exact receipt/negative evidence
+9. CLOSED caller-zero: seven-row Callable program through DraftSeal
+10. CLOSED caller-zero: fifteen-row Generic G0 program plus carrier
+11. OPEN but gated: production operation physicalizer selection waits for
+    M8/M9 coverage and the pre-cutover authority proof
+12. PARTIAL: M8 S6A/S6B closed; first open cohort is
+    `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`; later M8 and M9 remain open
+13. OPEN: M10b activation, then M11/M12 legacy retirement
+14. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
+
+The selected-Dynamic `skip_while/4` lane is a reusable authority/physical
+precedent, not S6C source truth: it owns `substring/indexOf`, while forward
+`ScanWithInit` requires its own exact `length/substring/TextEq` source-bound
+relations. The old live general-Loop edge remains one registry/legacy route;
+portable/common production selection remains zero until rows 12 and 11 close.
 
 Decision B forbids taking one operation from a full demand. The current demand
 row and every later leaf row have one acceptance claim each. No current row

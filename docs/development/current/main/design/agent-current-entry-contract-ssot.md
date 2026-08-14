@@ -258,6 +258,22 @@ block keeps its blocker and next action; it is not closed as “partially landed
 
 Workers are a bounded review resource, not a second implementation stream.
 
+- Keep exactly one serial authority/current-execution spine. Up to two
+  workers may inspect independent premises concurrently, but under the current
+  policy they remain read-only and the primary agent integrates one Decision.
+- Do not infer ceremony from a task suffix. T0 is a fully censused private
+  mechanical move with unchanged authority/identity/failure/ABI/route; T1 adds
+  one bounded witness to an existing owner; every unknown or changed truth,
+  failure, publication, lifetime, rollback, or schema boundary is T2.
+- An audit finding interrupts the unlocked product row only when a named live
+  reproducer reaches effect/publication, the exact selected cutover reaches
+  the owner and its unchanged gate fails, or that path has reachable UB,
+  corruption, or irreversible-effect risk. Otherwise park it and return to
+  the product row after the declared closeout.
+- A second code-writing lane would change the durable worker and integration
+  policy. It is not authorized by independent T0 work and must not be
+  improvised in a shared worktree.
+
 - Use a worker for a genuinely difficult design/authority audit or an
   independent premise review; mechanical T0 work does not need one.
 - The worker receives a read-only question covering source authority,
