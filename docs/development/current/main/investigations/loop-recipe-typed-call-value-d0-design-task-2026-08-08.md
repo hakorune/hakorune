@@ -16,9 +16,12 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 - **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
   are closed, and no forward `ScanWithInit` Facts/producer or production
   physical selector is active.
-- **Next ordered task:** audit whether the existing neutral resolver/CoreMethod
-  owners can issue the complete S6C relation; keep NoSafeSlice if the exact
-  issuer or source-bound ownership is absent.
+- **Next ordered task:** keep the S6C audit result as a T2 dependency stop:
+  the existing declaration/Home/Query issuers cover only the bounded `I64`/
+  `Unit` instance cohort, and the CoreMethod manifest does not issue a neutral
+  `Text` receiver/result Home plus source-site target. Reopen the existing
+  `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` dependency only after that
+  contract boundary is named; keep S6C `NoSafeSlice` if it is absent.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -35,6 +38,89 @@ Fail-fast boundary: missing/foreign/duplicate target, result/Home/effect/site re
 Smallest next slice: read-only issuer/caller census for exact length/substring/TextEq and input/condition/body/step/Return coverage; accept one bounded BoxCount only if every required authority already exists or one named neutral issuer can be added.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
+
+## Authority census and bounded task DAG — 2026-08-14
+
+The read-only S6C audit is complete. It is a design result, not an issuer or
+Facts receipt:
+
+```text
+closed evidence:
+  LoopRecipeV2 { Text, CallSlot, TextEq } is a structural wire only;
+  CoreMethodContractBox/generated rows own StringLen/StringSubstring
+  op/arity/result/effect and runtime-owner metadata;
+  resolver declaration, Home, Query, body-carrier, and contract products
+  exist for the bounded user-instance I64/Unit cohort.
+
+missing authority:
+  no resolver-issued instance target co-seals StringBox receiver,
+  StringLen/StringSubstring result/Home relations, exact source site,
+  non-suspending/non-control obligation, and the CoreMethod row;
+  no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
+
+therefore:
+  S6C remains NoSafeSlice/design_stop. Selected-Dynamic
+  substring/indexOf receipts are a different owner and are not evidence.
+```
+
+The ordered task DAG is now explicit and bounded:
+
+```text
+S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
+  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0  T2 dependency
+       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+            -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                 -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                      -> S6C parity / canary / later production rows
+```
+
+`LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` may reuse the existing
+declaration/Home/Query aggregate only through a new neutral capability; it
+must not widen the FreeStatic index, infer `Text` Home from `MirType` or the
+CoreMethod result kind, or pair a target by Box/method name. Its first exact
+co-seal must include:
+
+```text
+same resolver/catalog brand
+StringBox receiver contract
+StringLen: arity 0 -> I64, PureRead
+StringSubstring: arity 2 -> Text/StringValue, PureRead
+Home receiver/result/parameter relation
+non-suspending + non-control policy
+exact source expression site and owner/frame provenance
+```
+
+The next source-bound relation consumes/borrows that capability and adds the
+S6C receiver/argument/result bindings. It owns no target lookup, CoreMethod
+re-lookup, Recipe key, `ValueId`, `BasicBlockId`, ABI, or physical layout.
+Only after that relation is closed may an S6C producer issue Facts for the
+exact roles below and let the producer mint Recipe-local keys:
+
+```text
+inputs: subject Text, needle Text, initialized index I64
+condition: read index + length(subject) + I64 comparison
+body: read index + index+1 + substring(subject,index,index+1)
+      + TextEq + conditional Return(index)
+step: read/add/write index
+tail: callable Return(-1), outside Loop Facts
+```
+
+Acceptance for the dependency row is fail-closed and source-first:
+
+```text
+positive: one same-brand StringBox target pair with exact arity/result/effect,
+          Home, source site, and no suspension/control transfer;
+negative: foreign/duplicate/swapped target, String vs StringBox mismatch,
+          wrong arity/result/Home/effect, missing source site, Text inferred
+          from MIR/CoreMethod output, name lookup, or partial Facts coverage;
+guard: target issuer consumer count is exactly the named source-bound relation,
+       S6C producer count is zero until that relation closes, and no selected
+       Dynamic receipt is imported by the Loop lane.
+```
+
+Non-claims remain strict: no Builder/MIR/CheckedCallOut/Boundary, no physical
+IDs or ABI, no production selector, no fallback/retry, no legacy retirement,
+and no new `Verified*`/`Prepared*` product is issued by this census.
 
 ## Change
 
