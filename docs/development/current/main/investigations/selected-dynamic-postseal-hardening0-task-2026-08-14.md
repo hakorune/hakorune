@@ -412,15 +412,13 @@ second install/take             -> existing one-shot rejection preserved
 Guard the sole production census caller and forbid selected-route module/result
 clone before census. Keep ordinary compatibility clone behavior unchanged.
 
-Closeout evidence (2026-08-14):
-
-```text
-implementation: private LinearSlotObservation + one FunctionMetadata pair view
-route/JSON: both consume the same pair observation; raw is_some census is gone
-negative: selected clone, receipt-only partial, and scrubbed JSON export reject
-checks: cargo fmt --check; cargo check --lib; focused B1 tests; AOT/text/pointer guards
-result: green; selected production remains 0/old=1; no fallback/retry/archive action
-```
+Next bounded row: `SELECTED-DYNAMIC-LINEAR-SLOT-TEST-FIX-R0`. Closeout correction
+(2026-08-14): the implementation contract is correct, but
+`clone_scrubs_candidate_projection` is a current-change fixture failure: it
+clones a default `Empty` slot and expects `Scrubbed`; only `Occupied` clones are
+scrubbed. Before row 10, install the test projection and assert `Empty -> Empty`
+and `Occupied -> Scrubbed`, then rerun the B1 focused/guard gates. B1 closeout
+is not claimed until that red is green; selected production remains 0/old=1.
 
 ## Post-seal design: SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0
 
@@ -945,16 +943,18 @@ These do not block the P0 DAG unless a touched file makes them necessary:
    - Decision: Completion and `FunctionDraftSealReceiptV1` are proof-only DraftSeal evidence; retire them explicitly before collector handoff, never reissue them as publication authority.
    - Authority: `ResolvedFunctionCompletionConsumptionV1` and `PreparedFunctionDraftSealPlanV1` issue/verify; `CompletedFunctionDraftV1` owns the exact-once retirement terminal.
    - Slice: private `consume_non_authority_evidence()` terminal, focused positive/negative handoff tests, and one existing authority-guard extension; no new semantic receipt or guard family.
-10. `DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0`
-    - remove the negative-only `RejectBeforeEffect` token from the successful
-      activation chain, or consume it in an explicit unpublished-to-ready
-      typestate transition before Builder open.
+10. `DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0` (queued after B1 fixture fix)
+    - consume `RejectBeforeEffect` once into a private unpublished-session
+      readiness token before Builder open; the session stores no disposition.
+    - keep explicit reject paths separate; no `ExecutableReady`, backend, or
+      runtime meaning is issued, and double/foreign/missing transitions reject.
 11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0`
     - make Site/Entry/Outcome/Lease IDs private and mint them once;
     - consumers borrow issued IDs instead of reconstructing raw `0/1` values.
 12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0`
     - carry the verified canonical site/result/landing/End census to Boundary;
-    - reject operand, landing, predecessor, projection, or End-placement drift.
+    - reject operand, landing, predecessor, projection, or End-placement drift;
+      root receipt validation must compare the exact site set and reject duplicate entries.
 13. `DYN-CALLOUT-WIRE-FAILSTOP-R0`
     - trap on I6 zero handle, unknown Fault codes, Suspended, malformed wire,
       or transport errors; only known semantic Fault reaches MIR Fault.
