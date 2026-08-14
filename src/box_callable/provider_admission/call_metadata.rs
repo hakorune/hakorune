@@ -15,11 +15,12 @@ use crate::mir::a_prime_i64_physical_receipt::{
     APrimeI64LaneV1, APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
 };
 use crate::mir::checked_callout::{
-    CheckedCallOutEntryIdV1, CheckedCallOutNormalShapeV1, CheckedCallOutPlanTableV1,
-    CheckedCallOutSiteIdV1,
+    CheckedCallOutEndCensusV1, CheckedCallOutEntryIdV1, CheckedCallOutFunctionCensusViewV1,
+    CheckedCallOutNormalShapeV1, CheckedCallOutPlanTableV1, CheckedCallOutSiteIdV1,
+    VerifiedCheckedCallOutFunctionV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-use crate::mir::{EffectMask, MirFunction, MirType, ValueId};
+use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirType, ValueId};
 
 use super::admitted_registry::TextScanAdmittedRoleV1;
 use super::aot_admission::{PreparedAotExecutableAdmissionV1, TextScanEntryContractV1};
@@ -42,6 +43,8 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     ArgumentLaneMismatch,
     ResultLaneMismatch,
     ArityMismatch,
+    CensusSiteMismatch,
+    CensusEndMismatch,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -134,6 +137,14 @@ pub(crate) struct DynamicV2AotCallSiteProjectionV1 {
     outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1,
     normal_result_dst: ValueId,
     effects: EffectMask,
+    source_block: BasicBlockId,
+    receiver: ValueId,
+    arguments: Box<[ValueId]>,
+    normal_landing: BasicBlockId,
+    fault_landing: BasicBlockId,
+    fault_terminal_block: Option<BasicBlockId>,
+    normal_result_block: BasicBlockId,
+    normal_result_index: usize,
 }
 
 impl DynamicV2AotCallSiteProjectionV1 {
@@ -166,6 +177,31 @@ impl DynamicV2AotCallSiteProjectionV1 {
     pub(crate) const fn effects(&self) -> EffectMask {
         self.effects
     }
+
+    pub(crate) const fn source_block(&self) -> BasicBlockId {
+        self.source_block
+    }
+    pub(crate) const fn receiver(&self) -> ValueId {
+        self.receiver
+    }
+    pub(crate) fn arguments(&self) -> &[ValueId] {
+        &self.arguments
+    }
+    pub(crate) const fn normal_landing(&self) -> BasicBlockId {
+        self.normal_landing
+    }
+    pub(crate) const fn fault_landing(&self) -> BasicBlockId {
+        self.fault_landing
+    }
+    pub(crate) const fn fault_terminal_block(&self) -> Option<BasicBlockId> {
+        self.fault_terminal_block
+    }
+    pub(crate) const fn normal_result_block(&self) -> BasicBlockId {
+        self.normal_result_block
+    }
+    pub(crate) const fn normal_result_index(&self) -> usize {
+        self.normal_result_index
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -181,6 +217,7 @@ pub(crate) struct DynamicV2AotCallMetadataProjectionV1 {
     return_lane: APrimeI64LaneV1,
     function_effects: EffectMask,
     calls: [DynamicV2AotCallSiteProjectionV1; 2],
+    end_facts: Box<[CheckedCallOutEndCensusV1]>,
 }
 
 impl DynamicV2AotCallMetadataProjectionV1 {
@@ -214,6 +251,10 @@ impl DynamicV2AotCallMetadataProjectionV1 {
 
     pub(crate) fn calls(&self) -> &[DynamicV2AotCallSiteProjectionV1; 2] {
         &self.calls
+    }
+
+    pub(crate) fn end_facts(&self) -> &[CheckedCallOutEndCensusV1] {
+        &self.end_facts
     }
 
     pub(crate) const fn formal_parameters(&self) -> &[DynamicV2AotFormalProjectionV1; 4] {
@@ -325,6 +366,14 @@ impl DynamicV2AotCallMetadataProjectionV1 {
                         crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1::from_test(0),
                     normal_result_dst: ValueId::new(20),
                     effects: EffectMask::READ,
+                    source_block: BasicBlockId::new(0),
+                    receiver: ValueId::new(0),
+                    arguments: Box::new([ValueId::new(1), ValueId::new(2)]),
+                    normal_landing: BasicBlockId::new(1),
+                    fault_landing: BasicBlockId::new(2),
+                    fault_terminal_block: Some(BasicBlockId::new(2)),
+                    normal_result_block: BasicBlockId::new(1),
+                    normal_result_index: 0,
                 },
                 DynamicV2AotCallSiteProjectionV1 {
                     role: DynamicV2AotCallRoleV1::IndexOf,
@@ -335,8 +384,36 @@ impl DynamicV2AotCallMetadataProjectionV1 {
                         crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1::from_test(1),
                     normal_result_dst: ValueId::new(21),
                     effects: EffectMask::READ,
+                    source_block: BasicBlockId::new(3),
+                    receiver: ValueId::new(3),
+                    arguments: Box::new([ValueId::new(0)]),
+                    normal_landing: BasicBlockId::new(4),
+                    fault_landing: BasicBlockId::new(5),
+                    fault_terminal_block: Some(BasicBlockId::new(5)),
+                    normal_result_block: BasicBlockId::new(4),
+                    normal_result_index: 0,
                 },
             ],
+            end_facts: Box::new([
+                CheckedCallOutEndCensusV1::from_test(
+                    CheckedCallOutSiteIdV1::from_test(0),
+                    crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
+                    BasicBlockId::new(2),
+                    0,
+                ),
+                CheckedCallOutEndCensusV1::from_test(
+                    CheckedCallOutSiteIdV1::from_test(0),
+                    crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
+                    BasicBlockId::new(4),
+                    0,
+                ),
+                CheckedCallOutEndCensusV1::from_test(
+                    CheckedCallOutSiteIdV1::from_test(0),
+                    crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
+                    BasicBlockId::new(5),
+                    0,
+                ),
+            ]),
         }
     }
 }
@@ -352,25 +429,32 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     function: &MirFunction,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
     expected_effects: EffectMask,
+    census: &VerifiedCheckedCallOutFunctionV1,
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     receipt
         .validate()
         .map_err(DynamicV2AotCallMetadataRejectV1::InvalidReceipt)?;
     validate_function_transport(function, formal_parameters, expected_effects)?;
-    let substring = project_call(
-        admission,
-        receipt,
-        site_plans,
-        function,
-        DynamicV2AotCallRoleV1::Substring,
-    )?;
-    let index_of = project_call(
-        admission,
-        receipt,
-        site_plans,
-        function,
-        DynamicV2AotCallRoleV1::IndexOf,
-    )?;
+    let (substring, index_of, end_facts) = census.with_view(|view| {
+        let substring = project_call(
+            admission,
+            receipt,
+            site_plans,
+            &view,
+            DynamicV2AotCallRoleV1::Substring,
+        )?;
+        let index_of = project_call(
+            admission,
+            receipt,
+            site_plans,
+            &view,
+            DynamicV2AotCallRoleV1::IndexOf,
+        )?;
+        if view.sites().len() != 2 || view.ends().len() != 3 {
+            return Err(DynamicV2AotCallMetadataRejectV1::CensusEndMismatch);
+        }
+        Ok((substring, index_of, view.ends().to_vec().into_boxed_slice()))
+    })?;
     Ok(DynamicV2AotCallMetadataProjectionV1 {
         schema_version: 2,
         contract_id: admission.contract_id(),
@@ -383,6 +467,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
         return_lane: APrimeI64LaneV1::ImmediateI64,
         function_effects: function.signature.effects,
         calls: [substring, index_of],
+        end_facts,
     })
 }
 
@@ -429,7 +514,7 @@ fn project_call(
     admission: &PreparedAotExecutableAdmissionV1,
     receipt: &APrimeI64PhysicalReceiptV1,
     site_plans: &CheckedCallOutPlanTableV1,
-    function: &MirFunction,
+    census: &CheckedCallOutFunctionCensusViewV1<'_>,
     role: DynamicV2AotCallRoleV1,
 ) -> Result<DynamicV2AotCallSiteProjectionV1, DynamicV2AotCallMetadataRejectV1> {
     let entry = admission.entry_for(role.admitted_role());
@@ -458,7 +543,9 @@ fn project_call(
         return Err(DynamicV2AotCallMetadataRejectV1::MissingSitePlan);
     }
     let site_id = plan.site_id();
-    let normal_result_dst = normal_result_for_site(function, site_id)?;
+    let site = census
+        .site(site_id)
+        .ok_or(DynamicV2AotCallMetadataRejectV1::CensusSiteMismatch)?;
     let edge = receipt
         .call_edge(site_id)
         .ok_or(DynamicV2AotCallMetadataRejectV1::MissingCallSite)?;
@@ -469,6 +556,16 @@ fn project_call(
         || entry.call_abi().logical_arity as usize != edge.arguments.len()
     {
         return Err(DynamicV2AotCallMetadataRejectV1::ArityMismatch);
+    }
+    if site.receiver() != edge.receiver_value_id
+        || site.arguments().len() != edge.arguments.len()
+        || site
+            .arguments()
+            .iter()
+            .zip(edge.arguments.iter())
+            .any(|(actual, expected)| *actual != expected.value_id)
+    {
+        return Err(DynamicV2AotCallMetadataRejectV1::CensusSiteMismatch);
     }
     if lane_from_text(entry.receiver_lane()) != edge.receiver_lane {
         return Err(DynamicV2AotCallMetadataRejectV1::ReceiverLaneMismatch);
@@ -490,48 +587,17 @@ fn project_call(
         entry,
         normal_shape: plan.normal_shape(),
         outcome_slot: plan.outcome_slot(),
-        normal_result_dst,
+        normal_result_dst: site.normal_result_dst(),
         effects: plan.effects(),
+        source_block: site.source_block(),
+        receiver: site.receiver(),
+        arguments: site.arguments().to_vec().into_boxed_slice(),
+        normal_landing: site.normal_landing(),
+        fault_landing: site.fault_landing(),
+        fault_terminal_block: site.fault_terminal_block(),
+        normal_result_block: site.normal_result_block(),
+        normal_result_index: site.normal_result_index(),
     })
-}
-
-fn normal_result_for_site(
-    function: &MirFunction,
-    site_id: CheckedCallOutSiteIdV1,
-) -> Result<ValueId, DynamicV2AotCallMetadataRejectV1> {
-    let mut normal_landing = None;
-    for block in function.blocks.values() {
-        if let Some(crate::mir::MirInstruction::CheckedCallOut {
-            site_id: observed,
-            normal_landing: landing,
-            ..
-        }) = block.terminator.as_ref()
-        {
-            if *observed == site_id {
-                normal_landing = Some(*landing);
-                break;
-            }
-        }
-    }
-    let landing = normal_landing.ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)?;
-    let block = function
-        .get_block(landing)
-        .ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)?;
-    let mut result = None;
-    for instruction in &block.instructions {
-        if let crate::mir::MirInstruction::CheckedCallOutNormalResult {
-            site_id: observed,
-            dst,
-        } = instruction
-        {
-            if *observed == site_id {
-                if result.replace(*dst).is_some() {
-                    return Err(DynamicV2AotCallMetadataRejectV1::DuplicateNormalResult);
-                }
-            }
-        }
-    }
-    result.ok_or(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)
 }
 
 fn lane_from_text(lane: TextScanValueLaneV1) -> APrimeI64LaneV1 {

@@ -98,14 +98,9 @@ fn projection_rejects_missing_or_duplicate_normal_result() {
         .instructions
         .clear();
     assert!(matches!(
-        project(
-            &admission,
-            &receipt,
-            &site_plans,
-            &missing,
-            formal_parameters()
-        ),
-        Err(DynamicV2AotCallMetadataRejectV1::MissingNormalResult)
+        site_plans.verify_function(&missing),
+        Err(crate::mir::checked_callout::CheckedCallOutFunctionRejectV1::OrphanPlan(_))
+            | Err(crate::mir::checked_callout::CheckedCallOutFunctionRejectV1::OrphanProjection(_))
     ));
 
     let mut duplicate = function();
@@ -117,14 +112,8 @@ fn projection_rejects_missing_or_duplicate_normal_result() {
             dst: ValueId::new(22),
         });
     assert!(matches!(
-        project(
-            &admission,
-            &receipt,
-            &site_plans,
-            &duplicate,
-            formal_parameters()
-        ),
-        Err(DynamicV2AotCallMetadataRejectV1::DuplicateNormalResult)
+        site_plans.verify_function(&duplicate),
+        Err(crate::mir::checked_callout::CheckedCallOutFunctionRejectV1::DuplicateProjection(_))
     ));
 }
 
@@ -235,6 +224,9 @@ fn project(
     function: &MirFunction,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
+    let census = site_plans
+        .verify_function(function)
+        .expect("test function has a canonical callout census");
     project_dynamic_v2_aot_call_metadata(
         admission,
         receipt,
@@ -242,6 +234,7 @@ fn project(
         function,
         formal_parameters,
         EffectMask::READ,
+        &census,
     )
 }
 
@@ -311,6 +304,15 @@ fn function() -> MirFunction {
                 dst: result,
             });
     }
+    for block in [2, 4, 5] {
+        function
+            .get_block_mut(BasicBlockId::new(block))
+            .expect("end block")
+            .add_instruction(MirInstruction::CheckedCallOutEnd {
+                site_id: CheckedCallOutSiteIdV1::from_test(0),
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
+            });
+    }
     function
 }
 
@@ -366,20 +368,20 @@ fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
             "pred_chars"
         }
         .into(),
-        receiver_value_id: ValueId::new(if role == "substring" { 10 } else { 14 }),
+        receiver_value_id: ValueId::new(if role == "substring" { 0 } else { 3 }),
         receiver_lane: APrimeI64LaneV1::OpaqueHandle,
         arguments: if role == "substring" {
             vec![
                 APrimeI64CallArgumentReceiptV1 {
                     ordinal: 0,
                     role: "start".into(),
-                    value_id: ValueId::new(12),
+                    value_id: ValueId::new(1),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
                 APrimeI64CallArgumentReceiptV1 {
                     ordinal: 1,
                     role: "end".into(),
-                    value_id: ValueId::new(13),
+                    value_id: ValueId::new(2),
                     lane: APrimeI64LaneV1::ImmediateI64,
                 },
             ]
@@ -387,7 +389,7 @@ fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
             vec![APrimeI64CallArgumentReceiptV1 {
                 ordinal: 0,
                 role: "ch".into(),
-                value_id: ValueId::new(20),
+                value_id: ValueId::new(0),
                 lane: APrimeI64LaneV1::OpaqueHandle,
             }]
         },

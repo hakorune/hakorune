@@ -35,6 +35,7 @@ pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPr
 pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {
     completion: ReadyFunctionCompletionV1,
     current_block: BasicBlockId,
+    checked_callout_census: Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1>,
 }
 
 /// Borrowed projection of the already site-keyed Completion witnesses.  This
@@ -166,10 +167,12 @@ impl ReadyFunctionDraftSealV1 {
     pub(in crate::mir::builder::resolved_lowering) fn from_v2_finish(
         completion: ReadyFunctionCompletionV1,
         current_block: BasicBlockId,
+        checked_callout_census: crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1,
     ) -> Self {
         Self {
             completion,
             current_block,
+            checked_callout_census: Some(checked_callout_census),
         }
     }
 
@@ -177,7 +180,14 @@ impl ReadyFunctionDraftSealV1 {
         Self {
             completion,
             current_block,
+            checked_callout_census: None,
         }
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn take_checked_callout_census(
+        &mut self,
+    ) -> Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1> {
+        self.checked_callout_census.take()
     }
 
     pub(super) fn prepare(

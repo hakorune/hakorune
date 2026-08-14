@@ -484,7 +484,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                     return Err(DynamicV2I8EmitterRejectV1::ProfileClose(error));
                 }
             };
-        let ready = match canonical
+        let mut ready = match canonical
             .finish_for_draft_seal(outer.builder_view_mut_for_lowering(), profile_close)
         {
             Ok(ready) => ready,
@@ -509,6 +509,15 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         let projection = {
             let formal_parameters = self.formal_header.transport_rows();
             let expected_effects = self.demand.function_effects();
+            let census = match ready.take_checked_callout_census() {
+                Some(census) => census,
+                None => {
+                    outer.discard_unpublished();
+                    return Err(DynamicV2I8EmitterRejectV1::DraftSeal(
+                        "selected function missing canonical CheckedCallOut census".to_owned(),
+                    ));
+                }
+            };
             let function = match outer
                 .builder_view_mut_for_lowering()
                 .function_state
@@ -530,6 +539,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 function,
                 formal_parameters,
                 expected_effects,
+                &census,
             )
             .map_err(|error| {
                 DynamicV2I8EmitterRejectV1::DraftSeal(format!(

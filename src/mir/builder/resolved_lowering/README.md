@@ -73,6 +73,13 @@ Header, and seals the canonical Header PHI with Enter and Continuation inputs.
 E5 closes the profile and hands the exact-two DraftSeal and cataloged collector
 receipt to the unpublished candidate path; live publication remains closed.
 
+The closed-function CheckedCallOut census is then lent once through a
+non-Clone HRTB view. AOT JSON carries the canonical source/operand,
+Normal/Fault landing, Normal-result, effect, and End-cut facts from that view;
+the Boundary C1 consumer cross-checks the emitted JSON topology and rejects
+drift before object emission. No downstream consumer rebuilds a site plan or
+re-scans MIR to locate a call site.
+
 The selected CallOut corridor keeps Normal-result typing at the canonical SSA
 issuer: the existing `string_handle -> MirType::Box("StringBox")` route
 projection is used for I6's `EndAuthorizedHandle`, while I7 uses the existing

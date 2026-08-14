@@ -951,11 +951,11 @@ These do not block the P0 DAG unless a touched file makes them necessary:
     - Private tuple fields and explicit `as_u32`/`from_test`/`from_wire`/`from_admitted` boundaries now keep the canonical pair as the Site/Outcome issuer, admitted facts as the Entry/lease projection source, and JSON as transport ingress.
     - Selected capability, emitter, lifecycle, profile close, receipt, printer, and test callers no longer mint or inspect raw physical IDs; the existing AOT authority guard fixes the owner/accessor and raw-consumer census without a new guard family.
     - `cargo check --lib`, checked-callout (14), selected-emitter (5), provider-admission (6), fmt, guard, pointer, and diff checks are green; selected production remains new=0/old=1.
-12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0`
+12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0` (closed 2026-08-14 BoxShape)
     - Decision/authority: lend one non-Clone/HRTB view of the closed canonical CFG/SSA census and site-plan/profile evidence to AOT/JSON/Boundary; no plan rebuild, semantic receipt, or C/JSON CFG authority.
     - View: exact sites, source/Normal/Fault blocks+predecessors, receiver/args, Normal projection, effect, entry/ABI/wire/shape/slots/PlanStamp, and End cuts.
     - Reject before effect: orphan/duplicate site, plan/terminator/projection, operand/landing/predecessor/End/receipt-set drift, or malformed transport.
-    - Acceptance: replace the non-canonical C smoke fixture; add swap/landing/projection/End/duplicate-site negatives; extend the existing AOT guard. Non-claims: no opcode/schema/new C ABI/cutover/fallback/VM/PyVM/llvmlite; selected production remains new=0/old=1.
+    - Acceptance: the Rust Census view is consumed once by the existing AOT projection; JSON/Python carry exact source/operand/landing/result/End facts; Boundary C rejects site/operand/landing/predecessor/projection/End drift; the canonical smoke fixture and physical negatives pass; the existing AOT guard remains green. Non-claims: no opcode/schema/new C ABI/cutover/fallback/VM/PyVM/llvmlite; selected production remains new=0/old=1.
 13. `DYN-CALLOUT-WIRE-FAILSTOP-R0`
     - trap on I6 zero handle, unknown Fault codes, Suspended, malformed wire,
       or transport errors; only known semantic Fault reaches MIR Fault.

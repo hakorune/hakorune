@@ -503,12 +503,13 @@ fn emit_program(
     };
     let substring_arg0 = value(values, V6, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
     let substring_arg1 = value(values, V9, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
+    let i6_receiver = formal_value(formals, V0)?;
     emit_checked_callout(
         canonical,
         outer,
         body_block,
         sites.i6(),
-        formal_value(formals, V0)?,
+        i6_receiver,
         vec![substring_arg0, substring_arg1],
         i6_normal.block(),
         i6_fault.block(),
@@ -585,7 +586,7 @@ fn emit_program(
 
     let corridor = DynamicV2CallOutCorridorV1::new(
         sites.i6(),
-        receiver,
+        i6_receiver,
         [substring_arg0, substring_arg1],
         i6_projection.dst(),
         i6_normal,

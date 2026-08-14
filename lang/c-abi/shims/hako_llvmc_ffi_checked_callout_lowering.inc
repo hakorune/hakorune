@@ -71,11 +71,115 @@ static yyjson_val* hako_llvmc_c1_call_for_site(yyjson_val* metadata, long long s
   return NULL;
 }
 
+static int hako_llvmc_c1_array_u32_equal(
+    yyjson_val* actual,
+    yyjson_val* expected) {
+  if (!actual || !expected || !yyjson_is_arr(actual) || !yyjson_is_arr(expected) ||
+      yyjson_arr_size(actual) != yyjson_arr_size(expected)) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(actual); i++) {
+    int actual_ok = 0;
+    int expected_ok = 0;
+    long long actual_value = hako_llvmc_c1_value_int(yyjson_arr_get(actual, i), &actual_ok);
+    long long expected_value = hako_llvmc_c1_value_int(yyjson_arr_get(expected, i), &expected_ok);
+    if (!actual_ok || !expected_ok || actual_value != expected_value) return 0;
+  }
+  return 1;
+}
+
+static long long hako_llvmc_c1_block_id(yyjson_val* block, int* ok) {
+  return hako_llvmc_c1_int(block, "id", ok);
+}
+
+/* Count the canonical JSON terminator edges into one landing.  JSON does not
+ * expose mutable predecessor state; the edge census is therefore derived
+ * from the already-emitted terminators, while source/target identity still
+ * comes from the Rust census metadata. */
+static int hako_llvmc_c1_incoming_edge_count(
+    yyjson_val* blocks,
+    long long target,
+    long long expected_source) {
+  int count = 0;
+  if (!blocks || !yyjson_is_arr(blocks)) return -1;
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    yyjson_val* block = yyjson_arr_get(blocks, bi);
+    yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
+    int id_ok = 0;
+    long long source = hako_llvmc_c1_block_id(block, &id_ok);
+    if (!id_ok || !insts || !yyjson_is_arr(insts) || yyjson_arr_size(insts) == 0) continue;
+    yyjson_val* term = yyjson_arr_get(insts, yyjson_arr_size(insts) - 1);
+    const char* op = hako_llvmc_c1_text(term, "op");
+    if (!op) return -1;
+    long long edges[2] = {0, 0};
+    size_t edge_count = 0;
+    int edge_ok = 0;
+    if (!strcmp(op, "jump")) {
+      edges[0] = hako_llvmc_c1_int(term, "target", &edge_ok);
+      if (!edge_ok) return -1;
+      edge_count = 1;
+    } else if (!strcmp(op, "branch")) {
+      edges[0] = hako_llvmc_c1_int(term, "then", &edge_ok);
+      if (!edge_ok) return -1;
+      edges[1] = hako_llvmc_c1_int(term, "else", &edge_ok);
+      if (!edge_ok) return -1;
+      edge_count = 2;
+    } else if (!strcmp(op, "checked_callout")) {
+      edges[0] = hako_llvmc_c1_int(term, "normal", &edge_ok);
+      if (!edge_ok) return -1;
+      edges[1] = hako_llvmc_c1_int(term, "fault", &edge_ok);
+      if (!edge_ok) return -1;
+      edge_count = 2;
+    }
+    for (size_t ei = 0; ei < edge_count; ei++) {
+      if (edges[ei] == target) {
+        if (source != expected_source) return -1;
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+static yyjson_val* hako_llvmc_c1_end_facts(yyjson_val* metadata) {
+  yyjson_val* facts = metadata ? yyjson_obj_get(metadata, "end_facts") : NULL;
+  return facts && yyjson_is_arr(facts) ? facts : NULL;
+}
+
+static int hako_llvmc_c1_end_fact_index(
+    yyjson_val* facts,
+    long long site,
+    long long lease_slot,
+    long long block,
+    long long instruction_index) {
+  int found = -1;
+  if (!facts || !yyjson_is_arr(facts)) return -1;
+  for (size_t i = 0; i < yyjson_arr_size(facts); i++) {
+    yyjson_val* fact = yyjson_arr_get(facts, i);
+    int ok = 0;
+    long long fact_site = hako_llvmc_c1_int(fact, "site_id", &ok);
+    long long fact_lease = hako_llvmc_c1_int(fact, "lease_slot", &ok);
+    long long fact_block = hako_llvmc_c1_int(fact, "block", &ok);
+    long long fact_index = hako_llvmc_c1_int(fact, "instruction_index", &ok);
+    if (!ok) return -1;
+    if (fact_site == site && fact_lease == lease_slot && fact_block == block &&
+        fact_index == instruction_index) {
+      if (found >= 0) return -1;
+      found = (int)i;
+    }
+  }
+  return found;
+}
+
 static int hako_llvmc_c1_validate_call_row(yyjson_val* call, long long site) {
   int ok = 0;
   long long entry;
   long long outcome;
   long long normal_dst;
+  long long source_block;
+  long long receiver;
+  long long normal_landing;
+  long long fault_landing;
+  long long normal_result_block;
+  long long normal_result_index;
   yyjson_val* args;
   const char* symbol;
   const char* shape;
@@ -123,6 +227,21 @@ static int hako_llvmc_c1_validate_call_row(yyjson_val* call, long long site) {
   if (!ok || normal_dst <= 0) return 0;
   if (!hako_llvmc_c1_int(call, "effects", &ok) || !ok ||
       hako_llvmc_c1_int(call, "effects", &ok) > 0xffff) return 0;
+  source_block = hako_llvmc_c1_int(call, "source_block", &ok);
+  if (!ok) return 0;
+  receiver = hako_llvmc_c1_int(call, "receiver", &ok);
+  if (!ok || receiver < 0) return 0;
+  normal_landing = hako_llvmc_c1_int(call, "normal_landing", &ok);
+  if (!ok) return 0;
+  fault_landing = hako_llvmc_c1_int(call, "fault_landing", &ok);
+  if (!ok || normal_landing == fault_landing) return 0;
+  normal_result_block = hako_llvmc_c1_int(call, "normal_result_block", &ok);
+  if (!ok) return 0;
+  normal_result_index = hako_llvmc_c1_int(call, "normal_result_index", &ok);
+  if (!ok) return 0;
+  (void)source_block;
+  (void)normal_result_block;
+  (void)normal_result_index;
   return 1;
 }
 
@@ -136,13 +255,17 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
   yyjson_val* calls;
   yyjson_val* blocks;
   int ok = 0;
-  int call_seen[2] = {0, 0};
+  int metadata_seen[2] = {0, 0};
+  int callout_seen[2] = {0, 0};
   int result_seen[2] = {0, 0};
   int fault_seen[2] = {0, 0};
   size_t callout_count = 0;
   size_t result_count = 0;
   size_t fault_count = 0;
   size_t end_count = 0;
+  int end_seen[3] = {0, 0, 0};
+  yyjson_val* end_facts = NULL;
+  long long expected_effects = 0;
   uint64_t registry_generation = 0;
   uint64_t compiler_domain = 0;
   uint64_t invocation_ordinal = 0;
@@ -183,19 +306,35 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
   }
   calls = yyjson_obj_get(metadata, "calls");
   if (!(calls && yyjson_is_arr(calls) && yyjson_arr_size(calls) == 2)) return 0;
+  end_facts = hako_llvmc_c1_end_facts(metadata);
+  if (!end_facts || yyjson_arr_size(end_facts) != 3) return 0;
   for (size_t i = 0; i < 2; i++) {
     yyjson_val* call = yyjson_arr_get(calls, i);
     long long site = hako_llvmc_c1_int(call, "site_id", &ok);
-    if (!ok || site < 0 || site > 1 || call_seen[site] ||
+    long long effects = hako_llvmc_c1_int(call, "effects", &ok);
+    if (!ok || effects < 0 ||
+        site < 0 || site > 1 || metadata_seen[site] ||
         !hako_llvmc_c1_validate_call_row(call, site)) return 0;
-    call_seen[site] = 1;
+    expected_effects |= effects;
+    metadata_seen[site] = 1;
+  }
+  {
+    long long function_effects = hako_llvmc_c1_int(metadata, "function_effects", &ok);
+    if (!ok || function_effects != expected_effects) {
+      return 0;
+    }
   }
   blocks = fn ? yyjson_obj_get(fn, "blocks") : NULL;
-  if (!(blocks && yyjson_is_arr(blocks))) return 0;
+  if (!(blocks && yyjson_is_arr(blocks))) {
+    return 0;
+  }
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     yyjson_val* block = yyjson_arr_get(blocks, bi);
     yyjson_val* insts = block ? yyjson_obj_get(block, "instructions") : NULL;
+    int block_ok = 0;
+    long long block_id = hako_llvmc_c1_block_id(block, &block_ok);
     if (!(insts && yyjson_is_arr(insts))) return 0;
+    if (!block_ok) return 0;
     for (size_t ii = 0; ii < yyjson_arr_size(insts); ii++) {
       yyjson_val* ins = yyjson_arr_get(insts, ii);
       const char* op = hako_llvmc_c1_text(ins, "op");
@@ -205,31 +344,75 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
         yyjson_val* args = yyjson_obj_get(ins, "args");
         long long normal = hako_llvmc_c1_int(ins, "normal", &ok);
         long long fault = hako_llvmc_c1_int(ins, "fault", &ok);
-        if (!ok || site < 0 || site > 1 || callout_count >= 2 || call_seen[site] != 1 ||
+        yyjson_val* call = hako_llvmc_c1_call_for_site(metadata, site);
+        long long source = call ? hako_llvmc_c1_int(call, "source_block", &ok) : -1;
+        long long expected_receiver = call ? hako_llvmc_c1_int(call, "receiver", &ok) : -1;
+        long long actual_receiver = hako_llvmc_c1_int(ins, "receiver", &ok);
+        long long expected_effect = call ? hako_llvmc_c1_int(call, "effects", &ok) : -1;
+        long long actual_effect = hako_llvmc_c1_int(ins, "effects", &ok);
+        if (!ok || site < 0 || site > 1 || callout_count >= 2 || metadata_seen[site] != 1 ||
+            callout_seen[site] || block_id != source || ii + 1 != yyjson_arr_size(insts) ||
+            actual_receiver != expected_receiver || actual_effect != expected_effect ||
             !args || !yyjson_is_arr(args) || yyjson_arr_size(args) != (site == 0 ? 2 : 1) ||
-            normal == fault) return 0;
+            !hako_llvmc_c1_array_u32_equal(args, yyjson_obj_get(call, "arguments")) ||
+            normal != hako_llvmc_c1_int(call, "normal_landing", &ok) || !ok ||
+            fault != hako_llvmc_c1_int(call, "fault_landing", &ok) || !ok ||
+            normal == fault) {
+          return 0;
+        }
+        callout_seen[site] = 1;
         callout_count++;
       } else if (!strcmp(op, "checked_callout_normal_result")) {
         long long dst = hako_llvmc_c1_int(ins, "dst", &ok);
         yyjson_val* call = hako_llvmc_c1_call_for_site(metadata, site);
+        long long expected_block = call ? hako_llvmc_c1_int(call, "normal_result_block", &ok) : -1;
+        long long expected_index = call ? hako_llvmc_c1_int(call, "normal_result_index", &ok) : -1;
         if (!ok || site < 0 || site > 1 || result_seen[site] || !call ||
-            dst != hako_llvmc_c1_int(call, "normal_result_dst", &ok) || !ok) return 0;
+            block_id != expected_block || (long long)ii != expected_index ||
+            dst != hako_llvmc_c1_int(call, "normal_result_dst", &ok) || !ok) {
+          return 0;
+        }
         result_seen[site] = 1;
         result_count++;
       } else if (!strcmp(op, "checked_callout_fault")) {
-        if (!ok || site < 0 || site > 1 || fault_seen[site]) return 0;
+        yyjson_val* call = hako_llvmc_c1_call_for_site(metadata, site);
+        long long expected_block = call ? hako_llvmc_c1_int(call, "fault_terminal_block", &ok) : -1;
+        if (!ok || site < 0 || site > 1 || fault_seen[site] || !call ||
+            block_id != expected_block || ii + 1 != yyjson_arr_size(insts)) {
+          return 0;
+        }
         fault_seen[site] = 1;
         fault_count++;
       } else if (!strcmp(op, "checked_callout_end")) {
         long long lease_slot = hako_llvmc_c1_int(ins, "lease_slot", &ok);
-        if (!ok || site != 0 || lease_slot != 0) return 0;
+        int end_index = hako_llvmc_c1_end_fact_index(
+            end_facts, site, lease_slot, block_id, (long long)ii);
+        if (!ok || site != 0 || lease_slot != 0 || end_index < 0 || end_seen[end_index]) {
+          return 0;
+        }
+        end_seen[end_index] = 1;
         end_count++;
       }
     }
   }
+  for (int site = 0; site < 2; site++) {
+    yyjson_val* call = hako_llvmc_c1_call_for_site(metadata, site);
+    int source_ok = 0;
+    int normal_ok = 0;
+    int fault_ok = 0;
+    long long source = hako_llvmc_c1_int(call, "source_block", &source_ok);
+    long long normal = hako_llvmc_c1_int(call, "normal_landing", &normal_ok);
+    long long fault = hako_llvmc_c1_int(call, "fault_landing", &fault_ok);
+    if (!call || !source_ok || !normal_ok || !fault_ok ||
+        hako_llvmc_c1_incoming_edge_count(blocks, normal, source) != 1 ||
+        hako_llvmc_c1_incoming_edge_count(blocks, fault, source) != 1) {
+      return 0;
+    }
+  }
   return callout_count == 2 && result_count == 2 && fault_count == 2 && end_count == 3 &&
-         call_seen[0] && call_seen[1] && result_seen[0] && result_seen[1] &&
-         fault_seen[0] && fault_seen[1];
+         metadata_seen[0] && metadata_seen[1] && callout_seen[0] && callout_seen[1] &&
+         result_seen[0] && result_seen[1] && fault_seen[0] && fault_seen[1] &&
+         end_seen[0] && end_seen[1] && end_seen[2];
 }
 
 static void hako_llvmc_c1_emit_declarations(FILE* f, yyjson_val* metadata) {

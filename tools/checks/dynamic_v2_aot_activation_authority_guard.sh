@@ -596,17 +596,18 @@ guard_expect_fixed_in_file "$TAG" 'normal_shape' "$RUST_METADATA" "per-site Norm
 guard_expect_fixed_in_file "$TAG" 'dynamic_v2_aot_call_admission_v2' "$JSON_METADATA" "JSON metadata key projection is missing"
 guard_expect_fixed_in_file "$TAG" 'formal_parameters' "$JSON_METADATA" "JSON formal parameter transport is missing"
 guard_expect_fixed_in_file "$TAG" 'normal_result_dst' "$JSON_METADATA" "JSON Normal-result destination transport is missing"
+guard_expect_fixed_in_file "$TAG" 'source_block' "$RUST_METADATA" "AOT source-block parity transport is missing"
+guard_expect_fixed_in_file "$TAG" 'normal_result_block' "$JSON_METADATA" "JSON Normal-result block parity transport is missing"
+guard_expect_fixed_in_file "$TAG" 'end_facts' "$JSON_METADATA" "JSON End placement transport is missing"
+guard_expect_fixed_in_file "$TAG" 'with_view' "$CALLOUT_CENSUS" "canonical CheckedCallOut census must expose one borrowed view"
 guard_expect_fixed_in_file "$TAG" 'site_id' "$RUST_METADATA" "AOT metadata projection must use canonical CheckedCallOut site identity"
 guard_expect_fixed_in_file "$TAG" 'site_id' "$METADATA" "Python AOT metadata loader must require canonical site identity"
 guard_expect_fixed_in_file "$TAG" 'formal_parameters' "$METADATA" "Python AOT metadata loader must require formal transport"
 guard_expect_fixed_in_file "$TAG" 'normal_result_dst' "$METADATA" "Python AOT metadata loader must require Normal-result transport"
 guard_expect_fixed_in_file "$TAG" '_required_u16' "$METADATA" "Python AOT metadata loader must bound typed effect fields"
 RUST_METADATA_BODY="$(sed '/^#\[cfg(test)\]/,$d' "$RUST_METADATA")"
-if printf '%s\n' "$RUST_METADATA_BODY" | rg -n 'instruction_index|(^|[[:space:]])block[[:space:]]*:' || \
-   rg -n 'instruction_index|(^|[[:space:]])block[[:space:]]*:' "$JSON_METADATA"; then
-  guard_fail "$TAG" "AOT downstream metadata must not expose the old block/instruction locator"
-fi
-if rg -n 'require_call_edge|instruction_index|\["block"\]' "$METADATA"; then
+if printf '%s\n' "$RUST_METADATA_BODY" | rg -n 'normal_result_for_site|require_call_edge' || \
+   rg -n 'normal_result_for_site|require_call_edge|\["block"\]' "$METADATA"; then
   guard_fail "$TAG" "Python AOT metadata loader must not locate selected calls by the old block/index pair"
 fi
 if rg -n 'llvmlite|IRBuilder|lower_instruction|RuntimeExecutablePlan|dynamic_v2_text_scan|mir_call' "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST"; then

@@ -58,8 +58,22 @@ pub(crate) fn insert_dynamic_v2_aot_call_admission_json(
                 "outcome_slot": call.outcome_slot().as_u32(),
                 "normal_result_dst": call.normal_result_dst().as_u32(),
                 "effects": call.effects().bits(),
+                "source_block": call.source_block().as_u32(),
+                "receiver": call.receiver().as_u32(),
+                "arguments": call.arguments().iter().map(|value| value.as_u32()).collect::<Vec<_>>(),
+                "normal_landing": call.normal_landing().as_u32(),
+                "fault_landing": call.fault_landing().as_u32(),
+                "fault_terminal_block": call.fault_terminal_block().map(|block| block.as_u32()),
+                "normal_result_block": call.normal_result_block().as_u32(),
+                "normal_result_index": call.normal_result_index(),
             })
         }).collect::<Vec<_>>(),
+        "end_facts": projection.end_facts().iter().map(|end| json!({
+            "site_id": end.site_id().as_u32(),
+            "lease_slot": end.lease_slot().as_u32(),
+            "block": end.block().as_u32(),
+            "instruction_index": end.instruction_index(),
+        })).collect::<Vec<_>>(),
     });
     obj.insert("dynamic_v2_aot_call_admission_v2".to_string(), value);
 }

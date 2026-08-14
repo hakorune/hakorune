@@ -33,6 +33,12 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   End consumer through the versioned C ABI. It must not resolve coordinates,
   selectors, providers, registries, generic `mir_call`, VM routes, fallback,
   or retry. Link/publication remains a later W6 transaction.
+- The C1 projection also consumes the one non-Clone CheckedCallOut census
+  view carried through AOT JSON. Per-site source/receiver/arguments,
+  Normal/Fault landing, Normal-result position, effect, and the three End
+  cutpoints are cross-checked against the emitted MIR JSON before any object
+  is produced. JSON and C remain consumers; neither rebuilds a site plan or
+  predecessor/cleanup authority.
 - The selected W6 link path uses the versioned `hako_llvmc_link_obj_v2`
   boundary. Rust resolves the exact `libnyash_kernel.a` path from `--nyrt`
   and passes it as an argument; this path never asks the C shim to rediscover

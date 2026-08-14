@@ -58,6 +58,14 @@ def _valid_admission_data():
                 "outcome_slot": 0,
                 "normal_result_dst": 20,
                 "effects": 16,
+                "source_block": 0,
+                "receiver": 10,
+                "arguments": [12, 13],
+                "normal_landing": 1,
+                "fault_landing": 2,
+                "fault_terminal_block": 2,
+                "normal_result_block": 1,
+                "normal_result_index": 0,
             },
             {
                 "role": "index_of",
@@ -74,7 +82,20 @@ def _valid_admission_data():
                 "outcome_slot": 1,
                 "normal_result_dst": 21,
                 "effects": 16,
+                "source_block": 3,
+                "receiver": 14,
+                "arguments": [20],
+                "normal_landing": 4,
+                "fault_landing": 5,
+                "fault_terminal_block": 5,
+                "normal_result_block": 4,
+                "normal_result_index": 0,
             },
+        ],
+        "end_facts": [
+            {"site_id": 0, "lease_slot": 0, "block": 2, "instruction_index": 0},
+            {"site_id": 0, "lease_slot": 0, "block": 4, "instruction_index": 0},
+            {"site_id": 0, "lease_slot": 0, "block": 5, "instruction_index": 0},
         ],
     }
     return data
@@ -97,6 +118,9 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
         self.assertEqual(view.formal_parameters[1].role, "pos")
         self.assertEqual(view.require_call_site(0).entry_id, 1)
         self.assertEqual(view.require_call_site(0).normal_result_dst, 20)
+        self.assertEqual(view.require_call_site(0).arguments, (12, 13))
+        self.assertEqual(view.require_call_site(1).source_block, 3)
+        self.assertEqual(len(view.end_facts), 3)
         self.assertEqual(inspect_selected_dynamic_v2_call(_valid_admission_data(), 1).role, "index_of")
         self.assertEqual(require_selected_dynamic_v2_call(_valid_admission_data(), 0).role, "substring")
 
@@ -141,6 +165,22 @@ class TestDynamicV2AotAdmission(unittest.TestCase):
                 {"site_id": 99}
             ),
         ):
+            data = _valid_admission_data()
+            mutate(data)
+            with self.assertRaises(DynamicV2AotAdmissionError):
+                load_selected_dynamic_v2_aot_admission(data)
+
+    def test_physical_site_and_end_drift_is_rejected(self):
+        mutations = (
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][1].update(
+                {"arguments": [99]}
+            ),
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][0].update(
+                {"normal_landing": 2}
+            ),
+            lambda d: d["metadata"]["dynamic_v2_aot_call_admission_v2"]["end_facts"].pop(),
+        )
+        for mutate in mutations:
             data = _valid_admission_data()
             mutate(data)
             with self.assertRaises(DynamicV2AotAdmissionError):

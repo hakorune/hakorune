@@ -48,6 +48,7 @@ _ROOT_KEYS = {
     "function_effects",
     "formal_parameters",
     "calls",
+    "end_facts",
 }
 _STAMP_KEYS = {"compiler_domain", "invocation_ordinal"}
 _FORMAL_KEYS = {"role", "value_id", "lane"}
@@ -66,7 +67,16 @@ _CALL_KEYS = {
     "outcome_slot",
     "normal_result_dst",
     "effects",
+    "source_block",
+    "receiver",
+    "arguments",
+    "normal_landing",
+    "fault_landing",
+    "fault_terminal_block",
+    "normal_result_block",
+    "normal_result_index",
 }
+_END_KEYS = {"site_id", "lease_slot", "block", "instruction_index"}
 
 
 class DynamicV2AotAdmissionError(ValueError):
@@ -89,6 +99,22 @@ class DynamicV2AotCallView:
     outcome_slot: int
     normal_result_dst: int
     effects: int
+    source_block: int
+    receiver: int
+    arguments: Tuple[int, ...]
+    normal_landing: int
+    fault_landing: int
+    fault_terminal_block: Optional[int]
+    normal_result_block: int
+    normal_result_index: int
+
+
+@dataclass(frozen=True)
+class DynamicV2AotEndView:
+    site_id: int
+    lease_slot: int
+    block: int
+    instruction_index: int
 
 
 @dataclass(frozen=True)
@@ -113,6 +139,7 @@ class DynamicV2AotAdmissionView:
     function_effects: int
     formal_parameters: Tuple[DynamicV2AotFormalView, ...]
     calls: Tuple[DynamicV2AotCallView, ...]
+    end_facts: Tuple[DynamicV2AotEndView, ...]
 
     def require_call_site(self, site_id: int) -> DynamicV2AotCallView:
         matches = tuple(
@@ -160,6 +187,18 @@ def _required_texts(value: Any, label: str) -> Tuple[str, ...]:
     if not isinstance(value, list) or any(not isinstance(item, str) or not item for item in value):
         raise DynamicV2AotAdmissionError(f"{label} must be a text array")
     return tuple(value)
+
+
+def _required_ints(value: Any, label: str) -> Tuple[int, ...]:
+    if not isinstance(value, list):
+        raise DynamicV2AotAdmissionError(f"{label} must be an integer array")
+    return tuple(_required_int(item, f"{label}[{index}]") for index, item in enumerate(value))
+
+
+def _required_optional_int(value: Any, label: str) -> Optional[int]:
+    if value is None:
+        return None
+    return _required_int(value, label)
 
 
 def _required_u16(value: Any, label: str) -> int:
@@ -237,6 +276,20 @@ def _validate_call(
         raw.get("normal_result_dst"), "call.normal_result_dst"
     )
     effects = _required_u16(raw.get("effects"), "call.effects")
+    source_block = _required_int(raw.get("source_block"), "call.source_block")
+    receiver = _required_int(raw.get("receiver"), "call.receiver")
+    arguments = _required_ints(raw.get("arguments"), "call.arguments")
+    normal_landing = _required_int(raw.get("normal_landing"), "call.normal_landing")
+    fault_landing = _required_int(raw.get("fault_landing"), "call.fault_landing")
+    fault_terminal_block = _required_optional_int(
+        raw.get("fault_terminal_block"), "call.fault_terminal_block"
+    )
+    normal_result_block = _required_int(
+        raw.get("normal_result_block"), "call.normal_result_block"
+    )
+    normal_result_index = _required_int(
+        raw.get("normal_result_index"), "call.normal_result_index"
+    )
     lane_names = {VALUE_HOST_HANDLE: "opaque_handle", VALUE_IMMEDIATE_I64: "immediate_i64"}
     lease_names = {LEASE_NONE: "none", LEASE_END_AUTHORIZED: "end_authorized"}
     expected_from_fact = {
@@ -274,11 +327,17 @@ def _validate_call(
     expected_arg_lanes = tuple(arg.lane for arg in receipt_call.arguments)
     if expected_arg_lanes != argument_lanes or receipt_call.result_lane != result_lane:
         raise DynamicV2AotAdmissionError(f"{role} A-prime lane mismatch")
+    if receiver != receipt_call.receiver_value_id or arguments != tuple(
+        arg.value_id for arg in receipt_call.arguments
+    ):
+        raise DynamicV2AotAdmissionError(f"{role} A-prime ValueId mismatch")
     expected_shape = (
         "end_authorized_handle" if lease == "end_authorized" else "immediate_i64"
     )
     if normal_shape != expected_shape:
         raise DynamicV2AotAdmissionError(f"{role} normal shape mismatch")
+    if normal_landing == fault_landing or len(arguments) != len(argument_lanes):
+        raise DynamicV2AotAdmissionError(f"{role} physical landing/argument mismatch")
     return DynamicV2AotCallView(
         role=role,
         site_id=site_id,
@@ -294,7 +353,42 @@ def _validate_call(
         outcome_slot=outcome_slot,
         normal_result_dst=normal_result_dst,
         effects=effects,
+        source_block=source_block,
+        receiver=receiver,
+        arguments=arguments,
+        normal_landing=normal_landing,
+        fault_landing=fault_landing,
+        fault_terminal_block=fault_terminal_block,
+        normal_result_block=normal_result_block,
+        normal_result_index=normal_result_index,
     )
+
+
+def _validate_end_facts(raw: Any) -> Tuple[DynamicV2AotEndView, ...]:
+    if not isinstance(raw, list) or len(raw) != 3:
+        raise DynamicV2AotAdmissionError("selected admission requires exactly three End facts")
+    rows = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise DynamicV2AotAdmissionError("End facts must be objects")
+        _reject_unknown(item, _END_KEYS, "End fact")
+        rows.append(
+            DynamicV2AotEndView(
+                site_id=_required_int(item.get("site_id"), "end.site_id"),
+                lease_slot=_required_int(item.get("lease_slot"), "end.lease_slot"),
+                block=_required_int(item.get("block"), "end.block"),
+                instruction_index=_required_int(
+                    item.get("instruction_index"), "end.instruction_index"
+                ),
+            )
+        )
+    if sum(row.site_id == 0 for row in rows) != 3:
+        raise DynamicV2AotAdmissionError("End facts must cover the I6 lease site exactly")
+    if any(row.lease_slot != 0 for row in rows):
+        raise DynamicV2AotAdmissionError("End facts must use the I6 lease slot")
+    if len({(row.block, row.instruction_index) for row in rows}) != len(rows):
+        raise DynamicV2AotAdmissionError("End facts must have unique positions")
+    return tuple(rows)
 
 
 def load_selected_dynamic_v2_aot_admission(
@@ -368,6 +462,7 @@ def load_selected_dynamic_v2_aot_admission(
         raise DynamicV2AotAdmissionError("selected call sites must be unique")
     if len({row.entry_id for row in parsed}) != len(parsed):
         raise DynamicV2AotAdmissionError("selected entry IDs must be unique")
+    end_facts = _validate_end_facts(raw.get("end_facts"))
     return DynamicV2AotAdmissionView(
         schema_version=SCHEMA_VERSION,
         contract_id=CONTRACT_ID,
@@ -382,4 +477,5 @@ def load_selected_dynamic_v2_aot_admission(
         function_effects=function_effects,
         formal_parameters=tuple(formal_parameters),
         calls=parsed,
+        end_facts=end_facts,
     )

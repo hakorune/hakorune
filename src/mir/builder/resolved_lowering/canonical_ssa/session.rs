@@ -543,7 +543,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .current_function
             .as_ref()
             .ok_or(CanonicalFunctionFinishErrorV1::FunctionMissing)?;
-        function
+        let checked_callout_census = function
             .metadata
             .verify_checked_callout_function(function)
             .map_err(|error| {
@@ -576,6 +576,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         Ok(ReadyFunctionDraftSealV1::from_v2_finish(
             completion,
             terminal_block,
+            checked_callout_census,
         ))
     }
 }

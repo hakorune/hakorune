@@ -83,6 +83,13 @@ reconstruct a site from block coordinates, or turn a backend contract failure
 into semantic Fault/fallback. Link, artifact validation, and live publication
 remain later W6 transactions.
 
+The AOT JSON handoff also carries the one closed census view for each selected
+site: source block, receiver/arguments, Normal/Fault landing, Normal-result
+block/index, effect, and the three End cutpoints. Boundary C1 compares those
+facts with the emitted MIR JSON topology (including exact landing incoming
+edges) before object emission; JSON is transport and does not become a second
+CFG or cleanup authority.
+
 ### W6 explicit static link boundary
 
 The selected Boundary W6 route uses the versioned link symbol:

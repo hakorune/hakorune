@@ -160,10 +160,11 @@ allowlists are being updated.
 ### CheckedCallOut transport lane
 
 `CheckedCallOut` is a canonical MIR terminator with explicit Normal/Fault
-successors. Its Normal result, End lease action, and Fault terminal are kept
-transport vocabulary for MIR JSON inspection and round-trip only; LLVM and VM
-execution remain explicitly rejected until the selected AOT activation cell
-lands.
+successors. Its Normal result, End lease action, and Fault terminal are
+transport vocabulary owned by the canonical MIR census. The selected C1
+candidate physicalizer consumes one borrowed site/operand/landing/End view
+through AOT JSON and rejects drift before object emission; VM and live
+production cutover remain explicitly closed until the W6 activation cell.
 
 ## Canonical Enum JSON Ops
 

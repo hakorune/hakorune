@@ -15,7 +15,7 @@ fi
 
 bash "$ROOT_DIR/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
-python3 - "$BASE" "$TMP_DIR/valid.json" "$TMP_DIR/invalid.json" "$TMP_DIR/invalid_launch.json" "$TMP_DIR/invalid_arity.json" "$TMP_DIR/invalid_missing_helper.json" "$TMP_DIR/invalid_duplicate_helper.json" "$TMP_DIR/invalid_duplicate_launch.json" "$TMP_DIR/invalid_missing_launch.json" "$TMP_DIR/invalid_nonzero_launch.json" "$TMP_DIR/ordinary.json" <<'PY'
+python3 - "$BASE" "$TMP_DIR/valid.json" "$TMP_DIR/invalid.json" "$TMP_DIR/invalid_launch.json" "$TMP_DIR/invalid_arity.json" "$TMP_DIR/invalid_missing_helper.json" "$TMP_DIR/invalid_duplicate_helper.json" "$TMP_DIR/invalid_duplicate_launch.json" "$TMP_DIR/invalid_missing_launch.json" "$TMP_DIR/invalid_nonzero_launch.json" "$TMP_DIR/invalid_physical.json" "$TMP_DIR/ordinary.json" <<'PY'
 import copy
 import json
 import sys
@@ -24,7 +24,7 @@ import sys
     base_path, valid_path, invalid_path, invalid_launch_path, invalid_arity_path,
     invalid_missing_helper_path, invalid_duplicate_helper_path,
     invalid_duplicate_launch_path, invalid_missing_launch_path,
-    invalid_nonzero_launch_path, ordinary_path,
+    invalid_nonzero_launch_path, invalid_physical_path, ordinary_path,
 ) = sys.argv[1:]
 data = json.load(open(base_path, encoding="utf-8"))
 function = data["functions"][0]
@@ -48,6 +48,7 @@ admission = {
     },
     "return_type": "i64",
     "return_lane": "immediate_i64",
+    "function_effects": 16,
     "formal_parameters": [
         {"role": "src", "value_id": 0, "lane": "opaque_handle"},
         {"role": "pos", "value_id": 1, "lane": "immediate_i64"},
@@ -63,6 +64,10 @@ admission = {
             "result_lane": "opaque_handle", "lease": "end_authorized",
             "normal_shape": "end_authorized_handle", "outcome_slot": 0,
             "normal_result_dst": 20, "effects": 16,
+            "source_block": 0, "receiver": 0, "arguments": [1, 2],
+            "normal_landing": 2, "fault_landing": 3,
+            "fault_terminal_block": 3, "normal_result_block": 2,
+            "normal_result_index": 0,
         },
         {
             "role": "index_of", "site_id": 1, "entry_id": 2,
@@ -72,7 +77,16 @@ admission = {
             "result_lane": "immediate_i64", "lease": "none",
             "normal_shape": "immediate_i64", "outcome_slot": 1,
             "normal_result_dst": 21, "effects": 16,
+            "source_block": 2, "receiver": 3, "arguments": [20],
+            "normal_landing": 4, "fault_landing": 5,
+            "fault_terminal_block": 5, "normal_result_block": 4,
+            "normal_result_index": 0,
         },
+    ],
+    "end_facts": [
+        {"site_id": 0, "lease_slot": 0, "block": 4, "instruction_index": 1},
+        {"site_id": 0, "lease_slot": 0, "block": 5, "instruction_index": 0},
+        {"site_id": 0, "lease_slot": 0, "block": 6, "instruction_index": 0},
     ],
 }
 function["metadata"] = {
@@ -85,7 +99,7 @@ function["blocks"][0]["instructions"] = [
     {"op": "checked_callout", "site_id": 0, "receiver": 0,
      "args": [1, 2], "normal": 2, "fault": 3, "effects": 16},
 ]
-function["blocks"][1]["instructions"] = [{"op": "jump", "target": 2}]
+function["blocks"][1]["instructions"] = [{"op": "ret", "value": None}]
 function["blocks"][2]["instructions"] = [
     {"op": "checked_callout_normal_result", "site_id": 0, "dst": 20},
     {"op": "checked_callout", "site_id": 1, "receiver": 3,
@@ -97,13 +111,16 @@ function["blocks"][3]["instructions"] = [
 function["blocks"][4]["instructions"] = [
     {"op": "checked_callout_normal_result", "site_id": 1, "dst": 21},
     {"op": "checked_callout_end", "site_id": 0, "lease_slot": 0},
-    {"op": "checked_callout_end", "site_id": 0, "lease_slot": 0},
-    {"op": "checked_callout_end", "site_id": 0, "lease_slot": 0},
     {"op": "ret", "value": 21},
 ]
 function["blocks"][5]["instructions"] = [
-    {"op": "checked_callout_fault", "site_id": 1}
+    {"op": "checked_callout_end", "site_id": 0, "lease_slot": 0},
+    {"op": "checked_callout_fault", "site_id": 1},
 ]
+function["blocks"].append({"id": 6, "instructions": [
+    {"op": "checked_callout_end", "site_id": 0, "lease_slot": 0},
+    {"op": "ret", "value": None},
+]})
 data["functions"] = [launch, function]
 json.dump(data, open(valid_path, "w", encoding="utf-8"))
 invalid = copy.deepcopy(data)
@@ -133,6 +150,9 @@ json.dump(invalid_missing_launch, open(invalid_missing_launch_path, "w", encodin
 invalid_nonzero_launch = copy.deepcopy(data)
 invalid_nonzero_launch["functions"][0]["params"] = [0]
 json.dump(invalid_nonzero_launch, open(invalid_nonzero_launch_path, "w", encoding="utf-8"))
+invalid_physical = copy.deepcopy(data)
+invalid_physical["functions"][1]["metadata"]["dynamic_v2_aot_call_admission_v2"]["calls"][0]["source_block"] = 9
+json.dump(invalid_physical, open(invalid_physical_path, "w", encoding="utf-8"))
 json.dump({
     "kind": "MIR",
     "schema_version": "1.0",
@@ -244,7 +264,7 @@ fi
 
 for negative in \
   invalid_launch invalid_arity invalid_missing_helper invalid_duplicate_helper \
-  invalid_duplicate_launch invalid_missing_launch invalid_nonzero_launch; do
+  invalid_duplicate_launch invalid_missing_launch invalid_nonzero_launch invalid_physical; do
   if ! python3 - "$FFI" "$TMP_DIR/${negative}.json" "$TMP_DIR/${negative}.o" <<'PY'
 import ctypes
 import os
