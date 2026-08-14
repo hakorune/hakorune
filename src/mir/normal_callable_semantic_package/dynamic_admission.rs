@@ -66,7 +66,10 @@ pub(super) fn admit_dynamic_callable_v1(
                 DynamicCallableDeclineV1::NoExactSingleLoop,
             ))
         }
-        Err(ResolvedLoopRegionLookupErrorV1::MissingExactBundle(_)) => {
+        Err(
+            ResolvedLoopRegionLookupErrorV1::MissingExactBundle(_)
+            | ResolvedLoopRegionLookupErrorV1::PairContractMismatch,
+        ) => {
             return Err(DynamicCallableAdmissionIssueV1::Unresolved(
                 DynamicFullBodySourceIssueV1::SourceNavigation,
             ))

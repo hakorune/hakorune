@@ -55,6 +55,18 @@ seal. OF0 rejects a second root, mixed compilation brands, cycles, duplicate
 parent/definition sites, and a parent scope that is not the exact lexical
 scope containing the Lambda definition.
 
+## Resolver callable-contract I0
+
+`ResolverCoreMethodCallableContractIssuerV1` is the bounded Loop bridge. It
+borrows one exact `VerifiedResolvedMethodCallSourceV1`, proves every call,
+receiver, argument, and result site is inside the selected sealed `LoopBody`,
+and consumes the existing generated `VerifiedCoreMethodInstanceTargetV1`.
+The resulting non-`Clone` product owns the source sites, resolver Loop frame,
+and target together. It does not choose by selector, narrow with
+`only_loop_site`, inspect AST/MIR/Recipe data, issue a source-bound relation, or
+open S6C production. A source row, frame, or target mismatch rejects before any
+Facts/Recipe or physical effect.
+
 ## Instance declaration/signature I0
 
 The bounded resolver declaration slice is landed in

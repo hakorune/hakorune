@@ -13,7 +13,8 @@ use super::product::{
 };
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
 use super::source_site::{
-    FunctionOriginV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    FunctionOriginV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
+    SourceStmtSiteV1,
 };
 use super::verifier::exact_source_region_v1;
 
@@ -32,6 +33,7 @@ impl ResolvedLoopRegionBundleV1 {
 pub(crate) enum ResolvedLoopRegionLookupErrorV1 {
     MissingExactBundle(SourceStmtSiteV1),
     NoUniqueLoopSite { actual: usize },
+    PairContractMismatch,
 }
 
 /// Owner-branded source identity for one Loop admitted by the sealed index.
@@ -268,6 +270,34 @@ impl VerifiedResolvedFunctionV1 {
             .loop_regions
             .get(site)
             .ok_or_else(|| ResolvedLoopRegionLookupErrorV1::MissingExactBundle(site.clone()))
+    }
+
+    /// Checks exact source containment for one selected Loop body.
+    ///
+    /// The loop-region index is the authority for the selected statement and
+    /// region origin. Consumers must use this resolver-owned check instead of
+    /// rebuilding a path prefix from AST or route-local coordinates.
+    pub(crate) fn loop_body_contains_site(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
+        let bundle = self.loop_region_bundle(loop_site)?;
+        let pair = bundle.loop_pair();
+        let region = self
+            .region(pair.region())
+            .ok_or(ResolvedLoopRegionLookupErrorV1::PairContractMismatch)?;
+        if region.kind() != RegionKindV1::Loop
+            || region.origin() != &RegionOriginV1::Source(loop_site.node().clone())
+        {
+            return Err(ResolvedLoopRegionLookupErrorV1::PairContractMismatch);
+        }
+        Ok(super::verifier::source_region_contains_site_v1(
+            self.root_profile(),
+            region.kind(),
+            region.origin(),
+            site.node(),
+        ))
     }
 
     /// Returns only the sealed cardinality for future source/flow bijection.

@@ -12,7 +12,8 @@ guard_require_files "$TAG" \
   "$ROOT_DIR/lang/src/runtime/meta/core_method_contract_box.hako" \
   "$ROOT_DIR/lang/src/runtime/meta/generated/core_method_contract_manifest.json" \
   "$ROOT_DIR/src/mir/generated/core_method_contract_rows.rs" \
-  "$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs"
+  "$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs" \
+  "$ROOT_DIR/src/mir/resolved_semantics/resolver_core_method_callable_contract.rs"
 
 python3 "$ROOT_DIR/tools/checks/lib/core_method_contract_codegen_tests.py"
 python3 "$ROOT_DIR/tools/core_method_contract_manifest_codegen.py" --check
@@ -25,6 +26,25 @@ guard_expect_fixed_in_file "$TAG" \
   "CoreMethodInstanceTargetIssuerV1" \
   "$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs" \
   "bounded CoreMethod/Home issuer is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "ResolverCoreMethodCallableContractIssuerV1" \
+  "$ROOT_DIR/src/mir/resolved_semantics/resolver_core_method_callable_contract.rs" \
+  "resolver source/frame/target contract issuer is missing"
+
+resolver_contract="$ROOT_DIR/src/mir/resolved_semantics/resolver_core_method_callable_contract.rs"
+if rg -n 'only_loop_site|source_call_target|lookup_core_method_' "$resolver_contract"; then
+  guard_fail "$TAG" \
+    "resolver callable contract must not narrow Loop cardinality, reissue source relations, or lookup Core rows"
+fi
+resolver_contract_consumers="$({
+  rg -l 'ResolverCoreMethodCallableContractIssuerV1::issue' "$ROOT_DIR/src/mir" \
+    --glob '*.rs' || true
+} | sort -u)"
+expected_resolver_contract_test="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_tests.rs"
+if [[ -n "$resolver_contract_consumers" && "$resolver_contract_consumers" != "$expected_resolver_contract_test" ]]; then
+  guard_fail "$TAG" \
+    "resolver callable contract must remain caller-zero outside its focused tests: $resolver_contract_consumers"
+fi
 
 core_lookup_consumers="$({
   rg -l 'lookup_core_method_result_row_v1' "$ROOT_DIR/src/mir" \

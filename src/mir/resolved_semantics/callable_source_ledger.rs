@@ -176,6 +176,10 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.variable_refs()
     }
 
+    pub(crate) fn variable_ref(&self, site: &SourceExprSiteV1) -> Option<ResolvedLexicalRefV1> {
+        self.function.variable_ref(site)
+    }
+
     pub(crate) fn assignment_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedAssignmentTargetV1)> {
@@ -243,13 +247,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
         let site = self.function.only_loop_site()?;
-        let (source, scope_region) = self.function.resolved_loop_source_context(&site)?;
-        let frame = source.frame_key();
-        Ok(VerifiedCallableLoopMembershipV1 {
-            source,
-            frame,
-            scope_region,
-        })
+        self.function.issue_callable_loop_membership(&site)
     }
 
     /// Issue exact Loop membership and frame identity from the sealed index.
@@ -257,7 +255,29 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
-        let (source, scope_region) = self.function.resolved_loop_source_context(site)?;
+        self.function.issue_callable_loop_membership(site)
+    }
+
+    pub(crate) fn loop_body_contains_site(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
+        self.function.loop_body_contains_site(loop_site, site)
+    }
+}
+
+impl VerifiedResolvedFunctionV1 {
+    /// Issues one resolver-owned Loop membership/frame product.
+    ///
+    /// This is the single constructor used by source-ledger consumers. It
+    /// keeps the source token, frame, and scope/region pair together so a
+    /// later relation cannot mix a frame from another owner or loop.
+    pub(crate) fn issue_callable_loop_membership(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
+        let (source, scope_region) = self.resolved_loop_source_context(site)?;
         let frame = source.frame_key();
         Ok(VerifiedCallableLoopMembershipV1 {
             source,

@@ -1,7 +1,7 @@
 ---
-Status: Current bounded T2 design stop; manifest-target I0 evidence is closed, Resolver callable-contract D0 selected by CURRENT_STATE
+Status: Resolver callable-contract I0 landed; current pointer returned to S6C T2 design stop
 Date: 2026-08-14
-Decision: keep the manifest-target evidence bounded, and design the missing Resolver callable contract/owner-frame bridge before any source-bound relation or S6C producer
+Decision: co-seal existing Resolver MethodCall source rows, explicit LoopBody frame membership, and the existing manifest target in one non-Clone I0 product; keep source-bound relation/S6C closed until its own D0
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -9,18 +9,17 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 ## Current Capsule
 
-- **Current decision:** the V2 typed schema and neutral operation split are
-  landed; the manifest-backed CoreMethod/Home target evidence is bounded, but
-  Resolver source rows do not yet own a Text-capable callable contract or an
-  exact MethodCall-to-loop-frame bridge. S6C remains `NoSafeSlice`.
-- **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
-  are closed, and the dedicated CoreMethod/Home target issuer I0 is landed
+- **Current decision:** the V2 typed schema, neutral operation split, and
+  Resolver callable-contract I0 are landed. The next frontier is the existing
+  S6C T2 design stop; source-bound relation and complete Facts/Recipe remain
+  unopened.
+- **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
+  CoreMethod/Home target issuer, and Resolver callable-contract I0 are closed
   with focused positive/negative evidence. No forward `ScanWithInit`
   Facts/producer or production physical selector is active.
-- **Next ordered task:** `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` — design
-  the Resolver-owned Text/StringBox callable contract and exact source-site to
-  loop-frame bridge that a later source-bound relation may borrow. Do not
-  issue that relation or S6C Facts/Recipe yet.
+- **Next ordered task:** `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C` — reopen only its T2
+  design stop and prove a complete resolver/CoreMethod source-to-Facts-to-
+  Recipe producer. Do not reuse selected-Dynamic relations.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -30,21 +29,22 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: continue Loop at `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0`; do not
-replay closed rows 1--10 or select production row 11 early.
+Decision: continue Loop at `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`; do not replay
+closed rows 1--10 or select production row 11 early.
 Source authority + canonical issuer: resolver declaration/catalog and
 `VerifiedResolvedMethodCallSourceV1`/callable source ledger for exact owner,
-site, receiver, ordered args, result, and loop-frame evidence; a new
-canonical callable-contract issuer must be designed before a relation issuer.
+site, receiver, ordered args, result, and LoopBody frame; the new I0 issuer
+co-seals those rows with `VerifiedCoreMethodInstanceTargetV1`.
 Non-authority: generated rows alone, `home_abi.rs` I64/Unit defaults, MIR or
-ResultKind inference, raw AST/name lookup, selected-Dynamic receipts, legacy
-scan builders, CheckedCallOut IDs, physical order, and task-map history.
+ResultKind inference, raw AST/name lookup, selected-Dynamic receipts, the
+Resolver I0 as a source-bound relation, legacy scan builders, CheckedCallOut
+IDs, physical order, and task-map history.
 Fail-fast boundary: missing Text/Home contract, foreign/mixed owner or frame,
 missing/duplicate/swapped source relation, or unknown effect/suspension/control
-must remain NoSafeSlice before target relation/Facts/Recipe publication.
-Smallest next slice: freeze the Resolver callable contract and exact
-MethodCall-site-to-loop-frame bridge, then decide whether a borrowed HRTB view
-or consuming target product is the only safe source-bound API.
+rejects before the I0 product is issued.
+Smallest next slice: T2-design the complete S6C source/frame/target/input/
+effect/control contract and one Facts-to-Recipe producer; leave implementation
+closed until every authority and fail-fast terminal is named.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -70,10 +70,10 @@ remaining authority:
   no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
 
 therefore:
-  S6C producer work and the source-bound relation remain NoSafeSlice/design_stop.
-  The next bounded row is the Resolver callable contract/owner-frame bridge;
-  selected-Dynamic substring/indexOf receipts are a different owner and are
-  not evidence.
+  the Resolver callable-contract I0 now closes the source/frame/target bridge;
+  the source-bound relation, typed inputs, and complete S6C Facts/Recipe
+  producer remain NoSafeSlice/design_stop. Selected-Dynamic substring/indexOf
+  receipts are a different owner and are not evidence.
 ```
 
 Audit anchors (these are evidence pointers, not new authorities):
@@ -108,8 +108,8 @@ The ordered task DAG is now explicit and bounded:
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
   -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
        -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CLOSED (bounded manifest evidence)
-       -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CURRENT design stop
-            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  T2
+       -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CLOSED (accepted design)
+            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  CLOSED bounded bridge
                  -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  T2
                       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
                            -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
@@ -117,7 +117,7 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                                      -> S6C parity / canary / later production rows
 ```
 
-### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (CURRENT)
+### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (accepted)
 
 ```text
 Decision: keep S6C and the source-bound relation at NoSafeSlice until one
@@ -143,11 +143,68 @@ Builder/MIR/Boundary/LLVM/runtime, production selector, fallback, retry,
 legacy retirement, or new semantic receipt.
 ```
 
-Acceptance for this D0 is design-only: name the resolver issuer, prove the
-source-row/frame containment API, enumerate the exact Text/StringBox/Home and
-effect axes, and publish the negative matrix. If any axis still needs a
-method-name lookup, MIR-derived Text/Home inference, or an unowned frame
-tuple, the row remains `NoSafeSlice` and no I0 implementation starts.
+The D0 is accepted and its bounded I0 is landed: the resolver issuer,
+source-row/frame containment API, exact Text/StringBox/Home/effect axes, and
+negative matrix are named below. If the next S6C design still needs a
+method-name lookup, MIR-derived Text/Home inference, or an unowned frame tuple,
+it must return to `NoSafeSlice` rather than widening the row.
+
+### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0 (LANDED)
+
+```text
+Decision: issue one non-Clone resolver callable-contract product; do not add
+a Static/Dynamic source-call enum arm or reuse Dynamic receipts.
+Source authority + canonical issuer: existing resolver MethodCall source row,
+sealed loop-region index/LoopExecutionFrameKeyV1, and existing
+VerifiedCoreMethodInstanceTargetV1, co-sealed by one resolver-owned issuer.
+Non-authority: AST/name lookup, selector-based target selection, MIR/Recipe/
+physical IDs, only_loop_site(), generic route plans, and source_call_target
+Static/Dynamic products.
+Fail-fast boundary: foreign owner, absent source inventory, missing exact loop
+bundle, non-LoopBody path, ambiguous/mixed frame, receiver mismatch, wrong
+arity/ordinal/result site, wrong target brand/op/result/Home/effect/policy,
+duplicate/swapped source rows reject before product issue.
+Smallest next slice: none; implementation landed in the resolver module below
+the source split budget and production consumer remains zero.
+Non-claims: no Recipe keys, Facts producer, Builder/MIR/Boundary/LLVM,
+physical ABI, production selector, fallback, retry, or legacy retirement.
+```
+
+I0 acceptance:
+
+```text
+API: issue_method_call_loop_body_membership(function, call, selected_loop)
+     -> exact resolver frame witness;
+     issue_resolver_core_method_callable_contract(function, call,
+     selected_loop, target) -> non-Clone product.
+Source checks: call/receiver/all args/result in one owner inventory;
+  args.len == target arity; ordinals are exactly 0..arity; result_site=call;
+  selector is only a canonical/alias cross-check; target is never selected by
+  selector.
+Frame checks: selected loop has one sealed bundle; call is a descendant of
+  that loop's LoopBody, not LoopCondition/outside/another loop; no implicit
+  only_loop_site selection.
+Target checks: manifest/schema/target brand, StringBox receiver,
+  StringLen/0 -> I64 or StringSubstring/2 -> Text, PureRead,
+  NonSuspendingNonControl, and explicit Home relations.
+Ownership: target is consumed by value; source/frame rows are borrowed only
+  during validation and the resulting product owns exact source sites plus
+  the resolver frame witness; Clone/into_parts/raw constructors are absent.
+Negative: foreign/mixed owner/frame/brand, missing/duplicate/swapped site,
+  call outside LoopBody, nested/ambiguous frame, QualifiedUnbound/CurrentOwner/
+  Other receiver, wrong op/arity/result/Home/effect/policy, and name/MIR
+inference. Production caller = 0; S6C producer = 0. Evidence: two focused
+resolver tests pass; the callable-source-ledger family (8 tests) passes; the
+CoreMethod manifest, Loop precutover, pointer, and diff guards pass.
+```
+
+The code-facing I0 must stay below the 760-line split trigger and 800-line
+hard stop. It must reuse the existing resolver source/frame APIs rather than
+adding a second path inventory.
+
+D0 evidence is retained as the I0 review gate: any implementation that still
+needs a method-name lookup, MIR-derived Text/Home inference, or an unowned
+frame tuple must fail closed and return the pointer to the D0 boundary.
 
 ### Resolver contract D0 witness and I0 boundary
 

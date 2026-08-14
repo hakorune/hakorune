@@ -56,6 +56,7 @@ mod query_body_facts;
 mod record_schema_demand;
 mod records;
 mod resolver;
+mod resolver_core_method_callable_contract;
 mod script_view;
 mod shadow;
 mod source_path_policy;
@@ -228,6 +229,10 @@ pub use records::{
 };
 pub(crate) use resolver::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveScriptOutcomeV1,
+};
+pub(crate) use resolver_core_method_callable_contract::{
+    ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
+    VerifiedResolverCoreMethodCallableContractV1,
 };
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(in crate::mir) use shadow::{

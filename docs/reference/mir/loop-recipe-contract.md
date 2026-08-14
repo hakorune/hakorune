@@ -57,6 +57,20 @@ meaning before issuing the target capability. It has no source-site, Recipe,
 physical, backend, fallback, or production consumer; the later source-bound
 relation must borrow the target and add owner/frame and exact call-site facts.
 
+## Resolver callable-contract bridge I0
+
+The bounded resolver bridge now co-seals one exact
+`VerifiedResolvedMethodCallSourceV1`, its selected sealed `LoopBody` frame, and
+the existing CoreMethod target. The issuer verifies owner/source-inventory
+membership, lexical receiver binding, ordered argument sites, result-site
+identity, explicit LoopBody containment, StringBox/Text Home, operation/arity,
+PureRead, and non-suspending/non-control policy. The resulting non-`Clone`
+product is still resolver-only: it issues no Recipe key, source-bound relation,
+Facts/Recipe row, physical ID, ABI, fallback, or production edge. Selector text
+is a cross-check only; `only_loop_site`, AST/MIR inference, and CoreMethod
+relookup are forbidden. S6C remains closed until its complete source/Facts/
+Recipe producer is separately co-sealed.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation
