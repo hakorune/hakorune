@@ -358,6 +358,17 @@ issuer checks one owner/frame brand, one receiver site, exactly `arity`
 ordered argument sites, and one result site when the target has a result.
 Foreign, duplicate, or swapped sites reject before Facts/Recipe.
 
+### LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0
+
+```text
+Decision: design a separate manifest-backed StringBox/Text Home issuer; do not widen I64UnitTrivial in place.
+Source authority + canonical issuer: CoreMethodContractBox/generated row brand plus an explicit CoreMethod Home capability issuer.
+Non-authority: user-instance declaration/Home catalog, MIR types, ResultKind, names, DynamicMember receipts, or Recipe wire.
+Fail-fast boundary: foreign/mixed schema or brand, wrong receiver/arity/result/effect/ABI, missing Home, and duplicate target reject before any receipt.
+Smallest next slice: specify issuer input/output, exact StringLen/0 and StringSubstring/2 positives, negative matrix, and one reusable guard; no consumer yet.
+Non-claims: no source-bound call product, Facts/Recipe producer, Builder/MIR/Boundary route, fallback, retry, or production switch.
+```
+
 Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
 until the manifest-backed CoreMethod Home issuer exists and its positive /
 negative / guard evidence satisfies the source-backed receipt gate. No
