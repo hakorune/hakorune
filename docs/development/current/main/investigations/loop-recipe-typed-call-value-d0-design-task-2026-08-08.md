@@ -1,7 +1,7 @@
 ---
-Status: Current bounded T2 design stop; I0 closed and source-bound relation D0 selected by CURRENT_STATE
+Status: Current bounded T2 design stop; manifest-target I0 evidence is closed, Resolver callable-contract D0 selected by CURRENT_STATE
 Date: 2026-08-14
-Decision: keep the accepted CoreMethod manifest/Home issuer as the sole target authority and design the next source-bound relation before S6C
+Decision: keep the manifest-target evidence bounded, and design the missing Resolver callable contract/owner-frame bridge before any source-bound relation or S6C producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -10,18 +10,17 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema and neutral operation split are
-  landed; the CoreMethod manifest/Home issuer D0 and bounded I0 are closed.
-  S6C still needs one exact resolver/CoreMethod-backed
-  `length/substring/TextEq` source relation and one complete Facts-to-Recipe
-  issuer after that relation closes.
+  landed; the manifest-backed CoreMethod/Home target evidence is bounded, but
+  Resolver source rows do not yet own a Text-capable callable contract or an
+  exact MethodCall-to-loop-frame bridge. S6C remains `NoSafeSlice`.
 - **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
   are closed, and the dedicated CoreMethod/Home target issuer I0 is landed
   with focused positive/negative evidence. No forward `ScanWithInit`
   Facts/producer or production physical selector is active.
-- **Next ordered task:** `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0` — design
-  the source-bound CoreMethod call relation, borrow the I0 target without
-  reissuing its generated row, and keep S6C `NoSafeSlice` closed until that
-  relation and its exact source coverage exist.
+- **Next ordered task:** `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0` — design
+  the Resolver-owned Text/StringBox callable contract and exact source-site to
+  loop-frame bridge that a later source-bound relation may borrow. Do not
+  issue that relation or S6C Facts/Recipe yet.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -31,17 +30,21 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: continue Loop at `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0`; do not
+Decision: continue Loop at `LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0`; do not
 replay closed rows 1--10 or select production row 11 early.
-Source authority + canonical issuer: generated CoreMethod manifest rows plus
-the dedicated typed StringBox/Home target issuer; the next source-bound call
-relation, existing typed input/effect owners, and one future S6C Facts-to-Recipe
-producer.
-Non-authority: selected-Dynamic substring/indexOf receipts, raw AST/name lookup, legacy scan builders, MIR/CheckedCallOut IDs, physical operation order, and task-map history.
-Fail-fast boundary: missing/foreign/duplicate target, result/Home/effect/site relation, incomplete role coverage, or Loop Return versus callable Tail drift remains NoSafeSlice before Facts/Recipe publication.
-Smallest next slice: close the manifest-backed StringLen/0 and
-StringSubstring/2 target issuer evidence, then design the source-bound
-relation without reissuing the generated row.
+Source authority + canonical issuer: resolver declaration/catalog and
+`VerifiedResolvedMethodCallSourceV1`/callable source ledger for exact owner,
+site, receiver, ordered args, result, and loop-frame evidence; a new
+canonical callable-contract issuer must be designed before a relation issuer.
+Non-authority: generated rows alone, `home_abi.rs` I64/Unit defaults, MIR or
+ResultKind inference, raw AST/name lookup, selected-Dynamic receipts, legacy
+scan builders, CheckedCallOut IDs, physical order, and task-map history.
+Fail-fast boundary: missing Text/Home contract, foreign/mixed owner or frame,
+missing/duplicate/swapped source relation, or unknown effect/suspension/control
+must remain NoSafeSlice before target relation/Facts/Recipe publication.
+Smallest next slice: freeze the Resolver callable contract and exact
+MethodCall-site-to-loop-frame bridge, then decide whether a borrowed HRTB view
+or consuming target product is the only safe source-bound API.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -67,9 +70,10 @@ remaining authority:
   no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
 
 therefore:
-  S6C producer work remains NoSafeSlice/design_stop. The next bounded row is
-  the source-bound relation; selected-Dynamic substring/indexOf receipts are
-  a different owner and are not evidence.
+  S6C producer work and the source-bound relation remain NoSafeSlice/design_stop.
+  The next bounded row is the Resolver callable contract/owner-frame bridge;
+  selected-Dynamic substring/indexOf receipts are a different owner and are
+  not evidence.
 ```
 
 Audit anchors (these are evidence pointers, not new authorities):
@@ -88,6 +92,14 @@ src/mir/source_call_target/model.rs
 src/mir/loop_recipe_contract/schema_v2.rs
   CallSlot is deliberately receiver/args/result keys only and cannot repair
   any of the missing source/target/Home axes.
+src/mir/resolved_semantics/body_shape.rs
+  VerifiedResolvedMethodCallSourceV1 provides exact AST-free call site,
+  receiver expression, ordered argument sites, result site, owner, selector,
+  and arity, but intentionally no target/Home/effect policy.
+src/mir/resolved_semantics/callable_source_ledger.rs
+  CallableSemanticSourceLedgerView provides method-call rows and resolver
+  Loop membership/frame products; a call-site-to-loop-frame bridge is not yet
+  a co-sealed callable contract.
 ```
 
 The ordered task DAG is now explicit and bounded:
@@ -95,21 +107,55 @@ The ordered task DAG is now explicit and bounded:
 ```text
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
   -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
-       -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CURRENT bounded implementation
-       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CURRENT design stop
-            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
-            -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
-                 -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
-                      -> S6C parity / canary / later production rows
+       -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CLOSED (bounded manifest evidence)
+       -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CURRENT design stop
+            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  T2
+                 -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  T2
+                      -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+                           -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                                -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                                     -> S6C parity / canary / later production rows
 ```
+
+### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (CURRENT)
+
+```text
+Decision: keep S6C and the source-bound relation at NoSafeSlice until one
+Resolver-owned callable contract can represent the exact Text/StringBox
+receiver, result/Home, effect, suspension/control policy, and owner/frame
+bridge needed by the forward ScanWithInit cohort.
+Source authority + canonical issuer: resolver declaration/catalog plus
+VerifiedResolvedMethodCallSourceV1 and CallableSemanticSourceLedgerView;
+the missing issuer must co-seal the generated manifest target brand with the
+resolver owner/frame and explicit callable contract.
+Non-authority: generated op/result/effect rows by themselves, I64/Unit Home
+defaults, LoopRecipe CallSlot, generic route plans, selector/name lookup,
+MIR/ResultKind inference, selected-Dynamic receipts, or physical IDs.
+Fail-fast boundary: unsupported Text/Home contract, foreign or mixed owner/
+frame/parser/manifest brand, missing/duplicate/swapped source site or frame,
+unknown result/effect/suspension/control, and incomplete source coverage reject
+before target relation, Facts, or Recipe issuance.
+Smallest next slice: design the canonical contract and exact MethodCall-site
+to loop-frame containment bridge; choose an opaque borrowed view versus a
+consuming target product only after ownership and lifetime are proven.
+Non-claims: no source-bound relation product, S6C Facts/Recipe producer,
+Builder/MIR/Boundary/LLVM/runtime, production selector, fallback, retry,
+legacy retirement, or new semantic receipt.
+```
+
+Acceptance for this D0 is design-only: name the resolver issuer, prove the
+source-row/frame containment API, enumerate the exact Text/StringBox/Home and
+effect axes, and publish the negative matrix. If any axis still needs a
+method-name lookup, MIR-derived Text/Home inference, or an unowned frame
+tuple, the row remains `NoSafeSlice` and no I0 implementation starts.
 
 The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
 parked row for user-declared instance methods. It must not be relabeled as the
-StringBox/CoreMethod issuer. The new `LOOP-CORE-METHOD-INSTANCE-TARGET-D0`
-must define one neutral generated-contract owner; it must not infer `Text`
+StringBox/CoreMethod issuer. The closed manifest-target evidence is not yet a
+Resolver callable contract: the future contract row must not infer `Text`
 Home from `MirType` or `CoreMethodResultKind`, and must not pair a target by
-Box/method name after the generated row is sealed. Its first exact co-seal
-must include:
+Box/method name after the generated row is sealed. Its exact co-seal must
+include:
 
 ```text
 same CoreMethod manifest/schema brand
@@ -121,7 +167,8 @@ non-suspending + non-control policy
 runtime owner/export profile as a downstream projection only
 ```
 
-The next source-bound relation consumes/borrows that target and adds the exact
+After the canonical callable-contract row closes, the source-bound relation
+will consume/borrow that target and add the exact
 source expression site, owner/frame, receiver expression, ordered arguments,
 and result site. It owns no target lookup, CoreMethod re-lookup, Recipe key,
 `ValueId`, `BasicBlockId`, ABI, or physical layout. Source-site identity is
@@ -138,7 +185,7 @@ step: read/add/write index
 tail: callable Return(-1), outside Loop Facts
 ```
 
-Acceptance for the dependency row is fail-closed and source-first:
+Historical manifest-target acceptance is fail-closed and source-first:
 
 ```text
 positive: one same-brand CoreMethod target pair with exact arity/result/effect,
@@ -149,9 +196,8 @@ negative: foreign/duplicate/swapped target, String vs StringBox mismatch,
           from MIR/CoreMethod output, name lookup, or partial Facts coverage;
           foreign/duplicate owner-frame or swapped receiver/argument/result
           site cardinality is rejected;
-guard: CoreMethod target issuer has one named source-bound consumer,
-       source-bound relation has one S6C producer consumer,
-       S6C producer count is zero until that relation closes, and no selected
+guard: the target issuer has no source-bound/S6C production consumer until
+       the Resolver callable contract and relation rows close, and no selected
        Dynamic receipt is imported by the Loop lane.
 ```
 
@@ -159,13 +205,15 @@ Non-claims remain strict: no Builder/MIR/CheckedCallOut/Boundary, no physical
 IDs or ABI, no production selector, no fallback/retry, no legacy retirement,
 and no new `Verified*`/`Prepared*` product is issued by this census.
 
-## Change
+## Historical schema boundary and next change
 
-Keep S6C as a design stop and split the work into two bounded rows:
+The V2 schema decision is closed. Keep S6C as a design stop and split the
+remaining work into these bounded rows:
 
-1. this prerequisite: a profile-neutral typed call/value vocabulary and its
-   source/effect ownership;
-2. a later `ScanWithInit` source observer/producer using that vocabulary.
+1. current prerequisite: a Resolver-owned callable contract and exact
+   MethodCall-site-to-loop-frame bridge;
+2. later source-bound relation and typed input ownership;
+3. a later `ScanWithInit` source observer/producer using those products.
 
 Do not combine `ScanWithInit`, `SplitScan`, `CharMap`, `ArrayJoin`, and
 `BoolPredicateScan` into one Facts union or one implementation row.
