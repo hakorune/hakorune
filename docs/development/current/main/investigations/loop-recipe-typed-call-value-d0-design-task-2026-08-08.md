@@ -18,10 +18,10 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   physical selector is active.
 - **Next ordered task:** keep the S6C audit result as a T2 dependency stop:
   the existing declaration/Home/Query issuers cover only the bounded `I64`/
-  `Unit` instance cohort, and the CoreMethod manifest does not issue a neutral
-  `Text` receiver/result Home plus source-site target. Reopen the existing
-  `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` dependency only after that
-  contract boundary is named; keep S6C `NoSafeSlice` if it is absent.
+  `Unit` user-instance cohort, and the CoreMethod manifest does not issue a
+  neutral `Text` receiver/result Home target contract. Open the new
+  `LOOP-CORE-METHOD-INSTANCE-TARGET-D0` design dependency first; keep S6C
+  `NoSafeSlice` if that contract boundary is absent.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -32,7 +32,10 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 ```text
 Decision: resume Loop at JOINIR-LOOP-M8-LOOPV0-SCANS-S6C as one T2 authority design stop; do not replay closed rows 1--10 or select production row 11 early.
-Source authority + canonical issuer: resolved forward ScanWithInit source, resolver-issued instance-call/CoreMethod contracts, existing typed input/Home/effect owners, and one future S6C Facts-to-Recipe producer.
+Source authority + canonical issuer: resolved forward ScanWithInit source, a
+CoreMethod-manifest callable/Home target contract, a separate source-bound
+call relation, existing typed input/effect owners, and one future S6C
+Facts-to-Recipe producer.
 Non-authority: selected-Dynamic substring/indexOf receipts, raw AST/name lookup, legacy scan builders, MIR/CheckedCallOut IDs, physical operation order, and task-map history.
 Fail-fast boundary: missing/foreign/duplicate target, result/Home/effect/site relation, incomplete role coverage, or Loop Return versus callable Tail drift remains NoSafeSlice before Facts/Recipe publication.
 Smallest next slice: read-only issuer/caller census for exact length/substring/TextEq and input/condition/body/step/Return coverage; accept one bounded BoxCount only if every required authority already exists or one named neutral issuer can be added.
@@ -53,9 +56,11 @@ closed evidence:
   exist for the bounded user-instance I64/Unit cohort.
 
 missing authority:
-  no resolver-issued instance target co-seals StringBox receiver,
-  StringLen/StringSubstring result/Home relations, exact source site,
-  non-suspending/non-control obligation, and the CoreMethod row;
+  no neutral CoreMethod callable/Home target contract co-seals StringBox
+  receiver, StringLen/StringSubstring result/Home relations, exact arity,
+  non-suspending/non-control obligation, and the generated manifest row;
+  no separate source-bound relation co-seals the exact call site/owner,
+  receiver expression, arguments, or result site;
   no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
 
 therefore:
@@ -85,32 +90,36 @@ The ordered task DAG is now explicit and bounded:
 
 ```text
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0  T2 dependency
+  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       T2 dependency (new)
        -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
             -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                  -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                       -> S6C parity / canary / later production rows
 ```
 
-`LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` may reuse the existing
-declaration/Home/Query aggregate only through a new neutral capability; it
-must not widen the FreeStatic index, infer `Text` Home from `MirType` or the
-CoreMethod result kind, or pair a target by Box/method name. Its first exact
-co-seal must include:
+The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
+parked row for user-declared instance methods. It must not be relabeled as the
+StringBox/CoreMethod issuer. The new `LOOP-CORE-METHOD-INSTANCE-TARGET-D0`
+must define one neutral generated-contract owner; it must not infer `Text`
+Home from `MirType` or `CoreMethodResultKind`, and must not pair a target by
+Box/method name after the generated row is sealed. Its first exact co-seal
+must include:
 
 ```text
-same resolver/catalog brand
-StringBox receiver contract
+same CoreMethod manifest/schema brand
+StringBox receiver semantic contract
 StringLen: arity 0 -> I64, PureRead
 StringSubstring: arity 2 -> Text/StringValue, PureRead
-Home receiver/result/parameter relation
+explicit receiver/parameter/result Home relation (no default)
 non-suspending + non-control policy
-exact source expression site and owner/frame provenance
+runtime owner/export profile as a downstream projection only
 ```
 
-The next source-bound relation consumes/borrows that capability and adds the
-S6C receiver/argument/result bindings. It owns no target lookup, CoreMethod
-re-lookup, Recipe key, `ValueId`, `BasicBlockId`, ABI, or physical layout.
+The next source-bound relation consumes/borrows that target and adds the exact
+source expression site, owner/frame, receiver expression, ordered arguments,
+and result site. It owns no target lookup, CoreMethod re-lookup, Recipe key,
+`ValueId`, `BasicBlockId`, ABI, or physical layout. Source-site identity is
+therefore not duplicated inside the reusable target capability.
 Only after that relation is closed may an S6C producer issue Facts for the
 exact roles below and let the producer mint Recipe-local keys:
 
@@ -126,12 +135,13 @@ tail: callable Return(-1), outside Loop Facts
 Acceptance for the dependency row is fail-closed and source-first:
 
 ```text
-positive: one same-brand StringBox target pair with exact arity/result/effect,
-          Home, source site, and no suspension/control transfer;
+positive: one same-brand CoreMethod target pair with exact arity/result/effect,
+          explicit Home relation, manifest brand, and no suspension/control;
 negative: foreign/duplicate/swapped target, String vs StringBox mismatch,
           wrong arity/result/Home/effect, missing source site, Text inferred
           from MIR/CoreMethod output, name lookup, or partial Facts coverage;
-guard: target issuer consumer count is exactly the named source-bound relation,
+guard: CoreMethod target issuer has one named source-bound consumer,
+       source-bound relation has one S6C producer consumer,
        S6C producer count is zero until that relation closes, and no selected
        Dynamic receipt is imported by the Loop lane.
 ```
@@ -313,7 +323,7 @@ The worker audits are integrated into one boundary decision:
 
 ```text
 LoopRecipeV2 wire
-  -> resolver-issued instance-call target capability
+  -> CoreMethod-manifest instance-call target capability
   -> source-bound call relation / verifier
 ```
 
