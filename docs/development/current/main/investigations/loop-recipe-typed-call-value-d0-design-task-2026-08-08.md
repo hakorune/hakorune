@@ -1,5 +1,5 @@
 ---
-Status: Recipe I0 landed; JOINIR consumer is a design stop until owner and row facade are fixed
+Status: Recipe I0 landed; product-first JOINIR row façade R0 is accepted
 Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -17,34 +17,33 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, fixed source-bound relation, Exit/Tail co-seal, Facts I0, and Recipe
   I0 are closed. The product and selector remain caller-zero.
-- **Next ordered task:** design the combined-product JOINIR consumer
-  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0` before any Recipe-only handoff.
+- **Next ordered task:** implement the private row façade
+  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-ROW-FACADE-R0` for the combined product;
+  no Recipe-only handoff is allowed.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
 
-## JOINIR consumer design stop — 2026-08-15
+## Accepted JOINIR product-first row façade — 2026-08-15
 
 ```text
-Decision: NoSafeSlice until one neutral S6C JOINIR consumer owner and its
-row-level private façade are fixed; the old MIR/name/fallback lowerers are not
-the consumer. The landed combined product remains the only input authority.
+Decision: use a private product-first S6C consumer seam; the current
+MIR/name/fallback `LoopToJoinLowerer::lower` remains non-consumer. The landed
+combined product is the only input authority.
 Source authority + canonical issuer: Facts owns source truth; the Recipe
 producer owns V2 keys/role seal; the existing V2 issuer owns Join/After; only
-VerifiedS6CScanWithInitRecipeProductV2::with_product lends the combined view.
-Non-authority: Recipe-only APIs, raw Recipe/JoinSig, LoopToJoinLowerer,
-LoopViewBuilder, AST/name/order/MIR lookup, Artifact claims, physical IDs,
-selector, fallback, retry, or production callers.
+`VerifiedS6CScanWithInitRecipeProductV2::with_product` lends the combined view.
+Non-authority: Recipe-only/raw Recipe/JoinSig, AST/name/order/MIR lookup,
+LoopViewBuilder dispatch, Artifact claims, physical IDs, selector, fallback,
+retry, or production callers.
 Fail-fast boundary: product-only input, exact role/domain coverage, typed
 CallSlot receiver/args/Home/effect parity, and Join branch/After/Return/Tail
-separation must be checked before any logical handoff.
-Smallest next slice: design `s6c_joinir_consumer` as a private product-first
-façade at the future LoopToJoinLowerer seam (its current MIR/name/fallback
-`lower` remains non-consumer), plus a private HRTB row view for item/value/
-control rows; choose a neutral logical output without opening JoinModule/MIR/
-physicalization. No code or new semantic product is issued yet.
+separation are checked before any logical handoff.
+Smallest next slice: implement one private HRTB row view for the fixed S6C
+item/value/control roles at the future LoopToJoinLowerer product seam. It may
+lend typed rows only; it must not emit JoinModule/MIR or mint a new product.
 Non-claims: no Artifact/provenance, selector, Builder/MIR, physical IDs,
 backend, production caller, fallback/retry, or legacy retirement.
 ```
