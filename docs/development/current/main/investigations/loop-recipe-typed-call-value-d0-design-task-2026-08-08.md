@@ -149,6 +149,53 @@ effect axes, and publish the negative matrix. If any axis still needs a
 method-name lookup, MIR-derived Text/Home inference, or an unowned frame
 tuple, the row remains `NoSafeSlice` and no I0 implementation starts.
 
+### Resolver contract D0 witness and I0 boundary
+
+The D0 must close one exact resolver-side witness before any code-facing
+relation product is issued:
+
+```text
+source rows:
+  VerifiedResolvedMethodCallSourceV1
+    = owner + call/receiver/argument/result sites + resolver receiver class
+      + selector/arity (cross-check only, never target selection)
+
+frame rows:
+  VerifiedCallableLoopMembershipV1 / LoopExecutionFrameKeyV1
+    = same resolver owner + one exact LoopBody containment witness
+      + scope/region pair; never only_loop_site() on a multi-loop owner
+
+contract rows:
+  explicit StringBox/Text receiver and Home relation
+  StringLen/0 -> I64 and StringSubstring/2 -> Text/StringValue
+  PureRead + non-suspending + non-control policy
+  generated manifest/schema brand cross-check
+```
+
+The bridge must prove `method_call.site` is an expression descendant of the
+selected frame's sealed `LoopBody` source path and that receiver, every
+ordered argument, and the result site belong to the same owner inventory. A
+call outside the frame, a nested/foreign frame, or a multi-loop owner without
+an explicit selected frame is unresolved/rejected; it is never repaired by a
+route-local path scan or `only_loop_site()`.
+
+The later I0 may use a short-lived borrowed callback while validating, then
+issue a non-`Clone` source-bound product that owns only call/receiver/argument/
+result sites and the frame witness. It may move/borrow the existing
+`VerifiedCoreMethodInstanceTargetV1`; it may not reissue generated rows or
+store AST, selector authority, Recipe keys, `ValueId`, `BasicBlockId`, ABI, or
+physical layout. The exact owned-vs-HRTB choice is an I0 decision, not a D0
+guess.
+
+I0 acceptance is therefore: one named resolver issuer, one owner/frame bridge,
+exact call/receiver/argument/result cardinality (`args.len == arity`, ordinal
+coverage `0..arity`, `result_site == call_site`), same manifest/schema brand,
+and negative tests for foreign/mixed/duplicate/swapped sites, call-outside-
+LoopBody, nested/ambiguous frame, `QualifiedUnbound`/`CurrentOwner`/`Other`
+receiver, wrong StringBox/result/Home/effect/policy, and name/MIR inference.
+Until these are design-accepted, source-bound relation I0 and S6C remain
+closed.
+
 The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
 parked row for user-declared instance methods. It must not be relabeled as the
 StringBox/CoreMethod issuer. The closed manifest-target evidence is not yet a
