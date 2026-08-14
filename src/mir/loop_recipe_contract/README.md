@@ -327,6 +327,15 @@ exactly one Return summary, and one Backedge. Focused positive construction
 and facade tests pass; physical selection and production callers remain
 closed.
 
+The product-first JOINIR row façade R0 is now landed as a separate private view. Its
+`recipe_rows()` projection exposes only typed operation/value/block/loop/
+carrier/If/Exit rows selected through the fixed role accessors. It does not
+lend the raw Recipe, accept arbitrary key iteration, emit `JoinModule`/MIR, or
+choose a route. The future `LoopToJoinLowerer` product seam is reserved, while
+its current MIR/name/fallback `lower` remains a compatibility non-consumer.
+Focused S6C row-facade assertions are green; the next logical output selection,
+Artifact/source binding, and production callers remain closed.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

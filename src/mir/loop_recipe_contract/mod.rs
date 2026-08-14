@@ -19,6 +19,7 @@ mod producer_id;
 pub(crate) mod route_id;
 #[allow(dead_code)]
 mod s6c_scan_with_init;
+mod s6c_scan_with_init_rows;
 mod schema;
 mod schema_v2;
 mod semantic_context;

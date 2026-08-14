@@ -1,5 +1,5 @@
 ---
-Status: Recipe I0 landed; product-first JOINIR row façade R0 is accepted
+Status: Recipe I0 and product-first JOINIR row façade R0 landed; logical output is the next design stop
 Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -17,16 +17,15 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, fixed source-bound relation, Exit/Tail co-seal, Facts I0, and Recipe
   I0 are closed. The product and selector remain caller-zero.
-- **Next ordered task:** implement the private row façade
-  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-ROW-FACADE-R0` for the combined product;
-  no Recipe-only handoff is allowed.
+- **Next ordered task:** design the neutral logical JOINIR output boundary
+  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0`; no JoinModule/MIR handoff is allowed.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
 
-## Accepted JOINIR product-first row façade — 2026-08-15
+## Landed JOINIR product-first row façade R0 — 2026-08-15
 
 ```text
 Decision: use a private product-first S6C consumer seam; the current
@@ -41,12 +40,18 @@ retry, or production callers.
 Fail-fast boundary: product-only input, exact role/domain coverage, typed
 CallSlot receiver/args/Home/effect parity, and Join branch/After/Return/Tail
 separation are checked before any logical handoff.
-Smallest next slice: implement one private HRTB row view for the fixed S6C
-item/value/control roles at the future LoopToJoinLowerer product seam. It may
-lend typed rows only; it must not emit JoinModule/MIR or mint a new product.
+Smallest next slice: design neutral logical JOINIR output from this typed row
+view at the future LoopToJoinLowerer product seam; current MIR/name/fallback
+`lower` remains non-consumer.
 Non-claims: no Artifact/provenance, selector, Builder/MIR, physical IDs,
 backend, production caller, fallback/retry, or legacy retirement.
 ```
+
+The R0 implementation is landed in `s6c_scan_with_init_rows.rs`. It lends only
+fixed-role operation/value/block/loop/carrier/If/Exit rows through the combined
+product; no raw Recipe getter, arbitrary-key iterator, JoinModule/MIR output,
+or new semantic product exists. Producer/row tests and Loop/Join/pointer guards
+are green. The next stop is only the neutral logical JOINIR output choice.
 
 ## Landed Recipe I0 implementation receipt — 2026-08-15
 
@@ -101,6 +106,16 @@ inside the retained source-bound Facts relation and are paired with exact
 Recipe item/value keys only through the combined product view. The generic V2
 verifier owns canonical keys, references, value classes, definition order,
 carrier availability, blocks, and exits; it is not a source-role classifier.
+
+### Product-first row façade R0 — 2026-08-15
+
+`recipe_rows()` now lends typed operation, value, block, loop, carrier, If, and
+Exit rows selected only through the fixed role accessors. The row view contains
+no raw Recipe getter, arbitrary key iterator, JoinModule, MIR/physical ID, or
+output owner. It is a read-only BoxShape for the future product-first seam;
+the current MIR/name/fallback `LoopToJoinLowerer::lower` remains untouched and
+non-consumer. Focused S6C producer/facade tests pass; logical output selection
+and production callers remain closed.
 
 ### Exact target map
 

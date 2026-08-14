@@ -16,6 +16,9 @@ use crate::mir::source_call_target::issue_source_bound_s6c_call_relation_v1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::produce_s6c_scan_with_init_recipe_v2;
+use super::s6c_scan_with_init_rows::{
+    S6CRecipeExitRowRefV2, S6CRecipeIfRowRefV2, S6CRecipeOperationRowRefV2,
+};
 
 const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
 
@@ -86,6 +89,28 @@ fn producer_seals_exact_recipe_and_join_facade() {
         assert_eq!(view.roles().text_equal_if().raw(), 8);
         assert_eq!(view.roles().step_write().item().raw(), 14);
         assert_eq!(view.roles().step_write().value().raw(), 14);
+        let rows = view.recipe_rows();
+        assert_eq!(rows.root_loop().expect("root row").body.raw(), 1);
+        assert_eq!(
+            rows.condition_block().expect("condition block").items.len(),
+            3
+        );
+        assert!(matches!(
+            rows.operation(view.roles().length_call()),
+            Some(S6CRecipeOperationRowRefV2::CallSlot { .. })
+        ));
+        assert!(rows.subject_input().is_some());
+        assert!(rows.needle_input().is_some());
+        assert!(rows.index_input().is_some());
+        assert!(rows.write(view.roles().step_write()).is_some());
+        assert!(matches!(
+            rows.text_equal_if(),
+            Some(S6CRecipeIfRowRefV2 { .. })
+        ));
+        assert!(matches!(
+            rows.loop_exit(view.roles().loop_return()),
+            Some(S6CRecipeExitRowRefV2 { .. })
+        ));
         assert_eq!(view.logical_transfer().branches().len(), 1);
         assert_eq!(view.logical_transfer().summary_transfers().len(), 1);
         assert_eq!(view.join_role_seal().backedge_count(), 1);

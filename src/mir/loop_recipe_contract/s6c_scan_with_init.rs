@@ -18,6 +18,7 @@ use super::join_sig::{
     LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2, VerifiedLoopJoinClosureV2,
 };
+use super::s6c_scan_with_init_rows::S6CScanWithInitRecipeRowsRefV2;
 use super::schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
     LoopOperationV2, LoopRecipeBindingV2, LoopRecipeBlockV2, LoopRecipeCarrierV2, LoopRecipeExitV2,
@@ -289,6 +290,9 @@ impl S6CScanWithInitRecipeProductRefV2<'_> {
     }
     pub(crate) const fn recipe(&self) -> S6CVerifiedRecipeReadViewV2<'_> {
         self.recipe
+    }
+    pub(crate) fn recipe_rows(&self) -> S6CScanWithInitRecipeRowsRefV2<'_> {
+        S6CScanWithInitRecipeRowsRefV2::new(self.recipe.recipe, self.roles)
     }
     pub(crate) const fn roles(&self) -> S6CScanWithInitRecipeRolesRefV2<'_> {
         self.roles
