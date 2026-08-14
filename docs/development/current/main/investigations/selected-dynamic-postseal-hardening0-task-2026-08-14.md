@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0 and BUNDLE-COMMIT-I0 are closed; next fast child is B3 root consume
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, and root actual-digest/census validation are closed; next fast child is B3 cleanup/live fence
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -539,12 +539,13 @@ window with one visibility transition.
    - publish by exactly one same-filesystem directory rename;
    - collision/rename failure leaves no final bundle and preserves prior
      artifact; commit has no subsequent child write.
-3. `...-ROOT-CONSUME-R0`
+3. `...-ROOT-CONSUME-R0` (validation closed; live fence open)
    - require exact expected bundle and regular executable path;
    - hash the actual executable and compare with receipt;
    - co-check input, descriptor, site/ABI/wire/PlanStamp, and exact symbol
      census rather than merely nonzero values;
-   - fix success/error receipt/bundle cleanup policy before launch.
+   - next fix success/error receipt/bundle cleanup policy and connect the
+     root fence before launch; no live caller is claimed by this BoxShape.
 
 Negatives include receipt write/rename failure, executable mutation, valid
 64-hex but wrong digest, fictitious `1/1/1/1` census, stale attempt, path drift,

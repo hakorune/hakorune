@@ -747,6 +747,26 @@ guard_expect_fixed_in_file "$TAG" 'fs::rename(&self.candidate_bundle_path, &self
   "B3 commit must publish by one candidate-directory rename"
 guard_expect_fixed_in_file "$TAG" 'bundle_commit_publishes_program_and_receipt_with_one_directory_rename' "$ARTIFACT_PUBLICATION_TESTS" \
   "B3 must prove program and receipt become visible together"
+ROOT_RECEIPT="$ROOT_DIR/src/runner/modes/common_util/static_artifact_receipt.rs"
+guard_require_files "$TAG" "$ROOT_RECEIPT"
+guard_expect_fixed_in_file "$TAG" 'pub(crate) fn consume_static_artifact_bundle(' "$ROOT_RECEIPT" \
+  "B3 root must have one fixed bundle consumer"
+guard_expect_fixed_in_file "$TAG" 'validate_published_program(&receipt, expected)' "$ROOT_RECEIPT" \
+  "B3 root must co-check the actual published program"
+guard_expect_fixed_in_file "$TAG" 'fn require_regular_file(' "$ROOT_RECEIPT" \
+  "B3 root must reject symlink/non-regular bundle members"
+guard_expect_fixed_in_file "$TAG" 'let actual_digest = sha256_file(program_path)?' "$ROOT_RECEIPT" \
+  "B3 root must hash the published program bytes"
+guard_expect_fixed_in_file "$TAG" 'selected artifact symbol census drift' "$ROOT_RECEIPT" \
+  "B3 root must enforce the selected exact symbol census"
+guard_expect_fixed_in_file "$TAG" 'bundle_consume_checks_actual_program_digest_and_layout' "$ROOT_RECEIPT" \
+  "B3 root must have a positive bundle-consume test"
+guard_expect_fixed_in_file "$TAG" 'published_program_digest_drift_rejects_before_launch_fence' "$ROOT_RECEIPT" \
+  "B3 root must reject a mutated published program"
+ROOT_LINES=$(wc -l < "$ROOT_RECEIPT" | tr -d '[:space:]')
+if (( ROOT_LINES >= 760 )); then
+  guard_fail "$TAG" "B3 root receipt consumer reached the 760-line design split gate"
+fi
 if rg -n -U '#\[derive\([^]]*Clone[^]]*\)\]\npub\(super\) struct (StaticAotArtifact|StaticLinked|PreparedStatic)' \
   "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" || \
   rg -n 'impl[[:space:]]+Clone|into_parts|dlsym|RuntimeExecutablePlan|fallback|retry|selector|lookup_core_method' \

@@ -31,6 +31,7 @@ pub(crate) fn consume_static_artifact_receipt(
     require_text(&receipt, "input_sha256", &input_digest)?;
     if let Some(expected) = expected_published_path {
         require_text(&receipt, "published_path", &expected.display().to_string())?;
+        validate_published_program(&receipt, expected)?;
     }
     validate_digest_fields(&receipt)?;
     validate_descriptor_against_input(
@@ -45,6 +46,25 @@ pub(crate) fn consume_static_artifact_receipt(
             .ok_or_else(|| "static artifact receipt missing symbol_census".to_owned())?,
     )?;
     Ok(StaticArtifactReceiptConsumedFenceV1::issue_from_root_validator())
+}
+
+/// Consume the fixed B3 bundle layout.  The bundle is already published by
+/// the child transaction; this function only performs the root-side physical
+/// co-check before a launch fence is issued.
+pub(crate) fn consume_static_artifact_bundle(
+    bundle_path: &Path,
+    input_json: &Path,
+) -> Result<StaticArtifactReceiptConsumedFenceV1, String> {
+    let bundle_metadata = fs::symlink_metadata(bundle_path)
+        .map_err(|error| format!("static artifact bundle read failed: {error}"))?;
+    if !bundle_metadata.file_type().is_dir() {
+        return Err("static artifact bundle is not a directory".to_owned());
+    }
+    let program_path = bundle_path.join("program");
+    let receipt_path = bundle_path.join("receipt.json");
+    require_regular_file(&program_path, "static artifact bundle program")?;
+    require_regular_file(&receipt_path, "static artifact bundle receipt")?;
+    consume_static_artifact_receipt(&receipt_path, input_json, Some(&program_path))
 }
 
 fn validate_descriptor_against_input(descriptor: &Value, input_json: &Path) -> Result<(), String> {
@@ -164,9 +184,24 @@ fn validate_symbol_census(census: &Value) -> Result<(), String> {
         "archive_defined",
         "executable_defined",
     ] {
-        if require_u64_value(census, field)? == 0 {
-            return Err(format!("empty artifact symbol census: {field}"));
+        if require_u64_value(census, field)? != 3 {
+            return Err(format!("selected artifact symbol census drift: {field}"));
         }
+    }
+    Ok(())
+}
+
+fn validate_published_program(receipt: &Value, program_path: &Path) -> Result<(), String> {
+    require_regular_file(program_path, "published artifact program")?;
+    let actual_digest = sha256_file(program_path)?;
+    require_text(receipt, "executable_digest", &actual_digest)
+}
+
+fn require_regular_file(path: &Path, label: &str) -> Result<(), String> {
+    let metadata =
+        fs::symlink_metadata(path).map_err(|error| format!("{label} read failed: {error}"))?;
+    if !metadata.file_type().is_file() {
+        return Err(format!("{label} is not a regular file"));
     }
     Ok(())
 }
@@ -212,9 +247,10 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn fixture(root: &Path) -> (std::path::PathBuf, std::path::PathBuf) {
+    fn fixture(root: &Path) -> (std::path::PathBuf, std::path::PathBuf, std::path::PathBuf) {
         let input = root.join("candidate.json");
         let receipt = root.join("receipt.json");
+        let program = root.join("program");
         let candidate = json!({
             "functions": [{"metadata": {"dynamic_v2_aot_call_admission_v2": {
                 "profile": 1, "abi_revision": 1, "wire_revision": 2,
@@ -224,21 +260,23 @@ mod tests {
             }}}]
         });
         fs::write(&input, serde_json::to_vec(&candidate).unwrap()).unwrap();
+        fs::write(&program, b"published-program").unwrap();
         let input_sha256 = sha256_file(&input).unwrap();
+        let executable_digest = sha256_file(&program).unwrap();
         let value = json!({
             "schema_version": 1, "status": "published", "input_sha256": input_sha256,
-            "published_path": "/tmp/out", "object_digest": "a".repeat(64),
-            "runtime_archive_digest": "b".repeat(64), "executable_digest": "c".repeat(64),
+            "published_path": program.display().to_string(), "object_digest": "a".repeat(64),
+            "runtime_archive_digest": "b".repeat(64), "executable_digest": executable_digest,
             "descriptor_digest": "d".repeat(64),
             "descriptor": {"profile": 1, "abi_revision": 1, "wire_revision": 2,
                 "registry_generation": 7, "contract_id": "hako.text.scan@1",
                 "compiler_domain": 3, "invocation_ordinal": 9,
                 "entries": [{"site_id": 0, "entry_id": 1, "logical_arity": 0, "symbol": "scan"}]},
-            "symbol_census": {"required": 1, "object_undefined": 1,
-                "archive_defined": 1, "executable_defined": 1}
+            "symbol_census": {"required": 3, "object_undefined": 3,
+                "archive_defined": 3, "executable_defined": 3}
         });
         fs::write(&receipt, serde_json::to_vec(&value).unwrap()).unwrap();
-        (input, receipt)
+        (input, receipt, program)
     }
 
     #[test]
@@ -252,8 +290,8 @@ mod tests {
                 .as_nanos()
         ));
         fs::create_dir_all(&root).unwrap();
-        let (input, receipt) = fixture(&root);
-        consume_static_artifact_receipt(&receipt, &input, Some(Path::new("/tmp/out"))).unwrap();
+        let (input, receipt, program) = fixture(&root);
+        consume_static_artifact_receipt(&receipt, &input, Some(&program)).unwrap();
         fs::remove_dir_all(root).unwrap();
     }
 
@@ -268,9 +306,51 @@ mod tests {
                 .as_nanos()
         ));
         fs::create_dir_all(&root).unwrap();
-        let (input, receipt) = fixture(&root);
+        let (input, receipt, _program) = fixture(&root);
         fs::write(&input, b"changed").unwrap();
         assert!(consume_static_artifact_receipt(&receipt, &input, None).is_err());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn bundle_consume_checks_actual_program_digest_and_layout() {
+        let root = std::env::temp_dir().join(format!(
+            "hakorune_static_bundle_{}_{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let (input, receipt, program) = fixture(&root);
+        let bundle = root.join("bundle");
+        fs::create_dir(&bundle).unwrap();
+        let bundle_receipt = bundle.join("receipt.json");
+        fs::rename(receipt, &bundle_receipt).unwrap();
+        fs::rename(program, bundle.join("program")).unwrap();
+        let mut receipt_value: Value =
+            serde_json::from_slice(&fs::read(&bundle_receipt).unwrap()).unwrap();
+        receipt_value["published_path"] = json!(bundle.join("program").display().to_string());
+        fs::write(&bundle_receipt, serde_json::to_vec(&receipt_value).unwrap()).unwrap();
+        consume_static_artifact_bundle(&bundle, &input).unwrap();
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn published_program_digest_drift_rejects_before_launch_fence() {
+        let root = std::env::temp_dir().join(format!(
+            "hakorune_static_bundle_drift_{}_{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let (input, receipt, program) = fixture(&root);
+        fs::write(&program, b"mutated-program").unwrap();
+        assert!(consume_static_artifact_receipt(&receipt, &input, Some(&program)).is_err());
         fs::remove_dir_all(root).unwrap();
     }
 }
