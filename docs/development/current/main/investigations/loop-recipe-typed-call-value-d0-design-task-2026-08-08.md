@@ -320,6 +320,31 @@ schema/observer/producer row updates the reference contract and affected
 module READMEs in the same commit; legacy scan facts/builders are deleted only
 after production parity and callers-zero evidence.
 
+## D0 owner map (design only)
+
+The next D0 may name types and owners without issuing them. The proposed
+boundary is:
+
+```text
+src/mir/resolved_semantics/core_method_instance_target.rs
+  VerifiedCoreMethodInstanceTargetV1
+  CoreMethodInstanceTargetIssuerV1
+  = generated CoreMethod row + explicit Home/ABI/profile contract
+
+src/mir/source_call_target/model.rs
+  VerifiedSourceBoundCoreMethodCallV1
+  SourceBoundCoreMethodCallIssuerV1
+  = borrowed target + owner/frame + source receiver/args/result sites
+```
+
+`CoreMethodManifestBrandV1` is an opaque projection of the generated manifest
+schema/row brand, not a new semantic authority. `Home` may be issued only by
+an explicit resolver Home capability for `StringBox`/`Text`; it is never
+inferred from `MirType`, `CoreMethodResultKind`, or the Recipe wire. The
+source-bound issuer checks one owner/frame brand, one receiver site, exactly
+`arity` ordered argument sites, and one result site when the target has a
+result. Foreign, duplicate, or swapped sites reject before Facts/Recipe.
+
 ## Stop
 
 Do not implement S6C if the proposed call/value contract still requires a
