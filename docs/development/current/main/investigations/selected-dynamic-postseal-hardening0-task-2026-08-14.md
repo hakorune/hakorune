@@ -812,23 +812,25 @@ Non-claims: no chmod, wrapper move/delete, manifest repair, compiler change,
 fallback, archive publication, or production cutover.
 ```
 
-The quick-profile BoxShape is landed in `bae8ec26e9`: the unchanged source
-command rows remain 66/66, `--list` exposes exactly ten groups, and
-`--list-steps` exposes the same 66 detailed rows. Naming/varmap guard reds are
-unchanged parent-baseline debt and are not attributed to this row.
+The quick-profile BoxShape is landed in `bae8ec26e9`: source command rows remain
+66/66, `--list` exposes exactly ten groups, and `--list-steps` exposes the same
+66 detailed rows. Naming/varmap reds remain parent-baseline debt.
+The historical-retire census is NoSafeSlice: all 3,654 rows have non-empty
+owner/caller/evidence classification, so no zero-caller family can be retired
+without inventing authority; rows remain in their existing dispositions.
 
-#### GUARD-HISTORICAL-RETIRE-R0 (next design stop)
+#### GUARD-SURFACE-CLOSEOUT-R0 (next design stop)
 
 ```text
-Decision: inspect zero-caller historical wrappers before any retirement; keep
-unknown-owner and unique-behavior rows retained.
-Source authority + canonical issuer: guard-surface inventory, manifests, public
-entry census, focused behavior tests, and git history.
-Non-authority: filename age, executable bit, grep-only counts, or stale prose.
-Fail-fast boundary: missing owner, parity evidence, restore path, or caller
-census blocks retirement and leaves the row unknown_retain.
-Smallest next slice: classify one historical family and publish a read-only
-retirement candidate report without moving or deleting a script.
+Decision: close the guard-surface cleanup with a source-backed before/after
+census; preserve all unknown and compatibility rows.
+Source authority + canonical issuer: guard-surface inventory, quick-group list,
+manifest counts, and current-state/public-entry guards.
+Non-authority: line counts alone, grep-only caller guesses, or human prose.
+Fail-fast boundary: inventory/index/manifest drift or changed quick-step count
+blocks closeout and leaves the current cleanup lane open.
+Smallest next slice: record entry/file/line/group/failure-signal counts and
+classify remaining parent-baseline reds without changing behavior.
 Non-claims: no deletion, chmod, manifest repair, compiler change, fallback,
 archive publication, llvmlite retirement, or production cutover.
 ```
