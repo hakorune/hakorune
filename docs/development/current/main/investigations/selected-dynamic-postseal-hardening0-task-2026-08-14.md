@@ -131,6 +131,14 @@ it must preserve the compatibility block, classify every omitted path as
 `unknown_retain` until proven otherwise, and must not delete or relocate a
 script in this D0.
 
+The first generator receipt is now reproducible with
+`python3 tools/docs/guard_surface_inventory.py --check`: 3,654/3,654 tracked
+paths are represented exactly once, with 489 `stable_public_entry`, 315
+`family_manifest_case`, and 2,850 `unknown_retain` rows; index and manifest
+source gaps are both zero.  No row is assigned `historical_archive` or
+`delete_after_equivalent_coverage`.  The optional JSON output is diagnostic
+only and is not a second authority or a retirement approval.
+
 The inventory records one owner, one caller/profile, one evidence kind, and
 one disposition for every tracked check.  `stable_public_entry`,
 `family_manifest_case`, `focused_behavior_test`, `historical_archive`,
