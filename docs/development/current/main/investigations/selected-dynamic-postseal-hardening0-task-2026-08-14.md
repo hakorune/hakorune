@@ -812,21 +812,25 @@ Non-claims: no chmod, wrapper move/delete, manifest repair, compiler change,
 fallback, archive publication, or production cutover.
 ```
 
-#### GUARD-QUICK-PROFILE-RECUT-R0 (accepted BoxShape implementation)
+The quick-profile BoxShape is landed in `bae8ec26e9`: the unchanged source
+command rows remain 66/66, `--list` exposes exactly ten groups, and
+`--list-steps` exposes the same 66 detailed rows. Naming/varmap guard reds are
+unchanged parent-baseline debt and are not attributed to this row.
+
+#### GUARD-HISTORICAL-RETIRE-R0 (next design stop)
 
 ```text
-Decision: expose exactly ten non-executing groups over the existing dev_gate
-quick steps without changing command order, behavior, selected gates, or
-failure signals.
-Source authority + canonical issuer: dev_gate.sh and its existing quick-step
-list/group runner; manifests and proof profiles remain the data owners.
-Non-authority: the human index, grep counts, wrapper names, or a new guard file.
-Fail-fast boundary: missing/duplicate group, changed command/profile, or absent
-selected/current-state gate blocks the recut and preserves the current profile.
-Smallest next slice: add group markers to the same 66-step source list, make
-`--list` show groups, and retain an explicit detailed-step listing for audit.
-Non-claims: no script deletion, compiler change, fallback, archive, llvmlite
-retirement, or production cutover.
+Decision: inspect zero-caller historical wrappers before any retirement; keep
+unknown-owner and unique-behavior rows retained.
+Source authority + canonical issuer: guard-surface inventory, manifests, public
+entry census, focused behavior tests, and git history.
+Non-authority: filename age, executable bit, grep-only counts, or stale prose.
+Fail-fast boundary: missing owner, parity evidence, restore path, or caller
+census blocks retirement and leaves the row unknown_retain.
+Smallest next slice: classify one historical family and publish a read-only
+retirement candidate report without moving or deleting a script.
+Non-claims: no deletion, chmod, manifest repair, compiler change, fallback,
+archive publication, llvmlite retirement, or production cutover.
 ```
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
