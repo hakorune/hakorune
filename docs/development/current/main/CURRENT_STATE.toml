@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. Full integration evidence at cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; subsequent HEAD commits refined and landed the Loop CoreMethod/Home target and Resolver callable-contract I0 bridge. The pointer now names the next missing S6C resolver source boundary (binary operators plus typed inputs) at a T2 design stop; Dynamic live cutover and G3 remain parked. Completion retains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. Full integration evidence at cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; subsequent HEAD commits refined and landed the Loop CoreMethod/Home target and Resolver callable-contract I0 bridge. The S6C typed-input D0 is now accepted: explicit StringBox/i64 source annotations are the sole input authority, while the unannotated fixture remains a negative. The pointer advances to the bounded resolver I0; Dynamic live cutover and G3 remain parked. Completion retains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Resolver callable-contract I0 is landed. T2 stop: LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0 designs an AST-free Binary row (TextEq/Less/Add), typed subject/needle/index input issuer, and canonical Condition|Body placement before source-bound/Facts/Recipe. Fixture s/ch are unannotated and FunctionSyntaxViewV1 drops ParamDecl types; choose explicit source annotation or call-flow issuer, never infer Text/I64."
-work_mode = "design_stop"
-current_execution_row = "LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0"
-current_blocker_token = "Design the S6C resolver boundary: Binary source row (owner/site/operands/operator) for TextEq/Less/Add; typed input/initializer proof for subject:Text, needle:Text, index:I64; and Condition|Body placement (length in Condition, rest in Body). Co-seal with landed callable/frame I0, then cover effects/control/tail and reject foreign/duplicate/swapped/type/operator/placement drift before Facts/Recipe. Fixture s/ch are unannotated and ParamDecl types are dropped: choose explicit annotation or a separate call-flow issuer. Never infer from names/literals/MIR/ResultKind, reuse Dynamic, issue partial Facts, mint early keys, or open fallback/retry/physicalization/production."
+current_design_stop = "S6C typed-input D0 is accepted. The next bounded implementation is LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0: preserve resolver parameter declarations, require exact source spellings s: StringBox, ch: StringBox, and local i: i64 = 0, then issue AST-free Binary (TextEq/Less/Add), initializer, and Condition|Body placement rows under one owner/frame. The unannotated fixture remains MissingTypeEvidence; no call-flow inference."
+work_mode = "fast"
+current_execution_row = "LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0"
+current_blocker_token = "Implement one resolver-owned typed-input/source-frame product: exact StringBox annotations for subject and needle, exact i64 annotation plus literal-0 initializer for index, AST-free TextEq/Less/Add rows, and canonical Condition|Body placement. Preserve BindingRef/source sites/owner/frame and reject missing, foreign, duplicate, swapped, wrong spelling/class/operator/literal/placement/effect/control before any source-bound relation, Facts/Recipe, Builder, physicalization, fallback, or production effect."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C resolver binary/input design stop)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; Resolver callable-contract I0 is landed. The active Loop frontier is the S6C T2 binary/operator and typed-input authority design; source-bound input/Facts/Recipe, production selection, Dynamic live cutover, G3, LocalSSA/provider/platform/line-budget hardening, and compatibility cleanup remain parked."
+active_lane = "Loop compiler frontier (S6C explicit typed-input contract I0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the S6C D0 selected explicit source annotations as the sole typed-input authority. The active Loop slice is the resolver I0 for typed parameters, initializer/binary rows, and Condition|Body placement; source-bound input/Facts/Recipe, production selection, Dynamic live cutover, G3, LocalSSA/provider/platform/line-budget hardening, and compatibility cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target I0, and Resolver callable-contract I0 are closed. The current frontier is LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0: source operator rows and typed input authority before the source-bound/Facts/Recipe producer; selected Dynamic/AOT live cutover and G3 remain parked."
-next_design_card = "LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0"
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target I0, Resolver callable-contract I0, and the S6C typed-input D0 decision are closed. The current bounded slice is LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0: explicit StringBox/i64 source rows, AST-free binary/initializer evidence, and Condition|Body placement before source-bound/Facts/Recipe; selected Dynamic/AOT live cutover and G3 remain parked."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "none"
+next_execution_card = "LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
