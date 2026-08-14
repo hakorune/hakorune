@@ -1,5 +1,5 @@
 ---
-Status: complete Facts D0 accepted; fixed two-commit Facts I0 is current
+Status: complete Facts D0/I0 landed; Recipe I0 is current design stop
 Date: 2026-08-14
 Decision: retain exact resolver source closure, then issue one S6C Facts owner before one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -12,14 +12,14 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
   callable contract, typed-input product, source-bound relation, exact unary
   rows, Exit/Tail co-seal, complete Recipe target map, and complete Facts D0
-  are landed/accepted. Facts I0 is a fixed two-commit BoxShape.
+  are landed/accepted. Facts I0 is now a caller-zero non-Clone source product
+  with an HRTB view and exact body-shape closure.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-FACTS-I0` — transport the
-  resolver's same-seal root body-shape and exact assignment form/update, close
-  all S6C source evidence, and issue one non-Clone Facts owner.
+- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0` — design the sole
+  Recipe-key producer that consumes the complete Facts product once.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -29,18 +29,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: implement one fixed two-commit Facts BoxShape: retain same-seal body
-shape plus assignment form/update, close the exact surface, then issue Facts.
-Source authority + canonical issuer: one ShadowResolver seal issues the source
-inventory/body shape/assignment row; loop_structural_facts alone issues Facts.
-Non-authority: family counts alone, generic point lookup as role proof,
-source order, AST/name/fixture navigation, MIR, Recipe keys, or physical IDs.
-Fail-fast boundary: missing/duplicate/swapped/foreign/orphan roles, compound
-update, or any extra statement/expression/effect/relation rejects before Facts.
-Smallest next slice: commit A transports body shape and exact update evidence;
-commit B closes coverage and issues one non-Clone Facts product/HRTB view.
-Non-claims: no Recipe key, JoinSig, Builder/MIR, physical canary, production
-selector, fallback/retry, legacy deletion, or backend change.
+Decision: Facts I0 is closed as one non-Clone product over the resolver's
+same-seal source closure; the next row may only consume it to issue Recipe keys.
+Source authority + canonical issuer: ShadowResolver seals source/body shape;
+loop_structural_facts issues Facts; the following Recipe owner issues keys.
+Non-authority: source order, AST/name/fixture navigation, MIR, physical IDs,
+family-count inference, fallback, retry, or a second Facts issuer.
+Fail-fast boundary: compound/duplicate/swapped/foreign/orphan roles and any
+extra statement/expression/effect/relation reject before Facts publication.
+Smallest next slice: design one consuming Recipe producer and its exact target
+map/JoinSig handoff; do not implement physical routing in this row.
+Non-claims: no new source authority, Builder/MIR, physical canary, selector,
+fallback/retry, legacy deletion, or backend change.
 ```
 
 ## Accepted complete Facts D0 and fixed implementation — 2026-08-14
@@ -136,8 +136,8 @@ The ordered frontier is now:
 ```text
 landed S6C source/CoreMethod/typed-input/call/unary/ExitTail authorities
   -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0             CLOSED T2
-  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CURRENT T2 BoxShape (A+B)
-  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            T2 BoxCount
+  -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CLOSED T2 BoxShape (A+B)
+  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            CURRENT T2 BoxCount
   -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0           T2 consumer
   -> S6C parity/canary
   -> bounded selector/caller cutover
