@@ -184,6 +184,10 @@ impl<'a> S6CScanWithInitRecipeRowsRefV2<'a> {
         self.value(self.roles.index_input())
     }
 
+    pub(crate) fn value_class(self, key: LoopValueKeyV1) -> Option<LoopValueClassV2> {
+        self.value(key).map(|row| row.class)
+    }
+
     fn value(self, key: LoopValueKeyV1) -> Option<S6CRecipeValueRowRefV2> {
         self.recipe
             .as_recipe()

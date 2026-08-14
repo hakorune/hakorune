@@ -127,13 +127,13 @@ facade tests pass. Physical selection and production callers remain closed.
 
 The landed product-first handoff is the private S6C logical JOINIR input façade
 `S6CScanWithInitLogicalJoinInputRefV1` in
-`s6c_scan_with_init_joinir.rs`. Its HRTB view co-checks exact Recipe domains,
-length/substring CallSlot receiver/args/result parity, TextEq/If, and the
-existing Join branch/Return-summary/Backedge/After view. It lends only typed
-call and transfer rows; it does not lend raw Recipe/JoinSig, emit JoinModule/MIR,
-choose a route, or import callable Tail `-1`. Four focused tests cover the
-positive façade plus swapped call arguments/receiver; physical selection and
-production callers remain closed. The existing MIR/name/fallback
+`s6c_scan_with_init_joinir.rs`; its HRTB view co-checks exact Recipe domains,
+call rows, TextEq/If, and Join transfer. The caller-zero logical output
+producer consumes that product once and owns fixed typed rows in
+`VerifiedS6CScanWithInitLogicalOutputV1`; its façade lends rows plus the
+borrowed transfer only. It emits no JoinModule/MIR, Artifact, route, fallback,
+or production caller. Focused positive and swapped-call tests pass; physical
+selection remains closed. The existing MIR/name/fallback
 `LoopToJoinLowerer::lower` remains a compatibility non-consumer.
 
 ## Accepted Dynamic value boundary — V2 only

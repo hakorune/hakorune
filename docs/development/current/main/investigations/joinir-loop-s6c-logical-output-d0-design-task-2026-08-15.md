@@ -1,5 +1,5 @@
 ---
-Status: accepted-corrected; S6C owned logical JOINIR output representation accepted for bounded I0 producer
+Status: closed; S6C owned logical JOINIR output representation and caller-zero I0 producer landed
 Date: 2026-08-15
 Decision: issue one source-retaining non-Clone logical-output product; keep JoinModule/MIR closed
 Scope: M8 LoopV0 forward ScanWithInit logical output only; no physical activation
@@ -16,10 +16,11 @@ rows, TextEq/If, and the existing Join branch/summary/Backedge/After view.
 It does not emit JoinIR, MIR, physical IDs, Artifact, a selector, or a
 production caller.
 
-The output boundary is now fixed for one bounded producer. The product is a
-semantic logical transport, not a physical preparation product. It retains the
-original source/Recipe/Join product so the projection cannot become a second
-authority. JoinModule/MIR and production remain closed.
+The output boundary is now fixed and its bounded caller-zero producer is
+landed. The product is a semantic logical transport, not a physical
+preparation product. It retains the original source/Recipe/Join product so the
+projection cannot become a second authority. JoinModule/MIR and production
+remain closed.
 
 ## Audit decision
 
@@ -34,10 +35,10 @@ Non-authority: JoinModule/JoinFunction/JoinInst, MIR ValueId, JoinValueSpace,
 Fail-fast boundary: exact owner, Recipe-local identity, typed rows, CallSlot
   source parity, Join transfer ownership, and terminal reject are fixed before
   output issuance.
-Smallest next slice: implement one bounded I0 producer in split output files;
+Smallest next slice: design one product-first logical consumer boundary;
   no JoinModule, MIR, physical ID, or backend handoff.
-Non-claims: no output producer, JoinModule generation, MIR lowering, backend,
-  Artifact/provenance, production switch, fallback/retry, or legacy retirement.
+Non-claims: no JoinModule generation, MIR lowering, backend, Artifact/
+  provenance, production switch, fallback/retry, or legacy retirement.
 ```
 
 ## Rejected existing output candidates
@@ -122,8 +123,8 @@ pub(crate) fn issue_s6c_scan_with_init_logical_output_v1(
 impl VerifiedS6CScanWithInitLogicalOutputV1 {
     pub(crate) fn with_output<R>(
         &self,
-        callback: impl for<'output>
-            FnOnce(S6CScanWithInitLogicalOutputRefV1<'output>) -> R,
+        callback: impl for<'rows, 'product>
+            FnOnce(S6CScanWithInitLogicalOutputRefV1<'rows, 'product>) -> R,
     ) -> R;
 }
 ```
@@ -156,12 +157,21 @@ producer and remains caller-zero. That producer must use split files
 `s6c_scan_with_init_joinir_output_rows.rs`, and a focused test module; each
 Rust source stays below the 760-line design trigger and 800-line hard stop.
 
-## Next bounded implementation row
+## I0 implementation receipt (2026-08-15)
 
-`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0` consumes the combined
-product by value, issues the fixed logical rows once, retains the original
-product, and lends only the private HRTB output view. It remains caller-zero;
-JoinModule/MIR and physical/production handoff are not part of I0.
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0` is landed in split
+`s6c_scan_with_init_joinir_output.rs` and
+`s6c_scan_with_init_joinir_output_rows.rs`. It consumes the combined product
+by value, issues the fixed logical rows once, retains the original product, and
+lends only the private HRTB output view. Six focused S6C tests, cargo check,
+format, diff, pointer, and Loop pre-cutover guards are green. It remains
+caller-zero; JoinModule/MIR and physical/production handoff are not part of I0.
+
+## Next design pointer
+
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0` specifies the
+future product-first logical consumer boundary. It must not re-pair Facts,
+Recipe, or Join authorities.
 
 ## Acceptance and negative matrix
 

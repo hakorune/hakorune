@@ -329,13 +329,13 @@ closed.
 
 The product-first JOINIR input façade is now landed in
 `s6c_scan_with_init_joinir.rs` as the private HRTB
-`S6CScanWithInitLogicalJoinInputRefV1`. It co-checks exact Recipe domains,
-length/substring CallSlot receiver/args/result parity, TextEq/If, and the
-existing Join branch/Return-summary/Backedge/After view. It lends only typed
-call and transfer rows; it does not lend raw Recipe/JoinSig, emit JoinModule/MIR,
-choose a route, or import the callable Tail `-1`. Four focused tests cover the
-positive façade plus swapped call arguments/receiver; physical selection and
-production callers remain closed.
+`S6CScanWithInitLogicalJoinInputRefV1`; it co-checks exact Recipe domains,
+call rows, TextEq/If, and Join transfer. The caller-zero logical output
+producer now consumes the retained product once and owns fixed typed rows in
+`VerifiedS6CScanWithInitLogicalOutputV1`; its façade lends rows plus the
+borrowed transfer only. It emits no JoinModule/MIR, Artifact, route, fallback,
+or production caller. Focused positive and swapped-call tests pass; physical
+selection remains closed.
 
 ## Generic G0 S4 producer
 
