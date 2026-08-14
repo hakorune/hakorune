@@ -1,7 +1,7 @@
 ---
-Status: S6C explicit typed-input I0 landed; source-bound call relation D0 is current
+Status: source-bound call relation D0 accepted; exact-call witness R0 is current
 Date: 2026-08-14
-Decision: explicit source annotations now seal the AST-free typed-input/frame product; design one source-bound call relation that borrows it with the landed callable and CoreMethod target authorities
+Decision: retain exact call sites, make the existing callable contract placement-aware, then co-seal one non-Clone S6C source-bound relation
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -11,14 +11,14 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
   callable contract, and explicit S6C typed-input product are landed. The
-  source-bound call relation is the next unopened authority.
+  source-bound relation D0 is accepted as three bounded cells.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, callable contract, and typed-input I0 are closed
   with focused evidence. No source-bound relation, `ScanWithInit` Facts/
   Recipe producer, or production physical selector is active.
-- **Next ordered task:** `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0` — fix the
-  exact one-product ownership/lifetime for `length/0` and `substring/2`
-  without reissuing target, frame, typed input, or selector authority.
+- **Next ordered task:** `LOOP-S6C-EXACT-CALL-WITNESS-R0` — retain the two
+  already-verified call sites by role in the typed-input product without
+  changing its accepted source shape or failure terminal.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -28,19 +28,20 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: design `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0`; do not replay
-closed Loop rows or open Facts/Recipe/production early.
-Source authority + canonical issuer: the exact resolver MethodCall rows and
-Loop frame, landed non-Clone typed-input relation, and existing CoreMethod
-callable target; one source-bound issuer must borrow/co-seal them once.
+Decision: accept one three-step source-bound series: retain exact role-keyed
+call sites, make the existing callable contract placement-aware, then consume
+typed input plus the two existing targets into one non-Clone aggregate.
+Source authority + canonical issuer: VerifiedS6CTypedInputRelationV1, exact
+resolver MethodCall rows, the placement-aware callable-contract issuer, and
+two targets issued by one CoreMethodInstanceTargetIssuerV1 session.
 Non-authority: selector/name lookup, generated rows alone, raw AST, MIR or
 ResultKind, Recipe keys, selected-Dynamic receipts, and physical IDs.
 Fail-fast boundary: missing/foreign/duplicate/swapped call, binding, operand,
 frame, target, Home/effect/policy, or typed-input relation rejects before a
 source-bound product, Facts/Recipe, Builder, or physical effect.
-Smallest next slice: fix the source-bound product shape, ownership/lifetime,
-exact two-call coverage, and failure precedence; implementation remains closed
-until this D0 is accepted.
+Smallest next slice: `LOOP-S6C-EXACT-CALL-WITNESS-R0`, a BoxShape retaining
+the two already-verified sites through a private borrowed view; no new source
+shape, target, membership, failure policy, Facts, or Recipe is introduced.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -109,8 +110,10 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                  -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  CLOSED bounded bridge
                       -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0  CLOSED (accepted explicit-annotation design)
                            -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0  CLOSED
-                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  T2
-                                -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CLOSED
+                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CURRENT T0
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 T1
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
                                      -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                           -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                                -> S6C parity / canary / later production rows
@@ -543,8 +546,11 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
             -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0 CLOSED
                  -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0 CLOSED
                       -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0 CLOSED
-                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0 T2
-                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 CLOSED
+                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0 CURRENT T0
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 T1
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
+                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                      -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                           -> S6C parity / canary / later production rows
 ```
@@ -558,54 +564,41 @@ schema/observer/producer row updates the reference contract and affected
 module READMEs in the same commit; legacy scan facts/builders are deleted only
 after production parity and callers-zero evidence.
 
-## D0 owner map (landed contract; I0 implementation)
+## LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 (accepted)
 
-The D0 names the owners below; I0 issues only the target capability. The
-source-bound consumer remains the next unopened boundary:
+The direct aggregate was `NoSafeSlice`: the typed product validated but did
+not retain the exact two call sites, while the landed callable issuer admitted
+only `LoopBody` and therefore rejected `length/0` in `LoopCondition`. The
+accepted correction reuses the existing authorities in three ordered cells:
 
 ```text
-src/mir/resolved_semantics/core_method_instance_target.rs
-  VerifiedCoreMethodInstanceTargetV1
-  CoreMethodInstanceTargetIssuerV1
-  = generated CoreMethod row + explicit Home/ABI/profile contract
+LOOP-S6C-EXACT-CALL-WITNESS-R0
+  retain length_site = LoopConditionLess.rhs
+  retain substring_site = TextEqual.lhs
+  private borrowed role view; no selector lookup or new membership
 
-src/mir/source_call_target/model.rs
-  VerifiedSourceBoundCoreMethodCallV1
-  SourceBoundCoreMethodCallIssuerV1
-  = borrowed target + owner/frame + source receiver/args/result sites
+LOOP-RESOLVER-CALLABLE-PLACEMENT-I0
+  existing callable issuer accepts an explicit ResolvedLoopPlacementV1
+  length/0 = Condition; substring/2 = Body
+  same owner/frame/receiver/args/result/target checks remain canonical
+
+LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0
+  consume typed input plus length and substring targets issued by one
+  CoreMethodInstanceTargetIssuerV1 session
+  issue one non-Clone fixed { length, substring } aggregate
 ```
 
-This CoreMethod product gets a dedicated issuer/catalog; it is not another
-variant of `VerifiedSourceCallTargetV1` and is not inserted into its existing
-`Static`/`DynamicMember` rows. Those rows already feed static publication and
-Dynamic selector/physical consumers. The dedicated catalog co-seals the
-manifest brand with the source owner/frame brand, while the relation issuer
-borrows the target and performs only site/cardinality checks. It performs no
-method/Box lookup, generated-row relookup, Recipe-key/ValueId/BasicBlockId
-issuance, ABI reclassification, or physical-ID issuance.
+The target issuer may issue both targets by value. The relation checks their
+common manifest/schema/relation brand and distinct target brands; it does not
+mint a pair brand. Exact source sites come only from the retained structural
+relations. The final product owns the sole typed-input membership and the two
+consuming callable contracts; its HRTB view may expose bindings, calls,
+placement, frame, Home/effect/ABI, and target relations without parts APIs.
 
-`CoreMethodManifestBrandV1` is an opaque projection of the generated manifest
-schema/row brand, not a new semantic authority. `Home` may be issued only by
-an explicit resolver Home capability for `StringBox`/`Text`; it is never
-inferred from `MirType`, `CoreMethodResultKind`, or the Recipe wire. The
-existing `CallableHomeAbiIssuerV1`/`I64UnitTrivial` schema is user-instance
-authority and must not be widened in place. A future `StringBoxText` schema
-is a separate BoxCount with distinct schema, resolver, manifest, and relation
-brands, while reusing only the Home relation mechanism. The source-bound
-issuer checks one owner/frame brand, one receiver site, exactly `arity`
-ordered argument sites, and one result site when the target has a result.
-Foreign, duplicate, or swapped sites reject before Facts/Recipe.
-
-The existing generic `HomeDemandV1` / `HomeResultRelationV1` variants are
-mechanisms, not a semantic fit for this target. The future manifest-backed
-issuer must expose dedicated typed relations (for example, a `StringBox`
-receiver demand, typed `I64` parameters, and `I64`/`Text` result relations)
-under the same manifest and target brand. Reusing `Trivial`, `FromReceiver`,
-or `FromParameter` as an untyped alias would recreate the I64/Unit authority
-collision this D0 is meant to prevent. `StringLen/0` and `StringSubstring/2`
-must therefore be co-sealed with their exact receiver, parameter, result,
-effect, and Home relation shape; foreign, missing, duplicate, or inferred
-relations reject before any Facts/Recipe product.
+Missing, duplicate, swapped, foreign, orphan, placement-drifted, or
+brand-drifted evidence rejects before the aggregate and before Facts/Recipe.
+No AST/name/selector lookup, generated-row relookup, Dynamic receipt, MIR/
+ResultKind inference, Recipe key, physical ID, fallback, or retry is allowed.
 
 ### LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0 / I0
 
