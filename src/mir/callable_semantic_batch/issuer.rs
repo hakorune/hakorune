@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use std::sync::Arc;
 
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::{
@@ -6,7 +7,8 @@ use crate::mir::compiler::source_projection::{
 };
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsOutcomeV1, SemanticOwnerRootProfileV1,
+    ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    SemanticOwnerRootProfileV1,
 };
 use crate::parser::{
     FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
@@ -26,6 +28,8 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ResolverDeferred,
     MissingRoot,
     RootProfileMismatch,
+    BodyShapeMissing,
+    BodyShapeOwnerMismatch,
     DuplicateOwner,
     Projection(SourceNavigationErrorV1),
     ParameterCountOverflow,
@@ -78,12 +82,15 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 views.push(view);
             }
 
-            let forests = match resolver
-                .resolve_selected_callable_forests(&views)
+            let (forests, mut body_shapes) = match resolver
+                .resolve_selected_callable_forests_with_body_shapes(&views)
                 .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
             {
-                ResolveSelectedCallableForestsOutcomeV1::Complete(forests) => forests,
-                ResolveSelectedCallableForestsOutcomeV1::Deferred => {
+                ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                    forests,
+                    body_shapes,
+                } => (forests, body_shapes),
+                ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred => {
                     return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred)
                 }
             };
@@ -112,6 +119,14 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 let function = forest
                     .owner(*owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
+                let body_shape = body_shapes
+                    .remove(owner)
+                    .ok_or(ResolvedCallableSemanticBatchIssueV1::BodyShapeMissing)?;
+                if body_shape.owner() != *owner
+                    || body_shape.body_root() != &view.root_profile().body_root()
+                {
+                    return Err(ResolvedCallableSemanticBatchIssueV1::BodyShapeOwnerMismatch);
+                }
                 if function.root_profile() != view.root_profile()
                     || !matches!(
                         function.root_profile(),
@@ -137,6 +152,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                     owner: *owner,
                     function_origin: function.function_origin(),
                     forest,
+                    body_shape: Arc::new(body_shape),
                     projection,
                     method_source_observation,
                 });

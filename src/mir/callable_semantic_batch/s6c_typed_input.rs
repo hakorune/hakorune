@@ -5,12 +5,15 @@
 //! existing authorities without opening source-bound calls, Facts, Recipe,
 //! Builder, or physical lowering.
 
+use std::sync::Arc;
+
 use crate::mir::resolved_semantics::{
     assignment_value_sibling_v1, BindingRefV1, CallableSourceLedgerRejectV1,
-    ResolvedAssignmentTargetV1, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
-    ResolvedInitializerRelationV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1, ResolvedMethodCallReceiverSourceV1,
-    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1, VerifiedCallableLoopMembershipV1,
+    ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1,
+    ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedLoopPlacementV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1, VerifiedCallableLoopMembershipV1,
 };
 
 use super::{
@@ -135,6 +138,8 @@ pub(crate) struct VerifiedS6CTypedInputRelationV1 {
     initializer: ResolvedInitializerRelationV1,
     binaries: [S6CBinaryRelationV1; 4],
     calls: VerifiedS6CCallSitePairV1,
+    index_update: ResolvedAssignmentSourceV1,
+    body_shape: Arc<crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1>,
 }
 
 impl VerifiedS6CTypedInputRelationV1 {
@@ -164,6 +169,16 @@ impl VerifiedS6CTypedInputRelationV1 {
             substring_site: &self.calls.substring_site,
             substring_placement: self.calls.substring_placement,
         })
+    }
+
+    pub(crate) const fn index_update(&self) -> &ResolvedAssignmentSourceV1 {
+        &self.index_update
+    }
+
+    pub(crate) fn body_shape(
+        &self,
+    ) -> &crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1 {
+        self.body_shape.as_ref()
     }
 }
 
@@ -373,19 +388,37 @@ pub(crate) fn issue_s6c_typed_input_relation_v1(
         })
         .collect::<Result<Vec<_>, _>>()
         .map_err(S6CTypedInputRelationRejectV1::Loop)?;
-    if assignments.len() != 1 {
+    let source_assignments = row
+        .body_shape()
+        .assignment_sources()
+        .iter()
+        .filter(|source| {
+            ledger
+                .resolved_loop_placement(loop_site, source.target_site())
+                .is_ok_and(|placement| placement == Some(ResolvedLoopPlacementV1::Body))
+        })
+        .collect::<Vec<_>>();
+    if source_assignments.len() != 1 || assignments.len() != 1 {
         return Err(S6CTypedInputRelationRejectV1::AssignmentCoverage {
-            actual: assignments.len(),
+            actual: source_assignments.len(),
         });
     }
+    let index_update = source_assignments[0];
+    if index_update.form() != ResolvedAssignmentFormV1::Plain {
+        return Err(S6CTypedInputRelationRejectV1::AssignmentShape);
+    }
     let (target_site, target, placement) = assignments[0];
-    if placement != ResolvedLoopPlacementV1::Body
+    if target_site != index_update.target_site()
+        || placement != ResolvedLoopPlacementV1::Body
         || target != &ResolvedAssignmentTargetV1::BindingRebind(index)
     {
         return Err(S6CTypedInputRelationRejectV1::AssignmentShape);
     }
     let step_site = assignment_value_sibling_v1(target_site)
         .ok_or(S6CTypedInputRelationRejectV1::AssignmentShape)?;
+    if &step_site != index_update.value_site() {
+        return Err(S6CTypedInputRelationRejectV1::AssignmentShape);
+    }
     let step = adds
         .iter()
         .copied()
@@ -456,6 +489,8 @@ pub(crate) fn issue_s6c_typed_input_relation_v1(
             substring_site: substring.0.site().clone(),
             substring_placement: substring.1,
         },
+        index_update: index_update.clone(),
+        body_shape: row.body_shape_arc(),
     })
 }
 

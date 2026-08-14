@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
 use crate::parser::{CallableDeclarationIdentityV1, CallableMethodSourceObservationV1};
@@ -23,6 +26,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) function_origin: FunctionOriginV1,
     pub(super) forest: VerifiedSemanticOwnerForestV1,
+    pub(super) body_shape: Arc<VerifiedResolvedBodyShapeInventoryV1>,
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
@@ -61,6 +65,7 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchRefV1<'batch> {
 pub(crate) struct VerifiedResolvedCallableSemanticRowRefV1<'batch> {
     semantic: &'batch VerifiedResolvedCallableSemanticRowV1,
     function: &'batch VerifiedResolvedFunctionV1,
+    body_shape: &'batch Arc<VerifiedResolvedBodyShapeInventoryV1>,
     parameters: Option<Box<[VerifiedResolvedCallableParameterSourceRefV1<'batch>]>>,
 }
 
@@ -184,6 +189,9 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                         .forest
                         .owner(semantic.owner)
                         .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch)?;
+                    if semantic.body_shape.owner() != semantic.owner {
+                        return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
+                    }
                     if function.function_origin() != semantic.function_origin {
                         return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                     }
@@ -202,6 +210,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     rows.push(VerifiedResolvedCallableSemanticRowRefV1 {
                         semantic,
                         function,
+                        body_shape: &semantic.body_shape,
                         parameters,
                     });
                 }
@@ -260,6 +269,14 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
 
     pub(crate) const fn function(&self) -> &VerifiedResolvedFunctionV1 {
         self.function
+    }
+
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        self.body_shape.as_ref()
+    }
+
+    pub(crate) fn body_shape_arc(&self) -> Arc<VerifiedResolvedBodyShapeInventoryV1> {
+        Arc::clone(self.body_shape)
     }
 
     pub(crate) fn parameters(&self) -> Option<&[VerifiedResolvedCallableParameterSourceRefV1<'_>]> {

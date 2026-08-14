@@ -6,8 +6,10 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod assignment_source;
 mod body_effect_control_coverage;
 mod body_shape;
+mod body_shape_resolver;
 mod callable_catalog;
 mod callable_catalog_candidate;
 mod callable_catalog_resolution_source;
@@ -66,6 +68,9 @@ mod source_site;
 mod source_site_inventory;
 mod verifier;
 
+pub(crate) use assignment_source::{
+    issue_assignment_source_v1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
+};
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
     BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
@@ -197,7 +202,7 @@ pub use owner_forest::{
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
-    ResolveSelectedCallableForestsOutcomeV1,
+    ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;

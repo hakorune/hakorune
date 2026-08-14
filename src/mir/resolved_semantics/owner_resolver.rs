@@ -44,6 +44,15 @@ pub(crate) enum ResolveSelectedCallableForestsOutcomeV1 {
     Deferred,
 }
 
+#[derive(Debug)]
+pub(crate) enum ResolveSelectedCallableForestsWithBodyShapesOutcomeV1 {
+    Complete {
+        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    },
+    Deferred,
+}
+
 #[derive(Debug, Clone)]
 struct PendingParentV1 {
     parent_owner: FunctionOwnerIdV1,
@@ -57,6 +66,21 @@ impl FunctionSemanticResolverSessionV1 {
         &mut self,
         roots: &[FunctionSyntaxViewV1<'_>],
     ) -> Result<ResolveSelectedCallableForestsOutcomeV1, ResolveOwnerForestErrorV1> {
+        match self.resolve_selected_callable_forests_with_body_shapes(roots)? {
+            ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete { forests, .. } => {
+                Ok(ResolveSelectedCallableForestsOutcomeV1::Complete(forests))
+            }
+            ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred => {
+                Ok(ResolveSelectedCallableForestsOutcomeV1::Deferred)
+            }
+        }
+    }
+
+    pub(crate) fn resolve_selected_callable_forests_with_body_shapes(
+        &mut self,
+        roots: &[FunctionSyntaxViewV1<'_>],
+    ) -> Result<ResolveSelectedCallableForestsWithBodyShapesOutcomeV1, ResolveOwnerForestErrorV1>
+    {
         let mut trees = Vec::with_capacity(roots.len());
         let mut deferred = false;
         for root in roots {
@@ -66,21 +90,33 @@ impl FunctionSemanticResolverSessionV1 {
             }
         }
         if deferred {
-            return Ok(ResolveSelectedCallableForestsOutcomeV1::Deferred);
+            return Ok(ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred);
         }
         let mut forests = Vec::with_capacity(trees.len());
+        let mut body_shapes = BTreeMap::new();
         for tree in trees {
             let mut draft = SemanticOwnerForestDraftV1::new();
-            self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft, None)?;
+            self.seal_owner_tree(
+                tree,
+                &BTreeMap::new(),
+                None,
+                None,
+                None,
+                &mut draft,
+                Some(&mut body_shapes),
+            )?;
             forests.push(
                 draft
                     .seal()
                     .map_err(ResolveOwnerForestErrorV1::Verification)?,
             );
         }
-        Ok(ResolveSelectedCallableForestsOutcomeV1::Complete(
-            forests.into_boxed_slice(),
-        ))
+        Ok(
+            ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                forests: forests.into_boxed_slice(),
+                body_shapes,
+            },
+        )
     }
 
     pub(crate) fn resolve_script_forest_with_declaration_views(
