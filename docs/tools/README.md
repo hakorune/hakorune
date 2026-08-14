@@ -200,6 +200,7 @@ tools/perf/run_micro_llc_flags_matrix.sh kilo_micro_array_getset --warmup 0 --re
 
 ```bash
 tools/checks/dev_gate.sh --list
+tools/checks/dev_gate.sh --list-steps  # detailed quick-step listing
 tools/checks/dev_gate.sh quick
 tools/checks/dev_gate.sh hotpath
 tools/checks/dev_gate.sh portability
@@ -209,7 +210,7 @@ tools/checks/dev_gate.sh milestone-perf
 ```
 
 プロファイル:
-- `quick`: 毎コミット前の軽量セット（`route_no_fallback_guard` + `cargo check` + `strlen_fast` unittest + chip8 crosslang smoke）
+- `quick`: 毎コミット前の軽量セット。`--list` は10群の導線、`--list-steps` は同じ66 stepの詳細を表示する（実行順・failure signalは不変）。
 - `hotpath`: `quick` + `phase21.5 perf gate bundle (hotpath)`
 - `portability`: `windows_wsl_cmd_smoke`（既定は preflight）+ `macos_portability_guard`
 - `milestone-runtime`: `hotpath` + `phase29y_no_compat_mainline_vm`

@@ -7,6 +7,7 @@ set -euo pipefail
 # Usage:
 #   tools/checks/dev_gate.sh [quick|hotpath|allocator-wide|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
+#   tools/checks/dev_gate.sh --list-steps
 #
 # Profiles:
 #   quick     : day-to-day lightweight checks (default)
@@ -33,6 +34,7 @@ usage() {
 Usage:
   tools/checks/dev_gate.sh [quick|hotpath|allocator-wide|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
+  tools/checks/dev_gate.sh --list-steps
 USAGE
 }
 
@@ -497,6 +499,12 @@ case "${PROFILE}" in
     exit 0
     ;;
   --list)
+    list_profiles
+    exit 0
+    ;;
+  --list-steps)
+    DEV_GATE_GROUP_LIST_STEPS=1
+    DEV_GATE_GROUP_LIST_LABELS=0
     list_profiles
     exit 0
     ;;

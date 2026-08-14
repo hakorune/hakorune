@@ -29,6 +29,17 @@ dev_gate_group_latch_failure() {
   return "$status"
 }
 
+dev_gate_group_label() {
+  local label="$1"
+  if [[ "${DEV_GATE_GROUP_MODE:-}" == "list" && "${DEV_GATE_GROUP_LIST_LABELS:-1}" == "1" ]]; then
+    local label_index=$(( ${DEV_GATE_GROUP_LABEL_COUNT:-0} + 1 ))
+    DEV_GATE_GROUP_LABEL_COUNT="$label_index"
+    printf '    - group[%02d] %s\n' "$label_index" "$label"
+  elif [[ "${DEV_GATE_GROUP_MODE:-}" == "run" && "${DEV_GATE_VERBOSE:-0}" == "1" ]]; then
+    echo "[${DEV_GATE_GROUP_TAG}] --- ${label} ---"
+  fi
+}
+
 dev_gate_group_execute() {
   local label="$1"
   shift
@@ -95,7 +106,9 @@ dev_gate_script_step() {
     return 2
   fi
   if [[ "${DEV_GATE_GROUP_MODE:-}" == "list" ]]; then
-    echo "    - ${script}"
+    if [[ "${DEV_GATE_GROUP_LIST_STEPS:-0}" == "1" ]]; then
+      echo "    - ${script}"
+    fi
     return 0
   fi
 
@@ -115,7 +128,9 @@ dev_gate_cmd_step() {
     return 2
   fi
   if [[ "${DEV_GATE_GROUP_MODE:-}" == "list" ]]; then
-    echo "    - ${display}"
+    if [[ "${DEV_GATE_GROUP_LIST_STEPS:-0}" == "1" ]]; then
+      echo "    - ${display}"
+    fi
     return 0
   fi
 
@@ -155,6 +170,7 @@ dev_gate_group_run() {
   DEV_GATE_GROUP_FAILED_STATUS=0
   DEV_GATE_GROUP_STEP_COUNT=0
   DEV_GATE_GROUP_PASS_COUNT=0
+  DEV_GATE_GROUP_LABEL_COUNT=0
 
   local status=0
   if dev_gate_group_source "$steps_file"; then
