@@ -74,10 +74,10 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             session.ledger.outer_tail_target(),
             DynamicV2PhysicalBlockTargetV1::After
         );
-        assert_eq!(session.lifecycle.i6_site().0, 0);
-        assert_eq!(session.lifecycle.i7_site().0, 1);
-        assert_eq!(session.callout_corridor.i6_site().0, 0);
-        assert_eq!(session.callout_corridor.i7_site().0, 1);
+        assert_eq!(session.lifecycle.i6_site().as_u32(), 0);
+        assert_eq!(session.lifecycle.i7_site().as_u32(), 1);
+        assert_eq!(session.callout_corridor.i6_site().as_u32(), 0);
+        assert_eq!(session.callout_corridor.i7_site().as_u32(), 1);
         assert!(session.callout_corridor.site_pair_matches(
             session.lifecycle.i6_site(),
             session.lifecycle.i7_site(),
@@ -86,7 +86,7 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             session.lifecycle.i7_site(),
             session.lifecycle.i6_site(),
         ));
-        assert_eq!(session.lifecycle.lease_slot().0, 0);
+        assert_eq!(session.lifecycle.lease_slot().as_u32(), 0);
         assert_eq!(session.lifecycle.end_cutpoints().len(), 3);
         let target_blocks = session.target_blocks_for_test();
         assert_eq!(target_blocks.len(), 6);
@@ -116,11 +116,11 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert_eq!(function.signature.effects, crate::mir::EffectMask::READ);
         assert!(function
             .metadata
-            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1(0))
+            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0))
             .is_some());
         assert!(function
             .metadata
-            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1(1))
+            .checked_callout_plan(crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(1))
             .is_some());
         let formal_header = &session.formal_header;
         assert_eq!(
@@ -159,7 +159,7 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1::ImmediateBool;
         let handle = crate::mir::builder::resolved_lowering::
             selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1::EndAuthorizedHandle {
-                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
             };
         for (result, representation) in [
             (4, immediate_i64),
@@ -201,6 +201,9 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             })
             .count();
         assert_eq!(callout_count, 2);
+        let i6_site = session.lifecycle.i6_site();
+        let i7_site = session.lifecycle.i7_site();
+        let lease_slot = session.lifecycle.lease_slot();
         let i6_fault = function
             .get_block(session.i6_fault_block_for_test())
             .expect("I6 Fault landing");
@@ -208,8 +211,8 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(matches!(
             i6_fault.terminator,
             Some(crate::mir::MirInstruction::CheckedCallOutFault {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
-            })
+                site_id,
+            }) if site_id == i6_site
         ));
         assert!(i6_fault.successors.is_empty());
         let i7_fault = function
@@ -218,15 +221,15 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(matches!(
             i7_fault.instructions.as_slice(),
             [crate::mir::MirInstruction::CheckedCallOutEnd {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
-                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
-            }]
+                site_id,
+                lease_slot: observed_lease_slot,
+            }] if *site_id == i6_site && *observed_lease_slot == lease_slot
         ));
         assert!(matches!(
             i7_fault.terminator,
             Some(crate::mir::MirInstruction::CheckedCallOutFault {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
-            })
+                site_id,
+            }) if site_id == i7_site
         ));
         assert!(i7_fault.successors.is_empty());
         let i7_normal_block = session.i7_normal_block_for_test();
@@ -239,9 +242,9 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             .iter()
             .find_map(|instruction| match instruction {
                 crate::mir::MirInstruction::CheckedCallOutNormalResult {
-                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+                    site_id,
                     dst,
-                } => Some(*dst),
+                } if *site_id == i6_site => Some(*dst),
                 _ => None,
             })
             .expect("I6 Normal projection");
@@ -253,9 +256,9 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             .iter()
             .find_map(|instruction| match instruction {
                 crate::mir::MirInstruction::CheckedCallOutNormalResult {
-                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+                    site_id,
                     dst,
-                } => Some(*dst),
+                } if *site_id == i7_site => Some(*dst),
                 _ => None,
             })
             .expect("I7 Normal projection");
@@ -279,9 +282,9 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
                 matches!(
                     instruction,
                     crate::mir::MirInstruction::CheckedCallOutNormalResult {
-                        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+                        site_id,
                         ..
-                    }
+                    } if *site_id == i7_site
                 )
             })
             .expect("I7 Normal projection");
@@ -313,9 +316,9 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         assert!(matches!(
             then_terminal.instructions.last(),
             Some(crate::mir::MirInstruction::CheckedCallOutEnd {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
-                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
-            })
+                site_id,
+                lease_slot: observed_lease_slot,
+            }) if *site_id == i6_site && *observed_lease_slot == lease_slot
         ));
         assert!(then_terminal.terminator.is_none());
         assert!(then_terminal.is_sealed());
@@ -334,10 +337,10 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
                     ..
                 },
                 crate::mir::MirInstruction::CheckedCallOutEnd {
-                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
-                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                    site_id,
+                    lease_slot: observed_lease_slot,
                 },
-            ]
+            ] if *site_id == i6_site && *observed_lease_slot == lease_slot
         ));
         assert!(matches!(
             continuation.terminator,

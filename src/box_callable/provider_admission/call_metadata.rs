@@ -315,21 +315,24 @@ impl DynamicV2AotCallMetadataProjectionV1 {
             calls: [
                 DynamicV2AotCallSiteProjectionV1 {
                     role: DynamicV2AotCallRoleV1::Substring,
-                    site_id: CheckedCallOutSiteIdV1(0),
+                    site_id: CheckedCallOutSiteIdV1::from_test(0),
                     entry: substring,
                     normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                        lease_slot:
+                            crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
                     },
-                    outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1(0),
+                    outcome_slot:
+                        crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1::from_test(0),
                     normal_result_dst: ValueId::new(20),
                     effects: EffectMask::READ,
                 },
                 DynamicV2AotCallSiteProjectionV1 {
                     role: DynamicV2AotCallRoleV1::IndexOf,
-                    site_id: CheckedCallOutSiteIdV1(1),
+                    site_id: CheckedCallOutSiteIdV1::from_test(1),
                     entry: index_of,
                     normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
-                    outcome_slot: crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1(1),
+                    outcome_slot:
+                        crate::mir::checked_callout::CheckedCallOutOutcomeSlotIdV1::from_test(1),
                     normal_result_dst: ValueId::new(21),
                     effects: EffectMask::READ,
                 },
@@ -433,7 +436,7 @@ fn project_call(
     if entry.entry() != role.expected_entry() {
         return Err(DynamicV2AotCallMetadataRejectV1::AdmissionEntryMismatch);
     }
-    let entry_id = CheckedCallOutEntryIdV1(entry.entry() as u32);
+    let entry_id = CheckedCallOutEntryIdV1::from_admitted(entry.entry() as u32);
     let plan = site_plans
         .plan_for_entry(entry_id)
         .ok_or(DynamicV2AotCallMetadataRejectV1::MissingSitePlan)?;

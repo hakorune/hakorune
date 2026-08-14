@@ -180,31 +180,29 @@ fn install_checked_callout_site_plans(
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     site_plans: CheckedCallOutSitePlanPairV1,
 ) -> Result<callout_corridor::DynamicV2InstalledCallOutSitesV1, DynamicV2I8EmitterRejectV1> {
-    let table = site_plans
+    let (table, i6_site, i7_site) = site_plans
         .consume(|i6, i7| {
+            let i6_site = i6.site_id();
+            let i7_site = i7.site_id();
             let mut table = CheckedCallOutPlanTableV1::default();
             table
                 .admit(i6)
                 .and_then(|()| table.admit(i7))
-                .map(|()| table)
+                .map(|()| (table, i6_site, i7_site))
         })
         .map_err(|error| {
             DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(format!("{error:?}"))
         })?;
-    let i6 = table
-        .get(crate::mir::checked_callout::CheckedCallOutSiteIdV1(0))
-        .ok_or_else(|| {
-            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
-                "missing installed I6 site plan".to_owned(),
-            )
-        })?;
-    let i7 = table
-        .get(crate::mir::checked_callout::CheckedCallOutSiteIdV1(1))
-        .ok_or_else(|| {
-            DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
-                "missing installed I7 site plan".to_owned(),
-            )
-        })?;
+    let i6 = table.get(i6_site).ok_or_else(|| {
+        DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
+            "missing installed I6 site plan".to_owned(),
+        )
+    })?;
+    let i7 = table.get(i7_site).ok_or_else(|| {
+        DynamicV2I8EmitterRejectV1::CheckedCallOutSitePlan(
+            "missing installed I7 site plan".to_owned(),
+        )
+    })?;
     let sites = callout_corridor::DynamicV2InstalledCallOutSitesV1::new(
         i6.site_id(),
         i7.site_id(),

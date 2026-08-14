@@ -415,14 +415,18 @@ pub fn format_instruction(
             ..
         } => format!(
             "checked_callout site={} recv={} args={:?} normal={} fault={}",
-            site_id.0, receiver, arguments, normal_landing, fault_landing
+            site_id.as_u32(),
+            receiver,
+            arguments,
+            normal_landing,
+            fault_landing
         ),
 
         MirInstruction::CheckedCallOutNormalResult { site_id, dst } => {
             format!(
                 "{} checked_callout.normal_result site={}",
                 format_dst(dst, types),
-                site_id.0
+                site_id.as_u32()
             )
         }
 
@@ -431,11 +435,12 @@ pub fn format_instruction(
             lease_slot,
         } => format!(
             "checked_callout.end site={} lease={}",
-            site_id.0, lease_slot.0
+            site_id.as_u32(),
+            lease_slot.as_u32()
         ),
 
         MirInstruction::CheckedCallOutFault { site_id } => {
-            format!("checked_callout.fault site={}", site_id.0)
+            format!("checked_callout.fault site={}", site_id.as_u32())
         }
 
         MirInstruction::Phi { dst, inputs, .. } => {

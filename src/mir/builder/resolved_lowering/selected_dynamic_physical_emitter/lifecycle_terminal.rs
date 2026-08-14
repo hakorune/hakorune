@@ -112,13 +112,20 @@ impl DynamicV2PhysicalLifecycleTerminalPlanV1 {
         cleanup: &[DynamicV2TemporaryDischargeRowV1; 4],
     ) -> Result<Self, DynamicV2PhysicalLifecycleTerminalRejectV1> {
         site_plans.with_sites(|i6, i7| {
-            if i6.site_id() != CheckedCallOutSiteIdV1(0)
-                || i7.site_id() != CheckedCallOutSiteIdV1(1)
+            let i6_site = i6.site_id();
+            let i7_site = i7.site_id();
+            let lease_slot = match i6.normal_shape() {
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle { lease_slot } => lease_slot,
+                CheckedCallOutNormalShapeV1::ImmediateI64 => {
+                    return Err(DynamicV2PhysicalLifecycleTerminalRejectV1::SiteShape)
+                }
+            };
+            if i6_site == i7_site
                 || !matches!(
                     i6.normal_shape(),
                     CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                        lease_slot: CheckedCallOutLeaseSlotIdV1(0)
-                    }
+                        lease_slot: expected_lease_slot
+                    } if expected_lease_slot == lease_slot
                 )
                 || !matches!(i7.normal_shape(), CheckedCallOutNormalShapeV1::ImmediateI64)
                 || !i6.plan_stamp().same(i7.plan_stamp())
@@ -129,9 +136,9 @@ impl DynamicV2PhysicalLifecycleTerminalPlanV1 {
                 return Err(DynamicV2PhysicalLifecycleTerminalRejectV1::CleanupCoverage);
             }
             Ok(Self {
-                i6_site: i6.site_id(),
-                i7_site: i7.site_id(),
-                lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                i6_site,
+                i7_site,
+                lease_slot,
                 end_cutpoints: [
                     DynamicV2PhysicalEndCutPointV1::I7Fault,
                     DynamicV2PhysicalEndCutPointV1::InnerReturn,

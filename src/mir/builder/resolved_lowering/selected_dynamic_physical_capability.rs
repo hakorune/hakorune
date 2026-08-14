@@ -308,16 +308,17 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
         let i7 = aot.checked_callout_facts(TextScanAdmittedRoleV1::TextFindNeedle);
         let site_plans = CheckedCallOutSitePlanPairV1::from_admitted(
             CheckedCallOutAdmittedSiteInputV1 {
-                entry: CheckedCallOutEntryIdV1(i6.entry_code()),
+                entry: CheckedCallOutEntryIdV1::from_admitted(i6.entry_code()),
                 call_abi_revision: i6.call_abi_revision(),
                 wire_revision: i6.wire_revision(),
                 normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+                    lease_slot:
+                        crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_admitted(0),
                 },
                 effects,
             },
             CheckedCallOutAdmittedSiteInputV1 {
-                entry: CheckedCallOutEntryIdV1(i7.entry_code()),
+                entry: CheckedCallOutEntryIdV1::from_admitted(i7.entry_code()),
                 call_abi_revision: i7.call_abi_revision(),
                 wire_revision: i7.wire_revision(),
                 normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,

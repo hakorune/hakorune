@@ -17,17 +17,17 @@ fn checked_callout_transport_round_trips_without_backend_activation() {
     );
     let mut normal = BasicBlock::new(BasicBlockId::new(1));
     normal.add_instruction(MirInstruction::CheckedCallOutNormalResult {
-        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0),
         dst: ValueId::new(3),
     });
     normal.add_instruction(MirInstruction::CheckedCallOutEnd {
-        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
-        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(0),
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0),
+        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(0),
     });
     normal.set_terminator(MirInstruction::Return { value: None });
     let mut fault = BasicBlock::new(BasicBlockId::new(2));
     fault.set_terminator(MirInstruction::CheckedCallOutFault {
-        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0),
     });
     function.blocks.insert(BasicBlockId::new(1), normal);
     function.blocks.insert(BasicBlockId::new(2), fault);
@@ -36,7 +36,7 @@ fn checked_callout_transport_round_trips_without_backend_activation() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .set_terminator(MirInstruction::CheckedCallOut {
-            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0),
             receiver: ValueId::new(1),
             arguments: vec![ValueId::new(2)],
             normal_landing: BasicBlockId::new(1),
@@ -68,7 +68,7 @@ fn checked_callout_transport_round_trips_without_backend_activation() {
             normal_landing,
             fault_landing,
             effects,
-        }) if site_id.0 == 0
+        }) if site_id.as_u32() == 0
             && *receiver == ValueId::new(1)
             && arguments == &vec![ValueId::new(2)]
             && *normal_landing == BasicBlockId::new(1)
@@ -81,12 +81,12 @@ fn checked_callout_transport_round_trips_without_backend_activation() {
         [
             MirInstruction::CheckedCallOutNormalResult { dst, .. },
             MirInstruction::CheckedCallOutEnd { lease_slot, .. },
-        ] if *dst == ValueId::new(3) && lease_slot.0 == 0
+        ] if *dst == ValueId::new(3) && lease_slot.as_u32() == 0
     ));
     assert!(matches!(
         reparsed_fn
             .get_block(BasicBlockId::new(2))
             .and_then(|block| block.terminator.as_ref()),
-        Some(MirInstruction::CheckedCallOutFault { site_id }) if site_id.0 == 0
+        Some(MirInstruction::CheckedCallOutFault { site_id }) if site_id.as_u32() == 0
     ));
 }

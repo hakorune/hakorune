@@ -420,10 +420,12 @@ mod tests {
         function
             .metadata
             .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
-                CheckedCallOutSiteIdV1(6),
-                CheckedCallOutEntryIdV1(17),
+                CheckedCallOutSiteIdV1::from_test(6),
+                CheckedCallOutEntryIdV1::from_test(17),
                 CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(1),
+                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(
+                        1,
+                    ),
                 },
                 EffectMask::READ,
                 ModuleInvocationBrandV1::legacy_test(),
@@ -433,7 +435,7 @@ mod tests {
             .emit_checked_callout(
                 &mut function,
                 BasicBlockId::new(0),
-                CheckedCallOutSiteIdV1(6),
+                CheckedCallOutSiteIdV1::from_test(6),
                 ValueId::new(0),
                 vec![ValueId::new(1), ValueId::new(2)],
                 BasicBlockId::new(1),
@@ -456,8 +458,8 @@ mod tests {
         function
             .metadata
             .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
-                CheckedCallOutSiteIdV1(7),
-                CheckedCallOutEntryIdV1(18),
+                CheckedCallOutSiteIdV1::from_test(7),
+                CheckedCallOutEntryIdV1::from_test(18),
                 CheckedCallOutNormalShapeV1::ImmediateI64,
                 EffectMask::READ,
                 ModuleInvocationBrandV1::legacy_test(),
@@ -466,7 +468,7 @@ mod tests {
         let error = CanonicalCfgSessionV1::new().emit_checked_callout(
             &mut function,
             BasicBlockId::new(0),
-            CheckedCallOutSiteIdV1(7),
+            CheckedCallOutSiteIdV1::from_test(7),
             ValueId::new(0),
             vec![],
             BasicBlockId::new(1),

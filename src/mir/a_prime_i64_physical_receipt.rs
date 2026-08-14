@@ -229,7 +229,7 @@ impl APrimeI64PhysicalReceiptV1 {
             if !call_roles.insert(row.role.as_str()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallRoleMismatch);
             }
-            if !call_sites.insert(row.site_id.0) {
+            if !call_sites.insert(row.site_id.as_u32()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::DuplicateCallSite);
             }
             if row.target_fingerprint.is_empty() {
@@ -245,7 +245,7 @@ impl APrimeI64PhysicalReceiptV1 {
                 _ => unreachable!("call role checked above"),
             };
             let expected_site = if row.role == "substring" { 0 } else { 1 };
-            if row.site_id.0 != expected_site {
+            if row.site_id.as_u32() != expected_site {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallSiteRoleMismatch);
             }
             if row.target_fingerprint != expected_target {
@@ -475,7 +475,7 @@ mod tests {
             ],
             vec![
                 APrimeI64CallEdgeReceiptV1 {
-                    site_id: CheckedCallOutSiteIdV1(0),
+                    site_id: CheckedCallOutSiteIdV1::from_test(0),
                     role: "substring".to_string(),
                     target_fingerprint: "substring/2".to_string(),
                     receiver_role: "src".to_string(),
@@ -499,7 +499,7 @@ mod tests {
                     result_lane: APrimeI64LaneV1::OpaqueHandle,
                 },
                 APrimeI64CallEdgeReceiptV1 {
-                    site_id: CheckedCallOutSiteIdV1(1),
+                    site_id: CheckedCallOutSiteIdV1::from_test(1),
                     role: "index_of".to_string(),
                     target_fingerprint: "indexOf/1".to_string(),
                     receiver_role: "pred_chars".to_string(),
@@ -630,7 +630,7 @@ mod tests {
         );
 
         let mut receipt = valid_receipt();
-        receipt.call_edges[0].site_id = CheckedCallOutSiteIdV1(1);
+        receipt.call_edges[0].site_id = CheckedCallOutSiteIdV1::from_test(1);
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::CallSiteRoleMismatch)

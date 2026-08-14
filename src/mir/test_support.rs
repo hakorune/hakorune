@@ -28,7 +28,7 @@ pub(crate) fn a_prime_receipt() -> APrimeI64PhysicalReceiptV1 {
         ],
         vec![
             APrimeI64CallEdgeReceiptV1 {
-                site_id: CheckedCallOutSiteIdV1(0),
+                site_id: CheckedCallOutSiteIdV1::from_test(0),
                 role: "substring".into(),
                 target_fingerprint: "substring/2".into(),
                 receiver_role: "src".into(),
@@ -52,7 +52,7 @@ pub(crate) fn a_prime_receipt() -> APrimeI64PhysicalReceiptV1 {
                 result_lane: APrimeI64LaneV1::OpaqueHandle,
             },
             APrimeI64CallEdgeReceiptV1 {
-                site_id: CheckedCallOutSiteIdV1(1),
+                site_id: CheckedCallOutSiteIdV1::from_test(1),
                 role: "index_of".into(),
                 target_fingerprint: "indexOf/1".into(),
                 receiver_role: "pred_chars".into(),

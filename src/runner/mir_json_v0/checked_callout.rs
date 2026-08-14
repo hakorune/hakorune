@@ -59,7 +59,7 @@ pub(super) fn parse(op: &str, node: &Value) -> Result<MirInstruction, String> {
         "checked_callout" => {
             let effects = parse_effect_mask(node)?;
             Ok(MirInstruction::CheckedCallOut {
-                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(id(
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_wire(id(
                     node,
                     "site_id",
                     "checked_callout",
@@ -80,27 +80,27 @@ pub(super) fn parse(op: &str, node: &Value) -> Result<MirInstruction, String> {
             })
         }
         "checked_callout_normal_result" => Ok(MirInstruction::CheckedCallOutNormalResult {
-            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(id(
+            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_wire(id(
                 node,
                 "site_id",
                 "checked_callout normal result",
             )?),
             dst: ValueId::new(id(node, "dst", "checked_callout normal result dst")?),
         }),
-        "checked_callout_end" => Ok(MirInstruction::CheckedCallOutEnd {
-            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(id(
-                node,
-                "site_id",
-                "checked_callout end",
-            )?),
-            lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1(id(
-                node,
-                "lease_slot",
-                "checked_callout end lease slot",
-            )?),
-        }),
+        "checked_callout_end" => {
+            Ok(MirInstruction::CheckedCallOutEnd {
+                site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_wire(id(
+                    node,
+                    "site_id",
+                    "checked_callout end",
+                )?),
+                lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_wire(
+                    id(node, "lease_slot", "checked_callout end lease slot")?,
+                ),
+            })
+        }
         "checked_callout_fault" => Ok(MirInstruction::CheckedCallOutFault {
-            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(id(
+            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_wire(id(
                 node,
                 "site_id",
                 "checked_callout fault",

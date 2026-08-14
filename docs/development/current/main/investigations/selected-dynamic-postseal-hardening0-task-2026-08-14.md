@@ -947,10 +947,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
       fence, consumed immediately before Builder open; the session stores no
       disposition and no executable/backend/runtime meaning is issued.
     - focused emitter/package tests, cargo check, fmt, existing AOT/text/physical-input/pointer guards, and diff check are green; selected production remains new=0/old=1 with fallback/retry=0.
-11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0` (design stop; worker census)
-    - Decision: private tuple fields; the canonical pair issuer mints Site/Outcome/Lease once, while Entry remains an admitted provider projection and JSON decode stays a checked transport ingress.
-    - Authority/non-authority: `CheckedCallOutSitePlanPairV1` and admitted entry facts own identity; raw `0/1`, receipt/Boundary re-minting, and transport parsing do not.
-    - Fail-fast/slice: swapped, duplicate, foreign, or unallowlisted constructor/consumer rejects before effect; add private fields/accessors, replace production magic IDs with borrowed pair/table identities, and decide wire-ingress conversion in the same existing guard. No new guard family or semantic receipt.
+11. `CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0` (closed 2026-08-14 BoxShape)
+    - Private tuple fields and explicit `as_u32`/`from_test`/`from_wire`/`from_admitted` boundaries now keep the canonical pair as the Site/Outcome issuer, admitted facts as the Entry/lease projection source, and JSON as transport ingress.
+    - Selected capability, emitter, lifecycle, profile close, receipt, printer, and test callers no longer mint or inspect raw physical IDs; the existing AOT authority guard fixes the owner/accessor and raw-consumer census without a new guard family.
+    - `cargo check --lib`, checked-callout (14), selected-emitter (5), provider-admission (6), fmt, guard, pointer, and diff checks are green; selected production remains new=0/old=1.
 12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0`
     - carry the verified canonical site/result/landing/End census to Boundary;
     - reject operand, landing, predecessor, projection, or End-placement drift;

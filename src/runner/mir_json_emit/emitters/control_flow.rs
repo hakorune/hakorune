@@ -28,7 +28,7 @@ pub(crate) fn emit_checked_callout(
 ) -> serde_json::Value {
     json!({
         "op": "checked_callout",
-        "site_id": site_id.0,
+        "site_id": site_id.as_u32(),
         "receiver": receiver.as_u32(),
         "args": arguments.iter().map(|value| value.as_u32()).collect::<Vec<_>>(),
         "normal": normal_landing.as_u32(),
@@ -40,21 +40,21 @@ pub(crate) fn emit_checked_callout(
 pub(crate) fn emit_checked_callout_fault(
     site_id: &crate::mir::checked_callout::CheckedCallOutSiteIdV1,
 ) -> serde_json::Value {
-    json!({"op":"checked_callout_fault", "site_id": site_id.0})
+    json!({"op":"checked_callout_fault", "site_id": site_id.as_u32()})
 }
 
 pub(crate) fn emit_checked_callout_normal_result(
     site_id: &crate::mir::checked_callout::CheckedCallOutSiteIdV1,
     dst: &ValueId,
 ) -> serde_json::Value {
-    json!({"op":"checked_callout_normal_result", "site_id": site_id.0, "dst": dst.as_u32()})
+    json!({"op":"checked_callout_normal_result", "site_id": site_id.as_u32(), "dst": dst.as_u32()})
 }
 
 pub(crate) fn emit_checked_callout_end(
     site_id: &crate::mir::checked_callout::CheckedCallOutSiteIdV1,
     lease_slot: &crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
 ) -> serde_json::Value {
-    json!({"op":"checked_callout_end", "site_id": site_id.0, "lease_slot": lease_slot.0})
+    json!({"op":"checked_callout_end", "site_id": site_id.as_u32(), "lease_slot": lease_slot.as_u32()})
 }
 
 pub(crate) fn emit_terminator(term: &MirInstruction) -> Result<serde_json::Value, String> {

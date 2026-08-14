@@ -34,7 +34,7 @@ pub(super) fn insert_a_prime_i64_physical_receipt_value_json(
             "lane": row.lane.as_str(),
         })).collect::<Vec<_>>(),
         "call_edges": receipt.call_edges().iter().map(|row| json!({
-            "site_id": row.site_id.0,
+            "site_id": row.site_id.as_u32(),
             "role": &row.role,
             "target_fingerprint": &row.target_fingerprint,
             "receiver_role": &row.receiver_role,
@@ -132,7 +132,7 @@ mod tests {
 
     fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
         APrimeI64CallEdgeReceiptV1 {
-            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(site_id),
+            site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(site_id),
             role: role.into(),
             target_fingerprint: if role == "substring" {
                 "substring/2".into()

@@ -120,10 +120,11 @@ impl fmt::Display for MirInstruction {
             } => write!(
                 f,
                 "checked_callout.end site={} lease={}",
-                site_id.0, lease_slot.0
+                site_id.as_u32(),
+                lease_slot.as_u32()
             ),
             MirInstruction::CheckedCallOutFault { site_id } => {
-                write!(f, "checked_callout.fault site={}", site_id.0)
+                write!(f, "checked_callout.fault site={}", site_id.as_u32())
             }
             // Phase 287: Lifecycle management
             MirInstruction::KeepAlive { values } => {

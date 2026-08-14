@@ -223,6 +223,19 @@ if [[ "$(rg -n 'fn verify_checked_callout_function_v1\(' "$CALLOUT_CENSUS" | wc 
 fi
 guard_expect_fixed_in_file "$TAG" "CheckedCallOutSitePlanPairV1" "$CALLOUT_OWNER" \
   "CheckedCallOut must own the exact two-site transport shape"
+for id in CheckedCallOutSiteIdV1 CheckedCallOutEntryIdV1 CheckedCallOutOutcomeSlotIdV1 CheckedCallOutLeaseSlotIdV1; do
+  guard_expect_fixed_in_file "$TAG" "struct $id(u32)" "$CALLOUT_OWNER" \
+    "$id must have a private tuple field"
+done
+if rg -n 'CheckedCallOut(Site|Entry|OutcomeSlot|LeaseSlot)IdV1\(|\.(site_id|outcome_slot|lease_slot|admitted_entry)\.0\b' \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_LIFECYCLE" \
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/profile_close.rs"; then
+  guard_fail "$TAG" "selected physical consumers must borrow issued CheckedCallOut IDs"
+fi
+guard_expect_fixed_in_file "$TAG" "from_wire(value: u32)" "$CALLOUT_OWNER" \
+  "CheckedCallOut JSON transport ingress must be explicit"
+guard_expect_fixed_in_file "$TAG" "from_admitted(value: u32)" "$CALLOUT_OWNER" \
+  "admitted entry/lease projection must remain explicit"
 guard_expect_fixed_in_file "$TAG" "prepare_aot_activation" "$SELECTED_CAPABILITY" \
   "selected capability admission must issue the site-plan transport"
 guard_expect_fixed_in_file "$TAG" "PreparedSelectedDynamicV2AotActivationV1" "$SELECTED_CAPABILITY" \

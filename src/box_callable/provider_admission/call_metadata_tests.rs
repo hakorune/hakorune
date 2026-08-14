@@ -39,8 +39,8 @@ fn projection_keeps_exact_two_typed_sites_and_stamp() {
         projection.calls()[1].entry().entry(),
         TextScanAotEntryIdV1::IndexOf
     );
-    assert_eq!(projection.calls()[0].site_id().0, 0);
-    assert_eq!(projection.calls()[1].site_id().0, 1);
+    assert_eq!(projection.calls()[0].site_id().as_u32(), 0);
+    assert_eq!(projection.calls()[1].site_id().as_u32(), 1);
     assert_eq!(projection.registry_generation(), 7);
     assert_eq!(
         projection.plan_stamp(),
@@ -113,7 +113,7 @@ fn projection_rejects_missing_or_duplicate_normal_result() {
         .get_block_mut(BasicBlockId::new(1))
         .expect("normal block")
         .add_instruction(MirInstruction::CheckedCallOutNormalResult {
-            site_id: CheckedCallOutSiteIdV1(0),
+            site_id: CheckedCallOutSiteIdV1::from_test(0),
             dst: ValueId::new(22),
         });
     assert!(matches!(
@@ -182,16 +182,16 @@ fn admission() -> PreparedAotExecutableAdmissionV1 {
 fn site_plans() -> CheckedCallOutPlanTableV1 {
     let pair = CheckedCallOutSitePlanPairV1::from_admitted(
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(1),
+            entry: CheckedCallOutEntryIdV1::from_test(1),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(0),
             },
             effects: EffectMask::READ,
         },
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(2),
+            entry: CheckedCallOutEntryIdV1::from_test(2),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
@@ -266,7 +266,7 @@ fn function() -> MirFunction {
     for (source, site_id, normal, fault, receiver, arguments, result) in [
         (
             0,
-            CheckedCallOutSiteIdV1(0),
+            CheckedCallOutSiteIdV1::from_test(0),
             1,
             2,
             ValueId::new(0),
@@ -275,7 +275,7 @@ fn function() -> MirFunction {
         ),
         (
             3,
-            CheckedCallOutSiteIdV1(1),
+            CheckedCallOutSiteIdV1::from_test(1),
             4,
             5,
             ValueId::new(3),
@@ -353,7 +353,7 @@ fn receipt() -> APrimeI64PhysicalReceiptV1 {
 
 fn call(role: &str, site_id: u32) -> APrimeI64CallEdgeReceiptV1 {
     APrimeI64CallEdgeReceiptV1 {
-        site_id: CheckedCallOutSiteIdV1(site_id),
+        site_id: CheckedCallOutSiteIdV1::from_test(site_id),
         role: role.into(),
         target_fingerprint: if role == "substring" {
             "substring/2".into()

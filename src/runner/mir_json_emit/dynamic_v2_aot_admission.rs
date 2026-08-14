@@ -37,7 +37,7 @@ pub(crate) fn insert_dynamic_v2_aot_call_admission_json(
             let entry = call.entry();
             json!({
                 "role": call.role().as_str(),
-                "site_id": call.site_id().0,
+                "site_id": call.site_id().as_u32(),
                 "entry_id": entry.entry() as u32,
                 "symbol": entry.symbol(),
                 "abi_revision": projection.abi_revision(),
@@ -55,7 +55,7 @@ pub(crate) fn insert_dynamic_v2_aot_call_admission_json(
                     crate::mir::checked_callout::CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. } => "end_authorized_handle",
                     crate::mir::checked_callout::CheckedCallOutNormalShapeV1::ImmediateI64 => "immediate_i64",
                 },
-                "outcome_slot": call.outcome_slot().0,
+                "outcome_slot": call.outcome_slot().as_u32(),
                 "normal_result_dst": call.normal_result_dst().as_u32(),
                 "effects": call.effects().bits(),
             })

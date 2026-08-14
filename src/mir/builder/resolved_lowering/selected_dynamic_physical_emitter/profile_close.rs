@@ -93,6 +93,7 @@ fn validate_corridor(
     outer: &CanonicalFunctionLoweringSessionV1<'_>,
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
+    lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     let header = role_block(targets, DynamicV2PhysicalTargetRoleV1::Header);
@@ -100,6 +101,9 @@ fn validate_corridor(
     let then_block = role_block(targets, DynamicV2PhysicalTargetRoleV1::ThenTerminal);
     let continuation = role_block(targets, DynamicV2PhysicalTargetRoleV1::Continuation);
     let after = role_block(targets, DynamicV2PhysicalTargetRoleV1::After);
+    let i6_site = lifecycle.i6_site();
+    let i7_site = lifecycle.i7_site();
+    let expected_lease_slot = lifecycle.lease_slot();
     let (i6_normal, i6_fault, i7_normal, i7_fault) = corridor.with_i6_normal(|i6_normal| {
         corridor.with_i6_fault(|i6_fault| {
             corridor.with_i7_normal(|i7_normal| {
@@ -145,7 +149,7 @@ fn validate_corridor(
             normal_landing,
             fault_landing,
             ..
-        }) if site_id.0 == 0 && *normal_landing == i6_normal && *fault_landing == i6_fault
+        }) if *site_id == i6_site && *normal_landing == i6_normal && *fault_landing == i6_fault
     ) {
         return Err(reject("I6 CheckedCallOut topology drift"));
     }
@@ -159,16 +163,16 @@ fn validate_corridor(
             normal_landing,
             fault_landing,
             ..
-        }) if site_id.0 == 1 && *normal_landing == i7_normal && *fault_landing == i7_fault
+        }) if *site_id == i7_site && *normal_landing == i7_normal && *fault_landing == i7_fault
     ) {
         return Err(reject("I7 CheckedCallOut topology drift"));
     }
     if !matches!(
         function.get_block(i6_fault).and_then(|block| block.terminator.as_ref()),
-        Some(MirInstruction::CheckedCallOutFault { site_id }) if site_id.0 == 0
+        Some(MirInstruction::CheckedCallOutFault { site_id }) if *site_id == i6_site
     ) || !matches!(
         function.get_block(i7_fault).and_then(|block| block.terminator.as_ref()),
-        Some(MirInstruction::CheckedCallOutFault { site_id }) if site_id.0 == 1
+        Some(MirInstruction::CheckedCallOutFault { site_id }) if *site_id == i7_site
     ) {
         return Err(reject("CallOut Fault topology drift"));
     }
@@ -185,27 +189,38 @@ fn validate_corridor(
     }
 
     let mut ends = 0usize;
-    let mut projections = [0usize; 2];
+    let mut i6_projections = 0usize;
+    let mut i7_projections = 0usize;
     for block in function.blocks.values() {
         for instruction in &block.instructions {
             match instruction {
                 MirInstruction::CheckedCallOutEnd {
                     site_id,
                     lease_slot,
-                } if site_id.0 == 0 && lease_slot.0 == 0 => ends += 1,
+                } if *site_id == i6_site && *lease_slot == expected_lease_slot => ends += 1,
                 MirInstruction::CheckedCallOutEnd { .. } => {
                     return Err(reject("foreign CheckedCallOut End in profile"))
                 }
-                MirInstruction::CheckedCallOutNormalResult { site_id, .. } if site_id.0 < 2 => {
-                    projections[site_id.0 as usize] += 1
+                MirInstruction::CheckedCallOutNormalResult { site_id, .. }
+                    if *site_id == i6_site =>
+                {
+                    i6_projections += 1
+                }
+                MirInstruction::CheckedCallOutNormalResult { site_id, .. }
+                    if *site_id == i7_site =>
+                {
+                    i7_projections += 1
+                }
+                MirInstruction::CheckedCallOutNormalResult { .. } => {
+                    return Err(reject("foreign CheckedCallOut projection in profile"))
                 }
                 _ => {}
             }
         }
     }
-    if ends != 3 || projections != [1, 1] {
+    if ends != 3 || [i6_projections, i7_projections] != [1, 1] {
         return Err(reject(format!(
-            "profile lifecycle census drift ends={ends} projections={projections:?}"
+            "profile lifecycle census drift ends={ends} projections=[{i6_projections}, {i7_projections}]"
         )));
     }
     Ok(())
@@ -226,7 +241,7 @@ pub(super) fn emit(
     {
         return Err(reject("profile lifecycle/corridor brand mismatch"));
     }
-    validate_corridor(outer, targets, corridor, brand)?;
+    validate_corridor(outer, targets, corridor, lifecycle, brand)?;
     let after = role_block(targets, DynamicV2PhysicalTargetRoleV1::After);
     canonical
         .cfg

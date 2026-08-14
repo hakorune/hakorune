@@ -14,16 +14,59 @@ use super::census::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutSiteIdV1(pub(crate) u32);
+pub(crate) struct CheckedCallOutSiteIdV1(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutEntryIdV1(pub(crate) u32);
+pub(crate) struct CheckedCallOutEntryIdV1(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutOutcomeSlotIdV1(pub(crate) u32);
+pub(crate) struct CheckedCallOutOutcomeSlotIdV1(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CheckedCallOutLeaseSlotIdV1(pub(crate) u32);
+pub(crate) struct CheckedCallOutLeaseSlotIdV1(u32);
+
+macro_rules! checked_callout_id_api {
+    ($id:ident) => {
+        impl $id {
+            /// Decode an ID carried by the neutral MIR transport.  This is
+            /// parsing, not a new semantic/physical issuer.
+            pub(crate) const fn from_wire(value: u32) -> Self {
+                Self(value)
+            }
+
+            #[cfg(test)]
+            pub(crate) const fn from_test(value: u32) -> Self {
+                Self(value)
+            }
+
+            pub(crate) const fn as_u32(self) -> u32 {
+                self.0
+            }
+        }
+    };
+}
+
+checked_callout_id_api!(CheckedCallOutSiteIdV1);
+checked_callout_id_api!(CheckedCallOutEntryIdV1);
+checked_callout_id_api!(CheckedCallOutOutcomeSlotIdV1);
+checked_callout_id_api!(CheckedCallOutLeaseSlotIdV1);
+
+impl CheckedCallOutEntryIdV1 {
+    /// Project an already-admitted provider entry into the neutral MIR type.
+    /// The provider admission remains the identity authority.
+    pub(crate) const fn from_admitted(value: u32) -> Self {
+        Self(value)
+    }
+}
+
+impl CheckedCallOutLeaseSlotIdV1 {
+    /// Project the lease slot selected by the admitted TextScan ABI shape.
+    /// The bounded cohort admits only slot zero; the pair issuer still owns
+    /// the resulting site/outcome identities.
+    pub(crate) const fn from_admitted(value: u32) -> Self {
+        Self(value)
+    }
+}
 
 /// The only Normal result shapes admitted by the bounded TextScan cohort.
 /// Fault never carries a result or lease slot.
@@ -91,7 +134,7 @@ impl CheckedCallOutSitePlanV1 {
             wire_revision: 2,
             normal_shape,
             effects,
-            outcome_slot: CheckedCallOutOutcomeSlotIdV1(site_id.0),
+            outcome_slot: CheckedCallOutOutcomeSlotIdV1::from_test(site_id.as_u32()),
             plan_stamp,
         }
     }
@@ -151,20 +194,20 @@ impl CheckedCallOutSitePlanV1 {
     pub(crate) fn to_json_for_test(&self) -> serde_json::Value {
         let shape = match self.normal_shape {
             CheckedCallOutNormalShapeV1::EndAuthorizedHandle { lease_slot } => {
-                serde_json::json!({"kind":"end_authorized_handle","lease_slot":lease_slot.0})
+                serde_json::json!({"kind":"end_authorized_handle","lease_slot":lease_slot.as_u32()})
             }
             CheckedCallOutNormalShapeV1::ImmediateI64 => {
                 serde_json::json!({"kind":"immediate_i64"})
             }
         };
         serde_json::json!({
-            "site_id": self.site_id.0,
-            "admitted_entry": self.admitted_entry.0,
+            "site_id": self.site_id.as_u32(),
+            "admitted_entry": self.admitted_entry.as_u32(),
             "call_abi_revision": self.call_abi_revision,
             "wire_revision": self.wire_revision,
             "normal_shape": shape,
             "effects": self.effects.bits(),
-            "outcome_slot": self.outcome_slot.0,
+            "outcome_slot": self.outcome_slot.as_u32(),
             "plan_stamp": {
                 "compiler_domain": self.plan_stamp.compiler_domain().get(),
                 "invocation_ordinal": self.plan_stamp.invocation_ordinal().get(),
@@ -180,10 +223,10 @@ impl CheckedCallOutSitePlanV1 {
                 .and_then(serde_json::Value::as_u64)
                 .ok_or_else(|| format!("missing numeric field {name}"))
         };
-        let site_id = CheckedCallOutSiteIdV1(
+        let site_id = CheckedCallOutSiteIdV1::from_test(
             u32::try_from(number("site_id")?).map_err(|_| "site id overflow".to_owned())?,
         );
-        let admitted_entry = CheckedCallOutEntryIdV1(
+        let admitted_entry = CheckedCallOutEntryIdV1::from_test(
             u32::try_from(number("admitted_entry")?).map_err(|_| "entry id overflow".to_owned())?,
         );
         let shape = value
@@ -194,7 +237,7 @@ impl CheckedCallOutSitePlanV1 {
         let normal_shape = match shape {
             "immediate_i64" => CheckedCallOutNormalShapeV1::ImmediateI64,
             "end_authorized_handle" => CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: CheckedCallOutLeaseSlotIdV1(
+                lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(
                     u32::try_from(
                         value["normal_shape"]["lease_slot"]
                             .as_u64()
@@ -208,7 +251,7 @@ impl CheckedCallOutSitePlanV1 {
         let effects = EffectMask::from_bits(
             u16::try_from(number("effects")?).map_err(|_| "effect overflow".to_owned())?,
         );
-        let outcome_slot = CheckedCallOutOutcomeSlotIdV1(
+        let outcome_slot = CheckedCallOutOutcomeSlotIdV1::from_test(
             u32::try_from(number("outcome_slot")?)
                 .map_err(|_| "outcome slot overflow".to_owned())?,
         );

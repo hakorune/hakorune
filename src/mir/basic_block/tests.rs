@@ -73,7 +73,7 @@ fn test_branch_successors() {
 fn checked_callout_fault_is_a_successorless_terminal() {
     let mut bb = BasicBlock::new(BasicBlockId::new(3));
     bb.add_instruction(MirInstruction::CheckedCallOutFault {
-        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(1),
     });
 
     assert!(bb.is_terminated());

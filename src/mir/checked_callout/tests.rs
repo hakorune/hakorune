@@ -9,7 +9,7 @@ fn test_function_with_site(with_projection: bool) -> (MirFunction, CheckedCallOu
     let source = BasicBlockId::new(0);
     let normal = BasicBlockId::new(1);
     let fault = BasicBlockId::new(2);
-    let site = CheckedCallOutSiteIdV1(6);
+    let site = CheckedCallOutSiteIdV1::from_test(6);
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "checked/0".to_owned(),
@@ -50,7 +50,7 @@ fn test_function_with_site(with_projection: bool) -> (MirFunction, CheckedCallOu
     plans
         .admit(CheckedCallOutSitePlanV1::from_test(
             site,
-            CheckedCallOutEntryIdV1(17),
+            CheckedCallOutEntryIdV1::from_test(17),
             CheckedCallOutNormalShapeV1::ImmediateI64,
             EffectMask::READ,
             ModuleInvocationBrandV1::legacy_test(),
@@ -61,10 +61,10 @@ fn test_function_with_site(with_projection: bool) -> (MirFunction, CheckedCallOu
 #[test]
 fn plan_json_roundtrip_preserves_site_shape_and_stamp() {
     let plan = CheckedCallOutSitePlanV1::from_test(
-        CheckedCallOutSiteIdV1(6),
-        CheckedCallOutEntryIdV1(17),
+        CheckedCallOutSiteIdV1::from_test(6),
+        CheckedCallOutEntryIdV1::from_test(17),
         CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-            lease_slot: CheckedCallOutLeaseSlotIdV1(1),
+            lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(1),
         },
         EffectMask::READ,
         ModuleInvocationBrandV1::legacy_test(),
@@ -81,8 +81,8 @@ fn plan_json_roundtrip_preserves_site_shape_and_stamp() {
 #[test]
 fn plan_json_roundtrip_preserves_foreign_domain_and_rejects_zero_parts() {
     let plan = CheckedCallOutSitePlanV1::from_test(
-        CheckedCallOutSiteIdV1(8),
-        CheckedCallOutEntryIdV1(19),
+        CheckedCallOutSiteIdV1::from_test(8),
+        CheckedCallOutEntryIdV1::from_test(19),
         CheckedCallOutNormalShapeV1::ImmediateI64,
         EffectMask::READ,
         ModuleInvocationBrandV1::test_with_parts(7, 3),
@@ -102,8 +102,8 @@ fn plan_json_roundtrip_preserves_foreign_domain_and_rejects_zero_parts() {
 #[test]
 fn duplicate_site_and_wrong_effect_are_rejected() {
     let plan = CheckedCallOutSitePlanV1::from_test(
-        CheckedCallOutSiteIdV1(7),
-        CheckedCallOutEntryIdV1(18),
+        CheckedCallOutSiteIdV1::from_test(7),
+        CheckedCallOutEntryIdV1::from_test(18),
         CheckedCallOutNormalShapeV1::ImmediateI64,
         EffectMask::READ,
         ModuleInvocationBrandV1::legacy_test(),
@@ -116,10 +116,10 @@ fn duplicate_site_and_wrong_effect_are_rejected() {
     ));
     assert!(matches!(
         table
-            .get(CheckedCallOutSiteIdV1(7))
+            .get(CheckedCallOutSiteIdV1::from_test(7))
             .unwrap()
             .validate_instruction(
-                CheckedCallOutSiteIdV1(7),
+                CheckedCallOutSiteIdV1::from_test(7),
                 BasicBlockId::new(1),
                 BasicBlockId::new(2),
                 EffectMask::WRITE,
@@ -131,7 +131,7 @@ fn duplicate_site_and_wrong_effect_are_rejected() {
 #[test]
 fn non_aot_backends_reject_checked_callout_by_name() {
     let term = MirInstruction::CheckedCallOut {
-        site_id: CheckedCallOutSiteIdV1(1),
+        site_id: CheckedCallOutSiteIdV1::from_test(1),
         receiver: ValueId::new(0),
         arguments: vec![],
         normal_landing: BasicBlockId::new(1),
@@ -161,9 +161,8 @@ fn function_census_rejects_orphan_projection_and_late_predecessor() {
     let (function, plans) = test_function_with_site(false);
     assert!(matches!(
         plans.verify_function(&function),
-        Err(CheckedCallOutFunctionRejectV1::OrphanProjection(
-            CheckedCallOutSiteIdV1(6)
-        ))
+        Err(CheckedCallOutFunctionRejectV1::OrphanProjection(site))
+            if site.as_u32() == 6
     ));
 
     let (mut function, plans) = test_function_with_site(true);
@@ -173,9 +172,8 @@ fn function_census_rejects_orphan_projection_and_late_predecessor() {
         .add_predecessor(BasicBlockId::new(9));
     assert!(matches!(
         plans.verify_function(&function),
-        Err(CheckedCallOutFunctionRejectV1::LandingPredecessorMismatch(
-            CheckedCallOutSiteIdV1(6)
-        ))
+        Err(CheckedCallOutFunctionRejectV1::LandingPredecessorMismatch(site))
+            if site.as_u32() == 6
     ));
 }
 
@@ -183,16 +181,16 @@ fn function_census_rejects_orphan_projection_and_late_predecessor() {
 fn admitted_text_scan_pair_is_typed_and_move_only() {
     let pair = CheckedCallOutSitePlanPairV1::from_admitted(
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(1),
+            entry: CheckedCallOutEntryIdV1::from_test(1),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(0),
             },
             effects: EffectMask::READ,
         },
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(2),
+            entry: CheckedCallOutEntryIdV1::from_test(2),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::ImmediateI64,
@@ -202,8 +200,8 @@ fn admitted_text_scan_pair_is_typed_and_move_only() {
     )
     .expect("exact TextScan pair");
     pair.consume(|i6, i7| {
-        assert_eq!(i6.site_id(), CheckedCallOutSiteIdV1(0));
-        assert_eq!(i7.site_id(), CheckedCallOutSiteIdV1(1));
+        assert_eq!(i6.site_id(), CheckedCallOutSiteIdV1::from_test(0));
+        assert_eq!(i7.site_id(), CheckedCallOutSiteIdV1::from_test(1));
         assert!(matches!(
             i6.normal_shape(),
             CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. }
@@ -219,20 +217,20 @@ fn admitted_text_scan_pair_is_typed_and_move_only() {
 fn admitted_text_scan_pair_rejects_wrong_i7_shape() {
     let error = CheckedCallOutSitePlanPairV1::from_admitted(
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(1),
+            entry: CheckedCallOutEntryIdV1::from_test(1),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: CheckedCallOutLeaseSlotIdV1(0),
+                lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(0),
             },
             effects: EffectMask::READ,
         },
         CheckedCallOutAdmittedSiteInputV1 {
-            entry: CheckedCallOutEntryIdV1(2),
+            entry: CheckedCallOutEntryIdV1::from_test(2),
             call_abi_revision: 1,
             wire_revision: 2,
             normal_shape: CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
-                lease_slot: CheckedCallOutLeaseSlotIdV1(1),
+                lease_slot: CheckedCallOutLeaseSlotIdV1::from_test(1),
             },
             effects: EffectMask::READ,
         },
