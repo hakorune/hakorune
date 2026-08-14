@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, and GUARD-PUBLIC-ENTRY-CUT-R0 are closed with named parent-baseline reds; the next row is GUARD-FAMILY-MANIFEST-MIGRATION-R0, with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, and GUARD-PUBLIC-ENTRY-CUT-R0 are closed with named parent-baseline reds; family-manifest migration is retained as NoSafeSlice and the next design row is GUARD-QUICK-PROFILE-RECUT-R0, with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -761,7 +761,7 @@ Non-claims: no script move/delete, manifest semantics change, new guard,
 compiler change, fallback, archive publication, or llvmlite retirement.
 ```
 
-#### GUARD-FAMILY-MANIFEST-MIGRATION-R0 (queued design)
+#### GUARD-FAMILY-MANIFEST-MIGRATION-R0 (NoSafeSlice; parked)
 
 ```text
 Decision: migrate only manifest-backed families through the existing generic
@@ -798,6 +798,35 @@ failure, two have stale README/owner evidence, two have missing manifest IDs,
 and the ID-brand row has the stale next-row status.  The family migration is
 therefore retained as a design boundary, not silently converted into chmod or
 manifest repair work.
+
+```text
+Decision: retain all six candidates as unknown_retain with a NoSafeSlice reason;
+do not add a seventh manifest disposition.
+Source authority + canonical issuer: existing guard_rows/proof_apps manifests
+and their generic runners; inventory only observes their closure.
+Non-authority: executable bits, filename prefixes, grep counts, or stale prose.
+Fail-fast boundary: child-mode, owner/README, manifest-ID, or next-row drift
+blocks candidate admission and keeps the family retained.
+Smallest next slice: park this family and enter QUICK-PROFILE-RECUT-R0 design.
+Non-claims: no chmod, wrapper move/delete, manifest repair, compiler change,
+fallback, archive publication, or production cutover.
+```
+
+#### GUARD-QUICK-PROFILE-RECUT-R0 (next design stop)
+
+```text
+Decision: expose named groups over the existing dev_gate quick steps without
+changing command order, behavior, selected gates, or failure signals.
+Source authority + canonical issuer: dev_gate.sh and its existing quick-step
+list/group runner; manifests and proof profiles remain the data owners.
+Non-authority: the human index, grep counts, wrapper names, or a new guard file.
+Fail-fast boundary: missing/duplicate group, changed command/profile, or absent
+selected/current-state gate blocks the recut and preserves the current profile.
+Smallest next slice: map 66 quick steps into roughly 10--15 named groups and
+record before/after entry, timing, and failure-signal parity.
+Non-claims: no script deletion, compiler change, fallback, archive, llvmlite
+retirement, or production cutover.
+```
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;

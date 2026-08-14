@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Selected suites/guards and clean integration evidence at 145921e7d5 are green; completion and generic legacy reds reproduce at the parent baseline. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Live cutover and G3 remain parked; the next row is family-manifest migration."
+status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Selected suites/guards and clean integration evidence at 145921e7d5 are green; completion and generic legacy reds reproduce at the parent baseline. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Family-manifest migration has no safe candidate at the current tree and remains retained; the next design row is quick-profile recut. Live cutover and G3 remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, guard-surface D0 inventory classification, and the public index cut are closed. The next fast row is GUARD-FAMILY-MANIFEST-MIGRATION-R0; source-fact/header and callout/lease hardening, G3 archive work, and live cutover remain parked."
-work_mode = "fast"
-current_execution_row = "GUARD-FAMILY-MANIFEST-MIGRATION-R0"
-current_blocker_token = "GUARD-FAMILY-MANIFEST-MIGRATION-R0: classify manifest-backed wrapper families and route them through existing generic runners without deleting scripts or changing behavior; unknown owners remain retained, and compiler edit, fallback, archive movement, or live cutover are forbidden."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, guard-surface D0 inventory classification, and the public index cut are closed. GUARD-FAMILY-MANIFEST-MIGRATION-R0 is retained as NoSafeSlice because all six executable candidates fail dependency/owner/manifest/semantic closure; the accepted next design row is GUARD-QUICK-PROFILE-RECUT-R0. Source-fact/header and callout/lease hardening, G3 archive work, and live cutover remain parked."
+work_mode = "design_stop"
+current_execution_row = "GUARD-QUICK-PROFILE-RECUT-R0"
+current_blocker_token = "GUARD-QUICK-PROFILE-RECUT-R0: design a 10-15 group view over the existing dev_gate quick steps without changing command order, behavior, selected authority checks, or failure signals; no script deletion, compiler edit, fallback, archive movement, or live cutover."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Worker/pro findings are normalized into one shallow selected-dynamic repair DAG with no new per-finding cards or guard files. Mode/lexical/linear-slot fences, post-seal mutation/strict verification/runner reachability barriers, B3 path-bound bundle fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity, clean detached integration evidence, guard-surface inventory, and the 19-entry human index cut are closed; the current row is GUARD-FAMILY-MANIFEST-MIGRATION-R0. Completion and generic legacy corpus reds are named parent-baseline debt, not selected-route evidence. PyVM remains retired, grouped P1 hardening and G3 archive/deletion stay parked. Selected production remains 0/old=1."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "GUARD-FAMILY-MANIFEST-MIGRATION-R0"
-next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+latest_card_summary = "Worker/pro findings are normalized into one shallow selected-dynamic repair DAG with no new per-finding cards or guard files. Mode/lexical/linear-slot fences, post-seal mutation/strict verification/runner reachability barriers, B3 path-bound bundle fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity, clean detached integration evidence, guard-surface inventory, and the 19-entry human index cut are closed. All six executable family-manifest candidates fail closure and remain unknown_retain/NoSafeSlice; the design-stop row is GUARD-QUICK-PROFILE-RECUT-R0. Completion and generic legacy corpus reds are named parent-baseline debt, not selected-route evidence. PyVM remains retired, grouped P1 hardening and G3 archive/deletion stay parked. Selected production remains 0/old=1."
+next_design_card = "GUARD-QUICK-PROFILE-RECUT-R0"
+next_design_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
