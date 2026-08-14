@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: design-review the existing DYN-SOURCE-FACT-ISSUER-ONCE-R0 P1 row; no implementation is authorized until its one-source issuer and consuming owner are fixed.
+Smallest next slice: design-review the existing DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0 P1 row; no implementation is authorized until its catalog-owned header projection is fixed.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -930,9 +930,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 5. `DYN-W6-SHELL-RETIRE-R0`
    - move the live artifact fence to a stable owner;
    - delete or test-gate old prepared W6 aggregates only after caller zero.
-6. `DYN-SOURCE-FACT-ISSUER-ONCE-R0` (accepted BoxShape implementation)
-   - package admission is the sole `VerifiedSourceBackedDynamicCallableV1`
-     issuer; call-row derivation borrows that product instead of reissuing it.
+6. `DYN-SOURCE-FACT-ISSUER-ONCE-R0` (closed 2026-08-14 BoxShape)
+   - package admission and route-neutral catalog/fixture owners issue once;
+     call-row derivation borrows the exact product and rejects foreign owner
+     before ledger traversal; focused coseal tests, batch guard, and check pass.
 7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0`
    - carry one private catalog-owned header projection into A-prime;
    - remove raw AST name/parameter/return/attrs/uses re-observation.

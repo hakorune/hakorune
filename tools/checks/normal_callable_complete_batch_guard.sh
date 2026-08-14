@@ -174,6 +174,50 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "issue_source_bound_dynamic_member_calls_v1" "$DYNAMIC_TARGET" \
   "route-neutral Dynamic source relation issuer is missing"
+
+python3 - "$DYNAMIC_TARGET" "$ROOT_DIR/src/mir" <<'PY'
+import pathlib
+import re
+import sys
+
+target = pathlib.Path(sys.argv[1])
+mir_root = pathlib.Path(sys.argv[2])
+text = target.read_text()
+signature = re.search(
+    r"pub\(crate\) fn issue_source_bound_dynamic_member_calls_v1\(.*?\n\}",
+    text,
+    re.S,
+)
+if signature is None or "dynamic: &VerifiedSourceBackedDynamicCallableV1" not in signature.group(0):
+    raise SystemExit("Dynamic relation issuer must borrow the verified source product")
+
+body_start = text.index("pub(crate) fn issue_source_bound_dynamic_member_calls_v1")
+brace = text.index("{", body_start)
+depth = 0
+body_end = None
+for index in range(brace, len(text)):
+    if text[index] == "{":
+        depth += 1
+    elif text[index] == "}":
+        depth -= 1
+        if depth == 0:
+            body_end = index + 1
+            break
+if body_end is None:
+    raise SystemExit("Dynamic relation issuer body is not parseable")
+body = text[body_start:body_end]
+if "issue_source_backed_dynamic_callable_v1" in body:
+    raise SystemExit("Dynamic relation issuer must not reissue source-backed Facts")
+if "dynamic.owner() != owner" not in body:
+    raise SystemExit("Dynamic relation issuer must reject a foreign source owner first")
+
+needle = "issue_source_bound_dynamic_member_calls_v1("
+occurrences = sum(path.read_text().count(needle) for path in mir_root.rglob("*.rs"))
+if occurrences != 4:
+    raise SystemExit(f"Dynamic relation issuer definition/caller census drift: {occurrences}")
+print("dynamic_source_fact_borrow=1 relation_reissue=0 caller_census=4")
+PY
+
 guard_expect_fixed_in_file "$TAG" \
   "target: VerifiedSourceBoundDynamicMemberCallV1" "$DYNAMIC_CALLS" \
   "CallSlot relation must retain the exact source-bound target"

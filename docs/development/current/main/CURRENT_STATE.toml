@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Selected suites/guards and clean integration evidence at 145921e7d5 are green; completion and generic legacy reds reproduce at the parent baseline. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Family-manifest migration and historical retirement have no safe candidate and remain retained; GUARD-QUICK-PROFILE-RECUT-R0, GUARD-SURFACE-CLOSEOUT-R0, and the first line-budget facade split are closed with source-backed counts. DYN-SOURCE-FACT-ISSUER-ONCE-R0 is the bounded implementation row; live cutover and G3 remain parked."
+status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Selected suites/guards and clean integration evidence at 145921e7d5 are green; completion and generic legacy reds reproduce at the parent baseline. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Family-manifest migration and historical retirement have no safe candidate and remain retained; GUARD-QUICK-PROFILE-RECUT-R0, GUARD-SURFACE-CLOSEOUT-R0, the first line-budget facade split, and DYN-SOURCE-FACT-ISSUER-ONCE-R0 are closed with source-backed counts. Live cutover and G3 remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, guard-surface D0 inventory classification, the public index cut, GUARD-QUICK-PROFILE-RECUT-R0, GUARD-SURFACE-CLOSEOUT-R0, and MIRBUILDER-LINE-BUDGET-CENSUS-R0 are closed. GUARD-FAMILY-MANIFEST-MIGRATION-R0 and GUARD-HISTORICAL-RETIRE-R0 remain NoSafeSlice. DYN-SOURCE-FACT-ISSUER-ONCE-R0 is accepted as a behavior-preserving source-product borrow; source-fact/header and callout/lease hardening, G3 archive work, and live cutover remain parked."
-work_mode = "fast"
-current_execution_row = "DYN-SOURCE-FACT-ISSUER-ONCE-R0"
-current_blocker_token = "DYN-SOURCE-FACT-ISSUER-ONCE-R0: pass the one package-owned VerifiedSourceBackedDynamicCallableV1 by borrow into call-row derivation, preserving the existing issuer, call relations, and all route-neutral callers; no new receipt, fallback, archive movement, deletion, or live cutover."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, guard-surface D0 inventory classification, the public index cut, GUARD-QUICK-PROFILE-RECUT-R0, GUARD-SURFACE-CLOSEOUT-R0, MIRBUILDER-LINE-BUDGET-CENSUS-R0, and DYN-SOURCE-FACT-ISSUER-ONCE-R0 are closed. GUARD-FAMILY-MANIFEST-MIGRATION-R0 and GUARD-HISTORICAL-RETIRE-R0 remain NoSafeSlice. The next design stop is the existing DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0 P1 row; callout/lease hardening, G3 archive work, and live cutover remain parked."
+work_mode = "design_stop"
+current_execution_row = "DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0"
+current_blocker_token = "DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0: perform the six-line authority/consumer audit for one catalog-owned physical header projection before implementation; no raw AST re-observation, fallback, archive movement, deletion, or live cutover."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -30,9 +30,9 @@ g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 latest_card_summary = "Worker/pro findings are normalized into one shallow selected-dynamic repair DAG with no new per-finding cards or guard files. Mode/lexical/linear-slot fences, post-seal mutation/strict verification/runner reachability barriers, B3 path-bound bundle fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity, clean detached integration evidence, guard-surface inventory, the 19-entry human index cut, the quick-profile BoxShape, source-backed closeout counts, and the first line-budget facade split are closed. All six executable family-manifest candidates and all historical-retire candidates fail closure and remain retained/NoSafeSlice. Completion and generic legacy corpus reds are named parent-baseline debt, not selected-route evidence. PyVM remains retired, grouped P1 hardening and G3 archive/deletion stay parked. Selected production remains 0/old=1."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "DYN-SOURCE-FACT-ISSUER-ONCE-R0"
+next_design_card = "DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0"
+next_design_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

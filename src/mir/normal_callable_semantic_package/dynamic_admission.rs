@@ -96,7 +96,7 @@ pub(super) fn admit_dynamic_callable_v1(
     // reissuing it from the resolved AST a second time.
     let source_backed = issue_source_backed_dynamic_callable_v1(input)
         .map_err(DynamicCallableAdmissionIssueV1::SourceBacked)?;
-    let calls = issue_source_bound_dynamic_member_calls_v1(input)
+    let calls = issue_source_bound_dynamic_member_calls_v1(input, &source_backed)
         .map_err(DynamicCallableAdmissionIssueV1::Calls)?;
     Ok(DynamicCallableAdmissionV1::Candidate {
         owner,
