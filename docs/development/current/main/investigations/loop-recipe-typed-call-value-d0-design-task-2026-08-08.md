@@ -1,5 +1,5 @@
 ---
-Status: Recipe I0 and product-first JOINIR row façade R0 landed; logical output is the next design stop
+Status: S6C Recipe I0 and product-first row façade R0 landed; logical JOINIR input façade accepted for bounded implementation
 Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -17,41 +17,41 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, fixed source-bound relation, Exit/Tail co-seal, Facts I0, and Recipe
   I0 are closed. The product and selector remain caller-zero.
-- **Next ordered task:** design the neutral logical JOINIR output boundary
-  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0`; no JoinModule/MIR handoff is allowed.
+- **Next ordered task:** implement the bounded borrow-only logical JOINIR input
+  façade `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0`; no JoinModule/MIR handoff is
+  allowed.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
   update the reference contract in that same implementation commit; legacy
   scan facts/builders remain until an explicit cutover row deletes them.
 
-## Landed JOINIR product-first row façade R0 — 2026-08-15
+## Accepted logical JOINIR input façade — 2026-08-15
 
 ```text
-Decision: use a private product-first S6C consumer seam; the current
-MIR/name/fallback `LoopToJoinLowerer::lower` remains non-consumer. The landed
-combined product is the only input authority.
-Source authority + canonical issuer: Facts owns source truth; the Recipe
-producer owns V2 keys/role seal; the existing V2 issuer owns Join/After; only
-`VerifiedS6CScanWithInitRecipeProductV2::with_product` lends the combined view.
+Decision: use a private product-first S6C logical JOINIR input façade; the
+current MIR/name/fallback `LoopToJoinLowerer::lower` remains non-consumer.
+Source authority + canonical issuer: the combined non-Clone Recipe product;
+only `with_product` lends Facts, fixed Recipe rows, source-bound call parity,
+and the existing logical transfer view.
 Non-authority: Recipe-only/raw Recipe/JoinSig, AST/name/order/MIR lookup,
-LoopViewBuilder dispatch, Artifact claims, physical IDs, selector, fallback,
+JoinModule/JoinValueSpace, Artifact claims, physical IDs, selector, fallback,
 retry, or production callers.
-Fail-fast boundary: product-only input, exact role/domain coverage, typed
-CallSlot receiver/args/Home/effect parity, and Join branch/After/Return/Tail
-separation are checked before any logical handoff.
-Smallest next slice: design neutral logical JOINIR output from this typed row
-view at the future LoopToJoinLowerer product seam; current MIR/name/fallback
-`lower` remains non-consumer.
-Non-claims: no Artifact/provenance, selector, Builder/MIR, physical IDs,
-backend, production caller, fallback/retry, or legacy retirement.
+Fail-fast boundary: exact domains (Loop 1, Block 3, Binding 1, Input 3,
+Value 15, Item 15, Carrier 1, Exit 1); length `V0,[],V4`, substring
+`V0,[V6,V8],V9`; TextEq `I8/V10`; one branch/Return summary/Backedge; After
+`L0/B0/I64`; callable Tail `-1` remains outside the Recipe/Join view.
+Smallest next slice: implement `s6c_scan_with_init_joinir.rs` with one private
+HRTB `S6CScanWithInitLogicalJoinInputRefV1` façade and focused parity negatives.
+Non-claims: no new semantic product/key, JoinModule, MIR lowering, physical
+layout, Artifact/provenance, selector, backend, production caller, fallback,
+retry, or legacy retirement.
 ```
 
-The R0 implementation is landed in `s6c_scan_with_init_rows.rs`. It lends only
-fixed-role operation/value/block/loop/carrier/If/Exit rows through the combined
-product; no raw Recipe getter, arbitrary-key iterator, JoinModule/MIR output,
-or new semantic product exists. Producer/row tests and Loop/Join/pointer guards
-are green. The next stop is only the neutral logical JOINIR output choice.
+The row façade is landed in `s6c_scan_with_init_rows.rs`. The next bounded
+implementation must add only the JOINIR-specific private input façade, keep the
+existing `JoinModule`/MIR lowerers untouched, and perform call/transfer parity
+inside the combined-product borrow. No owned output product is introduced.
 
 ## Landed Recipe I0 implementation receipt — 2026-08-15
 
@@ -733,49 +733,14 @@ method-name lookup, an opaque result, If-specific schema reuse, guessed item
 counts, AST reconstruction, or a route-local adapter. Return to this design
 boundary and close the missing authority first.
 
-## Decision revision — 2026-08-08: typed V2 schema row is closed
+## Historical schema receipt — 2026-08-08
 
-The worker audits are integrated into one boundary decision:
-
-```text
-LoopRecipeV2 wire
-  -> CoreMethod-manifest instance-call target capability
-  -> source-bound call relation / verifier
-```
-
-These are three different products and three different rows. The wire never
-contains a method name, Box name, resolver capability, ABI profile, Home
-relation, effect set, MIR identity, physical ID, or runtime lookup string.
-
-The first bounded implementation row is therefore:
-
-```text
-LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0
-```
-
-It owns only the profile-neutral schema/artifact types and a structural
-verifier for the new typed vocabulary. It may add:
-
-```text
-LoopRecipeArtifactV2
-LoopRecipeV2
-LoopValueClassV2::{I64, Bool, Unit, Text}
-LoopOperationV2::CallSlot { receiver, args, result }
-LoopOperationV2::TextEq { left, right, result }
-```
-
-`CallSlot` is a Recipe-local logical operation. The first cohort's admission
-will later require a receiver and a result, but the wire keeps the receiver
-and result optional so that the schema does not encode resolver policy. The
-schema row does not admit static/resultless calls, because no target issuer or
-source relation exists yet; those are later policy rows.
-
-The structural verifier checks only canonical keys, referenced values, typed
-operation domains, duplicate definitions, and schema version. It does not
-claim source existence, callable target resolution, Home/effect/ABI validity,
-Builder/MIR/CFG/PHI lowering, Loop/Tail/Completion integration, or physical
-activation. `Text` is a logical value class only; representation and ownership
-remain source-bound contracts.
+The typed V2 schema, structural verifier, CoreMethod target capability, and
+source-bound call relation are already landed predecessor rows. They remain
+separate authorities: the wire owns canonical keys/value classes, the target
+issuer owns Home/effect/ABI, and the source relation owns receiver/argument
+provenance. The current JOINIR façade must borrow those sealed products and
+must not reopen or reissue any of them.
 
 ## Parked cleanup queue (not current)
 

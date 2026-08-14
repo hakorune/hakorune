@@ -329,12 +329,14 @@ closed.
 
 The product-first JOINIR row façade R0 is now landed as a separate private view. Its
 `recipe_rows()` projection exposes only typed operation/value/block/loop/
-carrier/If/Exit rows selected through the fixed role accessors. It does not
-lend the raw Recipe, accept arbitrary key iteration, emit `JoinModule`/MIR, or
-choose a route. The future `LoopToJoinLowerer` product seam is reserved, while
-its current MIR/name/fallback `lower` remains a compatibility non-consumer.
-Focused S6C row-facade assertions are green; the next logical output selection,
-Artifact/source binding, and production callers remain closed.
+carrier/If/Exit rows selected through the fixed role accessors. The next bounded
+row is a private HRTB logical JOINIR input façade over the combined product. It
+must co-check the length/substring CallSlot rows with their source-bound
+receiver/args/result contracts and the existing logical transfer view. It must
+not lend the raw Recipe, accept arbitrary key iteration, emit `JoinModule`/MIR,
+or choose a route. The current `LoopToJoinLowerer` MIR/name/fallback `lower`
+remains a compatibility non-consumer; Artifact/source binding and production
+callers remain closed.
 
 ## Generic G0 S4 producer
 

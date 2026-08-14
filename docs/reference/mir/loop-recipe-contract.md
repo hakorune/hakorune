@@ -125,13 +125,14 @@ After=`L0/B0/I64`, one branch `I8/V10`, then Return `I10` to FunctionExit,
 else Fallthrough, one Return summary, and one Backedge. Focused product and
 facade tests pass. Physical selection and production callers remain closed.
 
-The landed product-first handoff is the private S6C row façade R0. `recipe_rows()`
-borrows typed operation, value, block, loop, carrier, If, and Exit rows through
-the fixed role seal only. It does not expose raw Recipe/JoinSig, arbitrary key
-iteration, JoinModule/MIR, physical IDs, route selection, fallback, or retry.
-The existing MIR/name/fallback `LoopToJoinLowerer::lower` remains a
-compatibility non-consumer; only its future product-first seam is reserved.
-Logical output selection remains a separate design boundary.
+The landed product-first handoff is the private S6C row façade R0. The next
+bounded implementation is the borrow-only
+`S6CScanWithInitLogicalJoinInputRefV1` façade, issued only inside the combined
+product callback. It co-checks the fixed Recipe rows, source-bound length/
+substring CallSlot receiver/args/result parity, and the existing logical
+transfer view. It emits no owned semantic product, JoinModule/MIR, physical
+IDs, route selection, fallback, or retry. The existing MIR/name/fallback
+`LoopToJoinLowerer::lower` remains a compatibility non-consumer.
 
 ## Accepted Dynamic value boundary — V2 only
 
