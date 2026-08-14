@@ -132,10 +132,10 @@ call rows, TextEq/If, and Join transfer. The caller-zero logical output
 producer consumes that product once and owns fixed typed rows in
 `VerifiedS6CScanWithInitLogicalOutputV1`; its façade lends rows, one canonical
 role-wise Length/Substring call view paired with retained source contracts,
-and the borrowed transfer only; raw `input()` escape is gone. It emits no
-JoinModule/MIR, Artifact, route, fallback, or production caller. Focused tests
-pass; physical selection remains closed and the consumer result dialect is a
-later design stop. The existing MIR/name/fallback
+and the borrowed transfer only; raw `input()` escape is gone. Its caller-zero
+consumer returns a typed `Consumed` terminal or named reject through a
+fallible HRTB seam. It emits no JoinModule/MIR, Artifact, route, fallback, or
+production caller; physical selection remains closed. The existing MIR/name/fallback
 `LoopToJoinLowerer::lower` remains a compatibility non-consumer.
 
 ## Accepted Dynamic value boundary — V2 only

@@ -19,14 +19,16 @@ mod producer_id;
 pub(crate) mod route_id;
 #[allow(dead_code)]
 mod s6c_scan_with_init;
-// Caller-zero until a later product-first JOINIR consumer is admitted.
+// Caller-zero product-first JOINIR input façade; no physical consumer.
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir;
-// Caller-zero logical output product; no JoinIR/MIR materialization yet.
+// Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output;
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output_rows;
+#[allow(dead_code)]
+mod s6c_scan_with_init_logical_consumer;
 // Typed row façade is currently exercised by focused tests only.
 #[allow(dead_code)]
 mod s6c_scan_with_init_rows;
@@ -216,6 +218,11 @@ pub(crate) use s6c_scan_with_init_joinir_output::{
     issue_s6c_scan_with_init_logical_output_v1, S6CLogicalCallPairsRefV1,
     S6CLogicalCallWithSourceRefV1, S6CScanWithInitLogicalOutputRefV1,
     VerifiedS6CScanWithInitLogicalOutputV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_logical_consumer::{
+    consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
+    S6CLogicalConsumerResultV1,
 };
 #[allow(unused_imports)]
 pub(crate) use schema::{

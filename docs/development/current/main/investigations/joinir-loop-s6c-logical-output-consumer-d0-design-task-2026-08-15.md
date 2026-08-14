@@ -1,5 +1,5 @@
 ---
-Status: accepted-corrected; consumer result dialect remains a later stop
+Status: accepted; consumer I0 is bounded and ready
 Date: 2026-08-15
 Decision: design a product-first logical consumer without opening JoinModule/MIR
 Scope: M8 LoopV0 forward ScanWithInit logical output; caller-zero only
@@ -10,7 +10,7 @@ Scope: M8 LoopV0 forward ScanWithInit logical output; caller-zero only
 ## Six-line brief
 
 ```text
-Decision: keep the S6C logical output product as the only consumer input and define one canonical typed result view.
+Decision: keep the S6C logical output product as the only consumer input and fix one typed Consumed/reject terminal.
 Source authority + canonical issuer: VerifiedS6CScanWithInitLogicalOutputV1 and its private HRTB view.
 Non-authority: raw Recipe/JoinSig, JoinModule/MIR, names, selectors, physical IDs, Artifact, fallback, retry.
 Fail-fast boundary: canonical call-role co-seal, row/domain/transfer drift, and result-shape drift reject before any module or backend effect.
@@ -27,9 +27,8 @@ Recipe-local logical rows and borrows the already sealed source-call and Join
 transfer authorities. It does not create a new key space or materialize
 JoinModule/MIR.
 
-The remaining consumer design must decide only how a future caller-zero
-logical consumer reports a typed, logical result. Before that, the independent
-source-call escape is closed by the bounded
+The remaining consumer work is one bounded caller-zero implementation returning
+the fixed typed terminal. The independent source-call escape is closed by the bounded
 `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0` BoxShape. It must not accept a
 Recipe-only or JoinSig-only input, and it must not use the compatibility
 `LoopToJoinLowerer` as a semantic oracle.
@@ -43,11 +42,14 @@ raw `input()` escape and adds one private role-wise call view that co-seals the
 `calls` array remains only as logical row storage; consumers use the paired
 view.
 
-The consumer result dialect is still not fixed. A consumer must return one
-typed logical result or one named terminal reject; `()`/`Option`/legacy
-`JoinModule` are not acceptable authority boundaries. If that result introduces
-new semantic meaning rather than borrowing/verifying the existing product, it
-is a separate BoxCount design stop.
+The consumer result dialect is fixed for I0: a private HRTB façade invokes one
+caller-zero logical consumer and returns
+`Result<S6CLogicalConsumerResultV1, S6CLogicalConsumerRejectV1>`. The result is
+the typed `Consumed` terminal of the already sealed output, not a new
+Facts/Recipe/Join authority; the named reject is fail-fast drift only.
+`()`, `Option`, legacy `JoinModule`, MIR values, and generic unconstrained
+consumer results are not acceptable boundaries. A result that introduces new
+semantic meaning remains a separate BoxCount design stop.
 
 ## Required design checks
 
@@ -61,21 +63,21 @@ is a separate BoxCount design stop.
    ABI, and physical layout.
 4. The callable Tail `return -1` remains Facts/Completion authority and is not
    imported as a loop consumer exit.
-5. The consumer returns a named typed result/reject and has no `Option`
-   fallback, selector, retry, or production
-   route. A later physical consumer requires a separate design stop.
+5. The consumer returns only the named typed
+   `Result<S6CLogicalConsumerResultV1, S6CLogicalConsumerRejectV1>` and has
+   no `Option` fallback, selector, retry, or production route. A later physical
+   consumer requires a separate design stop.
 
 ## Acceptance / negative matrix
 
 ```text
 positive: exact 15 items, one canonical Length/Substring call view, one If/Return,
-          one Backedge, After L0/B0/I64, typed result
+          one Backedge, After L0/B0/I64, typed accepted result
 negative: row omission/duplication, call-role re-pair, wrong class, foreign owner/frame,
           branch/summary/After drift, raw Recipe input, Tail import, fallback,
           untyped/Option result
 ```
 
-The current pointer may enter the bounded call-view R0 first. After R0 closes,
-the pointer returns here for the result-dialect decision; only then may a
-consumer row be implemented without changing source, Facts, Recipe, Join, or
-physical authorities.
+The call-view R0 is closed and this D0 authorizes exactly one bounded I0
+consumer row. The I0 implementation must remain product-first and caller-zero;
+it may not change source, Facts, Recipe, Join, or physical authorities.

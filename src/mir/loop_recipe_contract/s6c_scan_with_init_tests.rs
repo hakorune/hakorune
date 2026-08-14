@@ -15,11 +15,14 @@ use crate::mir::resolved_semantics::{
 use crate::mir::source_call_target::issue_source_bound_s6c_call_relation_v1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
-use super::issue_s6c_scan_with_init_logical_output_v1;
 use super::produce_s6c_scan_with_init_recipe_v2;
 use super::s6c_scan_with_init_joinir::with_s6c_scan_with_init_logical_join_input;
 use super::s6c_scan_with_init_rows::{
     S6CRecipeExitRowRefV2, S6CRecipeIfRowRefV2, S6CRecipeOperationRowRefV2,
+};
+use super::{
+    consume_s6c_scan_with_init_logical_output_v1, issue_s6c_scan_with_init_logical_output_v1,
+    S6CLogicalConsumerResultV1,
 };
 
 const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
@@ -176,28 +179,45 @@ fn logical_output_product_owns_fixed_rows_and_borrows_join_transfer() {
             .expect("exact S6C Recipe product"),
     )
     .expect("logical output rows");
-    output.with_output(|view| {
-        assert_eq!(view.rows().values().len(), 15);
-        assert_eq!(view.rows().blocks().len(), 3);
-        assert_eq!(view.rows().items().len(), 15);
-        assert_eq!(view.calls().len(), 2);
-        assert_eq!(
-            view.calls().length().role(),
-            super::S6CLogicalCallRoleV1::Length
-        );
-        assert_eq!(
-            view.calls().substring().role(),
-            super::S6CLogicalCallRoleV1::Substring
-        );
-        assert_eq!(
-            view.calls().length().source().operation(),
-            CoreMethodOp::StringLen
-        );
-        assert_eq!(
-            view.calls().substring().source().operation(),
-            CoreMethodOp::StringSubstring
-        );
-        assert_eq!(view.logical_transfer().branches().len(), 1);
-        assert_eq!(view.logical_transfer().summary_transfers().len(), 1);
-    });
+    output
+        .try_with_output(|view| {
+            assert!(view.domains().is_exact_s6c());
+            assert_eq!(view.rows().values().len(), 15);
+            assert_eq!(view.rows().blocks().len(), 3);
+            assert_eq!(view.rows().items().len(), 15);
+            assert_eq!(view.calls().len(), 2);
+            assert_eq!(
+                view.calls().length().role(),
+                super::S6CLogicalCallRoleV1::Length
+            );
+            assert_eq!(
+                view.calls().substring().role(),
+                super::S6CLogicalCallRoleV1::Substring
+            );
+            assert_eq!(
+                view.calls().length().source().operation(),
+                CoreMethodOp::StringLen
+            );
+            assert_eq!(
+                view.calls().substring().source().operation(),
+                CoreMethodOp::StringSubstring
+            );
+            assert_eq!(view.logical_transfer().branches().len(), 1);
+            assert_eq!(view.logical_transfer().summary_transfers().len(), 1);
+            Ok(())
+        })
+        .expect("logical output parity");
+}
+
+#[test]
+fn logical_consumer_returns_typed_consumed_terminal() {
+    let output = issue_s6c_scan_with_init_logical_output_v1(
+        produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 904))
+            .expect("exact S6C Recipe product"),
+    )
+    .expect("logical output rows");
+    assert_eq!(
+        consume_s6c_scan_with_init_logical_output_v1(&output),
+        Ok(S6CLogicalConsumerResultV1::Consumed)
+    );
 }

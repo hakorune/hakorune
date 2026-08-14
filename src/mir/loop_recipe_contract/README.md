@@ -180,20 +180,17 @@ foreign owner (`Rejected`). S6B remains Builder-free and caller-zero: no
 physicalizer, completion, selector, retry/fallback, production caller, or
 legacy retirement is opened.
 
-## M8 S6C scans design stop
+## M8 S6C scans design history
 
-Scan source is not yet a portable Recipe cohort. `LoopRecipeV1` currently has
-only numeric operations and `I64`/`Bool`/`Unit` values, while the smallest
-forward `ScanWithInit` shape requires typed text values, resolver-bound calls,
-text comparison, and a distinct callable tail. The legacy scan composers are
-AST-reconstructing compatibility owners and are not reusable source authority.
+The original S6C design stop is historical: `LoopRecipeV1` had only numeric
+operations and `I64`/`Bool`/`Unit` values, while forward `ScanWithInit` required
+typed text values, resolver-bound calls, text comparison, and a distinct tail.
+The legacy scan composers remain AST-reconstructing compatibility owners.
 
-The typed call/value architecture is now accepted, but implementation starts
-with the behavior-neutral `LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` row because
-`operation_physical_demand.rs` is 781 lines and `verify.rs` is 725 lines. No
-schema growth is allowed until the responsibility split leaves every changed
-Rust source file below the 760-line design trigger. This is BoxShape-only and
-must not add an operation, value class, fixture, selector, or physical route.
+The typed call/value architecture and caller-zero S6C Facts/Recipe/logical
+consumer are now landed through the current I0. The behavior-neutral split
+kept the 760-line design trigger; no physical route, selector, or production
+caller is opened here.
 
 The later typed cohort uses an explicit `LoopRecipeV2` boundary with logical
 `I64|Bool|Unit|Text`, a Recipe-local CallSlot, and `TextEq(Text, Text) -> Bool`.
@@ -330,12 +327,12 @@ closed.
 The product-first JOINIR input façade is now landed in
 `s6c_scan_with_init_joinir.rs` as the private HRTB
 `S6CScanWithInitLogicalJoinInputRefV1`; it co-checks exact Recipe domains, call rows, TextEq/If, and Join transfer.
-The caller-zero logical output
-producer now consumes the retained product once and owns fixed typed rows in
-`VerifiedS6CScanWithInitLogicalOutputV1`; its façade lends rows, one canonical
-role-wise Length/Substring call view paired with retained source contracts,
-and the borrowed transfer only; raw `input()` escape is gone. It emits no
-JoinModule/MIR, Artifact, route, fallback, or production caller. Focused tests pass; physical selection remains closed and the consumer result dialect is a later design stop.
+The caller-zero logical output producer consumes the retained product once and
+owns fixed typed rows in `VerifiedS6CScanWithInitLogicalOutputV1`; its façade
+lends rows, one canonical role-wise Length/Substring call view paired with
+retained source contracts, and the borrowed transfer only; raw `input()` escape
+is gone. Its caller-zero consumer now returns a typed `Consumed` terminal or named reject through a fallible HRTB seam. It emits no JoinModule/MIR, Artifact, route, fallback, or
+production caller; physical selection remains closed.
 
 ## Generic G0 S4 producer
 

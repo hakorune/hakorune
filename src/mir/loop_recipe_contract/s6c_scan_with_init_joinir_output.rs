@@ -21,28 +21,37 @@ pub(crate) struct VerifiedS6CScanWithInitLogicalOutputV1 {
 }
 
 impl VerifiedS6CScanWithInitLogicalOutputV1 {
-    pub(crate) fn with_output<R>(
+    pub(crate) fn try_with_output<R>(
         &self,
         callback: impl for<'rows, 'product> FnOnce(
             S6CScanWithInitLogicalOutputRefV1<'rows, 'product>,
-        ) -> R,
-    ) -> R {
+        ) -> Result<R, S6CLogicalOutputRejectV1>,
+    ) -> Result<R, S6CLogicalOutputRejectV1> {
         with_s6c_scan_with_init_logical_join_input(&self.product, |input| {
+            let calls = self.rows.calls();
+            if calls.len() != 2 {
+                return Err(S6CLogicalOutputRejectV1::Call("call pair count"));
+            }
+            let Some(length_row) = calls.first() else {
+                return Err(S6CLogicalOutputRejectV1::Call("Length call row"));
+            };
+            let Some(substring_row) = calls.get(1) else {
+                return Err(S6CLogicalOutputRejectV1::Call("Substring call row"));
+            };
+            if length_row.role() != S6CLogicalCallRoleV1::Length
+                || substring_row.role() != S6CLogicalCallRoleV1::Substring
+                || input.length().role() != S6CLogicalCallRoleV1::Length
+                || input.substring().role() != S6CLogicalCallRoleV1::Substring
+            {
+                return Err(S6CLogicalOutputRejectV1::Call("call role parity"));
+            }
             let calls = S6CLogicalCallPairsRefV1 {
                 length: S6CLogicalCallWithSourceRefV1 {
-                    row: *self
-                        .rows
-                        .calls()
-                        .first()
-                        .expect("verified S6C Length call row"),
+                    row: *length_row,
                     source: input.length(),
                 },
                 substring: S6CLogicalCallWithSourceRefV1 {
-                    row: *self
-                        .rows
-                        .calls()
-                        .get(1)
-                        .expect("verified S6C Substring call row"),
+                    row: *substring_row,
                     source: input.substring(),
                 },
             };
@@ -50,9 +59,19 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
                 rows: &self.rows,
                 calls,
                 transfer: input.logical_transfer(),
+                domains: S6CLogicalOutputDomainCountsV1 {
+                    loops: input.rows().loop_count(),
+                    blocks: input.rows().block_count(),
+                    bindings: input.rows().binding_count(),
+                    inputs: input.rows().input_count(),
+                    values: input.rows().value_count(),
+                    items: input.rows().item_count(),
+                    carriers: input.rows().carrier_count(),
+                    exits: input.rows().exit_count(),
+                },
             })
         })
-        .expect("verified S6C logical output parity")
+        .map_err(|_| S6CLogicalOutputRejectV1::Control("logical input"))?
     }
 }
 
@@ -61,6 +80,7 @@ pub(crate) struct S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
     rows: &'rows S6CLogicalOutputRowsV1,
     calls: S6CLogicalCallPairsRefV1<'product>,
     transfer: &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product>,
+    domains: S6CLogicalOutputDomainCountsV1,
 }
 
 impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
@@ -76,6 +96,58 @@ impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
         self,
     ) -> &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product> {
         self.transfer
+    }
+
+    pub(crate) const fn domains(self) -> S6CLogicalOutputDomainCountsV1 {
+        self.domains
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct S6CLogicalOutputDomainCountsV1 {
+    loops: usize,
+    blocks: usize,
+    bindings: usize,
+    inputs: usize,
+    values: usize,
+    items: usize,
+    carriers: usize,
+    exits: usize,
+}
+
+impl S6CLogicalOutputDomainCountsV1 {
+    pub(crate) const fn is_exact_s6c(self) -> bool {
+        self.loops == 1
+            && self.blocks == 3
+            && self.bindings == 1
+            && self.inputs == 3
+            && self.values == 15
+            && self.items == 15
+            && self.carriers == 1
+            && self.exits == 1
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn from_test(
+        loops: usize,
+        blocks: usize,
+        bindings: usize,
+        inputs: usize,
+        values: usize,
+        items: usize,
+        carriers: usize,
+        exits: usize,
+    ) -> Self {
+        Self {
+            loops,
+            blocks,
+            bindings,
+            inputs,
+            values,
+            items,
+            carriers,
+            exits,
+        }
     }
 }
 
