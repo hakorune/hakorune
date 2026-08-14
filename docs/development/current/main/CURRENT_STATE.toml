@@ -1,6 +1,6 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. Latest HEAD cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; completion remains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red. The product pointer now returns to Loop M8 S6C; Dynamic live cutover and G3 remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. Full integration evidence at cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; subsequent HEAD commits are docs-only S6C design refinements. Completion remains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red. The product pointer now returns to Loop M8 S6C; Dynamic live cutover and G3 remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10 are closed and M8 S6A/S6B are closed. S6C authority census found CoreMethod StringLen/StringSubstring rows but no neutral CoreMethod callable/Home target contract or source-bound site relation, so the next design stop remains NoSafeSlice until that dependency is sealed. The generic user-instance target row stays separate. Selected Dynamic/AOT detour is classified and parked; completion has one parent-baseline red; live cutover/G3 remain parked."
+latest_card_summary = "Loop rows 1--10 are closed and M8 S6A/S6B are closed. S6C remains NoSafeSlice: the D0 now names a separate manifest-backed CoreMethod target, distinct StringBoxText Home schema/brands, exact StringSubstring arity=2 specialization, and a dedicated source-bound catalog; no producer or semantic receipt is issued. The generic user-instance target row stays separate. Selected Dynamic/AOT detour is classified and parked; completion has one parent-baseline red; live cutover/G3 remain parked."
 next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 next_execution_card = "none"
