@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, and B4 executor split are closed; B4 feature recut follows
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; queued P0 hardening is post-seal mutation fencing, strict verification retention, and selected runner reachability
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -573,11 +573,9 @@ llvm-harness
 
 `LLVM-BOUNDARY-EXECUTOR-S0` is closed as a behavior-neutral physical split:
 `BoundaryExecutorBox` and the selected Boundary process helper now live apart
-from `harness_executor`; the existing feature behavior is unchanged.
-`LLVM-BOUNDARY-COMPAT-FEATURE-R0` then
-atomically moves the selected production caller to `llvm-boundary`, removes the
-old selected `llvm-harness` cfg edge, gates every Python owner under
-`llvmlite-compat`, and updates G0/G2/G3 inventories and guards.
+from `harness_executor`. `LLVM-BOUNDARY-COMPAT-FEATURE-R0` is now closed:
+the selected caller uses `llvm-boundary`, Python owners use `llvmlite-compat`,
+and `llvm-harness` remains only as a migration umbrella.
 
 Acceptance:
 
@@ -589,6 +587,36 @@ llvm alias includes llvmlite-compat                            = 0
 featureless --driver harness                                  = typed pre-effect reject
 explicit compat feature + driver Python spawn                 = 1
 selected fallback / retry                                     = 0 / 0
+```
+
+## Queued post-B4 P0 hardening
+
+These are one shallow queue, not new semantic routes or new guard families.
+
+```text
+SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0
+Decision: selected sealed MIR bypasses MethodIdInjector and every later mutable optimizer/RC/canonicalizer seam.
+Source authority + canonical issuer: selected receipt/admission census plus the existing unpublished postprocess owner.
+Non-authority: mutation_count=0, runner clones, legacy “BoxCall” wording, or post-publication repair.
+Fail-fast boundary: selected unresolved legacy Call or any post-seal mutable touch rejects before JSON/backend spawn.
+Smallest next slice: one whole-postprocess selected fence; ordinary compatibility remains unchanged.
+Non-claims: no method resolution, new receipt, fallback, retry, or production cutover.
+
+SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0
+Decision: selected compilation consumes verification results under an env-independent strict policy before any backend effect.
+Source authority + canonical issuer: MirCompileResult verification result and existing selected final verifier.
+Non-authority: `NYASH_STAGEB_DEV_VERIFY`, no-PHI compatibility knobs, JSON emission, or child receipt text.
+Fail-fast boundary: verification error, dominance/PHI drift, or module metadata mismatch blocks object, Boundary, PyVM, and launch.
+Smallest next slice: retain `verification_result`, add strict selected whole-module gate, and cover env-on negative fixtures.
+Non-claims: ordinary compatibility verifier policy, semantic Recipe changes, or fallback/retry.
+
+SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0
+Decision: selected input skips retired PyVM and reaches the sole Boundary executor; explicit PyVM is typed pre-effect reject.
+Source authority + canonical issuer: selected metadata census and Boundary executor owner.
+Non-authority: early fatal skip arms, `SMOKES_USE_PYVM`, harness feature names, or ordinary mock fallback.
+Fail-fast boundary: selected route never emits PyVM error/child/object fallback before Boundary dispatch.
+Smallest next slice: production-shaped selected smoke plus region guard for one Boundary caller and zero PyVM/fallback callers.
+Non-claims: PyVM deletion, llvmlite archive movement, or new selected MIR shape.
 ```
 
 ## Guard surface consolidation task

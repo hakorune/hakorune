@@ -5,6 +5,7 @@
 //! the existing process runner until the feature recut is complete.
 
 use super::error::LlvmRunError;
+#[cfg(feature = "llvm-boundary")]
 use crate::config::env;
 use nyash_rust::mir::MirModule;
 
@@ -16,7 +17,7 @@ impl BoundaryExecutorBox {
     ///
     /// The selected route is Boundary-only: failures are terminal and never
     /// fall through to the compatibility harness or mock executor.
-    #[cfg(feature = "llvm-harness")]
+    #[cfg(feature = "llvm-boundary")]
     pub fn try_execute_selected_dynamic(module: &MirModule) -> Result<i32, LlvmRunError> {
         let exe_out = "tmp/nyash_llvm_run";
         let bundle = crate::runner::modes::common_util::selected_dynamic_artifact_bundle::
@@ -44,7 +45,7 @@ impl BoundaryExecutorBox {
             .map_err(LlvmRunError::fatal)
     }
 
-    #[cfg(not(feature = "llvm-harness"))]
+    #[cfg(not(feature = "llvm-boundary"))]
     pub fn try_execute_selected_dynamic(_module: &MirModule) -> Result<i32, LlvmRunError> {
         Err(LlvmRunError::fatal(
             "selected Dynamic Boundary requires the LLVM runner feature",
@@ -54,7 +55,7 @@ impl BoundaryExecutorBox {
 
 /// Run an already-published executable and preserve the existing output
 /// contract shared by the explicit compatibility lane.
-#[cfg(feature = "llvm-harness")]
+#[cfg(any(feature = "llvm-boundary", feature = "llvmlite-compat"))]
 pub(super) fn run_emitted_executable(exe_out: &str) -> Result<i32, LlvmRunError> {
     match crate::runner::modes::common_util::exec::run_executable(exe_out, &[], 20_000) {
         Ok((code, _timed_out, stdout_text)) => {

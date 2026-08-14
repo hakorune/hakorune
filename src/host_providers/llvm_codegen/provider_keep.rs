@@ -24,6 +24,7 @@ fn resolve_ny_llvmc() -> PathBuf {
     PathBuf::from("target/release/ny-llvmc")
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_python3() -> Option<PathBuf> {
     if let Ok(p) = which::which("python3") {
         return Some(p);
@@ -34,6 +35,7 @@ fn resolve_python3() -> Option<PathBuf> {
     None
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_llvmlite_harness() -> Option<PathBuf> {
     if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
@@ -89,6 +91,7 @@ pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result
     Ok(out_path)
 }
 
+#[cfg(feature = "llvmlite-compat")]
 pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     let (in_path, out_path) = prepare_provider_io(mir_json, opts)?;
     let py = resolve_python3().ok_or_else(|| {
@@ -118,4 +121,12 @@ pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result
     }
     transport_io::ensure_backend_artifact_written(&out_path, "object")?;
     Ok(out_path)
+}
+
+#[cfg(not(feature = "llvmlite-compat"))]
+pub(super) fn mir_json_to_object_llvmlite(
+    _mir_json: &str,
+    _opts: &Opts,
+) -> Result<PathBuf, String> {
+    Err("[llvmemit/llvmlite/compat-disabled] build with --features llvmlite-compat for the explicit compatibility lane".to_string())
 }

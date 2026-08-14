@@ -91,7 +91,7 @@ ROW_EVIDENCE = {
         ("src/runner/product/llvm/fallback_executor.rs", "LLVM harness requested"),
     ),
     "runner-selected-boundary": (
-        ("src/runner/product/llvm/harness_executor.rs", "try_execute_selected_dynamic"),
+        ("src/runner/product/llvm/boundary_executor.rs", "try_execute_selected_dynamic"),
         ("src/runner/product/llvm/mod.rs", "selected_dynamic_aot_metadata_present"),
     ),
     "test-shlib-llvmlite-keep": (
@@ -293,13 +293,27 @@ def main() -> int:
     need("tools/ny_mir_builder.sh", "NYASH_LLVM_BACKEND=llvmlite", "explicit tool keep")
     need("src/runner/product/llvm/mod.rs", "FallbackExecutorBox::execute", "non-Python fallback classification")
     need("src/runner/product/llvm/mod.rs", "execute_via_harness_or_fallback", "runner orchestration owner")
-    need("src/runner/product/llvm/harness_executor.rs", "try_execute_selected_dynamic", "selected Boundary executor")
-    need("src/runner/product/llvm/mod.rs", "selected Dynamic candidate is Boundary-only; VM execution is rejected", "selected VM fence")
+    need("src/runner/product/llvm/boundary_executor.rs", "try_execute_selected_dynamic", "selected Boundary executor")
+    need("Cargo.toml", "llvm-boundary = []", "Boundary feature")
+    need("Cargo.toml", "llvmlite-compat = []", "llvmlite compatibility feature")
+    need("Cargo.toml", 'llvm = ["llvm-boundary"]', "Boundary-only llvm alias")
+    if 'llvm = ["llvm-harness"]' in source("Cargo.toml"):
+        fail("llvm alias must not pull the legacy harness umbrella")
+    need("src/runner/product/llvm/boundary_executor.rs", 'cfg(feature = "llvm-boundary")', "selected Boundary cfg")
+    need("src/runner/product/llvm/harness_executor.rs", 'cfg(feature = "llvmlite-compat")', "compat harness cfg")
+    for path in (
+        "src/runner/product/llvm/boundary_executor.rs",
+        "src/runner/product/llvm/mod.rs",
+        "src/runner/product/llvm/fallback_executor.rs",
+    ):
+        if 'cfg(feature = "llvm-harness")' in source(path):
+            fail(f"production Boundary owner still uses llvm-harness cfg: {path}")
+    need("src/runner/product/llvm/mod.rs", "selected Dynamic Boundary route rejects an explicit PyVM request", "selected VM fence")
     need("src/runner/product/llvm/mod.rs", "selected Dynamic object emission is not a live Boundary artifact route", "selected object fence")
     need("tools/perf/lib/aot_helpers.sh", "perf AOT route must not use NYASH_LLVM_USE_HARNESS=1", "perf Boundary fence")
 
     runner = source("src/runner/product/llvm/mod.rs")
-    selected_marker = "if selected_dynamic {\n        let code = harness_executor::HarnessExecutorBox::try_execute_selected_dynamic(module)?;"
+    selected_marker = "if selected_dynamic {\n        let code = boundary_executor::BoundaryExecutorBox::try_execute_selected_dynamic(module)?;"
     ordinary_marker = "match harness_executor::HarnessExecutorBox::try_execute(module)"
     need_ordered(
         "src/runner/product/llvm/mod.rs",

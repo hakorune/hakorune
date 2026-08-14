@@ -315,7 +315,7 @@ fn emit_requested_object_or_exit(
             "selected Dynamic object emission is not a live Boundary artifact route; request --emit-exe",
         ));
     }
-    #[cfg(feature = "llvm-harness")]
+    #[cfg(feature = "llvm-boundary")]
     {
         if let Err(e) =
             crate::runner::modes::common_util::exec::ny_llvmc_emit_obj_lib(_module, _out_path)
@@ -324,12 +324,12 @@ fn emit_requested_object_or_exit(
         }
         return;
     }
-    #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
+    #[cfg(all(not(feature = "llvm-boundary"), feature = "llvm-inkwell-legacy"))]
     {
         emit_requested_legacy_object_or_exit(_module, _out_path);
         return;
     }
-    #[cfg(all(not(feature = "llvm-harness"), not(feature = "llvm-inkwell-legacy")))]
+    #[cfg(all(not(feature = "llvm-boundary"), not(feature = "llvm-inkwell-legacy")))]
     {
         report::emit_error_and_exit(LlvmRunError::fatal(
             "LLVM backend not available (object emit)",
@@ -401,7 +401,7 @@ mod tests {
     }
 }
 
-#[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
+#[cfg(all(not(feature = "llvm-boundary"), feature = "llvm-inkwell-legacy"))]
 fn emit_requested_legacy_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
     use nyash_rust::backend::llvm_compile_to_object;
     if let Err(e) =

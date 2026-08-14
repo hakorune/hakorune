@@ -47,12 +47,16 @@ mir_refbarrier_unify_poc = []
 # Phase 29z P0: RC insertion pass opt-in (default OFF)
 rc-insertion-minimal = []
 # LLVM features split
-# - llvm-harness: Python/llvmlite harness only（inkwell不要）
+# - llvm-boundary: native Boundary C-ABI / ny-llvmc selected owner
+# - llvmlite-compat: explicit Python/llvmlite compatibility keep lane
+# - llvm-harness: temporary migration umbrella for both lanes
 # - llvm-inkwell-legacy: historical Rust/inkwell backend（参照用）
-# keep `llvm` as a compatibility alias to `llvm-harness`
-llvm-harness = []
+# keep `llvm` as the Boundary-only compatibility alias
+llvm-boundary = []
+llvmlite-compat = []
+llvm-harness = ["llvm-boundary", "llvmlite-compat"]
 llvm-inkwell-legacy = ["dep:inkwell"]
-llvm = ["llvm-harness"]
+llvm = ["llvm-boundary"]
 # Cranelift JIT cfg guard (ARCHIVED): keep feature empty to silence check-cfg warnings.
 cranelift-jit = []
 # (removed) Optional modular MIR builder feature

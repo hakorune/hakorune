@@ -12,6 +12,7 @@ ROUTE_ENTRY="$ROOT/src/host_providers/llvm_codegen/mir_json_text_object.rs"
 ROUTE="$ROOT/src/host_providers/llvm_codegen/route.rs"
 BOUNDARY_FFI="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
 RUNNER_EXEC="$ROOT/src/runner/modes/common_util/exec.rs"
+SELECTED_BUNDLE="$ROOT/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs"
 CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
@@ -47,6 +48,7 @@ for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGI
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
+need_file "$SELECTED_BUNDLE"
 need_file "$STAGE1_BUILD"
 need_file "$STAGE1_CONTRACT"
 need_file "$SELFHOST_README"
@@ -90,7 +92,7 @@ need_fixed "$CAPI_ROUTE" '"child"' "CAPI child observation producer missing"
 need_fixed "$CAPI_ROUTE" '"driver=harness"' "CAPI child observation shape drifted"
 need_fixed "$AOT" 'hako_aot_emit_child_trace(' \
   "generic AOT child observation producer missing"
-need_fixed "$RUNNER_EXEC" 'validate_selected_dynamic_boundary_route_request()?' \
+need_fixed "$SELECTED_BUNDLE" 'exec::validate_selected_dynamic_boundary_route_request()?' \
   "selected Dynamic route-request gate missing"
 need_fixed "$RUNNER_EXEC" 'expected pure-first or unset' \
   "selected Dynamic recipe boundary drifted"

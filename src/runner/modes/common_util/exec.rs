@@ -1,4 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
+#[cfg(feature = "llvmlite-compat")]
+use std::path::PathBuf;
 
 /// Resolve ny-llvmc executable path with env/PATH fallbacks
 fn resolve_ny_llvmc() -> std::path::PathBuf {
@@ -56,7 +58,7 @@ fn default_nyrt_dir() -> String {
 /// lane.  Unlike ordinary compatibility execution, this path must always
 /// pass an explicit `--nyrt` value to `ny-llvmc`; the harness environment must
 /// not suppress the link input.
-#[cfg(feature = "llvm-harness")]
+#[cfg(feature = "llvm-boundary")]
 pub(crate) fn selected_dynamic_nyrt_dir() -> Result<String, String> {
     let dir = default_nyrt_dir();
     verify_nyrt_dir(&dir)?;
@@ -101,6 +103,7 @@ fn append_ny_llvmc_extra_libs_arg(cmd: &mut std::process::Command, extra_libs: O
     }
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_python3() -> Option<PathBuf> {
     if let Ok(p) = which::which("python3") {
         return Some(p);
@@ -111,6 +114,7 @@ fn resolve_python3() -> Option<PathBuf> {
     None
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_llvmlite_harness() -> Option<PathBuf> {
     if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
@@ -129,12 +133,14 @@ fn resolve_llvmlite_harness() -> Option<PathBuf> {
     None
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn prepare_llvmlite_emit_json_path() -> PathBuf {
     let tmp_dir = Path::new("tmp");
     let _ = std::fs::create_dir_all(tmp_dir);
     tmp_dir.join("nyash_cli_emit_harness.json")
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn spawn_llvmlite_emit_obj_command(
     python: &Path,
     harness: &Path,
@@ -494,6 +500,7 @@ pub fn ny_llvmc_emit_exe_lib(
 }
 
 /// Emit a native object via the llvmlite keep lane (lib-side MIR).
+#[cfg(feature = "llvmlite-compat")]
 pub fn llvmlite_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
@@ -524,6 +531,14 @@ pub fn llvmlite_emit_obj_lib(
     })();
     let _ = std::fs::remove_file(&json_path);
     result
+}
+
+#[cfg(not(feature = "llvmlite-compat"))]
+pub fn llvmlite_emit_obj_lib(
+    _module: &nyash_rust::mir::MirModule,
+    _obj_out: &str,
+) -> Result<(), String> {
+    Err("[llvmemit/llvmlite/compat-disabled] build with --features llvmlite-compat for the explicit compatibility lane".to_string())
 }
 
 /// Deprecated compatibility alias for older internal call sites.

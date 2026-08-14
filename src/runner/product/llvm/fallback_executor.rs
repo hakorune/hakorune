@@ -16,7 +16,7 @@ impl FallbackExecutorBox {
     /// Execute fallback path (feature check + mock)
     ///
     /// Fail-fast: if the user explicitly requested the llvmlite harness
-    /// but this binary was built without the `llvm-harness` feature,
+    /// but this binary was built without the `llvmlite-compat` feature,
     /// do not silently fall back to mock.
     ///
     /// Otherwise, executes mock execution that inspects the MIR
@@ -26,12 +26,12 @@ impl FallbackExecutorBox {
             .map_err(LlvmRunError::fatal)?;
 
         // Fail-fast: if the user explicitly requested the llvmlite harness
-        // but this binary was built without the `llvm-harness` feature,
+        // but this binary was built without the `llvmlite-compat` feature,
         // do not silently fall back to mock.
         if crate::config::env::env_bool("NYASH_LLVM_USE_HARNESS") {
             return Err(LlvmRunError::fatal(
-                "LLVM harness requested (NYASH_LLVM_USE_HARNESS=1), but this binary was built without `--features llvm` (llvm-harness).\n\
-Fix:\n  cargo build --release -p nyash-rust --features llvm --bin hakorune\n\
+                "LLVM harness requested (NYASH_LLVM_USE_HARNESS=1), but this binary was built without `--features llvmlite-compat`.\n\
+Fix:\n  cargo build --release -p nyash-rust --features llvm-boundary,llvmlite-compat --bin hakorune\n\
 Then ensure prerequisites:\n  cargo build --release -p nyash-llvm-compiler\n  cargo build --release -p nyash_kernel\n\
 Tip: tools/run_llvm_harness.sh <program.hako>"
             ));
