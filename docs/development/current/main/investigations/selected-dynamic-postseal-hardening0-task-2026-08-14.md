@@ -952,9 +952,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
     - Selected capability, emitter, lifecycle, profile close, receipt, printer, and test callers no longer mint or inspect raw physical IDs; the existing AOT authority guard fixes the owner/accessor and raw-consumer census without a new guard family.
     - `cargo check --lib`, checked-callout (14), selected-emitter (5), provider-admission (6), fmt, guard, pointer, and diff checks are green; selected production remains new=0/old=1.
 12. `DYN-CALLOUT-BOUNDARY-CFG-OPERAND-PARITY-R0`
-    - carry the verified canonical site/result/landing/End census to Boundary;
-    - reject operand, landing, predecessor, projection, or End-placement drift;
-      root receipt validation must compare the exact site set and reject duplicate entries.
+    - Decision/authority: lend one non-Clone/HRTB view of the closed canonical CFG/SSA census and site-plan/profile evidence to AOT/JSON/Boundary; no plan rebuild, semantic receipt, or C/JSON CFG authority.
+    - View: exact sites, source/Normal/Fault blocks+predecessors, receiver/args, Normal projection, effect, entry/ABI/wire/shape/slots/PlanStamp, and End cuts.
+    - Reject before effect: orphan/duplicate site, plan/terminator/projection, operand/landing/predecessor/End/receipt-set drift, or malformed transport.
+    - Acceptance: replace the non-canonical C smoke fixture; add swap/landing/projection/End/duplicate-site negatives; extend the existing AOT guard. Non-claims: no opcode/schema/new C ABI/cutover/fallback/VM/PyVM/llvmlite; selected production remains new=0/old=1.
 13. `DYN-CALLOUT-WIRE-FAILSTOP-R0`
     - trap on I6 zero handle, unknown Fault codes, Suspended, malformed wire,
       or transport errors; only known semantic Fault reaches MIR Fault.
