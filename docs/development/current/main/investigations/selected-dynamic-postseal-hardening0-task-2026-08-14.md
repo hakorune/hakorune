@@ -412,13 +412,12 @@ second install/take             -> existing one-shot rejection preserved
 Guard the sole production census caller and forbid selected-route module/result
 clone before census. Keep ordinary compatibility clone behavior unchanged.
 
-Next bounded row: `SELECTED-DYNAMIC-LINEAR-SLOT-TEST-FIX-R0`. Closeout correction
-(2026-08-14): the implementation contract is correct, but
-`clone_scrubs_candidate_projection` is a current-change fixture failure: it
-clones a default `Empty` slot and expects `Scrubbed`; only `Occupied` clones are
-scrubbed. Before row 10, install the test projection and assert `Empty -> Empty`
-and `Occupied -> Scrubbed`, then rerun the B1 focused/guard gates. B1 closeout
-is not claimed until that red is green; selected production remains 0/old=1.
+Closeout evidence (2026-08-14): the fixture now distinguishes the two linear
+states: `Empty -> Empty` and `Occupied -> Scrubbed`; the production slot and
+pair observer remain unchanged. The focused slot tests (2), `cargo check -q
+--lib`, fmt, AOT/text/physical-input/pointer guards, and diff check are green.
+B1 closeout is restored; the next design row is the queued disposition
+typestate, with selected production still 0/old=1 and no fallback/retry.
 
 ## Post-seal design: SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0
 

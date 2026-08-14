@@ -85,10 +85,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn clone_scrubs_candidate_projection() {
+    fn clone_preserves_empty_slot() {
         let slot = DynamicV2AotMetadataSlotV1::default();
         assert!(slot.borrow().is_none());
         assert_eq!(slot.observe(), LinearSlotObservation::Empty);
+        let clone = slot.clone();
+        assert!(clone.borrow().is_none());
+        assert_eq!(clone.observe(), LinearSlotObservation::Empty);
+    }
+
+    #[test]
+    fn clone_scrubs_occupied_candidate_projection() {
+        let mut slot = DynamicV2AotMetadataSlotV1::default();
+        slot.install(DynamicV2AotCallMetadataProjectionV1::for_test())
+            .expect("test projection install");
+        assert!(slot.borrow().is_some());
+        assert!(matches!(slot.observe(), LinearSlotObservation::Occupied(_)));
         let clone = slot.clone();
         assert!(clone.borrow().is_none());
         assert_eq!(clone.observe(), LinearSlotObservation::Scrubbed);
