@@ -121,15 +121,12 @@ sub-row must classify every tracked path against the six allowed dispositions,
 starting with the indexed stable entries and manifest-backed families, then
 record unknown rows rather than infer deletion from a grep or executable bit.
 
-The index census separates two authorities that must not be collapsed: the
-human-facing table currently has 573 stable-entry rows, while its required
-machine-readable compatibility block retains 2,017 historical names (16 also
-appear in the table).  The loaded guard manifest has 102 rows/command paths
-across overlapping profiles.  Therefore `GUARD-PUBLIC-ENTRY-CUT-R0` may reduce
-the navigational surface only after an owner-backed generated inventory exists;
-it must preserve the compatibility block, classify every omitted path as
-`unknown_retain` until proven otherwise, and must not delete or relocate a
-script in this D0.
+The pre-cut index census had 573 human-table rows and a required
+machine-readable compatibility block with 2,017 historical names (16 also
+appeared in the table).  The loaded guard manifest had 102 rows/command paths
+across overlapping profiles.  The D0 inventory therefore treated the table
+and compatibility block as separate authorities and retained all unclassified
+paths.
 
 The first generator receipt is now reproducible with
 `python3 tools/docs/guard_surface_inventory.py --check`: 3,654/3,654 tracked
@@ -139,6 +136,13 @@ manifest-backed rows split into 103 `family_manifest_case` and 212
 source gaps are both zero.  No row is assigned `historical_archive` or
 `delete_after_equivalent_coverage`.  The optional JSON output is diagnostic
 only and is not a second authority or a retirement approval.
+
+`GUARD-PUBLIC-ENTRY-CUT-R0` now keeps 19 reusable human-facing entries in
+`docs/tools/check-scripts-index.md` (118 lines total), while the compatibility
+block is byte-for-byte unchanged.  The post-cut inventory reruns as 3,654
+unique rows: 19 `stable_public_entry`, 103 `family_manifest_case`, 212
+`focused_behavior_test`, and 3,320 `unknown_retain`; source gaps remain zero.
+No tracked script moved or was deleted, and no check command changed.
 
 The inventory records one owner, one caller/profile, one evidence kind, and
 one disposition for every tracked check.  `stable_public_entry`,

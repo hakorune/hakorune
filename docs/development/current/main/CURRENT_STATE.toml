@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "W6 selected Dynamic infrastructure and G0-G2 llvmlite production/default retirement are landed. The selected candidate now proves object/link/receipt/zero-argument launch from one zero-argument runtime entry and one distinct four-argument metadata-bearing helper; B3 now prepares and commits an invisible program+receipt bundle with one directory rename, root-checks actual program digest/census, and wires one path-bound launch fence with exact cleanup. B4 now separates Boundary ownership (`llvm-boundary`) from the explicit llvmlite compatibility lane (`llvmlite-compat`); live cutover remains closed. Clean detached main-integration evidence is classified at 145921e7d5: selected focused suites and selected guards are green, while the completion and generic legacy corpus reds reproduce at the parent baseline. Guard-surface D0 now has reproducible 100% inventory coverage with unknown retention; the next row is the public-entry cut, and G3 oracle/archive work remains parked."
+status = "W6 selected Dynamic infrastructure, G0-G2 default retirement, B3 bundle fencing, B4 feature ownership, and zero-argument launch/helper proof are landed. Selected suites/guards and clean integration evidence at 145921e7d5 are green; completion and generic legacy reds reproduce at the parent baseline. The human guard index is 19 entries and its 2,017-name compatibility ledger is unchanged. Live cutover and G3 remain parked; the next row is family-manifest migration."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, and guard-surface D0 inventory classification are closed. The next fast row is GUARD-PUBLIC-ENTRY-CUT-R0; source-fact/header and callout/lease hardening, G3 archive work, and live cutover remain parked."
+current_design_stop = "SELECTED-DYNAMIC-POSTSEAL-HARDEN0 is the accepted repair DAG and sole active task card. DYN-PROD-BASELINE-R0, lexical-scope safety, declaration-mode admission, linear metadata, post-seal mutation/strict verification, runner reachability, B3 artifact fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity end-to-end, clean detached integration evidence classification, guard-surface D0 inventory classification, and the public index cut are closed. The next fast row is GUARD-FAMILY-MANIFEST-MIGRATION-R0; source-fact/header and callout/lease hardening, G3 archive work, and live cutover remain parked."
 work_mode = "fast"
-current_execution_row = "GUARD-PUBLIC-ENTRY-CUT-R0"
-current_blocker_token = "GUARD-PUBLIC-ENTRY-CUT-R0: use the source-backed inventory to propose a smaller human-facing index while preserving the machine compatibility ledger; no script move/delete, manifest semantic change, compiler edit, fallback, archive movement, or live cutover."
+current_execution_row = "GUARD-FAMILY-MANIFEST-MIGRATION-R0"
+current_blocker_token = "GUARD-FAMILY-MANIFEST-MIGRATION-R0: classify manifest-backed wrapper families and route them through existing generic runners without deleting scripts or changing behavior; unknown owners remain retained, and compiler edit, fallback, archive movement, or live cutover are forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "Selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> CatalogedBoxMethod and W6 Boundary candidate evidence are landed; post-seal, strict-verification, runner, launch-helper, B3, and B4 fences are closed. Guard-surface D0 inventories all 3,654 tracked checks exactly once and retains unknown rows. Clean integration evidence is classified at 145921e7d5; completion and generic legacy reds reproduce at the parent baseline. Live cutover remains closed, G3 is parked, and ordinary compatibility lanes remain source-scoped."
+active_lane_status = "Selected Program -> Facts -> Recipe -> canonical session -> DraftSeal -> CatalogedBoxMethod and W6 Boundary candidate evidence are landed; post-seal, strict-verification, runner, launch-helper, B3, and B4 fences are closed. Guard-surface inventory is complete and the human index is reduced to 19 entries without touching the compatibility ledger or scripts. Clean integration evidence is classified at 145921e7d5; completion and generic legacy reds reproduce at the parent baseline. Live cutover remains closed, G3 is parked, and ordinary compatibility lanes remain source-scoped."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/selecte
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "selected-dynamic-postseal-hardening0"
 latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Worker/pro findings are normalized into one shallow selected-dynamic repair DAG with no new per-finding cards or guard files. Mode/lexical/linear-slot fences, post-seal mutation/strict verification/runner reachability barriers, B3 path-bound bundle fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity, clean detached integration evidence classification, and guard-surface D0 inventory coverage are closed; the current row is GUARD-PUBLIC-ENTRY-CUT-R0. Completion and generic legacy corpus reds are named parent-baseline debt, not selected-route evidence. PyVM remains retired, grouped P1 hardening and G3 archive/deletion stay parked. Selected production remains 0/old=1."
+latest_card_summary = "Worker/pro findings are normalized into one shallow selected-dynamic repair DAG with no new per-finding cards or guard files. Mode/lexical/linear-slot fences, post-seal mutation/strict verification/runner reachability barriers, B3 path-bound bundle fencing, B4 Boundary/llvmlite feature ownership, launch/helper identity, clean detached integration evidence, guard-surface inventory, and the 19-entry human index cut are closed; the current row is GUARD-FAMILY-MANIFEST-MIGRATION-R0. Completion and generic legacy corpus reds are named parent-baseline debt, not selected-route evidence. PyVM remains retired, grouped P1 hardening and G3 archive/deletion stay parked. Selected production remains 0/old=1."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "GUARD-PUBLIC-ENTRY-CUT-R0"
+next_execution_card = "GUARD-FAMILY-MANIFEST-MIGRATION-R0"
 next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
