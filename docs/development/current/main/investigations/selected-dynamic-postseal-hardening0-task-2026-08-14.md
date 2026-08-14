@@ -784,6 +784,10 @@ rows (74 `hako-alloc-closeout`) report 44 public closeout wrappers outside the
 manifest and widespread non-executable wrapper/implementation modes.  This
 does not authorize chmod, wrapper deletion, or manifest invention; the family
 row remains open until one owner-backed parity batch is selected.
+The first executable closeout candidate also fails on a required child guard
+whose mode is `0644`; this confirms that wrapper/implementation mode alone is
+not a complete migration proof.  The child dependency closure must be named
+before any mode normalization, and the current family stays retained.
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;
