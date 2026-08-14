@@ -251,6 +251,15 @@ the operator/result relation. Therefore the next implementation cannot be a
 Facts observer or Recipe producer. It must first close this D0 or remain
 `NoSafeSlice`.
 
+The fixture itself is also not a typed source authority yet:
+`apps/tests/scan_with_init_ok_min.hako` declares `find_ok(s, ch)` without
+parameter annotations, while `FunctionSyntaxViewV1` retains parameter names
+and body but drops `ParamDecl` type declarations. The D0 must explicitly choose
+one source-backed solution—typed declaration preservation/annotation or a
+separately issued call-flow input product—and reject the other as unavailable.
+String literals, method shape, parameter names, or MIR result classes cannot
+silently prove `Text` or `I64`.
+
 Required negative matrix for the D0: foreign or mixed owner/frame, missing or
 duplicate input binding, swapped subject/needle/index, non-Text receiver or
 needle, non-I64 index, `==` with a non-Text operand, non-Bool comparison result,
