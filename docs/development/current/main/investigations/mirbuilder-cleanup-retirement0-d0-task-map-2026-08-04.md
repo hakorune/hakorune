@@ -2,7 +2,8 @@
 
 Status: T1-D0 baseline and T1-S0 `drain_policy_p0` retirement are closed. The
 If D0-D3 boundary is landed separately; this lane remains behavior-neutral and
-must not alter Recipe, route, or PHI/SSA authority.
+must not alter Recipe, route, or PHI/SSA authority. T5 records the parked
+post-cutover debt/governance cleanup and does not preempt the active Loop row.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
@@ -335,6 +336,97 @@ wrappers, and compat callers are zero. Do not delete
 `src/stage1/program_json_v0*` merely because a CLI flag retires. Only then
 hard-delete the bridge.
 
+### T5-D0..R3 — post-cutover debt and governance retirement
+
+This is one parked cleanup program, not four new active cards. It records the
+repository-wide debt reported after the Dynamic/AOT hardening series without
+making that debt a blocker for the active Loop product row. Promotion requires
+an explicit `CURRENT_STATE.toml` retarget after the current Loop/cutover gate
+and a fresh integration census. A newly reproduced current-change regression
+may still preempt under the normal red-classification policy; a historical or
+grep-only concern may not.
+
+Local taskization snapshot on 2026-08-14:
+
+```text
+docs total                          = 125 MiB / 17,255 files
+archive-shaped docs directories    = about 42 MiB total
+docs-prefixed commits in last 10   = 8
+unique textual NYASH_* tokens      = 557 (not yet an env-reader census)
+reported full lib test baseline    = branch 6,641 pass / 139 fail
+reported comparison baseline       = main 143 fail
+focused completion baseline        = 107 pass / 1 ReturnValueTypeMissing fail
+```
+
+The full-lib counts are an external report until the exact command, SHA, and
+result are reproduced. The smaller completion result is already classified in
+`CURRENT_STATE.toml`; neither result is permission to normalize a permanent
+red baseline.
+
+Fixed order:
+
+```text
+T5-D0  BASELINE-RED-DEBT-BUDGET-D0
+  -> T5-R0  BASELINE-RED-BURNDOWN-R0 (bounded owner rows)
+
+T5-D1  DOCS-AND-ARCHIVE-FOOTPRINT-D0
+  -> T5-R1  CURRENT-DOC-COMPACTION-R0
+
+T5-D2  DEVELOPMENT-CEREMONY-COST-D0
+  -> T5-R2  CEREMONY-TIER-APPLICATION-R0
+
+T5-D3  COMPATIBILITY-SURFACE-RETIREMENT-D0
+  -> T5-R3  COMPATIBILITY-CALLER-ZERO-RETIREMENT-R0
+```
+
+#### T5-D0/R0 — red-baseline debt budget and burn-down
+
+Reproduce branch and comparison baselines with the same command and record each
+failure by test, owner, first known SHA, comparison result, reachability, and
+named repair/retirement row. `mir::builder` and `mir::compiler` are categories,
+not owners; each red needs the smallest responsible module. From D0 onward,
+new failures are zero-budget and an existing failure cannot be carried merely
+as “known baseline” without a stable reproducer and disposition. R0 burns the
+manifest down in bounded owner rows. The finish line is a green required suite,
+not a smaller undocumented baseline. This program must not fold the current
+S6C positive/negative evidence into unrelated Return-value repair.
+
+#### T5-D1/R1 — docs and archive footprint
+
+Inventory current pointers, active contracts, historical receipts, generated
+evidence, and duplicate mirrors before moving or deleting anything. Fix one
+retention policy: live restart docs stay compact; stable reference contracts
+remain searchable; completed narrative moves to one archive owner or git
+history; generated/reproducible evidence is regenerated rather than copied.
+R1 works in bounded directory groups with link/pointer validation and a
+before/after byte/file census. No semantic contract is shortened merely to hit
+a byte target, and no archive deletion is authorized without an exact retained
+source and restore path.
+
+#### T5-D2/R2 — ceremony-cost consolidation
+
+Apply the existing T0/T1/T2 policy instead of inventing another governance
+layer. Durable private renames/splits/accessor narrowing with complete caller
+census use T0 and the owning commit; bounded existing-owner changes use T1;
+authority, accepted shape, ABI, failure owner, publication, or cutover changes
+remain T2. R2 removes stale duplicate task pointers and obsolete CURRENT
+mirrors, forbids a new card/guard for a one-line T0 change, and retains one
+serial `current_execution_row`. Read-only worker audits may remain parallel;
+implementation authority stays serial unless the durable agent policy changes.
+
+#### T5-D3/R3 — compatibility surface census and retirement
+
+Build one source-backed census for four distinct families: `nyash` naming and
+`NYASH_*` environment readers; Python/llvmlite compatibility; legacy VM routes;
+legacy facades/adapters. Text occurrences and deprecated names are not caller
+evidence. Each row records production, explicit compat/oracle, test, docs, and
+unreachable dispositions plus its replacement owner. Reuse the existing
+llvmlite graduation/archive task for that family rather than duplicating it.
+R3 retires one caller-zero family at a time only after native/Boundary coverage,
+fallback/retry zero, focused replacement evidence, and a restore/archive path.
+Broad `nyash -> hakorune` renaming, ABI spelling changes, and source deletion
+require separate accepted authority decisions and are not implied by this row.
+
 ## Cross-lane rules and acceptance
 
 - This card never authorizes If/Loop production wiring or PHI owner adoption.
@@ -342,9 +434,12 @@ hard-delete the bridge.
   owner), but exclusive production physicalization is not yet complete.
 - Every refactor series is behavior-neutral, buildable, and below 800 lines;
   BoxCount and BoxShape changes are not mixed.
+- T5 remains parked while the active Loop product row is open. Its census may
+  be refreshed read-only, but implementation requires an explicit pointer
+  retarget and must not become another hardening tail.
 - Each deletion has a stable replacement proof, caller/guard census, focused
   gate, and explicit rollback boundary.
-- `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T4;
+- `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T5;
   their size/authority split is a separate behavior-neutral SSA lane.
 - This cleanup card is parked behind active If D0-D1/D0-D2 implementation and
   may run in parallel only as read-only audit/design work until a bounded row
