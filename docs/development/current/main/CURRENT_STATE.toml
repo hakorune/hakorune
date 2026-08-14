@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, and complete Recipe target map are landed/accepted. Exit/Tail D0 is accepted: consume the existing Completion and source-bound relation, then co-seal exact resolver variable/literal/If-region evidence. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, and complete Recipe target map are landed/accepted. Exit/Tail implementation exposed one exact missing source authority: unary operators are not yet sealed beside resolver literal rows. The bounded unary-source row is accepted before the Exit/Tail co-seal resumes. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Accepted: one non-Clone S6C Exit/Tail source co-seal consumes the existing Completion and fixed source-bound relation. It classifies exact returns only by resolver variable/literal rows plus sealed Loop/If regions, and lends one HRTB view to the later Facts owner."
+current_design_stop = "Accepted: ShadowResolver observes each unary operator once and seals an AST-free unary source row containing exact site, operator, and operand. Exit/Tail then proves outer -1 only as Minus plus exact Integer(1); it never infers from Operand paths or rereads AST."
 work_mode = "fast"
-current_execution_row = "LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0"
-current_blocker_token = "Implement the accepted co-seal below 760 lines. Require exact two ExplicitValue returns, empty cleanup, same owner/target/frame, TextEq-owned If-then Return(index), and root-body terminal Tail(-1). Missing/duplicate/swapped/foreign/extra evidence rejects before Facts/Recipe keys. No AST/order/MIR inference and no into_parts API."
+current_execution_row = "LOOP-S6C-UNARY-SOURCE-ROW-I0"
+current_blocker_token = "Add one resolver-owned unary source inventory row below the source split budget. Map every supported UnaryOperator exactly once, reject duplicate site at seal, lend read-only lookup through the callable ledger, and resume Exit/Tail by requiring Minus(site, operand) plus Integer(1). No constant folding, AST/order/MIR inference, Recipe keys, or new accepted Loop shape."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C Exit/Tail source co-seal I0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation and complete Recipe target map are landed/accepted. The active fast row implements the accepted Loop Return versus callable Tail co-seal before Facts keys exist. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C unary source row I0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation and complete Recipe target map are landed/accepted. The active fast row closes the missing resolver unary source authority before the Exit/Tail co-seal resumes. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, and fixed source-bound relation are closed. The exact Recipe target map and Exit/Tail D0 are accepted; bounded co-seal I0 is current before Facts/Recipe keys or physical production."
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, and fixed source-bound relation are closed. The exact Recipe target map remains accepted; the bounded resolver unary source row is current before Exit/Tail, Facts/Recipe keys, or physical production."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0"
+next_execution_card = "LOOP-S6C-UNARY-SOURCE-ROW-I0"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

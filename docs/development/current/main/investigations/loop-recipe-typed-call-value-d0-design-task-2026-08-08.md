@@ -1,5 +1,5 @@
 ---
-Status: Exit/Tail source co-seal D0 accepted; bounded I0 is current
+Status: unary source row D0 accepted; bounded I0 is current
 Date: 2026-08-14
 Decision: separate Loop Return(index) from callable Tail(-1), then issue one S6C Facts owner and one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -10,16 +10,17 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
-  callable contract, typed-input product, and source-bound relation are
-  landed. The complete Recipe target map and resolver-owned Loop-Return versus
-  callable-Tail co-seal are accepted; its bounded implementation is current.
+  callable contract, typed-input product, source-bound relation, and complete
+  Recipe target map are accepted. Exit/Tail implementation proved that unary
+  operator evidence is missing, so one resolver-owned unary source row must
+  land before the co-seal resumes.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0` — consume the
-  existing Completion and fixed source-bound relation into the exact borrowed
-  view for conditional `return index` versus outer `return -1`.
+- **Next ordered task:** `LOOP-S6C-UNARY-SOURCE-ROW-I0` — seal exact unary
+  operator/site/operand evidence in the existing resolver source inventory;
+  then classify outer `return -1` as Minus plus literal Integer(1).
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -29,20 +30,19 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: consume one existing Completion and fixed source-bound relation into
-one non-Clone Exit/Tail co-seal; do not issue a second Completion or relation.
-Source authority + canonical issuer: resolver exit/variable/literal rows,
-sealed Loop/If regions, and existing Completion; the S6C structural-facts
-module is the sole pairing issuer and only lends an HRTB view.
-Non-authority: source order, AST reread, fixture position, legacy producers,
-MIR/ResultKind, Dynamic receipts, Recipe keys, and physical effects.
-Fail-fast boundary: missing/duplicate/swapped/foreign exit, wrong region or
-target function, wrong value/literal, Tail leakage, cleanup/disposition drift,
-or incomplete two-return coverage rejects before Facts and Recipe keys.
-Smallest next slice: implement the co-seal, focused positive/negative tests,
-and existing-family guard evidence below the source split budget.
-Non-claims: no Facts/Recipe I0, JoinSig, Builder/MIR, physical canary,
-production selector, fallback/retry, legacy deletion, or backend change.
+Decision: seal one AST-free unary source row before Exit/Tail co-seal; never
+infer `-1` from an Operand path or reread AST downstream.
+Source authority + canonical issuer: ShadowResolver observes UnaryOperator
+once; the existing resolved expression-source inventory seals site/operator/
+operand and lends lookup through the callable source ledger.
+Non-authority: S6C co-seal, source order, operand path alone, literal value
+alone, MIR/ResultKind, Recipe keys, fixture position, or physical effects.
+Fail-fast boundary: duplicate/missing/foreign unary site, wrong operator or
+operand, and non-Integer(1) operand reject before Exit/Tail/Facts/Recipe.
+Smallest next slice: add the bounded unary row and focused resolver negatives,
+then finish the already accepted non-Clone Exit/Tail co-seal.
+Non-claims: no constant folding, new Loop shape, Facts/Recipe I0, JoinSig,
+Builder/MIR, production selector, fallback/retry, or backend change.
 ```
 
 ## Authority census and bounded task DAG — 2026-08-14
@@ -115,7 +115,9 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
                                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CLOSED T2 (target map; NoSafeSlice dependency named)
                                                     -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CLOSED T2
-                                                         -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 CURRENT T2
+                                                         -> LOOP-S6C-UNARY-SOURCE-ROW-D0 CLOSED T2
+                                                              -> LOOP-S6C-UNARY-SOURCE-ROW-I0 CURRENT T1
+                                                                   -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 T2
                                                               -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
                                                                    -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 T2
                                                                         -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
