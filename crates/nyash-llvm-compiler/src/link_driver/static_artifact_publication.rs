@@ -332,6 +332,27 @@ impl PreparedStaticAotArtifactBundleV1 {
             .as_ref()
             .expect("prepared bundle retains its receipt")
     }
+
+    /// Publish the fully prepared bundle with one same-filesystem directory
+    /// rename.  No receipt write or other fallible child action follows this
+    /// transition; the returned product is the only post-publication handle.
+    pub(super) fn commit_bundle(
+        mut self,
+    ) -> Result<PublishedStaticAotArtifactBundleV1, StaticArtifactRejectV1> {
+        if self.final_bundle_path.exists() {
+            return Err(StaticArtifactRejectV1::PublishFailed);
+        }
+        fs::rename(&self.candidate_bundle_path, &self.final_bundle_path)
+            .map_err(|_| StaticArtifactRejectV1::PublishFailed)?;
+        let receipt = self
+            .receipt
+            .take()
+            .expect("prepared bundle receipt consumed once");
+        Ok(PublishedStaticAotArtifactBundleV1 {
+            receipt,
+            published_bundle_path: self.final_bundle_path.clone(),
+        })
+    }
 }
 
 impl Drop for PreparedStaticAotArtifactBundleV1 {
@@ -339,6 +360,32 @@ impl Drop for PreparedStaticAotArtifactBundleV1 {
         if self.receipt.is_some() {
             let _ = fs::remove_dir_all(&self.candidate_bundle_path);
         }
+    }
+}
+
+/// The one-directory publication result.  It deliberately has no
+/// post-commit receipt writer: both files became visible together.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct PublishedStaticAotArtifactBundleV1 {
+    receipt: StaticLinkedAotArtifactReceiptV1,
+    published_bundle_path: PathBuf,
+}
+
+impl PublishedStaticAotArtifactBundleV1 {
+    pub(super) fn published_bundle_path(&self) -> &Path {
+        &self.published_bundle_path
+    }
+
+    pub(super) fn published_program_path(&self) -> PathBuf {
+        self.published_bundle_path.join("program")
+    }
+
+    pub(super) fn published_receipt_path(&self) -> PathBuf {
+        self.published_bundle_path.join("receipt.json")
+    }
+
+    pub(super) fn receipt(&self) -> &StaticLinkedAotArtifactReceiptV1 {
+        &self.receipt
     }
 }
 

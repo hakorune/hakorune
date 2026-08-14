@@ -741,6 +741,12 @@ guard_expect_fixed_in_file "$TAG" 'receipt_json_bytes' "$ARTIFACT_PUBLICATION_RU
   "B3 receipt bytes must be prepared before publication"
 guard_expect_fixed_in_file "$TAG" 'fs::write(&receipt_path, receipt_bytes)' "$ARTIFACT_PUBLICATION_RUST" \
   "B3 candidate receipt must be written inside the invisible bundle"
+guard_expect_fixed_in_file "$TAG" 'pub(super) fn commit_bundle' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 bundle must have one named directory commit owner"
+guard_expect_fixed_in_file "$TAG" 'fs::rename(&self.candidate_bundle_path, &self.final_bundle_path)' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 commit must publish by one candidate-directory rename"
+guard_expect_fixed_in_file "$TAG" 'bundle_commit_publishes_program_and_receipt_with_one_directory_rename' "$ARTIFACT_PUBLICATION_TESTS" \
+  "B3 must prove program and receipt become visible together"
 if rg -n -U '#\[derive\([^]]*Clone[^]]*\)\]\npub\(super\) struct (StaticAotArtifact|StaticLinked|PreparedStatic)' \
   "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" || \
   rg -n 'impl[[:space:]]+Clone|into_parts|dlsym|RuntimeExecutablePlan|fallback|retry|selector|lookup_core_method' \

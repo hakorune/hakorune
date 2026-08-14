@@ -404,6 +404,63 @@ fn bundle_prepare_link_failure_removes_invisible_candidate() {
 }
 
 #[test]
+fn bundle_commit_publishes_program_and_receipt_with_one_directory_rename() {
+    let root = root("bundle_commit");
+    let (json, object, archive) = build_fixture(&root, false, true);
+    let final_bundle = root.join("published-bundle");
+    let prepared = StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+        &json,
+        &object,
+        &final_bundle,
+        &archive,
+        system_linker,
+    )
+    .expect("prepare candidate bundle");
+    let candidate_bundle = prepared.candidate_bundle_path().to_path_buf();
+    let published = prepared.commit_bundle().expect("commit candidate bundle");
+
+    assert!(!candidate_bundle.exists());
+    assert!(published.published_bundle_path().is_dir());
+    assert!(published.published_program_path().is_file());
+    assert!(published.published_receipt_path().is_file());
+    assert_eq!(
+        published.receipt().final_path(),
+        final_bundle.join("program")
+    );
+    assert!(Command::new(published.published_program_path())
+        .status()
+        .expect("launch published bundle program")
+        .success());
+    fs::remove_dir_all(root).expect("remove fixture");
+}
+
+#[test]
+fn bundle_commit_collision_rejects_without_replacing_existing_bundle() {
+    let root = root("bundle_collision");
+    let (json, object, archive) = build_fixture(&root, false, true);
+    let final_bundle = root.join("published-bundle");
+    fs::create_dir_all(&final_bundle).expect("reserve final bundle");
+    fs::write(final_bundle.join("program"), b"prior").expect("prior program");
+    let prepared = StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+        &json,
+        &object,
+        &final_bundle,
+        &archive,
+        system_linker,
+    )
+    .expect("prepare candidate bundle");
+    let candidate_bundle = prepared.candidate_bundle_path().to_path_buf();
+    let error = prepared
+        .commit_bundle()
+        .expect_err("existing bundle must reject");
+
+    assert_eq!(error, StaticArtifactRejectV1::PublishFailed);
+    assert!(!candidate_bundle.exists());
+    assert_eq!(fs::read(final_bundle.join("program")).unwrap(), b"prior");
+    fs::remove_dir_all(root).expect("remove fixture");
+}
+
+#[test]
 fn rename_failure_keeps_candidate_and_final_path_unpublished() {
     let root = root("rename_failure");
     let (json, object, archive) = build_fixture(&root, false, true);
