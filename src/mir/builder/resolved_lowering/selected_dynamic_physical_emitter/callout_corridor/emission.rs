@@ -176,6 +176,17 @@ fn representation(shape: CheckedCallOutNormalShapeV1) -> DynamicV2PhysicalRepres
     }
 }
 
+fn normal_result_type(
+    shape: CheckedCallOutNormalShapeV1,
+) -> Result<crate::mir::MirType, DynamicV2I8EmitterRejectV1> {
+    let return_shape = match shape {
+        CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. } => "string_handle",
+        CheckedCallOutNormalShapeV1::ImmediateI64 => "ScalarI64",
+    };
+    crate::mir::route_value_type_publication::route_return_shape_value_type(Some(return_shape))
+        .ok_or_else(|| reject(format!("missing canonical MIR type for {return_shape}")))
+}
+
 fn emit_jump(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
@@ -477,6 +488,19 @@ fn emit_program(
     let i6_fault = new_landing(canonical, outer, brand)?;
     let i7_normal = new_landing(canonical, outer, brand)?;
     let i7_fault = new_landing(canonical, outer, brand)?;
+    let i6_result_type = if matches!(
+        sites.i6_shape(),
+        CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. }
+    ) {
+        normal_result_type(sites.i6_shape())?
+    } else {
+        return Err(reject("I6 site plan is not EndAuthorizedHandle"));
+    };
+    let i7_result_type = if matches!(sites.i7_shape(), CheckedCallOutNormalShapeV1::ImmediateI64) {
+        normal_result_type(sites.i7_shape())?
+    } else {
+        return Err(reject("I7 site plan is not ImmediateI64"));
+    };
     let substring_arg0 = value(values, V6, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
     let substring_arg1 = value(values, V9, DynamicV2PhysicalRepresentationV1::ImmediateI64)?;
     emit_checked_callout(
@@ -496,14 +520,9 @@ fn emit_program(
             body_block,
             i6_normal.block(),
             sites.i6(),
+            i6_result_type,
         )
         .map_err(reject)?;
-    if !matches!(
-        sites.i6_shape(),
-        CheckedCallOutNormalShapeV1::EndAuthorizedHandle { .. }
-    ) {
-        return Err(reject("I6 site plan is not EndAuthorizedHandle"));
-    }
     values
         .publish(
             rows[6].item(),
@@ -551,18 +570,9 @@ fn emit_program(
             i6_normal.block(),
             i7_normal.block(),
             sites.i7(),
+            i7_result_type,
         )
         .map_err(reject)?;
-    canonical
-        .publish_physical_value_type(
-            outer.builder_view_mut_for_lowering(),
-            i7_projection.dst(),
-            crate::mir::MirType::Integer,
-        )
-        .map_err(reject)?;
-    if !matches!(sites.i7_shape(), CheckedCallOutNormalShapeV1::ImmediateI64) {
-        return Err(reject("I7 site plan is not ImmediateI64"));
-    }
     values
         .publish(
             rows[7].item(),

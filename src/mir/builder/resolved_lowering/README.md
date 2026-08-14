@@ -73,6 +73,13 @@ Header, and seals the canonical Header PHI with Enter and Continuation inputs.
 E5 closes the profile and hands the exact-two DraftSeal and cataloged collector
 receipt to the unpublished candidate path; live publication remains closed.
 
+The selected CallOut corridor keeps Normal-result typing at the canonical SSA
+issuer: the existing `string_handle -> MirType::Box("StringBox")` route
+projection is used for I6's `EndAuthorizedHandle`, while I7 uses the existing
+`ScalarI64 -> Integer` projection. ValueId issuance, MIR type publication, and
+the session-private lease/ImmediateI64 ledger row are one checked sequence; the
+corridor does not mutate `type_ctx` or repair a missing type after emit.
+
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
 plus the I7 CallSlot and I8 ConstI64 producer receipts, then routes its result

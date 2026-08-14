@@ -248,6 +248,20 @@ guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
   "canonical CFG must own the physical Fault terminal issuer"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
   "canonical SSA must own the physical End issuer"
+guard_expect_fixed_in_file "$TAG" "result_type: MirType" "$CALLOUT_SSA" \
+  "canonical Normal-result issuer must co-seal the MIR type"
+guard_expect_fixed_in_file "$TAG" "publish_physical_value_type(builder, dst, result_type)" "$CALLOUT_SSA" \
+  "Normal-result type publication must stay inside the canonical issuer"
+guard_expect_fixed_in_file "$TAG" "route_return_shape_value_type" "$CALLOUT_CORRIDOR_EMISSION" \
+  "selected callout types must reuse the existing route type projection"
+guard_expect_fixed_in_file "$TAG" "i6_result_type" "$CALLOUT_CORRIDOR_EMISSION" \
+  "I6 Normal result type must be preflighted before emission"
+guard_expect_fixed_in_file "$TAG" "i7_result_type" "$CALLOUT_CORRIDOR_EMISSION" \
+  "I7 Normal result type must be preflighted before emission"
+CALLOUT_CORRIDOR_CALL_REGION="$(sed -n '/let i6_normal =/,/let corridor =/p' "$CALLOUT_CORRIDOR_EMISSION")"
+if printf '%s\n' "$CALLOUT_CORRIDOR_CALL_REGION" | rg -n 'publish_physical_value_type'; then
+  guard_fail "$TAG" "callout corridor must not publish Normal-result types outside the canonical issuer"
+fi
 if [[ "$(rg -n 'commit_cataloged_box_method_completed\(' "$CATALOGED_HANDOFF" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "cataloged Box-method collector terminal definition must be unique"
 fi

@@ -352,50 +352,64 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         source: BasicBlockId,
         normal_landing: BasicBlockId,
         site_id: CheckedCallOutSiteIdV1,
+        result_type: MirType,
     ) -> Result<CheckedCallOutNormalResultProjectionV1, String> {
+        let dst = {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "checked callout result requires current function".to_owned())?;
+            if function.metadata.checked_callout_plan(site_id).is_none() {
+                return Err(
+                    "checked callout Normal projection has no admitted site plan".to_owned(),
+                );
+            }
+            let source_term = function
+                .get_block(source)
+                .and_then(|block| block.terminator.as_ref())
+                .ok_or_else(|| "checked callout source has no terminator".to_owned())?;
+            match source_term {
+                crate::mir::MirInstruction::CheckedCallOut {
+                    site_id: actual_site,
+                    normal_landing: actual_normal,
+                    ..
+                } if *actual_site == site_id && *actual_normal == normal_landing => {}
+                _ => return Err("checked callout source/Normal site mismatch".to_owned()),
+            }
+            let landing = function
+                .get_block(normal_landing)
+                .ok_or_else(|| "checked callout Normal landing is missing".to_owned())?;
+            if landing.is_sealed() {
+                return Err("checked callout Normal landing is already sealed".to_owned());
+            }
+            if landing.predecessors.len() != 1 || !landing.predecessors.contains(&source) {
+                return Err(
+                    "checked callout Normal landing must have exactly one predecessor".to_owned(),
+                );
+            }
+            if landing.instructions.iter().any(|inst| {
+                matches!(
+                    inst,
+                    crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                        site_id: existing,
+                        ..
+                    } if *existing == site_id
+                )
+            }) {
+                return Err("checked callout Normal projection was already issued".to_owned());
+            }
+            function.next_value_id()
+        };
+        // Type publication belongs to this canonical issuer, immediately
+        // beside the SSA definition.  Selected lanes provide only an already
+        // projected physical type; they do not mutate type_ctx themselves.
+        self.publish_physical_value_type(builder, dst, result_type)?;
         let function = builder
             .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "checked callout result requires current function".to_owned())?;
-        if function.metadata.checked_callout_plan(site_id).is_none() {
-            return Err("checked callout Normal projection has no admitted site plan".to_owned());
-        }
-        let source_term = function
-            .get_block(source)
-            .and_then(|block| block.terminator.as_ref())
-            .ok_or_else(|| "checked callout source has no terminator".to_owned())?;
-        match source_term {
-            crate::mir::MirInstruction::CheckedCallOut {
-                site_id: actual_site,
-                normal_landing: actual_normal,
-                ..
-            } if *actual_site == site_id && *actual_normal == normal_landing => {}
-            _ => return Err("checked callout source/Normal site mismatch".to_owned()),
-        }
-        let landing = function
-            .get_block(normal_landing)
-            .ok_or_else(|| "checked callout Normal landing is missing".to_owned())?;
-        if landing.is_sealed() {
-            return Err("checked callout Normal landing is already sealed".to_owned());
-        }
-        if landing.predecessors.len() != 1 || !landing.predecessors.contains(&source) {
-            return Err(
-                "checked callout Normal landing must have exactly one predecessor".to_owned(),
-            );
-        }
-        if landing.instructions.iter().any(|inst| {
-            matches!(
-                inst,
-                crate::mir::MirInstruction::CheckedCallOutNormalResult {
-                    site_id: existing,
-                    ..
-                } if *existing == site_id
-            )
-        }) {
-            return Err("checked callout Normal projection was already issued".to_owned());
-        }
-        let dst = function.next_value_id();
         let projection = crate::mir::MirInstruction::CheckedCallOutNormalResult { site_id, dst };
         function
             .get_block_mut(normal_landing)

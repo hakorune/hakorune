@@ -634,6 +634,12 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 
     #[cfg(test)]
+    pub(super) fn i6_normal_block_for_test(&self) -> BasicBlockId {
+        self.callout_corridor
+            .with_i6_normal(|target| target.block())
+    }
+
+    #[cfg(test)]
     pub(super) fn i7_normal_block_for_test(&self) -> BasicBlockId {
         self.callout_corridor
             .with_i7_normal(|target| target.block())

@@ -230,9 +230,47 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         ));
         assert!(i7_fault.successors.is_empty());
         let i7_normal_block = session.i7_normal_block_for_test();
+        let i6_normal_block = session.i6_normal_block_for_test();
+        let i6_normal = function
+            .get_block(i6_normal_block)
+            .expect("I6 Normal landing");
+        let i6_result_dst = i6_normal
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(0),
+                    dst,
+                } => Some(*dst),
+                _ => None,
+            })
+            .expect("I6 Normal projection");
         let i7_normal = function
             .get_block(i7_normal_block)
             .expect("I7 Normal landing");
+        let i7_result_dst = i7_normal
+            .instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::CheckedCallOutNormalResult {
+                    site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1(1),
+                    dst,
+                } => Some(*dst),
+                _ => None,
+            })
+            .expect("I7 Normal projection");
+        let type_ctx = &session
+            .outer
+            .as_ref()
+            .expect("outer session")
+            .builder_view()
+            .function_state
+            .type_ctx;
+        assert_eq!(
+            type_ctx.get_type(i6_result_dst),
+            Some(&crate::mir::MirType::Box("StringBox".to_string()))
+        );
+        assert_eq!(type_ctx.get_type(i7_result_dst), Some(&crate::mir::MirType::Integer));
         assert_eq!(i7_normal.predecessors.len(), 1);
         let normal_result_index = i7_normal
             .instructions

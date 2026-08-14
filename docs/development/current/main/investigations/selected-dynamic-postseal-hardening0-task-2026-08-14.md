@@ -937,10 +937,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0` (closed 2026-08-14 BoxShape)
    - catalog row -> one linear package-loan projection -> A-prime; raw
      AST/root re-observation removed; focused tests and authority guard pass.
-8. `DYN-CALLOUT-NORMAL-RESULT-TYPE-R0`
-   - have the canonical normal-result issuer co-seal ValueId, site shape,
-     MIR type, physical representation, and value-ledger publication;
-   - specifically close the missing I6 handle type publication.
+8. `DYN-CALLOUT-NORMAL-RESULT-TYPE-R0` (accepted 2026-08-14 BoxShape)
+   - Decision: I6 `StringValue` + `opaque_handle` uses the existing `string_handle -> MirType::Box("StringBox")` projection; co-seal type, EndAuthorizedHandle lease representation, and ledger row; retain I7 Integer/ImmediateI64.
+   - Authority: CheckedCallOut plan + route projection + canonical SSA issuer + private ledger; reject shape/type/representation/PlanStamp/landing or duplicate drift.
+   - Slice: canonical typed publication helper, selected positive/negative tests, and one existing authority-guard extension; no new guard family.
 9. `DYN-DRAFTSEAL-EVIDENCE-CONSUME-R0`
    - decide and guard the explicit collector consumption or intentional
      nonauthority retirement of Completion and `FunctionDraftSealReceiptV1`;
