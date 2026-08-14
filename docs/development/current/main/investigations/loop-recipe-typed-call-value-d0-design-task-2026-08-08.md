@@ -337,6 +337,15 @@ src/mir/source_call_target/model.rs
   = borrowed target + owner/frame + source receiver/args/result sites
 ```
 
+This CoreMethod product gets a dedicated issuer/catalog; it is not another
+variant of `VerifiedSourceCallTargetV1` and is not inserted into its existing
+`Static`/`DynamicMember` rows. Those rows already feed static publication and
+Dynamic selector/physical consumers. The dedicated catalog co-seals the
+manifest brand with the source owner/frame brand, while the relation issuer
+borrows the target and performs only site/cardinality checks. It performs no
+method/Box lookup, generated-row relookup, Recipe-key/ValueId/BasicBlockId
+issuance, ABI reclassification, or physical-ID issuance.
+
 `CoreMethodManifestBrandV1` is an opaque projection of the generated manifest
 schema/row brand, not a new semantic authority. `Home` may be issued only by
 an explicit resolver Home capability for `StringBox`/`Text`; it is never
