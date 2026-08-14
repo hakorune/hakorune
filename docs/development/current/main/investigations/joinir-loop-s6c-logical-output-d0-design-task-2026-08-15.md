@@ -1,7 +1,7 @@
 ---
-Status: design_stop; S6C logical JOINIR input façade is landed, but the owned logical output representation is not yet accepted
+Status: accepted-corrected; S6C owned logical JOINIR output representation accepted for bounded I0 producer
 Date: 2026-08-15
-Decision: keep JoinModule/MIR closed and fix one source-retaining logical-output owner before any producer
+Decision: issue one source-retaining non-Clone logical-output product; keep JoinModule/MIR closed
 Scope: M8 LoopV0 forward ScanWithInit logical output only; no physical activation
 ---
 
@@ -16,25 +16,26 @@ rows, TextEq/If, and the existing Join branch/summary/Backedge/After view.
 It does not emit JoinIR, MIR, physical IDs, Artifact, a selector, or a
 production caller.
 
-The next output boundary is deliberately a design stop. An owned logical
-projection may be needed by a future consumer, but its owner, identity, and
-consumer dialect are not yet canonical. Do not implement a new `Verified*` or
-`Prepared*` output product until this card is accepted.
+The output boundary is now fixed for one bounded producer. The product is a
+semantic logical transport, not a physical preparation product. It retains the
+original source/Recipe/Join product so the projection cannot become a second
+authority. JoinModule/MIR and production remain closed.
 
 ## Audit decision
 
 ```text
-Decision: NoSafeSlice for output implementation; accept one D0 design task.
+Decision: accept one source-retaining non-Clone logical-output product for I0.
 Source authority + canonical issuer: the existing combined S6C Recipe product
-  is the only source/Recipe/Join authority; the logical-output issuer is not
-  yet accepted.
+  is the only source/Recipe/Join authority; one S6C logical-output issuer
+  consumes it by value.
 Non-authority: JoinModule/JoinFunction/JoinInst, MIR ValueId, JoinValueSpace,
   JoinFuncId/JoinContId, names, AST/source order, Artifact, selector, fallback,
   retry, physical layout, and production callers.
-Fail-fast boundary: owner, identity, row/control vocabulary, call relation,
-  and ownership/failure terminal must be fixed before output issuance.
-Smallest next slice: design the source-retaining logical-output owner and its
-  private view; no code, new receipt, JoinModule, or MIR handoff in D0.
+Fail-fast boundary: exact owner, Recipe-local identity, typed rows, CallSlot
+  source parity, Join transfer ownership, and terminal reject are fixed before
+  output issuance.
+Smallest next slice: implement one bounded I0 producer in split output files;
+  no JoinModule, MIR, physical ID, or backend handoff.
 Non-claims: no output producer, JoinModule generation, MIR lowering, backend,
   Artifact/provenance, production switch, fallback/retry, or legacy retirement.
 ```
@@ -53,12 +54,11 @@ Recipe owns typed rows and local keys; Join owns branch, summary, Backedge,
 and After transfer. The future output must borrow or co-seal these authorities,
 not re-elaborate them.
 
-## Decisions that D0 must close
+## Closed D0 decisions
 
 ### 1. Owned boundary
 
-Choose whether the future product is a source-retaining non-Clone product,
-for example:
+The accepted product is a source-retaining non-Clone product:
 
 ```text
 VerifiedS6CScanWithInitLogicalOutputV1 {
@@ -75,9 +75,9 @@ consumer input is allowed.
 
 ### 2. Identity and representation
 
-D0 must decide whether existing Recipe-local keys are sufficient or a new
-branded logical output identity is required. Bare `u32`, `ValueId`,
-`JoinFuncId`, `JoinContId`, names, selectors, and physical IDs are forbidden.
+Recipe-local keys are the logical identity. No new output-key issuer is
+allowed. Bare `u32`, `ValueId`, `JoinFuncId`, `JoinContId`, names, selectors,
+and physical IDs are forbidden.
 The exact logical vocabulary must remain typed:
 
 ```text
@@ -101,11 +101,37 @@ exit or Join summary.
 
 ### 4. Future consumer owner
 
-D0 must name one product-first consumer seam and define its input/output
-dialect. The current `LoopToJoinLowerer` may remain a compatibility consumer,
-but its MIR/name/Option-fallback API is not an accepted S6C path. No output
-producer is opened until this owner can consume the source-retaining product
-without rewalking MIR or selecting by name.
+The future consumer is a product-first seam inside the S6C logical-output
+owner. It receives only `with_output`'s private HRTB view. The current
+`LoopToJoinLowerer` remains a compatibility consumer, but its
+MIR/name/Option-fallback API is not an accepted S6C path. I0 does not open a
+production consumer; it only fixes the transport API for that future seam.
+
+## Accepted I0 API contract
+
+```rust
+pub(crate) struct VerifiedS6CScanWithInitLogicalOutputV1 {
+    product: VerifiedS6CScanWithInitRecipeProductV2,
+    rows: S6CLogicalOutputRowsV1,
+}
+
+pub(crate) fn issue_s6c_scan_with_init_logical_output_v1(
+    product: VerifiedS6CScanWithInitRecipeProductV2,
+) -> Result<VerifiedS6CScanWithInitLogicalOutputV1, S6CLogicalOutputRejectV1>;
+
+impl VerifiedS6CScanWithInitLogicalOutputV1 {
+    pub(crate) fn with_output<R>(
+        &self,
+        callback: impl for<'output>
+            FnOnce(S6CScanWithInitLogicalOutputRefV1<'output>) -> R,
+    ) -> R;
+}
+```
+
+The output owns fixed rows but does not copy Join transfer or source-call
+contracts. `with_output` borrows the existing `LoopJoinLogicalTransferViewV2`
+and typed call views from the retained product. No raw Recipe/JoinSig,
+`into_parts`, JoinModule, or Recipe-only consumer input exists.
 
 ## Bounded D0 deliverables
 
@@ -124,10 +150,18 @@ D0-F  implementation boundary
       future files split below 760 lines; no change to typed_schema_v2.rs
 ```
 
-D0 is documentation and read-only census only. It must not mint a new
-semantic receipt, add a Recipe kind, add a JoinModule adapter, or call a
-backend. Once D0 is accepted, the first implementation row is a separate
-bounded producer and remains caller-zero.
+The design row is closed. Its first implementation row is a separate bounded
+producer and remains caller-zero. That producer must use split files
+`s6c_scan_with_init_joinir_output.rs`,
+`s6c_scan_with_init_joinir_output_rows.rs`, and a focused test module; each
+Rust source stays below the 760-line design trigger and 800-line hard stop.
+
+## Next bounded implementation row
+
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0` consumes the combined
+product by value, issues the fixed logical rows once, retains the original
+product, and lends only the private HRTB output view. It remains caller-zero;
+JoinModule/MIR and physical/production handoff are not part of I0.
 
 ## Acceptance and negative matrix
 
