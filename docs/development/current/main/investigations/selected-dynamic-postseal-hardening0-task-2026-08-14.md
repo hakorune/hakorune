@@ -812,18 +812,19 @@ Non-claims: no chmod, wrapper move/delete, manifest repair, compiler change,
 fallback, archive publication, or production cutover.
 ```
 
-#### GUARD-QUICK-PROFILE-RECUT-R0 (next design stop)
+#### GUARD-QUICK-PROFILE-RECUT-R0 (accepted BoxShape implementation)
 
 ```text
-Decision: expose named groups over the existing dev_gate quick steps without
-changing command order, behavior, selected gates, or failure signals.
+Decision: expose exactly ten non-executing groups over the existing dev_gate
+quick steps without changing command order, behavior, selected gates, or
+failure signals.
 Source authority + canonical issuer: dev_gate.sh and its existing quick-step
 list/group runner; manifests and proof profiles remain the data owners.
 Non-authority: the human index, grep counts, wrapper names, or a new guard file.
 Fail-fast boundary: missing/duplicate group, changed command/profile, or absent
 selected/current-state gate blocks the recut and preserves the current profile.
-Smallest next slice: map 66 quick steps into roughly 10--15 named groups and
-record before/after entry, timing, and failure-signal parity.
+Smallest next slice: add group markers to the same 66-step source list, make
+`--list` show groups, and retain an explicit detailed-step listing for audit.
 Non-claims: no script deletion, compiler change, fallback, archive, llvmlite
 retirement, or production cutover.
 ```
