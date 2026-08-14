@@ -13,8 +13,8 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     VerifiedDynamicExitTransactionCoSealV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::EffectMask;
 use crate::mir::function::MirParamDecl;
+use crate::mir::EffectMask;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum APrimeI64PhysicalDemandRejectV1 {

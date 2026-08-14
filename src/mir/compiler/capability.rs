@@ -18,8 +18,7 @@ use crate::mir::resolved_value_profile::{
     analyze_trivial_canonical_main_owner_v1,
     analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1,
     analyze_trivial_canonical_owner_v1,
-    analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
-    TrivialCanonicalOwnerAnalysisV1,
+    analyze_trivial_canonical_owner_with_finite_direct_calls_v1, TrivialCanonicalOwnerAnalysisV1,
 };
 
 use super::direct_accum_capability::{

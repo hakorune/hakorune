@@ -215,9 +215,7 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.pred_chars_class
     }
 
-    pub(in crate::mir) fn formal_rows(
-        &self,
-    ) -> [DynamicAPrimeFormalRelationRowV1<'_>; 4] {
+    pub(in crate::mir) fn formal_rows(&self) -> [DynamicAPrimeFormalRelationRowV1<'_>; 4] {
         [
             DynamicAPrimeFormalRelationRowV1 {
                 ordinal: 0,
@@ -298,12 +296,13 @@ pub(super) fn issue_view(
     let loop_site = statement(source, DynamicFullBodySourceRoleV1::Loop)?;
     let condition_i = expression(source, DynamicFullBodySourceRoleV1::LoopConditionI)?;
     let condition_end = expression(source, DynamicFullBodySourceRoleV1::LoopConditionEnd)?;
-    let substring_receiver =
-        expression(source, DynamicFullBodySourceRoleV1::SubstringReceiverSrc)?;
+    let substring_receiver = expression(source, DynamicFullBodySourceRoleV1::SubstringReceiverSrc)?;
     let substring_start = expression(source, DynamicFullBodySourceRoleV1::SubstringStartI)?;
     let substring_end_i = expression(source, DynamicFullBodySourceRoleV1::SubstringEndI)?;
-    let index_of_receiver =
-        expression(source, DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars)?;
+    let index_of_receiver = expression(
+        source,
+        DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
+    )?;
     let step_read_i = expression(source, DynamicFullBodySourceRoleV1::StepReadI)?;
     let step_target_i = expression(source, DynamicFullBodySourceRoleV1::StepTargetI)?;
     let inner_return_i = expression(source, DynamicFullBodySourceRoleV1::InnerReturnI)?;
