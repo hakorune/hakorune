@@ -53,6 +53,46 @@ carry a co-sealed operation/effect product, exact owner/frame/scope context, or
 the host/session capability expected by a physicalizer. The D0 decision is to
 name and test that join before any physical product is issued.
 
+## Read-only owner audit result
+
+The current code confirms the boundary gap rather than closing it:
+
+```text
+VerifiedS6CScanWithInitRecipeProductV2
+  owns Facts + Recipe + role seal + Join closure
+  lends source-bound calls and LoopJoinLogicalTransferViewV2
+
+VerifiedLoopOperationPhysicalDemandV1
+  requires VerifiedLoopSemanticContextV1
+  requires VerifiedLoopOperationEffectProductV1
+  requires VerifiedLoopContinuationContractV1
+  then may prepare a physical program/layout
+```
+
+`VerifiedS6CScanWithInitFactsV1` retains the resolver source/Completion
+co-seal and exact body coverage, but does not issue or retain the neutral
+semantic context, item-keyed operation/effect evidence, or continuation
+capability required by `VerifiedLoopOperationPhysicalDemandV1`. The existing
+callable adapter creates those products from a different callable Recipe
+co-seal; it is not valid to rebuild them from S6C logical rows or to pass the
+logical consumer's `Consumed` observation as a substitute.
+
+Therefore the exact audit decision is:
+
+```text
+physical-ingress issuer/co-seal = not yet named for S6C
+physical implementation I0       = NoSafeSlice
+reason                            = MissingS6CPhysicalIngressIssuer
+```
+
+This is an authority gap, not a test-only or theoretical hardening issue. No
+code or new semantic receipt is authorized until an existing resolver-side
+issuer can provide the missing context/effect/continuation/host capability and
+co-seal it with this exact S6C product without a second source or Recipe pair.
+The evidence is the current split between `semantic_context.rs`,
+`operation_effect.rs`, `continuation.rs`, and the callable-only adapter in
+`src/mir/compiler/callable_single_loop_operation_effect.rs`.
+
 ## Canonical boundary
 
 The future physical owner is a selected adapter under the existing resolved
