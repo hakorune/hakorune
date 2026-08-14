@@ -121,6 +121,16 @@ sub-row must classify every tracked path against the six allowed dispositions,
 starting with the indexed stable entries and manifest-backed families, then
 record unknown rows rather than infer deletion from a grep or executable bit.
 
+The index census separates two authorities that must not be collapsed: the
+human-facing table currently has 573 stable-entry rows, while its required
+machine-readable compatibility block retains 2,017 historical names (16 also
+appear in the table).  The loaded guard manifest has 102 rows/command paths
+across overlapping profiles.  Therefore `GUARD-PUBLIC-ENTRY-CUT-R0` may reduce
+the navigational surface only after an owner-backed generated inventory exists;
+it must preserve the compatibility block, classify every omitted path as
+`unknown_retain` until proven otherwise, and must not delete or relocate a
+script in this D0.
+
 The inventory records one owner, one caller/profile, one evidence kind, and
 one disposition for every tracked check.  `stable_public_entry`,
 `family_manifest_case`, `focused_behavior_test`, `historical_archive`,
