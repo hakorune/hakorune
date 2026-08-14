@@ -327,16 +327,15 @@ exactly one Return summary, and one Backedge. Focused positive construction
 and facade tests pass; physical selection and production callers remain
 closed.
 
-The product-first JOINIR row façade R0 is now landed as a separate private view. Its
-`recipe_rows()` projection exposes only typed operation/value/block/loop/
-carrier/If/Exit rows selected through the fixed role accessors. The next bounded
-row is a private HRTB logical JOINIR input façade over the combined product. It
-must co-check the length/substring CallSlot rows with their source-bound
-receiver/args/result contracts and the existing logical transfer view. It must
-not lend the raw Recipe, accept arbitrary key iteration, emit `JoinModule`/MIR,
-or choose a route. The current `LoopToJoinLowerer` MIR/name/fallback `lower`
-remains a compatibility non-consumer; Artifact/source binding and production
-callers remain closed.
+The product-first JOINIR input façade is now landed in
+`s6c_scan_with_init_joinir.rs` as the private HRTB
+`S6CScanWithInitLogicalJoinInputRefV1`. It co-checks exact Recipe domains,
+length/substring CallSlot receiver/args/result parity, TextEq/If, and the
+existing Join branch/Return-summary/Backedge/After view. It lends only typed
+call and transfer rows; it does not lend raw Recipe/JoinSig, emit JoinModule/MIR,
+choose a route, or import the callable Tail `-1`. Four focused tests cover the
+positive façade plus swapped call arguments/receiver; physical selection and
+production callers remain closed.
 
 ## Generic G0 S4 producer
 

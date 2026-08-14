@@ -49,16 +49,16 @@ pub(crate) struct S6CSourceBoundCallRelationRefV1<'a> {
     substring: &'a VerifiedResolverCoreMethodCallableContractV1,
 }
 
-impl S6CSourceBoundCallRelationRefV1<'_> {
-    pub(crate) const fn typed(&self) -> &VerifiedS6CTypedInputRelationV1 {
+impl<'a> S6CSourceBoundCallRelationRefV1<'a> {
+    pub(crate) const fn typed(self) -> &'a VerifiedS6CTypedInputRelationV1 {
         self.typed
     }
 
-    pub(crate) const fn length(&self) -> &VerifiedResolverCoreMethodCallableContractV1 {
+    pub(crate) const fn length(self) -> &'a VerifiedResolverCoreMethodCallableContractV1 {
         self.length
     }
 
-    pub(crate) const fn substring(&self) -> &VerifiedResolverCoreMethodCallableContractV1 {
+    pub(crate) const fn substring(self) -> &'a VerifiedResolverCoreMethodCallableContractV1 {
         self.substring
     }
 }

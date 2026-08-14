@@ -1,5 +1,5 @@
 ---
-Status: S6C Recipe I0 and product-first row façade R0 landed; logical JOINIR input façade accepted for bounded implementation
+Status: S6C Recipe I0 and logical JOINIR input façade landed; JoinModule/MIR output remains closed
 Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -17,9 +17,8 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, fixed source-bound relation, Exit/Tail co-seal, Facts I0, and Recipe
   I0 are closed. The product and selector remain caller-zero.
-- **Next ordered task:** implement the bounded borrow-only logical JOINIR input
-  façade `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0`; no JoinModule/MIR handoff is
-  allowed.
+- **Current bounded result:** the private HRTB logical JOINIR input façade is
+  landed; no JoinModule/MIR handoff is opened.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -48,10 +47,23 @@ layout, Artifact/provenance, selector, backend, production caller, fallback,
 retry, or legacy retirement.
 ```
 
-The row façade is landed in `s6c_scan_with_init_rows.rs`. The next bounded
-implementation must add only the JOINIR-specific private input façade, keep the
-existing `JoinModule`/MIR lowerers untouched, and perform call/transfer parity
-inside the combined-product borrow. No owned output product is introduced.
+The logical JOINIR input façade is landed in
+`s6c_scan_with_init_joinir.rs`; the existing `JoinModule`/MIR lowerers remain
+untouched and non-consumers. No owned output product is introduced.
+
+### Logical JOINIR input façade implementation receipt — 2026-08-15
+
+`with_s6c_scan_with_init_logical_join_input` lends the private
+`S6CScanWithInitLogicalJoinInputRefV1` only inside the combined Recipe product
+callback. It co-checks all eight Recipe domains, the fixed length/substring
+receiver/args/result contracts, TextEq/If, and the existing Join branch,
+Return-summary, Backedge, and After rows. Raw Recipe/JoinSig, JoinModule/MIR,
+physical IDs, Artifact/source binding, selector, fallback, retry, and the
+callable Tail `-1` remain outside the view. Focused positive plus swapped
+argument/receiver negatives pass; production selection remains closed. The
+broader `loop_recipe_contract` suite is 129/130 with the one
+`source_bound_core_tests` red reproduced unchanged on parent `62b00d6ead` and
+classified as inherited baseline debt, not this façade row.
 
 ## Landed Recipe I0 implementation receipt — 2026-08-15
 

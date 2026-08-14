@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, and the private product-first row façade R0 are landed. The borrow-only logical JOINIR input façade is now accepted as the next bounded BoxShape; JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, and the private logical JOINIR input façade are landed. JoinModule/MIR output remains closed for the next design stop. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 design accepted: implement one private borrow-only logical JOINIR input façade; keep JoinModule/MIR/name/fallback lowerers non-consumers"
-work_mode = "fast"
+current_design_stop = "S6C logical JOINIR input façade landed; design the next owned logical output representation before any JoinModule/MIR consumer"
+work_mode = "design_stop"
 current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0"
-current_blocker_token = "Implement s6c_scan_with_init_joinir.rs as a private HRTB logical input façade over the combined Recipe product. Co-check fixed Recipe domains, length/substring receiver-args-result parity, TextEq/If, Join branch/Return summary/Backedge/After, and keep callable Tail -1 outside. No new semantic product/key, JoinModule/MIR, physical IDs, Artifact, selector, fallback, retry, or production caller."
+current_blocker_token = "Façade R0 is closed with exact call/transfer parity and no production caller. Before any output consumer, fix the next source-to-logical-output owner: no JoinModule/MIR, physical IDs, Artifact, selector, fallback, retry, or production switch until the output representation and canonical issuer are designed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C borrow-only logical JOINIR input façade)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, and its private typed row façade are landed. The next bounded fast row is one borrow-only logical JOINIR input façade over that combined product; JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C logical JOINIR output design)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, and its private logical JOINIR input façade are landed. The next step is a design stop for the owned logical output representation; JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, S6C source/CoreMethod/call/Exit-Tail/Facts, Recipe I0, and product-first row façade R0 are closed. The combined non-Clone product is the sole input authority; the current MIR/name/fallback lower remains non-consumer. The next bounded fast row is a private borrow-only logical JOINIR input façade with call/transfer parity; JoinModule, physical output, Artifact, and production remain closed."
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, S6C source/CoreMethod/call/Exit-Tail/Facts, Recipe I0, and the private logical JOINIR input façade are closed. The combined non-Clone product remains the sole input authority; the current MIR/name/fallback lower remains non-consumer. The next step is a design stop for an owned logical output representation; JoinModule, physical output, Artifact, and production remain closed."
 next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0"
-next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 landed the private borrow-only logical JOINIR input façade: exact Recipe domains, source-bound length/substring CallSlot parity, TextEq/If, and Join branch/Return-summary/Backedge/After are co-checked inside the combined non-Clone product; four focused tests and existing Loop/pointer guards are green; JoinModule/MIR output and production remain closed.",
   "2026-08-15: LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 landed the bounded T2 BoxCount: consume Facts by value into one non-Clone verified V2 Recipe + fixed all-domain role seal + sole-root Join closure/prevalidated logical-transfer product; only private facades are lent, focused producer test is green, and Artifact/source binding remains an explicit non-claim.",
   "2026-08-14: LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 closed the fixed two-commit BoxShape: the same resolver seal now transports body shape and exact Plain/Compound assignment form, and the sole non-Clone Facts issuer closes exact statement/expression/effect/relation coverage with an HRTB view; focused S6C tests, cargo check, pointer guard, and diff check are green; Recipe/physical production remain closed.",
   "2026-08-14: LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 accepted one fixed two-commit T2 BoxShape: carry the same-seal root body-shape inventory and exact Plain/Compound assignment source, retain the exact index update, close all expected statement/expression/effect/relation evidence, then issue one non-Clone Facts owner; family-count-only closure was rejected by extra-pure-expression and compound-assignment counterexamples; Recipe/physical production remain closed.",
@@ -57,6 +58,5 @@ landed_tail = [
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
-  "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-14: DYN-CALLOUT-NORMAL-RESULT-TYPE-R0 closed one typed Normal-result boundary: canonical SSA now co-seals I6 StringBox and I7 Integer from the existing route projection, while the private ledger retains EndAuthorizedHandle/ImmediateI64; selected focused tests, authority/physical-input/current-state guards, and diff check are green; production remains new=0 old=1.",
 ]

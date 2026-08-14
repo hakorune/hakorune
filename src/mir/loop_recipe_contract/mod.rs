@@ -19,6 +19,11 @@ mod producer_id;
 pub(crate) mod route_id;
 #[allow(dead_code)]
 mod s6c_scan_with_init;
+// Caller-zero until a later product-first JOINIR consumer is admitted.
+#[allow(dead_code)]
+mod s6c_scan_with_init_joinir;
+// Typed row façade is currently exercised by focused tests only.
+#[allow(dead_code)]
 mod s6c_scan_with_init_rows;
 mod schema;
 mod schema_v2;
@@ -195,6 +200,11 @@ pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
     S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
     S6CVerifiedRecipeReadViewV2, VerifiedS6CJoinRoleSealV2, VerifiedS6CScanWithInitRecipeProductV2,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_joinir::{
+    with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
+    S6CLogicalJoinInputRejectV1, S6CScanWithInitLogicalJoinInputRefV1,
 };
 #[allow(unused_imports)]
 pub(crate) use schema::{

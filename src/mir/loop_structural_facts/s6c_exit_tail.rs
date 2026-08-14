@@ -55,36 +55,36 @@ pub(crate) struct S6CExitTailSourceCoSealRefV1<'a> {
     tail_operand: &'a SourceExprSiteV1,
 }
 
-impl S6CExitTailSourceCoSealRefV1<'_> {
-    pub(crate) const fn calls(&self) -> S6CSourceBoundCallRelationRefV1<'_> {
+impl<'a> S6CExitTailSourceCoSealRefV1<'a> {
+    pub(crate) const fn calls(self) -> S6CSourceBoundCallRelationRefV1<'a> {
         self.calls
     }
 
-    pub(crate) const fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+    pub(crate) const fn completion(self) -> &'a VerifiedFunctionCompletionV1 {
         self.completion
     }
 
-    pub(crate) const fn if_site(&self) -> &SourceStmtSiteV1 {
+    pub(crate) const fn if_site(self) -> &'a SourceStmtSiteV1 {
         self.if_site
     }
 
-    pub(crate) const fn loop_return_site(&self) -> &SourceStmtSiteV1 {
+    pub(crate) const fn loop_return_site(self) -> &'a SourceStmtSiteV1 {
         self.loop_return_site
     }
 
-    pub(crate) const fn loop_return_value(&self) -> &SourceExprSiteV1 {
+    pub(crate) const fn loop_return_value(self) -> &'a SourceExprSiteV1 {
         self.loop_return_value
     }
 
-    pub(crate) const fn tail_site(&self) -> &SourceStmtSiteV1 {
+    pub(crate) const fn tail_site(self) -> &'a SourceStmtSiteV1 {
         self.tail_site
     }
 
-    pub(crate) const fn tail_value(&self) -> &SourceExprSiteV1 {
+    pub(crate) const fn tail_value(self) -> &'a SourceExprSiteV1 {
         self.tail_value
     }
 
-    pub(crate) const fn tail_operand(&self) -> &SourceExprSiteV1 {
+    pub(crate) const fn tail_operand(self) -> &'a SourceExprSiteV1 {
         self.tail_operand
     }
 }

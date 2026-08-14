@@ -16,6 +16,7 @@ use crate::mir::source_call_target::issue_source_bound_s6c_call_relation_v1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::produce_s6c_scan_with_init_recipe_v2;
+use super::s6c_scan_with_init_joinir::with_s6c_scan_with_init_logical_join_input;
 use super::s6c_scan_with_init_rows::{
     S6CRecipeExitRowRefV2, S6CRecipeIfRowRefV2, S6CRecipeOperationRowRefV2,
 };
@@ -115,4 +116,54 @@ fn producer_seals_exact_recipe_and_join_facade() {
         assert_eq!(view.logical_transfer().summary_transfers().len(), 1);
         assert_eq!(view.join_role_seal().backedge_count(), 1);
     });
+}
+
+#[test]
+fn logical_join_input_facade_co_seals_calls_and_transfer() {
+    let product = produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 902))
+        .expect("exact S6C Recipe product");
+    with_s6c_scan_with_init_logical_join_input(&product, |input| {
+        assert_eq!(input.rows().loop_count(), 1);
+        assert_eq!(input.rows().block_count(), 3);
+        assert_eq!(input.rows().binding_count(), 1);
+        assert_eq!(input.rows().input_count(), 3);
+        assert_eq!(input.rows().value_count(), 15);
+        assert_eq!(input.rows().item_count(), 15);
+        assert_eq!(input.rows().carrier_count(), 1);
+        assert_eq!(input.rows().exit_count(), 1);
+        assert_eq!(input.length().operation(), CoreMethodOp::StringLen);
+        assert_eq!(input.length().arity(), 0);
+        assert_eq!(
+            input.length().placement(),
+            crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition
+        );
+        assert_eq!(input.substring().operation(), CoreMethodOp::StringSubstring);
+        assert_eq!(input.substring().arity(), 2);
+        assert_eq!(
+            input.substring().placement(),
+            crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body
+        );
+        assert_eq!(input.rows().item_count(), 15);
+        assert_eq!(input.logical_transfer().branches().len(), 1);
+        assert_eq!(input.logical_transfer().summary_transfers().len(), 1);
+        assert_eq!(
+            input
+                .logical_transfer()
+                .boundaries()
+                .iter()
+                .filter(|row| row.role
+                    == crate::mir::loop_recipe_contract::LoopJoinEdgeRoleV1::Backedge)
+                .count(),
+            1
+        );
+        assert!(matches!(
+            input.length().recipe_row(),
+            S6CRecipeOperationRowRefV2::CallSlot {
+                receiver: Some(_),
+                args,
+                result: Some(_),
+            } if args.is_empty()
+        ));
+    })
+    .expect("logical JOINIR input parity");
 }

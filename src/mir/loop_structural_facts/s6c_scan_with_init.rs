@@ -56,8 +56,8 @@ impl VerifiedS6CScanWithInitFactsV1 {
     }
 }
 
-impl S6CScanWithInitFactsRefV1<'_> {
-    pub(crate) const fn source(&self) -> S6CExitTailSourceCoSealRefV1<'_> {
+impl<'a> S6CScanWithInitFactsRefV1<'a> {
+    pub(crate) const fn source(self) -> S6CExitTailSourceCoSealRefV1<'a> {
         self.source
     }
 }

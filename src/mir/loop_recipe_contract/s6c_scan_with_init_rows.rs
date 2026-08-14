@@ -114,6 +114,38 @@ impl<'a> S6CScanWithInitRecipeRowsRefV2<'a> {
         Self { recipe, roles }
     }
 
+    pub(crate) fn loop_count(self) -> usize {
+        self.recipe.as_recipe().loops.len()
+    }
+
+    pub(crate) fn block_count(self) -> usize {
+        self.recipe.as_recipe().blocks.len()
+    }
+
+    pub(crate) fn binding_count(self) -> usize {
+        self.recipe.as_recipe().bindings.len()
+    }
+
+    pub(crate) fn input_count(self) -> usize {
+        self.recipe.as_recipe().inputs.len()
+    }
+
+    pub(crate) fn value_count(self) -> usize {
+        self.recipe.as_recipe().values.len()
+    }
+
+    pub(crate) fn item_count(self) -> usize {
+        self.recipe.as_recipe().items.len()
+    }
+
+    pub(crate) fn carrier_count(self) -> usize {
+        self.recipe.as_recipe().carriers.len()
+    }
+
+    pub(crate) fn exit_count(self) -> usize {
+        self.recipe.as_recipe().exits.len()
+    }
+
     pub(crate) fn root_loop(self) -> Option<S6CRecipeLoopRowRefV2> {
         self.loop_row(self.roles.root_loop())
     }
@@ -168,6 +200,10 @@ impl<'a> S6CScanWithInitRecipeRowsRefV2<'a> {
         };
         let row = operation_row(operation);
         (operation_result(operation) == Some(role.result())).then_some(row)
+    }
+
+    pub(crate) fn operation_result_class(self, role: DefinedRoleV2) -> Option<LoopValueClassV2> {
+        self.value(role.result()).map(|value| value.class)
     }
 
     pub(crate) fn write(self, role: WriteRoleV2) -> Option<S6CRecipeOperationRowRefV2<'a>> {
