@@ -41,10 +41,18 @@ resolver_contract_consumers="$({
     --glob '*.rs' || true
 } | sort -u)"
 expected_resolver_contract_test="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_tests.rs"
-if [[ -n "$resolver_contract_consumers" && "$resolver_contract_consumers" != "$expected_resolver_contract_test" ]]; then
-  guard_fail "$TAG" \
-    "resolver callable contract must remain caller-zero outside its focused tests: $resolver_contract_consumers"
-fi
+expected_resolver_contract_consumer="$ROOT_DIR/src/mir/source_call_target/core_method.rs"
+while IFS= read -r path; do
+  [[ -z "$path" ]] && continue
+  case "$path" in
+    "$expected_resolver_contract_test"|"$expected_resolver_contract_consumer") ;;
+    *) guard_fail "$TAG" "unexpected resolver callable-contract consumer: $path" ;;
+  esac
+done <<< "$resolver_contract_consumers"
+guard_expect_fixed_in_file "$TAG" \
+  "ResolverCoreMethodCallableContractIssuerV1::issue" \
+  "$expected_resolver_contract_consumer" \
+  "source-bound S6C relation must be the sole non-test callable-contract consumer"
 
 core_lookup_consumers="$({
   rg -l 'lookup_core_method_result_row_v1' "$ROOT_DIR/src/mir" \

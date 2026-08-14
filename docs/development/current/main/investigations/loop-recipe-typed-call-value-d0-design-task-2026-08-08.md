@@ -1,5 +1,5 @@
 ---
-Status: callable placement I0 landed; source-bound relation I0 is current
+Status: source-bound relation I0 landed; typed-input Facts/Recipe D0 is current
 Date: 2026-08-14
 Decision: retain exact call sites, make the existing callable contract placement-aware, then co-seal one non-Clone S6C source-bound relation
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -10,14 +10,14 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
-  callable contract, and explicit S6C typed-input product are landed. The
-  source-bound relation D0 is accepted as three bounded cells.
+  callable contract, typed-input product, and source-bound relation are
+  landed. The complete S6C Facts-to-Recipe producer is the next authority.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
-  CoreMethod/Home target, placement-aware callable contract, typed-input I0,
-  and exact call witness R0 are closed. No source-bound relation,
-  `ScanWithInit` Facts/Recipe producer, or production selector is active.
-- **Next ordered task:** `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0` — consume
-  typed input and two same-session targets into the fixed non-Clone relation.
+  CoreMethod/Home target, placement-aware callable contract, typed-input/call
+  witness, and fixed source-bound relation are closed. No `ScanWithInit`
+  Facts/Recipe producer or production selector is active.
+- **Next ordered task:** `LOOP-RECIPE-TYPED-INPUT-RELATION-D0` — fix the one
+  complete Facts-to-Recipe producer over the landed source-bound aggregate.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -27,20 +27,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: accept one three-step source-bound series: retain exact role-keyed
-call sites, make the existing callable contract placement-aware, then consume
-typed input plus the two existing targets into one non-Clone aggregate.
-Source authority + canonical issuer: VerifiedS6CTypedInputRelationV1, exact
-resolver MethodCall rows, the placement-aware callable-contract issuer, and
-two targets issued by one CoreMethodInstanceTargetIssuerV1 session.
-Non-authority: selector/name lookup, generated rows alone, raw AST, MIR or
-ResultKind, Recipe keys, selected-Dynamic receipts, and physical IDs.
-Fail-fast boundary: missing/foreign/duplicate/swapped call, binding, operand,
-frame, target, Home/effect/policy, or typed-input relation rejects before a
-source-bound product, Facts/Recipe, Builder, or physical effect.
-Smallest next slice: `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0`; use the
-retained sites and borrowed membership to issue exact length/substring
-contracts, then move them with typed input into one fixed aggregate.
+Decision: design one complete forward ScanWithInit Facts-to-Recipe producer;
+do not reopen source/target/type authority or physicalize early.
+Source authority + canonical issuer: the landed non-Clone source-bound S6C
+relation plus resolver exit/Tail evidence; one producer alone mints Recipe
+item/value/call keys after exact source-role coverage is complete.
+Non-authority: fixture order/count guesses, AST, legacy scan builders, MIR,
+ResultKind, selected-Dynamic receipts, selector lookup, and physical IDs.
+Fail-fast boundary: missing/foreign/duplicate/swapped role, call, binding,
+operator, exit, frame, target, Home/effect, or Tail separation rejects before
+Facts Candidate/Recipe, Builder, physicalization, or production effect.
+Smallest next slice: fix exact role coverage, Facts owner, Recipe producer,
+Loop Return versus callable Tail/Completion boundary, and negative matrix.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -61,13 +59,12 @@ closed evidence:
   StringLen/0 and StringSubstring/2.
 
 remaining authority:
-  no separate source-bound relation co-seals the exact call site/owner,
-  receiver expression, arguments, or result site;
-  no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
+  no complete S6C Facts-to-Recipe producer consumes the landed fixed
+  source-bound relation and owns exact role coverage plus Recipe keys.
 
 therefore:
-  the Resolver callable-contract I0 now closes the source/frame/target bridge;
-  the source-bound relation and complete S6C Facts/Recipe producer remain
+  the Resolver callable-contract and source-bound relation close the exact
+  source/frame/target bridge; the complete S6C Facts/Recipe producer remains
   unopened. The unannotated `find_ok(s, ch)` fixture is
   `MissingTypeEvidence`; selected-Dynamic substring/indexOf receipts are a
   different owner and are not evidence.
@@ -112,8 +109,9 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CLOSED
                                 -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CLOSED T0
                                      -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
-                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CURRENT T1
-                                     -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
+                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CURRENT T2
+                                                    -> LOOP-RECIPE-TYPED-INPUT-RELATION-I0 T2
                                           -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                                -> S6C parity / canary / later production rows
 ```
@@ -498,8 +496,9 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 CLOSED
                                 -> LOOP-S6C-EXACT-CALL-WITNESS-R0 CLOSED T0
                                      -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
-                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CURRENT T1
-                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                                          -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
+                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CURRENT T2
+                                                    -> LOOP-RECIPE-TYPED-INPUT-RELATION-I0 T2
                                      -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                           -> S6C parity / canary / later production rows
 ```

@@ -87,6 +87,14 @@ borrow-only pair: `length = LoopConditionLess.rhs` in `Condition` and
 `substring = TextEqual.lhs` in `Body`. Consumers cannot reconstruct or
 reorder that pair, and the pair issues no target, membership, or Recipe key.
 
+The source-bound S6C issuer consumes this typed product together with
+same-session `StringLen/0` and `StringSubstring/2` targets. It exact-lookups
+the retained sites in the sealed resolver ledger, consumes each through the
+placement-aware callable issuer, and returns one non-Clone fixed aggregate.
+It creates no pair brand and performs no selector/name lookup or generated-row
+relookup. Mixed target sessions, swapped roles, foreign owner/frame, missing
+sites, or callable/placement drift reject before Facts or Recipe issuance.
+
 This product is not a Recipe or a source-bound call relation. Missing,
 foreign, duplicate, swapped, or shape-drifted input rejects before Recipe
 keys, Facts, Builder/MIR, physical IDs, fallback, or production. The later

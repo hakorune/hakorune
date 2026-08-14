@@ -6,6 +6,7 @@
 #![allow(dead_code)]
 
 mod callable_receiver_policy;
+mod core_method;
 mod current_owner;
 mod dynamic_member;
 mod error;
@@ -21,6 +22,12 @@ mod whole_source_inventory_error;
 
 #[allow(unused_imports)]
 pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
+#[allow(unused_imports)]
+pub(crate) use core_method::{
+    issue_source_bound_s6c_call_relation_v1, S6CSourceBoundCallRelationRefV1,
+    S6CSourceBoundCallRelationRejectV1, S6CSourceBoundCallRoleV1,
+    VerifiedSourceBoundS6CCallRelationV1,
+};
 #[allow(unused_imports)]
 pub(crate) use dynamic_member::{
     issue_source_bound_dynamic_member_calls_v1, DynamicMemberArgumentSourceV1,
@@ -68,6 +75,8 @@ pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventor
 
 #[cfg(test)]
 mod callable_receiver_policy_tests;
+#[cfg(test)]
+mod core_method_tests;
 #[cfg(test)]
 mod current_owner_tests;
 #[cfg(test)]

@@ -2,6 +2,22 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## S6C source-bound CoreMethod relation I0
+
+`VerifiedSourceBoundS6CCallRelationV1` is the fixed, non-Clone relation for
+the first forward scan cohort. Its issuer consumes the landed typed-input
+product and the `StringLen/0` plus `StringSubstring/2` targets from one target
+issuer session. Inside the typed product's HRTB call-site loan it finds the
+exact resolver rows by retained site and consumes them through the existing
+placement-aware callable issuer.
+
+The product owns exactly `{ typed, length, substring }`. It issues no pair
+brand, target, Loop membership, Recipe key, ValueId, physical ID, or backend
+route. Selector spelling is only the callable target's canonical/alias
+cross-check; it is never used to find either call. Mixed relation brands,
+swapped roles, foreign membership/ledger, missing sites, or callable drift
+reject before the product and before Facts/Recipe or Builder effects.
+
 ## SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
 
 `SameModuleCallableSourceReceiverPolicyV1` is the sole production projection
