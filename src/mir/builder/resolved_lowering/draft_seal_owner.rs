@@ -120,7 +120,7 @@ impl CompletedCatalogedBoxCallableDraftV1 {
             FunctionDraftKeyV1::CatalogedBoxMethod(self.key),
             self.physical_symbol.into_string(),
             self.physical_arity,
-            self.completed.into_draft(),
+            self.completed.consume_non_authority_evidence(),
         )
     }
 }
@@ -353,24 +353,23 @@ impl PreparedFunctionDraftSealV1<'_> {
 }
 
 impl CompletedFunctionDraftV1 {
-    /// One-shot compatibility handoff into the existing module collector.
-    /// The completed owner never exposes a mutable draft or a second split
-    /// path; callers consume it immediately when admitting the function.
-    pub(super) fn into_draft(self) -> MirFunction {
-        self.draft
+    /// One-shot handoff after explicitly retiring proof-only DraftSeal
+    /// evidence.  Completion and the seal receipt have already enforced the
+    /// canonical checks; they are not collector/publication authority and
+    /// must not disappear through an implicit destructor path.
+    pub(super) fn consume_non_authority_evidence(self) -> MirFunction {
+        let Self {
+            draft,
+            completion,
+            receipt,
+        } = self;
+        drop(completion);
+        drop(receipt);
+        draft
     }
 
     pub(super) fn draft(&self) -> &MirFunction {
         &self.draft
-    }
-
-    pub(super) fn completion(&self) -> &ReadyFunctionCompletionV1 {
-        &self.completion
-    }
-
-    #[cfg(test)]
-    pub(super) fn receipt(&self) -> &FunctionDraftSealReceiptV1 {
-        &self.receipt
     }
 }
 

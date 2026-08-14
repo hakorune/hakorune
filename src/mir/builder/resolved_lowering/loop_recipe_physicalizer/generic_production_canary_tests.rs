@@ -526,7 +526,7 @@ fn run_canary(inject_late_failure: bool) -> Result<G0CanaryReceipt, String> {
             return Err(detail);
         }
     };
-    let _completed_draft = prepared_draft.commit();
+    let _completed_draft = prepared_draft.commit().consume_non_authority_evidence();
     Ok(G0CanaryReceipt {
         operation_count: EXPECTED_OPERATION_COUNT,
         pure_count,

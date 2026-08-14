@@ -45,6 +45,7 @@ SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_p
 CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/mod.rs"
 CALLOUT_CORRIDOR_EMISSION="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/emission.rs"
 SELECTED_LIFECYCLE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/lifecycle_terminal.rs"
+SEAL_OWNER="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal_owner.rs"
 CATALOGED_HANDOFF="$ROOT_DIR/src/mir/builder/cataloged_box_method_collector_handoff.rs"
 CATALOGED_HANDOFF_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
@@ -72,7 +73,7 @@ guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER" "$C1A_LAUNCH"
-guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE" "$SELECTED_BUNDLE_OWNER"
+guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE" "$SELECTED_BUNDLE_OWNER" "$SEAL_OWNER"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS"
 
@@ -248,6 +249,23 @@ guard_expect_fixed_in_file "$TAG" "emit_checked_callout_fault" "$CALLOUT_CFG" \
   "canonical CFG must own the physical Fault terminal issuer"
 guard_expect_fixed_in_file "$TAG" "emit_checked_callout_end" "$CALLOUT_SSA" \
   "canonical SSA must own the physical End issuer"
+guard_expect_fixed_in_file "$TAG" "consume_non_authority_evidence" "$SEAL_OWNER" \
+  "completed DraftSeal handoff must explicitly retire proof-only evidence"
+if [[ "$(rg -n 'pub\(super\) fn into_draft\(' "$SEAL_OWNER" | wc -l | tr -d '[:space:]')" != 0 ]]; then
+  guard_fail "$TAG" "completed DraftSeal owner must not expose an implicit evidence-dropping into_draft terminal"
+fi
+if [[ "$(rg -n 'drop\(completion\);' "$SEAL_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]] || \
+   [[ "$(rg -n 'drop\(receipt\);' "$SEAL_OWNER" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "DraftSeal proof-only Completion and receipt must each be retired exactly once"
+fi
+if rg -n 'completed\.into_draft\(|prepared\.commit\(\)\.into_draft\(' \
+  "$SEAL_OWNER" "$ROOT_DIR/src/mir/builder/resolved_lowering" --glob '*.rs'; then
+  guard_fail "$TAG" "DraftSeal collector/lowerer handoff must use the explicit evidence-retirement terminal"
+fi
+if rg -n 'let _completed_draft = .*commit\(\);' \
+  "$ROOT_DIR/src/mir/builder/resolved_lowering" --glob '*.rs'; then
+  guard_fail "$TAG" "DraftSeal tests/canaries must explicitly retire proof-only evidence after commit"
+fi
 guard_expect_fixed_in_file "$TAG" "result_type: MirType" "$CALLOUT_SSA" \
   "canonical Normal-result issuer must co-seal the MIR type"
 guard_expect_fixed_in_file "$TAG" "publish_physical_value_type(builder, dst, result_type)" "$CALLOUT_SSA" \

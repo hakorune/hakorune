@@ -294,7 +294,7 @@ impl MirBuilder {
         };
         let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
         let prepared = open.prepare().map_err(reject_draft_seal)?;
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 
     /// Caller-zero DirectAccum draft consumer. The plan is lowered only on a
@@ -395,7 +395,7 @@ impl MirBuilder {
         };
         let open = ready.open(session);
         let prepared = open.prepare().map_err(reject_draft_seal)?;
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 
     pub(in crate::mir) fn build_resolved_trivial_function_module(
@@ -548,7 +548,7 @@ impl MirBuilder {
             Ok(prepared) => prepared,
             Err(rejected) => return Err(reject_draft_seal_typed(rejected)),
         };
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 }
 

@@ -941,10 +941,10 @@ These do not block the P0 DAG unless a touched file makes them necessary:
    - Decision: I6 `StringValue` + `opaque_handle` uses the existing `string_handle -> MirType::Box("StringBox")` projection; co-seal type, EndAuthorizedHandle lease representation, and ledger row; retain I7 Integer/ImmediateI64.
    - Authority: CheckedCallOut plan + route projection + canonical SSA issuer + private ledger; reject shape/type/representation/PlanStamp/landing or duplicate drift.
    - Slice: canonical typed publication helper, selected positive/negative tests, and one existing authority-guard extension; no new guard family.
-9. `DYN-DRAFTSEAL-EVIDENCE-CONSUME-R0`
-   - decide and guard the explicit collector consumption or intentional
-     nonauthority retirement of Completion and `FunctionDraftSealReceiptV1`;
-   - forbid their silent drop from being treated as publication evidence.
+9. `DYN-DRAFTSEAL-EVIDENCE-CONSUME-R0` (closed 2026-08-14 BoxShape)
+   - Decision: Completion and `FunctionDraftSealReceiptV1` are proof-only DraftSeal evidence; retire them explicitly before collector handoff, never reissue them as publication authority.
+   - Authority: `ResolvedFunctionCompletionConsumptionV1` and `PreparedFunctionDraftSealPlanV1` issue/verify; `CompletedFunctionDraftV1` owns the exact-once retirement terminal.
+   - Slice: private `consume_non_authority_evidence()` terminal, focused positive/negative handoff tests, and one existing authority-guard extension; no new semantic receipt or guard family.
 10. `DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0`
     - remove the negative-only `RejectBeforeEffect` token from the successful
       activation chain, or consume it in an explicit unpublished-to-ready

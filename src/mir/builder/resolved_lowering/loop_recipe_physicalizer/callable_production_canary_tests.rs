@@ -437,7 +437,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
     let prepared = open_draft
         .prepare()
         .map_err(|_| "DraftSeal prepare rejected".to_owned())?;
-    let _completed_draft = prepared.commit();
+    let _completed_draft = prepared.commit().consume_non_authority_evidence();
     Ok(CanaryReceipt {
         operation_count: 7,
         pure_count: 4,
