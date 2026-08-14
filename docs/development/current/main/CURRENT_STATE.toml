@@ -8,7 +8,7 @@ development_branch_cutover = "public-main fast-forwarded into main at 49b502da41
 current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C is the sole current T2 design stop. Loop rows 1--10 and M8 S6A/S6B are closed; row 11 production selection remains gated by later M8/M9 coverage."
 work_mode = "design_stop"
 current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C"
-current_blocker_token = "The existing resolver instance-target row is for user-declared I64/Unit methods and cannot be relabeled as StringBox CoreMethod authority. Define a neutral CoreMethod callable/Home target contract for StringLen/StringSubstring (Text receiver/result, exact arity/effect, ABI/profile, manifest brand) and a separate source-bound site relation with one owner/frame and one-to-one receiver/args/result cardinality, then prove one complete Facts-to-Recipe producer; otherwise keep NoSafeSlice. Never reuse selected-Dynamic substring/indexOf receipts."
+current_blocker_token = "The existing resolver instance-target and I64UnitTrivial Home issuer are for user-declared I64/Unit methods and cannot be relabeled or widened in place as StringBox CoreMethod authority. Define a separate manifest-backed CoreMethod callable/Home target contract for StringLen/StringSubstring (Text receiver/result, exact arity/effect, ABI/profile, distinct schema/brands) and a separate source-bound site relation with one owner/frame and one-to-one receiver/args/result cardinality, then prove one complete Facts-to-Recipe producer; otherwise keep NoSafeSlice. Never reuse selected-Dynamic substring/indexOf receipts."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

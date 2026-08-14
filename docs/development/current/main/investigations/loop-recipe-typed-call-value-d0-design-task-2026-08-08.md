@@ -341,9 +341,13 @@ src/mir/source_call_target/model.rs
 schema/row brand, not a new semantic authority. `Home` may be issued only by
 an explicit resolver Home capability for `StringBox`/`Text`; it is never
 inferred from `MirType`, `CoreMethodResultKind`, or the Recipe wire. The
-source-bound issuer checks one owner/frame brand, one receiver site, exactly
-`arity` ordered argument sites, and one result site when the target has a
-result. Foreign, duplicate, or swapped sites reject before Facts/Recipe.
+existing `CallableHomeAbiIssuerV1`/`I64UnitTrivial` schema is user-instance
+authority and must not be widened in place. A future `StringBoxText` schema
+is a separate BoxCount with distinct schema, resolver, manifest, and relation
+brands, while reusing only the Home relation mechanism. The source-bound
+issuer checks one owner/frame brand, one receiver site, exactly `arity`
+ordered argument sites, and one result site when the target has a result.
+Foreign, duplicate, or swapped sites reject before Facts/Recipe.
 
 ## Stop
 
