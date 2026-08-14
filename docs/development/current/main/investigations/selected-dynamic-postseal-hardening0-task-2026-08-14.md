@@ -103,6 +103,24 @@ artifact/platform/archive    -> manifest-backed evidence, after P0 close
 historical wrappers          -> archive/delete only after caller census
 ```
 
+Initial source-backed census (2026-08-14, read-only) records 3,654 tracked
+`tools/checks` paths: 3,283 shell, 175 Python, 67 Rust, 34 JSON, 17 TOML,
+and the remaining support/fixture paths.  The public shell surface is 3,009
+entries, including 1,567 `k2_wide_*` paths and 241 manifest implementation
+paths.  `guard_rows.toml` currently has 102 rows across `pilot` (102),
+`hako-alloc-closeout` (74), `quick-static` (14), and `pure-first-route` (1);
+the profile counts overlap by design.  Exact shell/Python content duplicates
+are zero, so blind deduplication is not an accepted disposition.
+
+The existing manifest inventory also exposes a separate baseline contract
+drift: its hako-alloc closeout rows expect executable wrappers/implementations,
+but many tracked paths are mode `0644`, and the inventory guard itself is not
+executable.  This is retained as `unknown_retain`/owner-documentation debt;
+mass chmod or wrapper deletion is explicitly out of this D0.  The next
+sub-row must classify every tracked path against the six allowed dispositions,
+starting with the indexed stable entries and manifest-backed families, then
+record unknown rows rather than infer deletion from a grep or executable bit.
+
 The inventory records one owner, one caller/profile, one evidence kind, and
 one disposition for every tracked check.  `stable_public_entry`,
 `family_manifest_case`, `focused_behavior_test`, `historical_archive`,
