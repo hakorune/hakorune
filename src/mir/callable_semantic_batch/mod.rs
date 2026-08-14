@@ -23,7 +23,7 @@ pub(crate) use model::{
 };
 #[allow(unused_imports)]
 pub(crate) use s6c_typed_input::{
-    issue_s6c_typed_input_relation_v1, S6CBinaryRelationV1, S6CBinaryRoleV1,
+    issue_s6c_typed_input_relation_v1, S6CBinaryRelationV1, S6CBinaryRoleV1, S6CCallSitePairRefV1,
     S6CLogicalValueClassV1, S6CTypedBindingV1, S6CTypedInputRelationRejectV1, S6CTypedInputRoleV1,
     VerifiedS6CTypedInputRelationV1,
 };

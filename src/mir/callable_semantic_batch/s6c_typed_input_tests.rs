@@ -88,6 +88,29 @@ fn explicit_stringbox_and_i64_source_seal_one_typed_input_frame() {
             ),
         ]
     );
+
+    let less = relation
+        .binaries()
+        .iter()
+        .find(|binary| binary.role() == S6CBinaryRoleV1::LoopConditionLess)
+        .expect("condition Less relation");
+    let equal = relation
+        .binaries()
+        .iter()
+        .find(|binary| binary.role() == S6CBinaryRoleV1::TextEqual)
+        .expect("body TextEqual relation");
+    relation.with_call_sites(|calls| {
+        assert_eq!(calls.length_site(), less.source().rhs());
+        assert_eq!(
+            calls.length_placement(),
+            crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition
+        );
+        assert_eq!(calls.substring_site(), equal.source().lhs());
+        assert_eq!(
+            calls.substring_placement(),
+            crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body
+        );
+    });
 }
 
 #[test]

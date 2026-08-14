@@ -40,6 +40,44 @@ pub(crate) enum S6CBinaryRoleV1 {
     StepAdd,
 }
 
+/// Borrow-only projection of the two call sites already verified by S6C.
+///
+/// The fixed fields are role identity; consumers cannot construct, reorder,
+/// or retain this view independently of the non-Clone typed-input product.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct S6CCallSitePairRefV1<'a> {
+    length_site: &'a SourceExprSiteV1,
+    length_placement: ResolvedLoopPlacementV1,
+    substring_site: &'a SourceExprSiteV1,
+    substring_placement: ResolvedLoopPlacementV1,
+}
+
+impl S6CCallSitePairRefV1<'_> {
+    pub(crate) const fn length_site(&self) -> &SourceExprSiteV1 {
+        self.length_site
+    }
+
+    pub(crate) const fn length_placement(&self) -> ResolvedLoopPlacementV1 {
+        self.length_placement
+    }
+
+    pub(crate) const fn substring_site(&self) -> &SourceExprSiteV1 {
+        self.substring_site
+    }
+
+    pub(crate) const fn substring_placement(&self) -> ResolvedLoopPlacementV1 {
+        self.substring_placement
+    }
+}
+
+#[derive(Debug)]
+struct VerifiedS6CCallSitePairV1 {
+    length_site: SourceExprSiteV1,
+    length_placement: ResolvedLoopPlacementV1,
+    substring_site: SourceExprSiteV1,
+    substring_placement: ResolvedLoopPlacementV1,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct S6CTypedBindingV1 {
     role: S6CTypedInputRoleV1,
@@ -96,6 +134,7 @@ pub(crate) struct VerifiedS6CTypedInputRelationV1 {
     inputs: [S6CTypedBindingV1; 3],
     initializer: ResolvedInitializerRelationV1,
     binaries: [S6CBinaryRelationV1; 4],
+    calls: VerifiedS6CCallSitePairV1,
 }
 
 impl VerifiedS6CTypedInputRelationV1 {
@@ -113,6 +152,18 @@ impl VerifiedS6CTypedInputRelationV1 {
 
     pub(crate) const fn binaries(&self) -> &[S6CBinaryRelationV1; 4] {
         &self.binaries
+    }
+
+    pub(crate) fn with_call_sites<R>(
+        &self,
+        callback: impl for<'call> FnOnce(S6CCallSitePairRefV1<'call>) -> R,
+    ) -> R {
+        callback(S6CCallSitePairRefV1 {
+            length_site: &self.calls.length_site,
+            length_placement: self.calls.length_placement,
+            substring_site: &self.calls.substring_site,
+            substring_placement: self.calls.substring_placement,
+        })
     }
 }
 
@@ -399,6 +450,12 @@ pub(crate) fn issue_s6c_typed_input_relation_v1(
                 S6CLogicalValueClassV1::I64,
             ),
         ],
+        calls: VerifiedS6CCallSitePairV1 {
+            length_site: length.0.site().clone(),
+            length_placement: length.1,
+            substring_site: substring.0.site().clone(),
+            substring_placement: substring.1,
+        },
     })
 }
 

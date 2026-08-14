@@ -1,5 +1,5 @@
 ---
-Status: source-bound call relation D0 accepted; exact-call witness R0 is current
+Status: exact-call witness R0 landed; callable placement I0 is current
 Date: 2026-08-14
 Decision: retain exact call sites, make the existing callable contract placement-aware, then co-seal one non-Clone S6C source-bound relation
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -13,12 +13,12 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
   callable contract, and explicit S6C typed-input product are landed. The
   source-bound relation D0 is accepted as three bounded cells.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
-  CoreMethod/Home target, callable contract, and typed-input I0 are closed
-  with focused evidence. No source-bound relation, `ScanWithInit` Facts/
-  Recipe producer, or production physical selector is active.
-- **Next ordered task:** `LOOP-S6C-EXACT-CALL-WITNESS-R0` — retain the two
-  already-verified call sites by role in the typed-input product without
-  changing its accepted source shape or failure terminal.
+  CoreMethod/Home target, callable contract, typed-input I0, and exact call
+  witness R0 are closed with focused evidence. No source-bound relation,
+  `ScanWithInit` Facts/Recipe producer, or production selector is active.
+- **Next ordered task:** `LOOP-RESOLVER-CALLABLE-PLACEMENT-I0` — extend the
+  existing callable issuer from Body-only to exact `Condition | Body`
+  placement without changing target, frame, Home, effect, or failure owner.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -39,9 +39,9 @@ ResultKind, Recipe keys, selected-Dynamic receipts, and physical IDs.
 Fail-fast boundary: missing/foreign/duplicate/swapped call, binding, operand,
 frame, target, Home/effect/policy, or typed-input relation rejects before a
 source-bound product, Facts/Recipe, Builder, or physical effect.
-Smallest next slice: `LOOP-S6C-EXACT-CALL-WITNESS-R0`, a BoxShape retaining
-the two already-verified sites through a private borrowed view; no new source
-shape, target, membership, failure policy, Facts, or Recipe is introduced.
+Smallest next slice: `LOOP-RESOLVER-CALLABLE-PLACEMENT-I0`; accept length/0
+only in Condition and substring/2 only in Body through the existing issuer.
+No source-bound aggregate, Facts, Recipe, or production route is opened.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -111,8 +111,8 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                       -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0  CLOSED (accepted explicit-annotation design)
                            -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0  CLOSED
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CLOSED
-                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CURRENT T0
-                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 T1
+                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CLOSED T0
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CURRENT T1
                                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
                                      -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                           -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
@@ -547,8 +547,8 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                  -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0 CLOSED
                       -> LOOP-S6C-EXPLICIT-TYPED-INPUT-CONTRACT-I0 CLOSED
                            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 CLOSED
-                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0 CURRENT T0
-                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 T1
+                                -> LOOP-S6C-EXACT-CALL-WITNESS-R0 CLOSED T0
+                                     -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CURRENT T1
                                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 T1
                                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                                      -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2

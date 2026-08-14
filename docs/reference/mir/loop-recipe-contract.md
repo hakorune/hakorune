@@ -81,6 +81,11 @@ source spelling: two ordinary `StringBox` parameters and one local
 placement. Names, call-site literals, CoreMethod result kinds, MIR types, and
 selected-Dynamic receipts cannot supply missing type evidence.
 
+The product also retains the two already-verified call sites as a fixed
+borrow-only pair: `length = LoopConditionLess.rhs` in `Condition` and
+`substring = TextEqual.lhs` in `Body`. Consumers cannot reconstruct or
+reorder that pair, and the pair issues no target, membership, or Recipe key.
+
 This product is not a Recipe or a source-bound call relation. Missing,
 foreign, duplicate, swapped, or shape-drifted input rejects before Recipe
 keys, Facts, Builder/MIR, physical IDs, fallback, or production. The later

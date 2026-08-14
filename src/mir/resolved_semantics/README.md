@@ -77,7 +77,10 @@ the callable source ledger and requires the exact annotated cohort
 `Condition | Body` placement. Parameter names are not type authority.
 
 The resulting non-`Clone` `VerifiedS6CTypedInputRelationV1` owns the exact
-bindings, initializer, binary source relations, and Loop membership. Missing
+bindings, initializer, binary source relations, Loop membership, and a fixed
+borrow-only `{ length, substring }` call-site pair. The pair retains the
+already-verified `Less.rhs` and `TextEq.lhs` sites and their placements; it
+does not reselect calls or issue a pair brand. Missing
 or wrong annotations, literal/operator/call/placement drift, duplicates, and
 swapped receiver/operands reject before a source-bound call relation, Facts,
 Recipe, Builder/MIR, physicalization, fallback, or production effect. The

@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, Resolver callable contract, and S6C explicit typed-input I0 are landed. Source-bound call relation D0 is accepted as three bounded cells: exact call witness retention, placement-aware callable contracts, then one non-Clone relation. The pointer advances to the behavior-neutral witness cell. Dynamic live cutover, G3, and cleanup rows remain parked; known baseline reds stay classified."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, Resolver callable contract, S6C typed-input I0, and exact call witness R0 are landed. The typed product now retains the already-verified length/substring sites through a borrow-only fixed pair. The pointer advances to placement-aware callable contracts. Dynamic live cutover, G3, and cleanup rows remain parked; known baseline reds stay classified."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none; LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 is accepted as exact-call witness retention, placement-aware callable contract, then a fixed non-Clone two-call aggregate."
+current_design_stop = "none; source-bound D0 fixed the existing callable-contract issuer as the sole placement-aware source/frame/target bridge."
 work_mode = "fast"
-current_execution_row = "LOOP-S6C-EXACT-CALL-WITNESS-R0"
-current_blocker_token = "Retain the exact already-verified length and substring call sites inside VerifiedS6CTypedInputRelationV1 and expose only a private borrowed role view. Preserve accepted source shape and existing failure precedence; do not issue target, membership, callable, Facts, Recipe, selector, or physical authority."
+current_execution_row = "LOOP-RESOLVER-CALLABLE-PLACEMENT-I0"
+current_blocker_token = "Make ResolverCoreMethodCallableContractIssuerV1 accept an explicit ResolvedLoopPlacementV1: StringLen/0 must be Condition and StringSubstring/2 must be Body. Reuse the same membership/frame and target checks; reject placement drift before contract issue, without source-bound aggregate, Facts, Recipe, fallback, retry, or production effect."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C exact call witness R0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the Loop source-bound D0 is accepted. The active fast BoxShape retains exact length/substring sites already verified by the typed-input issuer. Placement-aware contracts and the final source-bound aggregate follow serially; Facts/Recipe, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (resolver callable placement I0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; S6C exact call witness R0 is landed. The active fast cell makes the existing resolver callable contract placement-aware. The fixed source-bound aggregate follows; Facts/Recipe, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target I0, Resolver callable-contract I0, and S6C explicit typed-input I0 are closed. Source-bound D0 is accepted; exact call witness R0 is current. Facts/Recipe and physical production remain unopened, while selected Dynamic/AOT live cutover and G3 remain parked."
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target I0, Resolver callable-contract I0, S6C typed-input I0, and exact call witness R0 are closed. Placement-aware callable I0 is current. Facts/Recipe and physical production remain unopened, while selected Dynamic/AOT live cutover and G3 remain parked."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "LOOP-S6C-EXACT-CALL-WITNESS-R0"
+next_execution_card = "LOOP-RESOLVER-CALLABLE-PLACEMENT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
