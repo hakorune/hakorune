@@ -818,20 +818,20 @@ The historical-retire census is NoSafeSlice: all 3,654 rows have non-empty
 owner/caller/evidence classification, so no zero-caller family can be retired
 without inventing authority; rows remain in their existing dispositions.
 
-#### GUARD-SURFACE-CLOSEOUT-R0 (closed 2026-08-14)
+#### MIRBUILDER-LINE-BUDGET-CENSUS-R0 (next design stop)
 
 ```text
-Decision: close the guard-surface cleanup with a source-backed before/after
-census; preserve all unknown and compatibility rows.
-Source authority + canonical issuer: guard-surface inventory, quick-group list,
-manifest counts, and current-state/public-entry guards.
-Non-authority: line counts alone, grep-only caller guesses, or human prose.
-Fail-fast boundary: inventory/index/manifest drift or changed quick-step count
-blocks closeout and leaves the current cleanup lane open.
-Closeout: source-backed inventory reports the shell/index/quick counts above;
-naming/varmap reds remain parent-baseline and no behavior changed.
-Non-claims: no deletion, chmod, manifest repair, compiler change, fallback,
-archive publication, llvmlite retirement, or production cutover.
+Decision: produce one source-backed 760-warning/800-hard-stop census for
+relevant MIRBuilder owners; split only under an accepted responsibility row.
+Source authority + canonical issuer: tracked Rust source and existing reusable
+line guards; the census reports but never authorizes a split.
+Non-authority: compression, blank-line removal, grep-only ownership, or prose.
+Fail-fast boundary: touched owner at/above 800, missing split target, or a new
+responsibility without a prior owner keeps the row open.
+Smallest next slice: classify the current 58 >=760 and 4 >=800 files by
+production/test/guard ownership and select one bounded split candidate.
+Non-claims: no mass refactor, semantic change, deletion, fallback, archive,
+llvmlite retirement, or production cutover.
 ```
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
