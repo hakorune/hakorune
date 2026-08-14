@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; queued P0 hardening is post-seal mutation fencing, strict verification retention, and selected runner reachability
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; queued P0 hardening is post-seal mutation fencing, strict verification retention, and selected runner reachability; guard consolidation is one queued organization task with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 proves the zero-argument launch entry and metadata-bearing selected helper as distinct identities.
+Smallest next slice: SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0 proves that the sealed selected module bypasses every later mutable compiler seam before JSON or backend effects.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -76,11 +76,24 @@ The C ABI review is already owned by W6-C0-D/C1: it remains a thin
 does not become a new lease, CFG, wire, or semantic authority.  Likewise, the
 lexical-scope and declaration-mode findings are closed rows, not new queues.
 
-### Guard consolidation contract
+### GUARD-SURFACE-CONSOLIDATION-D0
 
-`GUARD-SURFACE-CONSOLIDATION-D0` is the single organization task for the
-findings below.  It is a read-only inventory first; it does not open a new
-semantic row, create a per-finding shell script, or delete proof.
+Decision: consolidate the guard surface as one BoxShape organization task;
+new per-finding guard files are frozen.
+Source authority + canonical issuer: the existing family guard, its focused
+behavior test, and the manifest-backed check inventory.
+Non-authority: grep-only caller counts, mutation-count zero, historical prose,
+or a generated always-green wrapper.
+Fail-fast boundary: an unclassified check, missing owner, or guard migration
+that changes behavior remains retained and blocks closeout.
+Smallest next slice: read-only inventory and owner/disposition census; migrate
+only after selected P0 barriers and integration evidence are green.
+Non-claims: no compiler behavior, semantic receipt, fallback, source move, or
+proof deletion.
+
+This is the single organization task for the findings below.  It is a
+read-only inventory first; it does not open a new semantic row, create a
+per-finding shell script, or delete proof.
 
 ```text
 live P0 behavior/authority  -> owning existing family guard + focused test
@@ -115,8 +128,10 @@ closed: mode fence + lexical transaction + linear slots
   -> closed: post-seal mutator fence + strict final verification
   -> closed: selected runner dominance (PyVM remains retired)
   -> closed: C dual launch/helper view + CheckedCallOut physicalizer + candidate object/link/receipt/launch
-  -> CURRENT: B3 attempt-unique artifact bundle publication/consumption
-  -> B4: llvm-boundary vs llvmlite-compat feature ownership
+  -> closed: B3 attempt-unique artifact bundle publication/consumption and path-bound launch fence
+  -> closed: B4 llvm-boundary vs llvmlite-compat feature ownership
+  -> CURRENT: selected post-seal mutation fence
+  -> next: strict verification retention, then selected runner reachability
   -> MAIN-INTEGRATION-EVIDENCE-R0
   -> parked G3 oracle/archive/deletion DAG
 ```
