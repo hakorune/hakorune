@@ -27,7 +27,7 @@ use super::{
 
 const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
 
-fn issue_facts(
+pub(super) fn issue_facts(
     source: &str,
     ordinal: u32,
 ) -> crate::mir::loop_structural_facts::VerifiedS6CScanWithInitFactsV1 {

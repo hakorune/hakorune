@@ -138,6 +138,25 @@ fallible HRTB seam. It emits no JoinModule/MIR, Artifact, route, fallback, or
 production caller; physical selection remains closed. The existing MIR/name/fallback
 `LoopToJoinLowerer::lower` remains a compatibility non-consumer.
 
+## S6C prephysical ingress I0 (2026-08-15)
+
+The first Builder-free physical handoff is a single
+`VerifiedS6CPrephysicalIngressV2` issued from the retained S6C logical output.
+The issuer consumes that output by value and lends only a private HRTB façade;
+callers cannot supply a second context, effect, continuation, Facts, Recipe, or
+JoinSig. The façade records exact `15 = 13 operations + If + Exit` placement,
+thirteen role-specific source/execution rows, the two source anchors represented
+by the shared body-index read, source-bound Length/Substring contracts, and the
+existing V2 branch/Return-summary/Backedge/After transfer.
+
+Authority categories remain separate: Facts owns `Call=2` and `Write=1`
+body effects, CoreMethod contracts own Home/ABI/PureRead, and V2 schema owns
+execution class (`11` non-faulting, `0` fault-before-normal, `2`
+externally-bound outcomes). No TextEq physical target is inferred here, and no
+ReadyEntry, host/session, Builder/MIR/CFG/SSA/PHI, selector, fallback, retry,
+or production caller is opened. The next design stop is
+`S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0`.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation

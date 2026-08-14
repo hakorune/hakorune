@@ -5,6 +5,7 @@
 //! private façade; raw Recipe, JoinSig, and constituent products never cross
 //! this boundary.
 
+use super::s6c_prephysical_ingress::S6CPrephysicalSourceInputRefV2;
 use super::s6c_scan_with_init::VerifiedS6CScanWithInitRecipeProductV2;
 use super::s6c_scan_with_init_joinir::{
     with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
@@ -72,6 +73,61 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
             })
         })
         .map_err(|_| S6CLogicalOutputRejectV1::Control("logical input"))?
+    }
+
+    /// Private source seam for the single S6C prephysical ingress issuer.
+    ///
+    /// The callback receives the existing logical output and the same sealed
+    /// Facts view; it cannot obtain the owned output or raw Recipe/JoinSig.
+    pub(crate) fn with_prephysical_source<R, E>(
+        &self,
+        callback: impl for<'rows, 'facts> FnOnce(
+            S6CPrephysicalSourceInputRefV2<'rows, 'facts>,
+        ) -> Result<R, E>,
+    ) -> Result<Result<R, E>, S6CLogicalOutputRejectV1> {
+        self.product.with_product(|product| {
+            with_s6c_scan_with_init_logical_join_input(&self.product, |input| {
+                let calls = self.rows.calls();
+                if calls.len() != 2 {
+                    return Err(S6CLogicalOutputRejectV1::Call("call pair count"));
+                }
+                let Some(length_row) = calls.first() else {
+                    return Err(S6CLogicalOutputRejectV1::Call("Length call row"));
+                };
+                let Some(substring_row) = calls.get(1) else {
+                    return Err(S6CLogicalOutputRejectV1::Call("Substring call row"));
+                };
+                let output = S6CScanWithInitLogicalOutputRefV1 {
+                    rows: &self.rows,
+                    calls: S6CLogicalCallPairsRefV1 {
+                        length: S6CLogicalCallWithSourceRefV1 {
+                            row: *length_row,
+                            source: input.length(),
+                        },
+                        substring: S6CLogicalCallWithSourceRefV1 {
+                            row: *substring_row,
+                            source: input.substring(),
+                        },
+                    },
+                    transfer: input.logical_transfer(),
+                    domains: S6CLogicalOutputDomainCountsV1 {
+                        loops: input.rows().loop_count(),
+                        blocks: input.rows().block_count(),
+                        bindings: input.rows().binding_count(),
+                        inputs: input.rows().input_count(),
+                        values: input.rows().value_count(),
+                        items: input.rows().item_count(),
+                        carriers: input.rows().carrier_count(),
+                        exits: input.rows().exit_count(),
+                    },
+                };
+                Ok(callback(S6CPrephysicalSourceInputRefV2::from_parts(
+                    output,
+                    product.facts(),
+                )))
+            })
+            .map_err(|_| S6CLogicalOutputRejectV1::Control("logical input"))?
+        })
     }
 }
 

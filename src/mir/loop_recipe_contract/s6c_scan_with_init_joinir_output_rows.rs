@@ -166,7 +166,7 @@ pub(crate) struct S6CLogicalHeaderV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct S6CLogicalOutputRowsV1 {
-    header: S6CLogicalHeaderV1,
+    pub(super) header: S6CLogicalHeaderV1,
     loops: Box<[S6CLogicalLoopV1]>,
     blocks: Box<[S6CLogicalBlockV1]>,
     bindings: Box<[S6CLogicalBindingV1]>,

@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts, Recipe/role/Join, logical input/output, canonical call view, and typed logical consumer is landed. Physical ingress D0 is now accepted-corrected: one Builder-free prephysical aggregate may co-seal the retained output with exact context, 15 placements = 13 operations + If + Exit, role-specific source/execution evidence, V2 After, inputs/carrier, and exact-two exit evidence. The caller-zero I0 is current. TextEq physical ownership, ReadyEntry/session, MIR/CFG/SSA/PHI, selection, production, cleanup, and known baseline reds remain closed or parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts, Recipe/role/Join, logical input/output, canonical call view, typed logical consumer, and one Builder-free prephysical ingress aggregate is landed and caller-zero. The next design stop names the sole physical TextEq owner; ReadyEntry/session, MIR/CFG/SSA/PHI, selection, production, cleanup, and known baseline reds remain closed or parked."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-I0"
-current_blocker_token = "none; implement only the accepted Builder-free one-input aggregate. Stop as NoSafeSlice::MissingS6CPhysicalIngressIssuer if exact role-specific source anchors, context, V2 execution, After, inputs/carrier, or exact-two exit evidence require re-inference or raw constituent escape."
+current_design_stop = "S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0"
+work_mode = "design_stop"
+current_execution_row = "S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0"
+current_blocker_token = "NoSafeSlice::MissingS6CTextEqPhysicalOwner if TextEq physical target, Home, ABI, effect, or wire must be inferred from selector/name, MIR, or generic runtime equality."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C caller-zero prephysical ingress I0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed. S6C Facts, Recipe/role/Join, logical input/output, call view, and logical consumer are landed. The current fast row adds one non-Clone Builder-free ingress aggregate only; TextEq physical target, ReadyEntry, LoopPhysicalServices handoff, physical session, MIR/SSA/PHI, selection, production, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain closed or parked."
+active_lane = "Loop compiler frontier (S6C TextEq physical contract D0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed. S6C Facts, Recipe/role/Join, logical input/output, call view, logical consumer, and caller-zero prephysical ingress are landed. The current design stop must name one TextEq physical owner or remain NoSafeSlice; ReadyEntry, LoopPhysicalServices handoff, physical session, MIR/SSA/PHI, selection, production, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain closed or parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-i0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "joinir-loop-m8-loopv0-scans-s6c-physical-ingress-i0"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-i0-2026-08-15.md"
-latest_card_summary = "Caller-zero prephysical ingress I0: consume the source-retaining output once, retain exact S6C context/source/execution/After/input/carrier/exit evidence behind one private HRTB, and keep all Builder/physical/production work closed."
+latest_card = "s6c-text-eq-physical-contract-d0"
+latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card_summary = "Design stop: name one TextEq physical contract or stop NoSafeSlice; do not infer CompareEq, selector, Home, ABI, or runtime equality."
 next_design_card = "S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0"
-next_design_card_path = "to be created after physical ingress I0"
-next_execution_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-I0"
-next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-scans-s6c-physical-ingress-i0-2026-08-15.md"
+next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-I0 closed one caller-zero Builder-free VerifiedS6CPrephysicalIngressV2: retained logical output is consumed once, exact 15=13+If+Exit placement, role-specific source-anchor multiplicity (I3=2), V2 execution/After, inputs/carrier, and exact-two Completion evidence are lent behind a private HRTB; focused ingress 2/2, S6C 8/8, cargo check, fmt, pointer, Loop pre-cutover/physical-transfer guards, and diff check are green; TextEq physical ownership remains the next design stop.",
   "2026-08-15: S6C physical ingress D0 accepted one corrected T2 BoxShape: 15 placements are 13 operations plus If and Exit; Recipe-family census, resolver BodyEffect, CoreMethod PureRead, and V2 execution class remain distinct authorities; exact source-anchor multiplicity and the separate Completion Tail view are required; V1 coercion and generic TextEq inference are forbidden; caller-zero ingress I0 is current.",
   "2026-08-15: S6C logical consumer I0 landed one 122-line caller-zero owner: a fallible try_with_output HRTB checks fixed domains, Length/Substring source parity, branch/Return summary/Backedge/After shape, and returns only typed Consumed or named reject; focused 8/8, cargo check, format, diff, pointer, and Loop guards green; full contract 132/1 with the same known baseline red.",
   "2026-08-15: S6C logical consumer D0 accepted the typed I0 dialect: one private HRTB consumer over the sealed output returns a typed Consumed terminal or named reject; no Option/unit/fallback or new semantic authority, JoinModule/MIR, physical output, or production caller.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-14: LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 accepted one fixed two-commit T2 BoxShape: carry the same-seal root body-shape inventory and exact Plain/Compound assignment source, retain the exact index update, close all expected statement/expression/effect/relation evidence, then issue one non-Clone Facts owner; family-count-only closure was rejected by extra-pure-expression and compound-assignment counterexamples; Recipe/physical production remain closed.",
   "2026-08-14: LOOP-S6C-UNARY-SOURCE-ROW-I0 plus LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 landed one resolver-owned unary site/operator/operand row and one non-Clone Completion/call/If-region co-seal; focused resolver/S6C suites, cargo check, Loop/CoreMethod/pointer guards, and diff check are green; Facts/Recipe/physical production remain closed.",
   "2026-08-14: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 at cce7c1dade: cargo check, normal_callable_semantic_package, dynamic_full_body_recipe, selected_dynamic_physical_emitter, seven existing authority/route guards, pointer guard, in-place guard, and diff check green; completion is 107 passed/1 failed with the same ReturnValueTypeMissing(ValueId(12)) at parent b295288251, classified baseline; selected production remains new=0/old=1.",
-  "2026-08-14: DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0 closed the negative-only RejectBeforeEffect handoff: one private unpublished-session fence is consumed immediately before Builder open, the session stores no disposition, focused emitter/package tests plus cargo check/fmt, existing authority guards, pointer guard, and diff check are green; production remains new=0 old=1.",
 ]

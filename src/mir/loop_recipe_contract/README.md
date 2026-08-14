@@ -334,6 +334,23 @@ retained source contracts, and the borrowed transfer only; raw `input()` escape
 is gone. Its caller-zero consumer now returns a typed `Consumed` terminal or named reject through a fallible HRTB seam. It emits no JoinModule/MIR, Artifact, route, fallback, or
 production caller; physical selection remains closed.
 
+## S6C prephysical ingress I0 implementation receipt (2026-08-15)
+
+`s6c_prephysical_ingress.rs` now issues one caller-zero, Builder-free
+`VerifiedS6CPrephysicalIngressV2` by consuming the retained logical output
+once. Its private HRTB façade co-seals resolver context, source-bound inputs
+and calls, exact `15 = 13 + If + Exit` placement, thirteen role-specific
+source-anchor rows, V2 execution classes, the existing Join After/Backedge
+transfer, and the exact-two Completion sites. The shared body-index read keeps
+its two source anchors; it is not collapsed into one synthetic site.
+
+Facts BodyEffect (`Call=2`, `Write=1`), CoreMethod `PureRead`/Home/ABI, and
+V2 execution class remain separate authorities. This ingress does not invent
+an effect taxonomy, choose a TextEq physical ABI, create ReadyEntry/host/session,
+emit Builder/MIR/CFG/SSA/PHI, or expose raw Facts/Recipe/JoinSig/Completion.
+Focused positive and control-census negative tests pass; physical session,
+selector, production caller, fallback, and retirement remain closed.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

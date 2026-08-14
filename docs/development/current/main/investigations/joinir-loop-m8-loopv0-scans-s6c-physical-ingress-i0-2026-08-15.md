@@ -1,7 +1,7 @@
 ---
-Status: current bounded implementation row
+Status: closed implementation row
 Date: 2026-08-15
-Work mode: fast
+Work mode: closeout
 Classification: T2-approved BoxShape; caller-zero
 ---
 
@@ -158,7 +158,8 @@ cargo test --lib s6c_scan_with_init -- --nocapture
 cargo check --lib
 cargo fmt --all -- --check
 bash tools/checks/current_state_pointer_guard.sh
-bash tools/checks/joinir_loop_common_physicalizer_pre_cutover_guard.sh
+bash tools/checks/loop_precutover_authority_guard.sh
+bash tools/checks/loop_physical_transfer_authority_guard.sh
 git diff --check
 ```
 
@@ -193,3 +194,26 @@ Option fallback, retry, selector, or production caller
 
 After I0, retarget to `S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0`. The physical session
 remains closed until that owner and the single session design are accepted.
+
+## Implementation receipt
+
+Closed on 2026-08-15. `VerifiedS6CPrephysicalIngressV2` is implemented in
+`s6c_prephysical_ingress.rs`; the retained logical output lends one generic
+private source seam, and no Builder/physical/production edge was added.
+
+```text
+cargo test --lib s6c_prephysical_ingress -- --nocapture = 2 passed
+cargo test --lib s6c_scan_with_init -- --nocapture = 8 passed
+cargo check --lib = pass (known inherited warnings only)
+cargo fmt = pass
+loop_precutover_authority_guard.sh = pass
+loop_physical_transfer_authority_guard.sh = pass
+current_state_pointer_guard.sh = pass
+git diff --check = pass
+```
+
+The private negative fixes the control census (`If` and `Exit` are not
+operation rows). Existing S6C source/call/consumer negatives remain the
+boundary evidence for swapped receiver/arguments, domain drift, and source
+coverage. TextEq physical ownership, ReadyEntry, host/session, and production
+selection are handed to `S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0`.

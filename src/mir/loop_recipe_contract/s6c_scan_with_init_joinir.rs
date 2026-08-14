@@ -76,6 +76,16 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.contract.target().row().arity()
     }
 
+    pub(crate) fn call_site(self) -> &'a crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.contract.call_site()
+    }
+
+    pub(crate) fn arguments(
+        self,
+    ) -> &'a [crate::mir::resolved_semantics::ResolvedMethodCallArgumentSourceV1] {
+        self.contract.arguments()
+    }
+
     pub(crate) const fn recipe_row(self) -> S6CRecipeOperationRowRefV2<'a> {
         self.row
     }

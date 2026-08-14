@@ -25,6 +25,9 @@ mod s6c_scan_with_init_joinir;
 // Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output;
+// Caller-zero Builder-free prephysical ingress; no physical IDs or session state.
+#[allow(dead_code)]
+mod s6c_prephysical_ingress;
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir_output_rows;
 #[allow(dead_code)]
@@ -74,6 +77,10 @@ mod join_sig_after_binding_tests;
 #[cfg(test)]
 #[path = "s6c_scan_with_init_tests.rs"]
 mod s6c_scan_with_init_tests;
+
+#[cfg(test)]
+#[path = "s6c_prephysical_ingress_tests.rs"]
+mod s6c_prephysical_ingress_tests;
 
 #[cfg(test)]
 #[path = "source_bound_core_tests.rs"]
@@ -202,6 +209,11 @@ pub(crate) use physical_layout::{
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
+#[allow(unused_imports)]
+pub(crate) use s6c_prephysical_ingress::{
+    issue_s6c_prephysical_ingress_v2, S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2,
+    S6CPrephysicalOperationRoleV2, VerifiedS6CPrephysicalIngressV2,
+};
 #[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
