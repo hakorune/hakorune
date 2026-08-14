@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -54,7 +54,7 @@ pub(crate) fn consume_static_artifact_receipt(
 pub(crate) fn consume_static_artifact_bundle(
     bundle_path: &Path,
     input_json: &Path,
-) -> Result<StaticArtifactReceiptConsumedFenceV1, String> {
+) -> Result<VerifiedStaticArtifactBundleLaunchFenceV1, String> {
     let bundle_metadata = fs::symlink_metadata(bundle_path)
         .map_err(|error| format!("static artifact bundle read failed: {error}"))?;
     if !bundle_metadata.file_type().is_dir() {
@@ -64,7 +64,48 @@ pub(crate) fn consume_static_artifact_bundle(
     let receipt_path = bundle_path.join("receipt.json");
     require_regular_file(&program_path, "static artifact bundle program")?;
     require_regular_file(&receipt_path, "static artifact bundle receipt")?;
-    consume_static_artifact_receipt(&receipt_path, input_json, Some(&program_path))
+    match consume_static_artifact_receipt(&receipt_path, input_json, Some(&program_path)) {
+        Ok(root_fence) => Ok(VerifiedStaticArtifactBundleLaunchFenceV1 {
+            _root_fence: root_fence,
+            bundle_path: bundle_path.to_path_buf(),
+        }),
+        Err(error) => {
+            let cleanup = fs::remove_dir_all(bundle_path);
+            if let Err(cleanup_error) = cleanup {
+                return Err(format!(
+                    "{error}; published bundle cleanup failed: {cleanup_error}"
+                ));
+            }
+            Err(error)
+        }
+    }
+}
+
+/// A root-validated bundle and its exact published path.  The selected launch
+/// owner consumes this value; no independent executable path can be supplied.
+#[derive(Debug)]
+pub(crate) struct VerifiedStaticArtifactBundleLaunchFenceV1 {
+    _root_fence: StaticArtifactReceiptConsumedFenceV1,
+    bundle_path: PathBuf,
+}
+
+impl VerifiedStaticArtifactBundleLaunchFenceV1 {
+    pub(crate) fn launch_and_cleanup(
+        self,
+        launch: impl FnOnce(&Path) -> Result<i32, String>,
+    ) -> Result<i32, String> {
+        let launch_result = launch(&self.bundle_path.join("program"));
+        let cleanup_result = fs::remove_dir_all(&self.bundle_path)
+            .map_err(|error| format!("published bundle cleanup failed: {error}"));
+        match (launch_result, cleanup_result) {
+            (Ok(code), Ok(())) => Ok(code),
+            (Err(launch_error), Ok(())) => Err(launch_error),
+            (Ok(_), Err(cleanup_error)) => Err(cleanup_error),
+            (Err(launch_error), Err(cleanup_error)) => {
+                Err(format!("{launch_error}; {cleanup_error}"))
+            }
+        }
+    }
 }
 
 fn validate_descriptor_against_input(descriptor: &Value, input_json: &Path) -> Result<(), String> {
@@ -333,7 +374,15 @@ mod tests {
             serde_json::from_slice(&fs::read(&bundle_receipt).unwrap()).unwrap();
         receipt_value["published_path"] = json!(bundle.join("program").display().to_string());
         fs::write(&bundle_receipt, serde_json::to_vec(&receipt_value).unwrap()).unwrap();
-        consume_static_artifact_bundle(&bundle, &input).unwrap();
+        let fence = consume_static_artifact_bundle(&bundle, &input).unwrap();
+        let launched = fence
+            .launch_and_cleanup(|program| {
+                assert_eq!(program, bundle.join("program").as_path());
+                Ok(0)
+            })
+            .unwrap();
+        assert_eq!(launched, 0);
+        assert!(!bundle.exists());
         fs::remove_dir_all(root).unwrap();
     }
 
@@ -351,6 +400,34 @@ mod tests {
         let (input, receipt, program) = fixture(&root);
         fs::write(&program, b"mutated-program").unwrap();
         assert!(consume_static_artifact_receipt(&receipt, &input, Some(&program)).is_err());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn bundle_launch_failure_still_cleans_exact_attempt() {
+        let root = std::env::temp_dir().join(format!(
+            "hakorune_static_bundle_launch_error_{}_{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let (input, receipt, program) = fixture(&root);
+        let bundle = root.join("bundle");
+        fs::create_dir(&bundle).unwrap();
+        let bundle_receipt = bundle.join("receipt.json");
+        fs::rename(receipt, &bundle_receipt).unwrap();
+        fs::rename(program, bundle.join("program")).unwrap();
+        let mut receipt_value: Value =
+            serde_json::from_slice(&fs::read(&bundle_receipt).unwrap()).unwrap();
+        receipt_value["published_path"] = json!(bundle.join("program").display().to_string());
+        fs::write(&bundle_receipt, serde_json::to_vec(&receipt_value).unwrap()).unwrap();
+        let fence = consume_static_artifact_bundle(&bundle, &input).unwrap();
+        let result = fence.launch_and_cleanup(|_| Err("spawn failed".to_owned()));
+        assert_eq!(result.unwrap_err(), "spawn failed");
+        assert!(!bundle.exists());
         fs::remove_dir_all(root).unwrap();
     }
 }

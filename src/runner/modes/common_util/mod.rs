@@ -17,6 +17,7 @@ pub mod plugin_guard;
 pub mod provider_registry;
 pub mod resolve;
 pub mod safety_gate;
+pub(crate) mod selected_dynamic_artifact_bundle;
 pub(crate) mod selected_dynamic_identity;
 pub mod selfhost;
 pub mod selfhost_exe;

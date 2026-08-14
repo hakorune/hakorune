@@ -164,18 +164,6 @@ fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     tmp_dir.join(format!("nyash_cli_emit_{}.json", std::process::id()))
 }
 
-/// Return the deterministic receipt path for one selected Dynamic executable
-/// attempt.  The path is transport-only: the receipt is issued by ny-llvmc
-/// and consumed by `emit_json_and_run_ny_llvmc_emit_exe` before this function
-/// returns.  It is not a route or semantic authority.
-pub(crate) fn selected_dynamic_receipt_path(exe_out: &str) -> PathBuf {
-    PathBuf::from(format!(
-        "{}.selected-dynamic-receipt-{}.json",
-        exe_out,
-        std::process::id()
-    ))
-}
-
 /// Census the already-sealed selected Dynamic metadata pair on a candidate
 /// module.  This is a physical route query, not a second semantic issuer:
 /// the package adapter/session already issued both slots.  A partial pair or
@@ -247,7 +235,7 @@ fn validate_selected_dynamic_boundary_route_values(
     Ok(())
 }
 
-fn validate_selected_dynamic_boundary_route_request() -> Result<(), String> {
+pub(crate) fn validate_selected_dynamic_boundary_route_request() -> Result<(), String> {
     validate_selected_dynamic_boundary_route_values(
         std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
         std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok().as_deref(),
@@ -279,6 +267,7 @@ fn build_ny_llvmc_emit_exe_command(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
+    artifact_bundle: Option<&std::path::Path>,
 ) -> Result<std::process::Command, String> {
     let mut cmd = std::process::Command::new(ny_llvmc);
     cmd.arg("--in")
@@ -292,6 +281,9 @@ fn build_ny_llvmc_emit_exe_command(
     append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
     if let Some(receipt_json) = receipt_json {
         cmd.arg("--receipt-json").arg(receipt_json);
+    }
+    if let Some(artifact_bundle) = artifact_bundle {
+        cmd.arg("--artifact-bundle").arg(artifact_bundle);
     }
     Ok(cmd)
 }
@@ -361,6 +353,7 @@ fn run_ny_llvmc_emit_exe(
         nyrt_dir,
         extra_libs,
         receipt_json,
+        None,
     )?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
@@ -429,6 +422,51 @@ fn emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
         }
         Err(err) => Err(with_retained_mir_path(err, &json_path)),
     }
+}
+
+pub(crate) fn emit_json_and_run_ny_llvmc_emit_exe_with_bundle(
+    emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
+    bundle_path: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<crate::runner::modes::common_util::static_artifact_receipt::VerifiedStaticArtifactBundleLaunchFenceV1, String>{
+    let json_path = prepare_ny_llvmc_emit_json_path();
+    emit_json(&json_path)?;
+    let result = run_ny_llvmc_emit_exe_with_bundle(&json_path, bundle_path, nyrt_dir, extra_libs);
+    match result {
+        Ok(()) => {
+            let fence = crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_bundle(
+                std::path::Path::new(bundle_path),
+                &json_path,
+            )
+            .map_err(|err| with_retained_mir_path(err, &json_path));
+            let _ = std::fs::remove_file(&json_path);
+            fence
+        }
+        Err(err) => Err(with_retained_mir_path(err, &json_path)),
+    }
+}
+
+fn run_ny_llvmc_emit_exe_with_bundle(
+    json_path: &std::path::Path,
+    bundle_path: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    let ny_llvmc = resolve_ny_llvmc();
+    if !ny_llvmc.exists() {
+        return Err(hint_ny_llvmc_missing(&ny_llvmc));
+    }
+    let mut cmd = build_ny_llvmc_emit_exe_command(
+        &ny_llvmc,
+        json_path,
+        bundle_path,
+        nyrt_dir,
+        extra_libs,
+        None,
+        Some(std::path::Path::new(bundle_path)),
+    )?;
+    spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
 
 /// Emit native executable via ny-llvmc (lib-side MIR)
@@ -527,40 +565,6 @@ pub fn ny_llvmc_emit_exe_bin(
     )
 }
 
-/// Emit the selected Dynamic module through the dedicated Boundary receipt
-/// channel. The selected runner consumes this fence before launching the
-/// published temporary artifact; ordinary compatibility uses its own route.
-pub fn ny_llvmc_emit_exe_selected_dynamic_bin(
-    module: &crate::mir::MirModule,
-    exe_out: &str,
-    receipt_json: &str,
-    nyrt_dir: Option<&str>,
-    extra_libs: Option<&str>,
-) -> Result<crate::mir::StaticArtifactReceiptConsumedFenceV1, String> {
-    validate_selected_dynamic_boundary_route_request()?;
-    let nyrt_dir = nyrt_dir.ok_or_else(|| {
-        "selected Dynamic Boundary requires an explicit --nyrt archive directory".to_owned()
-    })?;
-    crate::mir::backend_capability::enforce_mir_backend_supported(
-        module,
-        "ny-llvmc-selected-dynamic-exe",
-    )?;
-    let receipt_path = Path::new(receipt_json);
-    emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
-        |json_path| {
-            crate::runner::mir_json_emit::emit_mir_json_for_selected_dynamic_candidate(
-                module, json_path,
-            )
-            .map_err(|e| format!("MIR JSON emit error: {}", e))
-        },
-        exe_out,
-        Some(nyrt_dir),
-        extra_libs,
-        Some(receipt_path),
-    )?
-    .ok_or_else(|| "selected Dynamic Boundary receipt fence missing".to_owned())
-}
-
 /// Run an executable with arguments and a timeout.
 /// Returns (exit_code, timed_out, stdout_text).
 pub fn run_executable(
@@ -584,8 +588,7 @@ mod tests {
     use super::{
         append_ny_llvmc_extra_libs_arg, build_ny_llvmc_emit_exe_command,
         ny_llvmc_driver_arg_from_backend, selected_dynamic_aot_metadata_present,
-        selected_dynamic_receipt_path, validate_selected_dynamic_boundary_route_values,
-        with_retained_mir_path,
+        validate_selected_dynamic_boundary_route_values, with_retained_mir_path,
     };
 
     use crate::mir::{
@@ -706,15 +709,6 @@ mod tests {
     }
 
     #[test]
-    fn selected_dynamic_receipt_path_is_process_scoped() {
-        let path = selected_dynamic_receipt_path("tmp/out");
-        assert!(path
-            .to_string_lossy()
-            .contains("tmp/out.selected-dynamic-receipt-"));
-        assert!(path.to_string_lossy().ends_with(".json"));
-    }
-
-    #[test]
     fn appends_non_empty_extra_libs_as_single_arg() {
         let mut cmd = std::process::Command::new("ny-llvmc");
         append_ny_llvmc_extra_libs_arg(&mut cmd, Some("-ldl -lpthread"));
@@ -754,6 +748,7 @@ mod tests {
             Some("target/release"),
             None,
             Some(std::path::Path::new("receipt.json")),
+            None,
         )
         .expect("command");
         let args: Vec<_> = cmd

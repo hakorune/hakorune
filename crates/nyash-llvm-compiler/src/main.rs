@@ -73,6 +73,14 @@ struct Args {
         help_heading = "Implementation Detail"
     )]
     receipt_json: Option<PathBuf>,
+
+    /// Publish the executable and receipt together as one directory bundle.
+    #[arg(
+        long = "artifact-bundle",
+        value_name = "DIR",
+        help_heading = "Implementation Detail"
+    )]
+    artifact_bundle: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -121,11 +129,12 @@ fn run_dummy_mode(args: &Args, emit_exe: bool) -> Result<()> {
         "dummy object",
         None,
         None,
+        None,
     )
 }
 
 fn validate_receipt_args(args: &Args, emit_exe: bool) -> Result<()> {
-    if args.receipt_json.is_none() {
+    if args.receipt_json.is_none() && args.artifact_bundle.is_none() {
         return Ok(());
     }
     if !emit_exe {
@@ -135,7 +144,10 @@ fn validate_receipt_args(args: &Args, emit_exe: bool) -> Result<()> {
         anyhow::bail!("--receipt-json is available only for the Boundary driver");
     }
     if args.nyrt.is_none() {
-        anyhow::bail!("--receipt-json requires explicit --nyrt <DIR>");
+        anyhow::bail!("artifact publication requires explicit --nyrt <DIR>");
+    }
+    if args.receipt_json.is_some() && args.artifact_bundle.is_some() {
+        anyhow::bail!("--receipt-json and --artifact-bundle are mutually exclusive");
     }
     Ok(())
 }
@@ -175,6 +187,7 @@ mod tests {
         assert!(args.nyrt.is_none());
         assert!(args.libs.is_none());
         assert!(args.receipt_json.is_none());
+        assert!(args.artifact_bundle.is_none());
     }
 
     #[test]
@@ -197,6 +210,7 @@ mod tests {
         assert_eq!(args.nyrt, Some(PathBuf::from("target/release")));
         assert_eq!(args.libs.as_deref(), Some("-lssl -lcrypto"));
         assert!(args.receipt_json.is_none());
+        assert!(args.artifact_bundle.is_none());
     }
 
     #[test]
@@ -223,6 +237,22 @@ mod tests {
             "exe",
             "--receipt-json",
             "receipt.json",
+        ])
+        .unwrap();
+        let error = validate_receipt_args(&args, true).unwrap_err();
+        assert!(error.to_string().contains("explicit --nyrt"));
+    }
+
+    #[test]
+    fn artifact_bundle_requires_executable_boundary_inputs() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--out",
+            "bundle",
+            "--emit",
+            "exe",
+            "--artifact-bundle",
+            "bundle",
         ])
         .unwrap();
         let error = validate_receipt_args(&args, true).unwrap_err();

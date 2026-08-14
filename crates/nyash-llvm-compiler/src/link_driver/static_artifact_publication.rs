@@ -10,10 +10,10 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use serde_json::json;
 
+pub(super) use super::static_artifact_descriptor::StaticArtifactRejectV1;
 use super::static_artifact_descriptor::{
     expected_descriptor_from_json, observe_descriptor, require_archive_call_symbols,
     require_object_call_symbols, sha256_file, StaticAotArtifactDescriptorV1,
-    StaticArtifactRejectV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]

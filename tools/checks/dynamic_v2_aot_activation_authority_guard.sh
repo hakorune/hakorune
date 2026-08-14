@@ -40,6 +40,7 @@ CALLOUT_CFG="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.r
 CALLOUT_SSA="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_IDENTITY="$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_identity.rs"
+SELECTED_BUNDLE_OWNER="$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 CALLOUT_CORRIDOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/mod.rs"
 CALLOUT_CORRIDOR_EMISSION="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor/emission.rs"
@@ -71,7 +72,7 @@ guard_require_command "$TAG" wc
 guard_require_command "$TAG" llvm-nm
 guard_require_files "$TAG" "$SOURCE" "$MODULE" "$CODEGEN" "$MANIFEST" "$HEADER" "$LEASE_HEADER" "$NYRT_HEADER" "$RUST" "$PYTHON" "$CODEGEN_TEST" "$PROJECTION_TEST" "$STRICT_LEAF" "$LEASE" "$LEASE_ADAPTER" "$LEASE_FFI_MOD" "$METADATA" "$HOOK" "$METADATA_TEST" "$CALLOUT_TRANSPORT" "$CALLOUT_TRANSPORT_TEST" "$CALLOUT_TEST_PLAN" "$CALLOUT_TEST_PLAN_TEST" "$RUST_METADATA" "$RUST_METADATA_TEST" "$JSON_METADATA" "$LINK_DRIVER" "$PLAN_OWNER" "$CALLOUT_FACADE" "$CALLOUT_OWNER" "$CALLOUT_CENSUS" "$CALLOUT_TESTS" "$CALLOUT_CFG" "$CALLOUT_SSA" "$SELECTED_CAPABILITY" "$SELECTED_IDENTITY" "$SELECTED_EMITTER" "$CALLOUT_CORRIDOR" "$CALLOUT_CORRIDOR_EMISSION" "$SELECTED_LIFECYCLE" "$CATALOGED_HANDOFF" "$CATALOGED_HANDOFF_TESTS" "$PACKAGE_INSTALL" "$PACKAGE_ADAPTER"
 guard_require_files "$TAG" "$C1A_ROUTE" "$C1A_PROGRAM_VIEW" "$C1A_LOWERING" "$C1A_HEADER" "$C1A_LAUNCH"
-guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE"
+guard_require_files "$TAG" "$C1_OWNER" "$C1_DISPATCH" "$C1_PRESCAN" "$C1_SHIM" "$C1_SMOKE" "$SELECTED_BUNDLE_OWNER"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_HEADER" "$ARTIFACT_DESCRIPTOR_EMITTER" "$ARTIFACT_DESCRIPTOR_OPEN"
 guard_require_files "$TAG" "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" "$ARTIFACT_PUBLICATION_TESTS"
 
@@ -394,9 +395,9 @@ if rg -n 'selected Dynamic candidate is Boundary-only; VM execution is rejected'
   guard_fail "$TAG" "selected runner must not terminate at the retired PyVM fence"
 fi
 guard_expect_fixed_in_file "$TAG" \
-  'StaticArtifactReceiptConsumedFenceV1, String>' \
-  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
-  "selected Boundary emitter must return the consumed receipt fence"
+  'Result<VerifiedStaticArtifactBundleLaunchFenceV1, String>' \
+  "$SELECTED_BUNDLE_OWNER" \
+  "selected Boundary emitter must return the path-bound bundle fence"
 guard_expect_fixed_in_file "$TAG" \
   'pub(crate) fn selected_dynamic_nyrt_dir()' \
   "$ROOT_DIR/src/runner/modes/common_util/exec.rs" \
@@ -405,20 +406,14 @@ guard_expect_fixed_in_file "$TAG" \
   'Some(nyrt_dir.as_str())' \
   "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
   "selected Boundary must pass the explicit NyRT archive directory"
-if rg -n -A16 'pub fn ny_llvmc_emit_exe_selected_dynamic_bin\(' \
-  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" | rg -q 'nyrt_dir\.ok_or_else'; then
+if rg -n 'nyrt_dir\.ok_or_else' "$SELECTED_BUNDLE_OWNER" >/dev/null; then
   :
 else
   guard_fail "$TAG" "selected Boundary emitter must reject an omitted explicit NyRT directory"
 fi
-if [[ "$(rg -n 'let _receipt_fence' \
-  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" | wc -l | tr -d '[:space:]')" != 1 ]]; then
-  guard_fail "$TAG" "selected runner must consume one artifact receipt fence before execution"
-fi
-if [[ "$(rg -n 'run_selected_dynamic_after_receipt\(' \
-  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" | wc -l | tr -d '[:space:]')" != 2 ]]; then
-  guard_fail "$TAG" "selected execution must have one receipt-gated helper and one caller"
-fi
+guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' \
+  "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+  "selected runner must consume the path-bound fence before launch"
 if rg -n 'lookup_core_method|into_parts|\.clone\(|RuntimeExecutablePlanV1::clone' "$PLAN_OWNER"; then
   guard_fail "$TAG" "W3 post-link plan owner must not re-resolve or clone semantic facts"
 fi
@@ -763,6 +758,24 @@ guard_expect_fixed_in_file "$TAG" 'bundle_consume_checks_actual_program_digest_a
   "B3 root must have a positive bundle-consume test"
 guard_expect_fixed_in_file "$TAG" 'published_program_digest_drift_rejects_before_launch_fence' "$ROOT_RECEIPT" \
   "B3 root must reject a mutated published program"
+guard_expect_fixed_in_file "$TAG" 'VerifiedStaticArtifactBundleLaunchFenceV1' "$ROOT_RECEIPT" \
+  "B3 root must issue a path-bound launch fence"
+guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' "$ROOT_RECEIPT" \
+  "B3 launch owner must consume the fence and clean the exact attempt"
+guard_expect_fixed_in_file "$TAG" 'bundle_launch_failure_still_cleans_exact_attempt' "$ROOT_RECEIPT" \
+  "B3 must prove launch failure cleanup"
+guard_expect_fixed_in_file "$TAG" '--artifact-bundle' "$ROOT_DIR/crates/nyash-llvm-compiler/src/main.rs" \
+  "B3 child CLI must expose the bundle publication lane"
+guard_expect_fixed_in_file "$TAG" 'prepare_bundle_with_linker' "$ROOT_DIR/crates/nyash-llvm-compiler/src/link_driver.rs" \
+  "B3 child CLI must use the bundle owner"
+guard_expect_fixed_in_file "$TAG" 'selected_dynamic_bundle_path' "$ROOT_DIR/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs" \
+  "selected runner must derive one attempt-unique bundle path"
+guard_expect_fixed_in_file "$TAG" 'launch_and_cleanup' "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs" \
+  "selected runner must not launch an independent executable path"
+if rg -n 'selected_dynamic_receipt_path|run_selected_dynamic_after_receipt' \
+  "$ROOT_DIR/src/runner/modes/common_util/exec.rs" "$ROOT_DIR/src/runner/product/llvm/harness_executor.rs"; then
+  guard_fail "$TAG" "selected Dynamic must not retain the old pathless receipt launch seam"
+fi
 ROOT_LINES=$(wc -l < "$ROOT_RECEIPT" | tr -d '[:space:]')
 if (( ROOT_LINES >= 760 )); then
   guard_fail "$TAG" "B3 root receipt consumer reached the 760-line design split gate"

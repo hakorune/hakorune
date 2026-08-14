@@ -5,7 +5,7 @@
 use super::error::LlvmRunError;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
-use nyash_rust::mir::{MirModule, StaticArtifactReceiptConsumedFenceV1};
+use nyash_rust::mir::MirModule;
 
 /// Harness executor Box
 ///
@@ -21,25 +21,29 @@ impl HarnessExecutorBox {
     #[cfg(feature = "llvm-harness")]
     pub fn try_execute_selected_dynamic(module: &MirModule) -> Result<i32, LlvmRunError> {
         let exe_out = "tmp/nyash_llvm_run";
-        let receipt =
-            crate::runner::modes::common_util::exec::selected_dynamic_receipt_path(exe_out);
+        let bundle = crate::runner::modes::common_util::selected_dynamic_artifact_bundle::
+            selected_dynamic_bundle_path(exe_out);
         let nyrt_dir = crate::runner::modes::common_util::exec::selected_dynamic_nyrt_dir()
             .map_err(|error| {
                 LlvmRunError::fatal(format!("selected Dynamic NyRT archive error: {error}"))
             })?;
         let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
         let _receipt_fence =
-            crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_selected_dynamic_bin(
+            crate::runner::modes::common_util::selected_dynamic_artifact_bundle::emit_selected_dynamic(
                 module,
-                exe_out,
-                receipt.to_string_lossy().as_ref(),
+                bundle.to_string_lossy().as_ref(),
                 Some(nyrt_dir.as_str()),
                 libs.as_deref(),
             )
             .map_err(|error| {
                 LlvmRunError::fatal(format!("selected Dynamic Boundary emit-exe error: {error}"))
             })?;
-        run_selected_dynamic_after_receipt(_receipt_fence, exe_out)
+        _receipt_fence
+            .launch_and_cleanup(|program| {
+                run_emitted_executable(program.to_string_lossy().as_ref())
+                    .map_err(|error| error.msg)
+            })
+            .map_err(LlvmRunError::fatal)
     }
 
     #[cfg(not(feature = "llvm-harness"))]
@@ -80,14 +84,6 @@ impl HarnessExecutorBox {
             "LLVM harness feature not enabled (built without --features llvm)",
         ))
     }
-}
-
-#[cfg(feature = "llvm-harness")]
-fn run_selected_dynamic_after_receipt(
-    _receipt_fence: StaticArtifactReceiptConsumedFenceV1,
-    exe_out: &str,
-) -> Result<i32, LlvmRunError> {
-    run_emitted_executable(exe_out)
 }
 
 #[cfg(feature = "llvm-harness")]

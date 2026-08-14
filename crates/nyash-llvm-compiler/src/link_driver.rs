@@ -22,8 +22,41 @@ pub(super) fn finalize_emit_output(
     object_label: &str,
     input_json: Option<&Path>,
     receipt_json: Option<&Path>,
+    artifact_bundle: Option<&Path>,
 ) -> Result<()> {
     if emit_exe {
+        if let Some(bundle_path) = artifact_bundle {
+            let input_json =
+                input_json.context("--artifact-bundle requires a non-dummy MIR JSON input")?;
+            if driver != DriverKind::Boundary {
+                bail!("--artifact-bundle is available only for the Boundary driver");
+            }
+            let nyrt_dir = nyrt_dir.context(
+                "--artifact-bundle requires explicit --nyrt <DIR> for static publication",
+            )?;
+            let runtime_archive = require_explicit_nyrt_archive(Some(nyrt_dir))?;
+            let prepared = static_artifact_publication::StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+                input_json,
+                obj_path,
+                bundle_path,
+                &runtime_archive,
+                |object, candidate, archive| {
+                    super::boundary_driver::link_object_to_exe_with_archive(
+                        object, candidate, archive, extra_libs,
+                    )
+                    .map_err(|_| static_artifact_publication::StaticArtifactRejectV1::LinkFailed)
+                },
+            )
+            .map_err(|error| anyhow::anyhow!(error))?;
+            let published = prepared
+                .commit_bundle()
+                .map_err(|error| anyhow::anyhow!(error))?;
+            println!(
+                "[ny-llvmc] published artifact bundle: {}",
+                published.published_bundle_path().display()
+            );
+            return Ok(());
+        }
         if let Some(receipt_path) = receipt_json {
             let input_json =
                 input_json.context("--receipt-json requires a non-dummy MIR JSON input")?;
@@ -59,8 +92,8 @@ pub(super) fn finalize_emit_output(
         link_executable_via_driver(driver, obj_path, out_path, nyrt_dir, extra_libs)?;
         println!("[ny-llvmc] executable written: {}", out_path.display());
     } else {
-        if receipt_json.is_some() {
-            bail!("--receipt-json requires --emit exe");
+        if receipt_json.is_some() || artifact_bundle.is_some() {
+            bail!("artifact publication requires --emit exe");
         }
         println!(
             "[ny-llvmc] {} written: {}",
