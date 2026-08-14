@@ -37,6 +37,16 @@ impl VerifiedSelectedCallableBatchMapV1 {
         self.rows.iter().any(|row| row.batch_slot == batch_slot)
     }
 
+    pub(super) fn key_for_batch_slot(
+        &self,
+        batch_slot: u32,
+    ) -> Option<&SelectedNormalCallableKeyV1> {
+        self.rows
+            .iter()
+            .find(|row| row.batch_slot == batch_slot)
+            .map(|row| &row.key)
+    }
+
     pub(super) fn keys(&self) -> impl ExactSizeIterator<Item = &SelectedNormalCallableKeyV1> {
         self.rows.iter().map(|row| &row.key)
     }

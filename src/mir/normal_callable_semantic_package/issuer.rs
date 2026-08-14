@@ -1,5 +1,6 @@
 use crate::mir::builder::{
-    issue_source_backed_same_module_callable_catalog_v1, SourceBackedCallableCatalogIssueV1,
+    issue_source_backed_same_module_callable_catalog_v1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, SourceBackedCallableCatalogIssueV1,
 };
 use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
@@ -55,6 +56,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     DynamicInvocationLifecycle(DynamicInvocationCarrierLifecycleProgramRejectV1),
     DynamicCleanup(DynamicInvocationCleanupProjectionRejectV1),
     DynamicExitTransaction(DynamicExitTransactionCoSealRejectV1),
+    MissingDynamicPhysicalHeader,
 }
 
 pub(crate) fn issue_normal_callable_semantic_package_v1(
@@ -121,8 +123,8 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             }
         }
     }
-    let dynamic = match candidate {
-        None => NormalCallableDynamicProjectionV1::ValidUnselected,
+    let (dynamic, dynamic_physical_header) = match candidate {
+        None => (NormalCallableDynamicProjectionV1::ValidUnselected, None),
         Some((
             dynamic_batch_slot,
             dynamic_owner,
@@ -166,12 +168,26 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicCleanup)?;
             let program = issue_dynamic_exit_transaction_coseal_i0(program)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicExitTransaction)?;
-            NormalCallableDynamicProjectionV1::Selected {
-                batch_slot: dynamic_batch_slot,
-                owner: dynamic_owner,
-                source: Rc::new(dynamic_source),
-                program,
-            }
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(dynamic_key)) =
+                selected.key_for_batch_slot(dynamic_batch_slot)
+            else {
+                return Err(NormalCallableSemanticPackageIssueV1::MissingDynamicPhysicalHeader);
+            };
+            let declaration = catalog
+                .catalog()
+                .declaration(dynamic_key)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicPhysicalHeader)?;
+            let physical_header =
+                CatalogedBoxMethodPhysicalHeaderProjectionV1::from_catalog_declaration(declaration);
+            (
+                NormalCallableDynamicProjectionV1::Selected {
+                    batch_slot: dynamic_batch_slot,
+                    owner: dynamic_owner,
+                    source: Rc::new(dynamic_source),
+                    program,
+                },
+                Some(physical_header),
+            )
         }
     };
 
@@ -181,5 +197,6 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
         selected,
         parameter_contracts,
         dynamic,
+        dynamic_physical_header,
     })
 }

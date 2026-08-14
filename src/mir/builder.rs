@@ -275,7 +275,8 @@ pub(in crate::mir) use module_invocation_session::{
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
 pub(in crate::mir) use normal_cataloged_box_method_admission::{
-    NormalCatalogedBoxMethodAdmissionErrorV1, NormalCatalogedBoxMethodDraftAdmissionV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, NormalCatalogedBoxMethodAdmissionErrorV1,
+    NormalCatalogedBoxMethodDraftAdmissionV1,
 };
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts

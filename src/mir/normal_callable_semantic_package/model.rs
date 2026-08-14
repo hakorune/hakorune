@@ -1,5 +1,6 @@
 use crate::mir::builder::{
-    VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -33,6 +34,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
+    pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
 }
 
 #[derive(Debug)]

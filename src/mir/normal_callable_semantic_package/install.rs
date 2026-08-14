@@ -1,9 +1,10 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
-use std::collections::BTreeSet;
+use std::{cell::RefCell, collections::BTreeSet};
 
 use crate::mir::builder::{
-    CompilationContext, NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, CompilationContext,
+    NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
     SelectedNormalCallableKeyV1, VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
@@ -36,6 +37,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     dynamic: NormalCallableDynamicProjectionV1,
+    dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
 }
 
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
@@ -52,6 +54,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
 pub(crate) struct SelectedCatalogedCallableLoweringInputV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+    physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
 }
 
 impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
@@ -78,8 +81,9 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
     ) -> (
         SelectedCallableLoweringInputRefV1<'loan>,
         NormalCatalogedBoxMethodDraftAdmissionV1,
+        Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
     ) {
-        (self.selected, self.admission)
+        (self.selected, self.admission, self.physical_header)
     }
 }
 
@@ -130,6 +134,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             selected,
             parameter_contracts,
             dynamic,
+            dynamic_physical_header,
         } = self.package;
         let catalog_brand = catalog.catalog().brand().clone();
         self.context
@@ -140,6 +145,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             selected,
             parameter_contracts,
             dynamic,
+            dynamic_physical_header: RefCell::new(dynamic_physical_header),
         }
     }
 }
@@ -167,6 +173,20 @@ impl InstalledNormalCallableSemanticPackageV1 {
             installed: self,
             consumed: BTreeSet::new(),
         })
+    }
+
+    fn take_dynamic_physical_header(
+        &self,
+        key: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> Option<CatalogedBoxMethodPhysicalHeaderProjectionV1> {
+        let mut slot = self.dynamic_physical_header.borrow_mut();
+        let header = slot.take()?;
+        if header.key() == key {
+            Some(header)
+        } else {
+            *slot = Some(header);
+            None
+        }
     }
 
     fn with_selected_lowering_input<R>(
@@ -245,9 +265,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                     NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
                 );
             }
+            let physical_header = self
+                .installed
+                .take_dynamic_physical_header(admission.source_key());
             Ok(callback(SelectedCatalogedCallableLoweringInputV1 {
                 selected,
                 admission,
+                physical_header,
             }))
         })??;
         Ok(result)

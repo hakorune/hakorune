@@ -1,7 +1,9 @@
 //! Sole issuer for the bounded A-prime exact-I64 demand.
 
-use crate::ast::ASTNode;
-use crate::mir::builder::{NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1};
+use crate::mir::builder::{
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, NormalCatalogedBoxMethodDraftAdmissionV1,
+    SelectedNormalCallableKeyV1,
+};
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::dynamic_full_body_recipe::{
@@ -24,7 +26,7 @@ use super::model::{
 pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     input: SelectedCatalogedCallableLoweringInputV1<'loan>,
 ) -> Result<VerifiedAPrimeI64PhysicalDemandV1<'loan>, APrimeI64PhysicalDemandRejectV1> {
-    let (input, physical_header) = input.into_lowering_and_admission();
+    let (input, catalog, physical_header) = input.into_lowering_and_admission();
     let SelectedCallableSemanticRefV1::Dynamic { program, .. } = input.semantic() else {
         return Err(APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic);
     };
@@ -49,11 +51,10 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     let function_effects = operation_program
         .physical_function_effects()
         .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionEffect)?;
-    let physical_function_header = issue_physical_function_header(
-        input.source().source().root(),
-        physical_header,
-        function_effects,
-    )?;
+    let physical_header = physical_header
+        .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader)?;
+    let physical_function_header =
+        issue_physical_function_header(catalog, physical_header, function_effects)?;
     Ok(from_parts(
         input.source(),
         selected_key,
@@ -66,32 +67,26 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
 }
 
 fn issue_physical_function_header(
-    root: &ASTNode,
     catalog: NormalCatalogedBoxMethodDraftAdmissionV1,
+    header: CatalogedBoxMethodPhysicalHeaderProjectionV1,
     effects: crate::mir::EffectMask,
 ) -> Result<APrimePhysicalFunctionHeaderV1, APrimeI64PhysicalDemandRejectV1> {
-    let ASTNode::FunctionDeclaration {
-        name,
-        params,
-        param_decls,
-        return_type_name,
-        uses,
-        attrs,
-        ..
-    } = root
-    else {
-        return Err(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader);
-    };
     if catalog.source_key().namespace()
         != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
-        || catalog.source_key().name() != name
-        || catalog.physical_arity() != params.len()
-        || param_decls.len() != params.len()
-        || return_type_name.as_deref() != Some("i64")
+        || header.key() != catalog.source_key()
+        || catalog.physical_arity() != header.params().len()
+        || header.param_decls().len() != header.params().len()
+        || header.return_type_name() != Some("i64")
+        || !header
+            .params()
+            .iter()
+            .zip(header.param_decls())
+            .all(|(name, declaration)| name == &declaration.name)
     {
         return Err(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader);
     }
-    let params = param_decls
+    let params = header
+        .param_decls()
         .iter()
         .map(|decl| MirParamDecl {
             name: decl.name.clone(),
@@ -103,9 +98,9 @@ fn issue_physical_function_header(
     Ok(APrimePhysicalFunctionHeaderV1::new(
         catalog,
         params,
-        return_type_name.clone().map(Into::into),
-        attrs.clone(),
-        uses.clone().into_boxed_slice(),
+        header.return_type_name().map(Into::into),
+        header.attrs().clone(),
+        header.uses().to_vec().into_boxed_slice(),
         effects,
     ))
 }

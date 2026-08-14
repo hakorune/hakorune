@@ -934,9 +934,9 @@ These do not block the P0 DAG unless a touched file makes them necessary:
    - package admission and route-neutral catalog/fixture owners issue once;
      call-row derivation borrows the exact product and rejects foreign owner
      before ledger traversal; focused coseal tests, batch guard, and check pass.
-7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0` (accepted BoxShape implementation)
-   - installed catalog row issues one private owned header projection; A-prime
-     consumes it and performs no AST/root/header re-observation.
+7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0` (closed 2026-08-14 BoxShape)
+   - catalog row -> one linear package-loan projection -> A-prime; raw
+     AST/root re-observation removed; focused tests and authority guard pass.
 8. `DYN-CALLOUT-NORMAL-RESULT-TYPE-R0`
    - have the canonical normal-result issuer co-seal ValueId, site shape,
      MIR type, physical representation, and value-ledger publication;

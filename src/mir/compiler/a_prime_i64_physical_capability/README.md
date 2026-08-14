@@ -17,6 +17,8 @@ The resulting demand contains no `ValueId`, `BasicBlockId`, MIR instruction,
 backend tag, ABI helper, or fallback. A later fresh physical session must
 materialize those facts and publish its own session-local receipt. This module
 does not re-observe AST/source, reissue Dynamic semantics, or select a backend.
+Its physical function header comes from the installed catalog's one-shot
+projection; it must not reconstruct header fields from an AST/root node.
 
 `VerifiedResolvedCallableSourceIdentityV1` is a private comparison/navigation
 view borrowed from the same resolved batch row. It is not a callable key,

@@ -93,7 +93,7 @@ impl<'package, 'loan, 'port, 'collector>
                             .to_owned(),
                     );
                 }
-                let (selected, admission) = input.into_lowering_and_admission();
+                let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
@@ -361,7 +361,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         })?;
                     return Ok(());
                 }
-                let (selected, admission) = input.into_lowering_and_admission();
+                let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),

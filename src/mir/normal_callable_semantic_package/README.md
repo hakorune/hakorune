@@ -69,6 +69,11 @@ The package owns only semantic carrier flow, cleanup evidence, and the logical
 inner-Return/outer-Tail function-exit relation; actual rebind, End, Home,
 physical Return/ABI, and physicalization remain later owners.
 
+For the selected cataloged Dynamic row, the installed catalog declaration also
+issues one move-only physical-header projection. The package loan transports
+that projection to A-prime exactly once; A-prime consumes it for the physical
+header and never re-observes the AST/root declaration.
+
 ## Anchor/package audit reconciliation (2026-08-10)
 
 The selected-mapping boundary is closed and must not be reopened as a second

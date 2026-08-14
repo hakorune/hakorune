@@ -7,6 +7,9 @@
 use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
 use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
+use crate::ast::{DeclarationAttrs, ParamDecl};
+
+use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationV1;
 use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -33,6 +36,62 @@ pub(in crate::mir) struct NormalCatalogedBoxMethodDraftAdmissionV1 {
     physical_symbol: Box<str>,
     physical_arity: usize,
     _seal: NormalCatalogedBoxMethodDraftAdmissionSealV1,
+}
+
+/// Owned physical header projection issued from the installed catalog row.
+/// It carries storage-facing declaration data only; it is not a second
+/// semantic declaration authority and is consumed by the selected A-prime
+/// handoff.
+#[derive(Debug)]
+pub(in crate::mir) struct CatalogedBoxMethodPhysicalHeaderProjectionV1 {
+    key: CanonicalSameModuleCallableKeyV1,
+    params: Box<[String]>,
+    param_decls: Box<[ParamDecl]>,
+    return_type_name: Option<Box<str>>,
+    uses: Box<[String]>,
+    attrs: DeclarationAttrs,
+}
+
+impl CatalogedBoxMethodPhysicalHeaderProjectionV1 {
+    pub(in crate::mir) fn from_catalog_declaration(
+        declaration: &VerifiedSameModuleCallableDeclarationV1,
+    ) -> Self {
+        Self {
+            key: declaration.key().clone(),
+            params: declaration.params().to_vec().into_boxed_slice(),
+            param_decls: declaration.param_decls().to_vec().into_boxed_slice(),
+            return_type_name: declaration
+                .return_type_name()
+                .map(str::to_owned)
+                .map(Into::into),
+            uses: declaration.uses().to_vec().into_boxed_slice(),
+            attrs: declaration.attrs().clone(),
+        }
+    }
+
+    pub(in crate::mir) fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.key
+    }
+
+    pub(in crate::mir) fn params(&self) -> &[String] {
+        &self.params
+    }
+
+    pub(in crate::mir) fn param_decls(&self) -> &[ParamDecl] {
+        &self.param_decls
+    }
+
+    pub(in crate::mir) fn return_type_name(&self) -> Option<&str> {
+        self.return_type_name.as_deref()
+    }
+
+    pub(in crate::mir) fn uses(&self) -> &[String] {
+        &self.uses
+    }
+
+    pub(in crate::mir) fn attrs(&self) -> &DeclarationAttrs {
+        &self.attrs
+    }
 }
 
 #[derive(Debug)]
