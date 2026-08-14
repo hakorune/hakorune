@@ -383,6 +383,48 @@ guard_expect_fixed_in_file "$TAG" 'MirFinishScheduleV1::SelectedDynamic' "$COMPI
   "selected post-seal schedule must have a distinct immutable branch"
 guard_expect_fixed_in_file "$TAG" 'MirVerifier::new_strict()' "$COMPILER_OWNER" \
   "selected post-seal module must use the environment-independent verifier"
+python3 - "$COMPILER_OWNER" "$NORMAL_PIPELINE" <<'PY'
+import sys
+
+compiler_path, pipeline_path = sys.argv[1:]
+compiler = open(compiler_path, encoding="utf-8").read()
+selected_start = compiler.index(
+    "if schedule == MirFinishScheduleV1::SelectedDynamic"
+)
+selected_end = compiler.index(
+    "        // Builder attaches declaration runes", selected_start
+)
+selected = compiler[selected_start:selected_end]
+forbidden = (
+    "refresh_module_rune_plans",
+    "optimize_module",
+    "refresh_and_validate_for_boundary",
+    "insert_rc_instructions",
+    "refresh_module_semantic_metadata",
+    "canonicalize_for_site",
+)
+for token in forbidden:
+    if token in selected:
+        raise SystemExit(f"selected finish branch contains post-seal mutator: {token}")
+if "MirVerifier::new_strict().verify_module(&module)" not in selected:
+    raise SystemExit("selected finish branch lacks strict whole-module verification")
+if "return Ok(MirCompileResult" not in selected:
+    raise SystemExit("selected finish branch lacks an immutable result return")
+first_mutator = min(
+    compiler.index(token, selected_start) for token in forbidden
+)
+if selected_start > first_mutator:
+    raise SystemExit("selected finish branch appears after a generic post-seal mutator")
+
+pipeline = open(pipeline_path, encoding="utf-8").read()
+selected_pipeline = pipeline.index(
+    "if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic"
+)
+verification_consume = pipeline.index("verification_result.as_ref()", selected_pipeline)
+external_commit = pipeline.index("prepare_external_commit()", selected_pipeline)
+if verification_consume > external_commit:
+    raise SystemExit("selected verification is consumed after external commit preparation")
+PY
 guard_expect_fixed_in_file "$TAG" 'finish_schedule_for_normal_module(&module)' "$NORMAL_PIPELINE" \
   "normal pipeline must classify the selected schedule before external commit"
 guard_expect_fixed_in_file "$TAG" 'verification_result.as_ref()' "$NORMAL_PIPELINE" \

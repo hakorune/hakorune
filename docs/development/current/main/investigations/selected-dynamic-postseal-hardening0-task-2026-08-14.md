@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; queued P0 hardening is post-seal mutation fencing, strict verification retention, and selected runner reachability; guard consolidation is one queued organization task with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; the next P0 is selected runner reachability; guard consolidation is one queued organization task with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0 proves that the sealed selected module bypasses every later mutable compiler seam before JSON or backend effects.
+Smallest next slice: SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0 proves that selected input skips retired PyVM and reaches the sole Boundary executor exactly once after the sealed/strict candidate gates.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -609,20 +609,20 @@ selected fallback / retry                                     = 0 / 0
 These are one shallow queue, not new semantic routes or new guard families.
 
 ```text
-SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0
+SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0 [closed 2026-08-14]
 Decision: selected sealed MIR bypasses MethodIdInjector and every later mutable optimizer/RC/canonicalizer seam.
 Source authority + canonical issuer: selected receipt/admission census plus the existing unpublished postprocess owner.
 Non-authority: mutation_count=0, runner clones, legacy “BoxCall” wording, or post-publication repair.
 Fail-fast boundary: selected unresolved legacy Call or any post-seal mutable touch rejects before JSON/backend spawn.
-Smallest next slice: one whole-postprocess selected fence; ordinary compatibility remains unchanged.
+Closeout: the selected finish branch is statically proven to return before every generic post-seal mutator; selected verification is consumed before external commit; selected Method-ID injection remains bypassed; ordinary compatibility is unchanged.
 Non-claims: no method resolution, new receipt, fallback, retry, or production cutover.
 
-SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0
+SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0 [closed 2026-08-14]
 Decision: selected compilation consumes verification results under an env-independent strict policy before any backend effect.
 Source authority + canonical issuer: MirCompileResult verification result and existing selected final verifier.
 Non-authority: `NYASH_STAGEB_DEV_VERIFY`, no-PHI compatibility knobs, JSON emission, or child receipt text.
 Fail-fast boundary: verification error, dominance/PHI drift, or module metadata mismatch blocks object, Boundary, PyVM, and launch.
-Smallest next slice: retain `verification_result`, add strict selected whole-module gate, and cover env-on negative fixtures.
+Closeout: `MirVerifier::new_strict()` is selected-only, compatibility env switches do not weaken it, and `normal_default_pipeline` consumes the result before external commit; focused strict-policy, compiler, runner, and authority-guard evidence is green.
 Non-claims: ordinary compatibility verifier policy, semantic Recipe changes, or fallback/retry.
 
 SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0
