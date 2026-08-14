@@ -1,5 +1,5 @@
 ---
-Status: complete Recipe target map accepted; Exit/Tail source co-seal D0 is current
+Status: Exit/Tail source co-seal D0 accepted; bounded I0 is current
 Date: 2026-08-14
 Decision: separate Loop Return(index) from callable Tail(-1), then issue one S6C Facts owner and one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -11,15 +11,15 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
   callable contract, typed-input product, and source-bound relation are
-  landed. The complete Recipe target map is accepted; resolver-owned
-  Loop-Return versus callable-Tail evidence is the next authority.
+  landed. The complete Recipe target map and resolver-owned Loop-Return versus
+  callable-Tail co-seal are accepted; its bounded implementation is current.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0` — fix the exact
-  borrowed resolver view for conditional `return index` versus outer
-  `return -1` before any Facts or Recipe key exists.
+- **Next ordered task:** `LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0` — consume the
+  existing Completion and fixed source-bound relation into the exact borrowed
+  view for conditional `return index` versus outer `return -1`.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -29,18 +29,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: issue one resolver-owned Exit/Tail co-seal; Loop `return index` is
-the sole Recipe Return, while outer `return -1` stays callable Completion.
-Source authority + canonical issuer: resolver exit rows, sealed region/frame
-membership, exact index binding/literal relations, and existing Completion;
-one narrow HRTB view is the only new issuer boundary.
+Decision: consume one existing Completion and fixed source-bound relation into
+one non-Clone Exit/Tail co-seal; do not issue a second Completion or relation.
+Source authority + canonical issuer: resolver exit/variable/literal rows,
+sealed Loop/If regions, and existing Completion; the S6C structural-facts
+module is the sole pairing issuer and only lends an HRTB view.
 Non-authority: source order, AST reread, fixture position, legacy producers,
 MIR/ResultKind, Dynamic receipts, Recipe keys, and physical effects.
 Fail-fast boundary: missing/duplicate/swapped/foreign exit, wrong region or
 target function, wrong value/literal, Tail leakage, cleanup/disposition drift,
 or incomplete two-return coverage rejects before Facts and Recipe keys.
-Smallest next slice: fix the borrowed Exit/Tail schema and complete negative
-matrix; implementation remains NoSafeSlice until this Decision is accepted.
+Smallest next slice: implement the co-seal, focused positive/negative tests,
+and existing-family guard evidence below the source split budget.
 Non-claims: no Facts/Recipe I0, JoinSig, Builder/MIR, physical canary,
 production selector, fallback/retry, legacy deletion, or backend change.
 ```
@@ -114,8 +114,8 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                                      -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
                                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
                                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CLOSED T2 (target map; NoSafeSlice dependency named)
-                                                    -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CURRENT T2
-                                                         -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 T2
+                                                    -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CLOSED T2
+                                                         -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 CURRENT T2
                                                               -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
                                                                    -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 T2
                                                                         -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
@@ -150,6 +150,34 @@ wrong region ancestry/target function/index binding/literal; Tail inside the
 Loop; Loop Return outside it; unmodeled break/continue/throw/await/cleanup;
 partial Completion; and any AST/order/MIR inference. New S6C sources belong
 in split modules below 760 lines; `typed_schema_v2.rs` (757) is frozen.
+
+### Accepted Exit/Tail I0 contract
+
+```text
+input:
+  VerifiedSourceBoundS6CCallRelationV1 by value
+  VerifiedFunctionCompletionV1 by value
+  CallableSemanticSourceLedgerView borrowed for exact resolver rows
+
+classification:
+  completion = ExplicitReturns(Value), count = 2, cleanup = empty
+  Loop Return value = exact Local(index) resolver row
+  Loop Return region = exact If-then region whose condition is TextEq
+  callable Tail value = exact Integer(-1) resolver literal row
+  callable Tail region = root function-body sequence and terminal site
+
+output:
+  non-Clone VerifiedS6CExitTailSourceCoSealV1
+  owns both consumed products and fixed inner/tail source evidence
+  lends one HRTB view; Clone/raw constructor/into_parts = 0
+```
+
+The resolver If-region index may add one narrow condition-expression lookup;
+it returns the exact existing If site/bundle and never reconstructs control
+from an AST. The co-seal checks owner, frame, target function, Completion site
+set, region, value, and literal parity before construction. The later Facts
+issuer consumes this whole product; it may not re-pair a source relation and
+Completion independently.
 
 ### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (accepted)
 
