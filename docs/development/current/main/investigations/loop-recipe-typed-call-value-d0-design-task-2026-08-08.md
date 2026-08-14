@@ -410,6 +410,30 @@ rejects before any target receipt. This D0 only fixes the issuer contract and
 negative matrix; it does not add the issuer or a `Verified*`/`Prepared*`
 product.
 
+### D0 exit gate before `LOOP-CORE-METHOD-INSTANCE-TARGET-I0`
+
+The next implementation row is not selected yet. It may open only after one
+issuer implementation and its evidence satisfy all of these conditions:
+
+```text
+source authority = CoreMethodContractBox/generated row under the same
+  manifest/schema brand;
+canonical issuer = one non-forgeable target product from
+  (generated row, exact operation/arity, explicit typed Home schema);
+positive evidence = StringLen/0 and StringSubstring/2;
+negative evidence = foreign/mixed brand, wrong receiver/arity/result/effect/
+  ABI, missing Home, duplicate target, and Text inferred from MIR/ResultKind;
+failure terminal = reject before target receipt issuance;
+guard evidence = issuer/consumer census and no raw name/MIR/Dynamic lookup;
+non-claims = no source-bound consumer, Facts/Recipe producer, Dynamic import,
+  Builder/MIR/Boundary route, production switch, fallback, or retry.
+```
+
+Until this gate is observed, `CURRENT_STATE.toml.work_mode` remains
+`design_stop`, S6C remains `NoSafeSlice`, and no semantic `Verified*` or
+`Prepared*` product may be issued. The source-bound call relation is a later
+bounded row and must not be folded into this issuer gate.
+
 Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
 until the manifest-backed CoreMethod Home issuer exists and its positive /
 negative / guard evidence satisfies the source-backed receipt gate. No
