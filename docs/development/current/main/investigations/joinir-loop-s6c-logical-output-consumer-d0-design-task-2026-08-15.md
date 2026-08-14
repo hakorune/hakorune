@@ -1,5 +1,5 @@
 ---
-Status: design_stop; ConsumerResultDialectMissing
+Status: accepted-corrected; consumer result dialect remains a later stop
 Date: 2026-08-15
 Decision: design a product-first logical consumer without opening JoinModule/MIR
 Scope: M8 LoopV0 forward ScanWithInit logical output; caller-zero only
@@ -27,23 +27,23 @@ Recipe-local logical rows and borrows the already sealed source-call and Join
 transfer authorities. It does not create a new key space or materialize
 JoinModule/MIR.
 
-The next design must decide only how a future caller-zero logical consumer
-borrows that product and reports a typed, logical result. It must not accept a
+The remaining consumer design must decide only how a future caller-zero
+logical consumer reports a typed, logical result. Before that, the independent
+source-call escape is closed by the bounded
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0` BoxShape. It must not accept a
 Recipe-only or JoinSig-only input, and it must not use the compatibility
 `LoopToJoinLowerer` as a semantic oracle.
 
 ## Required correction before consumer I0
 
 The landed output façade currently exposes `rows()`, `input()`, and
-`logical_transfer()` as separate read surfaces. That is safe for inspection but
-not yet a consumer contract: a caller could pair the `rows().calls()` array
-with a different source-call view. The next design must choose one canonical
-call projection, preferably a private role-wise view that co-seals the
+`logical_transfer()` as separate read surfaces. The accepted R0 removes the
+raw `input()` escape and adds one private role-wise call view that co-seals the
 `Length`/`Substring` row with its retained source contract. The independent
-`calls` array must either become that sole canonical view or be removed from
-the consumer-facing façade.
+`calls` array remains only as logical row storage; consumers use the paired
+view.
 
-The consumer result dialect is also not fixed yet. A consumer must return one
+The consumer result dialect is still not fixed. A consumer must return one
 typed logical result or one named terminal reject; `()`/`Option`/legacy
 `JoinModule` are not acceptable authority boundaries. If that result introduces
 new semantic meaning rather than borrowing/verifying the existing product, it
@@ -75,6 +75,7 @@ negative: row omission/duplication, call-role re-pair, wrong class, foreign owne
           untyped/Option result
 ```
 
-The current pointer remains here until this boundary is accepted. Then the
-consumer may be implemented as one bounded caller-zero row without changing
-source, Facts, Recipe, Join, or physical authorities.
+The current pointer may enter the bounded call-view R0 first. After R0 closes,
+the pointer returns here for the result-dialect decision; only then may a
+consumer row be implemented without changing source, Facts, Recipe, Join, or
+physical authorities.

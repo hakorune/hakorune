@@ -180,14 +180,22 @@ fn logical_output_product_owns_fixed_rows_and_borrows_join_transfer() {
         assert_eq!(view.rows().values().len(), 15);
         assert_eq!(view.rows().blocks().len(), 3);
         assert_eq!(view.rows().items().len(), 15);
-        assert_eq!(view.rows().calls().len(), 2);
+        assert_eq!(view.calls().len(), 2);
         assert_eq!(
-            view.rows().calls()[0].role(),
+            view.calls().length().role(),
             super::S6CLogicalCallRoleV1::Length
         );
         assert_eq!(
-            view.rows().calls()[1].role(),
+            view.calls().substring().role(),
             super::S6CLogicalCallRoleV1::Substring
+        );
+        assert_eq!(
+            view.calls().length().source().operation(),
+            CoreMethodOp::StringLen
+        );
+        assert_eq!(
+            view.calls().substring().source().operation(),
+            CoreMethodOp::StringSubstring
         );
         assert_eq!(view.logical_transfer().branches().len(), 1);
         assert_eq!(view.logical_transfer().summary_transfers().len(), 1);

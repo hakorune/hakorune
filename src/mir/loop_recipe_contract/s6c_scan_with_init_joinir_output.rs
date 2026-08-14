@@ -7,10 +7,11 @@
 
 use super::s6c_scan_with_init::VerifiedS6CScanWithInitRecipeProductV2;
 use super::s6c_scan_with_init_joinir::{
-    with_s6c_scan_with_init_logical_join_input, S6CScanWithInitLogicalJoinInputRefV1,
+    with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
 };
 use super::s6c_scan_with_init_joinir_output_rows::{
-    issue_s6c_logical_output_rows, S6CLogicalOutputRejectV1, S6CLogicalOutputRowsV1,
+    issue_s6c_logical_output_rows, S6CLogicalCallSlotV1, S6CLogicalOutputRejectV1,
+    S6CLogicalOutputRowsV1,
 };
 
 #[derive(Debug)]
@@ -27,9 +28,28 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
         ) -> R,
     ) -> R {
         with_s6c_scan_with_init_logical_join_input(&self.product, |input| {
+            let calls = S6CLogicalCallPairsRefV1 {
+                length: S6CLogicalCallWithSourceRefV1 {
+                    row: *self
+                        .rows
+                        .calls()
+                        .first()
+                        .expect("verified S6C Length call row"),
+                    source: input.length(),
+                },
+                substring: S6CLogicalCallWithSourceRefV1 {
+                    row: *self
+                        .rows
+                        .calls()
+                        .get(1)
+                        .expect("verified S6C Substring call row"),
+                    source: input.substring(),
+                },
+            };
             callback(S6CScanWithInitLogicalOutputRefV1 {
                 rows: &self.rows,
-                input,
+                calls,
+                transfer: input.logical_transfer(),
             })
         })
         .expect("verified S6C logical output parity")
@@ -39,7 +59,8 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
     rows: &'rows S6CLogicalOutputRowsV1,
-    input: S6CScanWithInitLogicalJoinInputRefV1<'product>,
+    calls: S6CLogicalCallPairsRefV1<'product>,
+    transfer: &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product>,
 }
 
 impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
@@ -47,14 +68,54 @@ impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
         self.rows
     }
 
+    pub(crate) const fn calls(self) -> S6CLogicalCallPairsRefV1<'product> {
+        self.calls
+    }
+
     pub(crate) const fn logical_transfer(
         self,
     ) -> &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product> {
-        self.input.logical_transfer()
+        self.transfer
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct S6CLogicalCallPairsRefV1<'product> {
+    length: S6CLogicalCallWithSourceRefV1<'product>,
+    substring: S6CLogicalCallWithSourceRefV1<'product>,
+}
+
+impl<'product> S6CLogicalCallPairsRefV1<'product> {
+    pub(crate) const fn len(self) -> usize {
+        2
     }
 
-    pub(crate) const fn input(self) -> S6CScanWithInitLogicalJoinInputRefV1<'product> {
-        self.input
+    pub(crate) const fn length(self) -> S6CLogicalCallWithSourceRefV1<'product> {
+        self.length
+    }
+
+    pub(crate) const fn substring(self) -> S6CLogicalCallWithSourceRefV1<'product> {
+        self.substring
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct S6CLogicalCallWithSourceRefV1<'product> {
+    row: S6CLogicalCallSlotV1,
+    source: S6CLogicalCallInputRefV1<'product>,
+}
+
+impl<'product> S6CLogicalCallWithSourceRefV1<'product> {
+    pub(crate) const fn role(self) -> S6CLogicalCallRoleV1 {
+        self.row.role()
+    }
+
+    pub(crate) const fn row(self) -> S6CLogicalCallSlotV1 {
+        self.row
+    }
+
+    pub(crate) const fn source(self) -> S6CLogicalCallInputRefV1<'product> {
+        self.source
     }
 }
 

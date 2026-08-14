@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, private logical JOINIR input façade, and source-retaining logical output I0 are landed. The next stop is the product-first logical consumer design; JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, private logical JOINIR input façade, source-retaining logical output I0, and canonical Length/Substring call-view R0 are landed. The next stop is the typed product-first logical consumer result design; JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0: fix canonical source-call projection and typed consumer result before I0"
+current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0: typed product-first consumer result after canonical call-view R0"
 work_mode = "design_stop"
 current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0"
-current_blocker_token = "Design one caller-zero logical consumer over VerifiedS6CScanWithInitLogicalOutputV1's private HRTB view: co-seal one canonical Length/Substring source-call view with fixed rows, and fix a typed logical result/reject terminal without re-pairing Facts, Recipe, or Join. No JoinModule/MIR, JoinValueSpace, physical IDs, Artifact, selector, fallback, retry, or production caller."
+current_blocker_token = "Design the typed result/reject dialect for one caller-zero logical consumer over VerifiedS6CScanWithInitLogicalOutputV1's private HRTB view. Canonical Length/Substring source-call pairing is closed by R0; do not re-pair Facts, Recipe, or Join. No JoinModule/MIR, JoinValueSpace, physical IDs, Artifact, selector, fallback, retry, or production caller."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C logical JOINIR output consumer design)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, private logical JOINIR input façade, and caller-zero logical output I0 are landed. The current stop designs the next product-first logical consumer; JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C logical consumer result design)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, private logical JOINIR input façade, caller-zero logical output I0, and canonical source-call view R0 are landed. The current stop fixes the typed consumer result/reject dialect. JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "joinir-loop-s6c-logical-output-consumer-d0"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-consumer-d0-design-task-2026-08-15.md"
-latest_card_summary = "S6C Facts I0, Recipe I0, private logical JOINIR input façade, and caller-zero source-retaining logical output I0 are closed. The current design stop fixes one canonical source-call projection and a typed consumer result/reject before I0; JoinModule, physical output, Artifact, and production remain closed."
+latest_card_summary = "S6C Facts I0, Recipe I0, private logical JOINIR input façade, caller-zero source-retaining logical output I0, and canonical Length/Substring call-view R0 are closed. The current design stop fixes the typed product-first consumer result; JoinModule, physical output, Artifact, and production remain closed."
 next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0"
 next_design_card_path = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-consumer-d0-design-task-2026-08-15.md"
 next_execution_card = "none"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0 landed one canonical role-wise Length/Substring view: each fixed CallSlot row is paired with its retained source contract inside the private output façade, raw input() escape is removed, six focused S6C tests plus cargo check/format/diff/pointer/Loop guards are green, and the typed consumer result remains a design stop.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0 landed one caller-zero source-retaining non-Clone logical output product: fixed Recipe-local rows are issued once, the original Facts/Recipe/Join product is retained, and a private HRTB façade lends rows plus borrowed Join transfer; six focused S6C tests, cargo check, format, diff, pointer, and Loop pre-cutover guards are green; JoinModule/MIR, physical output, and production remain closed.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 landed the private borrow-only logical JOINIR input façade: exact Recipe domains, source-bound length/substring CallSlot parity, TextEq/If, and Join branch/Return-summary/Backedge/After are co-checked inside the combined non-Clone product; four focused tests and existing Loop/pointer guards are green; JoinModule/MIR output and production remain closed.",
   "2026-08-15: LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 landed the bounded T2 BoxCount: consume Facts by value into one non-Clone verified V2 Recipe + fixed all-domain role seal + sole-root Join closure/prevalidated logical-transfer product; only private facades are lent, focused producer test is green, and Artifact/source binding remains an explicit non-claim.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-14: MAIN-INTEGRATION-EVIDENCE-R0 clean detached SHA 145921e7d5: cargo check, three selected W6 suites, selected guards, LLVM census/route guards, and diff check green; completion ReturnValueTypeMissing and generic legacy executable guard reds reproduce at parent baseline; selected production remains new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",
-  "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
 ]

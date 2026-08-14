@@ -213,7 +213,8 @@ pub(crate) use s6c_scan_with_init_joinir::{
 };
 #[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_joinir_output::{
-    issue_s6c_scan_with_init_logical_output_v1, S6CScanWithInitLogicalOutputRefV1,
+    issue_s6c_scan_with_init_logical_output_v1, S6CLogicalCallPairsRefV1,
+    S6CLogicalCallWithSourceRefV1, S6CScanWithInitLogicalOutputRefV1,
     VerifiedS6CScanWithInitLogicalOutputV1,
 };
 #[allow(unused_imports)]
