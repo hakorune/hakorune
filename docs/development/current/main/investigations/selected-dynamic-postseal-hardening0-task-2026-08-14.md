@@ -818,18 +818,18 @@ The historical-retire census is NoSafeSlice: all 3,654 rows have non-empty
 owner/caller/evidence classification, so no zero-caller family can be retired
 without inventing authority; rows remain in their existing dispositions.
 
-#### MIRBUILDER-LINE-BUDGET-CENSUS-R0 (next design stop)
+#### MIRBUILDER-LINE-BUDGET-CENSUS-R0 (accepted BoxShape implementation)
 
 ```text
-Decision: produce one source-backed 760-warning/800-hard-stop census for
-relevant MIRBuilder owners; split only under an accepted responsibility row.
+Decision: split only the 797-line unified call facade's two public compatibility
+entrypoints into a child module; preserve API, order, and owner semantics.
 Source authority + canonical issuer: tracked Rust source and existing reusable
 line guards; the census reports but never authorizes a split.
 Non-authority: compression, blank-line removal, grep-only ownership, or prose.
 Fail-fast boundary: touched owner at/above 800, missing split target, or a new
 responsibility without a prior owner keeps the row open.
-Smallest next slice: classify the current 58 >=760 and 4 >=800 files by
-production/test/guard ownership and select one bounded split candidate.
+Smallest next slice: move `emit_global_unified` and `emit_value_unified` to a
+private child module and prove the facade falls below the 760 design threshold.
 Non-claims: no mass refactor, semantic change, deletion, fallback, archive,
 llvmlite retirement, or production cutover.
 ```
