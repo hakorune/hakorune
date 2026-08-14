@@ -1,5 +1,5 @@
 ---
-Status: Hardening implementation tail closed for task selection; LiveBlocker=0 and CutoverBlocker=0; one latest-HEAD detached integration return gate remains before explicit Loop M8 S6C retarget; latent P1/P2, G3, and live cutover are parked
+Status: Closed for task selection; LiveBlocker=0 and CutoverBlocker=0; latest-HEAD detached integration is classified and CURRENT_STATE now explicitly retargets Loop M8 S6C; latent P1/P2, G3, and live cutover remain parked
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -21,11 +21,11 @@ these rows make every boundary from admission through launch fail closed.
 ## Six-line brief
 
 ```text
-Decision: stop the Dynamic hardening tail: live/cutover blocker count is zero; park latent P1/P2 findings, rerun the latest-HEAD detached integration gate once, then return explicitly to the Loop product frontier.
+Decision: stop the Dynamic hardening tail: live/cutover blocker count is zero, latent P1/P2 findings remain parked, and the latest-HEAD detached integration gate is classified; the Loop product frontier is resumed explicitly.
 Source authority + canonical issuer: the landed selected semantic package, canonical session/DraftSeal, Boundary artifact fence, and the unchanged selected candidate/integration gates.
 Non-authority: grep-only suspicion, no-caller LocalSSA wrappers, future provider/platform generalization, LOC/style findings, llvmlite output, or another audit score.
 Fail-fast boundary: only a named live/candidate reproducer, exact selected-cutover gate failure, or reachable UB/corruption/irreversible effect may reopen this card before Loop.
-Smallest next slice: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 in a clean detached worktree; classify every red, then retarget CURRENT_STATE to JOINIR-LOOP-M8-LOOPV0-SCANS-S6C.
+Smallest next slice: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C as the existing T2 design stop; prove resolver/CoreMethod source relations before implementation.
 Non-claims: no LocalSSA/provider/platform/line-budget implementation, live cutover, G3 archive/delete, fallback/retry, Loop implementation, or second writer lane.
 ```
 
@@ -861,11 +861,11 @@ The integration row is therefore closed as evidence classification, not as a
 claim that the baseline debt or live production cutover is complete.
 
 That SHA is a classified baseline, not proof for the latest branch head.
-`MIRBUILDER-LATEST-HEAD-INTEGRATION-R0` is the one predeclared return gate:
-rerun the same detached family at the exact current SHA, classify every red
-against its parent, and record selected `new=0 / old=1`. It changes no code or
-route. When it closes, this hardening card stops and `CURRENT_STATE.toml`
-retargets explicitly to `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`.
+`MIRBUILDER-LATEST-HEAD-INTEGRATION-R0` closed at `cce7c1dade`: the same
+completion red reproduced at parent `b295288251`, while check, focused suites,
+selected guards, in-place guard, pointer guard, and diff check were green.
+This card is now historical evidence; `CURRENT_STATE.toml` is explicitly on
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`.
 
 Only after every P0 row in the ordered DAG and integration evidence may
 `LLVMLITE-ORACLE-COVERAGE-D0` resume. Its acceptance is refined to:

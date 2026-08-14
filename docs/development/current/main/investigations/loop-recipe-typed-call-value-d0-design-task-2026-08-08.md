@@ -1,5 +1,5 @@
 ---
-Status: Accepted next T2 design stop; pending explicit CURRENT_STATE retarget
+Status: Current T2 design stop; explicitly selected by CURRENT_STATE
 Date: 2026-08-14
 Decision: resume at S6C authority closure, not at the already-landed schema rows
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -16,9 +16,9 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 - **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
   are closed, and no forward `ScanWithInit` Facts/producer or production
   physical selector is active.
-- **Next ordered task:** after the selected-Dynamic latest-HEAD integration
-  closeout, retarget `CURRENT_STATE.toml` here and audit whether the existing
-  neutral resolver/CoreMethod owners can issue the complete S6C relation.
+- **Next ordered task:** audit whether the existing neutral resolver/CoreMethod
+  owners can issue the complete S6C relation; keep NoSafeSlice if the exact
+  issuer or source-bound ownership is absent.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,

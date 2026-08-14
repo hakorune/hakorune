@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening has no remaining live or cutover blocker: source-fact, catalog-header, Normal-result, DraftSeal, activation, physical-ID, CFG/operand parity, wire fail-stop, and lease publication rows are closed. LocalSSA/provider/platform/line-budget findings are parked because they have no selected/cutover caller. The one return gate is a fresh latest-HEAD detached integration rerun; after classification the pointer returns explicitly to Loop M8 S6C. Live cutover and G3 remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. Latest HEAD cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; completion remains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red. The product pointer now returns to Loop M8 S6C; Dynamic live cutover and G3 remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "The Dynamic hardening tail is accepted closed for task selection: LiveBlocker=0 and CutoverBlocker=0. The active closeout is MIRBUILDER-LATEST-HEAD-INTEGRATION-R0; its successor is the existing T2 Loop design stop JOINIR-LOOP-M8-LOOPV0-SCANS-S6C."
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-LATEST-HEAD-INTEGRATION-R0"
-current_blocker_token = "Run the selected latest-HEAD integration family in a clean detached worktree, classify every red against the parent baseline, record selected new=0/old=1, then retarget CURRENT_STATE explicitly to JOINIR-LOOP-M8-LOOPV0-SCANS-S6C."
+current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C is the sole current T2 design stop. Loop rows 1--10 and M8 S6A/S6B are closed; row 11 production selection remains gated by later M8/M9 coverage."
+work_mode = "design_stop"
+current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C"
+current_blocker_token = "Prove whether existing resolver/CoreMethod owners can issue exact forward ScanWithInit length/substring/TextEq targets plus Home/effect/source relations and one complete Facts-to-Recipe producer; if not, keep NoSafeSlice. Do not reuse selected-Dynamic substring/indexOf receipts."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = "Two-front display under one MirBuilder replacement goal: Loop compiler physicalization is the product frontier and is paused at M8 S6C; selected Dynamic/AOT was the exit-path hardening detour and now has no live/cutover blocker. Run one latest-HEAD detached integration closeout, then return explicitly to S6C. LocalSSA/provider/platform/line-budget hardening, live Dynamic cutover, G3, and compatibility cleanup remain parked."
+active_lane_status = "Loop compiler physicalization is the product frontier, now explicitly resumed at M8 S6C. Selected Dynamic/AOT was the completed exit-path hardening detour; its latest-HEAD integration is classified with one parent-baseline completion red and all selected guards green. LocalSSA/provider/platform/line-budget hardening, Dynamic live cutover, G3, and compatibility cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+current_execution_design = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "selected-dynamic-postseal-hardening0"
-latest_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
-latest_card_summary = "Selected Dynamic/AOT exit hardening is at its predeclared return gate. LiveBlocker=0 and CutoverBlocker=0; LocalSSA/provider/platform/line-budget findings are parked. Fresh latest-HEAD detached integration is current; successful classification returns the pointer to Loop M8 S6C. Family-manifest/historical-retire remain NoSafeSlice; G3 and live cutover parked; selected production new=0/old=1."
+latest_card = "loop-recipe-typed-call-value-d0"
+latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
+latest_card_summary = "Loop rows 1--10 are closed and M8 S6A/S6B are closed. The next product-facing design stop is S6C: prove resolver/CoreMethod-backed length/substring/TextEq source relations, typed input/Home/effect ownership, and one complete Facts-to-Recipe producer before any scan implementation. Selected Dynamic/AOT detour is classified and parked; completion has one parent-baseline red; live cutover/G3 remain parked."
 next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/selected-dynamic-postseal-hardening0-task-2026-08-14.md"
+next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,10 +47,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-14: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 at cce7c1dade: cargo check, normal_callable_semantic_package, dynamic_full_body_recipe, selected_dynamic_physical_emitter, seven existing authority/route guards, pointer guard, in-place guard, and diff check green; completion is 107 passed/1 failed with the same ReturnValueTypeMissing(ValueId(12)) at parent b295288251, classified baseline; selected production remains new=0/old=1.",
   "2026-08-14: DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0 closed the negative-only RejectBeforeEffect handoff: one private unpublished-session fence is consumed immediately before Builder open, the session stores no disposition, focused emitter/package tests plus cargo check/fmt, existing authority guards, pointer guard, and diff check are green; production remains new=0 old=1.",
   "2026-08-14: MAIN-INTEGRATION-EVIDENCE-R0 clean detached SHA 145921e7d5: cargo check, three selected W6 suites, selected guards, LLVM census/route guards, and diff check green; completion ReturnValueTypeMissing and generic legacy executable guard reds reproduce at parent baseline; selected production remains new=0 old=1.",
   "2026-08-13: C1-A1 typed candidate transport now co-seals four formal ValueId/lane rows, i64 return/effect, per-site shape/slot/Normal-result facts, ABI/wire, and PlanStamp into the existing Rust projection; strict JSON/Python views, focused Rust/Python tests, and W6 authority guards green, C1 physicalization and production remain closed.",
-  "2026-08-13: W6-C0-D landed one neutral uint64-to-u32 lease End C ABI projection over the sole Rust runtime owner; C/C++ syntax, focused tests, archive symbol=1, and authority guards are green, C1/backend and production callers remain closed, new=0 old=1.",
   "2026-08-13: W6-C0-A recut APrime call-edge identity to canonical CheckedCallOut site IDs and added one canonical close-time receipt issuer/install from corridor/formal/Completion evidence; receipt remains unpublished and live take_once waits for a C1/backend consumer, production new=0 old=1.",
   "2026-08-13: W6-B mixed normal collector drain now consumes LegacySymbol and CatalogedBoxMethod rows through one existing transaction, preserving canonical key/symbol/arity/brand; focused lifecycle tests, cargo check, and authority guards green, production new=0 old=1.",
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
