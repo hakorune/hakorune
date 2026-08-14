@@ -930,10 +930,9 @@ These do not block the P0 DAG unless a touched file makes them necessary:
 5. `DYN-W6-SHELL-RETIRE-R0`
    - move the live artifact fence to a stable owner;
    - delete or test-gate old prepared W6 aggregates only after caller zero.
-6. `DYN-SOURCE-FACT-ISSUER-ONCE-R0`
-   - issue the source-backed Dynamic callable once in package admission;
-   - derive I6/I7 call rows through a private scoped borrow instead of
-     reissuing the same Facts from the resolved input.
+6. `DYN-SOURCE-FACT-ISSUER-ONCE-R0` (accepted BoxShape implementation)
+   - package admission is the sole `VerifiedSourceBackedDynamicCallableV1`
+     issuer; call-row derivation borrows that product instead of reissuing it.
 7. `DYN-CATALOG-PHYSICAL-HEADER-PROJECTION-R0`
    - carry one private catalog-owned header projection into A-prime;
    - remove raw AST name/parameter/return/attrs/uses re-observation.
