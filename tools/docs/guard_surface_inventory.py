@@ -101,20 +101,24 @@ def index_sources() -> tuple[dict[str, list[str]], set[str], set[str], int, int]
     return owners, stable_paths, compatibility_paths, table_rows, compatibility_entries
 
 
-def manifest_sources(path: Path, table_key: str, label: str) -> dict[str, list[str]]:
+def manifest_sources(
+    path: Path, table_key: str, label: str
+) -> tuple[dict[str, list[str]], dict[str, set[str]]]:
     owners: dict[str, list[str]] = defaultdict(list)
+    profiles: dict[str, set[str]] = defaultdict(set)
     for index, row in enumerate(load_manifest(path, table_key), start=1):
         row_id = row.get("id", f"{table_key}[{index}]")
         for command in command_paths(row):
             owners[command].append(f"{label}:{row_id}")
-    return owners
+            profiles[command].update(value for value in row.get("profiles", []) if isinstance(value, str))
+    return owners, profiles
 
 
 def build_inventory() -> dict[str, Any]:
     tracked = sorted(git_lines("ls-files", "--", "tools/checks"))
     index_owner, stable_paths, compatibility_paths, table_rows, compatibility_entries = index_sources()
-    guard_owner = manifest_sources(GUARD_MANIFEST, "rows", "guard_rows")
-    proof_owner = manifest_sources(PROOF_MANIFEST, "proof_apps", "proof_apps")
+    guard_owner, guard_profiles = manifest_sources(GUARD_MANIFEST, "rows", "guard_rows")
+    proof_owner, proof_profiles = manifest_sources(PROOF_MANIFEST, "proof_apps", "proof_apps")
     rows: list[dict[str, Any]] = []
     for path in tracked:
         owners = sorted(set(index_owner.get(path, ())))
@@ -122,20 +126,30 @@ def build_inventory() -> dict[str, Any]:
         owners.extend(sorted(set(proof_owner.get(path, ()))))
         compat = "index.compatibility_block" in owners
         stable = "index.stable_table" in owners
-        manifest = any(owner.startswith(("guard_rows:", "proof_apps:")) for owner in owners)
+        proof = bool(proof_owner.get(path))
+        manifest = bool(guard_owner.get(path)) or proof
+        profiles = sorted(set(guard_profiles.get(path, ())) | set(proof_profiles.get(path, ())))
         if stable:
             disposition = "stable_public_entry"
             evidence = "human index stable table"
+        elif proof:
+            disposition = "focused_behavior_test"
+            evidence = "proof-app manifest entry"
         elif manifest:
             disposition = "family_manifest_case"
             evidence = "existing declarative manifest"
         else:
             disposition = "unknown_retain"
             evidence = "no retirement authority observed"
+        callers = owners or ["unknown.owner"]
+        if compat:
+            callers.append("legacy-grep-contract")
         rows.append(
             {
                 "path": path,
-                "owner": owners or ["unclassified.tracked_check"],
+                "owner": callers,
+                "profiles": profiles,
+                "public_callers": callers,
                 "evidence": evidence,
                 "compatibility_name": compat,
                 "disposition": disposition,
@@ -192,6 +206,10 @@ def validate(payload: dict[str, Any]) -> list[str]:
         errors.append("tracked path coverage is incomplete")
     if len(paths) != len(set(paths)):
         errors.append("duplicate inventory path")
+    if any(not row.get("owner") or not row.get("evidence") for row in rows):
+        errors.append("owner/evidence is missing")
+    if any("profiles" not in row or "public_callers" not in row for row in rows):
+        errors.append("caller/profile fields are missing")
     bad = [row.get("disposition") for row in rows if row.get("disposition") not in ALLOWED]
     if bad:
         errors.append(f"unknown disposition(s): {sorted(set(bad))}")
