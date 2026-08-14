@@ -136,10 +136,13 @@ Acceptance for the dependency row is fail-closed and source-first:
 
 ```text
 positive: one same-brand CoreMethod target pair with exact arity/result/effect,
-          explicit Home relation, manifest brand, and no suspension/control;
+          explicit Home relation, ABI/profile, manifest brand, and no
+          suspension/control;
 negative: foreign/duplicate/swapped target, String vs StringBox mismatch,
           wrong arity/result/Home/effect, missing source site, Text inferred
           from MIR/CoreMethod output, name lookup, or partial Facts coverage;
+          foreign/duplicate owner-frame or swapped receiver/argument/result
+          site cardinality is rejected;
 guard: CoreMethod target issuer has one named source-bound consumer,
        source-bound relation has one S6C producer consumer,
        S6C producer count is zero until that relation closes, and no selected
