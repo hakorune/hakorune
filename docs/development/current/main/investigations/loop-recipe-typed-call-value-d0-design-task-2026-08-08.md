@@ -35,7 +35,8 @@ producer alone issues Recipe-local keys; existing V2 issuers own verify/Join.
 Non-authority: AST/name/order, source rewalk, MIR, physical IDs, raw JoinSig,
 an Artifact/source claim reconstructed from a Facts borrow, fallback, or retry.
 Fail-fast boundary: exact role map, V2 structural verification, and sole-root
-carrier Join closure all close before the product becomes borrowable.
+carrier Join closure plus its logical transfer view all close before the
+product becomes borrowable; only private read facades are lent afterward.
 Smallest next slice: add one producer/model module, focused tests, existing
 module exports, and same-slice README/reference receipt in one bounded commit.
 Non-claims: no Artifact/provenance, physical consumer, selector, production
@@ -56,15 +57,19 @@ a named consumer proves it necessary.
 VerifiedS6CScanWithInitRecipeProductV2
   facts: VerifiedS6CScanWithInitFactsV1
   recipe: VerifiedLoopRecipeV2
-  roles: private exact S6C role-to-key seal
+  roles: private fixed S6C role-to-key seal
   join: VerifiedLoopJoinClosureV2
+  join_role_seal: VerifiedS6CJoinRoleSealV2
 ```
 
 The product is non-Clone and has no `into_parts`, raw Recipe/JoinSig getter, or
-owned constituent getter. One HRTB callback lends the same Facts view, verified
-Recipe, named role map, and `logical_transfer_view()`. The role map is the sole
-semantic-role-to-Recipe-key authority; downstream code must not rediscover
-length/substring/If/Return/update roles by item order or operation shape.
+owned constituent getter. One HRTB callback lends only private read facades:
+the Facts view, `S6CVerifiedRecipeReadViewV2`, the fixed role view, and a
+prevalidated logical-transfer view. It never lends `&VerifiedLoopRecipeV2`,
+`&VerifiedLoopJoinClosureV2`, `as_recipe()`, `into_recipe()`, or `join_sig()`;
+HRTB alone cannot prevent a `Clone`-based owned Recipe escape. The fixed role
+struct is the sole semantic-role-to-Recipe-key authority; a map/vector and
+downstream rediscovery by item order or operation shape are forbidden.
 
 ```text
 produce_s6c_scan_with_init_recipe_v2(facts by value)
@@ -72,10 +77,18 @@ produce_s6c_scan_with_init_recipe_v2(facts by value)
   -> issue the fixed private Recipe-local key table exactly once
   -> materialize the exact map below
   -> LoopRecipeVerifierV2::verify
-  -> co-check the named role map against the verified Recipe
+  -> co-check the fixed role struct against every verified Recipe domain
   -> issue_sole_root_carrier_join_closure_v2 exactly once
+  -> obtain logical_transfer_view once and co-check it against the role struct
   -> publish the one non-Clone product
 ```
+
+The role seal proves exact domain coverage, not merely the named hot roles:
+Loops 1, Blocks 3, Bindings 1, Inputs 3, Values 15, Items 15, Carriers 1,
+Exits 1. The Join co-check proves After=`L0/B0/I64`, one branch=`I8/V10`,
+then=`I10` FunctionExit Return, else=Fallthrough, Return summaries=1, and
+Backedges=1 before publication. The next JOINIR consumer must borrow this
+combined product facade; accepting the verified Recipe alone is forbidden.
 
 `CallSlot` deliberately carries no target/Home/effect. Those authorities stay
 inside the retained source-bound Facts relation and are paired with exact
@@ -123,12 +136,14 @@ Contract:
   only the producer mints S6C keys; typed_schema_v2.rs (757) stays frozen;
   source Artifact, physical identities, selectors, and legacy builders stay 0.
 Done:
-  exact positive map/product view; wrong role/call/placement/Tail-import tests;
-  generic V2 key/domain/use-before-def and Join negatives remain green; update
-  loop_recipe_contract/README.md and docs/reference/mir/loop-recipe-contract.md.
+  exact positive map/private product view; complete domain bijection and Join
+  transfer parity; wrong role/call/placement/Tail-import/coverage tests; generic
+  V2 key/domain/use-before-def and Join negatives remain green; update owner
+  README and docs/reference/mir/loop-recipe-contract.md.
 Stop:
   any second source walk/Facts issuer, raw external key input, source-binding
-  reconstruction, raw JoinSig/After, MIR/physical/fallback/retry requirement.
+  reconstruction, raw Recipe/Join/JoinSig escape, incomplete role coverage,
+  MIR/physical/fallback/retry requirement.
 ```
 
 No new top-level guard is added. Reuse the S6C/Loop/CoreMethod/pointer guard
