@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, and the private logical JOINIR input façade are landed. JoinModule/MIR output remains closed for the next design stop. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target through complete S6C Facts I0, bounded S6C Recipe I0, and the private logical JOINIR input façade are landed. The next owned logical output representation is a design stop; JoinModule/MIR output remains closed. Artifact/source binding, physical selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "S6C logical JOINIR input façade landed; design the next owned logical output representation before any JoinModule/MIR consumer"
+current_design_stop = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-D0: fix one source-retaining logical-output owner, identity, and consumer dialect before implementation"
 work_mode = "design_stop"
-current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0"
-current_blocker_token = "Façade R0 is closed with exact call/transfer parity and no production caller. Before any output consumer, fix the next source-to-logical-output owner: no JoinModule/MIR, physical IDs, Artifact, selector, fallback, retry, or production switch until the output representation and canonical issuer are designed."
+current_execution_row = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-D0"
+current_blocker_token = "Design only: name one canonical source-retaining logical-output issuer and one future consumer seam. Fix logical identity, typed rows, CallSlot source parity, Join transfer ownership, HRTB/Non-Clone ownership, and fail-fast terminal before any output producer. JoinModule/MIR, physical IDs, Artifact, selector, fallback, retry, and production switch remain forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C logical JOINIR output design)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, and its private logical JOINIR input façade are landed. The next step is a design stop for the owned logical output representation; JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C logical JOINIR output representation D0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; complete S6C Facts, the sole source-retaining Recipe/role/Join product, and its private logical JOINIR input façade are landed. The current D0 fixes the owned logical output owner, identity, and consumer dialect; JoinModule/MIR output, Artifact/source binding, physical output, production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-d0-design-task-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "loop-recipe-typed-call-value-d0"
-latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, S6C source/CoreMethod/call/Exit-Tail/Facts, Recipe I0, and the private logical JOINIR input façade are closed. The combined non-Clone product remains the sole input authority; the current MIR/name/fallback lower remains non-consumer. The next step is a design stop for an owned logical output representation; JoinModule, physical output, Artifact, and production remain closed."
-next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0"
-next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
+latest_card = "joinir-loop-s6c-logical-output-d0"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-d0-design-task-2026-08-15.md"
+latest_card_summary = "S6C Facts I0, Recipe I0, and the private logical JOINIR input façade are closed. The current D0 fixes the source-retaining logical-output owner, identity, typed row/control representation, and future consumer seam; JoinModule, physical output, Artifact, and production remain closed."
+next_design_card = "JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-D0"
+next_design_card_path = "docs/development/current/main/investigations/joinir-loop-s6c-logical-output-d0-design-task-2026-08-15.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 
