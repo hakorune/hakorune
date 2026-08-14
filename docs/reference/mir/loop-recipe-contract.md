@@ -38,10 +38,24 @@ production activation. The focused receipt is
 forward-use, Return-key, and wrong-result-class negatives); all touched Rust files remain below the
 760-line design trigger and 800-line hard boundary.
 
-The next independent rows are resolver instance-target issuance, source-bound
-call relation verification, typed parameter/initializer input relations, and
-only then the S6C ScanWithInit observer/producer. No guessed scan counts or
-legacy deletion belongs to this receipt.
+The separate generic user-instance target remains independent and unopened.
+For the bounded text-call cohort, the next rows are source-bound call relation
+verification, typed parameter/initializer input relations, and only then the
+S6C ScanWithInit observer/producer. No guessed scan counts or legacy deletion
+belongs to this receipt.
+
+## CoreMethod/Home target prerequisite I0
+
+The first implementation prerequisite for the forward `ScanWithInit` cohort is
+now landed as a separate manifest-backed target issuer. The generated
+`CoreMethodContractBox` row brand is co-sealed with an explicit `StringBoxText`
+Home schema and dedicated typed relations: `StringLen/0` returns `I64`, while
+`StringSubstring/2` returns logical `Text`; both are `PureRead` and
+non-suspending/non-control. The issuer specializes union arity rows and rejects
+foreign brands, wrong receiver/result/effect, duplicates, and inferred MIR
+meaning before issuing the target capability. It has no source-site, Recipe,
+physical, backend, fallback, or production consumer; the later source-bound
+relation must borrow the target and add owner/frame and exact call-site facts.
 
 ## Accepted Dynamic value boundary — V2 only
 

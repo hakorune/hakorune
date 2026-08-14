@@ -233,6 +233,20 @@ Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.
 
+## Loop CoreMethod/Home target I0
+
+`core_method_instance_target.rs` is the separate manifest-backed issuer for
+the bounded Loop text-call prerequisite. It consumes only the generated
+`CoreMethodManifestRowRefV1` brand and a dedicated `StringBoxText` Home schema;
+it does not widen the user-instance `I64UnitTrivial` ABI. `StringLen/0` and
+`StringSubstring/2` are specialized into explicit receiver, parameter, result,
+`PureRead`, ABI/profile, and non-suspending/non-control relations. Foreign or
+mixed manifest brands, union/incorrect arity, wrong receiver/result/effect,
+duplicate targets, and inferred MIR/ResultKind meaning reject before a target
+capability is issued. The target remains source-bound-consumer/Facts/Recipe and
+production caller zero; those later rows borrow this capability rather than
+reissuing the generated CoreMethod row.
+
 UP0 adds only a structural read relation:
 
 ```text

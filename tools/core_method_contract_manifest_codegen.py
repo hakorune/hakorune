@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "lang/src/runtime/meta/core_method_contract_box.hako"
 DEFAULT_OUTPUT = ROOT / "lang/src/runtime/meta/generated/core_method_contract_manifest.json"
 DEFAULT_RUST_OUTPUT = ROOT / "src/mir/generated/core_method_contract_rows.rs"
+MANIFEST_SCHEMA = "core_method_contract_manifest/v1"
 
 ROW_FIELDS = [
     "box",
@@ -268,7 +269,7 @@ def load_contract(source: Path) -> tuple[list[str], list[dict[str, object]]]:
 
 def generate_json(source: Path, fields: list[str], rows: list[dict[str, object]]) -> str:
     manifest = {
-        "schema": "core_method_contract_manifest/v1",
+        "schema": MANIFEST_SCHEMA,
         "source": str(source.relative_to(ROOT)),
         "fields": fields,
         "row_count": len(rows),
@@ -290,6 +291,28 @@ def generate_rust(source: Path, rows: list[dict[str, object]]) -> str:
         "use crate::mir::core_method_result_kind::{",
         "    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,",
         "};",
+        "",
+        "#[derive(Debug, Clone, Copy, PartialEq, Eq)]",
+        "pub(crate) struct CoreMethodManifestBrandV1 {",
+        "    schema: &'static str,",
+        "}",
+        "",
+        "impl CoreMethodManifestBrandV1 {",
+        "    pub(crate) const fn schema(self) -> &'static str {",
+        "        self.schema",
+        "    }",
+        "}",
+        "",
+        "pub(crate) const CORE_METHOD_MANIFEST_BRAND_V1: CoreMethodManifestBrandV1 =",
+        "    CoreMethodManifestBrandV1 {",
+        f"        schema: {rust_string(MANIFEST_SCHEMA)},",
+        "    };",
+        "",
+        "#[cfg(test)]",
+        "pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV1 =",
+        "    CoreMethodManifestBrandV1 {",
+        '        schema: "foreign/core_method_contract_manifest",',
+        "    };",
         "",
         "pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[",
     ]

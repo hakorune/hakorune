@@ -17,6 +17,7 @@ mod callable_index;
 mod callable_module_header_view;
 mod callable_source_ledger;
 mod callable_symbol;
+mod core_method_instance_target;
 mod declared_instance_contract;
 mod declared_query_body_source;
 mod direct_call;
@@ -98,6 +99,12 @@ pub(crate) use callable_source_ledger::{
     CallableSourceRowFamilyV1, VerifiedCallableLoopMembershipV1,
 };
 pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
+pub(crate) use core_method_instance_target::{
+    CoreMethodHomeAbiProfileV1, CoreMethodHomeExecutionPolicyV1, CoreMethodHomeParameterRelationV1,
+    CoreMethodHomeReceiverRelationV1, CoreMethodHomeResultRelationV1, CoreMethodHomeSchemaV1,
+    CoreMethodInstanceTargetIssuerV1, CoreMethodInstanceTargetRejectV1, CoreMethodTargetBrandV1,
+    VerifiedCoreMethodInstanceTargetV1,
+};
 pub(crate) use declared_instance_contract::{
     DeclaredInstanceMethodContractIssueV1, DeclaredInstanceMethodContractIssuerV1,
     DeclaredInstanceMethodContractRefV1, DeclaredInstanceMethodIdentityV1,

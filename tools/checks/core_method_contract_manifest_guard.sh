@@ -11,10 +11,20 @@ guard_require_files "$TAG" \
   "$ROOT_DIR/tools/checks/lib/core_method_contract_codegen_tests.py" \
   "$ROOT_DIR/lang/src/runtime/meta/core_method_contract_box.hako" \
   "$ROOT_DIR/lang/src/runtime/meta/generated/core_method_contract_manifest.json" \
-  "$ROOT_DIR/src/mir/generated/core_method_contract_rows.rs"
+  "$ROOT_DIR/src/mir/generated/core_method_contract_rows.rs" \
+  "$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs"
 
 python3 "$ROOT_DIR/tools/checks/lib/core_method_contract_codegen_tests.py"
 python3 "$ROOT_DIR/tools/core_method_contract_manifest_codegen.py" --check
+
+guard_expect_fixed_in_file "$TAG" \
+  "CoreMethodManifestBrandV1" \
+  "$ROOT_DIR/src/mir/generated/core_method_contract_rows.rs" \
+  "generated CoreMethod manifest brand is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "CoreMethodInstanceTargetIssuerV1" \
+  "$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs" \
+  "bounded CoreMethod/Home issuer is missing"
 
 core_lookup_consumers="$({
   rg -l 'lookup_core_method_result_row_v1' "$ROOT_DIR/src/mir" \

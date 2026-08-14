@@ -1,7 +1,7 @@
 ---
-Status: Current T2 design stop; explicitly selected by CURRENT_STATE
+Status: Current bounded T2 design stop; I0 closed and source-bound relation D0 selected by CURRENT_STATE
 Date: 2026-08-14
-Decision: resume at the CoreMethod manifest/Home issuer D0 before S6C; do not bypass the dependency
+Decision: keep the accepted CoreMethod manifest/Home issuer as the sole target authority and design the next source-bound relation before S6C
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -10,18 +10,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema and neutral operation split are
-  landed; the CoreMethod manifest/Home issuer D0 is the current dependency.
+  landed; the CoreMethod manifest/Home issuer D0 and bounded I0 are closed.
   S6C still needs one exact resolver/CoreMethod-backed
   `length/substring/TextEq` source relation and one complete Facts-to-Recipe
-  issuer after that D0 closes.
+  issuer after that relation closes.
 - **Current implementation status:** Loop rows 1--10 are closed, M8 S6A/S6B
-  are closed, and no forward `ScanWithInit` Facts/producer or production
-  physical selector is active.
-- **Next ordered task:** complete
-  `LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0`: the existing declaration/Home/
-  Query issuers cover only the bounded `I64`/`Unit` user-instance cohort, and
-  the CoreMethod manifest does not yet issue a neutral `Text` receiver/result
-  Home target contract. Keep S6C `NoSafeSlice` if that boundary is absent.
+  are closed, and the dedicated CoreMethod/Home target issuer I0 is landed
+  with focused positive/negative evidence. No forward `ScanWithInit`
+  Facts/producer or production physical selector is active.
+- **Next ordered task:** `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0` — design
+  the source-bound CoreMethod call relation, borrow the I0 target without
+  reissuing its generated row, and keep S6C `NoSafeSlice` closed until that
+  relation and its exact source coverage exist.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -31,21 +31,25 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: resume Loop at JOINIR-LOOP-M8-LOOPV0-SCANS-S6C as one T2 authority design stop; do not replay closed rows 1--10 or select production row 11 early.
-Source authority + canonical issuer: resolved forward ScanWithInit source, a
-CoreMethod-manifest callable/Home target contract, a separate source-bound
-call relation, existing typed input/effect owners, and one future S6C
-Facts-to-Recipe producer.
+Decision: continue Loop at `LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0`; do not
+replay closed rows 1--10 or select production row 11 early.
+Source authority + canonical issuer: generated CoreMethod manifest rows plus
+the dedicated typed StringBox/Home target issuer; the next source-bound call
+relation, existing typed input/effect owners, and one future S6C Facts-to-Recipe
+producer.
 Non-authority: selected-Dynamic substring/indexOf receipts, raw AST/name lookup, legacy scan builders, MIR/CheckedCallOut IDs, physical operation order, and task-map history.
 Fail-fast boundary: missing/foreign/duplicate target, result/Home/effect/site relation, incomplete role coverage, or Loop Return versus callable Tail drift remains NoSafeSlice before Facts/Recipe publication.
-Smallest next slice: read-only issuer/caller census for exact length/substring/TextEq and input/condition/body/step/Return coverage; accept one bounded BoxCount only if every required authority already exists or one named neutral issuer can be added.
+Smallest next slice: close the manifest-backed StringLen/0 and
+StringSubstring/2 target issuer evidence, then design the source-bound
+relation without reissuing the generated row.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
 ## Authority census and bounded task DAG — 2026-08-14
 
-The read-only S6C audit is complete. It is a design result, not an issuer or
-Facts receipt:
+The read-only S6C audit is complete. Its CoreMethod/Home dependency is now
+implemented as the bounded I0 below; this section remains a census, not a
+source-bound or Facts receipt:
 
 ```text
 closed evidence:
@@ -53,19 +57,19 @@ closed evidence:
   CoreMethodContractBox/generated rows own StringLen/StringSubstring
   op/arity/result/effect and runtime-owner metadata;
   resolver declaration, Home, Query, body-carrier, and contract products
-  exist for the bounded user-instance I64/Unit cohort.
+  exist for the bounded user-instance I64/Unit cohort;
+  the separate generated-brand StringBox/Home target issuer now covers
+  StringLen/0 and StringSubstring/2.
 
-missing authority:
-  no neutral CoreMethod callable/Home target contract co-seals StringBox
-  receiver, StringLen/StringSubstring result/Home relations, exact arity,
-  non-suspending/non-control obligation, and the generated manifest row;
+remaining authority:
   no separate source-bound relation co-seals the exact call site/owner,
   receiver expression, arguments, or result site;
   no source-bound S6C CallSlot relation or complete Facts-to-Recipe producer.
 
 therefore:
-  S6C remains NoSafeSlice/design_stop. Selected-Dynamic
-  substring/indexOf receipts are a different owner and are not evidence.
+  S6C producer work remains NoSafeSlice/design_stop. The next bounded row is
+  the source-bound relation; selected-Dynamic substring/indexOf receipts are
+  a different owner and are not evidence.
 ```
 
 Audit anchors (these are evidence pointers, not new authorities):
@@ -90,8 +94,10 @@ The ordered task DAG is now explicit and bounded:
 
 ```text
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
-  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       T2 dependency (new)
-       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
+       -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CURRENT bounded implementation
+       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  CURRENT design stop
+            -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
             -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
                  -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                       -> S6C parity / canary / later production rows
@@ -320,10 +326,10 @@ schema/observer/producer row updates the reference contract and affected
 module READMEs in the same commit; legacy scan facts/builders are deleted only
 after production parity and callers-zero evidence.
 
-## D0 owner map (design only)
+## D0 owner map (landed contract; I0 implementation)
 
-The next D0 may name types and owners without issuing them. The proposed
-boundary is:
+The D0 names the owners below; I0 issues only the target capability. The
+source-bound consumer remains the next unopened boundary:
 
 ```text
 src/mir/resolved_semantics/core_method_instance_target.rs
@@ -369,18 +375,19 @@ must therefore be co-sealed with their exact receiver, parameter, result,
 effect, and Home relation shape; foreign, missing, duplicate, or inferred
 relations reject before any Facts/Recipe product.
 
-### LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0
+### LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0 / I0
 
 ```text
 Decision: design a separate manifest-backed StringBox/Text Home issuer; do not widen I64UnitTrivial in place.
 Source authority + canonical issuer: CoreMethodContractBox/generated row brand plus an explicit CoreMethod Home capability issuer.
 Non-authority: user-instance declaration/Home catalog, MIR types, ResultKind, names, DynamicMember receipts, or Recipe wire.
 Fail-fast boundary: foreign/mixed schema or brand, wrong receiver/arity/result/effect/ABI, missing Home, and duplicate target reject before any receipt.
-Smallest next slice: specify issuer input/output, exact StringLen/0 and StringSubstring/2 positives, negative matrix, and one reusable guard; no consumer yet.
+Smallest next slice: issue the exact target product and focused positive /
+negative evidence; keep source-bound consumption unopened.
 Non-claims: no source-bound call product, Facts/Recipe producer, Builder/MIR/Boundary route, fallback, retry, or production switch.
 ```
 
-### D0 exact typed Home contract (design-only)
+### D0 exact typed Home contract (I0 implemented)
 
 The issuer input is one generated CoreMethod row plus the same manifest/schema
 brand, an exact operation/arity, and an explicit Home capability schema. Its
@@ -404,19 +411,17 @@ StringSubstring / arity 2:
 `StringBoxReceiver`, `I64Parameter`, `I64ToCaller`, and `TextToCaller` are
 semantic relation shapes, not aliases for `Handle`, `Trivial`,
 `FromReceiver`, or `FromParameter`. The target brand, manifest/schema brand,
-and relation-batch brand must be co-sealed. Missing Home, a union-arity row,
+and relation-batch brand are co-sealed. Missing Home, a union-arity row,
 foreign/mixed brands, inferred Text, wrong result/effect, or duplicate target
-rejects before any target receipt. This D0 only fixes the issuer contract and
-negative matrix; it does not add the issuer or a `Verified*`/`Prepared*`
-product.
+rejects before any target capability. I0 implements this issuer contract and
+its focused negative matrix without adding a source-bound consumer or
+`Verified*`/`Prepared*` execution product.
 
 ### D0 exit / I0 acceptance boundary
 
-The design decision is now bounded, but the current pointer remains on this
-D0 until `CURRENT_STATE.toml` explicitly selects
-`LOOP-CORE-METHOD-INSTANCE-TARGET-I0`. The conditions below are the I0
-implementation's completion gate, not a hidden prerequisite that would make
-the issuer impossible to start:
+The design decision is bounded and `CURRENT_STATE.toml` selected
+`LOOP-CORE-METHOD-INSTANCE-TARGET-I0`. The conditions below are its
+implementation completion gate:
 
 ```text
 source authority = CoreMethodContractBox/generated row under the same
@@ -427,22 +432,18 @@ positive evidence = StringLen/0 and StringSubstring/2;
 negative evidence = foreign/mixed brand, wrong receiver/arity/result/effect/
   ABI, missing Home, duplicate target, and Text inferred from MIR/ResultKind;
 failure terminal = reject before target receipt issuance;
-guard evidence = issuer/consumer census and no raw name/MIR/Dynamic lookup;
+guard evidence = generated-brand/issuer census and no raw name/MIR/Dynamic lookup;
 non-claims = no source-bound consumer, Facts/Recipe producer, Dynamic import,
   Builder/MIR/Boundary route, production switch, fallback, or retry.
 ```
 
-Until the pointer is explicitly advanced, `CURRENT_STATE.toml.work_mode`
-remains `design_stop`, S6C remains `NoSafeSlice`, and no semantic `Verified*`
-or `Prepared*` product may be issued. Once I0 is selected, these conditions
-are its closeout acceptance; the source-bound call relation is a later bounded
-row and must not be folded into this issuer gate.
-
-Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
-until the manifest-backed CoreMethod Home issuer exists and its positive /
-negative / guard evidence satisfies the source-backed receipt gate. No
-`Verified*`/`Prepared*` semantic receipt, source-bound consumer, Facts/Recipe
-producer, Dynamic import, or production switch is authorized by this D0.
+I0 closeout evidence: the generated manifest brand is checked before issue;
+`StringLen/0` and `StringSubstring/2` specialize to distinct typed Home
+relations; foreign brand, wrong receiver/effect/result, union arity, and
+duplicate target tests reject before capability issuance. The issuer module
+has no source-bound consumer, Facts/Recipe producer, Dynamic import, Builder,
+Boundary, production switch, fallback, or retry. The source-bound call
+relation is a later bounded row and must not be folded into this issuer gate.
 
 The generated `StringSubstring` row currently advertises the union arity
 `[1, 2]`. The target issuer must specialize it by operation and exact arity;

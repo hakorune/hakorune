@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. Full integration evidence at cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; subsequent HEAD commits are docs-only Loop D0 refinements. Completion remains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red. The product pointer now returns to the Loop S6C dependency D0; Dynamic live cutover and G3 remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. Full integration evidence at cce7c1dade passed cargo check, package/body/emitter suites, all selected authority guards, in-place guard, pointer guard, and diff check; subsequent HEAD commits refined and accepted the Loop CoreMethod/Home D0 and landed its bounded I0 issuer evidence. The product pointer now returns to the source-bound call-relation D0 before S6C; Dynamic live cutover and G3 remain parked. Completion retains the exact parent-baseline ReturnValueTypeMissing(ValueId(12)) red."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0 is the sole current T2 design stop before S6C. Loop rows 1--10 and M8 S6A/S6B are closed; S6C and row 11 production selection remain gated by this target/Home boundary and later M8/M9 coverage."
+current_design_stop = "The CoreMethod/Home issuer D0 and I0 are closed. LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0 is the sole current design boundary before any source-bound target consumer or S6C Facts/Recipe producer."
 work_mode = "design_stop"
-current_execution_row = "LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0"
-current_blocker_token = "The existing resolver instance-target and I64UnitTrivial Home issuer are for user-declared I64/Unit methods and cannot be relabeled or widened in place as StringBox CoreMethod authority. Define a separate manifest-backed CoreMethod callable/Home target contract with dedicated typed StringBox/Text Home relations for StringLen/StringSubstring (Text receiver/result, exact arity/effect, ABI/profile, distinct schema/brands) and a separate source-bound site relation with one owner/frame and one-to-one receiver/args/result cardinality, then prove one complete Facts-to-Recipe producer; otherwise keep NoSafeSlice. Never reuse selected-Dynamic substring/indexOf receipts."
+current_execution_row = "LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0"
+current_blocker_token = "Design one source-bound CoreMethod call relation that borrows the exact I0 StringLen/0 or StringSubstring/2 target, co-seals resolver owner/frame, receiver expression, ordered arguments, result site, Home/effect/suspension/control, and exact source site cardinality, then rejects foreign/mixed/duplicate/swapped relations before Facts/Recipe. Do not reissue the generated row, use names/MIR/Recipe/physical IDs, import Dynamic receipts, or open production/fallback/retry."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Dynamic/AOT exit hardening parked)"
-active_lane_status = "Two-front display, one authority spine: Loop compiler physicalization is the live product frontier, currently stopped at the CoreMethod manifest/Home D0 dependency before M8 S6C; the Dynamic/AOT lease and Boundary work was a completed exit-path detour and is now parked with one parent-baseline completion red and selected guards green. LocalSSA/provider/platform/line-budget hardening, Dynamic live cutover, G3, and compatibility cleanup remain parked."
+active_lane = "Loop compiler frontier (source-bound CoreMethod call relation D0)"
+active_lane_status = "Two-front display, one authority spine: the Loop CoreMethod/Home D0 and bounded I0 issuer are closed. The sole current design boundary is the source-bound call relation; S6C Facts/Recipe, production selection, Dynamic live cutover, G3, LocalSSA/provider/platform/line-budget hardening, and compatibility cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,8 +29,8 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10 and M8 S6A/S6B are closed. The current D0 names a separate manifest-backed CoreMethod target, distinct StringBoxText Home schema/brands, exact StringSubstring arity=2 specialization, and a dedicated source-bound catalog; no producer or semantic receipt is issued. S6C remains NoSafeSlice until D0 closes, and the generic user-instance target row stays separate. Selected Dynamic/AOT detour is classified and parked; completion has one parent-baseline red; live cutover/G3 remain parked."
-next_design_card = "LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0"
+latest_card_summary = "Loop rows 1--10 and M8 S6A/S6B are closed. The manifest-backed CoreMethod/Home D0 and I0 issuer evidence are closed for exact StringLen/0 and StringSubstring/2 typed relations. The next design boundary is a source-bound call relation that borrows I0 without reissuing it; no S6C Facts/Recipe, generic user-instance target, selected Dynamic/AOT live cutover, or G3 is opened."
+next_design_card = "LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
@@ -58,5 +58,5 @@ landed_tail = [
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
   "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
   "2026-08-14: LEXICAL-SCOPE-SAFE-TRANSACTION-R0 replaced the production raw-pointer Drop guard with a callback-scoped transaction, fallible KeepAlive close, and exactly-once restoration across success/Err/panic; lexical (6) and block-driver (6) focused tests passed. The existing UnsafeOrFFI inventory red is stale parent-fixture debt, not this row.",
-  "2026-08-14: CHECKED-CALLOUT-PHYSICAL-ID-ISSUER-R0 made Site/Outcome/Lease tuple fields private, kept the canonical pair as issuer, routed production consumers through issued accessors, and separated test/admitted/wire constructors; cargo check, 14+5+6 focused tests, existing AOT authority guard, pointer guard, and diff check are green; selected production remains 0/old=1.",
+  "2026-08-14: LOOP-CORE-METHOD-INSTANCE-TARGET-I0 landed the generated manifest brand and dedicated StringBox/Text Home issuer; StringLen/0 and StringSubstring/2 specialize exact receiver/parameter/result/PureRead relations, foreign/wrong/union/duplicate negatives reject before capability issue, and the manifest guard, focused five-test suite, fmt, pointer, and Loop guards are green; source-bound/S6C production remains closed.",
 ]

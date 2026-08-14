@@ -6,7 +6,9 @@
  */
 
 use super::core_method_op::CoreMethodOp;
-use super::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_RESULT_ROWS_V1;
+pub(crate) use super::generated::core_method_contract_rows::{
+    CoreMethodManifestBrandV1, CORE_METHOD_CONTRACT_RESULT_ROWS_V1, CORE_METHOD_MANIFEST_BRAND_V1,
+};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -63,6 +65,83 @@ pub(crate) struct CoreMethodContractResultRowV1 {
     pub(crate) op: CoreMethodOp,
     pub(crate) result_kind: CoreMethodResultKindV1,
     pub(crate) effect: CoreMethodEffectV1,
+}
+
+/// Opaque generated-row reference branded by the `.hako` manifest projection.
+///
+/// This is the only row product accepted by the CoreMethod Home issuer. It
+/// carries exact arity alongside the generated row so a union row such as
+/// `StringSubstring/1|2` cannot cross that boundary unspecialized.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct CoreMethodManifestRowRefV1 {
+    brand: CoreMethodManifestBrandV1,
+    row: &'static CoreMethodContractResultRowV1,
+    arity: u32,
+}
+
+impl CoreMethodManifestRowRefV1 {
+    pub(crate) const fn brand(self) -> CoreMethodManifestBrandV1 {
+        self.brand
+    }
+
+    pub(crate) const fn row(self) -> &'static CoreMethodContractResultRowV1 {
+        self.row
+    }
+
+    pub(crate) const fn arity(self) -> u32 {
+        self.arity
+    }
+}
+
+/// Issue one exact generated manifest row by operation identity and arity.
+///
+/// This is a generated-table projection, not a spelling/selector lookup. A
+/// duplicate `(op, arity)` row is rejected rather than selected; the receiver
+/// is retained on the generated row for the downstream typed issuer to check.
+pub(crate) fn issue_core_method_manifest_row_ref_v1(
+    op: CoreMethodOp,
+    arity: u32,
+) -> Option<CoreMethodManifestRowRefV1> {
+    let mut rows = CORE_METHOD_CONTRACT_RESULT_ROWS_V1
+        .iter()
+        .filter(|row| row.op == op && row.arities.contains(&arity));
+    let row = rows.next()?;
+    rows.next().is_none().then_some(CoreMethodManifestRowRefV1 {
+        brand: CORE_METHOD_MANIFEST_BRAND_V1,
+        row,
+        arity,
+    })
+}
+
+#[cfg(test)]
+pub(crate) fn issue_core_method_manifest_row_ref_for_test(
+    op: CoreMethodOp,
+    arity: u32,
+    foreign_brand: bool,
+) -> Option<CoreMethodManifestRowRefV1> {
+    let mut row = issue_core_method_manifest_row_ref_v1(op, arity)?;
+    if foreign_brand {
+        row.brand = super::generated::core_method_contract_rows::
+            CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST;
+    }
+    Some(row)
+}
+
+#[cfg(test)]
+pub(crate) fn issue_core_method_manifest_test_row_ref(
+    row: &'static CoreMethodContractResultRowV1,
+    arity: u32,
+    foreign_brand: bool,
+) -> CoreMethodManifestRowRefV1 {
+    CoreMethodManifestRowRefV1 {
+        brand: if foreign_brand {
+            super::generated::core_method_contract_rows::CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST
+        } else {
+            CORE_METHOD_MANIFEST_BRAND_V1
+        },
+        row,
+        arity,
+    }
 }
 
 #[allow(dead_code)]

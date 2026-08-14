@@ -6,6 +6,28 @@ use crate::mir::core_method_result_kind::{
     CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CoreMethodManifestBrandV1 {
+    schema: &'static str,
+}
+
+impl CoreMethodManifestBrandV1 {
+    pub(crate) const fn schema(self) -> &'static str {
+        self.schema
+    }
+}
+
+pub(crate) const CORE_METHOD_MANIFEST_BRAND_V1: CoreMethodManifestBrandV1 =
+    CoreMethodManifestBrandV1 {
+        schema: "core_method_contract_manifest/v1",
+    };
+
+#[cfg(test)]
+pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV1 =
+    CoreMethodManifestBrandV1 {
+        schema: "foreign/core_method_contract_manifest",
+    };
+
 pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[
     CoreMethodContractResultRowV1 {
         receiver_box: "ArrayBox",
