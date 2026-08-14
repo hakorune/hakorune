@@ -300,6 +300,33 @@ verified V2 root; callers cannot provide a key or coordinates. R0 is
 BoxShape-only and adds no accepted source shape. The complete producer I0 is
 now open.
 
+## M8 S6C typed Recipe I0 implementation receipt (2026-08-15)
+
+The bounded S6C producer is now implemented as
+`produce_s6c_scan_with_init_recipe_v2`. It consumes the complete
+`VerifiedS6CScanWithInitFactsV1` by value and publishes one non-`Clone` product
+holding the verified V2 Recipe, a fixed all-domain role seal, the sole-root
+`VerifiedLoopJoinClosureV2`, and a prevalidated logical-transfer parity seal.
+The producer does not issue an Artifact/source claim, selector, physical ID,
+Builder/MIR value, or fallback/retry route.
+
+The canonical wire is exactly one Loop, three Blocks, one Binding, three
+Inputs, fifteen Values, fifteen Items, one Carrier, and one Return Exit. Its
+preorder is `I0..I8`, nested `I9..I10`, then `I11..I14`; the callable Tail
+`return -1` remains in Facts/Completion and is not a Recipe item or Join exit.
+The role map is a private fixed struct, not a runtime map/vector, and its
+domain key sets are checked before publication.
+
+The product callback lends only private read facades: Facts, a narrow verified
+Recipe view, the fixed role view, and the logical transfer view. Raw
+`VerifiedLoopRecipeV2`, `VerifiedLoopJoinClosureV2`, `JoinSig`, `as_recipe`,
+`into_recipe`, and `join_sig` access are not part of the product API. Join
+parity is checked before publication: After=`L0/B0/I64`, one branch at `I8`
+with condition `V10`, then Return=`I10`/FunctionExit, else Fallthrough,
+exactly one Return summary, and one Backedge. Focused positive construction
+and facade tests pass; physical selection and production callers remain
+closed.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

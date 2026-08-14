@@ -1,6 +1,6 @@
 ---
-Status: Recipe I0 design accepted; bounded implementation is current
-Date: 2026-08-14
+Status: Recipe I0 landed; JOINIR consumer is the next design boundary
+Date: 2026-08-15
 Decision: consume the complete Facts once into one source-retaining V2 Recipe/role/Join product
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
@@ -9,16 +9,16 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 ## Current Capsule
 
-- **Current decision:** the complete non-Clone S6C Facts product is landed. One
-  sole Recipe producer will consume it by value and retain Facts, the verified
-  V2 Recipe, an exact named role-to-key map, and the existing V2 Join closure
-  in one non-Clone product. `LoopRecipeArtifactV2` is not issued in this row.
+- **Current decision:** the complete non-Clone S6C Facts product is consumed by
+  one landed Recipe producer. Its non-Clone product retains Facts, the verified
+  V2 Recipe, an exact named role-to-key map, and the existing V2 Join closure;
+  `LoopRecipeArtifactV2` is not issued in this row.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
-  witness, fixed source-bound relation, Exit/Tail co-seal, and Facts I0 are
-  closed. The Recipe producer and production selector remain caller-zero.
-- **Next ordered task:** implement `LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0` as the
-  one fixed T2 BoxCount below.
+  witness, fixed source-bound relation, Exit/Tail co-seal, Facts I0, and Recipe
+  I0 are closed. The product and selector remain caller-zero.
+- **Next ordered task:** design the combined-product JOINIR consumer
+  `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0` before any Recipe-only handoff.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by Recipe I0.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -28,8 +28,9 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: consume VerifiedS6CScanWithInitFactsV1 once and issue one exact V2
-Recipe/role-map/Join product; source Artifact remains a later design boundary.
+Decision: consume VerifiedS6CScanWithInitFactsV1 once and retain one exact V2
+Recipe/role-map/Join product; the next consumer must borrow that combined
+product and source Artifact remains a later design boundary.
 Source authority + canonical issuer: Facts owns source truth; the S6C Recipe
 producer alone issues Recipe-local keys; existing V2 issuers own verify/Join.
 Non-authority: AST/name/order, source rewalk, MIR, physical IDs, raw JoinSig,
@@ -37,16 +38,17 @@ an Artifact/source claim reconstructed from a Facts borrow, fallback, or retry.
 Fail-fast boundary: exact role map, V2 structural verification, and sole-root
 carrier Join closure plus its logical transfer view all close before the
 product becomes borrowable; only private read facades are lent afterward.
-Smallest next slice: add one producer/model module, focused tests, existing
-module exports, and same-slice README/reference receipt in one bounded commit.
+Smallest next slice: design the JOINIR consumer façade and its fail-fast
+handoff without accepting a Recipe-only input.
 Non-claims: no Artifact/provenance, physical consumer, selector, production
 caller, Builder/MIR, backend, legacy deletion, fallback, or retry.
 ```
 
-## Accepted Recipe I0 design — 2026-08-14
+## Landed Recipe I0 implementation receipt — 2026-08-15
 
-Six read-only audits confirmed that the fixed map is representable by the
-existing V2 schema and Join issuer. They also exposed one deliberate boundary:
+The bounded implementation follows the accepted design. Six read-only audits
+had confirmed that the fixed map is representable by the existing V2 schema and
+Join issuer. They also exposed one deliberate boundary:
 Facts has no consuming `LoopRecipeSourceBindingV1` terminal. Recipe I0 therefore
 must not invent a borrow-based source claim merely to manufacture
 `LoopRecipeArtifactV2`. Retaining the original Facts beside the verified Recipe
@@ -129,7 +131,7 @@ from Recipe items, values, exits, and JoinSig Return rows.
 
 ```text
 Change:
-  add loop_recipe_contract/s6c_scan_with_init.rs plus
+  landed loop_recipe_contract/s6c_scan_with_init.rs plus
   s6c_scan_with_init_tests.rs; consume Facts once and issue the exact product;
   old authority: none.
 Contract:
@@ -137,9 +139,9 @@ Contract:
   source Artifact, physical identities, selectors, and legacy builders stay 0.
 Done:
   exact positive map/private product view; complete domain bijection and Join
-  transfer parity; wrong role/call/placement/Tail-import/coverage tests; generic
-  V2 key/domain/use-before-def and Join negatives remain green; update owner
-  README and docs/reference/mir/loop-recipe-contract.md.
+  transfer parity; generic V2 key/domain/use-before-def and Join negatives remain
+  green; owner README and docs/reference/mir/loop-recipe-contract.md updated;
+  focused producer test passes.
 Stop:
   any second source walk/Facts issuer, raw external key input, source-binding
   reconstruction, raw Recipe/Join/JoinSig escape, incomplete role coverage,
@@ -156,7 +158,7 @@ The ordered frontier is:
 landed S6C source/CoreMethod/typed-input/call/unary/ExitTail authorities
   -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0             CLOSED T2
   -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0             CLOSED T2 BoxShape
-  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            READY T2 BoxCount
+  -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0            CLOSED T2 BoxCount
   -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0           T2 consumer
   -> S6C parity/canary
   -> bounded selector/caller cutover

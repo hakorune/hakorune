@@ -101,6 +101,30 @@ keys, Facts, Builder/MIR, physical IDs, fallback, or production. The later
 source-bound row must borrow this exact product and the existing callable and
 CoreMethod target authorities; it may not reconstruct them.
 
+## S6C typed Recipe I0 implementation receipt (2026-08-15)
+
+The first bounded `ScanWithInit` Recipe producer now consumes
+`VerifiedS6CScanWithInitFactsV1` by value and issues one non-`Clone`
+`VerifiedS6CScanWithInitRecipeProductV2`. The product retains the verified V2
+Recipe, a fixed role-to-key struct with complete domain coverage, the existing
+sole-root `VerifiedLoopJoinClosureV2`, and a parity seal for its logical
+transfer view. No Artifact/source binding, selector, physical identity,
+Builder/MIR, fallback, or retry is issued here.
+
+The exact canonical domains are: Loop=1, Blocks=3, Binding=1, Inputs=3,
+Values=15, Items=15, Carriers=1, Exits=1. Canonical preorder is
+`I0..I8`, nested `I9..I10`, then `I11..I14`. The callable Tail `return -1`
+stays in the retained Facts/Completion and is not imported into Recipe or
+JoinSig exits.
+
+The HRTB product API lends only private read facades. It does not lend raw
+`&VerifiedLoopRecipeV2`, raw `&VerifiedLoopJoinClosureV2`, `JoinSig`,
+`as_recipe`, `into_recipe`, or `join_sig`; HRTB alone is insufficient when the
+underlying verified Recipe is `Clone`. Before publication, Join parity checks
+After=`L0/B0/I64`, one branch `I8/V10`, then Return `I10` to FunctionExit,
+else Fallthrough, one Return summary, and one Backedge. Focused product and
+facade tests pass. Physical selection and production callers remain closed.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation

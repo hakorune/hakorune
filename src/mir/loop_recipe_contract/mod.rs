@@ -17,6 +17,8 @@ mod physical_layout;
 mod physical_transfer;
 mod producer_id;
 pub(crate) mod route_id;
+#[allow(dead_code)]
+mod s6c_scan_with_init;
 mod schema;
 mod schema_v2;
 mod semantic_context;
@@ -55,6 +57,10 @@ mod join_sig_nested_shadow_tests;
 #[cfg(test)]
 #[path = "join_sig_after_binding_tests.rs"]
 mod join_sig_after_binding_tests;
+
+#[cfg(test)]
+#[path = "s6c_scan_with_init_tests.rs"]
+mod s6c_scan_with_init_tests;
 
 #[cfg(test)]
 #[path = "source_bound_core_tests.rs"]
@@ -183,6 +189,12 @@ pub(crate) use physical_layout::{
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init::{
+    produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
+    S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
+    S6CVerifiedRecipeReadViewV2, VerifiedS6CJoinRoleSealV2, VerifiedS6CScanWithInitRecipeProductV2,
+};
 #[allow(unused_imports)]
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
