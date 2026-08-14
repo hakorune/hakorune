@@ -6,6 +6,7 @@
 //! and seal the canonical product before publication.
 
 mod block_expr;
+mod entry;
 mod expr;
 mod ids;
 mod owner_boundary;
@@ -20,6 +21,15 @@ mod stmt;
 mod traversal_profile;
 mod vocabulary;
 
+use entry::resolve_function_shadow_v0;
+pub(in crate::mir) use entry::{
+    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+};
+pub(super) use entry::{
+    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
+    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
+    resolve_script_shadow_view_v0,
+};
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
@@ -30,15 +40,6 @@ pub(super) use product::{
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
 pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
-use resolver::resolve_function_shadow_v0;
-pub(in crate::mir) use resolver::{
-    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
-};
-pub(super) use resolver::{
-    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
-    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
-    resolve_script_shadow_view_v0,
-};
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
