@@ -688,13 +688,12 @@ The 2026-08-14 tracked census is:
 tools/checks tracked files                         = 3,654
 tracked shell scripts                              = 3,283
 guard-named scripts                                = 2,899
-tracked shell lines                                = 345,570
+tracked shell lines                                = 345,902
 dev_gate quick steps                               = 66
-check-scripts index lines / named scripts          = 701 / 2,526
-scripts referencing historical phase docs         = 2,017
+check-scripts index lines / stable entries         = 118 / 19
+compatibility ledger entries                       = 2,017
 scripts with no literal src/ owner (heuristic)     = 1,793
-k2_* + rust_lifecycle_mirbuilder_* shell scripts   = 2,570
-manifest guard rows / proof apps                   = 28 / 18
+inventory family rows / focused behavior rows     = 103 / 212
 exact duplicate script contents                    = 0
 ```
 
@@ -819,7 +818,7 @@ The historical-retire census is NoSafeSlice: all 3,654 rows have non-empty
 owner/caller/evidence classification, so no zero-caller family can be retired
 without inventing authority; rows remain in their existing dispositions.
 
-#### GUARD-SURFACE-CLOSEOUT-R0 (next design stop)
+#### GUARD-SURFACE-CLOSEOUT-R0 (closed 2026-08-14)
 
 ```text
 Decision: close the guard-surface cleanup with a source-backed before/after
@@ -829,8 +828,8 @@ manifest counts, and current-state/public-entry guards.
 Non-authority: line counts alone, grep-only caller guesses, or human prose.
 Fail-fast boundary: inventory/index/manifest drift or changed quick-step count
 blocks closeout and leaves the current cleanup lane open.
-Smallest next slice: record entry/file/line/group/failure-signal counts and
-classify remaining parent-baseline reds without changing behavior.
+Closeout: source-backed inventory reports the shell/index/quick counts above;
+naming/varmap reds remain parent-baseline and no behavior changed.
 Non-claims: no deletion, chmod, manifest repair, compiler change, fallback,
 archive publication, llvmlite retirement, or production cutover.
 ```

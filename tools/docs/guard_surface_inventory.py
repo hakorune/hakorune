@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 INDEX = ROOT / "docs/tools/check-scripts-index.md"
 GUARD_MANIFEST = ROOT / "tools/checks/guard_rows.toml"
 PROOF_MANIFEST = ROOT / "tools/checks/proof_apps.toml"
+QUICK_STEPS = ROOT / "tools/checks/lib/dev_gate_quick_steps.sh"
 SCHEMA = "guard-surface-inventory-v0"
 ALLOWED = (
     "stable_public_entry",
@@ -58,6 +59,22 @@ def command_paths(value: Any) -> set[str]:
         for item in value.values():
             found.update(command_paths(item))
     return {path for path in found if "*" not in path}
+
+
+def line_count(path: Path) -> int:
+    return len(path.read_text(encoding="utf-8").splitlines())
+
+
+def quick_step_counts() -> tuple[int, int]:
+    steps = 0
+    groups = 0
+    for raw in QUICK_STEPS.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if line.startswith(("dev_gate_script_step ", "dev_gate_cmd_step ")):
+            steps += 1
+        elif line.startswith("dev_gate_group_label "):
+            groups += 1
+    return steps, groups
 
 
 def load_manifest(path: Path, table_key: str, stack: tuple[Path, ...] = ()) -> list[dict[str, Any]]:
@@ -158,6 +175,8 @@ def build_inventory() -> dict[str, Any]:
     counts = Counter(row["disposition"] for row in rows)
     tracked_set = set(tracked)
     manifest_paths = set(guard_owner) | set(proof_owner)
+    tracked_shells = [ROOT / path for path in tracked if path.endswith(".sh")]
+    quick_steps, quick_groups = quick_step_counts()
     return {
         "schema": SCHEMA,
         "status": "inventory-only",
@@ -171,6 +190,7 @@ def build_inventory() -> dict[str, Any]:
             "docs/tools/check-scripts-index.md",
             "tools/checks/guard_rows.toml",
             "tools/checks/proof_apps.toml",
+            "tools/checks/lib/dev_gate_quick_steps.sh",
         ],
         "non_authority": [
             "grep-only caller counts",
@@ -192,6 +212,11 @@ def build_inventory() -> dict[str, Any]:
             "manifest_paths": len(manifest_paths),
             "manifest_tracked": len(manifest_paths & tracked_set),
             "manifest_untracked": len(manifest_paths - tracked_set),
+            "tracked_shell_paths": len(tracked_shells),
+            "tracked_shell_lines": sum(line_count(path) for path in tracked_shells),
+            "index_lines": line_count(INDEX),
+            "quick_step_count": quick_steps,
+            "quick_group_count": quick_groups,
         },
         "counts": dict(sorted(counts.items())),
         "rows": rows,
@@ -238,7 +263,11 @@ def main() -> int:
             "[guard-surface-inventory] ok: "
             f"rows={len(inventory['rows'])}, {counts}, "
             f"index_untracked={inventory['source_counts']['index_stable_check_untracked']}, "
-            f"manifest_untracked={inventory['source_counts']['manifest_untracked']}"
+            f"manifest_untracked={inventory['source_counts']['manifest_untracked']}, "
+            f"shell_lines={inventory['source_counts']['tracked_shell_lines']}, "
+            f"index_lines={inventory['source_counts']['index_lines']}, "
+            f"quick_steps={inventory['source_counts']['quick_step_count']}, "
+            f"quick_groups={inventory['source_counts']['quick_group_count']}"
         )
         return 0
     payload = json.dumps(inventory, ensure_ascii=False, indent=2) + "\n"
