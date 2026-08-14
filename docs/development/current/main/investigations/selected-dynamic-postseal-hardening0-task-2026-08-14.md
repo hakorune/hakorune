@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, and GUARD-PUBLIC-ENTRY-CUT-R0 are closed with named parent-baseline reds; family-manifest migration is retained as NoSafeSlice and the next design row is GUARD-QUICK-PROFILE-RECUT-R0, with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, MAIN-INTEGRATION-EVIDENCE-R0, GUARD-SURFACE-CONSOLIDATION-D0, GUARD-PUBLIC-ENTRY-CUT-R0, and the first line-budget facade split are closed with named parent-baseline reds; family-manifest migration is retained as NoSafeSlice and the next design row remains in the existing P1 queue, with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: GUARD-SURFACE-CONSOLIDATION-D0 inventories the existing guard surface and consolidates only stable public entries; it adds no new top-level guard and changes no compiler behavior.
+Smallest next slice: design-review the existing DYN-SOURCE-FACT-ISSUER-ONCE-R0 P1 row; no implementation is authorized until its one-source issuer and consuming owner are fixed.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -818,7 +818,7 @@ The historical-retire census is NoSafeSlice: all 3,654 rows have non-empty
 owner/caller/evidence classification, so no zero-caller family can be retired
 without inventing authority; rows remain in their existing dispositions.
 
-#### MIRBUILDER-LINE-BUDGET-CENSUS-R0 (accepted BoxShape implementation)
+#### MIRBUILDER-LINE-BUDGET-CENSUS-R0 (closed 2026-08-14 BoxShape)
 
 ```text
 Decision: split only the 797-line unified call facade's two public compatibility
@@ -828,8 +828,9 @@ line guards; the census reports but never authorizes a split.
 Non-authority: compression, blank-line removal, grep-only ownership, or prose.
 Fail-fast boundary: touched owner at/above 800, missing split target, or a new
 responsibility without a prior owner keeps the row open.
-Smallest next slice: move `emit_global_unified` and `emit_value_unified` to a
-private child module and prove the facade falls below the 760 design threshold.
+Closeout: `emit_global_unified` and `emit_value_unified` now live in the private
+child; the facade is 751 lines, API/caller parity is preserved, and focused
+check/guard evidence is green (the all-tests failure reproduces at the parent).
 Non-claims: no mass refactor, semantic change, deletion, fallback, archive,
 llvmlite retirement, or production cutover.
 ```
