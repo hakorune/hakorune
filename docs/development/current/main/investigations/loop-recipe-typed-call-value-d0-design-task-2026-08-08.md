@@ -1,7 +1,7 @@
 ---
-Status: source-bound relation I0 landed; typed-input Facts/Recipe D0 is current
+Status: complete Recipe target map accepted; Exit/Tail source co-seal D0 is current
 Date: 2026-08-14
-Decision: retain exact call sites, make the existing callable contract placement-aware, then co-seal one non-Clone S6C source-bound relation
+Decision: separate Loop Return(index) from callable Tail(-1), then issue one S6C Facts owner and one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -11,13 +11,15 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
   callable contract, typed-input product, and source-bound relation are
-  landed. The complete S6C Facts-to-Recipe producer is the next authority.
+  landed. The complete Recipe target map is accepted; resolver-owned
+  Loop-Return versus callable-Tail evidence is the next authority.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-RECIPE-TYPED-INPUT-RELATION-D0` — fix the one
-  complete Facts-to-Recipe producer over the landed source-bound aggregate.
+- **Next ordered task:** `LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0` — fix the exact
+  borrowed resolver view for conditional `return index` versus outer
+  `return -1` before any Facts or Recipe key exists.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -27,19 +29,20 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: design one complete forward ScanWithInit Facts-to-Recipe producer;
-do not reopen source/target/type authority or physicalize early.
-Source authority + canonical issuer: the landed non-Clone source-bound S6C
-relation plus resolver exit/Tail evidence; one producer alone mints Recipe
-item/value/call keys after exact source-role coverage is complete.
-Non-authority: fixture order/count guesses, AST, legacy scan builders, MIR,
-ResultKind, selected-Dynamic receipts, selector lookup, and physical IDs.
-Fail-fast boundary: missing/foreign/duplicate/swapped role, call, binding,
-operator, exit, frame, target, Home/effect, or Tail separation rejects before
-Facts Candidate/Recipe, Builder, physicalization, or production effect.
-Smallest next slice: fix exact role coverage, Facts owner, Recipe producer,
-Loop Return versus callable Tail/Completion boundary, and negative matrix.
-Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
+Decision: issue one resolver-owned Exit/Tail co-seal; Loop `return index` is
+the sole Recipe Return, while outer `return -1` stays callable Completion.
+Source authority + canonical issuer: resolver exit rows, sealed region/frame
+membership, exact index binding/literal relations, and existing Completion;
+one narrow HRTB view is the only new issuer boundary.
+Non-authority: source order, AST reread, fixture position, legacy producers,
+MIR/ResultKind, Dynamic receipts, Recipe keys, and physical effects.
+Fail-fast boundary: missing/duplicate/swapped/foreign exit, wrong region or
+target function, wrong value/literal, Tail leakage, cleanup/disposition drift,
+or incomplete two-return coverage rejects before Facts and Recipe keys.
+Smallest next slice: fix the borrowed Exit/Tail schema and complete negative
+matrix; implementation remains NoSafeSlice until this Decision is accepted.
+Non-claims: no Facts/Recipe I0, JoinSig, Builder/MIR, physical canary,
+production selector, fallback/retry, legacy deletion, or backend change.
 ```
 
 ## Authority census and bounded task DAG — 2026-08-14
@@ -110,11 +113,43 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                                 -> LOOP-S6C-EXACT-CALL-WITNESS-R0  CLOSED T0
                                      -> LOOP-RESOLVER-CALLABLE-PLACEMENT-I0 CLOSED T1
                                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0 CLOSED T1
-                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CURRENT T2
-                                                    -> LOOP-RECIPE-TYPED-INPUT-RELATION-I0 T2
-                                          -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                                               -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CLOSED T2 (target map; NoSafeSlice dependency named)
+                                                    -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CURRENT T2
+                                                         -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 T2
+                                                              -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
+                                                                   -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 T2
+                                                                        -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                                -> S6C parity / canary / later production rows
 ```
+
+### Accepted complete S6C target map
+
+The mapping is fixed, but does not authorize implementation before the
+Exit/Tail co-seal lands:
+
+```text
+source roles = subject Text, needle Text, initialized index I64
+Recipe       = 1 Loop, 3 Blocks, 1 Binding, 3 Inputs, 1 Carrier
+values       = V0..V14 (15)
+items        = I0..I14 (13 operations + If + Loop Return)
+calls        = length(subject) in Condition; substring(subject,index,index+1) in Body
+control      = Less condition; TextEq If; Loop Return(index)
+step         = read index; const 1; add; write index
+callable     = outer Tail Return(-1), absent from Recipe items/values/exits
+```
+
+`VerifiedS6CScanWithInitFactsV1` will own the consumed source-bound relation
+plus the accepted Exit/Tail evidence. It remains non-Clone. A later sole S6C
+producer alone mints canonical V2 node/block/binding/value/item/carrier/exit
+keys, verifies through `LoopRecipeVerifierV2`, and derives JoinSig/After only
+through `issue_sole_root_carrier_join_closure_v2()`. Facts never contain
+Recipe keys, and no `into_parts` API may split the landed source relation.
+
+The Exit/Tail row must reject missing, duplicate, swapped, or foreign exits;
+wrong region ancestry/target function/index binding/literal; Tail inside the
+Loop; Loop Return outside it; unmodeled break/continue/throw/await/cleanup;
+partial Completion; and any AST/order/MIR inference. New S6C sources belong
+in split modules below 760 lines; `typed_schema_v2.rs` (757) is frozen.
 
 ### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (accepted)
 
@@ -685,8 +720,12 @@ remain source-bound contracts.
 - `MIRBUILDER-RESTART-DOCS-SURFACE-CLEANUP-R0`: repair stale/broken Builder
   README paths and frontier text; state task-map/manifest applicability; link
   Return/fallback terminology; repair fence/date/baseline display drift.
-- `RUST-WARNING-SURFACE-CENSUS-R0`: capture warning baseline, group by owner,
-  then remove unused/private-interface/dead-compat warnings in bounded slices.
+- `RUST-WARNING-SURFACE-CENSUS-R0`: required cleanup because the current
+  `cargo check` warning surface is too large to remain informal. Capture a
+  machine-readable owner/code/count baseline first; classify current-change
+  versus inherited debt; then remove unused import, private-interface,
+  unreachable/dead compatibility, and stale cfg warnings in bounded owner
+  slices. No blanket `allow`, semantic change, or S6C-row mixing is allowed.
 - `TEST-RED-BASELINE-RETIREMENT-D0`: classify inherited builder/compiler reds
   and prevent a permanently accepted red baseline.
 - `DOC-GOVERNANCE-AND-COMPAT-RETIREMENT-D0`: shrink/archive historical docs,
