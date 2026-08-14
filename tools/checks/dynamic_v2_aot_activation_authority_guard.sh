@@ -448,6 +448,33 @@ guard_expect_fixed_in_file "$TAG" 'SkipSelected' "$SELECTED_RUNNER" \
 if rg -n 'selected Dynamic candidate is Boundary-only; VM execution is rejected' "$SELECTED_RUNNER"; then
   guard_fail "$TAG" "selected runner must not terminate at the retired PyVM fence"
 fi
+python3 - "$SELECTED_RUNNER" <<'PY'
+import sys
+
+runner = open(sys.argv[1], encoding="utf-8").read()
+stage = runner.index("match decide_pyvm_stage(")
+object_gate = runner.index("if let Some(out_path)", stage)
+dispatch = runner.index("match execute_via_harness_or_fallback", object_gate)
+if not stage < object_gate < dispatch:
+    raise SystemExit("selected stage/object gate/Boundary dispatch order drifted")
+route_start = runner.index("fn execute_via_harness_or_fallback(")
+selected_start = runner.index("    if selected_dynamic {", route_start)
+selected_end = runner.index(
+    "    match harness_executor::HarnessExecutorBox::try_execute(module)",
+    selected_start,
+)
+selected_route = runner[selected_start:selected_end]
+if "BoundaryExecutorBox::try_execute_selected_dynamic(module)?" not in selected_route:
+    raise SystemExit("selected dispatch does not call the sole Boundary executor")
+for forbidden in (
+    "HarnessExecutorBox",
+    "FallbackExecutorBox",
+    "PyVmExecutorBox",
+    "emit_requested_object_or_exit",
+):
+    if forbidden in selected_route:
+        raise SystemExit(f"selected dispatch reaches compatibility owner: {forbidden}")
+PY
 guard_expect_fixed_in_file "$TAG" \
   'Result<VerifiedStaticArtifactBundleLaunchFenceV1, String>' \
   "$SELECTED_BUNDLE_OWNER" \

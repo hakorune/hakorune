@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; the next P0 is selected runner reachability; guard consolidation is one queued organization task with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; the next row is MAIN-INTEGRATION-EVIDENCE-R0; guard consolidation is one queued organization task with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0 proves that selected input skips retired PyVM and reaches the sole Boundary executor exactly once after the sealed/strict candidate gates.
+Smallest next slice: MAIN-INTEGRATION-EVIDENCE-R0 proves the pushed candidate in a clean detached worktree with the selected focused gates, stable guards, and no unrelated dirty compiler files.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -130,9 +130,8 @@ closed: mode fence + lexical transaction + linear slots
   -> closed: C dual launch/helper view + CheckedCallOut physicalizer + candidate object/link/receipt/launch
   -> closed: B3 attempt-unique artifact bundle publication/consumption and path-bound launch fence
   -> closed: B4 llvm-boundary vs llvmlite-compat feature ownership
-  -> CURRENT: selected post-seal mutation fence
-  -> next: strict verification retention, then selected runner reachability
-  -> MAIN-INTEGRATION-EVIDENCE-R0
+  -> closed: selected post-seal mutation fence + strict verification retention + selected runner reachability
+  -> CURRENT: MAIN-INTEGRATION-EVIDENCE-R0
   -> parked G3 oracle/archive/deletion DAG
 ```
 
@@ -625,12 +624,12 @@ Fail-fast boundary: verification error, dominance/PHI drift, or module metadata 
 Closeout: `MirVerifier::new_strict()` is selected-only, compatibility env switches do not weaken it, and `normal_default_pipeline` consumes the result before external commit; focused strict-policy, compiler, runner, and authority-guard evidence is green.
 Non-claims: ordinary compatibility verifier policy, semantic Recipe changes, or fallback/retry.
 
-SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0
+SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0 [closed 2026-08-14]
 Decision: selected input skips retired PyVM and reaches the sole Boundary executor; explicit PyVM is typed pre-effect reject.
 Source authority + canonical issuer: selected metadata census and Boundary executor owner.
 Non-authority: early fatal skip arms, `SMOKES_USE_PYVM`, harness feature names, or ordinary mock fallback.
 Fail-fast boundary: selected route never emits PyVM error/child/object fallback before Boundary dispatch.
-Smallest next slice: production-shaped selected smoke plus region guard for one Boundary caller and zero PyVM/fallback callers.
+Closeout: execution order is guard-proven as census -> strict result -> PyVM decision -> object reject -> Boundary dispatch; the selected dispatch region contains only the Boundary owner, while ordinary compatibility retains its existing harness/fallback path. Focused stage/legacy-callsite tests and AOT authority guard are green; selected production remains new=0/old=1.
 Non-claims: PyVM deletion, llvmlite archive movement, or new selected MIR shape.
 ```
 
