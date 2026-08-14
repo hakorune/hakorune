@@ -11,7 +11,7 @@ use super::product::{
     ResolvedFunctionDataV1, ResolvedScopeRegionPairV1, VerifiedResolvedFunctionV1,
 };
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
-use super::source_site::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
+use super::source_site::{SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
 use super::verifier::exact_source_region_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -38,6 +38,25 @@ impl ResolvedIfRegionBundleV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedIfRegionLookupErrorV1 {
     MissingExactBundle(SourceStmtSiteV1),
+    MissingCondition(SourceExprSiteV1),
+    DuplicateCondition(SourceExprSiteV1),
+}
+
+/// Borrow-only lookup result for one resolver-sealed If condition.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ResolvedIfConditionRegionRefV1<'a> {
+    site: &'a SourceStmtSiteV1,
+    bundle: &'a ResolvedIfRegionBundleV1,
+}
+
+impl ResolvedIfConditionRegionRefV1<'_> {
+    pub(crate) const fn site(&self) -> &SourceStmtSiteV1 {
+        self.site
+    }
+
+    pub(crate) const fn bundle(&self) -> ResolvedIfRegionBundleV1 {
+        *self.bundle
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -88,6 +107,34 @@ impl VerifiedResolvedFunctionV1 {
     /// this count does not expose arena or index iteration as another authority.
     pub(crate) fn if_region_bundle_count(&self) -> usize {
         self.core.if_regions.len()
+    }
+
+    /// Lends the exact sealed If row whose condition is `condition`.
+    ///
+    /// The index owns statement identity. Consumers cannot reconstruct an If
+    /// from AST or retain this lookup independently of the resolved function.
+    pub(crate) fn with_if_region_for_condition<R>(
+        &self,
+        condition: &SourceExprSiteV1,
+        callback: impl for<'condition> FnOnce(ResolvedIfConditionRegionRefV1<'condition>) -> R,
+    ) -> Result<R, ResolvedIfRegionLookupErrorV1> {
+        let mut matching = self.core.if_regions.by_site.iter().filter(|(site, _)| {
+            SourcePathV1::from_node(site.node())
+                .child(SourcePathSegmentV1::IfCondition)
+                .expr()
+                == *condition
+        });
+        let Some((site, bundle)) = matching.next() else {
+            return Err(ResolvedIfRegionLookupErrorV1::MissingCondition(
+                condition.clone(),
+            ));
+        };
+        if matching.next().is_some() {
+            return Err(ResolvedIfRegionLookupErrorV1::DuplicateCondition(
+                condition.clone(),
+            ));
+        }
+        Ok(callback(ResolvedIfConditionRegionRefV1 { site, bundle }))
     }
 
     pub(crate) fn if_region_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {

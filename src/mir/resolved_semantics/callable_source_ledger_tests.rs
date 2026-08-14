@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span, UnaryOperator};
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
     issue_core_method_manifest_row_ref_v1, CORE_METHOD_MANIFEST_BRAND_V1,
@@ -7,10 +7,10 @@ use crate::mir::core_method_result_kind::{
 use super::{
     CallableSourceLedgerRejectV1, CallableSourceRowDispositionV1, CallableSourceRowFamilyV1,
     CoreMethodInstanceTargetIssuerV1, FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, OwnedExprSiteV1, ResolvedLoopPlacementV1,
-    ResolvedLoopRegionLookupErrorV1, ResolverCoreMethodCallableContractIssuerV1,
-    ResolverCoreMethodCallableContractRejectV1, SourceBindingSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionSyntaxViewV1, OwnedExprSiteV1, ResolvedLiteralSourceV1, ResolvedLoopPlacementV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedUnaryOperatorV1,
+    ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
@@ -43,6 +43,14 @@ fn variable(name: &str) -> ASTNode {
     }
 }
 
+fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
+    ASTNode::UnaryOp {
+        operator,
+        operand: Box::new(operand),
+        span: Span::unknown(),
+    }
+}
+
 fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(object),
@@ -67,6 +75,48 @@ fn node(segments: Vec<SourcePathSegmentV1>) -> SourceNodeSiteV1 {
 
 fn stmt(index: u32) -> SourceStmtSiteV1 {
     SourceStmtSiteV1::from_node(node(vec![SourcePathSegmentV1::Body(index)]))
+}
+
+fn local_initializer(index: u32) -> SourceExprSiteV1 {
+    SourceExprSiteV1::from_node(node(vec![
+        SourcePathSegmentV1::Body(index),
+        SourcePathSegmentV1::Initializer(0),
+    ]))
+}
+
+#[test]
+fn ledger_seals_every_unary_operator_with_exact_operand_site() {
+    let operators = [
+        (UnaryOperator::Minus, ResolvedUnaryOperatorV1::Minus),
+        (UnaryOperator::Not, ResolvedUnaryOperatorV1::Not),
+        (UnaryOperator::BitNot, ResolvedUnaryOperatorV1::BitNot),
+        (UnaryOperator::Weak, ResolvedUnaryOperatorV1::Weak),
+    ];
+    let tree = function(
+        operators
+            .iter()
+            .enumerate()
+            .map(|(index, (operator, _))| {
+                local(&format!("v{index}"), unary(operator.clone(), literal(1)))
+            })
+            .collect(),
+    );
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
+
+    for (index, (_, expected)) in operators.iter().enumerate() {
+        let site = local_initializer(index as u32);
+        let row = view.unary_source(&site).expect("exact unary source row");
+        assert_eq!(row.site(), &site);
+        assert_eq!(row.operator(), *expected);
+        assert_eq!(
+            view.literal_source(row.operand()),
+            Some(&ResolvedLiteralSourceV1::Integer(1))
+        );
+    }
 }
 
 #[test]

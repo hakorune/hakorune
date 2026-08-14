@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, and complete Recipe target map are landed/accepted. Exit/Tail implementation exposed one exact missing source authority: unary operators are not yet sealed beside resolver literal rows. The bounded unary-source row is accepted before the Exit/Tail co-seal resumes. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. The Loop CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed non-Clone source-bound relation, resolver unary source rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted. The next design stop names the sole complete ScanWithInit Facts product before any Recipe key. Dynamic live cutover, G3, warning/docs/compatibility cleanup, and known baseline reds remain parked."
 date = "2026-08-14"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
 
-current_design_stop = "Accepted: ShadowResolver observes each unary operator once and seals an AST-free unary source row containing exact site, operator, and operand. Exit/Tail then proves outer -1 only as Minus plus exact Integer(1); it never infers from Operand paths or rereads AST."
-work_mode = "fast"
-current_execution_row = "LOOP-S6C-UNARY-SOURCE-ROW-I0"
-current_blocker_token = "Add one resolver-owned unary source inventory row below the source split budget. Map every supported UnaryOperator exactly once, reject duplicate site at seal, lend read-only lookup through the callable ledger, and resume Exit/Tail by requiring Minus(site, operand) plus Integer(1). No constant folding, AST/order/MIR inference, Recipe keys, or new accepted Loop shape."
+current_design_stop = "Design the sole complete VerifiedS6CScanWithInitFactsV1. It may only consume the landed typed-input/source-bound-call relation and Exit/Tail co-seal, own exact semantic role/site/coverage relations, and lend a non-splittable view to one later Recipe producer."
+work_mode = "design_stop"
+current_execution_row = "LOOP-S6C-SCAN-WITH-INIT-FACTS-D0"
+current_blocker_token = "Name the Facts aggregate field set, canonical issuer, exact role cardinalities, owner/frame/source-site parity, and fail-fast matrix without minting Recipe keys. Missing/duplicate/swapped/foreign/orphan input, call, binary, update, If, Loop Return, or callable Tail evidence must reject before Facts issuance. No AST/order/name/MIR inference, fallback, or physical route."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (S6C unary source row I0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation and complete Recipe target map are landed/accepted. The active fast row closes the missing resolver unary source authority before the Exit/Tail co-seal resumes. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
+active_lane = "Loop compiler frontier (S6C complete Facts D0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening is closed; the fixed source-bound S6C relation, resolver unary rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted. The active design stop fixes one complete Facts owner before Recipe keys. Production selection, Dynamic live cutover, G3, warning/docs/compatibility cleanup, and unrelated hardening remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/investigations/loop-re
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-recipe-typed-call-value-d0"
 latest_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, and fixed source-bound relation are closed. The exact Recipe target map remains accepted; the bounded resolver unary source row is current before Exit/Tail, Facts/Recipe keys, or physical production."
-next_design_card = "none"
+latest_card_summary = "Loop rows 1--10, M8 S6A/S6B, CoreMethod/Home target, S6C typed-input/call witness, placement-aware callable contracts, fixed source-bound relation, unary source rows, and Exit/Tail co-seal are closed. Complete Facts D0 is current before Recipe keys or physical production."
+next_design_card = "LOOP-S6C-SCAN-WITH-INIT-FACTS-D0"
 next_design_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-next_execution_card = "LOOP-S6C-UNARY-SOURCE-ROW-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-14: LOOP-S6C-UNARY-SOURCE-ROW-I0 plus LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 landed one resolver-owned unary site/operator/operand row and one non-Clone Completion/call/If-region co-seal; focused resolver/S6C suites, cargo check, Loop/CoreMethod/pointer guards, and diff check are green; Facts/Recipe/physical production remain closed.",
   "2026-08-14: MIRBUILDER-LATEST-HEAD-INTEGRATION-R0 at cce7c1dade: cargo check, normal_callable_semantic_package, dynamic_full_body_recipe, selected_dynamic_physical_emitter, seven existing authority/route guards, pointer guard, in-place guard, and diff check green; completion is 107 passed/1 failed with the same ReturnValueTypeMissing(ValueId(12)) at parent b295288251, classified baseline; selected production remains new=0/old=1.",
   "2026-08-14: DYN-ACTIVATION-DISPOSITION-TYPESTATE-R0 closed the negative-only RejectBeforeEffect handoff: one private unpublished-session fence is consumed immediately before Builder open, the session stores no disposition, focused emitter/package tests plus cargo check/fmt, existing authority guards, pointer guard, and diff check are green; production remains new=0 old=1.",
   "2026-08-14: MAIN-INTEGRATION-EVIDENCE-R0 clean detached SHA 145921e7d5: cargo check, three selected W6 suites, selected guards, LLVM census/route guards, and diff check green; completion ReturnValueTypeMissing and generic legacy executable guard reds reproduce at parent baseline; selected production remains new=0 old=1.",
@@ -56,7 +57,6 @@ landed_tail = [
   "2026-08-13: W6-A1 physical evidence cursor landed in the unpublished session: compare=1, cleanup=4, ordered 15-operation+If+Exit=17 claims close before profile/DraftSeal; focused tests/check/guards green, AOT/backend handoff=0, production new=0 old=1.",
   "2026-08-14: DYN-CALLOUT-NORMAL-RESULT-TYPE-R0 closed one typed Normal-result boundary: canonical SSA now co-seals I6 StringBox and I7 Integer from the existing route projection, while the private ledger retains EndAuthorizedHandle/ImmediateI64; selected focused tests, authority/physical-input/current-state guards, and diff check are green; production remains new=0 old=1.",
   "2026-08-14: hako_aot generic/FFI replay admission closed: generic direct/FFI ambient harness rejects before dlsym/child/object; named compat C ABI direct/FFI keep lanes succeed; G0 source-backed ingress census is next design stop.",
-  "2026-08-14: G1 route boundary landed: default object options now select BoundaryPureFirst with pure-first/none, Stage1 explicitly selects ExplicitHarnessCompat, route/census/child-observation/FFI gates are green; runner fail-fast remains a separate design stop.",
   "2026-08-14: LEXICAL-SCOPE-SAFE-TRANSACTION-R0 replaced the production raw-pointer Drop guard with a callback-scoped transaction, fallible KeepAlive close, and exactly-once restoration across success/Err/panic; lexical (6) and block-driver (6) focused tests passed. The existing UnsafeOrFFI inventory red is stale parent-fixture debt, not this row.",
   "2026-08-14: LOOP-CORE-METHOD-INSTANCE-TARGET-I0 landed the generated manifest brand and dedicated StringBox/Text Home issuer; StringLen/0 and StringSubstring/2 specialize exact receiver/parameter/result/PureRead relations, foreign/wrong/union/duplicate negatives reject before capability issue, and the manifest guard, focused five-test suite, fmt, pointer, and Loop guards are green; source-bound/S6C production remains closed.",
 ]

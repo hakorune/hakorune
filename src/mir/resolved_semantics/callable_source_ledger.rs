@@ -15,10 +15,10 @@ use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use super::{
-    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1,
-    ResolvedLoopRegionLookupErrorV1, ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1,
-    VerifiedResolvedFunctionV1, VerifiedResolvedLoopSourceV1,
-    VerifiedResolvedSourceSiteInventoryV1,
+    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, RegionId, ResolvedIfConditionRegionRefV1,
+    ResolvedIfRegionLookupErrorV1, ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1,
+    ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1, VerifiedResolvedFunctionV1,
+    VerifiedResolvedLoopSourceV1, VerifiedResolvedSourceSiteInventoryV1,
 };
 
 /// The source families intentionally exposed by the first callable ledger.
@@ -206,6 +206,13 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.expression_source().literal(site)
     }
 
+    pub(crate) fn unary_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedUnaryExpressionSourceV1> {
+        self.function.expression_source().unary(site)
+    }
+
     /// Borrows the complete resolver-sealed Loop site inventory.
     pub(crate) fn loop_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.function.loop_sites()
@@ -232,6 +239,27 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
     ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
         self.function.resolved_exits()
+    }
+
+    pub(crate) fn with_if_region_for_condition<R>(
+        &self,
+        condition: &SourceExprSiteV1,
+        callback: impl for<'condition> FnOnce(ResolvedIfConditionRegionRefV1<'condition>) -> R,
+    ) -> Result<R, ResolvedIfRegionLookupErrorV1> {
+        self.function
+            .with_if_region_for_condition(condition, callback)
+    }
+
+    pub(crate) fn region_parent(&self, region: RegionId) -> Option<RegionId> {
+        self.function.region(region).and_then(|row| row.parent())
+    }
+
+    pub(crate) fn function_region(&self) -> RegionId {
+        self.function.lowering_roots().function_pair().region()
+    }
+
+    pub(crate) fn root_body_region(&self) -> RegionId {
+        self.function.lowering_roots().body_pair().region()
     }
 
     /// Returns the resolver's existing capture boundary for this owner.

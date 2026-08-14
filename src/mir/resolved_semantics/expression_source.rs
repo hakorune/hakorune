@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 
 use super::shadow::ShadowBindingOrdinalV0;
 use super::{
@@ -33,6 +33,35 @@ pub(crate) enum ResolvedBinaryOperatorV1 {
     GreaterEqual,
     And,
     Or,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedUnaryOperatorV1 {
+    Minus,
+    Not,
+    BitNot,
+    Weak,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedUnaryExpressionSourceV1 {
+    site: SourceExprSiteV1,
+    operator: ResolvedUnaryOperatorV1,
+    operand: SourceExprSiteV1,
+}
+
+impl ResolvedUnaryExpressionSourceV1 {
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn operator(&self) -> ResolvedUnaryOperatorV1 {
+        self.operator
+    }
+
+    pub(crate) const fn operand(&self) -> &SourceExprSiteV1 {
+        &self.operand
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -104,6 +133,7 @@ impl ResolvedInitializerRelationV1 {
 #[derive(Debug, Default)]
 pub(crate) struct ResolvedExpressionSourceInventoryV1 {
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
+    unaries: BTreeMap<SourceExprSiteV1, ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
     initializers: BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>,
 }
@@ -117,6 +147,13 @@ impl ResolvedExpressionSourceInventoryV1 {
         self.literals.get(site)
     }
 
+    pub(crate) fn unary(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedUnaryExpressionSourceV1> {
+        self.unaries.get(site)
+    }
+
     pub(crate) fn initializers(&self) -> impl Iterator<Item = &ResolvedInitializerRelationV1> {
         self.initializers.values()
     }
@@ -125,6 +162,7 @@ impl ResolvedExpressionSourceInventoryV1 {
 #[derive(Debug, Default, Clone)]
 pub(in crate::mir::resolved_semantics) struct ShadowExpressionSourceDraftV1 {
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
+    unaries: Vec<ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
     initializers: Vec<ShadowInitializerRelationV1>,
 }
@@ -161,6 +199,18 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                     .literals
                     .insert(site, map_literal(value));
             }
+            ASTNode::UnaryOp { operator, .. } => {
+                let operand = SourcePathV1::from_node(site.node())
+                    .child(SourcePathSegmentV1::Operand)
+                    .expr();
+                self.expression_source
+                    .unaries
+                    .push(ResolvedUnaryExpressionSourceV1 {
+                        site,
+                        operator: map_unary_operator(operator),
+                        operand,
+                    });
+            }
             _ => {}
         }
     }
@@ -187,6 +237,13 @@ pub(super) fn seal_shadow_expression_source_v1(
     draft: ShadowExpressionSourceDraftV1,
     binding_ref: impl Fn(ShadowBindingOrdinalV0) -> BindingRefV1,
 ) -> Result<ResolvedExpressionSourceInventoryV1, &'static str> {
+    let mut unaries = BTreeMap::new();
+    for row in draft.unaries {
+        let site = row.site.clone();
+        if unaries.insert(site, row).is_some() {
+            return Err("duplicate unary expression source relation");
+        }
+    }
     let mut initializers = BTreeMap::new();
     for row in draft.initializers {
         let declaration_site = row.declaration_site.clone();
@@ -202,9 +259,19 @@ pub(super) fn seal_shadow_expression_source_v1(
     }
     Ok(ResolvedExpressionSourceInventoryV1 {
         binaries: draft.binaries,
+        unaries,
         literals: draft.literals,
         initializers,
     })
+}
+
+fn map_unary_operator(operator: &UnaryOperator) -> ResolvedUnaryOperatorV1 {
+    match operator {
+        UnaryOperator::Minus => ResolvedUnaryOperatorV1::Minus,
+        UnaryOperator::Not => ResolvedUnaryOperatorV1::Not,
+        UnaryOperator::BitNot => ResolvedUnaryOperatorV1::BitNot,
+        UnaryOperator::Weak => ResolvedUnaryOperatorV1::Weak,
+    }
 }
 
 fn map_binary_operator(operator: &BinaryOperator) -> ResolvedBinaryOperatorV1 {
@@ -245,5 +312,33 @@ fn map_literal(value: &LiteralValue) -> ResolvedLiteralSourceV1 {
         LiteralValue::Bool(_) => ResolvedLiteralSourceV1::Bool,
         LiteralValue::Null => ResolvedLiteralSourceV1::Null,
         LiteralValue::Void => ResolvedLiteralSourceV1::Void,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
+
+    #[test]
+    fn duplicate_unary_site_rejects_at_seal() {
+        let site = SourcePathV1::from_node(&SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+        ]))
+        .expr();
+        let row = ResolvedUnaryExpressionSourceV1 {
+            site: site.clone(),
+            operator: ResolvedUnaryOperatorV1::Minus,
+            operand: SourcePathV1::from_node(site.node())
+                .child(SourcePathSegmentV1::Operand)
+                .expr(),
+        };
+        let mut draft = ShadowExpressionSourceDraftV1::default();
+        draft.unaries.extend([row.clone(), row]);
+
+        assert_eq!(
+            seal_shadow_expression_source_v1(draft, |_| unreachable!()).unwrap_err(),
+            "duplicate unary expression source relation"
+        );
     }
 }

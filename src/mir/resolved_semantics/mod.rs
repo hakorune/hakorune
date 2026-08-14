@@ -123,7 +123,7 @@ pub(crate) use enum_match_demand::{
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
 pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
-    ResolvedLiteralSourceV1,
+    ResolvedLiteralSourceV1, ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
@@ -142,7 +142,9 @@ pub(crate) use home_relation::{
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
-pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
+pub(crate) use if_region::{
+    ResolvedIfConditionRegionRefV1, ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1,
+};
 pub(in crate::mir) use instance_method_body_owner::{
     InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
     VerifiedInstanceMethodBodyOwnerCatalogV1, VerifiedInstanceMethodBodyOwnerRowV1,

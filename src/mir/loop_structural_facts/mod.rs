@@ -17,6 +17,9 @@ mod loop_true_break_continue_source;
 mod nested_predicate_observation;
 mod nested_predicate_source;
 mod resolved_source_adapter;
+// Caller-zero until the immediately following complete S6C Facts row.
+#[allow(dead_code)]
+mod s6c_exit_tail;
 mod selected_demand;
 mod types;
 mod variable_accum_break;
@@ -85,6 +88,11 @@ pub(crate) use nested_predicate_source::{
     VerifiedNestedLoopSourceShapeV1,
 };
 #[allow(unused_imports)]
+pub(crate) use s6c_exit_tail::{
+    issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRefV1,
+    S6CExitTailSourceCoSealRejectV1, VerifiedS6CExitTailSourceCoSealV1,
+};
+#[allow(unused_imports)]
 pub(crate) use selected_demand::{
     issue_direct_accum_structural_facts_v1, issue_selected_loop_recipe_demand_v1,
     DirectAccumFactsPayloadRejectV1, DirectAccumSingletonObservationRejectV1,
@@ -127,5 +135,7 @@ pub(crate) use selected_demand::{
     verified_loop_structural_facts_for_test, verified_loop_structural_facts_for_test_with_frame,
 };
 
+#[cfg(test)]
+mod s6c_exit_tail_tests;
 #[cfg(test)]
 mod tests;

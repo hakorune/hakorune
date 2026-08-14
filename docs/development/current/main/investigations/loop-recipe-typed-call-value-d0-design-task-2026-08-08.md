@@ -1,5 +1,5 @@
 ---
-Status: unary source row D0 accepted; bounded I0 is current
+Status: unary source row and Exit/Tail co-seal closed; complete Facts D0 is current
 Date: 2026-08-14
 Decision: separate Loop Return(index) from callable Tail(-1), then issue one S6C Facts owner and one Recipe-key producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
@@ -10,17 +10,16 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema, CoreMethod target, Resolver
-  callable contract, typed-input product, source-bound relation, and complete
-  Recipe target map are accepted. Exit/Tail implementation proved that unary
-  operator evidence is missing, so one resolver-owned unary source row must
-  land before the co-seal resumes.
+  callable contract, typed-input product, source-bound relation, exact unary
+  rows, Exit/Tail co-seal, and complete Recipe target map are landed/accepted.
+  The sole complete Facts product is the current design boundary.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target, placement-aware callable contract, typed-input/call
   witness, and fixed source-bound relation are closed. No `ScanWithInit`
   Facts/Recipe producer or production selector is active.
-- **Next ordered task:** `LOOP-S6C-UNARY-SOURCE-ROW-I0` — seal exact unary
-  operator/site/operand evidence in the existing resolver source inventory;
-  then classify outer `return -1` as Minus plus literal Integer(1).
+- **Next ordered task:** `LOOP-S6C-SCAN-WITH-INIT-FACTS-D0` — fix the one
+  non-Clone aggregate that consumes all landed S6C source products without
+  minting Recipe keys.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -30,19 +29,18 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: seal one AST-free unary source row before Exit/Tail co-seal; never
-infer `-1` from an Operand path or reread AST downstream.
-Source authority + canonical issuer: ShadowResolver observes UnaryOperator
-once; the existing resolved expression-source inventory seals site/operator/
-operand and lends lookup through the callable source ledger.
-Non-authority: S6C co-seal, source order, operand path alone, literal value
-alone, MIR/ResultKind, Recipe keys, fixture position, or physical effects.
-Fail-fast boundary: duplicate/missing/foreign unary site, wrong operator or
-operand, and non-Integer(1) operand reject before Exit/Tail/Facts/Recipe.
-Smallest next slice: add the bounded unary row and focused resolver negatives,
-then finish the already accepted non-Clone Exit/Tail co-seal.
-Non-claims: no constant folding, new Loop shape, Facts/Recipe I0, JoinSig,
-Builder/MIR, production selector, fallback/retry, or backend change.
+Decision: issue one complete, non-Clone S6C Facts aggregate; do not let later
+Recipe code re-pair typed inputs, calls, control, updates, Return, or Tail.
+Source authority + canonical issuer: the landed typed-input/source-bound-call
+relation and Exit/Tail co-seal; loop_structural_facts is the sole Facts issuer.
+Non-authority: Recipe target map, source order, AST/name/fixture navigation,
+MIR/ResultKind, Dynamic receipts, selectors, or physical effects.
+Fail-fast boundary: missing/duplicate/swapped/foreign/orphan role, owner/frame/
+site drift, incomplete operation/control/exit coverage rejects before Facts.
+Smallest next slice: fix the aggregate field/cardinality contract and one
+bounded issuer API; implementation waits for this D0 acceptance.
+Non-claims: no Recipe key, JoinSig, Builder/MIR, physical canary, production
+selector, fallback/retry, legacy deletion, or backend change.
 ```
 
 ## Authority census and bounded task DAG — 2026-08-14
@@ -116,9 +114,10 @@ S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
                                                -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0 CLOSED T2 (target map; NoSafeSlice dependency named)
                                                     -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-D0 CLOSED T2
                                                          -> LOOP-S6C-UNARY-SOURCE-ROW-D0 CLOSED T2
-                                                              -> LOOP-S6C-UNARY-SOURCE-ROW-I0 CURRENT T1
-                                                                   -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 T2
-                                                              -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
+                                                              -> LOOP-S6C-UNARY-SOURCE-ROW-I0 CLOSED T1
+                                                                   -> LOOP-S6C-EXIT-TAIL-SOURCE-COSEAL-I0 CLOSED T2
+                                                                        -> LOOP-S6C-SCAN-WITH-INIT-FACTS-D0 CURRENT T2
+                                                                             -> LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 T2
                                                                    -> LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 T2
                                                                         -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
                                                -> S6C parity / canary / later production rows
@@ -751,9 +750,10 @@ remain source-bound contracts.
   README paths and frontier text; state task-map/manifest applicability; link
   Return/fallback terminology; repair fence/date/baseline display drift.
 - `RUST-WARNING-SURFACE-CENSUS-R0`: required cleanup because the current
-  `cargo check` warning surface is too large to remain informal. Capture a
-  machine-readable owner/code/count baseline first; classify current-change
-  versus inherited debt; then remove unused import, private-interface,
+  `cargo check` warning surface is too large to remain informal. The current
+  `cargo check -q --lib` observation emits 1,827 warning headings; the task
+  must normalize that into a machine-readable owner/code/count baseline first
+  and classify current-change versus inherited debt, then remove unused import, private-interface,
   unreachable/dead compatibility, and stale cfg warnings in bounded owner
   slices. No blanket `allow`, semantic change, or S6C-row mixing is allowed.
 - `TEST-RED-BASELINE-RETIREMENT-D0`: classify inherited builder/compiler reds

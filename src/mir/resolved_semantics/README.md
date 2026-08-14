@@ -71,8 +71,10 @@ Facts/Recipe or physical effect.
 ## S6C explicit typed-input contract I0
 
 `expression_source.rs` extends the same resolver seal with passive, AST-free
-binary/literal/local-initializer rows. The S6C issuer borrows those rows plus
-the callable source ledger and requires the exact annotated cohort
+binary/unary/literal/local-initializer rows. Each unary row retains its exact
+operator and operand site; downstream S6C code proves `-1` only as
+`Minus(Integer(1))`, never from an Operand path or AST reread. The S6C issuer
+borrows those rows plus the callable source ledger and requires the exact annotated cohort
 `(StringBox, StringBox)`, `local i: i64 = 0`, one `length/0`, one
 `substring/2`, `Less`, `TextEq`, two `Add` rows, and their canonical
 `Condition | Body` placement. Parameter names are not type authority.
