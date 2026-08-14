@@ -1,8 +1,8 @@
 ---
-Status: design stop; worker consensus recorded
+Status: accepted design predecessor; implementation remains caller-zero
 Date: 2026-08-15
-Decision: design one prephysical S6C ingress without opening physicalization
-Scope: M8 LoopV0 forward ScanWithInit; caller-zero and Builder-free
+Decision: one Builder-free S6C prephysical aggregate, followed by a separate physical-session design
+Scope: M8 LoopV0 forward ScanWithInit only
 ---
 
 # JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-PHYSICAL-INGRESS-D0
@@ -10,200 +10,251 @@ Scope: M8 LoopV0 forward ScanWithInit; caller-zero and Builder-free
 ## Six-line brief
 
 ```text
-Decision: define one move-only prephysical ingress view for the sealed S6C product; do not emit JoinModule, MIR, or physical layout.
-Source authority + canonical issuer: S6C Facts/Recipe/Join output plus the existing resolver context, operation/effect, and continuation issuers; one private ingress co-seal may borrow them without reissuing meaning.
-Non-authority: raw Facts/Recipe/JoinSig, LoopToJoinLowerer, AST/name lookup, JoinModule/MIR/ValueId/BasicBlockId, ABI/selector, fallback, retry, and production routing.
-Fail-fast boundary: owner/frame/scope, exact 15 item-keyed operation/effect rows, two source-bound calls, logical transfer, After, and host capability must agree before Builder/session or physical-ID effects.
-Smallest next slice: audit and specify one private HRTB physical-input façade and its typed reject/discard contract; issue no Prepared* or physical receipt in this row.
-Non-claims: no physical CFG/SSA/PHI/layout, JoinModule conversion, ABI/Completion publication, Artifact/source binding, selector, production caller, fallback, retry, or legacy retirement.
+Decision: accept one non-Clone VerifiedS6CPrephysicalIngressV2 which consumes the source-retaining logical output once and co-seals only existing S6C source, Recipe, Join, and Completion evidence.
+Source authority + canonical issuer: retained S6C Facts/source-bound calls/Completion plus the fixed Recipe role map and V2 Join transfer; loop_recipe_contract::issue_s6c_prephysical_ingress_v2 is the sole co-seal issuer.
+Non-authority: LogicalConsumer::Consumed, V1 operation-effect/continuation/demand products, a new Pure/effect taxonomy, item order, AST/name/MIR lookup, generic CompareEq, LoopToJoinLowerer, physical IDs, selector, fallback, retry.
+Fail-fast boundary: exact context, 15 placements, 13 role-keyed source/execution rows, one If, one Loop Exit, two calls, V2 After, inputs/carrier, and exact-two exit evidence close before Builder/session or physical effects.
+Smallest next slice: implement the caller-zero Builder-free aggregate, private HRTB façade, exact source-anchor multiplicity, and focused positive/negative evidence.
+Non-claims: no TextEq physical target, ReadyEntry, host/session ownership, MIR/CFG/SSA/PHI/layout, callable Return emission, Artifact/ABI, selector, production caller, fallback, retry, or retirement.
 ```
 
-## Current capsule
+## Decision
 
-The landed S6C chain is:
+The landed chain remains the sole authority owner:
 
 ```text
 resolver source seal
   -> VerifiedS6CScanWithInitFactsV1
   -> VerifiedS6CScanWithInitRecipeProductV2
-  -> private logical JOINIR input façade
-  -> source-retaining logical output
-  -> typed caller-zero logical consumer
+  -> source-retaining VerifiedS6CScanWithInitLogicalOutputV1
 ```
 
-The logical consumer's `Consumed` terminal is an observation of that sealed
-product. It is not a physical demand, a Builder capability, or permission to
-reconstruct operation/effect/continuation facts. The next boundary must therefore
-start from the retained product, not from `Consumed` and not from a Recipe-only
-argument.
+The prephysical ingress consumes that output by value. It does not accept raw
+Facts, Recipe, JoinSig, context, effects, or continuation as separate inputs.
+That one-input rule prevents a foreign cohort from being re-paired after the
+Facts/Recipe/Join co-seal.
 
-Existing common owners already cover parts of the required physical contract:
-
-```text
-VerifiedLoopSemanticContextV1
-VerifiedLoopOperationEffectProductV1
-VerifiedLoopContinuationContractV1
-VerifiedLoopOperationPhysicalDemandV1
-PreparedLoopOperationProgramV1
-PreparedLoopPhysicalLayoutV1
-```
-
-Their reuse is not yet proven for S6C. In particular, the S6C output does not yet
-carry a co-sealed operation/effect product, exact owner/frame/scope context, or
-the host/session capability expected by a physicalizer. The D0 decision is to
-name and test that join before any physical product is issued.
-
-## Read-only owner audit result
-
-The current code confirms the boundary gap rather than closing it:
-
-```text
-VerifiedS6CScanWithInitRecipeProductV2
-  owns Facts + Recipe + role seal + Join closure
-  lends source-bound calls and LoopJoinLogicalTransferViewV2
-
-VerifiedLoopOperationPhysicalDemandV1
-  requires VerifiedLoopSemanticContextV1
-  requires VerifiedLoopOperationEffectProductV1
-  requires VerifiedLoopContinuationContractV1
-  then may prepare a physical program/layout
-```
-
-`VerifiedS6CScanWithInitFactsV1` retains the resolver source/Completion
-co-seal and exact body coverage, but does not issue or retain the neutral
-semantic context, item-keyed operation/effect evidence, or continuation
-capability required by `VerifiedLoopOperationPhysicalDemandV1`. The existing
-callable adapter creates those products from a different callable Recipe
-co-seal; it is not valid to rebuild them from S6C logical rows or to pass the
-logical consumer's `Consumed` observation as a substitute.
-
-Therefore the exact audit decision is:
-
-```text
-physical-ingress issuer/co-seal = not yet named for S6C
-physical implementation I0       = NoSafeSlice
-reason                            = MissingS6CPhysicalIngressIssuer
-```
-
-This is an authority gap, not a test-only or theoretical hardening issue. No
-code or new semantic receipt is authorized until an existing resolver-side
-issuer can provide the missing context/effect/continuation/host capability and
-co-seal it with this exact S6C product without a second source or Recipe pair.
-The evidence is the current split between `semantic_context.rs`,
-`operation_effect.rs`, `continuation.rs`, and the callable-only adapter in
-`src/mir/compiler/callable_single_loop_operation_effect.rs`.
-
-## Canonical boundary
-
-The future physical owner is a selected adapter under the existing resolved
-lowering / loop physicalizer owner. It may eventually borrow a private view from
-the S6C product and then hand physical IDs to the canonical Builder/CFG/SSA/PHI
-session. It must not become a second semantic issuer.
-
-The proposed façade is intentionally prephysical:
+The accepted product shape is:
 
 ```rust
-struct S6CPhysicalIngressRefV1<'a> {
-    logical_rows: S6CScanWithInitRecipeRowsRefV2<'a>,
-    calls: S6CLogicalCallPairsRefV1<'a>,
-    transfer: LoopJoinLogicalTransferViewV2<'a>,
-    context: S6CPhysicalContextRefV1<'a>,
-    operations: S6COperationEffectRowsRefV1<'a>,
-    continuation: S6CContinuationRefV1<'a>,
+pub(crate) struct VerifiedS6CPrephysicalIngressV2 {
+    output: VerifiedS6CScanWithInitLogicalOutputV1,
+    context: VerifiedLoopSemanticContextV1,
+    seal: S6CPrephysicalIngressSealV2,
 }
 
-with_s6c_physical_ingress<R>(
-    product: &VerifiedS6CScanWithInitLogicalOutputV1,
-    callback: impl for<'a> FnOnce(S6CPhysicalIngressRefV1<'a>) -> R,
-) -> Result<R, S6CPhysicalIngressRejectV1>
+pub(crate) fn issue_s6c_prephysical_ingress_v2(
+    output: VerifiedS6CScanWithInitLogicalOutputV1,
+) -> Result<VerifiedS6CPrephysicalIngressV2, S6CPrephysicalIngressRejectV2>;
 ```
 
-This is a shape sketch only. The exact field types and issuer are accepted only
-after the existing context, operation/effect, continuation, and host/session
-owners are found to co-seal without a new semantic `Verified*` authority.
+`seal` is private transport evidence. It does not own another Recipe, Join
+closure, Completion, or semantic effect ledger. The original output remains in
+the aggregate, so all later views are borrowed from the same non-Clone owner.
 
-The façade must retain the original combined product and lend only private
-borrow views. It must not expose raw `VerifiedLoopRecipeV2`, raw JoinSig, source
-AST, method names, or any physical ID. `LoopJoinLogicalTransferViewV2` remains a
-borrowed logical transfer, not an owned physical CFG.
+The D0 is a T2 BoxShape: it fixes a new ownership boundary without accepting a
+new source shape, Recipe dialect, ABI, backend, or production route. The I0 adds
+exactly one aggregate product, but it remains a caller-zero BoxShape under the
+repository definition of BoxCount/BoxShape.
 
-## Required design checks
+## Exact bounded census
 
-Before accepting a later implementation row, the D0 audit must establish:
+The previous phrase `15 item-keyed operation/effect rows` was incorrect. The
+canonical S6C logical output is:
 
 ```text
-1. one source/Recipe/Join product owner; no Facts/Recipe/Join re-pairing
-2. one existing issuer for owner/frame/scope context
-3. one existing issuer for all 15 item-keyed operation/effect rows
-4. one existing issuer for continuation and exact After = L0/B0/I64
-5. exact Length/Substring source-call parity remains borrowed and role-wise
-6. logical transfer remains branch=1, Return summary=1, Backedge=1
-7. callable Tail -1 remains outside the loop ingress
-8. host/session capability is explicit before Builder or physical IDs
-9. every rejection is typed and occurs before session/physical effects
-10. no `LoopToJoinLowerer` rewalk, name dispatch, Option fallback, or retry
+domains:
+  loops      = 1
+  blocks     = 3
+  bindings   = 1
+  inputs     = 3
+  values     = 15
+  items      = 15
+  carriers   = 1
+  exits      = 1
+
+placements:
+  operations = 13
+  If         = 1  // I8
+  Exit       = 1  // I10
+
+operation-family census:
+  ReadBinding  = 4  // I0, I3, I9, I11
+  ConstI64     = 2  // I4, I12
+  BinaryI64    = 2  // I5, I13
+  CompareI64   = 1  // I2
+  CallSlot     = 2  // I1, I6
+  TextEq       = 1  // I7
+  WriteBinding = 1  // I14
+
+logical transfer:
+  branch        = 1
+  Return summary = 1
+  Backedge      = 1
+  After         = L0/B0/I64
 ```
 
-The common operation/effect product may be reused only if its owner, loop,
-placement, operation set, source anchors, and effect rows can be matched to the
-S6C product by existing sealed relations. S6C logical rows must never be used to
-invent effects, Home, ABI, continuation, or physical demand.
-
-## Acceptance matrix for this D0
+These are four different authorities and must not be merged:
 
 ```text
-accepted:
-  - exact owner/frame/scope and source target parity are named
-  - existing operation/effect and continuation issuers are identified
-  - one private HRTB ingress and typed reject/discard lifecycle are specified
-  - physicalizer owner is named without opening its implementation
+operation-family census:
+  Read 4 / Write 1 / Call 2 / expression operation 6
 
-rejected:
-  - missing/duplicate/swapped/foreign operation or effect row
-  - owner/frame/scope drift
-  - Length/Substring receiver, argument, result, or placement drift
-  - branch/Return summary/Backedge/After drift
-  - callable Tail imported as a loop exit
-  - raw Recipe/JoinSig/AST/name/MIR re-observation
-  - physical ID or Builder/session allocation before all checks
-  - `LoopToJoinLowerer`, `Option`, fallback, retry, or production caller
+resolver BodyEffect census:
+  Call 2 / Write 1
+
+CoreMethod semantic effect:
+  Length PureRead / Substring PureRead
+
+V2 execution census:
+  NonFaulting 11 / FaultBeforeNormalResult 0 / ExternallyBoundOutcome 2
 ```
 
-## Stop line / NoSafeSlice
+The `4/1/2/6` split is a fixed Recipe-family census, not a new semantic effect
+enum. `LoopOperationV2::execution_class_v2()` remains the execution-family
+authority. Facts remain the only source effect authority. CoreMethod contracts
+remain the only Home/ABI/PureRead authority for Length and Substring.
 
-Keep `work_mode = design_stop` if any of these remain true:
+## Source-evidence co-seal
+
+Each of the 13 operation roles must borrow its existing exact source relation.
+The ingress issuer may create a private parity seal; it may not create another
+source ledger or infer roles from item order.
+
+One operation can represent more than one source occurrence. In particular:
 
 ```text
-the canonical operation/effect/continuation issuer cannot be named
-S6C needs a new effect/Home/ABI/Completion meaning
-the retained product must be split or re-paired
-the host/session capability is implicit or synthesized
-physical layout or IDs are required to express the ingress
-the only available path rewalks MIR/AST or uses LoopToJoinLowerer
+I3 body_index_read / V6
+  <- substring argument 0 source site
+  <- SliceEndAdd lhs source site
 ```
 
-The explicit stop token is:
+Those two source sites are distinct. A singular `source_anchor` would lose
+closed source coverage. I0 must preserve the exact role-specific anchor
+multiplicity, either as a borrowed fixed view or a private alias parity seal.
+Missing, duplicate, foreign, or collapsed anchors reject before issuing the
+aggregate.
+
+## Private HRTB boundary
+
+The only read API is a private HRTB façade. It lends narrow projections from the
+retained output and the private seal:
 
 ```text
-NoSafeSlice::MissingS6CPhysicalIngressIssuer
+owner/origin/source-kind/Loop site/frame/scope context
+Subject/Needle/Index input bindings and initializer/carrier relation
+15 logical placements
+13 role-specific source/execution views
+role-wise Length/Substring call views
+If and Loop Exit control view
+V2 branch/Return-summary/Backedge/After view
+exact-two Completion view:
+  Loop Return(index)
+  callable Tail(-1)
+  target function and empty cleanup
 ```
 
-When the issuer/co-seal is closed, a separate `...-PHYSICAL-INGRESS-I0`
-implementation card may be opened. That later row remains Builder-free until
-the ingress product itself is accepted; physical CFG/SSA/PHI and production
-selection require separate design decisions.
+Callable Tail is absent from the Loop item/Exit rows, but remains available as
+a separate Completion subview from the same aggregate. This prevents a later
+physical session from reopening Facts or constructing a second Tail route.
+DraftSeal remains the only eventual MIR Return writer.
 
-## Worker evidence
-
-Three read-only audits agreed on the following:
+Forbidden APIs and fields:
 
 ```text
-LoopToJoinLowerer is a compatibility consumer, not the S6C authority.
-The existing physical-demand family is a candidate reuse target, not yet a
-proven S6C ingress. The safe next step is a prephysical HRTB design stop;
-physical implementation is NoSafeSlice until context/effect/continuation and
-host/session capabilities are co-sealed.
+Clone / into_parts / take_* / raw output getter
+raw Facts / Recipe / JoinSig / Completion getter
+VerifiedLoopOperationEffectProductV1 coercion
+VerifiedLoopContinuationContractV1 reconstruction from L0/B0/I64
+MirBuilder / session / ValueId / BasicBlockId / physical IDs
+selector / name / AST / MIR rewalk
+Option fallback / retry
 ```
 
-No code, fixture, JoinModule, MIR, physical ID, selector, or production caller
-is introduced by this D0.
+`LoopPhysicalServicesV1` remains outside the semantic aggregate. A later
+physical-session owner receives it as an explicit argument only after the
+prephysical product and ReadyEntry are accepted.
+
+## TextEq boundary
+
+S6C already has complete logical TextEq authority:
+
+```text
+ResolvedBinaryExpressionSourceV1::Equal
+S6CBinaryRelationV1::TextEqual
+LoopOperationV2::TextEq(Text, Text) -> Bool
+LoopOperationExecutionClassV2::NonFaulting
+```
+
+There is no named physical TextEq target/emitter authority. `StringBox::equals`,
+the old JoinIR evaluator, generic MIR `CompareOp::Eq`, and backend comparison
+code are consumers or compatibility implementations; none proves the exact
+S6C source owner, Text operand representation, or physical target.
+
+This does not block the Builder-free ingress I0. It does block opening the
+physical session. The next design stop after ingress I0 is therefore
+`S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0`, with
+`NoSafeSlice::MissingS6CTextEqPhysicalOwner` if no neutral owner can be named.
+
+## I0 acceptance
+
+```text
+positive:
+  output moves exactly once into one non-Clone aggregate
+  exact domains and 15 = 13 + If + Exit census
+  all 13 roles have exact source/execution evidence
+  I3 preserves two distinct source anchors
+  source-bound calls are Length then Substring by role, never position alone
+  owner/frame/scope/function/Loop identity is exact
+  branch=1, Return summary=1, Backedge=1, After=L0/B0/I64
+  Loop Return and callable Tail remain distinct exact-two Completion views
+  private HRTB references cannot escape
+
+negative:
+  missing/duplicate/swapped/foreign role or placement
+  If or Exit classified as operation
+  BodyEffect count treated as 13
+  I3 anchor missing, duplicated, or collapsed
+  wrong call receiver/arguments/result/Home/ABI/PureRead
+  TextEq operands/result/source placement drift
+  owner/frame/scope or After drift
+  Tail imported into Loop Exit rows
+  V1/V2 coercion or raw constituent escape
+  host/session or physical ID stored in ingress
+  AST/MIR/name lookup, Option, fallback, retry, production caller
+```
+
+## Minimal remaining DAG
+
+```text
+PHYSICAL-INGRESS-D0                  // this accepted BoxShape
+  -> PHYSICAL-INGRESS-I0             // one caller-zero aggregate
+  -> S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0
+  -> S6C-PHYSICAL-SESSION-D0
+       names the production ReadyEntry/prelude issuer,
+       explicit LoopPhysicalServicesV1 handoff,
+       topology/cursor, and exact-two Completion/DraftSeal terminal
+  -> SESSION-E0 shell/prelude/topology
+  -> SESSION-E1 exact 15-item cursor/control/backedge
+  -> SESSION-E2 After/Tail/profile close/exact-two DraftSeal
+  -> parity/canary
+  -> bounded selector/caller cutover
+  -> latest-HEAD integration
+  -> legacy retirement
+```
+
+ReadyEntry, host, topology, operations, and Tail do not get separate competing
+owner cards. They are bounded slices inside one future physical session.
+
+## D0 close receipt
+
+```text
+accepted = corrected one-input prephysical aggregate
+source shape delta = 0
+Recipe/Join schema delta = 0
+semantic effect delta = 0
+Builder/MIR/physical ID delta = 0
+production caller delta = 0
+fallback/retry delta = 0
+next executable row = PHYSICAL-INGRESS-I0
+```
