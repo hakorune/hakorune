@@ -338,6 +338,72 @@ fn actual_artifacts_issue_one_receipt_before_consuming_commit() {
 }
 
 #[test]
+fn bundle_prepare_co_seals_program_and_receipt_before_publication() {
+    let root = root("bundle_prepare");
+    let (json, object, archive) = build_fixture(&root, false, true);
+    let final_bundle = root.join("published-bundle");
+    let prepared = StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+        &json,
+        &object,
+        &final_bundle,
+        &archive,
+        system_linker,
+    )
+    .expect("prepare candidate bundle");
+
+    assert!(!final_bundle.exists());
+    assert!(prepared.candidate_bundle_path().is_dir());
+    assert!(prepared.candidate_program_path().is_file());
+    assert!(prepared.receipt_path().is_file());
+    assert_eq!(
+        prepared.receipt().final_path(),
+        prepared.final_bundle_path().join("program").as_path()
+    );
+    let receipt: serde_json::Value = serde_json::from_slice(
+        &fs::read(prepared.receipt_path()).expect("candidate receipt bytes"),
+    )
+    .expect("candidate receipt JSON");
+    assert_eq!(
+        receipt["published_path"],
+        final_bundle.join("program").display().to_string()
+    );
+    assert_eq!(receipt["status"], "published");
+
+    let candidate_bundle = prepared.candidate_bundle_path().to_path_buf();
+    drop(prepared);
+    assert!(!candidate_bundle.exists());
+    assert!(!final_bundle.exists());
+    fs::remove_dir_all(root).expect("remove fixture");
+}
+
+#[test]
+fn bundle_prepare_link_failure_removes_invisible_candidate() {
+    let root = root("bundle_link_failure");
+    let (json, object, archive) = build_fixture(&root, false, true);
+    let final_bundle = root.join("published-bundle");
+    let result = StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+        &json,
+        &object,
+        &final_bundle,
+        &archive,
+        |_, candidate, _| {
+            fs::write(candidate, b"partial").expect("partial candidate");
+            Err(StaticArtifactRejectV1::LinkFailed)
+        },
+    );
+    assert!(matches!(result, Err(StaticArtifactRejectV1::LinkFailed)));
+    assert!(!final_bundle.exists());
+    assert!(fs::read_dir(&root)
+        .expect("fixture entries")
+        .all(|entry| !entry
+            .expect("entry")
+            .file_name()
+            .to_string_lossy()
+            .contains("dynamic-v2-bundle")));
+    fs::remove_dir_all(root).expect("remove fixture");
+}
+
+#[test]
 fn rename_failure_keeps_candidate_and_final_path_unpublished() {
     let root = root("rename_failure");
     let (json, object, archive) = build_fixture(&root, false, true);

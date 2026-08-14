@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; next fast child is B3 artifact bundle publication
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0 is closed; next fast child is B3 directory commit/root consume
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -532,9 +532,9 @@ window with one visibility transition.
 ### B3 implementation rows
 
 1. `...-BUNDLE-PREPARE-I0`
-   - prepare executable and receipt bytes inside one candidate directory;
-   - all child fallible work completes before publication;
-   - attempt identity prevents stale/PID-only receipt reuse.
+   - **closed:** prepare executable and receipt bytes inside one invisible,
+     attempt-unique candidate directory; all child fallible work completes
+     before publication and stale/PID-only reuse is not accepted.
 2. `...-BUNDLE-COMMIT-I0`
    - publish by exactly one same-filesystem directory rename;
    - collision/rename failure leaves no final bundle and preserves prior

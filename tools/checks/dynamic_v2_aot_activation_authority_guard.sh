@@ -717,7 +717,7 @@ guard_expect_fixed_in_file "$TAG" 'observe_descriptor(object_path)' "$ARTIFACT_P
   "static transaction must observe the real object descriptor"
 guard_expect_fixed_in_file "$TAG" 'require_archive_call_symbols(runtime_archive' "$ARTIFACT_PUBLICATION_RUST" \
   "static transaction must observe exact archive symbols"
-guard_expect_fixed_in_file "$TAG" 'observe_descriptor(&candidate_path)' "$ARTIFACT_PUBLICATION_RUST" \
+guard_expect_fixed_in_file "$TAG" 'observe_descriptor(candidate_path)' "$ARTIFACT_PUBLICATION_RUST" \
   "static transaction must observe the linked candidate descriptor"
 guard_expect_fixed_in_file "$TAG" 'object_path: PathBuf' "$ARTIFACT_PUBLICATION_RUST" \
   "static receipt must retain exact object identity"
@@ -733,6 +733,14 @@ guard_expect_fixed_in_file "$TAG" 'descriptor_symbol.section_index() != Some(sec
   "descriptor symbol must belong to the exact descriptor section"
 guard_expect_fixed_in_file "$TAG" 'boundary_generated_object_survives_exact_link_and_receipt_observation' "$ARTIFACT_PUBLICATION_TESTS" \
   "Boundary-generated object must have an actual object-to-executable receipt test"
+guard_expect_fixed_in_file "$TAG" 'prepare_bundle_with_linker' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 must prepare the program and receipt inside one candidate bundle owner"
+guard_expect_fixed_in_file "$TAG" 'candidate_bundle_path_for' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 candidate bundles must use attempt-unique directory paths"
+guard_expect_fixed_in_file "$TAG" 'receipt_json_bytes' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 receipt bytes must be prepared before publication"
+guard_expect_fixed_in_file "$TAG" 'fs::write(&receipt_path, receipt_bytes)' "$ARTIFACT_PUBLICATION_RUST" \
+  "B3 candidate receipt must be written inside the invisible bundle"
 if rg -n -U '#\[derive\([^]]*Clone[^]]*\)\]\npub\(super\) struct (StaticAotArtifact|StaticLinked|PreparedStatic)' \
   "$ARTIFACT_DESCRIPTOR_RUST" "$ARTIFACT_PUBLICATION_RUST" || \
   rg -n 'impl[[:space:]]+Clone|into_parts|dlsym|RuntimeExecutablePlan|fallback|retry|selector|lookup_core_method' \
