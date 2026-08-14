@@ -410,10 +410,13 @@ rejects before any target receipt. This D0 only fixes the issuer contract and
 negative matrix; it does not add the issuer or a `Verified*`/`Prepared*`
 product.
 
-### D0 exit gate before `LOOP-CORE-METHOD-INSTANCE-TARGET-I0`
+### D0 exit / I0 acceptance boundary
 
-The next implementation row is not selected yet. It may open only after one
-issuer implementation and its evidence satisfy all of these conditions:
+The design decision is now bounded, but the current pointer remains on this
+D0 until `CURRENT_STATE.toml` explicitly selects
+`LOOP-CORE-METHOD-INSTANCE-TARGET-I0`. The conditions below are the I0
+implementation's completion gate, not a hidden prerequisite that would make
+the issuer impossible to start:
 
 ```text
 source authority = CoreMethodContractBox/generated row under the same
@@ -429,10 +432,11 @@ non-claims = no source-bound consumer, Facts/Recipe producer, Dynamic import,
   Builder/MIR/Boundary route, production switch, fallback, or retry.
 ```
 
-Until this gate is observed, `CURRENT_STATE.toml.work_mode` remains
-`design_stop`, S6C remains `NoSafeSlice`, and no semantic `Verified*` or
-`Prepared*` product may be issued. The source-bound call relation is a later
-bounded row and must not be folded into this issuer gate.
+Until the pointer is explicitly advanced, `CURRENT_STATE.toml.work_mode`
+remains `design_stop`, S6C remains `NoSafeSlice`, and no semantic `Verified*`
+or `Prepared*` product may be issued. Once I0 is selected, these conditions
+are its closeout acceptance; the source-bound call relation is a later bounded
+row and must not be folded into this issuer gate.
 
 Mode gate: this owner map is design-only. `work_mode` remains `design_stop`
 until the manifest-backed CoreMethod Home issuer exists and its positive /
