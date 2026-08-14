@@ -20,6 +20,8 @@ mod resolved_source_adapter;
 // Caller-zero until the immediately following complete S6C Facts row.
 #[allow(dead_code)]
 mod s6c_exit_tail;
+#[allow(dead_code)]
+mod s6c_scan_with_init;
 mod selected_demand;
 mod types;
 mod variable_accum_break;
@@ -91,6 +93,11 @@ pub(crate) use nested_predicate_source::{
 pub(crate) use s6c_exit_tail::{
     issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRefV1,
     S6CExitTailSourceCoSealRejectV1, VerifiedS6CExitTailSourceCoSealV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init::{
+    issue_s6c_scan_with_init_facts_v1, S6CScanWithInitFactsRefV1, S6CScanWithInitFactsRejectV1,
+    VerifiedS6CScanWithInitFactsV1,
 };
 #[allow(unused_imports)]
 pub(crate) use selected_demand::{

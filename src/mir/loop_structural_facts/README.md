@@ -75,13 +75,13 @@ TextEq-owned If-then `return index` to the selected Loop, and relates the root
 body tail only through the resolver's exact `Minus(Integer(1))` source rows.
 It lends one HRTB view and owns no Recipe key or physical identity.
 
-The next design boundary is the sole `VerifiedS6CScanWithInitFactsV1` issuer.
-Facts must consume these complete source products, own semantic roles,
-`BindingRef`s, exact sites, and coverage, while the sole producer later mints
-Recipe-local keys. No scan union, AST/name/order inference, legacy scan
-builder, `Handle`/`Any`/`Opaque` fallback, Builder/MIR, or production selector
-is open. `SplitScan`, `CharMap`, `ArrayJoin`, and `BoolPredicateScan` remain
-separate source-family rows.
+`VerifiedS6CScanWithInitFactsV1` now consumes the co-sealed source products and
+closes the exact statement/expression/effect/relation surface from the same
+resolver body-shape seal. Its HRTB view carries no AST, source-order guess,
+Recipe key, MIR ID, physical ID, fallback, or selector. Compound assignment
+and extra source statements are rejected before Facts publication. The next
+boundary is the sole Recipe producer; `SplitScan`, `CharMap`, `ArrayJoin`, and
+`BoolPredicateScan` remain separate source-family rows.
 
 ## Generic G0 S0A
 

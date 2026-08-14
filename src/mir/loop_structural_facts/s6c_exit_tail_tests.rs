@@ -14,7 +14,8 @@ use crate::mir::source_call_target::issue_source_bound_s6c_call_relation_v1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{
-    issue_s6c_exit_tail_source_coseal_v1, S6CExitRoleV1, S6CExitTailSourceCoSealRejectV1,
+    issue_s6c_exit_tail_source_coseal_v1, issue_s6c_scan_with_init_facts_v1, S6CExitRoleV1,
+    S6CExitTailSourceCoSealRejectV1, S6CScanWithInitFactsRejectV1,
     VerifiedS6CExitTailSourceCoSealV1,
 };
 
@@ -170,4 +171,28 @@ fn foreign_ledger_rejects_before_exit_tail_product() {
         .unwrap()
         .unwrap_err();
     assert_eq!(rejected, S6CExitTailSourceCoSealRejectV1::ForeignOwner);
+}
+
+#[test]
+fn complete_scan_with_init_facts_seal_the_exact_source_surface() {
+    let coseal = issue(FIXTURE, 207).expect("exact S6C Exit/Tail source co-seal");
+    let facts =
+        issue_s6c_scan_with_init_facts_v1(coseal).expect("exact S6C source closure and Facts seal");
+    facts.with_facts(|view| {
+        assert_eq!(view.source().completion().explicit_sites().len(), 2);
+        assert_ne!(view.source().tail_value(), view.source().tail_operand());
+    });
+}
+
+#[test]
+fn extra_body_statement_rejects_source_closure() {
+    let source = FIXTURE.replace(
+        "            i = i + 1",
+        "            42\n            i = i + 1",
+    );
+    let coseal = issue(&source, 208).expect("existing source relations remain valid");
+    assert_eq!(
+        issue_s6c_scan_with_init_facts_v1(coseal).unwrap_err(),
+        S6CScanWithInitFactsRejectV1::StatementCoverage
+    );
 }

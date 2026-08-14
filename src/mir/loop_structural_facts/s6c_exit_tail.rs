@@ -52,6 +52,7 @@ pub(crate) struct S6CExitTailSourceCoSealRefV1<'a> {
     loop_return_value: &'a SourceExprSiteV1,
     tail_site: &'a SourceStmtSiteV1,
     tail_value: &'a SourceExprSiteV1,
+    tail_operand: &'a SourceExprSiteV1,
 }
 
 impl S6CExitTailSourceCoSealRefV1<'_> {
@@ -82,6 +83,10 @@ impl S6CExitTailSourceCoSealRefV1<'_> {
     pub(crate) const fn tail_value(&self) -> &SourceExprSiteV1 {
         self.tail_value
     }
+
+    pub(crate) const fn tail_operand(&self) -> &SourceExprSiteV1 {
+        self.tail_operand
+    }
 }
 
 /// Non-Clone source product consumed by the future complete S6C Facts owner.
@@ -94,6 +99,7 @@ pub(crate) struct VerifiedS6CExitTailSourceCoSealV1 {
     loop_return_value: SourceExprSiteV1,
     tail_site: SourceStmtSiteV1,
     tail_value: SourceExprSiteV1,
+    tail_operand: SourceExprSiteV1,
 }
 
 impl VerifiedS6CExitTailSourceCoSealV1 {
@@ -110,6 +116,7 @@ impl VerifiedS6CExitTailSourceCoSealV1 {
                 loop_return_value: &self.loop_return_value,
                 tail_site: &self.tail_site,
                 tail_value: &self.tail_value,
+                tail_operand: &self.tail_operand,
             })
         })
     }
@@ -196,26 +203,27 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
             .child(SourcePathSegmentV1::Value)
             .expr();
         let is_index = ledger.variable_ref(&value) == Some(ResolvedLexicalRefV1::Local(index));
-        let is_minus_one = ledger.unary_source(&value).is_some_and(|unary| {
-            unary.operator() == ResolvedUnaryOperatorV1::Minus
+        let tail_operand = ledger.unary_source(&value).and_then(|unary| {
+            (unary.operator() == ResolvedUnaryOperatorV1::Minus
                 && ledger.literal_source(unary.operand())
-                    == Some(&ResolvedLiteralSourceV1::Integer(1))
+                    == Some(&ResolvedLiteralSourceV1::Integer(1)))
+            .then(|| unary.operand().clone())
         });
-        match (is_index, is_minus_one) {
-            (true, false) if exit.source_region() == then_region && loop_return.is_none() => {
+        match (is_index, tail_operand) {
+            (true, None) if exit.source_region() == then_region && loop_return.is_none() => {
                 loop_return = Some((site.clone(), value));
             }
-            (false, true)
+            (false, Some(tail_operand))
                 if exit.source_region() == ledger.root_body_region() && tail.is_none() =>
             {
-                tail = Some((site.clone(), value));
+                tail = Some((site.clone(), value, tail_operand));
             }
-            (true, false) => {
+            (true, None) => {
                 return Err(S6CExitTailSourceCoSealRejectV1::WrongExitRegion(
                     S6CExitRoleV1::LoopReturn,
                 ))
             }
-            (false, true) => {
+            (false, Some(_)) => {
                 return Err(S6CExitTailSourceCoSealRejectV1::WrongExitRegion(
                     S6CExitRoleV1::CallableTail,
                 ))
@@ -234,9 +242,9 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
     let (loop_return_site, loop_return_value) = loop_return.ok_or(
         S6CExitTailSourceCoSealRejectV1::WrongExitShape(S6CExitRoleV1::LoopReturn),
     )?;
-    let (tail_site, tail_value) = tail.ok_or(S6CExitTailSourceCoSealRejectV1::WrongExitShape(
-        S6CExitRoleV1::CallableTail,
-    ))?;
+    let (tail_site, tail_value, tail_operand) = tail.ok_or(
+        S6CExitTailSourceCoSealRejectV1::WrongExitShape(S6CExitRoleV1::CallableTail),
+    )?;
 
     Ok(VerifiedS6CExitTailSourceCoSealV1 {
         calls,
@@ -246,6 +254,7 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
         loop_return_value,
         tail_site,
         tail_value,
+        tail_operand,
     })
 }
 

@@ -175,3 +175,13 @@ fn swapped_subject_receiver_rejects_exact_call_shape() {
         S6CTypedInputRelationRejectV1::MethodCallShape("substring")
     );
 }
+
+#[test]
+fn compound_index_update_rejects_even_when_paths_match() {
+    let source = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako")
+        .replace("i = i + 1", "i += i + 1");
+    assert_eq!(
+        issue_first(&source).unwrap_err(),
+        S6CTypedInputRelationRejectV1::AssignmentShape
+    );
+}
