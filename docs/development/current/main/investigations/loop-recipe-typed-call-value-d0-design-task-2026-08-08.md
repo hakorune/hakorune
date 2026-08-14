@@ -358,6 +358,17 @@ issuer checks one owner/frame brand, one receiver site, exactly `arity`
 ordered argument sites, and one result site when the target has a result.
 Foreign, duplicate, or swapped sites reject before Facts/Recipe.
 
+The existing generic `HomeDemandV1` / `HomeResultRelationV1` variants are
+mechanisms, not a semantic fit for this target. The future manifest-backed
+issuer must expose dedicated typed relations (for example, a `StringBox`
+receiver demand, typed `I64` parameters, and `I64`/`Text` result relations)
+under the same manifest and target brand. Reusing `Trivial`, `FromReceiver`,
+or `FromParameter` as an untyped alias would recreate the I64/Unit authority
+collision this D0 is meant to prevent. `StringLen/0` and `StringSubstring/2`
+must therefore be co-sealed with their exact receiver, parameter, result,
+effect, and Home relation shape; foreign, missing, duplicate, or inferred
+relations reject before any Facts/Recipe product.
+
 ### LOOP-CORE-METHOD-MANIFEST-HOME-ISSUER-D0
 
 ```text
