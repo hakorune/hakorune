@@ -1,5 +1,5 @@
 ---
-Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, and B4 feature ownership recut are closed; the next row is MAIN-INTEGRATION-EVIDENCE-R0; guard consolidation is one queued organization task with zero new top-level guards
+Status: Accepted; task map normalized into this single card; DYN-PROD-BASELINE-R0, LEXICAL-SCOPE-SAFE-TRANSACTION-R0, DYN-ADMISSION-MODE-FENCE-R0, SELECTED-DYNAMIC-LINEAR-SLOT-FENCE-R0, SELECTED-DYNAMIC-POSTSEAL-IMMUTABILITY-D0, SELECTED-DYNAMIC-POSTSEAL-MUTATION-FENCE-R0, SELECTED-DYNAMIC-STRICT-VERIFY-GATE-R0, SELECTED-DYNAMIC-RUNNER-DOMINANCE-R0, SELECTED-DYNAMIC-RUNNER-REACHABILITY-R0, and DYN-BOUNDARY-SELECTED-HELPER-IDENTITY-D0 end-to-end link/receipt/launch are closed; BUNDLE-PREPARE-I0, BUNDLE-COMMIT-I0, B3 path-bound root-fence cleanup, B4 executor split, B4 feature ownership recut, and MAIN-INTEGRATION-EVIDENCE-R0 evidence closeout are closed with named parent-baseline reds; the next row is GUARD-SURFACE-CONSOLIDATION-D0, with zero new top-level guards
 Date: 2026-08-14
 Parent: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Resume-after: docs/development/current/main/investigations/llvmlite-keep0-ret0-inventory-task-2026-08-14.md
@@ -25,7 +25,7 @@ Decision: close the audited admission/safety/post-seal/Boundary gaps before resu
 Source authority + canonical issuer: resolved declaration mode, FunctionOwned lexical scope, linear metadata slots, sealed canonical MIR plus strict final verifier, exact launch/helper identities, StaticAotArtifactPublicationTxnV1, and Cargo/DriverKind feature ownership.
 Non-authority: raw AST mode/header re-observation, a raw-pointer lifetime comment, Option::None, mutation_count=0, ambient verifier env, entry-name fallback, receipt JSON without physical co-check, llvm-harness naming, or llvmlite output.
 Fail-fast boundary: unsupported Dynamic mode, scope-close failure, scrubbed/partial metadata, any selected post-seal mutation or verifier weakening, launch/helper identity drift, partial artifact visibility, or implicit Boundary-to-compat reachability rejects before external commit, fallback, or launch.
-Smallest next slice: MAIN-INTEGRATION-EVIDENCE-R0 proves the pushed candidate in a clean detached worktree with the selected focused gates, stable guards, and no unrelated dirty compiler files.
+Smallest next slice: GUARD-SURFACE-CONSOLIDATION-D0 inventories the existing guard surface and consolidates only stable public entries; it adds no new top-level guard and changes no compiler behavior.
 Non-claims: no semantic receipt, accepted source shape, Recipe/MIR change, new backend, fallback/retry, llvmlite archive move, external publication, deletion, or main integration.
 ```
 
@@ -735,6 +735,35 @@ replacement for a behavior test is allowed.
 the exact integration SHA, history policy, focused W6/G0/G1/G2 tests, stable
 guards, `cargo check --lib`, and diff check. The branch is not silently
 squashed because existing receipts refer to intermediate commits.
+
+Closeout evidence (2026-08-14, clean detached worktree at
+`145921e7d5097d1c10b8fe376fffcf1b8d8d07d9`):
+
+```text
+status / history policy                         = clean / no squash
+cargo check --lib                                = green
+normal_callable_semantic_package                = 18 passed
+dynamic_full_body_recipe                        = 33 passed
+selected_dynamic_physical_emitter               = 5 passed
+completion                                      = 107 passed, 1 parent-baseline red
+selected W6/AOT/physical-input/callslot/VM/precutover guards = green
+llvm census / route identity guards              = green
+dynamic_v2_aot_activation_authority_guard        = green (archive absent is informational)
+mirbuilder_inplace_replacement_guard             = parent-baseline red: direct Hakorune fixture absent
+git diff --check                                  = green
+selected production                             = new 0 / old 1; live cutover remains closed
+```
+
+The completion failure is the already recorded
+`canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route`
+(`ReturnValueTypeMissing(ValueId(12))`), reproduced at both this SHA and
+`1c57a95d61`.  The in-place guard red is likewise reproduced at both SHAs and
+comes from the unavailable generic legacy executable fixture, not the selected
+Boundary route.  These are named baseline/environment debt; they are not
+silently converted to green evidence.  The executable-bit omission in the W6
+smoke was corrected in `145921e7d5`, after which the AOT authority guard passed.
+The integration row is therefore closed as evidence classification, not as a
+claim that the baseline debt or live production cutover is complete.
 
 Only after every P0 row in the ordered DAG and integration evidence may
 `LLVMLITE-ORACLE-COVERAGE-D0` resume. Its acceptance is refined to:
