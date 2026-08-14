@@ -216,16 +216,21 @@ The exact enum/wire names and normalized item/value counts are part of the
 typed-call D0 acceptance. They must not be guessed in the S6C implementation
 card. If the contract cannot be made neutral and reusable, keep S6C parked.
 
-## Accepted source-bound target boundary
+## Required CoreMethod target + source-bound relation
 
 The current `ResolvedCallableRefV1` is free-static only. It is not sufficient
 for `subject.length()` or `subject.substring(...)`. Before a scan observer can
-be implemented, the resolver must issue one opaque instance-method target
-capability that co-seals target identity, receiver/parameter/result types,
-Home relations, effects, suspension/control, ABI profile, and source site.
+be implemented, one neutral generated CoreMethod target capability must
+co-seal target identity, receiver/parameter/result types, Home relations,
+effects, suspension/control, ABI profile, and the CoreMethod manifest brand.
+The exact source expression is a separate source-bound relation that borrows
+that target and adds owner/frame, receiver expression, ordered arguments, and
+result site. No layer may recover either product from a method or Box name.
+
 Facts may retain the semantic role, `BindingRef`, and exact site; the producer
-may mint the local call-slot and value keys; no layer may recover the target
-from a method or Box name.
+may mint the local call-slot and value keys. The reusable target capability
+does not own a source site, Recipe key, `ValueId`, `BasicBlockId`, or physical
+layout.
 
 Home is not a `LoopValueClass`. Unknown Home relation, result class, effect, or
 target identity is a pre-Recipe failure, not an opaque value fallback.
@@ -295,18 +300,20 @@ it is not a fifth source disposition.
 ## Ordered successor rows
 
 ```text
-LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0
-  -> LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0
-  -> LOOP-RESOLVER-INSTANCE-CALL-TARGET-I0
-  -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0
-  -> S6C ScanWithInit Facts/producer
-  -> physical canary
-  -> production switch and callers-zero retirement
+S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
+  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       T2 dependency
+       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+            -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                 -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                      -> S6C parity / canary / later production rows
 ```
 
-The first row is BoxShape-only and may use a short refactor series. Schema,
-instance-target, and ScanWithInit are separate BoxCount rows. Every landed
-typed schema/observer/producer row updates the reference contract and affected
+The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
+parked row for user-declared instance methods; it must not be relabeled as the
+StringBox/CoreMethod issuer. `LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0` and the
+already-closed `LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0` stay historical
+predecessors, not the current restart pointer. Every landed typed
+schema/observer/producer row updates the reference contract and affected
 module READMEs in the same commit; legacy scan facts/builders are deleted only
 after production parity and callers-zero evidence.
 
