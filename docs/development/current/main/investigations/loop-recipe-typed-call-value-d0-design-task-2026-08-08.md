@@ -1,7 +1,7 @@
 ---
-Status: Resolver callable-contract I0 landed; current pointer returned to S6C T2 design stop
+Status: Resolver callable-contract I0 landed; current pointer is S6C binary/input D0 design stop
 Date: 2026-08-14
-Decision: co-seal existing Resolver MethodCall source rows, explicit LoopBody frame membership, and the existing manifest target in one non-Clone I0 product; keep source-bound relation/S6C closed until its own D0
+Decision: co-seal existing Resolver MethodCall source rows, explicit LoopBody frame membership, and the existing manifest target in one non-Clone I0 product; design the missing AST-free binary/operator and typed-input source boundary before opening the source-bound relation/S6C producer
 Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activation
 ---
 
@@ -10,16 +10,16 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Current Capsule
 
 - **Current decision:** the V2 typed schema, neutral operation split, and
-  Resolver callable-contract I0 are landed. The next frontier is the existing
-  S6C T2 design stop; source-bound relation and complete Facts/Recipe remain
-  unopened.
+  Resolver callable-contract I0 are landed. The next frontier is
+  `LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0`; source-bound relation and
+  complete Facts/Recipe remain unopened.
 - **Current implementation status:** Loop rows 1--10, M8 S6A/S6B, the
   CoreMethod/Home target issuer, and Resolver callable-contract I0 are closed
   with focused positive/negative evidence. No forward `ScanWithInit`
   Facts/producer or production physical selector is active.
-- **Next ordered task:** `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C` — reopen only its T2
-  design stop and prove a complete resolver/CoreMethod source-to-Facts-to-
-  Recipe producer. Do not reuse selected-Dynamic relations.
+- **Next ordered task:** `LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0` — design
+  the operator-bearing binary source row and typed subject/needle/index input
+  relation. Do not reuse selected-Dynamic relations or issue Facts/Recipe.
 - **Production stop line:** no scan selector, physical route, fallback, or
   production caller is opened by this design row.
 - **Retirement finish line:** after a real S6C implementation and parity,
@@ -29,8 +29,8 @@ Scope: M8 LoopV0 forward ScanWithInit source/Facts/Recipe; no physical activatio
 ## Resumption brief
 
 ```text
-Decision: continue Loop at `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`; do not replay
-closed rows 1--10 or select production row 11 early.
+Decision: continue Loop at `LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0`; do
+not replay closed rows 1--10 or select production row 11 early.
 Source authority + canonical issuer: resolver declaration/catalog and
 `VerifiedResolvedMethodCallSourceV1`/callable source ledger for exact owner,
 site, receiver, ordered args, result, and LoopBody frame; the new I0 issuer
@@ -42,9 +42,10 @@ IDs, physical order, and task-map history.
 Fail-fast boundary: missing Text/Home contract, foreign/mixed owner or frame,
 missing/duplicate/swapped source relation, or unknown effect/suspension/control
 rejects before the I0 product is issued.
-Smallest next slice: T2-design the complete S6C source/frame/target/input/
-effect/control contract and one Facts-to-Recipe producer; leave implementation
-closed until every authority and fail-fast terminal is named.
+Smallest next slice: T2-design `ResolvedBinaryExpressionSourceV1` and the
+resolver-owned subject/needle/index typed-input relation, then co-seal their
+coverage with the landed length/substring callable contract. Leave
+implementation and Facts/Recipe issuance closed until every issuer is named.
 Non-claims: no SplitScan/CharMap/ArrayJoin/BoolPredicateScan, physical canary, production selector, fallback/retry, legacy deletion, Dynamic receipt reuse, or new backend.
 ```
 
@@ -98,8 +99,8 @@ src/mir/resolved_semantics/body_shape.rs
   and arity, but intentionally no target/Home/effect policy.
 src/mir/resolved_semantics/callable_source_ledger.rs
   CallableSemanticSourceLedgerView provides method-call rows and resolver
-  Loop membership/frame products; a call-site-to-loop-frame bridge is not yet
-  a co-sealed callable contract.
+  Loop membership/frame products; the landed Resolver callable-contract I0
+  now co-seals the call-site-to-loop-frame bridge with the target capability.
 ```
 
 The ordered task DAG is now explicit and bounded:
@@ -108,13 +109,14 @@ The ordered task DAG is now explicit and bounded:
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
   -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
        -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CLOSED (bounded manifest evidence)
-       -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CLOSED (accepted design)
-            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  CLOSED bounded bridge
-                 -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  T2
-                      -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
-                           -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
-                                -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
-                                     -> S6C parity / canary / later production rows
+            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0  CLOSED (accepted design)
+                 -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0  CLOSED bounded bridge
+                      -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0  T2
+                           -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0  T2
+                                -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
+                                     -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                                          -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                                               -> S6C parity / canary / later production rows
 ```
 
 ### LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-D0 (accepted)
@@ -206,6 +208,57 @@ D0 evidence is retained as the I0 review gate: any implementation that still
 needs a method-name lookup, MIR-derived Text/Home inference, or an unowned
 frame tuple must fail closed and return the pointer to the D0 boundary.
 
+### LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0 (CURRENT DESIGN STOP)
+
+```text
+Decision: keep S6C at NoSafeSlice until Resolver owns an operator-bearing
+binary source row and a typed subject/needle/index input relation; co-seal
+those with the landed length/substring callable contract before any Facts or
+Recipe producer is opened.
+Source authority + canonical issuer: the existing resolver source inventory,
+binding/declaration ledger, and the landed callable-contract issuer are
+reusable primitives; the missing issuer must preserve binary operator/result
+site and Text/I64 input class without rereading AST or MIR.
+Non-authority: BodyExpressionShapeV1's `Other` binary kind, syntax-facts AST
+walks, LoopRecipeV2's structural TextEq/CallSlot wire, MIR/ResultKind bits,
+selected-Dynamic substring/indexOf receipts, selector/name lookup, or guessed
+value classes/effects.
+Fail-fast boundary: missing/foreign/duplicate/swapped owner, operator, result
+site, operands, binding/initializer, Text/I64 class, LoopBody frame, effect,
+control, or return/tail coverage rejects before source-bound relation, Facts,
+Recipe key, Builder/MIR, or production effect.
+Smallest next slice: design `ResolvedBinaryExpressionSourceV1` for TextEq,
+Less, and Add plus one resolver-owned typed input/initializer relation for
+subject:Text, needle:Text, and initialized index:I64; define exact cardinality
+and the later source-bound consumer without implementing it here.
+Non-claims: no S6C Facts/Recipe, Recipe key, source-bound receipt, physical
+lowering, production selector, fallback/retry, or legacy retirement.
+```
+
+The current audit proves only the following partial bridge:
+
+```text
+length/0 + substring/2
+  -> Resolver MethodCall source row
+  -> LoopBody frame containment
+  -> StringBox/Text CoreMethod target
+```
+
+It does not prove `TextEq(Text, Text) -> Bool`, `i < length`, `i + 1`,
+`i = i + 1`, or `subject/needle/index` typed ownership. Existing binding rows
+carry owner/origin but no value class, and existing binary source rows erase
+the operator/result relation. Therefore the next implementation cannot be a
+Facts observer or Recipe producer. It must first close this D0 or remain
+`NoSafeSlice`.
+
+Required negative matrix for the D0: foreign or mixed owner/frame, missing or
+duplicate input binding, swapped subject/needle/index, non-Text receiver or
+needle, non-I64 index, `==` with a non-Text operand, non-Bool comparison result,
+wrong Less/Add operand or write target, call/operator outside the selected
+LoopBody, extra unsupported effect/control, and `return -1` incorrectly
+absorbed into Loop Facts. No AST/name/MIR inference or selected-Dynamic receipt
+reuse may satisfy any of these rows.
+
 ### Resolver contract D0 witness and I0 boundary
 
 The D0 must close one exact resolver-side witness before any code-facing
@@ -255,10 +308,10 @@ closed.
 
 The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
 parked row for user-declared instance methods. It must not be relabeled as the
-StringBox/CoreMethod issuer. The closed manifest-target evidence is not yet a
-Resolver callable contract: the future contract row must not infer `Text`
-Home from `MirType` or `CoreMethodResultKind`, and must not pair a target by
-Box/method name after the generated row is sealed. Its exact co-seal must
+StringBox/CoreMethod issuer. Before the landed I0, the manifest-target
+evidence alone was not a Resolver callable contract; the current I0 still
+must not infer `Text` Home from `MirType` or `CoreMethodResultKind`, or pair a
+target by Box/method name after the generated row is sealed. Its exact co-seal must
 include:
 
 ```text
@@ -462,11 +515,14 @@ it is not a fifth source disposition.
 
 ```text
 S6C-AUTHORITY-CENSUS-R0                         CLOSED (read-only)
-  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       T2 dependency
-       -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-I0  T2
-            -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
-                 -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
-                      -> S6C parity / canary / later production rows
+  -> LOOP-CORE-METHOD-INSTANCE-TARGET-D0       CLOSED (accepted design)
+       -> LOOP-CORE-METHOD-INSTANCE-TARGET-I0  CLOSED (bounded evidence)
+            -> LOOP-RESOLVER-CANONICAL-CALLABLE-CONTRACT-I0 CLOSED
+                 -> LOOP-S6C-RESOLVER-BINARY-AND-TYPED-INPUT-D0 T2
+                      -> LOOP-RECIPE-SOURCE-BOUND-CALL-RELATION-D0/I0 T2
+                           -> LOOP-RECIPE-TYPED-INPUT-RELATION-D0/I0 T2
+                                -> JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 T2
+                                     -> S6C parity / canary / later production rows
 ```
 
 The generic `LOOP-RESOLVER-INSTANCE-CALL-TARGET-D0/I0` remains a separate
