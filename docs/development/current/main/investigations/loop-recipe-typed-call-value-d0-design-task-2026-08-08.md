@@ -349,6 +349,17 @@ issuer checks one owner/frame brand, one receiver site, exactly `arity`
 ordered argument sites, and one result site when the target has a result.
 Foreign, duplicate, or swapped sites reject before Facts/Recipe.
 
+The generated `StringSubstring` row currently advertises the union arity
+`[1, 2]`. The target issuer must specialize it by operation and exact arity;
+the S6C target identity is
+`(manifest brand, StringBox, StringSubstring, arity = 2)`. Its sealed contract
+is `StringBox -> (I64, I64) -> Text/StringValue`, `PureRead`,
+non-suspending/non-control, with the manifest-derived ABI/profile. The union
+row, arity 1, `StringIndexOf`, aliases, or a runtime-owner mismatch never
+crosses the target boundary. The source relation then co-seals the subject
+receiver and ordered `[index, index + 1]` argument sites as one-to-two-to-one
+receiver/args/result cardinality.
+
 ## Stop
 
 Do not implement S6C if the proposed call/value contract still requires a
