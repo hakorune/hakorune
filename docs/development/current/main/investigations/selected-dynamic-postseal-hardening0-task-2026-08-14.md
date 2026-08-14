@@ -788,6 +788,10 @@ The first executable closeout candidate also fails on a required child guard
 whose mode is `0644`; this confirms that wrapper/implementation mode alone is
 not a complete migration proof.  The child dependency closure must be named
 before any mode normalization, and the current family stays retained.
+The one closeout row whose wrapper/implementation/proof runner are already
+executable (`hako-alloc-id-brand-first-pilot-closeout`) instead stops on its
+semantic next-row selection (`MIMAP-145A` is not `selected current`).  It is
+therefore not a safe migration candidate either.
 
 1. `GUARD-PUBLIC-ENTRY-CUT-R0`
    - keep only stable daily/family launchers in the human index;
