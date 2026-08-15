@@ -1,5 +1,5 @@
 ---
-Status: current design_stop — bounded child of the common V2 pre-session D0
+Status: accepted design — bounded cohort I0 complete; parent common-V2 D0 remains open
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md`
 Authority: `src/mir/callable_parameter_contract/` and the existing normal package/install/Port cohort
@@ -118,3 +118,15 @@ No implementation is authorized by this card while `work_mode=design_stop`.
 After acceptance, the I0 must remain a bounded package/Port cohort change and
 must not be combined with result/header, Main membership, S6C Recipe, or
 physical session work.
+
+## Design acceptance
+
+The existing source-backed issuer, consuming install transition, branded
+`CompilationContext` catalog, installed private parameter rows, and scoped Port
+loan already provide the required owner graph. No new parameter authority or
+catalog owner is needed for this child. The bounded implementation is opened
+at `callable-text-parameter-cohort-i0-2026-08-15.md` and is limited to proving
+that an ordinary selected `StringBox` callable retains `ExactText` through
+install and Port borrowing. The S6C scan candidate remains outside this I0:
+its Main membership, result/header ABI, and child composition are parent-D0
+blockers.

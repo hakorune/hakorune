@@ -463,6 +463,42 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
 }
 
 #[test]
+fn package_scoped_loan_retains_exact_text_parameter_contract() {
+    let package =
+        issue("static box Api { run(source: StringBox, needle: StringBox) { return 0 } }")
+            .expect("ordinary StringBox package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 2),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let rows = input.parameter_contracts().collect::<Vec<_>>();
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].0, 0);
+        assert_eq!(rows[1].0, 1);
+        assert!(rows.iter().all(|(_, binding, kind)| {
+            binding.owner() == input.source().owner()
+                && matches!(
+                    kind,
+                    CallableParameterContractKindV1::ExactText(
+                        crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::STRING_BOX
+                    )
+                )
+        }));
+        assert_ne!(rows[0].1, rows[1].1);
+    })
+    .expect("exact text contract loan");
+    port.complete().expect("selected contract consumed");
+}
+
+#[test]
 fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
     let package =
         issue("static box Api { run(value) { return value } }").expect("ordinary package");
@@ -617,8 +653,12 @@ gate Build.test {
 #[test]
 fn package_has_no_clone_or_split_surface() {
     let model = include_str!("model.rs");
+    let install = include_str!("install.rs");
     assert!(!model.contains("Clone)]\npub(crate) struct VerifiedNormalCallableSemanticPackageV1"));
     assert!(!model.contains("fn into_parts"));
+    assert!(install.contains("MissingParameterContract"));
+    assert!(install.contains("DuplicateParameterContract"));
+    assert!(!install.contains("unwrap_or(&[])"));
 }
 
 #[test]

@@ -41,8 +41,11 @@ begin_lowering(installed context)
 The port never exposes a batch slot, rejects foreign catalog contexts and
 duplicate selected-key consumption, and closes only after complete selected
 coverage. Borrowed lowering inputs and parameter contracts remain scoped to the
-callback. HomeDemand is only a derived Dynamic-ingress view. This module does not own callable-name selection, CFG, PHI,
-runtime exit chronology, physical ABI, runtime dispatch, retry, or fallback.
+callback. ExactText(StringBox-as-Text) rows remain formal source contracts in
+this loan; `HomeDemandV1::Handle` does not become a runtime Text handle or
+wire. HomeDemand is only a derived Dynamic-ingress view. This module does not
+own callable-name selection, CFG, PHI, runtime exit chronology, physical ABI,
+runtime dispatch, retry, or fallback.
 
 Dynamic call relations are issued from the same batch-scoped lowering input as
 owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a

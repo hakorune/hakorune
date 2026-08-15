@@ -463,6 +463,12 @@ Main membership, result/header ABI, S6C ingress, common V2 transport, or a
 physical session. The parent remains the umbrella stop; this child must stay
 caller-zero and Builder-free until its D0 is accepted.
 
+The cohort child is now closed. Its generic ordinary-`StringBox` evidence
+proves only same-brand install/Port transport and typed parameter integrity;
+it does not make the S6C scan candidate selectable. The pointer returns to
+this parent D0 for the remaining Main membership, result/header ABI, S6C child
+composition, common V2 envelope, and neutral session-admission decisions.
+
 ```text
 1. Main/helper membership:
    source_backed.rs inserts Main declarations into the catalog but skips Main

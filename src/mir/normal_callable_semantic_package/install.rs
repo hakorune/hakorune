@@ -28,6 +28,9 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     IncompleteSelectedCoverage,
     BatchLoan,
     CatalogedAdmissionMismatch,
+    MissingParameterContract,
+    DuplicateParameterContract,
+    ParameterContractOwnerMismatch,
 }
 
 #[derive(Debug)]
@@ -208,12 +211,24 @@ impl InstalledNormalCallableSemanticPackageV1 {
             .find(|candidate| *candidate == key)
             .cloned()
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
-        let parameters = self
-            .parameter_contracts
-            .iter()
-            .find(|row| row.batch_slot == batch_slot)
-            .map(|row| row.parameters.as_ref())
-            .unwrap_or(&[]);
+        let parameter_declaration = match key {
+            SelectedNormalCallableKeyV1::Cataloged(_) => {
+                let mut declarations = self
+                    .parameter_contracts
+                    .iter()
+                    .filter(|row| row.batch_slot == batch_slot);
+                let declaration = declarations
+                    .next()
+                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::MissingParameterContract)?;
+                if declarations.next().is_some() {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::DuplicateParameterContract,
+                    );
+                }
+                Some(declaration)
+            }
+            SelectedNormalCallableKeyV1::TopLevel(_) => None,
+        };
         let semantic = match &self.dynamic {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
@@ -227,15 +242,27 @@ impl InstalledNormalCallableSemanticPackageV1 {
         };
         self.batch
             .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
-                callback(SelectedCallableLoweringInputRefV1 {
+                let parameters = match parameter_declaration {
+                    Some(declaration) => {
+                        if declaration.owner != source.owner() {
+                            return Err(
+                                NormalCallableSemanticPackageInstallIssueV1::
+                                    ParameterContractOwnerMismatch,
+                            );
+                        }
+                        declaration.parameters.as_ref()
+                    }
+                    None => &[],
+                };
+                Ok(callback(SelectedCallableLoweringInputRefV1 {
                     source,
                     parameter_contracts: parameters,
                     semantic,
                     source_identity,
                     selected_key,
-                })
+                }))
             })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
     }
 }
 
