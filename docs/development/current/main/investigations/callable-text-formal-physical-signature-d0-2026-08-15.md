@@ -192,18 +192,19 @@ CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
 TEXT-FORMAL-PINNED-RESIDENCE-D0/I0
   ordered internal seams, not separate authority cards:
     post-install exact target/origin/signature call edge
-      original-formal/no-rebind first; exact source literal is a distinct
-      cutover arm, while result/Substring/copy/PHI/unknown still reject
+      original-formal/no-rebind first
     exact StableText or canonical StringBox backing proof
     pair-based entry acquire + pinned UTF-8 root projection in one transaction
     Canonical composite formal/residence adoption
     Completion-backed DraftSeal per-exit finish coverage
+    exact source literal as a distinct cutover subrow; result/Substring/
+      copy/PHI/unknown still reject
 
 LOOP-TEXT-SLICE-EXECUTION-D0/I0
   ordered internal seams:
     pinned root -> CP-correct transient slice
     generic sequential code-point cursor
-    one narrow PinnedTextOp MIR variant with ByteLen / Utf8WidthAt /
+    one narrow plan-keyed PinnedTextOp MIR variant with ByteLen / Utf8WidthAt /
       Utf8ScalarSliceEqWholeText leaf kinds
     MIR JSON + primary-AOT direct address/load/small-compare consumer
 
@@ -250,6 +251,32 @@ placement remain owned by common MIR and the Canonical session. Entry acquire
 and finish remain in the pinned-residence lifecycle family rather than being
 re-owned by the leaf dialect.
 
+Each leaf carries one function-local `PinnedTextAccessPlanIdV1`. The ID alone
+is never authority: it indexes a function-owned plan table co-sealed by the
+Canonical session from the residence root, session brand, operation kind and
+operand arity, cursor/boundary proof, dominating range check, and pre-finish
+use interval. The backend consumes that table entry and never reconstructs
+safety from nearby comparisons, block order, variable names, or `ValueId`
+shape. V1 does not publish a generic TextSlice MIR value; the verified slice
+relation is consumed when the leaf site plan is issued.
+
+The table and constructors stay private, carry a function/invocation stamp,
+and close an exact one-plan-to-one-instruction census before JSON emission.
+Missing, duplicate, orphan, foreign-stamp, kind/root/operand/site mismatch, or
+a decoder that tries to reissue authority from a numeric ID rejects the
+unpublished function.
+
+All three `PinnedTextOp` leaves have fixed physical `EffectMask::READ`; the
+instruction has no caller-supplied effect field. Semantic Text equality
+remains governed by the language law. READ prevents treating a backing access
+as an unconstrained pure scalar operation, but it is still moveable and is not
+the lifetime proof. The residence lifecycle target gives entry
+`WRITE + Barrier + Control` and finish `WRITE + Barrier`, then a final
+function-local census rejects use before the normal entry landing, use on the
+trap landing, use after finish, foreign-plan/root/lease pairing, a normal exit
+without exactly one finish, or a trap/fault exit with a finish. Per-iteration
+Text leaves do not carry Barrier themselves.
+
 Generic `Load`/`Store` stays closed because it would expose an unsafe pointer
 capability without the root, UTF-8-boundary, or lease-dominance proof. FastMem
 `MemOp` stays allocator/layout-owned and is not reused as Text authority. A
@@ -282,13 +309,21 @@ arm, co-sealed with its call argument site, selected target, callee signature,
 catalog brand, and literal lifetime. It must not be disguised as the formal
 arm or reconstructed from a MIR constant.
 
-The first implementation retains DraftSeal's existing exact exit-set model:
-after each return operand is ready, the detached projection emits one finish
-immediately before that exit's Return. A synthetic shared epilogue/return PHI
-is not part of this route because it would require new Canonical CFG/PHI
-authority and the MIRBuilder north star explicitly forbids creating such a
-join merely to merge source Returns. A future measured need may open a
-separate Decision; DraftSeal never infers that join itself.
+The first implementation retains DraftSeal's existing exact exit-set model.
+The residence/session owner co-closes one private
+`PreparedTextFormalExitFinishSetV1` capability with the existing Completion
+consumption. This thin product stores no copied source site, block, `ValueId`,
+source order, or Completion claim. `ReadyFunctionDraftSealV1` carries it beside
+the existing prepared exit set, and the detached projection consumes both in
+the same iteration: after each return operand is ready, it emits one finish
+immediately before that exit's Return. DraftSeal does not infer that a lease is
+required and does not select a token from MIR state.
+
+A synthetic shared epilogue/return PHI is not part of this route because it
+would require new Canonical CFG/PHI authority and the MIRBuilder north star
+explicitly forbids creating such a join merely to merge source Returns. A
+future measured need may open a separate Decision; DraftSeal never infers that
+join itself.
 
 Future named stops include missing exact backing, literal origin, root/token
 coupling, UTF-8 cursor proof, primary-AOT leaf consumption, per-exit finish
