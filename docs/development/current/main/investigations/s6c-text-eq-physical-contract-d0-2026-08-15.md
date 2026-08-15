@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0, language-law reference, site-contract I0, caller-zero header transport R0, physical Text formal D0/I0, and installed S6C child I0 are closed; current row is the callable-signature design stop before common V2 transport
+Status: accepted TextEq architecture and call-residence BoxShape; current row is the TextFormal runtime lease state-machine design stop
 Date: 2026-08-15
 Work mode: design_stop
-Classification: closed T0/T1/T2 prerequisite rows + current T2 callable-signature BoxShape design stop; common V2 remains parked
+Classification: closed prerequisites + current T2 runtime lease BoxShape design stop; compiler signature/call-edge and common V2 remain parked
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,12 +14,12 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: select explicit contiguous `slot,generation` two-lane expansion as the target shape; one logical ExactText remains one BindingRef and `/N` is logical only, while ABI/I0 stays closed until actualization and lease ownership are issued.
-Source authority + canonical issuer: complete ExactText contracts plus same-brand header/Completion feed the package-owned signature cohort; one callee-entry runtime issuer owns the mandatory pair lease.
-Non-authority: `/N`, MirType/FunctionSignature length, raw HostHandle, C validator order, detached ValueIds, source-residence-only proof, AST/MIR rewalk, fallback, and retry.
-Fail-fast boundary: reject lane/arity drift, target/brand mismatch, original-formal/reaching proof loss, actualize or lease failure, one-lane SSA adoption, or unowned receiver lane before body effect.
-Smallest next slice: exact target→signature handoff, original-formal actualization, and one callee-entry lease/finish receipt; only then caller-zero mapping I0.
-Non-claims: no production caller, TextEq route/residence, V2 envelope, Builder, physical session, fallback, retry, or main integration.
+Decision: keep one logical ExactText as contiguous `slot,generation` lanes and use one atomic lease-set per callee invocation; each formal occurrence pins once, forwarding pins zero times, and nested callee entry acquires a new set.
+Source authority + canonical issuer: selected/batch identity plus complete parameter contracts issue signature lanes without Completion; post-install target inventory and combined Port later issue exact call edges; SlotTable owns runtime lease-set state and retirement.
+Non-authority: header/Completion as signature input, `/N`, MirType, raw handle, detached lanes/ValueIds, Dynamic lease, source-residence-only proof, AST/MIR rewalk, fallback, and retry.
+Fail-fast boundary: reject any pair set before mutation/body effect on stale/non-Text/retiring/overflow, partial acquire, ambiguous alias multiplicity, target/brand drift, missing finish coverage, or unsealed trap policy.
+Smallest next slice: `TEXT-FORMAL-CALL-LEASE-RUNTIME-D0` fixes the state machine and transition table; after acceptance its caller-zero runtime I0 may implement pin-aware acquire/finish/retirement only.
+Non-claims: no compiler actualizer, signature activation, C caller, Canonical epilogue, production caller, TextEq/V2 session, fallback, retry, or main integration.
 ```
 
 ## Current child pointer
@@ -645,9 +645,10 @@ yet accepted:
 
 ```text
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0  [NoSafeSlice]
-  -> strict target/signature actualizer + lifetime design
-     child: callable-text-formal-call-residence-d0-2026-08-15.md
-  -> caller-zero mapping I0 only after acceptance
+  -> CALLABLE-TEXT-FORMAL-CALL-RESIDENCE-D0 [accepted BoxShape]
+  -> TEXT-FORMAL-CALL-LEASE-RUNTIME-D0 [current design stop]
+  -> runtime caller-zero I0 after D0 acceptance
+  -> compiler signature/call-edge/session rows remain separate
 ```
 
 ```text
@@ -656,11 +657,11 @@ ExactText formal remains one BindingRef; its physical signature is contiguous
 `slot,generation` `u64` lanes and logical symbol/arity stays `/N`. It is not
 accepted until a complete call-site actualizer and lifetime owner exist; a
 16-byte aggregate remains rejected for this slice.
-Source authority + canonical issuer: the ExactText parameter catalog plus the
-same-branded header/Completion cohort are consumed once by a package-owned
+Source authority + canonical issuer: selected/batch identity plus complete
+parameter contracts are consumed once by a package-owned
 `VerifiedCallablePhysicalSignatureCohortV1` issuer. Each static callable row
 co-seals logical ordinal/BindingRef, lane kind/index, total logical/physical
-arity, owner/identity, and the target capture policy. No `ValueId` is stored.
+arity, and owner/identity. Header/Completion and target capture are separate.
 Non-authority: `/N`, `MirType::String`, `FunctionSignature` length alone, C
 validator argument order, raw HostHandle, Dynamic lease, detached ValueIds,
 AST/MIR rewalk, or an aggregate guessed from `repr(C)`.
@@ -668,9 +669,9 @@ Fail-fast boundary: reject non-static receiver scope, missing/duplicate/swapped
 lanes, non-contiguous physical arity, call/callee mapping drift, generation
 recapture, owner-lifetime loss, one-lane SSA adoption, foreign cohort, or any
 Text formal without a target-bound capture outcome before body effect.
-Smallest next slice: name the exact target→signature handoff and one-lock
-generation capture/strong-owner lifetime receipt; then implement caller-zero
-mapping metadata and tests. Generic V2 transport follows only after this.
+Smallest next slice: accept the runtime lease state machine, then implement its
+caller-zero BoxCount. Exact call-edge, signature mapping, and session adoption
+remain separate compiler rows. Generic V2 transport follows only after those.
 Non-claims: no production caller, runtime route activation, TextEq/Substring
 residence, PreparedLoopV2 envelope, ReadyEntry, Builder/session emission,
 physical IDs in the pre-session product, fallback, retry, or main integration.

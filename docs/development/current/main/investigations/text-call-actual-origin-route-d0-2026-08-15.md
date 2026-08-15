@@ -1,8 +1,8 @@
 ---
-Status: design stop; child of CALLABLE-TEXT-FORMAL-CALL-RESIDENCE-D0
+Status: accepted BoxShape; compiler actual-origin issuer remains a later row
 Date: 2026-08-15
 Work mode: design_stop
-Classification: T2 BoxShape; finite origin partition only
+Classification: accepted T2 BoxShape; finite origin partition only
 ---
 
 # TEXT-CALL-ACTUAL-ORIGIN-ROUTE-D0
@@ -56,17 +56,17 @@ parked until a source owner can prove call-complete lifetime.
 
 ## Acceptance and stop line
 
-Acceptance requires one non-`Clone` route partition, exact coverage of the
+The accepted design requires one non-`Clone` route partition, exact coverage of the
 currently empty physical admission set, no overlapping arms, and a typed
 reject for every non-formal origin. The formal candidate carries no physical
 IDs; it only names the source-backed owner and target identity that the parent
 residence decision must eventually issue.
 
-If the formal source owner cannot be issued without raw slot/name/MIR
-inference, this child remains:
+Compiler implementation remains stopped at:
 
 ```text
-NoSafeSlice::MissingTextFormalCallResidenceIssuer
+NoSafeSlice::MissingTextFormalActualOriginIssuer
 ```
 
-No runtime or compiler implementation is authorized while that token remains.
+The separate runtime lease substrate may proceed through its own D0/I0 because
+it consumes only already-issued pair sets and does not claim a compiler caller.
