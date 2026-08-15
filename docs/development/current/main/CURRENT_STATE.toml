@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, and LOOP-TEXT-EQ-SITE-CONTRACT-I0 are complete. The next design stop fixes the common V2 pre-session cohort and ABI boundary before any physical session can open."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, and LOOP-TEXT-EQ-SITE-CONTRACT-I0 are complete. The common V2 pre-session D0 remains the umbrella; its selected bounded child now fixes the exact StringBox/Text formal parameter boundary before any physical session can open."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_design_stop = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
 work_mode = "design_stop"
-current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
-current_blocker_token = "NoSafeSlice if the branded CompilationContext/Installed package cohort cannot retain one same-owner S6C parent, if Main/helper membership is absent, if explicit StringBox/Text parameter ABI is missing, if unannotated result/header ABI is not co-sealed with Completion, if the S6C child is issued outside the installed batch loan, if sibling site/corridor/Completion views require a detached or self-referential binding, if 13 operations are mixed with If/Exit control, if 15-placement coverage is not closed, or if admission requires V2-to-V1 coercion, a detached S6C physicalizer, Builder inference, fallback, or retry."
+current_execution_row = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
+current_blocker_token = "NoSafeSlice if the exact source-backed StringBox-as-Text formal contract cannot be issued by the existing callable-parameter catalog without OpaqueHandle promotion, MIR/runtime inference, detached S6C pairing, or a second parameter authority. The parent common-V2 D0 remains open for Main membership, result/header ABI, installed-batch S6C loan, 13+If/Exit envelope, and neutral session admission."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (common V2 pre-session D0; S6C remains first adapter only)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, and the TextEq site-contract I0 are closed. The current design stop must name a branded CompilationContext/Installed package cohort, same-owner Main/helper membership, explicit StringBox/Text parameter ABI, source-backed result/header ABI co-sealed with Completion, a parent-retaining sibling view seam, separate 13-operation and If/Exit control products, exact 15-placement envelope, and neutral canonical-session admission. No Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup may open before that boundary is closed."
+active_lane = "Loop compiler frontier (common V2 pre-session umbrella; exact Text formal parameter child D0)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, and the TextEq site-contract I0 are closed. The selected child D0 freezes only the reusable source-backed StringBox/Text formal contract; the parent still requires a branded CompilationContext/Installed cohort, same-owner Main/helper membership, source-backed result/header ABI co-sealed with Completion, a parent-retaining sibling view seam, separate 13-operation and If/Exit control products, exact 15-placement envelope, and neutral canonical-session admission. No Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup may open before the parent boundary is closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "s6c-text-eq-physical-contract-d0"
-latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
-latest_card_summary = "Ingress R0, the normative equality-law reference, and site-contract I0 are closed. Current design stop is LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0: retain one Installed package cohort, name result/header ABI authority, separate 13 operations from If/Exit control, and close exact 15-placement V2 admission without V1 coercion or an S6C physicalizer."
-next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
-next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card = "callable-parameter-exact-text-handle-contract-d0"
+latest_card_path = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
+latest_card_summary = "Selected bounded child of the common-V2 pre-session D0: design one source-backed StringBox-as-Text formal parameter contract through the existing callable-parameter issuer; no physical handle wire, package/session, or S6C production caller is opened."
+next_design_card = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
+next_design_card_path = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 

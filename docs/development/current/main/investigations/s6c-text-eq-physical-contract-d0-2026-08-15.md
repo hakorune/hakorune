@@ -434,6 +434,20 @@ The read-only audit found that the outer owner graph is a valid target shape,
 but the current repository products do not yet satisfy it. The exact blockers
 are:
 
+The parent D0 is intentionally not split into five parallel cards. The one
+selected bounded child is:
+
+```text
+CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0
+  -> docs/development/current/main/investigations/
+     callable-parameter-exact-text-handle-contract-d0-2026-08-15.md
+```
+
+It closes only the reusable source-backed formal `StringBox`/Text parameter
+contract. It does not claim a physical handle wire or open the S6C package,
+result/header, V2 envelope, or Builder/session rows. The parent remains open
+until this child and the remaining same-cohort issuers are accepted.
+
 ```text
 1. Main/helper membership:
    source_backed.rs inserts Main declarations into the catalog but skips Main
