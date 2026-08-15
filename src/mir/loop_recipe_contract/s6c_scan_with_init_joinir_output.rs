@@ -5,15 +5,17 @@
 //! private façade; raw Recipe, JoinSig, and constituent products never cross
 //! this boundary.
 
-use super::s6c_prephysical_ingress::S6CPrephysicalSourceInputRefV2;
 use super::s6c_scan_with_init::VerifiedS6CScanWithInitRecipeProductV2;
 use super::s6c_scan_with_init_joinir::{
-    with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
+    with_s6c_scan_with_init_logical_join_input,
+    with_s6c_scan_with_init_retained_logical_join_input, S6CLogicalCallInputRefV1,
+    S6CLogicalCallRoleV1,
 };
 use super::s6c_scan_with_init_joinir_output_rows::{
     issue_s6c_logical_output_rows, S6CLogicalCallSlotV1, S6CLogicalOutputRejectV1,
     S6CLogicalOutputRowsV1,
 };
+use crate::mir::loop_structural_facts::S6CScanWithInitFactsRefV1;
 
 #[derive(Debug)]
 pub(crate) struct VerifiedS6CScanWithInitLogicalOutputV1 {
@@ -58,6 +60,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
             };
             callback(S6CScanWithInitLogicalOutputRefV1 {
                 rows: &self.rows,
+                roles: input.roles(),
                 calls,
                 transfer: input.logical_transfer(),
                 domains: S6CLogicalOutputDomainCountsV1 {
@@ -79,7 +82,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
     ///
     /// The callback receives the existing logical output and the same sealed
     /// Facts view; it cannot obtain the owned output or raw Recipe/JoinSig.
-    pub(crate) fn with_prephysical_source<R, E>(
+    pub(super) fn with_prephysical_source<R, E>(
         &self,
         callback: impl for<'rows, 'facts> FnOnce(
             S6CPrephysicalSourceInputRefV2<'rows, 'facts>,
@@ -99,6 +102,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
                 };
                 let output = S6CScanWithInitLogicalOutputRefV1 {
                     rows: &self.rows,
+                    roles: input.roles(),
                     calls: S6CLogicalCallPairsRefV1 {
                         length: S6CLogicalCallWithSourceRefV1 {
                             row: *length_row,
@@ -129,11 +133,82 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
             .map_err(|_| S6CLogicalOutputRejectV1::Control("logical input"))?
         })
     }
+
+    /// Projection-only source seam for an already issued ingress.  The
+    /// semantic issuer above is the only path that revalidates the logical
+    /// input; later views borrow this retained cohort directly.
+    pub(super) fn with_retained_prephysical_source<R>(
+        &self,
+        callback: impl for<'rows, 'facts> FnOnce(S6CPrephysicalSourceInputRefV2<'rows, 'facts>) -> R,
+    ) -> R {
+        with_s6c_scan_with_init_retained_logical_join_input(&self.product, |input| {
+            let calls = self.rows.calls();
+            debug_assert_eq!(calls.len(), 2);
+            let length_row = &calls[0];
+            let substring_row = &calls[1];
+            let output = S6CScanWithInitLogicalOutputRefV1 {
+                rows: &self.rows,
+                roles: input.roles(),
+                calls: S6CLogicalCallPairsRefV1 {
+                    length: S6CLogicalCallWithSourceRefV1 {
+                        row: *length_row,
+                        source: input.length(),
+                    },
+                    substring: S6CLogicalCallWithSourceRefV1 {
+                        row: *substring_row,
+                        source: input.substring(),
+                    },
+                },
+                transfer: input.logical_transfer(),
+                domains: S6CLogicalOutputDomainCountsV1 {
+                    loops: input.rows().loop_count(),
+                    blocks: input.rows().block_count(),
+                    bindings: input.rows().binding_count(),
+                    inputs: input.rows().input_count(),
+                    values: input.rows().value_count(),
+                    items: input.rows().item_count(),
+                    carriers: input.rows().carrier_count(),
+                    exits: input.rows().exit_count(),
+                },
+            };
+            callback(S6CPrephysicalSourceInputRefV2::from_parts(
+                output,
+                input.facts(),
+            ))
+        })
+    }
+}
+
+/// Source-owned seam used by the prephysical issuer and its narrow sibling
+/// projections.  Construction is private to this module; the consumer cannot
+/// re-pair a logical output with foreign Facts.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
+    logical: S6CScanWithInitLogicalOutputRefV1<'rows, 'facts>,
+    facts: S6CScanWithInitFactsRefV1<'facts>,
+}
+
+impl<'rows, 'facts> S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
+    const fn from_parts(
+        logical: S6CScanWithInitLogicalOutputRefV1<'rows, 'facts>,
+        facts: S6CScanWithInitFactsRefV1<'facts>,
+    ) -> Self {
+        Self { logical, facts }
+    }
+
+    pub(super) const fn logical(self) -> S6CScanWithInitLogicalOutputRefV1<'rows, 'facts> {
+        self.logical
+    }
+
+    pub(super) const fn facts(self) -> S6CScanWithInitFactsRefV1<'facts> {
+        self.facts
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
     rows: &'rows S6CLogicalOutputRowsV1,
+    roles: super::s6c_scan_with_init::S6CScanWithInitRecipeRolesRefV2<'product>,
     calls: S6CLogicalCallPairsRefV1<'product>,
     transfer: &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product>,
     domains: S6CLogicalOutputDomainCountsV1,
@@ -142,6 +217,12 @@ pub(crate) struct S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
 impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
     pub(crate) const fn rows(self) -> &'rows S6CLogicalOutputRowsV1 {
         self.rows
+    }
+
+    pub(super) const fn roles(
+        self,
+    ) -> super::s6c_scan_with_init::S6CScanWithInitRecipeRolesRefV2<'product> {
+        self.roles
     }
 
     pub(crate) const fn calls(self) -> S6CLogicalCallPairsRefV1<'product> {

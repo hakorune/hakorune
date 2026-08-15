@@ -18,9 +18,41 @@ Decision: split the landed S6C ingress, delete its broad/revalidating surface an
 Source authority + canonical issuer: the retained Facts/Recipe/role seal/Join/Completion chain remains the only owner; issue_s6c_prephysical_ingress_v2 validates once and every later view only borrows that same product.
 Non-authority: raw item numbers, anchor counts, detached Verified context parts, cloned source sites, and logical-row caches cannot issue meaning; R0 issues no law, ABI, route, residence, Builder, or session.
 Fail-fast boundary: issuance rejects missing/foreign/drifting evidence once; post-issuance projection is infallible and exposes no raw constituent or cross-view authority.
-Smallest next slice: LOOP-TEXT-EQ-INGRESS-SURFACE-R0, one behavior-neutral file split, producer-owned role projection, sibling HRTB surfaces, visibility narrowing, and existing-upstream negative proof.
+Smallest next slice: LOOP-TEXT-EQ-INGRESS-SURFACE-R0, one behavior-neutral owner narrowing, producer-owned role projection, sibling HRTB surfaces, visibility narrowing, and existing-upstream negative proof. A physical file split is only required if the owner crosses the 760-line design trigger.
 Non-claims: no runtime symbol, performance keeper, CFG/SSA/PHI, production caller, fallback, retry, language Fault, or legacy retirement.
 ```
+
+## R0 implementation evidence
+
+The behavior-neutral surface is now implemented in the caller-zero owner:
+
+* semantic validation remains in `with_prephysical_source` and runs only while
+  issuing `VerifiedS6CPrephysicalIngressV2`;
+* later `with_ingress`, `with_text_eq_leaf`, and `with_completion` projections
+  use the retained Facts/Recipe/Join cohort without re-entering validation;
+* the retained source seam lives with the logical-output owner, so the output
+  no longer imports the ingress module;
+* the ingress no longer exposes `logical()`, detached
+  `VerifiedLoopSemanticContextV1`, cloned Completion source sites, or a raw
+  role-to-item table. Item identity is borrowed from the producer-owned role
+  seal, and operation lookup is exact rather than `Option`/zero scrubbing;
+* TextEq and Completion are sibling HRTB views. TextEq remains source/Recipe/
+  control evidence only; Completion lends the original exact-two exit and Tail
+  source rows. No law, ABI, route, residence, Builder, MIR, or session owner is
+  issued here.
+
+Focused evidence for this slice:
+
+```text
+cargo test --lib -q s6c_                         # 29 passed
+cargo check -q                                   # green; inherited warning census unchanged
+loop_pre-cutover / loop_physical-transfer guards # green
+current-state pointer guard + diff check          # green
+```
+
+The ingress owner is 705 lines after the narrowing, below the 760-line design
+trigger; a mechanical file split remains parked until a later bounded change
+would cross that boundary.
 
 ## Corrected owner graph
 

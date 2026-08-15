@@ -16,12 +16,15 @@ V1_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalize
 V1_SEGMENT_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs"
 V2_DEMAND="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 PHYSICAL_INPUT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/physical_input.rs"
+S6C_INGRESS="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
+S6C_SOURCE_OUTPUT="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_scan_with_init_joinir_output.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
   "$LEDGER" "$V1_DEMAND" "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"
 guard_require_files "$TAG" "$PHYSICAL_INPUT"
+guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -62,6 +65,25 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "#[cfg(test)]" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs" \
   "callable tail adapter must remain test-only"
+guard_expect_fixed_in_file "$TAG" \
+  "with_retained_prephysical_source" "$S6C_INGRESS" \
+  "S6C post-issuance views must borrow the retained cohort"
+guard_expect_fixed_in_file "$TAG" \
+  "roles.text_equal()" "$S6C_INGRESS" \
+  "S6C ingress must derive item identity from the producer-owned role seal"
+guard_expect_fixed_in_file "$TAG" \
+  "with_s6c_scan_with_init_retained_logical_join_input" "$S6C_SOURCE_OUTPUT" \
+  "S6C retained source projection must bypass semantic revalidation"
+
+for forbidden in \
+  'pub(crate) fn logical' \
+  'anchor_count' \
+  'VerifiedLoopSemanticContextV1::from_parts'
+do
+  if rg -n -F -- "$forbidden" "$S6C_INGRESS" >/dev/null 2>&1; then
+    guard_fail "$TAG" "S6C ingress exposes a second source/key authority: $forbidden"
+  fi
+done
 
 for forbidden in \
   'ReadyCallableLoopProfileCloseV1' \
@@ -155,7 +177,8 @@ if rg -n -F -- '.zip(' "$V2_DEMAND" >/dev/null 2>&1; then
 fi
 
 for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_DEMAND" \
-  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT"; do
+  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
+  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

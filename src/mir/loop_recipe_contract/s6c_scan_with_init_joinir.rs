@@ -96,6 +96,7 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
 pub(crate) struct S6CScanWithInitLogicalJoinInputRefV1<'a> {
     rows: S6CScanWithInitRecipeRowsRefV2<'a>,
     roles: S6CScanWithInitRecipeRolesRefV2<'a>,
+    facts: crate::mir::loop_structural_facts::S6CScanWithInitFactsRefV1<'a>,
     length: S6CLogicalCallInputRefV1<'a>,
     substring: S6CLogicalCallInputRefV1<'a>,
     transfer: &'a LoopJoinLogicalTransferViewV2<'a>,
@@ -120,6 +121,12 @@ impl<'a> S6CScanWithInitLogicalJoinInputRefV1<'a> {
 
     pub(crate) const fn logical_transfer(self) -> &'a LoopJoinLogicalTransferViewV2<'a> {
         self.transfer
+    }
+
+    pub(super) const fn facts(
+        self,
+    ) -> crate::mir::loop_structural_facts::S6CScanWithInitFactsRefV1<'a> {
+        self.facts
     }
 }
 
@@ -187,6 +194,7 @@ fn issue_input_view<'a, R>(
     Ok(callback(S6CScanWithInitLogicalJoinInputRefV1 {
         rows,
         roles,
+        facts: product.facts(),
         length: S6CLogicalCallInputRefV1 {
             role: S6CLogicalCallRoleV1::Length,
             contract: calls.length(),
@@ -199,6 +207,46 @@ fn issue_input_view<'a, R>(
         },
         transfer: product.logical_transfer(),
     }))
+}
+
+/// Projection-only companion for an already-issued logical product.
+///
+/// The validating issuer above is the only path that rechecks semantic
+/// domains, call contracts, and Join transfer parity.  Later products borrow
+/// the retained cohort through this private seam instead of issuing another
+/// validation receipt.
+pub(super) fn with_s6c_scan_with_init_retained_logical_join_input<R>(
+    product: &VerifiedS6CScanWithInitRecipeProductV2,
+    callback: impl for<'input> FnOnce(S6CScanWithInitLogicalJoinInputRefV1<'input>) -> R,
+) -> R {
+    product.with_product(|product| {
+        let rows = product.recipe_rows();
+        let roles = product.roles();
+        let facts = product.facts();
+        let calls = facts.source().calls();
+        let length_row = rows
+            .operation(roles.length_call())
+            .expect("verified S6C Length row");
+        let substring_row = rows
+            .operation(roles.substring_call())
+            .expect("verified S6C Substring row");
+        callback(S6CScanWithInitLogicalJoinInputRefV1 {
+            rows,
+            roles,
+            facts,
+            length: S6CLogicalCallInputRefV1 {
+                role: S6CLogicalCallRoleV1::Length,
+                contract: calls.length(),
+                row: length_row,
+            },
+            substring: S6CLogicalCallInputRefV1 {
+                role: S6CLogicalCallRoleV1::Substring,
+                contract: calls.substring(),
+                row: substring_row,
+            },
+            transfer: product.logical_transfer(),
+        })
+    })
 }
 
 fn verify_domains(

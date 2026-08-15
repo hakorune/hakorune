@@ -4,10 +4,9 @@
 //! does not issue a new Recipe, effect meaning, ABI, physical ID, or session.
 
 use super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
-use super::s6c_scan_with_init_joinir_output::S6CScanWithInitLogicalOutputRefV1;
+use super::s6c_scan_with_init_joinir_output::S6CPrephysicalSourceInputRefV2;
 use super::s6c_scan_with_init_joinir_output_rows::S6CLogicalItemV1;
 use super::schema_v2::{LoopOperationExecutionClassV2, LoopValueClassV2};
-use crate::mir::loop_structural_facts::S6CScanWithInitFactsRefV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceStmtSiteV1};
 
 const OPERATION_COUNT: usize = 13;
@@ -47,34 +46,9 @@ impl S6CPrephysicalOperationRoleV2 {
     ];
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
-    logical: S6CScanWithInitLogicalOutputRefV1<'rows, 'facts>,
-    facts: S6CScanWithInitFactsRefV1<'facts>,
-}
-
-impl<'rows, 'facts> S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
-    pub(crate) const fn from_parts(
-        logical: S6CScanWithInitLogicalOutputRefV1<'rows, 'facts>,
-        facts: S6CScanWithInitFactsRefV1<'facts>,
-    ) -> Self {
-        Self { logical, facts }
-    }
-
-    fn logical(self) -> S6CScanWithInitLogicalOutputRefV1<'rows, 'facts> {
-        self.logical
-    }
-
-    fn facts(self) -> S6CScanWithInitFactsRefV1<'facts> {
-        self.facts
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct S6CPrephysicalOperationSealV2 {
     role: S6CPrephysicalOperationRoleV2,
-    item: LoopItemKeyV1,
-    anchor_count: u8,
     execution: LoopOperationExecutionClassV2,
 }
 
@@ -83,9 +57,6 @@ struct S6CPrephysicalCompletionSealV2 {
     target_function: crate::mir::resolved_semantics::RegionId,
     explicit_exit_count: usize,
     cleanup_empty: bool,
-    loop_return_site: SourceStmtSiteV1,
-    tail_site: SourceStmtSiteV1,
-    tail_value: SourceExprSiteV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -115,14 +86,12 @@ pub(crate) enum S6CPrephysicalIngressRejectV2 {
 #[derive(Debug)]
 pub(crate) struct VerifiedS6CPrephysicalIngressV2 {
     output: super::s6c_scan_with_init_joinir_output::VerifiedS6CScanWithInitLogicalOutputV1,
-    context: super::semantic_context::VerifiedLoopSemanticContextV1,
     seal: S6CPrephysicalIngressSealV2,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
     source: S6CPrephysicalSourceInputRefV2<'rows, 'facts>,
-    context: &'a super::semantic_context::VerifiedLoopSemanticContextV1,
     seal: &'a S6CPrephysicalIngressSealV2,
 }
 
@@ -134,43 +103,91 @@ impl VerifiedS6CPrephysicalIngressV2 {
         )
             -> Result<R, S6CPrephysicalIngressRejectV2>,
     ) -> Result<R, S6CPrephysicalIngressRejectV2> {
-        self.output
-            .with_prephysical_source(|source| {
-                callback(S6CPrephysicalIngressRefV2 {
-                    source,
-                    context: &self.context,
-                    seal: &self.seal,
-                })
+        self.output.with_retained_prephysical_source(|source| {
+            callback(S6CPrephysicalIngressRefV2 {
+                source,
+                seal: &self.seal,
             })
-            .map_err(|_| S6CPrephysicalIngressRejectV2::Output("logical source"))?
+        })
+    }
+
+    pub(crate) fn with_text_eq_leaf<R>(
+        &self,
+        callback: impl for<'facts> FnOnce(S6CPrephysicalTextEqRefV2<'facts>) -> R,
+    ) -> R {
+        self.output.with_retained_prephysical_source(|source| {
+            let logical = source.logical();
+            let roles = logical.roles();
+            let facts = source.facts().source();
+            let binary = facts
+                .calls()
+                .typed()
+                .binaries()
+                .iter()
+                .find(|binary| {
+                    binary.role() == crate::mir::callable_semantic_batch::S6CBinaryRoleV1::TextEqual
+                })
+                .expect("verified S6C TextEq source relation");
+            let row = logical
+                .rows()
+                .items()
+                .iter()
+                .find(|item| item_key(**item) == roles.text_equal().item())
+                .copied()
+                .expect("verified S6C TextEq Recipe row");
+            let if_row = logical
+                .rows()
+                .items()
+                .iter()
+                .find(|item| item_key(**item) == roles.text_equal_if())
+                .copied()
+                .expect("verified S6C TextEq If row");
+            callback(S6CPrephysicalTextEqRefV2 {
+                operation: S6CPrephysicalOperationRefV2 {
+                    role: S6CPrephysicalOperationRoleV2::TextEqual,
+                    item: roles.text_equal().item(),
+                    execution: self
+                        .seal
+                        .operations
+                        .iter()
+                        .find(|operation| {
+                            operation.role == S6CPrephysicalOperationRoleV2::TextEqual
+                        })
+                        .expect("verified S6C TextEq operation")
+                        .execution,
+                },
+                row,
+                if_row,
+                binary,
+            })
+        })
+    }
+
+    pub(crate) fn with_completion<R>(
+        &self,
+        callback: impl for<'facts> FnOnce(S6CPrephysicalCompletionRefV2<'facts>) -> R,
+    ) -> R {
+        self.output.with_retained_prephysical_source(|source| {
+            let facts = source.facts().source();
+            callback(S6CPrephysicalCompletionRefV2 {
+                completion: facts.completion(),
+                loop_return_site: facts.loop_return_site(),
+                loop_return_value: facts.loop_return_value(),
+                tail_site: facts.tail_site(),
+                tail_value: facts.tail_value(),
+                tail_operand: facts.tail_operand(),
+            })
+        })
     }
 }
 
 impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
-    pub(crate) fn logical(self) -> S6CScanWithInitLogicalOutputRefV1<'rows, 'facts> {
-        self.source.logical()
-    }
-
-    pub(crate) const fn context(
-        self,
-    ) -> &'a super::semantic_context::VerifiedLoopSemanticContextV1 {
-        self.context
-    }
-
     pub(crate) const fn operation_count(self) -> usize {
         OPERATION_COUNT
     }
 
     pub(crate) fn operation_roles(self) -> impl Iterator<Item = S6CPrephysicalOperationRoleV2> {
         S6CPrephysicalOperationRoleV2::ALL.into_iter()
-    }
-
-    pub(crate) fn anchor_count(self, role: S6CPrephysicalOperationRoleV2) -> usize {
-        self.seal
-            .operations
-            .iter()
-            .find(|row| row.role == role)
-            .map_or(0, |row| row.anchor_count as usize)
     }
 
     pub(crate) const fn input_bindings(self) -> [BindingRefV1; 3] {
@@ -188,45 +205,156 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
     pub(crate) fn operation_execution(
         self,
         role: S6CPrephysicalOperationRoleV2,
-    ) -> Option<LoopOperationExecutionClassV2> {
-        self.seal
+    ) -> LoopOperationExecutionClassV2 {
+        self.operation(role).execution()
+    }
+
+    pub(crate) fn operation(
+        self,
+        role: S6CPrephysicalOperationRoleV2,
+    ) -> S6CPrephysicalOperationRefV2 {
+        let row = self
+            .seal
             .operations
             .iter()
             .find(|row| row.role == role)
-            .map(|row| row.execution)
+            .expect("verified S6C operation role");
+        S6CPrephysicalOperationRefV2 {
+            role,
+            item: item_for_role(self.source.logical().roles(), role),
+            execution: row.execution,
+        }
     }
 
-    pub(crate) fn completion(self) -> (&'a SourceStmtSiteV1, &'a SourceStmtSiteV1, bool) {
-        (
-            &self.seal.completion.loop_return_site,
-            &self.seal.completion.tail_site,
-            self.seal.completion.cleanup_empty,
-        )
+    pub(crate) fn completion(self) -> S6CPrephysicalCompletionParityRefV2 {
+        S6CPrephysicalCompletionParityRefV2 {
+            target_function: self.seal.completion.target_function,
+            explicit_exit_count: self.seal.completion.explicit_exit_count,
+            cleanup_empty: self.seal.completion.cleanup_empty,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct S6CPrephysicalOperationRefV2 {
+    role: S6CPrephysicalOperationRoleV2,
+    item: LoopItemKeyV1,
+    execution: LoopOperationExecutionClassV2,
+}
+
+impl S6CPrephysicalOperationRefV2 {
+    pub(crate) const fn role(self) -> S6CPrephysicalOperationRoleV2 {
+        self.role
+    }
+
+    pub(crate) const fn item(self) -> LoopItemKeyV1 {
+        self.item
+    }
+
+    pub(crate) const fn execution(self) -> LoopOperationExecutionClassV2 {
+        self.execution
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct S6CPrephysicalCompletionParityRefV2 {
+    target_function: crate::mir::resolved_semantics::RegionId,
+    explicit_exit_count: usize,
+    cleanup_empty: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct S6CPrephysicalCompletionRefV2<'facts> {
+    completion: &'facts crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    loop_return_site: &'facts SourceStmtSiteV1,
+    loop_return_value: &'facts SourceExprSiteV1,
+    tail_site: &'facts SourceStmtSiteV1,
+    tail_value: &'facts SourceExprSiteV1,
+    tail_operand: &'facts SourceExprSiteV1,
+}
+
+impl<'facts> S6CPrephysicalCompletionRefV2<'facts> {
+    pub(crate) const fn completion(
+        self,
+    ) -> &'facts crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
+        self.completion
+    }
+
+    pub(crate) const fn loop_return_site(&self) -> &SourceStmtSiteV1 {
+        self.loop_return_site
+    }
+
+    pub(crate) const fn loop_return_value(&self) -> &SourceExprSiteV1 {
+        self.loop_return_value
+    }
+
+    pub(crate) const fn tail_site(&self) -> &SourceStmtSiteV1 {
+        self.tail_site
+    }
+
+    pub(crate) const fn tail_value(&self) -> &SourceExprSiteV1 {
+        self.tail_value
+    }
+
+    pub(crate) const fn tail_operand(&self) -> &SourceExprSiteV1 {
+        self.tail_operand
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct S6CPrephysicalTextEqRefV2<'facts> {
+    operation: S6CPrephysicalOperationRefV2,
+    row: S6CLogicalItemV1,
+    if_row: S6CLogicalItemV1,
+    binary: &'facts crate::mir::callable_semantic_batch::S6CBinaryRelationV1,
+}
+
+impl<'facts> S6CPrephysicalTextEqRefV2<'facts> {
+    pub(crate) const fn operation(self) -> S6CPrephysicalOperationRefV2 {
+        self.operation
+    }
+
+    pub(crate) const fn row(self) -> S6CLogicalItemV1 {
+        self.row
+    }
+
+    pub(crate) const fn if_row(self) -> S6CLogicalItemV1 {
+        self.if_row
+    }
+
+    pub(crate) const fn binary(
+        self,
+    ) -> &'facts crate::mir::callable_semantic_batch::S6CBinaryRelationV1 {
+        self.binary
+    }
+}
+
+impl S6CPrephysicalCompletionParityRefV2 {
+    pub(crate) const fn target_function(self) -> crate::mir::resolved_semantics::RegionId {
+        self.target_function
+    }
+
+    pub(crate) const fn explicit_exit_count(self) -> usize {
+        self.explicit_exit_count
+    }
+
+    pub(crate) const fn cleanup_empty(self) -> bool {
+        self.cleanup_empty
     }
 }
 
 pub(crate) fn issue_s6c_prephysical_ingress_v2(
     output: super::s6c_scan_with_init_joinir_output::VerifiedS6CScanWithInitLogicalOutputV1,
 ) -> Result<VerifiedS6CPrephysicalIngressV2, S6CPrephysicalIngressRejectV2> {
-    let (context, seal) = output
+    let seal = output
         .with_prephysical_source(validate_prephysical_source)
         .map_err(|_| S6CPrephysicalIngressRejectV2::Output("logical source"))??;
-    Ok(VerifiedS6CPrephysicalIngressV2 {
-        output,
-        context,
-        seal,
-    })
+    Ok(VerifiedS6CPrephysicalIngressV2 { output, seal })
 }
 
 fn validate_prephysical_source(
     source: S6CPrephysicalSourceInputRefV2<'_, '_>,
-) -> Result<
-    (
-        super::semantic_context::VerifiedLoopSemanticContextV1,
-        S6CPrephysicalIngressSealV2,
-    ),
-    S6CPrephysicalIngressRejectV2,
-> {
+) -> Result<S6CPrephysicalIngressSealV2, S6CPrephysicalIngressRejectV2> {
     let logical = source.logical();
     if !logical.domains().is_exact_s6c() {
         return Err(S6CPrephysicalIngressRejectV2::Domain("S6C domains"));
@@ -239,21 +367,10 @@ fn validate_prephysical_source(
     let facts = source.facts().source();
     let calls = facts.calls();
     let typed = calls.typed();
-    let membership = typed.membership();
-    let source_identity = membership.source();
     let owner = calls.length().owner();
     if calls.substring().owner() != owner || facts.completion().owner() != owner {
         return Err(S6CPrephysicalIngressRejectV2::Context("owner"));
     }
-
-    let context = super::semantic_context::VerifiedLoopSemanticContextV1::from_parts(
-        owner,
-        source_identity.function_origin(),
-        source_identity.source_kind(),
-        source_identity.site().clone(),
-        membership.frame().clone(),
-        membership.scope_region(),
-    );
 
     let inputs = typed.inputs();
     let mut input_bindings = [None; 3];
@@ -297,18 +414,17 @@ fn validate_prephysical_source(
         return Err(S6CPrephysicalIngressRejectV2::Transfer("logical transfer"));
     }
 
-    let operations = operation_seal(items, logical.calls(), typed, facts)?;
+    let operations = operation_seal(items, logical.roles(), logical.calls(), typed, facts)?;
     let completion = facts.completion();
     if completion.explicit_sites().len() != 2 || !completion.cleanup().crossed_scopes().is_empty() {
         return Err(S6CPrephysicalIngressRejectV2::Completion(
             "exact-two cleanup",
         ));
     }
-    let source = facts;
     let completion_sites = completion.explicit_sites();
-    let loop_return_site = source.loop_return_site().clone();
-    let tail_site = source.tail_site().clone();
-    if !completion_sites.contains(&loop_return_site) || !completion_sites.contains(&tail_site) {
+    if !completion_sites.contains(facts.loop_return_site())
+        || !completion_sites.contains(facts.tail_site())
+    {
         return Err(S6CPrephysicalIngressRejectV2::Completion("exit coverage"));
     }
 
@@ -321,59 +437,35 @@ fn validate_prephysical_source(
         return Err(S6CPrephysicalIngressRejectV2::Transfer("After parity"));
     }
 
-    Ok((
-        context,
-        S6CPrephysicalIngressSealV2 {
-            operations,
-            completion: S6CPrephysicalCompletionSealV2 {
-                target_function: completion.target_function(),
-                explicit_exit_count: completion_sites.len(),
-                cleanup_empty: completion.cleanup().crossed_scopes().is_empty(),
-                loop_return_site,
-                tail_site,
-                tail_value: source.tail_value().clone(),
-            },
-            inputs: [subject, needle, index],
-            index_binding: index,
-            index_carrier_entry: header.index_input,
-            after: (header.root_loop, header.index_binding, after.class()),
+    Ok(S6CPrephysicalIngressSealV2 {
+        operations,
+        completion: S6CPrephysicalCompletionSealV2 {
+            target_function: completion.target_function(),
+            explicit_exit_count: completion_sites.len(),
+            cleanup_empty: completion.cleanup().crossed_scopes().is_empty(),
         },
-    ))
+        inputs: [subject, needle, index],
+        index_binding: index,
+        index_carrier_entry: header.index_input,
+        after: (header.root_loop, header.index_binding, after.class()),
+    })
 }
 
 fn operation_seal(
     items: &[S6CLogicalItemV1],
+    roles: super::s6c_scan_with_init::S6CScanWithInitRecipeRolesRefV2<'_>,
     calls: super::s6c_scan_with_init_joinir_output::S6CLogicalCallPairsRefV1<'_>,
     typed: &crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1,
     source: crate::mir::loop_structural_facts::S6CExitTailSourceCoSealRefV1<'_>,
 ) -> Result<[S6CPrephysicalOperationSealV2; OPERATION_COUNT], S6CPrephysicalIngressRejectV2> {
     require_control_census(items)?;
-    let expected = [
-        (S6CPrephysicalOperationRoleV2::ConditionIndexRead, 0, 1),
-        (S6CPrephysicalOperationRoleV2::LengthCall, 1, 1),
-        (S6CPrephysicalOperationRoleV2::LessCondition, 2, 1),
-        (S6CPrephysicalOperationRoleV2::BodyIndexRead, 3, 2),
-        (S6CPrephysicalOperationRoleV2::SliceOne, 4, 1),
-        (S6CPrephysicalOperationRoleV2::SliceEndAdd, 5, 1),
-        (S6CPrephysicalOperationRoleV2::SubstringCall, 6, 1),
-        (S6CPrephysicalOperationRoleV2::TextEqual, 7, 1),
-        (S6CPrephysicalOperationRoleV2::ReturnIndexRead, 9, 1),
-        (S6CPrephysicalOperationRoleV2::StepIndexRead, 11, 1),
-        (S6CPrephysicalOperationRoleV2::StepOne, 12, 1),
-        (S6CPrephysicalOperationRoleV2::StepAdd, 13, 1),
-        (S6CPrephysicalOperationRoleV2::StepWrite, 14, 2),
-    ];
     let mut out = [S6CPrephysicalOperationSealV2 {
-        role: expected[0].0,
-        item: LoopItemKeyV1::new(expected[0].1),
-        anchor_count: expected[0].2,
+        role: S6CPrephysicalOperationRoleV2::ALL[0],
         execution: LoopOperationExecutionClassV2::NonFaulting,
     }; OPERATION_COUNT];
-    for (slot, (role, item, anchors)) in expected.into_iter().enumerate() {
-        let Some(logical) = items
-            .iter()
-            .find(|row| item_key(**row) == LoopItemKeyV1::new(item))
-        else {
+    for (slot, role) in S6CPrephysicalOperationRoleV2::ALL.into_iter().enumerate() {
+        let item = item_for_role(roles, role);
+        let Some(logical) = items.iter().find(|row| item_key(**row) == item) else {
             return Err(S6CPrephysicalIngressRejectV2::Operation("missing role"));
         };
         if matches!(
@@ -398,16 +490,8 @@ fn operation_seal(
             }
             _ => LoopOperationExecutionClassV2::NonFaulting,
         };
-        let actual_anchors = anchor_count_for_role(role, typed, calls, source)?;
-        if actual_anchors != anchors {
-            return Err(S6CPrephysicalIngressRejectV2::Anchor("role multiplicity"));
-        }
-        out[slot] = S6CPrephysicalOperationSealV2 {
-            role,
-            item: LoopItemKeyV1::new(item),
-            anchor_count: anchors,
-            execution,
-        };
+        verify_anchor_for_role(role, typed, calls, source)?;
+        out[slot] = S6CPrephysicalOperationSealV2 { role, execution };
     }
     Ok(out)
 }
@@ -427,13 +511,13 @@ fn require_control_census(items: &[S6CLogicalItemV1]) -> Result<(), S6CPrephysic
         .ok_or(S6CPrephysicalIngressRejectV2::Operation("If/Exit census"))
 }
 
-fn anchor_count_for_role(
+fn verify_anchor_for_role(
     role: S6CPrephysicalOperationRoleV2,
     typed: &crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1,
     calls: super::s6c_scan_with_init_joinir_output::S6CLogicalCallPairsRefV1<'_>,
     source: crate::mir::loop_structural_facts::S6CExitTailSourceCoSealRefV1<'_>,
-) -> Result<u8, S6CPrephysicalIngressRejectV2> {
-    let count = match role {
+) -> Result<(), S6CPrephysicalIngressRejectV2> {
+    let _anchor = match role {
         S6CPrephysicalOperationRoleV2::ConditionIndexRead => binary_source(
             typed,
             crate::mir::callable_semantic_batch::S6CBinaryRoleV1::LoopConditionLess,
@@ -462,7 +546,7 @@ fn anchor_count_for_role(
             if argument.site() == slice.source().lhs() {
                 return Err(S6CPrephysicalIngressRejectV2::Anchor("body index source"));
             }
-            return Ok(2);
+            return Ok(());
         }
         S6CPrephysicalOperationRoleV2::SliceOne => typed
             .binaries()
@@ -522,11 +606,31 @@ fn anchor_count_for_role(
             .site(),
         S6CPrephysicalOperationRoleV2::StepWrite => {
             let _ = typed.index_update().statement_site();
-            return Ok(2);
+            return Ok(());
         }
     };
-    let _ = count;
-    Ok(1)
+    Ok(())
+}
+
+fn item_for_role(
+    roles: super::s6c_scan_with_init::S6CScanWithInitRecipeRolesRefV2<'_>,
+    role: S6CPrephysicalOperationRoleV2,
+) -> LoopItemKeyV1 {
+    match role {
+        S6CPrephysicalOperationRoleV2::ConditionIndexRead => roles.condition_index_read().item(),
+        S6CPrephysicalOperationRoleV2::LengthCall => roles.length_call().item(),
+        S6CPrephysicalOperationRoleV2::LessCondition => roles.less_condition().item(),
+        S6CPrephysicalOperationRoleV2::BodyIndexRead => roles.body_index_read().item(),
+        S6CPrephysicalOperationRoleV2::SliceOne => roles.slice_one().item(),
+        S6CPrephysicalOperationRoleV2::SliceEndAdd => roles.slice_end_add().item(),
+        S6CPrephysicalOperationRoleV2::SubstringCall => roles.substring_call().item(),
+        S6CPrephysicalOperationRoleV2::TextEqual => roles.text_equal().item(),
+        S6CPrephysicalOperationRoleV2::ReturnIndexRead => roles.return_index_read().item(),
+        S6CPrephysicalOperationRoleV2::StepIndexRead => roles.step_index_read().item(),
+        S6CPrephysicalOperationRoleV2::StepOne => roles.step_one().item(),
+        S6CPrephysicalOperationRoleV2::StepAdd => roles.step_add().item(),
+        S6CPrephysicalOperationRoleV2::StepWrite => roles.step_write().item(),
+    }
 }
 
 fn binary_source<'a>(
