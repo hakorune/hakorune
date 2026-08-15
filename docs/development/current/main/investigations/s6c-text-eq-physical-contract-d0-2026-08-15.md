@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; current bounded row is ingress-surface R0
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0 is closed and the current bounded row is LANG-TEXT-EQUALITY-LAW-D0
 Date: 2026-08-15
-Work mode: fast
-Classification: closed T2 BoxShape; current T0 BoxShape; one later T2 common-V2 pre-session family
+Work mode: design_stop
+Classification: closed T0 BoxShape; current T2 language-law BoxShape; one later T2 common-V2 pre-session family
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,12 +14,12 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: split the landed S6C ingress, delete its broad/revalidating surface and second role/source ledgers, and lend independent TextEq, Substring-to-TextEq corridor, Completion, and input/carrier views.
-Source authority + canonical issuer: the retained Facts/Recipe/role seal/Join/Completion chain remains the only owner; issue_s6c_prephysical_ingress_v2 validates once and every later view only borrows that same product.
-Non-authority: raw item numbers, anchor counts, detached Verified context parts, cloned source sites, and logical-row caches cannot issue meaning; R0 issues no law, ABI, route, residence, Builder, or session.
-Fail-fast boundary: issuance rejects missing/foreign/drifting evidence once; post-issuance projection is infallible and exposes no raw constituent or cross-view authority.
-Smallest next slice: LOOP-TEXT-EQ-INGRESS-SURFACE-R0, one behavior-neutral owner narrowing, producer-owned role projection, sibling HRTB surfaces, visibility narrowing, and existing-upstream negative proof. A physical file split is only required if the owner crosses the 760-line design trigger.
-Non-claims: no runtime symbol, performance keeper, CFG/SSA/PHI, production caller, fallback, retry, language Fault, or legacy retirement.
+Decision: stop before TextEq site/ABI/route work until the language specification names one String/Text equality law and the admitted StringBox-as-Text bridge.
+Source authority + canonical issuer: docs/reference/language/types.md §4.3 is the sole semantic-law owner; strings.md remains representation-only, and no runtime implementation may issue the law.
+Non-authority: StringBox::equals, eq_vm, UTF-8 implementation details, ordinary BoxRef identity, Recipe/MIR shape, ABI, selector, benchmark, fallback, or retry cannot decide the language law.
+Fail-fast boundary: reject the next site-contract/operation-contract row as NoSafeSlice until exact equality, case, normalization, locale/collation, and StringBox-as-Text admission are explicit.
+Smallest next slice: LANG-TEXT-EQUALITY-LAW-D0, then a bounded reference-only I0 that updates types.md without changing runtime or compiler behavior.
+Non-claims: no TextEq site receipt, physical target, ABI/wire, residence, route admission, Builder/session, production caller, fallback, retry, or legacy retirement.
 ```
 
 ## R0 implementation evidence
