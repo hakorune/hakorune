@@ -14,20 +14,12 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: retain explicit `slot,generation` two-lane expansion as preferred, but
-keep D0 open until target handoff, one-lock actualization, and strong lifetime
-are named and co-sealed.
-Source authority + canonical issuer: complete ExactText contracts plus the
-same-brand header/Completion feed the planned package-owned issuer; runtime
-TextFormal is validation evidence, not a callable signature.
-Non-authority: `/N`, MirType/FunctionSignature length, raw HostHandle, C
-validator order, detached ValueIds, AST/MIR rewalk, fallback, and retry.
-Fail-fast boundary: reject lane/arity drift, target/brand mismatch, actualize
-failure, owner-lifetime loss, one-lane SSA adoption, or unowned receiver lane.
-Smallest next slice: exact target→signature handoff and one-lock generation /
-lifetime receipt; only then caller-zero mapping I0.
-Non-claims: no production caller, TextEq route/residence, V2 envelope, Builder,
-physical session, fallback, retry, or main integration.
+Decision: select explicit contiguous `slot,generation` two-lane expansion as the target shape; one logical ExactText remains one BindingRef and `/N` is logical only, while ABI/I0 stays closed until actualization and lease ownership are issued.
+Source authority + canonical issuer: complete ExactText contracts plus same-brand header/Completion feed the package-owned signature cohort; one callee-entry runtime issuer owns the mandatory pair lease.
+Non-authority: `/N`, MirType/FunctionSignature length, raw HostHandle, C validator order, detached ValueIds, source-residence-only proof, AST/MIR rewalk, fallback, and retry.
+Fail-fast boundary: reject lane/arity drift, target/brand mismatch, original-formal/reaching proof loss, actualize or lease failure, one-lane SSA adoption, or unowned receiver lane before body effect.
+Smallest next slice: exact target→signature handoff, original-formal actualization, and one callee-entry lease/finish receipt; only then caller-zero mapping I0.
+Non-claims: no production caller, TextEq route/residence, V2 envelope, Builder, physical session, fallback, retry, or main integration.
 ```
 
 ## Current child pointer
@@ -56,11 +48,12 @@ source-backed result/header declaration, and `verify_function_completion_v1`
 return/cleanup proof through the same branded package/Port cohort. The completed
 Text formal I0 adds only the generation-checked caller-zero wire/validator and
 fixed C status projection. It does not bind one logical ExactText formal to the
-physical callable signature: the D0 must choose either one 16-byte aggregate
-formal or an explicit two-`u64` arity expansion and name the call-site/session
-owner. The same-cohort S6C child and executable single-Completion path are now
-closed by the child I0; the common-V2 exact-set envelope remains open. No
-Builder/session or production caller opens here.
+physical callable signature: D0 now selects explicit two-`u64` arity expansion;
+the 16-byte aggregate is rejected for this slice. The same-cohort S6C child and
+executable single-Completion path are closed by the child I0, but the
+call-site original-formal proof, callee-entry lease owner, and common-V2
+exact-set envelope remain open. No Builder/session or production caller opens
+here.
 
 ## R0 implementation evidence
 
