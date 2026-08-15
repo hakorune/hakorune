@@ -211,3 +211,29 @@ These are two bounded implementation families after the signature row, not a
 new card per type. The runtime lease I0 remains a substrate only. No family
 may claim a production callable route until the common V2 envelope, admitted
 route, residence, Completion epilogue, and canonical session meet at one edge.
+
+## Read-only fast-path audit
+
+The 2026-08-16 code/performance audit confirms that the intended pinned-root
+route can target a C-like hot kernel, but no such production route or measured
+keeper exists yet. The current generic Substring/TextEq route may cross helper,
+registry/lock, object/handle birth, and publication boundaries on each loop
+iteration. The admitted target instead keeps all of those at zero inside the
+loop and lowers only a valid-UTF-8 code-point cursor plus a direct one-to-four
+byte equality leaf.
+
+`LOOP-TEXT-SLICE-EXECUTION-I0` must therefore include one primary-AOT backend
+consumer that turns the verified cursor/slice product into direct address,
+load, and small-compare code. A target-neutral proof without that consumer is
+not a speed keeper. `LOOP-TEXT-ROUTE-PERF-R0` must split entry/exit, equality
+leaf, UTF-8 cursor, S6C kernel, and whole-call measurements; inspect generated
+IR/assembly; and require per-iteration calls, locks, allocations, handle/Box
+births, publication, retain/release, and environment reads to be zero. Kernel
+and whole-call C ratios remain separate because entry/exit lease cost may
+dominate short inputs. Route admission is target-stamped and static; missing
+backing, boundary, backend, or performance proof rejects before effect with no
+fallback or retry.
+
+The current fast-path review is read-only because stable root backing,
+CP-cursor lowering, and performance admission are future authorities, not
+permissions to widen the active signature I0.
