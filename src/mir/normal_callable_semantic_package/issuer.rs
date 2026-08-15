@@ -32,6 +32,9 @@ use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
 };
+use super::physical_header::{
+    issue_callable_physical_header_cohort_v1, CallablePhysicalHeaderIssueV1,
+};
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
 };
@@ -42,6 +45,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     Batch(ResolvedCallableSemanticBatchIssueV1),
     SelectedMapping(SelectedCallableBatchMapIssueV1),
     ParameterContract(CallableParameterContractIssueV1),
+    PhysicalHeader(CallablePhysicalHeaderIssueV1),
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     Dynamic {
         batch_slot: u32,
@@ -91,6 +95,9 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             .collect::<Vec<_>>()
             .into_boxed_slice()
     };
+    let physical_header =
+        issue_callable_physical_header_cohort_v1(&batch, &selected, &parameter_contracts)
+            .map_err(NormalCallableSemanticPackageIssueV1::PhysicalHeader)?;
     let mut candidate = None;
     for declaration in batch.declarations() {
         // The resolved batch row is the sole declaration-mode authority.  The
@@ -196,6 +203,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
         batch,
         selected,
         parameter_contracts,
+        physical_header,
         dynamic,
         dynamic_physical_header,
     })

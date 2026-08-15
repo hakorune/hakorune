@@ -1,5 +1,5 @@
 ---
-Status: current design stop; no implementation or physical receipt is open
+Status: closed design; transport row complete; next bounded row is CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md`
 Classification: T2 BoxShape
@@ -79,6 +79,36 @@ Recipe item. The result representation catalog may be a downstream
 publication projection only after it is tied to the same source identity and
 Completion; it cannot be the header authority by itself.
 
+## Existing authority census
+
+The repository confirms that this is a real design boundary rather than a
+missing getter:
+
+```text
+VerifiedCallableHeaderV1
+  -> current callable-index profile is exact-i64 only
+  -> StringBox formal rows are intentionally outside this header type
+
+ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable
+  -> the ordinary batch path intentionally carries callable_header = None
+
+VerifiedSameModuleCallableResultCatalogV1
+  -> can prove a body/result representation for call publication
+  -> is built later and may use body proof when no annotation exists
+  -> cannot become a source/header authority by itself
+
+verify_function_completion_v1
+  -> already owns declared result contract, exact exit set, target, and cleanup
+  -> is the only acceptable semantic return-site aggregate
+```
+
+The existing `hako-callable-header-result-carrier-d0-design-task` already
+fixes the bootstrap policy: an explicit `: i64` source annotation is the
+source fact, the Rust final-source producer is temporary bootstrap authority,
+and the Hako source carrier is a later parity/cutover concern. This D0 does
+not reopen that frontend policy or infer an unannotated result; it decides how
+the normalized source row, formal rows, and Completion travel as one cohort.
+
 ## Required design acceptance
 
 The D0 is accepted only when the design names all of the following without
@@ -97,6 +127,37 @@ implementation:
 The source-shape decision may require an explicit `: i64` result annotation
 for the S6C helper. That is a reference/source decision and must be recorded
 before an I0; it is not a fixture edit permitted by this D0.
+
+## Design acceptance receipt
+
+The worker audit accepted this BoxShape with one correction to the ordering:
+physical Text parameters and callable result/header are not sibling owners.
+They are one signature cohort. The source-backed bootstrap policy is already
+accepted by `hako-callable-header-result-carrier-d0-design-task`: the selected
+source carries an explicit `: i64` annotation, the Rust final-source producer
+is the temporary bootstrap authority, and `verify_function_completion_v1`
+remains the sole return-site/cleanup verifier. The completed R0 applied that
+explicit annotation to the S6C fixture; its former unannotated body was never
+used as an inference input.
+
+The accepted next implementation is deliberately narrower than a runtime ABI:
+
+```text
+CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0
+  source annotation + normalized source/header projection
+  + existing ExactText/i64/OpaqueHandle formal rows
+  + Completion parity, all owned by one package/Port cohort
+  - no Text handle wire, C symbol, lease, Builder, session, or caller switch
+```
+
+This receipt changes the work mode only through the pointer handoff to that
+R0. It does not authorize a physical Text route or a standalone parameter
+wire.
+
+R0 keeps ordinary unannotated packages source-compatible by representing the
+header cohort as unavailable (`None`) until a later physical consumer requests
+it. That consumer must stop with the D0 missing-result decision; it may not
+infer a result from the body, MIR, or a downstream ResultCatalog.
 
 ## Negative matrix
 
@@ -121,8 +182,9 @@ fallback, retry, or alternate physical target            -> FallbackForbidden
 ## Ordered DAG after this design stop
 
 ```text
-CALLABLE-PHYSICAL-HEADER-ABI-D0             (current; design_stop)
-  -> CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0  (same-brand projection only)
+CALLABLE-PHYSICAL-HEADER-ABI-D0             (closed design)
+  -> CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0  (closed same-brand projection)
+  -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 (current; design_stop)
   -> S6C-INSTALLED-BATCH-CHILD-COMPOSITION-D0
   -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
   -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
@@ -135,9 +197,9 @@ CALLABLE-PHYSICAL-HEADER-ABI-D0             (current; design_stop)
 ```
 
 The existing `CALLABLE-TEXT-PARAMETER-COHORT-I0` is semantic/cohort evidence,
-not a physical wire. It is a prerequisite projection for this D0, not a
-replacement for it. Result/header design and physical Text parameter design
-must not be opened as independent signature owners.
+not a physical wire. It remains a prerequisite projection for the same
+complete callable signature. The current Text-parameter D0 is therefore a
+bounded continuation of this cohort, not a second result/header authority.
 
 ## Parked whole-builder convergence tasks
 
@@ -193,10 +255,9 @@ claiming main integration, whole-builder typed ingress, or finish convergence fr
 ## Current evidence classification
 
 Worker audits agree that the semantic ExactText formal row, same-branded
-parameter cohort, and Main static-child selected membership are closed. The
-physical callable header is not: the source fixture lacks an explicit result
-annotation, the installed package has no ordinary callable header, and the
-existing result catalog is built later as a publication projection. The
-current branch therefore remains `design_stop`; no physical parameter/header
-receipt, S6C production caller, Builder/session, or main integration is
-claimed.
+parameter cohort, Main static-child selected membership, and caller-zero
+source/header transport are closed. The remaining physical callable-header
+gap is the StringBox/ExactText formal lane: no canonical Text handle/home
+owner has been admitted. The current branch therefore remains `design_stop`
+at `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0`; no Text wire, S6C production
+caller, Builder/session, or main integration is claimed.

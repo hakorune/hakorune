@@ -27,6 +27,7 @@ MAIN_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mappin
 MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
 MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
@@ -36,6 +37,7 @@ guard_require_files "$TAG" "$PHYSICAL_INPUT"
 guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
   "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
+guard_require_files "$TAG" "$PHYSICAL_HEADER"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -100,6 +102,15 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "dynamic_eligible_batch_slot" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "Main static-child rows must be filtered before Dynamic admission"
+guard_expect_fixed_in_file "$TAG" \
+  "verify_function_completion_v1" "$PHYSICAL_HEADER" \
+  "callable physical-header cohort must use the sole Completion issuer"
+guard_expect_fixed_in_file "$TAG" \
+  "ExactTrivialScalarAbiV1::classify" "$PHYSICAL_HEADER" \
+  "callable physical-header result must use the explicit scalar source spelling"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_callable_physical_header_cohort_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "package issuer must have one source/header cohort seam"
 
 for forbidden in \
   'pub(crate) fn logical' \

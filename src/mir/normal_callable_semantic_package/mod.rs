@@ -9,10 +9,13 @@ mod dynamic_admission;
 mod install;
 mod issuer;
 mod model;
+mod physical_header;
 mod selected_mapping;
 
 #[cfg(test)]
 mod main_static_child_tests;
+#[cfg(test)]
+mod physical_header_tests;
 #[cfg(test)]
 mod tests;
 
@@ -27,3 +30,4 @@ pub(crate) use issuer::{
 pub(crate) use model::{
     NormalCallableDynamicProjectionRefV1, VerifiedNormalCallableSemanticPackageV1,
 };
+pub(crate) use physical_header::CallablePhysicalHeaderRefV1;

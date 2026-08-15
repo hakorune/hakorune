@@ -33,6 +33,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) physical_header:
+        Option<super::physical_header::VerifiedCallablePhysicalHeaderCohortV1>,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
     pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
 }

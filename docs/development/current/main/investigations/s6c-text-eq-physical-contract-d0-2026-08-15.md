@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, and site-contract I0 are closed; the parent common-V2 stop is narrowed to the current CALLABLE-PHYSICAL-HEADER-ABI-D0 child
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, site-contract I0, and caller-zero header transport R0 are closed; the parent common-V2 stop is narrowed to the current CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 child
 Date: 2026-08-15
 Work mode: design_stop
-Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount; current T2 callable physical-header cohort BoxShape
+Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount + closed T1 header transport; current T2 physical Text formal BoxShape
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -18,26 +18,27 @@ Decision: close the site-contract I0 and design one common V2 pre-session bounda
 Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension must lend that same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
 Fail-fast boundary: before Builder/session, reject missing or foreign installed membership, result/header ABI, ingress identity, 13-operation evidence, separate If/Exit control, JoinSig transfers, exact 15-placement coverage, or neutral canonical-session admission.
-Smallest next slice: CALLABLE-PHYSICAL-HEADER-ABI-D0; freeze the complete callable-header owner graph, API shape, negative matrix, and NoSafeSlice boundaries only. No code or receipt is issued in design_stop.
+Smallest next slice: CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0; freeze the profile-neutral Text formal lane, canonical owner, same-cohort API, negative matrix, and NoSafeSlice boundaries only. No code or physical receipt is issued in design_stop.
 Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
 ## Current child pointer
 
-The parent common-V2 stop remains open, but its first bounded child is now a
-single complete callable-header design rather than separate parameter-only and
+The parent common-V2 stop remains open, and its accepted header design is now
+executing one bounded transport row rather than separate parameter-only and
 result-only rows:
 
 ```text
-CALLABLE-PHYSICAL-HEADER-ABI-D0
+CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
   -> docs/development/current/main/investigations/
-     callable-physical-header-abi-d0-2026-08-15.md
+     callable-physical-text-parameter-abi-d0-2026-08-15.md
 ```
 
-The child co-seals exact formal parameters, an explicit source-backed
-result/header declaration, and `verify_function_completion_v1` return/cleanup
-proof through the same branded package/Port cohort. It stays in
-`work_mode=design_stop`; no physical Text wire, S6C child, V2 envelope,
+The completed transport row co-seals supported formal parameters, an explicit
+source-backed result/header declaration, and `verify_function_completion_v1`
+return/cleanup proof through the same branded package/Port cohort. The current
+design stop names the missing physical StringBox/ExactText formal owner before
+S6C child composition. No physical Text wire, S6C child, V2 envelope,
 Builder/session, or production caller opens here.
 
 ## R0 implementation evidence
@@ -62,7 +63,7 @@ The behavior-neutral surface is now implemented in the caller-zero owner:
 Focused evidence for this slice:
 
 ```text
-cargo test --lib -q s6c_                         # 29 passed
+cargo test --lib -q s6c_                         # 30 passed
 cargo check -q                                   # green; inherited warning census unchanged
 loop_pre-cutover / loop_physical-transfer guards # green
 current-state pointer guard + diff check          # green
@@ -455,10 +456,10 @@ are:
 The previous semantic/cohort and Main-child rows are closed. Worker audits
 resolved the apparent ordering split: a standalone physical Text-parameter row
 would create a second callable-signature authority, while a result-only row
-would detach the same header from the formal rows. The single next row is
-therefore `CALLABLE-PHYSICAL-HEADER-ABI-D0`, which co-seals both sides and the
-existing Completion owner. Its source annotation and same-brand transport are
-still unresolved; the parent remains `NoSafeSlice` until that child is accepted.
+would detach the same header from the formal rows. `CALLABLE-PHYSICAL-HEADER-
+ABI-D0` therefore co-sealed both sides and the existing Completion owner; its
+caller-zero transport is now closed. The remaining `NoSafeSlice` is the
+profile-neutral physical StringBox/ExactText formal lane.
 
 The parent D0 is intentionally not split into five parallel cards. The first
 bounded child is complete:
@@ -667,8 +668,10 @@ Entry, Builder, physical ID, or session code may be added from these audits.
     -> [closed] LANG-TEXT-EQUALITY-LAW-D0/I0
     -> [closed] LOOP-TEXT-EQ-SITE-CONTRACT-I0
     -> [parent open] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-       -> [current] CALLABLE-PHYSICAL-HEADER-ABI-D0
-          (design only; complete callable header/result/Completion cohort)
+       -> [closed design] CALLABLE-PHYSICAL-HEADER-ABI-D0
+       -> [closed] CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0
+       -> [current] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
+          (design stop; physical Text formal owner is missing)
     -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
     -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
     -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
@@ -741,10 +744,11 @@ audits, and focused local evidence at the site-contract/Main-child commits:
 S6C ingress and Recipe/logical output focused suites are green, the site
 binding and Main-child focused tests are green, Loop pre-cutover and
 physical-transfer guards are green, and the worktree is clean before this
-pointer handoff. S6C production callers remain zero. The current child D0 is
-`CALLABLE-PHYSICAL-HEADER-ABI-D0`; its source result/header issuer, physical
-Text wire, TextEq trap owner, route keeper, V2 prepared program, physical
-caller, benchmark result, latest-HEAD integration, and production cutover are
-not claimed. Whole-builder raw-AST ingress, finish convergence, warning/allow
-cleanup, and main integration are explicitly parked. The parent remains
-design_stop; no implementation row is open.
+pointer handoff. S6C production callers remain zero. The accepted child D0 is
+`CALLABLE-PHYSICAL-HEADER-ABI-D0`; its caller-zero transport is closed and the
+current child is `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0`. Physical Text wire,
+TextEq trap owner, route keeper, V2 prepared program, physical caller,
+benchmark result, latest-HEAD integration, and production cutover are not
+claimed. Whole-builder raw-AST ingress, finish convergence, warning/allow
+cleanup, and main integration are explicitly parked. The parent remains open;
+the Text formal owner is the only current design stop.

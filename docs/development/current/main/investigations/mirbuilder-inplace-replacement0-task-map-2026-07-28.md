@@ -76,22 +76,25 @@ explicit pointer retarget.
 11. CLOSED caller-zero semantic cohort: S6C source/Facts/Recipe/logical output,
     prephysical ingress, the normative String/Text law, and the TextEq site
     contract are issued without Builder or a production caller
-12. CURRENT design stop: `CALLABLE-PHYSICAL-HEADER-ABI-D0` co-seals exact
-    formal parameters, an explicit source-backed result/header declaration,
-    and Completion/return proof through one branded package/Port cohort; no
-    parameter-only wire or result-only authority
-13. OPEN ordered common boundary: installed-batch S6C child composition,
-    semantic-program co-seal, JoinSig transfer, bound segment input, boundary
-    cleanup, common-V2 pre-session contract, and 13-operation/control-envelope
-    transport
-14. OPEN structural/session coverage: Always, If, Exit, then the first common
+12. CLOSED caller-zero: `CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0` adds the
+    explicit source result annotation and transports supported formal rows,
+    source-backed result/header, and Completion/return proof through one
+    branded package/Port cohort; no runtime wire or physical route
+13. CURRENT design stop: `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0` names the
+    missing physical StringBox/ExactText formal lane before installed-batch S6C
+    child composition; no physical wire or Builder/session is open
+14. OPEN ordered common boundary after the Text formal owner: installed-batch
+    S6C child composition, semantic-program co-seal, JoinSig transfer, bound
+    segment input, boundary cleanup, common-V2 pre-session contract, and
+    13-operation/control-envelope transport
+15. OPEN structural/session coverage: Always, If, Exit, then the first common
     V2 physical session; later M8/M9 families remain separately open
-15. OPEN gated production selection: pre-cutover authority proof, then M10b
+16. OPEN gated production selection: pre-cutover authority proof, then M10b
     activation and M11/M12 legacy retirement
-16. PARKED post-cutover convergence: main integration, whole-builder typed
+17. PARKED post-cutover convergence: main integration, whole-builder typed
     ingress, common finish convergence, warning/allow census, and physical
     docs/module cleanup (see the current physical-header card's parked rows)
-17. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
+18. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
 The selected-Dynamic `skip_while/4` lane is a reusable authority/physical

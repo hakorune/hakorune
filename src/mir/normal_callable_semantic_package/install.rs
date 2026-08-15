@@ -19,6 +19,7 @@ use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     VerifiedNormalCallableSemanticPackageV1,
 };
+use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysicalHeaderCohortV1};
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -45,6 +46,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    physical_header: Option<VerifiedCallablePhysicalHeaderCohortV1>,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
 }
@@ -52,6 +54,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
+    physical_header: Option<CallablePhysicalHeaderRefV1<'loan>>,
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
     selected_key: SelectedNormalCallableKeyV1,
@@ -163,6 +166,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            physical_header,
             dynamic,
             dynamic_physical_header,
         } = self.package;
@@ -174,6 +178,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
         }
@@ -256,6 +261,11 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
+        let physical_header = self
+            .physical_header
+            .as_ref()
+            .and_then(|cohort| cohort.row(batch_slot))
+            .map(|row| row.borrow());
         let semantic = match &self.dynamic {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
@@ -284,6 +294,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                 Ok(callback(SelectedCallableLoweringInputRefV1 {
                     source,
                     parameter_contracts: parameters,
+                    physical_header,
                     semantic,
                     source_identity,
                     selected_key,
@@ -416,6 +427,10 @@ impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
         self.parameter_contracts
             .iter()
             .map(|row| (row.ordinal, row.binding, row.kind))
+    }
+
+    pub(crate) fn physical_header(&self) -> Option<CallablePhysicalHeaderRefV1<'_>> {
+        self.physical_header
     }
 
     pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'loan> {

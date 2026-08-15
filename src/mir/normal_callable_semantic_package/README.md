@@ -77,6 +77,24 @@ issues one move-only physical-header projection. The package loan transports
 that projection to A-prime exactly once; A-prime consumes it for the physical
 header and never re-observes the AST/root declaration.
 
+## Source/header transport (2026-08-15)
+
+The package also has a caller-zero, Builder-free source/header cohort. When
+the selected cataloged rows have both the existing formal parameter contracts
+and an explicit source result annotation accepted by the current scalar
+bootstrap (`i64`), the package-local issuer co-seals those rows with
+`verify_function_completion_v1`. The cohort is moved through install and is
+lent as an `Option<CallablePhysicalHeaderRefV1>` on the selected lowering
+view. A package without that explicit source/header admission remains valid
+for its ordinary semantic route and lends `None`; it is not inferred from a
+body, MIR, ResultCatalog, or fixture expectation.
+
+This row does not define a Text handle ABI or runtime wire. In particular,
+`StringBox`/ExactText physical parameters, TextEq residence, Builder IDs, and
+the S6C physical session remain downstream design stops. The cohort owns the
+source result spelling and Completion proof only; the formal parameter issuer
+continues to own ordinal, BindingRef, owner, and formal-kind evidence.
+
 ## Anchor/package audit reconciliation (2026-08-10)
 
 The selected-mapping boundary is closed and must not be reopened as a second
