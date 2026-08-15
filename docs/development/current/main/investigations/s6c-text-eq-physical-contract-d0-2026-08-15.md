@@ -18,22 +18,23 @@ Decision: keep this T2 BoxShape open until one non-splittable installed S6C pare
 Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the only candidate co-issuer; the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort is transported only by `NormalCallableSemanticPackagePortV1`, and the retained S6C parent remains the source/Recipe/Join owner.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
 Fail-fast boundary: before Builder/session, reject non-total S6C membership, foreign cohort/header, duplicate Completion ownership, missing TextFormal callable-signature mapping, or any non-exact partition of 13 operation keys plus one If and one Exit over all 15 Recipe placements.
-Smallest next slice: finish this same `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`; freeze the executable Completion ownership path, TextFormal callable-signature mapping, installed-child issuer, sibling-loan surface, and exact-set envelope. No child D0 or code opens while these remain unresolved.
+Smallest next slice: first close the ordered child `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` inside this parent card: total package-owned S6C child plus one move-only Completion seed. TextFormal mapping and generic V2 exact-set transport remain ordered parent follow-ons; no code opens while the child issuer is unresolved.
 Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
 ## Current child pointer
 
-The parent common-V2 stop remains open, and its accepted header design is now
-executing one bounded transport row rather than separate parameter-only and
-result-only rows:
+The parent common-V2 stop remains open. Its first bounded design child is the
+installed-cohort composition; the later transport row remains separate from
+parameter-only or result-only rows:
 
 ```text
 CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
   -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 [closed caller-zero wire/validator]
      docs/development/current/main/investigations/
      callable-physical-text-parameter-abi-i0-2026-08-15.md
-  -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [current]
+  -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0 [current design child]
+  -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [parent follow-on]
 ```
 
 The completed transport row co-seals supported formal parameters, an explicit
@@ -104,20 +105,19 @@ Completion/Tail row, ABI, route, residence, Builder, or physical ID is stored
 or issued. Focused site binding and all S6C/Loop guards are green, and the
 non-test caller census remains zero.
 
-The pointer is now parked at this T2 design stop:
+The pointer is now parked at the first bounded child of this T2 design stop:
 
 ```text
-LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
 ```
 
-This is a design-only boundary. It must decide, without implementation, one
-same-owner Installed-package cohort for the S6C ingress, a source-backed
-function result/header ABI issuer, a V2 complete envelope with exactly
-`13 operations + 1 If + 1 Exit = 15 placements`, while preserving a neutral
-handoff boundary for a later canonical session admission. The 13 operation rows
-must remain separate from Recipe/JoinSig/Layout-owned If/Exit control. If any
-of these issuers is missing, the row stays `NoSafeSlice` and no I0 receipt is
-issued.
+This child is design-only. It must decide, without implementation, the total
+same-cohort S6C child issuer and one executable Completion seed move. The
+parent later decides the source-backed callable signature and neutral V2
+envelope with exactly `13 operations + 1 If + 1 Exit = 15 placements`; the 13
+operation rows remain separate from Recipe/JoinSig/Layout-owned If/Exit
+control. If the child issuer is missing, `NoSafeSlice` remains and no I0
+receipt is issued.
 
 ## Corrected owner graph
 
@@ -409,7 +409,10 @@ Decision: use one package-owned admitted S6C child inside the branded Installed/
 Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the sole candidate co-issuer; `NormalCallableSemanticPackagePortV1` alone lends the same callable/header/S6C cohort, while the retained S6C parent and one Completion remain the source/control owners.
 Non-authority: Recipe-local keys, a detached TextEq site, benchmark JSON, MIR MirType/EffectMask, the V1 physicalizer, Selected-Dynamic fixed cursor, Builder state, and fixture expectations cannot issue the outer cohort or complete program.
 Fail-fast boundary: before Builder/session, reject non-total S6C admission, foreign header/ingress identity, duplicate Completion, missing ExactText compiler lane, or incomplete/overlapping operation-control keys; never coerce V2 to V1 or retry another physicalizer.
-Smallest next slice: finish this D0, then execute `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` followed by caller-zero `LOOP-S6C-COMMON-V2-PRESESSION-I0`; route and session rows remain separate.
+Smallest next slice: finish the installed-child composition child, then return
+to the parent D0 for TextFormal mapping and generic V2 coverage before
+`LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`; route and session rows remain
+separate.
 Non-claims: no Builder, ValueId, physical block/ID, runtime route activation, residence, production caller, selector switch, S6C physicalizer, or BorrowedSpan implementation.
 ```
 
@@ -650,7 +653,10 @@ CleanupParked: raw-AST ordinary/root convergence, finish unification,
   ingress + law + site + callable header + TextFormalBorrowV1
                          |
                          v
-[current] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+[current child] LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
+                         |
+                         v
+        LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
               /                                      \
              / common-program branch                  \ TextEq-route branch
             v                                          v
