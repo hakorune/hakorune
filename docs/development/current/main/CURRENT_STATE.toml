@@ -8,7 +8,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0"
 work_mode = "design_stop"
 current_execution_row = "LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0"
-current_blocker_token = "NoSafeSlice::MissingInstalledS6CChildCompositionIssuer until issue_normal_callable_semantic_package_v1 co-seals a total same-cohort S6C child and moves one Completion seed into it exactly once; caller-supplied Facts/Recipe/key/slot/fixture, duplicate Completion, Port reclassification, detached re-pairing, Builder/session, fallback, and retry remain forbidden. TextFormal mapping and generic V2 exact-set coverage stay parent-D0 follow-ons."
+current_blocker_token = "NoSafeSlice::MissingInstalledS6CChildCompositionIssuer until issue_normal_callable_semantic_package_v1 co-seals a total same-cohort S6C child and owns the generic-header Completion seed handoff, moving one seed into the selected child exactly once; caller-supplied Facts/Recipe/key/slot/fixture, duplicate Completion, Port reclassification, detached re-pairing, Builder/session, fallback, and retry remain forbidden. TextFormal mapping and generic V2 exact-set coverage stay parent-D0 follow-ons."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

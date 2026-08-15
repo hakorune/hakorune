@@ -40,16 +40,18 @@ CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
 ### Ordered child D0 acceptance
 
 ```text
-Decision: issue one package-owned S6C child from the same batch/catalog cohort;
-  move one Completion seed into it exactly once before Port lending.
+Decision: first close the package-owned S6C child issuer and the generic-header
+  Completion seed handoff; move one seed into the S6C child exactly once.
 Source authority + issuer: existing S6C Facts/Recipe/Join producers plus
-  verify_function_completion_v1, composed only by issue_normal_callable_semantic_package_v1.
+  verify_function_completion_v1, composed above header-row wrapping only by
+  issue_normal_callable_semantic_package_v1.
 Non-authority: test-built ingress, raw batch slot/key, Main/name/fixture lookup,
   Port-side reclassification, cloned/raw Completion, TextFormal wire arguments.
 Fail-fast: foreign or non-member child, missing/duplicate Completion, detached
   ingress/header re-pair, and any caller-supplied source product reject before Builder.
-Next slice: focused package-owned child/Port loan I0; TextFormal mapping and
-  generic V2 coverage remain parent-D0 follow-ons.
+Next slice: an additional design-only seam for child/header ownership; only
+  after it is accepted may a focused child/Port loan I0 open. TextFormal
+  mapping and generic V2 coverage remain parent-D0 follow-ons.
 Non-claims: no route, residence, physical IDs, Builder/session, fallback, retry, or caller.
 ```
 
@@ -495,12 +497,11 @@ Four gaps remain before this D0 can be accepted:
    product currently each own a Completion product. The target direction is
    one move-only Completion retained by the installed S6C parent; header/result
    and Loop Return/Tail are sibling projections of it. Clone, `Rc`, later
-   equality comparison, or detached re-pairing is forbidden. Because the
-   landed generic header row keeps Completion private, the preferred R0 seam is
-   a single non-`Clone` Completion seed issued above header-row wrapping, moved
-   into the package-owned S6C child exactly once; ordinary header rows remain
-   unchanged. If that owner cannot be made executable, the row stays
-   `NoSafeSlice` rather than comparing or copying two Completion products.
+   equality comparison, or detached re-pairing is forbidden. The preferred
+   seam is a single non-`Clone` seed issued above header-row wrapping: ordinary
+   rows move their seed into generic header rows, while the selected S6C row
+   moves its seed into the package-owned child and lends the header view from
+   that child. If this cannot be made executable, remain `NoSafeSlice`.
 3. **TextFormal callable signature.** `ExactTextFormalAbiV1` owns semantic formal
    identity and `TextFormalBorrowV1` owns the runtime `{slot, generation}`
    aggregate/validator. Existing compiler/LLVM paths make explicit two-`u64`
