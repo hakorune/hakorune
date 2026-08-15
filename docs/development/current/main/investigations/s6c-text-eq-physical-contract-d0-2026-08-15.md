@@ -28,6 +28,13 @@ The parent common-V2 stop remains open. Its first bounded design child is the
 installed-cohort composition; the later transport row remains separate from
 parameter-only or result-only rows:
 
+The child task has its own bounded card:
+
+```text
+docs/development/current/main/investigations/
+s6c-installed-child-composition-d0-2026-08-15.md
+```
+
 ```text
 CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
   -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 [closed caller-zero wire/validator]
