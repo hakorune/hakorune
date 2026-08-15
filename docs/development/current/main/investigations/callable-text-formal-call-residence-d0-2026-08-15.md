@@ -38,20 +38,19 @@ callable signature's lifetime authority.
 
 ## Selected route shape (design-only; issuer not landed)
 
-The planned actualizer and lease are intentionally opaque and non-`Clone`;
-the source owner is only the pre-call actualization proof, not the lifetime
-owner after callee entry:
+The planned layers are intentionally opaque and non-`Clone`; the source proof
+ends at callee-entry acquisition, and the runtime lease owns the call lifetime:
 
 ```text
-VerifiedCallScopedTextOwnerLifetimeV1 {
-    private source_owner: original live Text/StringBox owner,
-    private until_call_return: sealed synchronous-lifetime proof
+VerifiedTextFormalActualOriginV1 {
+    private formal_owner: original live Text/StringBox owner,
+    private reaching_original_formal: no-rebind proof through call entry
 }
 
 PreparedTextFormalCallActualizationV1 {
     private signature_row: source-backed logical-to-physical mapping,
-    private source_residence: VerifiedCallScopedTextOwnerLifetimeV1,
-    private capture_and_call: caller-private exact transition
+    private actual_origin: VerifiedTextFormalActualOriginV1,
+    private pair_lanes: [slot, generation]
 }
 
 TextFormalCallLeaseTokenV1 {
@@ -61,23 +60,24 @@ TextFormalCallLeaseTokenV1 {
 }
 ```
 
-The caller-side actualizer must obtain the pair from the same source-backed
-formal owner and target row, but it must not pin. A raw-slot acquire is
-forbidden because it could capture the current generation of an already-reused
-replacement. At the callee entry, `acquire_text_formal_call_lease_v1(pair)`
-atomically validates Text class/generation and creates the single move-only
-lease. Nested calls forward the composite pair without another pin. The
-session sees only the private `TextFormalEntryLeaseSlotIdV1`; it never treats
-generation as a second BindingRef value. Existing `drop_handle`, Dynamic lease
-retirement, and `retain_h` are not sufficient. Both direct retirement paths
-must later converge on one pin-aware helper. C/LLVM receives only the fixed
-two-lane projection; the source receipt and lease token stay private.
+The package-owned actual-origin issuer must prove that the original formal
+reaches the call site without rebind, then the target terminal emits the pair
+lanes while that source owner is still live. It must not pin or recapture a
+generation from a detached raw slot. At callee entry,
+`acquire_text_formal_call_lease_v1(pair)` atomically validates Text
+class/generation and creates the single move-only lease. Nested calls forward
+the composite pair without another pin. The session sees only the private
+`TextFormalEntryLeaseSlotIdV1`; it never treats generation as a second
+BindingRef value. Existing `drop_handle`, Dynamic lease retirement, and
+`retain_h` are not sufficient; both direct retirement paths must later
+converge on one pin-aware helper. C/LLVM receives only the fixed two-lane
+projection; the source proof and lease token stay private.
 
-The actualizer cannot smuggle an owned handle through an ordinary MIR
-`Call`: the current Ownership SSA verifier rejects managed call operands and
-results. The accepted design must therefore name either a borrow-only
-capture/terminal or a dedicated ownership-aware call capability; a raw
-`Vec<ValueId>` call edge or a `KeepAlive` no-op is not a lifetime proof.
+The two lanes are scalar `u64` values with Ownership-SSA `None`; this avoids
+smuggling a managed handle through an ordinary MIR `Call`, which the current
+verifier rejects. A raw `Vec<ValueId>` call edge still carries no origin proof,
+so the mapping/actual-origin cohort and the private lease sidecar remain
+mandatory. `KeepAlive` is not a lifetime proof.
 
 This is a BoxShape decision only. Any SlotTable pin count, deferred retirement,
 or C/runtime token implementation is a later BoxCount and remains unopened.
@@ -91,11 +91,13 @@ source-to-target actualizer, no pin-aware retirement, and no composite session
 adoption. Those are the next bounded implementation/design rows; they are not
 permission to add a second source-residence route.
 
-The callable target terminal must consume this residence through the same
-package-owned physical-signature row that maps one logical `BindingRef` to
-`slot` and `generation` lanes. It may not capture a pair from a detached
-argument, and the callee/session must retain the pair as one composite receipt,
-publishing only the slot as ordinary BindingRef SSA.
+The callable target terminal must consume the actual-origin proof through the
+same package-owned physical-signature row that maps one logical `BindingRef`
+to `slot` and `generation` lanes. It may not capture a pair from a detached
+argument. The Canonical session will later adopt the pair as one composite
+receipt, publish only the slot as ordinary BindingRef SSA, and let a separate
+physical epilogue borrow Completion's exact normal-exit set to finish leases;
+semantic Completion cleanup remains empty.
 
 ## Required negatives
 
@@ -117,3 +119,28 @@ NoSafeSlice::MissingTextFormalCallResidenceIssuer
 
 Only after this child closes does the parent resume its separate
 `MissingTextFormalCallableSignatureIssuer` mapping/target/session decision.
+
+## Bounded follow-ons
+
+Acceptance of this BoxShape requires named seams, not implementation:
+
+```text
+package actual-origin issuer
+  formal ordinal + BindingRef + call-site reaching-original proof
+  + whole-source target + same-brand callee row
+
+runtime lease issuer
+  acquire_text_formal_call_lease_v1(pair)
+  -> TextFormalCallLeaseTokenV1
+
+physical epilogue owner
+  Canonical entry-lease ledger + Completion normal-exit projection
+  -> exactly-once finish; semantic cleanup stays empty
+```
+
+The first implementation child after acceptance is caller-zero runtime
+`BoxCount`: pin counts, pending retirement, opaque acquire/finish, and one
+retirement helper shared by `drop_handle` and
+`drop_if_lease_identity_matches`. It must not claim compiler actualization or
+production routing. Compiler prologue/epilogue and composite session adoption
+remain later I0 rows after the signature cohort and canonical Trap owner close.
