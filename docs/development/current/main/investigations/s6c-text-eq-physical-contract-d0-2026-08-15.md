@@ -427,6 +427,68 @@ subproducts are named, implementation is
 CFG/Binding-SSA/Phi/Completion/DraftSeal services remain the only physical
 writers.
 
+## Common-V2 pre-session D0 audit receipt (open NoSafeSlice)
+
+The read-only audit found that the outer owner graph is a valid target shape,
+but the current repository products do not yet satisfy it. The exact blockers
+are:
+
+```text
+1. Main/helper membership:
+   source_backed.rs inserts Main declarations into the catalog but skips Main
+   from selected identities. The installed Port requires selected-map
+   membership, so the current Main.find_ok fixture cannot be loaned as a
+   selected callable cohort.
+
+2. Formal Text parameter ABI:
+   issue_callable_parameter_contract_v1 accepts exact i64 for explicit
+   annotations and rejects StringBox. The S6C typed-input row proves logical
+   Text, but is not a physical parameter ABI. A same-owner StringBox/Text
+   handle contract is missing.
+
+3. Result/header ABI:
+   the S6C fixture has no return annotation. Batch lowering intentionally
+   carries no callable header, the optional physical header is Dynamic-only,
+   and the existing result-representation catalog is not retained in the
+   Installed package/Port cohort. A result proof detached from Completion is
+   not sufficient.
+
+4. V2 common envelope/session:
+   no neutral production product carries the 13 operation rows, separate
+   Recipe/JoinSig/Layout If+Exit control, Join transfers, exact 15-placement
+   union, and a parent-borrowed admission into CanonicalSsaFunctionSessionV2.
+   The existing common physicalizer is test-only and V1-shaped.
+```
+
+The accepted D0 shape is therefore:
+
+```text
+InstalledNormalCallableSemanticPackageV1
+  owns one same-brand source/catalog/batch/selection/parameter cohort
+  plus a co-sealed S6C profile and result/header proof
+NormalCallableSemanticPackagePortV1
+  lends that cohort only through one HRTB callback
+PreparedS6CPhysicalPackage<'loan>
+  owns site-free route/preflight policy and cannot outlive the callback
+Common V2 envelope
+  13 operations
+  + Recipe/JoinSig/Layout-owned If + Exit control
+  + passive exact 15-placement coverage
+  + neutral CanonicalSsaFunctionSessionV2 admission
+```
+
+The recommended source-shaped fixture for a later implementation is a
+non-`Main` static helper with explicit `StringBox`/Text formal contracts and
+an explicit `i64` result annotation, while the runtime `Main` entry remains a
+separate ordinary owner. This is a design candidate, not a fixture change in
+the current stop. Renaming, inferring the result from MIR/body, using the
+catalog key/name as ABI, or adding a second S6C return/parameter authority is
+forbidden.
+
+The D0 remains open until the source-backed issuers are named and their
+negative matrix is accepted. No transport R0, package I0, TextEq ABI, Ready
+Entry, Builder, physical ID, or session code may be added from these audits.
+
 ## Current R0 acceptance
 
 `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` is a T0 behavior-neutral BoxShape:
@@ -567,5 +629,5 @@ test is green, Loop pre-cutover and physical-transfer guards are green, and
 the worktree is clean before this pointer handoff. S6C production callers
 remain zero. Main integration, TextEq ABI/Trap owner, route keeper, V2
 prepared program, physical caller, benchmark result, latest-HEAD integration,
-and production cutover are not claimed. The current D0 is design_stop; no
-implementation row is open.
+and production cutover are not claimed. The current D0 is design_stop with
+four named NoSafeSlice preconditions; no implementation row is open.
