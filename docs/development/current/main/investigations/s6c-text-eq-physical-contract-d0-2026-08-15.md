@@ -144,6 +144,48 @@ ordinary non-Text BoxRef:
 byte equality is a conforming implementation technique because the scalar
 sequence has one encoding; it is not the language-level definition.
 
+### LANG-TEXT-EQUALITY-LAW-D0 audit receipt
+
+The open decision is real, not a missing sentence that can be inferred from
+the implementation:
+
+* `types.md` §4.3 currently names same-kind primitive `String` equality but
+  does not define scalar-vs-byte comparison, case, normalization, locale, or
+  collation.
+* `strings.md` defines valid UTF-8 and text indexing/representation. It does
+  not own equality semantics.
+* The S6C typed-input issuer requires two explicitly declared `StringBox`
+  parameters and maps them to logical `Text`. That proves the accepted source
+  shape, not a language-wide equality law.
+* Runtime evidence is split by representation: `eq_vm` compares primitive
+  `String` contents but treats ordinary `BoxRef` equality as identity, while
+  `StringBox::equals` compares two `StringBox` contents. None of these
+  implementations is a specification authority.
+
+The bounded Decision must choose one of these explicit policies before the
+site/operation contract opens:
+
+```text
+recommended:
+  TextEqualityLawV1::ExactUnicodeScalarSequence applies to logical
+  String/Text values and to the explicitly admitted StringBox-as-Text bridge;
+  comparison is case-sensitive, normalization-free, and locale/collation-free;
+  String != String is logical negation; ordinary non-Text BoxRef remains
+  identity equality.
+
+alternative:
+  StringBox remains ordinary BoxRef identity. Then S6C must gain a separate,
+  source-backed conversion/bridge contract before its TextEq can be admitted;
+  the current TextEq row cannot silently choose that conversion.
+```
+
+Acceptance is one normative owner (`types.md` §4.3), one named bridge
+predicate, no co-owned rule in `strings.md`, and negative coverage for
+ordinary non-Text BoxRef identity, case/normalization/locale drift, and a
+StringBox row that lacks explicit Text admission. Until this Decision is
+accepted, `TextEqualityLawV1`, TextEq site receipts, ABI/route/residence
+admission, and any Builder/session product remain `NoSafeSlice`.
+
 After that reference Decision, `TextEqualityLawV1::ExactUnicodeScalarSequence`
 is a passive typed projection of the law. It is reusable and carries no site,
 route, Home, ABI, or lifetime.
