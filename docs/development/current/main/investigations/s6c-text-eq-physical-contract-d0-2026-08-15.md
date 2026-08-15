@@ -477,17 +477,21 @@ Four gaps remain before this D0 can be accepted:
    one move-only Completion retained by the installed S6C parent; header/result
    and Loop Return/Tail are sibling projections of it. Clone, `Rc`, later
    equality comparison, or detached re-pairing is forbidden. Because the
-   landed generic header row keeps Completion private, the R0 must move the
-   S6C specialization's ownership boundary above header construction or make
-   the S6C co-seal parent-borrowed; ordinary header rows remain unchanged.
+   landed generic header row keeps Completion private, the preferred R0 seam is
+   a single non-`Clone` Completion seed issued above header-row wrapping, moved
+   into the package-owned S6C child exactly once; ordinary header rows remain
+   unchanged. If that owner cannot be made executable, the row stays
+   `NoSafeSlice` rather than comparing or copying two Completion products.
 3. **TextFormal callable signature.** `ExactTextFormalAbiV1` owns semantic formal
    identity and `TextFormalBorrowV1` owns the runtime `{slot, generation}`
-   aggregate/validator. No compiler authority says whether one logical formal
-   is passed as one 16-byte aggregate or expanded into two `u64` arguments.
-   The callable package/header issuer must choose and own one mapping together
-   with call-site actualization and session adoption; the validator's two C
-   arguments, `MirType::String`, one-`ValueId` convention, and Dynamic lease
-   are non-authority.
+   aggregate/validator. Existing compiler/LLVM paths make explicit two-`u64`
+   lane expansion the preferred candidate, but it is not accepted yet: the
+   callable package/header issuer must own the logical-ordinal ->
+   `(slot-arg,generation-arg)` mapping, call-site actualization, and session
+   adoption as one metadata row. The validator's C arguments, `MirType::String`,
+   one-`ValueId` convention, and Dynamic lease are non-authority; aggregate
+   ABI remains a rejected alternative unless a complete aggregate ABI owner is
+   named.
 4. **Neutral V2 exact-set partition.** The Recipe proves 15 placements, but the
    current ingress census does not issue a complete neutral program. One common
    transport must retain exact operation keys and exact control keys and prove
