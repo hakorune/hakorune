@@ -192,15 +192,20 @@ CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
 TEXT-FORMAL-PINNED-RESIDENCE-D0/I0
   ordered internal seams, not separate authority cards:
     post-install exact target/origin/signature call edge
-    pair-based entry acquire + pinned UTF-8 root projection
+      original-formal/no-rebind first; exact source literal is a distinct
+      cutover arm, while result/Substring/copy/PHI/unknown still reject
+    exact StableText or canonical StringBox backing proof
+    pair-based entry acquire + pinned UTF-8 root projection in one transaction
     Canonical composite formal/residence adoption
-    Completion-backed DraftSeal finish coverage
+    Completion-backed DraftSeal per-exit finish coverage
 
 LOOP-TEXT-SLICE-EXECUTION-D0/I0
   ordered internal seams:
     pinned root -> CP-correct transient slice
     generic sequential code-point cursor
-    valid-UTF8 exact-equality -> inline byte equality
+    one narrow PinnedTextOp MIR variant with ByteLen / Utf8WidthAt /
+      Utf8ScalarSliceEqWholeText leaf kinds
+    MIR JSON + primary-AOT direct address/load/small-compare consumer
 
 LOOP-TEXT-ROUTE-PERF-R0
   exact / meso / whole evidence
@@ -233,6 +238,63 @@ and whole-call C ratios remain separate because entry/exit lease cost may
 dominate short inputs. Route admission is target-stamped and static; missing
 backing, boundary, backend, or performance proof rejects before effect with no
 fallback or retry.
+
+### Complexity decision
+
+The later fast route uses a small typed MIR extension, not a second
+physicalizer and not a large Text dialect. The bounded target is one
+`PinnedTextOp` instruction family with three leaf kinds: byte length, UTF-8
+width at a proven cursor, and one-scalar slice equality against a whole Text
+root. Existing integer operations, comparison, branch, PHI, and block
+placement remain owned by common MIR and the Canonical session. Entry acquire
+and finish remain in the pinned-residence lifecycle family rather than being
+re-owned by the leaf dialect.
+
+Generic `Load`/`Store` stays closed because it would expose an unsafe pointer
+capability without the root, UTF-8-boundary, or lease-dominance proof. FastMem
+`MemOp` stays allocator/layout-owned and is not reused as Text authority. A
+whole-loop fused opcode is also rejected because it would hide CFG/SSA/PHI in
+a profile physicalizer. The backend may reuse mechanical GEP/load techniques,
+but never the FastMem region or layout receipt.
+
+The signature row, not `/N`, `len(params)`, or `len(args)`, must drive future
+function declaration, exact call expansion, and callee adoption. The current
+LLVM path has more than one arity heuristic, so preserving the logical `/2`
+name while creating four physical lanes requires all three consumers to borrow
+the same package-owned mapping.
+
+### Residence and exit corrections
+
+The first pinned backing domain is deliberately exact: registry-owned
+`StableText(String)` and an exact downcast to the canonical immutable
+`StringBox`. A `type_name() == "StringBox"` check, generic `as_str_fast`,
+`StringViewBox`, or fail-open `StringSpan` cannot issue the backing proof.
+Root descriptors and the lease-set token are emitted by one pair-based entry
+transaction and remain non-splittable; common MIR observes only opaque root
+and lease-set IDs, never an independently storable raw `ptr,len` pair.
+
+The current `Main.main` fixture passes string literals, while the accepted
+actual-origin partition admits only an original ExactText formal candidate.
+Therefore the kernel may be measured through an explicitly benchmark-only
+host pair lane before production cutover, but that probe cannot prove the
+source call edge. Production requires a distinct exact-source-literal origin
+arm, co-sealed with its call argument site, selected target, callee signature,
+catalog brand, and literal lifetime. It must not be disguised as the formal
+arm or reconstructed from a MIR constant.
+
+The first implementation retains DraftSeal's existing exact exit-set model:
+after each return operand is ready, the detached projection emits one finish
+immediately before that exit's Return. A synthetic shared epilogue/return PHI
+is not part of this route because it would require new Canonical CFG/PHI
+authority and the MIRBuilder north star explicitly forbids creating such a
+join merely to merge source Returns. A future measured need may open a
+separate Decision; DraftSeal never infers that join itself.
+
+Future named stops include missing exact backing, literal origin, root/token
+coupling, UTF-8 cursor proof, primary-AOT leaf consumption, per-exit finish
+coverage, no-unwind Trap, and static target-stamped performance admission.
+Numeric C-ratio thresholds are owned by the later perf row rather than this
+signature contract.
 
 The current fast-path review is read-only because stable root backing,
 CP-cursor lowering, and performance admission are future authorities, not
