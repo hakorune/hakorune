@@ -382,7 +382,7 @@ LOOP-S6C-COMMON-V2-PRESESSION-I0
 
 ```text
 Decision: use the installed Normal callable semantic package as the sole outer owner and close exact function ABI, one complete common Loop V2 envelope, and neutral canonical-session admission before any S6C physical effect.
-Source authority + canonical issuer: InstalledNormalCallableSemanticPackageV1 owns the installed catalog/batch/selection/parameter cohort; a NormalCallableSemanticPackagePortV1 extension is the only candidate issuer allowed to pair that same callable with retained S6C ingress. Exact source-backed result/header ABI issuance is still missing and is a D0 stop condition, not a landed claim.
+Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension is the only candidate issuer allowed to lend that same owner/function cohort to the retained S6C parent and source-backed result/header ABI issuer. Exact ABI issuance is still missing and is a D0 stop condition, not a landed claim.
 Non-authority: Recipe-local keys, a detached TextEq site, benchmark JSON, MIR MirType/EffectMask, the V1 physicalizer, Selected-Dynamic fixed cursor, Builder state, and fixture expectations cannot issue the outer cohort or complete program.
 Fail-fast boundary: before Builder/session, reject missing or foreign membership, header/result ABI, ingress identity, V2 operation/source/placement/call/control/transfer/Completion coverage, or route policy; never coerce V2 to V1 or retry another physicalizer.
 Smallest next slice: D0 freezes or rejects the installed-port/result-ABI issuer and the envelope shape; only after the common semantic-program and transfer rows may the transport R0 and S6C package I0 land.
@@ -395,7 +395,8 @@ The target ownership is scoped rather than self-referential:
 VerifiedNormalCallableSemanticPackageV1
   -> install consumes the verified product
 InstalledNormalCallableSemanticPackageV1
-  owns the installed source-backed catalog/batch/selection/parameter cohort
+  retains the same-brand batch/selection/parameter/profile state;
+  the source-backed catalog itself remains installed in CompilationContext
   -> NormalCallableSemanticPackagePortV1 target extension lends one cohort
        lowering input + parameter ABI
        result/header ABI only after D0 names its source-backed issuer
@@ -438,7 +439,9 @@ are:
    source_backed.rs inserts Main declarations into the catalog but skips Main
    from selected identities. The installed Port requires selected-map
    membership, so the current Main.find_ok fixture cannot be loaned as a
-   selected callable cohort.
+   selected callable cohort. The canonical fix must close Main child
+   membership in the existing selected-map issuer; renaming the fixture is
+   not an authority fix.
 
 2. Formal Text parameter ABI:
    issue_callable_parameter_contract_v1 accepts exact i64 for explicit
@@ -458,16 +461,32 @@ are:
    Recipe/JoinSig/Layout If+Exit control, Join transfers, exact 15-placement
    union, and a parent-borrowed admission into CanonicalSsaFunctionSessionV2.
    The existing common physicalizer is test-only and V1-shaped.
+
+5. Parent composition:
+   the current TextEq site binding owns the ingress whole but lends only its
+   leaf view. A later package cannot separately borrow corridor and Completion
+   without a raw ingress getter, cloned ledger, or self-reference. The next
+   parent-retaining product must lend site/corridor/Completion/inputs through
+   one private HRTB composition seam; `with_completion` must not be added to
+   the TextEq leaf itself.
+
+6. Production S6C loan:
+   the current Facts -> Recipe -> logical output -> ingress chain is assembled
+   only by test helpers that choose a batch slot directly. No production issuer
+   currently issues the S6C child inside the installed batch loan. Passing a
+   test-built ingress into the Port and comparing keys afterward would create
+   a second cohort authority and is forbidden.
 ```
 
 The accepted D0 shape is therefore:
 
 ```text
-InstalledNormalCallableSemanticPackageV1
+branded (CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)
   owns one same-brand source/catalog/batch/selection/parameter cohort
-  plus a co-sealed S6C profile and result/header proof
+  plus a co-sealed S6C parent profile and result/header proof
 NormalCallableSemanticPackagePortV1
   lends that cohort only through one HRTB callback
+  and never returns a detached site/corridor/Completion part
 PreparedS6CPhysicalPackage<'loan>
   owns site-free route/preflight policy and cannot outlive the callback
 Common V2 envelope
@@ -475,15 +494,34 @@ Common V2 envelope
   + Recipe/JoinSig/Layout-owned If + Exit control
   + passive exact 15-placement coverage
   + neutral CanonicalSsaFunctionSessionV2 admission
+S6C retained parent composition
+  lends site/corridor/Completion/inputs only inside one private HRTB callback
+  keeps TextEq leaf and callable-exit authority as sibling views
 ```
 
-The recommended source-shaped fixture for a later implementation is a
-non-`Main` static helper with explicit `StringBox`/Text formal contracts and
-an explicit `i64` result annotation, while the runtime `Main` entry remains a
-separate ordinary owner. This is a design candidate, not a fixture change in
-the current stop. Renaming, inferring the result from MIR/body, using the
-catalog key/name as ABI, or adding a second S6C return/parameter authority is
-forbidden.
+The later I0 sequence is bounded and ordered, not a new physical ladder:
+
+```text
+1. exact StringBox/Text parameter ABI row (same batch/ordinal/binding)
+2. same-brand source result disposition + callable header/result projection
+3. installed-batch S6C child issuer and restricted sibling-borrow seam
+4. common V2 envelope transport:
+     13 operations + separate If/Exit control + passive coverage(15)
+5. neutral CanonicalSsaFunctionSessionV2 admission
+```
+
+Every row remains caller-zero and Builder-free until the whole envelope is
+closed. The first four rows must consume the same branded catalog/batch loan;
+none may accept an external ingress, raw batch slot, fixture key, or detached
+result catalog.
+
+The later source-shape candidate is an explicit `StringBox`/Text formal
+contract plus an explicit `i64` result annotation for the helper, while the
+runtime `Main` entry remains a separate ordinary owner. This is a contract
+decision, not a fixture change in the current stop. Main membership must be
+fixed in the canonical selected-map issuer, not worked around by renaming.
+Inferring the result from MIR/body, using the catalog key/name as ABI, or
+adding a second S6C return/parameter authority is forbidden.
 
 The D0 remains open until the source-backed issuers are named and their
 negative matrix is accepted. No transport R0, package I0, TextEq ABI, Ready
@@ -630,4 +668,4 @@ the worktree is clean before this pointer handoff. S6C production callers
 remain zero. Main integration, TextEq ABI/Trap owner, route keeper, V2
 prepared program, physical caller, benchmark result, latest-HEAD integration,
 and production cutover are not claimed. The current D0 is design_stop with
-four named NoSafeSlice preconditions; no implementation row is open.
+six named NoSafeSlice preconditions; no implementation row is open.
