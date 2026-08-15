@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, LOOP-TEXT-EQ-SITE-CONTRACT-I0, the ExactText formal-parameter I0, and the generic same-branded Text parameter cohort I0 are complete. Main static-child selected membership is now the bounded common-V2 child design stop; S6C physical work remains closed."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, LOOP-TEXT-EQ-SITE-CONTRACT-I0, the ExactText formal-parameter I0, the generic same-branded Text parameter cohort I0, and MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0 are complete. The live pointer is now the common-V2 pre-session design stop; S6C physical work remains closed."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0"
-current_blocker_token = "Stop Main-child I0 if the same batch-owned source cannot issue a scoped Main expansion/identity witness, if key-only or detached child admission is required, if Main.main Required materialization or Dynamic eligibility is mixed in, or if any result/header, S6C, V2 transport, Builder/session, fallback, or retry route is touched."
+current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+work_mode = "design_stop"
+current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_blocker_token = "Stop before transport/I0 if the branded (CompilationContext catalog, InstalledNormalCallableSemanticPackageV1) cohort cannot retain exact Main-child/S6C membership, source-backed StringBox parameter and result/header ABI, or a neutral V2 envelope with 13 operations separate from Recipe/JoinSig/Layout-owned If+Exit and exact 15-placement coverage; no V1/Dynamic adapter, Builder/session, fallback, or retry."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Main static-child membership I0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, TextEq site-contract I0, ExactText formal parameter I0, and generic same-branded Text parameter cohort I0 are closed. The bounded Main static-child membership I0 now implements the typed co-seal between MainExpansion children, parser identity, and the existing selected batch map through a scoped batch-owned source loan; Main.main Required materialization, Dynamic eligibility, result/header ABI, S6C child composition, V2 transport, and canonical session remain separate parent blockers. No physical Text ABI, S6C production caller, Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup opens here."
+active_lane = "Loop compiler frontier (common V2 pre-session design stop)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, TextEq site-contract I0, ExactText formal parameter I0, generic same-branded Text parameter cohort I0, and Main static-child selected membership I0 are closed. MainExpansion children now co-seal with parser identity/final slot and the existing selected map through a scoped typed Port loan; Main.main Required materialization and Dynamic eligibility remain disjoint. The live design stop must decide the same branded package cohort, source-backed result/header ABI, neutral V2 13-operation plus separate If/Exit envelope, and canonical-session admission. No physical Text ABI, S6C production caller, Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup opens here."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "main-static-child-selected-membership-d0"
-latest_card_path = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
-latest_card_summary = "Fast I0: co-seal only AppMainStaticChild rows from the batch-owned Main source with parser identity and the existing selected batch map; issue a scoped non-forgeable Main-child Port admission, keep Main.main Required materialization out of scope, and keep root/Dynamic roles disjoint."
-next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
-next_execution_card = "MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0"
-next_execution_card_path = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
+latest_card = "s6c-text-eq-physical-contract-d0"
+latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card_summary = "Design stop: freeze one branded package cohort, source-backed callable parameter/result/header ABI, neutral V2 complete envelope (13 operations plus separate If/Exit and exact 15 placements), and canonical-session admission before any transport or physical effect."
+next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0 landed role-bearing Main child co-seal: AppMainRoot remains omitted, AppMainStaticChild rows retain parser identity/final slot and use a typed exactly-once Port loan, generic key-only admissions reject Main rows, and Dynamic eligibility is filtered before admission; package/catalog/Main focused tests 23+20+3 green, cargo check 1,828 inherited warnings, Loop/pointer guards and diff check green; no S6C, V2 transport, Builder/session, fallback, or retry route opened.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 tightened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, then issue a non-forgeable Main-child Port admission; Main.main Required materialization and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",
   "2026-08-15: CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-I0 landed one source-backed ExactText(StringBox-as-Text) formal parameter kind through the existing callable-parameter issuer, preserved i64/OpaqueHandle behavior, and made Dynamic compatibility reject it explicitly; focused 8/8 + 1/1 + 1/1, cargo check (1826 inherited warnings; no new ExactText warning), format/diff/pointer/Loop guards green; no physical Text ABI, S6C package, Builder/session, fallback, retry, or production caller opened.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-15: S6C physical ingress D0 accepted one corrected T2 BoxShape: 15 placements are 13 operations plus If and Exit; Recipe-family census, resolver BodyEffect, CoreMethod PureRead, and V2 execution class remain distinct authorities; exact source-anchor multiplicity and the separate Completion Tail view are required; V1 coercion and generic TextEq inference are forbidden; caller-zero ingress I0 is current.",
   "2026-08-15: S6C TextEq physical-contract D0 census closed as NoSafeSlice::MissingS6CTextEqPhysicalOwner: logical Equal(Text,Text)->Bool and V2 TextEq exist, but no neutral target/Home/ABI/wire issuer exists; StringBox::equals, MIR CompareEq, JoinIR compare, name rewrite, and Dynamic evidence remain non-authority. ReadyEntry/session stays closed until one owner is named.",
   "2026-08-15: S6C logical consumer I0 landed one 122-line caller-zero owner: a fallible try_with_output HRTB checks fixed domains, Length/Substring source parity, branch/Return summary/Backedge/After shape, and returns only typed Consumed or named reject; focused 8/8, cargo check, format, diff, pointer, and Loop guards green; full contract 132/1 with the same known baseline red.",
-  "2026-08-15: S6C logical consumer D0 accepted the typed I0 dialect: one private HRTB consumer over the sealed output returns a typed Consumed terminal or named reject; no Option/unit/fallback or new semantic authority, JoinModule/MIR, physical output, or production caller.",
 ]
