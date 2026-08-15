@@ -1,9 +1,9 @@
 ---
-Status: current design_stop — bounded child of the common V2 pre-session D0
+Status: current fast — bounded implementation child of the common V2 pre-session D0
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md`
 Authority: `VerifiedMainExpansionV1`, parser final callable source loan, and the source-backed callable catalog/selected-map issuer
-Classification: T2 BoxShape; later bounded I0 is BoxCount only after this role boundary is accepted
+Classification: accepted T2 BoxShape; current implementation is a bounded T2 BoxCount
 ---
 
 # MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0
@@ -108,6 +108,16 @@ the resulting canonical key is not already present in the ordinary selected
 set. `Main.main` is consumed by the root materialization terminal, never by
 the selected map. No `Main`-specific production route is added to the Port.
 
+The implementation does not store a borrowed `VerifiedMainExpansionV1` inside
+the package. The batch already owns the final parser source, so the issuer
+co-seals an owned comparison-only role witness (parser identity, final slot,
+canonical key, and `AppMainStaticChild` role). After install, the Port may
+reproject the same batch-owned source into a scoped Main expansion and lend the
+child plus its parser identity only inside one HRTB callback. The child is
+checked against the installed source cohort and selected-map role before the
+private Main-child admission is created; no AST pointer or detached key leaves
+that callback.
+
 ## Negative matrix
 
 ```text
@@ -143,8 +153,8 @@ MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0
   - reuse existing package/catalog/Loop guards; no new top-level guard
 ```
 
-The I0 is not authorized while the parent remains at design stop. It must not
-touch the result/header issuer, S6C ingress, V2 operation/control envelope,
+The I0 is now authorized as a caller-zero semantic/package boundary. It must
+not touch the result/header issuer, S6C ingress, V2 operation/control envelope,
 canonical session constructor, or physicalizer.
 
 ## NoSafeSlice conditions
