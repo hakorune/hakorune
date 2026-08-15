@@ -96,7 +96,9 @@ resolver / source map
   -> one thin prepared execution product
        PreparedCallableLoopPhysicalizationV1
        OR PreparedGenericG0LoopPhysicalizationV1
-       OR scoped PreparedS6CPhysicalPackageV1<'loan>
+       OR scoped target PreparedLoopV2PreSessionEnvelopeV1<'loan>
+  -> target LoopV2CanonicalSessionAdmissionV1
+       fan-in of the neutral envelope and separately admitted route policy
   -> one fresh unpublished function session
        completion moves here exactly once
   -> outer callable lowerer + one common recursive Loop physicalizer
@@ -205,41 +207,50 @@ VerifiedNormalCallableSemanticPackageV1
   -> install consumes the verified product
 InstalledNormalCallableSemanticPackageV1
   -> NormalCallableSemanticPackagePortV1 target extension
-       exact lowering input and parameter ABI
-       exact source-backed result/header ABI issuer required by D0
-       retained S6C ingress and Completion authority
-       complete V2 envelope
+       exact lowering input and formal/header projections
+       target TextFormal callable-signature mapping
+       target VerifiedS6CSemanticChildV1 + one Completion (issued pre-install)
+       target InstalledS6CChildAdmissionRefV1<'loan> (Port take/lend only)
 
 AdmittedLoopTextEqRoutePolicyV1
-  site-free; no Loop/item/value/source identity
+  separate sibling branch; site-free; no Loop/item/value/source identity
 
-  -> PreparedS6CPhysicalPackageV1<'loan>
-       complete preflight over the one scoped source cohort
+PreparedLoopV2PreSessionEnvelopeV1<'loan>          target contract
   -> PreparedLoopOperationProgramV2
-       exact 13 operation items only
+       every operation placement for the admitted V2 program
   -> Recipe + JoinSig + Layout control subproduct
-       exact If + Exit only
+       every If/Exit control placement for the admitted V2 program
   -> complete envelope receipt
-       exact 15 placements = 13 operations + If + Exit
-  -> neutral CanonicalSsaFunctionSessionV2 admission
+       generic disjoint-union coverage
+
+S6C adapter requirements
+  exact 13 operations + one If + one Exit = all 15 placements
+
+LoopV2CanonicalSessionAdmissionV1                 later fan-in
+  consumes the neutral envelope + admitted route policy
+  -> CanonicalSsaFunctionSessionV2
 ```
 
-The verified package is consumed at install time; the
-`InstalledNormalCallableSemanticPackageV1` remains the sole outer owner and
+The verified package is consumed at install time; the catalog moves into
+`CompilationContext`, while `InstalledNormalCallableSemanticPackageV1`
+retains the same-brand batch/selection/formal/header state.
 `NormalCallableSemanticPackagePortV1` is the only target lending seam. The
-prepared S6C package borrows that cohort and owns only passive complete
-preflight plus a site-free route policy; it cannot retain a site borrowed from
-its own parent, clone source/Completion ledgers, or accept raw keys from a
-caller. The current port does not issue the required S6C source-backed result
-ABI. Exact source/header/result authority missing from the port is
-`NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`, never a Recipe/MIR
+pre-session envelope is route-free and borrows that cohort only inside the
+Port callback; it cannot retain a site borrowed from its own parent, clone
+source/Completion ledgers, or accept raw keys from a caller. The remaining
+gaps are the total installed-S6C child issuer, one executable Completion
+ownership path, and the callable-signature choice for the 16-byte
+`TextFormalBorrowV1` aggregate versus explicit lane expansion. Missing any of
+these is `NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`, never a Recipe/MIR
 inference.
 
 The complete envelope does not turn control into operations. The operation
-program target covers exactly 13 operations. Recipe plus JoinSig remains the
-logical owner of the one `If`, one `Exit`, and their transfers; Layout only
-binds that control to placement. A passive union receipt proves exact
-15-placement coverage without creating a second control ledger.
+program target covers every operation placement for the admitted V2 program;
+the S6C adapter alone requires exactly 13. Recipe plus JoinSig remains the
+logical owner of the S6C `If`, `Exit`, and their transfers; Layout only binds
+that control to placement. A passive union receipt proves the generic
+disjoint union, while the S6C adapter proves exact 15-placement coverage,
+without creating a second control ledger.
 
 Decision B applies to V2 as well: the complete V2 envelope is prepared and
 checked before a private TextEq or CallSlot leaf is emitted. The existing
@@ -1030,9 +1041,9 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | decide the installed-port/result-ABI issuer and split 13 operations from Recipe/JoinSig/Layout-owned If+Exit under one 15-placement envelope | design only; missing result/header issuer remains `NoSafeSlice` |
-| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the exact 13-operation program, separate If+Exit control subproduct, JoinSig transfers, and passive 15-placement envelope through the common boundary | BoxShape only; no S6C meaning, V2-to-V1 coercion, Builder/session effect, or production caller |
-| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | installed Normal-callable cohort + exact callable ABI + retained S6C ingress + site-free route policy -> one scoped package and neutral session admission | BoxCount only; no Selected-Dynamic cursor reuse, standalone TextEq scheduler, S6C physicalizer, or production caller |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | decide total installed-S6C admission, one Completion owner, TextFormal callable-signature mapping, and the S6C `13 + 1 + 1 = 15` exact-set requirement | design only; missing any named issuer remains `NoSafeSlice` |
+| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the common boundary | BoxShape only; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
+| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |

@@ -14,11 +14,11 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: close the site-contract I0 and design one common V2 pre-session boundary owned by the Installed normal-callable package; no physical effect opens until the same package cohort carries S6C ingress, exact callable ABI, and complete V2 coverage.
-Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension must lend that same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
+Decision: keep this T2 BoxShape open until one non-splittable installed S6C parent can lend responsibility-specific sibling views for callable ABI, retained S6C semantics, and operation/control coverage; do not expose one detachable all-fields view or issue session admission here.
+Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the only candidate co-issuer; the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort is transported only by `NormalCallableSemanticPackagePortV1`, and the retained S6C parent remains the source/Recipe/Join owner.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
-Fail-fast boundary: before Builder/session, reject missing or foreign installed membership, result/header ABI, ingress identity, 13-operation evidence, separate If/Exit control, JoinSig transfers, exact 15-placement coverage, or neutral canonical-session admission.
-Smallest next slice: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0; close the same branded installed cohort, S6C ingress, exact result/header, neutral V2 operation/control transport, JoinSig/Completion, and exact 15-placement envelope. No code or physical session is opened in design_stop.
+Fail-fast boundary: before Builder/session, reject non-total S6C membership, foreign cohort/header, duplicate Completion ownership, missing TextFormal callable-signature mapping, or any non-exact partition of 13 operation keys plus one If and one Exit over all 15 Recipe placements.
+Smallest next slice: finish this same `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`; freeze the executable Completion ownership path, TextFormal callable-signature mapping, installed-child issuer, sibling-loan surface, and exact-set envelope. No child D0 or code opens while these remain unresolved.
 Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
@@ -40,8 +40,11 @@ The completed transport row co-seals supported formal parameters, an explicit
 source-backed result/header declaration, and `verify_function_completion_v1`
 return/cleanup proof through the same branded package/Port cohort. The completed
 Text formal I0 adds only the generation-checked caller-zero wire/validator and
-fixed C status projection. The current design stop is now the missing same-cohort
-S6C child/V2 envelope composition. No S6C child, V2 envelope,
+fixed C status projection. It does not bind one logical ExactText formal to the
+physical callable signature: the D0 must choose either one 16-byte aggregate
+formal or an explicit two-`u64` arity expansion and name the call-site/session
+owner. It must close that mapping together with the missing same-cohort S6C
+child, executable single-Completion path, and common-V2 exact-set envelope. No S6C child,
 Builder/session, or production caller opens here.
 
 ## R0 implementation evidence
@@ -110,8 +113,8 @@ LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 This is a design-only boundary. It must decide, without implementation, one
 same-owner Installed-package cohort for the S6C ingress, a source-backed
 function result/header ABI issuer, a V2 complete envelope with exactly
-`13 operations + 1 If + 1 Exit = 15 placements`, and a neutral admission into
-the canonical CFG/Binding-SSA/Phi/Completion session. The 13 operation rows
+`13 operations + 1 If + 1 Exit = 15 placements`, while preserving a neutral
+handoff boundary for a later canonical session admission. The 13 operation rows
 must remain separate from Recipe/JoinSig/Layout-owned If/Exit control. If any
 of these issuers is missing, the row stays `NoSafeSlice` and no I0 receipt is
 issued.
@@ -128,24 +131,22 @@ types.md String/Text equality law
 
 retained S6C ingress
   -> VerifiedS6CTextEqSourceBindingV1          non-Clone; owns ingress whole
-       -> LoopTextEqSiteRefV1                  neutral borrowed site view
-       -> SubstringToTextEqCorridorRefV1       sibling producer-consumer view
-       -> S6CCompletionRefV1                   sibling exit view
+       -> LoopTextEqSiteRefV1                  landed neutral site view
+  -> S6CCompletionRefV1                        landed sibling exit view
+  -> exact operation/input/After projections  landed ingress view
 
 tracked route decision
   -> AdmittedLoopTextEqRoutePolicyV1           site-free keeper/policy only
 
 InstalledNormalCallableSemanticPackageV1
   -> NormalCallableSemanticPackagePortV1 target extension
-       exact lowering input + parameter ABI
-       exact result/header ABI issuer required by the later D0
-       retained S6C source binding
+       exact lowering input + formal/header transport
+       target TextFormal callable-signature mapping required by the current D0
+       target package-owned retained S6C child
        complete common Loop V2 envelope
-  -> PreparedS6CPhysicalPackageV1<'loan>
-       owns site-free route policy + complete preflight ledger
-       borrows the sole source cohort; copies no site/source authority
 
 single common physical session
+  <- neutral V2 envelope + separately admitted route policy
   -> Ready*Residence<'session>                 actual handle/span/ValueId life
   -> ReadyLoopTextEqExecutionPlanV1<'session>
   -> After + Completion/Tail + DraftSeal
@@ -159,12 +160,12 @@ cohort, the S6C adapter owns the original ingress whole and lends only a
 neutral per-site view. It has no `Clone`, `into_parts`, `take_ingress`, or raw
 Facts/Recipe/Join/Completion getter.
 
-The route policy is deliberately site-free. A package cannot own both the
-parent ingress and a detached demand that owns a site borrowed from that same
-parent without either a self-reference or a copied key/source ledger. The
-installed Normal-callable port therefore lends one scoped cohort; the package
-co-borrows its site/corridor/Completion views and one site-free policy only
-while preparing the single session.
+The later route policy must be site-free. A package cannot own both the parent
+ingress and a detached demand that owns a site borrowed from that same parent
+without either a self-reference or a copied key/source ledger. This D0 issues
+no route policy or session admission; the later fan-in co-borrows the retained
+site/Completion views and consumes the separately admitted policy only while
+opening the single session.
 
 No S6C physical demand family, physicalizer, CFG/SSA/PHI writer, or Return
 writer is introduced. Common physical APIs consume neutral views only.
@@ -259,8 +260,7 @@ result relations. The source relation remains in the parent product. It also
 proves `TextEq result == If condition`, but it cannot see Completion/Tail or
 issue physical carrier meaning.
 
-The same parent independently lends `SubstringToTextEqCorridorRefV1`, proving
-the already-retained relation:
+The existing S6C source/Recipe products already retain this relation:
 
 ```text
 source Substring result == source TextEq lhs
@@ -268,8 +268,10 @@ Recipe CallSlot result == Recipe TextEq left
 base/start/end/needle and exact placement belong to the same program cohort
 ```
 
-This is a semantic producer-consumer corridor only. It is not a span,
-residence, fusion, lifetime, or physical optimization receipt.
+No `SubstringToTextEqCorridorRefV1` is landed yet. A future route-specific
+owner may project this semantic relation from the same retained parent, but
+the current site leaf and pre-session D0 do not issue a span, residence,
+fusion, lifetime, or physical optimization receipt.
 
 ## Strict scalar probe ABI
 
@@ -403,11 +405,11 @@ LOOP-S6C-COMMON-V2-PRESESSION-I0
 ```
 
 ```text
-Decision: use the installed Normal callable semantic package as the sole outer owner and close exact function ABI, one complete common Loop V2 envelope, and neutral canonical-session admission before any S6C physical effect.
-Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension is the only candidate issuer allowed to lend that same owner/function cohort to the retained S6C parent and source-backed result/header ABI issuer. Exact ABI issuance is still missing and is a D0 stop condition, not a landed claim.
+Decision: use one package-owned admitted S6C child inside the branded Installed/CompilationContext cohort, lend only sibling HRTB views, and close the neutral `13 operations + If + Exit` envelope before any S6C physical effect.
+Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the sole candidate co-issuer; `NormalCallableSemanticPackagePortV1` alone lends the same callable/header/S6C cohort, while the retained S6C parent and one Completion remain the source/control owners.
 Non-authority: Recipe-local keys, a detached TextEq site, benchmark JSON, MIR MirType/EffectMask, the V1 physicalizer, Selected-Dynamic fixed cursor, Builder state, and fixture expectations cannot issue the outer cohort or complete program.
-Fail-fast boundary: before Builder/session, reject missing or foreign membership, header/result ABI, ingress identity, V2 operation/source/placement/call/control/transfer/Completion coverage, or route policy; never coerce V2 to V1 or retry another physicalizer.
-Smallest next slice: D0 freezes or rejects the installed-port/result-ABI issuer and the envelope shape; only after the common semantic-program and transfer rows may the transport R0 and S6C package I0 land.
+Fail-fast boundary: before Builder/session, reject non-total S6C admission, foreign header/ingress identity, duplicate Completion, missing ExactText compiler lane, or incomplete/overlapping operation-control keys; never coerce V2 to V1 or retry another physicalizer.
+Smallest next slice: finish this D0, then execute `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` followed by caller-zero `LOOP-S6C-COMMON-V2-PRESESSION-I0`; route and session rows remain separate.
 Non-claims: no Builder, ValueId, physical block/ID, runtime route activation, residence, production caller, selector switch, S6C physicalizer, or BorrowedSpan implementation.
 ```
 
@@ -420,191 +422,166 @@ InstalledNormalCallableSemanticPackageV1
   retains the same-brand batch/selection/parameter/profile state;
   the source-backed catalog itself remains installed in CompilationContext
   -> NormalCallableSemanticPackagePortV1 target extension lends one cohort
-       lowering input + parameter ABI
-       result/header ABI only after D0 names its source-backed issuer
-       retained S6C ingress/site/corridor/Completion
-       complete common Loop V2 envelope
+       lowering input + formal/header projections
+       target TextFormal callable-signature descriptor
+       package-owned retained S6C child + one Completion
 
-PreparedS6CPhysicalPackageV1<'loan>
-  owns site-free route policy + complete preflight ledger
-  borrows that one cohort only for immediate session preparation
+PreparedLoopV2PreSessionEnvelopeV1<'loan>          target contract
+  borrows that one cohort only inside the Port callback
   -> PreparedLoopOperationProgramV2
-       exact 13 operations only
+       every operation placement for the input V2 program
   -> Recipe + JoinSig + Layout-bound control subproduct
-       exact If + Exit only
+       every If/Exit control placement for the input V2 program
   -> complete envelope coverage receipt
-       exact 15 placements = 13 operations + If + Exit
-  -> neutral CanonicalSsaFunctionSessionV2 admission
+       generic disjoint-union coverage; the S6C adapter requires 13 + 1 + 1 = 15
+
+LoopV2CanonicalSessionAdmissionV1                 later fan-in
+  consumes the neutral envelope + admitted site-free route policy
+  -> CanonicalSsaFunctionSessionV2
 ```
 
 `PreparedLoopOperationProgramV2` is a target contract, not a landed claim. It
-retains exact source/execution/placement identity for the 13 operation items
-only. The one `If`, one `Exit`, and their transfers remain a separate
+retains exact source/execution/placement identity for every operation item in
+the admitted V2 program. The S6C adapter alone proves that its count is 13.
+The one S6C `If`, one S6C `Exit`, and their transfers remain a separate
 Recipe/JoinSig/Layout-bound control authority; one passive envelope receipt
-proves their union covers all 15 placements. The later D0 must name that
+proves their union covers all 15 placements. The current D0 must name that
 control subproduct rather than smuggle it into the operation program. None of
 these targets may become a V2-to-V1 adapter, Selected-Dynamic cursor reuse, or
-S6C-specific physicalizer. Until the result/header ABI issuer and those
-subproducts are named, implementation is
+S6C-specific physicalizer. Until the installed-child, callable-signature,
+single-Completion, and exact-set issuers plus those subproducts are named,
+implementation is
 `NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`. The existing canonical
 CFG/Binding-SSA/Phi/Completion/DraftSeal services remain the only physical
 writers.
 
 ## Common-V2 pre-session D0 audit receipt (open NoSafeSlice)
 
-The read-only audit found that the outer owner graph is a valid target shape,
-but the current repository products do not yet satisfy it. The exact blockers
-are:
+The external design review and code-level worker audit agree that the current
+choice is this D0, not TextEq route or session code. The outer authority is not
+`InstalledNormalCallableSemanticPackageV1` alone: install moves the catalog
+into `CompilationContext`, while Installed retains the same-brand batch,
+selection, formal/header, and profile state. `NormalCallableSemanticPackagePortV1`
+is the only exactly-once loan surface over that branded cohort.
 
-The previous semantic/cohort and Main-child rows are closed. Worker audits
-resolved the apparent ordering split: a standalone physical Text-parameter row
-would create a second callable-signature authority, while a result-only row
-would detach the same header from the formal rows. `CALLABLE-PHYSICAL-HEADER-
-ABI-D0` therefore co-sealed both sides and the existing Completion owner; its
-caller-zero transport is now closed. The remaining `NoSafeSlice` is the
-profile-neutral physical StringBox/ExactText formal lane.
+Four gaps remain before this D0 can be accepted:
 
-The parent D0 is intentionally not split into five parallel cards. The first
-bounded child is complete:
+1. **Total installed S6C admission.** Main static-child membership is closed,
+   but the Facts -> Recipe -> ingress chain is still assembled by test helpers.
+   `issue_normal_callable_semantic_package_v1` must classify the selected child
+   as member or typed non-member and retain the admitted S6C child in the same
+   package cohort. Caller-supplied ingress, batch slot, key, or fixture name is
+   forbidden.
+2. **One Completion owner.** The physical-header cohort and S6C Exit/Tail
+   product currently each own a Completion product. The target direction is
+   one move-only Completion retained by the installed S6C parent; header/result
+   and Loop Return/Tail are sibling projections of it. Clone, `Rc`, later
+   equality comparison, or detached re-pairing is forbidden. Because the
+   landed generic header row keeps Completion private, the R0 must move the
+   S6C specialization's ownership boundary above header construction or make
+   the S6C co-seal parent-borrowed; ordinary header rows remain unchanged.
+3. **TextFormal callable signature.** `ExactTextFormalAbiV1` owns semantic formal
+   identity and `TextFormalBorrowV1` owns the runtime `{slot, generation}`
+   aggregate/validator. No compiler authority says whether one logical formal
+   is passed as one 16-byte aggregate or expanded into two `u64` arguments.
+   The callable package/header issuer must choose and own one mapping together
+   with call-site actualization and session adoption; the validator's two C
+   arguments, `MirType::String`, one-`ValueId` convention, and Dynamic lease
+   are non-authority.
+4. **Neutral V2 exact-set partition.** The Recipe proves 15 placements, but the
+   current ingress census does not issue a complete neutral program. One common
+   transport must retain exact operation keys and exact control keys and prove
+   `operations(13) ∩ {If, Exit} = ∅` and
+   `operations(13) ∪ {If, Exit} = all Recipe placements(15)`. Counts alone are
+   diagnostic. If and Exit are the two control placements; JoinSig transfer,
+   Completion, and Tail are authority relations and add no Recipe placement.
 
-```text
-CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0
-  -> docs/development/current/main/investigations/
-     callable-parameter-exact-text-handle-contract-d0-2026-08-15.md
-```
-
-It closes only the reusable source-backed formal `StringBox`/Text parameter
-contract. It does not claim a physical handle wire or open the S6C package,
-result/header, V2 envelope, or Builder/session rows. The parent remains open
-until this child and the remaining same-cohort issuers are accepted.
-
-The next bounded design child is now:
-
-```text
-CALLABLE-TEXT-PARAMETER-ABI-D0
-  -> docs/development/current/main/investigations/
-     callable-text-parameter-abi-d0-2026-08-15.md
-```
-
-It designs only how the already-issued `ExactTextFormalAbiV1` row crosses the
-same-branded CompilationContext/Installed package/Port cohort. It does not
-upgrade the formal demand into a runtime Text handle/wire and does not open
-Main membership, result/header ABI, S6C ingress, common V2 transport, or a
-physical session. The parent remains the umbrella stop; this child must stay
-caller-zero and Builder-free until its D0 is accepted.
-
-The cohort child is now closed. Its generic ordinary-`StringBox` evidence
-proves only same-brand install/Port transport and typed parameter integrity;
-it does not make the S6C scan candidate selectable. The pointer returns to
-this parent D0 for the remaining Main membership, result/header ABI, S6C child
-composition, common V2 envelope, and neutral session-admission decisions.
-
-The next bounded design child is now:
+The target BoxShape is one non-splittable parent with sibling views, not one
+giant detachable view:
 
 ```text
-MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0
-  -> docs/development/current/main/investigations/
-     main-static-child-selected-membership-d0-2026-08-15.md
+issue_normal_callable_semantic_package_v1
+  -> branded (CompilationContext catalog, Installed package) cohort
+  -> target VerifiedS6CSemanticChildV1            pre-install semantic child
+       retained ingress / Facts / Recipe / Join
+       one Completion
+       TextFormal callable-signature descriptors
+  -> NormalCallableSemanticPackagePortV1 HRTB loan
+       target InstalledS6CChildAdmissionRefV1<'loan>  installed take/lend only
+       callable identity/header view
+       operation-source view                 generic complete operation set
+       control/transfer view                 If + Exit + JoinSig
+       Completion/Loop Return/Tail view      same Completion owner
+       passive exact-set coverage            S6C proves 13 + 1 + 1 = 15
+  -> later common V2 pre-session envelope
+  -> later neutral CanonicalSsaFunctionSessionV2 admission
 ```
 
-It decides only how the existing `VerifiedMainExpansionV1::static_children()`
-role co-seals with parser opaque identity and the existing selected batch map.
-`Main.main` remains the root terminal, and Main static-child ordinary
-membership remains disjoint from Dynamic eligibility. No S6C/result/header or
-physical session work is permitted in that child.
+`AppMainStaticChild` is consumed while issuing the installed S6C admission;
+the common V2 envelope sees only the neutral callable/program cohort. TextEq
+leaf and Completion remain siblings and cannot inspect each other's authority.
+
+Issuance and consumption are two distinct stages; the target names above are
+contracts, not landed types. Before install,
+`issue_normal_callable_semantic_package_v1` performs the total S6C classifier,
+co-seals the selected role/opaque identity with the retained S6C child, and
+stores that move-only child in the verified package. After install, Port does
+not classify S6C again: `with_main_static_child_lowering_input` verifies the
+exact `VerifiedMainStaticChildV1` demand and same identity, then takes/lends the
+already-issued child exactly once inside the HRTB callback.
+
+The bounded rows after this D0 are fixed without adding another D0 card:
 
 ```text
-1. Main/helper membership:
-   source_backed.rs inserts Main declarations into the catalog but skips Main
-   from selected identities. The installed Port requires selected-map
-   membership, so the current Main.find_ok fixture cannot be loaned as a
-   selected callable cohort. The canonical fix must close Main child
-   membership in the existing selected-map issuer; renaming the fixture is
-   not an authority fix.
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+  behavior-neutral common owner/sibling-view transport; caller-zero
 
-2. Formal Text parameter ABI:
-   issue_callable_parameter_contract_v1 accepts exact i64 for explicit
-   annotations and rejects StringBox. The S6C typed-input row proves logical
-   Text, but is not a physical parameter ABI. A same-owner StringBox/Text
-   handle contract is missing.
-
-3. Result/header ABI:
-   the S6C fixture has no return annotation. Batch lowering intentionally
-   carries no callable header, the optional physical header is Dynamic-only,
-   and the existing result-representation catalog is not retained in the
-   Installed package/Port cohort. A result proof detached from Completion is
-   not sufficient.
-
-4. V2 common envelope/session:
-   no neutral production product carries the 13 operation rows, separate
-   Recipe/JoinSig/Layout If+Exit control, Join transfers, exact 15-placement
-   union, and a parent-borrowed admission into CanonicalSsaFunctionSessionV2.
-   The existing common physicalizer is test-only and V1-shaped.
-
-5. Parent composition:
-   the current TextEq site binding owns the ingress whole but lends only its
-   leaf view. A later package cannot separately borrow corridor and Completion
-   without a raw ingress getter, cloned ledger, or self-reference. The next
-   parent-retaining product must lend site/corridor/Completion/inputs through
-   one private HRTB composition seam; `with_completion` must not be added to
-   the TextEq leaf itself.
-
-6. Production S6C loan:
-   the current Facts -> Recipe -> logical output -> ingress chain is assembled
-   only by test helpers that choose a batch slot directly. No production issuer
-   currently issues the S6C child inside the installed batch loan. Passing a
-   test-built ingress into the Port and comparing keys afterward would create
-   a second cohort authority and is forbidden.
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+  package-owned installed S6C child + TextFormal signature + one Completion
+  + exact operation/control envelope; caller-zero and Builder-free
 ```
 
-The accepted D0 shape is therefore:
+The physical TextEq route is a separate fan-in prerequisite for the later
+session. Route admission is decided before the session; actual handle/span
+residence and TextEq/Substring realization occur only inside the sole common
+session. Neither route work nor session work is part of the two rows above.
+
+The D0 remains `NoSafeSlice::MissingS6CCommonV2PreSessionIssuer` until all four
+gaps have named issuers and negative boundaries. Stop if implementation needs
+AST/name/MIR inference, detached authorities, duplicate Completion, count-only
+coverage, a V2-to-V1 adapter, Dynamic fixed cursor, S6C physicalizer,
+pre-session `ValueId`/`BasicBlockId`, fallback, or retry.
+
+Acceptance is exact and caller-zero:
 
 ```text
-branded (CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)
-  owns one same-brand source/catalog/batch/selection/parameter cohort
-  plus a co-sealed S6C parent profile and result/header proof
-NormalCallableSemanticPackagePortV1
-  lends that cohort only through one HRTB callback
-  and never returns a detached site/corridor/Completion part
-PreparedS6CPhysicalPackage<'loan>
-  owns site-free route/preflight policy and cannot outlive the callback
-Common V2 envelope
-  13 operations
-  + Recipe/JoinSig/Layout-owned If + Exit control
-  + passive exact 15-placement coverage
-  + neutral CanonicalSsaFunctionSessionV2 admission
-S6C retained parent composition
-  lends site/corridor/Completion/inputs only inside one private HRTB callback
-  keeps TextEq leaf and callable-exit authority as sibling views
+positive:
+  one selected Main static child -> one installed S6C child
+  one ExactText formal -> exactly one admitted aggregate-or-expanded signature mapping
+  one Completion -> header/result and Loop Return/Tail sibling projections
+  13 operation keys + If key + Exit key -> all 15 Recipe placements
+
+negative before Builder/session:
+  NotMember vs malformed candidate are distinct typed outcomes
+  foreign catalog/batch/header/ingress cohort
+  missing/duplicate Completion or detached Completion re-pair
+  missing/duplicate signature mapping or aggregate/arity/call-site drift
+  operation gap/duplicate, If or Exit classified as operation
+  operation/control overlap or union != all 15 placements
+  HRTB borrow escape, raw key/site getter, external ingress argument
 ```
 
-The later I0 sequence is bounded and ordered, not a new physical ladder:
+Classification:
 
 ```text
-1. exact StringBox/Text parameter ABI row (same batch/ordinal/binding)
-2. same-brand source result disposition + callable header/result projection
-3. installed-batch S6C child issuer and restricted sibling-borrow seam
-4. common V2 envelope transport:
-     13 operations + separate If/Exit control + passive coverage(15)
-5. neutral CanonicalSsaFunctionSessionV2 admission
+LiveBlocker: none; every affected production caller is still zero.
+DesignBlocker: the four D0 gaps above.
+CutoverBlocker: TextEq route/trap/lifecycle, neutral session admission,
+                production switch, exact-HEAD main integration, old caller retirement.
+LatentParked: borrowed-span corridor/fusion, additional Loop V2 profiles.
+CleanupParked: raw-AST ordinary/root convergence, finish unification,
+               warning/allow cleanup, module/folder consolidation.
 ```
-
-Every row remains caller-zero and Builder-free until the whole envelope is
-closed. The first four rows must consume the same branded catalog/batch loan;
-none may accept an external ingress, raw batch slot, fixture key, or detached
-result catalog.
-
-The later source-shape candidate is an explicit `StringBox`/Text formal
-contract plus an explicit `i64` result annotation for the helper, while the
-runtime `Main` entry remains a separate ordinary owner. This is a contract
-decision, not a fixture change in the current stop. Main membership must be
-fixed in the canonical selected-map issuer, not worked around by renaming.
-Inferring the result from MIR/body, using the catalog key/name as ABI, or
-adding a second S6C return/parameter authority is forbidden.
-
-The D0 remains open until the source-backed issuers are named and their
-negative matrix is accepted. No transport R0, package I0, TextEq ABI, Ready
-Entry, Builder, physical ID, or session code may be added from these audits.
 
 ## Current R0 acceptance
 
@@ -622,13 +599,12 @@ Entry, Builder, physical ID, or session code may be added from these audits.
    backward logical-output -> ingress dependency.
 3. Remove or issuer-private the broad `S6CPrephysicalIngressRefV2::logical()`
    escape and narrow crate-wide re-exports.
-4. Replace it with independent sibling projections:
+4. Keep the landed independent sibling projections:
 
    ```text
    with_text_eq_leaf(...)
-   with_substring_text_eq_corridor(...)
    with_completion(...)
-   with_inputs_and_carrier(...)
+   with_ingress(...) for exact operation/input/After projections
    ```
 
    TextEq cannot see Completion/Tail; Completion cannot see TextEq.
@@ -666,56 +642,44 @@ Entry, Builder, physical ID, or session code may be added from these audits.
 ## Corrected bounded DAG
 
 ```text
-[closed] LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
-    -> [closed] LOOP-TEXT-EQ-INGRESS-SURFACE-R0
-    -> [closed] LANG-TEXT-EQUALITY-LAW-D0/I0
-    -> [closed] LOOP-TEXT-EQ-SITE-CONTRACT-I0
-    -> [parent open] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-       -> [closed design] CALLABLE-PHYSICAL-HEADER-ABI-D0
-       -> [closed] CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0
-    -> [closed design] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
-    -> [closed] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0
-       (caller-zero generation-checked wire/validator; production caller remains 0)
-    -> [current] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-    -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
-    -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
-    -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
-    -> route-specific demand
-       scalar keeper:
-         LOOP-TEXT-EQ-SCALAR-LIFECYCLE-D0
-         -> LOOP-TEXT-EQ-SCALAR-LIFECYCLE-I0
-       scalar reject:
-         SUBSTRING-TEXT-EQ-BORROWED-CORRIDOR-D0
-         -> SUBSTRING-TEXT-EQ-BORROWED-CORRIDOR-I0
-         -> LOOP-TEXT-EQ-SESSION-RESIDENCE-D0
-         -> LOOP-TEXT-EQ-SESSION-RESIDENCE-I0
-    -> AdmittedLoopTextEqRoutePolicyV1 (site-free)
-    -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
-    -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
-    -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
-    -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
-    -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-    -> LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
-       -> exact 13-operation program
-       -> separate Recipe/JoinSig/Layout If+Exit control
-       -> exact 15-placement envelope coverage
-    -> LOOP-S6C-COMMON-V2-PRESESSION-I0
-       -> scoped PreparedS6CPhysicalPackageV1<'loan>
-    -> LOOP-PHYSICAL-ALWAYS-COVERAGE-I0
-    -> LOOP-PHYSICAL-IF-COVERAGE-I0
-    -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
-    -> LOOP-COMMON-V2-PHYSICAL-SESSION-I0 (S6C first adapter)
-       entry/topology -> exact operation cursor -> After/Completion/Tail/
-       DraftSeal under one common session owner
-    -> parity/canary
-    -> bounded selector/caller cutover
-    -> exact-HEAD integration
-    -> legacy caller and non-keeper probe retirement
+[closed prerequisites]
+  ingress + law + site + callable header + TextFormalBorrowV1
+                         |
+                         v
+[current] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+              /                                      \
+             / common-program branch                  \ TextEq-route branch
+            v                                          v
+LOOP-SEMANTIC-PROGRAM-COSEAL-R0              LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
+  -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0        -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
+  -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0 -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
+  -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0      -> selected route lifecycle/demand
+  -> LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0     -> AdmittedLoopTextEqRoutePolicyV1
+       generic complete operations + separate If/Exit
+       S6C adapter exact-set coverage 13 + 1 + 1 = 15
+  -> LOOP-S6C-COMMON-V2-PRESESSION-I0
+       package-owned installed S6C child; caller-zero
+  -> LOOP-PHYSICAL-ALWAYS-COVERAGE-I0
+  -> LOOP-PHYSICAL-IF-COVERAGE-I0
+  -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
+             \                                      /
+              \                                    /
+               v                                  v
+             LOOP-COMMON-V2-PHYSICAL-SESSION-I0
+               neutral admission into CanonicalSsaFunctionSessionV2
+               session-local residence + operation/control realization
+               After/Completion/Tail/DraftSeal under one owner
+                         |
+                         v
+             parity/canary -> bounded caller cutover
+             -> exact-HEAD main integration
+             -> legacy caller/non-keeper retirement
 ```
 
-The route decision may keep scalar or reject it. It cannot admit an unbuilt,
-unmeasured borrowed route. Borrowed residence work is therefore parked until
-the decision opens it.
+The two branches are prerequisites of the same session, not alternate runtime
+routes. The route decision may keep scalar or reject it; it cannot admit an
+unbuilt, unmeasured borrowed route. Actual residence is issued inside the
+session, never by the pre-session product.
 
 ## Stop conditions
 

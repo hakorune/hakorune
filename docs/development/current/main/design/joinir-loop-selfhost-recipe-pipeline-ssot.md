@@ -1607,32 +1607,39 @@ VerifiedNormalCallableSemanticPackageV1
   -> install consumes the verified product
 InstalledNormalCallableSemanticPackageV1
   -> NormalCallableSemanticPackagePortV1 target extension
-       exact lowering input + parameter ABI
-       exact result/header ABI issuer required by D0
-       retained S6C ingress/site/corridor/Completion
-       complete Loop V2 envelope
-       site-free admitted TextEq route policy
-  -> PreparedS6CPhysicalPackageV1<'loan>
+       exact lowering input + formal/header projections
+       target TextFormal callable-signature mapping
+       target VerifiedS6CSemanticChildV1 + one Completion (issued pre-install)
+       target InstalledS6CChildAdmissionRefV1<'loan> (Port take/lend only)
+
+PreparedLoopV2PreSessionEnvelopeV1<'loan>          target contract
   -> PreparedLoopOperationProgramV2
-       exact 13 operations only
-  -> separate Recipe/JoinSig/Layout-bound If + Exit control
-  -> exact 15-placement envelope coverage
-  -> neutral canonical-session admission
+       every operation placement for the admitted V2 program
+  -> separate complete Recipe/JoinSig/Layout-bound If/Exit control set
+  -> generic disjoint-union envelope coverage
+
+S6C adapter requirement
+  exact 13 operations + one If + one Exit = all 15 placements
+
+LoopV2CanonicalSessionAdmissionV1                 later fan-in
+  neutral envelope + separately admitted site-free TextEq route policy
+  -> CanonicalSsaFunctionSessionV2
 ```
 
-D0 names or rejects the sole installed-port and exact result/header issuer,
-the complete V2 envelope/preflight contract, and fail-fast matrix. The
+D0 names or rejects the total installed-S6C issuer, one Completion ownership
+path, TextFormal callable-signature mapping, complete V2 envelope contract,
+and fail-fast matrix. The
 transport R0 and S6C package I0 later separate the common V2 BoxShape from the
-bounded S6C BoxCount. The package is scoped: it borrows the installed
-Normal-package-owned source cohort and owns only a site-free route policy plus
-complete preflight ledger.
+bounded S6C BoxCount. The envelope is scoped and route-free: it borrows the
+installed Normal-package-owned source cohort only inside the Port callback.
 It does not detach Recipe keys, source sites, TextEq site/corridor, or
 Completion into independently pairable products.
 
-The V2 operation program covers exactly 13 operation items. The one `If`, one
-`Exit`, and JoinSig-issued transfers stay in a separate Recipe/JoinSig/Layout
-control subproduct; a passive envelope receipt proves exact 15-placement
-coverage before any leaf emission. A V2-to-V1 adapter, Selected-Dynamic fixed
+The common V2 operation program covers every operation placement for its
+input program; the common type does not hard-code 13. If/Exit and
+JoinSig-issued transfers stay in a separate Recipe/JoinSig/Layout control
+subproduct. The S6C adapter alone proves exact `13 + 1 + 1 = 15` coverage
+before any leaf emission. A V2-to-V1 adapter, Selected-Dynamic fixed
 cursor, standalone TextEq scheduler, or S6C physicalizer is `NoSafeSlice`.
 The existing canonical CFG, Binding SSA, Phi, Completion, finish, DraftSeal,
 discard, and publication owners remain unchanged. Runtime
@@ -1671,16 +1678,18 @@ this shallow ordered series:
    - keep callable ABI, Completion, and Tail outside the common inner Loop
      physicalizer before adding the V2 package seam.
 4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`
-   - use the installed Normal callable package as the sole outer source cohort;
-   - name the missing result/header ABI issuer, exact envelope/control split,
-     installed-port signature, and fail-fast matrix;
+   - use the branded CompilationContext/Installed package cohort and Port as
+     the sole outer transport;
+   - name total S6C admission, one Completion owner, the TextFormal callable
+     signature, exact envelope/control split, and fail-fast matrix;
    - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
 5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
    `LOOP-S6C-COMMON-V2-PRESESSION-I0`
-   - transport exactly 13 operations separately from the Recipe/JoinSig/Layout
-     If+Exit control subproduct and prove the exact 15-placement envelope;
-   - issue one scoped S6C package and expose only neutral canonical-session
-     admission;
+   - transport the generic complete operation set separately from the
+     Recipe/JoinSig/Layout If/Exit control set;
+   - let only the S6C adapter prove exact `13 + 1 + 1 = 15` coverage;
+   - issue one caller-zero installed S6C child/envelope with no route policy
+     or session admission;
    - keep Builder/session, runtime residence, production caller, V2-to-V1
      conversion, Selected-Dynamic cursor reuse, and S6C physicalizer at zero.
 6. `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0`,
@@ -1693,8 +1702,8 @@ this shallow ordered series:
      required by the admitted M8 corpus. Unsupported families remain typed
      fail-fast until their own row lands.
 7. `LOOP-COMMON-V2-PHYSICAL-SESSION-I0`
-   - consume the scoped V2 package only after the required structural
-     coverage rows have landed;
+   - fan in the scoped neutral V2 envelope and separately admitted route policy
+     only after the required structural coverage rows have landed;
    - reuse the one canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session
      and keep S6C as the first adapter, never a physicalizer owner.
 8. `LOOP-PRECUTOVER-AUTHORITY-G0`
