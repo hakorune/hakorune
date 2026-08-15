@@ -8,7 +8,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
 work_mode = "design_stop"
 current_execution_row = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
-current_blocker_token = "NoSafeSlice::MissingTextFormalCallableSignatureIssuer until one source-backed owner closes logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion is only the preferred candidate, and detached re-pairing, V1 adapter, S6C physicalizer, Builder/session, fallback, and retry remain forbidden."
+current_blocker_token = "NoSafeSlice::MissingTextFormalCallableSignatureIssuer until one source-backed owner closes exact target-to-signature handoff, one-lock generation actualization with strong Text-owner lifetime, logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion is only the preferred candidate, and detached re-pairing, V1 adapter, S6C physicalizer, Builder/session, fallback, and retry remain forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (TextFormal callable-mapping design stop)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, caller-zero header transport, generation-checked TextFormalBorrowV1 ABI, and the installed S6C child I0 are closed. The current bounded child D0 must close logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion remains a preferred candidate, not an accepted ABI. Generic V2 operation/control coverage follows this child; TextEq route admission, production selection, raw-AST convergence, and cleanup remain parked."
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, caller-zero header transport, generation-checked TextFormalBorrowV1 ABI, and the installed S6C child I0 are closed. The current bounded child D0 must close exact target-to-signature handoff, one-lock generation actualization with strong owner lifetime, logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion remains a preferred candidate, not an accepted ABI. Generic V2 operation/control coverage follows this child; TextEq route admission, production selection, raw-AST convergence, and cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"

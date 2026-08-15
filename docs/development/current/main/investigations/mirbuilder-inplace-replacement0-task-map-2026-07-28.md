@@ -97,10 +97,11 @@ explicit pointer retarget.
     focused negatives; production caller, TextFormal mapping, V2 envelope,
     Builder/session, fallback, and retry remain zero.
 17. CURRENT bounded design child inside the parent stop:
-    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` must close one source-backed
-    logical ExactText ordinal -> physical signature mapping, call-site
-    actualization, and Canonical-session composite adoption. Two-lane
-    slot/generation expansion is only the preferred candidate; aggregate ABI,
+    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` remains `NoSafeSlice` until
+    one source-backed owner closes exact target->signature handoff, one-lock
+    generation actualization, strong Text-owner lifetime, then the logical
+    ordinal -> physical mapping and Canonical-session composite adoption.
+    Two-lane slot/generation is the preferred target shape; aggregate ABI,
     `/N`, `MirType::String`, and detached ValueIds are non-authority.
 18. OPEN parent/common-program branch after 17 acceptance:
     `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` then closes the neutral exact

@@ -214,14 +214,14 @@ Port only verifies the already-issued role/identity and takes/lends the child
 exactly once after install; it does not reclassify S6C or accept a caller slot,
 key, ingress, or fixture.
 
-The next bounded child is the callable-signature decision. It must keep one
-logical ExactText formal as one semantic BindingRef while choosing either a
-complete 16-byte aggregate signature or an explicit two-lane
-`slot`/`generation` expansion. The preferred candidate is two lanes because
-the current MIR/LLVM function model is scalar-`i64`, but this is not accepted
-until one source-backed metadata owner also performs call-site actualization
-and Canonical-session composite adoption. `/N`, `MirType::String`, the C
-validator's argument order, and raw `ValueId` ordinals are not authorities.
+The next bounded child is the callable-signature decision. It keeps one
+logical ExactText formal as one semantic BindingRef and targets explicit
+two-lane `slot`/`generation` expansion because MIR/LLVM is scalar-`i64`.
+The shape remains `NoSafeSlice` until one source-backed owner closes exact
+target->signature handoff, one-lock generation capture, strong owner lifetime,
+call-site actualization, and Canonical-session composite adoption. `/N`,
+`MirType::String`, C validator argument order, and raw `ValueId` ordinals are
+not authorities.
 
 The parent common-V2 row then closes the shared callable-signature, single-
 Completion, and operation/control envelope:
@@ -1072,7 +1072,7 @@ skip the After closure or reopen a Tail-only route.
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
 | 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | design only; child/Completion are closed, while missing callable-signature or placement issuers remain `NoSafeSlice` |
-| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` | choose one source-backed logical ExactText ordinal -> physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation is only a candidate | design only; no `/N` inference, `MirType::String`, validator-argument, detached `ValueId`, aggregate ABI, fallback, or retry |
+| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` | close exact target->signature handoff, one-lock generation actualization/strong owner lifetime, then logical ExactText ordinal -> physical mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation is only a candidate | design only; no `/N` inference, `MirType::String`, validator-argument, detached `ValueId`, aggregate ABI, fallback, or retry |
 | 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the common boundary after 22c-a | BoxShape only; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |

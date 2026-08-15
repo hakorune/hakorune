@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, site-contract I0, caller-zero header transport R0, physical Text formal D0/I0 are closed; current row is the installed S6C/common-V2 composition design stop
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0, language-law reference, site-contract I0, caller-zero header transport R0, physical Text formal D0/I0, and installed S6C child I0 are closed; current row is the callable-signature design stop before common V2 transport
 Date: 2026-08-15
 Work mode: design_stop
-Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount + closed T1 header transport + closed T2 physical Text formal BoxShape/BoxCount; current T2 common-V2 BoxShape
+Classification: closed T0/T1/T2 prerequisite rows + current T2 callable-signature BoxShape design stop; common V2 remains parked
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,27 +14,25 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: keep this T2 BoxShape open until one non-splittable installed S6C parent can lend responsibility-specific sibling views for callable ABI, retained S6C semantics, and operation/control coverage; do not expose one detachable all-fields view or issue session admission here.
-Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the only candidate co-issuer; the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort is transported only by `NormalCallableSemanticPackagePortV1`, and the retained S6C parent remains the source/Recipe/Join owner.
-Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
-Fail-fast boundary: before Builder/session, reject non-total S6C membership, foreign cohort/header, duplicate Completion ownership, missing TextFormal callable-signature mapping, or any non-exact partition of 13 operation keys plus one If and one Exit over all 15 Recipe placements.
-Smallest next slice: close the parent common-V2 TextFormal mapping and generic
-V2 exact-set transport; the ordered caller-zero child I0 is already landed.
-Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
+Decision: retain explicit `slot,generation` two-lane expansion as preferred, but
+keep D0 open until target handoff, one-lock actualization, and strong lifetime
+are named and co-sealed.
+Source authority + canonical issuer: complete ExactText contracts plus the
+same-brand header/Completion feed the planned package-owned issuer; runtime
+TextFormal is validation evidence, not a callable signature.
+Non-authority: `/N`, MirType/FunctionSignature length, raw HostHandle, C
+validator order, detached ValueIds, AST/MIR rewalk, fallback, and retry.
+Fail-fast boundary: reject lane/arity drift, target/brand mismatch, actualize
+failure, owner-lifetime loss, one-lane SSA adoption, or unowned receiver lane.
+Smallest next slice: exact target→signature handoff and one-lock generation /
+lifetime receipt; only then caller-zero mapping I0.
+Non-claims: no production caller, TextEq route/residence, V2 envelope, Builder,
+physical session, fallback, retry, or main integration.
 ```
 
 ## Current child pointer
-
-The parent common-V2 stop remains open. Its first bounded design child is the
-installed-cohort composition; the later transport row remains separate from
-parameter-only or result-only rows:
-
-The child task has its own bounded card:
-
-```text
-docs/development/current/main/investigations/
-s6c-installed-child-composition-d0-2026-08-15.md
-```
+The installed-cohort child is closed in its owning card; transport remains
+separate from parameter-only and result-only rows.
 
 ```text
 CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
@@ -46,22 +44,12 @@ CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
   -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [parent follow-on]
 ```
 
-### Ordered child D0 acceptance
+### Ordered child receipt
 
-```text
-Decision: first close the package-owned S6C child issuer and the generic-header
-  Completion seed handoff; move one seed into the S6C child exactly once.
-Source authority + issuer: existing S6C Facts/Recipe/Join producers plus
-  verify_function_completion_v1, composed above header-row wrapping only by
-  issue_normal_callable_semantic_package_v1.
-Non-authority: test-built ingress, raw batch slot/key, Main/name/fixture lookup,
-  Port-side reclassification, cloned/raw Completion, TextFormal wire arguments.
-Fail-fast: foreign or non-member child, missing/duplicate Completion, detached
-  ingress/header re-pair, and any caller-supplied source product reject before Builder.
-Next slice: the child/Port loan I0 is landed; the current parent child is
-  `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`, followed by generic V2 coverage.
-Non-claims: no route, residence, physical IDs, Builder/session, fallback, retry, or caller.
-```
+The package-owned child and move-only Completion seed handoff are landed. The
+issuer performs the sole Completion verification; the Port only checks the
+sealed role/identity and lends the child exactly once. Test-built ingress,
+caller slots, cloned Completion, and Port-side reclassification remain absent.
 
 The completed transport row co-seals supported formal parameters, an explicit
 source-backed result/header declaration, and `verify_function_completion_v1`
@@ -656,54 +644,73 @@ CleanupParked: raw-AST ordinary/root convergence, finish unification,
     views required by the next owner. Owned products remain non-Clone,
     non-Default, non-splittable, and caller-zero.
 
-## Ordered callable-signature child design stop
+## Callable-signature child — refined design stop
 
-The installed child and single-Completion handoff are now closed. The next
-bounded design child is deliberately narrower than the generic V2 transport:
+The installed child and single-Completion handoff are closed. The callable
+mapping shape is narrowed before generic V2 transport, but the issuer is not
+yet accepted:
 
 ```text
-CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0  [NoSafeSlice]
+  -> strict target/signature actualizer + lifetime design
+  -> caller-zero mapping I0 only after acceptance
 ```
 
 ```text
-Decision: keep one logical ExactText formal as one semantic BindingRef and choose one complete physical signature mapping; explicit two-lane slot/generation expansion is the preferred candidate because the current MIR/LLVM function model is scalar i64, but it is not accepted until all ownership edges close.
-Source authority + canonical issuer: the ExactText formal parameter contract, the same-branded callable header/Completion cohort, and TextFormalBorrowV1 wire are existing inputs; one package/header mapping issuer must co-seal logical ordinal, physical signature, call-site actualization, and Canonical-session composite adoption.
-Non-authority: `/N` name arity, MirType::String, FunctionSignature alone, C validator argument order, raw HostHandle, Dynamic lease, detached ValueId pairs, AST/MIR rewalk, aggregate layout guessed from repr(C), fallback, and retry.
-Fail-fast boundary: reject logical/physical arity drift, duplicate or missing lane, call-site actualization mismatch, one-lane session adoption, foreign header/Completion cohort, stale/unverified TextFormal residence, and aggregate signatures without a complete compiler/LLVM ABI owner.
-Smallest next slice: design the package-owned mapping metadata and its single consumer seam; after acceptance, implement only caller-zero mapping tests/transport, then return to the generic V2 Operation/If/Loop/Exit partition.
-Non-claims: no runtime route activation, TextEq/Substring residence, PreparedLoopV2 envelope, ReadyEntry, Builder/MIR/CFG/SSA/PHI, physical caller, production selection, fallback, retry, or main integration.
+Decision: choose explicit two-lane expansion as the target shape. One logical
+ExactText formal remains one BindingRef; its physical signature is contiguous
+`slot,generation` `u64` lanes and logical symbol/arity stays `/N`. It is not
+accepted until a complete call-site actualizer and lifetime owner exist; a
+16-byte aggregate remains rejected for this slice.
+Source authority + canonical issuer: the ExactText parameter catalog plus the
+same-branded header/Completion cohort are consumed once by a package-owned
+`VerifiedCallablePhysicalSignatureCohortV1` issuer. Each static callable row
+co-seals logical ordinal/BindingRef, lane kind/index, total logical/physical
+arity, owner/identity, and the target capture policy. No `ValueId` is stored.
+Non-authority: `/N`, `MirType::String`, `FunctionSignature` length alone, C
+validator argument order, raw HostHandle, Dynamic lease, detached ValueIds,
+AST/MIR rewalk, or an aggregate guessed from `repr(C)`.
+Fail-fast boundary: reject non-static receiver scope, missing/duplicate/swapped
+lanes, non-contiguous physical arity, call/callee mapping drift, generation
+recapture, owner-lifetime loss, one-lane SSA adoption, foreign cohort, or any
+Text formal without a target-bound capture outcome before body effect.
+Smallest next slice: name the exact target→signature handoff and one-lock
+generation capture/strong-owner lifetime receipt; then implement caller-zero
+mapping metadata and tests. Generic V2 transport follows only after this.
+Non-claims: no production caller, runtime route activation, TextEq/Substring
+residence, PreparedLoopV2 envelope, ReadyEntry, Builder/session emission,
+physical IDs in the pre-session product, fallback, retry, or main integration.
 ```
 
-The candidate shapes are:
+The target mapping is:
 
 ```text
-A  one 16-byte aggregate formal
-   requires a new aggregate formal/signature owner across MIR metadata,
-   JSON/LLVM function declarations, call sites, and session adoption.
+logical parameter rows (source order)
+  ExactText       -> [slot_lane, generation_lane]
+  ExactTrivial    -> [single_lane]
+  OpaqueHandle    -> [single_lane]
 
-B  explicit two-lane formal (preferred candidate)
-   logical ordinal N -> metadata-issued slot lane + generation lane;
-   the same metadata must drive caller actualization and one composite
-   session adoption while preserving one logical BindingRef.
+physical lane indices are contiguous and exhaustive.
 ```
 
-The current repository only proves that the runtime wire is a 16-byte pair and
-that the compiler session currently reserves one `ValueId` per logical ordinal.
-It does not yet issue either complete callable signature. The `TextFormalBorrowV1`
-C arguments, `/N` suffix, `MirType::String`, and one-`ValueId` convention cannot
-fill that gap. Until a single source-backed mapping owner exists, this child
-remains `NoSafeSlice::MissingTextFormalCallableSignatureIssuer` and the
-generic V2 placement transport must not open.
+The target product is intended to be non-`Clone` and retain the same cohort
+brand. A target-bound call terminal must consume its row to capture
+`[slot,generation]` from the existing runtime issuer; it may never reconstruct
+generation from a slot. The later session seam will publish slot as the sole
+ordinary BindingRef SSA value and retain generation in a private composite
+receipt. The mapping-aware skeleton/declaration path must use physical lane
+count; the logical `/N` symbol is not renamed to `/physical_N`.
 
 Required negative boundary:
 
 ```text
 logical one-formal -> physical one-arg drift
-slot/generation lane missing or duplicated
-call-site pair not issued by the mapping owner
-session adopts two detached Values instead of one composite formal
-aggregate ABI without complete declaration/call/link owner
-mapping from raw /N, MirType, validator order, or ValueId convention
+slot/generation lane missing, duplicated, swapped, or out of range
+call-site pair not issued by the mapping owner or not held by a strong owner
+callee declaration/call physical arity mismatch
+session adopts detached Values or publishes generation as a second binding
+instance receiver/implicit lane without an issuer
+aggregate ABI, /N, MirType, validator order, or ValueId inference
 ```
 
 ## Corrected bounded DAG

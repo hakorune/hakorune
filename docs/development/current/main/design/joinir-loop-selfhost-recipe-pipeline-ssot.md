@@ -1651,11 +1651,12 @@ LoopV2CanonicalSessionAdmissionV1                 later fan-in
 D0 now has one ordered design child before generic transport:
 `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`. The installed-S6C issuer and one
 Completion ownership path are closed by the caller-zero child I0. The mapping
-child must still choose a complete aggregate or explicit slot/generation
-lane expansion and co-seal logical ordinal, call-site actualization, and
-Canonical-session composite adoption. Two lanes are only the preferred
-candidate; `/N`, `MirType::String`, validator argument order, and detached
-`ValueId` ordinals remain non-authority. The parent D0 then names or rejects
+child must still close exact target->signature handoff, one-lock generation
+capture with strong owner lifetime, then choose explicit slot/generation lane
+mapping and co-seal call-site actualization with Canonical-session composite
+adoption. Two lanes are only the preferred candidate; `/N`, `MirType::String`,
+validator argument order, and detached `ValueId` ordinals remain
+non-authority. The parent D0 then names or rejects
 the complete V2 envelope contract and fail-fast matrix. The child issuer owns
 semantic admission before install; the Port only consumes that sealed child
 after install. The transport R0 and S6C package I0 later separate the common
@@ -1714,11 +1715,13 @@ this shallow ordered series:
      remaining callable mapping to the ordered child below;
    - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
 4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`
-   - choose aggregate versus explicit slot/generation lanes and co-seal the
-     logical ordinal, call-site actualization, and Canonical-session composite
-     adoption under one source-backed issuer;
-   - keep two lanes as a preferred candidate only until all three edges and
-     exact arity/ValueId coverage are named.
+   - keep explicit slot/generation lanes as the preferred target shape, but
+     remain `NoSafeSlice` until one source-backed owner closes exact
+     target->signature handoff, one-lock generation capture, strong owner
+     lifetime, call-site actualization, and Canonical-session composite
+     adoption;
+   - reject `/N`, MirType, validator order, detached ValueIds, and aggregate
+     ABI inference; only then open caller-zero mapping I0.
 5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
    `LOOP-S6C-COMMON-V2-PRESESSION-I0`
    - transport the generic complete operation set separately from the
