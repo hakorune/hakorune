@@ -14,11 +14,11 @@ signature mapping itself and does not open a caller, Builder, or session.
 ## Six-line brief
 
 ```text
-Decision: design one source-backed, move-only VerifiedTextCallSourceResidenceV1 that keeps the original Text/StringBox owner live through synchronous call completion; the two-lane signature remains only a preferred target until this owner and target handoff are accepted.
-Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the canonical caller/session owner supplies the strong source residence, while the host-handle SlotTable supplies only one-lock Text classification and generation capture immediately before the call.
-Non-authority: TextFormalBorrowV1 read-lock closure, HostHandleLeaseIdentityV1, DynamicV2 lease, raw HostHandle, ObjectIdentity, retain_h, StringBox/as_str_fast, C validator, AST/MIR/ValueId, and runtime fallback.
-Fail-fast boundary: zero/missing/stale/non-Text, pin overflow, foreign generation, owner drop before call end, duplicate finish, or any unpinned body entry rejects/traps before the target body effect; every return/trap path must discharge exactly once.
-Smallest next slice: design the SlotTable pin/deferred-drop protocol, opaque residence guard, target-bound call actualizer, and cleanup contract; only after acceptance may a caller-zero wire/map implementation begin.
+Decision: choose a three-layer lifetime shape—source-backed compile-time residence, caller-private prepared actualization, and only if source proof ends early a new opaque runtime lease; the two-lane signature remains only a preferred target.
+Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the canonical caller/session issuer supplies source residence and prepared actualization, while a future runtime issuer alone may own a slot pin token.
+Non-authority: TextFormalBorrowV1 read-lock closure, HostHandleLeaseIdentityV1, DynamicV2 lease, raw HostHandle, ObjectIdentity, retain_h, KeepAlive, Completion, C validator, AST/MIR/ValueId, and runtime fallback.
+Fail-fast boundary: source-owner loss or generation capture failure rejects before body effect; partial acquire rolls back; normal continuation finishes exactly once, while the current no-unwind trap ABI never requires a post-trap cleanup callback.
+Smallest next slice: design the three types, their ownership handoff, source/call target co-seal, and all retirement/rollback paths; only after acceptance may a caller-zero wire/map implementation begin.
 Non-claims: no signature issuer, physical arity change, C ABI caller, TextEq route, Substring corridor, ValueId adoption, Canonical session, Builder, production caller, fallback, retry, or main integration.
 ```
 
@@ -34,27 +34,40 @@ callable signature's lifetime authority.
 
 ## Preferred owner shape
 
-The planned source residence is intentionally opaque and non-`Clone`:
+The planned source receipt is intentionally opaque and non-`Clone`:
 
 ```text
-VerifiedTextCallSourceResidenceV1 {
+VerifiedCallScopedTextOwnerLifetimeV1 {
     private source_owner: original live Text/StringBox owner,
+    private until_call_return: sealed synchronous-lifetime proof
+}
+
+PreparedTextFormalCallActualizationV1 {
+    private signature_row: source-backed logical-to-physical mapping,
+    private source_residence: VerifiedCallScopedTextOwnerLifetimeV1,
+    private capture_and_call: caller-private exact transition
+}
+
+TextFormalCallLeaseTokenV1 { // only if source proof ends before call return
     private pair: {slot, generation},
     private finish: exactly-once discharge
 }
 ```
 
 The source-backed caller owner must prove that the original Text input remains
-live until call completion; `acquire(raw_slot)` alone is forbidden because it
-could capture the current generation of an already-reused replacement. After
-that source proof is consumed, the runtime issuer performs Text-class
-validation and generation capture in one SlotTable transition immediately
-before a synchronous call. The guard cannot escape, be copied, or recreate a
-generation from a raw slot. Existing `drop_handle`, Dynamic lease retirement,
-and `retain_h` are not sufficient; if a runtime pin/deferred-drop table is ever
-needed, it is a separate owner decision and must cover every retirement path.
-C/LLVM receives only a later fixed wire projection; the residence itself
-remains a compiler/runtime capability.
+live until call completion. A raw-slot acquire is forbidden because it could
+capture the current generation of an already-reused replacement. The prepared
+actualizer consumes the source proof and target signature together, then either
+performs atomic Text validation/generation capture immediately before the
+synchronous call, or consumes the separate runtime lease token if the source
+proof cannot span the call. Existing `drop_handle`, Dynamic lease retirement,
+and `retain_h` are not sufficient. If the runtime lease variant is selected,
+both direct retirement paths must converge on one pin-aware helper. C/LLVM
+receives only a later fixed wire projection; the source receipt and token stay
+caller-private.
+
+This is a BoxShape decision only. Any SlotTable pin count, deferred retirement,
+or C/runtime token implementation is a later BoxCount and remains unopened.
 
 The callable target terminal must consume this residence through the same
 package-owned physical-signature row that maps one logical `BindingRef` to
@@ -66,9 +79,10 @@ publishing only the slot as ordinary BindingRef SSA.
 
 ```text
 drop/release/rebind during call; stale generation; non-Text payload; zero slot;
-duplicate finish; finish on the wrong generation; residence
-escape from the HRTB/call scope; one-lane adoption; raw retain/release;
-fallback to scalar/borrowed route; language Fault or retry on invariant failure
+duplicate finish; finish on the wrong generation; partial-acquire leak;
+residence/token escape from the HRTB/call scope; one-lane adoption; raw
+retain/release; direct `drop_handle` bypass; fallback to another route;
+language Fault or retry on invariant failure
 ```
 
 Until these ownership and cleanup rules have a named issuer and a focused
