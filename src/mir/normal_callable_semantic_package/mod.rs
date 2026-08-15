@@ -5,17 +5,21 @@
 //! projection before Builder effects begin. It owns no CFG, Completion
 //! consumption, physical ABI, or fallback route.
 
+mod completion_seed;
 mod dynamic_admission;
 mod install;
 mod issuer;
 mod model;
 mod physical_header;
+mod s6c_child;
 mod selected_mapping;
 
 #[cfg(test)]
 mod main_static_child_tests;
 #[cfg(test)]
 mod physical_header_tests;
+#[cfg(test)]
+mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 

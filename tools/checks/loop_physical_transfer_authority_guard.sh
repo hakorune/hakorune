@@ -28,6 +28,8 @@ MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
 MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
+COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
+S6C_CHILD="$ROOT_DIR/src/mir/normal_callable_semantic_package/s6c_child.rs"
 TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
 TEXT_FORMAL_HOST="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
 TEXT_FORMAL_HEADER="$ROOT_DIR/include/nyrt_text_formal_v1.h"
@@ -41,7 +43,7 @@ guard_require_files "$TAG" "$PHYSICAL_INPUT"
 guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
   "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
-guard_require_files "$TAG" "$PHYSICAL_HEADER"
+guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD"
 guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
   "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
 
@@ -109,13 +111,16 @@ guard_expect_fixed_in_file "$TAG" \
   "dynamic_eligible_batch_slot" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "Main static-child rows must be filtered before Dynamic admission"
 guard_expect_fixed_in_file "$TAG" \
-  "verify_function_completion_v1" "$PHYSICAL_HEADER" \
-  "callable physical-header cohort must use the sole Completion issuer"
+  "verify_function_completion_v1" "$COMPLETION_SEED" \
+  "callable Completion seed must use the sole Completion issuer"
+if rg -n -F -- 'verify_function_completion_v1' "$PHYSICAL_HEADER" >/dev/null 2>&1; then
+  guard_fail "$TAG" "callable physical-header row reissues the Completion authority"
+fi
 guard_expect_fixed_in_file "$TAG" \
-  "ExactTrivialScalarAbiV1::classify" "$PHYSICAL_HEADER" \
-  "callable physical-header result must use the explicit scalar source spelling"
+  "ExactTrivialScalarAbiV1::classify" "$COMPLETION_SEED" \
+  "callable Completion seed result must use the explicit scalar source spelling"
 guard_expect_fixed_in_file "$TAG" \
-  "issue_callable_physical_header_cohort_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "issue_callable_physical_header_from_seeds_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "package issuer must have one source/header cohort seam"
 guard_expect_fixed_in_file "$TAG" \
   "TextFormalBorrowV1" "$TEXT_FORMAL_ABI" \
@@ -284,7 +289,8 @@ for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_D
   "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
   "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
   "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
-  "$MAIN_ADAPTER" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_EXPORT"; do
+  "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
+  "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_EXPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

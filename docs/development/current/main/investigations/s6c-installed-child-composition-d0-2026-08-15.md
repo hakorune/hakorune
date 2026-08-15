@@ -1,7 +1,7 @@
 ---
-Status: design_stop; bounded installed S6C child-composition task
+Status: I0 implemented and focused-gated; next pointer is common-V2 D0
 Date: 2026-08-15
-Work mode: design_stop
+Work mode: fast
 Classification: T2 BoxShape
 Parent: s6c-text-eq-physical-contract-d0-2026-08-15.md
 ---
@@ -12,6 +12,17 @@ This row closes the ownership boundary between the existing callable package
 and the caller-zero S6C semantic spine. It does not open TextEq physical
 execution or a MIRBuilder session.
 
+The BoxShape is accepted. The next bounded implementation is:
+
+```text
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0
+```
+
+It is caller-zero and may add only the package-private seed/child models, the
+single issuer wiring, and focused positive/negative tests. It must not open a
+production caller, TextFormal signature mapping, V2 envelope, Builder/session,
+route, fallback, or retry.
+
 ## Six-line brief
 
 ```text
@@ -19,7 +30,7 @@ Decision: issue one package-owned S6C child from the same selected batch/catalog
 Source authority + canonical issuer: existing selected-map AppMainStaticChild role, resolved semantic row/source ledger, issue_s6c_typed_input_relation_v1, canonical CoreMethod target issuer, existing S6C Facts/Recipe/Join producers, and verify_function_completion_v1, orchestrated only by issue_normal_callable_semantic_package_v1.
 Non-authority: Main/name/fixture predicates, raw batch slot or Recipe key, caller-supplied Facts/Recipe/ingress, test helper issue_facts, Port-side S6C reclassification, cloned/raw Completion, TextFormal wire arguments, MIR type, Builder state, and Dynamic admission.
 Fail-fast boundary: before install/Port loan, reject foreign identity, incomplete or duplicate S6C candidate, resolver/source-ledger corruption, target-pair drift, missing/foreign/duplicate Completion seed, and any S6C seed entering generic header rows.
-Smallest next slice: design the package-private seed cohort, typed candidate disposition, retained S6C child, and Port exactly-once take/lend seam; only after acceptance may a caller-zero I0 implement it.
+Smallest next slice: implement the package-private seed cohort, typed candidate disposition, retained S6C child, and Port exactly-once take/lend seam in caller-zero I0.
 Non-claims: no TextFormal callable-signature mapping, V2 operation/control envelope, TextEq route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, physical caller, fallback, retry, or legacy retirement.
 ```
 
@@ -88,6 +99,29 @@ own `AppMainStaticChild` rows. It must not call `main_child_selection` with a
 caller-provided statement/method or expose a detached slot/key iterator. The
 issuer receives the retained row identity and role witness from that seam and
 joins it to the same batch declaration exactly once.
+
+## I0 landed evidence
+
+The caller-zero implementation now has one
+`VerifiedCallableCompletionSeedCohortV1` pass. The selected
+`AppMainStaticChild` row consumes exactly one matching seed into
+`VerifiedS6CSemanticChildV1`; remaining ordinary seeds alone feed the generic
+physical-header projection. The child retains the complete prephysical S6C
+parent, while Completion parity and Loop Return/Tail remain borrowed from
+that parent. `NormalCallableSemanticPackagePortV1` lends the child without a
+key/slot argument, rejects generic key-only admission for the role, and
+rejects a second child loan before callback execution.
+
+Focused evidence:
+
+```text
+mir::normal_callable_semantic_package::s6c_child_tests = 2 passed
+mir::normal_callable_semantic_package = 29 passed
+cargo check = green (inherited warning census only)
+```
+
+No Builder/session/MIR/physical caller, TextEq route, fallback, or retry was
+opened. The next design stop is the parent common-V2 pre-session contract.
 
 ## D0 gates before I0
 
@@ -181,8 +215,8 @@ borrow escapes the Port callback
 ## Ordered DAG
 
 ```text
-LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0   [current design_stop]
-  -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0  [caller-zero BoxCount]
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0   [accepted BoxShape]
+  -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0  [current caller-zero BoxCount]
   -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
        TextFormal callable mapping
        one Completion owner at the common boundary
@@ -190,6 +224,30 @@ LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0   [current design_stop]
   -> LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
   -> LOOP-S6C-COMMON-V2-PRESESSION-I0       [caller-zero, Builder-free]
   -> route admission / canonical session / bounded cutover
+```
+
+## I0 acceptance
+
+```text
+positive:
+  exact S6C fixture issues one child from one package cohort
+  ordinary selected rows remain ordinary header rows
+  child header/result and retained Completion sibling views agree
+  package/Port child loan is exactly once and callback-scoped
+
+negative:
+  zero or duplicate candidate
+  foreign role/identity/brand/source
+  result annotation or Completion parity drift
+  S6C seed reaches generic header
+  second seed consume, raw Completion clone, detached key/slot, or callback escape
+
+guards:
+  production caller = 0
+  Builder/session/MIR IDs = 0
+  V1/Dynamic adapter and S6C physicalizer = 0
+  fallback/retry = 0
+  all new source files < 760 lines
 ```
 
 ## NoSafeSlice conditions

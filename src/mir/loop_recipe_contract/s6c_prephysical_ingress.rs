@@ -179,6 +179,17 @@ impl VerifiedS6CPrephysicalIngressV2 {
             })
         })
     }
+
+    pub(crate) fn with_completion_parity<R>(
+        &self,
+        callback: impl FnOnce(S6CPrephysicalCompletionParityRefV2) -> R,
+    ) -> R {
+        callback(S6CPrephysicalCompletionParityRefV2 {
+            target_function: self.seal.completion.target_function,
+            explicit_exit_count: self.seal.completion.explicit_exit_count,
+            cleanup_empty: self.seal.completion.cleanup_empty,
+        })
+    }
 }
 
 impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {

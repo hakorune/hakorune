@@ -30,6 +30,16 @@ pub(super) struct VerifiedSelectedCallableBatchMapV1 {
 }
 
 impl VerifiedSelectedCallableBatchMapV1 {
+    pub(super) fn main_static_child_rows(
+        &self,
+    ) -> impl Iterator<Item = SelectedCallableBatchMapRowRefV1<'_>> {
+        self.rows.iter().filter_map(|row| {
+            row.role
+                .is_main_static_child()
+                .then_some(SelectedCallableBatchMapRowRefV1 { row })
+        })
+    }
+
     pub(super) fn batch_slot(&self, key: &SelectedNormalCallableKeyV1) -> Option<u32> {
         self.rows
             .binary_search_by(|row| row.key.cmp(key))
@@ -53,6 +63,16 @@ impl VerifiedSelectedCallableBatchMapV1 {
             .iter()
             .find(|row| row.batch_slot == batch_slot)
             .is_some_and(|row| row.role.admits_dynamic())
+    }
+
+    pub(super) fn role_for_batch_slot(
+        &self,
+        batch_slot: u32,
+    ) -> Option<SelectedCallableConsumptionRoleV1> {
+        self.rows
+            .iter()
+            .find(|row| row.batch_slot == batch_slot)
+            .map(|row| row.role)
     }
 
     pub(super) fn main_child_selection(
@@ -85,6 +105,25 @@ impl VerifiedSelectedCallableBatchMapV1 {
 
     pub(super) fn keys(&self) -> impl ExactSizeIterator<Item = &SelectedNormalCallableKeyV1> {
         self.rows.iter().map(|row| &row.key)
+    }
+}
+
+#[derive(Clone, Copy)]
+pub(super) struct SelectedCallableBatchMapRowRefV1<'a> {
+    row: &'a SelectedCallableBatchMapRowV1,
+}
+
+impl SelectedCallableBatchMapRowRefV1<'_> {
+    pub(super) const fn batch_slot(self) -> u32 {
+        self.row.batch_slot
+    }
+
+    pub(super) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.row.identity
+    }
+
+    pub(super) const fn role(self) -> SelectedCallableConsumptionRoleV1 {
+        self.row.role
     }
 }
 

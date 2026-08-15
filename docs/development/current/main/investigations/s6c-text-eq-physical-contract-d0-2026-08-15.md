@@ -18,7 +18,8 @@ Decision: keep this T2 BoxShape open until one non-splittable installed S6C pare
 Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the only candidate co-issuer; the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort is transported only by `NormalCallableSemanticPackagePortV1`, and the retained S6C parent remains the source/Recipe/Join owner.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
 Fail-fast boundary: before Builder/session, reject non-total S6C membership, foreign cohort/header, duplicate Completion ownership, missing TextFormal callable-signature mapping, or any non-exact partition of 13 operation keys plus one If and one Exit over all 15 Recipe placements.
-Smallest next slice: first close the ordered child `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` inside this parent card: total package-owned S6C child plus one move-only Completion seed. TextFormal mapping and generic V2 exact-set transport remain ordered parent follow-ons; no code opens while the child issuer is unresolved.
+Smallest next slice: close the parent common-V2 TextFormal mapping and generic
+V2 exact-set transport; the ordered caller-zero child I0 is already landed.
 Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
@@ -40,7 +41,8 @@ CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
   -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 [closed caller-zero wire/validator]
      docs/development/current/main/investigations/
      callable-physical-text-parameter-abi-i0-2026-08-15.md
-  -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0 [current design child]
+  -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0 [accepted BoxShape]
+     -> LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0 [closed caller-zero child]
   -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [parent follow-on]
 ```
 
@@ -56,9 +58,8 @@ Non-authority: test-built ingress, raw batch slot/key, Main/name/fixture lookup,
   Port-side reclassification, cloned/raw Completion, TextFormal wire arguments.
 Fail-fast: foreign or non-member child, missing/duplicate Completion, detached
   ingress/header re-pair, and any caller-supplied source product reject before Builder.
-Next slice: an additional design-only seam for child/header ownership; only
-  after it is accepted may a focused child/Port loan I0 open. TextFormal
-  mapping and generic V2 coverage remain parent-D0 follow-ons.
+Next slice: the focused caller-zero child/Port loan I0 described in the child
+  card. TextFormal mapping and generic V2 coverage remain parent-D0 follow-ons.
 Non-claims: no route, residence, physical IDs, Builder/session, fallback, retry, or caller.
 ```
 
@@ -69,9 +70,9 @@ Text formal I0 adds only the generation-checked caller-zero wire/validator and
 fixed C status projection. It does not bind one logical ExactText formal to the
 physical callable signature: the D0 must choose either one 16-byte aggregate
 formal or an explicit two-`u64` arity expansion and name the call-site/session
-owner. It must close that mapping together with the missing same-cohort S6C
-child, executable single-Completion path, and common-V2 exact-set envelope. No S6C child,
-Builder/session, or production caller opens here.
+owner. The same-cohort S6C child and executable single-Completion path are now
+closed by the child I0; the common-V2 exact-set envelope remains open. No
+Builder/session or production caller opens here.
 
 ## R0 implementation evidence
 
@@ -130,19 +131,20 @@ Completion/Tail row, ABI, route, residence, Builder, or physical ID is stored
 or issued. Focused site binding and all S6C/Loop guards are green, and the
 non-test caller census remains zero.
 
-The pointer is now parked at the first bounded child of this T2 design stop:
+The child was the first bounded slice of this T2 design stop and is now closed;
+the pointer is parked at the parent common-V2 design stop:
 
 ```text
-LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 ```
 
-This child is design-only. It must decide, without implementation, the total
-same-cohort S6C child issuer and one executable Completion seed move. The
-parent later decides the source-backed callable signature and neutral V2
-envelope with exactly `13 operations + 1 If + 1 Exit = 15 placements`; the 13
+The child BoxShape and caller-zero I0 implement only the total same-cohort S6C
+child issuer and one executable Completion seed move. The parent now decides
+the source-backed callable signature and neutral V2 envelope with exactly `13
+operations + 1 If + 1 Exit = 15 placements`; the 13
 operation rows remain separate from Recipe/JoinSig/Layout-owned If/Exit
-control. If the child issuer is missing, `NoSafeSlice` remains and no I0
-receipt is issued.
+control. Any missing issuer or ownership mismatch returns to the child
+`NoSafeSlice` boundary; no physical session is opened by this I0.
 
 ## Corrected owner graph
 
@@ -434,10 +436,9 @@ Decision: use one package-owned admitted S6C child inside the branded Installed/
 Source authority + canonical issuer: `issue_normal_callable_semantic_package_v1` is the sole candidate co-issuer; `NormalCallableSemanticPackagePortV1` alone lends the same callable/header/S6C cohort, while the retained S6C parent and one Completion remain the source/control owners.
 Non-authority: Recipe-local keys, a detached TextEq site, benchmark JSON, MIR MirType/EffectMask, the V1 physicalizer, Selected-Dynamic fixed cursor, Builder state, and fixture expectations cannot issue the outer cohort or complete program.
 Fail-fast boundary: before Builder/session, reject non-total S6C admission, foreign header/ingress identity, duplicate Completion, missing ExactText compiler lane, or incomplete/overlapping operation-control keys; never coerce V2 to V1 or retry another physicalizer.
-Smallest next slice: finish the installed-child composition child, then return
-to the parent D0 for TextFormal mapping and generic V2 coverage before
-`LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`; route and session rows remain
-separate.
+Smallest next slice: close the parent D0 TextFormal mapping and generic V2
+coverage before `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`; the installed-child
+composition I0 is already landed, and route/session rows remain separate.
 Non-claims: no Builder, ValueId, physical block/ID, runtime route activation, residence, production caller, selector switch, S6C physicalizer, or BorrowedSpan implementation.
 ```
 
@@ -476,8 +477,8 @@ Recipe/JoinSig/Layout-bound control authority; one passive envelope receipt
 proves their union covers all 15 placements. The current D0 must name that
 control subproduct rather than smuggle it into the operation program. None of
 these targets may become a V2-to-V1 adapter, Selected-Dynamic cursor reuse, or
-S6C-specific physicalizer. Until the installed-child, callable-signature,
-single-Completion, and exact-set issuers plus those subproducts are named,
+S6C-specific physicalizer. Until the callable-signature and exact-set issuers
+plus those subproducts are named,
 implementation is
 `NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`. The existing canonical
 CFG/Binding-SSA/Phi/Completion/DraftSeal services remain the only physical
@@ -492,24 +493,9 @@ into `CompilationContext`, while Installed retains the same-brand batch,
 selection, formal/header, and profile state. `NormalCallableSemanticPackagePortV1`
 is the only exactly-once loan surface over that branded cohort.
 
-Four gaps remain before this D0 can be accepted:
+Two gaps remain before this D0 can be accepted:
 
-1. **Total installed S6C admission.** Main static-child membership is closed,
-   but the Facts -> Recipe -> ingress chain is still assembled by test helpers.
-   `issue_normal_callable_semantic_package_v1` must classify the selected child
-   as member or typed non-member and retain the admitted S6C child in the same
-   package cohort. Caller-supplied ingress, batch slot, key, or fixture name is
-   forbidden.
-2. **One Completion owner.** The physical-header cohort and S6C Exit/Tail
-   product currently each own a Completion product. The target direction is
-   one move-only Completion retained by the installed S6C parent; header/result
-   and Loop Return/Tail are sibling projections of it. Clone, `Rc`, later
-   equality comparison, or detached re-pairing is forbidden. The preferred
-   seam is a single non-`Clone` seed issued above header-row wrapping: ordinary
-   rows move their seed into generic header rows, while the selected S6C row
-   moves its seed into the package-owned child and lends the header view from
-   that child. If this cannot be made executable, remain `NoSafeSlice`.
-3. **TextFormal callable signature.** `ExactTextFormalAbiV1` owns semantic formal
+1. **TextFormal callable signature.** `ExactTextFormalAbiV1` owns semantic formal
    identity and `TextFormalBorrowV1` owns the runtime `{slot, generation}`
    aggregate/validator. Existing compiler/LLVM paths make explicit two-`u64`
    lane expansion the preferred candidate, but it is not accepted yet: the
@@ -519,7 +505,7 @@ Four gaps remain before this D0 can be accepted:
    one-`ValueId` convention, and Dynamic lease are non-authority; aggregate
    ABI remains a rejected alternative unless a complete aggregate ABI owner is
    named.
-4. **Neutral V2 exact-set partition.** The Recipe proves 15 placements, but the
+2. **Neutral V2 exact-set partition.** The Recipe proves 15 placements, but the
    current ingress census does not issue a complete neutral program. One common
    transport must retain exact operation keys and exact control keys and prove
    `operations(13) ∩ {If, Exit} = ∅` and
@@ -677,7 +663,7 @@ CleanupParked: raw-AST ordinary/root convergence, finish unification,
   ingress + law + site + callable header + TextFormalBorrowV1
                          |
                          v
-[current child] LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
+[closed child] LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0 -> I0
                          |
                          v
         LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0

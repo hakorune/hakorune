@@ -95,6 +95,25 @@ the S6C physical session remain downstream design stops. The cohort owns the
 source result spelling and Completion proof only; the formal parameter issuer
 continues to own ordinal, BindingRef, owner, and formal-kind evidence.
 
+## Installed S6C child composition (2026-08-15)
+
+The caller-zero S6C child row is issued only inside the same package issuer
+that owns the selected batch map. A private Completion seed cohort performs
+the one `verify_function_completion_v1` pass; an exact `AppMainStaticChild`
+candidate consumes its seed into `VerifiedS6CSemanticChildV1`, while ordinary
+seeds alone are offered to the generic header projection. The child retains
+the complete S6C Facts/Recipe/Join/prephysical parent and lends only its
+result/parity views; Completion, Loop Return, and callable Tail remain
+projections of that retained parent, not a second field or clone.
+
+After install, `NormalCallableSemanticPackagePortV1::with_s6c_child` is the
+sole child loan. It has no slot/key argument, rejects the generic selected
+entry points for the Main-child role, and records the child key in the same
+exactly-once coverage ledger. A second child loan is typed rejection. This
+row is still Builder-free and caller-zero: it does not define TextFormal wire
+mapping, TextEq residence/route, V2 transport, MIR IDs, a production caller,
+fallback, or retry.
+
 ## Anchor/package audit reconciliation (2026-08-10)
 
 The selected-mapping boundary is closed and must not be reopened as a second

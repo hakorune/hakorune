@@ -218,7 +218,8 @@ pub(crate) use physical_layout::{
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 #[allow(unused_imports)]
 pub(crate) use s6c_prephysical_ingress::{
-    issue_s6c_prephysical_ingress_v2, S6CPrephysicalIngressRejectV2, S6CPrephysicalOperationRoleV2,
+    issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
+    S6CPrephysicalCompletionRefV2, S6CPrephysicalIngressRejectV2, S6CPrephysicalOperationRoleV2,
     VerifiedS6CPrephysicalIngressV2,
 };
 #[allow(unused_imports)]

@@ -38,6 +38,9 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MainChildIdentityMismatch,
     MainChildRoleMismatch,
     MainChildAdmissionRequired,
+    S6CChildUnavailable,
+    S6CChildAlreadyConsumed,
+    S6CChildKeyUnavailable,
 }
 
 #[derive(Debug)]
@@ -46,6 +49,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     physical_header: Option<VerifiedCallablePhysicalHeaderCohortV1>,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
@@ -142,6 +146,7 @@ pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
 pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     installed: &'package InstalledNormalCallableSemanticPackageV1,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
+    s6c_child_consumed: bool,
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
@@ -166,6 +171,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            s6c_child,
             physical_header,
             dynamic,
             dynamic_physical_header,
@@ -178,6 +184,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            s6c_child,
             physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
@@ -207,6 +214,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
         Ok(NormalCallableSemanticPackagePortV1 {
             installed: self,
             consumed: BTreeSet::new(),
+            s6c_child_consumed: false,
         })
     }
 
@@ -305,6 +313,36 @@ impl InstalledNormalCallableSemanticPackageV1 {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(crate) fn with_s6c_child<R>(
+        &mut self,
+        callback: impl for<'loan> FnOnce(super::s6c_child::S6CSemanticChildRefV1<'loan>) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        if self.s6c_child_consumed {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed);
+        }
+        let child = self
+            .installed
+            .s6c_child
+            .as_ref()
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildUnavailable)?;
+        let key = self
+            .installed
+            .selected
+            .key_for_batch_slot(child.batch_slot())
+            .cloned()
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildKeyUnavailable)?;
+        if !self.installed.selected.is_main_child_key(&key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch);
+        }
+        if self.consumed.contains(&key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
+        }
+        let result = callback(super::s6c_child::S6CSemanticChildRefV1 { child });
+        self.consumed.insert(key);
+        self.s6c_child_consumed = true;
+        Ok(result)
+    }
+
     pub(crate) fn with_selected_lowering_input<R>(
         &mut self,
         key: &SelectedNormalCallableKeyV1,

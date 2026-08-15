@@ -251,6 +251,10 @@ impl VerifiedResolvedCallableSemanticBatchRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.semantic.identity
+    }
+
     pub(crate) const fn batch_slot(&self) -> u32 {
         self.semantic.batch_slot
     }
@@ -327,6 +331,10 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.row.identity
+    }
+
     pub(crate) fn same_declaration_identity(
         self,
         identity: &CallableDeclarationIdentityV1,
