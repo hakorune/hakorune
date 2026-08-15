@@ -196,7 +196,24 @@ test-only and its operation program/dispatcher is V1-shaped. It therefore
 cannot become production merely because the caller-zero S6C ingress and one
 TextEq route policy exist.
 
-The missing contract is owned by one task family:
+The missing contract is owned by one ordered task family:
+
+```text
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+```
+
+The child row is the sole pre-install semantic admission seam. The package
+issuer co-seals the selected role/identity with the retained S6C Facts/Recipe/
+Join child and moves one non-`Clone` Completion seed into it exactly once. The
+Port only verifies the already-issued role/identity and takes/lends the child
+exactly once after install; it does not reclassify S6C or accept a caller slot,
+key, ingress, or fixture.
+
+The parent common-V2 row then closes the shared callable-signature, single-
+Completion, and operation/control envelope:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0

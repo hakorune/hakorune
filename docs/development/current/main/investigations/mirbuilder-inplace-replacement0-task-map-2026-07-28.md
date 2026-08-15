@@ -13,7 +13,7 @@ Final convergence pointer (serial, after Loop retirement):
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 Current Loop product-frontier mirror (non-authoritative):
-  - `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` (T2 BoxShape design stop)
+  - `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` (T2 BoxShape design stop)
 Resume gate:
   - always resolve `current_execution_row` and `latest_card_path` from
     `CURRENT_STATE.toml`; this frontmatter is only a product-frontier summary
@@ -86,26 +86,32 @@ explicit pointer retarget.
 14. CLOSED caller-zero I0: `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0` added only
     the Rust validator, fixed C status projection, stale-generation and exact
     Text negatives; S6C, TextEq, Builder, and session callers remain zero
-15. CURRENT design stop: `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` must close
-    total package-owned S6C admission, one executable Completion ownership path, the
-    TextFormalBorrowV1 callable-signature choice (16-byte aggregate or explicit
-    lane expansion) with its call-site/session owner,
-    and exact disjoint `13 operations + If + Exit = 15 placements`
-16. OPEN common-program branch after D0 acceptance: semantic-program co-seal,
+15. CURRENT child design stop: `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` must
+    make `issue_normal_callable_semantic_package_v1` the sole pre-install issuer
+    of a total same-cohort S6C child and one move-only Completion seed; the Port
+    only verifies the issued role/identity and takes/lends that child exactly
+    once. Caller-supplied Facts/Recipe/slot/fixture and Port-side
+    reclassification are forbidden.
+16. OPEN parent design stop after child acceptance:
+    `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` closes the one Completion owner,
+    the TextFormalBorrowV1 callable-signature choice (16-byte aggregate or
+    explicit lane expansion) with its call-site/session owner, and exact
+    disjoint `13 operations + If + Exit = 15 placements`.
+17. OPEN common-program branch after parent D0 acceptance: semantic-program co-seal,
     JoinSig transfer, bound segment input, boundary cleanup,
     `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then caller-zero
     `LOOP-S6C-COMMON-V2-PRESESSION-I0`; no detached ingress/header/Completion
-17. OPEN sibling TextEq-route branch: strict scalar probe, tracked route
+18. OPEN sibling TextEq-route branch: strict scalar probe, tracked route
     decision, canonical Trap owner, then only the selected route's lifecycle
     demand; route admission is pre-session and actual residence is session-local
-18. OPEN fan-in structural/session coverage: Always, If, Exit, then the first
+19. OPEN fan-in structural/session coverage: Always, If, Exit, then the first
     common V2 physical session under `CanonicalSsaFunctionSessionV2`
-19. OPEN gated production selection: pre-cutover authority proof, then M10b
+20. OPEN gated production selection: pre-cutover authority proof, then M10b
     activation and M11/M12 legacy retirement
-20. PARKED post-cutover convergence: main integration, whole-builder typed
+21. PARKED post-cutover convergence: main integration, whole-builder typed
     ingress, common finish convergence, warning/allow census, and physical
     docs/module cleanup (see the current physical-header card's parked rows)
-21. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
+22. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
 The selected-Dynamic `skip_while/4` lane is a reusable authority/physical

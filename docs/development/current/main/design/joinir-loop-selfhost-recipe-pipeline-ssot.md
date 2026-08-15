@@ -1596,7 +1596,28 @@ dispatcher cannot consume V2 Text, `CallSlot`, or `TextEq`, and its V1 layout
 does not admit S6C `If`/`Exit`. A TextEq route leaf is therefore never allowed
 to jump directly into a function session.
 
-One T2 task family closes the missing boundary without creating an S6C route:
+One ordered T2 task family closes the missing boundary without creating an S6C route:
+
+```text
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+```
+
+The first child is narrower than the parent common-V2 contract:
+
+```text
+issue_normal_callable_semantic_package_v1
+  -> pre-install total S6C role/identity + retained Facts/Recipe/Join child
+  -> one move-only Completion seed enters that child exactly once
+NormalCallableSemanticPackagePortV1
+  -> post-install role/identity check and exactly-once take/lend only
+  -> no S6C reclassification, caller-supplied ingress, or detached key/slot
+```
+
+Only after that child issuer is accepted does the parent close the common
+callable-signature, single-Completion, and exact operation/control envelope:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
@@ -1628,10 +1649,11 @@ LoopV2CanonicalSessionAdmissionV1                 later fan-in
 
 D0 names or rejects the total installed-S6C issuer, one Completion ownership
 path, TextFormal callable-signature mapping, complete V2 envelope contract,
-and fail-fast matrix. The
-transport R0 and S6C package I0 later separate the common V2 BoxShape from the
-bounded S6C BoxCount. The envelope is scoped and route-free: it borrows the
-installed Normal-package-owned source cohort only inside the Port callback.
+and fail-fast matrix. The child issuer owns semantic admission before install;
+the Port only consumes that sealed child after install. The transport R0 and
+S6C package I0 later separate the common V2 BoxShape from the bounded S6C
+BoxCount. The envelope is scoped and route-free: it borrows the installed
+Normal-package-owned source cohort only inside the Port callback.
 It does not detach Recipe keys, source sites, TextEq site/corridor, or
 Completion into independently pairable products.
 
