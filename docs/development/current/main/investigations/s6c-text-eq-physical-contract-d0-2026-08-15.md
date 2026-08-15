@@ -653,6 +653,7 @@ yet accepted:
 ```text
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0  [NoSafeSlice]
   -> strict target/signature actualizer + lifetime design
+     child: callable-text-formal-call-residence-d0-2026-08-15.md
   -> caller-zero mapping I0 only after acceptance
 ```
 
