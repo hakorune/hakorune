@@ -51,8 +51,9 @@ pub(crate) use callable_declaration_catalog::{
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
     VerifiedSameModuleCallableDeclarationV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
+#[cfg(test)]
+pub(crate) use main_expansion::with_test_main_static_children;
 pub(in crate::mir) use main_expansion::VerifiedMainStaticChildV1;
-pub(in crate::mir::builder) use main_expansion::VerifiedRawRootExpansionV1;
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,

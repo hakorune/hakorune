@@ -6,6 +6,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
+use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::parser::{
     CallableDeclarationIdentityV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1,
@@ -72,9 +73,8 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
 ) -> Result<VerifiedSourceBackedSameModuleCallableCatalogV1, SourceBackedCallableCatalogIssueV1> {
     source
         .with_callable_semantic_syntax(|loan| {
-            let main_expansion =
-                crate::mir::builder::VerifiedRawRootExpansionV1::from_program(source.ast())
-                    .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
+            let main_expansion = VerifiedRawRootExpansionV1::from_program(source.ast())
+                .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
             let brand = SameModuleCallableCatalogBrandV1::fresh();
             let mut rows_by_key = BTreeMap::new();
             let mut static_lookup =
@@ -155,57 +155,46 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                                 .or_default()
                                 .push(key.clone());
                         }
-                        let role =
-                            if let crate::mir::builder::VerifiedRawRootExpansionV1::App(main) =
-                                &main_expansion
+                        let role = if let VerifiedRawRootExpansionV1::App(main) = &main_expansion {
+                            if ptr::eq(main.root().source(), row.declaration()) {
+                                continue;
+                            }
+                            if let Some(child) = main
+                                .static_children()
+                                .iter()
+                                .find(|child| ptr::eq(child.source(), row.declaration()))
                             {
-                                if ptr::eq(main.root().source(), row.declaration()) {
-                                    continue;
+                                if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod {
+                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                                 }
-                                if let Some(child) = main
-                                    .static_children()
-                                    .iter()
-                                    .find(|child| ptr::eq(child.source(), row.declaration()))
+                                let observation = row
+                                    .method_source_observation()
+                                    .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                                let crate::parser::InitialCallableFinalSlotV1::BoxMethod {
+                                    statement,
+                                    method,
+                                } = row.final_slot()
+                                else {
+                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
+                                };
+                                let source_site = observation.source_site();
+                                if !observation.identity().same_as(row.identity())
+                                    || source_site.box_statement_ordinal() != statement
+                                    || source_site.member_ordinal() != method.inventory_ordinal()
+                                    || statement != child.statement_index()
+                                    || method != child.method_ordinal()
                                 {
-                                    if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod
-                                    {
-                                        return Err(
-                                            SourceBackedCallableCatalogIssueV1::SourceShape,
-                                        );
-                                    }
-                                    let observation = row
-                                        .method_source_observation()
-                                        .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
-                                    let crate::parser::InitialCallableFinalSlotV1::BoxMethod {
-                                        statement,
-                                        method,
-                                    } = row.final_slot()
-                                    else {
-                                        return Err(
-                                            SourceBackedCallableCatalogIssueV1::SourceShape,
-                                        );
-                                    };
-                                    let source_site = observation.source_site();
-                                    if !observation.identity().same_as(row.identity())
-                                        || source_site.box_statement_ordinal() != statement
-                                        || source_site.member_ordinal()
-                                            != method.inventory_ordinal()
-                                        || statement != child.statement_index()
-                                        || method != child.method_ordinal()
-                                    {
-                                        return Err(
-                                            SourceBackedCallableCatalogIssueV1::SourceShape,
-                                        );
-                                    }
-                                    SelectedCallableConsumptionRoleV1::app_main_static_child(
-                                        statement, method,
-                                    )
-                                } else {
-                                    SelectedCallableConsumptionRoleV1::ordinary()
+                                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                                 }
+                                SelectedCallableConsumptionRoleV1::app_main_static_child(
+                                    statement, method,
+                                )
                             } else {
                                 SelectedCallableConsumptionRoleV1::ordinary()
-                            };
+                            }
+                        } else {
+                            SelectedCallableConsumptionRoleV1::ordinary()
+                        };
                         (SelectedNormalCallableKeyV1::Cataloged(key), role)
                     }
                 };

@@ -442,6 +442,19 @@ impl<'src> VerifiedMainExpansionV1<'src> {
 }
 
 #[cfg(test)]
+pub(crate) fn with_test_main_static_children<R>(
+    source: &ASTNode,
+    callback: impl for<'src> FnOnce(&[VerifiedMainStaticChildV1<'src>]) -> R,
+) -> Result<R, MainExpansionErrorV1> {
+    let VerifiedRawRootExpansionV1::App(expansion) =
+        VerifiedRawRootExpansionV1::from_program(source)?
+    else {
+        return Err(MainExpansionErrorV1::MainBoxMissing);
+    };
+    Ok(callback(expansion.static_children()))
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, Span};

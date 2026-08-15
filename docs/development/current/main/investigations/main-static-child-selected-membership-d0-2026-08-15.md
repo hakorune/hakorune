@@ -173,9 +173,9 @@ Observed gates for this slice:
 
 ```text
 cargo check --lib                                      PASS (1,828 inherited warnings)
-cargo test --lib -q normal_callable_semantic_package  PASS (23)
+cargo test --lib -q normal_callable_semantic_package  PASS (24)
 cargo test --lib -q callable_declaration_catalog      PASS (20)
-cargo test --lib -q main_static_child                 PASS (3)
+cargo test --lib -q main_static_child                 PASS (4)
 bash tools/checks/loop_physical_transfer_authority_guard.sh PASS
 bash tools/checks/current_state_pointer_guard.sh       PASS
 git diff --check                                      PASS
