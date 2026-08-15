@@ -103,6 +103,7 @@ pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts
 pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
 pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
+pub(crate) mod exact_text_parameter_abi; // exact source spelling for semantic Text parameter rows
 pub(crate) mod exact_trivial_parameter_abi; // exact source spelling for first Binding-SSA parameter row
 pub(crate) mod exact_trivial_return_abi; // exact source spelling for first Binding-SSA return row
 pub(crate) mod exact_trivial_scalar_abi; // site-neutral exact scalar ABI for trivial callable rows

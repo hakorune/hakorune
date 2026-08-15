@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, and LOOP-TEXT-EQ-SITE-CONTRACT-I0 are complete. The common V2 pre-session D0 remains the umbrella; its selected bounded child now fixes the exact StringBox/Text formal parameter boundary before any physical session can open."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, LOOP-TEXT-EQ-SITE-CONTRACT-I0, and the bounded ExactText formal-parameter I0 are complete. The common V2 pre-session D0 is current again; no physical route is open."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
+current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
 work_mode = "design_stop"
-current_execution_row = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
-current_blocker_token = "NoSafeSlice if the exact source-backed StringBox-as-Text formal contract cannot be issued by the existing callable-parameter catalog without OpaqueHandle promotion, MIR/runtime inference, detached S6C pairing, or a second parameter authority. The parent common-V2 D0 remains open for Main membership, result/header ABI, installed-batch S6C loan, 13+If/Exit envelope, and neutral session admission."
+current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_blocker_token = "NoSafeSlice if the common V2 pre-session requires Main membership inference, a second result/header or Text parameter issuer, detached S6C re-pairing, 13+If/Exit control mixing, V2-to-V1/Dynamic coercion, or a non-neutral session constructor. ExactText formal parameter I0 is complete and provides no physical handle/wire authority."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (common V2 pre-session umbrella; exact Text formal parameter child D0)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, and the TextEq site-contract I0 are closed. The selected child D0 freezes only the reusable source-backed StringBox/Text formal contract; the parent still requires a branded CompilationContext/Installed cohort, same-owner Main/helper membership, source-backed result/header ABI co-sealed with Completion, a parent-retaining sibling view seam, separate 13-operation and If/Exit control products, exact 15-placement envelope, and neutral canonical-session admission. No Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup may open before the parent boundary is closed."
+active_lane = "Loop compiler frontier (common V2 pre-session design stop)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, TextEq site-contract I0, and the bounded ExactText formal parameter I0 are closed. The common V2 pre-session D0 now owns the remaining design: branded CompilationContext/Installed cohort, exact Main/helper membership, source-backed result/header ABI co-sealed with Completion, parent-retaining sibling view composition, separate 13-operation and If/Exit control products, exact 15-placement envelope, and neutral canonical-session admission. No physical Text ABI, Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup opens before that boundary is accepted."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "callable-parameter-exact-text-handle-contract-d0"
-latest_card_path = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
-latest_card_summary = "Selected bounded child of the common-V2 pre-session D0: design one source-backed StringBox-as-Text formal parameter contract through the existing callable-parameter issuer; no physical handle wire, package/session, or S6C production caller is opened."
-next_design_card = "CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0"
-next_design_card_path = "docs/development/current/main/investigations/callable-parameter-exact-text-handle-contract-d0-2026-08-15.md"
+latest_card = "s6c-text-eq-physical-contract-d0"
+latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card_summary = "Common V2 pre-session design stop: ExactText formal parameter I0 is complete; remaining blockers are branded Main membership, source-backed result/header ABI and S6C cohort composition, separate 13-operation plus If/Exit transport, and neutral CanonicalSsaFunctionSessionV2 admission."
+next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-I0 landed one source-backed ExactText(StringBox-as-Text) formal parameter kind through the existing callable-parameter issuer, preserved i64/OpaqueHandle behavior, and made Dynamic compatibility reject it explicitly; focused 8/8 + 1/1 + 1/1, cargo check (1826 inherited warnings; no new ExactText warning), format/diff/pointer/Loop guards green; no physical Text ABI, S6C package, Builder/session, fallback, retry, or production caller opened.",
   "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened. Pointer now advances to the common V2 pre-session design stop.",
   "2026-08-15: LANG-TEXT-EQUALITY-LAW-I0 made docs/reference/language/types.md §4.3 the sole String/Text equality owner: exact Unicode scalar sequence, case-sensitive, normalization-free, locale/collation-free; explicitly admitted StringBox-as-Text follows the law while ordinary non-Text BoxRef identity remains unchanged; no runtime/compiler behavior changed.",
   "2026-08-15: LOOP-TEXT-EQ-INGRESS-SURFACE-R0 implemented the caller-zero narrowing: semantic validation stays issuer-only, retained logical-output source seams provide projection-only sibling TextEq/Completion views, raw logical/role/context/source clones are removed, and the existing S6C/Loop focused gates remain green; no runtime or physical session owner was opened.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-15: S6C logical consumer D0 accepted the typed I0 dialect: one private HRTB consumer over the sealed output returns a typed Consumed terminal or named reject; no Option/unit/fallback or new semantic authority, JoinModule/MIR, physical output, or production caller.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0 landed one canonical role-wise Length/Substring view: each fixed CallSlot row is paired with its retained source contract inside the private output façade, raw input() escape is removed, six focused S6C tests plus cargo check/format/diff/pointer/Loop guards are green, and the typed consumer D0 is now accepted.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0 landed one caller-zero source-retaining non-Clone logical output product: fixed Recipe-local rows are issued once, the original Facts/Recipe/Join product is retained, and a private HRTB façade lends rows plus borrowed Join transfer; six focused S6C tests, cargo check, format, diff, pointer, and Loop pre-cutover guards are green; JoinModule/MIR, physical output, and production remain closed.",
-  "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 landed the private borrow-only logical JOINIR input façade: exact Recipe domains, source-bound length/substring CallSlot parity, TextEq/If, and Join branch/Return-summary/Backedge/After are co-checked inside the combined non-Clone product; four focused tests and existing Loop/pointer guards are green; JoinModule/MIR output and production remain closed.",
 ]

@@ -1,5 +1,5 @@
 ---
-Status: current design_stop — bounded child of the common V2 pre-session D0
+Status: accepted design — bounded I0 complete; parent common-V2 D0 remains open
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md`
 Authority: `src/mir/callable_parameter_contract/` plus `docs/reference/language/types.md §4.3`
@@ -132,6 +132,7 @@ installed-batch S6C child issuer and parent HRTB composition
 neutral CanonicalSsaFunctionSessionV2 admission
 ```
 
-After this D0 is accepted, its bounded I0 may open independently. The parent
-still cannot open package/session work until its remaining source-backed
-issuers are named.
+The bounded I0 is opened independently at
+`callable-parameter-exact-text-handle-i0-2026-08-15.md`. The parent still
+cannot open package/session work until its remaining source-backed issuers are
+named.

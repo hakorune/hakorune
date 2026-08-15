@@ -4,6 +4,7 @@ use crate::mir::callable_semantic_batch::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
     VerifiedResolvedCallableSemanticBatchV1,
 };
+use crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_semantics::{BindingKindV1, BindingOriginV1, SourceBindingSiteV1};
 
@@ -57,16 +58,20 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                     let kind = match source_parameter.declared_type_name() {
                         None => CallableParameterContractKindV1::OpaqueHandle,
                         Some(source_type) => {
-                            let Some(abi) = ExactTrivialParameterAbiV1::classify(source_type)
-                            else {
-                                return Err(
-                                    CallableParameterContractIssueV1::UnsupportedDeclaredType {
-                                        declaration,
-                                        parameter,
-                                    },
-                                );
-                            };
-                            CallableParameterContractKindV1::ExactTrivial(abi)
+                            if let Some(abi) = ExactTextFormalAbiV1::classify(source_type) {
+                                CallableParameterContractKindV1::ExactText(abi)
+                            } else {
+                                let Some(abi) = ExactTrivialParameterAbiV1::classify(source_type)
+                                else {
+                                    return Err(
+                                        CallableParameterContractIssueV1::UnsupportedDeclaredType {
+                                            declaration,
+                                            parameter,
+                                        },
+                                    );
+                                };
+                                CallableParameterContractKindV1::ExactTrivial(abi)
+                            }
                         }
                     };
                     let site = SourceBindingSiteV1::Parameter { index: parameter };

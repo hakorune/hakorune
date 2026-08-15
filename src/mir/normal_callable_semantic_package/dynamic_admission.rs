@@ -127,6 +127,11 @@ pub(super) fn issue_dynamic_parameter_contract_v2(
                     }
                     crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::I64
                 }
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactText(_) => {
+                    return Err(DynamicCallableAdmissionIssueV1::Recipe(
+                        DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch,
+                    ));
+                }
             };
             Ok(crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterContractRowV2 {
                 ordinal: row.ordinal,
@@ -173,5 +178,33 @@ fn classify_source_issue(error: DynamicFullBodySourceIssueV1) -> ClassifiedDynam
         | DynamicFullBodySourceIssueV1::CoverageMismatch => {
             ClassifiedDynamicSourceIssueV1::Rejected(error)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::model::OwnedCallableParameterContractV1;
+    use super::{issue_dynamic_parameter_contract_v2, DynamicCallableAdmissionIssueV1};
+    use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+    use crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+    use hakorune_mir_core::BindingId;
+
+    #[test]
+    fn exact_text_is_rejected_before_dynamic_recipe_reclassification() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuer.issue().unwrap();
+        let rows = [OwnedCallableParameterContractV1 {
+            ordinal: 0,
+            binding: crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0)),
+            kind: CallableParameterContractKindV1::ExactText(ExactTextFormalAbiV1::STRING_BOX),
+        }];
+
+        assert!(matches!(
+            issue_dynamic_parameter_contract_v2(&rows),
+            Err(DynamicCallableAdmissionIssueV1::Recipe(
+                crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopRecipeProducerRejectV2::ParameterContractMismatch
+            ))
+        ));
     }
 }
