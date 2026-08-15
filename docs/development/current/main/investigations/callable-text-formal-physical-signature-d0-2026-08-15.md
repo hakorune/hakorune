@@ -194,9 +194,11 @@ TEXT-FORMAL-PINNED-RESIDENCE-D0/I0
     post-install exact target/origin/signature call edge
       original-formal/no-rebind first
     exact StableText or canonical StringBox backing proof
-    pair-based entry acquire + pinned UTF-8 root projection in one transaction
-    Canonical composite formal/residence adoption
-    Completion-backed DraftSeal per-exit finish coverage
+    pair-based entry acquire + occurrence-ordered pinned UTF-8 root projection
+      in one transaction and one compiler-runtime private residence frame
+    Canonical session-private residence/root adoption
+    function-local access-plan namespace and thin lifetime-closure seal
+    Completion-backed capability-only DraftSeal per-exit finish coverage
     exact source literal as a distinct cutover subrow; result/Substring/
       copy/PHI/unknown still reject
 
@@ -217,6 +219,31 @@ These are two bounded implementation families after the signature row, not a
 new card per type. The runtime lease I0 remains a substrate only. No family
 may claim a production callable route until the common V2 envelope, admitted
 route, residence, Completion epilogue, and canonical session meet at one edge.
+
+The executable order stays intentionally small:
+
+```text
+current: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
+  package lane map + combined Installed loan only
+
+next D0: TEXT-FORMAL-PINNED-RESIDENCE-D0
+  accept the phase-owned authority spine, exact backing, compiler-runtime
+  frame ABI, root-occurrence mapping, lifetime closure, and capability-only
+  DraftSeal seam as one BoxShape
+
+next I0 family: TEXT-FORMAL-PINNED-RESIDENCE-I0
+  exact formal call edge -> atomic residence frame -> Canonical private state
+  -> lifetime closure -> per-exit finish projection; literal origin remains
+  the final cutover subrow and does not block the formal-only kernel
+
+then: LOOP-TEXT-SLICE-EXECUTION-D0/I0
+  sequential CP-cursor proof -> one PinnedTextOp variant/three leaves -> final
+  census -> MIR JSON -> primary-AOT direct consumer and structural negatives
+```
+
+The residence D0 does not become accepted merely because this card records a
+candidate frame. It must close every named `NoSafeSlice` below before its I0;
+the current signature I0 neither implements nor issues any of those products.
 
 ## Read-only fast-path audit
 
@@ -260,6 +287,19 @@ safety from nearby comparisons, block order, variable names, or `ValueId`
 shape. V1 does not publish a generic TextSlice MIR value; the verified slice
 relation is consumed when the leaf site plan is issued.
 
+The three leaf result contracts are fixed and infallible after their plan is
+verified:
+
+```text
+ByteLen                         -> i64 in 0..=i64::MAX
+Utf8WidthAt                     -> i64 in 1..=4
+Utf8ScalarSliceEqWholeText      -> Bool under the exact Text equality law
+```
+
+The first primary-AOT consumer loads exactly the selected one-to-four bytes.
+It does not use a wider unaligned load, overread, SIMD, or `memcmp` contract.
+Those are later measured optimizations, not implicit rights of the leaf.
+
 The table and constructors stay private, carry a function/invocation stamp,
 and close an exact one-plan-to-one-instruction census before JSON emission.
 Missing, duplicate, orphan, foreign-stamp, kind/root/operand/site mismatch, or
@@ -292,6 +332,101 @@ the same package-owned mapping.
 
 ### Residence and exit corrections
 
+One function authority spine does not mean one durable struct spanning every
+phase. A proposed all-in-one `VerifiedPinnedTextFunctionPlanV1` that owns the
+pre-session call edge, live session roots/accesses, target admission, and
+Completion finish rows is rejected: it would either retain session-local
+physical state outside `CanonicalSsaFunctionSessionV2` or duplicate the
+Completion exit ledger.
+
+The phase-preserving shape is:
+
+```text
+PreparedTextFormalCallActualizationV1
+  pre-session; exact target/signature/origin; no physical IDs
+    -> Canonical session-private PinnedTextFunctionStateV1<'session>
+         one residence, occurrence-ordered roots, access-plan table
+    -> VerifiedPinnedTextLifetimeClosureV1
+         thin move-only function/session stamp + closed lifecycle census
+    -> PreparedTextFormalExitFinishSetV1
+         capability only; no copied exit rows
+    -> private PreparedFunctionExitPlanV1
+         owns the capability beside the existing PreparedFunctionExitSetV1
+    -> same detached exit iteration emits finish immediately before Return
+```
+
+`PinnedTextFunctionStateV1` is private protocol state of the sole Canonical
+session, not a second semantic or CFG owner. The lifetime-closure receipt does
+not re-own roots, accesses, target policy, blocks, sites, or Completion; it
+only proves that the state it closes belongs to the same function/session and
+that the final census passed. Responsibility-specific scoped projections may
+borrow the live state, but no caller can obtain detached residence, access,
+or finish parts and re-pair them.
+
+The final lifetime census mechanically verifies that the successful entry
+landing dominates every `PinnedTextOp`, every referenced root and plan belongs
+to this session, every access precedes its planned finish, and no root/frame/
+pointer carrier escapes through a store, return, or foreign call. It also
+seals one function-level finish capability without enumerating exits. The
+existing DraftSeal exit iteration later checks that capability while emitting
+one finish at every admitted normal Completion exit. A noreturn/no-unwind trap
+edge has no finish, each return operand is complete before finish, and no
+planned Text access follows finish. `EffectMask::READ` is optimizer metadata;
+it is not a substitute for this census.
+
+The closure receipt and finish capability store no source site, Completion
+claim, exit block, return value, source order, or independent exit count. The
+private DraftSeal preparation seam moves the capability into
+`PreparedFunctionExitPlanV1`, where the already-existing
+`PreparedFunctionExitSetV1` remains the sole per-exit ledger. Exact per-exit
+coverage is established only by consuming both in that one projection loop.
+
+The residence frame is concrete but is not part of the Hakorune callable ABI.
+It is a versioned compiler-runtime private physical ABI: selected primary AOT
+allocates one invocation-local stack frame, the runtime entry transaction
+validates and pins every published `[slot,generation]` pair and fills the whole
+frame under the same registry write lock, and only the AOT lowering context
+projects raw residence-descriptor pointers and lengths from it. Common MIR/JSON
+exposes root IDs, plan IDs, and ordinary verified leaf results such as
+`ByteLen`; it never exposes the frame address, opaque token, raw pointer, or
+raw descriptor length.
+
+The later Residence D0 must accept or reject this deliberately narrow V1
+candidate; it is not an issued authority or implementation permission for the
+current signature I0:
+
+```text
+64-bit primary AOT only
+frame header: size 32, align 8
+              revision u32, header size u32, total frame size u32,
+              root count u32, opaque lease token u64, reserved u64
+root row:     size 16, align 8; ptr bits u64, byte length u64
+frame size:   checked 32 + 16 * root_count
+root count:   ExactText formal occurrence count from the physical signature
+root order:   logical formal occurrence order
+```
+
+Compile-time target admission checks primary AOT, 64-bit pointer width, ABI
+revision, entry/finish symbol availability, and no-unwind before MIR emission.
+The runtime entry separately checks the concrete frame pointer, byte size,
+alignment, and root count before pin or frame publication. Other backends are
+`RejectBeforeEffect` in V1; they do not lower to a generic String helper,
+FastMem, or scalar retry. The raw frame is only transport; the runtime token
+table and Canonical session state remain the lifetime authorities.
+
+Runtime pin records may group identical pairs for checked multiplicity, but
+the frame and Canonical state keep one root row per ExactText formal occurrence.
+Thus `f(text, text)` owns two pins and two root rows even when both rows contain
+the same pointer/length. Distinct root IDs never imply `noalias`, and the
+backend must not deduplicate them or recover formal order from the grouped pin
+table.
+
+The session-private residence table co-seals an exact one-to-one mapping from
+each `PinnedTextRootIdV1` to its occurrence-ordered frame row index. Access
+plans reference only those branded root IDs; the backend resolves the row
+through this table and cannot treat a numeric root ID as an offset or rebuild
+the relation from pointer equality.
+
 The first pinned backing domain is deliberately exact: registry-owned
 `StableText(String)` and an exact downcast to the canonical immutable
 `StringBox`. A `type_name() == "StringBox"` check, generic `as_str_fast`,
@@ -313,11 +448,13 @@ The first implementation retains DraftSeal's existing exact exit-set model.
 The residence/session owner co-closes one private
 `PreparedTextFormalExitFinishSetV1` capability with the existing Completion
 consumption. This thin product stores no copied source site, block, `ValueId`,
-source order, or Completion claim. `ReadyFunctionDraftSealV1` carries it beside
-the existing prepared exit set, and the detached projection consumes both in
-the same iteration: after each return operand is ready, it emits one finish
-immediately before that exit's Return. DraftSeal does not infer that a lease is
-required and does not select a token from MIR state.
+source order, or Completion claim. The private preparation seam moves it into
+`PreparedFunctionExitPlanV1` beside the existing prepared exit set, and the
+detached projection consumes both in the same iteration: after each return
+operand is ready, it emits one finish immediately before that exit's Return.
+`ReadyFunctionDraftSealV1` remains the current Completion/current-block owner;
+DraftSeal does not infer that a lease is required and does not select a token
+from MIR state.
 
 A synthetic shared epilogue/return PHI is not part of this route because it
 would require new Canonical CFG/PHI authority and the MIRBuilder north star
@@ -330,6 +467,26 @@ coupling, UTF-8 cursor proof, primary-AOT leaf consumption, per-exit finish
 coverage, no-unwind Trap, and static target-stamped performance admission.
 Numeric C-ratio thresholds are owned by the later perf row rather than this
 signature contract.
+
+The successor family additionally stops with:
+
+```text
+NoSafeSlice::CrossPhasePinnedPlanWouldOwnSession
+NoSafeSlice::PinnedResidenceEscapesCanonicalSession
+NoSafeSlice::PinnedPlanDuplicatesCompletionExitLedger
+NoSafeSlice::MissingCompilerRuntimeResidenceAbiOwner
+NoSafeSlice::FrameLayoutOrRevisionUnsealed
+NoSafeSlice::PhysicalRootCountDerivedFromUniquePairs
+NoSafeSlice::AliasedRootRowsMarkedNoAlias
+NoSafeSlice::PartialFramePublishedOnAcquireReject
+NoSafeSlice::PinnedRootIdDetachedFromFrameRow
+NoSafeSlice::PinnedTextLifetimeClosureIncomplete
+NoSafeSlice::NonPrimaryBackendRequiresFallback
+```
+
+These stops refine the later `TEXT-FORMAL-PINNED-RESIDENCE` and
+`LOOP-TEXT-SLICE-EXECUTION` families only. They do not widen or block the
+current package-owned physical-signature mapping I0.
 
 The current fast-path review is read-only because stable root backing,
 CP-cursor lowering, and performance admission are future authorities, not
