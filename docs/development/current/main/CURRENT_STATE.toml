@@ -8,7 +8,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0"
 work_mode = "design_stop"
 current_execution_row = "MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0"
-current_blocker_token = "NoSafeSlice if the common V2 pre-session requires Main membership inference, a second result/header or Text parameter issuer, detached S6C re-pairing, 13+If/Exit control mixing, V2-to-V1/Dynamic coercion, or a non-neutral session constructor. ExactText formal and generic same-brand parameter cohort I0s are complete; no physical handle/wire authority is open."
+current_blocker_token = "NoSafeSlice if the common V2 pre-session requires Main membership inference, a key-only Main-child admission, a second result/header or Text parameter issuer, detached S6C re-pairing, 13+If/Exit control mixing, V2-to-V1/Dynamic coercion, or a non-neutral session constructor. ExactText formal and generic same-brand parameter cohort I0s are complete; no physical handle/wire authority is open."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/main-st
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "main-static-child-selected-membership-d0"
 latest_card_path = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
-latest_card_summary = "Design stop: co-seal only AppMainStaticChild rows from VerifiedMainExpansion with parser opaque identity and the existing selected batch map; keep Main.main/root and Dynamic eligibility disjoint."
+latest_card_summary = "Design stop: co-seal only AppMainStaticChild rows from VerifiedMainExpansion with parser opaque identity and the existing selected batch map; require a non-forgeable Main-child Port admission, keep Main.main Required materialization out of scope, and keep root/Dynamic roles disjoint."
 next_design_card = "MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/main-static-child-selected-membership-d0-2026-08-15.md"
 next_execution_card = "none"
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 opened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, while Main.main/root and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
+  "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 tightened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, then issue a non-forgeable Main-child Port admission; Main.main Required materialization and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",
   "2026-08-15: CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-I0 landed one source-backed ExactText(StringBox-as-Text) formal parameter kind through the existing callable-parameter issuer, preserved i64/OpaqueHandle behavior, and made Dynamic compatibility reject it explicitly; focused 8/8 + 1/1 + 1/1, cargo check (1826 inherited warnings; no new ExactText warning), format/diff/pointer/Loop guards green; no physical Text ABI, S6C package, Builder/session, fallback, retry, or production caller opened.",
   "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened. Pointer now advances to the common V2 pre-session design stop.",

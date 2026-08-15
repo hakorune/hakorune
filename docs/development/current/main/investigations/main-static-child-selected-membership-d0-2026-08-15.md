@@ -20,8 +20,8 @@ Decision: co-seal only AppMainStaticChild rows into the existing selected batch 
 Source authority + canonical issuer: VerifiedMainExpansionV1::static_children() supplies the typed child role; the same VerifiedFinalCallableProgramSourceV1 HRTB supplies the exact InitialCallableFinalSlotV1::BoxMethod and parser CallableDeclarationIdentityV1; one source-backed catalog/selected-map issuer co-seals the pair.
 Non-authority: owner == "Main", method == "main", method names, AST pointers, fixture spelling, canonical keys alone, raw batch slots, Main.main compatibility, and Dynamic shape/parameter contracts cannot issue selected membership or repair a foreign row.
 Fail-fast boundary: before Port loan, reject missing/foreign/duplicate child identity, duplicate selected key or batch slot, Main.main smuggling, child-role/slot drift, non-static or non-direct child, and any AppMainStaticChild that reaches the Dynamic candidate gate.
-Smallest next slice: freeze a role-bearing selected-inventory/map shape and one co-seal issuer; then implement only the existing Main static-child -> package Port loan with focused positive/negative coverage. No result/header, S6C Facts, V2 envelope, Builder session, or route code is opened.
-Non-claims: no universal Main selection, no Main-name exception in a later consumer, no Dynamic candidate admission, no runtime ABI, no ResultCatalog/header, no S6C child, no common V2 transport, no MIR/CFG/SSA/PHI/session, no fallback or retry.
+Smallest next slice: freeze a role-bearing selected-inventory/map shape plus one non-forgeable Main-static-child consumption admission issued by that same cohort; then implement only the existing Main static-child -> package Port loan with focused positive/negative coverage. No result/header, S6C Facts, V2 envelope, Builder session, or route code is opened.
+Non-claims: no universal Main selection, no Main-name exception in a later consumer, no Dynamic candidate admission, no runtime ABI, no ResultCatalog/header, no S6C child, no common V2 transport, no MIR/CFG/SSA/PHI/session, no `Main.main` Required materialization, no fallback or retry.
 ```
 
 ## Current evidence and decision
@@ -63,6 +63,26 @@ lowering without making it a Dynamic candidate. Its role must be carried as a
 typed disposition or equivalent sealed field, and `contains_dynamic_batch_slot`
 must not mean “all selected rows”.
 
+The existing `NormalCatalogedBoxMethodDraftAdmissionV1` is not sufficient for
+this row: it can be sealed from a canonical key and the current Port validates
+that key, but it does not prove that the caller is consuming the exact
+`VerifiedMainExpansionV1::static_children()` member that was co-sealed with
+the parser identity. The D0 therefore requires a private
+`MainStaticChildLoweringAdmissionV1` (name may be refined by the implementation)
+issued only by the source-backed Main-child co-seal. It must retain the exact
+child role, parser identity/final slot, catalog brand/key, and selected-map
+role, and it must be the only input accepted by the Main-child Port callback.
+Callers may not construct it from a key, raw batch slot, method name, or AST
+pointer. The generic key-only admission remains available only for its existing
+ordinary callers and is not promoted to Main-child authority.
+
+`Main.main` materialization is also split by policy. This bounded row covers
+only the `AppMainStaticChild` ordinary loan and the root materialization
+disposition `Omitted`. A `Required`/callable-main materialization path is a
+separate compatibility decision; it must not be silently routed through the
+new selected child admission or counted as proof that Main membership is
+complete.
+
 ## Ownership shape
 
 ```text
@@ -101,6 +121,8 @@ non-static/instance Main child                  -> MainExpansion reject
 Main child reaches Dynamic eligibility gate     -> DynamicRoleLeak
 raw batch slot or caller-supplied child         -> API unavailable / reject
 Main owner/name changed while slot is foreign   -> identity/slot reject
+key-only generic admission used for Main child  -> MainChildAdmissionReject
+Main.main Required materialization in this row  -> OutOfScope / design stop
 ```
 
 Existing `Main` Dynamic-negative fixtures remain meaningful: a Main child can
@@ -114,8 +136,9 @@ Dynamic parameter contract or by renaming the fixture.
 MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0
   - add the role-bearing co-seal to the existing source-backed issuer
   - extend the existing selected batch map with disjoint role coverage
-  - make Port loan the same Main child row once
-  - preserve Main.main/root materialization and Dynamic=false
+  - issue a non-forgeable MainStaticChildLoweringAdmissionV1 from that co-seal
+  - make the Main-child Port callback consume that admission once
+  - preserve Main.main/root with materialization = Omitted and Dynamic=false
   - add positive ordinary Main-child loan plus foreign/duplicate/role-leak negatives
   - reuse existing package/catalog/Loop guards; no new top-level guard
 ```
@@ -130,8 +153,12 @@ Return to the parent `NoSafeSlice` if the implementation requires any of:
 
 * selecting `Main.main` together with its children;
 * a second catalog, selected map, Main side ledger, or caller-supplied batch slot;
+* using the existing key-only `NormalCatalogedBoxMethodDraftAdmissionV1` as
+  proof of MainExpansion ownership;
 * matching by owner/method name, AST address, fixture position, or Recipe shape;
 * automatically turning every Main child into a Dynamic candidate;
+* claiming `Main.main` Required materialization or changing its root/compatibility
+  owner;
 * changing `Main` expansion to deferred/compatibility ownership;
 * moving result/header ABI, S6C Facts, or physical session meaning into this row.
 
