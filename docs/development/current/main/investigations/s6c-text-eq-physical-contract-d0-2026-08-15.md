@@ -434,8 +434,8 @@ The read-only audit found that the outer owner graph is a valid target shape,
 but the current repository products do not yet satisfy it. The exact blockers
 are:
 
-The parent D0 is intentionally not split into five parallel cards. The one
-selected bounded child is:
+The parent D0 is intentionally not split into five parallel cards. The first
+bounded child is complete:
 
 ```text
 CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-CONTRACT-D0
@@ -447,6 +447,21 @@ It closes only the reusable source-backed formal `StringBox`/Text parameter
 contract. It does not claim a physical handle wire or open the S6C package,
 result/header, V2 envelope, or Builder/session rows. The parent remains open
 until this child and the remaining same-cohort issuers are accepted.
+
+The next bounded design child is now:
+
+```text
+CALLABLE-TEXT-PARAMETER-ABI-D0
+  -> docs/development/current/main/investigations/
+     callable-text-parameter-abi-d0-2026-08-15.md
+```
+
+It designs only how the already-issued `ExactTextFormalAbiV1` row crosses the
+same-branded CompilationContext/Installed package/Port cohort. It does not
+upgrade the formal demand into a runtime Text handle/wire and does not open
+Main membership, result/header ABI, S6C ingress, common V2 transport, or a
+physical session. The parent remains the umbrella stop; this child must stay
+caller-zero and Builder-free until its D0 is accepted.
 
 ```text
 1. Main/helper membership:
