@@ -83,6 +83,37 @@ The candidate disposition is package-private and is consumed immediately. It
 does not become a second selected map, an external profile selector, or a
 caller-visible row.
 
+The selected-map seam must be a package-private role-bearing iterator over its
+own `AppMainStaticChild` rows. It must not call `main_child_selection` with a
+caller-provided statement/method or expose a detached slot/key iterator. The
+issuer receives the retained row identity and role witness from that seam and
+joins it to the same batch declaration exactly once.
+
+## D0 gates before I0
+
+The following four type boundaries are mandatory; naming them is not yet an
+implementation receipt.
+
+1. **Seed identity and coverage.** Every seed carries the package/catalog
+   brand, source identity, selected role, owner, and exact result projection.
+   The private seed cohort proves `seed set == explicit-result selected rows`,
+   `ordinary ∩ s6c == ∅`, and exactly one seed per owner. A raw batch slot is
+   never the public lookup key.
+2. **One Completion owner.** `VerifiedS6CSemanticChildV1` stores the retained
+   S6C parent and header/result projection only. Its Completion/Loop Return/Tail
+   view is borrowed from that retained owner; no separate `completion` field,
+   clone, comparison, or second verification exists.
+3. **Typed consumer split.** The generic header issuer consumes only ordinary
+   seeds and never re-runs `verify_function_completion_v1`. The S6C seed is
+   consumed by the child issuer before header wrapping. The installed Port
+   exposes a private child loan alongside the existing exactly-once ledger;
+   generic selected-input entry points reject the S6C role.
+4. **Result contract before child issue.** The candidate must have an explicit
+   `i64` result annotation and Completion declared-result parity before any
+   child is issued. Missing/unsupported result is `TypedNonMember` during the
+   closed candidate classification; a result/Completion mismatch after that
+   point is `HardReject`, never a header `Option` or late fallback.
+
 ## One Completion seed, two typed consumers
 
 The current physical-header issuer and S6C Exit/Tail issuer each verify and
