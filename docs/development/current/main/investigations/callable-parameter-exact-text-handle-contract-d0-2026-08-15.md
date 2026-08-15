@@ -38,7 +38,7 @@ CallableParameterContractKindV1
 ExactTextFormalAbiV1
   source spelling: StringBox
   logical class:   Text
-  home demand:     existing Handle home, exact Text profile
+  home demand:     existing Handle projection; Text specificity stays here
   ownership:       formal declaration only; no move/retain/release claim
   physical wire:   unresolved here; later runtime/port contract only
 ```
@@ -48,6 +48,14 @@ runtime tag, or S6C role. Its issuer verifies the source parameter row,
 `BindingRef`, owner, function origin, ordinal, ordinary-transfer status, and
 the language-law bridge. The S6C typed-input product may co-check the same
 binding later, but it is not a second issuer of the generic parameter row.
+The type is site-free and its constructor remains issuer-private; the only
+copyable part is the profile enum, never a source-bound row.
+
+Every existing classifier arm that consumes `CallableParameterContractKindV1`
+must handle `ExactText` explicitly. In particular, the Dynamic compatibility
+consumer must reject or decline the text row by its existing typed boundary;
+it must not reinterpret `ExactText` as `OpaqueHandle`, `Dynamic`, `I64`, or a
+fallback candidate.
 
 The formal contract deliberately says `ExactText`, not “raw runtime handle”.
 The canonical handle wire, lifetime, stale-generation rule, and trap policy
@@ -76,7 +84,9 @@ Positive:
 two ordinary parameters, source spelling StringBox
 ordinal 0/1 and exact BindingRef identity
 same owner and function origin as the declaration row
-same-brand catalog survives install and is borrowable through the port
+same-brand parameter rows are retained by the installed package and are
+borrowable through the port; the source catalog itself remains in its
+CompilationContext owner
 S6C typed-input Text bindings co-check without reissuing the contract
 ```
 
@@ -91,6 +101,7 @@ unannotated parameter silently promoted to ExactText
 foreign catalog/batch brand or detached raw batch slot
 S6C typed input used as the generic issuer
 physical wire/handle/lease claim smuggled into the semantic row
+Dynamic/compatibility arm silently treats ExactText as OpaqueHandle or I64
 ```
 
 ## Stop lines
@@ -119,5 +130,6 @@ installed-batch S6C child issuer and parent HRTB composition
 neutral CanonicalSsaFunctionSessionV2 admission
 ```
 
-No implementation child may open until this design is accepted and the
-parent's remaining source-backed issuers are named.
+After this D0 is accepted, its bounded I0 may open independently. The parent
+still cannot open package/session work until its remaining source-backed
+issuers are named.
