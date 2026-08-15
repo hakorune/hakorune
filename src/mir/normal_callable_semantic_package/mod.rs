@@ -12,6 +12,8 @@ mod model;
 mod selected_mapping;
 
 #[cfg(test)]
+mod main_static_child_tests;
+#[cfg(test)]
 mod tests;
 
 pub(crate) use install::{

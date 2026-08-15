@@ -598,20 +598,27 @@ fn two_exact_dynamic_candidates_reject_without_ordinal_tiebreak() {
 #[test]
 fn unselected_main_dynamic_candidate_cannot_capture_production_selection() {
     let source = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako")
-        .replace("ParserScanLoopBox", "Main");
+        .replace("ParserScanLoopBox", "Main")
+        .replace(
+            "static box Main {",
+            "static box Main {\n  main() { return 0 }",
+        );
     let package = issue(&source).expect("Main remains a valid unselected batch row");
 
     assert!(matches!(
         package.dynamic_projection(),
         NormalCallableDynamicProjectionRefV1::ValidUnselected
     ));
-    assert_eq!(package.batch().declarations().len(), 4);
+    assert_eq!(package.batch().declarations().len(), 5);
 }
 
 #[test]
 fn unselected_main_candidate_does_not_duplicate_one_selected_dynamic_candidate() {
     let selected = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
-    let unselected = selected.replace("ParserScanLoopBox", "Main");
+    let unselected = selected.replace("ParserScanLoopBox", "Main").replace(
+        "static box Main {",
+        "static box Main {\n  main() { return 0 }",
+    );
     let package = issue(&format!("{unselected}\n{selected}"))
         .expect("only selected-map Dynamic rows participate in production selection");
 

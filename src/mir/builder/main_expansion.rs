@@ -5,15 +5,14 @@
 //! product owns only source references and deterministic symbols.  It has no
 //! Builder, collector, ValueId, metadata, header cache, or publication route.
 
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
-
-use super::declaration_order::sorted_method_entries;
+use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, DeclarationAttrs, ParamDecl};
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum MainExpansionErrorV1 {
+pub(in crate::mir) enum MainExpansionErrorV1 {
     RootMustBeProgram,
     MainBoxMissing,
     DuplicateMainBox,
+    StatementIndexOverflow,
     MainMethodMissing,
     MainMethodMustBeFunction,
     StaticChildMustBeFunction { method: String },
@@ -100,9 +99,11 @@ impl OwnedVerifiedMainRootLoweringV1 {
 
 /// One independently lowerable static child of the Main source declaration.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct VerifiedMainStaticChildV1<'src> {
+pub(in crate::mir) struct VerifiedMainStaticChildV1<'src> {
     method_name: &'src str,
     source: &'src ASTNode,
+    statement: u32,
+    method: BoxMethodInventoryOrdinalV1,
     parts: VerifiedMainStaticChildPartsV1<'src>,
     symbol: Box<str>,
     arity: usize,
@@ -138,8 +139,16 @@ impl VerifiedMainStaticChildV1<'_> {
         self.method_name
     }
 
-    pub(in crate::mir::builder) fn source(&self) -> &ASTNode {
+    pub(in crate::mir) fn source(&self) -> &ASTNode {
         self.source
+    }
+
+    pub(in crate::mir) const fn statement_index(&self) -> u32 {
+        self.statement
+    }
+
+    pub(in crate::mir) const fn method_ordinal(&self) -> BoxMethodInventoryOrdinalV1 {
+        self.method
     }
 
     pub(in crate::mir::builder) fn symbol(&self) -> &str {
@@ -256,8 +265,8 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             return Err(MainExpansionErrorV1::RootMustBeProgram);
         };
 
-        let mut main_box: Option<(&str, &crate::ast::BoxMethodInventoryV1)> = None;
-        for statement in statements {
+        let mut main_box: Option<(u32, &str, &crate::ast::BoxMethodInventoryV1)> = None;
+        for (statement_index, statement) in statements.iter().enumerate() {
             let ASTNode::BoxDeclaration {
                 name,
                 methods,
@@ -270,11 +279,16 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             if name != "Main" {
                 continue;
             }
-            if main_box.replace((name.as_str(), methods)).is_some() {
+            let statement_index = u32::try_from(statement_index)
+                .map_err(|_| MainExpansionErrorV1::StatementIndexOverflow)?;
+            if main_box
+                .replace((statement_index, name.as_str(), methods))
+                .is_some()
+            {
                 return Err(MainExpansionErrorV1::DuplicateMainBox);
             }
         }
-        let Some((box_name, methods)) = main_box else {
+        let Some((main_statement, box_name, methods)) = main_box else {
             return Err(MainExpansionErrorV1::MainBoxMissing);
         };
 
@@ -300,8 +314,14 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             });
         }
 
+        let main_method_ordinal = methods
+            .get("main")
+            .ok_or(MainExpansionErrorV1::MainMethodMissing)?
+            .site();
         let mut static_children = Vec::new();
-        for (method_name, child_source) in sorted_method_entries(methods) {
+        for entry in methods.iter_compat_name_order() {
+            let method_name = entry.name();
+            let child_source = entry.declaration();
             if method_name == "main" {
                 continue;
             }
@@ -328,6 +348,8 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             static_children.push(VerifiedMainStaticChildV1 {
                 method_name,
                 source: child_source,
+                statement: main_statement,
+                method: entry.site(),
                 parts: VerifiedMainStaticChildPartsV1 {
                     params,
                     param_decls,
@@ -350,6 +372,8 @@ impl<'src> VerifiedMainExpansionV1<'src> {
         let callable_main_compat = Some(VerifiedMainStaticChildV1 {
             method_name: "main",
             source: main_source,
+            statement: main_statement,
+            method: main_method_ordinal,
             parts: VerifiedMainStaticChildPartsV1 {
                 params,
                 param_decls,

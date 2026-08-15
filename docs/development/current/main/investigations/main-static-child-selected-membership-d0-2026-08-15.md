@@ -1,5 +1,5 @@
 ---
-Status: current fast — bounded implementation child of the common V2 pre-session D0
+Status: closed locally — bounded implementation child of the common V2 pre-session D0; pointer handoff pending
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md`
 Authority: `VerifiedMainExpansionV1`, parser final callable source loan, and the source-backed callable catalog/selected-map issuer
@@ -156,6 +156,36 @@ MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0
 The I0 is now authorized as a caller-zero semantic/package boundary. It must
 not touch the result/header issuer, S6C ingress, V2 operation/control envelope,
 canonical session constructor, or physicalizer.
+
+## Implementation evidence
+
+The bounded I0 is implemented in the existing source-backed catalog and
+selected-map spine. `SelectedCallableConsumptionRoleV1` is a sealed role
+projection: `AppMainRoot` remains omitted from selected coverage,
+`AppMainStaticChild` carries its parser final slot/identity, and ordinary rows
+remain the only Dynamic-eligible rows. The package Port now has one typed
+`with_main_static_child_lowering_input` HRTB admission; both generic key-only
+entry points reject Main-child rows before consumption. The adapter consumes
+that admission and lowers through the existing cataloged source scope; no new
+physical owner or Main side ledger was added.
+
+Observed gates for this slice:
+
+```text
+cargo check --lib                                      PASS (1,828 inherited warnings)
+cargo test --lib -q normal_callable_semantic_package  PASS (23)
+cargo test --lib -q callable_declaration_catalog      PASS (20)
+cargo test --lib -q main_static_child                 PASS (3)
+bash tools/checks/loop_physical_transfer_authority_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh       PASS
+git diff --check                                      PASS
+```
+
+The warning count is an inherited repository census, not a Main-child
+regression; warning cleanup remains a separate parked task. Production
+selection, Dynamic caller activation, result/header ABI, S6C composition, V2
+transport, Builder/MIR/SSA/PHI session entry, and legacy retirement remain
+unclaimed by this card.
 
 ## NoSafeSlice conditions
 

@@ -1,11 +1,12 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
+use std::ptr;
 use std::{cell::RefCell, collections::BTreeSet};
 
 use crate::mir::builder::{
     CatalogedBoxMethodPhysicalHeaderProjectionV1, CompilationContext,
     NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
-    SelectedNormalCallableKeyV1, VerifiedSourceBackedDynamicCallableV1,
+    SelectedNormalCallableKeyV1, VerifiedMainStaticChildV1, VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
@@ -31,6 +32,11 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MissingParameterContract,
     DuplicateParameterContract,
     ParameterContractOwnerMismatch,
+    MainChildUnavailable,
+    MainChildSourceMismatch,
+    MainChildIdentityMismatch,
+    MainChildRoleMismatch,
+    MainChildAdmissionRequired,
 }
 
 #[derive(Debug)]
@@ -58,6 +64,27 @@ pub(crate) struct SelectedCatalogedCallableLoweringInputV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     admission: NormalCatalogedBoxMethodDraftAdmissionV1,
     physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
+}
+
+/// Exactly-once Main static-child input.  The generic key-only admission is
+/// deliberately not exposed here; this wrapper is issued only after the
+/// installed batch source, parser identity, and Main-child role co-seal.
+pub(crate) struct MainStaticChildLoweringInputV1<'loan> {
+    selected: SelectedCallableLoweringInputRefV1<'loan>,
+    admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+    _role: crate::mir::builder::SelectedCallableConsumptionRoleV1,
+    _catalog_brand: SameModuleCallableCatalogBrandV1,
+}
+
+impl<'loan> MainStaticChildLoweringInputV1<'loan> {
+    pub(crate) fn into_lowering_and_admission(
+        self,
+    ) -> (
+        SelectedCallableLoweringInputRefV1<'loan>,
+        NormalCatalogedBoxMethodDraftAdmissionV1,
+    ) {
+        (self.selected, self.admission)
+    }
 }
 
 impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
@@ -275,6 +302,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if self.consumed.contains(key) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
         }
+        if self.installed.selected.is_main_child_key(key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired);
+        }
         let result = self.installed.with_selected_lowering_input(key, callback)?;
         self.consumed.insert(key.clone());
         Ok(result)
@@ -286,6 +316,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         callback: impl for<'loan> FnOnce(SelectedCatalogedCallableLoweringInputV1<'loan>) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
+        if self.installed.selected.is_main_child_key(&key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired);
+        }
         let result = self.with_selected_lowering_input(&key, |selected| {
             if selected.selected_key() != &key {
                 return Err(
@@ -301,6 +334,59 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 physical_header,
             }))
         })??;
+        Ok(result)
+    }
+
+    pub(crate) fn with_main_static_child_lowering_input<R>(
+        &mut self,
+        child: &VerifiedMainStaticChildV1<'_>,
+        callback: impl for<'loan> FnOnce(MainStaticChildLoweringInputV1<'loan>) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        let Some((key, identity, role)) = self
+            .installed
+            .selected
+            .main_child_selection(child.statement_index(), child.method_ordinal())
+        else {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildUnavailable);
+        };
+        let key = key.clone();
+        let identity = identity.clone();
+        if !role.is_main_static_child() {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch);
+        }
+        if self.consumed.contains(&key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
+        }
+        let result = self
+            .installed
+            .with_selected_lowering_input(&key, |selected| {
+                if !selected.source_identity().identity().same_as(&identity) {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::MainChildIdentityMismatch,
+                    );
+                }
+                if !ptr::eq(selected.source().source().root(), child.source()) {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::MainChildSourceMismatch,
+                    );
+                }
+                let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+                    SelectedNormalCallableKeyV1::Cataloged(key) => key.clone(),
+                    SelectedNormalCallableKeyV1::TopLevel(_) => {
+                        return Err(
+                            NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch,
+                        )
+                    }
+                })
+                .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch)?;
+                Ok(callback(MainStaticChildLoweringInputV1 {
+                    selected,
+                    admission,
+                    _role: role,
+                    _catalog_brand: self.installed.catalog_brand.clone(),
+                }))
+            })??;
+        self.consumed.insert(key);
         Ok(result)
     }
 

@@ -101,6 +101,9 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             continue;
         }
         let batch_slot = declaration.batch_slot();
+        if !selected.dynamic_eligible_batch_slot(batch_slot) {
+            continue;
+        }
         let admission = batch
             .with_lowering_input(batch_slot, admit_dynamic_callable_v1)
             .map_err(NormalCallableSemanticPackageIssueV1::BatchLoan)?
@@ -112,9 +115,6 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             calls,
         } = admission
         {
-            if !selected.contains_batch_slot(batch_slot) {
-                continue;
-            }
             if candidate
                 .replace((batch_slot, owner, source, inventory, calls))
                 .is_some()

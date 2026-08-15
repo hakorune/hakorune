@@ -46,10 +46,13 @@ mod normal_cataloged_box_method_lowering;
 mod variable_read;
 pub(crate) use callable_declaration_catalog::{
     issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
-    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1,
+    SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
     VerifiedSameModuleCallableDeclarationV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
+pub(in crate::mir) use main_expansion::VerifiedMainStaticChildV1;
+pub(in crate::mir::builder) use main_expansion::VerifiedRawRootExpansionV1;
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,

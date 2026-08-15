@@ -34,6 +34,7 @@
 //! 3. **Type hints BEFORE PHI inference**: Ensures value_types populated
 //! 4. **Return strategy order固定**: Direct → hint → P3-D → P4 → P3-C
 //!
+use super::main_expansion::VerifiedMainStaticChildV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::recursive_child_lowering::{
@@ -59,6 +60,28 @@ use super::type_hint_providers;
 pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
 {
+    /// Lower one source-backed App Main static child.  The package adapter
+    /// overrides this with its typed same-cohort admission; raw ports retain
+    /// their compatibility-only direct child terminal.
+    fn lower_app_main_static_child(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        child: &VerifiedMainStaticChildV1<'_>,
+    ) -> Result<(), String> {
+        let (symbol, params, param_decls, return_type_name, body, uses, attrs) =
+            child.to_owned_lowering().into_parts();
+        self.lower_static_box_method(
+            builder,
+            symbol,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+
     /// Selected normal top-level functions carry a source-order occurrence
     /// receipt.  Raw/reference ports must never consume that receipt.
     #[allow(clippy::too_many_arguments)]

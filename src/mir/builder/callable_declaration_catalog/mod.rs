@@ -8,6 +8,7 @@ mod catalog;
 mod error;
 mod key;
 mod recovery;
+mod selected_role;
 mod selected_source_inventory;
 mod source_backed;
 
@@ -28,6 +29,7 @@ pub(crate) use recovery::{
     BareStaticRecoveryDecisionErrorV1, BareStaticRecoveryDecisionV1,
     BareStaticRecoveryNoRecoveryReasonV1,
 };
+pub(crate) use selected_role::SelectedCallableConsumptionRoleV1;
 pub(crate) use selected_source_inventory::SelectedNormalCallableKeyV1;
 pub(in crate::mir::builder) use selected_source_inventory::{
     SelectedCallableSemanticBlockerV1, SelectedNormalCallableSourceSiteV1,

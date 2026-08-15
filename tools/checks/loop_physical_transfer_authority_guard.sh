@@ -19,6 +19,14 @@ PHYSICAL_INPUT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/seman
 S6C_INGRESS="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
 S6C_SOURCE_OUTPUT="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_scan_with_init_joinir_output.rs"
 S6C_SITE="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_text_eq_site_contract.rs"
+MAIN_ROLE="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/selected_role.rs"
+MAIN_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
+MAIN_EXPANSION="$ROOT_DIR/src/mir/builder/main_expansion.rs"
+MAIN_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+MAIN_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mapping.rs"
+MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
+MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
+MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
@@ -26,6 +34,8 @@ guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
   "$LEDGER" "$V1_DEMAND" "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"
 guard_require_files "$TAG" "$PHYSICAL_INPUT"
 guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
+guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
+  "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -81,6 +91,15 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "with_text_eq_leaf" "$S6C_SITE" \
   "S6C TextEq site must borrow the retained leaf"
+guard_expect_fixed_in_file "$TAG" \
+  "with_main_static_child_lowering_input" "$MAIN_INSTALL" \
+  "Main static children must use the role-bearing scoped Port loan"
+guard_expect_fixed_in_file "$TAG" \
+  "lower_app_main_static_child" "$MAIN_LIFECYCLE" \
+  "the Main static-child route must have one typed capture-port owner"
+guard_expect_fixed_in_file "$TAG" \
+  "dynamic_eligible_batch_slot" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "Main static-child rows must be filtered before Dynamic admission"
 
 for forbidden in \
   'pub(crate) fn logical' \
@@ -91,6 +110,13 @@ do
     guard_fail "$TAG" "S6C ingress exposes a second source/key authority: $forbidden"
   fi
 done
+
+if rg -n -F -- 'if owner == "Main"' "$MAIN_CATALOG" >/dev/null 2>&1; then
+  guard_fail "$TAG" "Main child role is classified by owner spelling"
+fi
+if rg -n -F -- 'VerifiedRawRootExpansionV1::from_program' "$MAIN_INSTALL" >/dev/null 2>&1; then
+  guard_fail "$TAG" "Main child Port reissues the Main expansion"
+fi
 
 for forbidden in \
   'derive(Clone)' \
@@ -216,7 +242,9 @@ fi
 
 for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_DEMAND" \
   "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
-  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"; do
+  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
+  "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
+  "$MAIN_ADAPTER"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::callable_declaration_catalog::SelectedNormalCallableKeyV1;
+use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
@@ -268,6 +269,48 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
 }
 
 impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
+    fn lower_app_main_static_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: &VerifiedMainStaticChildV1<'_>,
+    ) -> Result<(), String> {
+        let (_symbol, params, param_decls, return_type_name, body, uses, attrs) =
+            child.to_owned_lowering().into_parts();
+        let inner = &mut *self.inner;
+        self.package
+            .with_main_static_child_lowering_input(child, |input| {
+                let (selected, admission) = input.into_lowering_and_admission();
+                if !matches!(
+                    selected.semantic(),
+                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Ordinary
+                ) {
+                    return Err(package_issue(
+                        NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch,
+                    ));
+                }
+                let lineage =
+                    super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
+                        admission.source_key().clone(),
+                    );
+                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                    inner
+                        .lower_normal_cataloged_static_box_method_with_source_v1(
+                            builder,
+                            admission,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                            transport,
+                        )
+                        .map_err(|error| error.to_string())
+                })
+            })
+            .map_err(package_issue)?
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn lower_normal_instance_constructor(
         &mut self,

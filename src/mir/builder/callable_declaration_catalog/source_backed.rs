@@ -10,11 +10,13 @@ use crate::parser::{
     CallableDeclarationIdentityV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1,
 };
+use std::ptr;
 
 use super::catalog::validate_parameters;
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
-    SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
+    SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
+    SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
     VerifiedSelectedNormalCallableSourceInventoryV1,
 };
@@ -32,6 +34,7 @@ pub(crate) enum SourceBackedCallableCatalogIssueV1 {
 struct SourceBackedSelectedIdentityV1 {
     key: SelectedNormalCallableKeyV1,
     identity: CallableDeclarationIdentityV1,
+    role: SelectedCallableConsumptionRoleV1,
 }
 
 #[derive(Debug)]
@@ -47,9 +50,16 @@ impl VerifiedSourceBackedSameModuleCallableCatalogV1 {
 
     pub(crate) fn selected_identities(
         &self,
-    ) -> impl ExactSizeIterator<Item = (&SelectedNormalCallableKeyV1, &CallableDeclarationIdentityV1)>
-    {
-        self.selected.iter().map(|row| (&row.key, &row.identity))
+    ) -> impl ExactSizeIterator<
+        Item = (
+            &SelectedNormalCallableKeyV1,
+            &CallableDeclarationIdentityV1,
+            SelectedCallableConsumptionRoleV1,
+        ),
+    > {
+        self.selected
+            .iter()
+            .map(|row| (&row.key, &row.identity, row.role))
     }
 
     pub(crate) fn into_catalog(self) -> VerifiedSameModuleCallableDeclarationCatalogV1 {
@@ -62,6 +72,9 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
 ) -> Result<VerifiedSourceBackedSameModuleCallableCatalogV1, SourceBackedCallableCatalogIssueV1> {
     source
         .with_callable_semantic_syntax(|loan| {
+            let main_expansion =
+                crate::mir::builder::VerifiedRawRootExpansionV1::from_program(source.ast())
+                    .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
             let brand = SameModuleCallableCatalogBrandV1::fresh();
             let mut rows_by_key = BTreeMap::new();
             let mut static_lookup =
@@ -86,18 +99,23 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                 };
                 let arity = u32::try_from(params.len())
                     .map_err(|_| SourceBackedCallableCatalogIssueV1::ArityOverflow)?;
-                let selected_key = match row.mode() {
+                let (selected_key, role) = match row.mode() {
                     FinalCallableDeclarationModeV1::TopLevel => {
                         let crate::parser::InitialCallableFinalSlotV1::TopLevel { statement } =
                             row.final_slot()
                         else {
                             return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                         };
-                        SelectedNormalCallableKeyV1::TopLevel(SelectedTopLevelFunctionKeyV1::new(
-                            statement as usize,
-                            name,
-                            params.len(),
-                        ))
+                        (
+                            SelectedNormalCallableKeyV1::TopLevel(
+                                SelectedTopLevelFunctionKeyV1::new(
+                                    statement as usize,
+                                    name,
+                                    params.len(),
+                                ),
+                            ),
+                            SelectedCallableConsumptionRoleV1::ordinary(),
+                        )
                     }
                     FinalCallableDeclarationModeV1::StaticBoxMethod
                     | FinalCallableDeclarationModeV1::InstanceBoxMethod => {
@@ -137,10 +155,58 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                                 .or_default()
                                 .push(key.clone());
                         }
-                        if owner == "Main" {
-                            continue;
-                        }
-                        SelectedNormalCallableKeyV1::Cataloged(key)
+                        let role =
+                            if let crate::mir::builder::VerifiedRawRootExpansionV1::App(main) =
+                                &main_expansion
+                            {
+                                if ptr::eq(main.root().source(), row.declaration()) {
+                                    continue;
+                                }
+                                if let Some(child) = main
+                                    .static_children()
+                                    .iter()
+                                    .find(|child| ptr::eq(child.source(), row.declaration()))
+                                {
+                                    if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod
+                                    {
+                                        return Err(
+                                            SourceBackedCallableCatalogIssueV1::SourceShape,
+                                        );
+                                    }
+                                    let observation = row
+                                        .method_source_observation()
+                                        .ok_or(SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                                    let crate::parser::InitialCallableFinalSlotV1::BoxMethod {
+                                        statement,
+                                        method,
+                                    } = row.final_slot()
+                                    else {
+                                        return Err(
+                                            SourceBackedCallableCatalogIssueV1::SourceShape,
+                                        );
+                                    };
+                                    let source_site = observation.source_site();
+                                    if !observation.identity().same_as(row.identity())
+                                        || source_site.box_statement_ordinal() != statement
+                                        || source_site.member_ordinal()
+                                            != method.inventory_ordinal()
+                                        || statement != child.statement_index()
+                                        || method != child.method_ordinal()
+                                    {
+                                        return Err(
+                                            SourceBackedCallableCatalogIssueV1::SourceShape,
+                                        );
+                                    }
+                                    SelectedCallableConsumptionRoleV1::app_main_static_child(
+                                        statement, method,
+                                    )
+                                } else {
+                                    SelectedCallableConsumptionRoleV1::ordinary()
+                                }
+                            } else {
+                                SelectedCallableConsumptionRoleV1::ordinary()
+                            };
+                        (SelectedNormalCallableKeyV1::Cataloged(key), role)
                     }
                 };
                 if !selected_keys.insert(selected_key.clone()) {
@@ -163,6 +229,7 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                 selected_identities.push(SourceBackedSelectedIdentityV1 {
                     key: selected_key,
                     identity: row.identity().clone(),
+                    role,
                 });
             }
 
