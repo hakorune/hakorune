@@ -58,8 +58,8 @@ Non-authority: test-built ingress, raw batch slot/key, Main/name/fixture lookup,
   Port-side reclassification, cloned/raw Completion, TextFormal wire arguments.
 Fail-fast: foreign or non-member child, missing/duplicate Completion, detached
   ingress/header re-pair, and any caller-supplied source product reject before Builder.
-Next slice: the focused caller-zero child/Port loan I0 described in the child
-  card. TextFormal mapping and generic V2 coverage remain parent-D0 follow-ons.
+Next slice: the child/Port loan I0 is landed; the current parent child is
+  `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`, followed by generic V2 coverage.
 Non-claims: no route, residence, physical IDs, Builder/session, fallback, retry, or caller.
 ```
 
@@ -655,6 +655,56 @@ CleanupParked: raw-AST ordinary/root convergence, finish unification,
 15. Narrow crate-root re-exports to the terminal issuer/product and sibling
     views required by the next owner. Owned products remain non-Clone,
     non-Default, non-splittable, and caller-zero.
+
+## Ordered callable-signature child design stop
+
+The installed child and single-Completion handoff are now closed. The next
+bounded design child is deliberately narrower than the generic V2 transport:
+
+```text
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
+```
+
+```text
+Decision: keep one logical ExactText formal as one semantic BindingRef and choose one complete physical signature mapping; explicit two-lane slot/generation expansion is the preferred candidate because the current MIR/LLVM function model is scalar i64, but it is not accepted until all ownership edges close.
+Source authority + canonical issuer: the ExactText formal parameter contract, the same-branded callable header/Completion cohort, and TextFormalBorrowV1 wire are existing inputs; one package/header mapping issuer must co-seal logical ordinal, physical signature, call-site actualization, and Canonical-session composite adoption.
+Non-authority: `/N` name arity, MirType::String, FunctionSignature alone, C validator argument order, raw HostHandle, Dynamic lease, detached ValueId pairs, AST/MIR rewalk, aggregate layout guessed from repr(C), fallback, and retry.
+Fail-fast boundary: reject logical/physical arity drift, duplicate or missing lane, call-site actualization mismatch, one-lane session adoption, foreign header/Completion cohort, stale/unverified TextFormal residence, and aggregate signatures without a complete compiler/LLVM ABI owner.
+Smallest next slice: design the package-owned mapping metadata and its single consumer seam; after acceptance, implement only caller-zero mapping tests/transport, then return to the generic V2 Operation/If/Loop/Exit partition.
+Non-claims: no runtime route activation, TextEq/Substring residence, PreparedLoopV2 envelope, ReadyEntry, Builder/MIR/CFG/SSA/PHI, physical caller, production selection, fallback, retry, or main integration.
+```
+
+The candidate shapes are:
+
+```text
+A  one 16-byte aggregate formal
+   requires a new aggregate formal/signature owner across MIR metadata,
+   JSON/LLVM function declarations, call sites, and session adoption.
+
+B  explicit two-lane formal (preferred candidate)
+   logical ordinal N -> metadata-issued slot lane + generation lane;
+   the same metadata must drive caller actualization and one composite
+   session adoption while preserving one logical BindingRef.
+```
+
+The current repository only proves that the runtime wire is a 16-byte pair and
+that the compiler session currently reserves one `ValueId` per logical ordinal.
+It does not yet issue either complete callable signature. The `TextFormalBorrowV1`
+C arguments, `/N` suffix, `MirType::String`, and one-`ValueId` convention cannot
+fill that gap. Until a single source-backed mapping owner exists, this child
+remains `NoSafeSlice::MissingTextFormalCallableSignatureIssuer` and the
+generic V2 placement transport must not open.
+
+Required negative boundary:
+
+```text
+logical one-formal -> physical one-arg drift
+slot/generation lane missing or duplicated
+call-site pair not issued by the mapping owner
+session adopts two detached Values instead of one composite formal
+aggregate ABI without complete declaration/call/link owner
+mapping from raw /N, MirType, validator order, or ValueId convention
+```
 
 ## Corrected bounded DAG
 

@@ -5,18 +5,18 @@ date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_design_stop = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
 work_mode = "design_stop"
-current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
-current_blocker_token = "NoSafeSlice::MissingS6CCommonV2PreSessionIssuer until the common boundary closes callable-signature mapping, one Completion owner, and disjoint 13-operation plus If/Exit coverage over all 15 placements; the installed child I0 is closed, and detached re-pairing, V1 adapter, S6C physicalizer, Builder/session, fallback, and retry remain forbidden."
+current_execution_row = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
+current_blocker_token = "NoSafeSlice::MissingTextFormalCallableSignatureIssuer until one source-backed owner closes logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion is only the preferred candidate, and detached re-pairing, V1 adapter, S6C physicalizer, Builder/session, fallback, and retry remain forbidden."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (installed S6C child closed; common-V2 pre-session design stop)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, caller-zero header transport, generation-checked TextFormalBorrowV1 ABI, and the installed S6C child I0 are closed. The current parent D0 must close callable-signature mapping, one Completion owner, and generic disjoint 13-operation plus If/Exit coverage over all 15 placements. Common-V2 transport and TextEq route admission remain sibling prerequisites before the sole canonical session; production selection, raw-AST convergence, and cleanup remain parked."
+active_lane = "Loop compiler frontier (TextFormal callable-mapping design stop)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, caller-zero header transport, generation-checked TextFormalBorrowV1 ABI, and the installed S6C child I0 are closed. The current bounded child D0 must close logical ExactText ordinal to physical signature mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation expansion remains a preferred candidate, not an accepted ABI. Generic V2 operation/control coverage follows this child; TextEq route admission, production selection, raw-AST convergence, and cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,8 +29,8 @@ current_execution_design = "docs/development/current/main/investigations/s6c-tex
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "s6c-text-eq-physical-contract-d0"
 latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
-latest_card_summary = "Installed S6C child-composition I0 is closed: one same-cohort child consumes one Completion seed, ordinary seeds alone reach generic headers, and Port child lending is exactly once; the common-V2 D0 is next."
-next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+latest_card_summary = "Installed S6C child-composition I0 is closed; the next bounded design child is CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0, where two-lane slot/generation expansion is only the preferred candidate and the full mapping owner is still missing."
+next_design_card = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
 next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
@@ -48,7 +48,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
   "2026-08-15: LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0 landed caller-zero same-cohort S6C composition: one package-owned Completion seed pass issues the exact Main static-child S6C parent, ordinary seeds alone reach generic headers, and the installed Port lends the child without a key/slot exactly once; focused child tests 2/2 and package tests 29/29 green, cargo check/format/diff green; no TextEq route, V2 transport, Builder/session, production caller, fallback, or retry opened.",
-  "2026-08-15: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 remains the next design stop: the installed child is closed, while the common boundary must still choose callable-signature mapping, one Completion owner, and disjoint 13-operation plus If/Exit coverage over all 15 placements; no physical session or production caller is open.",
+  "2026-08-15: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0 is the next bounded design child inside the open common-V2 stop: the installed child and single Completion handoff are closed, while logical ExactText ordinal -> physical signature mapping, call-site actualization, and Canonical-session composite adoption remain NoSafeSlice; two-lane slot/generation expansion is only the preferred candidate.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0 landed role-bearing Main child co-seal: AppMainRoot remains omitted, AppMainStaticChild rows retain parser identity/final slot and use a typed exactly-once Port loan, generic key-only admissions reject Main rows, and Dynamic eligibility is filtered before admission; package/catalog/Main focused tests 24+20+4 green, cargo check 1,828 inherited warnings, Loop/pointer guards and diff check green; no S6C, V2 transport, Builder/session, fallback, or retry route opened.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 tightened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, then issue a non-forgeable Main-child Port admission; Main.main Required materialization and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",

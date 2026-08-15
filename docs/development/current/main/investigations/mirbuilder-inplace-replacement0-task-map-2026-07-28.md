@@ -96,12 +96,16 @@ explicit pointer retarget.
     implements the package-private seed/child models, issuer wiring, and
     focused negatives; production caller, TextFormal mapping, V2 envelope,
     Builder/session, fallback, and retry remain zero.
-17. OPEN parent design stop after child I0 acceptance:
-    `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` closes the one Completion owner,
-    the TextFormalBorrowV1 callable-signature choice (16-byte aggregate or
-    explicit lane expansion) with its call-site/session owner, and exact
-    disjoint `13 operations + If + Exit = 15 placements`.
-18. OPEN common-program branch after parent D0 acceptance: semantic-program co-seal,
+17. CURRENT bounded design child inside the parent stop:
+    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` must close one source-backed
+    logical ExactText ordinal -> physical signature mapping, call-site
+    actualization, and Canonical-session composite adoption. Two-lane
+    slot/generation expansion is only the preferred candidate; aggregate ABI,
+    `/N`, `MirType::String`, and detached ValueIds are non-authority.
+18. OPEN parent/common-program branch after 17 acceptance:
+    `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` then closes the neutral exact
+    disjoint `13 operations + If + Exit = 15 placements` envelope, followed by
+    semantic-program co-seal,
     JoinSig transfer, bound segment input, boundary cleanup,
     `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then caller-zero
     `LOOP-S6C-COMMON-V2-PRESESSION-I0`; no detached ingress/header/Completion

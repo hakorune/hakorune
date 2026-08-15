@@ -1601,6 +1601,7 @@ One ordered T2 task family closes the missing boundary without creating an S6C r
 ```text
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
 LOOP-S6C-COMMON-V2-PRESESSION-I0
 ```
@@ -1647,13 +1648,20 @@ LoopV2CanonicalSessionAdmissionV1                 later fan-in
   -> CanonicalSsaFunctionSessionV2
 ```
 
-D0 names or rejects the total installed-S6C issuer, one Completion ownership
-path, TextFormal callable-signature mapping, complete V2 envelope contract,
-and fail-fast matrix. The child issuer owns semantic admission before install;
-the Port only consumes that sealed child after install. The transport R0 and
-S6C package I0 later separate the common V2 BoxShape from the bounded S6C
-BoxCount. The envelope is scoped and route-free: it borrows the installed
-Normal-package-owned source cohort only inside the Port callback.
+D0 now has one ordered design child before generic transport:
+`CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`. The installed-S6C issuer and one
+Completion ownership path are closed by the caller-zero child I0. The mapping
+child must still choose a complete aggregate or explicit slot/generation
+lane expansion and co-seal logical ordinal, call-site actualization, and
+Canonical-session composite adoption. Two lanes are only the preferred
+candidate; `/N`, `MirType::String`, validator argument order, and detached
+`ValueId` ordinals remain non-authority. The parent D0 then names or rejects
+the complete V2 envelope contract and fail-fast matrix. The child issuer owns
+semantic admission before install; the Port only consumes that sealed child
+after install. The transport R0 and S6C package I0 later separate the common
+V2 BoxShape from the bounded S6C BoxCount. The envelope is scoped and
+route-free: it borrows the installed Normal-package-owned source cohort only
+inside the Port callback.
 It does not detach Recipe keys, source sites, TextEq site/corridor, or
 Completion into independently pairable products.
 
@@ -1702,9 +1710,15 @@ this shallow ordered series:
 4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`
    - use the branded CompilationContext/Installed package cohort and Port as
      the sole outer transport;
-   - name total S6C admission, one Completion owner, the TextFormal callable
-     signature, exact envelope/control split, and fail-fast matrix;
+   - the installed child and one Completion owner are closed; delegate the
+     remaining callable mapping to the ordered child below;
    - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
+4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`
+   - choose aggregate versus explicit slot/generation lanes and co-seal the
+     logical ordinal, call-site actualization, and Canonical-session composite
+     adoption under one source-backed issuer;
+   - keep two lanes as a preferred candidate only until all three edges and
+     exact arity/ValueId coverage are named.
 5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
    `LOOP-S6C-COMMON-V2-PRESESSION-I0`
    - transport the generic complete operation set separately from the
