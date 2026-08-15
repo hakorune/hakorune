@@ -469,6 +469,20 @@ it does not make the S6C scan candidate selectable. The pointer returns to
 this parent D0 for the remaining Main membership, result/header ABI, S6C child
 composition, common V2 envelope, and neutral session-admission decisions.
 
+The next bounded design child is now:
+
+```text
+MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0
+  -> docs/development/current/main/investigations/
+     main-static-child-selected-membership-d0-2026-08-15.md
+```
+
+It decides only how the existing `VerifiedMainExpansionV1::static_children()`
+role co-seals with parser opaque identity and the existing selected batch map.
+`Main.main` remains the root terminal, and Main static-child ordinary
+membership remains disjoint from Dynamic eligibility. No S6C/result/header or
+physical session work is permitted in that child.
+
 ```text
 1. Main/helper membership:
    source_backed.rs inserts Main declarations into the catalog but skips Main
