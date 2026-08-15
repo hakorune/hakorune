@@ -32,6 +32,9 @@ mod s6c_prephysical_ingress;
 mod s6c_scan_with_init_joinir_output_rows;
 #[allow(dead_code)]
 mod s6c_scan_with_init_logical_consumer;
+// Caller-zero parent-retaining TextEq site contract; no physical target.
+#[allow(dead_code)]
+mod s6c_text_eq_site_contract;
 // Typed row façade is currently exercised by focused tests only.
 #[allow(dead_code)]
 mod s6c_scan_with_init_rows;
@@ -81,6 +84,10 @@ mod s6c_scan_with_init_tests;
 #[cfg(test)]
 #[path = "s6c_prephysical_ingress_tests.rs"]
 mod s6c_prephysical_ingress_tests;
+
+#[cfg(test)]
+#[path = "s6c_text_eq_site_contract_tests.rs"]
+mod s6c_text_eq_site_contract_tests;
 
 #[cfg(test)]
 #[path = "source_bound_core_tests.rs"]
@@ -235,6 +242,11 @@ pub(crate) use s6c_scan_with_init_joinir_output::{
 pub(crate) use s6c_scan_with_init_logical_consumer::{
     consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
     S6CLogicalConsumerResultV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_text_eq_site_contract::{
+    issue_s6c_text_eq_source_binding_v1, LoopTextEqSiteRefV1, TextEqualityLawV1,
+    VerifiedS6CTextEqSourceBindingV1,
 };
 #[allow(unused_imports)]
 pub(crate) use schema::{

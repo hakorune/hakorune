@@ -148,14 +148,20 @@ Its landed seal checks exact `15 = 13 operations + If + Exit` placement,
 source-anchor multiplicity, source-bound Length/Substring contracts, and the
 existing V2 branch/Return-summary/Backedge/After transfer.
 
-A later API audit found that the current façade is not yet the final SSOT-safe
-consumer surface: it rebuilds a raw role-to-key table, retains cloned
-source/Completion fields, and re-enters logical validation on borrow. The
-bounded `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` therefore removes those second
-projections and exposes independent, projection-only HRTB views for TextEq,
-the Substring-to-TextEq corridor, Completion, and inputs/carrier. Until that
-row closes, anchor counts and broad logical rows are diagnostics, not physical
-authority.
+The bounded `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` is now closed: the raw
+role-to-key table, cloned source/Completion fields, and borrow-time semantic
+revalidation are gone. The retained cohort lends independent,
+projection-only HRTB views for TextEq, the Substring-to-TextEq corridor,
+Completion, and inputs/carrier. Anchor counts and broad logical rows remain
+diagnostics, not physical authority.
+
+`LOOP-TEXT-EQ-SITE-CONTRACT-I0` consumes that ingress by value into one
+non-`Clone` `VerifiedS6CTextEqSourceBindingV1`. Its `LoopTextEqSiteRefV1`
+borrows the exact source `Equal` row, Recipe TextEq/If placement, and passive
+`TextEqualityLawV1`; it does not copy keys/sites, re-pair the cohort, or lend
+Completion/Tail. ABI, route, residence, ReadyEntry, host/session, Builder,
+MIR/CFG/SSA/PHI, selector, fallback, retry, and production caller remain
+closed until their own source-backed issuers are named.
 
 Authority categories remain separate: Facts owns `Call=2` and `Write=1`
 body effects, CoreMethod contracts own Home/ABI/PureRead, and V2 schema owns

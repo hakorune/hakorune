@@ -351,6 +351,13 @@ emit Builder/MIR/CFG/SSA/PHI, or expose raw Facts/Recipe/JoinSig/Completion.
 Focused positive and control-census negative tests pass; physical session,
 selector, production caller, fallback, and retirement remain closed.
 
+The following site-contract slice consumes that ingress by value into one
+non-`Clone` `VerifiedS6CTextEqSourceBindingV1`. It lends only a narrow
+`LoopTextEqSiteRefV1` containing the retained source binary, Recipe TextEq/If
+rows, and the passive `TextEqualityLawV1` projection. No Recipe key, source
+ledger, Completion/Tail view, ABI, route, residence, Builder, or physical
+caller is issued here; the new focused positive covers exact site/If parity.
+
 ## Generic G0 S4 producer
 
 `generic_g0/` owns the caller-zero S4 aggregate producer. It consumes one

@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0 is complete as a caller-zero, behavior-neutral projection narrowing: the retained Facts/Recipe/Join cohort is validated once, raw role/source/context escapes are removed, and TextEq/Completion are sibling borrow views. The next authority decision is the normative String/Text equality law, including the admitted StringBox-as-Text bridge; no site contract, ABI, route, residence, Builder, or physical session may open before that decision."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0 and the normative String/Text equality-law reference slice are complete. The current caller-zero row issues one parent-retaining TextEq site binding; no ABI, route, residence, Builder, or physical session may open from a detached Recipe key or implementation inference."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LANG-TEXT-EQUALITY-LAW-D0"
-work_mode = "design_stop"
-current_execution_row = "LANG-TEXT-EQUALITY-LAW-D0"
-current_blocker_token = "NoSafeSlice before the language law names exact String/Text equality and the admitted StringBox-as-Text bridge; do not issue TextEq site, ABI, route, residence, Builder, or session meaning from implementation evidence."
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "LOOP-TEXT-EQ-SITE-CONTRACT-I0"
+current_blocker_token = "NoSafeSlice if site binding detaches Recipe-local keys from the retained ingress cohort, re-pairs source/Recipe/If evidence, observes AST/MIR/names again, merges Completion/Tail, or issues ABI/route/residence/Builder/session meaning."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Text/String equality-law design stop; S6C remains first adapter only)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening and the ingress-surface R0 are closed. The current design stop must make types.md §4.3 the sole equality-law owner, explicitly decide logical String/Text and the StringBox-as-Text bridge, and keep ordinary non-Text BoxRef identity unchanged. Site contract, strict ABI, route admission, residence, result/header issuer, common V2 envelope, ReadyEntry/session, MIR/SSA/PHI, production selection, Dynamic live cutover, G3, and cleanup remain closed."
+active_lane = "Loop compiler frontier (TextEq site-contract I0; S6C remains first adapter only)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, and the normative String/Text equality-law reference slice are closed. The current I0 must retain the whole ingress, issue one non-Clone per-site TextEq binding, and lend only narrow HRTB source/Recipe/control evidence. ABI, route admission, residence, result/header issuer, common V2 envelope, ReadyEntry/session, MIR/SSA/PHI, production selection, Dynamic live cutover, G3, and cleanup remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/s6c-tex
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "s6c-text-eq-physical-contract-d0"
 latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
-latest_card_summary = "R0 is closed with projection-only sibling TextEq/Completion views and no new semantic or physical owner. Current design stop is LANG-TEXT-EQUALITY-LAW-D0: make types.md §4.3 the sole String/Text equality authority, decide the StringBox-as-Text bridge, and keep ordinary BoxRef identity separate before any site/ABI/route/session work."
-next_design_card = "LANG-TEXT-EQUALITY-LAW-D0"
-next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "R0 and the reference-only equality-law I0 are closed: types.md §4.3 now owns exact Unicode scalar sequence equality for logical String/Text, including explicitly admitted StringBox-as-Text, while ordinary BoxRef identity remains unchanged. Current I0 is LOOP-TEXT-EQ-SITE-CONTRACT-I0: consume the parent ingress once and lend a narrow per-site HRTB view; physical ABI/route/session remain closed."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "LOOP-TEXT-EQ-SITE-CONTRACT-I0"
+next_execution_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,9 +47,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened.",
+  "2026-08-15: LANG-TEXT-EQUALITY-LAW-I0 made docs/reference/language/types.md §4.3 the sole String/Text equality owner: exact Unicode scalar sequence, case-sensitive, normalization-free, locale/collation-free; explicitly admitted StringBox-as-Text follows the law while ordinary non-Text BoxRef identity remains unchanged; no runtime/compiler behavior changed.",
   "2026-08-15: LOOP-TEXT-EQ-INGRESS-SURFACE-R0 implemented the caller-zero narrowing: semantic validation stays issuer-only, retained logical-output source seams provide projection-only sibling TextEq/Completion views, raw logical/role/context/source clones are removed, and the existing S6C/Loop focused gates remain green; no runtime or physical session owner was opened.",
   "2026-08-15: cross-layer MIRBuilder audit found no live P0 and kept LOOP-TEXT-EQ-INGRESS-SURFACE-R0 current, but tightened it to remove raw role/key reissuance, cloned source/Completion ledgers, broad/revalidating views, and detached Verified context construction. The later DAG now requires an InstalledNormalCallableSemanticPackageV1 port extension, a source-backed result/header issuer, 13-operation transport separate from If/Exit control, exact 15-placement coverage, site-free route policy, and no S6C physicalizer or V2-to-V1 adapter.",
-  "2026-08-15: LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0 accepted a corrected common recursive-Loop owner graph: an exact String/Text law and the candidate StringBox-as-Text bridge remain a pending language Decision; one non-Clone adapter retains the whole ingress and lends neutral site/corridor/Completion views; strict BoolOrTrap ABI is a reversible caller-zero probe; scalar and borrowed routes require distinct lifecycle demands and actual session residence; route selection is tracked before Builder with fallback/retry zero; current work remains the behavior-neutral ingress-surface R0.",
+  "2026-08-15: LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0 accepted a corrected common recursive-Loop owner graph: the String/Text law is now normative; one non-Clone adapter retains the whole ingress and lends neutral site/corridor/Completion views; strict BoolOrTrap ABI is a reversible caller-zero probe; scalar and borrowed routes require distinct lifecycle demands and actual session residence; route selection is tracked before Builder with fallback/retry zero.",
   "2026-08-15: S6C physical ingress D0 accepted one corrected T2 BoxShape: 15 placements are 13 operations plus If and Exit; Recipe-family census, resolver BodyEffect, CoreMethod PureRead, and V2 execution class remain distinct authorities; exact source-anchor multiplicity and the separate Completion Tail view are required; V1 coercion and generic TextEq inference are forbidden; caller-zero ingress I0 is current.",
   "2026-08-15: S6C TextEq physical-contract D0 census closed as NoSafeSlice::MissingS6CTextEqPhysicalOwner: logical Equal(Text,Text)->Bool and V2 TextEq exist, but no neutral target/Home/ABI/wire issuer exists; StringBox::equals, MIR CompareEq, JoinIR compare, name rewrite, and Dynamic evidence remain non-authority. ReadyEntry/session stays closed until one owner is named.",
   "2026-08-15: S6C logical consumer I0 landed one 122-line caller-zero owner: a fallible try_with_output HRTB checks fixed domains, Length/Substring source parity, branch/Return summary/Backedge/After shape, and returns only typed Consumed or named reject; focused 8/8, cargo check, format, diff, pointer, and Loop guards green; full contract 132/1 with the same known baseline red.",
@@ -57,6 +59,4 @@ landed_tail = [
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0 landed one canonical role-wise Length/Substring view: each fixed CallSlot row is paired with its retained source contract inside the private output façade, raw input() escape is removed, six focused S6C tests plus cargo check/format/diff/pointer/Loop guards are green, and the typed consumer D0 is now accepted.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-I0 landed one caller-zero source-retaining non-Clone logical output product: fixed Recipe-local rows are issued once, the original Facts/Recipe/Join product is retained, and a private HRTB façade lends rows plus borrowed Join transfer; six focused S6C tests, cargo check, format, diff, pointer, and Loop pre-cutover guards are green; JoinModule/MIR, physical output, and production remain closed.",
   "2026-08-15: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-I0 landed the private borrow-only logical JOINIR input façade: exact Recipe domains, source-bound length/substring CallSlot parity, TextEq/If, and Join branch/Return-summary/Backedge/After are co-checked inside the combined non-Clone product; four focused tests and existing Loop/pointer guards are green; JoinModule/MIR output and production remain closed.",
-  "2026-08-15: LOOP-S6C-SCAN-WITH-INIT-RECIPE-I0 landed the bounded T2 BoxCount: consume Facts by value into one non-Clone verified V2 Recipe + fixed all-domain role seal + sole-root Join closure/prevalidated logical-transfer product; only private facades are lent, focused producer test is green, and Artifact/source binding remains an explicit non-claim.",
-  "2026-08-14: LOOP-S6C-SCAN-WITH-INIT-FACTS-I0 closed the fixed two-commit BoxShape: the same resolver seal now transports body shape and exact Plain/Compound assignment form, and the sole non-Clone Facts issuer closes exact statement/expression/effect/relation coverage with an HRTB view; focused S6C tests, cargo check, pointer guard, and diff check are green; Recipe/physical production remain closed.",
 ]

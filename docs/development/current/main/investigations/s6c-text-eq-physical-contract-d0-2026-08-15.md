@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0 is closed and the current bounded row is LANG-TEXT-EQUALITY-LAW-D0
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0 and the language-law reference slice are closed, and the current bounded row is LOOP-TEXT-EQ-SITE-CONTRACT-I0
 Date: 2026-08-15
-Work mode: design_stop
-Classification: closed T0 BoxShape; current T2 language-law BoxShape; one later T2 common-V2 pre-session family
+Work mode: fast
+Classification: closed T0 BoxShape + closed T2 language-law BoxShape; current T2 site-contract BoxCount; one later T2 common-V2 pre-session family
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,12 +14,12 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: stop before TextEq site/ABI/route work until the language specification names one String/Text equality law and the admitted StringBox-as-Text bridge.
-Source authority + canonical issuer: docs/reference/language/types.md §4.3 is the sole semantic-law owner; strings.md remains representation-only, and no runtime implementation may issue the law.
-Non-authority: StringBox::equals, eq_vm, UTF-8 implementation details, ordinary BoxRef identity, Recipe/MIR shape, ABI, selector, benchmark, fallback, or retry cannot decide the language law.
-Fail-fast boundary: reject the next site-contract/operation-contract row as NoSafeSlice until exact equality, case, normalization, locale/collation, and StringBox-as-Text admission are explicit.
-Smallest next slice: LANG-TEXT-EQUALITY-LAW-D0, then a bounded reference-only I0 that updates types.md without changing runtime or compiler behavior.
-Non-claims: no TextEq site receipt, physical target, ABI/wire, residence, route admission, Builder/session, production caller, fallback, retry, or legacy retirement.
+Decision: retain the whole caller-zero ingress and issue one non-Clone TextEq site binding that borrows the exact source/Recipe/control row and the normative TextEqualityLawV1 projection.
+Source authority + canonical issuer: the retained S6C Facts/Recipe/Join cohort is the only site authority; the site issuer consumes VerifiedS6CPrephysicalIngressV2 once and borrows the law from types.md §4.3.
+Non-authority: raw Recipe keys, AST/name/MIR re-observation, StringBox::equals, eq_vm, ordinary BoxRef identity, ABI, route, residence, Completion/Tail, fallback, and retry cannot issue a site.
+Fail-fast boundary: reject before any route or physical session if source Equal(Text,Text)->Bool, Recipe TextEq/If parity, or explicit StringBox-as-Text admission is missing or foreign.
+Smallest next slice: LOOP-TEXT-EQ-SITE-CONTRACT-I0, with a parent-retaining product and a narrow HRTB site view; no physical target or runtime caller.
+Non-claims: no ABI/wire, performance keeper, operand residence, Builder/session, production caller, fallback, retry, or legacy retirement.
 ```
 
 ## R0 implementation evidence
@@ -53,6 +53,20 @@ current-state pointer guard + diff check          # green
 The ingress owner is 705 lines after the narrowing, below the 760-line design
 trigger; a mechanical file split remains parked until a later bounded change
 would cross that boundary.
+
+## Site-contract I0 implementation evidence
+
+`s6c_text_eq_site_contract.rs` now consumes the complete ingress by value into
+one non-`Clone` `VerifiedS6CTextEqSourceBindingV1`. Its only production-shaped
+borrow is `with_site`, which lends the retained source `Equal` row, Recipe
+TextEq/If placement, and the passive `TextEqualityLawV1` projection. It does
+not copy Recipe keys or source sites, re-run semantic validation, observe
+Completion/Tail, or issue any ABI, route, residence, Builder, MIR, or session
+meaning. The focused test proves the exact TextEq item/block/value and If
+condition parity; the product remains caller-zero.
+The reusable `loop_physical_transfer_authority_guard.sh` now also checks the
+single issuer, non-splittable owned product, narrow view surface, and zero
+non-test callers.
 
 ## Corrected owner graph
 
@@ -107,23 +121,14 @@ while preparing the single session.
 No S6C physical demand family, physicalizer, CFG/SSA/PHI writer, or Return
 writer is introduced. Common physical APIs consume neutral views only.
 
-## Language law prerequisite
+## Language law reference receipt
 
-The exact equality law is not yet normative text. `types.md` currently says
-only that same-kind primitive `String` values compare for equality;
-`strings.md` owns valid UTF-8/Text representation and CP-indexed APIs, not
-equality. Runtime `String == String` is conformance evidence, never the law
-issuer.
+`docs/reference/language/types.md` §4.3 is now the sole equality-law owner.
+`strings.md` remains responsible for valid UTF-8/Text representation and
+CP-indexed APIs, not equality. Runtime `String == String` and
+`StringBox::equals` remain conformance evidence, never the law issuer.
 
-`LANG-TEXT-EQUALITY-LAW-D0` and then `LANG-TEXT-EQUALITY-LAW-I0` must land
-before any site-contract code. This is
-not a wording-only fill. `types.md` currently makes ordinary `BoxRef == BoxRef`
-identity-based, `eq_vm` follows that rule, and `StringBox::equals` is only an
-implementation helper. D0 must explicitly decide whether the currently mapped
-StringBox-as-Text lane belongs to logical Text content equality while
-ordinary non-Text BoxRef identity remains unchanged. I0 then makes
-`docs/reference/language/types.md` section 4.3 the sole equality-law owner and
-adds the matching conformance evidence:
+The accepted law is:
 
 ```text
 logical String/Text values, including any StringBox-as-Text bridge explicitly
@@ -140,18 +145,17 @@ ordinary non-Text BoxRef:
   identity equality remains unchanged
 ```
 
-`strings.md` remains the valid UTF-8 representation owner. For valid UTF-8,
-byte equality is a conforming implementation technique because the scalar
-sequence has one encoding; it is not the language-level definition.
+For valid UTF-8, byte equality is a conforming implementation technique
+because the scalar sequence has one encoding; it is not the language-level
+definition. Ordinary non-Text `BoxRef == BoxRef` identity remains unchanged.
 
-### LANG-TEXT-EQUALITY-LAW-D0 audit receipt
+### LANG-TEXT-EQUALITY-LAW-D0 audit receipt (closed)
 
-The open decision is real, not a missing sentence that can be inferred from
-the implementation:
+The audit established why this Decision could not be inferred from the
+implementation:
 
-* `types.md` §4.3 currently names same-kind primitive `String` equality but
-  does not define scalar-vs-byte comparison, case, normalization, locale, or
-  collation.
+* `types.md` §4.3 now names the scalar sequence, case, normalization, locale,
+  and collation rules explicitly.
 * `strings.md` defines valid UTF-8 and text indexing/representation. It does
   not own equality semantics.
 * The S6C typed-input issuer requires two explicitly declared `StringBox`
@@ -162,18 +166,17 @@ the implementation:
   `StringBox::equals` compares two `StringBox` contents. None of these
   implementations is a specification authority.
 
-The bounded Decision must choose one of these explicit policies before the
-site/operation contract opens:
+The accepted policy is:
 
 ```text
-recommended:
+accepted:
   TextEqualityLawV1::ExactUnicodeScalarSequence applies to logical
   String/Text values and to the explicitly admitted StringBox-as-Text bridge;
   comparison is case-sensitive, normalization-free, and locale/collation-free;
   String != String is logical negation; ordinary non-Text BoxRef remains
   identity equality.
 
-alternative:
+rejected alternative:
   StringBox remains ordinary BoxRef identity. Then S6C must gain a separate,
   source-backed conversion/bridge contract before its TextEq can be admitted;
   the current TextEq row cannot silently choose that conversion.
@@ -182,9 +185,10 @@ alternative:
 Acceptance is one normative owner (`types.md` §4.3), one named bridge
 predicate, no co-owned rule in `strings.md`, and negative coverage for
 ordinary non-Text BoxRef identity, case/normalization/locale drift, and a
-StringBox row that lacks explicit Text admission. Until this Decision is
-accepted, `TextEqualityLawV1`, TextEq site receipts, ABI/route/residence
-admission, and any Builder/session product remain `NoSafeSlice`.
+StringBox row that lacks explicit Text admission. The reference-only I0
+changed no runtime or compiler behavior; `TextEqualityLawV1` may now be a
+passive typed projection, while ABI/route/residence and Builder/session remain
+closed until their own issuers are named.
 
 After that reference Decision, `TextEqualityLawV1::ExactUnicodeScalarSequence`
 is a passive typed projection of the law. It is reusable and carries no site,
@@ -458,10 +462,9 @@ writers.
 
 ```text
 [closed] LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
-    -> [current] LOOP-TEXT-EQ-INGRESS-SURFACE-R0
-    -> LANG-TEXT-EQUALITY-LAW-D0
-    -> LANG-TEXT-EQUALITY-LAW-I0
-    -> LOOP-TEXT-EQ-SITE-CONTRACT-I0
+    -> [closed] LOOP-TEXT-EQ-INGRESS-SURFACE-R0
+    -> [closed] LANG-TEXT-EQUALITY-LAW-D0/I0
+    -> [current] LOOP-TEXT-EQ-SITE-CONTRACT-I0
     -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
     -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
     -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
