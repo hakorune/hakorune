@@ -81,13 +81,14 @@ ingress, a raw batch slot, or a second parameter ledger.
 Positive:
 
 ```text
-two ordinary parameters, source spelling StringBox
-ordinal 0/1 and exact BindingRef identity
+one or more ordinary parameters, source spelling StringBox
+arbitrary ordinal and exact BindingRef identity
 same owner and function origin as the declaration row
 same-brand parameter rows are retained by the installed package and are
 borrowable through the port; the source catalog itself remains in its
 CompilationContext owner
-S6C typed-input Text bindings co-check without reissuing the contract
+S6C later co-check may require exactly ordinals 0/1, without reissuing the
+generic contract
 ```
 
 Negative:
@@ -96,7 +97,8 @@ Negative:
 missing parameter row or count != source declaration count
 ordinal swap, binding swap, owner/origin mismatch, duplicate BindingRef
 non-ordinary/transfer parameter
-explicit i64, Integer, OpaqueHandle spelling, or unknown nominal type
+explicit i64 remains ExactTrivial; an absent annotation remains OpaqueHandle;
+unknown explicit nominal types remain unsupported
 unannotated parameter silently promoted to ExactText
 foreign catalog/batch brand or detached raw batch slot
 S6C typed input used as the generic issuer
