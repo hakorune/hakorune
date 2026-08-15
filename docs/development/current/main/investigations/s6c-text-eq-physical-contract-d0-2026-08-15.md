@@ -15,7 +15,7 @@ not a second Recipe family or physicalizer.
 
 ```text
 Decision: close the site-contract I0 and design one common V2 pre-session boundary owned by the Installed normal-callable package; no physical effect opens until the same package cohort carries S6C ingress, exact callable ABI, and complete V2 coverage.
-Source authority + canonical issuer: InstalledNormalCallableSemanticPackageV1 owns the installed catalog/batch/selection/parameter cohort; one NormalCallableSemanticPackagePortV1 extension must lend the same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
+Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension must lend that same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
 Fail-fast boundary: before Builder/session, reject missing or foreign installed membership, result/header ABI, ingress identity, 13-operation evidence, separate If/Exit control, JoinSig transfers, exact 15-placement coverage, or neutral canonical-session admission.
 Smallest next slice: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0; freeze the owner graph, API shape, negative matrix, and NoSafeSlice boundaries only. No code or receipt is issued in design_stop.
