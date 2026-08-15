@@ -73,25 +73,33 @@ explicit pointer retarget.
       five-family dispatcher and its exact receipt/negative evidence
 9. CLOSED caller-zero: seven-row Callable program through DraftSeal
 10. CLOSED caller-zero: fifteen-row Generic G0 program plus carrier
-11. CLOSED caller-zero semantic cohort: S6C source/Facts/Recipe/logical output
-    and prephysical ingress are issued without Builder or production caller
-12. CURRENT bounded hardening: `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` removes the
-    ingress's second role/source projections before TextEq law/site work
-13. OPEN ordered common boundary: semantic-program co-seal, JoinSig transfer,
-    bound segment input, boundary cleanup, common-V2 pre-session contract,
-    13-operation/control-envelope transport, and scoped S6C package
+11. CLOSED caller-zero semantic cohort: S6C source/Facts/Recipe/logical output,
+    prephysical ingress, the normative String/Text law, and the TextEq site
+    contract are issued without Builder or a production caller
+12. CURRENT design stop: `CALLABLE-PHYSICAL-HEADER-ABI-D0` co-seals exact
+    formal parameters, an explicit source-backed result/header declaration,
+    and Completion/return proof through one branded package/Port cohort; no
+    parameter-only wire or result-only authority
+13. OPEN ordered common boundary: installed-batch S6C child composition,
+    semantic-program co-seal, JoinSig transfer, bound segment input, boundary
+    cleanup, common-V2 pre-session contract, and 13-operation/control-envelope
+    transport
 14. OPEN structural/session coverage: Always, If, Exit, then the first common
     V2 physical session; later M8/M9 families remain separately open
 15. OPEN gated production selection: pre-cutover authority proof, then M10b
     activation and M11/M12 legacy retirement
-16. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
+16. PARKED post-cutover convergence: main integration, whole-builder typed
+    ingress, common finish convergence, warning/allow census, and physical
+    docs/module cleanup (see the current physical-header card's parked rows)
+17. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
 The selected-Dynamic `skip_while/4` lane is a reusable authority/physical
 precedent, not S6C source truth: it owns `substring/indexOf`, while forward
 `ScanWithInit` requires its own exact `length/substring/TextEq` source-bound
 relations. The old live general-Loop edge remains one registry/legacy route;
-portable/common production selection remains zero until rows 12 and 11 close.
+portable/common production selection remains zero until the current header
+cohort and later common/session rows close.
 
 Decision B forbids taking one operation from a full demand. The current demand
 row and every later leaf row have one acceptance claim each. No current row

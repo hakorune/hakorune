@@ -336,7 +336,7 @@ wrappers, and compat callers are zero. Do not delete
 `src/stage1/program_json_v0*` merely because a CLI flag retires. Only then
 hard-delete the bridge.
 
-### T5-D0..R3 — post-cutover debt and governance retirement
+### T5-D0..R8 — post-cutover debt, governance, and whole-builder convergence
 
 This is one parked cleanup program, not four new active cards. It records the
 repository-wide debt reported after the Dynamic/AOT hardening series without
@@ -377,6 +377,8 @@ T5-D2  DEVELOPMENT-CEREMONY-COST-D0
 
 T5-D3  COMPATIBILITY-SURFACE-RETIREMENT-D0
   -> T5-R3  COMPATIBILITY-CALLER-ZERO-RETIREMENT-R0
+
+T5-D4..D8  WHOLE-BUILDER-CONVERGENCE (parked; ordered after the active cutover)
 ```
 
 #### T5-D0/R0 — red-baseline debt budget and burn-down
@@ -426,6 +428,46 @@ R3 retires one caller-zero family at a time only after native/Boundary coverage,
 fallback/retry zero, focused replacement evidence, and a restore/archive path.
 Broad `nyash -> hakorune` renaming, ABI spelling changes, and source deletion
 require separate accepted authority decisions and are not implied by this row.
+
+#### T5-D4/R4 — whole-builder convergence and operational SSOT (parked)
+
+The 2026-08-15 whole-builder audit found a clean selected/S6C semantic spine,
+but also confirmed that repository-wide migration is not complete. These rows
+are taskized here so they cannot be mistaken for the current physical-header
+D0 or silently reopened as a hardening tail:
+
+```text
+T5-D4  MIRBUILDER-BRANCH-INTEGRATION-CLOSEOUT-R0
+  main remains the canonical integration target; the current work branch is
+  an evidence/implementation branch, not a second code SSOT. Merge only after
+  exact-HEAD integration evidence, pointer sync, and old-edge census.
+
+T5-D5  MIRBUILDER-WHOLE-BUILDER-TYPED-INGRESS-D0
+  replace root/ordinary source_ast()->raw AST work-plan descent with one
+  source-backed typed root/program loan. Keep RawCompatibility as one explicit
+  adapter boundary; no by-name classifier, AST re-expansion, or fallback.
+
+T5-D6  MIRBUILDER-COMMON-FINISH-CONVERGENCE-D0
+  converge Canonical/Legacy/SelectedDynamic finish schedules behind the
+  canonical session/DraftSeal owner only after caller-zero proof. Do not merge
+  schedules by spelling or create a second Return/publication writer.
+
+T5-D7  MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+  collect cargo JSON diagnostics at an exact HEAD and parent, classify
+  current-change versus inherited by owner, then narrow module-level allows in
+  bounded rows. Blanket allow removal and warning-driven semantic edits are
+  forbidden.
+
+T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
+  after cutover, compact stale docs/mirrors/archive and split near-limit
+  modules by owner. Preserve the authority graph, keep the 760-line design
+  trigger/800-line hard stop, and validate links/guards before deletion.
+```
+
+These rows are parked behind the active Loop production/cutover gate. Their
+acceptance requires an explicit pointer retarget, a source/owner census, and
+one bounded commit per responsibility. Local focused green on the current
+work branch does not close main integration or whole-builder convergence.
 
 ## Cross-lane rules and acceptance
 
