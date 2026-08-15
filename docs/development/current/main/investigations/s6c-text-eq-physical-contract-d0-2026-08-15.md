@@ -37,6 +37,22 @@ CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
   -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [parent follow-on]
 ```
 
+### Ordered child D0 acceptance
+
+```text
+Decision: issue one package-owned S6C child from the same batch/catalog cohort;
+  move one Completion seed into it exactly once before Port lending.
+Source authority + issuer: existing S6C Facts/Recipe/Join producers plus
+  verify_function_completion_v1, composed only by issue_normal_callable_semantic_package_v1.
+Non-authority: test-built ingress, raw batch slot/key, Main/name/fixture lookup,
+  Port-side reclassification, cloned/raw Completion, TextFormal wire arguments.
+Fail-fast: foreign or non-member child, missing/duplicate Completion, detached
+  ingress/header re-pair, and any caller-supplied source product reject before Builder.
+Next slice: focused package-owned child/Port loan I0; TextFormal mapping and
+  generic V2 coverage remain parent-D0 follow-ons.
+Non-claims: no route, residence, physical IDs, Builder/session, fallback, retry, or caller.
+```
+
 The completed transport row co-seals supported formal parameters, an explicit
 source-backed result/header declaration, and `verify_function_completion_v1`
 return/cleanup proof through the same branded package/Port cohort. The completed
