@@ -14,11 +14,11 @@ signature mapping itself and does not open a caller, Builder, or session.
 ## Six-line brief
 
 ```text
-Decision: choose a three-layer lifetime shape—source-backed compile-time residence, caller-private prepared actualization, and only if source proof ends early a new opaque runtime lease; the two-lane signature remains only a preferred target.
-Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the canonical caller/session issuer supplies source residence and prepared actualization, while a future runtime issuer alone may own a slot pin token.
+Decision: choose exactly one lifetime route for every admitted ExactText call—source-backed residence spanning synchronous completion, or a mandatory opaque runtime lease—and keep caller-private prepared actualization as the sole composer; the two-lane signature remains only a preferred target.
+Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the route decision must name its source-backed issuer, and only the selected route may co-seal prepared actualization and runtime capture.
 Non-authority: TextFormalBorrowV1 read-lock closure, HostHandleLeaseIdentityV1, DynamicV2 lease, raw HostHandle, ObjectIdentity, retain_h, KeepAlive, Completion, C validator, AST/MIR/ValueId, and runtime fallback.
-Fail-fast boundary: source-owner loss or generation capture failure rejects before body effect; partial acquire rolls back; normal continuation finishes exactly once, while the current no-unwind trap ABI never requires a post-trap cleanup callback.
-Smallest next slice: design the three types, their ownership handoff, source/call target co-seal, and all retirement/rollback paths; only after acceptance may a caller-zero wire/map implementation begin.
+Fail-fast boundary: route/source-owner loss or generation capture failure rejects before body effect; partial acquire rolls back; normal continuation finishes exactly once, while the current no-unwind trap ABI never requires a post-trap cleanup callback.
+Smallest next slice: classify all admitted Text actual origins, choose one mandatory route, then design its ownership handoff, source/call target co-seal, and retirement/rollback paths; only after acceptance may a caller-zero wire/map implementation begin.
 Non-claims: no signature issuer, physical arity change, C ABI caller, TextEq route, Substring corridor, ValueId adoption, Canonical session, Builder, production caller, fallback, retry, or main integration.
 ```
 
@@ -32,7 +32,7 @@ it neither preserves the original generation identity nor covers every
 operation, not a callable-wide borrow. Therefore none of these can be the
 callable signature's lifetime authority.
 
-## Preferred owner shape
+## Candidate owner shape (not yet selected)
 
 The planned source receipt is intentionally opaque and non-`Clone`:
 
@@ -74,6 +74,15 @@ capture/terminal or a dedicated ownership-aware call capability; a raw
 
 This is a BoxShape decision only. Any SlotTable pin count, deferred retirement,
 or C/runtime token implementation is a later BoxCount and remains unopened.
+
+## Open route decision
+
+The current repository has no issuer for
+`VerifiedCallScopedTextOwnerLifetimeV1` and no accepted predicate deciding
+when a runtime lease is required. The two candidates above are therefore not
+an optional runtime branch: D0 must choose one finite route for all admitted
+Text calls before any BoxCount. Creating only a runtime pin or only a compiler
+receipt would otherwise introduce an unused or partial authority.
 
 The callable target terminal must consume this residence through the same
 package-owned physical-signature row that maps one logical `BindingRef` to
