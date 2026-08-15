@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The caller-zero TextFormal runtime lease substrate is closed. The live pointer returns to the callable physical-signature design stop; compiler signature/call-edge/session and every production caller remain closed."
-date = "2026-08-15"
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The two-lane callable ExactText signature BoxShape and caller-zero runtime lease substrate are closed. The live pointer is the package-owned physical-signature mapping I0; call edge, pinned residence, session, and every production caller remain closed."
+date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "NoSafeSlice::MissingTextFormalCallableSignatureIssuer: runtime pin/retirement is closed, but no package-owned complete logical-formal to physical-lane mapping yet drives callable skeleton, exact call edge, and composite Canonical adoption from one same-brand cohort."
-work_mode = "design_stop"
-current_execution_row = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
-current_blocker_token = "NoSafeSlice::MissingTextFormalCallableSignatureIssuer until one Completion-independent package issuer fixes logical arity vs physical lane count, ExactText [slot,generation] roles, complete/disjoint lane coverage, one combined Installed S6C loan, and the future skeleton/call-edge/Canonical consumers without ValueId inference, fallback, or retry."
+current_design_stop = "none; CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0 accepted the Completion-independent two-scalar-lane BoxShape and a bounded caller-zero I0 is available."
+work_mode = "fast"
+current_execution_row = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0"
+current_blocker_token = "none for the current caller-zero mapping row; return to NoSafeSlice if the issuer needs header/Completion, raw signature inference, detached lane products, two Port consumptions for one S6C key, residence/ValueId state, fallback, or retry."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (callable TextFormal physical-signature D0)"
-active_lane_status = "The caller-zero runtime lease-set substrate is closed with atomic acquisition, exact pin cardinality, pending retirement, and move-only finish. The current design stop names the sole package-owned logical-to-physical signature issuer and its future combined Installed/skeleton/call-edge/Canonical consumers. No compiler or production caller is open."
+active_lane = "Loop compiler frontier (callable TextFormal physical-signature I0)"
+active_lane_status = "The accepted callable boundary maps one logical ExactText formal to adjacent scalar slot/generation lanes while keeping logical arity separate from physical lane count. The current caller-zero I0 issues and transports only the package-owned total mapping through one combined Installed S6C loan. Call-edge actualization, pinned UTF-8 residence, session values, TextEq route, and production callers remain zero."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/callabl
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "callable-text-formal-physical-signature-d0"
 latest_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
-latest_card_summary = "TextFormal runtime lease I0 closed caller-zero with 17 transition/negative tests, a move-only opaque set, shared pin-aware retirement, and legacy/Dynamic/TextFormal parity. The current D0 now fixes the Completion-independent package signature issuer and its future consumers."
-next_design_card = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0"
-next_design_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0 accepted one logical ExactText formal -> adjacent scalar slot/generation lanes, rejected the by-value aggregate ABI, and separated the stable wire from later non-splittable pinned-root residence, CP slices/cursor, and backend ptr/len projections."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,9 +47,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-16: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0 accepted the callable ExactText BoxShape: one logical formal/BindingRef maps to adjacent scalar slot/generation lanes, logical arity remains distinct from physical lane count, the by-value aggregate ABI is rejected, and later lease-backed pinned roots, CP slices/cursor, and backend ptr/len projections remain separate owners; pointer advances to caller-zero signature I0 with no call edge/session/TextEq/production caller opened.",
   "2026-08-15: TEXT-FORMAL-CALL-LEASE-RUNTIME-I0 landed a caller-zero runtime substrate: all ExactText pairs acquire atomically, each formal occurrence owns one pin, nested entries own independent sets, raw and generation-matched drops share pending retirement, final finish alone recycles/increments DROP_EPOCH, and both registry/facade carriers are move-only; focused 17+2, host 14, Dynamic lease 4, TextFormal 5, cargo check/format/diff and Loop/pointer guards green; no compiler/C/session/TextEq/production caller opened.",
   "2026-08-15: LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0 landed caller-zero same-cohort S6C composition: one package-owned Completion seed pass issues the exact Main static-child S6C parent, ordinary seeds alone reach generic headers, and the installed Port lends the child without a key/slot exactly once; focused child tests 2/2 and package tests 29/29 green, cargo check/format/diff green; no TextEq route, V2 transport, Builder/session, production caller, fallback, or retry opened.",
-  "2026-08-15: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0 is the next bounded design child inside the open common-V2 stop: the installed child and single Completion handoff are closed, while logical ExactText ordinal -> physical signature mapping, call-site actualization, and Canonical-session composite adoption remain NoSafeSlice; two-lane slot/generation expansion is only the preferred candidate.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0 landed role-bearing Main child co-seal: AppMainRoot remains omitted, AppMainStaticChild rows retain parser identity/final slot and use a typed exactly-once Port loan, generic key-only admissions reject Main rows, and Dynamic eligibility is filtered before admission; package/catalog/Main focused tests 24+20+4 green, cargo check 1,828 inherited warnings, Loop/pointer guards and diff check green; no S6C, V2 transport, Builder/session, fallback, or retry route opened.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 tightened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, then issue a non-forgeable Main-child Port admission; Main.main Required materialization and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",

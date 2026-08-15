@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-15
+Date: 2026-08-16
 Decision: accepted after external and independent worker review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r2`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
@@ -71,12 +71,14 @@ Related:
 - **Current decision:** every admitted Loop profile reaches one complete
   semantic program, JoinSig-bound layout, and canonical SSA session; V1 and V2
   are exact projections of that one responsibility graph.
-- **Current implementation status:** caller-zero V1 canaries exist, but the
-  common physicalizer remains test-only/V1-shaped and the S6C V2 pre-session
-  transport, result ABI issuer, and production caller are not landed.
-- **Next ordered task:** remove second S6C ingress projections, then close the
-  common semantic-program, transfer, ordered-ledger, boundary-cleanup, and V2
-  pre-session rows before physical activation.
+- **Current implementation status:** S6C source/site, ExactText formal,
+  result/header, installed child, and caller-zero runtime lease-set substrate
+  are closed. The common physicalizer remains test-only/V1-shaped; the
+  package physical-signature map, common V2 transport, and production caller
+  are not landed.
+- **Next ordered task:** issue and transport the caller-zero package-owned
+  physical-signature map; then resume the common V2 pre-session rows before
+  any physical activation.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -98,7 +100,8 @@ resolver / source map
        OR PreparedGenericG0LoopPhysicalizationV1
        OR scoped target PreparedLoopV2PreSessionEnvelopeV1<'loan>
   -> target LoopV2CanonicalSessionAdmissionV1
-       fan-in of the neutral envelope and separately admitted route policy
+       fan-in of the neutral envelope, separately admitted route policy,
+       and callable signature/residence demands
   -> one fresh unpublished function session
        completion moves here exactly once
   -> outer callable lowerer + one common recursive Loop physicalizer
@@ -201,7 +204,7 @@ The missing contract is owned by one ordered task family:
 ```text
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0
-CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
 LOOP-S6C-COMMON-V2-PRESESSION-I0
@@ -214,14 +217,15 @@ Port only verifies the already-issued role/identity and takes/lends the child
 exactly once after install; it does not reclassify S6C or accept a caller slot,
 key, ingress, or fixture.
 
-The next bounded child is the callable-signature decision. It keeps one
-logical ExactText formal as one semantic BindingRef and targets explicit
-two-lane `slot`/`generation` expansion because MIR/LLVM is scalar-`i64`.
-The shape remains `NoSafeSlice` until one source-backed owner closes exact
-target->signature handoff, one-lock generation capture, strong owner lifetime,
-call-site actualization, and Canonical-session composite adoption. `/N`,
-`MirType::String`, C validator argument order, and raw `ValueId` ordinals are
-not authorities.
+The callable-signature Decision is accepted: one logical ExactText formal and
+one semantic BindingRef expand to adjacent scalar `u64` lanes
+`[slot,generation]`. Logical `/N` and `physical_formal_lane_count` are separate
+authorities; a by-value 16-byte aggregate is rejected. The package-owned sole
+issuer consumes same-brand selected/batch identity plus the complete parameter
+contracts only. Header/Completion, `MirType::String`, C validator argument
+order, raw `ValueId`, root residence, and call-edge origin are not signature
+inputs. The active caller-zero I0 may implement only this total lane map and
+its combined Installed S6C loan.
 
 The parent common-V2 row then closes the shared callable-signature, single-
 Completion, and operation/control envelope:
@@ -267,12 +271,20 @@ pre-session envelope is route-free and borrows that cohort only inside the
 Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
 child and one Completion ownership path are closed by the child I0. The next
-bounded design child is `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`, which must
-choose and source the callable-signature mapping for the 16-byte
-`TextFormalBorrowV1` aggregate versus explicit lane expansion. Missing any
-mapping issuer is `NoSafeSlice::MissingTextFormalCallableSignatureIssuer`,
-never a Recipe/MIR inference; the generic V2 exact-set partition remains the
+bounded implementation row is
+`CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0`: it issues and transports the
+Completion-independent package lane map selected by the accepted D0. Exact
+call-edge origin, pair-based entry residence, Canonical composite adoption,
+and Completion-backed finish coverage remain a later fan-in; they are never
+inferred from Recipe/MIR. The generic V2 exact-set partition remains the
 following common boundary.
+
+The stable callable boundary is not the function-internal Text carrier. A
+later non-splittable residence set couples the invocation lease-set token to
+immutable UTF-8 root descriptors. Session-branded slices and backend-local
+`TextPlan` values borrow those roots; raw pointer/length values are scoped
+backend projections only. The common pre-session envelope owns none of these
+physical identities.
 
 The complete envelope does not turn control into operations. The operation
 program target covers every operation placement for the admitted V2 program;
@@ -1071,8 +1083,8 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | design only; child/Completion are closed, while missing callable-signature or placement issuers remain `NoSafeSlice` |
-| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` | close exact target->signature handoff, one-lock generation actualization/strong owner lifetime, then logical ExactText ordinal -> physical mapping, call-site actualization, and Canonical-session composite adoption; two-lane slot/generation is only a candidate | design only; no `/N` inference, `MirType::String`, validator-argument, detached `ValueId`, aggregate ABI, fallback, or retry |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | design only; child/Completion and the signature Decision are closed, while mapping implementation or placement issuers remain unopened |
+| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | D0 accepted; current caller-zero I0 only; no call-edge actualization, residence, `ValueId`, aggregate ABI, fallback, or retry |
 | 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the common boundary after 22c-a | BoxShape only; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |

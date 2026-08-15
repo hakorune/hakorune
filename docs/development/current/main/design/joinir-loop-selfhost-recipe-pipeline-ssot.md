@@ -1,6 +1,6 @@
 ---
 Status: Active task-order SSOT
-Date: 2026-08-08
+Date: 2026-08-16
 Decision: accepted — `JOINIR-LOOP-SELFHOST-RECIPE-PIPELINE0-D0`
 Scope: production Loop meaning, selfhost-portable recipe, terminal candidate lowering, and atomic retirement
 Related:
@@ -22,12 +22,12 @@ Related:
 - **Current decision:** one recursive Loop Recipe algebra owns logical Loop
   meaning through exact V1/V2 projections; neither projection authorizes a
   second physicalizer or V2-to-V1 coercion.
-- **Current implementation status:** source-to-Recipe S6C products are
-  caller-zero and move-only, while their ingress projection and the common V2
-  pre-session/session boundary still require the bounded rows below.
-- **Next ordered task:** remove second ingress projections first, then close
-  the existing semantic-program/transfer prerequisites before the common V2
-  transport and S6C package rows.
+- **Current implementation status:** source-to-Recipe S6C products, installed
+  child/header prerequisites, and the caller-zero Text lease-set substrate are
+  closed. The package physical-signature map and common V2 pre-session/session
+  boundary remain unopened.
+- **Next ordered task:** implement the accepted caller-zero ExactText
+  physical-signature map, then resume common V2 transport and S6C packaging.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -1601,7 +1601,7 @@ One ordered T2 task family closes the missing boundary without creating an S6C r
 ```text
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
 LOOP-S6C-COMMON-V2-PRESESSION-I0
 ```
@@ -1651,12 +1651,15 @@ LoopV2CanonicalSessionAdmissionV1                 later fan-in
 D0 now has one ordered design child before generic transport:
 `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`. The installed-S6C issuer and one
 Completion ownership path are closed by the caller-zero child I0. The mapping
-child must still close exact target->signature handoff, one-lock generation
-capture with strong owner lifetime, then choose explicit slot/generation lane
-mapping and co-seal call-site actualization with Canonical-session composite
-adoption. Two lanes are only the preferred candidate; `/N`, `MirType::String`,
-validator argument order, and detached `ValueId` ordinals remain
-non-authority. The parent D0 then names or rejects
+Decision is accepted: one logical ExactText ordinal/BindingRef expands to
+adjacent scalar `u64` `[slot,generation]` lanes; logical `/N` and physical lane
+count remain separate, and the by-value aggregate ABI is rejected. The current
+I0 closes only one Completion-independent package-owned total lane map plus
+its combined Installed S6C loan. Exact call-edge origin, pair-based pinned root
+residence, Canonical composite adoption, and Completion-backed finish coverage
+remain later fan-in seams. `/N`, `MirType::String`, validator argument order,
+raw pointer/length, and detached `ValueId` ordinals remain non-authority. The
+parent D0 then names or rejects
 the complete V2 envelope contract and fail-fast matrix. The child issuer owns
 semantic admission before install; the Port only consumes that sealed child
 after install. The transport R0 and S6C package I0 later separate the common
@@ -1675,6 +1678,13 @@ cursor, standalone TextEq scheduler, or S6C physicalizer is `NoSafeSlice`.
 The existing canonical CFG, Binding SSA, Phi, Completion, finish, DraftSeal,
 discard, and publication owners remain unchanged. Runtime
 route/lifecycle/residence and production selection stay later rows.
+
+The stable two-lane callable wire is not the hot-loop Text carrier. A later
+non-splittable residence set couples one callee-entry lease-set to immutable
+UTF-8 root descriptors. Session-branded slices and backend-local `TextPlan`
+values borrow those roots, while raw pointer/length values remain scoped
+backend projections. Neither the signature product nor the neutral common V2
+envelope owns those physical identities.
 
 ### M10 pre-cutover authority seal — caller-zero only
 
@@ -1714,14 +1724,14 @@ this shallow ordered series:
    - the installed child and one Completion owner are closed; delegate the
      remaining callable mapping to the ordered child below;
    - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
-4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0`
-   - keep explicit slot/generation lanes as the preferred target shape, but
-     remain `NoSafeSlice` until one source-backed owner closes exact
-     target->signature handoff, one-lock generation capture, strong owner
-     lifetime, call-site actualization, and Canonical-session composite
-     adoption;
-   - reject `/N`, MirType, validator order, detached ValueIds, and aggregate
-     ABI inference; only then open caller-zero mapping I0.
+4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0`
+   - accept one logical ExactText ordinal/BindingRef -> adjacent scalar
+     `[slot,generation]` lanes, with logical `/N` separate from physical lane
+     count and no by-value aggregate;
+   - current I0 issues/transports only the complete Completion-independent
+     package mapping and combined Installed S6C loan;
+   - reject `/N`, MirType, validator order, detached ValueIds, root residence,
+     and call-edge inference as signature authorities.
 5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
    `LOOP-S6C-COMMON-V2-PRESESSION-I0`
    - transport the generic complete operation set separately from the

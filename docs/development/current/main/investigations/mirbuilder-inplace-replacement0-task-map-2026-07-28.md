@@ -1,6 +1,6 @@
 ---
 Status: accepted execution task map
-Date: 2026-07-28
+Date: 2026-08-16
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Historical first executable replacement row (closed; not current):
   - CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
@@ -13,7 +13,7 @@ Final convergence pointer (serial, after Loop retirement):
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
 Current Loop product-frontier mirror (non-authoritative):
-  - `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` (T2 BoxShape design stop)
+  - `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` (caller-zero T2 BoxCount)
 Resume gate:
   - always resolve `current_execution_row` and `latest_card_path` from
     `CURRENT_STATE.toml`; this frontmatter is only a product-frontier summary
@@ -92,28 +92,42 @@ explicit pointer retarget.
     only verifies the issued role/identity and takes/lends that child exactly
     once. Caller-supplied Facts/Recipe/slot/fixture and Port-side
     reclassification are forbidden.
-16. CURRENT caller-zero I0: `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0`
-    implements the package-private seed/child models, issuer wiring, and
+16. CLOSED caller-zero I0: `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0`
+    implemented the package-private seed/child models, issuer wiring, and
     focused negatives; production caller, TextFormal mapping, V2 envelope,
     Builder/session, fallback, and retry remain zero.
-17. CURRENT bounded design child inside the parent stop:
-    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0` remains `NoSafeSlice` until
-    one source-backed owner closes exact target->signature handoff, one-lock
-    generation actualization, strong Text-owner lifetime, then the logical
-    ordinal -> physical mapping and Canonical-session composite adoption.
-    Two-lane slot/generation is the preferred target shape; aggregate ABI,
-    `/N`, `MirType::String`, and detached ValueIds are non-authority.
-18. OPEN parent/common-program branch after 17 acceptance:
+17. CLOSED caller-zero runtime substrate:
+    `TEXT-FORMAL-CALL-LEASE-RUNTIME-I0` atomically validates/pins one pair per
+    ExactText formal occurrence, defers retirement, and finishes through one
+    move-only lease-set; compiler, C entry, session, and production callers are
+    still zero.
+18. CURRENT caller-zero BoxCount:
+    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` implements the accepted
+    Completion-independent package mapping: one logical ExactText
+    ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes, with
+    logical `/N` separate from physical lane count. It transports the same row
+    through one combined Installed S6C loan and opens no call edge or residence.
+19a. OPEN route-free common-program branch after 18:
     `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` then closes the neutral exact
     disjoint `13 operations + If + Exit = 15 placements` envelope, followed by
     semantic-program co-seal,
     JoinSig transfer, bound segment input, boundary cleanup,
     `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then caller-zero
-    `LOOP-S6C-COMMON-V2-PRESESSION-I0`; no detached ingress/header/Completion
-19. OPEN sibling TextEq-route branch: strict scalar probe, tracked route
-    decision, canonical Trap owner, then only the selected route's lifecycle
-    demand; route admission is pre-session and actual residence is session-local
-20. OPEN fan-in structural/session coverage: Always, If, Exit, then the first
+    `LOOP-S6C-COMMON-V2-PRESESSION-I0`; detached ingress/header/Completion,
+    route policy, and session authority remain zero.
+19b. OPEN Text residence/execution branch after 18:
+    `TEXT-FORMAL-PINNED-RESIDENCE-D0/I0` closes exact call edge, pair-based
+    pinned UTF-8 roots, Canonical composite adoption, and Completion-backed
+    finish coverage; `LOOP-TEXT-SLICE-EXECUTION-D0/I0` then adds CP-correct
+    slices, one generic sequential code-point cursor, and inline byte equality.
+    Root/token separation, raw ptr/len escape, and per-iteration registry entry
+    are `NoSafeSlice`.
+19c. OPEN static route-admission branch after exact/meso/whole evidence:
+    strict scalar probe, pinned-slice/cursor probes, tracked route decision,
+    canonical Trap owner, then only the selected route's lifecycle demand;
+    runtime fallback/retry remains zero.
+20. OPEN fan-in structural/session coverage: the common envelope, selected
+    route, and admitted residence meet after Always, If, Exit, then the first
     common V2 physical session under `CanonicalSsaFunctionSessionV2`
 21. OPEN gated production selection: pre-cutover authority proof, then M10b
     activation and M11/M12 legacy retirement

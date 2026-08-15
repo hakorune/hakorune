@@ -1,28 +1,27 @@
 ---
-Status: active design stop
-Date: 2026-08-15
-Work mode: design_stop
-Classification: T2 BoxShape
+Status: accepted BoxShape; active caller-zero implementation brief
+Date: 2026-08-16
+Work mode: fast
+Classification: T2 BoxShape accepted; next T2 BoxCount is caller-zero
 Parent: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 ---
 
 # CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0
 
-The runtime can now atomically pin and retire a correct ExactText pair set.
-It does not prove which callable owns the pairs, how logical formals expand to
-physical lanes, or how caller and callee consume one mapping. This row fixes
-that compiler-owned signature shape before any MIR/session or production
-caller is opened.
+The runtime can atomically pin and retire a correct ExactText pair set. This
+Decision now fixes the compiler-owned callable signature as two explicit
+scalar lanes and keeps the later root residence, slice/cursor, backend
+projection, and route policy outside that signature.
 
 ## Six-line brief
 
 ```text
-Decision: keep logical ExactText as one formal/BindingRef and map it to two contiguous physical u64 lanes [slot,generation], while every ordinary scalar maps to one lane; logical /N and physical_formal_lane_count remain separate authorities.
+Decision: accept logical ExactText as one formal/BindingRef mapped to two contiguous physical u64 lanes [slot,generation], while every ordinary scalar maps to one lane; logical /N and physical_formal_lane_count remain separate authorities, and the 16-byte aggregate ABI is rejected.
 Source authority + canonical issuer: same-brand selected/batch callable identity plus the complete callable-parameter contract cohort are consumed by one new package-owned VerifiedCallablePhysicalSignatureCohortV1 issuer; it owns the total ordinal-to-lane map and never consumes Completion.
 Non-authority: /N suffix, MirType::String, FunctionSignature alone, raw Vec<ValueId>, runtime validator argument order, TextFormalBorrowV1, Completion/header rows, AST names, Recipe keys, Dynamic leases, fallback, and retry.
 Fail-fast boundary: reject missing/duplicate logical ordinal, lane gap/overlap/swap/out-of-range, foreign brand/target, logical/physical count conflation, detached pair lanes, legacy one-to-one skeleton/call projection, or any need to infer generation from a raw slot.
-Smallest next slice: census the selected/batch parameter cohort, skeleton/publication signature consumers, exact static-call target handoff, and Canonical formal adoption; then name one issuer plus one scoped combined Installed Port loan and one composite callee consumer, with code still zero.
-Non-claims: no signature code, call-site actualization, C/LLVM activation, session ValueId, entry acquire emission, Completion epilogue, Trap lowering, S6C/TextEq route, production caller, main integration, fallback, or retry.
+Smallest next slice: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0 issues and transports the complete caller-zero package mapping, including one combined Installed S6C loan; skeleton/call-edge/session consumers remain later rows.
+Non-claims: no call-site actualization, C/LLVM activation, session ValueId, entry acquire/root projection, Completion epilogue, Text slice/cursor, Trap lowering, TextEq route, production caller, main integration, fallback, or retry.
 ```
 
 ## Target product
@@ -63,7 +62,34 @@ logical formal ordinal order
 ```
 
 The product contains no `ValueId`, `BasicBlockId`, runtime token, source call
-site, Completion, or route policy.
+site, Completion, root residence, slice, pointer, length, or route policy.
+
+## Boundary after the signature
+
+The two-lane wire is the stable callable boundary, not the function-internal
+Text representation. Later owners must preserve this one-way split:
+
+```text
+ExactText logical formal
+  -> [slot, generation] physical signature
+  -> atomic callee-entry lease-set
+  -> non-splittable TextFormalCallResidenceSetV1
+       lease-set token + PinnedTextRootResidenceV1[]
+  -> session-branded TextSliceRefV1 / backend-local TextPlan
+  -> scoped backend ptr/len projection only
+```
+
+`PinnedTextRootResidenceV1` identifies one immutable valid-UTF-8 root while
+the enclosing residence set owns its lifetime. `TextSliceRefV1` is only a
+bounded range over such a root with a UTF-8/code-point boundary receipt.
+`TextPlan` remains the existing transient non-Box carrier. Raw `ptr,len` is a
+backend projection; it is never the lifetime owner, callable ABI, BindingRef,
+or independently storable common product.
+
+Production entry consumes the already-published two lanes directly. It must
+not call the probe issuer that reconstructs a generation from a raw handle.
+The landed `TextFormalBorrowV1` remains validator/test evidence, not the
+production call actualizer.
 
 ## Required owner fan-out
 
@@ -84,10 +110,11 @@ project lanes but cannot change their meaning or order.
 
 The future Installed Port must use one total exactly-once child loan. The
 current S6C child and Main static-child loans consume the same selected key on
-separate surfaces, so they cannot be composed by calling both. The D0 must
-name a combined S6C arm that lends selected input, ExactText contracts,
-package-owned S6C child, signature row, and exact call-edge view in one HRTB
-callback. Ordinary and Dynamic roles remain separate arms.
+separate surfaces, so they cannot be composed by calling both. The current I0
+adds one combined S6C arm that lends selected input, ExactText contracts,
+package-owned S6C child, and the signature row in one HRTB callback. The later
+exact call-edge issuer must consume/extend that same scoped arm rather than
+open a second selected-key loan. Ordinary and Dynamic roles remain separate.
 
 ## Canonical callee boundary
 
@@ -120,6 +147,7 @@ one future combined Installed Port seam named
 one future mapping-aware skeleton consumer named
 one future exact call-edge consumer named
 one future composite Canonical adoption consumer named
+root residence / slice / ptr-len dependency = 0 in signature issuer
 V1/Dynamic adapter = 0
 fallback/retry = 0
 production caller = 0
@@ -137,23 +165,49 @@ if any safe design requires Completion to issue formal lanes, `/N` or
 `FunctionSignature` to infer physical count, caller-supplied batch/key/header,
 separate slot/generation products, two independently consumable Installed
 loans for one S6C key, raw-handle generation recapture, a V2-to-V1 adapter,
-S6C-specific physicalizer, Builder/session inference, fallback, or retry.
+S6C-specific physicalizer, root/slice/pointer state in the signature product,
+Builder/session inference, fallback, or retry.
 
-## Ordered follow-on
-
-Only after this D0 is accepted:
+## Active implementation brief
 
 ```text
-CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-R0/I0
-  caller-zero package mapping and transport
-
-TEXT-FORMAL-EXACT-CALL-EDGE-D0/I0
-  post-install target/origin/signature co-seal
-
-TEXT-FORMAL-ENTRY-NORMAL-EXIT-EPILOGUE-D0/I0
-  Canonical entry lease-set ledger
-  Completion-backed DraftSeal finish coverage
+Change:
+  issue one non-Clone package-owned physical-signature cohort from the selected/batch identity and complete parameter-contract cohort; transport the same rows through install and one combined S6C Port loan; retire the independently consumable S6C-only signature gap.
+Contract:
+  ordinary scalar = one lane; ExactText = adjacent [slot,generation]; logical ordinal/BindingRef and physical lane indices are complete/disjoint; Completion, ValueId, residence, ptr/len, call edge, and route policy stay out.
+Done:
+  focused ordinary/ExactText/mixed positive rows; missing/duplicate/foreign/lane-gap-overlap-swap negatives; non-Clone/private-constructor/caller-zero guard; package README and ABI SSOT synchronized.
+Stop:
+  return to NoSafeSlice if the issuer needs header/Completion, raw function signature inference, detached lane products, two Port consumptions for one S6C key, or any Builder/runtime/production caller.
 ```
 
-The runtime lease I0 remains a substrate only; none of these rows may claim a
-production callable route until all three meet at one canonical session edge.
+## Ordered successor families
+
+After this accepted Decision:
+
+```text
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
+  caller-zero package mapping and transport
+
+TEXT-FORMAL-PINNED-RESIDENCE-D0/I0
+  ordered internal seams, not separate authority cards:
+    post-install exact target/origin/signature call edge
+    pair-based entry acquire + pinned UTF-8 root projection
+    Canonical composite formal/residence adoption
+    Completion-backed DraftSeal finish coverage
+
+LOOP-TEXT-SLICE-EXECUTION-D0/I0
+  ordered internal seams:
+    pinned root -> CP-correct transient slice
+    generic sequential code-point cursor
+    valid-UTF8 exact-equality -> inline byte equality
+
+LOOP-TEXT-ROUTE-PERF-R0
+  exact / meso / whole evidence
+  static admitted route; runtime fallback/retry = 0
+```
+
+These are two bounded implementation families after the signature row, not a
+new card per type. The runtime lease I0 remains a substrate only. No family
+may claim a production callable route until the common V2 envelope, admitted
+route, residence, Completion epilogue, and canonical session meet at one edge.

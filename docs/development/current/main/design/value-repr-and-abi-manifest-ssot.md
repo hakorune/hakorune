@@ -1,7 +1,7 @@
 ---
 Status: SSOT
-Decision: provisional
-Date: 2026-03-23
+Decision: provisional; callable ExactText two-lane boundary accepted
+Date: 2026-08-16
 Scope: deeper substrate capability workの前提として、runtime value representation と ABI manifest の正本を固定する。
 Related:
   - CURRENT_TASK.md
@@ -17,9 +17,28 @@ Related:
   - crates/nyash_kernel/src/plugin/value_codec/encode.rs
   - lang/src/vm/boxes/abi_adapter_registry.hako
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
+  - docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md
+  - docs/development/current/main/investigations/callable-text-formal-call-residence-d0-2026-08-15.md
 ---
 
 # Value Repr And ABI Manifest (SSOT)
+
+## Current Capsule
+
+- **Current decision:** one logical `ExactText` formal remains one
+  `BindingRef` and expands to adjacent scalar `u64` lanes `[slot,generation]`;
+  a by-value 16-byte aggregate is not the callable ABI.
+- **Current implementation status:** the pair validator and caller-zero atomic
+  lease-set/pending-retirement substrate are landed; the package-owned total
+  physical-signature mapping and every compiler consumer remain caller-zero.
+- **Next ordered task:** issue and transport one Completion-independent
+  package signature cohort from the complete parameter contracts.
+- **Production stop line:** no raw handle may recapture generation, no lane may
+  become a second logical value, and no pointer/length residence may cross the
+  callable boundary or detach from its lease set.
+- **Retirement finish line:** all admitted Text calls use the same signature
+  map, callee-entry lease-set, scoped root residence, and normal-exit finish;
+  legacy recapture, per-iteration registry entry, retry, and fallback are zero.
 
 ## Goal
 
@@ -196,28 +215,52 @@ legacy `h` / `hh` / `hi` / `hii` 表記は compatibility artifact として残�
 
 ## Callable Text Formal Wire (V1)
 
-`TextFormalBorrowV1` is a separate caller-entry contract from the generic
-`handle_borrowed_string` manifest class. It is a fixed 16-byte
-`{slot: u64, generation: u64}` pair issued only after the source-backed
-ExactText formal row and the same-branded callable header/Completion cohort are
-closed. The Rust runtime owns slot-generation and exact Text validation; the C
-header is only a fixed-width status projection.
+The callable boundary for one logical `ExactText` formal is two adjacent
+scalar lanes:
 
-The capability is borrowed/no-escape: the caller keeps the strong source owner
-alive through the callable completion, the callee does not retain/release or
-republish the formal, and Rust lends the payload only through a closure-scoped
-read borrow. Zero/out-of-range, missing, stale-generation, and non-Text
-payloads return the exhaustive V1 status set before body effects. They are not
-language Faults and never enter fallback/retry. Raw `HostHandle`,
-`ObjectIdentity`, `HomeDemand::Handle`, `MirType::String`, DynamicV2 lease
-tokens, `StringSpan`, and `TextReadSession` are not issuers for this row.
+```text
+logical ExactText / one BindingRef
+  -> slot:u64
+  -> generation:u64
+```
 
-The caller-zero implementation is owned by
-`src/runtime/text_formal_abi.rs` and exported as
-`hako_text_formal_validate_v1`; it does not open TextEq, Substring, Builder,
-MIR/CFG/SSA, or production selection. A future physical session must issue a
-separate residence product rather than extending this entry wire across loop
-iterations.
+The pair totals 16 bytes in the current fixed-width wire, but it is not one
+by-value ABI aggregate. Logical `/N` remains source arity;
+`physical_formal_lane_count` is a separate package-owned authority. The sole
+physical-signature issuer consumes the same-brand selected/batch identity and
+the complete parameter-contract cohort. It does not consume callable header,
+result, or Completion and contains no `ValueId`, pointer, length, lease token,
+or route policy.
+
+At callee entry, the Rust runtime owns exact pair validation, Text-class
+validation, generation identity, atomic invocation-wide pinning, pending
+retirement, and move-only finish. One pin is held per admitted ExactText formal
+occurrence; equal pairs in two formals count twice and each nested callee entry
+acquires its own set. All pairs preflight before any pin or body effect.
+Zero/out-of-range, missing, stale-generation, non-Text, retiring, and overflow
+reject without fallback/retry.
+
+The current `TextFormalBorrowV1` and `hako_text_formal_validate_v1` are
+caller-zero validator/probe surfaces. Production entry consumes the already
+published `[slot,generation]` lanes and must not recapture generation from a
+raw handle. `Raw HostHandle`, `ObjectIdentity`, `HomeDemand::Handle`,
+`MirType::String`, DynamicV2 lease tokens, `StringSpan`, `StringViewBox`, and
+`TextReadSession` are not signature or residence issuers.
+
+Function-internal residence is a later, separate product:
+
+```text
+atomic lease-set
+  -> non-splittable TextFormalCallResidenceSetV1
+       lease token + immutable UTF-8 root descriptors
+  -> session-branded TextSliceRef / backend-local TextPlan
+  -> scoped backend ptr/len projection
+```
+
+The root lifetime never belongs to raw `ptr,len`, and slices/plans never detach
+from the residence set or cross the stable callable ABI. TextEq, Substring,
+Builder, MIR/CFG/SSA, and production selection remain outside the current
+caller-zero runtime substrate.
 
 ## Demand Verb Reading
 
