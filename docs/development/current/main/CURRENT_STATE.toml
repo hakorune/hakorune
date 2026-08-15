@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0 and the normative String/Text equality-law reference slice are complete. The current caller-zero row issues one parent-retaining TextEq site binding; no ABI, route, residence, Builder, or physical session may open from a detached Recipe key or implementation inference."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, and LOOP-TEXT-EQ-SITE-CONTRACT-I0 are complete. The next design stop fixes the common V2 pre-session cohort and ABI boundary before any physical session can open."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "LOOP-TEXT-EQ-SITE-CONTRACT-I0"
-current_blocker_token = "NoSafeSlice if site binding detaches Recipe-local keys from the retained ingress cohort, re-pairs source/Recipe/If evidence, observes AST/MIR/names again, merges Completion/Tail, or issues ABI/route/residence/Builder/session meaning."
+current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+work_mode = "design_stop"
+current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_blocker_token = "NoSafeSlice if the installed package cannot retain one same-owner S6C cohort, if source-backed result/header ABI is missing, if 13 operations are mixed with If/Exit control, if 15-placement coverage is not closed, or if admission requires V2-to-V1 coercion, a detached S6C physicalizer, Builder inference, fallback, or retry."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (TextEq site-contract I0; S6C remains first adapter only)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, and the normative String/Text equality-law reference slice are closed. The current I0 must retain the whole ingress, issue one non-Clone per-site TextEq binding, and lend only narrow HRTB source/Recipe/control evidence. ABI, route admission, residence, result/header issuer, common V2 envelope, ReadyEntry/session, MIR/SSA/PHI, production selection, Dynamic live cutover, G3, and cleanup remain closed."
+active_lane = "Loop compiler frontier (common V2 pre-session D0; S6C remains first adapter only)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT exit hardening, ingress-surface R0, the normative String/Text equality-law reference slice, and the TextEq site-contract I0 are closed. The current design stop must name the Installed package/Port cohort issuer, source-backed result/header ABI, separate 13-operation and If/Exit control products, exact 15-placement envelope, and neutral canonical-session admission. No Builder, MIR/SSA/PHI, runtime route, ReadyEntry/session, production selection, Dynamic live cutover, G3, or cleanup may open before that boundary is closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/s6c-tex
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "s6c-text-eq-physical-contract-d0"
 latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
-latest_card_summary = "R0 and the reference-only equality-law I0 are closed: types.md §4.3 now owns exact Unicode scalar sequence equality for logical String/Text, including explicitly admitted StringBox-as-Text, while ordinary BoxRef identity remains unchanged. Current I0 is LOOP-TEXT-EQ-SITE-CONTRACT-I0: consume the parent ingress once and lend a narrow per-site HRTB view; physical ABI/route/session remain closed."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "LOOP-TEXT-EQ-SITE-CONTRACT-I0"
-next_execution_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card_summary = "Ingress R0, the normative equality-law reference, and site-contract I0 are closed. Current design stop is LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0: retain one Installed package cohort, name result/header ABI authority, separate 13 operations from If/Exit control, and close exact 15-placement V2 admission without V1 coercion or an S6C physicalizer."
+next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened.",
+  "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened. Pointer now advances to the common V2 pre-session design stop.",
   "2026-08-15: LANG-TEXT-EQUALITY-LAW-I0 made docs/reference/language/types.md §4.3 the sole String/Text equality owner: exact Unicode scalar sequence, case-sensitive, normalization-free, locale/collation-free; explicitly admitted StringBox-as-Text follows the law while ordinary non-Text BoxRef identity remains unchanged; no runtime/compiler behavior changed.",
   "2026-08-15: LOOP-TEXT-EQ-INGRESS-SURFACE-R0 implemented the caller-zero narrowing: semantic validation stays issuer-only, retained logical-output source seams provide projection-only sibling TextEq/Completion views, raw logical/role/context/source clones are removed, and the existing S6C/Loop focused gates remain green; no runtime or physical session owner was opened.",
   "2026-08-15: cross-layer MIRBuilder audit found no live P0 and kept LOOP-TEXT-EQ-INGRESS-SURFACE-R0 current, but tightened it to remove raw role/key reissuance, cloned source/Completion ledgers, broad/revalidating views, and detached Verified context construction. The later DAG now requires an InstalledNormalCallableSemanticPackageV1 port extension, a source-backed result/header issuer, 13-operation transport separate from If/Exit control, exact 15-placement coverage, site-free route policy, and no S6C physicalizer or V2-to-V1 adapter.",

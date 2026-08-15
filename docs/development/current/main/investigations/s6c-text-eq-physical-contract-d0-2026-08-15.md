@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0 and the language-law reference slice are closed, and the current bounded row is LOOP-TEXT-EQ-SITE-CONTRACT-I0
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, and site-contract I0 are closed; current design stop is LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 Date: 2026-08-15
-Work mode: fast
-Classification: closed T0 BoxShape + closed T2 language-law BoxShape; current T2 site-contract BoxCount; one later T2 common-V2 pre-session family
+Work mode: design_stop
+Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount; current T2 common-V2 pre-session BoxShape
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,12 +14,12 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: retain the whole caller-zero ingress and issue one non-Clone TextEq site binding that borrows the exact source/Recipe/control row and the normative TextEqualityLawV1 projection.
-Source authority + canonical issuer: the retained S6C Facts/Recipe/Join cohort is the only site authority; the site issuer consumes VerifiedS6CPrephysicalIngressV2 once and borrows the law from types.md §4.3.
-Non-authority: raw Recipe keys, AST/name/MIR re-observation, StringBox::equals, eq_vm, ordinary BoxRef identity, ABI, route, residence, Completion/Tail, fallback, and retry cannot issue a site.
-Fail-fast boundary: reject before any route or physical session if source Equal(Text,Text)->Bool, Recipe TextEq/If parity, or explicit StringBox-as-Text admission is missing or foreign.
-Smallest next slice: LOOP-TEXT-EQ-SITE-CONTRACT-I0, with a parent-retaining product and a narrow HRTB site view; no physical target or runtime caller.
-Non-claims: no ABI/wire, performance keeper, operand residence, Builder/session, production caller, fallback, retry, or legacy retirement.
+Decision: close the site-contract I0 and design one common V2 pre-session boundary owned by the Installed normal-callable package; no physical effect opens until the same package cohort carries S6C ingress, exact callable ABI, and complete V2 coverage.
+Source authority + canonical issuer: InstalledNormalCallableSemanticPackageV1 owns the installed catalog/batch/selection/parameter cohort; one NormalCallableSemanticPackagePortV1 extension must lend the same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
+Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
+Fail-fast boundary: before Builder/session, reject missing or foreign installed membership, result/header ABI, ingress identity, 13-operation evidence, separate If/Exit control, JoinSig transfers, exact 15-placement coverage, or neutral canonical-session admission.
+Smallest next slice: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0; freeze the owner graph, API shape, negative matrix, and NoSafeSlice boundaries only. No code or receipt is issued in design_stop.
+Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
 ## R0 implementation evidence
@@ -67,6 +67,32 @@ condition parity; the product remains caller-zero.
 The reusable `loop_physical_transfer_authority_guard.sh` now also checks the
 single issuer, non-splittable owned product, narrow view surface, and zero
 non-test callers.
+
+## Site-contract closeout and common-V2 handoff
+
+The site-contract row is closed at caller-zero. Its evidence is deliberately
+not an outer physical capability: the owned product retains the complete
+`VerifiedS6CPrephysicalIngressV2` cohort, while `LoopTextEqSiteRefV1` lends
+only source `Equal`, Recipe `TextEq`, and the exact If condition. The passive
+`TextEqualityLawV1` is a projection of `types.md` §4.3. No source/Recipe key,
+Completion/Tail row, ABI, route, residence, Builder, or physical ID is stored
+or issued. Focused site binding and all S6C/Loop guards are green, and the
+non-test caller census remains zero.
+
+The pointer therefore moves to the next T2 design stop:
+
+```text
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+```
+
+This is a design-only boundary. It must decide, without implementation, one
+same-owner Installed-package cohort for the S6C ingress, a source-backed
+function result/header ABI issuer, a V2 complete envelope with exactly
+`13 operations + 1 If + 1 Exit = 15 placements`, and a neutral admission into
+the canonical CFG/Binding-SSA/Phi/Completion session. The 13 operation rows
+must remain separate from Recipe/JoinSig/Layout-owned If/Exit control. If any
+of these issuers is missing, the row stays `NoSafeSlice` and no I0 receipt is
+issued.
 
 ## Corrected owner graph
 
@@ -464,7 +490,9 @@ writers.
 [closed] LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
     -> [closed] LOOP-TEXT-EQ-INGRESS-SURFACE-R0
     -> [closed] LANG-TEXT-EQUALITY-LAW-D0/I0
-    -> [current] LOOP-TEXT-EQ-SITE-CONTRACT-I0
+    -> [closed] LOOP-TEXT-EQ-SITE-CONTRACT-I0
+    -> [current] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+       (design only; result/header issuer and V2 envelope are unresolved)
     -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
     -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
     -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
@@ -532,11 +560,12 @@ creating an S6C physicalizer, fallback, retry, Fault edge, or second Return writ
 
 ## Evidence classification
 
-This corrected taskization is based on repository source, six read-only worker
-audits, and focused local evidence at `63d96826de`: S6C ingress `2/2`, S6C
-Recipe/logical output `8/8`, Loop pre-cutover guard green, physical-transfer
-guard green, and a clean worktree. S6C production callers remain zero. At the
-same snapshot, `main` is 403 commits behind the working branch; main integration
-is not claimed. No law edit, ABI, Trap owner, route keeper, V2 prepared program,
-physical caller, benchmark result, latest-HEAD integration, or production
-cutover is claimed. Current R0 is the only executable row.
+This corrected taskization is based on repository source, read-only worker
+audits, and focused local evidence at the site-contract commit: S6C ingress
+and Recipe/logical output focused suites are green, the site binding focused
+test is green, Loop pre-cutover and physical-transfer guards are green, and
+the worktree is clean before this pointer handoff. S6C production callers
+remain zero. Main integration, TextEq ABI/Trap owner, route keeper, V2
+prepared program, physical caller, benchmark result, latest-HEAD integration,
+and production cutover are not claimed. The current D0 is design_stop; no
+implementation row is open.
