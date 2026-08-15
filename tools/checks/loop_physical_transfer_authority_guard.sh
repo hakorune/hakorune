@@ -32,6 +32,9 @@ COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_s
 S6C_CHILD="$ROOT_DIR/src/mir/normal_callable_semantic_package/s6c_child.rs"
 TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
 TEXT_FORMAL_HOST="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
+TEXT_FORMAL_CALL_LIFETIME="$ROOT_DIR/src/runtime/host_handles/call_lifetime.rs"
+TEXT_FORMAL_CALL_FACADE="$ROOT_DIR/src/runtime/text_formal_call_lease.rs"
+TEXT_FORMAL_HOST_README="$ROOT_DIR/src/runtime/host_handles/README.md"
 TEXT_FORMAL_HEADER="$ROOT_DIR/include/nyrt_text_formal_v1.h"
 TEXT_FORMAL_EXPORT="$ROOT_DIR/crates/nyash_kernel/src/exports/text_formal.rs"
 
@@ -46,6 +49,8 @@ guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN
 guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD"
 guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
   "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
+guard_require_files "$TAG" "$TEXT_FORMAL_CALL_LIFETIME" "$TEXT_FORMAL_CALL_FACADE" \
+  "$TEXT_FORMAL_HOST_README"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -129,6 +134,21 @@ guard_expect_fixed_in_file "$TAG" \
   "with_text_formal_wire" "$TEXT_FORMAL_HOST" \
   "wire validation must carry the published generation into the slot-table owner"
 guard_expect_fixed_in_file "$TAG" \
+  "acquire_text_formal_call_lease_set_v1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "Text formal call pins must have one atomic lease-set registry owner"
+guard_expect_fixed_in_file "$TAG" \
+  "request_slot_retirement_v1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "raw and generation-matched Text drops must share one pin-aware retirement terminal"
+guard_expect_fixed_in_file "$TAG" \
+  "#[must_use = \"a Text formal call lease set must be explicitly finished\"]" "$TEXT_FORMAL_CALL_FACADE" \
+  "the caller-zero Text formal lease token must require explicit consuming finish"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(crate) fn acquire_text_formal_call_leases_v1" "$TEXT_FORMAL_CALL_FACADE" \
+  "the caller-zero Text formal lease façade must expose one whole-set acquisition"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(in crate::runtime) struct RegistryTextFormalCallLeaseSetV1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "the registry handoff must retain one narrow move-only lease-set carrier"
+guard_expect_fixed_in_file "$TAG" \
   "_Static_assert(sizeof(NyrtTextFormalBorrowV1) == 16" "$TEXT_FORMAL_HEADER" \
   "Text formal C wire width must remain fixed"
 guard_expect_fixed_in_file "$TAG" \
@@ -143,6 +163,36 @@ for forbidden in \
 do
   if rg -n -F -- "$forbidden" "$TEXT_FORMAL_ABI" >/dev/null 2>&1; then
     guard_fail "$TAG" "Text formal validator imports a non-authority route: $forbidden"
+  fi
+done
+
+text_formal_lease_production_callers="$(rg -l --glob '*.rs' \
+  -F 'acquire_text_formal_call_leases_v1(' "$ROOT_DIR/src" \
+  | grep -v '/runtime/text_formal_call_lease.rs' \
+  | grep -v '/runtime/text_formal_call_lease_tests.rs' || true)"
+if [[ -n "$text_formal_lease_production_callers" ]]; then
+  guard_fail "$TAG" "caller-zero Text formal lease façade gained a production caller: $text_formal_lease_production_callers"
+fi
+text_formal_lease_raw_callers="$(rg -l --glob '*.rs' \
+  -e 'acquire_text_formal_call_lease_set_v1\(' \
+  -e 'finish_text_formal_call_lease_set_v1\(' "$ROOT_DIR/src" \
+  | grep -v '/runtime/host_handles/call_lifetime.rs' \
+  | grep -v '/runtime/text_formal_call_lease.rs' \
+  | grep -v '_tests.rs' || true)"
+if [[ -n "$text_formal_lease_raw_callers" ]]; then
+  guard_fail "$TAG" "raw Text formal lease registry seam gained a production caller: $text_formal_lease_raw_callers"
+fi
+registry_token_declaration="$(rg -B1 -F \
+  'struct RegistryTextFormalCallLeaseSetV1' "$TEXT_FORMAL_CALL_LIFETIME")"
+if printf '%s\n' "$registry_token_declaration" | rg -n 'Clone|Copy' >/dev/null 2>&1; then
+  guard_fail "$TAG" "raw Text formal lease registry carrier became duplicable"
+fi
+for forbidden in \
+  'impl Clone for TextFormalCallLeaseSetTokenV1' \
+  'impl Copy for TextFormalCallLeaseSetTokenV1'
+do
+  if rg -n -F -- "$forbidden" "$TEXT_FORMAL_CALL_FACADE" >/dev/null 2>&1; then
+    guard_fail "$TAG" "Text formal lease token became duplicable: $forbidden"
   fi
 done
 
@@ -290,7 +340,8 @@ for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_D
   "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
   "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
   "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
-  "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_EXPORT"; do
+  "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "$TEXT_FORMAL_CALL_FACADE" "$TEXT_FORMAL_EXPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

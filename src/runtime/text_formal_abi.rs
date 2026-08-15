@@ -47,7 +47,24 @@ pub struct TextFormalBorrowV1 {
     generation: u64,
 }
 
+/// Runtime-private pair projection used only by the call-lifetime owner.
+///
+/// This is not a semantic formal, source binding, or public ABI surface.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct TextFormalWirePairV1 {
+    pub(super) slot: u64,
+    pub(super) generation: u64,
+}
+
 impl TextFormalBorrowV1 {
+    #[inline(always)]
+    pub(super) const fn wire_pair(&self) -> TextFormalWirePairV1 {
+        TextFormalWirePairV1 {
+            slot: self.slot,
+            generation: self.generation,
+        }
+    }
+
     /// Validate the captured slot/generation once and consume the capability.
     #[inline(always)]
     pub fn validate(self) -> Result<(), TextFormalBorrowStatusV1> {

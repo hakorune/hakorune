@@ -130,16 +130,32 @@ pub fn consume_end_authorized(token: NonZeroU64) -> Result<(), LeaseConsumeRejec
 mod tests {
     use super::*;
 
+    fn with_lifo_policy<F: FnOnce()>(f: F) {
+        let _guard = host_handles::test_host_handle_policy_lock()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let previous = std::env::var("NYASH_HOST_HANDLE_ALLOC_POLICY").ok();
+        std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "lifo");
+        f();
+        if let Some(value) = previous {
+            std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", value);
+        } else {
+            std::env::remove_var("NYASH_HOST_HANDLE_ALLOC_POLICY");
+        }
+    }
+
     #[test]
     fn lease_is_distinct_and_one_shot() {
-        let handle = host_handles::to_handle_text("lease");
-        let token = issue_end_authorized(handle).expect("live text handle admits");
-        assert_ne!(token.get(), handle);
-        assert_eq!(consume_end_authorized(token), Ok(()));
-        assert_eq!(
-            consume_end_authorized(token),
-            Err(LeaseConsumeRejectV1::UnknownOrAlreadyConsumed)
-        );
+        with_lifo_policy(|| {
+            let handle = host_handles::to_handle_text("lease");
+            let token = issue_end_authorized(handle).expect("live text handle admits");
+            assert_ne!(token.get(), handle);
+            assert_eq!(consume_end_authorized(token), Ok(()));
+            assert_eq!(
+                consume_end_authorized(token),
+                Err(LeaseConsumeRejectV1::UnknownOrAlreadyConsumed)
+            );
+        });
     }
 
     #[test]
@@ -157,72 +173,64 @@ mod tests {
 
     #[test]
     fn token_collision_preserves_existing_lease() {
-        let first = host_handles::to_handle_text("first");
-        let second = host_handles::to_handle_text("second");
-        let first_identity =
-            host_handles::capture_text_lease_identity(first).expect("first identity");
-        let second_identity =
-            host_handles::capture_text_lease_identity(second).expect("second identity");
-        let token = NonZeroU64::new(TOKEN_BRAND | 777).expect("branded token");
-        let mut table = HashMap::new();
+        with_lifo_policy(|| {
+            let first = host_handles::to_handle_text("first");
+            let second = host_handles::to_handle_text("second");
+            let first_identity =
+                host_handles::capture_text_lease_identity(first).expect("first identity");
+            let second_identity =
+                host_handles::capture_text_lease_identity(second).expect("second identity");
+            let token = NonZeroU64::new(TOKEN_BRAND | 777).expect("branded token");
+            let mut table = HashMap::new();
 
-        assert!(insert_lease_in_table(&mut table, token, first_identity).is_ok());
-        let (error, second_identity) =
-            insert_lease_in_table(&mut table, token, second_identity).expect_err("collision");
-        assert_eq!(error, LeaseIssueRejectV1::Exhausted);
-        assert_eq!(table.len(), 1);
-        assert_eq!(
-            host_handles::with_str_handle_ready(first, str::to_owned),
-            Some("first".to_owned())
-        );
-        assert_eq!(
-            host_handles::with_str_handle_ready(second, str::to_owned),
-            Some("second".to_owned())
-        );
-        let preserved = table.remove(&token).expect("original lease preserved");
-        assert!(host_handles::drop_if_lease_identity_matches(preserved));
-        assert!(host_handles::drop_if_lease_identity_matches(
-            second_identity
-        ));
-        assert_eq!(
-            host_handles::with_str_handle_ready(first, str::to_owned),
-            None
-        );
-        assert_eq!(
-            host_handles::with_str_handle_ready(second, str::to_owned),
-            None
-        );
+            assert!(insert_lease_in_table(&mut table, token, first_identity).is_ok());
+            let (error, second_identity) =
+                insert_lease_in_table(&mut table, token, second_identity).expect_err("collision");
+            assert_eq!(error, LeaseIssueRejectV1::Exhausted);
+            assert_eq!(table.len(), 1);
+            assert_eq!(
+                host_handles::with_str_handle_ready(first, str::to_owned),
+                Some("first".to_owned())
+            );
+            assert_eq!(
+                host_handles::with_str_handle_ready(second, str::to_owned),
+                Some("second".to_owned())
+            );
+            let preserved = table.remove(&token).expect("original lease preserved");
+            assert!(host_handles::drop_if_lease_identity_matches(preserved));
+            assert!(host_handles::drop_if_lease_identity_matches(
+                second_identity
+            ));
+            assert_eq!(
+                host_handles::with_str_handle_ready(first, str::to_owned),
+                None
+            );
+            assert_eq!(
+                host_handles::with_str_handle_ready(second, str::to_owned),
+                None
+            );
+        });
     }
 
     #[test]
     fn stale_end_cannot_drop_lifo_replacement() {
-        let _guard = host_handles::test_host_handle_policy_lock()
-            .lock()
-            .expect("host handle policy lock");
-        let previous = std::env::var("NYASH_HOST_HANDLE_ALLOC_POLICY").ok();
-        std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "lifo");
+        with_lifo_policy(|| {
+            let published = publish_end_authorized_text("leased").expect("publish lease");
+            let old_handle = published.handle();
+            let token = published.token();
+            host_handles::drop_handle(old_handle);
+            let replacement = host_handles::to_handle_text("replacement");
+            assert_eq!(replacement, old_handle);
 
-        let published = publish_end_authorized_text("leased").expect("publish lease");
-        let old_handle = published.handle();
-        let token = published.token();
-        host_handles::drop_handle(old_handle);
-        let replacement = host_handles::to_handle_text("replacement");
-        assert_eq!(replacement, old_handle);
-
-        assert_eq!(
-            consume_end_authorized(token),
-            Err(LeaseConsumeRejectV1::StaleHandleIdentity)
-        );
-        assert_eq!(
-            host_handles::with_str_handle_ready(replacement, str::to_owned),
-            Some("replacement".to_owned())
-        );
-        host_handles::drop_handle(replacement);
-
-        if let Some(value) = previous {
-            std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", value);
-        } else {
-            std::env::remove_var("NYASH_HOST_HANDLE_ALLOC_POLICY");
-        }
+            assert_eq!(
+                consume_end_authorized(token),
+                Err(LeaseConsumeRejectV1::StaleHandleIdentity)
+            );
+            assert_eq!(
+                host_handles::with_str_handle_ready(replacement, str::to_owned),
+                Some("replacement".to_owned())
+            );
+            host_handles::drop_handle(replacement);
+        });
     }
 }

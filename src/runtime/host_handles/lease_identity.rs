@@ -38,7 +38,7 @@ impl HostHandleLeaseIdentityV1 {
 }
 
 #[inline(always)]
-fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
+pub(super) fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
     match payload {
         // StableText is the registry's own canonical text payload.
         HandlePayload::StableText(text) => Some(text.as_str()),
@@ -128,27 +128,6 @@ impl Registry {
             handle: h,
             generation,
         })
-    }
-
-    #[inline(always)]
-    fn drop_if_lease_identity_matches(&self, identity: HostHandleLeaseIdentityV1) -> bool {
-        let mut table = self.table.write();
-        let Ok(idx) = usize::try_from(identity.handle) else {
-            return false;
-        };
-        let matches = table.lease_generations.get(idx).copied() == Some(identity.generation)
-            && table.slots.get(idx).is_some_and(Option::is_some);
-        if !matches {
-            return false;
-        }
-        table.slots[idx] = None;
-        super::host_handles_policy::recycle_handle(
-            self.alloc_policy_mode(),
-            &mut table.free,
-            identity.handle,
-        );
-        super::DROP_EPOCH.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        true
     }
 }
 

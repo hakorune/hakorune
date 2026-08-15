@@ -19,25 +19,30 @@ fn with_policy<F: FnOnce()>(policy: &str, f: F) {
 
 #[test]
 fn live_stringbox_lends_exact_text_and_consumes_once() {
-    let handle = host_handles::to_handle_text("hello");
-    let borrow = issue_text_formal_borrow_v1(handle).expect("formal Text");
-    assert_eq!(borrow.with_text(str::to_owned).expect("borrow"), "hello");
-    host_handles::drop_handle(handle);
+    with_policy("lifo", || {
+        let handle = host_handles::to_handle_text("hello");
+        let borrow = issue_text_formal_borrow_v1(handle).expect("formal Text");
+        assert_eq!(borrow.with_text(str::to_owned).expect("borrow"), "hello");
+        host_handles::drop_handle(handle);
+    });
 }
 
 #[test]
 fn stable_stringbox_is_admitted_but_integer_is_not() {
-    let handle = host_handles::to_handle_arc(Arc::new(StringBox::new("boxed")));
-    let borrow = issue_text_formal_borrow_v1(handle).expect("StringBox formal Text");
-    assert_eq!(borrow.with_text(str::to_owned).expect("borrow"), "boxed");
-    host_handles::drop_handle(handle);
+    with_policy("lifo", || {
+        let handle = host_handles::to_handle_arc(Arc::new(StringBox::new("boxed")));
+        let borrow = issue_text_formal_borrow_v1(handle).expect("StringBox formal Text");
+        assert_eq!(borrow.with_text(str::to_owned).expect("borrow"), "boxed");
+        host_handles::drop_handle(handle);
 
-    let integer = host_handles::to_handle_arc(Arc::new(IntegerBox::new(7)) as Arc<dyn NyashBox>);
-    assert!(matches!(
-        issue_text_formal_borrow_v1(integer),
-        Err(TextFormalBorrowStatusV1::NonTextPayload)
-    ));
-    host_handles::drop_handle(integer);
+        let integer =
+            host_handles::to_handle_arc(Arc::new(IntegerBox::new(7)) as Arc<dyn NyashBox>);
+        assert!(matches!(
+            issue_text_formal_borrow_v1(integer),
+            Err(TextFormalBorrowStatusV1::NonTextPayload)
+        ));
+        host_handles::drop_handle(integer);
+    });
 }
 
 #[test]

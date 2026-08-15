@@ -1,5 +1,5 @@
 ---
-Status: active caller-zero implementation row
+Status: closed caller-zero implementation row
 Date: 2026-08-15
 Work mode: fast
 Classification: T2 BoxCount; runtime-only
@@ -148,3 +148,23 @@ lease authority, raw generation recapture, public pin mutation, token
 Clone/Copy, implicit Drop finish, pending-slot reuse, multiple retirement
 helpers, early `DROP_EPOCH`, compiler/source/Completion inputs, fallback, or
 retry.
+
+## Closeout evidence
+
+```text
+runtime call-lifetime focused       17/17 green
+opaque facade focused                2/2 green
+legacy host-handles regression      14/14 green
+DynamicV2 lease regression           4/4 green
+TextFormalBorrow regression          5/5 green
+cargo check                           green
+cargo fmt --all -- --check            green
+Loop transfer authority guard        green
+current-state pointer guard           green
+git diff --check                      green
+```
+
+The registry carrier is move-only and visible only inside `runtime`; the
+crate-facing façade is the only production-shaped acquire/finish surface.
+Both surfaces remain caller-zero outside their owner/test modules. No C,
+compiler, session, Completion, TextEq, or production edge was opened.

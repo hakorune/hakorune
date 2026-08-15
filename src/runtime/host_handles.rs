@@ -9,6 +9,8 @@
 #[path = "host_handles/perf_observe.rs"]
 mod perf_observe;
 pub use perf_observe::PerfObserveSnapshot;
+#[path = "host_handles/call_lifetime.rs"]
+mod call_lifetime;
 #[path = "host_handles/lease_identity.rs"]
 mod lease_identity;
 #[path = "host_handles/text_read.rs"]
@@ -31,6 +33,11 @@ use super::object_identity::{
 };
 use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
+pub(super) use call_lifetime::{
+    acquire_text_formal_call_lease_set_v1, finish_text_formal_call_lease_set_v1,
+    RegistryTextFormalCallLeaseSetV1,
+};
+pub(crate) use call_lifetime::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFinishRejectV1};
 pub(crate) use lease_identity::{
     capture_text_formal_pair, capture_text_lease_identity, drop_if_lease_identity_matches,
     to_handle_text_with_lease_identity, with_text_formal_wire, HostHandleLeaseIdentityV1,
@@ -139,6 +146,8 @@ struct SlotTable {
     free: Vec<u64>,
     // Per-slot lease generation. Zero is reserved for an unpublished slot.
     lease_generations: Vec<u64>,
+    // Call-scoped Text formal pins and opaque lease-set records.
+    call_lifetime: call_lifetime::CallLifetimeTableV1,
 }
 
 struct Registry {
@@ -203,6 +212,7 @@ impl Registry {
                 slots,
                 free: Vec::with_capacity(HOST_HANDLE_INITIAL_FREE),
                 lease_generations: vec![0],
+                call_lifetime: call_lifetime::CallLifetimeTableV1::new(),
             }),
             #[cfg(not(test))]
             alloc_policy_mode,
@@ -252,6 +262,7 @@ impl Registry {
             let generation = next_lease_generation(table.lease_generations[idx]);
             table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
+            table.call_lifetime.activate_slot_or_panic(idx);
             return (h, generation);
         }
 
@@ -262,6 +273,7 @@ impl Registry {
         if idx == table.slots.len() {
             table.slots.push(Some(payload));
             table.lease_generations.push(generation);
+            table.call_lifetime.activate_slot_or_panic(idx);
         } else {
             ensure_slot_vacant_or_panic(
                 &table,
@@ -271,6 +283,7 @@ impl Registry {
             );
             table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
+            table.call_lifetime.activate_slot_or_panic(idx);
         }
         (h, generation)
     }
@@ -434,23 +447,6 @@ impl Registry {
                 Some(payload.identity_descriptor(identity))
             })
             .collect()
-    }
-    #[inline(always)]
-    fn drop_handle(&self, h: u64) {
-        let mut table = self.table.write();
-        let removed = if let Ok(idx) = usize::try_from(h) {
-            table
-                .slots
-                .get_mut(idx)
-                .and_then(|slot| slot.take())
-                .is_some()
-        } else {
-            false
-        };
-        if removed {
-            host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
-            DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
-        }
     }
 }
 
