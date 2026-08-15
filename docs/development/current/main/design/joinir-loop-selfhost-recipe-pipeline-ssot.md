@@ -17,6 +17,24 @@ Related:
 
 # JoinIR Loop Selfhost-Ready Recipe Pipeline
 
+## Current Capsule
+
+- **Current decision:** one recursive Loop Recipe algebra owns logical Loop
+  meaning through exact V1/V2 projections; neither projection authorizes a
+  second physicalizer or V2-to-V1 coercion.
+- **Current implementation status:** source-to-Recipe S6C products are
+  caller-zero and move-only, while their ingress projection and the common V2
+  pre-session/session boundary still require the bounded rows below.
+- **Next ordered task:** remove second ingress projections first, then close
+  the existing semantic-program/transfer prerequisites before the common V2
+  transport and S6C package rows.
+- **Production stop line:** no V2 leaf, Builder session, selector, or
+  publication may open without exact callable ABI and one complete
+  Recipe/JoinSig-bound program envelope.
+- **Retirement finish line:** every admitted Loop family reaches one common
+  semantic-program, layout, canonical SSA session, and publication path, with
+  old route-local owners at caller zero.
+
 ## Decision
 
 Choose the clean final architecture rather than the shortest wrapper around the
@@ -26,14 +44,17 @@ Choose the clean final architecture rather than the shortest wrapper around the
 
 The number `19` belongs only to the legacy scheduler's ingress/coverage matrix.
 It is not the number of portable Recipe variants, semantic Loop kinds, or
-physicalizers. The canonical target has one recursive semantic algebra:
+physicalizers. The canonical target has one recursive semantic algebra with
+versioned schema projections:
 
 ```text
 19 legacy ingress rows
   -> typed source/family observation and one policy winner
-  -> one recursive LoopRecipeV1 algebra
+  -> one recursive LoopRecipe algebra
        LoopNode(condition = Always | Predicate)
        Item = Operation | If | Loop | Exit
+       V1 projection = I64/Bool/Unit operation vocabulary
+       V2 projection = adds Text/CallSlot/TextEq without V2-to-V1 coercion
   -> one verifier / JoinSig elaborator / physicalizer chain
 ```
 
@@ -43,7 +64,8 @@ recurses through the same `Loop` item, while `break`/`continue`/`return` use
 the common `Exit` item. `IfPhiJoin` contributes shared If/join obligations; it
 is not a Loop Recipe kind. M7 and M8 therefore close adapter coverage into
 this one algebra. They must not grow a parallel enum of completed source
-patterns.
+patterns. V1 and V2 are versioned type/wire projections over that algebra, not
+two physicalizers or permission to squeeze V2 operations through V1 types.
 
 ## M8 S6A variable-accum recurrence design (2026-08-08)
 
@@ -1565,6 +1587,57 @@ Stop:
   The no-hostbridge claim covers the portable producer subtree, not unrelated
   compatibility providers elsewhere in the canonical builder.
 
+### S6C/common-V2 pre-session correction (2026-08-15)
+
+The S6C source-to-Recipe spine is caller-zero and move-only through its
+prephysical ingress, but that does not yet make it a common MIRBuilder input.
+The landed recursive physicalizer is test-only and V1-shaped; its demand and
+dispatcher cannot consume V2 Text, `CallSlot`, or `TextEq`, and its V1 layout
+does not admit S6C `If`/`Exit`. A TextEq route leaf is therefore never allowed
+to jump directly into a function session.
+
+One T2 task family closes the missing boundary without creating an S6C route:
+
+```text
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+
+VerifiedNormalCallableSemanticPackageV1
+  -> install consumes the verified product
+InstalledNormalCallableSemanticPackageV1
+  -> NormalCallableSemanticPackagePortV1 target extension
+       exact lowering input + parameter ABI
+       exact result/header ABI issuer required by D0
+       retained S6C ingress/site/corridor/Completion
+       complete Loop V2 envelope
+       site-free admitted TextEq route policy
+  -> PreparedS6CPhysicalPackageV1<'loan>
+  -> PreparedLoopOperationProgramV2
+       exact 13 operations only
+  -> separate Recipe/JoinSig/Layout-bound If + Exit control
+  -> exact 15-placement envelope coverage
+  -> neutral canonical-session admission
+```
+
+D0 names or rejects the sole installed-port and exact result/header issuer,
+the complete V2 envelope/preflight contract, and fail-fast matrix. The
+transport R0 and S6C package I0 later separate the common V2 BoxShape from the
+bounded S6C BoxCount. The package is scoped: it borrows the installed
+Normal-package-owned source cohort and owns only a site-free route policy plus
+complete preflight ledger.
+It does not detach Recipe keys, source sites, TextEq site/corridor, or
+Completion into independently pairable products.
+
+The V2 operation program covers exactly 13 operation items. The one `If`, one
+`Exit`, and JoinSig-issued transfers stay in a separate Recipe/JoinSig/Layout
+control subproduct; a passive envelope receipt proves exact 15-placement
+coverage before any leaf emission. A V2-to-V1 adapter, Selected-Dynamic fixed
+cursor, standalone TextEq scheduler, or S6C physicalizer is `NoSafeSlice`.
+The existing canonical CFG, Binding SSA, Phi, Completion, finish, DraftSeal,
+discard, and publication owners remain unchanged. Runtime
+route/lifecycle/residence and production selection stay later rows.
+
 ### M10 pre-cutover authority seal — caller-zero only
 
 M8/M9 close logical coverage and parity. They do not by themselves authorize
@@ -1592,7 +1665,25 @@ this shallow ordered series:
    - finish with Callable/G0 parity plus missing, duplicate, foreign, and
      wrong-target negatives. This is one BoxShape Refactor Series; accepted
      source shapes do not change inside it.
-3. `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0`,
+3. `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0`, then
+   `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0`
+   - make V1/V2 consumers borrow the one ordered source/execution ledger;
+   - keep callable ABI, Completion, and Tail outside the common inner Loop
+     physicalizer before adding the V2 package seam.
+4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`
+   - use the installed Normal callable package as the sole outer source cohort;
+   - name the missing result/header ABI issuer, exact envelope/control split,
+     installed-port signature, and fail-fast matrix;
+   - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
+5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
+   `LOOP-S6C-COMMON-V2-PRESESSION-I0`
+   - transport exactly 13 operations separately from the Recipe/JoinSig/Layout
+     If+Exit control subproduct and prove the exact 15-placement envelope;
+   - issue one scoped S6C package and expose only neutral canonical-session
+     admission;
+   - keep Builder/session, runtime residence, production caller, V2-to-V1
+     conversion, Selected-Dynamic cursor reuse, and S6C physicalizer at zero.
+6. `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0`,
    `LOOP-PHYSICAL-IF-COVERAGE-I0`, then
    `LOOP-PHYSICAL-EXIT-COVERAGE-I0`
    - each is a separate BoxCount commit after transfer authority is singular;
@@ -1601,7 +1692,12 @@ this shallow ordered series:
    - `Exit` includes the exact item-keyed Break/Continue/Return obligations
      required by the admitted M8 corpus. Unsupported families remain typed
      fail-fast until their own row lands.
-4. `LOOP-PRECUTOVER-AUTHORITY-G0`
+7. `LOOP-COMMON-V2-PHYSICAL-SESSION-I0`
+   - consume the scoped V2 package only after the required structural
+     coverage rows have landed;
+   - reuse the one canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session
+     and keep S6C as the first adapter, never a physicalizer owner.
+8. `LOOP-PRECUTOVER-AUTHORITY-G0`
    - prove every admitted all-19 fixture enters one semantic program, one
      JoinSig-authorized layout, one canonical CFG/Binding-SSA path, and one
      whole-session failure boundary;

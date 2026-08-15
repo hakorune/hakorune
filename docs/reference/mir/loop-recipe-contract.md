@@ -142,20 +142,30 @@ production caller; physical selection remains closed. The existing MIR/name/fall
 
 The first Builder-free physical handoff is a single
 `VerifiedS6CPrephysicalIngressV2` issued from the retained S6C logical output.
-The issuer consumes that output by value and lends only a private HRTB façade;
-callers cannot supply a second context, effect, continuation, Facts, Recipe, or
-JoinSig. The façade records exact `15 = 13 operations + If + Exit` placement,
-thirteen role-specific source/execution rows, the two source anchors represented
-by the shared body-index read, source-bound Length/Substring contracts, and the
+The issuer consumes that output by value and retains the original non-`Clone`
+cohort; callers cannot supply a second Facts, Recipe, JoinSig, or Completion.
+Its landed seal checks exact `15 = 13 operations + If + Exit` placement,
+source-anchor multiplicity, source-bound Length/Substring contracts, and the
 existing V2 branch/Return-summary/Backedge/After transfer.
+
+A later API audit found that the current façade is not yet the final SSOT-safe
+consumer surface: it rebuilds a raw role-to-key table, retains cloned
+source/Completion fields, and re-enters logical validation on borrow. The
+bounded `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` therefore removes those second
+projections and exposes independent, projection-only HRTB views for TextEq,
+the Substring-to-TextEq corridor, Completion, and inputs/carrier. Until that
+row closes, anchor counts and broad logical rows are diagnostics, not physical
+authority.
 
 Authority categories remain separate: Facts owns `Call=2` and `Write=1`
 body effects, CoreMethod contracts own Home/ABI/PureRead, and V2 schema owns
 execution class (`11` non-faulting, `0` fault-before-normal, `2`
 externally-bound outcomes). No TextEq physical target is inferred here, and no
 ReadyEntry, host/session, Builder/MIR/CFG/SSA/PHI, selector, fallback, retry,
-or production caller is opened. The next design stop is
-`S6C-TEXT-EQ-PHYSICAL-CONTRACT-D0`.
+or production caller is opened. The accepted TextEq architecture keeps route
+policy site-free and requires later common semantic-program/transfer rows plus
+an installed Normal-package port with an exact source-backed result/header ABI
+before any common V2 session can open.
 
 ## Accepted Dynamic value boundary — V2 only
 

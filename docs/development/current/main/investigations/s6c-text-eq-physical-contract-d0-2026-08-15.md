@@ -1,8 +1,8 @@
 ---
-Status: accepted corrected TextEq architecture; current bounded row is ingress-surface R0
+Status: accepted audit-hardened TextEq architecture; current bounded row is ingress-surface R0
 Date: 2026-08-15
 Work mode: fast
-Classification: closed T2 BoxShape followed by one T0 BoxShape
+Classification: closed T2 BoxShape; current T0 BoxShape; one later T2 common-V2 pre-session family
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -14,11 +14,11 @@ not a second Recipe family or physicalizer.
 ## Current six-line brief
 
 ```text
-Decision: split the landed S6C ingress and replace its broad logical escape with independent TextEq, Substring-to-TextEq corridor, Completion, and input/carrier borrow views.
-Source authority + canonical issuer: VerifiedS6CPrephysicalIngressV2 retains the same non-Clone Facts/Recipe/Join/Completion product; validation stays in its sole issuer and views only project retained evidence.
-Non-authority: R0 issues no equality law, site receipt, ABI, route, Home, residence, lifetime, ReadyEntry, Builder, or session meaning.
-Fail-fast boundary: later owners receive exact source/Recipe/control relations without raw constituent escape, source-site cloning, repeated co-seal, or cross-view authority mixing.
-Smallest next slice: LOOP-TEXT-EQ-INGRESS-SURFACE-R0, one behavior-neutral file split plus sibling HRTB surfaces and existing-upstream negative proof.
+Decision: split the landed S6C ingress, delete its broad/revalidating surface and second role/source ledgers, and lend independent TextEq, Substring-to-TextEq corridor, Completion, and input/carrier views.
+Source authority + canonical issuer: the retained Facts/Recipe/role seal/Join/Completion chain remains the only owner; issue_s6c_prephysical_ingress_v2 validates once and every later view only borrows that same product.
+Non-authority: raw item numbers, anchor counts, detached Verified context parts, cloned source sites, and logical-row caches cannot issue meaning; R0 issues no law, ABI, route, residence, Builder, or session.
+Fail-fast boundary: issuance rejects missing/foreign/drifting evidence once; post-issuance projection is infallible and exposes no raw constituent or cross-view authority.
+Smallest next slice: LOOP-TEXT-EQ-INGRESS-SURFACE-R0, one behavior-neutral file split, producer-owned role projection, sibling HRTB surfaces, visibility narrowing, and existing-upstream negative proof.
 Non-claims: no runtime symbol, performance keeper, CFG/SSA/PHI, production caller, fallback, retry, language Fault, or legacy retirement.
 ```
 
@@ -38,17 +38,24 @@ retained S6C ingress
        -> SubstringToTextEqCorridorRefV1       sibling producer-consumer view
        -> S6CCompletionRefV1                   sibling exit view
 
-tracked route decision + route-specific lifetime demand
-  -> PreparedLoopTextEqRouteDemandV1           exactly one route per site
+tracked route decision
+  -> AdmittedLoopTextEqRoutePolicyV1           site-free keeper/policy only
+
+InstalledNormalCallableSemanticPackageV1
+  -> NormalCallableSemanticPackagePortV1 target extension
+       exact lowering input + parameter ABI
+       exact result/header ABI issuer required by the later D0
+       retained S6C source binding
+       complete common Loop V2 envelope
+  -> PreparedS6CPhysicalPackageV1<'loan>
+       owns site-free route policy + complete preflight ledger
+       borrows the sole source cohort; copies no site/source authority
 
 single common physical session
   -> Ready*Residence<'session>                 actual handle/span/ValueId life
   -> ReadyLoopTextEqExecutionPlanV1<'session>
+  -> After + Completion/Tail + DraftSeal
   -> exact Bool or canonical Trap
-
-PreparedS6CPhysicalPackageV1
-  owns the original ingress binding + route demand
-  lends TextEq and Completion separately to the single session
 ```
 
 Recipe-local keys are not a global identity. A standalone product containing
@@ -57,6 +64,13 @@ Recipe. Until a common source-program owner can retain an equally strong
 cohort, the S6C adapter owns the original ingress whole and lends only a
 neutral per-site view. It has no `Clone`, `into_parts`, `take_ingress`, or raw
 Facts/Recipe/Join/Completion getter.
+
+The route policy is deliberately site-free. A package cannot own both the
+parent ingress and a detached demand that owns a site borrowed from that same
+parent without either a self-reference or a copied key/source ledger. The
+installed Normal-callable port therefore lends one scoped cohort; the package
+co-borrows its site/corridor/Completion views and one site-free policy only
+while preparing the single session.
 
 No S6C physical demand family, physicalizer, CFG/SSA/PHI writer, or Return
 writer is introduced. Common physical APIs consume neutral views only.
@@ -69,11 +83,19 @@ only that same-kind primitive `String` values compare for equality;
 equality. Runtime `String == String` is conformance evidence, never the law
 issuer.
 
-`LANG-TEXT-EQUALITY-LAW-R0` must land before any site-contract code. It makes
-`docs/reference/language/types.md` section 4.3 the sole equality-law owner:
+`LANG-TEXT-EQUALITY-LAW-D0` and then `LANG-TEXT-EQUALITY-LAW-I0` must land
+before any site-contract code. This is
+not a wording-only fill. `types.md` currently makes ordinary `BoxRef == BoxRef`
+identity-based, `eq_vm` follows that rule, and `StringBox::equals` is only an
+implementation helper. D0 must explicitly decide whether the currently mapped
+StringBox-as-Text lane belongs to logical Text content equality while
+ordinary non-Text BoxRef identity remains unchanged. I0 then makes
+`docs/reference/language/types.md` section 4.3 the sole equality-law owner and
+adds the matching conformance evidence:
 
 ```text
-logical String/Text values, including the accepted StringBox-as-Text bridge:
+logical String/Text values, including any StringBox-as-Text bridge explicitly
+admitted by the same Decision:
   exact Unicode scalar-value sequence equality
   case-sensitive
   normalization-free
@@ -194,26 +216,25 @@ The evidence records call/lock/publication/allocation counters and generated
 assembly; existing approximate counters cannot be called exact without a
 focused instrumentation row.
 
-Route and residence obligations form a sum, not independent arguments:
+Route selection is reusable policy, not a detached per-site product:
 
 ```text
-PreparedLoopTextEqRouteDemandV1
+AdmittedLoopTextEqRoutePolicyV1
   RuntimeScalar {
-    site,
     scalar_keeper,
-    published-handle lifecycle demand,
+    required_lifecycle = PublishedHandlePair,
   }
   BorrowedSpanInline {
-    site,
     borrowed-route keeper,
-    substring-to-TextEq corridor,
-    session-wide residence demand,
+    required_lifecycle = SessionWideBorrowedTextPair,
   }
 ```
 
-Before Builder, these are demands only. Actual published handles, borrowed
-spans, ValueIds, and borrow end points are issued inside the sole physical
-session as `Ready*Residence<'session>`.
+The policy contains no Loop/item/block/value/source key and owns no corridor.
+The scoped S6C package borrows the exact site/corridor from its retained source
+cohort and co-checks the policy's lifecycle class before Builder. Actual
+published handles, borrowed spans, ValueIds, and borrow end points are issued
+inside the sole physical session as `Ready*Residence<'session>`.
 
 The scalar route still needs a named owner for substring result publication,
 handle liveness through TextEq, and cleanup/release. S6C currently owns only
@@ -240,6 +261,67 @@ Prepared RuntimeScalar route or production physical session:
   STOP until LOOP-TEXT-EQ-TRAP-TERMINAL-D0 names the exhaustive decoder and
   canonical fail-stop owner; non-0/1 must never become Fault or truthy Bool
 ```
+
+## Common V2 pre-session boundary
+
+The landed common Loop physicalizer is currently test-only and V1-shaped. Its
+operation demand/dispatcher has no V2 Text, `CallSlot`, or `TextEq`, and the V1
+layout rejects `If`/`Exit`. The task graph therefore does not jump from a
+TextEq leaf policy to a physical session. One T2 family owns that missing
+whole-program boundary. Its concrete rows are deliberately separate:
+
+```text
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+```
+
+```text
+Decision: use the installed Normal callable semantic package as the sole outer owner and close exact function ABI, one complete common Loop V2 envelope, and neutral canonical-session admission before any S6C physical effect.
+Source authority + canonical issuer: InstalledNormalCallableSemanticPackageV1 owns the installed catalog/batch/selection/parameter cohort; a NormalCallableSemanticPackagePortV1 extension is the only candidate issuer allowed to pair that same callable with retained S6C ingress. Exact source-backed result/header ABI issuance is still missing and is a D0 stop condition, not a landed claim.
+Non-authority: Recipe-local keys, a detached TextEq site, benchmark JSON, MIR MirType/EffectMask, the V1 physicalizer, Selected-Dynamic fixed cursor, Builder state, and fixture expectations cannot issue the outer cohort or complete program.
+Fail-fast boundary: before Builder/session, reject missing or foreign membership, header/result ABI, ingress identity, V2 operation/source/placement/call/control/transfer/Completion coverage, or route policy; never coerce V2 to V1 or retry another physicalizer.
+Smallest next slice: D0 freezes or rejects the installed-port/result-ABI issuer and the envelope shape; only after the common semantic-program and transfer rows may the transport R0 and S6C package I0 land.
+Non-claims: no Builder, ValueId, physical block/ID, runtime route activation, residence, production caller, selector switch, S6C physicalizer, or BorrowedSpan implementation.
+```
+
+The target ownership is scoped rather than self-referential:
+
+```text
+VerifiedNormalCallableSemanticPackageV1
+  -> install consumes the verified product
+InstalledNormalCallableSemanticPackageV1
+  owns the installed source-backed catalog/batch/selection/parameter cohort
+  -> NormalCallableSemanticPackagePortV1 target extension lends one cohort
+       lowering input + parameter ABI
+       result/header ABI only after D0 names its source-backed issuer
+       retained S6C ingress/site/corridor/Completion
+       complete common Loop V2 envelope
+
+PreparedS6CPhysicalPackageV1<'loan>
+  owns site-free route policy + complete preflight ledger
+  borrows that one cohort only for immediate session preparation
+  -> PreparedLoopOperationProgramV2
+       exact 13 operations only
+  -> Recipe + JoinSig + Layout-bound control subproduct
+       exact If + Exit only
+  -> complete envelope coverage receipt
+       exact 15 placements = 13 operations + If + Exit
+  -> neutral CanonicalSsaFunctionSessionV2 admission
+```
+
+`PreparedLoopOperationProgramV2` is a target contract, not a landed claim. It
+retains exact source/execution/placement identity for the 13 operation items
+only. The one `If`, one `Exit`, and their transfers remain a separate
+Recipe/JoinSig/Layout-bound control authority; one passive envelope receipt
+proves their union covers all 15 placements. The later D0 must name that
+control subproduct rather than smuggle it into the operation program. None of
+these targets may become a V2-to-V1 adapter, Selected-Dynamic cursor reuse, or
+S6C-specific physicalizer. Until the result/header ABI issuer and those
+subproducts are named, implementation is
+`NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`. The existing canonical
+CFG/Binding-SSA/Phi/Completion/DraftSeal services remain the only physical
+writers.
 
 ## Current R0 acceptance
 
@@ -283,26 +365,57 @@ Prepared RuntimeScalar route or production physical session:
    remain zero.
 10. Do not grow the 794-line operation emitter, 757-line typed schema, or
     753-line output-row owner beyond minimal wiring.
+11. Delete the ingress-owned raw `role -> LoopItemKeyV1::new(number)` table.
+    Project the producer-owned fixed role seal and exact Recipe row instead;
+    Recipe keys have one issuer.
+12. Replace `anchor_count`/`Option` summaries and hard-coded `1`/`2` values
+    with exact borrowed source relations. Counts may remain diagnostics only.
+13. Do not construct `VerifiedLoopSemanticContextV1` from detached cloned
+    parts. Borrow the retained membership identity or use an issuer-private
+    projection that cannot escape as standalone authority.
+14. Remove cloned Completion source-site/value fields from the ingress seal.
+    Keep only passive parity/count receipts needed by the issuer; sibling views
+    borrow the retained Completion/Exit-Tail owner directly.
+15. Narrow crate-root re-exports to the terminal issuer/product and sibling
+    views required by the next owner. Owned products remain non-Clone,
+    non-Default, non-splittable, and caller-zero.
 
 ## Corrected bounded DAG
 
 ```text
 [closed] LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
     -> [current] LOOP-TEXT-EQ-INGRESS-SURFACE-R0
-    -> LANG-TEXT-EQUALITY-LAW-R0
+    -> LANG-TEXT-EQUALITY-LAW-D0
+    -> LANG-TEXT-EQUALITY-LAW-I0
     -> LOOP-TEXT-EQ-SITE-CONTRACT-I0
     -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
     -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
     -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
     -> route-specific demand
        scalar keeper:
-         LOOP-TEXT-EQ-SCALAR-LIFECYCLE-D0/I0
+         LOOP-TEXT-EQ-SCALAR-LIFECYCLE-D0
+         -> LOOP-TEXT-EQ-SCALAR-LIFECYCLE-I0
        scalar reject:
-         SUBSTRING-TEXT-EQ-BORROWED-CORRIDOR-D0/I0
-         + session-wide Text residence D0/I0
-    -> PreparedLoopTextEqRouteDemandV1
-    -> PreparedS6CPhysicalPackageV1
-    -> S6C-PHYSICAL-SESSION-D0/I*
+         SUBSTRING-TEXT-EQ-BORROWED-CORRIDOR-D0
+         -> SUBSTRING-TEXT-EQ-BORROWED-CORRIDOR-I0
+         -> LOOP-TEXT-EQ-SESSION-RESIDENCE-D0
+         -> LOOP-TEXT-EQ-SESSION-RESIDENCE-I0
+    -> AdmittedLoopTextEqRoutePolicyV1 (site-free)
+    -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
+    -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
+    -> LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0
+    -> LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0
+    -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+    -> LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+       -> exact 13-operation program
+       -> separate Recipe/JoinSig/Layout If+Exit control
+       -> exact 15-placement envelope coverage
+    -> LOOP-S6C-COMMON-V2-PRESESSION-I0
+       -> scoped PreparedS6CPhysicalPackageV1<'loan>
+    -> LOOP-PHYSICAL-ALWAYS-COVERAGE-I0
+    -> LOOP-PHYSICAL-IF-COVERAGE-I0
+    -> LOOP-PHYSICAL-EXIT-COVERAGE-I0
+    -> LOOP-COMMON-V2-PHYSICAL-SESSION-I0 (S6C first adapter)
        entry/topology -> exact operation cursor -> After/Completion/Tail/
        DraftSeal under one common session owner
     -> parity/canary
@@ -323,7 +436,10 @@ Stop before the affected row if implementation requires:
 claiming the equality law before types.md lands
 turning StringBox-as-Text into ordinary BoxRef identity
 detaching Recipe-local keys from the retained program cohort
+reissuing producer roles from raw item numbers or anchor counts
+trusting a detached VerifiedLoopSemanticContextV1 built from cloned parts
 letting TextEq leaf observe Completion/Tail
+storing a parent-borrowed site/corridor inside a detached route demand
 issuing residence before ReadyEntry/session
 borrowing Dynamic lease/End evidence for S6C
 using raw handle equality before live Text resolution
@@ -332,12 +448,18 @@ claiming stale-generation detection from raw u64
 claiming LLVM readonly/noalloc from semantic NonFaulting
 reading benchmark/env data in Builder or changing route at runtime
 selecting borrowed after scalar failure
+coercing Loop V2 into V1 or using the Selected-Dynamic fixed cursor
+emitting a TextEq leaf before the complete V2 operation/control envelope is sealed
 creating an S6C physicalizer, fallback, retry, Fault edge, or second Return writer
 ```
 
 ## Evidence classification
 
-This corrected taskization is based on repository source and read-only worker
-census. No law edit, ABI, Trap owner, route keeper, physical caller, benchmark
-result, latest-HEAD integration, or production cutover is claimed. Current R0
-is the only executable row.
+This corrected taskization is based on repository source, six read-only worker
+audits, and focused local evidence at `63d96826de`: S6C ingress `2/2`, S6C
+Recipe/logical output `8/8`, Loop pre-cutover guard green, physical-transfer
+guard green, and a clean worktree. S6C production callers remain zero. At the
+same snapshot, `main` is 403 commits behind the working branch; main integration
+is not claimed. No law edit, ABI, Trap owner, route keeper, V2 prepared program,
+physical caller, benchmark result, latest-HEAD integration, or production
+cutover is claimed. Current R0 is the only executable row.

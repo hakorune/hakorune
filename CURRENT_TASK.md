@@ -9,7 +9,8 @@ Scope: root restart anchor only. Do not store landed history here.
 1. Read `docs/development/current/main/CURRENT_STATE.toml`.
 2. Read its `latest_card_path`.
 3. Read its `latest_workstream_card` when present.
-4. Check `active_lane`, `work_mode`, and `current_blocker_token`; do not infer them here.
+4. Check `active_lane`, `work_mode`, and `current_execution_row`; read
+   `current_blocker_token` only as the named stop condition.
 5. Run:
 
 ```bash
@@ -23,13 +24,15 @@ workstream SSOT, not this pointer.
 
 When `work_mode = "design_stop"`, do not invent a new executable owner from historical mirrors.
 Do not keep the goal open until the frontier names a concrete next executable
-row; stop at the consultation boundary. When the token names an implementation
-row, follow only the `latest_card_path` contract.
+row; stop at the consultation boundary. When `current_execution_row` names an
+implementation row, follow only the `latest_card_path` contract.
 
 ## Handoff
 
-Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`.
+Continue only the exact `current_execution_row` selected by
+`CURRENT_STATE.toml` and the contract at `latest_card_path`.
+`current_blocker_token` explains when that row must stop; it never selects a
+different row.
 
 The active lane is an in-place production responsibility replacement. Read:
 

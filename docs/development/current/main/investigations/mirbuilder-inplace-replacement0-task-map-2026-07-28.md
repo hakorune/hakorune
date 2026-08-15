@@ -12,11 +12,12 @@ Final convergence pointer (serial, after Loop retirement):
   - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
-Current Loop product frontier:
-  - `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C` (T2 design stop)
+Current Loop product-frontier mirror (non-authoritative):
+  - `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` (T0 behavior-neutral ingress cleanup)
 Resume gate:
-  - finish the selected-Dynamic latest-HEAD integration closeout, then retarget
-    `CURRENT_STATE.toml` explicitly; this frontmatter is not a live pointer.
+  - always resolve `current_execution_row` and `latest_card_path` from
+    `CURRENT_STATE.toml`; this frontmatter is only a product-frontier summary
+    and cannot resume a retired or parked row.
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -72,12 +73,18 @@ explicit pointer retarget.
       five-family dispatcher and its exact receipt/negative evidence
 9. CLOSED caller-zero: seven-row Callable program through DraftSeal
 10. CLOSED caller-zero: fifteen-row Generic G0 program plus carrier
-11. OPEN but gated: production operation physicalizer selection waits for
-    M8/M9 coverage and the pre-cutover authority proof
-12. PARTIAL: M8 S6A/S6B closed; first open cohort is
-    `JOINIR-LOOP-M8-LOOPV0-SCANS-S6C`; later M8 and M9 remain open
-13. OPEN: M10b activation, then M11/M12 legacy retirement
-14. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
+11. CLOSED caller-zero semantic cohort: S6C source/Facts/Recipe/logical output
+    and prephysical ingress are issued without Builder or production caller
+12. CURRENT bounded hardening: `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` removes the
+    ingress's second role/source projections before TextEq law/site work
+13. OPEN ordered common boundary: semantic-program co-seal, JoinSig transfer,
+    bound segment input, boundary cleanup, common-V2 pre-session contract,
+    13-operation/control-envelope transport, and scoped S6C package
+14. OPEN structural/session coverage: Always, If, Exit, then the first common
+    V2 physical session; later M8/M9 families remain separately open
+15. OPEN gated production selection: pre-cutover authority proof, then M10b
+    activation and M11/M12 legacy retirement
+16. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
 The selected-Dynamic `skip_while/4` lane is a reusable authority/physical

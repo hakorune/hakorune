@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-08
+Date: 2026-08-15
 Decision: accepted after external and independent worker review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r2`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
@@ -50,6 +50,9 @@ derives logical transfers without JoinSig authority. The accepted target is
 unchanged, but semantic-program and transfer-authority R0 rows must close
 after M8/M9 and before production selection. No named production caller
 switch is open.
+The 2026-08-15 S6C audit adds no second physicalizer: it names one missing
+common-V2 pre-session contract that must close exact callable ABI and the
+complete V2 envelope before any TextEq leaf or canonical session is admitted.
 Scope: common Loop physical demand, fresh unpublished function session, failure discard, completion/DraftSeal handoff
 Related:
   - docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md
@@ -63,18 +66,37 @@ Related:
 
 # Loop Common Physical Demand and Session SSOT
 
+## Current Capsule
+
+- **Current decision:** every admitted Loop profile reaches one complete
+  semantic program, JoinSig-bound layout, and canonical SSA session; V1 and V2
+  are exact projections of that one responsibility graph.
+- **Current implementation status:** caller-zero V1 canaries exist, but the
+  common physicalizer remains test-only/V1-shaped and the S6C V2 pre-session
+  transport, result ABI issuer, and production caller are not landed.
+- **Next ordered task:** remove second S6C ingress projections, then close the
+  common semantic-program, transfer, ordered-ledger, boundary-cleanup, and V2
+  pre-session rows before physical activation.
+- **Production stop line:** no leaf emission or session admission may infer
+  ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
+  or select a second physicalizer.
+- **Retirement finish line:** all admitted profiles use one common physical
+  owner and old topology, route-local schedulers, direct transfer inference,
+  retry, and fallback have zero callers.
+
 ## Decision
 
 Close the post-Recipe boundary before physical implementation begins.
 
 ```text
 resolver / source map
-  -> VerifiedLoopRecipeCoSealV1
-  -> VerifiedLoopOperationEffectProductV1
-  -> VerifiedLoopOperationPhysicalDemandV1
+  -> versioned VerifiedLoopSemanticProgramV1 | V2
+  -> versioned complete operation/source/control demand
+  -> PreparedLoopOperationProgramV1 | target V2
   -> one thin prepared execution product
        PreparedCallableLoopPhysicalizationV1
        OR PreparedGenericG0LoopPhysicalizationV1
+       OR scoped PreparedS6CPhysicalPackageV1<'loan>
   -> one fresh unpublished function session
        completion moves here exactly once
   -> outer callable lowerer + one common recursive Loop physicalizer
@@ -164,6 +186,69 @@ owner, root key, JoinSig, After, or Continuation separately. `V10/ch`, Dynamic
 Fault, Callable Tail, and the two-site Completion remain external to the Loop
 carrier/continuation identity.
 
+#### S6C complete-V2 pre-session admission (2026-08-15)
+
+S6C uses the same rule without borrowing the Selected-Dynamic fixed cursor or
+coercing its Recipe to V1. The landed common recursive physicalizer is
+test-only and its operation program/dispatcher is V1-shaped. It therefore
+cannot become production merely because the caller-zero S6C ingress and one
+TextEq route policy exist.
+
+The missing contract is owned by one task family:
+
+```text
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-I0
+
+VerifiedNormalCallableSemanticPackageV1
+  -> install consumes the verified product
+InstalledNormalCallableSemanticPackageV1
+  -> NormalCallableSemanticPackagePortV1 target extension
+       exact lowering input and parameter ABI
+       exact source-backed result/header ABI issuer required by D0
+       retained S6C ingress and Completion authority
+       complete V2 envelope
+
+AdmittedLoopTextEqRoutePolicyV1
+  site-free; no Loop/item/value/source identity
+
+  -> PreparedS6CPhysicalPackageV1<'loan>
+       complete preflight over the one scoped source cohort
+  -> PreparedLoopOperationProgramV2
+       exact 13 operation items only
+  -> Recipe + JoinSig + Layout control subproduct
+       exact If + Exit only
+  -> complete envelope receipt
+       exact 15 placements = 13 operations + If + Exit
+  -> neutral CanonicalSsaFunctionSessionV2 admission
+```
+
+The verified package is consumed at install time; the
+`InstalledNormalCallableSemanticPackageV1` remains the sole outer owner and
+`NormalCallableSemanticPackagePortV1` is the only target lending seam. The
+prepared S6C package borrows that cohort and owns only passive complete
+preflight plus a site-free route policy; it cannot retain a site borrowed from
+its own parent, clone source/Completion ledgers, or accept raw keys from a
+caller. The current port does not issue the required S6C source-backed result
+ABI. Exact source/header/result authority missing from the port is
+`NoSafeSlice::MissingS6CCommonV2PreSessionIssuer`, never a Recipe/MIR
+inference.
+
+The complete envelope does not turn control into operations. The operation
+program target covers exactly 13 operations. Recipe plus JoinSig remains the
+logical owner of the one `If`, one `Exit`, and their transfers; Layout only
+binds that control to placement. A passive union receipt proves exact
+15-placement coverage without creating a second control ledger.
+
+Decision B applies to V2 as well: the complete V2 envelope is prepared and
+checked before a private TextEq or CallSlot leaf is emitted. The existing
+canonical CFG/Binding-SSA/Phi/Completion/finish/DraftSeal services are reused
+inside one fresh unpublished session. V2-to-V1 adaptation, Dynamic-cursor
+reuse, standalone leaf scheduling, and an S6C physicalizer are forbidden.
+Actual handle/span/ValueId residence remains session-local and cannot be
+issued by the pre-session product.
+
 Second, current `physical_layout.rs` does not consume JoinSig transfers. It
 reconstructs Predicate true/false, body backedge, nested entry, and child-After
 resume from Recipe; `segment_allocator.rs` also rereads Recipe condition roles,
@@ -210,10 +295,10 @@ The existing owners remain authoritative:
 | Concern | Sole owner |
 | --- | --- |
 | source membership, owner, frame, Scope/Region | resolver ledger and source map |
-| logical operations, keys, recursive nesting | `LoopRecipeV1` |
-| logical ports, edges, carrier obligations | `LoopJoinSigV1` |
+| logical operations, keys, recursive nesting | one recursive Loop Recipe algebra through its exact `LoopRecipeV1` or `LoopRecipeV2` projection; never V2-to-V1 coercion |
+| logical ports, edges, carrier obligations | the JoinSig issued from that exact versioned Recipe/program cohort |
 | source/effect/input relations | existing Core, initialized-local input, Generic parameter-input, item-source, and carrier-source products; none is replaced by the semantic program |
-| cross-product source/Core/continuation compatibility | target `VerifiedLoopSemanticProgramV1`; relational co-seal only |
+| cross-product source/Core/continuation compatibility | the version-matched semantic-program co-seal (landed/target `VerifiedLoopSemanticProgramV1` responsibility plus the D0-named V2 projection); relational co-seal only, never V2-to-V1 conversion |
 | `BindingRef -> ValueId`, lexical SSA | `CanonicalSsaFunctionSessionV2.identity` |
 | physical blocks, predecessors, sealing | `CanonicalCfgSessionV1` |
 | provisional and patched PHI lifecycle | the function session's one `PhiTxn` |
@@ -892,13 +977,15 @@ session. It is not reclassified as a pre-effect decline.
 
 ## One recursive algebra; 19 is coverage only
 
-The canonical full operation demand accepts the one recursive `LoopRecipeV1`
-algebra. It does not contain `DirectAccum`, `GenericG0`, `LoopTrue`, `LoopCond`,
-or the 19 legacy route labels as physical variants.
+The canonical full operation demand accepts one recursive Loop Recipe algebra
+through an exact V1 or V2 projection. V2 adds typed operation/value vocabulary;
+it is not converted into V1 and does not create another physicalizer. The
+algebra does not contain `DirectAccum`, `GenericG0`, `LoopTrue`, `LoopCond`, or
+the 19 legacy route labels as physical variants.
 
 ```text
 source profiles/adapters: many bounded rows
-portable Recipe algebra:  one
+portable Recipe algebra:  one, with exact V1/V2 projections
 prepared profiles:        bounded callable/G0 compatibility products
 full operation demand:    one
 common physicalizer:      one
@@ -943,10 +1030,14 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | census/design only; delete old topology only after production and test callers reach zero |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | decide the installed-port/result-ABI issuer and split 13 operations from Recipe/JoinSig/Layout-owned If+Exit under one 15-placement envelope | design only; missing result/header issuer remains `NoSafeSlice` |
+| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the exact 13-operation program, separate If+Exit control subproduct, JoinSig transfers, and passive 15-placement envelope through the common boundary | BoxShape only; no S6C meaning, V2-to-V1 coercion, Builder/session effect, or production caller |
+| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | installed Normal-callable cohort + exact callable ABI + retained S6C ingress + site-free route policy -> one scoped package and neutral session admission | BoxCount only; no Selected-Dynamic cursor reuse, standalone TextEq scheduler, S6C physicalizer, or production caller |
+| 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
+| 25a | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the scoped V2 package after structural coverage and run the first S6C adapter through the canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | caller-zero first adapter only; no S6C physicalizer, selector, retry, or fallback |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

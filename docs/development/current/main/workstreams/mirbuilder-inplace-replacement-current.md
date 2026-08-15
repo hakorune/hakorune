@@ -135,7 +135,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active task pointer
 
-The sole current row is `CURRENT_STATE.toml.current_blocker_token`. The active
+The sole current row is `CURRENT_STATE.toml.current_execution_row`. The active
 JoinIR contract and ordered convergence map live in
 `design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
 records below are evidence only and must not schedule another route.
@@ -152,12 +152,13 @@ docs/development/current/main/CURRENT_STATE.toml
   -> latest_card_path
 ```
 
-For the selected Dynamic callable, resolve the active card and row only from
-`latest_card_path` and `current_execution_row` above. This historical ledger
-does not mirror either value. Older S6C/S6D/S6G briefs and route chronology
-remain evidence in git history or their owning cards; they do not schedule a
-new route from this workstream.
-```
+For every active lane, resolve the card and row only from `latest_card_path`
+and `current_execution_row` above. `current_blocker_token` describes the stop
+condition for that selected row; it never selects a different task. This
+historical ledger does not mirror those values. Older S6C/S6D/S6G briefs and
+route chronology remain evidence in git history or their owning cards; they
+do not schedule a new route from this workstream.
+
 ## Production invariants
 ```text
 named production caller required       = yes
