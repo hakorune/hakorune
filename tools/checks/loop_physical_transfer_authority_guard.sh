@@ -28,6 +28,10 @@ MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
 MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
+TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
+TEXT_FORMAL_HOST="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
+TEXT_FORMAL_HEADER="$ROOT_DIR/include/nyrt_text_formal_v1.h"
+TEXT_FORMAL_EXPORT="$ROOT_DIR/crates/nyash_kernel/src/exports/text_formal.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
@@ -38,6 +42,8 @@ guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
   "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
 guard_require_files "$TAG" "$PHYSICAL_HEADER"
+guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
+  "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -111,6 +117,29 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "issue_callable_physical_header_cohort_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "package issuer must have one source/header cohort seam"
+guard_expect_fixed_in_file "$TAG" \
+  "TextFormalBorrowV1" "$TEXT_FORMAL_ABI" \
+  "physical Text formal lane must have one generation-branded Rust owner"
+guard_expect_fixed_in_file "$TAG" \
+  "with_text_formal_wire" "$TEXT_FORMAL_HOST" \
+  "wire validation must carry the published generation into the slot-table owner"
+guard_expect_fixed_in_file "$TAG" \
+  "_Static_assert(sizeof(NyrtTextFormalBorrowV1) == 16" "$TEXT_FORMAL_HEADER" \
+  "Text formal C wire width must remain fixed"
+guard_expect_fixed_in_file "$TAG" \
+  "hako_text_formal_validate_v1" "$TEXT_FORMAL_EXPORT" \
+  "Text formal C bridge must have one named export"
+
+for forbidden in \
+  'nyash.string.eq_hh' \
+  'DynamicV2' \
+  'fallback' \
+  'retry'
+do
+  if rg -n -F -- "$forbidden" "$TEXT_FORMAL_ABI" >/dev/null 2>&1; then
+    guard_fail "$TAG" "Text formal validator imports a non-authority route: $forbidden"
+  fi
+done
 
 for forbidden in \
   'pub(crate) fn logical' \
@@ -255,7 +284,7 @@ for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_D
   "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
   "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
   "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
-  "$MAIN_ADAPTER"; do
+  "$MAIN_ADAPTER" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_EXPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

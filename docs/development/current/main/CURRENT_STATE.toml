@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, LOOP-TEXT-EQ-SITE-CONTRACT-I0, the ExactText formal-parameter I0, the generic same-branded Text parameter cohort I0, MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0, and CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0 are complete. The live pointer is now the physical Text formal-parameter design stop; a read-only candidate census confirmed that no existing nearby handle, TextScan, Home, or eq_hh path is its canonical issuer. S6C physical work remains closed."
+status = "Selected Dynamic/AOT exit hardening is closed for this detour. LOOP-TEXT-EQ-INGRESS-SURFACE-R0, the normative String/Text equality-law reference slice, LOOP-TEXT-EQ-SITE-CONTRACT-I0, the ExactText formal-parameter I0, the generic same-branded Text parameter cohort I0, MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0, CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0, and the caller-zero TextFormalBorrowV1 ABI I0 are complete. The live pointer is now the installed S6C/common-V2 composition design stop; no production caller is open."
 date = "2026-08-15"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0"
+current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
 work_mode = "design_stop"
-current_execution_row = "CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0"
-current_blocker_token = "NoSafeSlice until one canonical owner names the physical StringBox/ExactText formal lane, Text handle/home/ownership and trap policy, and co-seals it with the existing source/header/Completion cohort; no OpaqueHandle downgrade, MirType/body/ResultCatalog inference, detached parameter wire, TextEq/Substring owner, fallback, retry, or Builder/session."
+current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+current_blocker_token = "NoSafeSlice until the same branded installed callable cohort lends S6C ingress, ExactText formal/result header, neutral V2 13-operation transport, separate If/Exit control, JoinSig transfer, Completion/Tail, and exact 15-placement coverage; no V1 adapter, S6C physicalizer, Builder/session, fallback, or retry."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (physical Text formal-parameter design stop)"
-active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, and caller-zero header transport are closed. MainExpansion children co-seal parser identity/final slot with the selected map; Main.main Required and Dynamic eligibility remain disjoint. Current design stop names the missing physical StringBox/ExactText formal owner before S6C child composition. Text wire, S6C child, V2 envelope, canonical session, raw-AST root/ordinary convergence, branch integration, production selection, and cleanup remain parked."
+active_lane = "Loop compiler frontier (installed S6C/common-V2 composition design stop)"
+active_lane_status = "Two-front display, one authority spine: Dynamic/AOT hardening, ingress/law/site, ExactText formal/cohort, Main static-child membership, caller-zero header transport, and generation-checked TextFormalBorrowV1 ABI are closed. The next design stop must co-seal the same installed callable cohort with S6C ingress, source-backed result/header, neutral V2 operation/control transport, JoinSig transfer, Completion/Tail, and exact 15-placement coverage. TextEq route/residence, canonical session, raw-AST root/ordinary convergence, branch integration, production selection, and cleanup remain parked."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/callable-physical-text-parameter-abi-d0-2026-08-15.md"
+current_execution_design = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "callable-physical-text-parameter-abi-d0"
-latest_card_path = "docs/development/current/main/investigations/callable-physical-text-parameter-abi-d0-2026-08-15.md"
-latest_card_summary = "Design stop: name one canonical physical StringBox/ExactText formal lane and co-seal it with source result/header and Completion; no physical wire, S6C child, or Builder/session."
-next_design_card = "CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0"
-next_design_card_path = "docs/development/current/main/investigations/callable-physical-text-parameter-abi-d0-2026-08-15.md"
+latest_card = "s6c-text-eq-physical-contract-d0"
+latest_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
+latest_card_summary = "Current design stop: extend the same branded installed cohort to S6C ingress, exact Text formal/result header, neutral V2 operation/control transport, JoinSig/Completion, and exact 15-placement coverage; no Builder/session."
+next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+next_design_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/callable-physical-text-parameter-abi-d0-2026-08-15.md"
+next_execution_card_path = "docs/development/current/main/investigations/s6c-text-eq-physical-contract-d0-2026-08-15.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -54,9 +54,9 @@ landed_tail = [
   "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened. Pointer now advances to the common V2 pre-session design stop.",
   "2026-08-15: LANG-TEXT-EQUALITY-LAW-I0 made docs/reference/language/types.md §4.3 the sole String/Text equality owner: exact Unicode scalar sequence, case-sensitive, normalization-free, locale/collation-free; explicitly admitted StringBox-as-Text follows the law while ordinary non-Text BoxRef identity remains unchanged; no runtime/compiler behavior changed.",
   "2026-08-15: LOOP-TEXT-EQ-INGRESS-SURFACE-R0 implemented the caller-zero narrowing: semantic validation stays issuer-only, retained logical-output source seams provide projection-only sibling TextEq/Completion views, raw logical/role/context/source clones are removed, and the existing S6C/Loop focused gates remain green; no runtime or physical session owner was opened.",
-  "2026-08-15: cross-layer MIRBuilder audit found no live P0 and kept LOOP-TEXT-EQ-INGRESS-SURFACE-R0 current, but tightened it to remove raw role/key reissuance, cloned source/Completion ledgers, broad/revalidating views, and detached Verified context construction. The later DAG now requires an InstalledNormalCallableSemanticPackageV1 port extension, a source-backed result/header issuer, 13-operation transport separate from If/Exit control, exact 15-placement coverage, site-free route policy, and no S6C physicalizer or V2-to-V1 adapter.",
   "2026-08-15: LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0 accepted a corrected common recursive-Loop owner graph: the String/Text law is now normative; one non-Clone adapter retains the whole ingress and lends neutral site/corridor/Completion views; strict BoolOrTrap ABI is a reversible caller-zero probe; scalar and borrowed routes require distinct lifecycle demands and actual session residence; route selection is tracked before Builder with fallback/retry zero.",
   "2026-08-15: S6C physical ingress D0 accepted one corrected T2 BoxShape: 15 placements are 13 operations plus If and Exit; Recipe-family census, resolver BodyEffect, CoreMethod PureRead, and V2 execution class remain distinct authorities; exact source-anchor multiplicity and the separate Completion Tail view are required; V1 coercion and generic TextEq inference are forbidden; caller-zero ingress I0 is current.",
   "2026-08-15: S6C TextEq physical-contract D0 census closed as NoSafeSlice::MissingS6CTextEqPhysicalOwner: logical Equal(Text,Text)->Bool and V2 TextEq exist, but no neutral target/Home/ABI/wire issuer exists; StringBox::equals, MIR CompareEq, JoinIR compare, name rewrite, and Dynamic evidence remain non-authority. ReadyEntry/session stays closed until one owner is named.",
+  "2026-08-15: CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 landed the caller-zero TextFormalBorrowV1 lane: Rust owns a non-Clone generation-checked slot/formal validator, StableText/StringBox-only classification, closure-scoped read borrowing, and the fixed hako_text_formal_validate_v1 C status projection; zero/missing/stale/non-Text negatives, host-handle regression tests, cargo check, kernel export test, format/diff, pointer, and Loop guard green; no production caller, S6C/TextEq route, Builder/session, fallback, or retry opened.",
   "2026-08-15: S6C logical consumer I0 landed one 122-line caller-zero owner: a fallible try_with_output HRTB checks fixed domains, Length/Substring source parity, branch/Return summary/Backedge/After shape, and returns only typed Consumed or named reject; focused 8/8, cargo check, format, diff, pointer, and Loop guards green; full contract 132/1 with the same known baseline red.",
 ]

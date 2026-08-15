@@ -194,6 +194,31 @@ legacy `h` / `hh` / `hi` / `hii` 表記は compatibility artifact として残�
 - borrowed string handle is a first-class manifest class
 - ownership mismatch must fail-fast; no silent fallback
 
+## Callable Text Formal Wire (V1)
+
+`TextFormalBorrowV1` is a separate caller-entry contract from the generic
+`handle_borrowed_string` manifest class. It is a fixed 16-byte
+`{slot: u64, generation: u64}` pair issued only after the source-backed
+ExactText formal row and the same-branded callable header/Completion cohort are
+closed. The Rust runtime owns slot-generation and exact Text validation; the C
+header is only a fixed-width status projection.
+
+The capability is borrowed/no-escape: the caller keeps the strong source owner
+alive through the callable completion, the callee does not retain/release or
+republish the formal, and Rust lends the payload only through a closure-scoped
+read borrow. Zero/out-of-range, missing, stale-generation, and non-Text
+payloads return the exhaustive V1 status set before body effects. They are not
+language Faults and never enter fallback/retry. Raw `HostHandle`,
+`ObjectIdentity`, `HomeDemand::Handle`, `MirType::String`, DynamicV2 lease
+tokens, `StringSpan`, and `TextReadSession` are not issuers for this row.
+
+The caller-zero implementation is owned by
+`src/runtime/text_formal_abi.rs` and exported as
+`hako_text_formal_validate_v1`; it does not open TextEq, Substring, Builder,
+MIR/CFG/SSA, or production selection. A future physical session must issue a
+separate residence product rather than extending this entry wire across loop
+iterations.
+
 ## Demand Verb Reading
 
 The public ABI manifest owns value classes and ownership.

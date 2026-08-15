@@ -1,8 +1,8 @@
 ---
-Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, site-contract I0, and caller-zero header transport R0 are closed; the parent common-V2 stop is narrowed to the current CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 child
+Status: accepted audit-hardened TextEq architecture; ingress-surface R0, the language-law reference slice, site-contract I0, caller-zero header transport R0, physical Text formal D0/I0 are closed; current row is the installed S6C/common-V2 composition design stop
 Date: 2026-08-15
 Work mode: design_stop
-Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount + closed T1 header transport; current T2 physical Text formal BoxShape
+Classification: closed T0 BoxShape + closed T2 language-law BoxShape + closed T2 site-contract BoxCount + closed T1 header transport + closed T2 physical Text formal BoxShape/BoxCount; current T2 common-V2 BoxShape
 ---
 
 # LOOP-TEXT-EQ-PHYSICAL-CONTRACT-D0
@@ -18,7 +18,7 @@ Decision: close the site-contract I0 and design one common V2 pre-session bounda
 Source authority + canonical issuer: the branded `(CompilationContext catalog, InstalledNormalCallableSemanticPackageV1)` cohort owns catalog identity plus batch/selection/parameter state; one NormalCallableSemanticPackagePortV1 extension must lend that same owner/function cohort to the retained S6C ingress and source-backed result/header ABI issuer.
 Non-authority: detached Recipe keys, site-only bindings, benchmark/env data, MIR MirType/EffectMask, V1 physicalizer/layout, Selected-Dynamic fixed cursor, Builder state, fixture expectations, fallback, and retry cannot issue the outer cohort or V2 envelope.
 Fail-fast boundary: before Builder/session, reject missing or foreign installed membership, result/header ABI, ingress identity, 13-operation evidence, separate If/Exit control, JoinSig transfers, exact 15-placement coverage, or neutral canonical-session admission.
-Smallest next slice: CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0; freeze the profile-neutral Text formal lane, canonical owner, same-cohort API, negative matrix, and NoSafeSlice boundaries only. No code or physical receipt is issued in design_stop.
+Smallest next slice: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0; close the same branded installed cohort, S6C ingress, exact result/header, neutral V2 operation/control transport, JoinSig/Completion, and exact 15-placement envelope. No code or physical session is opened in design_stop.
 Non-claims: no TextEq ABI implementation, route/residence, ReadyEntry, Builder/MIR/CFG/SSA/PHI, S6C physicalizer, production caller, selector switch, fallback, retry, or legacy retirement.
 ```
 
@@ -29,16 +29,19 @@ executing one bounded transport row rather than separate parameter-only and
 result-only rows:
 
 ```text
-CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
-  -> docs/development/current/main/investigations/
-     callable-physical-text-parameter-abi-d0-2026-08-15.md
+CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0 [closed design]
+  -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 [closed caller-zero wire/validator]
+     docs/development/current/main/investigations/
+     callable-physical-text-parameter-abi-i0-2026-08-15.md
+  -> LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 [current]
 ```
 
 The completed transport row co-seals supported formal parameters, an explicit
 source-backed result/header declaration, and `verify_function_completion_v1`
-return/cleanup proof through the same branded package/Port cohort. The current
-design stop names the missing physical StringBox/ExactText formal owner before
-S6C child composition. No physical Text wire, S6C child, V2 envelope,
+return/cleanup proof through the same branded package/Port cohort. The completed
+Text formal I0 adds only the generation-checked caller-zero wire/validator and
+fixed C status projection. The current design stop is now the missing same-cohort
+S6C child/V2 envelope composition. No S6C child, V2 envelope,
 Builder/session, or production caller opens here.
 
 ## R0 implementation evidence
@@ -98,7 +101,7 @@ Completion/Tail row, ABI, route, residence, Builder, or physical ID is stored
 or issued. Focused site binding and all S6C/Loop guards are green, and the
 non-test caller census remains zero.
 
-The pointer therefore moves to the next T2 design stop:
+The pointer is now parked at this T2 design stop:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
@@ -670,8 +673,10 @@ Entry, Builder, physical ID, or session code may be added from these audits.
     -> [parent open] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
        -> [closed design] CALLABLE-PHYSICAL-HEADER-ABI-D0
        -> [closed] CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0
-       -> [current] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
-          (design stop; physical Text formal owner is missing)
+    -> [closed design] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
+    -> [closed] CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0
+       (caller-zero generation-checked wire/validator; production caller remains 0)
+    -> [current] LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
     -> LOOP-TEXT-EQ-STRICT-SCALAR-PROBE-I0
     -> LOOP-TEXT-EQ-ROUTE-DECISION-R0
     -> LOOP-TEXT-EQ-TRAP-TERMINAL-D0
@@ -743,12 +748,10 @@ This corrected taskization is based on repository source, read-only worker
 audits, and focused local evidence at the site-contract/Main-child commits:
 S6C ingress and Recipe/logical output focused suites are green, the site
 binding and Main-child focused tests are green, Loop pre-cutover and
-physical-transfer guards are green, and the worktree is clean before this
-pointer handoff. S6C production callers remain zero. The accepted child D0 is
-`CALLABLE-PHYSICAL-HEADER-ABI-D0`; its caller-zero transport is closed and the
-current child is `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0`. Physical Text wire,
-TextEq trap owner, route keeper, V2 prepared program, physical caller,
-benchmark result, latest-HEAD integration, and production cutover are not
-claimed. Whole-builder raw-AST ingress, finish convergence, warning/allow
-cleanup, and main integration are explicitly parked. The parent remains open;
-the Text formal owner is the only current design stop.
+physical-transfer guards are green, and the I0 worktree was clean before this
+pointer handoff. S6C production callers remain zero. The caller-zero
+TextFormalBorrowV1 wire/validator is closed; the current row is the installed
+S6C/common-V2 composition design stop. TextEq trap owner, route keeper, V2
+prepared program, physical caller, benchmark result, latest-HEAD integration,
+and production cutover are not claimed. Whole-builder raw-AST ingress, finish
+convergence, warning/allow cleanup, and main integration are explicitly parked.

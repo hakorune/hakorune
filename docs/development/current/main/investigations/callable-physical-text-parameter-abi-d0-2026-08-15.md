@@ -1,9 +1,9 @@
 ---
-Status: current design stop; no physical Text receipt is open
+Status: accepted design; next bounded caller-zero I0 is `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0`
 Date: 2026-08-15
 Parent: `docs/development/current/main/investigations/callable-physical-header-transport-r0-2026-08-15.md`
-Classification: T2 BoxShape
-Authority: language Text law, ExactText formal source contract, and one branded callable header cohort
+Classification: closed T2 BoxShape; next T2 BoxCount I0
+Authority: language Text law, ExactText formal source contract, branded callable header cohort, and the Rust-owned host-handle generation table
 ---
 
 # CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0
@@ -17,12 +17,12 @@ physical handle/home/ownership contract does not.
 ## Six-line brief
 
 ```text
-Decision: design one profile-neutral ExactText formal-parameter physical contract that remains part of the complete callable header cohort; do not mint a parameter-only receipt or wire.
-Source authority + canonical issuer: the normative Text law, final callable parameter source/BindingRef, and issue_callable_parameter_contract_v1; a single future header-cohort binder is the only physical formal issuer.
-Non-authority: MirType/StringBox spelling alone, HomeDemand::Handle, runtime StringBox helpers, TextEq/Substring, ResultCatalog/body inference, selector/name, AST/MIR re-read, fallback, and retry.
-Fail-fast boundary: reject missing canonical Text handle wire/home/lease owner, formal ordinal/BindingRef/owner drift, Text-vs-opaque downgrade, foreign package brand, and any parameter/result split; remain NoSafeSlice when the owner is absent.
-Smallest next slice: close the Text formal lane, ownership, failure/trap policy, and same-cohort API only; no code, fixture, runtime symbol, or Builder/session.
-Non-claims: no C ABI implementation, stale-generation proof, TextEq route/residence, S6C child, V2 envelope, ReadyEntry, MIR/CFG/SSA/PHI, selector, production caller, fallback, or legacy retirement.
+Decision: adopt one profile-neutral `TextFormalBorrowV1` lane: a generation-checked `{slot: u64, generation: u64}` wire owned by the Rust runtime, borrowed/no-escape at callable entry, and kept inside the complete header/Completion cohort; no per-use C call.
+Source authority + canonical issuer: the normative Text law, final callable parameter source/BindingRef, `issue_callable_parameter_contract_v1`, and the host-handle generation table; `issue_text_formal_borrow_v1` is the sole runtime formal-lane issuer and the future same-brand header binder is the only compiler capability issuer.
+Non-authority: raw HostHandle, `HomeDemand::Handle`, `BorrowedHandleBox`, DynamicV2 TextScan, `nyash.string.eq_hh`, MirType/StringBox spelling, TextEq/Substring, ResultCatalog/body inference, selector/name, AST/MIR re-read, fallback, and retry.
+Fail-fast boundary: capture/validation requires a live Text payload and non-zero matching generation; stale, invalid, non-Text, foreign-brand, ordinal/BindingRef drift, or split parameter/result cohorts reject before body effects and map only to the later canonical Trap, never a language Fault.
+Smallest next slice: implement the caller-zero Rust wire/validator, fixed C header/status projection, and focused stale/non-Text/ownership tests; keep package/S6C/Builder callers at zero.
+Non-claims: no TextEq route/residence, S6C child, V2 envelope, ReadyEntry, MIR/CFG/SSA/PHI, production selector, fallback, retry, or legacy retirement.
 ```
 
 ## Current authority facts
@@ -74,11 +74,53 @@ nyash.string.eq_hh
 ```
 
 The public ABI inventory has `handle_owned` and `handle_borrowed_string`
-classes, but it does not bind either class to an ExactText formal slot,
-source `BindingRef`, callable header, or Completion cohort. `StringBox`'s
-Rust equality and the kernel `eq_hh` export are implementation evidence only.
-Until one owner closes those gaps, the correct state is the existing typed
-`NoSafeSlice`, not a new adapter around a nearby generic handle.
+classes, but it did not bind either class to an ExactText formal slot, source
+`BindingRef`, callable header, or Completion cohort. `StringBox`'s Rust
+equality and the kernel `eq_hh` export are implementation evidence only; the
+pre-Decision state was therefore the typed `NoSafeSlice`, not an adapter
+around a nearby generic handle.
+
+The D0 now closes that design gap by naming a new owner rather than claiming
+that one of those nearby representations was already sufficient. The owner is
+deliberately small and profile-neutral:
+
+```text
+source ExactText row + formal BindingRef
+  -> same-branded callable header/Completion cohort
+  -> issue_text_formal_borrow_v1
+       -> TextFormalBorrowV1 { slot, generation }
+            -> Rust host-handle Text validator / no-escape read closure
+                 -> later canonical Trap consumer (physical-session row)
+```
+
+The wire is two fixed-width words so slot reuse is observable. The caller
+keeps the strong handle owner until the call returns; the callee neither
+retains nor releases it. Rust use is closure-scoped, and the future physical
+session must not detach the pair into a raw key or a second residence ledger.
+The C surface is a status projection for the same validator, not a second
+semantic issuer and not a hot-loop equality helper.
+
+## Accepted wire and failure contract
+
+```c
+typedef struct NyrtTextFormalBorrowV1 {
+    uint64_t slot;
+    uint64_t generation;
+} NyrtTextFormalBorrowV1;
+
+// 0 = live Text; non-zero = invariant Trap candidate
+uint32_t hako_text_formal_validate_v1(uint64_t slot, uint64_t generation);
+```
+
+The exact status enum is owned by the Rust validator and mirrored by the C
+header. `slot == 0`, missing slot, generation mismatch, and non-Text payload
+are distinct typed rejects. No status becomes a language Fault, truthy Bool,
+fallback, or retry. The C validator is called only at the callable ingress or
+test probe; TextEq and Loop body operations do not call it per iteration.
+
+The existing DynamicV2 lease-generation code is a substrate for generation
+tracking, not the formal-lane owner. The new issuer must co-seal the pair with
+the source/header/Completion brand and must not reuse DynamicV2 lease tokens.
 
 ## Required design acceptance
 
@@ -86,8 +128,8 @@ The design may close only after it names:
 
 1. one profile-neutral Text formal lane (parameter representation, Home,
    borrow/move/retain/release, and result of parameter admission);
-2. the canonical runtime/FFI owner, or an explicit `NoSafeSlice` if no
-   canonical Text handle wire exists;
+2. the canonical runtime/FFI owner: Rust host-handle generation validation
+   plus the fixed `NyrtTextFormalBorrowV1` C projection;
 3. invalid/stale/non-Text behavior and the trap/failure boundary without
    language Fault, fallback, or retry;
 4. exact co-seal with the existing formal rows, source result/header cohort,
@@ -116,7 +158,8 @@ fallback or retry                          -> structural rejection
 
 ```text
 CURRENT
-  CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0  (design stop)
+  CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0  (accepted design)
+    -> CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0 (caller-zero wire/validator)
     -> CALLABLE-S6C-INSTALLED-CHILD-COMPOSITION-D0
     -> LOOP-SEMANTIC-PROGRAM-COSEAL-R0
     -> LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0
@@ -126,6 +169,8 @@ CURRENT
     -> parity/canary -> bounded selector -> main integration -> retirement
 ```
 
-No later row may consume the S6C fixture as a physical callable until this
-design stop has either named its canonical owner or recorded the typed
-`NoSafeSlice` token. The source/header R0 remains closed and is not reopened.
+No later row may consume the S6C fixture as a physical callable until the I0
+validator and same-brand header binder are green. The source/header R0 remains
+closed and is not reopened. If the I0 cannot prove generation/liveness or
+requires a raw HostHandle fallback, return to the typed `NoSafeSlice` token
+instead of widening this contract.

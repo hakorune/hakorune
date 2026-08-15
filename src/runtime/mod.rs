@@ -56,12 +56,13 @@ pub mod scheduler;
 pub mod scheduler_route;
 pub mod semantics;
 pub mod sync_box;
+pub mod text_formal_abi;
 pub mod thread_capability;
 pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
-pub mod type_registry;
-// Deprecation warnings with warn-once guards.
+pub mod type_registry; // Versioned generation-checked callable Text formal lane
+                       // Deprecation warnings with warn-once guards.
 pub mod unified_registry;
 // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
 // Phase 12: TypeId→TypeBox 解決（雛形） / env.modules minimal registry

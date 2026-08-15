@@ -32,8 +32,9 @@ use super::object_identity::{
 use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
 pub(crate) use lease_identity::{
-    capture_text_lease_identity, drop_if_lease_identity_matches,
-    to_handle_text_with_lease_identity, HostHandleLeaseIdentityV1,
+    capture_text_formal_pair, capture_text_lease_identity, drop_if_lease_identity_matches,
+    to_handle_text_with_lease_identity, with_text_formal_wire, HostHandleLeaseIdentityV1,
+    TextFormalLookupRejectV1,
 };
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
