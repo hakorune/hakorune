@@ -11,6 +11,10 @@ This child names the missing lifetime-owner decision for the preferred two-lane
 `ExactText -> slot,generation` callable signature. It does not accept the
 signature mapping itself and does not open a caller, Builder, or session.
 
+Its first bounded child is
+`text-call-actual-origin-route-d0-2026-08-15.md`, which fixes the finite
+formal-versus-reject origin partition before choosing a lifetime route.
+
 ## Six-line brief
 
 ```text
