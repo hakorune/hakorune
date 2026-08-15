@@ -13,7 +13,7 @@ actualizer is implemented. It does not broaden the admitted Text shapes.
 ## Six-line brief
 
 ```text
-Decision: admit only source-backed ExactText ordinary formal parameters to the SourceResidence arm; classify call results, Substring/temporary values, derived Text, and every unclassified origin as RejectBeforeEffect; do not invent a RuntimeLeaseRequired arm yet.
+Decision: treat only source-backed ExactText ordinary formal parameters as eligible for a future SourceResidence arm; the current physical admission set is empty, so call results, Substring/temporary values, derived Text, and every unclassified origin remain RejectBeforeEffect; do not invent a RuntimeLeaseRequired arm.
 Source authority + canonical issuer: callable_parameter_contract::issuer owns the ExactText(StringBox-as-Text) formal rows; a new source-backed route issuer must co-seal the same formal owner, target identity, and lifetime proof.
 Non-authority: MirType/StringBox spelling alone, TextFormalBorrowV1, raw HostHandle, TextEq/Substring source shape, Recipe ordinal, MIR ValueId, Dynamic lease, retain_h, benchmark, fallback, and retry.
 Fail-fast boundary: missing formal row, foreign owner/target, call-result or temporary origin, source proof ending before synchronous completion, or an unclassified arm rejects before body effect; route coverage must be exhaustive and disjoint.
@@ -36,10 +36,15 @@ formal-parameter arm.
 The partition is therefore intentionally small:
 
 ```text
-ExactText ordinary formal parameter  -> SourceResidence (issuer still open)
+ExactText ordinary formal parameter  -> SourceResidence candidate (not admitted)
 call result / Substring / temporary  -> RejectBeforeEffect
 derived / copied / unknown origin    -> RejectBeforeEffect
 ```
+
+The current physical admission domain contains zero Text actuals. Until a
+source-backed formal owner is issued, every physical Text path therefore
+rejects before effect; the formal row is only the one named candidate that the
+parent residence task may later consume.
 
 No runtime lease is selected by this child. A lease may be reconsidered only
 after a later source-backed origin issuer proves that the formal owner ends
@@ -47,11 +52,11 @@ before the call and names the exact acquire/finish target.
 
 ## Acceptance and stop line
 
-Acceptance requires one non-`Clone` route partition, exact coverage of every
-admitted Text actual, no overlapping arms, and a typed reject for every
-non-formal origin. The accepted formal arm still carries no physical IDs; it
-only hands a source-backed owner and target identity to the parent residence
-decision.
+Acceptance requires one non-`Clone` route partition, exact coverage of the
+currently empty physical admission set, no overlapping arms, and a typed
+reject for every non-formal origin. The formal candidate carries no physical
+IDs; it only names the source-backed owner and target identity that the parent
+residence decision must eventually issue.
 
 If the formal source owner cannot be issued without raw slot/name/MIR
 inference, this child remains:
