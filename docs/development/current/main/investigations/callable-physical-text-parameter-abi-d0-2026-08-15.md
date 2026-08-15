@@ -51,6 +51,35 @@ the package has no source-backed physical Text formal owner. Adding a default
 opaque handle, borrowing the existing `HomeDemand::Handle`, or reading
 `MirType::String` would be an authority change and is forbidden here.
 
+## Existing-candidate census
+
+The current repository has several nearby representations, but none is the
+missing formal-parameter owner:
+
+```text
+ExactTextFormalAbiV1
+  = source spelling / semantic formal classification only
+HomeDemandV1::Handle
+  = one-way Home demand projection; no Text wire or ownership policy
+include/nyrt_host_api.h HostHandle
+  = generic reverse-call handle and TLV surface; no Text formal lane
+include/nyrt_dynamic_call_slot_v2.h HostHandle
+  = generic CallSlot value/fault/lease transport; not callable-header ABI
+include/nyrt_dynamic_text_scan_v1.h
+  = TextScan-specific symbolic facts; no ordinary StringBox formal issuer
+TextReadSession / BorrowedHandleBox
+  = runtime read/cache helpers; no compiler-owned lifetime receipt
+nyash.string.eq_hh
+  = hookable compatibility export with fallback and invalid-handle policy
+```
+
+The public ABI inventory has `handle_owned` and `handle_borrowed_string`
+classes, but it does not bind either class to an ExactText formal slot,
+source `BindingRef`, callable header, or Completion cohort. `StringBox`'s
+Rust equality and the kernel `eq_hh` export are implementation evidence only.
+Until one owner closes those gaps, the correct state is the existing typed
+`NoSafeSlice`, not a new adapter around a nearby generic handle.
+
 ## Required design acceptance
 
 The design may close only after it names:
