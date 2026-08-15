@@ -136,8 +136,8 @@ Negative before any Builder/session:
 Main.main or Required root treated as child
 ordinary/Dynamic row treated as S6C
 foreign selected/batch/source identity
-zero or multiple loop sites
-typed shape mismatch classified as hard corruption
+zero or multiple loop sites classified as TypedNonMember for the closed family
+resolver/source-ledger corruption classified as HardReject
 missing or duplicate candidate
 Length/Substring target or source relation drift
 Completion seed missing, foreign, cloned, or consumed twice
@@ -179,4 +179,3 @@ fallback, retry, or runtime route arbitration
 
 The parent card remains the owner of TextFormal mapping and the generic V2
 operation/control envelope. This child card does not reopen either design.
-
