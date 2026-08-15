@@ -66,6 +66,12 @@ both direct retirement paths must converge on one pin-aware helper. C/LLVM
 receives only a later fixed wire projection; the source receipt and token stay
 caller-private.
 
+The actualizer cannot smuggle an owned handle through an ordinary MIR
+`Call`: the current Ownership SSA verifier rejects managed call operands and
+results. The accepted design must therefore name either a borrow-only
+capture/terminal or a dedicated ownership-aware call capability; a raw
+`Vec<ValueId>` call edge or a `KeepAlive` no-op is not a lifetime proof.
+
 This is a BoxShape decision only. Any SlotTable pin count, deferred retirement,
 or C/runtime token implementation is a later BoxCount and remains unopened.
 
@@ -82,12 +88,16 @@ drop/release/rebind during call; stale generation; non-Text payload; zero slot;
 duplicate finish; finish on the wrong generation; partial-acquire leak;
 residence/token escape from the HRTB/call scope; one-lane adoption; raw
 retain/release; direct `drop_handle` bypass; fallback to another route;
+ordinary managed `Call` with an owned handle; `KeepAlive` as a substitute;
 language Fault or retry on invariant failure
 ```
 
 Until these ownership and cleanup rules have a named issuer and a focused
-caller-zero proof, the parent signature row remains:
+caller-zero proof, this child remains:
 
 ```text
-NoSafeSlice::MissingTextFormalCallableSignatureIssuer
+NoSafeSlice::MissingTextFormalCallResidenceIssuer
 ```
+
+Only after this child closes does the parent resume its separate
+`MissingTextFormalCallableSignatureIssuer` mapping/target/session decision.
