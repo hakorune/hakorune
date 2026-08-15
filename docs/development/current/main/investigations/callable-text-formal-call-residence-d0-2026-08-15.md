@@ -18,12 +18,12 @@ formal-versus-reject origin partition before choosing a lifetime route.
 ## Six-line brief
 
 ```text
-Decision: choose exactly one lifetime route for every admitted ExactText call—source-backed residence spanning synchronous completion, or a mandatory opaque runtime lease—and keep caller-private prepared actualization as the sole composer; the two-lane signature remains only a preferred target.
-Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the route decision must name its source-backed issuer, and only the selected route may co-seal prepared actualization and runtime capture.
-Non-authority: TextFormalBorrowV1 read-lock closure, HostHandleLeaseIdentityV1, DynamicV2 lease, raw HostHandle, ObjectIdentity, retain_h, KeepAlive, Completion, C validator, AST/MIR/ValueId, and runtime fallback.
-Fail-fast boundary: route/source-owner loss or generation capture failure rejects before body effect; partial acquire rolls back; normal continuation finishes exactly once, while the current no-unwind trap ABI never requires a post-trap cleanup callback.
-Smallest next slice: classify all admitted Text actual origins, choose one mandatory route, then design its ownership handoff, source/call target co-seal, and retirement/rollback paths; only after acceptance may a caller-zero wire/map implementation begin.
-Non-claims: no signature issuer, physical arity change, C ABI caller, TextEq route, Substring corridor, ValueId adoption, Canonical session, Builder, production caller, fallback, retry, or main integration.
+Decision: for the closed formal-only domain, choose one mandatory callee-entry lease route: every admitted ExactText call carries contiguous `slot,generation` lanes, and exactly one callee entry acquires/pins that pair; the 16-byte aggregate and source-residence-only route are not admitted here.
+Source authority + canonical issuer: ExactText parameter contracts supply logical BindingRef/ordinal; the future package-owned `VerifiedCallablePhysicalSignatureCohortV1` co-seals the two lanes and entry-lease plan, while the runtime `acquire_text_formal_call_lease_v1(pair)` is the sole mechanical pin issuer.
+Non-authority: `TextFormalBorrowV1` read-lock closure, raw-handle generation recapture, `HostHandleLeaseIdentityV1`, DynamicV2 lease, raw HostHandle, ObjectIdentity, retain_h, KeepAlive, Completion semantic cleanup, C validator, AST/MIR/ValueId, caller-side duplicate pin, and fallback.
+Fail-fast boundary: validate/acquire every ExactText pair before BindingRef publication/body effect; zero/missing/stale/non-Text/retiring/overflow, lane/target/brand drift, partial acquire, or missing/duplicate/foreign finish rejects canonically; normal continuation finishes exactly once and noreturn trap needs no post-trap cleanup.
+Smallest next slice: fix the formal-only origin partition and this one-entry-owner handoff; then a caller-zero runtime BoxCount may add pin-aware retirement and opaque acquire/finish, followed later by mapping-aware call actualization and composite Canonical adoption.
+Non-claims: no source-residence issuer, signature implementation, physical arity activation, C entry caller, TextEq route, Substring corridor, ValueId adoption, Canonical session, Builder, production caller, retry, or main integration.
 ```
 
 ## Why the current runtime is insufficient
@@ -36,9 +36,11 @@ it neither preserves the original generation identity nor covers every
 operation, not a callable-wide borrow. Therefore none of these can be the
 callable signature's lifetime authority.
 
-## Candidate owner shape (not yet selected)
+## Selected route shape (design-only; issuer not landed)
 
-The planned source receipt is intentionally opaque and non-`Clone`:
+The planned actualizer and lease are intentionally opaque and non-`Clone`;
+the source owner is only the pre-call actualization proof, not the lifetime
+owner after callee entry:
 
 ```text
 VerifiedCallScopedTextOwnerLifetimeV1 {
@@ -52,23 +54,24 @@ PreparedTextFormalCallActualizationV1 {
     private capture_and_call: caller-private exact transition
 }
 
-TextFormalCallLeaseTokenV1 { // only if source proof ends before call return
+TextFormalCallLeaseTokenV1 {
     private pair: {slot, generation},
+    private lease_slot: TextFormalEntryLeaseSlotIdV1,
     private finish: exactly-once discharge
 }
 ```
 
-The source-backed caller owner must prove that the original Text input remains
-live until call completion. A raw-slot acquire is forbidden because it could
-capture the current generation of an already-reused replacement. The prepared
-actualizer consumes the source proof and target signature together, then either
-performs atomic Text validation/generation capture immediately before the
-synchronous call, or consumes the separate runtime lease token if the source
-proof cannot span the call. Existing `drop_handle`, Dynamic lease retirement,
-and `retain_h` are not sufficient. If the runtime lease variant is selected,
-both direct retirement paths must converge on one pin-aware helper. C/LLVM
-receives only a later fixed wire projection; the source receipt and token stay
-caller-private.
+The caller-side actualizer must obtain the pair from the same source-backed
+formal owner and target row, but it must not pin. A raw-slot acquire is
+forbidden because it could capture the current generation of an already-reused
+replacement. At the callee entry, `acquire_text_formal_call_lease_v1(pair)`
+atomically validates Text class/generation and creates the single move-only
+lease. Nested calls forward the composite pair without another pin. The
+session sees only the private `TextFormalEntryLeaseSlotIdV1`; it never treats
+generation as a second BindingRef value. Existing `drop_handle`, Dynamic lease
+retirement, and `retain_h` are not sufficient. Both direct retirement paths
+must later converge on one pin-aware helper. C/LLVM receives only the fixed
+two-lane projection; the source receipt and lease token stay private.
 
 The actualizer cannot smuggle an owned handle through an ordinary MIR
 `Call`: the current Ownership SSA verifier rejects managed call operands and
@@ -79,14 +82,14 @@ capture/terminal or a dedicated ownership-aware call capability; a raw
 This is a BoxShape decision only. Any SlotTable pin count, deferred retirement,
 or C/runtime token implementation is a later BoxCount and remains unopened.
 
-## Open route decision
+## Remaining implementation boundary
 
-The current repository has no issuer for
-`VerifiedCallScopedTextOwnerLifetimeV1` and no accepted predicate deciding
-when a runtime lease is required. The two candidates above are therefore not
-an optional runtime branch: D0 must choose one finite route for all admitted
-Text calls before any BoxCount. Creating only a runtime pin or only a compiler
-receipt would otherwise introduce an unused or partial authority.
+The route decision is now finite: only source-backed ExactText formal
+parameters may become future physical calls, and they all use the mandatory
+callee-entry lease. The current repository still has no issuer for the
+source-to-target actualizer, no pin-aware retirement, and no composite session
+adoption. Those are the next bounded implementation/design rows; they are not
+permission to add a second source-residence route.
 
 The callable target terminal must consume this residence through the same
 package-owned physical-signature row that maps one logical `BindingRef` to

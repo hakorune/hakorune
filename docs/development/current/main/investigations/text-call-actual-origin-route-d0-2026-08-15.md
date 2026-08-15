@@ -13,11 +13,11 @@ actualizer is implemented. It does not broaden the admitted Text shapes.
 ## Six-line brief
 
 ```text
-Decision: treat only source-backed ExactText ordinary formal parameters as eligible for a future SourceResidence arm; the current physical admission set is empty, so call results, Substring/temporary values, derived Text, and every unclassified origin remain RejectBeforeEffect; do not invent a RuntimeLeaseRequired arm.
-Source authority + canonical issuer: callable_parameter_contract::issuer owns the ExactText(StringBox-as-Text) formal rows; a new source-backed route issuer must co-seal the same formal owner, target identity, and lifetime proof.
+Decision: treat only source-backed ExactText ordinary formal parameters as eligible for a future mandatory callee-entry lease arm; the current physical admission set is empty, so call results, Substring/temporary values, derived Text, and every unclassified origin remain RejectBeforeEffect.
+Source authority + canonical issuer: callable_parameter_contract::issuer owns the ExactText(StringBox-as-Text) formal rows; a future package-owned actual-origin issuer must additionally co-seal the argument ordinal/site, `Local(BindingRef)` reaching the original formal without rebind, whole-source target identity, callee ExactText row, two lanes, and entry-lease plan.
 Non-authority: MirType/StringBox spelling alone, TextFormalBorrowV1, raw HostHandle, TextEq/Substring source shape, Recipe ordinal, MIR ValueId, Dynamic lease, retain_h, benchmark, fallback, and retry.
 Fail-fast boundary: missing formal row, foreign owner/target, call-result or temporary origin, source proof ending before synchronous completion, or an unclassified arm rejects before body effect; route coverage must be exhaustive and disjoint.
-Smallest next slice: issue one private route partition with exact formal coverage and explicit RejectBeforeEffect rows, then feed only the accepted formal arm into CALLABLE-TEXT-FORMAL-CALL-RESIDENCE-D0.
+Smallest next slice: issue one private route partition with exact formal coverage and explicit RejectBeforeEffect rows, then feed only the formal arm into the mandatory callee-entry lease design.
 Non-claims: no runtime pin, C ABI, physical arity, TextEq route, Substring corridor, ValueId, Canonical session, Builder, production caller, fallback, or main integration.
 ```
 
@@ -26,6 +26,10 @@ Non-claims: no runtime pin, C ABI, physical arity, TextEq route, Substring corri
 The only current `ExactText` semantic issuer is the ordinary callable parameter
 issuer. It accepts the explicit `StringBox` spelling as logical Text and emits
 an ordinal/`BindingRef` formal contract. Dynamic admission rejects this kind.
+That formal row alone is not a call-site origin proof: the same `BindingRef` may
+survive a local rebind. The future arm therefore requires the source-backed
+argument site, `Local(BindingRef)` reaching the original formal, exact static
+target, and callee formal row to be co-sealed once.
 
 There is no source-backed physical residence issuer for a call result,
 Substring result, temporary span, copied/derived Text, or a TextEq operand.
@@ -36,7 +40,7 @@ formal-parameter arm.
 The partition is therefore intentionally small:
 
 ```text
-ExactText ordinary formal parameter  -> SourceResidence candidate (not admitted)
+ExactText ordinary formal parameter  -> MandatoryEntryLease candidate (not admitted)
 call result / Substring / temporary  -> RejectBeforeEffect
 derived / copied / unknown origin    -> RejectBeforeEffect
 ```
@@ -46,9 +50,9 @@ source-backed formal owner is issued, every physical Text path therefore
 rejects before effect; the formal row is only the one named candidate that the
 parent residence task may later consume.
 
-No runtime lease is selected by this child. A lease may be reconsidered only
-after a later source-backed origin issuer proves that the formal owner ends
-before the call and names the exact acquire/finish target.
+No nonformal origin may select a lease. A source-residence-only route is not a
+second arm here; it would require a separate language/profile Decision and is
+parked until a source owner can prove call-complete lifetime.
 
 ## Acceptance and stop line
 
