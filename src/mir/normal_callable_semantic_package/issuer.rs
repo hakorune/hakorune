@@ -36,6 +36,9 @@ use super::model::{
 use super::physical_header::{
     issue_callable_physical_header_from_seeds_v1, CallablePhysicalHeaderIssueV1,
 };
+use super::physical_signature::{
+    issue_callable_physical_signature_v1, CallablePhysicalSignatureIssueV1,
+};
 use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
@@ -48,6 +51,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     SelectedMapping(SelectedCallableBatchMapIssueV1),
     ParameterContract(CallableParameterContractIssueV1),
     PhysicalHeader(CallablePhysicalHeaderIssueV1),
+    PhysicalSignature(CallablePhysicalSignatureIssueV1),
     S6CChild(S6CSemanticChildIssueV1),
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     Dynamic {
@@ -84,6 +88,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
                 batch_slot: declaration.batch_slot(),
                 owner: declaration.owner(),
+                mode: declaration.mode(),
                 parameters: declaration
                     .parameters()
                     .iter()
@@ -209,12 +214,20 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             )
         }
     };
+    let physical_signature = issue_callable_physical_signature_v1(
+        catalog.catalog().brand().clone(),
+        &batch,
+        &selected,
+        &parameter_contracts,
+    )
+    .map_err(NormalCallableSemanticPackageIssueV1::PhysicalSignature)?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         catalog,
         batch,
         selected,
         parameter_contracts,
+        physical_signature,
         s6c_child,
         physical_header,
         dynamic,

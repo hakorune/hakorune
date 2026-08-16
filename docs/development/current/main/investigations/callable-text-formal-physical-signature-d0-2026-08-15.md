@@ -1,8 +1,8 @@
 ---
-Status: accepted BoxShape; active caller-zero implementation brief
+Status: caller-zero I0 landed; next Residence D0 design stop
 Date: 2026-08-16
 Work mode: fast
-Classification: T2 BoxShape accepted; next T2 BoxCount is caller-zero
+Classification: T2 BoxShape accepted; T2 caller-zero BoxCount landed
 Parent: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 ---
 
@@ -608,3 +608,45 @@ current package-owned physical-signature mapping I0.
 The current fast-path review is read-only because stable root backing,
 CP-cursor lowering, and performance admission are future authorities, not
 permissions to widen the active signature I0.
+
+## Caller-zero physical-signature I0 landing (2026-08-16)
+
+The package now issues one non-`Clone`
+`VerifiedCallablePhysicalSignatureCohortV1` after the existing selected-map
+and complete explicit parameter-contract co-seals. Each selected direct Box
+method row retains its parser identity, owner, declaration mode, selected
+role, exact receiver binding when applicable, four distinct count axes, and a
+complete ordered lane list. Top-level rows remain in the complete semantic
+batch but are not silently assigned a method physical signature.
+
+The issuer verifies `SourceBindingSiteV1::Receiver` directly from the
+batch-owned resolved function. Static methods reject a receiver binding;
+instance methods require the owner-matching Receiver record; explicit
+parameter bindings must be ordinal-complete and owner-matching. Lane roles
+are emitted as `[InstanceReceiver?]` followed by ordinal explicit lanes, with
+ExactText represented only as adjacent `[ExactTextSlot,
+ExactTextGeneration]`. No physical `ValueId`, Completion, header, runtime
+token, call site, or residence is created.
+
+Installation moves the cohort with the non-splittable package. The installed
+Port's S6C surface is now one combined HRTB loan: selected lowering input and
+its contracts, the package-owned S6C child, and its matching physical
+signature row are lent together and consumed exactly once. Generic selected
+key/admission paths cannot take the Main/S6C row independently, so a later
+call-edge issuer has one scoped seam to extend rather than two selected-key
+consumptions.
+
+Focused evidence:
+
+```text
+physical_signature_tests: 2/2
+s6c_child_tests: 2/2
+normal_callable_semantic_package: 29/29
+cargo check --lib: green (inherited warning census only)
+```
+
+The next bounded row is `TEXT-FORMAL-PINNED-RESIDENCE-D0`. It must first name
+the compiler/runtime residence issuer, stable backing class, checked enter /
+finish carrier, and post-transform lifetime verifier. The current I0 does
+not open call-edge actualization, session values, pinned pointers, Text
+execution, production callers, fallback, or retry.

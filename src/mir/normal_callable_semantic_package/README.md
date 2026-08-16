@@ -77,6 +77,36 @@ issues one move-only physical-header projection. The package loan transports
 that projection to A-prime exactly once; A-prime consumes it for the physical
 header and never re-observes the AST/root declaration.
 
+## Callable physical signature mapping (2026-08-16)
+
+The package now issues one non-`Clone` physical-signature cohort from the same
+selected/batch identity, declaration mode, exact instance `Receiver` binding,
+and complete explicit parameter-contract rows. It is a projection-only
+mapping: no `ValueId`, Completion, runtime token, call-site actual, or Text
+residence is owned here.
+
+```text
+source_logical_arity       = explicit source formal count (/N)
+receiver_lane_count        = 1 iff InstanceBoxMethod, otherwise 0
+physical_formal_lane_count = sum(explicit formal lane widths)
+physical_callable_lane_count
+  = receiver_lane_count + physical_formal_lane_count
+
+physical order:
+  [InstanceReceiver?]
+  then each explicit formal in ordinal order
+    ordinary   -> [OrdinaryScalar]
+    ExactText  -> [ExactTextSlot, ExactTextGeneration]
+```
+
+The receiver is `SourceBindingSiteV1::Receiver`, not an explicit formal and
+not an ExactText ordinal. Static methods have no receiver lane. Lengths of
+`/N`, `FunctionSignature`, or `Vec<ValueId>` never repair or infer this map.
+The installed Port lends the selected input, parameter contracts, package
+S6C child, and its matching signature row through one exactly-once HRTB loan;
+separate child/key loans cannot be recombined. Skeleton, call-edge, and
+Canonical-session consumers remain later mechanical projections.
+
 ## Source/header transport (2026-08-15)
 
 The package also has a caller-zero, Builder-free source/header cohort. When

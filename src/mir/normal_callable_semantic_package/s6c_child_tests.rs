@@ -43,6 +43,9 @@ fn installed_s6c_child_lends_one_completion_cohort_exactly_once() {
             child.result(),
             crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
         );
+        assert_eq!(child.signature().source_logical_arity(), 2);
+        assert_eq!(child.signature().physical_formal_lane_count(), 4);
+        assert_eq!(child.selected().parameter_contracts().count(), 2);
         child.with_completion_parity(|completion| {
             assert!(completion.cleanup_empty());
             assert_eq!(completion.explicit_exit_count(), 2);

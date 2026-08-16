@@ -2,7 +2,9 @@ use crate::mir::builder::{
     CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
-use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::callable_parameter_contract::{
+    CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
+};
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
@@ -19,6 +21,7 @@ pub(super) struct OwnedCallableParameterContractV1 {
 pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) batch_slot: u32,
     pub(super) owner: FunctionOwnerIdV1,
+    pub(super) mode: CallableParameterDeclarationModeV1,
     pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
 
@@ -33,6 +36,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) physical_signature:
+        super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     pub(super) physical_header:
         Option<super::physical_header::VerifiedCallablePhysicalHeaderCohortV1>,
@@ -80,6 +85,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             .iter()
             .map(|row| row.parameters.len())
             .sum()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn physical_signature(
+        &self,
+    ) -> &super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1 {
+        &self.physical_signature
     }
 
     #[cfg(test)]

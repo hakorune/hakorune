@@ -11,6 +11,7 @@ mod install;
 mod issuer;
 mod model;
 mod physical_header;
+mod physical_signature;
 mod s6c_child;
 mod selected_mapping;
 
@@ -18,6 +19,8 @@ mod selected_mapping;
 mod main_static_child_tests;
 #[cfg(test)]
 mod physical_header_tests;
+#[cfg(test)]
+mod physical_signature_tests;
 #[cfg(test)]
 mod s6c_child_tests;
 #[cfg(test)]
@@ -35,3 +38,7 @@ pub(crate) use model::{
     NormalCallableDynamicProjectionRefV1, VerifiedNormalCallableSemanticPackageV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
+pub(crate) use physical_signature::{
+    PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
+    VerifiedCallablePhysicalSignatureCohortV1,
+};

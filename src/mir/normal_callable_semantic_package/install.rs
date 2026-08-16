@@ -20,6 +20,9 @@ use super::model::{
     VerifiedNormalCallableSemanticPackageV1,
 };
 use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysicalHeaderCohortV1};
+use super::physical_signature::{
+    PhysicalCallableSignatureRowRefV1, VerifiedCallablePhysicalSignatureCohortV1,
+};
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -41,6 +44,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     S6CChildUnavailable,
     S6CChildAlreadyConsumed,
     S6CChildKeyUnavailable,
+    PhysicalSignatureUnavailable,
 }
 
 #[derive(Debug)]
@@ -49,6 +53,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     physical_header: Option<VerifiedCallablePhysicalHeaderCohortV1>,
     dynamic: NormalCallableDynamicProjectionV1,
@@ -71,6 +76,54 @@ pub(crate) struct SelectedCatalogedCallableLoweringInputV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     admission: NormalCatalogedBoxMethodDraftAdmissionV1,
     physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
+}
+
+/// One exactly-once S6C child loan.  The selected input, its parameter
+/// contracts, the package-owned child, and the physical signature row are
+/// sibling views of the same installed cohort; callers cannot open them by
+/// separate key/slot lookups.
+pub(crate) struct S6CInstalledCallableLoanRefV1<'loan> {
+    selected: SelectedCallableLoweringInputRefV1<'loan>,
+    child: super::s6c_child::S6CSemanticChildRefV1<'loan>,
+    signature: PhysicalCallableSignatureRowRefV1<'loan>,
+}
+
+impl S6CInstalledCallableLoanRefV1<'_> {
+    pub(crate) fn selected(&self) -> &SelectedCallableLoweringInputRefV1<'_> {
+        &self.selected
+    }
+
+    pub(crate) const fn signature(&self) -> PhysicalCallableSignatureRowRefV1<'_> {
+        self.signature
+    }
+
+    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.child.owner()
+    }
+
+    pub(crate) const fn result(
+        &self,
+    ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
+        self.child.result()
+    }
+
+    pub(crate) fn with_completion<R>(
+        &self,
+        callback: impl for<'facts> FnOnce(
+            crate::mir::loop_recipe_contract::S6CPrephysicalCompletionRefV2<'facts>,
+        ) -> R,
+    ) -> R {
+        self.child.with_completion(callback)
+    }
+
+    pub(crate) fn with_completion_parity<R>(
+        &self,
+        callback: impl FnOnce(
+            crate::mir::loop_recipe_contract::S6CPrephysicalCompletionParityRefV2,
+        ) -> R,
+    ) -> R {
+        self.child.with_completion_parity(callback)
+    }
 }
 
 /// Exactly-once Main static-child input.  The generic key-only admission is
@@ -171,6 +224,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            physical_signature,
             s6c_child,
             physical_header,
             dynamic,
@@ -184,6 +238,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             batch,
             selected,
             parameter_contracts,
+            physical_signature,
             s6c_child,
             physical_header,
             dynamic,
@@ -315,7 +370,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
 impl NormalCallableSemanticPackagePortV1<'_> {
     pub(crate) fn with_s6c_child<R>(
         &mut self,
-        callback: impl for<'loan> FnOnce(super::s6c_child::S6CSemanticChildRefV1<'loan>) -> R,
+        callback: impl for<'loan> FnOnce(S6CInstalledCallableLoanRefV1<'loan>) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         if self.s6c_child_consumed {
             return Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed);
@@ -337,7 +392,20 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if self.consumed.contains(&key) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
         }
-        let result = callback(super::s6c_child::S6CSemanticChildRefV1 { child });
+        let signature = self
+            .installed
+            .physical_signature
+            .row(child.batch_slot())
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
+        let result = self
+            .installed
+            .with_selected_lowering_input(&key, |selected| {
+                callback(S6CInstalledCallableLoanRefV1 {
+                    selected,
+                    child: super::s6c_child::S6CSemanticChildRefV1 { child },
+                    signature,
+                })
+            })?;
         self.consumed.insert(key);
         self.s6c_child_consumed = true;
         Ok(result)

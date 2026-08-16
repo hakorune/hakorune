@@ -75,6 +75,16 @@ impl VerifiedSelectedCallableBatchMapV1 {
             .map(|row| row.role)
     }
 
+    pub(super) fn identity_for_batch_slot(
+        &self,
+        batch_slot: u32,
+    ) -> Option<&CallableDeclarationIdentityV1> {
+        self.rows
+            .iter()
+            .find(|row| row.batch_slot == batch_slot)
+            .map(|row| &row.identity)
+    }
+
     pub(super) fn main_child_selection(
         &self,
         statement: u32,
