@@ -84,13 +84,14 @@ Related:
   seam are also landed. The session-stamp retention I0 now moves the existing
   mechanical cohort witness exactly once into the canonical session and lends
   only a scoped borrow. The V2-native physical-ID-free layout/placement
-  BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
-  activation remains parked until its boundary owns
+  BoxShape and its caller-zero transport I0 are now landed. The Length-result
+  canary I0 is also landed; the parent Bool result BoxShape is the next design
+  stop. A-prime lifecycle activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0`
-  is the active caller-zero canary. The Length-result BoxShape is accepted, but
-  the canary must consume the same relation/inventory/stamp once without
-  issuing ValueId, type, CallSlot, CFG, or edge effects.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
+  is the active design stop. The Length-result canary consumed the same
+  relation/inventory/stamp once without issuing ValueId, type, CallSlot, CFG,
+  or edge effects; the next BoxShape must name the sole Bool result owner.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1383,7 +1384,7 @@ Non-claims:
   performance, production caller, fallback, or retry is admitted by this D0.
 ```
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` — active caller-zero canary 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` — landed caller-zero canary 2026-08-17
 
 ```text
 Decision:
@@ -1409,15 +1410,22 @@ Fail-fast boundary:
   The outer unpublished-function transaction remains the only discard owner.
 
 Acceptance:
-  Positive same-cohort consumption, duplicate one-shot rejection, foreign or
-  drifted source rejection, and late-failure no-mutation tests are green. Only
-  then may the parent Bool result BoxShape reopen for physical materialization.
+  Positive same-cohort consumption, duplicate one-shot rejection, missing
+  stamp, source-shape validation, and late-failure no-mutation tests are green.
+  The parent Bool result BoxShape is now the next design stop for physical
+  materialization.
 
 Non-claims:
   No physical Length result, CallSlot lowering, Compare, branch/edge,
   `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
   performance, production caller, fallback, or retry is admitted by this I0.
 ```
+
+The canary is landed without opening a physical result. The next bounded
+decision is `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`:
+one session-local Bool result plan/receipt must borrow the producer, operand
+inventory, and retained stamp, use the canonical ValueId/type issuer, and
+name one later branch consumer before any physical effect is admitted.
 
 The earlier canonical-session admission and physical-function-entry rows are
 already landed caller-zero seams. This stop must not reopen them or use their
@@ -1436,7 +1444,6 @@ NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
 NoSafeSlice::AfterConditionSessionStampRetentionMissing
 NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
-NoSafeSlice::CanonicalLengthResultCanaryUnlanded
 ```
 
 ## Decision
@@ -2581,9 +2588,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-a | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` | co-seal the source Length contract, CallSlot/result/class, matching common operation row, and Compare-right key from one S6C ingress | accepted BoxShape 2026-08-17; fixed two-row physical-ID-free inventory only; no physical receipt, ValueId, call lowering, Compare, branch, CFG/PHI, fallback, retry, or production |
 | 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | landed 2026-08-17; three focused inventory tests are green; no physical emission, Builder/session mutation, or parent-result unlock |
 | 25b-l-b | `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` | retain the existing physical-entry cohort stamp through the consuming canonical session without copy/reconstruction, then expose only a scoped borrow | accepted BoxShape 2026-08-17; caller-zero I0 landed 2026-08-17 with move-only session ownership and scoped borrow; no physical condition result, ValueId, edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-c | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` | fix one session-local Bool result plan/receipt that borrows the producer/inventory/stamp, uses canonical ValueId/type issuance, and has one outer discard owner and one later branch consumer | active NoSafeSlice design stop; no ValueId, Compare, Length-call materialization, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-c | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` | fix one session-local Bool result plan/receipt that borrows the producer/inventory/stamp, uses canonical ValueId/type issuance, and has one outer discard owner and one later branch consumer | active NoSafeSlice design stop after the Length canary landed; no ValueId, Compare, Length-call materialization, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-d | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` | name the sole same-session issuer for the Length CallSlot physical result required by the parent Bool receipt | accepted BoxShape 2026-08-17; the first consumer is a no-effect one-shot canary, with no ValueId, CallSlot lowering, Compare, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-d-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` | consume the same-cohort Length relation/inventory/stamp exactly once as a Builder-neutral canary | active fast row; positive, duplicate, foreign/drift, and late-failure no-mutation gates required; no physical Length result, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-d-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` | consume the same-cohort Length relation/inventory/stamp exactly once as a Builder-neutral canary | landed 2026-08-17; positive, duplicate, missing-stamp, source-shape, and late-failure no-mutation gates are green; no physical Length result, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

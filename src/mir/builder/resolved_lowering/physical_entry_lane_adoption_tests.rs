@@ -70,6 +70,53 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
 }
 
 #[test]
+fn length_result_canary_is_same_cohort_and_one_shot() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(996).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let expected_owner = loan.callable().owner();
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, _draft| {
+                let canary = canonical
+                    .issue_length_call_materialization_canary()
+                    .expect("same-cohort Length canary");
+                assert_eq!(canary.owner(), expected_owner);
+                assert_eq!(canary.stamp_owner(), expected_owner);
+                drop(canary);
+                assert!(canonical
+                    .issue_length_call_materialization_canary()
+                    .is_err());
+                Ok(())
+            },
+        )
+        .expect("Length canary session");
+        assert!(builder.function_state.current_function.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
 fn late_callback_failure_discards_builder_and_physical_session() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(992).expect("resolver");
     let package = issue_normal_callable_semantic_package_v1(
@@ -94,7 +141,10 @@ fn late_callback_failure_discards_builder_and_physical_session() {
         let mut builder = MirBuilder::new();
         let input = skeleton.into_session_input();
         let rejected =
-            with_common_v2_physical_entry_session(&mut builder, input, |_canonical, _draft| {
+            with_common_v2_physical_entry_session(&mut builder, input, |canonical, _draft| {
+                canonical
+                    .issue_length_call_materialization_canary()
+                    .expect("Length canary before late rejection");
                 Err::<(), _>("late canary rejection".to_owned())
             });
         assert_eq!(rejected, Err("late canary rejection".to_owned()));

@@ -54,6 +54,18 @@ already-consumed stamps, owner/key/signature/lane drift, foreign borrows, and
 late escape reject before physical result/edge/CFG effects. Focused positive,
 missing-stamp, and session-admission canary tests cover the seam.
 
+## Common V2 Length-result materialization canary I0
+
+The first consumer after the condition operand inventory is deliberately a
+Builder-neutral `LengthCallMaterializationCanaryV1`. It checks the retained
+source Length relation, the fixed two-row operand inventory, and the same
+physical-entry cohort stamp exactly once inside the canonical session. The
+receipt carries only source keys and cohort provenance; it creates no
+`ValueId`, type, `CallSlot`, CFG edge, or terminator. A missing stamp, owner or
+producer drift, malformed Length shape, and a second issue attempt reject
+before effect. This is a canary for the future Length result issuer, not a
+physical call lowering or a permission to emit the parent Bool comparison.
+
 ## Common V2 source-segment block allocation I0
 
 The first common-V2 Builder effect is deliberately limited to source-backed

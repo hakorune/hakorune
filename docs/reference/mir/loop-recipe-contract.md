@@ -1767,6 +1767,22 @@ Length-operation-drift tests are green. This I0 does not issue a ValueId or
 physical result and does not open Compare lowering, branch/edge effects,
 CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
 
+## Common V2 Length-result materialization canary I0 (2026-08-17)
+
+The first post-inventory consumer is a one-shot, Builder-neutral
+`LengthCallMaterializationCanaryV1`. It is issued only from the canonical
+session that retains the same installed S6C envelope and physical-entry cohort
+stamp. Its checks cover the source `StringLen/0` relation, the fixed condition
+operand inventory, owner/cohort provenance, and the required I64 source shape.
+The receipt contains source keys and stamp provenance only; it does not issue a
+`ValueId`, type, `CallSlot`, CFG edge, terminator, or physical call.
+
+Missing entry stamp, owner/producer or operand drift, malformed Length shape,
+and a second issue attempt reject before effect. This I0 proves only the
+same-session one-shot seam. It does not lower the Length call, publish an I64
+result, emit Compare/branch/edges, open CFG/SSA/PHI, claim Completion or
+DraftSeal, or activate lifecycle/Text/route/production/fallback behavior.
+
 ## Common V2 physical-entry stamp retention I0 (2026-08-17)
 
 The consuming physical-entry/session seam now moves the existing
