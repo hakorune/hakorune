@@ -218,6 +218,27 @@ capability. The named issuer is therefore a successor design seam, not an
 existing callable or a permission to reconstruct identity from a batch slot,
 function name, JSON length, or `ValueId`.
 
+The existing lowering order makes the missing seam concrete:
+
+```text
+NormalCallableSemanticPackagePortAdapterV1
+  -> lower_cataloged_static_box_method / lower_cataloged_instance_box_method
+RawInvocationChildPortV1
+  -> lower_normal_*_with_source_v1
+capture_*_pending_v1
+  -> CanonicalFunctionLoweringSessionV1
+  -> PreparedFunctionSessionCommitInputV1
+  -> MirFunction metadata / JSON
+```
+
+Only the S6C callback currently exposes a physical-signature row, and that
+loan is profile-specific. Ordinary selected methods reach the function
+session without any signature row, so the binder cannot silently treat the
+S6C loan, a physical header, or a function `ValueId` list as a universal
+signature. The successor design must choose one combined package Port loan or
+an equivalent function-entry handoff that covers every admitted method shape,
+or explicitly keep unsupported shapes at `RejectBeforeEffect`.
+
 The count/order projection is fixed, not inferred from a symbol or JSON length:
 `source_logical_arity` counts explicit source formals;
 `receiver_lane_count` is one only for `InstanceBoxMethod`; and
@@ -263,10 +284,12 @@ admission, production caller, fallback, or retry until that co-seal is closed.
 
 The next bounded design slice has four ordered seams; it is not yet an I0:
 
-1. **Bridge issuer:** name one canonical lowering/session handoff that consumes
-   `S6CInstalledCallableLoanRefV1::signature()` (or its same-cohort successor),
-   the active function's stamped plan/census, `TextFormalCallResidenceV1`, and
-   one target-layout capability. It must not infer package identity from a
+1. **Bridge issuer:** name one canonical handoff at
+   `capture_*_pending_v1` → `CanonicalFunctionLoweringSessionV1` /
+   `PreparedFunctionSessionCommitInputV1`. It must consume the installed
+   physical-signature loan (or a same-cohort all-method successor), the active
+   function's stamped plan/census, `TextFormalCallResidenceV1`, and one
+   target-layout capability. It must not infer package identity from a
    function name, `ValueId`, JSON length, or batch slot.
 2. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
    owner, stamp, receiver/formal order, root coverage, and target revision are
