@@ -13,6 +13,11 @@ use crate::mir::compiler::common_v2_physical_function_entry_input::{
     PreparedCanonicalFunctionEntryInputV1,
 };
 use crate::mir::normal_callable_semantic_package::S6CCommonV2PreSessionLoanRefV1;
+use crate::mir::compiler::common_v2_session_admission::{
+    with_loop_v2_canonical_session_admission, LoopV2CanonicalSessionAdmissionRefV1,
+};
+use crate::parser::CallableDeclarationIdentityV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, FunctionSignature, MirFunction, MirType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -30,6 +35,97 @@ pub(crate) struct PreparedPhysicalFunctionSkeletonV1<'loan, 'source, 'join> {
     loan: S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>,
     function: MirFunction,
     descriptors: Box<[PhysicalCallableParameterDescriptorV1]>,
+    stamp: PhysicalFunctionEntryCohortStampV1,
+}
+
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct PhysicalFunctionEntryCohortStampV1 {
+    owner: FunctionOwnerIdV1,
+    selected_key: SelectedNormalCallableKeyV1,
+    signature_identity: CallableDeclarationIdentityV1,
+    lane_count: u32,
+}
+
+impl PhysicalFunctionEntryCohortStampV1 {
+    pub(in crate::mir) fn matches_loan(
+        &self,
+        loan: &S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
+    ) -> bool {
+        let callable = loan.callable();
+        self.owner == callable.owner()
+            && &self.selected_key == callable.selected().selected_key()
+            && self
+                .signature_identity
+                .same_as(callable.signature().identity())
+            && self.lane_count
+                == callable.signature().physical_callable_lane_count()
+    }
+}
+
+/// Compiler-only consuming input for the physical-entry/session seam. The
+/// shell, descriptor rows, and same-cohort loan cannot be independently
+/// recovered or re-paired after this handoff.
+pub(in crate::mir) struct PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join> {
+    loan: Option<S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>>,
+    function: Option<MirFunction>,
+    descriptors: Option<Box<[PhysicalCallableParameterDescriptorV1]>>,
+    stamp: PhysicalFunctionEntryCohortStampV1,
+}
+
+impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join> {
+    pub(in crate::mir) fn function_name(&self) -> &str {
+        &self
+            .function
+            .as_ref()
+            .expect("prepared physical entry input retains one shell")
+            .signature
+            .name
+    }
+
+    /// Borrow the same retained loan to issue the common-V2 admission, then
+    /// restore it before returning. The callback can consume the shell and
+    /// descriptors, but it cannot retain a second loan or re-pair siblings.
+    pub(in crate::mir) fn with_admission<R>(
+        &mut self,
+        callback: impl FnOnce(
+            &mut Self,
+            LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let loan = self
+            .loan
+            .take()
+            .ok_or_else(|| "physical entry input was already consumed".to_owned())?;
+        if !self.stamp.matches_loan(&loan) {
+            self.loan = Some(loan);
+            return Err("physical entry cohort stamp does not match retained loan".to_owned());
+        }
+        let result = with_loop_v2_canonical_session_admission(&loan, |admission| {
+            callback(self, admission)
+        })
+        .map_err(|error| format!("common-V2 admission rejected: {error:?}"))
+        .and_then(|nested| nested);
+        self.loan = Some(loan);
+        result
+    }
+
+    pub(in crate::mir) fn take_install_parts(
+        &mut self,
+    ) -> (
+        MirFunction,
+        Box<[PhysicalCallableParameterDescriptorV1]>,
+        PhysicalFunctionEntryCohortStampV1,
+    ) {
+        (
+            self.function
+                .take()
+                .expect("prepared physical entry shell consumed once"),
+            self.descriptors
+                .take()
+                .expect("prepared physical entry descriptors consumed once"),
+            self.stamp.clone(),
+        )
+    }
 }
 
 impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, 'join> {
@@ -46,16 +142,17 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
     }
 
     /// Move the retained cohort, detached shell, and descriptor rows into the
-    /// one adoption transaction. No caller can recover a second shell after
-    /// this handoff.
-    pub(crate) fn into_parts(
+    /// one compiler-only session transaction. No public caller can recover a
+    /// second shell after this handoff.
+    pub(crate) fn into_session_input(
         self,
-    ) -> (
-        S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>,
-        MirFunction,
-        Box<[PhysicalCallableParameterDescriptorV1]>,
-    ) {
-        (self.loan, self.function, self.descriptors)
+    ) -> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join> {
+        PreparedPhysicalEntrySessionInputV1 {
+            loan: Some(self.loan),
+            function: Some(self.function),
+            descriptors: Some(self.descriptors),
+            stamp: self.stamp,
+        }
     }
 }
 
@@ -123,10 +220,19 @@ pub(crate) fn reserve_common_v2_physical_function_skeleton<'loan, 'source, 'join
     function.metadata.declared_capability_uses = storage.uses().to_vec();
     function.metadata.runes = storage.attrs().runes.clone();
 
+    let stamp = PhysicalFunctionEntryCohortStampV1 {
+        owner: callable.owner(),
+        selected_key: callable.selected().selected_key().clone(),
+        signature_identity: signature_row.identity().clone(),
+        lane_count: u32::try_from(descriptors.len())
+            .map_err(|_| PhysicalFunctionSkeletonRejectV1::DescriptorCoverage)?,
+    };
+
     Ok(PreparedPhysicalFunctionSkeletonV1 {
         loan,
         function,
         descriptors,
+        stamp,
     })
 }
 

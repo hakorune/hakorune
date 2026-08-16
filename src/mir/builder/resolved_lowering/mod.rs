@@ -32,6 +32,7 @@ mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
 mod ownership;
 mod physical_entry_lane_adoption;
+mod physical_entry_session;
 mod selected_dynamic_physical_abi;
 mod selected_dynamic_physical_capability;
 mod selected_dynamic_physical_emitter;
@@ -42,6 +43,7 @@ pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,

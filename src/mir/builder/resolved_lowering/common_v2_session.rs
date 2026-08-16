@@ -4,6 +4,7 @@
 //! source/cohort checks; the canonical session owns the mutable CFG/SSA/PHI
 //! state.  No operation or control placement is emitted here.
 
+use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableParameterDescriptorV1;
 use crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionAdmissionRefV1;
 use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
 
@@ -30,6 +31,20 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         &self,
     ) -> &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope> {
         self.envelope
+    }
+
+    pub(in crate::mir) fn adopt_physical_entry_lanes(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        descriptors: &[PhysicalCallableParameterDescriptorV1],
+    ) -> Result<(), String> {
+        self.session
+            .adopt_physical_entry_lanes(builder, descriptors)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn physical_entry_sidecar_row_count(&self) -> usize {
+        self.session.physical_entry_sidecar_row_count()
     }
 }
 

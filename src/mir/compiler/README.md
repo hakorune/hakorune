@@ -115,25 +115,25 @@ descriptors; this I0 reserves the two `ValueId`s but does not publish either
 lane to BindingSSA. No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
 Text lowering, route, fallback, retry, or production caller is opened here.
 
-### ExactText entry-lane adoption I0
+### ExactText physical entry/session seam I0
 
-`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` is accepted as a BoxShape,
-and `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` has a green caller-zero canary. The
-next design stop is `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0`: the
-canary must not be treated as an atomic production seam while
-`PreparedPhysicalFunctionSkeleton::into_parts` can still split the cohort.
-The canonical BindingSSA map remains one logical
-`BindingRef -> slot ValueId`; the adjacent generation `ValueId` must live in a
-private move-only sidecar that is issued with the prepared physical parameter
-list. The sidecar is transport for entry/forward only: it is not a source
-rebind authority, an ordinary `read_entry` value, or a place to perform
-generation arithmetic. A fresh skeleton install/adoption transaction must own
-both the pending BindingSSA state and sidecar rollback, and must leave no
-published Builder/module state on rejection. Existing one-lane adoption APIs
-must not be called twice for one ExactText `BindingRef`. The focused canary
-covers the retained-shell install and the slot-only adoption handoff; it does
-not open later CFG or lifecycle work. Foreign re-pairing and mid-publication
-rollback remain design-stop negatives for the next seam.
+`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` and its caller-zero lane
+canary are now consumed by `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-I0`.
+`PreparedPhysicalEntrySessionInputV1` is compiler-only, non-`Clone`, and keeps
+the installed S6C loan, detached shell, descriptor rows, and one cohort stamp
+together. `with_common_v2_physical_entry_session` issues the common-V2
+admission from that retained loan, opens one fresh
+`CanonicalFunctionLoweringSessionV1`, installs the source Binding authority and
+physical shell, then adopts the canonical one-value
+`BindingRef -> slot ValueId` plus the private generation sidecar exactly once.
+
+The outer function session is the sole rollback owner: late adoption or
+callback rejection calls `discard_unpublished` once and leaves no current
+function, BindingSSA entry, sidecar, or module-visible state. No public
+`into_parts` split, second Port loan, ordinary generation read, Completion
+claim, DraftSeal, CFG/PHI, lifecycle, Text lowering, route, fallback, retry,
+or production caller is opened. The next design stop is
+`LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0`.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
