@@ -1,8 +1,8 @@
 ---
-Status: caller-zero I0 landed; next Residence D0 design stop
+Status: Residence D0 BoxShape accepted; next caller-zero Residence I0
 Date: 2026-08-16
-Work mode: design_stop
-Classification: T2 BoxShape accepted; T2 caller-zero BoxCount landed
+Work mode: fast
+Classification: T2 BoxShape accepted; T2 caller-zero BoxCount next
 Parent: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 ---
 
@@ -216,7 +216,7 @@ generation recapture, a V2-to-V1 adapter,
 S6C-specific physicalizer, root/slice/pointer state in the signature product,
 Builder/session inference, fallback, or retry.
 
-## Active implementation brief
+## Completed signature I0 brief
 
 ```text
 Change:
@@ -227,6 +227,19 @@ Done:
   focused static/instance, ordinary/ExactText/mixed positive rows; missing/duplicate/foreign receiver and lane-gap/overlap/swap negatives; non-Clone/private-constructor/caller-zero guard; package README and ABI SSOT synchronized.
 Stop:
   return to NoSafeSlice if the issuer needs header/Completion, receiver or physical-count inference from function/parameter lengths, detached lane products, two Port consumptions for one S6C key, or any Builder/runtime/production caller.
+```
+
+## Next implementation brief: Residence I0
+
+```text
+Change:
+  add only the caller-zero StableText entry/frame transaction and its move-only residence handle for already-published [slot,generation] pairs; keep all compiler/session/loop consumers closed.
+Contract:
+  occurrence-ordered all-or-nothing validation, pin, stable UTF-8 root projection, private frame fill, and one opaque residence handle; no partial output, pointer escape, or raw-token exposure.
+Done:
+  valid one/two-formal and same-pair multiplicity positives; zero/missing/stale/non-Text/retiring/overflow, frame mismatch/non-overlap, partial-acquire, duplicate-finish, and post-retirement negatives; StableText-only README/test receipt.
+Stop:
+  return to NoSafeSlice::ResidenceI0ScopeWidened if StringBox, literal/call-edge origin, MIR ValueId, session CFG, PinnedTextOp, another backend, fallback, retry, or production selection is required.
 ```
 
 ## Ordered successor families
@@ -272,33 +285,49 @@ new card per type. The runtime lease I0 remains a substrate only. No family
 may claim a production callable route until the common V2 envelope, admitted
 route, residence, Completion epilogue, and canonical session meet at one edge.
 
+## Residence D0 acceptance (2026-08-16)
+
+```text
+Decision: accept a StableText-only, 64-bit `ny-llvmc(boundary pure-first)` Residence BoxShape: one package-owned physical-signature row drives one occurrence-ordered atomic entry transaction, one private residence frame, one session-branded root table, and one Completion-backed normal-exit finish capability; StringBox, literal origin, call edge, and production route remain separate cutover rows.
+Source authority + canonical issuer: the package physical-signature cohort supplies logical formal occurrence/order; the registry owns StableText backing, generation validation, pin/retirement, and frame fill; the Canonical session owns opaque residence/root/access IDs; Completion owns normal exits; the final MIR verifier is the only post-transform lifetime seal.
+Non-authority: raw `ptr,len`, raw slot/generation, `TextFormalBorrowV1`, type names or virtual `as_str_fast`, backend metadata, generic Load/Store, `ValueId` shape, source-site copies, Completion cleanup, benchmarks, environment, fallback, and retry.
+Fail-fast boundary: reject non-StableText backing, frame revision/size/count/alignment/non-overlap drift, partial acquire or frame publication, root/plan/lease detachment, pointer escape, use after finish, missing/duplicate/foreign normal-exit finish, any effect after finish before Return, unwind/catch, or non-primary backend fallback.
+Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-I0` implements only the caller-zero registry-owned entry/frame transaction and move-only residence handle for already-published pairs; it does not emit call edges, MIR ValueIds, Text leaves, session CFG, or production callers.
+Non-claims: no StringBox canonical publisher, literal/call-result/Substring origin, CP cursor, `PinnedTextOp`, AOT loop consumer, common V2/session fan-in, route admission, performance keeper, fallback/retry, or main integration.
+```
+
+The accepted BoxShape closes the authority direction and fail-fast boundary,
+but it does not claim that the compiler or runtime implementation exists. The
+next I0 remains caller-zero and StableText-only until a later Decision admits
+another backing class.
+
 The executable order stays intentionally small:
 
 ```text
-current: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
+landed: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0
   package lane map + combined Installed loan only
 
-next D0: TEXT-FORMAL-PINNED-RESIDENCE-D0
-  accept the phase-owned authority spine, exact backing, compiler-runtime
-  entry/frame ABI, root-occurrence mapping, lifecycle carriers, prepared/final
-  lifetime closure split, fail-stop finish, and capability-only DraftSeal seam
-  as one BoxShape
+current I0: TEXT-FORMAL-PINNED-RESIDENCE-I0
+  StableText-only registry entry/frame transaction + move-only residence handle
+  for already-published pairs; caller-zero and no compiler/session consumer
 
-next I0 family: TEXT-FORMAL-PINNED-RESIDENCE-I0
+same I0 family, later internal seams: TEXT-FORMAL-PINNED-RESIDENCE-I0
   exact formal call edge -> atomic residence frame -> Canonical private state
   -> prepared closure -> per-exit finish projection -> final lifetime verifier;
   literal origin remains the final cutover subrow and does not block the
   formal-only kernel
 
-then: LOOP-TEXT-SLICE-EXECUTION-D0/I0
+next D0 after Residence I0: LOOP-TEXT-SLICE-EXECUTION-D0
   sequential CP-cursor proof -> one PinnedTextOp variant/three leaves -> final
   census -> MIR JSON -> current `ny-llvmc(boundary pure-first)` direct consumer
   and structural negatives; `llvm_py` remains a non-production keep lane
 ```
 
-The residence D0 does not become accepted merely because this card records a
-candidate frame. It must close every named `NoSafeSlice` below before its I0;
-the current signature I0 neither implements nor issues any of those products.
+The accepted Residence D0 is deliberately narrow. Its contracts, the
+package-owned S6C child, and its matching physical-signature row remain
+scoped to one combined loan; the next I0 must close the named runtime/frame
+tests without opening any later owner. The current signature I0 neither
+implements nor issues those residence products.
 
 ## Read-only fast-path audit
 
@@ -652,8 +681,8 @@ normal_callable_semantic_package: 29/29
 cargo check --lib: green (inherited warning census only)
 ```
 
-The next bounded row is `TEXT-FORMAL-PINNED-RESIDENCE-D0`. It must first name
-the compiler/runtime residence issuer, stable backing class, checked enter /
-finish carrier, and post-transform lifetime verifier. The current I0 does
-not open call-edge actualization, session values, pinned pointers, Text
-execution, production callers, fallback, or retry.
+The Residence D0 is now accepted for the narrow StableText/caller-zero shape.
+The next bounded row is `TEXT-FORMAL-PINNED-RESIDENCE-I0`: implement only the
+registry-owned entry/frame transaction and move-only residence handle. It
+must not open call-edge actualization, session values, Text execution,
+production callers, fallback, or retry.
