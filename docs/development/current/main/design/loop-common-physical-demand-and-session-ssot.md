@@ -1567,7 +1567,7 @@ The condition-block target must be closed before the Length materializer can
 be admitted. It is deliberately callback-scoped so a segment receipt from a
 different physical session cannot be re-paired by owner or block equality.
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` — design stop 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` — accepted BoxShape 2026-08-18
 
 ```text
 Decision:
@@ -1581,12 +1581,15 @@ Decision:
 Source authority + canonical issuer:
   The resolver CoreMethod callable contract is the source authority for the
   exact `ResolvedLexicalRefV1::Local(BindingRefV1)` receiver relation. The
-  target plan, operand inventory, condition-block target, and stamp are the
-  already-sealed projections from the same S6C cohort. The canonical session
-  identity/SSA read seam is the sole physical issuer of the existing
-  `CanonicalBindingReadReceiptV1` (or a typed, callback-scoped Length receiver
-  view). No raw ValueId map, second session, or legacy CallSlot path may issue
-  or retain the operand.
+  existing condition-inventory issuer projects that relation as a private
+  `LengthReceiverBindingRefV1` view after its source `verify_call` proves the
+  receiver equals the subject binding. This is mechanical transport, not a
+  second semantic issuer. The target plan, operand inventory, condition-block
+  target, and stamp are the already-sealed projections from the same S6C
+  cohort. The canonical session identity/SSA read seam is the sole physical
+  issuer of the existing `CanonicalBindingReadReceiptV1` (or a typed,
+  callback-scoped Length receiver view). No raw ValueId map, second session,
+  or legacy CallSlot path may issue or retain the operand.
 
 Non-authority:
   Raw LoopValueKey/ValueId, `CoreMethodOp::StringLen` alone, method spelling,
@@ -1596,18 +1599,20 @@ Non-authority:
   retain the receiver operand.
 
 Fail-fast boundary:
-  Missing/foreign receiver BindingRef, owner/target/manifest/stamp drift,
-  condition-block or operand mismatch, unavailable canonical read receipt,
-  wrong binding/type, duplicate issuance, receipt escape, or late failure
-  rejects before any Call or result effect. The outer unpublished-function
-  transaction remains the sole rollback owner; fallback/retry is forbidden.
+  A non-local or missing resolver receiver, missing/foreign projected binding,
+  owner/target/manifest/stamp drift, condition-block or operand mismatch,
+  unavailable canonical read receipt, wrong binding/type, duplicate issuance,
+  receipt escape, or late failure rejects before any Call or result effect.
+  The outer unpublished-function transaction remains the sole rollback owner;
+  fallback/retry is forbidden.
 
 Smallest next slice:
   `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0`
-  consumes the same-session relation and lends exactly one receiver operand
-  view. Positive, receiver/type/owner drift, duplicate/re-entry, foreign
-  target, callback-escape, and late-discard tests are required. No Call is
-  emitted by this slice.
+  consumes the same-session `LengthReceiverBindingRefV1` projection and
+  lends exactly one canonical read receipt/view. Positive, non-local/missing
+  receiver, type/owner drift, duplicate/re-entry, foreign target,
+  callback-escape, and late-discard tests are required. No Call is emitted by
+  this slice.
 
 Non-claims:
   No Call, I64 result receipt, parent Bool receipt, Compare instruction,
@@ -2882,8 +2887,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-e-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-I0` | issue and consume the source-backed target plan exactly once in the existing callback | landed 2026-08-17; same-cohort facts, canonical StringBox.length, plan/canary parity, duplicate, missing-stamp, and late-discard gates are green; no canonical Call/result receipt or parent Bool effect |
 | 25b-l-f-D0 | `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-D0` | project the allocated source-segment receipt to the exact physical condition block through the same canonical session | accepted BoxShape 2026-08-17; callback-scoped owner/logical-block/physical-block/stamp view only; no Call, ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-f-I0 | `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0` | allocate source segments once and lend exactly one same-session condition-block target with late-discard and escape negatives | landed 2026-08-17; callback-scoped owner/logical-block/physical-block/stamp projection and late-discard canaries are green; no Length Call/result receipt, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-g-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` | fix the same-session source receiver BindingRef → canonical read receipt boundary before any Call effect | active NoSafeSlice design stop; target/operand/condition-block/stamp inputs are closed, while receiver projection, callback scope, and rollback consumer must be fixed before effect |
-| 25b-l-g-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0` | lend exactly one same-session receiver operand receipt with no Call or result emission | not started; no Call/ValueId result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-g-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` | fix the same-session source receiver BindingRef → canonical read receipt boundary before any Call effect | accepted BoxShape 2026-08-18; existing resolver relation → `LengthReceiverBindingRefV1` mechanical projection → canonical read receipt; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-g-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0` | lend exactly one same-session receiver operand receipt with no Call or result emission | active fast slice; canonical read only, with non-local/missing receiver, owner/type/target drift, duplicate/re-entry, escape, and late-discard tests; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | pending after receiver operand D0/I0; one Call plus one I64 receipt only, with no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | not started; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first close the receiver operand product, then the direct Call/result issuer before the parent Bool result | active NoSafeSlice design stop; the existing canary and target plan are landed, while receiver projection and direct Call/result realization remain unsealed; no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
