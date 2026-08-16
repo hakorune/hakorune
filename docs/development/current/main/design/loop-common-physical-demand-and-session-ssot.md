@@ -837,41 +837,86 @@ lifecycle, Text, route, fallback, retry, publication, or production caller.
 The next bounded design stop is
 `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0`.
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0` — active design stop
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0` — accepted BoxShape
 
 ```text
 Decision:
-  Decide the first synthetic After allocation effect after the typed
-  source-backed boundary is transported. Keep allocation separate from edges,
-  operations, CFG/PHI, Completion, and session construction.
+  Accept one synthetic After allocation effect after the typed source-backed
+  boundary is transported. Keep allocation separate from edges, operations,
+  CFG/PHI, Completion, and session construction.
 
 Source authority + canonical issuer:
-  Consume the existing VerifiedLoopV2AfterBoundarySourceRelationV1 from the
-  same common-V2 envelope. The canonical session block allocator is the sole
-  BasicBlockId issuer and the outer unpublished-function transaction is the
+  Consume the existing VerifiedLoopV2AfterBoundarySourceRelationV1 and the
+  source-segment allocation receipt from the same common-V2 envelope/session
+  scope. A compiler-side PreparedLoopV2AfterAllocationPlanV1 is the one-shot
+  plan issuer. CanonicalSsaFunctionSessionV2::create_unpublished_block is the
+  sole BasicBlockId issuer; the outer unpublished-function transaction is the
   sole discard owner.
 
 Non-authority:
   JoinSig After tuple, layout order, segment split ordinal, current Builder
-  cursor, MirFunction blocks, Recipe counts, BasicBlockId, ValueId, or a
-  profile-specific After physicalizer cannot infer allocation or a successor.
+  cursor, MirFunction blocks, Recipe counts, BasicBlockId, ValueId, ParentResume,
+  or a profile-specific After physicalizer cannot infer allocation or a
+  successor. A raw block receipt cannot be reacquired or paired with another
+  relation after the plan is consumed.
 
 Fail-fast boundary:
   Before Builder effect require one owner/function/relation stamp, RootAfter
-  disposition, exact source-segment coverage, no entry/segment collision, and
-  checked monotonic cursor range. Late failure must discard the unpublished
-  function once; cursor gaps remain non-semantic and no retry/fallback is
-  allowed.
+  disposition, exact source-segment coverage, one unconsumed allocation slot,
+  no entry/segment collision, and checked monotonic cursor range. The receipt
+  is session-scoped and cannot escape the callback. Late failure must discard
+  the unpublished function once; cursor gaps remain non-semantic and no
+  retry/fallback is allowed.
 
 Smallest next slice:
-  After this D0 is accepted, open one caller-zero I0 that allocates exactly
-  one unpublished After block from the consumed relation. Do not add edges,
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0`: consume one prepared plan,
+  allocate exactly one unpublished After block, and return only a
+  session-branded `PreparedAfterBlockViewV1` inside the callback. Add no edges,
   terminators, operations, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
-  route, fallback, retry, or a production caller.
+  route, fallback, retry, or production caller.
 
 Non-claims:
   No ParentResume admission, physical successor choice, operation/ReadBinding,
   effect emission, session publication, route selection, or legacy retirement.
+```
+
+The accepted BoxShape is intentionally a one-shot placement effect rather than
+a new topology owner. The plan must be derived from the already-issued typed
+After relation plus the already-issued source-segment receipt; it may not
+rescan Recipe/layout facts or use the Builder cursor as meaning. The returned
+physical block view is unpublished and callback-scoped. `create_unpublished_block`
+advances the monotonic cursor; a late outer discard may leave an unused numeric
+gap, which is non-semantic and is never reused.
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0` — next execution slice
+
+```text
+Change:
+  Add one caller-zero allocator for a RootAfter-only prepared plan. Consume the
+  plan exactly once, allocate one unpublished block through the canonical
+  session allocator, and expose only a session-branded view.
+
+Contract:
+  same owner/function/relation stamp
+  RootAfter only; ParentResume = 0
+  source-segment receipt is same-scope and complete
+  one allocation slot -> one BasicBlockId
+  outer function transaction owns every discard
+  monotonic cursor gaps are non-semantic
+
+Done:
+  positive one-block allocation
+  duplicate/foreign/reordered plan rejection
+  missing RootAfter and segment-coverage rejection
+  cursor range/collision rejection with no mutation
+  late callback failure leaves no published function/module
+  receipt cannot escape or be consumed twice
+  focused gate, README/reference receipt, pointer guard
+
+Stop:
+  ParentResume, successor/edge/terminator, operation or ReadBinding emission,
+  CFG/PHI, Completion/DraftSeal, lifecycle/Text, route/performance,
+  production caller, fallback/retry, and legacy retirement.
 ```
 
 The current layout view still carries only source loop/block/item segments and
