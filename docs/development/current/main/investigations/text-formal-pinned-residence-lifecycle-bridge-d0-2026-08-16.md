@@ -1,5 +1,5 @@
 ---
-Status: accepted BoxShape; proof-only exit-obligation I0 is the next row
+Status: historical BoxShape; superseded by the materializer exit-ledger correction
 Date: 2026-08-16
 Work mode: design_stop
 Parent: CALLABLE-TEXT-FORMAL-CALL-RESIDENCE-D0 / LOOP-TEXT-SLICE-DIRECT-AOT-D0
@@ -12,10 +12,11 @@ This card is the next design boundary after the scoped
 residence substrate to the existing function Completion/DraftSeal exit owner;
 it does not lower a `PinnedTextOp` or materialize a pointer.
 
-The no-unwind condition reuses the existing Stage0 cleanup/catch boundary:
-backend exception ABI and stack unwinding are closed there. This card does not
-mint a second trap policy; admitted functions must satisfy that existing policy
-and reject source catch/unwind shapes before any residence effect.
+The old Stage0 cleanup/catch inventory is superseded and is not an authority for
+this route. The accepted C-prime language policy has terminal Fault and no
+catchable Fault; a future materializer must additionally consume an exact
+backend no-unwind capability before any residence effect. This card does not
+mint that capability.
 
 ## Six-line brief
 
@@ -24,7 +25,7 @@ Decision: co-seal one function-owned lifecycle bridge for entry residence, norma
 Source authority + canonical issuer: PinnedTextBackendFrameContractV1/borrow owns compile-time plan and target facts, TextFormalCallResidenceV1 owns atomic lease/frame entry and finish, VerifiedFunctionCompletionV1 owns the exact normal-exit set, and a bridge issuer only joins same-function stamps without reissuing meaning.
 Non-authority: JSON/root numbers, raw ptr/len, slot or generation recapture, ValueId shape, StringSpan/ViewBox, semantic cleanup, Completion copies, backend CFG scans, PinnedTextOp kind inference, runtime fallback, and a second Return writer.
 Fail-fast boundary: reject missing/foreign plan or frame, entry after first Text read, partial acquire/rollback, detached frame/lease, root escape, duplicate/missing/foreign normal-exit finish, finish before return-operand evaluation, implicit/unit exits outside the admitted domain, and any trap that may unwind.
-Smallest next slice: design-only BoxShape for one explicit-value function: entry dominates every future Text leaf, one residence ledger owns the invocation, Completion's exact exit set drives one finish immediately before each DraftSeal Return, and trap/unreachable has no post-trap finish under NoUnwindFailStop.
+Smallest next slice: design-only BoxShape for one explicit-value function: entry dominates every future Text leaf, one residence ledger owns the invocation, Completion's exact exit set drives one finish immediately before each DraftSeal Return, and trap/unreachable has no post-trap finish only after an active backend no-unwind capability is verified.
 Non-claims: no GEP/load, UTF-8 execution, PinnedTextOp lowering, Canonical session adoption, route admission, production caller, literal/StringBox origin, performance result, fallback/retry, or main integration.
 ```
 
@@ -73,19 +74,21 @@ Entry failure has no published root or partial pin. A normal exit with a
 missing, duplicate, or foreign finish is rejected before object publication.
 The current admitted domain is explicit value-return exits only. Implicit
 body-end and unit exits remain typed unsupported until their Completion claim
-has a stable exit identity. A noreturn trap is accepted only when a
-`NoUnwindFailStop` capability is present; it does not require cleanup after the
+has a stable exit identity. A noreturn trap is accepted only when an active
+backend no-unwind capability is present; it does not require cleanup after the
 trap edge and must never fall through to Return.
 
-The missing compile-time witness is deliberately an exit obligation, not a
-runtime token carrier. The candidate shape is a private, non-`Clone`
-`PinnedTextResidenceExitObligationV1` containing only the function/plan/frame
-stamp, the expected explicit-value exit count, and the site-keyed exit claims.
-It is issued from the existing validated Completion/DraftSeal exit projection;
-it cannot be constructed from a block number, return ordinal, JSON metadata, or
-the runtime lease token. A later lifecycle implementation consumes this
-obligation together with the move-only `TextFormalCallResidenceV1`, while the
-obligation itself never owns or serializes the token.
+The missing compile-time witness is deliberately an exit capability, not a
+runtime token carrier or a second exit ledger. The predecessor prototype named
+`PinnedTextResidenceExitObligationV1` copied site/block/value rows and is not
+the successor authority. The corrected candidate is a private, non-`Clone`
+`PreparedTextFormalExitFinishSetV1` containing only the function/plan/frame/
+residence/session stamp. It is issued beside the existing validated
+Completion/DraftSeal exit projection; it cannot be constructed from a block
+number, return ordinal, JSON metadata, or the runtime lease token. A later
+lifecycle implementation consumes this capability together with the move-only
+`TextFormalCallResidenceV1`, while `PreparedFunctionExitSetV1` remains the sole
+site/block/value ledger.
 
 The D0 must also name the exact materialization seam: the same
 `PreparedFunctionExitSetV1` iteration that validates each detached exit must
@@ -95,12 +98,13 @@ second Return writer, the D0 remains open and no I0 is authorized.
 
 ## D0 acceptance
 
-The BoxShape is accepted for the explicit-value `Single` and `ExactTwo`
-exit-set vocabulary. `VerifiedFunctionCompletionV1` and
-`PreparedFunctionExitSetV1` remain the sole site-keyed exit authorities;
-Stage0's no-unwind stop is the sole trap policy. The next I0 may issue only a
-proof-only exit obligation from those existing products. It may not store a
-runtime token, change DraftSeal Return placement, or add a lifecycle MIR op.
+The predecessor BoxShape is retained as historical evidence for the explicit-
+value `Single` and `ExactTwo` vocabulary. `VerifiedFunctionCompletionV1` and
+`PreparedFunctionExitSetV1` remain the sole site-keyed exit authorities; the
+successor must name an active backend no-unwind capability rather than reuse
+the superseded Stage0 prose. No I0 is authorized until the stamp-only finish
+capability is designed. It may not store a runtime token, change DraftSeal
+Return placement, or add a lifecycle MIR op.
 
 ## Design acceptance matrix
 
@@ -136,6 +140,8 @@ placement to their existing owners.
 
 ```text
 NoSafeSlice::PinnedTextLifecycleBridgeUnsealed
+NoSafeSlice::PinnedTextExitFinishCapabilityDuplicatesLedger
+NoSafeSlice::PinnedTextNoUnwindCapabilityUnissued
 NoSafeSlice::ResidenceFrameNotFunctionOwned
 NoSafeSlice::PinnedRootDetachedFromLeaseSet
 NoSafeSlice::MissingNormalExitFinishCoverage

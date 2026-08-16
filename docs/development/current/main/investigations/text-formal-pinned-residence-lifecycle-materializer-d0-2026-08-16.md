@@ -1,5 +1,5 @@
 ---
-Status: design stop; next lifecycle materializer boundary
+Status: design stop; exit-ledger correction and trap-capability boundary
 Date: 2026-08-16
 Work mode: design_stop
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-D0 / I0
@@ -7,38 +7,52 @@ Parent: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-D0 / I0
 
 # TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0
 
-This card follows the completed proof-only exit-obligation I0. It decides the
-future entry/normal-exit materialization seam without yet executing a runtime
+This card follows the proof-only exit-obligation prototype. That prototype is
+historical evidence only: its copied per-exit rows are not a second exit
+authority and must not be carried into the lifecycle materializer. This card
+decides the corrected entry/normal-exit seam without yet executing a runtime
 finish, adding a lifecycle MIR instruction, or changing DraftSeal.
 
 ## Six-line brief
 
 ```text
-Decision: keep one function-owned lifecycle materializer over the accepted frame/plan contract, the move-only TextFormalCallResidenceV1, and the private PinnedTextResidenceExitObligationV1; choose one checked normal/trap entry and one site-keyed normal-exit finish projection before implementation.
-Source authority + canonical issuer: PinnedTextBackendFrameContractV1 owns compile-time plan/frame stamps, TextFormalCallResidenceV1 owns pair validation/pin/root residence, VerifiedFunctionCompletionV1 plus PreparedFunctionExitSetV1 own normal exits, and the materializer only co-seals their same-owner relation.
-Non-authority: raw slot/generation recapture, ptr/len or runtime token in common MIR/JSON, block scans, source ordinals, semantic cleanup, CheckedCallOut fault policy, PinnedTextOp inference, a second Completion/Return writer, fallback, and retry.
-Fail-fast boundary: owner/plan/frame drift, entry after a Text read, partial acquire, root escape, implicit/unit exit outside the typed domain, missing/duplicate/foreign exit claim, finish before operand evaluation, finish after Return, and any catch/unwind-capable trap reject before publication.
-Smallest next slice: design the exact private materializer and DraftSeal handoff for explicit-value Single/ExactTwo only, reusing Stage0 NoUnwindFailStop and the existing exit-set iteration; do not implement runtime/C/MIR/backend effects yet.
+Decision: replace the prototype's copied exit rows with one private non-Clone PreparedTextFormalExitFinishSetV1 carrying only the same function/plan/frame/residence/session stamp; DraftSeal later consumes it beside the existing PreparedFunctionExitSetV1 in one exit iteration.
+Source authority + canonical issuer: PinnedTextBackendFrameContractV1 owns compile-time plan/frame stamps, TextFormalCallResidenceV1 owns pair validation/pin/root residence, VerifiedFunctionCompletionV1 plus PreparedFunctionExitSetV1 own normal exits, and the materializer only co-seals their same-owner relation. The accepted C-prime language policy owns Fault/no-catch semantics; an exact backend no-unwind capability must be issued and verified before this route is admitted.
+Non-authority: copied site/block/ValueId rows, raw slot/generation recapture, ptr/len or runtime token in common MIR/JSON, block scans, source ordinals, semantic cleanup, CheckedCallOut, superseded Stage0 prose, PinnedTextOp inference, a second Completion/Return writer, fallback, and retry.
+Fail-fast boundary: missing no-unwind capability, owner/plan/frame/residence drift, entry after a Text read, partial acquire, root escape, implicit/unit exit outside the typed domain, missing/duplicate/foreign coverage in the canonical exit set, finish before operand evaluation, finish after Return, and any catch/unwind-capable trap reject before publication.
+Smallest next slice: design the exact stamp-only finish capability and its DraftSeal handoff for explicit-value Single/ExactTwo only; reuse the existing exit-set iteration without copying rows or counts, and do not implement runtime/C/MIR/backend effects yet.
 Non-claims: no GEP/load, PinnedTextOp lowering, Canonical session adoption, TextEq route admission, literal/StringBox origin, production caller, performance result, external fallback, or main integration.
 ```
 
 ## Required decision
 
-The next design must decide whether the materializer owns only a compile-time
-finish capability or also consumes the move-only runtime residence. It must
-not duplicate either authority. The accepted proof obligation remains
-site-keyed and non-`Clone`; a later implementation may consume it only after
-the same `PreparedFunctionExitSetV1` has established:
+The next design must decide the private handoff between a compile-time
+finish capability and the move-only runtime residence. It must not duplicate
+either authority or copy the canonical exit ledger. The corrected capability
+contains only a same-function/session stamp; the existing
+`PreparedFunctionExitSetV1` remains the sole site/block/value ledger and
+establishes:
 
 ```text
 normal entry -> every pinned read
 return operand evaluation -> one finish -> DraftSeal Return
-trap/unreachable -> no post-trap finish under Stage0 NoUnwindFailStop
+trap/unreachable -> no post-trap finish under a verified backend no-unwind capability
 ```
 
 If this ordering cannot be represented without a second Return writer, a
-second exit ledger, or a runtime token in common MIR, the row remains
+second exit ledger, a runtime token in common MIR, or an active no-unwind
+issuer, the row remains
 `NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed`.
+
+## Current correction
+
+`PinnedTextResidenceExitObligationV1` from the predecessor I0 is retained as a
+prototype/test receipt only. Its site-keyed rows and expected count are not a
+canonical lifecycle product. The successor must issue a private
+`PreparedTextFormalExitFinishSetV1` with no copied exit rows, blocks, values,
+source order, or independent count. DraftSeal must join that capability with
+the existing `PreparedFunctionExitSetV1` during the same detached exit
+iteration; it may not rediscover exits from MIR/JSON or infer finish needs.
 
 ## Acceptance / non-claims
 
@@ -47,9 +61,9 @@ positive:
   one explicit-value exit, exact-two explicit-value exits, repeated pair alias
 
 negative:
-  implicit/unit, missing/duplicate/foreign site, owner/stamp drift,
+  implicit/unit, missing/duplicate/foreign canonical exit coverage, owner/stamp drift,
   partial acquire, root/pointer escape, catch/unwind, finish-before-operand,
-  second Return writer, runtime fallback/retry
+  missing no-unwind capability, second Return writer, runtime fallback/retry
 
 not opened:
   runtime lease code, DraftSeal Return changes, lifecycle MIR, PinnedTextOp

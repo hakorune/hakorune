@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, backend-frame co-seal/transport, contract-bound C API object emitter, scoped Rust backend-frame borrow, and proof-only lifecycle exit obligation are landed. The next lifecycle materializer remains design-only; live finish execution, direct Text lowering, route admission, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, backend-frame co-seal/transport, contract-bound C API object emitter, scoped Rust backend-frame borrow, and a proof-only lifecycle prototype are landed. The prototype copied exit rows and is not accepted as a second exit authority; the corrected lifecycle materializer remains design-only, while live finish execution, direct Text lowering, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 is the next design boundary after the proof-only exit obligation; live finish execution remains unopened."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 corrects the proof-only prototype: issue a stamp-only finish capability beside the existing exit ledger and name an active backend no-unwind capability; live finish execution remains unopened."
 work_mode = "design_stop"
 current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed; decide the one function-owned entry/normal-exit materializer without duplicating runtime residence, Completion, or DraftSeal Return authority."
+current_blocker_token = "NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed; the prototype duplicates the canonical exit ledger and no active backend no-unwind capability is yet issued."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (proof-only lifecycle obligation landed -> materializer design stop)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority. Contract-bearing modules use one retained LLVM-18 C API TargetMachine session for realization validation and object emission; only contract-free modules retain external opt/llc compatibility. The scoped backend-frame borrow and proof-only site-keyed exit obligation are landed. Runtime finish execution, DraftSeal changes, C/runtime lifecycle, GEP/load, typed direct lowering, route, and production callers remain closed."
+active_lane = "Loop compiler frontier (proof-only lifecycle prototype -> exit-ledger/trap-capability design stop)"
+active_lane_status = "Rust remains the sole compile-invocation expectation authority. Contract-bearing modules use one retained LLVM-18 C API TargetMachine session for realization validation and object emission; only contract-free modules retain external opt/llc compatibility. The scoped backend-frame borrow and proof-only prototype are landed, but copied exit rows are not canonical and the superseded Stage0 no-unwind prose is not an issuer. Runtime finish execution, DraftSeal changes, C/runtime lifecycle, GEP/load, typed direct lowering, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/text-fo
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "text-formal-pinned-residence-lifecycle-materializer-d0"
 latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-lifecycle-materializer-d0-2026-08-16.md"
-latest_card_summary = "The proof-only lifecycle exit obligation I0 is landed for explicit-value Single/ExactTwo exits; the next materializer must be designed without opening runtime finish, DraftSeal Return, MIR, or backend lowering."
+latest_card_summary = "A proof-only lifecycle exit prototype exists for explicit-value Single/ExactTwo exits, but its copied rows are not accepted as a second exit ledger; the next materializer must issue a stamp-only finish capability beside PreparedFunctionExitSetV1 and name an active backend no-unwind capability without opening runtime finish, DraftSeal Return, MIR, or backend lowering."
 next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0"
 next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-lifecycle-materializer-d0-2026-08-16.md"
 next_execution_card = "none"
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-I0 landed a private non-Clone proof-only exit obligation co-sealed from existing Completion/ExitSet/plan/frame facts; explicit-value Single and ExactTwo site matching plus owner/stamp/unit/duplicate negatives passed 4/4, while runtime finish, DraftSeal Return, MIR, backend, route, and production callers remain closed.",
+  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-I0 landed a private non-Clone proof-only prototype co-sealed from existing Completion/ExitSet/plan/frame facts; explicit-value Single and ExactTwo site matching plus owner/stamp/unit/duplicate negatives passed 4/4. Its copied exit rows are historical evidence only; the successor must use a stamp-only finish capability beside the canonical exit ledger, while runtime finish, DraftSeal Return, MIR, backend, route, and production callers remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0 landed a scoped non-Clone/non-Copy Rust PinnedTextBackendFrameBorrowV1 over the existing co-sealed contract; JSON metadata lends it only for serialization, with C validation, TargetMachine realization, runtime residence, lifecycle, GEP/load, route, and production callers unchanged; focused compiler test, cargo check/format/diff, pointer guard, and the 487-line source limit are green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0 landed the strict module census and one retained LLVM-18 C API TargetMachine session for contract-bearing object emission, with success-only publication, contracted-path fallback/compat rejection, legacy isolation, and focused transport smoke coverage; direct PinnedTextOp lowering, lifecycle, route, and production callers remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-EMITTER-TARGET-PARITY-D0 accepted C: one Rust-owned compile-invocation expectation projects to one retained LLVM-18 C API TargetMachine session that must validate and emit contract-bearing modules without env/default inference or external fallback; contract-free modules alone retain legacy opt/llc, and the caller-zero object-emitter I0 is now active while GEP/load, lifecycle, route, production caller, fallback, and retry remain closed.",
