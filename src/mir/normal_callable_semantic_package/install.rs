@@ -36,6 +36,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MissingParameterContract,
     DuplicateParameterContract,
     ParameterContractOwnerMismatch,
+    PhysicalSignatureMismatch,
     MainChildUnavailable,
     MainChildSourceMismatch,
     MainChildIdentityMismatch,
@@ -67,6 +68,49 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
     selected_key: SelectedNormalCallableKeyV1,
+}
+
+/// Non-owning, non-Clone signature sibling for one resolved lowering loan.
+/// The package issuer is the only constructor; the module handoff consumes
+/// this view before the surrounding HRTB callback returns.
+pub(crate) struct ResolvedCallablePhysicalSignatureLoanV1<'loan> {
+    row: PhysicalCallableSignatureRowRefV1<'loan>,
+    _seal: ResolvedCallablePhysicalSignatureLoanSealV1,
+}
+
+struct ResolvedCallablePhysicalSignatureLoanSealV1;
+
+impl<'loan> ResolvedCallablePhysicalSignatureLoanV1<'loan> {
+    fn new(row: PhysicalCallableSignatureRowRefV1<'loan>) -> Self {
+        Self {
+            row,
+            _seal: ResolvedCallablePhysicalSignatureLoanSealV1,
+        }
+    }
+
+    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.row.owner()
+    }
+
+    pub(crate) fn identity(&self) -> &crate::parser::CallableDeclarationIdentityV1 {
+        self.row.identity()
+    }
+
+    pub(crate) const fn physical_callable_lane_count(&self) -> u32 {
+        self.row.physical_callable_lane_count()
+    }
+
+    pub(crate) const fn receiver_lane_count(&self) -> u32 {
+        self.row.receiver_lane_count()
+    }
+
+    pub(crate) const fn source_logical_arity(&self) -> u32 {
+        self.row.source_logical_arity()
+    }
+
+    pub(crate) const fn physical_formal_lane_count(&self) -> u32 {
+        self.row.physical_formal_lane_count()
+    }
 }
 
 /// Exactly-once selected input paired with the catalog admission that already
@@ -452,6 +496,37 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             }))
         })??;
         Ok(result)
+    }
+
+    /// Lend the selected cataloged input and its same-cohort physical
+    /// signature as sibling views for one synchronous resolved handoff.
+    /// Neither view may escape the callback, and the admission remains the
+    /// identity-only collector owner.
+    pub(crate) fn with_selected_cataloged_lowering_input_and_signature<R>(
+        &mut self,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        callback: impl for<'loan> FnOnce(
+            SelectedCatalogedCallableLoweringInputV1<'loan>,
+            ResolvedCallablePhysicalSignatureLoanV1<'loan>,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
+        let batch_slot = self
+            .installed
+            .selected
+            .batch_slot(&key)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        let signature = self
+            .installed
+            .physical_signature
+            .row(batch_slot)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
+        self.with_selected_cataloged_lowering_input(admission, |input| {
+            callback(
+                input,
+                ResolvedCallablePhysicalSignatureLoanV1::new(signature),
+            )
+        })
     }
 
     pub(crate) fn with_main_static_child_lowering_input<R>(

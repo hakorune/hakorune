@@ -1,5 +1,5 @@
 ---
-Status: caller-zero frame-contract I0 landed; compile-time binder D0 is the next design stop, production/backend route still closed
+Status: selected-normal resolved-session handoff I0 landed; the compile-time backend-frame binder is the next design stop
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape candidate
@@ -197,6 +197,69 @@ Focused evidence: `text_formal_residence` 7/7 and
 `nyash_kernel::exports::text_formal` 1/1; `cargo check --lib`, formatting,
 pointer guard, and `git diff --check` are green. This proves only the
 caller-zero frame contract, not a production caller or a direct Text backend.
+
+## TEXT-FORMAL-RESOLVED-SELECTED-NORMAL-HANDOFF-I0
+
+This bounded row replaces the identity-free legacy collector handoff for
+selected StaticBoxMethod and InstanceBoxMethod rows. It is a behavior-
+preserving collector/session cutover, not a Text backend implementation.
+
+The package Port must lend one same-cohort signature row in the same HRTB
+callback as the selected cataloged input. The resolved admission remains
+identity-only (`FunctionOwnerIdV1`, physical symbol, physical arity); the
+physical-signature row is a sibling loan and is never stored in the admission,
+module port, collector, or pending session. The lowerer captures a
+`PendingFunctionSessionCloseV1` through the canonical resolved session and
+commits it with `DraftPublicationPolicyV1::CanonicalRejectDuplicate`.
+
+### I0 scope
+
+```text
+selected cataloged StaticBoxMethod  -> resolved admission/session -> collector
+selected cataloged InstanceBoxMethod -> resolved admission/session -> collector
+ordinary/ExactText lane row          -> validate same owner/signature cohort
+Main static child                    -> existing typed Main-child path only
+TopLevel / unsupported row           -> RejectBeforeEffect
+legacy pending/legacy collector      -> not a binder or signature consumer
+```
+
+The package-side design seam is
+`with_selected_cataloged_lowering_input_and_signature`; the module-side
+completion seam is `complete_resolved_child_with_physical_loan<'loan>`.
+The signature loan is consumed synchronously while the unpublished draft is
+closed. It must validate owner, receiver/formal lane order, source identity,
+and selected key before the canonical collector mutates. The callback may not
+return or retain the loan.
+
+### I0 acceptance
+
+```text
+selected cataloged static/instance methods use no capture_legacy_function_pending_session_v1
+no selected cataloged static/instance method reaches commit_legacy_symbol_pending
+one package Port HRTB supplies selected input + physical-signature sibling loan
+ResolvedChildDraftAdmissionV1 stays identity-only and non-Clone at the handoff
+draft/session owner and collector brand remain the same invocation cohort
+duplicate canonical owner rejects before publication
+missing/foreign signature, receiver/formal drift, and top-level rows reject
+legacy compatibility and Main-child paths retain their existing boundaries
+```
+
+### I0 evidence
+
+`mir::normal_callable_semantic_package::` passes 32/32, including
+`resolved_selected_handoff_tests::selected_static_and_instance_rows_lend_one_signature_sibling`
+for one static and one instance row, receiver/formal lane counts, and
+duplicate-consumption rejection. The existing physical-signature static/instance
+pair tests also pass. `cargo check --lib`, `cargo fmt --all`,
+`git diff --check`, and the current-state pointer guard are green. The two
+instance-constructor failures in the broader reentrant suite reproduce on the
+pre-row parent commit and remain known baseline debt; the selected-normal
+handoff row does not claim to repair them.
+
+This row does not issue `PinnedTextBackendFrameContractV1`, publish JSON,
+lower GEP/load, add lifecycle CFG, adopt runtime residence, select a TextEq
+route, or open a production caller. The next backend-frame binder remains a
+separate design stop after this cutover.
 
 ## TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0
 

@@ -23,6 +23,9 @@ use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
+#[path = "module_lowering_invocation_resolved_loan.rs"]
+mod resolved_loan;
+
 /// Owned canonical child identity before collector admission.
 ///
 /// It carries no collector borrow, draft, Builder, or header view.  The
@@ -60,6 +63,12 @@ impl ResolvedChildDraftAdmissionV1 {
                 symbol,
                 arity,
             ),
+        }
+    }
+
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        match self {
+            Self::CanonicalResolvedOwner { owner, .. } => *owner,
         }
     }
 }
@@ -108,6 +117,7 @@ pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
     ReceiptBrand(CollectorReceiptBrandErrorV1),
+    PhysicalSignatureMismatch,
 }
 
 #[cfg(test)]
@@ -126,6 +136,12 @@ impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
             Self::Session(error) => error.fmt(formatter),
             Self::Admission(error) => error.fmt(formatter),
             Self::ReceiptBrand(error) => error.fmt(formatter),
+            Self::PhysicalSignatureMismatch => {
+                write!(
+                    formatter,
+                    "[freeze:contract][mir/resolved-child/physical-signature-mismatch]"
+                )
+            }
         }
     }
 }

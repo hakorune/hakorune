@@ -11,7 +11,9 @@ use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 
-use super::callable_declaration_catalog::SelectedNormalCallableKeyV1;
+use super::callable_declaration_catalog::{
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+};
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
@@ -22,7 +24,7 @@ use super::recursive_child_lowering::{
 };
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
-    SelectedCallableLoweringInputRefV1,
+    ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector> {
@@ -79,12 +81,14 @@ impl<'package, 'loan, 'port, 'collector>
             &mut RawInvocationChildPortV1<'port, 'collector>,
             super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
             NormalCatalogedBoxMethodDraftAdmissionV1,
+            ResolvedCallablePhysicalSignatureLoanV1<'_>,
         ) -> Result<R, String>,
     ) -> Result<R, String> {
         let inner = &mut *self.inner;
         self.package
-            .with_selected_cataloged_lowering_input(admission, |input| {
+            .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
                 validate_selected_cataloged_input(&input)?;
+                validate_selected_signature_loan(&input, &signature)?;
                 if matches!(
                     input.selected().semantic(),
                     crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
@@ -100,7 +104,7 @@ impl<'package, 'loan, 'port, 'collector>
                         admission.source_key().clone(),
                     );
                 with_selected_source_scope(inner, lineage, selected, |inner, transport| {
-                    execute(inner, transport, admission)
+                    execute(inner, transport, admission, signature)
                 })
             })
             .map_err(package_issue)?
@@ -125,6 +129,33 @@ fn validate_selected_cataloged_input(
                 NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
             ))
         }
+    })
+}
+
+fn validate_selected_signature_loan(
+    input: &crate::mir::normal_callable_semantic_package::SelectedCatalogedCallableLoweringInputV1<
+        '_,
+    >,
+    signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+) -> Result<(), String> {
+    input.with_selected_and_admission(|selected, admission| {
+        let key = admission.source_key();
+        let expected_receiver_lane_count = match key.namespace() {
+            SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
+        };
+        if signature.owner() != selected.source().owner()
+            || !signature
+                .identity()
+                .same_as(selected.source_identity().identity())
+            || signature.source_logical_arity() != key.arity()
+            || signature.receiver_lane_count() != expected_receiver_lane_count
+        {
+            return Err(package_issue(
+                NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureMismatch,
+            ));
+        }
+        Ok(())
     })
 }
 
@@ -381,15 +412,13 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     ) -> Result<(), String> {
         let inner = &mut *self.inner;
         self.package
-            .with_selected_cataloged_lowering_input(admission, |input| {
+            .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
                 validate_selected_cataloged_input(&input)?;
+                validate_selected_signature_loan(&input, &signature)?;
                 if matches!(
                     input.selected().semantic(),
                     crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
                 ) {
-                    // The existing root collector owns the durable candidate
-                    // inventory; this scoped receipt only proves the handoff
-                    // completed and must not become a second publication path.
                     let _collector_receipt =
                         crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6(
                             builder,
@@ -409,18 +438,18 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                with_selected_source_scope(inner, lineage, selected, |inner, _transport| {
                     inner
-                        .lower_normal_cataloged_static_box_method_with_source_v1(
+                        .lower_normal_cataloged_static_box_method_with_signature_v1(
                             builder,
                             admission,
+                            signature,
                             params,
                             param_decls,
                             return_type_name,
                             body,
                             uses,
                             attrs,
-                            transport,
                         )
                         .map_err(|error| error.to_string())
                 })
@@ -440,20 +469,23 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        self.with_cataloged_callable_source_scope(admission, |inner, transport, admission| {
-            inner
-                .lower_normal_cataloged_instance_box_method_with_source_v1(
-                    builder,
-                    admission,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                    transport,
-                )
-                .map_err(|error| error.to_string())
-        })
+        self.with_cataloged_callable_source_scope(
+            admission,
+            |inner, _transport, admission, signature| {
+                inner
+                    .lower_normal_cataloged_instance_box_method_with_signature_v1(
+                        builder,
+                        admission,
+                        signature,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                    )
+                    .map_err(|error| error.to_string())
+            },
+        )
     }
 }

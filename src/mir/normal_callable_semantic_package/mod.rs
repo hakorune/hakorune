@@ -22,14 +22,17 @@ mod physical_header_tests;
 #[cfg(test)]
 mod physical_signature_tests;
 #[cfg(test)]
+mod resolved_selected_handoff_tests;
+#[cfg(test)]
 mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
-    NormalCallableSemanticPackagePortV1, SelectedCallableLoweringInputRefV1,
-    SelectedCallableSemanticRefV1, SelectedCatalogedCallableLoweringInputV1,
+    NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
+    SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
+    SelectedCatalogedCallableLoweringInputV1,
 };
 pub(crate) use issuer::{
     issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1,
