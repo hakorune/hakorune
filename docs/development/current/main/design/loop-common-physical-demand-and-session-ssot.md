@@ -77,10 +77,10 @@ Related:
   physicalizer remains test-only/V1-shaped; common V2 transport/session and
   every production caller are not landed. A-prime lifecycle activation is
   parked until the canonical V2 session owns the exit set.
-- **Next ordered task:** the common V2 BoxShape and source-level transport R0
-  are accepted as design-only boundaries; the next design stop is
-  `LOOP-S6C-COMMON-V2-PRESESSION-I0`, which must name the three source-backed
-  issuers before any caller-zero product is implemented.
+- **Next ordered task:** the common V2 BoxShape, source-level transport R0,
+  and the three-issuer I0 contract below are accepted as design-only
+  boundaries. The next bounded execution slice is the caller-zero I0
+  implementation; no code is implied by this design acceptance.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -273,14 +273,13 @@ pre-session envelope is route-free and borrows that cohort only inside the
 Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
 child, one Completion ownership path, and the Completion-independent package
-lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape and
-source-level transport R0 are accepted as design-only boundaries; the next
-design stop is `LOOP-S6C-COMMON-V2-PRESESSION-I0`, where the missing
-source-backed operation/control/coverage issuers must be named. No generic V2
-execution product or Builder/session effect is implied. Exact call-edge origin,
-Canonical composite adoption, and Completion-backed lifecycle finish remain a
-later canonical-session fan-in; they are never inferred from Recipe/MIR. The
-generic V2 exact-set partition is the current common boundary.
+lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape,
+source-level transport R0, and the three-issuer I0 contract below are accepted
+as design-only boundaries. No generic V2 execution product or Builder/session
+effect is implied. Exact call-edge origin, Canonical composite adoption, and
+Completion-backed lifecycle finish remain a later canonical-session fan-in;
+they are never inferred from Recipe/MIR. The generic V2 exact-set partition is
+the current common boundary.
 
 ### Common V2 pre-session BoxShape (accepted design-only boundary)
 
@@ -337,12 +336,11 @@ substrates to be replaced or wrapped by this single parent seam in the I0.
 No view may escape, be stored, or be recombined after the callback; the Port's
 existing consumption ledger remains the exactly-once owner.
 
-R0 deliberately emits no operation/control product. The future S6C I0 must
-name a source-backed operation issuer, a JoinSig-backed control issuer, and a
-passive disjoint-union coverage issuer before code creates any common V2
-product. Until those issuers are named, `NoSafeSlice::MissingCommonV2OperationControlIssuer`
-is retained. JSON, MIR metadata, Builder/session, physical IDs, Text route,
-lifecycle, fallback, and production caller remain out of scope.
+R0 deliberately emits no operation/control product. The three issuer contract
+below is now fixed as design-only; the future S6C I0 implementation may create
+only those caller-zero projections. JSON, MIR metadata, Builder/session,
+physical IDs, Text route, lifecycle, fallback, and production caller remain out
+of scope.
 
 The stable callable boundary is not the function-internal Text carrier. A
 later non-splittable residence set couples the invocation lease-set token to
@@ -350,6 +348,55 @@ immutable UTF-8 root descriptors. Session-branded slices and backend-local
 `TextPlan` values borrow those roots; raw pointer/length values are scoped
 backend projections only. The common pre-session envelope owns none of these
 physical identities.
+
+### Common V2 I0 issuer contract (accepted design-only, 2026-08-16)
+
+All three issuers run inside the one installed-package/Port HRTB parent loan.
+They are scoped sibling projections and cannot be independently acquired,
+stored, or re-paired:
+
+```text
+same retained S6C source/Recipe/Join/prephysical cohort
+  ├─ S6C operation adapter
+  │    -> generic PreparedLoopOperationProgramV2<'loan>
+  ├─ JoinSig control adapter
+  │    -> generic If/Exit + transfer control product
+  └─ passive coverage issuer
+       -> disjoint-union/complete-coverage receipt
+```
+
+The operation issuer is the sole S6C profile adapter allowed to consume the
+retained prephysical source view. It projects borrowed generic operation rows
+(placement, operation payload, and existing execution-class evidence) for every
+`Operation` placement in the admitted V2 program. It must not expose
+`S6CPrephysicalOperationRoleV2`, the fixed `OPERATION_COUNT = 13`, S6C names,
+`If`/`Exit`, JoinSig transfers, Completion, Builder, MIR/CFG/SSA/PHI, or route
+policy. Only the S6C adapter may later assert its profile fact of 13
+operations; the generic product never hard-codes 13.
+
+The control issuer consumes the existing
+`VerifiedLoopJoinClosureV2::logical_transfer_view()` as its sole JoinSig
+logical source and co-seals only the matching Recipe `If`/`Exit` rows from the
+same retained cohort. It does not reissue JoinSig, scan physical blocks, or
+classify `If`/`Exit` as operations. Owner/loop/condition/exit-item,
+branch-transfer, and After relations must agree before effect.
+
+The coverage issuer is passive. It consumes the two already-issued sibling
+products, rejects missing/duplicate/foreign/overlapping placement keys, and
+issues only the disjoint-union/complete-coverage receipt. It does not rescan
+Recipe or MIR and does not mint a third semantic product. The S6C adapter may
+then prove `13 + 1 + 1 = 15`; the generic coverage product remains cardinality
+neutral.
+
+The source-level seams are contract names, not landed APIs:
+`issue_s6c_common_v2_operation_source_v1`,
+`issue_s6c_common_v2_control_transfer_v1`, and
+`issue_common_v2_coverage_v1`. Each is private/non-Clone and may be issued
+only within the parent loan. Any missing source anchor, foreign cohort,
+duplicate/overlap, HRTB escape, detached row/key, or downstream re-pair is a
+typed `NoSafeSlice` before effect. The next implementation slice may add only
+these caller-zero projections; it may not open Builder/session, lifecycle,
+Text residence, route, fallback/retry, production callers, or publication.
 
 The complete envelope does not turn control into operations. The operation
 program target covers every operation placement for the admitted V2 program;
@@ -1151,7 +1198,7 @@ skip the After closure or reopen a Tail-only route.
 | 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | accepted design-only 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no code or session effect |
 | 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
 | 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic parent/sibling boundary through one installed Port HRTB without emitting an execution product | accepted design-only 2026-08-16; no JSON/MIR, S6C cardinality, route policy, Builder/session effect, or production caller |
-| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | name the source-backed operation issuer, JoinSig control issuer, and passive coverage issuer, then issue one caller-zero exact S6C envelope | current design stop; `NoSafeSlice::MissingCommonV2OperationControlIssuer` until all three issuers are fixed; no S6C physicalizer or production caller |
+| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | implement the named source-backed operation adapter, JoinSig/Recipe control co-seal, and passive coverage issuer inside one caller-zero parent loan | accepted design-only 2026-08-16; next execution is the bounded caller-zero implementation; no S6C physicalizer, Builder/session, lifecycle, route, or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |

@@ -28,12 +28,11 @@ Related:
   common V2 pre-session BoxShape is accepted as design-only; its transport and
   caller-zero session boundary remain unopened. A-prime Text lifecycle
   activation is parked until that canonical session exists.
-- **Next ordered task:** the source-level transport R0 is accepted as
-  design-only; resume
-  `LOOP-S6C-COMMON-V2-PRESESSION-I0` to name the source-backed operation,
-  JoinSig control, and passive coverage issuers before any caller-zero product
-  code. Do not extend the selected-normal legacy finalizer with lifecycle or
-  Return authority.
+- **Next ordered task:** the source-level transport R0 and the three-issuer
+  I0 contract are accepted as design-only. The next bounded execution slice is
+  the caller-zero implementation of
+  `LOOP-S6C-COMMON-V2-PRESESSION-I0`. Do not extend the selected-normal legacy
+  finalizer with lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -1609,7 +1608,7 @@ LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0/I0       [closed]
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0    [closed]
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [accepted design-only]
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0            [accepted design-only]
-LOOP-S6C-COMMON-V2-PRESESSION-I0                  [current design stop]
+LOOP-S6C-COMMON-V2-PRESESSION-I0                  [accepted design-only; next execution]
 ```
 
 The first child is narrower than the parent common-V2 contract:
@@ -1630,9 +1629,9 @@ loan lends sibling identity, signature, Completion, and retained S6C views;
 operation and If/Exit control remain separate products, and a passive union
 receipt proves their disjointness. The S6C adapter alone proves exact
 `13 + 1 + 1 = 15` coverage. Transport R0 is accepted as source-level
-design-only; no code or session effect is implied here. The next I0 must name
-the source-backed operation, JoinSig control, and passive coverage issuers
-before implementation:
+design-only; no code or session effect is implied here. The I0 issuer contract
+is now fixed as design-only; its caller-zero implementation is the next bounded
+execution slice:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
@@ -1684,11 +1683,16 @@ It does not detach Recipe keys, source sites, TextEq site/corridor, or
 Completion into independently pairable products.
 
 The common V2 operation program covers every operation placement for its
-input program; the common type does not hard-code 13. If/Exit and
-JoinSig-issued transfers stay in a separate Recipe/JoinSig/Layout control
-subproduct. The S6C adapter alone proves exact `13 + 1 + 1 = 15` coverage
-before any leaf emission. A V2-to-V1 adapter, Selected-Dynamic fixed
-cursor, standalone TextEq scheduler, or S6C physicalizer is `NoSafeSlice`.
+input program; the common type does not hard-code 13. The sole S6C operation
+adapter projects generic borrowed rows from the retained source/Recipe/Join
+cohort and may assert 13 only at the S6C boundary. If/Exit and JoinSig-issued
+transfers stay in a separate control subproduct: its sole logical transfer
+source is `VerifiedLoopJoinClosureV2::logical_transfer_view()`, co-sealed with
+the matching Recipe rows from that same cohort. A passive coverage issuer
+checks the disjoint union and complete coverage; it does not rescan Recipe or
+MIR. The S6C adapter alone proves exact `13 + 1 + 1 = 15` coverage before any
+leaf emission. A V2-to-V1 adapter, Selected-Dynamic fixed cursor, standalone
+TextEq scheduler, or S6C physicalizer is `NoSafeSlice`.
 The existing canonical CFG, Binding SSA, Phi, Completion, finish, DraftSeal,
 discard, and publication owners remain unchanged. Runtime
 route/lifecycle/residence and production selection stay later rows.
@@ -1699,6 +1703,17 @@ UTF-8 root descriptors. Session-branded slices and backend-local `TextPlan`
 values borrow those roots, while raw pointer/length values remain scoped
 backend projections. Neither the signature product nor the neutral common V2
 envelope owns those physical identities.
+
+The three source-level issuer seams are contract names, not landed APIs:
+`issue_s6c_common_v2_operation_source_v1`,
+`issue_s6c_common_v2_control_transfer_v1`, and
+`issue_common_v2_coverage_v1`. They are private/non-Clone sibling projections
+inside one installed-package/Port HRTB parent loan. Missing/duplicate/foreign
+or overlapping placements, JoinSig/Recipe relation drift, source-ledger or
+HRTB escape, and caller re-pairing are pre-effect `NoSafeSlice`. The next I0
+implementation may add only these caller-zero projections; Builder/session,
+lifecycle, Text residence, route, fallback/retry, production callers, and
+publication remain closed.
 
 ### M10 pre-cutover authority seal — caller-zero only
 
