@@ -22,9 +22,9 @@ provides immutable StableText backing and finish ownership. Canonical issuer:
 the existing Residence owner (`TextFormalCallResidenceV1`, acquired by
 `acquire_text_formal_residence_v1`) remains the sole issuer of actual frame
 state (revision, root count/order, backing rows, and exactly-once finish),
-while `PinnedTextBackendFrameContractIssuerV1` is the sole compile-time
-projection issuer; the ny-llvmc Boundary pure-first C binder is a mechanical
-consumer.
+while the not-yet-landed `PinnedTextBackendFrameContractIssuerV1` is intended
+to be the sole compile-time projection issuer; the ny-llvmc Boundary
+pure-first C binder is a mechanical consumer.
 
 ## Private bridge contract (design-only)
 
@@ -60,10 +60,11 @@ stamp and occurrence order, never by a caller-reconstructed pointer/token
 pair. The runtime frame remains owned by `TextFormalCallResidenceV1`; the
 compile-time contract is only its target/layout projection.
 
-### Typed JSON metadata handoff (design-only BoxShape)
+### Typed JSON metadata handoff (candidate BoxShape; not issuable yet)
 
-The existing MIR JSON function metadata is the single transport boundary for
-the compile-time contract. It carries a versioned descriptor, not residence
+Once the missing package-to-function co-seal exists, the existing MIR JSON
+function metadata is the preferred single transport boundary for the
+compile-time contract. It would carry a versioned descriptor, not residence
 state:
 
 ```json
@@ -97,11 +98,14 @@ formals never receive Residence root rows. JSON must never contain
 `lease_token`, pointer, byte length, runtime slot/generation values, or
 `ValueId`.
 
-This is not an out-of-band sidecar and not a second authority: the issuer
-co-seals the descriptor with the physical-signature occurrence order, plan
-stamp, target capability, and final lifetime census; the JSON emitter only
-serializes it; ny-llvmc only validates and consumes it. The runtime frame is
-still entered, pinned, and finished by the runtime Residence owner.
+This is not an out-of-band sidecar and not a second authority once issued: the
+future issuer must co-seal the descriptor with the installed physical-signature
+row, the active `MirFunction` plan stamp/census, the target capability, and the
+final lifetime census; the JSON emitter only serializes it; ny-llvmc only
+validates and consumes it. The runtime frame is still entered, pinned, and
+finished by the runtime Residence owner. At the current design stop no issuer
+may publish this descriptor because that package-to-function co-seal path does
+not exist yet.
 
 The runtime side remains the existing `TextFormalCallResidenceV1` owner. A
 future private C-facing projection uses a target-checked frame layout with
@@ -143,11 +147,11 @@ index/count/order drift, incomplete/duplicate root coverage, lease/frame
 detachment, stale/non-Text/unstable backing, frame-size/pointer-width/ABI
 revision mismatch, escaped scope, unsupported leaf width/boundary, and any
 raw pointer crossing before IR effect.
-Smallest next slice: implement only the private bridge contract and its
-caller-zero enter/rollback/finish evidence, with one target-layout capability
-and one occurrence-ordered mapping. Keep C/Rust frame code, GEP/load,
-lifecycle CFG, session adoption, route, and caller behind the successor seam;
-the implementation must not add a JSON residence table or public ptr/len ABI.
+This I0 scope is complete. Its evidence is limited to the caller-zero runtime
+frame contract; it does not issue the compile-time binder contract or publish
+JSON metadata. Keep the compile-time bridge, GEP/load, lifecycle CFG, session
+adoption, route, and caller behind the successor design seam; no JSON residence
+table or public ptr/len ABI is allowed.
 Non-claims: no callable ABI aggregate, public ptr/len, production TextEq
 route, C-speed result, StringBox/literal origin, fallback/retry, or main
 integration.
@@ -155,14 +159,14 @@ integration.
 Acceptance requires one issuer direction, one opaque capability input, one
 occurrence-ordered row mapping, one target-layout capability, atomic
 all-or-nothing publication/rollback, and no detached pointer/token ownership.
-Those conditions are now the accepted BoxShape. The bounded successor is the
-caller-zero `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0`; its incomplete
-implementation remains the live stop:
-`NoSafeSlice::PinnedTextBackendFrameImplementationUnsealed`.
+Those conditions are now the accepted BoxShape. The bounded successor,
+caller-zero `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0`, is landed as the
+runtime frame bridge; the compile-time binder below remains the live design
+stop.
 
 ## TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0
 
-Implementation scope is one behavior-preserving caller-zero substrate:
+Landed implementation scope was one behavior-preserving caller-zero substrate:
 publish the private `repr(C)` frame layout/capability, validate target-layout
 metadata, exercise all-or-nothing enter and rollback through the existing
 `TextFormalCallResidenceV1`, and consume one move-only finish. Keep the
@@ -206,6 +210,14 @@ finish; a single post-install `PinnedTextBackendFrameContractIssuerV1` may
 co-seal their existing stamps and target-layout capability for the selected
 ny-llvmc Boundary consumer.
 
+Current bridge census: the physical row is available through the installed
+package/Port (`S6CInstalledCallableLoanRefV1::signature()`), while the active
+`MirFunction` owns `metadata.pinned_text_access_plans`; the runtime Residence
+owner is separate. No current path co-seals these three with the target
+capability. The named issuer is therefore a successor design seam, not an
+existing callable or a permission to reconstruct identity from a batch slot,
+function name, JSON length, or `ValueId`.
+
 The count/order projection is fixed, not inferred from a symbol or JSON length:
 `source_logical_arity` counts explicit source formals;
 `receiver_lane_count` is one only for `InstanceBoxMethod`; and
@@ -231,43 +243,48 @@ duplicate root rows, mixed ABI revision/target data-layout, pointer-width or
 frame-size mismatch, detached residence/token, and any attempt to serialize
 the private frame through MIR JSON or expose raw pointers to common MIR.
 
-Live blocker: the typed metadata handoff above is a design-only BoxShape; the
-issuer, function-metadata field, JSON census, and strict ny-llvmc consumer are
-not implemented. The D0 remains unaccepted for execution until that one
-scoped validated view is wired without reissuing any source, lifetime, or
-target facts. A JSON residence table, numeric-token lookup, out-of-band
-sidecar, or backend-side reissue is not an acceptable handoff.
+Live blocker: no existing path co-seals
+`InstalledNormalCallableSemanticPackageV1`'s physical-signature row,
+`MirFunction::metadata.pinned_text_access_plans`, the runtime Residence frame
+capability, and the selected ny-llvmc target capability. The typed JSON
+descriptor remains unissuable until one canonical lowering/session handoff
+names that issuer and validates owner/stamp/order without re-deriving source
+identity. A JSON residence table, numeric-token lookup, out-of-band sidecar,
+or backend-side reissue is not an acceptable handoff.
 
-Smallest next slice: implement only the typed
-`pinned_text_backend_frame_contract_v1` metadata projection and strict
-ny-llvmc scoped validation, after the source-backed issuer and target
-capability are named in the same slice. Keep GEP/load, lifecycle CFG, session
-adoption, route admission, production caller, fallback, and retry closed.
+Smallest next slice: design the single package-to-function bridge at the
+canonical lowering/session handoff. It must consume the installed signature
+loan, the active stamped plan/census, and one target capability, then issue a
+private non-pointer contract for the sole ny-llvmc consumer. Do not publish
+JSON metadata or open GEP/load, lifecycle CFG, session values, route
+admission, production caller, fallback, or retry until that co-seal is closed.
 
-### Successor I0 taskization (not implementation permission for this D0)
+### Successor taskization (design stop; no implementation permission yet)
 
-The successor is one bounded transport row with four ordered seams:
+The next bounded design slice has four ordered seams; it is not yet an I0:
 
-1. **Issuer:** co-seal `PinnedTextBackendFrameContractV1` from the existing
-   physical-signature lane map, stamped `PinnedTextAccessPlanTableV1`, final
-   pinned-lifetime census, and one fixed target-layout capability. The issuer
-   must be the only place that decides root occurrence order and lane rows.
-2. **MIR metadata projection:** add one function-local metadata field and
-   emit the versioned descriptor above. The projection carries no runtime
-   residence rows, pointer, length, token, slot/generation value, or `ValueId`.
-3. **ny-llvmc consumer:** parse the descriptor into one scoped validated view,
-   verify the exact plan/instruction census and receiver/formal count formula,
-   then either admit the transport view or reject before any backend effect.
-   `llvm_py`, VM, native, and future Hako LLVM-text remain non-consumers.
-4. **Focused evidence:** cover mixed scalar/ExactText lanes, instance receiver
-   prefix, aliasing caller occurrences versus distinct callee lanes, missing or
-   duplicate rows, stamp/target/layout drift, unknown fields, and all forbidden
-   runtime fields. Run only the card's focused JSON/ny-llvmc checks plus the
-   reusable pointer/diff guards.
+1. **Bridge issuer:** name one canonical lowering/session handoff that consumes
+   `S6CInstalledCallableLoanRefV1::signature()` (or its same-cohort successor),
+   the active function's stamped plan/census, `TextFormalCallResidenceV1`, and
+   one target-layout capability. It must not infer package identity from a
+   function name, `ValueId`, JSON length, or batch slot.
+2. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
+   owner, stamp, receiver/formal order, root coverage, and target revision are
+   proven. No runtime residence rows, pointer, length, token, slot/generation
+   value, or `ValueId` may enter the product.
+3. **Transport choice:** after (1) and (2), use the typed
+   `pinned_text_backend_frame_contract_v1` JSON projection and a strict
+   ny-llvmc scoped consumer. Until then, JSON publication is rejected rather
+   than emitted as a partial descriptor. `llvm_py`, VM, native, and future Hako
+   LLVM-text remain non-consumers.
+4. **Evidence:** only after the issuer exists, cover mixed scalar/ExactText
+   lanes, instance receiver prefix, aliasing caller occurrences versus distinct
+   callee lanes, missing/duplicate rows, stamp/target/layout drift, unknown
+   fields, and all forbidden runtime fields.
 
-Completion of this I0 still does not authorize GEP/load, lifecycle CFG,
-Canonical session adoption, route selection, a production caller, fallback, or
-retry. Those remain separate bounded rows.
+Completion of this design slice still does not authorize JSON publication,
+GEP/load, lifecycle CFG, Canonical session adoption, route selection, a
+production caller, fallback, or retry. Those remain separate bounded rows.
 
 Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
 literal origins, or change the callable ABI. A missing single binder issuer or
