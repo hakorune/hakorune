@@ -294,6 +294,20 @@ Smallest next slice:
   lane adoption. No Loop block, operation/control, read, PHI, Completion
   claim, or DraftSeal is included.
 
+  D0 acceptance is therefore all of the following, before any Builder
+  mutation: the package issuer can lend one same-brand storage header and one
+  source-backed physical-effects projection beside the existing signature;
+  the header covers symbol/mode, receiver prefix, source ParamDecls, result,
+  attrs, and uses; the effects projection is not an `EffectMask` guessed from
+  MIR or names; the compiler co-seal checks owner, function origin, selected
+  identity, catalog brand, and plan stamp once; and the future skeleton
+  projection has a single explicit mapping from physical lane roles to
+  `MirParamDecl`/signature positions. Missing/foreign header, missing effect
+  projection, lane gap/swap, receiver drift, parameter/result drift, or
+  duplicate ExactText BindingRef adoption must reject with effect 0. Positive
+  evidence is limited to a static/instance receiver-prefix row and a mixed
+  scalar/ExactText row; no loop physicalization is part of acceptance.
+
 Non-claims:
   No skeleton or lane implementation is authorized by this design stop. No
   Loop CFG block allocation, Loop topology, Binding read/write beyond the
