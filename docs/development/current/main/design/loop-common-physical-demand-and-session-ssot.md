@@ -257,8 +257,11 @@ Source authority + canonical issuer:
   authority for unsigned-wire meaning. This does not change semantic
   `MirType`, add a new unsigned source type, or permit generation arithmetic.
   The remaining input census must prove that this carrier row, every source
-  `MirParamDecl`, and the lane-role rows are exposed by one same-loan issuer;
-  a string spelling of `u64` is never a valid substitute.
+  `ParamDecl`, and the lane-role rows are exposed by one same-loan issuer;
+  a string spelling of `u64` is never a valid substitute. `MirParamDecl` is
+  existing source-annotation metadata, not the physical lane carrier: the
+  future compiler input must use a separate non-semantic physical-parameter
+  descriptor rather than overload `MirParamDecl` for expanded lanes.
 
   The source census fixes the seam: the installed
   `VerifiedSameModuleCallableDeclarationCatalogV1::declaration` row is the
@@ -286,7 +289,7 @@ Fail-fast boundary:
   brand, selected identity, complete storage header, result/Completion,
   physical effects, receiver prefix, dense non-duplicate logical ordinals,
   adjacent ExactText `[slot,generation]` lanes, and a complete physical
-  ParamDecl row for every lane. `source_logical_arity` counts explicit
+  physical-parameter descriptor row for every lane. `source_logical_arity` counts explicit
   formals only; `receiver_lane_count` is a separate prefix axis and is never
   inferred from `/N` or a parameter-vector length. ExactText remains one
   BindingRef with two physical lanes; slot publication versus a private
@@ -305,9 +308,10 @@ Smallest next slice:
   physical carrier choice is closed as `U64BitsOnI64`; census now has one
   remaining question: can a single compiler-side issuer borrow the complete
   same-cohort storage header, physical signature, effects, result, and
-  `U64BitsOnI64` lane rows while projecting every source-backed
-  `MirParamDecl` without reissuing meaning? Do this without constructing a
-  Builder or `ValueId`. If this census closes, the next I0 is only a fresh
+  `U64BitsOnI64` lane rows while projecting every source-backed `ParamDecl`
+  into a separate non-semantic physical-parameter descriptor without
+  reissuing meaning? Do this without constructing a Builder or `ValueId`. If
+  this census closes, the next I0 is only a fresh
   unpublished skeleton reservation. If it does not, retain
   `NoSafeSlice::MissingSameCohortPhysicalFunctionEntryIssuer`.
 
@@ -330,9 +334,11 @@ Carrier decision receipt (2026-08-17):
 
 D0 acceptance gate (still open):
   Accept the input BoxShape only when one compiler-side, non-Clone
-  same-loan view exposes the catalog-backed source `MirParamDecl` rows,
-  receiver-prefix row, physical-signature lane roles, `U64BitsOnI64` carrier
-  rows, result/header, and source-backed effects under one owner/origin/brand.
+  same-loan view exposes the catalog-backed source `ParamDecl` rows and a
+  separate physical-parameter descriptor for the receiver-prefix and every
+  physical lane, together with physical-signature lane roles,
+  `U64BitsOnI64` carrier rows, result/header, and source-backed effects under
+  one owner/origin/brand.
   The view must be callback-scoped, issue no new semantic fact, and expose
   complete/disjoint physical coverage. Caller and callee ValueId projection,
   skeleton reservation, and BindingSSA adoption remain downstream consumers;
@@ -1475,7 +1481,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | design stop narrowed to the input census below; no Builder effect, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-b | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-D0` | accept one package/installed-loan issuer for S6C storage header, result, attrs/uses, source-backed effects, and physical signature relation | accepted BoxShape; caller-zero I0 is the only open effect; no skeleton or Builder effect |
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
-| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; census the same-loan physical ParamDecl/lane-role projection, including receiver and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
+| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; census the same-loan physical-parameter descriptor/lane-role projection, including source ParamDecl, receiver, and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | future caller-zero I0 only after 25b-c0 acceptance; no ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume the accepted skeleton and adopt ordinary lanes plus one ExactText BindingRef with adjacent `[slot,generation]` sidecar policy | future second I0; no reuse of one-value adoption for both ExactText lanes, no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
