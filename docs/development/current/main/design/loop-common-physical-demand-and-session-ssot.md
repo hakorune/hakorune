@@ -678,7 +678,7 @@ Non-claims:
   production caller, fallback/retry, or main integration.
 ```
 
-### Physical layout input I0 implementation receipt (2026-08-17; guard repair pending)
+### Physical layout input I0 implementation receipt (2026-08-17)
 
 `issue_s6c_common_v2_pre_session_v1` now co-seals a
 `PreparedLoopV2PhysicalLayoutInputV1` from the same retained S6C ingress as
@@ -687,10 +687,9 @@ contains source-owned loop/block keys, ordered item slices, checked split
 ordinals, and the existing After binding. It validates owner, loop parent,
 block ownership, item uniqueness, and After membership before the envelope is
 returned. A second relation check proves that operation and If/Exit rows cover
-the same disjoint item set and that every referenced block belongs to the
-borrowed topology. A follow-up audit found that each row must additionally
-prove its item is a member of its specified block segment; until that guard
-and its three focused negatives land, this I0 receipt is not closed.
+the same disjoint item set, every referenced block belongs to the borrowed
+topology, and every row item belongs to its specified block segment. The
+focused operation/If/Exit block-drift negatives are green.
 
 The new view is transported through the existing common-V2 envelope and is
 accessible only inside the installed cohort loan. Focused common-V2 and
@@ -698,9 +697,61 @@ prephysical-ingress tests are green, including the foreign-owner rejection;
 upstream source-row issuers retain the duplicate/missing topology negatives.
 This I0 allocates no blocks, emits no operations/effects, opens no CFG/PHI or
 Completion/DraftSeal claim, and does not select a Text route, fallback, retry,
-or production caller. The current stop is the relation-guard repair above;
-the next bounded row after it is the post-layout effect design stop, not a
-physicalizer or session reopen.
+or production caller. The next bounded row is the post-layout effect design
+stop, not a physicalizer or session reopen.
+
+### Active design stop: `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0`
+
+```text
+Decision:
+  Keep NoSafeSlice until the first post-layout effect is sealed as one
+  segment/block skeleton allocation transaction. The first effect is not
+  ReadBinding, Const, operation lowering, or generic MirInstruction emission.
+
+Source authority + canonical issuer:
+  The same common-V2 envelope's physical-ID-free layout is the topology input;
+  its retained JoinSig transfer view is the entry/branch/After relation input.
+  A canonical-session block allocator is the sole physical block issuer, and
+  the outer CanonicalFunctionLoweringSessionV1 is the sole unpublished-function
+  rollback owner.
+
+Non-authority:
+  V1 physical layout/adapter, Recipe 13/15 counts, split ordinals alone,
+  current_block, MirFunction.blocks, raw BasicBlockId/ValueId, EffectMask,
+  generic MIR emission, ReadBinding, and a second rollback owner do not issue
+  the allocation plan or its physical receipt.
+
+Fail-fast boundary:
+  Before Builder effect, require same owner/layout/session stamp, complete
+  ordered segment coverage, explicit entry/After/resume/JoinSig relations,
+  checked block-count/cursor range, and no entry/block collision. Allocate all
+  segments in layout order followed by root After. Any late failure performs
+  one outer discard with no retry, fallback, or publication. The CoreContext
+  cursor policy (monotonic unpublished-ID gaps versus same-transaction restore)
+  must be explicit before I0; no ambient cursor inference is allowed.
+
+Smallest next slice:
+  First census whether the source-backed V2 layout/JoinSig seam can issue the
+  missing entry/After/resume/transfer mapping without re-scanning Recipe/MIR.
+  If yes, accept the BoxShape and open
+  LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0: consume one plan in the
+  same callback, allocate only private segment->BasicBlock rows plus root
+  After, and test late discard. If not, retain NoSafeSlice.
+
+Non-claims:
+  No ReadBinding/Const/CallSlot/Text operation, edges/terminators, CFG/PHI,
+  Completion/DraftSeal, lifecycle, route/perf, production caller, fallback,
+  retry, or main integration is opened by this D0.
+```
+
+The current layout view carries source loop/block/item segments and an After
+binding, but its After value is not yet an explicit physical resume target and
+the view does not independently expose the complete entry/branch/After
+segment-transfer mapping required by the allocation transaction. That gap is
+the active design question. `ReadBinding` stays a later sibling: its source
+`BindingRef`, source-site, and Core effect anchor are not present in the
+physical-ID-free layout rows and must not be invented from `EffectMask` or
+Recipe order.
 
 ## Decision
 
@@ -1830,7 +1881,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-f | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0` | accept one source-backed V2-native physical-ID-free layout/placement BoxShape | accepted 2026-08-17; topology transport is the only next I0; no block/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-f-I0 | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0` | lend typed loop/block/item topology and JoinSig transfer bindings through the same common-V2 cohort | landed 2026-08-17; relation guard is green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-f-I0-RG | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0-RELATION-GUARD` | require each operation/If/Exit item to belong to its specified layout block and add focused negatives | landed 2026-08-17; positive transport plus operation/If/Exit block-drift negatives are green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first post-entry effect carrier and rollback boundary | active design stop; candidate first effect is segment/block skeleton allocation only; no effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first post-entry effect carrier and rollback boundary | active design stop; first candidate is segment/block skeleton allocation only, with explicit entry/After/resume/JoinSig mapping and cursor policy still required; no effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted allocation plan and allocate only ordered segment blocks plus root After under one outer discard owner | gated by 25b-g D0; no Builder/block effect until the mapping and cursor policy are accepted; no edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
