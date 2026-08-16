@@ -74,19 +74,62 @@ Related:
 - **Current implementation status:** S6C source/site, ExactText formal,
   result/header, installed child, package physical-signature map, and
   caller-zero residence/backend transport substrate are closed. The common
-  physicalizer remains test-only/V1-shaped; common V2 transport/session and
-  every production caller are not landed. A-prime lifecycle activation is
-  parked until the canonical V2 session owns the exit set.
-- **Next ordered task:** the common V2 BoxShape, source-level transport R0,
-  and the three-issuer I0 contract below are accepted as design-only
-  boundaries. The next bounded execution slice is the caller-zero I0
-  implementation; no code is implied by this design acceptance.
+  V2 operation/control/coverage issuers and installed Port HRTB are landed
+  as caller-zero source products. The canonical session is not opened yet:
+  Completion admission, outer-If partition, and resolver-issued block-count
+  evidence are still missing. A-prime lifecycle activation remains parked
+  until this session boundary owns `PreparedFunctionExitSetV1`.
+- **Next ordered task:** `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0`
+  is a design stop. First fix one same-cohort admission contract for the
+  resolved lowering input, common V2 envelope, borrowed Completion, outer-If
+  partition, and exact block-expression expectation. No session construction
+  or legacy-finalizer retrofit is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
 - **Retirement finish line:** all admitted profiles use one common physical
   owner and old topology, route-local schedulers, direct transfer inference,
   retry, and fallback have zero callers.
+
+### Canonical session admission D0 (design stop)
+
+```text
+Decision:
+  Do not open CanonicalSsaFunctionSessionV2 yet. First define one
+  same-cohort admission that co-seals the resolved lowering input, the
+  common V2 envelope, one borrowed Completion, the resolver-owned outer-If
+  partition, and the exact block-expression expectation.
+
+Source authority + canonical issuer:
+  The existing resolved-lowering owner lends the exact
+  ResolvedFunctionLoweringInputV1, while NormalCallableSemanticPackagePortV1
+  lends the installed same-brand envelope and one Completion in the same
+  HRTB. The resolver/source bridge issues the outer-If partition and
+  block-count evidence. A future admission issuer co-seals these existing
+  facts and owns no CFG, ValueId, or Return meaning.
+
+Non-authority:
+  S6C's fixed 13 count, Recipe/JoinSig If/Exit rows alone, the Dynamic-only
+  constructor, Completion clones, AST/MIR rescans, zero-filled counts,
+  legacy finalizers, and DraftSeal are not session-admission issuers.
+
+Fail-fast boundary:
+  Reject before session effects on foreign owner/target/brand, missing or
+  duplicate Completion, missing outer-If partition, block-count drift,
+  detached HRTB input, or any need to retrofit the legacy finalizer or rescan
+  Returns. A source-backed receipt is required for every constructor input.
+
+Smallest next slice:
+  LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0 is design-only. Name the
+  resolver bridge, borrowed-Completion constructor shape, count receipt, and
+  acceptance/negative matrix. Then a separate caller-zero I0 may issue the
+  admission; it still must not construct the session.
+
+Non-claims:
+  No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
+  Completion consumption, DraftSeal, lifecycle, Text route, production
+  caller, fallback, retry, or legacy-finalizer retirement.
+```
 
 ## Decision
 
@@ -1196,7 +1239,8 @@ skip the After closure or reopen a Tail-only route.
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
-| 25a | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the scoped V2 package after structural coverage and run the first S6C adapter through the canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | caller-zero first adapter only; no S6C physicalizer, selector, retry, or fallback |
+| 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | design one same-cohort admission for resolved lowering input, common V2 envelope, borrowed Completion, resolver-issued outer-If partition, and exact block-expression expectation | design-only; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
+| 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | only after 25a; no S6C physicalizer, selector, retry, or fallback |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
