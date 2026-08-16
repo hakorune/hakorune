@@ -79,14 +79,17 @@ Related:
   the outer-If residual, and the installed S6C child can lend the actual
   Completion without cloning. The resolver-owned BlockExpr expectation is
   now batch-owned and reaches the selected/package HRTB as a borrow. The
-  callback-scoped common admission is landed; the active boundary is the first
-  canonical session effect. A-prime lifecycle activation remains parked until
-  this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` follows
-  the accepted same-cohort header/effects BoxShape. It issues only the
-  package-side storage header and source-backed physical-effects projection;
-  skeleton reservation, exact entry-lane adoption, Loop CFG/block effects,
-  reads, PHI, Completion claims, and DraftSeal remain closed.
+  callback-scoped common admission is landed; the detached physical skeleton
+  and slot-only ExactText adoption canary are also landed. The next boundary
+  is a design stop for one consuming physical-entry/session seam: current
+  `into_parts` splitting does not yet prove same-cohort identity or rollback
+  after partial BindingSSA publication. A-prime lifecycle activation remains
+  parked until this session boundary owns `PreparedFunctionExitSetV1`.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0`
+  must bind one retained skeleton, descriptor cohort, common-V2 session, and
+  discard/poison owner before any further physical entry effect. Loop
+  CFG/block effects, reads, PHI, Completion claims, and DraftSeal remain
+  closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -535,24 +538,70 @@ Smallest next slice:
   no Completion claim, and issues no ReadyLoopEntry.
 
 Acceptance:
-  This D0 is accepted because the same-cohort prepared parameter list,
-  retained skeleton, canonical identity publisher, and existing one-shot
-  function-session discard terminal form one bounded ownership spine. The I0
-  must accept only a same-cohort, non-Clone prepared parameter list plus sidecar
-  whose source logical arity, receiver prefix, physical lane count/order,
-  and BindingRef coverage are complete and disjoint. The retained skeleton
-  owns the physical ValueIds; the adapter issues one non-Clone sidecar row
-  `(BindingRef, logical ordinal, slot ValueId, generation ValueId, carrier)`
-  per ExactText occurrence. Slot publication is exactly once per logical
-  BindingRef; generation is private and move-only;
-  the transaction has one rollback owner and leaves no externally visible
-  state on rejection.
+  This D0 is accepted as a BoxShape because the same-cohort prepared parameter
+  list, retained skeleton, canonical identity publisher, and existing one-shot
+  function-session discard terminal describe the intended ownership spine. The
+  caller-zero canary proves the positive install/adopt path and duplicate
+  adoption rejection, but it does not yet prove that the skeleton, descriptors,
+  common-V2 session, BindingSSA publication, sidecar, and discard path are one
+  consuming owner. The next design stop therefore keeps the I0 from being
+  treated as a complete atomic transaction until the `into_parts` split and
+  partial-publication failure path are sealed.
 
 Non-claims:
   No loop CFG/PHI, Completion consumption/claim, DraftSeal, lifecycle,
   PinnedTextOp, Text route, literal/StringBox origin, production caller,
   fallback, retry, or main integration is opened by this D0. The I0 remains
-  caller-zero and unpublished until its focused gate is green.
+  caller-zero and unpublished; its positive canary is landed, but atomic
+  same-cohort/session ownership remains a separate design stop.
+```
+
+### Design stop: `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0`
+
+```text
+Decision:
+  Do not advance from the install/adoption canary to common-V2 physical entry
+  effects yet. Bind the retained physical skeleton, descriptor cohort, common
+  session admission, slot-only BindingSSA publication, generation sidecar,
+  and discard/poison path into one consuming transaction. The current
+  `PreparedPhysicalFunctionSkeleton::into_parts` API and per-lane publication
+  are evidence of the intended shape, not an accepted re-pairing boundary.
+
+Source authority + canonical issuer:
+  The installed S6C HRTB loan remains the sole source/cohort owner. The entry
+  input and skeleton issuers project the package-owned signature/header/effects
+  rows; a compiler-side consuming seam must retain their owner/key/revision
+  stamp and connect to `CanonicalSsaFunctionSessionV2::new_common_v2` without
+  taking Builder state or Completion as a second authority. The existing
+  function-session discard terminal is the one rollback owner.
+
+Non-authority:
+  `into_parts`-returned detached `MirFunction`, a bare descriptor slice,
+  `MirParamDecl`, `FunctionSignature` length, raw `ValueId` order, logical
+  `/N`, fixture names, `CanonicalSsaFunctionSessionV2::new`, and a copied
+  Completion/sidecar cannot establish same-cohort physical entry meaning.
+
+Fail-fast boundary:
+  Before or at the first Builder effect, reject foreign/reordered skeleton or
+  descriptor rows, owner/key/signature-revision drift, metadata/result/effects
+  drift, lane/value/type/count drift, duplicate BindingRef publication, and
+  any partial publication without a consuming poison/discard terminal. A
+  rejected transaction must leave no current function, BindingSSA entry,
+  sidecar, or module-visible state; no retry or fallback is permitted.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0` is design-only. Census the
+  smallest opaque transaction/API that consumes one retained skeleton and one
+  canonical common-V2 session, then define the caller-zero I0 with positive
+  install/adopt, foreign re-pair, reordered lane, and injected mid-publication
+  failure negatives. Keep Loop CFG/PHI, Completion claims, DraftSeal,
+  lifecycle, Text lowering, route, and production caller at zero.
+
+Non-claims:
+  No common-V2 physical operation/control lowering, CFG/SSA/PHI beyond the
+  entry reservation, Completion consumption/claim, DraftSeal, lifecycle,
+  PinnedTextOp, route/perf, production caller, fallback, retry, or main
+  integration is opened by this design stop.
 ```
 
 ## Decision
@@ -1677,7 +1726,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
-| 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | next caller-zero I0; one fresh transaction owns install/adoption/discard; no second BindingRef publication |
+| 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
+| 25b-e | `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0` | bind retained skeleton, descriptor cohort, common-V2 session, slot-only BindingSSA, sidecar, and one discard/poison owner into a consuming transaction | active design stop; current `into_parts` split and partial-publication path are not accepted; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
