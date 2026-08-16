@@ -704,10 +704,10 @@ stop, not a physicalizer or session reopen.
 
 ```text
 Decision:
-  Keep NoSafeSlice until the first post-layout effect is sealed as one
-  source-segment/block skeleton allocation transaction. The first effect is
-  not ReadBinding, Const, operation lowering, synthetic After allocation, or
-  generic MirInstruction emission. After allocation is a separate later D0.
+  Accept the source-segment/block skeleton allocation BoxShape and open one
+  caller-zero I0. The first effect is not ReadBinding, Const, operation
+  lowering, synthetic After allocation, or generic MirInstruction emission.
+  After allocation is a separate later D0.
 
 Source authority + canonical issuer:
   The same common-V2 envelope's physical-ID-free layout is the topology input
@@ -729,19 +729,19 @@ Fail-fast boundary:
   ordered segment coverage, checked block-count/cursor range, and no collision
   with the existing function entry. Allocate only source segments in layout
   order. Any late failure performs one outer discard with no retry, fallback,
-  or publication. The CoreContext cursor policy (monotonic unpublished-ID
-  gaps versus same-transaction restore) must be explicit before I0; no ambient
-  cursor inference is allowed.
+  or publication. This D0 adopts the monotonic unpublished-ID-gap policy:
+  discard restores function/CFG state but does not rewind CoreContext's global
+  cursor; the gap is unobservable and never reused. No ambient cursor inference
+  is allowed.
 
 Smallest next slice:
   The existing source-backed V2 layout seam is sufficient for a segment-only
-  plan. If the BoxShape and cursor policy are accepted, open
-  LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0: consume one plan in the
-  same callback, allocate only private segment->BasicBlock rows, and test late
-  discard. Then open a separate
+  plan. Open LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0: consume one
+  plan in the same callback, allocate only private segment->BasicBlock rows,
+  preflight the checked cursor range, and test late discard. Then open a separate
   LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0 for a source-backed synthetic After
-  row and its allocation owner. If the segment plan or cursor policy cannot be
-  sealed, retain NoSafeSlice.
+  row and its allocation owner. If the segment plan's owner/coverage/range
+  checks fail, reject before effect.
 
 Non-claims:
   No ReadBinding/Const/CallSlot/Text operation, synthetic After block,
@@ -1888,8 +1888,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-f | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0` | accept one source-backed V2-native physical-ID-free layout/placement BoxShape | accepted 2026-08-17; topology transport is the only next I0; no block/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-f-I0 | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0` | lend typed loop/block/item topology and JoinSig transfer bindings through the same common-V2 cohort | landed 2026-08-17; relation guard is green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-f-I0-RG | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0-RELATION-GUARD` | require each operation/If/Exit item to belong to its specified layout block and add focused negatives | landed 2026-08-17; positive transport plus operation/If/Exit block-drift negatives are green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first source-segment block allocation carrier and rollback boundary | active design stop; first candidate is segment-only skeleton allocation, while synthetic After allocation is a separate D0 and cursor policy must be explicit; no ReadBinding/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted segment allocation plan and allocate only ordered source-segment blocks under one outer discard owner | gated by 25b-g D0; no synthetic After block, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first source-segment block allocation carrier and rollback boundary | accepted BoxShape 2026-08-17; monotonic unpublished-ID gaps are explicit, synthetic After allocation is a separate D0; no ReadBinding/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted segment allocation plan and allocate only ordered source-segment blocks under one outer discard owner | next caller-zero effect slice; no synthetic After block, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-h | `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` | issue a source-backed synthetic After row with root/resume relation and its separate allocation owner | parked behind segment allocation; JoinSig After port/binding/class alone cannot authorize a new BasicBlock; no After allocation, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
