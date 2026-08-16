@@ -17,8 +17,12 @@ use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
+use super::super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
+
+#[path = "session/physical_entry_lane_adoption.rs"]
+mod physical_entry_lane_adoption;
 
 enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
@@ -65,6 +69,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     pub(in crate::mir::builder::resolved_lowering) cfg: CanonicalCfgSessionV1,
     pub(in crate::mir::builder::resolved_lowering) phis: PhiTxn,
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
+    physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -252,6 +257,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             cfg: CanonicalCfgSessionV1::new(),
             phis: PhiTxn::begin("canonical_binding_ssa"),
             implicit_completion,
+            physical_entry_sidecar: None,
         })
     }
 
@@ -301,6 +307,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             cfg: CanonicalCfgSessionV1::new(),
             phis: PhiTxn::begin("canonical_binding_ssa"),
             implicit_completion,
+            physical_entry_sidecar: None,
         })
     }
 
@@ -562,6 +569,24 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 .insert(value, ty);
         }
         Ok(value)
+    }
+
+    pub(in crate::mir::builder) fn adopt_physical_entry_lanes(
+        &mut self,
+        builder: &mut MirBuilder,
+        descriptors: &[crate::mir::compiler::common_v2_physical_function_entry_input::
+            PhysicalCallableParameterDescriptorV1],
+    ) -> Result<(), String> {
+        physical_entry_lane_adoption::adopt(self, builder, descriptors)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_sidecar_row_count(
+        &self,
+    ) -> usize {
+        self.physical_entry_sidecar
+            .as_ref()
+            .map_or(0, |sidecar| sidecar.rows().len())
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn finish_for_draft_seal(

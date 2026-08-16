@@ -473,12 +473,11 @@ Non-claims:
   route, production caller, fallback, or retry.
 ```
 
-### Design stop: `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0`
+### Accepted D0 / active I0: `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION`
 
 ```text
 Decision:
-  Keep this D0 at NoSafeSlice until the logical-to-physical ExactText entry
-  adoption and its rollback owner are closed. BindingSSA remains a
+  Accept this BoxShape and open the caller-zero adoption I0. BindingSSA remains a
   one-value map `(entry block, BindingRef) -> slot ValueId`: an ExactText
   formal publishes exactly once to the slot lane. The adjacent generation
   lane is retained in a private, move-only physical sidecar and is never
@@ -527,17 +526,19 @@ Fail-fast boundary:
   Builder/module publication, retry, or fallback is allowed.
 
 Smallest next slice:
-  `EXACT-TEXT-ENTRY-LANE-ADOPTION-D0` is design-only. First census the
-  fresh-skeleton transaction/rollback seam and name the private sidecar and
-  slot-only BindingSSA projection. If that issuer and rollback owner close,
-  open a caller-zero I0 in two bounded commits: (1) fresh skeleton
-  reservation/install canary with unpublished discard, then (2) ordinary and
-  ExactText entry-lane adoption canary. The I0 must remain session-local,
-  create no Loop block/operation/control/PHI, consume no Completion claim,
-  and issue no ReadyLoopEntry.
+  `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` consumes the retained skeleton in one
+  fresh unpublished function transaction. It installs the physical shell with
+  a live Builder entry block, adopts ordinary lanes and one ExactText slot
+  lane through the canonical identity/SSA owner, and stores the adjacent
+  generation lane in the skeleton-bound sidecar. The same transaction owns
+  discard/rollback; it creates no Loop block/operation/control/PHI, consumes
+  no Completion claim, and issues no ReadyLoopEntry.
 
 Acceptance:
-  Accept only a same-cohort, non-Clone prepared parameter list plus sidecar
+  This D0 is accepted because the same-cohort prepared parameter list,
+  retained skeleton, canonical identity publisher, and existing one-shot
+  function-session discard terminal form one bounded ownership spine. The I0
+  must accept only a same-cohort, non-Clone prepared parameter list plus sidecar
   whose source logical arity, receiver prefix, physical lane count/order,
   and BindingRef coverage are complete and disjoint. The retained skeleton
   owns the physical ValueIds; the adapter issues one non-Clone sidecar row
@@ -545,13 +546,13 @@ Acceptance:
   per ExactText occurrence. Slot publication is exactly once per logical
   BindingRef; generation is private and move-only;
   the transaction has one rollback owner and leaves no externally visible
-  state on rejection. Until these are observable in one focused gate,
-  retain `NoSafeSlice::ExactTextSlotGenerationSidecarUnsealed`.
+  state on rejection.
 
 Non-claims:
   No loop CFG/PHI, Completion consumption/claim, DraftSeal, lifecycle,
   PinnedTextOp, Text route, literal/StringBox origin, production caller,
-  fallback, retry, or main integration is opened by this D0.
+  fallback, retry, or main integration is opened by this D0. The I0 remains
+  caller-zero and unpublished until its focused gate is green.
 ```
 
 ## Decision
@@ -1675,8 +1676,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
-| 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | design the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | active design stop; `NoSafeSlice::ExactTextSlotGenerationSidecarUnsealed`; no lane adoption I0, Loop CFG/PHI, lifecycle, route, fallback, or production caller |
-| 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | after D0 acceptance, consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | not opened; requires one same-cohort prepared parameter list, sidecar, and atomic rollback owner; no second BindingRef publication |
+| 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
+| 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | next caller-zero I0; one fresh transaction owns install/adoption/discard; no second BindingRef publication |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

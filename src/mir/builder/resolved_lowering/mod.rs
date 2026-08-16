@@ -31,6 +31,7 @@ mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
 mod ownership;
+mod physical_entry_lane_adoption;
 mod selected_dynamic_physical_abi;
 mod selected_dynamic_physical_capability;
 mod selected_dynamic_physical_emitter;
@@ -89,6 +90,8 @@ mod normal_function_draft_lowering_tests;
 mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
+#[cfg(test)]
+mod physical_entry_lane_adoption_tests;
 #[cfg(test)]
 mod return_tests;
 #[cfg(test)]

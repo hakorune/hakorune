@@ -95,9 +95,10 @@ carrier, with `U64BitsOnI64` preserving the wire meaning. Missing/duplicate
 source names, foreign owners, lane gaps/swaps, non-adjacent ExactText pairs,
 and incomplete header/effects relations reject before any Builder effect.
 The aggregate owns the same callback-scoped loan, so its siblings cannot be
-re-paired or stored as a second package authority. Skeleton reservation and
-entry-lane adoption remain separate future rows; lifecycle, Text lowering,
-route selection, fallback, and production callers are closed.
+re-paired or stored as a second package authority. Skeleton reservation has
+landed as a detached caller-zero shell; entry-lane adoption is the active
+caller-zero canary. Lifecycle, Text lowering, route selection, fallback, and
+production callers remain closed.
 
 ### Common V2 physical function skeleton I0
 
@@ -111,14 +112,14 @@ module during this slice.
 
 ExactText remains one logical `BindingRef` with adjacent `[slot,generation]`
 descriptors; this I0 reserves the two `ValueId`s but does not publish either
-lane to BindingSSA. The sidecar/slot publication rule is the next design stop.
-No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text lowering, route,
-fallback, retry, or production caller is opened here.
+lane to BindingSSA. No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
+Text lowering, route, fallback, retry, or production caller is opened here.
 
-### ExactText entry-lane adoption design stop
+### ExactText entry-lane adoption I0
 
-`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` is intentionally still a
-`NoSafeSlice::ExactTextSlotGenerationSidecarUnsealed`. The canonical BindingSSA map remains one logical
+`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` is accepted as a BoxShape,
+and `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` is the active caller-zero canary.
+The canonical BindingSSA map remains one logical
 `BindingRef -> slot ValueId`; the adjacent generation `ValueId` must live in a
 private move-only sidecar that is issued with the prepared physical parameter
 list. The sidecar is transport for entry/forward only: it is not a source
@@ -126,9 +127,9 @@ rebind authority, an ordinary `read_entry` value, or a place to perform
 generation arithmetic. A fresh skeleton install/adoption transaction must own
 both the pending BindingSSA state and sidecar rollback, and must leave no
 published Builder/module state on rejection. Existing one-lane adoption APIs
-must not be called twice for one ExactText `BindingRef`. The next I0 is split
-into a skeleton-install canary and an entry-lane adoption canary only after
-this issuer/rollback BoxShape is accepted.
+must not be called twice for one ExactText `BindingRef`. The focused canary
+covers the retained-shell install and the slot-only adoption handoff; it does
+not open later CFG or lifecycle work.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.

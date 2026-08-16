@@ -44,6 +44,19 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
     pub(crate) fn loan(&self) -> &S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join> {
         &self.loan
     }
+
+    /// Move the retained cohort, detached shell, and descriptor rows into the
+    /// one adoption transaction. No caller can recover a second shell after
+    /// this handoff.
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>,
+        MirFunction,
+        Box<[PhysicalCallableParameterDescriptorV1]>,
+    ) {
+        (self.loan, self.function, self.descriptors)
+    }
 }
 
 /// Reserve a fresh, unpublished physical skeleton from one accepted entry
