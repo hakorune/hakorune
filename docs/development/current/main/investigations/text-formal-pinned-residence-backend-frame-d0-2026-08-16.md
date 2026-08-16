@@ -303,6 +303,15 @@ The next bounded design slice has five ordered seams; it is not yet an I0.
 The first seam is a resolved-session cutover design, not a binder
 implementation:
 
+```text
+Decision: selected static/instance rows may enter the resolved session only through one same-cohort HRTB sibling loan; this is a BoxShape candidate, not an I0.
+Source authority + canonical issuer: package physical-signature issuer plus the package Port's scoped signature callback; resolved admission remains the canonical owner identity.
+Non-authority: legacy pending/collector, symbol/arity, function name, batch slot, JSON length, ValueId, and any admission-carried signature copy.
+Fail-fast boundary: missing/foreign row, owner or receiver/formal drift, detached loan, legacy path, target/plan census mismatch, or loan escape rejects before canonical collection.
+Smallest next slice: design `with_selected_cataloged_lowering_input_and_signature` plus `complete_resolved_child_with_physical_loan<'loan>` with synchronous co-seal before `CanonicalRejectDuplicate`.
+Non-claims: no JSON publication, GEP/load, lifecycle/session execution, route admission, production caller, fallback, retry, or top-level physical-signature support.
+```
+
 1. **Resolved-session handoff:** design one selected-normal transition from
    the package Port adapter through identity-only
    `ResolvedChildDraftAdmissionV1` into
