@@ -26,10 +26,15 @@ use super::draft_seal_owner::OpenFunctionDraftSealV1;
 
 mod exit_projection;
 mod multi_site_exit;
+mod text_residence_exit;
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
+pub(super) use text_residence_exit::{
+    issue_pinned_text_residence_exit_obligation_v1, PinnedTextResidenceExitObligationRejectV1,
+    PinnedTextResidenceExitObligationV1,
+};
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {

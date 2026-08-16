@@ -41,11 +41,16 @@ enum CompletionPhysicalKindV1 {
 /// finalizer API. Raw pre-Builder completion products cannot finalize a draft.
 #[derive(Debug)]
 pub(super) struct ReadyFunctionCompletionV1 {
+    owner: FunctionOwnerIdV1,
     kind: CompletionPhysicalKindV1,
     explicit_claims: Box<[ExplicitReturnClaimV1]>,
 }
 
 impl ReadyFunctionCompletionV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(super) fn explicit_operand(&self) -> Option<ReturnOperandWitnessV1> {
         if self.explicit_claims.len() != 1 {
             return None;
@@ -122,6 +127,20 @@ impl ExplicitReturnClaimV1 {
 
     pub(super) fn witness(&self) -> ExplicitReturnWitnessV1 {
         self.witness
+    }
+
+    #[cfg(test)]
+    pub(super) fn from_test_value(
+        site: SourceStmtSiteV1,
+        block: BasicBlockId,
+        value: ValueId,
+    ) -> Self {
+        Self::value(site, block, value)
+    }
+
+    #[cfg(test)]
+    pub(super) fn from_test_unit(site: SourceStmtSiteV1) -> Self {
+        Self::unit(site)
     }
 }
 
@@ -305,9 +324,43 @@ impl ResolvedFunctionCompletionConsumptionV1 {
             .into_boxed_slice();
         let kind = self.expected.kind;
         Ok(ReadyFunctionCompletionV1 {
+            owner: self.expected.owner,
             kind,
             explicit_claims,
         })
+    }
+}
+
+#[cfg(test)]
+impl ReadyFunctionCompletionV1 {
+    pub(super) fn from_test_explicit_value(
+        owner: FunctionOwnerIdV1,
+        claims: Box<[ExplicitReturnClaimV1]>,
+    ) -> Self {
+        Self {
+            owner,
+            kind: CompletionPhysicalKindV1::ExplicitValue,
+            explicit_claims: claims,
+        }
+    }
+
+    pub(super) fn from_test_explicit_unit(
+        owner: FunctionOwnerIdV1,
+        claims: Box<[ExplicitReturnClaimV1]>,
+    ) -> Self {
+        Self {
+            owner,
+            kind: CompletionPhysicalKindV1::ExplicitUnit,
+            explicit_claims: claims,
+        }
+    }
+
+    pub(super) fn from_test_implicit_void(owner: FunctionOwnerIdV1) -> Self {
+        Self {
+            owner,
+            kind: CompletionPhysicalKindV1::ImplicitVoid,
+            explicit_claims: Box::default(),
+        }
     }
 }
 

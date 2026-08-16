@@ -1,5 +1,5 @@
 ---
-Status: design stop; no compiler/runtime lifecycle implementation permission
+Status: accepted BoxShape; proof-only exit-obligation I0 is the next row
 Date: 2026-08-16
 Work mode: design_stop
 Parent: CALLABLE-TEXT-FORMAL-CALL-RESIDENCE-D0 / LOOP-TEXT-SLICE-DIRECT-AOT-D0
@@ -11,6 +11,11 @@ This card is the next design boundary after the scoped
 `PinnedTextBackendFrameBorrowV1` child. It joins the already-landed runtime
 residence substrate to the existing function Completion/DraftSeal exit owner;
 it does not lower a `PinnedTextOp` or materialize a pointer.
+
+The no-unwind condition reuses the existing Stage0 cleanup/catch boundary:
+backend exception ABI and stack unwinding are closed there. This card does not
+mint a second trap policy; admitted functions must satisfy that existing policy
+and reject source catch/unwind shapes before any residence effect.
 
 ## Six-line brief
 
@@ -87,6 +92,15 @@ The D0 must also name the exact materialization seam: the same
 order `return operand -> residence finish -> Return`. If the current DraftSeal
 API cannot accept a private finish capability at that point without becoming a
 second Return writer, the D0 remains open and no I0 is authorized.
+
+## D0 acceptance
+
+The BoxShape is accepted for the explicit-value `Single` and `ExactTwo`
+exit-set vocabulary. `VerifiedFunctionCompletionV1` and
+`PreparedFunctionExitSetV1` remain the sole site-keyed exit authorities;
+Stage0's no-unwind stop is the sole trap policy. The next I0 may issue only a
+proof-only exit obligation from those existing products. It may not store a
+runtime token, change DraftSeal Return placement, or add a lifecycle MIR op.
 
 ## Design acceptance matrix
 

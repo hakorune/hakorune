@@ -150,6 +150,49 @@ impl PinnedTextBackendFrameContractV1 {
             },
         })
     }
+
+    #[cfg(test)]
+    pub(crate) fn from_test(
+        owner: FunctionOwnerIdV1,
+        plan_stamp: u64,
+        frame_revision: u32,
+    ) -> Self {
+        Self {
+            owner,
+            invocation_ordinal: 1,
+            source_logical_arity: 1,
+            receiver_lane_count: 0,
+            physical_formal_lane_count: 2,
+            physical_callable_lane_count: 2,
+            exact_text_root_count: 1,
+            plan_stamp,
+            plan_count: 1,
+            frame_revision,
+            frame_size: 48,
+            residence_abi_revision: "text-formal-residence-v1",
+            header_size: 32,
+            root_row_size: 16,
+            header_alignment: 8,
+            root_row_alignment: 8,
+            max_root_count: 1024,
+            max_frame_bytes: 65_536,
+            target_profile_id: "test-pinned-text-target",
+            target_triple: "x86_64-pc-linux-gnu",
+            target_data_layout: "test-layout",
+            target_little_endian: true,
+            target_pointer_width: 64,
+            target_pointer_alignment: 8,
+            target_max_root_count: 1024,
+            target_max_private_frame_bytes: 65_536,
+            consumer_abi_revision: "test-consumer-v1",
+            llvm_c_api_abi_revision: "test-llvm-c-api-v1",
+            object_cpu: "",
+            object_features: "",
+            object_codegen_opt_level: 0,
+            object_relocation_model: 0,
+            object_code_model: 0,
+        }
+    }
 }
 
 /// Scoped, non-pointer projection of an already-issued backend-frame
