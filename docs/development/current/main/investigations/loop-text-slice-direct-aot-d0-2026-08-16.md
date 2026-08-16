@@ -172,3 +172,9 @@ the runtime frame has been entered or that a pointer is live. If a consumer
 needs a live frame, lifecycle entry/finish becomes a separate Residence D0 and
 this row remains `NoSafeSlice` rather than smuggling that state through the
 borrow.
+
+The design stop is closed for this narrow projection. The next execution row
+is the caller-zero Rust-only
+`TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0` child. It may add the
+scoped view and its ownership tests, but it must not widen the C consumer or
+open live-frame lifecycle; those remain a later Residence design stop.
