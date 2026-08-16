@@ -85,13 +85,16 @@ Related:
   mechanical cohort witness exactly once into the canonical session and lends
   only a scoped borrow. The V2-native physical-ID-free layout/placement
   BoxShape and its caller-zero transport I0 are now landed. The Length-result
-  canary I0 is also landed; the parent Bool result BoxShape is the next design
-  stop. A-prime lifecycle activation remains parked until its boundary owns
+  canary I0 is also landed; the canonical physical Length-result issuer is the
+  next design stop before the parent Bool result BoxShape. A-prime lifecycle
+  activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
-  is the active design stop. The Length-result canary consumed the same
+- **Next ordered task:**
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` is the
+  active design stop. The Length-result canary consumed the same
   relation/inventory/stamp once without issuing ValueId, type, CallSlot, CFG,
-  or edge effects; the next BoxShape must name the sole Bool result owner.
+  or edge effects; the next BoxShape must name the sole same-session physical
+  Length-result owner.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1238,8 +1241,8 @@ Acceptance boundary:
   whether a same-session canonical Length result issuer exists without a
   second authority. The current census found no such issuer: keep
   `NoSafeSlice::CanonicalLengthResultIssuerMissing` and follow the separate
-  Length-result D0 below; do not infer it from raw MIR or reuse a legacy
-  CallSlot emitter.
+  Length-physical-result D0 below; do not infer it from raw MIR or reuse a
+  legacy CallSlot emitter.
 
 After acceptance:
   `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0` may begin as a typed
@@ -1325,13 +1328,16 @@ Ordered sub-slices (design-only; no session/CFG effect):
   2. `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` and its I0 are
      landed; the prepared skeleton and installed loan remain the only stamp
      authorities.
-  3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0`
-     names the one same-session Length result issuer and its private I64
-     receipt; existing Dynamic/legacy CallSlot emitters are not reused.
-  4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
-     may be accepted only after the Length issuer is closed; it then fixes the
-     Bool receipt, outer discard owner, and sole later branch consumer.
-  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
+  3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` and its I0
+     canary are landed; they prove only same-session source/stamp transport.
+  4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0`
+     must name the one same-session physical Length receipt issuer; existing
+     Dynamic/legacy CallSlot emitters are not reused.
+  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
+     may be accepted only after the physical Length issuer is closed; it then
+     fixes the Bool receipt, outer discard owner, and sole later branch
+     consumer.
+  6. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
      may begin only after both BoxShapes are accepted; it is a typed
      materializer/receipt admission canary and still emits no ValueId,
      Compare, edge, or terminator.
@@ -1422,10 +1428,50 @@ Non-claims:
 ```
 
 The canary is landed without opening a physical result. The next bounded
-decision is `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`:
-one session-local Bool result plan/receipt must borrow the producer, operand
-inventory, and retained stamp, use the canonical ValueId/type issuer, and
-name one later branch consumer before any physical effect is admitted.
+decision is `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0`:
+one same-session physical Length-result receipt issuer must be named before
+the parent Bool plan/receipt can be admitted.
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Keep the parent Bool result at NoSafeSlice and first name the one
+  same-session physical Length-result receipt issuer. The existing canary is
+  source/cohort protocol only; it is not a physical operand receipt.
+
+Source authority + canonical issuer:
+  The source Length contract, fixed Right operand row, matching operation row,
+  Compare-right relation, and retained physical-entry stamp are borrowed from
+  the same common-V2 session. A future
+  `CanonicalLengthCallResultReceiptV1` is issued only by the common materializer
+  through `CanonicalSsaFunctionSessionV2`'s sole ValueId/type mechanics and is
+  consumed by the later Bool-result materializer in the same callback.
+
+Non-authority:
+  `LengthCallMaterializationCanaryV1`, raw `LoopValueKeyV1`, raw `ValueId`,
+  generic/legacy `CallSlot`, Selected-Dynamic ledgers, CheckedCallOut, MIR
+  lookup, or a second session cannot issue or re-pair the physical Length
+  result. The source inventory remains logical transport only.
+
+Fail-fast boundary:
+  Missing/foreign session stamp, owner/function drift, Length role/operation/
+  placement/arity/receiver/result/class drift, absent canonical result/type,
+  duplicate publication, result re-entry, operand-pair mismatch, or receipt
+  escape rejects before Compare, branch, or edge effects. Late failure uses the
+  outer unpublished-function discard exactly once; fallback/retry is forbidden.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-I0` may
+  first admit a typed same-session result-receipt plan/canary. It must not emit
+  ValueId, CallSlot, Compare, edge, terminator, CFG, or PHI until the issuer
+  and its physical operand pair are closed.
+
+Non-claims:
+  No parent Bool receipt, Compare instruction, `emit_branch`, edge/terminator,
+  CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, production,
+  fallback, or retry is opened by this D0.
+```
 
 The earlier canonical-session admission and physical-function-entry rows are
 already landed caller-zero seams. This stop must not reopen them or use their
@@ -1444,6 +1490,7 @@ NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
 NoSafeSlice::AfterConditionSessionStampRetentionMissing
 NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
+NoSafeSlice::CanonicalLengthResultIssuerMissing
 ```
 
 ## Decision
@@ -2591,6 +2638,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-c | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` | fix one session-local Bool result plan/receipt that borrows the producer/inventory/stamp, uses canonical ValueId/type issuance, and has one outer discard owner and one later branch consumer | active NoSafeSlice design stop after the Length canary landed; no ValueId, Compare, Length-call materialization, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-d | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` | name the sole same-session issuer for the Length CallSlot physical result required by the parent Bool receipt | accepted BoxShape 2026-08-17; the first consumer is a no-effect one-shot canary, with no ValueId, CallSlot lowering, Compare, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-d-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` | consume the same-cohort Length relation/inventory/stamp exactly once as a Builder-neutral canary | landed 2026-08-17; positive, duplicate, missing-stamp, source-shape, and late-failure no-mutation gates are green; no physical Length result, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | name the sole same-session canonical physical Length-result receipt issuer/consumer before the parent Bool result | active NoSafeSlice design stop; the existing canary is protocol-only, so no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
