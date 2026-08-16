@@ -375,6 +375,28 @@ D0 acceptance gate (still open):
   they are not evidence for closing this D0. Until this gate is met, the only
   next action is issuer census or `NoSafeSlice`, never a Builder effect.
 
+Current code census (2026-08-18):
+  `S6CInstalledCallableLoanRefV1` already lends `selected()`, `signature()`,
+  `storage_header()`, `physical_effects()`, `result()`, and scoped Completion
+  from one installed Port callback. The catalog-backed storage projection
+  owns source `ParamDecl`/name/type/attrs/uses rows; the physical-signature
+  row owns lane role/order/BindingRef; and the S6C effects projection owns
+  only the source-backed effect mask. However, no compiler-side issuer yet
+  joins these siblings into physical parameter descriptors. Existing
+  `MirParamDecl` and `create_resolved_function_skeleton` remain
+  source-annotation and one-lane consumers, respectively. This census is
+  evidence for the missing issuer, not permission to call the skeleton API or
+  infer expanded lanes from `FunctionSignature` length.
+
+Next implementation cell after D0 acceptance:
+  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` will add one
+  callback-scoped compiler module that consumes the same loan and emits no
+  Builder effect. It may expose descriptor rows and borrowed source siblings
+  to the later skeleton consumer, but must not reserve blocks, create
+  `ValueId`s, adopt BindingSSA, consume Completion, or lower a loop. This cell
+  is not open while `work_mode` remains `design_stop` and the D0 gate above is
+  unsealed.
+
 Implementation receipt (2026-08-17):
   The I0 is landed. `VerifiedS6CStorageHeaderProjectionV1` is a distinct
   catalog-backed storage projection, and `VerifiedS6CPhysicalFunctionEffectsV1`
@@ -1512,6 +1534,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-b | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-D0` | accept one package/installed-loan issuer for S6C storage header, result, attrs/uses, source-backed effects, and physical signature relation | accepted BoxShape; caller-zero I0 is the only open effect; no skeleton or Builder effect |
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; census the same-loan physical-parameter descriptor/lane-role projection, including source ParamDecl, receiver, and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
+| 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | future caller-zero I0 only after 25b-c0 acceptance; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | future caller-zero I0 only after 25b-c0 acceptance; no ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume the accepted skeleton and adopt ordinary lanes plus one ExactText BindingRef with adjacent `[slot,generation]` sidecar policy | future second I0; no reuse of one-value adoption for both ExactText lanes, no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
