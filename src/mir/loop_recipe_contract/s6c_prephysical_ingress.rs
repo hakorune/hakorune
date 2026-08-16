@@ -93,7 +93,7 @@ pub(crate) struct VerifiedS6CPrephysicalIngressV2 {
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
-    source: S6CPrephysicalSourceInputRefV2<'rows, 'facts>,
+    pub(super) source: S6CPrephysicalSourceInputRefV2<'rows, 'facts>,
     seal: &'a S6CPrephysicalIngressSealV2,
 }
 

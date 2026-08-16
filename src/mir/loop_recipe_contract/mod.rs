@@ -3,6 +3,8 @@
 mod continuation;
 // Caller-zero common V2 operation/control/coverage projections.
 mod common_v2_issuers;
+// Caller-zero typed source-backed After boundary; no allocation or CFG.
+mod common_v2_after_boundary;
 // Caller-zero V2 physical-ID-free layout input transport.
 mod common_v2_layout_input;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
@@ -159,6 +161,11 @@ pub(crate) use operation_effect_parity::{
 
 // Keep one stable facade for the caller-zero common-V2 parent; the products
 // remain source-only and do not open the physical session.
+#[allow(unused_imports)]
+pub(crate) use common_v2_after_boundary::{
+    AfterBoundaryIssueRejectV1, LoopV2AfterBoundaryRelationV1,
+    VerifiedLoopV2AfterBoundarySourceRelationV1,
+};
 #[allow(unused_imports)]
 pub(crate) use common_v2_issuers::{
     issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,

@@ -1356,9 +1356,22 @@ cursor, so any resulting ID gap is unobservable and never reused.
 The receipt retains only the source segment relation and its physical block.
 It does not allocate synthetic After, edges, terminators, operations, or
 effects, and it does not open CFG/PHI, Completion/DraftSeal, lifecycle, Text,
-route selection, fallback/retry, publication, or a production caller. A
-source-backed `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` remains the next
-design stop; JoinSig's After port alone is not an allocation authority.
+route selection, fallback/retry, publication, or a production caller. The
+source-backed `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` is now an accepted
+BoxShape; its transport-only I0 is recorded below. JoinSig's After port alone
+is still not an allocation authority.
+
+## Common V2 typed After-boundary transport I0 (2026-08-17)
+
+The installed S6C ingress now issues one non-Clone,
+source/frame-branded `VerifiedLoopV2AfterBoundarySourceRelationV1` beside the
+physical-ID-free layout. The common-V2 envelope transports the typed
+`RootAfter | ParentResume` relation without allocating a physical block; the
+current S6C cohort admits only `RootAfter`, while `ParentResume` remains
+parked until its source issuer input exists. Owner, root-loop, and exact
+source/frame evidence are co-sealed before the envelope is returned. No
+After block, edge, terminator, operation, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route, fallback, retry, or production caller is opened.
 
 ## Recursive After R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 

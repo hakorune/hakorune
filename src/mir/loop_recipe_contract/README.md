@@ -802,3 +802,13 @@ Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
 publication, or production caller. The next bounded row is canonical V2
 session admission; it must consume this scoped envelope rather than rescan
 Recipe/JoinSig or add an S6C physicalizer.
+
+## Common V2 typed After-boundary transport I0
+
+`LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0` adds one source-backed,
+non-Clone `VerifiedLoopV2AfterBoundarySourceRelationV1` to that same envelope.
+The relation carries owner, source loop/frame evidence, and a typed
+`RootAfter | ParentResume` disposition; the current S6C issuer admits only
+`RootAfter`. This is transport-only: no After `BasicBlockId`, resume edge,
+terminator, operation, CFG/PHI, Completion/DraftSeal, lifecycle, Text route,
+fallback, retry, or production caller is opened.

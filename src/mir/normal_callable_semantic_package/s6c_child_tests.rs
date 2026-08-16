@@ -60,6 +60,11 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
         assert_eq!(loan.envelope().operations().operation_count(), 13);
         assert_eq!(loan.envelope().control().control_count(), 2);
         assert_eq!(loan.envelope().coverage().placement_count(), 15);
+        assert_eq!(
+            loan.envelope().after_boundary().relation(),
+            crate::mir::loop_recipe_contract::LoopV2AfterBoundaryRelationV1::RootAfter
+        );
+        assert_eq!(loan.envelope().after_boundary().owner(), child.owner());
         child.with_completion_parity(|completion| {
             assert!(completion.cleanup_empty());
             assert_eq!(completion.explicit_exit_count(), 2);

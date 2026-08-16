@@ -808,17 +808,70 @@ Fail-fast boundary:
   no second After authority or fallback is permitted.
 
 Smallest next slice:
-  Open `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0`: issue and transport the
-  typed relation through the existing common-V2 envelope only.  Cover RootAfter
-  positive, owner/frame/foreign and layout-drift negatives, missing/ambiguous
-  ParentResume rejection, and loan escape.  After block allocation remains a
-  later effect slice owned by the canonical session and outer discard owner.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0` issues and transports the typed
+  relation through the existing common-V2 envelope only.  After block
+  allocation remains a later effect slice owned by the canonical session and
+  outer discard owner.
 
 Non-claims:
   No After BasicBlock allocation, rollback/cursor change, edge/terminator,
   operation/ReadBinding/Const/CallSlot, CFG/PHI, Completion/DraftSeal,
   lifecycle, Text, route, performance, production caller, fallback, retry, or
   publication.
+```
+
+### After-boundary transport I0 implementation receipt (2026-08-17)
+
+`LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0` is landed as a transport-only
+slice. The same S6C ingress that issues the physical-ID-free layout now issues
+one non-Clone `VerifiedLoopV2AfterBoundarySourceRelationV1` carrying the
+owner, source loop/frame evidence, and typed `RootAfter | ParentResume`
+disposition. The admitted S6C path is `RootAfter`; `ParentResume` remains
+parked until its source issuer input exists. The relation is retained inside
+the existing common-V2 envelope, with focused RootAfter/owner parity evidence
+and no second loan or JoinSig reissue.
+
+This receipt performs no After block allocation, cursor/rollback change,
+edge/terminator or operation emission, CFG/PHI, Completion/DraftSeal claim,
+lifecycle, Text, route, fallback, retry, publication, or production caller.
+The next bounded design stop is
+`LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0`.
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0` — active design stop
+
+```text
+Decision:
+  Decide the first synthetic After allocation effect after the typed
+  source-backed boundary is transported. Keep allocation separate from edges,
+  operations, CFG/PHI, Completion, and session construction.
+
+Source authority + canonical issuer:
+  Consume the existing VerifiedLoopV2AfterBoundarySourceRelationV1 from the
+  same common-V2 envelope. The canonical session block allocator is the sole
+  BasicBlockId issuer and the outer unpublished-function transaction is the
+  sole discard owner.
+
+Non-authority:
+  JoinSig After tuple, layout order, segment split ordinal, current Builder
+  cursor, MirFunction blocks, Recipe counts, BasicBlockId, ValueId, or a
+  profile-specific After physicalizer cannot infer allocation or a successor.
+
+Fail-fast boundary:
+  Before Builder effect require one owner/function/relation stamp, RootAfter
+  disposition, exact source-segment coverage, no entry/segment collision, and
+  checked monotonic cursor range. Late failure must discard the unpublished
+  function once; cursor gaps remain non-semantic and no retry/fallback is
+  allowed.
+
+Smallest next slice:
+  After this D0 is accepted, open one caller-zero I0 that allocates exactly
+  one unpublished After block from the consumed relation. Do not add edges,
+  terminators, operations, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+  route, fallback, retry, or a production caller.
+
+Non-claims:
+  No ParentResume admission, physical successor choice, operation/ReadBinding,
+  effect emission, session publication, route selection, or legacy retirement.
 ```
 
 The current layout view still carries only source loop/block/item segments and
@@ -1962,7 +2015,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-f-I0-RG | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0-RELATION-GUARD` | require each operation/If/Exit item to belong to its specified layout block and add focused negatives | landed 2026-08-17; positive transport plus operation/If/Exit block-drift negatives are green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first source-segment block allocation carrier and rollback boundary | accepted BoxShape 2026-08-17; monotonic unpublished-ID gaps are explicit, synthetic After allocation is a separate D0; no ReadBinding/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted segment allocation plan and allocate only ordered source-segment blocks under one outer discard owner | landed 2026-08-17; positive and late-discard gates are green; no synthetic After block, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-h | `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` | issue a source-backed synthetic After row with root/resume relation and its separate allocation owner | accepted BoxShape 2026-08-17; S6C admits RootAfter, ParentResume remains parked until its issuer input exists; the next I0 transports the typed relation only, with no After allocation, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-h | `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` | issue a source-backed synthetic After row with root/resume relation and its separate allocation owner | accepted BoxShape 2026-08-17; typed RootAfter transport I0 landed, ParentResume remains parked until its issuer input exists, and the next design stop is `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0` before any After allocation, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

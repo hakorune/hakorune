@@ -6,6 +6,10 @@
 
 use std::collections::BTreeSet;
 
+use super::common_v2_after_boundary::{
+    issue_s6c_v2_after_boundary_source_relation_v1, AfterBoundaryIssueRejectV1,
+    VerifiedLoopV2AfterBoundarySourceRelationV1,
+};
 use super::common_v2_layout_input::{
     issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
 };
@@ -34,6 +38,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     },
     Layout(LayoutInputRejectV1),
     LayoutRelation,
+    AfterBoundary(AfterBoundaryIssueRejectV1),
 }
 
 #[derive(Debug)]
@@ -161,6 +166,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     operations: PreparedLoopOperationProgramV2<'source>,
     control: PreparedLoopControlTransferProgramV2<'source, 'join>,
     layout: PreparedLoopV2PhysicalLayoutInputV1<'source>,
+    after_boundary: VerifiedLoopV2AfterBoundarySourceRelationV1,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -186,6 +192,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) const fn coverage(&self) -> VerifiedLoopV2EnvelopeCoverageV1 {
         self.coverage
     }
+
+    pub(crate) fn after_boundary(&self) -> &VerifiedLoopV2AfterBoundarySourceRelationV1 {
+        &self.after_boundary
+    }
 }
 
 /// Issue the three sibling products from one S6C ingress.  The fixed S6C
@@ -201,6 +211,9 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     let control = issue_control_source(ingress)?;
     let layout = issue_s6c_v2_layout_input(ingress, expected_owner)
         .map_err(CommonV2IssuerRejectV1::Layout)?;
+    let after_boundary =
+        issue_s6c_v2_after_boundary_source_relation_v1(ingress, &layout, expected_owner)
+            .map_err(CommonV2IssuerRejectV1::AfterBoundary)?;
     validate_layout_relation(&layout, &operations, &control)?;
     let coverage = issue_coverage(&operations, &control)?;
     if operations.operation_count() != 13
@@ -219,6 +232,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         operations,
         control,
         layout,
+        after_boundary,
         coverage,
     })
 }
