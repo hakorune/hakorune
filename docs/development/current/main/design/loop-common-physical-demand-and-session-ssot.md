@@ -221,12 +221,15 @@ Decision:
   blocks yet.
 
 Source authority + canonical issuer:
-  Installed S6C selected identity, Completion-independent physical signature,
-  physical header/result cohort, and the function transaction jointly issue
-  one source-backed entry input. The fresh function skeleton owner reserves
-  the physical lanes; CanonicalSsaFunctionSessionV2.identity is the sole
-  BindingRef -> ValueId adoption owner; CanonicalFunctionLoweringSessionV1 is
-  the unpublished transaction/restore owner.
+  One compiler-side co-seal issuer, inside the same installed S6C loan, consumes
+  selected identity, Completion-independent physical signature, physical
+  header/result facts, and the source-backed function owner to issue one
+  entry input. The pre-effect input records symbol/mode, physical lane count,
+  lane order/role/type, result ABI, EffectMask projection, attrs/uses, and
+  owner/brand stamps. The fresh function skeleton owner reserves the lanes;
+  CanonicalSsaFunctionSessionV2.identity is the sole BindingRef -> ValueId
+  adoption owner; CanonicalFunctionLoweringSessionV1 is only the downstream
+  unpublished transaction/restore consumer, not an issuer input.
 
 Non-authority:
   Common V2 operation/control/coverage rows, Recipe/JoinSig ordinals,
@@ -240,7 +243,9 @@ Fail-fast boundary:
   identity/header/signature/result, receiver-prefix policy, dense
   non-duplicate logical ordinals, adjacent ExactText `[slot,generation]`
   lanes, reserved entry parameter/type agreement, and one installed
-  unpublished function transaction. Any mismatch means effect 0; a
+  unpublished function transaction. ExactText remains one BindingRef with
+  adjacent `[slot,generation]` lanes and cannot call the old one-value
+  adoption API twice. Any mismatch means effect 0; a
   post-mutation failure discards the whole unpublished function once, with no
   retry or fallback.
 
@@ -1247,7 +1252,8 @@ NormalCallableSemanticLoanPortV1
   -> production source/facts bridge
   -> PreparedCallableLoopPhysicalizationV1
   -> fresh CanonicalFunctionLoweringSessionV1
-  -> CanonicalSsaFunctionSessionV2 (Completion moves once)
+  -> CanonicalSsaFunctionSessionV2
+       (one physical Completion consumer issued from one scoped semantic borrow)
   -> Prelude / common Loop / After / Tail
   -> finish_for_draft_seal
   -> DraftSeal prepare/commit
