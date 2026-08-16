@@ -54,6 +54,58 @@ source order, or independent count. DraftSeal must join that capability with
 the existing `PreparedFunctionExitSetV1` during the same detached exit
 iteration; it may not rediscover exits from MIR/JSON or infer finish needs.
 
+## Trap-capability decision boundary
+
+The accepted C-prime language policy owns terminal `Fault` and rejects a
+catchable source `try/throw/catch` route. That semantic decision is not itself
+a backend execution guarantee. The missing backend product is a future,
+function-owned non-`Clone` `PinnedTextBackendNoUnwindCapabilityV1` that
+co-seals:
+
+```text
+compile-invocation brand
+exact function stamp
+residence/frame plan stamp
+target realization revision
+exact entry/fault call census
+nounwind + trap-noreturn verification
+```
+
+`PinnedTextBackendFrameContractV1` alone is insufficient because it owns
+layout/target facts, not call/fault execution policy. LLVM attribute strings,
+`llvm.trap; unreachable` emitted by a consumer, `EffectMask`, and the
+superseded Stage0 inventory are non-authority. If the exact census cannot be
+carried to the final contract-bound verifier, the materializer remains closed.
+
+The corrected finish capability is therefore conceptually:
+
+```text
+PreparedTextFormalExitFinishSetV1 {
+  function/session/residence/plan/frame stamp
+  no_unwind capability stamp
+}
+```
+
+It is passed by value beside the existing `PreparedFunctionExitSetV1` into the
+future `PreparedFunctionExitPlanV1` handoff. It contains no exit rows, blocks,
+values, source order, or independent count.
+
+## Exact next design task
+
+Before any caller-zero materializer implementation, close these four points in
+this D0:
+
+```text
+1. name the sole issuer of PinnedTextBackendNoUnwindCapabilityV1
+2. define the exact pre-DraftSeal call/fault census and final verifier
+3. define the stamp-only PreparedTextFormalExitFinishSetV1 handoff beside
+   PreparedFunctionExitSetV1
+4. prove that missing/foreign/no-unwind drift rejects before publication
+```
+
+This is still a design-only BoxShape. No new receipt is implemented until all
+four points have one owner and one fail-fast boundary.
+
 ## Acceptance / non-claims
 
 ```text

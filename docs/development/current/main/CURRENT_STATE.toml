@@ -8,7 +8,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 corrects the proof-only prototype: issue a stamp-only finish capability beside the existing exit ledger and name an active backend no-unwind capability; live finish execution remains unopened."
 work_mode = "design_stop"
 current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed; the prototype duplicates the canonical exit ledger and no active backend no-unwind capability is yet issued."
+current_blocker_token = "NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed; NoSafeSlice::PinnedTextExitFinishCapabilityDuplicatesLedger; NoSafeSlice::PinnedTextNoUnwindCapabilityUnissued. The prototype duplicates the canonical exit ledger and no active backend no-unwind capability is yet issued."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
