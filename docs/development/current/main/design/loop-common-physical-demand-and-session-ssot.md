@@ -77,9 +77,10 @@ Related:
   physicalizer remains test-only/V1-shaped; common V2 transport/session and
   every production caller are not landed. A-prime lifecycle activation is
   parked until the canonical V2 session owns the exit set.
-- **Next ordered task:** resume
-  `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`, then the generic transport and
-  caller-zero S6C packaging rows before physical activation.
+- **Next ordered task:** the common V2 pre-session BoxShape is accepted as a
+  design-only boundary; resume
+  `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then the caller-zero S6C packaging
+  row before physical activation.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -272,12 +273,48 @@ pre-session envelope is route-free and borrows that cohort only inside the
 Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
 child, one Completion ownership path, and the Completion-independent package
-lane map are closed by their caller-zero I0 rows. The active design row is
-`LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`; it closes the generic V2
-operation/control envelope boundary before transport. Exact call-edge origin,
+lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape is
+accepted as a design-only boundary; the next design row is
+`LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`. It transports the generic V2
+operation/control envelope without Builder/session effects. Exact call-edge origin,
 Canonical composite adoption, and Completion-backed lifecycle finish remain a
 later canonical-session fan-in; they are never inferred from Recipe/MIR. The
 generic V2 exact-set partition is the current common boundary.
+
+### Common V2 pre-session BoxShape (accepted design-only boundary)
+
+The D0 boundary is one non-splittable parent loan, not a public aggregate whose
+fields can be independently reacquired. The target Port shape is a single
+HRTB callback (the API is not landed yet):
+
+```text
+installed package/Port
+  -> with_s6c_common_v2_presession(|parent| { ... })
+
+parent (private, same-brand, scoped)
+  ├─ selected callable identity + catalog brand
+  ├─ one Completion owner (borrowed only)
+  ├─ package physical-signature sibling view
+  ├─ retained S6C Facts/Recipe/Join/prephysical sibling view
+  └─ neutral operation/control/coverage projections
+```
+
+The operation and control projections are sibling views of that parent. The
+operation product covers every Operation placement for the admitted V2 input;
+it does not hard-code the S6C cardinality. The control product owns only
+`If`, `Exit`, and JoinSig-issued transfers. JoinSig, Completion, and callable
+Tail add no placement. A passive coverage projection proves the disjoint union
+of the operation and control sets. The S6C adapter alone must prove the exact
+`13 + 1 + 1 = 15` coverage before any leaf is emitted.
+
+The D0 acceptance boundary is limited to same-brand ownership, scoped sibling
+lending, generic operation/control partition, and passive exact coverage. It
+does not add Builder/session effects or issue a new semantic authority. A
+missing/duplicate/overlapping/foreign placement, a second Completion owner, an
+HRTB escape, a detached key or source ledger, or any requirement to infer the
+partition from MIR/Recipe order is `NoSafeSlice`. The next bounded row is
+transport R0; only after that row may the caller-zero S6C envelope be
+implemented.
 
 The stable callable boundary is not the function-internal Text carrier. A
 later non-splittable residence set couples the invocation lease-set token to
@@ -1083,9 +1120,9 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | active design stop; child/Completion and package signature mapping are closed, while complete operation/control placement issuers and the neutral envelope boundary remain unopened |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | accepted design-only 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no code or session effect |
 | 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
-| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the common boundary after 22c-a | BoxShape only; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
+| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the accepted 22c boundary | next design-only row; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |

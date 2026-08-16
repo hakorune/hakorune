@@ -5,10 +5,10 @@ date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 resumes the durable task order: bind the installed S6C child, one Completion, package physical signature, and generic V2 operation/control envelope without Builder/session effects. A-prime lifecycle activation remains parked until the common canonical session owns PreparedFunctionExitSetV1."
+current_design_stop = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 is accepted as a design-only BoxShape: one same-brand parent HRTB loan with sibling identity/signature/Completion/S6C views, separate generic operation/control products, and passive disjoint coverage. The next design row is LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0; A-prime lifecycle activation remains parked until the common canonical session owns PreparedFunctionExitSetV1."
 work_mode = "design_stop"
-current_execution_row = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextCanonicalDraftSealIngressMissing; NoSafeSlice::LoopS6CCommonV2PreSessionContractUnsealed. Current selected-normal lowering reaches a legacy finalizer, not the canonical PreparedFunctionExitSetV1/DraftSeal owner; do not retrofit lifecycle meaning or rescan Returns."
+current_execution_row = "LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0"
+current_blocker_token = "NoSafeSlice::LoopCommonV2PreSessionTransportUnsealed; NoSafeSlice::PinnedTextCanonicalDraftSealIngressMissing. The common V2 BoxShape is design-only; transport is not landed, and current selected-normal lowering still reaches a legacy finalizer rather than the canonical PreparedFunctionExitSetV1/DraftSeal owner; do not retrofit lifecycle meaning or rescan Returns."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -29,8 +29,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "text-formal-pinned-residence-lifecycle-authority-r0"
 latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md"
-latest_card_summary = "A-prime is the accepted lifecycle target, but code census found that selected-normal production still uses a legacy finalizer and cannot co-seal the canonical exit set. Lifecycle implementation is parked instead of extending that path. The exact next task resumes the durable common V2 pre-session contract; only that route may later reach the canonical session, Completion, and DraftSeal owners."
-next_design_card = "LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0"
+latest_card_summary = "A-prime is the accepted lifecycle target, but code census found that selected-normal production still uses a legacy finalizer and cannot co-seal the canonical exit set. Lifecycle implementation is parked instead of extending that path. The common V2 pre-session BoxShape is now accepted as design-only; transport is the next bounded row before any canonical session, Completion, or DraftSeal lifecycle owner is opened."
+next_design_card = "LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-R0 selected A-prime as the final target but parked activation after code census found the selected-normal route still uses a legacy finalizer without PreparedFunctionExitSetV1. The lane resumes LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0 so the future lifecycle authority reaches one canonical session/Completion/DraftSeal path instead of extending legacy finish or rescanning Returns.",
+  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-R0 selected A-prime as the final target but parked activation after code census found the selected-normal route still uses a legacy finalizer without PreparedFunctionExitSetV1. The common V2 pre-session D0 is now accepted as a design-only one-parent HRTB/sibling-view BoxShape; the lane advances to LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0 so the future lifecycle authority reaches one canonical session/Completion/DraftSeal path instead of extending legacy finish or rescanning Returns.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-I0 landed a private non-Clone proof-only prototype co-sealed from existing Completion/ExitSet/plan/frame facts; explicit-value Single and ExactTwo site matching plus owner/stamp/unit/duplicate negatives passed 4/4. Its copied exit rows are historical evidence only; the successor must use a stamp-only finish capability beside the canonical exit ledger, while runtime finish, DraftSeal Return, MIR, backend, route, and production callers remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0 landed a scoped non-Clone/non-Copy Rust PinnedTextBackendFrameBorrowV1 over the existing co-sealed contract; JSON metadata lends it only for serialization, with C validation, TargetMachine realization, runtime residence, lifecycle, GEP/load, route, and production callers unchanged; focused compiler test, cargo check/format/diff, pointer guard, and the 487-line source limit are green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0 landed the strict module census and one retained LLVM-18 C API TargetMachine session for contract-bearing object emission, with success-only publication, contracted-path fallback/compat rejection, legacy isolation, and focused transport smoke coverage; direct PinnedTextOp lowering, lifecycle, route, and production callers remain closed.",

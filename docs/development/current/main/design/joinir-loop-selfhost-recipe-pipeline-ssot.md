@@ -25,12 +25,13 @@ Related:
 - **Current implementation status:** source-to-Recipe S6C products, installed
   child/header prerequisites, package physical-signature map, and the
   caller-zero Text residence/backend transport substrate are closed. The
-  common V2 pre-session/session boundary remains unopened. A-prime Text
-  lifecycle activation is parked until that canonical session exists.
+  common V2 pre-session BoxShape is accepted as design-only; its transport and
+  caller-zero session boundary remain unopened. A-prime Text lifecycle
+  activation is parked until that canonical session exists.
 - **Next ordered task:** resume
-  `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`, then the generic transport and
-  caller-zero S6C packaging rows; do not extend the selected-normal legacy
-  finalizer with lifecycle or Return authority.
+  `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then the caller-zero S6C packaging
+  row; do not extend the selected-normal legacy finalizer with lifecycle or
+  Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -1604,8 +1605,8 @@ One ordered T2 task family closes the missing boundary without creating an S6C r
 ```text
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0/I0       [closed]
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0    [closed]
-LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [current]
-LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [accepted design-only]
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0            [current]
 LOOP-S6C-COMMON-V2-PRESESSION-I0
 ```
 
@@ -1621,7 +1622,13 @@ NormalCallableSemanticPackagePortV1
 ```
 
 Only after that child issuer is accepted does the parent close the common
-callable-signature, single-Completion, and exact operation/control envelope:
+callable-signature, single-Completion, and exact operation/control envelope.
+The D0 BoxShape is now accepted as design-only: one same-brand parent HRTB
+loan lends sibling identity, signature, Completion, and retained S6C views;
+operation and If/Exit control remain separate products, and a passive union
+receipt proves their disjointness. The S6C adapter alone proves exact
+`13 + 1 + 1 = 15` coverage. Transport is the next row; no code or session
+effect is implied here:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
@@ -1721,13 +1728,14 @@ this shallow ordered series:
    - make V1/V2 consumers borrow the one ordered source/execution ledger;
    - keep callable ABI, Completion, and Tail outside the common inner Loop
      physicalizer before adding the V2 package seam.
-4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`
+4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` (accepted design-only)
    - use the branded CompilationContext/Installed package cohort and Port as
      the sole outer transport;
    - the installed child, one Completion owner, and callable physical-signature
      mapping are closed prerequisites; close only the common operation/control
      envelope and its scoped sibling boundary here;
-   - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
+   - reject any issuer inferred from Recipe or MIR; transport R0 is now the
+     current next row.
 4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0`
    - accept one logical ExactText ordinal/BindingRef -> adjacent scalar
      `[slot,generation]` lanes, with logical `/N` separate from physical lane
