@@ -1103,15 +1103,14 @@ Source authority + canonical issuer:
   this D0 rather than an implementation assumption.
 
 Operand issuer census (2026-08-17):
-  The left CompareI64 operand is a source-bound ReadBinding and can be read by
-  the existing `CanonicalBindingReadReceiptV1`, but that receipt has no
-  LoopValueKey or session-stamp relation. The right operand is the Length
-  CallSlot result, for which Common V2 has no source-backed physical result
-  receipt. `PreparedLoopOperationProgramV2` retains a source row only;
-  verification definition maps are transient; old V1 and Selected-Dynamic
-  value ledgers are foreign authorities. Therefore both operands cannot yet be
-  borrowed as one same-session typed pair and this blocker is concrete, not a
-  missing call-site detail.
+  A source-backed two-row inventory is now carried by the common V2 envelope:
+  Left is the condition-block ReadBinding and Right is the condition-block
+  Length CallSlot. This closes source provenance only. The left still lacks a
+  LoopValueKey/session-stamp physical receipt, and the right still lacks a
+  canonical-session physical result receipt. `PreparedLoopOperationProgramV2`
+  retains source rows only; verification definition maps are transient; old V1
+  and Selected-Dynamic value ledgers are foreign authorities. Therefore both
+  operands still cannot be borrowed as one same-session typed physical pair.
 
 Smallest source-backed relation candidate:
   `PreparedLoopV2LengthOperandProducerRelationV1` is the only narrow candidate
@@ -1123,9 +1122,11 @@ Smallest source-backed relation candidate:
   language-semantic value authority; raw `LoopValueKeyV1`, generic CallSlot,
   role numbers, and later MIR lookup remain non-authorities.
 
-  Until this relation is issued with owner/placement/item/block/result/class
-  coverage and foreign/duplicate/drift rejection, the parent D0 cannot be
-  accepted and no physical operand receipt may be guessed.
+  The relation and its fixed two-row inventory are issued with
+  owner/placement/item/block/result/class coverage and foreign/duplicate/drift
+  rejection. They are still logical transport only; no physical operand
+  receipt may be guessed until the session-stamp and physical-result seams
+  close.
 
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` — accepted BoxShape 2026-08-17
 
@@ -1165,11 +1166,13 @@ Non-claims:
   production caller.
 ```
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` — next fast slice
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` — landed 2026-08-17
 
-The I0 may only issue/transport the accepted inventory and focused negatives;
-it must not materialize a physical operand or touch the Builder/session. The
-parent Result D0 remains the sole later authority for the physical Bool result.
+The I0 now issues/transports the accepted inventory through the existing
+callback only. It adds no physical operand, ValueId, Builder, or session
+effect. Focused positive, foreign-owner, and Length-operation-drift negatives
+are green. The parent Result D0 remains the sole later authority for the
+physical Bool result.
 
 Non-authority:
   `LoopOperationV2` rows, branch-plan condition keys, raw `ValueId`, legacy V1
@@ -1186,19 +1189,15 @@ Fail-fast boundary:
   are non-semantic and no local rollback/retry or fallback is allowed.
 
 Smallest next slice:
-  First close the issuer census for operand physical receipts and session-stamp
-  retention. If that seam is available, the next caller-zero I0 is a typed
-  materializer/receipt admission canary only; it may not issue a ValueId or
-  Compare instruction yet. If the seam is absent, remain at this NoSafeSlice.
+  `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` is the next design stop.
+  It must retain the prepared physical-entry cohort stamp through the
+  consuming session seam without copying or reconstruction. If that seam is
+  absent, remain at this NoSafeSlice.
 
 Ordered sub-slices (design-only; no session/CFG effect):
   1. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0`
-     fix the Length→Compare-right source-backed relation and its same-ingress
-     issuer. The logical producer relation and raw ValueId are evidence only;
-     no physical receipt is issued until this relation is typed and sealed.
-  1b. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-RECEIPT-CENSUS-D0`
-     after (1), verify that the left ReadBinding receipt and the Length result
-     receipt can be borrowed together from one canonical session/stamp.
+     and its `...OPERAND-INVENTORY-I0` transport are landed. They issue only
+     the fixed source-backed logical rows; no physical receipt is issued.
   2. `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0`
      retain the one prepared physical-entry cohort stamp through the consuming
      session seam without copying or reconstructing it. The prepared skeleton
@@ -1225,7 +1224,6 @@ Non-claims:
 Current blockers are deliberately explicit:
 
 ```text
-NoSafeSlice::LengthOperandProducerRelationUnsealed
 NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
 NoSafeSlice::AfterConditionSessionStampRetentionMissing
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
@@ -2369,9 +2367,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | landed 2026-08-17; focused positive/duplicate/missing-boundary gates are green; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | accepted BoxShape 2026-08-17; logical CompareI64 producer relation is the next transport-only I0, while physical ValueId/operation/edge effects remain closed |
 | 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | landed 2026-08-17; source/operation row, owner, block, operand/result/class drift and non-Compare negatives are green; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; the concrete first blocker is the missing Common V2 receipt for the Length CallSlot result; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
+| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; the source-backed Length CallSlot row is transported, but its canonical-session physical result receipt is still missing; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
 | 25b-l-a | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` | co-seal the source Length contract, CallSlot/result/class, matching common operation row, and Compare-right key from one S6C ingress | accepted BoxShape 2026-08-17; fixed two-row physical-ID-free inventory only; no physical receipt, ValueId, call lowering, Compare, branch, CFG/PHI, fallback, retry, or production |
-| 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | current fast slice; no physical emission, Builder/session mutation, or parent-result unlock |
+| 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | landed 2026-08-17; three focused inventory tests are green; no physical emission, Builder/session mutation, or parent-result unlock |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

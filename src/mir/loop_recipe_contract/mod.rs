@@ -9,6 +9,8 @@ mod common_v2_after_boundary;
 mod common_v2_layout_input;
 // Caller-zero source-backed CompareI64 producer relation transport.
 mod common_v2_condition_producer;
+// Caller-zero source-backed condition operand inventory transport.
+mod common_v2_condition_operand_inventory;
 // Caller-zero source-backed complete predicate branch-plan transport.
 mod common_v2_predicate_branch_plan;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
@@ -169,6 +171,11 @@ pub(crate) use operation_effect_parity::{
 pub(crate) use common_v2_after_boundary::{
     AfterBoundaryIssueRejectV1, LoopV2AfterBoundaryRelationV1,
     VerifiedLoopV2AfterBoundarySourceRelationV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_condition_operand_inventory::{
+    ConditionOperandInventoryRejectV1, PreparedLoopV2ConditionOperandInventoryV1,
+    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2ConditionOperandRowV1,
 };
 #[allow(unused_imports)]
 pub(crate) use common_v2_issuers::{

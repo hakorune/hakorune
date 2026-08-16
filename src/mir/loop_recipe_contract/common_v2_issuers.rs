@@ -1,14 +1,15 @@
 //! Caller-zero common V2 projections over one retained S6C source cohort.
-//!
-//! The S6C ingress remains the profile validator.  This module only projects
-//! its already verified logical rows into generic operation/control siblings;
-//! it never creates Recipe keys, JoinSig facts, physical IDs, or a session.
+//! The ingress validates; this module only projects logical rows, never physical IDs or a session.
 
 use std::collections::BTreeSet;
 
 use super::common_v2_after_boundary::{
     issue_s6c_v2_after_boundary_source_relation_v1, AfterBoundaryIssueRejectV1,
     VerifiedLoopV2AfterBoundarySourceRelationV1,
+};
+use super::common_v2_condition_operand_inventory::{
+    issue_s6c_v2_condition_operand_inventory_v1, ConditionOperandInventoryRejectV1,
+    PreparedLoopV2ConditionOperandInventoryV1,
 };
 use super::common_v2_condition_producer::{
     issue_s6c_v2_condition_producer_relation_v1, ConditionProducerRelationRejectV1,
@@ -49,6 +50,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     AfterBoundary(AfterBoundaryIssueRejectV1),
     PredicateBranch(PredicateBranchPlanRejectV1),
     ConditionProducer(ConditionProducerRelationRejectV1),
+    ConditionOperandInventory(ConditionOperandInventoryRejectV1),
 }
 
 #[derive(Debug)]
@@ -78,10 +80,6 @@ impl PreparedLoopOperationRowV2<'_> {
     }
 }
 
-/// Generic operation placement product.  The source lifetime prevents the
-/// projection from outliving the installed parent loan; the source row is
-/// retained privately so the operation payload cannot be detached and
-/// re-paired later.
 #[derive(Debug)]
 pub(crate) struct PreparedLoopOperationProgramV2<'source> {
     owner: FunctionOwnerIdV1,
@@ -127,7 +125,6 @@ impl PreparedLoopControlPlacementV2 {
     }
 }
 
-/// Recipe control rows co-sealed with the one existing JoinSig transfer view.
 #[derive(Debug)]
 pub(crate) struct PreparedLoopControlTransferProgramV2<'source, 'join> {
     rows: Box<[PreparedLoopControlPlacementV2]>,
@@ -179,6 +176,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     after_boundary: VerifiedLoopV2AfterBoundarySourceRelationV1,
     predicate_branch: PreparedLoopV2PredicateBranchPlanV1,
     condition_producer: PreparedLoopV2ConditionProducerRelationV1,
+    condition_operands: PreparedLoopV2ConditionOperandInventoryV1<'join>,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -216,10 +214,12 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) fn condition_producer(&self) -> &PreparedLoopV2ConditionProducerRelationV1 {
         &self.condition_producer
     }
+
+    pub(crate) fn condition_operands(&self) -> &PreparedLoopV2ConditionOperandInventoryV1<'join> {
+        &self.condition_operands
+    }
 }
 
-/// Issue the three sibling products from one S6C ingress.  The fixed S6C
-/// cardinality is checked only here, at the profile adapter boundary.
 pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     ingress: S6CPrephysicalIngressRefV2<'_, 'source, 'join>,
     expected_owner: FunctionOwnerIdV1,
@@ -249,6 +249,13 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         expected_owner,
     )
     .map_err(CommonV2IssuerRejectV1::ConditionProducer)?;
+    let condition_operands = issue_s6c_v2_condition_operand_inventory_v1(
+        ingress,
+        &operations,
+        &condition_producer,
+        expected_owner,
+    )
+    .map_err(CommonV2IssuerRejectV1::ConditionOperandInventory)?;
     validate_layout_relation(&layout, &operations, &control)?;
     let coverage = issue_coverage(&operations, &control)?;
     if operations.operation_count() != 13
@@ -270,6 +277,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         after_boundary,
         predicate_branch,
         condition_producer,
+        condition_operands,
         coverage,
     })
 }
@@ -556,6 +564,10 @@ fn issue_coverage(
 #[cfg(test)]
 #[path = "common_v2_condition_producer_tests.rs"]
 mod condition_producer_tests;
+
+#[cfg(test)]
+#[path = "common_v2_condition_operand_inventory_tests.rs"]
+mod condition_operand_inventory_tests;
 
 #[cfg(test)]
 mod tests {

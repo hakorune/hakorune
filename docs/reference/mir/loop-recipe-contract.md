@@ -1751,3 +1751,20 @@ condition materialization, `emit_branch`, operation emission, Completion/
 DraftSeal, lifecycle, Text route, fallback, retry, or a production caller.
 The next design stop must name the physical condition carrier before any edge
 effect is admitted.
+
+## Common V2 condition operand inventory I0 (2026-08-17)
+
+The common V2 envelope now transports a fixed two-row, source-backed operand
+inventory for the S6C predicate. The Left row is the condition-block index
+`ReadBinding`; the Right row is the condition-block `StringLen` `CallSlot`,
+including its resolver-owned call contract and result/class relation. Both rows
+are issued from the same retained S6C ingress and remain physical-ID-free.
+
+The inventory rejects foreign owners, malformed Length role/operation/receiver
+or argument shape, producer/item/block/result drift, and duplicate or missing
+rows before any physical effect. Focused positive, foreign-owner, and
+Length-operation-drift tests are green. This I0 does not issue a ValueId or
+physical result and does not open Compare lowering, branch/edge effects,
+CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
+The next design stop is retaining the prepared physical-entry stamp through
+the canonical session seam.

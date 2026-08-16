@@ -804,6 +804,22 @@ session-open canary are already landed. The next bounded row is the
 source-backed physical condition-result design stop; it must consume this
 scoped envelope rather than rescan Recipe/JoinSig or add an S6C physicalizer.
 
+## Common V2 condition operand inventory I0 (2026-08-17)
+
+`LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` is landed as a
+transport-only sibling of the condition producer. The common V2 envelope now
+borrows one fixed two-row inventory from the same S6C ingress: Left is the
+condition-block index `ReadBinding`, and Right is the condition-block
+`StringLen` `CallSlot`. The Right row retains its source-bound call contract;
+the inventory carries no `ValueId`, session stamp, physical result, or Builder
+state and cannot be re-paired with a foreign operation row.
+
+Focused tests cover the two-row positive shape, foreign-owner rejection, and
+Length-operation drift. The parent physical Bool result remains blocked on
+canonical-session stamp retention and physical operand receipts; Compare
+lowering, branch/edge effects, CFG/PHI, Completion, lifecycle, Text, route,
+fallback, retry, and production callers remain closed.
+
 ## Common V2 typed After-boundary transport I0
 
 `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0` adds one source-backed,
