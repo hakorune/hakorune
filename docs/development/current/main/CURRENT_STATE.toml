@@ -5,10 +5,10 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "The physical function skeleton and ExactText entry-lane adoption BoxShapes are accepted, and the caller-zero install/adoption canary is landed. The next design stop must bind the retained same-cohort skeleton, lane descriptors, and canonical common-V2 session into one consuming transaction; the current into_parts split and per-lane publication are not yet an atomic ownership proof. A-prime lifecycle remains parked."
-work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0"
-current_blocker_token = "NoSafeSlice::PhysicalEntrySessionSeamUnsealed"
+current_design_stop = "The physical-entry/session consuming BoxShape is accepted. The next caller-zero I0 must consume one non-Clone prepared session input and one common-V2 admission, install/adopt exactly once in a fresh Builder transaction, and discard the canonical session plus Builder state on any failure. A-prime lifecycle remains parked."
+work_mode = "fast"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-I0"
+current_blocker_token = "none"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 physical entry)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, physical-entry descriptor I0, detached physical skeleton I0, and the slot-only ExactText adoption canary are landed. The active lane is a design stop for one consuming physical-entry/session seam: into_parts must not permit foreign skeleton/descriptor re-pairing, and partial BindingSSA publication must have one discard/poison owner. MirParamDecl stays source metadata; lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
+active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, physical-entry descriptor I0, detached physical skeleton I0, and the slot-only ExactText adoption canary are landed. The active caller-zero I0 now consumes one compiler-only prepared session input plus one common-V2 admission, installs/adopts once, and uses the outer function session as the discard owner. MirParamDecl stays source metadata; lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, and the ExactText entry-adoption BoxShape are landed. The install/adoption canary is green, but the next design stop must make the same-cohort skeleton, descriptors, common-V2 session, BindingSSA publication, sidecar, and discard path one consuming owner; no foreign re-pairing or partial publication may remain. Lifecycle, Text, route, and production remain closed."
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, and the ExactText entry-adoption BoxShape are landed. The active caller-zero row is the accepted physical-entry/session seam: one non-Clone prepared input retains loan/shell/descriptors/stamp, common-V2 session admission is consumed once, and the outer function session owns discard. Lifecycle, Text, route, and production remain closed."
 next_design_card = "LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-I0"
+next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,7 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-17: EXACT-TEXT-ENTRY-LANE-ADOPTION-I0 landed a caller-zero install/adopt canary: one detached physical shell becomes a live unpublished Builder function, ordinary/receiver lanes publish through canonical identity, each ExactText publishes slot once, and generation remains in a skeleton-bound sidecar; duplicate adoption, focused tests, cargo check, format, diff, and pointer guard are green. The next design stop is LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0 because into_parts still permits cohort splitting and partial-publication rollback is not yet one consuming owner.",
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0 accepted the consuming BoxShape after worker audit: a compiler-only non-Clone prepared input retains loan/shell/descriptors/stamp, common-V2 admission is consumed once, and the outer function session owns discard. The next caller-zero I0 must remove the public into_parts split and prove foreign/reordered/late-failure negatives; lifecycle, Text, route, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0 landed one detached MirFunction shell with mechanical i64 lanes, source metadata, result/effects, and retained descriptor carriers from the same installed loan; the ExactText entry-adoption BoxShape is now accepted: slot-only BindingSSA publication, a skeleton-bound private generation sidecar, and one rollback owner.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0 landed the caller-zero transport aggregate. One installed S6C HRTB loan now projects source ParamDecl evidence and complete physical lane descriptors with receiver-prefix ordering, adjacent ExactText [slot,generation] roles, and U64BitsOnI64 carrier tags; focused descriptor tests, cargo check/test, format, diff, and pointer guard are green. Skeleton reservation, ValueId/lane adoption, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0 landed the caller-zero S6C header/effects transport. The package issuer now co-seals a distinct catalog-backed VerifiedS6CStorageHeaderProjectionV1 and a source-backed VerifiedS6CPhysicalFunctionEffectsV1 beside the existing signature/result header; the installed HRTB lends one same-cohort view, focused package/S6C tests passed, and skeleton/ValueId/entry adoption/Loop CFG/lifecycle/Text/route/production remain closed.",
