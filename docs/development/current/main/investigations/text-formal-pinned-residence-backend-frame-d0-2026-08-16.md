@@ -304,20 +304,28 @@ The first seam is a resolved-session cutover design, not a binder
 implementation:
 
 1. **Resolved-session handoff:** design one selected-normal transition from
-   the package Port adapter through `ResolvedChildDraftAdmissionV1` into
-   `capture_resolved_pending`/`complete_resolved_child`, carrying the same
-   package-owned physical-signature loan through
-   `PendingFunctionSessionCloseV1::complete_before_restore` and the canonical
-   `CanonicalRejectDuplicate` collector. The transition must cover the
-   admitted static/instance method rows with one same-cohort loan; unsupported
-   top-level rows stay `RejectBeforeEffect`. Do not attach the binder to
-   `LegacyFunctionPendingSessionV1` or `commit_legacy_symbol_pending`.
+   the package Port adapter through identity-only
+   `ResolvedChildDraftAdmissionV1` into
+   `capture_resolved_pending`/`complete_resolved_child`, while the same scoped
+   HRTB closure lends a sibling
+   `ResolvedCallablePhysicalSignatureLoanV1<'loan>`. The admission remains the
+   canonical owner identity; the physical-signature loan is not stored in the
+   admission, collector, or legacy pending tuple. The loan must remain scoped
+   until the draft's plan/census and target capability are co-sealed before
+   `PendingFunctionSessionCloseV1::complete_before_restore` reaches the
+   canonical `CanonicalRejectDuplicate` collector. The transition must cover
+   the admitted static/instance method rows with one same-cohort loan;
+   unsupported top-level rows stay `RejectBeforeEffect`. Do not attach the
+   binder to `LegacyFunctionPendingSessionV1` or `commit_legacy_symbol_pending`.
 2. **Bridge issuer after cutover:** name one canonical handoff at the
    resolved function/session boundary. It must consume the installed
    physical-signature loan (or a same-cohort all-method successor), the active
    function's stamped plan/census, `TextFormalCallResidenceV1`, and one
-   target-layout capability. It must not infer package identity from a
-   function name, `ValueId`, JSON length, or batch slot.
+   target-layout capability through a private
+   `PreparedPinnedTextBackendFrameContractInputV1<'loan>`. It must not infer
+   package identity from a function name, `ValueId`, JSON length, or batch
+   slot, and it must not make `ResolvedChildDraftAdmissionV1` a second
+   signature authority.
 3. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
    owner, stamp, receiver/formal order, root coverage, and target revision are
    proven. No runtime residence rows, pointer, length, token, slot/generation
@@ -335,6 +343,13 @@ implementation:
 Completion of this design slice still does not authorize JSON publication,
 GEP/load, lifecycle CFG, Canonical session adoption, route selection, a
 production caller, fallback, or retry. Those remain separate bounded rows.
+
+The design remains `NoSafeSlice::PinnedTextBackendFrameBinderUnsealed` if the
+selected-normal route still enters `capture_legacy_function_pending_session_v1`
+or `commit_legacy_symbol_pending`, if the signature loan is detached from the
+same package/Port HRTB scope, if the admission is made to carry a second
+physical-signature authority, or if the draft plan/census and target capability
+cannot be co-sealed before canonical collection.
 
 Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
 literal origins, or change the callable ABI. A missing single binder issuer or
