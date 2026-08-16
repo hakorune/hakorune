@@ -248,7 +248,13 @@ Source authority + canonical issuer:
   `[slot,generation]` lane need a deterministic declared name/type policy.
   Source parameter names/types may be read only through the same storage
   header; `/N`, `FunctionSignature` length, raw `ValueId`, or lane index alone
-  cannot supply the missing fields.
+  cannot supply the missing fields. The wire contract says `u64`, while the
+  current MIR type vocabulary exposes only `MirType::Integer` among scalar
+  integer carriers and `source_type_name_to_mir("u64")` is not an accepted
+  unsigned physical mapping. Therefore the input census must choose one
+  package-owned physical lane carrier (or explicitly accept a checked i64 bit
+  carrier) before creating `MirParamDecl`; a string spelling of `u64` is not a
+  valid substitute.
 
   The source census fixes the seam: the installed
   `VerifiedSameModuleCallableDeclarationCatalogV1::declaration` row is the
@@ -282,8 +288,11 @@ Fail-fast boundary:
   BindingRef with two physical lanes; slot publication versus a private
   generation sidecar must be fixed before skeleton I0. Missing lane role/type,
   source-name drift, foreign loan, or incomplete header/effects means
-  `NoSafeSlice` before Builder effect. Any later mutation failure must discard
-  the unpublished transaction once, with no retry or fallback.
+  `NoSafeSlice` before Builder effect. An unsigned-wire lane without a sealed
+  MIR carrier mapping is also `NoSafeSlice`; `MirType::Integer`, a source
+  `StringBox` type, or a guessed `Box("u64")` mapping cannot silently stand in
+  for it. Any later mutation failure must discard the unpublished transaction
+  once, with no retry or fallback.
 
 Smallest next slice:
   `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` is design-only. Census
