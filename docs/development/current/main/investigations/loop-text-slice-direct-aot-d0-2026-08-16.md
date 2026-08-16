@@ -179,3 +179,8 @@ scoped view is consumed only by the existing JSON projection and its ownership
 tests are green. The live-frame lifecycle and typed direct lowering remain a
 later Residence design stop; this card still authorizes neither GEP/load nor a
 production caller.
+
+The next design pointer is
+`TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-D0`, which must co-seal entry,
+normal-exit finish, and the no-unwind relation before any typed direct-AOT
+implementation row opens.
