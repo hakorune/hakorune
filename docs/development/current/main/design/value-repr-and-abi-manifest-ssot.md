@@ -32,11 +32,13 @@ Related:
 - **Current implementation status:** the pair validator and caller-zero atomic
   lease-set/pending-retirement substrate are landed; the package-owned total
   physical-signature mapping and every compiler consumer remain caller-zero.
-- **Next ordered task:** implement the accepted
-  `LOOP-TEXT-SLICE-EXECUTION-I0` transport-only row: one private stamped plan
-  table, one `PinnedTextOp` variant with three fixed leaves, and typed
-  MIR/JSON payload transport. Direct backend lowering, lifecycle CFG, session wiring,
-  and route admission remain later rows.
+- **Next ordered task:** close the design-only
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0`: one compile-time
+  frame-contract projection must consume the accepted receiver-aware physical
+  lane map and the Residence lifetime census, then reach the selected
+  ny-llvmc consumer through one strict typed metadata handoff. Runtime frame
+  state, raw pointers/lengths, direct backend lowering, lifecycle CFG, session
+  wiring, and route admission remain separate later rows.
 - **Production stop line:** no raw handle may recapture generation, no lane may
   become a second logical value, and no pointer/length residence may cross the
   callable boundary or detach from its lease set.

@@ -12,23 +12,27 @@ This row closes the missing bridge between the caller-zero StableText
 residence owner and the named ny-llvmc direct-AOT binder. It must not create a
 second residence authority or turn MIR/JSON IDs into pointers.
 
-Decision: require one opaque backend-private residence-frame capability keyed
-by the existing physical-signature occurrence order, plan stamp, and root-row
-index; the direct binder may consume and project it, but may not issue it.
+Decision: require one typed compile-time backend-frame contract keyed by the
+existing physical-signature occurrence order, plan stamp, and root-row index;
+the direct binder may consume and project its validated view, but may not
+issue it. The actual runtime frame remains a separate Residence-owned object.
 Source authority: the existing physical signature/pair lanes provide the
 occurrence order, while the runtime atomic lease-set/residence receipt
 provides immutable StableText backing and finish ownership. Canonical issuer:
 the existing Residence owner (`TextFormalCallResidenceV1`, acquired by
-`acquire_text_formal_residence_v1`) remains the sole issuer direction for the
-opaque frame capability (revision, root count/order, and exactly-once finish);
-the ny-llvmc Boundary pure-first C binder is a mechanical consumer.
+`acquire_text_formal_residence_v1`) remains the sole issuer of actual frame
+state (revision, root count/order, backing rows, and exactly-once finish),
+while `PinnedTextBackendFrameContractIssuerV1` is the sole compile-time
+projection issuer; the ny-llvmc Boundary pure-first C binder is a mechanical
+consumer.
 
 ## Private bridge contract (design-only)
 
 The compile-time side is a projection contract, not a second Text or lifetime
 authority. The successor issuer consumes the existing physical-signature
 occurrence order, the function-local `PinnedTextAccessPlanTableV1`, and the
-final pinned-lifetime census, then co-seals one opaque contract containing:
+final pinned-lifetime census, then co-seals one compile-time contract named
+`PinnedTextBackendFrameContractV1` containing:
 
 ```text
 plan_stamp
@@ -40,10 +44,11 @@ occurrence-ordered root count and coverage
 ```
 
 It contains no `ValueId`, pointer, length, runtime token, `BindingRef`, or
-route choice. The binder receives this contract plus one opaque frame
-capability keyed by the same stamp and root order; it may only project the
-three already-fixed `PinnedTextOp` leaves. A JSON residence table and a raw
-pointer/length field in MIR are forbidden.
+route choice. This compile-time contract is not the runtime frame and does
+not claim a live residence. The binder receives a scoped validated view of
+this contract and may only project the three already-fixed `PinnedTextOp`
+leaves. A JSON residence table and a raw pointer/length field in MIR are
+forbidden.
 
 The compile-time issuer is a mechanical aggregate seam named
 `PinnedTextBackendFrameContractIssuerV1` for the successor implementation. It
@@ -52,7 +57,51 @@ does not become a new Text semantic owner. The runtime issuer remains
 `TextFormalCallResidenceV1` and is the only owner of actual backing pointers,
 pin records, and finish. The two products are linked by the same function
 stamp and occurrence order, never by a caller-reconstructed pointer/token
-pair.
+pair. The runtime frame remains owned by `TextFormalCallResidenceV1`; the
+compile-time contract is only its target/layout projection.
+
+### Typed JSON metadata handoff (design-only BoxShape)
+
+The existing MIR JSON function metadata is the single transport boundary for
+the compile-time contract. It carries a versioned descriptor, not residence
+state:
+
+```json
+{
+  "pinned_text_backend_frame_contract_v1": {
+    "stamp": 123,
+    "frame_revision": 1,
+    "target_profile": "nyrt_text_residence_v1_ptr64_as0",
+    "header_size": 32,
+    "root_row_size": 16,
+    "root_count": 2,
+    "receiver_lane_count": 1,
+    "physical_formal_lane_count": 4,
+    "physical_callable_lane_count": 5,
+    "rows": [
+      {"root_index": 0, "formal_ordinal": 0, "slot_lane": 1, "generation_lane": 2},
+      {"root_index": 1, "formal_ordinal": 1, "slot_lane": 3, "generation_lane": 4}
+    ]
+  }
+}
+```
+
+The descriptor is a transport projection of the existing physical-signature
+and Residence facts. The ny-llvmc consumer parses it into one scoped,
+non-rebindable validated view and rejects unknown/missing fields, stamp or
+plan-census drift, non-contiguous or duplicate lane rows, receiver overlap,
+and target/layout mismatch. `target_profile` is a fixed capability id, not a
+free-form triple from which the backend may infer ABI facts. `root_index`
+names ExactText formal occurrences only; the receiver and ordinary scalar
+formals never receive Residence root rows. JSON must never contain
+`lease_token`, pointer, byte length, runtime slot/generation values, or
+`ValueId`.
+
+This is not an out-of-band sidecar and not a second authority: the issuer
+co-seals the descriptor with the physical-signature occurrence order, plan
+stamp, target capability, and final lifetime census; the JSON emitter only
+serializes it; ny-llvmc only validates and consumes it. The runtime frame is
+still entered, pinned, and finished by the runtime Residence owner.
 
 The runtime side remains the existing `TextFormalCallResidenceV1` owner. A
 future private C-facing projection uses a target-checked frame layout with
@@ -182,17 +231,43 @@ duplicate root rows, mixed ABI revision/target data-layout, pointer-width or
 frame-size mismatch, detached residence/token, and any attempt to serialize
 the private frame through MIR JSON or expose raw pointers to common MIR.
 
-Live blocker: the current MIR JSON transport carries only plan stamp, leaf
-kind, and root IDs; it cannot carry or reconstruct the opaque frame capability.
-The D0 is not accepted until one in-process/scoped handoff is named that keeps
-the frame capability, occurrence mapping, and target capability non-rebindable
-at the ny-llvmc boundary. A JSON residence table, numeric-token lookup, or
-backend-side reissue is not an acceptable handoff.
+Live blocker: the typed metadata handoff above is a design-only BoxShape; the
+issuer, function-metadata field, JSON census, and strict ny-llvmc consumer are
+not implemented. The D0 remains unaccepted for execution until that one
+scoped validated view is wired without reissuing any source, lifetime, or
+target facts. A JSON residence table, numeric-token lookup, out-of-band
+sidecar, or backend-side reissue is not an acceptable handoff.
 
-Smallest next slice: design-only census and acceptance for the binder's
-function stamp, target capability, occurrence mapping, and one scoped handoff
-to the existing ny-llvmc consumer; no GEP/load, lifecycle CFG, session
-adoption, route admission, production caller, fallback, or retry.
+Smallest next slice: implement only the typed
+`pinned_text_backend_frame_contract_v1` metadata projection and strict
+ny-llvmc scoped validation, after the source-backed issuer and target
+capability are named in the same slice. Keep GEP/load, lifecycle CFG, session
+adoption, route admission, production caller, fallback, and retry closed.
+
+### Successor I0 taskization (not implementation permission for this D0)
+
+The successor is one bounded transport row with four ordered seams:
+
+1. **Issuer:** co-seal `PinnedTextBackendFrameContractV1` from the existing
+   physical-signature lane map, stamped `PinnedTextAccessPlanTableV1`, final
+   pinned-lifetime census, and one fixed target-layout capability. The issuer
+   must be the only place that decides root occurrence order and lane rows.
+2. **MIR metadata projection:** add one function-local metadata field and
+   emit the versioned descriptor above. The projection carries no runtime
+   residence rows, pointer, length, token, slot/generation value, or `ValueId`.
+3. **ny-llvmc consumer:** parse the descriptor into one scoped validated view,
+   verify the exact plan/instruction census and receiver/formal count formula,
+   then either admit the transport view or reject before any backend effect.
+   `llvm_py`, VM, native, and future Hako LLVM-text remain non-consumers.
+4. **Focused evidence:** cover mixed scalar/ExactText lanes, instance receiver
+   prefix, aliasing caller occurrences versus distinct callee lanes, missing or
+   duplicate rows, stamp/target/layout drift, unknown fields, and all forbidden
+   runtime fields. Run only the card's focused JSON/ny-llvmc checks plus the
+   reusable pointer/diff guards.
+
+Completion of this I0 still does not authorize GEP/load, lifecycle CFG,
+Canonical session adoption, route selection, a production caller, fallback, or
+retry. Those remain separate bounded rows.
 
 Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
 literal origins, or change the callable ABI. A missing single binder issuer or
