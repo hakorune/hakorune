@@ -6,6 +6,9 @@
 
 use std::collections::BTreeSet;
 
+use super::common_v2_layout_input::{
+    issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
+};
 use super::ids::{LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::join_sig::{LoopJoinBranchArmTransferRefV2, LoopJoinLogicalTransferViewV2};
 use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2};
@@ -29,6 +32,8 @@ pub(crate) enum CommonV2IssuerRejectV1 {
         controls: usize,
         placements: usize,
     },
+    Layout(LayoutInputRejectV1),
+    LayoutRelation,
 }
 
 #[derive(Debug)]
@@ -155,6 +160,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     owner: FunctionOwnerIdV1,
     operations: PreparedLoopOperationProgramV2<'source>,
     control: PreparedLoopControlTransferProgramV2<'source, 'join>,
+    layout: PreparedLoopV2PhysicalLayoutInputV1<'source>,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -169,6 +175,10 @@ impl PreparedLoopV2PreSessionEnvelopeV1<'_, '_> {
 
     pub(crate) fn control(&self) -> &PreparedLoopControlTransferProgramV2<'_, '_> {
         &self.control
+    }
+
+    pub(crate) fn layout(&self) -> &PreparedLoopV2PhysicalLayoutInputV1<'_> {
+        &self.layout
     }
 
     pub(crate) const fn coverage(&self) -> VerifiedLoopV2EnvelopeCoverageV1 {
@@ -187,6 +197,9 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     }
     let operations = issue_operation_source(ingress)?;
     let control = issue_control_source(ingress)?;
+    let layout = issue_s6c_v2_layout_input(ingress, expected_owner)
+        .map_err(CommonV2IssuerRejectV1::Layout)?;
+    validate_layout_relation(&layout, &operations, &control)?;
     let coverage = issue_coverage(&operations, &control)?;
     if operations.operation_count() != 13
         || control.control_count() != 2
@@ -203,8 +216,63 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         owner: expected_owner,
         operations,
         control,
+        layout,
         coverage,
     })
+}
+
+fn validate_layout_relation(
+    layout: &PreparedLoopV2PhysicalLayoutInputV1<'_>,
+    operations: &PreparedLoopOperationProgramV2<'_>,
+    control: &PreparedLoopControlTransferProgramV2<'_, '_>,
+) -> Result<(), CommonV2IssuerRejectV1> {
+    let mut covered = BTreeSet::new();
+    for segment in layout.segments() {
+        for item in segment.items() {
+            if !covered.insert(*item) {
+                return Err(CommonV2IssuerRejectV1::LayoutRelation);
+            }
+        }
+    }
+    for row in operations.rows() {
+        if layout.segment_for_block(row.block()).is_none() || !covered.contains(&row.item()) {
+            return Err(CommonV2IssuerRejectV1::LayoutRelation);
+        }
+    }
+    for row in control.rows() {
+        match row {
+            PreparedLoopControlPlacementV2::If {
+                item,
+                block,
+                then_block,
+                else_block,
+                ..
+            } => {
+                if !covered.contains(item)
+                    || layout.segment_for_block(*block).is_none()
+                    || layout.segment_for_block(*then_block).is_none()
+                    || else_block.is_some_and(|target| layout.segment_for_block(target).is_none())
+                {
+                    return Err(CommonV2IssuerRejectV1::LayoutRelation);
+                }
+            }
+            PreparedLoopControlPlacementV2::Exit { item, block, .. } => {
+                if !covered.contains(item) || layout.segment_for_block(*block).is_none() {
+                    return Err(CommonV2IssuerRejectV1::LayoutRelation);
+                }
+            }
+        }
+    }
+    let expected = operations
+        .rows()
+        .iter()
+        .map(|row| row.item())
+        .chain(control.rows().iter().map(|row| row.item()))
+        .collect::<BTreeSet<_>>();
+    if expected != covered || layout.item_count() != covered.len() {
+        return Err(CommonV2IssuerRejectV1::LayoutRelation);
+    }
+    Ok(())
 }
 
 fn issue_operation_source<'source, 'join>(
@@ -451,6 +519,13 @@ mod tests {
                 assert_eq!(envelope.control().control_count(), 2);
                 assert_eq!(envelope.coverage().placement_count(), 15);
                 assert_eq!(envelope.coverage().operation_count(), 13);
+                assert_eq!(envelope.layout().loop_count(), 1);
+                assert_eq!(envelope.layout().segment_count(), 3);
+                assert_eq!(envelope.layout().segments()[0].split_ordinal(), 0);
+                assert_eq!(
+                    envelope.layout().segments()[0].loop_key(),
+                    envelope.layout().after().0
+                );
                 Ok(())
             })
             .expect("ingress view");

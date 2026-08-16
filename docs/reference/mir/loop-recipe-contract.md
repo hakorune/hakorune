@@ -1619,6 +1619,25 @@ publication, or a production caller. The next row is canonical V2 session
 admission, which must consume this scoped envelope without rescanning
 Recipe/JoinSig or adding an S6C physicalizer.
 
+## Common V2 physical layout input I0 (2026-08-17)
+
+The same common-V2 S6C issuer now lends a typed,
+physical-ID-free `PreparedLoopV2PhysicalLayoutInputV1` beside the operation,
+control, and passive coverage siblings. Its loop/block/item segments are
+borrowed from `S6CLogicalOutputRowsV1`; split ordinals are checked projections,
+not MIR block numbers. The view also carries the existing After binding and
+does not recreate JoinSig roles or infer layout from Recipe order, current
+Builder state, `BasicBlockId`, or `ValueId`.
+
+The issuer rejects foreign owners, missing or duplicate topology, invalid loop
+parents, block-owner drift, duplicate item membership, and an unknown After
+loop before returning the envelope. A relation check then proves that the
+operation and If/Exit rows cover the same disjoint item set and reference only
+borrowed blocks. The transport is caller-zero and effect-free: no block
+allocation, operation/effect emission, CFG/PHI, Completion/DraftSeal claim,
+lifecycle, Text route, fallback, retry, or production caller is opened. The
+next bounded design stop is post-layout physical effect ownership.
+
 ## Typed resolved BlockExpr expectation I0 (2026-08-17)
 
 The resolver now records `BlockExpr` as a typed body-shape variant during the

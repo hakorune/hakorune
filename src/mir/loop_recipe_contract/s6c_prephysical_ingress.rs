@@ -203,6 +203,18 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.logical().rows().items()
     }
 
+    pub(crate) fn logical_loops(
+        self,
+    ) -> &'rows [super::s6c_scan_with_init_joinir_output_rows::S6CLogicalLoopV1] {
+        self.source.logical().rows().loops()
+    }
+
+    pub(crate) fn logical_blocks(
+        self,
+    ) -> &'rows [super::s6c_scan_with_init_joinir_output_rows::S6CLogicalBlockV1] {
+        self.source.logical().rows().blocks()
+    }
+
     pub(crate) fn logical_transfer(
         self,
     ) -> &'facts super::join_sig::LoopJoinLogicalTransferViewV2<'facts> {
