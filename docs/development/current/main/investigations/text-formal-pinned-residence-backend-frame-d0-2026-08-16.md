@@ -308,10 +308,15 @@ implementation:
    `ResolvedChildDraftAdmissionV1` into
    `capture_resolved_pending`/`complete_resolved_child`, while the same scoped
    HRTB closure lends a sibling
-   `ResolvedCallablePhysicalSignatureLoanV1<'loan>`. The admission remains the
-   canonical owner identity; the physical-signature loan is not stored in the
-   admission, collector, or legacy pending tuple. The loan must remain scoped
-   until the draft's plan/census and target capability are co-sealed before
+   `ResolvedCallablePhysicalSignatureLoanV1<'loan>`. The package-side seam is
+   design-only `with_selected_cataloged_lowering_input_and_signature`; the
+   module-side seam is design-only
+   `complete_resolved_child_with_physical_loan<'loan>`, which receives the
+   loan only as a synchronous completion-closure argument. The admission
+   remains the canonical owner identity; the physical-signature loan is not
+   stored in the admission, module port, collector, or legacy pending tuple.
+   The loan must remain scoped until the draft's plan/census and target
+   capability are co-sealed before
    `PendingFunctionSessionCloseV1::complete_before_restore` reaches the
    canonical `CanonicalRejectDuplicate` collector. The transition must cover
    the admitted static/instance method rows with one same-cohort loan;
@@ -349,7 +354,10 @@ selected-normal route still enters `capture_legacy_function_pending_session_v1`
 or `commit_legacy_symbol_pending`, if the signature loan is detached from the
 same package/Port HRTB scope, if the admission is made to carry a second
 physical-signature authority, or if the draft plan/census and target capability
-cannot be co-sealed before canonical collection.
+cannot be co-sealed before canonical collection. It also remains stopped if
+the completion closure can return, store, or otherwise outlive the physical
+signature loan, or if the module port retains a package reference to make the
+loan survive the HRTB callback.
 
 Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
 literal origins, or change the callable ABI. A missing single binder issuer or
