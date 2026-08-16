@@ -112,11 +112,42 @@ inputs. Checked derivation rejects overflow or limit excess without mutation.
 Therefore A/B is the accepted direction, but the source owner and transport
 are not implemented and no fast row is authorized yet.
 
+## Concrete pre-MIR owner census
+
+The current Rust call chain gives one precise place to close the missing
+authority without inventing a downstream reverse edge:
+
+```text
+NyashRunner::execute_llvm_mode
+  -> LlvmPipelinePlan::current_default
+  -> CompileOptionsBox::compile_normal_callable
+  -> MirCompilerBox::compile_request
+  -> MirCompiler::compile_normal
+```
+
+`LlvmPipelinePlan` is already created before the MIR compilation call, so it
+is the narrow outer compile-invocation owner candidate. Its current
+`LlvmCompileOptions` carries only `FutureRewriteRoute`; it has no target
+profile, target triple, data-layout fingerprint, address-space layout, or
+Residence ABI revision. `NormalCompileRequestV1` likewise describes source and
+imports, not the LLVM target. The candidate chain therefore names the place
+where a capability could be issued, but it does not issue one today.
+
+The later `crates/nyash-llvm-compiler` boundary and
+`hako_llvmc_compile_json_pure_first` receive collected MIR JSON and cannot
+retroactively bless the `complete_before_restore` HRTB. `ny_mir_builder
+--target` is a separate wrapper contract, not this LLVM product invocation.
+`NumericTarget::host()`, environment flags, JSON fields, and C
+`TargetMachine` discovery remain non-authorities.
+
 ## Ordered taskization
 
-1. **Compile-target capability D0 (current):** name the outer pre-MIR compile
-   invocation owner, V1 profile catalog, invocation brand, and the typed route
-   by which the capability reaches the selected-normal resolved-session HRTB.
+1. **Compile-target capability D0 (current):** accept the concrete outer-owner
+   candidate above as the only place to issue a capability, then name the V1
+   profile catalog, invocation brand, and typed route by which it reaches the
+   selected-normal resolved-session HRTB. Keep the row at `NoSafeSlice` until
+   the missing target/profile input is explicit; do not create a guessed
+   capability from the current `FutureRewriteRoute` or host defaults.
 2. **Compile-target capability I0:** implement only the Rust capability,
    private constructor/issuer, explicit profile selection, and caller-zero
    positive/negative transport tests. Do not emit JSON or touch C.
