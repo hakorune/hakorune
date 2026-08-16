@@ -173,6 +173,10 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         matches!(self.expected.kind, CompletionPhysicalKindV1::ExplicitValue)
     }
 
+    pub(super) fn is_implicit_void(&self) -> bool {
+        matches!(self.expected.kind, CompletionPhysicalKindV1::ImplicitVoid)
+    }
+
     pub(super) fn new(
         expected_owner: FunctionOwnerIdV1,
         completion: VerifiedFunctionCompletionV1,

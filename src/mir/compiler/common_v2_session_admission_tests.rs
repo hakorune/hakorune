@@ -1,3 +1,4 @@
+use crate::mir::builder::with_common_v2_canonical_session;
 use crate::mir::builder::CompilationContext;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -41,16 +42,21 @@ fn admission_co_seals_loop_outer_if_block_expr_envelope_and_completion() {
 
     port.with_s6c_common_v2_pre_session(|loan| {
         with_loop_v2_canonical_session_admission(&loan, |admission| {
-            assert_eq!(admission.input().owner(), admission.completion().owner());
-            assert_eq!(admission.input().owner(), admission.envelope().owner());
-            assert_eq!(admission.input().owner(), admission.outer_if().owner());
-            assert_eq!(
-                admission.block_expr_expectation().owner(),
-                admission.input().owner()
-            );
+            let owner = admission.input().owner();
+            assert_eq!(owner, admission.completion().owner());
+            assert_eq!(owner, admission.envelope().owner());
+            assert_eq!(owner, admission.outer_if().owner());
+            assert_eq!(admission.block_expr_expectation().owner(), owner);
             assert_eq!(admission.envelope().coverage().placement_count(), 15);
             assert_eq!(admission.completion().explicit_sites().len(), 2);
             assert_eq!(admission.outer_if().row_count(), 0);
+
+            with_common_v2_canonical_session(admission, |session| {
+                assert_eq!(session.owner(), owner);
+                assert!(!session.completion_is_implicit());
+                assert_eq!(session.envelope().coverage().placement_count(), 15);
+            })
+            .expect("canonical session open");
         })
         .expect("callback-scoped admission");
     })

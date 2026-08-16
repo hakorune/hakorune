@@ -8,6 +8,7 @@ mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
+mod common_v2_session;
 mod completion_consumption;
 mod direct_accum_adapter;
 mod direct_accum_lowerer;
@@ -39,6 +40,7 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
+pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,

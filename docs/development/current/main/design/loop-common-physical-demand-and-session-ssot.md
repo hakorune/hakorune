@@ -82,10 +82,11 @@ Related:
   callback-scoped common admission is landed; the active boundary is the first
   canonical session effect. A-prime lifecycle activation remains parked until
   this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` consumes the
-  accepted callback-scoped admission and opens one canonical CFG/
-  Binding-SSA/PHI/Completion/DraftSeal session. It does not add a second
-  physicalizer, retrofit lifecycle, or use fallback/retry.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-EFFECTS-D0` follows
+  the landed caller-zero session-open canary. It must decide the first
+  permitted session effect boundary before any CFG/Binding-SSA/PHI mutation;
+  it does not add a second physicalizer, retrofit lifecycle, or use
+  fallback/retry.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -190,6 +191,26 @@ Completion borrow, outer-If residual, and duplicate child-consumption fence.
 No `CanonicalSsaFunctionSessionV2`, CFG/SSA/PHI, Completion consumption,
 DraftSeal, lifecycle, Text route, physical lowering, fallback, retry, or
 production caller is opened.
+
+### LOOP-COMMON-V2-PHYSICAL-SESSION-I0 implementation receipt (2026-08-17)
+
+The first caller-zero physical-session seam is now landed as a deliberately
+thin opener. `LoopV2CanonicalSessionAdmissionRefV1` is consumed exactly once
+into one callback-scoped parts aggregate; the typed BlockExpr expectation is
+projected only inside `CanonicalSsaFunctionSessionV2::new_common_v2`, and the
+installed semantic Completion remains borrowed. That borrow issues one owned
+`ResolvedFunctionCompletionConsumptionV1` for the session, so semantic
+Completion is not cloned or moved out of its installed cohort. The same
+callback retains the common V2 envelope beside the session and cannot reacquire
+another Port loan.
+
+This canary opens the sole canonical CFG/Binding-SSA/PHI/Completion owner, but
+does not mutate a Builder or emit a block, operation, control transfer, PHI,
+Completion claim, Return, DraftSeal, lifecycle, Text operation, route, or
+production caller. It does not reuse `new_selected_dynamic`, pass a raw
+BlockExpr count, or expose a second session. The next row is a design stop for
+the first allowed session effects; until that boundary is source-backed, the
+current blocker remains `NoSafeSlice::CanonicalSessionEffectsUnsealed`.
 
 ## Decision
 
@@ -563,7 +584,7 @@ The existing owners remain authoritative:
 | `BindingRef -> ValueId`, lexical SSA | `CanonicalSsaFunctionSessionV2.identity` |
 | physical blocks, predecessors, sealing | `CanonicalCfgSessionV1` |
 | provisional and patched PHI lifecycle | the function session's one `PhiTxn` |
-| source completion evidence | `VerifiedFunctionCompletionV1`; moved exactly once from the prepared request into the function session |
+| source completion evidence | `VerifiedFunctionCompletionV1`; remains owned by the installed cohort and is borrowed once to issue the session's physical consumer |
 | mutable physical completion consumption | fresh `CanonicalSsaFunctionSessionV2.completion` / `ResolvedFunctionCompletionConsumptionV1` |
 | common function-local finish terminal | `CanonicalSsaFunctionSessionV2::finish_for_draft_seal` target API |
 | captured caller restore, unpublished discard, prepared close | `CanonicalFunctionLoweringSessionV1` |
@@ -902,12 +923,13 @@ one prepared product. Neither step re-runs Recipe verification, mints keys, or
 consults the legacy scheduler.
 
 The outer profile entry consumes one prepared product to open the exact fresh
-function session. `VerifiedFunctionCompletionV1` moves exactly once into
-`CanonicalSsaFunctionSessionV2::new`; it cannot remain in the prepared product
-or a sibling boundary. The outer lowerer retains only Prelude/Tail/ABI evidence,
-transfers the full operation demand exactly once to the future full
-physicalizer, and later claims the exact return operand through
-`session.completion`. Lowering by `&demand`,
+function session. The installed `VerifiedFunctionCompletionV1` remains owned
+by its cohort; the session consumes one owned
+`ResolvedFunctionCompletionConsumptionV1` issued from that scoped borrow. The
+semantic Completion is not cloned or moved into a sibling boundary. The outer
+lowerer retains only Prelude/Tail/ABI evidence, transfers the full operation
+demand exactly once to the future full physicalizer, and later claims the
+exact return operand through `session.completion`. Lowering by `&demand`,
 cloning a split/prepared product, recreating one from MIR, or trying a second
 route is forbidden.
 
@@ -1303,7 +1325,8 @@ skip the After closure or reopen a Tail-only route.
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
 | 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
 | 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | landed 2026-08-17; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
-| 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | next active row; only after 25a-c; no S6C physicalizer, selector, retry, or fallback |
+| 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open one caller-zero canonical session owner without exposing a second loan | landed 2026-08-17; typed expectation projects inside `new_common_v2`, borrowed Completion yields one owned physical consumer, and the envelope remains callback-scoped; no Builder/CFG effect, claim, DraftSeal, lifecycle, or physicalizer |
+| 25b-a | `LOOP-COMMON-V2-PHYSICAL-SESSION-EFFECTS-D0` | settle the first source-backed CFG/Binding-SSA/PHI effect boundary after the session-open canary | design stop; no operation/control physicalization, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

@@ -26,6 +26,21 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
+## Common V2 canonical session-open canary
+
+`with_common_v2_canonical_session` is the caller-zero consumer of one
+callback-scoped common V2 admission. It consumes the admission once, projects
+the typed BlockExpr expectation inside `new_common_v2`, and creates one owned
+`ResolvedFunctionCompletionConsumptionV1` from the installed cohort's borrowed
+semantic Completion. The wrapper retains the same pre-session envelope beside
+the sole `CanonicalSsaFunctionSessionV2`, preventing a second sibling loan.
+
+This canary opens an unpublished session owner only. It does not mutate a
+`MirBuilder`, emit CFG/SSA/PHI/operations, claim Completion, prepare DraftSeal,
+or lower lifecycle/Text/route code. `new_selected_dynamic` and raw BlockExpr
+counts are not valid substitutes; the first session-effects boundary remains
+an explicit design-stop task.
+
 ## Current selected Dynamic V2 handoff
 
 The selected A-prime demand is a source/parameter/identity wrapper around the

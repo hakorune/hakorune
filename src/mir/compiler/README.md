@@ -64,6 +64,18 @@ no `ValueId`, `BasicBlockId`, Builder/session mutation, Completion consumption,
 Recipe/MIR rescan, legacy finalizer, fallback, or retry. A future physical
 session may consume this one fan-in; it may not reacquire any sibling by key.
 
+The caller-zero follow-up `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` is a thin
+session-open canary. It consumes that admission once, projects the typed
+BlockExpr count only inside `CanonicalSsaFunctionSessionV2::new_common_v2`,
+and creates one owned `ResolvedFunctionCompletionConsumptionV1` from the
+installed parent's scoped Completion borrow. The semantic Completion remains
+owned by the installed cohort. A callback-scoped wrapper retains the same
+pre-session envelope beside the session, so no second Port loan can be
+reacquired. This canary does not mutate Builder/CFG/SSA/PHI state or emit
+operations, claims, Returns, DraftSeal, lifecycle, Text, route, fallback, or
+production code; the first session-effects boundary remains a separate design
+stop.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

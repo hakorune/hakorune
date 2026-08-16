@@ -43,6 +43,22 @@ pub(crate) struct LoopV2CanonicalSessionAdmissionRefV1<
     completion: &'completion VerifiedFunctionCompletionV1,
 }
 
+/// One-shot projection consumed by the canonical session opener.  The
+/// semantic Completion remains borrowed from the installed S6C parent; the
+/// builder creates its owned physical consumption ledger exactly once.
+#[derive(Debug)]
+pub(in crate::mir) struct LoopV2CanonicalSessionPartsV1<
+    'source,
+    'envelope,
+    'completion,
+> {
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    outer_if: VerifiedResolvedFunctionIfControlV1,
+    block_expr_expectation: &'source VerifiedResolvedBlockExpressionExpectationV1,
+    envelope: &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope>,
+    completion: &'completion VerifiedFunctionCompletionV1,
+}
+
 impl<'source, 'envelope, 'completion>
     LoopV2CanonicalSessionAdmissionRefV1<'source, 'envelope, 'completion>
 {
@@ -72,6 +88,60 @@ impl<'source, 'envelope, 'completion>
 
     pub(crate) const fn completion(&self) -> &'completion VerifiedFunctionCompletionV1 {
         self.completion
+    }
+
+    /// Consume the admission once while keeping all source products in one
+    /// callback-scoped aggregate.  No raw count or detached sibling is
+    /// returned; the typed expectation reaches the session constructor intact.
+    pub(in crate::mir) fn consume_for_canonical_session<R>(
+        self,
+        callback: impl FnOnce(
+            LoopV2CanonicalSessionPartsV1<'source, 'envelope, 'completion>,
+        ) -> R,
+    ) -> R {
+        let Self {
+            input,
+            loop_site: _,
+            outer_if,
+            block_expr_expectation,
+            envelope,
+            completion,
+        } = self;
+        callback(LoopV2CanonicalSessionPartsV1 {
+            input,
+            outer_if,
+            block_expr_expectation,
+            envelope,
+            completion,
+        })
+    }
+}
+
+impl<'source, 'envelope, 'completion>
+    LoopV2CanonicalSessionPartsV1<'source, 'envelope, 'completion>
+{
+    pub(crate) const fn envelope(
+        &self,
+    ) -> &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope> {
+        self.envelope
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        ResolvedFunctionLoweringInputV1<'source>,
+        VerifiedResolvedFunctionIfControlV1,
+        &'source VerifiedResolvedBlockExpressionExpectationV1,
+        &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope>,
+        &'completion VerifiedFunctionCompletionV1,
+    ) {
+        (
+            self.input,
+            self.outer_if,
+            self.block_expr_expectation,
+            self.envelope,
+            self.completion,
+        )
     }
 }
 

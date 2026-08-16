@@ -172,6 +172,59 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         completion: VerifiedFunctionCompletionV1,
         block_expr_count: usize,
     ) -> Result<Self, String> {
+        let implicit_completion = completion.is_implicit_void();
+        let completion = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
+        Self::from_consumption(
+            input,
+            if_control,
+            completion,
+            block_expr_count,
+            implicit_completion,
+        )
+    }
+
+    /// Common V2 session opener.  It consumes the one-shot admission parts,
+    /// projects the typed BlockExpr expectation here, and snapshots the
+    /// installed parent's Completion exactly once into the session-local
+    /// physical consumer.  It does not emit CFG, SSA, PHI, or DraftSeal work.
+    pub(in crate::mir) fn new_common_v2(
+        parts: crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionPartsV1<
+            'source,
+            '_,
+            '_,
+        >,
+    ) -> Result<Self, String> {
+        let (input, if_control, expectation, _envelope, completion) = parts.into_parts();
+        if expectation.owner() != input.owner()
+            || expectation.function_origin() != input.function().function_origin()
+            || expectation.body_root() != input.function().root_profile().body_root()
+        {
+            return Err(
+                "[freeze:contract][common_v2_session/typed_expectation_mismatch]".to_owned(),
+            );
+        }
+        let block_expr_count = usize::try_from(expectation.pair_count()).map_err(|_| {
+            "[freeze:contract][common_v2_session/block_expr_count_overflow]".to_owned()
+        })?;
+        let implicit_completion = completion.is_implicit_void();
+        let completion =
+            ResolvedFunctionCompletionConsumptionV1::new_borrowed(input.owner(), completion)?;
+        Self::from_consumption(
+            input,
+            if_control,
+            completion,
+            block_expr_count,
+            implicit_completion,
+        )
+    }
+
+    fn from_consumption(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+        if_control: VerifiedResolvedFunctionIfControlV1,
+        completion: ResolvedFunctionCompletionConsumptionV1,
+        block_expr_count: usize,
+        implicit_completion: bool,
+    ) -> Result<Self, String> {
         let if_controls = if_control.row_count();
         let if_branches = if_controls + if_control.explicit_else_count();
         let semantics = ResolvedSemanticStackV1::new_with_expectations(
@@ -186,9 +239,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         let root_body_end = u32::try_from(root_body.statements().len()).map_err(|_| {
             "[freeze:contract][canonical_completion/body_length_overflow]".to_string()
         })?;
-        let implicit_completion = completion.is_implicit_void();
         let target_function = input.function().function_region();
-        let completion = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
         Ok(Self {
             owner: input.owner(),
             root_body: root_body.site().clone(),

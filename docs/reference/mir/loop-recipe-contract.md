@@ -1643,3 +1643,21 @@ BlockExpr expectation, common V2 envelope, and actual Completion are checked
 for one owner/target cohort. The next physical-session row may consume this
 admission to create the canonical session; no other caller may reacquire a
 sibling by key.
+
+## Common V2 canonical session-open canary I0 (2026-08-17)
+
+The first physical-session seam consumes the callback-scoped admission exactly
+once. `CanonicalSsaFunctionSessionV2::new_common_v2` receives the typed
+BlockExpr expectation and performs the only count projection; it does not
+accept a raw count from a caller. The installed semantic
+`VerifiedFunctionCompletionV1` stays owned by the installed cohort, while one
+owned `ResolvedFunctionCompletionConsumptionV1` is issued from its scoped
+borrow and moved into the session. A thin callback wrapper retains the same
+common V2 envelope beside the session so a later consumer cannot reacquire a
+second sibling loan.
+
+This is a caller-zero session-open canary only. It creates the sole canonical
+session owner but emits no Builder/CFG/SSA/PHI effect, operation or control
+placement, Completion claim, Return, DraftSeal, lifecycle, Text operation,
+route, fallback, retry, or production caller. The first session-effects
+boundary remains a separate design-stop task.
