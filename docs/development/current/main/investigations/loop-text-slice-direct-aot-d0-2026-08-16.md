@@ -125,3 +125,50 @@ offset/width/boundary; lifetime dominance/escape/finish failure; and an
 external-tool sentinel proving the contracted path stays on the retained
 TargetMachine. This matrix is evidence for the binder only, not a TextEq
 production or C-speed claim.
+
+## Next design seal: scoped backend-frame borrow
+
+The phrase “opaque residence-frame capability” above is now narrowed to one
+compile-time, non-pointer projection named
+`PinnedTextBackendFrameBorrowV1`. It is not a runtime residence, does not lend
+`ptr`, `len`, a lease token, or a generation value, and does not create a
+second Residence/lifetime issuer. The existing Rust co-sealed
+`PinnedTextBackendFrameContractV1` remains the only issuer; the pure-first C
+lowerer borrows this projection for one lowering invocation and consumes the
+retained `PinnedTextTargetMachineSessionV1` only as its realization context.
+
+```text
+Decision:
+  Define one scoped PinnedTextBackendFrameBorrowV1 projection from the
+  existing function-owned backend-frame contract; keep GEP/load and runtime
+  residence lifecycle closed.
+Source authority + canonical issuer:
+  Rust issue_pinned_text_backend_frame_contract_v1 co-seals the plan/census,
+  ResidenceAbiLayoutV1, physical lane order, and compile-target capability;
+  the C binder only borrows/validates that projection.
+Non-authority:
+  TextFormalCallResidenceV1 runtime roots/tokens, raw pointers, JSON numeric
+  IDs, C-created frame meaning, MIR shape, or a second lifetime issuer.
+Fail-fast boundary:
+  Missing/foreign invocation or plan stamp, root/count/size/revision drift,
+  absent contract-bound session, non-READ/unsupported leaf, pointer/token
+  escape, lifecycle mutation, call, allocation, lock, fallback, or retry.
+Smallest next slice:
+  Design the scoped borrow and typed C handoff only; after acceptance, I0 may
+  validate the zero-effect handoff and exact three-leaf census without
+  changing TextFormalCallResidenceV1.
+Non-claims:
+  No GEP/load, UTF-8 execution, lifecycle CFG, session adoption, route,
+  production caller, performance claim, or object-emitter redesign.
+```
+
+The borrow must be scoped to the existing lowering callback and must not be
+stored in JSON, `MirFunction` runtime state, a module port, or a backend-global
+table. Its fields are limited to invocation/owner stamp, plan stamp,
+occurrence/root count, Residence ABI revision and derived frame size, and the
+target profile/session identity. A positive handoff proves only that the
+three typed leaves can see the same co-sealed contract; it does not prove that
+the runtime frame has been entered or that a pointer is live. If a consumer
+needs a live frame, lifecycle entry/finish becomes a separate Residence D0 and
+this row remains `NoSafeSlice` rather than smuggling that state through the
+borrow.
