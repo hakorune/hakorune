@@ -144,6 +144,17 @@ row is still Builder-free and caller-zero: it does not define TextFormal wire
 mapping, TextEq residence/route, V2 transport, MIR IDs, a production caller,
 fallback, or retry.
 
+The common-V2 caller-zero row is now issued through
+`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session`. This
+single HRTB lends the selected callable, its physical-signature sibling, the
+installed child, and `PreparedLoopV2PreSessionEnvelopeV1` together. The
+envelope is created inside the child’s retained source loan, so operation,
+control, and coverage products cannot be acquired or re-paired independently.
+`with_s6c_child` remains only a compatibility wrapper over this canonical
+seam. The port still consumes the selected Main-child key exactly once and
+does not open Builder/session, lifecycle, Text residence, route, fallback, or
+production publication.
+
 ## Anchor/package audit reconciliation (2026-08-10)
 
 The selected-mapping boundary is closed and must not be reopened as a second

@@ -7,7 +7,9 @@ use super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1}
 use super::s6c_scan_with_init_joinir_output::S6CPrephysicalSourceInputRefV2;
 use super::s6c_scan_with_init_joinir_output_rows::S6CLogicalItemV1;
 use super::schema_v2::{LoopOperationExecutionClassV2, LoopValueClassV2};
-use crate::mir::resolved_semantics::{BindingRefV1, SourceExprSiteV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, FunctionOwnerIdV1, SourceExprSiteV1, SourceStmtSiteV1,
+};
 
 const OPERATION_COUNT: usize = 13;
 
@@ -193,6 +195,20 @@ impl VerifiedS6CPrephysicalIngressV2 {
 }
 
 impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
+    pub(crate) fn source_owner(self) -> FunctionOwnerIdV1 {
+        self.source.facts().source().calls().length().owner()
+    }
+
+    pub(crate) fn logical_items(self) -> &'rows [S6CLogicalItemV1] {
+        self.source.logical().rows().items()
+    }
+
+    pub(crate) fn logical_transfer(
+        self,
+    ) -> &'facts super::join_sig::LoopJoinLogicalTransferViewV2<'facts> {
+        self.source.logical().logical_transfer()
+    }
+
     pub(crate) const fn operation_count(self) -> usize {
         OPERATION_COUNT
     }

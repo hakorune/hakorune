@@ -116,6 +116,34 @@ impl S6CSemanticChildRefV1<'_> {
     ) -> R {
         self.child.ingress.with_completion_parity(callback)
     }
+
+    /// Issue the caller-zero common V2 sibling products while the installed
+    /// child still owns the retained source cohort.  The nested `Result`
+    /// keeps ingress rejection and common projection rejection distinct; no
+    /// source row is copied out of this HRTB loan.
+    pub(crate) fn with_common_v2_pre_session<R>(
+        &self,
+        callback: impl for<'source, 'join> FnOnce(
+            crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'source, 'join>,
+        ) -> R,
+    ) -> Result<R, crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1> {
+        let nested = self.child.ingress.with_ingress(|view| {
+            Ok(
+                crate::mir::loop_recipe_contract::issue_s6c_common_v2_pre_session_v1(
+                    view,
+                    self.child.owner,
+                )
+                .map(callback),
+            )
+        });
+        match nested {
+            Err(error) => {
+                Err(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1::Ingress(error))
+            }
+            Ok(Err(error)) => Err(error),
+            Ok(Ok(result)) => Ok(result),
+        }
+    }
 }
 pub(super) fn issue_s6c_semantic_child_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,

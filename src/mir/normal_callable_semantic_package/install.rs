@@ -46,6 +46,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     S6CChildAlreadyConsumed,
     S6CChildKeyUnavailable,
     PhysicalSignatureUnavailable,
+    S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
 #[derive(Debug)]
@@ -149,6 +150,26 @@ pub(crate) struct S6CInstalledCallableLoanRefV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     child: super::s6c_child::S6CSemanticChildRefV1<'loan>,
     signature: PhysicalCallableSignatureRowRefV1<'loan>,
+}
+
+/// One installed S6C callable loan plus the generic common-V2 products
+/// issued from that same retained source cohort.  The envelope is scoped to
+/// the callback and cannot be paired with another callable or Completion.
+pub(crate) struct S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join> {
+    callable: S6CInstalledCallableLoanRefV1<'loan>,
+    envelope: crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'source, 'join>,
+}
+
+impl S6CCommonV2PreSessionLoanRefV1<'_, '_, '_> {
+    pub(crate) fn callable(&self) -> &S6CInstalledCallableLoanRefV1<'_> {
+        &self.callable
+    }
+
+    pub(crate) fn envelope(
+        &self,
+    ) -> &crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1<'_, '_> {
+        &self.envelope
+    }
 }
 
 impl S6CInstalledCallableLoanRefV1<'_> {
@@ -435,6 +456,18 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         &mut self,
         callback: impl for<'loan> FnOnce(S6CInstalledCallableLoanRefV1<'loan>) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        self.with_s6c_common_v2_pre_session(|loan| callback(loan.callable))
+    }
+
+    /// Canonical installed-cohort handoff for the common V2 pre-session.
+    /// Selection, S6C child, physical signature, and the common envelope are
+    /// consumed once from one package port loan.
+    pub(crate) fn with_s6c_common_v2_pre_session<R>(
+        &mut self,
+        callback: impl for<'loan, 'source, 'join> FnOnce(
+            S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         if self.s6c_child_consumed {
             return Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed);
         }
@@ -463,12 +496,20 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         let result = self
             .installed
             .with_selected_lowering_input(&key, |selected| {
-                callback(S6CInstalledCallableLoanRefV1 {
-                    selected,
-                    child: super::s6c_child::S6CSemanticChildRefV1 { child },
-                    signature,
-                })
-            })?;
+                let child_ref = super::s6c_child::S6CSemanticChildRefV1 { child };
+                child_ref
+                    .with_common_v2_pre_session(|envelope| {
+                        callback(S6CCommonV2PreSessionLoanRefV1 {
+                            callable: S6CInstalledCallableLoanRefV1 {
+                                selected,
+                                child: super::s6c_child::S6CSemanticChildRefV1 { child },
+                                signature,
+                            },
+                            envelope,
+                        })
+                    })
+                    .map_err(NormalCallableSemanticPackageInstallIssueV1::S6CCommonV2)
+            })??;
         self.consumed.insert(key);
         self.s6c_child_consumed = true;
         Ok(result)

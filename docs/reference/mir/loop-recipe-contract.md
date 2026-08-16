@@ -1594,3 +1594,27 @@ Dynamic invocation temporary and keeps its existing End-authorized lifecycle.
 This receipt does not issue a provider, registry, runtime, LLVM, VM, physical
 session, fallback, retry, or production caller; those remain separately
 gated by the active card.
+
+## Common V2 pre-session issuer implementation receipt (2026-08-16)
+
+The caller-zero common-V2 issuer is now landed. One installed package Port
+HRTB invokes `issue_s6c_common_v2_pre_session_v1` over the retained S6C
+source/Recipe/Join cohort. The operation sibling projects generic operation
+rows and existing execution classes; the control sibling borrows the existing
+JoinSig logical transfer view and co-seals only Recipe `If`/`Exit`; the passive
+coverage sibling rejects overlap and proves the disjoint union. Only the S6C
+adapter asserts its profile count of `13 + 1 + 1 = 15`.
+
+`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session` is the
+single installed transport seam. It lends selected identity/signature, the
+installed S6C child, and the common envelope together, and records the same
+selected key exactly once. The older `with_s6c_child` path is a compatibility
+wrapper, not a second issuer or authority. Focused tests cover a valid
+13-operation/If/Exit envelope, foreign-owner rejection, and duplicate child
+consumption.
+
+This is a Builder-free caller-zero receipt. It does not emit MIR/JSON, CFG,
+ValueId, Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
+publication, or a production caller. The next row is canonical V2 session
+admission, which must consume this scoped envelope without rescanning
+Recipe/JoinSig or adding an S6C physicalizer.

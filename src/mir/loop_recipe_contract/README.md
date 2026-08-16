@@ -778,3 +778,27 @@ Completion handling, scan observation, selector, fallback, or production
 activation. `Text` is a logical class only; representation and ownership stay
 in the source-bound contract. V1 remains a separate accepted wire and is not
 decoded as V2.
+
+## Common V2 pre-session issuer implementation receipt (2026-08-16)
+
+The caller-zero implementation is landed in `common_v2_issuers.rs`.
+`issue_s6c_common_v2_pre_session_v1` is the one S6C profile adapter: it
+borrows the retained logical rows, projects generic operation rows, co-seals
+Recipe `If`/`Exit` rows with the existing JoinSig
+`logical_transfer_view`, and issues passive disjoint coverage. The S6C-only
+cardinality check stays at this adapter boundary (`13` operations, one `If`,
+one `Exit`, `15` placements); the generic products do not encode that profile
+fact.
+
+`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session` lends
+the selected callable, package-owned signature, installed S6C child, and
+common envelope from one exactly-once HRTB loan. The existing
+`with_s6c_child` is only a compatibility wrapper over this path, so it cannot
+create a second child authority. Focused tests cover the positive envelope,
+foreign-owner rejection, and duplicate-consumption boundary.
+
+This row remains caller-zero and Builder-free. It issues no CFG, ValueId,
+Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
+publication, or production caller. The next bounded row is canonical V2
+session admission; it must consume this scoped envelope rather than rescan
+Recipe/JoinSig or add an S6C physicalizer.

@@ -1,6 +1,8 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
 mod continuation;
+// Caller-zero common V2 operation/control/coverage projections.
+mod common_v2_issuers;
 mod direct_accum_producer;
 mod error;
 mod ids;
@@ -151,8 +153,15 @@ pub(crate) use operation_effect_parity::{
     LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,
 };
 
-// M2 is intentionally disconnected. Keep one stable facade for later producers
-// without turning caller-zero exports into warning noise.
+// Keep one stable facade for the caller-zero common-V2 parent; the products
+// remain source-only and do not open the physical session.
+#[allow(unused_imports)]
+pub(crate) use common_v2_issuers::{
+    issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
+    PreparedLoopControlTransferProgramV2, PreparedLoopOperationProgramV2,
+    PreparedLoopOperationRowV2, PreparedLoopV2PreSessionEnvelopeV1,
+    VerifiedLoopV2EnvelopeCoverageV1,
+};
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
 #[allow(unused_imports)]

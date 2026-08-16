@@ -274,18 +274,18 @@ Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
 child, one Completion ownership path, and the Completion-independent package
 lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape,
-source-level transport R0, and the three-issuer I0 contract below are accepted
-as design-only boundaries. No generic V2 execution product or Builder/session
-effect is implied. Exact call-edge origin, Canonical composite adoption, and
-Completion-backed lifecycle finish remain a later canonical-session fan-in;
-they are never inferred from Recipe/MIR. The generic V2 exact-set partition is
-the current common boundary.
+source-level transport R0, and the three-issuer I0 contract are now landed as
+caller-zero source products. No generic V2 execution effect or Builder/session
+admission is implied. Exact call-edge origin, Canonical composite adoption,
+and Completion-backed lifecycle finish remain a later canonical-session
+fan-in; they are never inferred from Recipe/MIR. The generic V2 exact-set
+partition is the current common boundary.
 
-### Common V2 pre-session BoxShape (accepted design-only boundary)
+### Common V2 pre-session BoxShape (accepted boundary; source implementation landed)
 
 The D0 boundary is one non-splittable parent loan, not a public aggregate whose
 fields can be independently reacquired. The target Port shape is a single
-HRTB callback (the API is not landed yet):
+HRTB callback:
 
 ```text
 installed package/Port
@@ -307,20 +307,17 @@ Tail add no placement. A passive coverage projection proves the disjoint union
 of the operation and control sets. The S6C adapter alone must prove the exact
 `13 + 1 + 1 = 15` coverage before any leaf is emitted.
 
-The D0 acceptance boundary is limited to same-brand ownership, scoped sibling
-lending, generic operation/control partition, and passive exact coverage. It
-does not add Builder/session effects or issue a new semantic authority. A
-missing/duplicate/overlapping/foreign placement, a second Completion owner, an
-HRTB escape, a detached key or source ledger, or any requirement to infer the
-partition from MIR/Recipe order is `NoSafeSlice`. The next bounded row is
-transport R0; only after that row may the caller-zero S6C envelope be
-implemented.
+The boundary is limited to same-brand ownership, scoped sibling lending,
+generic operation/control partition, and passive exact coverage. The landed
+adapter rejects missing/duplicate/overlapping/foreign placement, a detached
+key/source ledger, and any need to infer the partition from MIR/Recipe order
+before effect. It does not add Builder/session effects or issue a second
+semantic authority.
 
-### Common V2 transport R0 (accepted design-only boundary)
+### Common V2 transport R0 (accepted boundary; installed Port implementation landed)
 
 Transport is a source-level projection, not a MIR/JSON carrier. The sole target
-Port seam is one callback of the following shape; the name is a contract, not a
-landed API:
+Port seam is one callback of the following shape:
 
 ```text
 NormalCallableSemanticPackagePortV1
@@ -336,11 +333,9 @@ substrates to be replaced or wrapped by this single parent seam in the I0.
 No view may escape, be stored, or be recombined after the callback; the Port's
 existing consumption ledger remains the exactly-once owner.
 
-R0 deliberately emits no operation/control product. The three issuer contract
-below is now fixed as design-only; the future S6C I0 implementation may create
-only those caller-zero projections. JSON, MIR metadata, Builder/session,
-physical IDs, Text route, lifecycle, fallback, and production caller remain out
-of scope.
+The Port callback now emits the three caller-zero sibling products from the
+same retained cohort. JSON, MIR metadata, Builder/session, physical IDs, Text
+route, lifecycle, fallback, and production caller remain out of scope.
 
 The stable callable boundary is not the function-internal Text carrier. A
 later non-splittable residence set couples the invocation lease-set token to
@@ -349,7 +344,7 @@ immutable UTF-8 root descriptors. Session-branded slices and backend-local
 backend projections only. The common pre-session envelope owns none of these
 physical identities.
 
-### Common V2 I0 issuer contract (accepted design-only, 2026-08-16)
+### Common V2 I0 issuer contract (accepted and landed caller-zero, 2026-08-16)
 
 All three issuers run inside the one installed-package/Port HRTB parent loan.
 They are scoped sibling projections and cannot be independently acquired,
@@ -388,15 +383,13 @@ Recipe or MIR and does not mint a third semantic product. The S6C adapter may
 then prove `13 + 1 + 1 = 15`; the generic coverage product remains cardinality
 neutral.
 
-The source-level seams are contract names, not landed APIs:
-`issue_s6c_common_v2_operation_source_v1`,
-`issue_s6c_common_v2_control_transfer_v1`, and
-`issue_common_v2_coverage_v1`. Each is private/non-Clone and may be issued
-only within the parent loan. Any missing source anchor, foreign cohort,
-duplicate/overlap, HRTB escape, detached row/key, or downstream re-pair is a
-typed `NoSafeSlice` before effect. The next implementation slice may add only
-these caller-zero projections; it may not open Builder/session, lifecycle,
-Text residence, route, fallback/retry, production callers, or publication.
+The source-level seams are implemented by the private/non-Clone
+`issue_s6c_common_v2_pre_session_v1` adapter and its operation, control, and
+passive coverage siblings. They may be issued only within the parent loan. Any
+missing source anchor, foreign cohort, duplicate/overlap, HRTB escape,
+detached row/key, or downstream re-pair is a typed rejection before effect.
+The implementation does not open Builder/session, lifecycle, Text residence,
+route, fallback/retry, production callers, or publication.
 
 The complete envelope does not turn control into operations. The operation
 program target covers every operation placement for the admitted V2 program;
@@ -1195,10 +1188,10 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | accepted design-only 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no code or session effect |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | closed design boundary 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no session effect |
 | 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
-| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic parent/sibling boundary through one installed Port HRTB without emitting an execution product | accepted design-only 2026-08-16; no JSON/MIR, S6C cardinality, route policy, Builder/session effect, or production caller |
-| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | implement the named source-backed operation adapter, JoinSig/Recipe control co-seal, and passive coverage issuer inside one caller-zero parent loan | accepted design-only 2026-08-16; next execution is the bounded caller-zero implementation; no S6C physicalizer, Builder/session, lifecycle, route, or production caller |
+| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic parent/sibling boundary through one installed Port HRTB without emitting an execution product | closed caller-zero source transport 2026-08-16; one selected-key consumption seam; no JSON/MIR, route policy, Builder/session effect, or production caller |
+| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | implement the named source-backed operation adapter, JoinSig/Recipe control co-seal, and passive coverage issuer inside one caller-zero parent loan | closed caller-zero implementation 2026-08-16; focused positive/negative/duplicate tests green; no S6C physicalizer, Builder/session, lifecycle, route, or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
