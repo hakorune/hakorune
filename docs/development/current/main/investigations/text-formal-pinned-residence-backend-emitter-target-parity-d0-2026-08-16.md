@@ -1,79 +1,111 @@
 ---
-Status: active design stop; choose the single realized-target owner before Binder close
+Status: accepted Decision; contract-bound object-emitter I0 is active
 Date: 2026-08-16
-Work mode: design_stop
+Work mode: fast
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-I0
 ---
 
 # TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-EMITTER-TARGET-PARITY-D0
 
 ```text
-Decision: do not close the Binder on the C API preflight alone; choose one
-actual pure-first object emitter/target observation owner and prove its parity
-with the Rust-owned expected target profile.
-Source authority + canonical issuer: Rust
-PinnedTextCompileTargetCapabilityV1 remains the sole expected-profile issuer;
-the selected object emitter (C API TargetMachine or external opt/llc) may issue
-only a private invocation-scoped realization observation for comparison.
-Non-authority: C profile constants, LLVMGetDefaultTargetTriple alone, host or
-environment defaults, JSON/MIR lengths, llc flags, raw pointers, ValueId,
-runtime leases, and a second backend target catalog.
-Fail-fast boundary: mixed emitters, missing/foreign invocation, unsupported
-triple, realized triple/data-layout drift, or an unproved opt/llc target
-selection rejects before IR/object effect; no fallback or retry.
-Smallest next slice: read-only owner census plus one parity probe that names
-the chosen emitter and validates its actual triple/data-layout against the
-Rust descriptor; keep GEP/load, lifecycle, session, route, and callers closed.
-Non-claims: no Text execution, residence adoption, C-speed result, production
-caller, cross-target support, fallback, retry, or main integration.
+Decision: choose C: every contract-bearing module uses one retained C API
+PinnedTextTargetMachineSessionV1 for both realization validation and object
+emission; only an uncontracted module may use the external opt/llc legacy path.
+Source authority + canonical issuer: Rust PinnedTextCompileTargetCapabilityV1
+remains the sole compile-invocation expectation owner. Its target-layout and
+object-emitter profile are non-separable sibling projections; JSON projects
+them, and the C session only realizes and checks them.
+Non-authority: HAKO_CAPI_TM, host/default target, PATH tools, free-form flags,
+-mcpu=native, JSON/MIR lengths, /N, module target text, raw pointers, ValueId,
+runtime leases, and a separately issued backend target catalog.
+Fail-fast boundary: module census, LLVM C API revision/symbols, target/codegen
+tuple, triple/layout, and consumer revision seal before IR effect. Missing or
+mixed contracts, a second TargetMachine, external fallback, retry, or partial
+object publication reject the invocation.
+Smallest next slice: TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0
+adds the module gate, one retained session, same-session emit, success-only
+publication, legacy separation, focused evidence, and one reusable guard.
+Non-claims: no GEP/load, PinnedTextOp lowering, lifecycle CFG, Canonical
+residence adoption, Completion finish, route admission, performance claim,
+production caller, literal/StringBox origin, fallback/retry, or main closeout.
 ```
-
-## Why this is a separate D0
-
-The landed Binder transport performs two useful checks before the generic
-lowering walk:
+## Accepted owner graph
 
 ```text
-Rust contract projection
-  -> strict JSON/profile validation
-  -> C API TargetMachine triple/data-layout observation
+PinnedTextCompileTargetCapabilityV1
+  +-- TargetLayoutExpectationV1
+  `-- PinnedTextObjectEmitterProfileV1
+        (private child projection; no independent issuer/catalog)
+              |
+              v
+strict versioned JSON projection
+              |
+              v
+PinnedTextModuleContractCensusV1
+  0 rows                  -> LegacyUncontracted
+  same-invocation rows >0 -> ContractBoundCapi
+              |
+              v
+one PinnedTextTargetMachineSessionV1
+  open -> validate -> retain -> emit once -> close
+              |
+              v
+same-directory temporary object -> success-only rename
 ```
 
-The normal pure-first object path can still finish through the external
-`opt`/`llc` helper (`hako_llvmc_mem2reg_canonicalize_and_llc`), while the C API
-TargetMachine path is optional (`HAKO_CAPI_TM=1`).  Treating those as one
-realization owner would silently create a second target authority.  This D0
-must either select the C API path as the sole transition emitter, or define an
-explicit external-tool observation/parity contract.  It must not leave the
-choice to environment defaults or infer parity from the IR target-triple line.
+The first object-emitter profile is closed and explicit: LLVM C API 18,
+explicit generic CPU and empty feature set, aggressive LLVM codegen level,
+and default relocation/code models. Empty CPU/features are catalog values,
+not host inference. Adding these required fields bumps the transport schema
+and consumer revision atomically; the contract-bound path does not accept the
+older incomplete projection.
 
-## Acceptance matrix
+The module census is an aggregate, not a target issuer. It runs before
+exact-seed, pattern, compat, generic, or external dispatch. One contract row
+makes the whole module contract-bound; all contract rows must carry one
+compile invocation, target/layout, emitter profile, Residence ABI, and
+consumer revision. Every transported `PinnedTextOp` must belong to a
+contracted function. A contract-bearing module may use only the generic
+pure-first path; every bypass rejects instead of reaching legacy fallback.
+
+The retained session owns one LLVM library handle, one TargetMachine, and one
+TargetData. It writes or sets the module triple and data layout from the Rust
+projection, never from the current hard-coded IR header. Preflight and emit
+must not recreate the TargetMachine. Contracted emission writes a temporary
+object in the destination directory and renames only after successful C API
+emission; any failure removes the temporary artifact and returns without
+trying another emitter.
+
+## Active execution row
+
+`TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0`
 
 ```text
-positive: selected emitter is explicit; its observed triple/layout equals the
-           Rust descriptor; one invocation/profile/ABI revision is retained
-negative: C API vs external llc drift, missing tool/query, foreign invocation,
-          default/host target, changed -mcpu/-mattr, unknown observation fields,
-          mixed emitter completion, fallback/retry request
-```
+Change:
+  Replace validate-and-discard plus env-selected C API emit plus external
+  fallback, for contracted modules only, with one retained TargetMachine
+  session. Extract the existing optional emitter from the 788-line generic
+  lowerer into responsibility-owned sub-760-line session/publication files.
 
-The result is a private realization observation only.  It does not modify the
-Rust contract, add JSON meaning, or open `PinnedTextOp` lowering.  The D0 is
-accepted only when the object path and the preflight use the same target owner
-or when a mechanically checked parity receipt covers both.
+Contract:
+  Contract absence alone selects the unchanged legacy path. Contract presence
+  requires a complete same-invocation module census, the explicit LLVM-18
+  emitter child profile, one session before IR effect, contract-owned module
+  target/layout, same-session emit exactly once, and no fallback or retry.
 
-## Explicit stops
+Done:
+  Contracted static/instance/mixed and same-invocation multi-function modules
+  emit without consulting HAKO_CAPI_TM or external llc; uncontracted parity is
+  retained. Drift, mixed/missing contract, PinnedTextOp without contract,
+  missing LLVM-18 API, emit/publication failure, unknown/old transport, and an
+  external-tool sentinel all reject with no published object. Extend only
+  `tools/checks/pinned_text_backend_frame_transport_smoke.sh` to prove module
+  census, one session/TM, success-only rename, and no retry; keep every source
+  below 800.
 
-```text
-NoSafeSlice::EmitterTargetOwnerMissing
-  if neither C API nor external opt/llc is named as the sole realized-target
-  owner.
-
-NoSafeSlice::EmitterTargetParityUnproved
-  if the preflight observes one target while the object path may emit with
-  another target/CPU/feature set.
-
-NoSafeSlice::EmitterTargetFallbackHidden
-  if missing query/tool silently changes emitter or retries through another
-  target route.
+Stop:
+  Return to NoSafeSlice if the emitter profile needs an independent catalog,
+  a second TargetMachine, host/env/default inference, external optimization
+  before its target-neutral boundary is designed, contracted legacy fallback,
+  partial publication, GEP/load, lifecycle/session work, or production callers.
 ```
