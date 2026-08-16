@@ -27,12 +27,14 @@ Related:
 
 - **Current decision:** one logical `ExactText` formal remains one
   `BindingRef` and expands to adjacent scalar `u64` lanes `[slot,generation]`;
-  a by-value 16-byte aggregate is not the callable ABI.
+  an InstanceBoxMethod has one separate leading receiver lane, and a by-value
+  16-byte aggregate is not the callable ABI.
 - **Current implementation status:** the pair validator and caller-zero atomic
   lease-set/pending-retirement substrate are landed; the package-owned total
   physical-signature mapping and every compiler consumer remain caller-zero.
 - **Next ordered task:** issue and transport one Completion-independent
-  package signature cohort from the complete parameter contracts.
+  package signature cohort from declaration mode, exact Receiver binding when
+  present, and the complete explicit parameter contracts.
 - **Production stop line:** no raw handle may recapture generation, no lane may
   become a second logical value, and no pointer/length residence may cross the
   callable boundary or detach from its lease set.
@@ -225,12 +227,27 @@ logical ExactText / one BindingRef
 ```
 
 The pair totals 16 bytes in the current fixed-width wire, but it is not one
-by-value ABI aggregate. Logical `/N` remains source arity;
-`physical_formal_lane_count` is a separate package-owned authority. The sole
-physical-signature issuer consumes the same-brand selected/batch identity and
-the complete parameter-contract cohort. It does not consume callable header,
-result, or Completion and contains no `ValueId`, pointer, length, lease token,
-or route policy.
+by-value ABI aggregate. Logical `/N` remains explicit source-parameter arity.
+The complete callable signature keeps four counts distinct:
+
+```text
+source_logical_arity    = explicit source formal count (/N)
+receiver_lane_count     = 1 iff InstanceBoxMethod, otherwise 0
+physical_formal_lane_count
+  = sum(explicit-formal lane widths)
+physical_callable_lane_count
+  = receiver_lane_count + physical_formal_lane_count
+```
+
+Physical order is an optional leading `InstanceReceiver` lane followed by
+explicit formals in logical ordinal order; ordinary formals use one lane and
+ExactText formals use adjacent `[slot,generation]`. The receiver is the exact
+source `Receiver` binding, not a formal ordinal, and cannot be inferred from a
+function/parameter length difference. The sole physical-signature issuer
+consumes the same-brand selected/batch identity, declaration mode, exact
+receiver binding when present, and the complete explicit parameter-contract
+cohort. It does not consume callable header, result, or Completion and contains
+no `ValueId`, pointer, length, lease token, or route policy.
 
 At callee entry, the Rust runtime owns exact pair validation, Text-class
 validation, generation identity, atomic invocation-wide pinning, pending
