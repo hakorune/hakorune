@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature BoxShape, caller-zero runtime lease substrate, StableText-only pinned-residence BoxShape, caller-zero residence entry/frame I0, target-neutral Text-slice D0, transport-only Text-slice I0, the Residence-owned backend-frame caller-zero I0, and the selected-normal resolved-session handoff I0 are closed; the compile-time binder is now the sole design stop. The direct backend, route admission, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, and selected-normal resolved-session handoff are closed. The target authority direction is accepted: an outer Rust compile invocation is canonical and ny-llvmc is a realization validator; the missing pre-MIR compile-target capability issuer/transport is now the sole design stop. The binder, JSON validator, direct backend, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0; one compile-time binder must mechanically co-seal physical-signature occurrence order, the Residence frame capability, and the selected ny-llvmc consumer boundary."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-D0; name one outer pre-MIR Rust compile-invocation owner, closed target-profile catalog, and typed capability transport into complete_before_restore."
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameBinderUnsealed; keep GEP/load, lifecycle CFG, session wiring, route admission, performance selection, fallback, retry, and production callers closed."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-D0"
+current_blocker_token = "NoSafeSlice::PinnedTextCompileTargetCapabilityUnsealed; keep binder contract, JSON/C validation, GEP/load, lifecycle CFG, session wiring, route admission, fallback, retry, and production callers closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Residence backend-frame I0 -> compile-time binder design stop)"
-active_lane_status = "The accepted callable boundary keeps explicit source arity, optional InstanceReceiver lane count, expanded physical-formal-lane count, and total physical-callable-lane count distinct; one ExactText formal maps to adjacent scalar slot/generation lanes. The caller-zero Residence backend frame has a target-checked repr(C) enter/rollback/finish projection. Selected StaticBoxMethod and InstanceBoxMethod lowering now closes through the resolved admission/session seam with one same-cohort sibling signature loan; call-edge actualization, lifecycle CFG, session values, TextEq route, direct backend, and production callers remain closed."
+active_lane = "Loop compiler frontier (A/B target authority accepted -> pre-MIR compile-target capability design stop)"
+active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the mandatory ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The current Rust ny-llvmc routes receive JSON after MirFunction collection, so the outer pre-MIR issuer, closed V1 profile catalog, invocation brand, and typed transport into the resolved-session HRTB must be named before binder implementation. JSON/C validation, GEP/load, lifecycle, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-d0-2026-08-16.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "text-formal-pinned-residence-backend-frame-d0"
-latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
-latest_card_summary = "Text-slice D0 and transport-only I0 are landed: one private stamped plan table, one PinnedTextOp variant with three fixed leaves, exact census, fixed READ effects, and typed MIR/JSON payload transport. The Residence backend-frame caller-zero I0 has target-checked private repr(C) frame enter/rollback/finish evidence, and selected StaticBoxMethod/InstanceBoxMethod lowering now uses one same-cohort resolved-session sibling signature loan with 32/32 package tests green. The compile-time binder, JSON publication, GEP/load, lifecycle, route, production caller, fallback, and retry remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0"
-next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+latest_card = "text-formal-pinned-residence-compile-target-capability-d0"
+latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-d0-2026-08-16.md"
+latest_card_summary = "The target authority direction is accepted: one outer Rust compile invocation issues an explicit non-Clone target capability, ny-llvmc validates actual TargetMachine/layout realization, and host/default/JSON inference is rejected. The current drivers receive JSON too late for the complete_before_restore co-seal, so the pre-MIR invocation owner, closed V1 profile catalog, and typed HRTB transport are the sole design stop; binder/JSON/C/GEP/load/lifecycle/route/caller remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-D0"
+next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-d0-2026-08-16.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 

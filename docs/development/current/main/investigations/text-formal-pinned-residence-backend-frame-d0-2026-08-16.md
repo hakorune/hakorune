@@ -442,3 +442,28 @@ loan survive the HRTB callback.
 Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
 literal origins, or change the callable ABI. A missing single binder issuer or
 target capability keeps `NoSafeSlice::PinnedTextBackendFrameBinderUnsealed`.
+
+## Target authority Decision receipt
+
+The follow-up Decision selects A as canonical authority, requires B as a
+backend realization validator, and rejects C:
+
+```text
+A: outer Rust compile invocation issues the explicit target capability
+B: ny-llvmc validates the realized TargetMachine/layout against it
+C: NumericTarget::host/default/JSON/environment inference is rejected
+```
+
+This resolves the authority direction but does not yet authorize the proposed
+single vertical Binder I0. The current Rust ny-llvmc drivers receive JSON only
+after `complete_before_restore` and collection, so a pre-MIR compile-invocation
+owner and typed capability transport must be designed first. Target issuance,
+function co-seal, JSON transport, and C realization validation are separate
+bounded owners and are split into ordered rows.
+
+The selected child is
+`TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-D0` at
+`text-formal-pinned-residence-compile-target-capability-d0-2026-08-16.md`.
+The parent binder remains `NoSafeSlice` until that child and the later
+four-input co-seal are landed. JSON/GEP/load/lifecycle/session/route/caller,
+fallback, and retry remain closed.
