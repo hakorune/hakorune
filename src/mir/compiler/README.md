@@ -31,12 +31,14 @@ target capability. The contract records only checked counts, revisions,
 derived frame bounds, and invocation/owner stamps; it contains no `ValueId`,
 runtime token, pointer, JSON-owned meaning, or host-layout observation.
 
-This is the current Binder I0 task boundary. The next bounded cell is a strict
-versioned transport projection for the existing pure-first ny-llvmc consumer:
-all required fields must be present, no defaults or host inference are
-allowed, and the consumer may only compare the descriptor with its actual
-LLVM target/data layout. GEP/load, lifecycle CFG, session residence adoption,
-route selection, fallback/retry, and production callers remain closed.
+This is the current Binder I0 task boundary. The strict versioned transport
+projection and profile-schema consumer are now landed: all required fields are
+present, no defaults or host inference are allowed, and the reusable transport
+smoke rejects layout drift, unknown fields, and missing target data before
+generic lowering. The next bounded cell is the actual LLVM
+TargetMachine/data-layout comparison; the current consumer does not claim that
+realization yet. GEP/load, lifecycle CFG, session residence adoption, route
+selection, fallback/retry, and production callers remain closed.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.

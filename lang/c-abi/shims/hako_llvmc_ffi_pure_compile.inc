@@ -205,6 +205,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_json_v1_validate_file(json_in, &verr) != 0) {
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
   }
+  if (hako_llvmc_validate_pinned_text_backend_frame_contract_file(json_in, err_out) != 0) {
+    return -1;
+  }
 
   do {
     yyjson_read_err rerr_t; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_t);

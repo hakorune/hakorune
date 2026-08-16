@@ -515,6 +515,12 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> Result<serde_json
     if let serde_json::Value::Object(obj) = &mut metadata_json {
         insert_fastmem_metadata_json(obj, metadata);
         insert_plan_metadata_json(obj, metadata);
+        if let Some(contract) = metadata.pinned_text_backend_frame_contract {
+            obj.insert(
+                "pinned_text_backend_frame_v1".to_owned(),
+                contract.to_transport_json(),
+            );
+        }
     }
     Ok(metadata_json)
 }

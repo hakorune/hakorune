@@ -1,5 +1,5 @@
 ---
-Status: active implementation row; Rust contract first, strict consumer second
+Status: active implementation row; Rust contract and strict profile transport landed, LLVM realization still closed
 Date: 2026-08-16
 Work mode: fast
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0
@@ -85,7 +85,13 @@ limits.
 
 ## Next bounded implementation cell
 
-`BINDER-I0-TRANSPORT-STRICT` is the only next cell in this card:
+`BINDER-I0-TRANSPORT-STRICT` is landed as a transport-only cell.  The
+reusable smoke proves the exact projection reaches the existing pure-first
+consumer and that drift/unknown/missing fields reject before generic lowering.
+It does not yet query the active LLVM `TargetMachine`/data layout.  The next
+bounded cell is:
+
+`BINDER-I0-TARGETMACHINE-LAYOUT`:
 
 ```text
 MirFunction unpublished contract
@@ -96,12 +102,13 @@ MirFunction unpublished contract
 ```
 
 The descriptor is a projection of the Rust-owned contract, not a second
-authority. The C consumer may issue only a private realization-validation
-receipt; it may not reconstruct lane/root counts, derive a frame size from
-JSON lengths, probe the host, or replace the Rust contract. Keep the cell
-caller-zero and transport-only: no GEP/load, pointer materialization,
-lifecycle terminator, session adoption, TextEq route, fallback/retry, or
-production caller is part of this task.
+authority. The current C consumer validates the selected profile row strictly;
+it may issue only a private realization-validation receipt after a future
+TargetMachine/data-layout query. It may not reconstruct lane/root counts,
+derive a frame size from JSON lengths, probe the host, or replace the Rust
+contract. Keep both cells caller-zero and transport-only: no GEP/load, pointer
+materialization, lifecycle terminator, session adoption, TextEq route,
+fallback/retry, or production caller is part of either task.
 
 ## Acceptance matrix
 
@@ -115,7 +122,16 @@ negative: missing/foreign target, ABI/lane/plan stamp drift, receiver/root
 ```
 
 The focused gate must prove contract identity and exact census. It must not
-claim direct loads, pointer validity, lifecycle or production execution.
+claim direct loads, pointer validity, actual LLVM layout realization,
+lifecycle or production execution. The transport smoke is a required reusable
+gate for the landed strict projection; the TargetMachine cell adds its own
+positive/negative layout evidence before the blocker can move.
+
+Reusable transport gate:
+
+```bash
+bash tools/checks/pinned_text_backend_frame_transport_smoke.sh
+```
 
 ## Explicit stop conditions
 
@@ -129,4 +145,9 @@ NoSafeSlice::PinnedTextBackendFrameTransportReconstructed
 
 NoSafeSlice::PinnedTextBackendFrameDirectLoweringMixed
   if GEP/load, Text execution, lifecycle CFG, or route selection enters this I0.
+
+NoSafeSlice::PinnedTextBackendFrameTargetMachineLayoutUnimplemented
+  while the pure-first consumer checks only the selected profile constants and
+  has not compared the descriptor with the active LLVM TargetMachine/data
+  layout.
 ```
