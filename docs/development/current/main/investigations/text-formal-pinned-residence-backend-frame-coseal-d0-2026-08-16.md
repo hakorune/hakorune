@@ -1,5 +1,5 @@
 ---
-Status: design stop; backend-frame co-seal is not yet issuable
+Status: accepted design-only BoxShape; backend-frame Binder I0 is the next bounded implementation
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape decision
@@ -39,7 +39,33 @@ backing, pins, and finish. The target capability remains the only target and
 layout expectation owner. The bridge compares/co-seals these facts; it does
 not issue a second Text, lifetime, ABI, or route meaning.
 
-## Current authority gaps (explicit blocker)
+## D0 decision freeze
+
+The three former gaps are now explicit contract decisions, without claiming
+that their implementation has landed:
+
+```text
+ResolvedCallablePhysicalSignatureLoanV1::lanes()
+  is the scoped sibling view of the existing cohort row. It lends complete
+  lane rows (role, logical ordinal, BindingRef, and physical index) without
+  copying, reissuing, or inferring receiver/root membership.
+
+ResidenceAbiLayoutV1
+  is the Residence owner's sole compile-time ABI view. It projects the
+  existing frame revision, header/root-row offsets and sizes, alignment, and
+  limits; it never lends a live pointer, runtime token, or invocation frame.
+
+PinnedTextCompileTargetCapabilityV1
+  is mandatory at the selected backend-frame binder entry. Compatibility
+  edges may keep Option outside that binder, but absence, foreign invocation,
+  or profile/layout drift rejects before collector mutation.
+```
+
+The four-input co-seal is therefore accepted as a design-only BoxShape. The
+next I0 must implement these projections and the private contract; it must
+not widen the semantic or physical route.
+
+## Previously observed gaps (now implementation work)
 
 The design names the required views, but the current tree does not yet issue
 all of them:
@@ -60,10 +86,10 @@ PinnedTextCompileTargetCapabilityV1 is currently optional at compatibility
   contract, never as a missing-field default.
 ```
 
-Until these two scoped projections and the mandatory-target boundary are named
-and co-sealed, this D0 remains `NoSafeSlice::PinnedTextBackendFrameCoSealUnsealed`.
-Counts alone cannot prove root order, and runtime frame constants alone cannot
-become a compile-time ABI authority by observation.
+Until the I0 implementation lands, counts alone still cannot prove root order,
+and runtime frame constants alone still cannot become a compile-time ABI
+authority by observation. The design blocker is closed; the I0 acceptance
+gate below reopens it if any of these projections become a second authority.
 
 ## Count and order law
 
@@ -130,8 +156,8 @@ retry. If the same HRTB cannot hold the four inputs until the co-seal, retain
 
 ## Next row after acceptance
 
-Only after this D0 is accepted may the caller-zero I0 be opened for a private
-contract issuer and typed transport projection. The eventual consumer remains
+The next caller-zero I0 is opened for a private contract issuer and typed
+transport projection. The eventual consumer remains
 the single `hako_llvmc_compile_json_pure_first -> compile_json_compat_pure`
 path, and any new C validator must be a separate sub-760-line owner. No other
 backend or production route is implied.
