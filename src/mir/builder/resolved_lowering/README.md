@@ -113,7 +113,26 @@ unpublished-function transaction remains the sole late-discard owner.
 This I0 emits no `Call`, `ValueId`, `Compare`, edge, terminator, CFG/PHI,
 Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
 production caller. Focused positive and late-callback-discard tests are green;
-the next design stop is the canonical Length Call/result materializer.
+the next bounded slice is the callback-scoped Length receiver operand.
+
+## Common V2 Length receiver operand I0
+
+`CommonV2CanonicalSessionRefV1::with_length_receiver_operand` consumes the
+same source-segment receipt and projects the resolver-proven local
+`BindingRef` from the Length call relation. It lends one
+`LengthReceiverPhysicalOperandRefV1`, joining the source binding, condition
+block, retained entry stamp, and the canonical identity/SSA
+`CanonicalBindingReadReceiptV1`. The resolver relation and logical inventory
+remain the semantic authorities; the canonical session is the only physical
+read issuer.
+
+The view is one-shot and callback-scoped. Missing/non-local receivers,
+owner/type/target/stamp drift, duplicate entry, callback escape, and late
+failure reject before any Length `Call` or result effect; the outer unpublished
+function transaction remains the sole discard owner. Focused positive,
+one-shot, and late-discard tests are green. Direct `StringBox.length` Call,
+I64 result, Compare, edge/CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route, fallback, retry, and production caller remain closed.
 
 ## Common V2 synthetic After allocation I0
 

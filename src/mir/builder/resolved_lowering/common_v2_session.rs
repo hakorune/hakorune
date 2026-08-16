@@ -16,8 +16,9 @@ use crate::mir::loop_recipe_contract::{
     S6CLogicalCallRoleV1, StringLenCallTargetPlanRejectV1,
 };
 use crate::mir::resolved_semantics::ResolvedLoopPlacementV1;
+use std::marker::PhantomData;
 
-use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
 use super::common_v2_after_block_allocation::{
     allocate_after_block, issue_after_allocation_plan, AfterBlockAllocationRejectV1,
     AfterBlockAllocationStateV1, PreparedAfterBlockViewV1,
@@ -60,6 +61,50 @@ impl ConditionBlockPhysicalTargetRefV1<'_> {
     }
 }
 
+/// A callback-scoped physical receiver view for the source Length call.  The
+/// source binding and canonical read receipt are kept together with the
+/// condition target so a raw receiver value cannot be re-paired with another
+/// session or block after the callback returns.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct LengthReceiverPhysicalOperandRefV1<'target> {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    binding: crate::mir::resolved_semantics::BindingRefV1,
+    read: CanonicalBindingReadReceiptV1,
+    row: &'target super::common_v2_segment_block_allocation::SegmentBlockReceiptRowV1,
+    stamp: &'target PhysicalFunctionEntryCohortStampV1,
+    _receipt: PhantomData<
+        &'target super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+    >,
+}
+
+impl LengthReceiverPhysicalOperandRefV1<'_> {
+    pub(in crate::mir::builder) const fn owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) const fn binding(
+        &self,
+    ) -> crate::mir::resolved_semantics::BindingRefV1 {
+        self.binding
+    }
+
+    pub(in crate::mir::builder) const fn physical_block(&self) -> crate::mir::BasicBlockId {
+        self.row.physical_block()
+    }
+
+    pub(in crate::mir::builder) const fn physical_value(&self) -> crate::mir::ValueId {
+        self.read.physical_value()
+    }
+
+    pub(in crate::mir::builder) const fn stamp_owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.stamp.owner()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ConditionBlockTargetRejectV1 {
     Allocation(String),
@@ -68,6 +113,17 @@ pub(in crate::mir::builder) enum ConditionBlockTargetRejectV1 {
     LayoutMismatch,
     MissingConditionRow,
     DuplicateConditionRow,
+    Callback(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum LengthReceiverPhysicalOperandRejectV1 {
+    AlreadyIssued,
+    ConditionTarget(ConditionBlockTargetRejectV1),
+    OwnerMismatch,
+    MissingReceiverBinding,
+    SourceShapeMismatch,
+    Read(String),
     Callback(String),
 }
 
@@ -80,6 +136,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     after_allocation_state: AfterBlockAllocationStateV1,
     length_call_canary_issued: bool,
     length_target_plan_issued: bool,
+    length_receiver_operand_issued: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -296,6 +353,14 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         let receipt = self
             .allocate_v2_segment_blocks(builder)
             .map_err(|error| ConditionBlockTargetRejectV1::Allocation(format!("{error:?}")))?;
+        let target = self.condition_block_target_from_receipt(&receipt)?;
+        callback(builder, target).map_err(ConditionBlockTargetRejectV1::Callback)
+    }
+
+    fn condition_block_target_from_receipt<'target>(
+        &'target self,
+        receipt: &'target super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+    ) -> Result<ConditionBlockPhysicalTargetRefV1<'target>, ConditionBlockTargetRejectV1> {
         let owner = self.session.owner();
         if receipt.owner() != owner || self.envelope.owner() != owner {
             return Err(ConditionBlockTargetRejectV1::OwnerMismatch);
@@ -340,7 +405,121 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             stamp,
             _row: row,
         };
-        callback(builder, target).map_err(ConditionBlockTargetRejectV1::Callback)
+        Ok(target)
+    }
+
+    /// Lend one source-backed Length receiver operand without opening the
+    /// Length Call. The source resolver relation is projected mechanically;
+    /// the canonical identity/SSA seam remains the sole physical read issuer.
+    pub(in crate::mir::builder) fn with_length_receiver_operand<R>(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        receipt: &super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+        callback: impl for<'target> FnOnce(
+            &mut crate::mir::builder::MirBuilder,
+            LengthReceiverPhysicalOperandRefV1<'target>,
+        ) -> Result<R, String>,
+    ) -> Result<R, LengthReceiverPhysicalOperandRejectV1> {
+        if self.length_receiver_operand_issued {
+            return Err(LengthReceiverPhysicalOperandRejectV1::AlreadyIssued);
+        }
+        let owner = self.session.owner();
+        if receipt.owner() != owner || self.envelope.owner() != owner {
+            return Err(LengthReceiverPhysicalOperandRejectV1::OwnerMismatch);
+        }
+        let producer = self.envelope.condition_producer();
+        let logical_block = producer.condition_block();
+        let Some(layout_segment) = self.envelope.layout().segment_for_block(logical_block) else {
+            return Err(LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                ConditionBlockTargetRejectV1::LayoutMismatch,
+            ));
+        };
+        if layout_segment.loop_key() != producer.loop_key() {
+            return Err(LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                ConditionBlockTargetRejectV1::LayoutMismatch,
+            ));
+        }
+        let mut rows = receipt
+            .rows()
+            .iter()
+            .filter(|row| row.logical_block() == logical_block);
+        let Some(row) = rows.next() else {
+            return Err(LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                ConditionBlockTargetRejectV1::MissingConditionRow,
+            ));
+        };
+        if rows.next().is_some()
+            || row.loop_key() != layout_segment.loop_key()
+            || row.split_ordinal() != layout_segment.split_ordinal()
+        {
+            return Err(LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                ConditionBlockTargetRejectV1::LayoutMismatch,
+            ));
+        }
+        let stamp_owner = {
+            let stamp = self.session.physical_entry_stamp().map_err(|_| {
+                LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                    ConditionBlockTargetRejectV1::MissingPhysicalEntryStamp,
+                )
+            })?;
+            stamp.owner()
+        };
+        if stamp_owner != owner {
+            return Err(LengthReceiverPhysicalOperandRejectV1::OwnerMismatch);
+        }
+        let inventory = self.envelope.condition_operands();
+        let [_, right] = inventory.rows() else {
+            return Err(LengthReceiverPhysicalOperandRejectV1::SourceShapeMismatch);
+        };
+        let source = match right.kind() {
+            PreparedLoopV2ConditionOperandKindV1::LengthCall { source } => source,
+            PreparedLoopV2ConditionOperandKindV1::ReadBinding { .. } => {
+                return Err(LengthReceiverPhysicalOperandRejectV1::SourceShapeMismatch)
+            }
+        };
+        if source.owner() != owner
+            || source.role() != S6CLogicalCallRoleV1::Length
+            || source.operation() != CoreMethodOp::StringLen
+            || source.placement() != ResolvedLoopPlacementV1::Condition
+            || source.arity() != 0
+            || !source.arguments().is_empty()
+        {
+            return Err(LengthReceiverPhysicalOperandRejectV1::SourceShapeMismatch);
+        }
+        let binding = source
+            .receiver_binding()
+            .ok_or(LengthReceiverPhysicalOperandRejectV1::MissingReceiverBinding)?;
+        let read = self
+            .session
+            .identity
+            .read_entry_receipt(
+                builder,
+                &mut self.session.phis,
+                row.physical_block(),
+                binding,
+            )
+            .map_err(LengthReceiverPhysicalOperandRejectV1::Read)?;
+        if read.owner() != owner
+            || read.binding() != binding
+            || read.physical_block() != row.physical_block()
+        {
+            return Err(LengthReceiverPhysicalOperandRejectV1::OwnerMismatch);
+        }
+        let stamp = self.session.physical_entry_stamp().map_err(|_| {
+            LengthReceiverPhysicalOperandRejectV1::ConditionTarget(
+                ConditionBlockTargetRejectV1::MissingPhysicalEntryStamp,
+            )
+        })?;
+        self.length_receiver_operand_issued = true;
+        let view = LengthReceiverPhysicalOperandRefV1 {
+            owner,
+            binding,
+            read,
+            row,
+            stamp,
+            _receipt: PhantomData,
+        };
+        callback(builder, view).map_err(LengthReceiverPhysicalOperandRejectV1::Callback)
     }
 
     pub(in crate::mir::builder) fn allocate_v2_after_block<'session>(
@@ -386,6 +565,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             after_allocation_state: AfterBlockAllocationStateV1::Available,
             length_call_canary_issued: false,
             length_target_plan_issued: false,
+            length_receiver_operand_issued: false,
         };
         Ok(callback(&mut common))
     })

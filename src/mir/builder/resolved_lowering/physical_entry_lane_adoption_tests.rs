@@ -178,6 +178,121 @@ fn condition_block_target_is_same_session_and_callback_scoped() {
 }
 
 #[test]
+fn length_receiver_operand_is_same_session_and_one_shot() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(999).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let expected_owner = loan.callable().owner();
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let segments = canonical
+                    .allocate_v2_segment_blocks(draft)
+                    .expect("source segment blocks");
+                let expected_binding = match canonical.envelope().condition_operands().rows()[1].kind()
+                {
+                    crate::mir::loop_recipe_contract::PreparedLoopV2ConditionOperandKindV1::LengthCall {
+                        source,
+                    } => source.receiver_binding().expect("local receiver"),
+                    crate::mir::loop_recipe_contract::PreparedLoopV2ConditionOperandKindV1::ReadBinding {
+                        ..
+                    } => panic!("Length row must be a call"),
+                };
+                canonical
+                    .with_length_receiver_operand(draft, &segments, |_, receiver| {
+                        assert_eq!(receiver.owner(), expected_owner);
+                        assert_eq!(receiver.binding(), expected_binding);
+                        assert_eq!(receiver.stamp_owner(), expected_owner);
+                        assert_ne!(receiver.physical_block().as_u32(), u32::MAX);
+                        assert_ne!(receiver.physical_value(), crate::mir::ValueId::INVALID);
+                        Ok(())
+                    })
+                    .expect("same-session Length receiver operand");
+                let second = canonical.with_length_receiver_operand(draft, &segments, |_, _| {
+                    Ok(())
+                });
+                assert!(matches!(
+                    second,
+                    Err(super::common_v2_session::LengthReceiverPhysicalOperandRejectV1::AlreadyIssued)
+                ));
+                Ok(())
+            },
+        )
+        .expect("receiver operand session");
+        assert!(builder.function_state.current_function.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn length_receiver_operand_late_failure_discards_unpublished_session() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(1000).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let segments = canonical
+                    .allocate_v2_segment_blocks(draft)
+                    .expect("source segment blocks");
+                canonical
+                    .with_length_receiver_operand(draft, &segments, |_, _| {
+                        Err::<(), _>("late receiver rejection".to_owned())
+                    })
+                    .map_err(|error| format!("{error:?}"))
+            },
+        );
+        assert!(matches!(
+            rejected,
+            Err(message) if message.contains("late receiver rejection")
+        ));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
 fn condition_block_target_late_failure_discards_unpublished_session() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(998).expect("resolver");
     let package = issue_normal_callable_semantic_package_v1(

@@ -18,18 +18,18 @@ one-shot canary are landed. The source-backed StringLen target-plan BoxShape
 and its caller-zero I0 are landed. The condition-block physical target
 BoxShape and its callback-scoped caller-zero I0 are landed; the receiver
 operand projection BoxShape is accepted and its caller-zero canonical-read I0
-is now the active fast slice. The direct Call/result sibling and parent Bool
-result remain blocked; no physical edge effect is open.
+is landed. The direct Length Call/result sibling is now the design stop and
+the parent Bool result remains blocked; no physical edge effect is open.
 A-prime lifecycle, Direct Text lowering, route, and production remain closed.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0 accepted; the direct Length Call/result sibling and parent Bool result remain blocked."
-work_mode = "fast"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0"
-current_blocker_token = "LengthReceiverPhysicalOperandI0"
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0; receiver operand I0 is landed and the direct Call/result sibling remains blocked."
+work_mode = "design_stop"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0"
+current_blocker_token = "NoSafeSlice::LengthCallDirectEmitterUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -65,10 +65,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, and the callback-scoped physical condition-block target I0 are landed. The receiver-operand D0 is accepted and its canonical-read I0 is active; the direct Length Call/result sibling and parent Bool result remain blocked. Call/result ValueId, CallSlot lowering, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, and the receiver-operand canonical-read I0 are landed. The direct Length Call/result sibling is now the design stop and the parent Bool result remains blocked. Call/result ValueId, CallSlot lowering, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
 next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -83,7 +83,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-17: LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 landed one callback-scoped non-Clone fan-in of the selected resolved input, resolver Loop/outer-If residual, batch-owned typed BlockExpr expectation, common V2 envelope, and borrowed Completion; owner/origin/root/target drift rejects before session effects. Focused admission and duplicate-consumption tests passed; canonical CFG/SSA/PHI session, lifecycle, physical Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: RESOLVED-BLOCK-EXPR-EXPECTATION-I0 landed the typed resolver-owned BlockExpr body-shape variant and one non-Clone expectation issuer. The callable semantic batch row now owns the receipt once after exact source/scope/region coverage; focused resolver/body-shape and batch tests passed. Selected/package transport, canonical session, CFG/SSA/PHI, Completion consumption, physical lowering, fallback, retry, and production callers remain closed.",
   "2026-08-17: CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0 landed the selected/package HRTB borrow of the same batch-owned typed BlockExpr expectation. The focused selected static handoff test passed; no second issuer, raw count, session effect, Completion consumption, physical lowering, fallback, retry, or production caller was added.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0 landed typed RootAfter transport from the same S6C cohort. The relation carries owner, source loop/frame, and RootAfter|ParentResume disposition; current S6C is RootAfter-only, with no After block, edge, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller.",

@@ -92,6 +92,18 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.contract.arguments()
     }
 
+    /// Mechanical projection of the resolver-issued receiver relation.  The
+    /// resolver contract has already proved the accepted S6C call receiver is
+    /// a local BindingRef; this accessor does not issue a new semantic fact.
+    pub(crate) fn receiver_binding(self) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+        match self.contract.receiver() {
+            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) => {
+                Some(binding)
+            }
+            _ => None,
+        }
+    }
+
     pub(crate) const fn recipe_row(self) -> S6CRecipeOperationRowRefV2<'a> {
         self.row
     }

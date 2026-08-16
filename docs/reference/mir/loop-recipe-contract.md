@@ -1783,6 +1783,25 @@ Length-operation-drift tests are green. This I0 does not issue a ValueId or
 physical result and does not open Compare lowering, branch/edge effects,
 CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
 
+## Common V2 Length receiver operand I0 (2026-08-18)
+
+The accepted receiver boundary now has one mechanical source projection and
+one physical issuer. The resolver's exact
+`ResolvedLexicalRefV1::Local(BindingRefV1)` relation is projected through the
+retained Length call row as `LengthReceiverBindingRefV1`; the projection does
+not reissue semantic meaning or infer from a Recipe key. The same canonical
+session then reads that binding at the callback-scoped physical condition
+block through `CanonicalBindingReadReceiptV1` and lends one
+`LengthReceiverPhysicalOperandRefV1`.
+
+Owner, condition block, target/stamp, local-receiver shape, and one-shot
+checks reject before any Call or result effect. The view cannot be repaired
+from a raw `ValueId`, Builder cursor, CallSlot receiver, or legacy emitter, and
+the outer unpublished function transaction remains the only late-discard
+owner. Direct `StringBox.length` Call/result emission, Compare, edges,
+CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
+production remain closed; the next sibling is the direct Call emitter.
+
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 
 The first post-inventory consumer is a one-shot, Builder-neutral
