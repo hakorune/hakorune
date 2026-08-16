@@ -1330,17 +1330,18 @@ Ordered sub-slices (design-only; no session/CFG effect):
      authorities.
   3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` and its I0
      canary are landed; they prove only same-session source/stamp transport.
-  4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0`
-     must first name a source-backed
-     `PreparedLoopV2StringLenCallTargetPlanV1` (target/receiver/zero-args/I64
-     result) and then the one same-session `CanonicalLengthCallMaterializerV1`
-     (that plan -> canonical session Call -> I64 result receipt). Existing
-     Dynamic/legacy CallSlot emitters and CheckedCallOut are not reused.
-  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
+  4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0/I0`
+     must first name and lend the source-backed receiver BindingRef through
+     the canonical read seam; this slice emits no Call or result.
+  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0/I0`
+     then consumes that receiver receipt and issues the one canonical session
+     Call plus I64 result receipt. Existing Dynamic/legacy CallSlot emitters
+     and CheckedCallOut are not reused.
+  6. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
      may be accepted only after the physical Length issuer is closed; it then
      fixes the Bool receipt, outer discard owner, and sole later branch
      consumer.
-  6. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
+  7. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
      may begin only after both BoxShapes are accepted; it is a typed
      materializer/receipt admission canary and still emits no ValueId,
      Compare, edge, or terminator.
@@ -1566,6 +1567,99 @@ The condition-block target must be closed before the Length materializer can
 be admitted. It is deliberately callback-scoped so a segment receipt from a
 different physical session cannot be re-paired by owner or block equality.
 
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Split the Length bridge before opening a Call effect. This first BoxShape
+  issues only one callback-scoped physical receiver operand receipt from the
+  canonical identity/SSA read seam. It consumes the source-backed StringLen
+  receiver relation, the fixed operand inventory, the callback-scoped physical
+  condition-block target, and the retained physical-entry stamp. It emits no
+  Call and no result ValueId.
+
+Source authority + canonical issuer:
+  The resolver CoreMethod callable contract is the source authority for the
+  exact `ResolvedLexicalRefV1::Local(BindingRefV1)` receiver relation. The
+  target plan, operand inventory, condition-block target, and stamp are the
+  already-sealed projections from the same S6C cohort. The canonical session
+  identity/SSA read seam is the sole physical issuer of the existing
+  `CanonicalBindingReadReceiptV1` (or a typed, callback-scoped Length receiver
+  view). No raw ValueId map, second session, or legacy CallSlot path may issue
+  or retain the operand.
+
+Non-authority:
+  Raw LoopValueKey/ValueId, `CoreMethodOp::StringLen` alone, method spelling,
+  the CallSlot row alone, current Builder block/cursor, MIR lookup,
+  `EffectMask` alone, CheckedCallOut, Selected-Dynamic/legacy emitters, a
+  copied condition target, or a second canonical session cannot resolve or
+  retain the receiver operand.
+
+Fail-fast boundary:
+  Missing/foreign receiver BindingRef, owner/target/manifest/stamp drift,
+  condition-block or operand mismatch, unavailable canonical read receipt,
+  wrong binding/type, duplicate issuance, receipt escape, or late failure
+  rejects before any Call or result effect. The outer unpublished-function
+  transaction remains the sole rollback owner; fallback/retry is forbidden.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0`
+  consumes the same-session relation and lends exactly one receiver operand
+  view. Positive, receiver/type/owner drift, duplicate/re-entry, foreign
+  target, callback-escape, and late-discard tests are required. No Call is
+  emitted by this slice.
+
+Non-claims:
+  No Call, I64 result receipt, parent Bool receipt, Compare instruction,
+  `emit_branch`, edge/terminator, CFG/SSA/PHI beyond the existing read,
+  Completion/DraftSeal, lifecycle, Text, route, performance, production
+  caller, fallback, or retry is opened by this BoxShape.
+```
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Admit the Length Call only as a second bounded product. A same-session
+  `CanonicalLengthCallDirectEmitterV1` consumes the prepared target plan,
+  the callback-scoped receiver operand receipt, the fixed operand inventory,
+  the physical condition-block target, and the retained stamp. It emits one
+  direct `StringBox.length` Call and one I64 result receipt, with no parent
+  Bool or edge effect.
+
+Source authority + canonical issuer:
+  The first receiver-operand product remains the only receiver projection
+  authority. The canonical session is the sole direct Call/result issuer and
+  owns the one-shot state, `MirInstruction::Call`, result type publication,
+  and non-Clone result receipt. It mechanically consumes the source target
+  plan and does not re-resolve source meaning. The same outer unpublished
+  function transaction is the sole rollback owner.
+
+Non-authority:
+  Raw ValueId, CallSlot rows, method spelling, current Builder cursor,
+  `EffectMask` alone, MIR lookup, CheckedCallOut, legacy/Selected-Dynamic
+  emitters, a copied receiver target, or a second canonical session cannot
+  insert the Call or re-pair its result.
+
+Fail-fast boundary:
+  Missing/foreign receiver receipt, target/operand/condition-block/stamp
+  drift, non-zero source arity, wrong `StringBox.length` callee/effect,
+  non-I64 result, duplicate/re-entry, receipt escape, or late failure rejects
+  before the Call is published. Fallback/retry is forbidden.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0`
+  emits exactly one canonical Call and one I64 receipt after the receiver
+  operand I0 is landed. Positive, type/owner/target drift, duplicate/re-entry,
+  foreign receipt, and late-discard tests are required.
+
+Non-claims:
+  No parent Bool receipt, Compare instruction, `emit_branch`, edge/terminator,
+  CFG/SSA/PHI beyond the consumed receiver read, Completion/DraftSeal,
+  lifecycle, Text, route, performance, production caller, fallback, or retry
+  is opened by this BoxShape.
+```
+
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` — design stop 2026-08-17
 
 ```text
@@ -1579,13 +1673,12 @@ Source authority + canonical issuer:
   Compare-right relation, retained physical-entry stamp, and the
   callback-scoped condition-block physical target are borrowed from the same
   common-V2 session. The target-plan BoxShape and its caller-zero I0 are
-  landed. The next missing product is a non-Clone
-  `CanonicalLengthCallMaterializerV1` that becomes the sole plan-to-effect
-  bridge: it
-  issues exactly one canonical session `Call` and returns one
-  `CanonicalLengthCallResultReceiptV1` through the session's sole ValueId/type
-  mechanics. The later Bool-result materializer consumes that receipt in the
-  same callback; it never reconstructs a CallSlot or re-pairs operands.
+  landed. The next missing products are deliberately split: first a
+  callback-scoped receiver-operand receipt, then a non-Clone direct Call/result
+  issuer that returns one `CanonicalLengthCallResultReceiptV1` through the
+  session's sole ValueId/type mechanics. The later Bool-result materializer
+  consumes that receipt in the same callback; it never reconstructs a CallSlot
+  or re-pairs operands.
 
 Non-authority:
   `LengthCallMaterializationCanaryV1`, raw `LoopValueKeyV1`, raw `ValueId`,
@@ -1605,12 +1698,10 @@ Fail-fast boundary:
   fallback/retry is forbidden.
 
 Smallest next slice:
-  First land `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0`. Only then
-  may `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-MATERIALIZER-D0`
-  fix the receiver projection, direct canonical Call insertion, one-shot
-  result receipt, and outer rollback boundary. The effectful I0 may emit
-  exactly one canonical Call and one I64 result receipt only after those facts
-  are closed; until then it must not emit ValueId, CallSlot, Compare, edge,
+  First land `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0/I0`.
+  Only then may `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0/I0`
+  insert one canonical Call and one I64 result receipt. Until both products
+  are closed, the parent result must not emit CallSlot, Compare, edge,
   terminator, CFG, or PHI.
 
 Non-claims:
@@ -1638,6 +1729,7 @@ NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
 NoSafeSlice::CanonicalLengthResultIssuerMissing
 NoSafeSlice::CanonicalStringLenTargetRealizationUnsealed
+NoSafeSlice::LengthReceiverPhysicalOperandUnsealed
 NoSafeSlice::CanonicalLengthCallMaterializerUnsealed
 ```
 
@@ -2790,7 +2882,11 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-e-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-I0` | issue and consume the source-backed target plan exactly once in the existing callback | landed 2026-08-17; same-cohort facts, canonical StringBox.length, plan/canary parity, duplicate, missing-stamp, and late-discard gates are green; no canonical Call/result receipt or parent Bool effect |
 | 25b-l-f-D0 | `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-D0` | project the allocated source-segment receipt to the exact physical condition block through the same canonical session | accepted BoxShape 2026-08-17; callback-scoped owner/logical-block/physical-block/stamp view only; no Call, ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-f-I0 | `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0` | allocate source segments once and lend exactly one same-session condition-block target with late-discard and escape negatives | landed 2026-08-17; callback-scoped owner/logical-block/physical-block/stamp projection and late-discard canaries are green; no Length Call/result receipt, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first issue the source-backed StringLen target-realization plan, then name the sole same-session canonical Length Call/result issuer and consumer before the parent Bool result | active NoSafeSlice design stop; the existing canary is protocol-only, target/receiver/args/result realization is not yet sealed, and no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
+| 25b-l-g-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` | fix the same-session source receiver BindingRef → canonical read receipt boundary before any Call effect | active NoSafeSlice design stop; target/operand/condition-block/stamp inputs are closed, while receiver projection, callback scope, and rollback consumer must be fixed before effect |
+| 25b-l-g-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0` | lend exactly one same-session receiver operand receipt with no Call or result emission | not started; no Call/ValueId result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | pending after receiver operand D0/I0; one Call plus one I64 receipt only, with no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | not started; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first close the receiver operand product, then the direct Call/result issuer before the parent Bool result | active NoSafeSlice design stop; the existing canary and target plan are landed, while receiver projection and direct Call/result realization remain unsealed; no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
