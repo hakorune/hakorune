@@ -263,61 +263,70 @@ separate design stop after this cutover.
 
 ## TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0
 
+```text
+Decision: one resolved-session HRTB co-seals a private backend-frame contract; no backend reissue.
+Source authority + canonical issuer: physical-signature loan + active plan/census + Residence capability + ny-llvmc target, issued at complete_before_restore.
+Non-authority: JSON lengths, ValueId/ptr/len/token, receiver/name inference, generic Load/Store, backend-side residence reconstruction.
+Fail-fast boundary: loan escape, owner/stamp/order/root/target drift, forbidden runtime fields, legacy collector, or collector entry before co-seal.
+Smallest next slice: design `PreparedPinnedTextBackendFrameContractInputV1<'loan>` and its one issuer; keep JSON/GEP/load/lifecycle/route/caller closed.
+Non-claims: no direct backend, C-speed, session adoption, production caller, fallback, retry, or top-level physical-signature support.
+```
+
 Decision: keep one compile-time binder as a mechanical projection from the
 package-owned physical-signature occurrence order plus the runtime residence
 frame capability; it may not issue Text meaning, lifetime, or route facts.
 
 Source authority + canonical issuer: the physical-signature cohort owns lane
 roles/order and the runtime `TextFormalCallResidenceV1` owns actual roots and
-finish; a single post-install `PinnedTextBackendFrameContractIssuerV1` may
-co-seal their existing stamps and target-layout capability for the selected
-ny-llvmc Boundary consumer.
+finish; a single `PinnedTextBackendFrameContractIssuerV1` at
+`PendingFunctionSessionCloseV1::complete_before_restore` may co-seal their
+existing stamps and target-layout capability for the selected ny-llvmc
+Boundary consumer. The issuer receives the same scoped resolved-session HRTB
+loan and is not a backend-side reissuer.
 
-Current bridge census: the physical row is available through the installed
-package/Port (`S6CInstalledCallableLoanRefV1::signature()`), while the active
-`MirFunction` owns `metadata.pinned_text_access_plans`; the runtime Residence
-owner is separate. No current path co-seals these three with the target
-capability. The named issuer is therefore a successor design seam, not an
-existing callable or a permission to reconstruct identity from a batch slot,
-function name, JSON length, or `ValueId`.
+Current bridge census: the selected-normal resolved-session handoff is now
+landed. The package Port lends the selected input and a non-Clone,
+same-cohort `ResolvedCallablePhysicalSignatureLoanV1<'loan>` in one HRTB;
+`complete_resolved_child_with_physical_loan<'loan>` keeps that loan scoped
+through the canonical draft close. The active `MirFunction` owns
+`metadata.pinned_text_access_plans`, while the runtime Residence owner is
+separate. The remaining gap is that the completion path currently validates
+the sibling loan and then drops it before a plan/census, Residence capability,
+and target capability are co-sealed. The named issuer is therefore a
+successor design seam, not an existing callable or a permission to reconstruct
+identity from a batch slot, function name, JSON length, or `ValueId`.
 
-The existing lowering order makes the missing seam concrete, but the
-selected-normal route is not yet the canonical resolved route:
+The existing lowering order makes the missing seam concrete:
 
 ```text
 NormalCallableSemanticPackagePortAdapterV1
-  -> lower_cataloged_static_box_method / lower_cataloged_instance_box_method
-RawInvocationChildPortV1
-  -> lower_normal_*_with_source_v1
-capture_*_pending_v1
-  -> CanonicalFunctionLoweringSessionV1
-  -> PreparedFunctionSessionCommitInputV1
+  -> selected resolved admission/session
+complete_resolved_child_with_physical_loan<'loan>
+  -> PendingFunctionSessionCloseV1::complete_before_restore
+  -> CanonicalRejectDuplicate collector
   -> MirFunction metadata / JSON
+
+Legacy pending/collector paths remain compatibility-only and are not binder
+issuers or physical-signature consumers.
 ```
 
-For the selected static/instance cataloged methods, the concrete calls are
-currently `capture_static_box_method_pending_v1` or
-`capture_normalized_instance_box_method_pending_v1`; both delegate to
-`capture_legacy_function_pending_session_v1` and then
-`commit_normal_cataloged_box_method_pending`/`commit_legacy_symbol_pending`.
-The inner session type is canonical in name, but the admission and collector
-path are still `LegacyChildDraftAdmissionV1` and the legacy symbol collector;
-they do not carry the installed physical-signature row or a resolved owner.
-The binder must therefore not be attached to this legacy pending tuple, and a
-legacy collector commit cannot be treated as the function-owned co-seal.
-The existing `ResolvedChildDraftAdmissionV1`, `capture_resolved_pending`,
-`complete_resolved_child`, and `commit_resolved_pending` are the disconnected
-successor seams to audit first. Top-level rows remain explicitly unsupported
-until a source-backed physical-signature row is named; they are not silently
-folded into the cataloged method path.
+The selected static/instance methods now enter through
+`ResolvedChildDraftAdmissionV1` and the resolved completion seam; the
+identity-only admission remains the canonical owner identity, while the
+physical-signature sibling stays scoped to the completion closure. The old
+`capture_legacy_function_pending_session_v1`/
+`commit_legacy_symbol_pending` path is not a binder issuer and cannot be
+treated as the function-owned co-seal. Top-level rows remain explicitly
+unsupported until a source-backed physical-signature row is named; they are
+not silently folded into the selected method path.
 
-Only the S6C callback currently exposes a physical-signature row, and that
-loan is profile-specific. Ordinary selected methods reach the function
-session without any signature row, so the binder cannot silently treat the
-S6C loan, a physical header, or a function `ValueId` list as a universal
-signature. The successor design must choose one combined package Port loan or
-an equivalent function-entry handoff that covers every admitted method shape,
-or explicitly keep unsupported shapes at `RejectBeforeEffect`.
+Selected StaticBoxMethod and InstanceBoxMethod rows now expose the same-cohort
+physical-signature sibling through the resolved handoff. The S6C-specific loan,
+a physical header, or a function `ValueId` list still cannot be treated as a
+universal signature. The binder issuer must consume the resolved sibling plus
+the active plan/census and target capability in one synchronous closure; Main,
+TopLevel, and any unsupported shape remain `RejectBeforeEffect` until their
+source-backed row is named.
 
 The count/order projection is fixed, not inferred from a symbol or JSON length:
 `source_logical_arity` counts explicit source formals;
@@ -344,78 +353,55 @@ duplicate root rows, mixed ABI revision/target data-layout, pointer-width or
 frame-size mismatch, detached residence/token, and any attempt to serialize
 the private frame through MIR JSON or expose raw pointers to common MIR.
 
-Live blocker: no existing path co-seals
-`InstalledNormalCallableSemanticPackageV1`'s physical-signature row,
+Live blocker: the resolved handoff now supplies the installed
+`ResolvedCallablePhysicalSignatureLoanV1<'loan>`, but no existing path keeps
+that loan alive while co-sealing
 `MirFunction::metadata.pinned_text_access_plans`, the runtime Residence frame
 capability, and the selected ny-llvmc target capability. The typed JSON
-descriptor remains unissuable until one canonical lowering/session handoff
-names that issuer and validates owner/stamp/order without re-deriving source
-identity. A JSON residence table, numeric-token lookup, out-of-band sidecar,
-or backend-side reissue is not an acceptable handoff.
+descriptor remains unissuable until
+`PinnedTextBackendFrameContractIssuerV1` names that single closure and
+validates owner/stamp/order without re-deriving source identity. A JSON
+residence table, numeric-token lookup, out-of-band sidecar, or backend-side
+reissue is not an acceptable handoff.
 
-Smallest next slice: design the single package-to-function bridge at the
-canonical lowering/session handoff. It must consume the installed signature
-loan, the active stamped plan/census, and one target capability, then issue a
-private non-pointer contract for the sole ny-llvmc consumer. Do not publish
-JSON metadata or open GEP/load, lifecycle CFG, session values, route
-admission, production caller, fallback, or retry until that co-seal is closed.
+Smallest next slice: design the single package-to-function bridge at
+`PendingFunctionSessionCloseV1::complete_before_restore`. Within the existing
+HRTB it must consume the resolved installed-signature loan, the active
+stamped plan/census, the Residence-owned frame capability, and one target
+capability through a private
+`PreparedPinnedTextBackendFrameContractInputV1<'loan>`, then issue one
+non-pointer `PinnedTextBackendFrameContractV1` for the sole ny-llvmc
+consumer. The loan must not escape and the collector must not be reached
+before the co-seal. Do not publish JSON metadata or open GEP/load, lifecycle
+CFG, session values, route admission, production caller, fallback, or retry
+until that co-seal is closed.
 
 ### Successor taskization (design stop; no implementation permission yet)
 
-The next bounded design slice has five ordered seams; it is not yet an I0.
-The first seam is a resolved-session cutover design, not a binder
-implementation:
+The next bounded design slice has four ordered seams; it is not yet an I0.
 
-```text
-Decision: selected static/instance rows may enter the resolved session only through one same-cohort HRTB sibling loan; this is a BoxShape candidate, not an I0.
-Source authority + canonical issuer: package physical-signature issuer plus the package Port's scoped signature callback; resolved admission remains the canonical owner identity.
-Non-authority: legacy pending/collector, symbol/arity, function name, batch slot, JSON length, ValueId, and any admission-carried signature copy.
-Fail-fast boundary: missing/foreign row, owner or receiver/formal drift, detached loan, legacy path, target/plan census mismatch, or loan escape rejects before canonical collection.
-Smallest next slice: design `with_selected_cataloged_lowering_input_and_signature` plus `complete_resolved_child_with_physical_loan<'loan>` with synchronous co-seal before `CanonicalRejectDuplicate`.
-Non-claims: no JSON publication, GEP/load, lifecycle/session execution, route admission, production caller, fallback, retry, or top-level physical-signature support.
-```
-
-1. **Resolved-session handoff:** design one selected-normal transition from
-   the package Port adapter through identity-only
-   `ResolvedChildDraftAdmissionV1` into
-   `capture_resolved_pending`/`complete_resolved_child`, while the same scoped
-   HRTB closure lends a sibling
-   `ResolvedCallablePhysicalSignatureLoanV1<'loan>`. The package-side seam is
-   design-only `with_selected_cataloged_lowering_input_and_signature`; the
-   module-side seam is design-only
-   `complete_resolved_child_with_physical_loan<'loan>`, which receives the
-   loan only as a synchronous completion-closure argument. The admission
-   remains the canonical owner identity; the physical-signature loan is not
-   stored in the admission, module port, collector, or legacy pending tuple.
-   The loan must remain scoped until the draft's plan/census and target
-   capability are co-sealed before
-   `PendingFunctionSessionCloseV1::complete_before_restore` reaches the
-   canonical `CanonicalRejectDuplicate` collector. The transition must cover
-   the admitted static/instance method rows with one same-cohort loan;
-   unsupported top-level rows stay `RejectBeforeEffect`. Do not attach the
-   binder to `LegacyFunctionPendingSessionV1` or `commit_legacy_symbol_pending`.
-2. **Bridge issuer after cutover:** name one canonical handoff at the
-   resolved function/session boundary. It must consume the installed
-   physical-signature loan (or a same-cohort all-method successor), the active
-   function's stamped plan/census, `TextFormalCallResidenceV1`, and one
-   target-layout capability through a private
-   `PreparedPinnedTextBackendFrameContractInputV1<'loan>`. It must not infer
+1. **Bridge issuer:** name one canonical handoff at
+   `PendingFunctionSessionCloseV1::complete_before_restore`. It consumes the
+   resolved installed-signature loan, the active stamped plan/census,
+   `TextFormalCallResidenceV1`, and one target-layout capability through a
+   private `PreparedPinnedTextBackendFrameContractInputV1<'loan>`. The loan
+   stays in the same HRTB and cannot be stored or returned. It must not infer
    package identity from a function name, `ValueId`, JSON length, or batch
-   slot, and it must not make `ResolvedChildDraftAdmissionV1` a second
-   signature authority.
-3. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
+   slot, and `ResolvedChildDraftAdmissionV1` remains identity-only.
+2. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
    owner, stamp, receiver/formal order, root coverage, and target revision are
    proven. No runtime residence rows, pointer, length, token, slot/generation
    value, or `ValueId` may enter the product.
-4. **Transport choice:** after (1)–(3), use the typed
+3. **Transport choice:** after (1)–(2), use the typed
    `pinned_text_backend_frame_contract_v1` JSON projection and a strict
    ny-llvmc scoped consumer. Until then, JSON publication is rejected rather
    than emitted as a partial descriptor. `llvm_py`, VM, native, and future Hako
    LLVM-text remain non-consumers.
-5. **Evidence:** only after the issuer exists, cover mixed scalar/ExactText
+4. **Evidence:** only after the issuer exists, cover mixed scalar/ExactText
    lanes, instance receiver prefix, aliasing caller occurrences versus distinct
    callee lanes, missing/duplicate rows, stamp/target/layout drift, unknown
-   fields, and all forbidden runtime fields.
+   fields, and all forbidden runtime fields. A typed JSON descriptor is
+   transport evidence, not a second authority.
 
 Completion of this design slice still does not authorize JSON publication,
 GEP/load, lifecycle CFG, Canonical session adoption, route selection, a
