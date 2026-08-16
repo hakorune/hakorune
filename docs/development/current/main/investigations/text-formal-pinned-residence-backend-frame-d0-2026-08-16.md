@@ -376,6 +376,26 @@ before the co-seal. Do not publish JSON metadata or open GEP/load, lifecycle
 CFG, session values, route admission, production caller, fallback, or retry
 until that co-seal is closed.
 
+### Target-capability subdecision (design stop)
+
+The worker census confirms that the current tree has no source-backed
+target/data-layout/frame capability that can be consumed by this issuer.
+`NumericTarget::host()`, JSON arity/length, `FunctionSignature`, pointer-width
+defaults, and the runtime Residence frame header are not target-layout
+authority. The next design seam must name a target-bound capability issuer at
+the ny-llvmc compile-invocation boundary. Its source must be the accepted
+target triple/data-layout/address-space/ABI configuration for that invocation;
+the backend binder may only consume its scoped view.
+
+The capability must co-seal pointer width/alignment, address space, frame
+revision, header/root-row sizes, maximum root count/frame size, and the
+selected consumer revision. Missing, host-inferred, foreign, or drifted
+capability is `RejectBeforeEffect`; it is not filled from JSON or a default
+target. Until this issuer is named and its input is available inside the
+existing HRTB, the binder contract and typed JSON descriptor remain
+unissuable. No GEP/load, lifecycle CFG, session adoption, route, or
+production caller is opened by this subdecision.
+
 ### Successor taskization (design stop; no implementation permission yet)
 
 The next bounded design slice has four ordered seams; it is not yet an I0.
@@ -387,7 +407,9 @@ The next bounded design slice has four ordered seams; it is not yet an I0.
    private `PreparedPinnedTextBackendFrameContractInputV1<'loan>`. The loan
    stays in the same HRTB and cannot be stored or returned. It must not infer
    package identity from a function name, `ValueId`, JSON length, or batch
-   slot, and `ResolvedChildDraftAdmissionV1` remains identity-only.
+   slot, and `ResolvedChildDraftAdmissionV1` remains identity-only. The
+   target capability must come from the ny-llvmc compile-invocation owner;
+   `NumericTarget::host()` and JSON metadata are not substitutes.
 2. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
    owner, stamp, receiver/formal order, root coverage, and target revision are
    proven. No runtime residence rows, pointer, length, token, slot/generation
