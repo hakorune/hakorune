@@ -21,6 +21,23 @@ layout, derive a residence frame, materialize pointers, or open lifecycle/MIR
 Text lowering. Those remain the bounded Residence backend-frame rows recorded
 in the current investigation card.
 
+### Pinned Text backend-frame Binder I0
+
+The selected-normal close now co-seals one unpublished
+`PinnedTextBackendFrameContractV1` from four scoped inputs: complete physical
+callable lanes, the Residence-owned `ResidenceAbiLayoutV1`, the stamped
+`PinnedTextAccessPlanTableV1` census, and the mandatory compile-invocation
+target capability. The contract records only checked counts, revisions,
+derived frame bounds, and invocation/owner stamps; it contains no `ValueId`,
+runtime token, pointer, JSON-owned meaning, or host-layout observation.
+
+This is the current Binder I0 task boundary. The next bounded cell is a strict
+versioned transport projection for the existing pure-first ny-llvmc consumer:
+all required fields must be present, no defaults or host inference are
+allowed, and the consumer may only compare the descriptor with its actual
+LLVM target/data layout. GEP/load, lifecycle CFG, session residence adoption,
+route selection, fallback/retry, and production callers remain closed.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

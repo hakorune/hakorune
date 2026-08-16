@@ -83,6 +83,26 @@ limits.
    remains a separate sub-760-line owner; it may compare actual LLVM layout but
    may not reissue the contract.
 
+## Next bounded implementation cell
+
+`BINDER-I0-TRANSPORT-STRICT` is the only next cell in this card:
+
+```text
+MirFunction unpublished contract
+  -> versioned JSON descriptor (required fields, no defaults)
+  -> existing pure-first ny-llvmc parser
+  -> actual LLVM triple/data-layout comparison
+  -> reject before IR effect on any mismatch
+```
+
+The descriptor is a projection of the Rust-owned contract, not a second
+authority. The C consumer may issue only a private realization-validation
+receipt; it may not reconstruct lane/root counts, derive a frame size from
+JSON lengths, probe the host, or replace the Rust contract. Keep the cell
+caller-zero and transport-only: no GEP/load, pointer materialization,
+lifecycle terminator, session adoption, TextEq route, fallback/retry, or
+production caller is part of this task.
+
 ## Acceptance matrix
 
 ```text
