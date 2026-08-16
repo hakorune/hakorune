@@ -138,5 +138,5 @@ with tempfile.TemporaryDirectory(prefix="hako-pinned-text-frame-") as directory:
     if rc == 0 or "target layout mismatch" not in message:
         raise SystemExit(f"missing target capability was not rejected: {message}")
 
-print("[pinned-text-backend-frame-transport-smoke] ok (strict projection accepted; drift/unknown/missing rejected)")
+print("[pinned-text-backend-frame-transport-smoke] ok (strict projection + C API TargetMachine preflight accepted; drift/unknown/missing rejected)")
 PY

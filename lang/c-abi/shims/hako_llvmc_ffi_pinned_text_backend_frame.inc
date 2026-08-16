@@ -5,6 +5,9 @@
  * the currently selected pure-first target row, not a producer authority.
  */
 #include <limits.h>
+#if !defined(_WIN32)
+#include <dlfcn.h>
+#endif
 
 #ifndef HAKO_LLVM_C_PTFB_CONTRACT_INC
 #define HAKO_LLVM_C_PTFB_CONTRACT_INC
@@ -73,6 +76,160 @@ static int hako_llvmc_ptfb_bool(
   return value && yyjson_is_bool(value) && (yyjson_get_bool(value) ? 1 : 0) == expected;
 }
 
+/*
+ * The Rust contract owns the expected profile.  This helper only observes
+ * the selected LLVM TargetMachine and returns a private realization check;
+ * it never issues or rewrites the contract.  It runs before the pure-first
+ * lowering walk, so a missing library, unsupported triple, or realized layout
+ * drift cannot reach IR effect.
+ */
+static int hako_llvmc_ptfb_validate_target_machine_realization(
+    const char* expected_triple,
+    const char* expected_layout,
+    char** err_out) {
+#if defined(_WIN32)
+  (void)expected_triple;
+  (void)expected_layout;
+  return set_err_owned(
+      err_out,
+      "pinned Text backend-frame TargetMachine query unavailable");
+#else
+  typedef void (*ptfb_init_fn)(void);
+  typedef void (*ptfb_dispose_message_fn)(char*);
+  typedef int (*ptfb_get_target_from_triple_fn)(const char*, void**, char**);
+  typedef void* (*ptfb_create_target_machine_fn)(
+      void*, const char*, const char*, const char*, int, int, int);
+  typedef char* (*ptfb_get_target_machine_triple_fn)(void*);
+  typedef void* (*ptfb_create_target_data_layout_fn)(void*);
+  typedef char* (*ptfb_copy_target_data_layout_fn)(void*);
+  typedef void (*ptfb_dispose_target_data_fn)(void*);
+  typedef void (*ptfb_dispose_target_machine_fn)(void*);
+  static const char* const candidates[] = {
+      "libLLVM-20.so",
+      "libLLVM-18.so",
+      "libLLVM.so.18",
+      "libLLVM-17.so",
+      "libLLVM.so",
+      NULL};
+  void* handle = NULL;
+  void* target = NULL;
+  void* machine = NULL;
+  void* target_data = NULL;
+  char* diagnostic = NULL;
+  char* actual_triple = NULL;
+  char* actual_layout = NULL;
+  int result = -1;
+  ptfb_dispose_message_fn dispose_message;
+  ptfb_get_target_from_triple_fn get_target_from_triple;
+  ptfb_create_target_machine_fn create_target_machine;
+  ptfb_get_target_machine_triple_fn get_target_machine_triple;
+  ptfb_create_target_data_layout_fn create_target_data_layout;
+  ptfb_copy_target_data_layout_fn copy_target_data_layout;
+  ptfb_dispose_target_data_fn dispose_target_data;
+  ptfb_dispose_target_machine_fn dispose_target_machine;
+  ptfb_init_fn initialize_target_info;
+  ptfb_init_fn initialize_target;
+  ptfb_init_fn initialize_target_mc;
+  ptfb_init_fn initialize_asm_printer;
+
+  if (!expected_triple || !expected_layout) {
+    return set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine expectation missing");
+  }
+  for (size_t i = 0; candidates[i]; i++) {
+    handle = dlopen(candidates[i], RTLD_LAZY | RTLD_LOCAL);
+    if (handle) break;
+  }
+  if (!handle) {
+    return set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine query unavailable");
+  }
+
+#define HAKO_PTFB_DLSYM(name, type) ((type)dlsym(handle, name))
+  dispose_message = HAKO_PTFB_DLSYM("LLVMDisposeMessage", ptfb_dispose_message_fn);
+  get_target_from_triple = HAKO_PTFB_DLSYM(
+      "LLVMGetTargetFromTriple", ptfb_get_target_from_triple_fn);
+  create_target_machine = HAKO_PTFB_DLSYM(
+      "LLVMCreateTargetMachine", ptfb_create_target_machine_fn);
+  get_target_machine_triple = HAKO_PTFB_DLSYM(
+      "LLVMGetTargetMachineTriple", ptfb_get_target_machine_triple_fn);
+  create_target_data_layout = HAKO_PTFB_DLSYM(
+      "LLVMCreateTargetDataLayout", ptfb_create_target_data_layout_fn);
+  copy_target_data_layout = HAKO_PTFB_DLSYM(
+      "LLVMCopyStringRepOfTargetData", ptfb_copy_target_data_layout_fn);
+  dispose_target_data = HAKO_PTFB_DLSYM(
+      "LLVMDisposeTargetData", ptfb_dispose_target_data_fn);
+  dispose_target_machine = HAKO_PTFB_DLSYM(
+      "LLVMDisposeTargetMachine", ptfb_dispose_target_machine_fn);
+  initialize_target_info = HAKO_PTFB_DLSYM(
+      "LLVMInitializeX86TargetInfo", ptfb_init_fn);
+  initialize_target = HAKO_PTFB_DLSYM("LLVMInitializeX86Target", ptfb_init_fn);
+  initialize_target_mc = HAKO_PTFB_DLSYM("LLVMInitializeX86TargetMC", ptfb_init_fn);
+  initialize_asm_printer = HAKO_PTFB_DLSYM(
+      "LLVMInitializeX86AsmPrinter", ptfb_init_fn);
+#undef HAKO_PTFB_DLSYM
+
+  if (!dispose_message || !get_target_from_triple || !create_target_machine ||
+      !get_target_machine_triple || !create_target_data_layout ||
+      !copy_target_data_layout || !dispose_target_data ||
+      !dispose_target_machine || !initialize_target_info || !initialize_target ||
+      !initialize_target_mc || !initialize_asm_printer) {
+    set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine query unavailable");
+    goto cleanup;
+  }
+  initialize_target_info();
+  initialize_target();
+  initialize_target_mc();
+  initialize_asm_printer();
+
+  if (get_target_from_triple(expected_triple, &target, &diagnostic) != 0 || !target) {
+    if (diagnostic) dispose_message(diagnostic);
+    diagnostic = NULL;
+    set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine rejected triple");
+    goto cleanup;
+  }
+  if (diagnostic) {
+    dispose_message(diagnostic);
+    diagnostic = NULL;
+  }
+  machine = create_target_machine(
+      target, expected_triple, "", "", 0, /*Reloc*/ 0, /*CodeModel*/ 0);
+  if (!machine) {
+    set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine creation failed");
+    goto cleanup;
+  }
+  target_data = create_target_data_layout(machine);
+  actual_triple = get_target_machine_triple(machine);
+  actual_layout = target_data ? copy_target_data_layout(target_data) : NULL;
+  if (!actual_triple || !actual_layout ||
+      strcmp(actual_triple, expected_triple) != 0 ||
+      strcmp(actual_layout, expected_layout) != 0) {
+    set_err_owned(
+        err_out,
+        "pinned Text backend-frame TargetMachine layout mismatch");
+    goto cleanup;
+  }
+  result = 0;
+
+cleanup:
+  if (diagnostic && dispose_message) dispose_message(diagnostic);
+  if (actual_triple && dispose_message) dispose_message(actual_triple);
+  if (actual_layout && dispose_message) dispose_message(actual_layout);
+  if (target_data && dispose_target_data) dispose_target_data(target_data);
+  if (machine && dispose_target_machine) dispose_target_machine(machine);
+  dlclose(handle);
+  return result;
+#endif
+}
+
 static int hako_llvmc_ptfb_validate_contract(
     yyjson_val* contract,
     char** err_out) {
@@ -95,6 +252,8 @@ static int hako_llvmc_ptfb_validate_contract(
   yyjson_val* owner;
   yyjson_val* residence;
   yyjson_val* target;
+  const char* target_triple = NULL;
+  const char* target_layout = NULL;
   long long compilation_brand = 0;
   long long invocation = 0;
   long long receiver = 0;
@@ -191,6 +350,12 @@ static int hako_llvmc_ptfb_validate_contract(
       target_max_roots != HAKO_PTFB_MAX_ROOTS ||
       target_max_bytes != HAKO_PTFB_MAX_FRAME_BYTES) {
     return set_err_owned(err_out, "pinned Text backend-frame target layout mismatch");
+  }
+  target_triple = yyjson_get_str(yyjson_obj_get(target, "triple"));
+  target_layout = yyjson_get_str(yyjson_obj_get(target, "data_layout"));
+  if (hako_llvmc_ptfb_validate_target_machine_realization(
+          target_triple, target_layout, err_out) != 0) {
+    return -1;
   }
   return 0;
 }

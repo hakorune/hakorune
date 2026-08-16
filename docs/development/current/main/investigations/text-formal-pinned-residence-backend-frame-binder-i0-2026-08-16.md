@@ -1,5 +1,5 @@
 ---
-Status: active implementation row; Rust contract and strict profile transport landed, LLVM realization still closed
+Status: partial implementation row; strict transport and C API preflight landed, emitter parity remains a design stop
 Date: 2026-08-16
 Work mode: fast
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0
@@ -47,8 +47,9 @@ unpublished MirFunction metadata retains the private contract summary
 ```
 
 Focused evidence: the explicit Residence ABI layout test, physical-signature
-lane tests (2/2), target-capability tests (3/3), and the normal package suite
-(19/19) are green. This does not open the strict transport consumer.
+lane tests (2/2), target-capability tests (3/3), normal package suite (19/19),
+Rust transport projection test, and C transport/TargetMachine smoke are green.
+The external opt/llc emitter parity is still closed by the separate D0 below.
 
 ## Required contract fields
 
@@ -85,13 +86,16 @@ limits.
 
 ## Next bounded implementation cell
 
-`BINDER-I0-TRANSPORT-STRICT` is landed as a transport-only cell.  The
-reusable smoke proves the exact projection reaches the existing pure-first
-consumer and that drift/unknown/missing fields reject before generic lowering.
-It does not yet query the active LLVM `TargetMachine`/data layout.  The next
-bounded cell is:
+`BINDER-I0-TRANSPORT-STRICT` and the C API realization preflight are landed.
+The reusable smoke proves the exact projection reaches the existing pure-first
+consumer, that the selected LLVM `TargetMachine` produces the expected triple
+and data-layout string, and that drift/unknown/missing fields reject before
+generic lowering.  This is not yet a full backend realization claim because
+the normal object path may still finish through external `opt`/`llc`.
 
-`BINDER-I0-TARGETMACHINE-LAYOUT`:
+The next bounded design cell is:
+
+`TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-EMITTER-TARGET-PARITY-D0`:
 
 ```text
 MirFunction unpublished contract
@@ -102,12 +106,12 @@ MirFunction unpublished contract
 ```
 
 The descriptor is a projection of the Rust-owned contract, not a second
-authority. The current C consumer validates the selected profile row strictly;
-it may issue only a private realization-validation receipt after a future
-TargetMachine/data-layout query. It may not reconstruct lane/root counts,
-derive a frame size from JSON lengths, probe the host, or replace the Rust
-contract. Keep both cells caller-zero and transport-only: no GEP/load, pointer
-materialization, lifecycle terminator, session adoption, TextEq route,
+authority. The C consumer now issues only a private C API realization check;
+it may not reconstruct lane/root counts, derive a frame size from JSON
+lengths, probe the host, or replace the Rust contract. The parity D0 must
+choose one active object emitter/target observation owner before the Binder I0
+can close. Keep both cells caller-zero and transport-only: no GEP/load,
+pointer materialization, lifecycle terminator, session adoption, TextEq route,
 fallback/retry, or production caller is part of either task.
 
 ## Acceptance matrix
@@ -122,10 +126,10 @@ negative: missing/foreign target, ABI/lane/plan stamp drift, receiver/root
 ```
 
 The focused gate must prove contract identity and exact census. It must not
-claim direct loads, pointer validity, actual LLVM layout realization,
-lifecycle or production execution. The transport smoke is a required reusable
-gate for the landed strict projection; the TargetMachine cell adds its own
-positive/negative layout evidence before the blocker can move.
+claim direct loads, pointer validity, emitter-wide target parity, lifecycle or
+production execution. The transport smoke is a required reusable gate for the
+landed strict projection and C API preflight; the parity D0 adds the
+positive/negative evidence needed before the Binder row can close.
 
 Reusable transport gate:
 
@@ -146,8 +150,8 @@ NoSafeSlice::PinnedTextBackendFrameTransportReconstructed
 NoSafeSlice::PinnedTextBackendFrameDirectLoweringMixed
   if GEP/load, Text execution, lifecycle CFG, or route selection enters this I0.
 
-NoSafeSlice::PinnedTextBackendFrameTargetMachineLayoutUnimplemented
-  while the pure-first consumer checks only the selected profile constants and
-  has not compared the descriptor with the active LLVM TargetMachine/data
-  layout.
+NoSafeSlice::PinnedTextBackendFrameEmitterTargetParityUnsealed
+  while the C API TargetMachine preflight and the normal external opt/llc
+  object path do not share one explicit target-realization owner and parity
+  receipt.
 ```

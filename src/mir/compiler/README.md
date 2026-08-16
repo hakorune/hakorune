@@ -32,12 +32,11 @@ derived frame bounds, and invocation/owner stamps; it contains no `ValueId`,
 runtime token, pointer, JSON-owned meaning, or host-layout observation.
 
 This is the current Binder I0 task boundary. The strict versioned transport
-projection and profile-schema consumer are now landed: all required fields are
-present, no defaults or host inference are allowed, and the reusable transport
-smoke rejects layout drift, unknown fields, and missing target data before
-generic lowering. The next bounded cell is the actual LLVM
-TargetMachine/data-layout comparison; the current consumer does not claim that
-realization yet. GEP/load, lifecycle CFG, session residence adoption, route
+projection and profile-schema consumer are landed, and the C API preflight now
+observes the selected LLVM TargetMachine triple/data-layout before generic
+lowering. The Binder is not closed yet: the normal pure-first object path may
+finish through external `opt`/`llc`, so emitter target parity is the next
+design-owned D0. GEP/load, lifecycle CFG, session residence adoption, route
 selection, fallback/retry, and production callers remain closed.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
