@@ -705,3 +705,20 @@ actual-origin, expose common-MIR `ValueId`s, emit lifecycle CFG, or connect a
 Text leaf/backend/production caller. The next design row is
 `LOOP-TEXT-SLICE-EXECUTION-D0`; the later Residence cutover seams remain
 explicitly parked until a production call edge exists.
+
+## Next design stop: LOOP-TEXT-SLICE-EXECUTION-D0 (2026-08-16)
+
+```text
+Decision: accept only a target-neutral code-point cursor/access BoxShape: one residence-branded root and one verified access-plan ID feed a single `PinnedTextOp` MIR family with exactly three leaves (`ByteLen`, `Utf8WidthAt`, `Utf8ScalarSliceEqWholeText`); existing integer/compare/branch/PHI/placement owners remain unchanged.
+Source authority + canonical issuer: the language Text/UTF-8 equality law plus retained S6C Facts/Recipe and the StableText residence root table issue a `VerifiedSequentialCodePointCursorPlanV1` and function-local `PinnedTextAccessPlanIdV1`; the selected `ny-llvmc(boundary pure-first)` backend later consumes the plan mechanically.
+Non-authority: raw `ptr,len`, generic `Load/Store`, FastMem `MemOp`, `StringSpan`, `StringViewBox`, helper names, nearby comparisons, `ValueId` shape, environment toggles, benchmarks, runtime lookup, fallback, and retry.
+Fail-fast boundary: reject missing residence/root, unproven UTF-8 boundary or CP-index equivalence, missing/duplicate/orphan plan census, access after finish, generic pointer exposure, any loop call/lock/allocation/publication, unsupported backend, or semantic/lifetime inference by the decoder.
+Smallest next slice: `LOOP-TEXT-SLICE-EXECUTION-I0` implements the private plan table, one-to-one instruction census, fixed `READ` effects, and typed MIR/JSON transport only; direct AOT loads and production route admission remain later.
+Non-claims: no generic TextSlice MIR value, whole-loop opcode, direct GEP/load consumer, SIMD/memcmp, TextEq route selection, performance keeper, common V2/session fan-in, production caller, fallback, or main integration.
+```
+
+This Decision keeps the fast path small: lifecycle remains the Residence
+owner, CFG/SSA/PHI remains Canonical MIR, and the three leaves are verified
+physical accesses rather than a second Text physicalizer. The later direct
+backend row must prove that the loop has zero runtime calls, locks,
+allocations, handle births, publication, retain/release, and environment reads.
