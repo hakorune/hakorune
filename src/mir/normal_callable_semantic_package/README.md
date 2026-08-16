@@ -155,6 +155,21 @@ seam. The port still consumes the selected Main-child key exactly once and
 does not open Builder/session, lifecycle, Text residence, route, fallback, or
 production publication.
 
+The selected lowering view also lends the batch-owned
+`VerifiedResolvedBlockExpressionExpectationV1` from that same callable row.
+This is a scoped transport accessor only: the package does not clone, reissue,
+recount, or expose a raw `usize`; a missing batch row is terminal. The receipt
+can therefore reach the later common admission without opening a session,
+Completion consumption, CFG/SSA/PHI, physical lowering, fallback, or retry.
+
+## Typed BlockExpr transport I0 receipt (2026-08-17)
+
+`SelectedCallableLoweringInputRefV1::block_expr_expectation` now borrows the
+resolver-issued expectation through the existing package HRTB. A selected
+static method containing a BlockExpr is covered by the focused handoff test;
+the input and its physical-signature sibling remain the only callback-scoped
+views. No second source issuer or package-owned semantic count was added.
+
 ## Anchor/package audit reconciliation (2026-08-10)
 
 The selected-mapping boundary is closed and must not be reopened as a second

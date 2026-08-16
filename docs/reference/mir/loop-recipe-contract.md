@@ -1631,3 +1631,8 @@ AST/MIR rescan, or session counter is not an authority. This I0 is source-only:
 selected/package transport, canonical session construction, CFG/SSA/PHI,
 Completion consumption, physical lowering, fallback, retry, and production
 caller remain unopened.
+
+The follow-up transport row lends that receipt through the existing selected
+callable/package HRTB. It is a borrow of the batch owner, not a second issuer;
+the next canonical-session admission must consume the scoped view without
+recounting BlockExpr sites or reopening resolver traversal.

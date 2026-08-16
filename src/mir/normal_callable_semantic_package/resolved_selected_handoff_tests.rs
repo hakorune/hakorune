@@ -37,7 +37,7 @@ fn selected_static_and_instance_rows_lend_one_signature_sibling() {
         final_source(
             r#"
 static box StaticApi {
-  run(source: StringBox, needle: StringBox) { return 0 }
+  run(source: StringBox, needle: StringBox) { return { 0 } }
 }
 box InstanceApi {
   run(source: StringBox) { return 0 }
@@ -62,6 +62,7 @@ box InstanceApi {
         |input, signature| {
             input.with_selected_and_admission(|selected, admitted| {
                 assert_eq!(selected.source().owner(), signature.owner());
+                assert_eq!(selected.block_expr_expectation().pair_count(), 1);
                 assert_eq!(
                     admitted.source_key().arity(),
                     signature.source_logical_arity()

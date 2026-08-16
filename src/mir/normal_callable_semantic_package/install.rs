@@ -12,7 +12,7 @@ use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::BindingRefV1;
+use crate::mir::resolved_semantics::{BindingRefV1, VerifiedResolvedBlockExpressionExpectationV1};
 use crate::parser::CallableMethodSourceObservationV1;
 
 use super::model::{
@@ -65,6 +65,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     source: ResolvedFunctionLoweringInputV1<'loan>,
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
+    block_expr_expectation: &'loan VerifiedResolvedBlockExpressionExpectationV1,
     physical_header: Option<CallablePhysicalHeaderRefV1<'loan>>,
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
@@ -413,6 +414,10 @@ impl InstalledNormalCallableSemanticPackageV1 {
             .as_ref()
             .and_then(|cohort| cohort.row(batch_slot))
             .map(|row| row.borrow());
+        let block_expr_expectation = self
+            .batch
+            .block_expr_expectation(batch_slot)
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?;
         let semantic = match &self.dynamic {
             NormalCallableDynamicProjectionV1::Selected {
                 batch_slot: dynamic_slot,
@@ -441,6 +446,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                 Ok(callback(SelectedCallableLoweringInputRefV1 {
                     source,
                     parameter_contracts: parameters,
+                    block_expr_expectation,
                     physical_header,
                     semantic,
                     source_identity,
@@ -668,6 +674,13 @@ impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
         self.parameter_contracts
             .iter()
             .map(|row| (row.ordinal, row.binding, row.kind))
+    }
+
+    /// Borrow the resolver-owned BlockExpr expectation from the same batch
+    /// row. This is transport only: no count is recomputed and the receipt is
+    /// neither cloned nor reissued by the installed package.
+    pub(crate) fn block_expr_expectation(&self) -> &VerifiedResolvedBlockExpressionExpectationV1 {
+        self.block_expr_expectation
     }
 
     pub(crate) fn physical_header(&self) -> Option<CallablePhysicalHeaderRefV1<'_>> {

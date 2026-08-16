@@ -77,14 +77,16 @@ Related:
   V2 operation/control/coverage issuers and installed Port HRTB are landed
   as caller-zero source products. Existing resolver Loop membership can issue
   the outer-If residual, and the installed S6C child can lend the actual
-  Completion without cloning. The remaining admission input is a typed,
-  resolver-owned block-expression expectation; the canonical session stays
-  closed until it lands. A-prime lifecycle activation remains parked until
-  this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` lends
-  the landed batch-owned source receipt through the existing selected/package
-  HRTB. It does not reissue or clone the receipt, issue common-V2 admission,
-  construct a session, or retrofit the legacy finalizer.
+  Completion without cloning. The resolver-owned BlockExpr expectation is
+  now batch-owned and reaches the selected/package HRTB as a borrow. The
+  active boundary is the effect-free common admission; the canonical session
+  stays closed until that admission is accepted. A-prime lifecycle activation
+  remains parked until this session boundary owns `PreparedFunctionExitSetV1`.
+- **Next ordered task:** `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0`
+  co-seals the exact resolver Loop site/outer-If residual, typed BlockExpr
+  expectation, common V2 envelope, and borrowed Completion in one
+  callback-scoped admission. It does not construct a session, consume
+  Completion, rescan source/Recipe/MIR, or retrofit the legacy finalizer.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -127,11 +129,10 @@ Fail-fast boundary:
 Smallest next slice:
   RESOLVED-BLOCK-EXPR-EXPECTATION-I0 is landed: typed BlockExpr body-shape
   rows and one private non-Clone {owner, function_origin, body_root, pair_count}
-  receipt are issued from the same resolver product and owned once by the
-  callable batch row. The next bounded row is
-  CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0, which only lends that receipt
-  through selected/package HRTB; LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0
-  follows and still constructs no session.
+  receipt are issued from the same resolver product, owned once by the
+  callable batch row, and lent through selected/package HRTB. The next
+  bounded row is LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0, which still
+  constructs no session.
 
 Non-claims:
   No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
@@ -168,6 +169,15 @@ non-Clone receipt once. Focused resolver tests cover zero, one, nested, and
 foreign-owner cases; selected/package transport, session, CFG/SSA/PHI,
 Completion consumption, physical lowering, fallback, retry, and production
 callers remain closed.
+
+### CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0 implementation receipt (2026-08-17)
+
+`SelectedCallableLoweringInputRefV1` now lends the same batch-owned
+`VerifiedResolvedBlockExpressionExpectationV1` inside the existing package
+HRTB. The accessor is borrow-only and non-reconstructible: no clone, reissue,
+raw `usize`, AST/MIR rescan, session effect, Completion consumption, or legacy
+finalizer connection is added. A selected static callable containing a
+BlockExpr passes the focused transport handoff test.
 
 ## Decision
 
@@ -1277,10 +1287,10 @@ skip the After closure or reopen a Tail-only route.
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
-| 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, while typed BlockExpr expectation is the sole missing input |
+| 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
-| 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | next active row; transport only, no reissue, clone, Completion consumption, or session construction |
-| 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
+| 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
+| 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | next active row; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
 | 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | only after 25a-c; no S6C physicalizer, selector, retry, or fallback |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |

@@ -84,6 +84,24 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         self.source.ast()
     }
 
+    /// Borrow the batch-owned BlockExpr expectation without reconstructing a
+    /// count or opening another resolver traversal.
+    pub(crate) fn block_expr_expectation(
+        &self,
+        batch_slot: u32,
+    ) -> Result<
+        &VerifiedResolvedBlockExpressionExpectationV1,
+        ResolvedCallableSemanticBatchLoanErrorV1,
+    > {
+        let index = usize::try_from(batch_slot)
+            .map_err(|_| ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
+        self.rows
+            .get(index)
+            .filter(|row| row.batch_slot == batch_slot)
+            .map(|row| &row.block_expr_expectation)
+            .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)
+    }
+
     pub(crate) fn declarations(
         &self,
     ) -> impl ExactSizeIterator<Item = VerifiedResolvedCallableSemanticDeclarationRefV1<'_>> {
