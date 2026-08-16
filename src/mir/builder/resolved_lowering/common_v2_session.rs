@@ -23,6 +23,54 @@ use super::common_v2_after_block_allocation::{
     AfterBlockAllocationStateV1, PreparedAfterBlockViewV1,
 };
 
+/// A callback-scoped mechanical view of the physical block corresponding to
+/// the source condition block.  The row and entry stamp are borrowed from the
+/// same unpublished session, so this view cannot be re-paired with another
+/// segment receipt or retained after the callback.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct ConditionBlockPhysicalTargetRefV1<'target> {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    logical_block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    physical_block: crate::mir::BasicBlockId,
+    stamp: &'target PhysicalFunctionEntryCohortStampV1,
+    _row: &'target super::common_v2_segment_block_allocation::SegmentBlockReceiptRowV1,
+}
+
+impl ConditionBlockPhysicalTargetRefV1<'_> {
+    pub(in crate::mir::builder) const fn owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) const fn logical_block(
+        &self,
+    ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
+        self.logical_block
+    }
+
+    pub(in crate::mir::builder) const fn physical_block(&self) -> crate::mir::BasicBlockId {
+        self.physical_block
+    }
+
+    pub(in crate::mir::builder) const fn stamp_owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.stamp.owner()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ConditionBlockTargetRejectV1 {
+    Allocation(String),
+    MissingPhysicalEntryStamp,
+    OwnerMismatch,
+    LayoutMismatch,
+    MissingConditionRow,
+    DuplicateConditionRow,
+    Callback(String),
+}
+
 /// One callback-scoped session plus the exact envelope it consumed.  The
 /// envelope is retained as a sibling view so a later physicalizer cannot
 /// reacquire a second Port loan.
@@ -231,6 +279,68 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             builder,
             plan,
         )
+    }
+
+    /// Allocate the existing source segments and lend exactly one physical
+    /// condition-block target.  This is deliberately a projection-only seam:
+    /// it does not issue a ValueId, Call, edge, or terminator, and the target
+    /// cannot escape the callback that owns the segment receipt.
+    pub(in crate::mir::builder) fn with_condition_block_target<R>(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        callback: impl for<'target> FnOnce(
+            &mut crate::mir::builder::MirBuilder,
+            ConditionBlockPhysicalTargetRefV1<'target>,
+        ) -> Result<R, String>,
+    ) -> Result<R, ConditionBlockTargetRejectV1> {
+        let receipt = self
+            .allocate_v2_segment_blocks(builder)
+            .map_err(|error| ConditionBlockTargetRejectV1::Allocation(format!("{error:?}")))?;
+        let owner = self.session.owner();
+        if receipt.owner() != owner || self.envelope.owner() != owner {
+            return Err(ConditionBlockTargetRejectV1::OwnerMismatch);
+        }
+
+        let producer = self.envelope.condition_producer();
+        let logical_block = producer.condition_block();
+        let Some(layout_segment) = self.envelope.layout().segment_for_block(logical_block) else {
+            return Err(ConditionBlockTargetRejectV1::LayoutMismatch);
+        };
+        if layout_segment.loop_key() != producer.loop_key() {
+            return Err(ConditionBlockTargetRejectV1::LayoutMismatch);
+        }
+
+        let mut rows = receipt
+            .rows()
+            .iter()
+            .filter(|row| row.logical_block() == logical_block);
+        let Some(row) = rows.next() else {
+            return Err(ConditionBlockTargetRejectV1::MissingConditionRow);
+        };
+        if rows.next().is_some() {
+            return Err(ConditionBlockTargetRejectV1::DuplicateConditionRow);
+        }
+        if row.loop_key() != layout_segment.loop_key()
+            || row.split_ordinal() != layout_segment.split_ordinal()
+        {
+            return Err(ConditionBlockTargetRejectV1::LayoutMismatch);
+        }
+
+        let stamp = self
+            .session
+            .physical_entry_stamp()
+            .map_err(|_| ConditionBlockTargetRejectV1::MissingPhysicalEntryStamp)?;
+        if stamp.owner() != owner {
+            return Err(ConditionBlockTargetRejectV1::OwnerMismatch);
+        }
+        let target = ConditionBlockPhysicalTargetRefV1 {
+            owner,
+            logical_block,
+            physical_block: row.physical_block(),
+            stamp,
+            _row: row,
+        };
+        callback(builder, target).map_err(ConditionBlockTargetRejectV1::Callback)
     }
 
     pub(in crate::mir::builder) fn allocate_v2_after_block<'session>(

@@ -101,6 +101,20 @@ green. Synthetic After requires a separate source-backed design stop; CFG,
 PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
 production callers remain closed.
 
+## Common V2 condition-block physical target I0
+
+`CommonV2CanonicalSessionRefV1::with_condition_block_target` now lends one
+callback-scoped `ConditionBlockPhysicalTargetRefV1` from the already allocated
+source-segment receipt. The view carries the same owner, logical condition
+block, physical `BasicBlockId`, and retained physical-entry stamp; it cannot be
+repaired from the Builder cursor or retained for a second session. The outer
+unpublished-function transaction remains the sole late-discard owner.
+
+This I0 emits no `Call`, `ValueId`, `Compare`, edge, terminator, CFG/PHI,
+Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
+production caller. Focused positive and late-callback-discard tests are green;
+the next design stop is the canonical Length Call/result materializer.
+
 ## Common V2 synthetic After allocation I0
 
 The accepted After-boundary relation now has one caller-zero placement effect.

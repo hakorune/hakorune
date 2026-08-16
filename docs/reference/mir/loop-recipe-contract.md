@@ -1361,6 +1361,22 @@ source-backed `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` is now an accepted
 BoxShape; its transport-only I0 is recorded below. JoinSig's After port alone
 is still not an allocation authority.
 
+## Common V2 condition-block physical target I0 (2026-08-17)
+
+The canonical session now projects the logical condition block through the
+same source-segment allocation receipt and lends one
+`ConditionBlockPhysicalTargetRefV1` only inside a callback. The projection
+checks the condition row's loop, split ordinal, owner, layout coverage, and
+retained physical-entry stamp. It is the only accepted bridge from the
+source-backed condition block to its unpublished physical `BasicBlockId`; the
+Builder cursor, copied rows, and owner equality alone are not authorities.
+
+The outer unpublished-function transaction remains the sole rollback owner.
+This I0 emits no `Call`, `ValueId`, `Compare`, edge, terminator, CFG/PHI,
+Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
+production caller. The next design stop is the same-session canonical Length
+Call/result materializer, which must consume this callback-scoped target.
+
 ## Common V2 typed After-boundary transport I0 (2026-08-17)
 
 The installed S6C ingress now issues one non-Clone,
