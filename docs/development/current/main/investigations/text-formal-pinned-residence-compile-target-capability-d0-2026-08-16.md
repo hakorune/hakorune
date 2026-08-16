@@ -1,5 +1,5 @@
 ---
-Status: selected design stop; A/B authority split accepted, pre-MIR target-capability issuer unsealed
+Status: accepted design; Rust target-capability I0 is the next bounded slice
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape decision
@@ -13,7 +13,7 @@ Decision: A is the canonical contract authority, B is a mandatory realization va
 Source authority + canonical issuer: one outer Rust compile invocation issues the explicit target capability before MIRBuilder; ny-llvmc consumes and validates it against the actual TargetMachine.
 Non-authority: JSON, MIR, ValueId, NumericTarget::host(), runtime layout checks, environment/default target probing, and C TargetMachine discovery.
 Fail-fast boundary: missing/late/foreign capability, invocation/function/target drift, default inference, duplicate ABI tables, or inability to lend the capability at complete_before_restore rejects before collection.
-Smallest next slice: name the pre-MIR invocation owner, explicit V1 profile catalog, and typed capability transport into the resolved-session HRTB; no JSON or C consumer yet.
+Smallest next slice: implement the named Rust capability and typed transport into the selected-normal resolved-session HRTB; no JSON or C consumer yet.
 Non-claims: no binder contract, JSON projection, TargetMachine receipt, GEP/load, lifecycle/session route, production caller, fallback/retry, or C-speed claim.
 ```
 
@@ -140,17 +140,52 @@ retroactively bless the `complete_before_restore` HRTB. `ny_mir_builder
 `NumericTarget::host()`, environment flags, JSON fields, and C
 `TargetMachine` discovery remain non-authorities.
 
+## Accepted V1 profile catalog
+
+The D0 closes with one explicit catalog row. It is a named profile selection,
+not a host probe or a default reconstructed from JSON:
+
+```text
+profile id:                nyrt-text-residence-ptr64-as0-v1
+target triple:             x86_64-pc-linux-gnu
+data layout:               e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128
+endianness:                little
+address space 0:          pointer width 64, ABI alignment 8
+consumer ABI revision:    hako-llvmc-pure-first-v1
+Residence ABI revision:   text-formal-residence-v1
+profile limits:            root_count <= 1024, private frame <= 65536 bytes
+```
+
+`LlvmPipelinePlan::current_default` selects this sole catalog row for the
+current LLVM product invocation. The profile is explicit and versioned even
+while the catalog has one row; adding another target requires a new catalog
+decision and a new validator matrix. The target profile does not own
+function-derived root count or frame size; those remain checked derivations
+from the physical-signature occurrence order and plan/census.
+
+The issuer chain is now fixed:
+
+```text
+LlvmPipelinePlan / LlvmCompileOptions
+  -> PinnedTextCompileTargetCapabilityIssuerV1
+  -> MirCompilerBox::compile_request
+  -> selected-normal session HRTB
+```
+
+The capability is non-Clone, invocation-branded, and borrowed only inside the
+function close. It is not serialized or reissued by C. This closes the D0
+authority question; it does not open the later binder or backend rows.
+
 ## Ordered taskization
 
-1. **Compile-target capability D0 (current):** accept the concrete outer-owner
-   candidate above as the only place to issue a capability, then name the V1
-   profile catalog, invocation brand, and typed route by which it reaches the
-   selected-normal resolved-session HRTB. Keep the row at `NoSafeSlice` until
-   the missing target/profile input is explicit; do not create a guessed
-   capability from the current `FutureRewriteRoute` or host defaults.
-2. **Compile-target capability I0:** implement only the Rust capability,
+1. **Compile-target capability D0 (accepted):** the concrete outer-owner
+   candidate, one-row V1 profile catalog, invocation brand, and typed route are
+   fixed above. The implementation boundary remains Rust-only.
+2. **Compile-target capability I0 (current):** implement only the Rust capability,
    private constructor/issuer, explicit profile selection, and caller-zero
-   positive/negative transport tests. Do not emit JSON or touch C.
+   positive/negative transport tests. Thread the same non-Clone capability into
+   the selected-normal close HRTB without storing or returning the borrow. Do
+   not emit JSON or touch C.
 3. **Backend-frame binder I0:** inside
    `PendingFunctionSessionCloseV1::complete_before_restore`, co-seal the same
    invocation capability, physical-signature loan, active plan/census, and
@@ -172,8 +207,7 @@ limits.
 
 ## Acceptance
 
-The current D0 is accepted only when all of the following are named without
-host/default inference:
+The accepted D0 names all of the following without host/default inference:
 
 ```text
 one pre-MIR Rust compile invocation owner
@@ -199,13 +233,15 @@ capability loan return/store/escape
 collector reached before the four-way co-seal
 ```
 
-## NoSafeSlice
+## D0 closeout / I0 stop
 
-Keep `NoSafeSlice::PinnedTextCompileTargetCapabilityUnsealed` when the outer
-pre-MIR issuer is absent, the only candidate receives JSON after collection,
-or the capability requires environment/default/host inference. Keep the
-parent `NoSafeSlice::PinnedTextBackendFrameBinderUnsealed` until the target
-capability I0 and the four-way function co-seal are both landed.
+The D0 `NoSafeSlice::PinnedTextCompileTargetCapabilityUnsealed` is closed by
+the explicit issuer/profile decision above. During the next I0, use
+`NoSafeSlice::PinnedTextCompileTargetCapabilityTransportUnsealed` if the
+capability cannot reach the selected-normal close HRTB without cloning,
+escaping, or reconstructing it. Keep the parent
+`NoSafeSlice::PinnedTextBackendFrameBinderUnsealed` until the target capability
+I0 and the four-way function co-seal are both landed.
 
 No implementation may add JSON fields, C parsing, TargetMachine probing,
 GEP/load, lifecycle CFG, session adoption, route selection, production
