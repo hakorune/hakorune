@@ -1780,3 +1780,19 @@ escape reject before effect. The focused physical-entry and session-admission
 canaries are green. Physical condition results, ValueIds, edges, CFG/PHI,
 Completion/DraftSeal claims, lifecycle, Text, route, fallback, retry, and
 production remain closed.
+
+## Common V2 physical condition-result BoxShape D0 (2026-08-17)
+
+The next design stop keeps physical result emission closed and fixes one
+session-local plan/receipt boundary. A future physical condition-result plan
+borrows the source CompareI64 relation, the fixed two-row operand inventory,
+and the session-held `PhysicalFunctionEntryCohortStampV1`; its later receipt
+contains exactly one canonical Bool `ValueId` and its published Bool type.
+`CanonicalSsaFunctionSessionV2` remains the sole ValueId/type issuer, and one
+common-V2 materializer must own the private Length CallSlot result plus the
+`CompareI64 Less` emission. Raw logical keys, caller types, old value ledgers,
+or a standalone compare helper cannot issue the result. Missing/foreign stamp,
+operand or producer drift, absent Length result, duplicate publication,
+materializer re-entry, branch-consumer mismatch, and receipt escape reject
+before effect. This D0 does not open ValueId/Compare/call/edge/CFG/PHI,
+Completion, lifecycle, Text, route, fallback, retry, or production.

@@ -87,10 +87,10 @@ Related:
   BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0`
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
   is the active design stop. Session-stamp retention is landed as a caller-zero
-  move-only seam; the physical condition-result receipt, rollback owner, and
-  branch consumer remain unsealed.
+  move-only seam; the physical condition-result plan/receipt, rollback owner,
+  and branch consumer remain unsealed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1080,8 +1080,8 @@ targets, and a future condition-carrier requirement. It contains no physical
 IDs and performs no CFG mutation. The envelope lends it through the existing
 exactly-once HRTB; the focused installed-loan test checks owner, Bool class,
 Body, and RootAfter. Unit negatives reject a missing or duplicate predicate
-boundary. The next design stop is the source-backed physical condition
-carrier; no edge-effect slice is opened until that carrier has its own issuer.
+boundary. The next design stop is the physical condition-result BoxShape; no
+edge-effect slice is opened until that carrier has its own session receipt.
 
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` — accepted BoxShape 2026-08-17
 
@@ -1143,10 +1143,10 @@ The focused common-V2 suite is green with the new non-Compare operation-row
 drift negative and the installed-loan positive assertions. This I0 does not
 issue a physical result, lower a Compare, call `emit_branch`, mutate CFG/PHI,
 claim Completion/DraftSeal, open lifecycle/Text/route/performance, or add a
-production caller. The next design stop is the physical result receipt, not a
+production caller. The next design stop is the physical result BoxShape, not a
 second condition or edge authority.
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` — design stop 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` — parent design stop 2026-08-17
 
 ```text
 Decision:
@@ -1160,11 +1160,10 @@ Decision:
 Source authority + canonical issuer:
   The source producer is `PreparedLoopV2ConditionProducerRelationV1`. Physical
   SSA/type authority remains `CanonicalSsaFunctionSessionV2`; the future
-  materializer is only the co-seal bridge. The receipt must retain owner,
-  function/session or physical-entry stamp, producer item/block/result key, and
-  Bool type relation. The existing session currently retains owner but does
-  not expose a durable physical-entry stamp, so that retention seam is part of
-  this D0 rather than an implementation assumption.
+  materializer is only the co-seal bridge. The receipt must retain owner, a
+  scoped borrow of the session-held physical-entry stamp, producer
+  item/block/result key, and Bool type relation. Session-stamp retention is now
+  landed; the result seam may borrow it but may not copy or reconstruct it.
 
 Operand issuer census (2026-08-17):
   A source-backed two-row inventory is now carried by the common V2 envelope:
@@ -1188,9 +1187,68 @@ Smallest source-backed relation candidate:
 
   The relation and its fixed two-row inventory are issued with
   owner/placement/item/block/result/class coverage and foreign/duplicate/drift
-  rejection. They are still logical transport only; no physical operand
-  receipt may be guessed until the session-stamp and physical-result seams
-  close.
+  rejection. They are still logical transport only; no physical operand receipt
+  may be guessed until the result BoxShape and its Length-call materializer
+  boundary close.
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Keep the parent result at NoSafeSlice and fix one thin, session-local
+  materialization shape before any Compare or branch effect. The future
+  `PreparedLoopV2PhysicalConditionResultPlanV1` is a physical-demand plan, not
+  a semantic result: it borrows the source CompareI64 relation, the fixed
+  two-row operand inventory, and the session-held cohort stamp. Its eventual
+  `PreparedLoopV2ConditionResultReceiptV1<'session>` contains exactly one
+  canonical Bool result ValueId plus its published Bool type and is valid only
+  inside the same unpublished canonical session callback.
+
+Source authority + canonical issuer:
+  `PreparedLoopV2ConditionProducerRelationV1` and
+  `PreparedLoopV2ConditionOperandInventoryV1` remain the source authorities.
+  `CanonicalSsaFunctionSessionV2` remains the sole ValueId/type issuer; one
+  future common-V2 condition materializer is the only bridge allowed to consume
+  the two source rows, resolve the Left binding through canonical identity,
+  materialize the Length CallSlot result through the existing canonical call
+  owner, emit the CompareI64 `Less`, and issue the Bool receipt. The stamp is
+  borrowed from the session wrapper and never copied into the receipt.
+
+Non-authority:
+  raw LoopValueKey, operation result key, raw ValueId, caller-supplied
+  `MirType`, `EffectMask`, old V1/Selected-Dynamic value ledgers, generic
+  CallSlot lookup, Recipe order, branch-plan condition key, or a standalone
+  `emit_compare_i64_at` call cannot issue the result. The Length call's
+  temporary physical result is private to the same materializer; it is not a
+  second public operand authority.
+
+Fail-fast boundary:
+  Reject before physical mutation on missing/foreign session stamp, owner or
+  function drift, producer item/block/result/op drift, missing or duplicate
+  operand rows, Left binding read failure, absent/incorrect Length call result,
+  non-`I64` operands, non-`Less` op, duplicate result publication, pre-existing
+  result ValueId/type, materializer re-entry, branch-consumer mismatch, or
+  receipt escape. Late failure uses the existing outer unpublished-function
+  discard exactly once; no local rollback, fallback, or retry.
+
+Acceptance boundary:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` closes this
+  plan/receipt pair and the exact common-materializer owner. It must decide
+  whether the existing canonical CallSlot emitter can supply the Length result
+  without a second authority. If not, stop at
+  `NoSafeSlice::AfterConditionLengthPhysicalMaterializerUnsealed` and open a
+  separate bounded Length-call result D0; do not infer it from raw MIR.
+
+After acceptance:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0` may begin as a typed
+  materializer/receipt-admission canary. It still emits no ValueId, Compare,
+  edge, or terminator until its own BoxCount is opened.
+
+Non-claims:
+  No ValueId issuance, Compare instruction, call lowering, branch/edge,
+  `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
+  performance, production caller, fallback, or retry is opened by this D0.
+```
 
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` — accepted BoxShape 2026-08-17
 
@@ -1253,21 +1311,19 @@ Fail-fast boundary:
   are non-semantic and no local rollback/retry or fallback is allowed.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` is the next design stop.
-  It must retain the prepared physical-entry cohort stamp through the
-  consuming session seam without copying or reconstruction. If that seam is
-  absent, remain at this NoSafeSlice.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` is now the next
+  design stop. Session-stamp retention is landed; the next stop must fix the
+  single session-local physical Bool result plan/receipt and its materializer.
 
 Ordered sub-slices (design-only; no session/CFG effect):
   1. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0`
      and its `...OPERAND-INVENTORY-I0` transport are landed. They issue only
      the fixed source-backed logical rows; no physical receipt is issued.
-  2. `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0`
-     retain the one prepared physical-entry cohort stamp through the consuming
-     session seam without copying or reconstructing it. The prepared skeleton
-     and installed loan remain the only stamp authorities.
+  2. `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` and its I0 are
+     landed; the prepared skeleton and installed loan remain the only stamp
+     authorities.
   3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
-     only after (1) and (2), fix the single session-local Bool result receipt,
+     now fixes the single session-local Bool result receipt,
      the outer unpublished-function discard owner, and the sole later branch
      consumer. This is still a BoxShape decision, not physical emission.
   4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
@@ -1290,7 +1346,9 @@ Current blockers are deliberately explicit:
 ```text
 NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
 NoSafeSlice::AfterConditionSessionStampRetentionMissing
+NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
+NoSafeSlice::AfterConditionLengthPhysicalMaterializerUnsealed
 ```
 
 ## Decision
@@ -2431,10 +2489,11 @@ skip the After closure or reopen a Tail-only route.
 | 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | landed 2026-08-17; focused positive/duplicate/missing-boundary gates are green; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | accepted BoxShape 2026-08-17; logical CompareI64 producer relation is the next transport-only I0, while physical ValueId/operation/edge effects remain closed |
 | 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | landed 2026-08-17; source/operation row, owner, block, operand/result/class drift and non-Compare negatives are green; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; the source-backed Length CallSlot row is transported, but its canonical-session physical result receipt is still missing; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
+| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | parent boundary for same-session operand receipts, stamp retention, and the canonical physical result | parent remains blocked; operand inventory and stamp retention are landed, while the result BoxShape below must name the single plan/receipt owner before any physical effect |
 | 25b-l-a | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` | co-seal the source Length contract, CallSlot/result/class, matching common operation row, and Compare-right key from one S6C ingress | accepted BoxShape 2026-08-17; fixed two-row physical-ID-free inventory only; no physical receipt, ValueId, call lowering, Compare, branch, CFG/PHI, fallback, retry, or production |
 | 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | landed 2026-08-17; three focused inventory tests are green; no physical emission, Builder/session mutation, or parent-result unlock |
 | 25b-l-b | `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` | retain the existing physical-entry cohort stamp through the consuming canonical session without copy/reconstruction, then expose only a scoped borrow | accepted BoxShape 2026-08-17; caller-zero I0 landed 2026-08-17 with move-only session ownership and scoped borrow; no physical condition result, ValueId, edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-c | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0` | fix one session-local Bool result plan/receipt that borrows the producer/inventory/stamp, uses canonical ValueId/type issuance, and has one outer discard owner and one later branch consumer | active NoSafeSlice design stop; no ValueId, Compare, Length-call materialization, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
