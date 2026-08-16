@@ -13,7 +13,15 @@ use crate::runtime::host_handles_policy;
 use crate::runtime::text_formal_abi::TextFormalWirePairV1;
 
 use super::lease_identity::{exact_text_ref, HostHandleLeaseIdentityV1};
-use super::{Registry, SlotTable, DROP_EPOCH};
+use super::{HandlePayload, Registry, SlotTable, DROP_EPOCH};
+
+#[inline(always)]
+fn stable_text_ref(payload: &HandlePayload) -> Option<&str> {
+    match payload {
+        HandlePayload::StableText(text) => Some(text.as_str()),
+        HandlePayload::StableBox(_) => None,
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum SlotRetirementStateV1 {
@@ -98,6 +106,32 @@ impl CallLifetimeTableV1 {
 #[derive(Debug)]
 pub(in crate::runtime) struct RegistryTextFormalCallLeaseSetV1(NonZeroU64);
 
+#[derive(Debug, Clone, Copy)]
+pub(in crate::runtime) struct TextFormalRootDescriptorV1 {
+    pub(in crate::runtime) ptr: *const u8,
+    pub(in crate::runtime) byte_len: u64,
+}
+
+#[derive(Debug)]
+pub(in crate::runtime) struct RegistryTextFormalCallResidenceV1 {
+    lease: RegistryTextFormalCallLeaseSetV1,
+    roots: Box<[TextFormalRootDescriptorV1]>,
+}
+
+impl RegistryTextFormalCallResidenceV1 {
+    pub(in crate::runtime) fn root_count(&self) -> usize {
+        self.roots.len()
+    }
+
+    pub(in crate::runtime) fn root(&self, index: usize) -> Option<TextFormalRootDescriptorV1> {
+        self.roots.get(index).copied()
+    }
+
+    pub(in crate::runtime) fn finish(self) -> Result<(), TextFormalLeaseFinishRejectV1> {
+        super::reg().finish_text_formal_call_lease_set(self.lease)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum TextFormalLeaseAcquireRejectV1 {
     EmptyLeaseSet,
@@ -107,6 +141,7 @@ pub(crate) enum TextFormalLeaseAcquireRejectV1 {
     NonTextPayload { formal_index: usize },
     RetirementPending { formal_index: usize },
     PinCountOverflow { slot: u64 },
+    ByteLengthOutOfRange { formal_index: usize },
     TokenExhausted,
 }
 
@@ -187,10 +222,17 @@ fn request_slot_retirement_v1(
 }
 
 impl Registry {
-    fn acquire_text_formal_call_lease_set(
+    fn acquire_text_formal_call_lease_set_with_roots(
         &self,
         pairs: &[TextFormalWirePairV1],
-    ) -> Result<RegistryTextFormalCallLeaseSetV1, TextFormalLeaseAcquireRejectV1> {
+        stable_text_only: bool,
+    ) -> Result<
+        (
+            RegistryTextFormalCallLeaseSetV1,
+            Box<[TextFormalRootDescriptorV1]>,
+        ),
+        TextFormalLeaseAcquireRejectV1,
+    > {
         if pairs.is_empty() {
             return Err(TextFormalLeaseAcquireRejectV1::EmptyLeaseSet);
         }
@@ -198,6 +240,7 @@ impl Registry {
         let mut table = self.table.write();
         let token = table.call_lifetime.reserve_token()?;
         let mut grouped = BTreeMap::<(u64, u64), (usize, usize, u32)>::new();
+        let mut roots = Vec::with_capacity(pairs.len());
 
         for (formal_index, pair) in pairs.iter().copied().enumerate() {
             if pair.slot == 0 || pair.generation == 0 {
@@ -217,8 +260,22 @@ impl Registry {
             if table.lease_generations.get(idx).copied() != Some(pair.generation) {
                 return Err(TextFormalLeaseAcquireRejectV1::GenerationMismatch { formal_index });
             }
-            exact_text_ref(payload)
-                .ok_or(TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index })?;
+            let text = if stable_text_only {
+                stable_text_ref(payload)
+            } else {
+                exact_text_ref(payload)
+            }
+            .ok_or(TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index })?;
+            let byte_len = u64::try_from(text.len()).map_err(|_| {
+                TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange { formal_index }
+            })?;
+            if byte_len > i64::MAX as u64 {
+                return Err(TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange { formal_index });
+            }
+            roots.push(TextFormalRootDescriptorV1 {
+                ptr: text.as_ptr(),
+                byte_len,
+            });
             match table.call_lifetime.states.get(idx).copied() {
                 Some(SlotCallLifetimeStateV1::Active {
                     retirement: SlotRetirementStateV1::Open,
@@ -286,7 +343,23 @@ impl Registry {
         }
         table.call_lifetime.tokens.insert(token.0, records);
         table.call_lifetime.advance_token(&token);
-        Ok(token)
+        Ok((token, roots.into_boxed_slice()))
+    }
+
+    fn acquire_text_formal_call_lease_set(
+        &self,
+        pairs: &[TextFormalWirePairV1],
+    ) -> Result<RegistryTextFormalCallLeaseSetV1, TextFormalLeaseAcquireRejectV1> {
+        self.acquire_text_formal_call_lease_set_with_roots(pairs, false)
+            .map(|(token, _)| token)
+    }
+
+    fn acquire_text_formal_call_residence(
+        &self,
+        pairs: &[TextFormalWirePairV1],
+    ) -> Result<RegistryTextFormalCallResidenceV1, TextFormalLeaseAcquireRejectV1> {
+        let (lease, roots) = self.acquire_text_formal_call_lease_set_with_roots(pairs, true)?;
+        Ok(RegistryTextFormalCallResidenceV1 { lease, roots })
     }
 
     fn finish_text_formal_call_lease_set(
@@ -380,6 +453,12 @@ pub(in crate::runtime) fn acquire_text_formal_call_lease_set_v1(
     pairs: &[TextFormalWirePairV1],
 ) -> Result<RegistryTextFormalCallLeaseSetV1, TextFormalLeaseAcquireRejectV1> {
     super::reg().acquire_text_formal_call_lease_set(pairs)
+}
+
+pub(in crate::runtime) fn acquire_text_formal_call_residence_v1(
+    pairs: &[TextFormalWirePairV1],
+) -> Result<RegistryTextFormalCallResidenceV1, TextFormalLeaseAcquireRejectV1> {
+    super::reg().acquire_text_formal_call_residence(pairs)
 }
 
 pub(in crate::runtime) fn finish_text_formal_call_lease_set_v1(

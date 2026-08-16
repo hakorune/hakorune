@@ -51,9 +51,28 @@ pub struct TextFormalBorrowV1 {
 ///
 /// This is not a semantic formal, source binding, or public ABI surface.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct TextFormalWirePairV1 {
+pub(crate) struct TextFormalWirePairV1 {
     pub(super) slot: u64,
     pub(super) generation: u64,
+}
+
+impl TextFormalWirePairV1 {
+    /// Construct the already-published physical pair used by a caller-zero
+    /// residence entry.  This never captures a generation from a raw handle.
+    #[inline(always)]
+    pub(crate) const fn from_published_wire(slot: u64, generation: u64) -> Self {
+        Self { slot, generation }
+    }
+
+    #[inline(always)]
+    pub(crate) const fn slot(self) -> u64 {
+        self.slot
+    }
+
+    #[inline(always)]
+    pub(crate) const fn generation(self) -> u64 {
+        self.generation
+    }
 }
 
 impl TextFormalBorrowV1 {

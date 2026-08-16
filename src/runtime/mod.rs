@@ -58,6 +58,7 @@ pub mod semantics;
 pub mod sync_box;
 pub mod text_formal_abi;
 pub(crate) mod text_formal_call_lease;
+pub(crate) mod text_formal_residence;
 pub mod thread_capability;
 pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形

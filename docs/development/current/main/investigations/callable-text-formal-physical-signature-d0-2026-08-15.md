@@ -311,7 +311,7 @@ current I0: TEXT-FORMAL-PINNED-RESIDENCE-I0
   StableText-only registry entry/frame transaction + move-only residence handle
   for already-published pairs; caller-zero and no compiler/session consumer
 
-same I0 family, later internal seams: TEXT-FORMAL-PINNED-RESIDENCE-I0
+Residence cutover seams (later, not this caller-zero I0):
   exact formal call edge -> atomic residence frame -> Canonical private state
   -> prepared closure -> per-exit finish projection -> final lifetime verifier;
   literal origin remains the final cutover subrow and does not block the
@@ -635,6 +635,7 @@ NoSafeSlice::PinnedResidenceFunctionMayUnwind
 NoSafeSlice::MixedCallablePhysicalAbiRevision
 NoSafeSlice::PrimaryAotDirectConsumerAmbiguous
 NoSafeSlice::NonPrimaryBackendRequiresFallback
+NoSafeSlice::PinnedTextOpScopeWidened
 ```
 
 These stops refine the later `TEXT-FORMAL-PINNED-RESIDENCE` and
@@ -681,8 +682,26 @@ normal_callable_semantic_package: 29/29
 cargo check --lib: green (inherited warning census only)
 ```
 
-The Residence D0 is now accepted for the narrow StableText/caller-zero shape.
-The next bounded row is `TEXT-FORMAL-PINNED-RESIDENCE-I0`: implement only the
-registry-owned entry/frame transaction and move-only residence handle. It
-must not open call-edge actualization, session values, Text execution,
-production callers, fallback, or retry.
+## Caller-zero Residence I0 landing (2026-08-16)
+
+`text_formal_residence.rs` now consumes already-published physical pair lanes
+through one registry-owned transaction. The registry preflights all
+occurrences, validates generation and StableText backing, records one root
+descriptor per occurrence, commits grouped pin multiplicity, and returns one
+move-only residence owner with a private frame header. `finish(self)` is the
+only release path; the scoped root view cannot outlive the residence owner.
+
+Focused evidence:
+
+```text
+runtime::text_formal_residence: 4/4
+runtime::host_handles::call_lifetime: 17/17
+runtime::text_formal_call_lease: 2/2
+RUSTFLAGS=-Awarnings cargo check --lib: green
+```
+
+The caller-zero substrate is StableText-only. It does not issue a source
+actual-origin, expose common-MIR `ValueId`s, emit lifecycle CFG, or connect a
+Text leaf/backend/production caller. The next design row is
+`LOOP-TEXT-SLICE-EXECUTION-D0`; the later Residence cutover seams remain
+explicitly parked until a production call edge exists.
