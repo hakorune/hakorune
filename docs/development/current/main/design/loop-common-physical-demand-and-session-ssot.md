@@ -750,6 +750,30 @@ Non-claims:
   D0.
 ```
 
+### Segment block allocation I0 implementation receipt (2026-08-17)
+
+`LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` is landed as a
+caller-zero effect slice. The existing physical-ID-free layout now issues one
+callback-scoped `PreparedLoopV2SegmentAllocationPlanV1`; the canonical session
+consumes it and allocates exactly one unpublished `BasicBlockId` per ordered
+source segment. The receipt retains only the source loop/block/split relation
+and the newly allocated physical block; it does not issue edges, terminators,
+operations, effects, or a synthetic After block.
+
+Allocation preflights owner/function identity, checked count and cursor range,
+entry collision, and segment coverage before mutation. The surrounding
+`CanonicalFunctionLoweringSessionV1` remains the sole discard owner. A late
+callback error discards the unpublished function while the CoreContext block
+cursor remains monotonic; the resulting ID gap is unpublished, unobservable,
+and never reused. Focused positive and late-discard tests are green.
+
+This receipt does not open synthetic After allocation, edge/terminator or
+operation lowering, ReadBinding/Const, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route/performance, fallback/retry, publication, or a
+production caller. The next design stop is the separate
+`LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0`, which must obtain a source-backed
+resume relation before any After block can be allocated.
+
 The current layout view carries source loop/block/item segments and an After
 binding. The segment rows are sufficient for the first allocation plan. Its
 After value is not an explicit physical resume target, however, and the
@@ -1889,7 +1913,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-f-I0 | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0` | lend typed loop/block/item topology and JoinSig transfer bindings through the same common-V2 cohort | landed 2026-08-17; relation guard is green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-f-I0-RG | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0-RELATION-GUARD` | require each operation/If/Exit item to belong to its specified layout block and add focused negatives | landed 2026-08-17; positive transport plus operation/If/Exit block-drift negatives are green; no Builder/block allocation, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first source-segment block allocation carrier and rollback boundary | accepted BoxShape 2026-08-17; monotonic unpublished-ID gaps are explicit, synthetic After allocation is a separate D0; no ReadBinding/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted segment allocation plan and allocate only ordered source-segment blocks under one outer discard owner | next caller-zero effect slice; no synthetic After block, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g-I0 | `LOOP-COMMON-V2-PHYSICAL-SEGMENT-BLOCK-ALLOCATION-I0` | consume one accepted segment allocation plan and allocate only ordered source-segment blocks under one outer discard owner | landed 2026-08-17; positive and late-discard gates are green; no synthetic After block, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-h | `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` | issue a source-backed synthetic After row with root/resume relation and its separate allocation owner | parked behind segment allocation; JoinSig After port/binding/class alone cannot authorize a new BasicBlock; no After allocation, edges/terminators, operation/read/Const, CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
