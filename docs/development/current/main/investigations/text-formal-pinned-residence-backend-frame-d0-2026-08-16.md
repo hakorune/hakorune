@@ -182,6 +182,13 @@ duplicate root rows, mixed ABI revision/target data-layout, pointer-width or
 frame-size mismatch, detached residence/token, and any attempt to serialize
 the private frame through MIR JSON or expose raw pointers to common MIR.
 
+Live blocker: the current MIR JSON transport carries only plan stamp, leaf
+kind, and root IDs; it cannot carry or reconstruct the opaque frame capability.
+The D0 is not accepted until one in-process/scoped handoff is named that keeps
+the frame capability, occurrence mapping, and target capability non-rebindable
+at the ny-llvmc boundary. A JSON residence table, numeric-token lookup, or
+backend-side reissue is not an acceptable handoff.
+
 Smallest next slice: design-only census and acceptance for the binder's
 function stamp, target capability, occurrence mapping, and one scoped handoff
 to the existing ny-llvmc consumer; no GEP/load, lifecycle CFG, session
