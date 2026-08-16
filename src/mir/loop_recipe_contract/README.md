@@ -799,9 +799,10 @@ foreign-owner rejection, and duplicate-consumption boundary.
 
 This row remains caller-zero and Builder-free. It issues no CFG, ValueId,
 Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
-publication, or production caller. The next bounded row is canonical V2
-session admission; it must consume this scoped envelope rather than rescan
-Recipe/JoinSig or add an S6C physicalizer.
+publication, or production caller. The canonical V2 session admission and
+session-open canary are already landed. The next bounded row is the
+source-backed physical condition-carrier design stop; it must consume this
+scoped envelope rather than rescan Recipe/JoinSig or add an S6C physicalizer.
 
 ## Common V2 typed After-boundary transport I0
 

@@ -85,12 +85,12 @@ Related:
   BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` is now the
-  active design stop. The layout transport and item-to-block membership guard
-  are caller-zero, effect-free, and green. Before any Builder/block/effect
-  emission, this D0 must name the first post-layout effect carrier, its source
-  authority, and the single rollback owner. Loop CFG/block effects, reads, PHI,
-  Completion claims, and DraftSeal remain closed.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0`
+  is the active design stop. The complete logical predicate branch plan and
+  its transport I0 are landed. Before any Builder/block/effect emission, this
+  D0 must name the source-backed CompareI64 producer relation, the physical
+  condition-carrier issuer, and the sole later branch consumer. ValueId,
+  `emit_branch`, CFG/PHI, Completion claims, and DraftSeal remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -212,9 +212,9 @@ This canary opens the sole canonical CFG/Binding-SSA/PHI/Completion owner, but
 does not mutate a Builder or emit a block, operation, control transfer, PHI,
 Completion claim, Return, DraftSeal, lifecycle, Text operation, route, or
 production caller. It does not reuse `new_selected_dynamic`, pass a raw
-BlockExpr count, or expose a second session. The next row is a design stop for
-the first allowed session effects; the physical-entry input below is already
-accepted as a transport-only BoxShape.
+BlockExpr count, or expose a second session. This receipt is landed; the
+current frontier is the source-backed physical condition-carrier design stop,
+not a session reopen or a second physical-entry authority.
 
 ### LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0
 
@@ -697,17 +697,18 @@ prephysical-ingress tests are green, including the foreign-owner rejection;
 upstream source-row issuers retain the duplicate/missing topology negatives.
 This I0 allocates no blocks, emits no operations/effects, opens no CFG/PHI or
 Completion/DraftSeal claim, and does not select a Text route, fallback, retry,
-or production caller. The next bounded row is the post-layout effect design
-stop, not a physicalizer or session reopen.
+or production caller. The post-layout effect frontier is now closed; this is a
+historical receipt, not a live physicalizer or session reopen. The live
+frontier is the source-backed physical condition-carrier design stop below.
 
-### Active design stop: `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0`
+### Source-segment allocation boundary (landed 2026-08-17)
 
 ```text
 Decision:
-  Accept the source-segment/block skeleton allocation BoxShape and open one
-  caller-zero I0. The first effect is not ReadBinding, Const, operation
-  lowering, synthetic After allocation, or generic MirInstruction emission.
-  After allocation is a separate later D0.
+  Receipt: the source-segment/block skeleton allocation BoxShape was accepted
+  and its caller-zero I0 landed. The first effect was not ReadBinding, Const,
+  operation lowering, synthetic After allocation, or generic MirInstruction
+  emission. After allocation was handled by its separate later D0.
 
 Source authority + canonical issuer:
   The same common-V2 envelope's physical-ID-free layout is the topology input
@@ -954,7 +955,8 @@ Decision:
 
 Source authority + canonical issuer:
   The resolver-backed S6C logical loop condition (`condition_block` and
-  `condition_value`), the existing LoopJoinBranchTransferRefV2 branch row, the
+  `condition_value`), the existing `LoopJoinBoundaryTransferRefV2` predicate
+  boundary rows, the
   source physical segment receipt, and the typed RootAfter relation are the
   inputs. The common-V2 source issuer co-seals the condition logical value, its
   condition segment, PredicateTrue -> Body, PredicateFalse -> RootAfter,
@@ -1015,6 +1017,46 @@ exactly-once HRTB; the focused installed-loan test checks owner, Bool class,
 Body, and RootAfter. Unit negatives reject a missing or duplicate predicate
 boundary. The next design stop is the source-backed physical condition
 carrier; no edge-effect slice is opened until that carrier has its own issuer.
+
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Keep the current logical condition requirement, and design one later
+  session-local physical carrier for the root CompareI64 result before any
+  branch edge effect. The carrier is not issued in this design stop.
+
+Source authority + canonical issuer:
+  The resolver-sealed S6C logical loop condition and its exact CompareI64
+  producer row are the source spine. A future common-V2 operation materializer
+  must co-seal the producer item/block, left/right logical operands, result
+  key, Bool class, and same owner/session stamp; CanonicalSsaFunctionSessionV2
+  remains the sole ValueId issuer and typed physical-result owner.
+
+Non-authority:
+  `PreparedLoopOperationProgramV2` result keys alone, Recipe order, MIR
+  `ValueId`, `EffectMask`, legacy V1 Compare emitters, block cursor, or the
+  branch plan may not infer the physical carrier. The condition requirement is
+  logical evidence, not a physical value receipt.
+
+Fail-fast boundary:
+  Missing/duplicate/non-Compare producer, operand/result/block/class drift,
+  foreign session/owner, stale or duplicate physical result, and Body/RootAfter
+  target drift reject before `emit_branch` or any edge mutation. A producer
+  must be materialized before the branch consumer can borrow its carrier.
+
+Smallest next slice:
+  Fix the physical receipt's issuer timing, exact CompareI64 producer match,
+  session-local lifetime, and sole branch-edge consumer. The follow-up I0 is
+  transport/verification only; it opens no operation lowering, ValueId
+  issuance, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+  route, fallback, retry, or production caller.
+
+Non-claims:
+  No physical condition ValueId, operation emission, edge/terminator, CFG/PHI,
+  Completion/DraftSeal, lifecycle, Text route, performance, fallback/retry, or
+  production caller is accepted by this D0.
+```
 
 ## Decision
 
