@@ -209,27 +209,29 @@ does not mutate a Builder or emit a block, operation, control transfer, PHI,
 Completion claim, Return, DraftSeal, lifecycle, Text operation, route, or
 production caller. It does not reuse `new_selected_dynamic`, pass a raw
 BlockExpr count, or expose a second session. The next row is a design stop for
-the first allowed session effects; until that boundary is source-backed, the
-current blocker remains
-`NoSafeSlice::MissingSameCohortPhysicalFunctionEntryIssuer`.
+the first allowed session effects; the physical-entry input below is already
+accepted as a transport-only BoxShape.
 
 ### LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0
 
 ```text
 Decision:
-  The physical-header BoxShape and its caller-zero I0 are landed. Keep the
-  physical-function-entry boundary at Design stop: the next safe unit is a
-  source-free input census that proves one same-cohort relation can supply a
-  physical skeleton without making the existing one-value formal-adoption API
-  guess how an ExactText pair is represented. Do not open Builder effects,
-  skeleton allocation, or lane adoption until that input contract is sealed.
+  The physical-header BoxShape and its caller-zero I0 are landed. The
+  physical-function-entry input BoxShape is now accepted: one same-cohort
+  transport-only aggregate may expose source ParamDecl evidence and complete
+  physical lane descriptors without making the existing one-value
+  formal-adoption API guess how an ExactText pair is represented. The active
+  implementation is limited to that aggregate; do not open Builder effects,
+  skeleton allocation, or lane adoption in this row.
 
   The design stop is intentionally split into:
     LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0
-      physical parameter declaration/lane projection census only
+      accepted physical parameter declaration/lane projection BoxShape
+    LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0
+      active transport-only descriptor aggregate
     LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0
-      fresh unpublished skeleton reservation after the input is accepted
-  The second row is not executable yet.
+      future fresh unpublished skeleton reservation after the input I0
+  Only the middle row is executable in the current fast lane.
 
 Source authority + canonical issuer:
   Existing package issuers remain the authorities: the catalog declaration
@@ -304,23 +306,23 @@ Fail-fast boundary:
   transaction once, with no retry or fallback.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` is design-only. The
-  physical carrier choice is closed as `U64BitsOnI64`; census now has one
-  remaining question: can a single compiler-side issuer borrow the complete
-  same-cohort storage header, physical signature, effects, result, and
-  `U64BitsOnI64` lane rows while projecting every source-backed `ParamDecl`
-  into a separate non-semantic physical-parameter descriptor without
-  reissuing meaning? Do this without constructing a Builder or `ValueId`. If
-  this census closes, the next I0 is only a fresh
-  unpublished skeleton reservation. If it does not, retain
-  `NoSafeSlice::MissingSameCohortPhysicalFunctionEntryIssuer`.
+  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` is the active
+  transport-only implementation. The physical carrier choice is closed as
+  `U64BitsOnI64`; the compiler-side issuer borrows the complete same-cohort
+  storage header, physical signature, effects, result, and lane rows while
+  projecting every source-backed `ParamDecl` into a separate non-semantic
+  physical-parameter descriptor. It constructs no Builder or `ValueId`. After
+  this focused gate, the next design stop is the fresh unpublished skeleton
+  reservation. Any incomplete relation still rejects before Builder effect;
+  it is not repaired by a default or fallback.
 
   The preceding header/effects I0 already proved the package-side co-seal.
-  This D0 is accepted only when the compiler-side aggregate can borrow that
+  This D0 is accepted because the compiler-side aggregate can borrow that
   complete cohort and expose every physical ParamDecl row without reissuing
-  source meaning. Until then, missing/foreign header or effects projection,
-  lane gap/swap, receiver drift, parameter/result drift, or duplicate
-  ExactText BindingRef adoption remains `NoSafeSlice`, not a Builder error.
+  source meaning. The active I0 still rejects missing/foreign header or
+  effects projection, lane gap/swap, receiver drift, parameter/result drift,
+  or duplicate ExactText BindingRef adoption before Builder effect; it never
+  repairs them with a default or fallback.
 
 Carrier decision receipt (2026-08-17):
   The accepted wire remains two scalar `u64` lanes for one logical ExactText
@@ -328,9 +330,9 @@ Carrier decision receipt (2026-08-17):
   `U64BitsOnI64`; it preserves bits but does not become semantic
   `MirType::Integer`, a source `u64` type, or a new unsigned MIR type. The
   package-owned lane role and physical-signature row remain the sole meaning
-  authority. The compiler-side same-loan ParamDecl/lane aggregate is still a
-  design stop, so no skeleton, session, ValueId adoption, or direct Text
-  lowering is authorized by this receipt.
+  authority. The compiler-side same-loan ParamDecl/lane aggregate is now the
+  active transport-only I0; no skeleton, session, ValueId adoption, or direct
+  Text lowering is authorized by this receipt.
 
 Physical descriptor policy (design-only):
   The next compiler-side view is named
@@ -362,7 +364,7 @@ Physical descriptor policy (design-only):
   used as physical lane count, and any `ValueId` or Builder access before the
   aggregate is consumed.
 
-D0 acceptance gate (still open):
+D0 acceptance gate (accepted BoxShape, 2026-08-17):
   Accept the input BoxShape only when one compiler-side, non-Clone
   same-loan view exposes the catalog-backed source `ParamDecl` rows and a
   separate physical-parameter descriptor for the receiver-prefix and every
@@ -372,30 +374,32 @@ D0 acceptance gate (still open):
   The view must be callback-scoped, issue no new semantic fact, and expose
   complete/disjoint physical coverage. Caller and callee ValueId projection,
   skeleton reservation, and BindingSSA adoption remain downstream consumers;
-  they are not evidence for closing this D0. Until this gate is met, the only
-  next action is issuer census or `NoSafeSlice`, never a Builder effect.
+  they are not evidence for closing this D0. This gate is now closed as a
+  design contract: the compiler-side issuer is a mechanical same-loan
+  consumer, not a new semantic authority. Its implementation is the bounded
+  input I0 below; it must still reject before any Builder effect when the
+  relation is incomplete.
 
-Current code census (2026-08-18):
+Current code census (2026-08-17):
   `S6CInstalledCallableLoanRefV1` already lends `selected()`, `signature()`,
   `storage_header()`, `physical_effects()`, `result()`, and scoped Completion
   from one installed Port callback. The catalog-backed storage projection
   owns source `ParamDecl`/name/type/attrs/uses rows; the physical-signature
   row owns lane role/order/BindingRef; and the S6C effects projection owns
-  only the source-backed effect mask. However, no compiler-side issuer yet
-  joins these siblings into physical parameter descriptors. Existing
-  `MirParamDecl` and `create_resolved_function_skeleton` remain
-  source-annotation and one-lane consumers, respectively. This census is
-  evidence for the missing issuer, not permission to call the skeleton API or
-  infer expanded lanes from `FunctionSignature` length.
+  only the source-backed effect mask. The compiler-side issuer is now landed
+  as the transport-only input I0: it joins only these borrowed siblings into
+  physical parameter descriptors. Existing `MirParamDecl` and
+  `create_resolved_function_skeleton` remain source-annotation and one-lane
+  consumers, respectively. This census authorizes only the input aggregate,
+  not a skeleton call or inference from `FunctionSignature` length.
 
-Next implementation cell after D0 acceptance:
-  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` will add one
+Implementation receipt after D0 acceptance:
+  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` adds one
   callback-scoped compiler module that consumes the same loan and emits no
-  Builder effect. It may expose descriptor rows and borrowed source siblings
-  to the later skeleton consumer, but must not reserve blocks, create
-  `ValueId`s, adopt BindingSSA, consume Completion, or lower a loop. This cell
-  is not open while `work_mode` remains `design_stop` and the D0 gate above is
-  unsealed.
+  Builder effect. It exposes descriptor rows and borrowed source siblings to
+  the later skeleton consumer, but reserves no blocks, creates no `ValueId`s,
+  adopts no BindingSSA, consumes no Completion, and lowers no loop. Skeleton
+  reservation remains a separate later row.
 
 Implementation receipt (2026-08-17):
   The I0 is landed. `VerifiedS6CStorageHeaderProjectionV1` is a distinct
@@ -407,12 +411,63 @@ Implementation receipt (2026-08-17):
   design stop is the physical function-entry/skeleton issuer; no Builder
   effect was opened by this I0.
 
+Entry-input I0 receipt boundary (2026-08-17):
+  The accepted D0 now permits one callback-scoped compiler transport module
+  to consume the same installed S6C loan and build the nonsemantic physical
+  descriptor rows. The module may widen package accessors needed to borrow
+  source `ParamDecl`s, but it must not mint a second signature/header/effects
+  authority. Its focused gate must cover static and instance receiver order,
+  mixed ordinary/ExactText lanes, aliasing occurrences, and every rejection
+  in the descriptor policy above. This receipt does not authorize skeleton
+  allocation or any `ValueId`/Builder mutation.
+
 Non-claims:
-  No skeleton or lane implementation is authorized by this design stop. No
+  No skeleton or entry-lane adoption is authorized by this transport slice. No
   Loop CFG block allocation, Loop topology, Binding read/write beyond the
   future entry-lane adoption, PHI sealing,
   operation/control lowering, Completion claim, Return/DraftSeal, lifecycle,
   Text route, production caller, fallback, or retry.
+```
+
+### Next design stop: `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-D0`
+
+```text
+Decision:
+  Keep `NoSafeSlice::CanonicalFunctionSkeletonInputsUnsealed`. The landed
+  descriptor aggregate is transport only; it does not authorize a fresh
+  function, parameter reservation, or ExactText adoption.
+
+Source authority + canonical issuer:
+  The next compiler-side census must consume the same installed S6C loan and
+  prove one source-backed relation for selected identity/mode, symbol, result
+  and physical header, storage attrs/uses, source EffectMask, and the complete
+  physical lane descriptor list. A single compiler co-seal issuer may prepare
+  the skeleton input, while the existing function skeleton/session remains a
+  consumer and rollback owner rather than a semantic issuer.
+
+Non-authority:
+  `MirParamDecl`, `FunctionSignature` length, logical `/N`, raw `ValueId`
+  order, `ValueId(ordinal)`, Recipe/JoinSig ordinal, AST re-scan, and the
+  existing one-lane `create_resolved_function_skeleton` path cannot fill a
+  missing physical field or choose the ExactText sidecar policy.
+
+Fail-fast boundary:
+  Missing symbol/mode/attrs/uses/effects, foreign owner/brand, logical versus
+  physical arity drift, receiver-prefix drift, or an ExactText pair that
+  would require publishing the same BindingRef twice rejects before Builder
+  effect. No fixture-built skeleton, default effect, or fallback may repair it.
+
+Smallest next slice:
+  Read-only issuer census only: enumerate the same-loan inputs, choose the
+  sole skeleton-input owner, and fix the ordinary-lane versus ExactText
+  `[slot,generation]` entry adoption rule. If the census closes, a separate
+  caller-zero skeleton reservation I0 may begin; otherwise retain this
+  NoSafeSlice.
+
+Non-claims:
+  No skeleton allocation, ValueId/BindingSSA adoption, Loop CFG/PHI,
+  Completion consumption/claims, DraftSeal, lifecycle, Text, route,
+  production caller, fallback, or retry.
 ```
 
 ## Decision
@@ -1530,11 +1585,11 @@ skip the After closure or reopen a Tail-only route.
 | 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
 | 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | landed 2026-08-17; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
 | 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open one caller-zero canonical session owner without exposing a second loan | landed 2026-08-17; typed expectation projects inside `new_common_v2`, borrowed Completion yields one owned physical consumer, and the envelope remains callback-scoped; no Builder/CFG effect, claim, DraftSeal, lifecycle, or physicalizer |
-| 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | design stop narrowed to the input census below; no Builder effect, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
+| 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | accepted BoxShape; active input I0 is transport-only, while skeleton/lane adoption remain separate design stops; no Builder effect, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-b | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-D0` | accept one package/installed-loan issuer for S6C storage header, result, attrs/uses, source-backed effects, and physical signature relation | accepted BoxShape; caller-zero I0 is the only open effect; no skeleton or Builder effect |
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
-| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; census the same-loan physical-parameter descriptor/lane-role projection, including source ParamDecl, receiver, and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
-| 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | future caller-zero I0 only after 25b-c0 acceptance; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
+| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
+| 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | future caller-zero I0 only after 25b-c0 acceptance; no ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume the accepted skeleton and adopt ordinary lanes plus one ExactText BindingRef with adjacent `[slot,generation]` sidecar policy | future second I0; no reuse of one-value adoption for both ExactText lanes, no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |

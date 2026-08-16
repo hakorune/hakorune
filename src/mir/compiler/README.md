@@ -76,6 +76,29 @@ operations, claims, Returns, DraftSeal, lifecycle, Text, route, fallback, or
 production code; the first session-effects boundary remains a separate design
 stop.
 
+### Common V2 physical function-entry input I0
+
+`common_v2_physical_function_entry_input.rs` is the transport-only consumer
+of the accepted physical-entry BoxShape. Inside the same installed S6C HRTB
+loan it borrows the catalog-backed storage header, physical-signature lane
+row, and source-backed physical effects, then projects one non-semantic
+`PhysicalCallableParameterDescriptorV1` per physical lane. The descriptor
+records lane role/order, source `BindingRef` relation, diagnostic name, source
+annotation evidence, and the checked carrier tag
+(`ExistingCallableI64` or `U64BitsOnI64`). It never issues semantic meaning,
+allocates a skeleton, creates a `ValueId`, or mutates Builder/CFG/SSA state.
+
+Receiver order is an explicit prefix row (`me`) and is not an explicit source
+formal. Ordinary formals use one existing `i64` lane; one ExactText formal
+uses adjacent `[slot, generation]` lanes over the existing `i64` mechanical
+carrier, with `U64BitsOnI64` preserving the wire meaning. Missing/duplicate
+source names, foreign owners, lane gaps/swaps, non-adjacent ExactText pairs,
+and incomplete header/effects relations reject before any Builder effect.
+The aggregate owns the same callback-scoped loan, so its siblings cannot be
+re-paired or stored as a second package authority. Skeleton reservation and
+entry-lane adoption remain separate future rows; lifecycle, Text lowering,
+route selection, fallback, and production callers are closed.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

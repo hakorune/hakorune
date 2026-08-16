@@ -29,15 +29,15 @@ pub(crate) struct VerifiedS6CPhysicalFunctionEffectsV1 {
 }
 
 impl VerifiedS6CPhysicalFunctionEffectsV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
-    pub(super) const fn effect_mask(&self) -> EffectMask {
+    pub(crate) const fn effect_mask(&self) -> EffectMask {
         self.effect_mask
     }
 
-    pub(super) const fn external_call_count(&self) -> u8 {
+    pub(crate) const fn external_call_count(&self) -> u8 {
         self.external_call_count
     }
 }
