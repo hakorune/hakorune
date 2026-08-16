@@ -82,11 +82,10 @@ Related:
   callback-scoped common admission is landed; the active boundary is the first
   canonical session effect. A-prime lifecycle activation remains parked until
   this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-EFFECTS-D0` follows
-  the landed caller-zero session-open canary. It must decide the first
-  permitted session effect boundary before any CFG/Binding-SSA/PHI mutation;
-  it does not add a second physicalizer, retrofit lifecycle, or use
-  fallback/retry.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` follows
+  the landed caller-zero session-open canary. It must census one same-cohort
+  physical skeleton plus exact entry-lane adoption; Loop CFG/block effects,
+  reads, PHI, Completion claims, and DraftSeal remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -130,8 +129,8 @@ Smallest next slice:
   The source-product and transport rows are landed, and
   LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 now issues one callback-scoped
   non-Clone fan-in with exact owner/origin/root/Loop/Completion checks. The
-  next bounded row is LOOP-COMMON-V2-PHYSICAL-SESSION-I0; it alone may consume
-  the admission to open the canonical session.
+  caller-zero session-open canary consumes that admission once; the next
+  bounded design row is LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0.
 
 Non-claims:
   No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
@@ -211,6 +210,53 @@ production caller. It does not reuse `new_selected_dynamic`, pass a raw
 BlockExpr count, or expose a second session. The next row is a design stop for
 the first allowed session effects; until that boundary is source-backed, the
 current blocker remains `NoSafeSlice::CanonicalSessionEffectsUnsealed`.
+
+### LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0
+
+```text
+Decision:
+  Keep design_stop. The first permitted entry boundary is one atomic
+  same-cohort physical skeleton reservation plus exact callable-formal lane
+  adoption; do not lower the fifteen logical placements or allocate Loop
+  blocks yet.
+
+Source authority + canonical issuer:
+  Installed S6C selected identity, Completion-independent physical signature,
+  physical header/result cohort, and the function transaction jointly issue
+  one source-backed entry input. The fresh function skeleton owner reserves
+  the physical lanes; CanonicalSsaFunctionSessionV2.identity is the sole
+  BindingRef -> ValueId adoption owner; CanonicalFunctionLoweringSessionV1 is
+  the unpublished transaction/restore owner.
+
+Non-authority:
+  Common V2 operation/control/coverage rows, Recipe/JoinSig ordinals,
+  logical `/N`, FunctionSignature length, raw `ParamDecl` one-to-one
+  skeletons, current_block, raw ValueId order, ReadyLoopEntry,
+  LoopPhysicalBlockReceipt, Dynamic-only session, or any legacy finalizer may
+  issue the skeleton or entry adoption.
+
+Fail-fast boundary:
+  Before mutation, require one same owner/origin/cohort, exact selected
+  identity/header/signature/result, receiver-prefix policy, dense
+  non-duplicate logical ordinals, adjacent ExactText `[slot,generation]`
+  lanes, reserved entry parameter/type agreement, and one installed
+  unpublished function transaction. Any mismatch means effect 0; a
+  post-mutation failure discards the whole unpublished function once, with no
+  retry or fallback.
+
+Smallest next slice:
+  Design-only census of a callback-scoped
+  `PreparedCanonicalFunctionEntryInput` (or equivalent) that co-seals the
+  physical skeleton layout and entry-lane rows. Only after acceptance may a
+  caller-zero I0 reserve that skeleton and adopt entry lanes; no Loop block,
+  operation/control, read, PHI, Completion claim, or DraftSeal is included.
+
+Non-claims:
+  No Loop CFG block allocation, Loop topology, Binding read/write beyond the
+  entry-lane adoption, PHI sealing,
+  operation/control lowering, Completion claim, Return/DraftSeal, lifecycle,
+  Text route, production caller, fallback, or retry.
+```
 
 ## Decision
 
@@ -1326,7 +1372,7 @@ skip the After closure or reopen a Tail-only route.
 | 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
 | 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | landed 2026-08-17; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
 | 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open one caller-zero canonical session owner without exposing a second loan | landed 2026-08-17; typed expectation projects inside `new_common_v2`, borrowed Completion yields one owned physical consumer, and the envelope remains callback-scoped; no Builder/CFG effect, claim, DraftSeal, lifecycle, or physicalizer |
-| 25b-a | `LOOP-COMMON-V2-PHYSICAL-SESSION-EFFECTS-D0` | settle the first source-backed CFG/Binding-SSA/PHI effect boundary after the session-open canary | design stop; no operation/control physicalization, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
+| 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | design stop; no Loop CFG/block allocation, Loop topology, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
