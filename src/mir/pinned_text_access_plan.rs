@@ -212,6 +212,14 @@ impl PinnedTextAccessPlanTableV1 {
         }
     }
 
+    pub(crate) const fn stamp(&self) -> u64 {
+        self.stamp
+    }
+
+    pub(crate) fn row_count(&self) -> usize {
+        self.rows.len()
+    }
+
     pub(crate) fn row(
         &self,
         id: PinnedTextAccessPlanIdV1,

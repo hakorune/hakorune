@@ -42,6 +42,6 @@ pub(crate) use model::{
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
-    PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
+    PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
     VerifiedCallablePhysicalSignatureCohortV1,
 };

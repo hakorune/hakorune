@@ -8,7 +8,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0 accepted as a design-only BoxShape; its bounded Binder I0 is active."
 work_mode = "fast"
 current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-I0"
-current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameBinderUnimplemented; keep GEP/load, lifecycle CFG, session residence adoption, route admission, fallback, retry, and production callers closed."
+current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameTransportUnimplemented; Rust contract metadata is landed, but strict versioned transport/ny-llvmc layout validation remains closed; keep GEP/load, lifecycle CFG, session residence adoption, route admission, fallback, retry, and production callers closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (backend-frame co-seal D0 accepted -> Binder I0)"
-active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the mandatory future ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The selected binder now requires the target capability and must add the scoped full-lane and ResidenceAbiLayout views before issuing one private contract. GEP/load, lifecycle, route, and production callers remain closed."
+active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the mandatory future ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The selected binder now issues unpublished Rust contract metadata from the scoped full-lane and ResidenceAbiLayout views with a mandatory target capability; strict versioned transport is the remaining I0 seam. GEP/load, lifecycle, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,7 +29,7 @@ current_execution_design = "docs/development/current/main/investigations/text-fo
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "text-formal-pinned-residence-backend-frame-binder-i0"
 latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-binder-i0-2026-08-16.md"
-latest_card_summary = "The co-seal D0 is accepted as design-only. Binder I0 must issue one private contract from complete lane rows, ResidenceAbiLayoutV1, stamped access census, and mandatory target capability; only typed metadata/strict transport opens, while GEP/load and execution remain closed."
+latest_card_summary = "The co-seal D0 is accepted as design-only. Binder I0 now issues unpublished Rust contract metadata from complete lane rows, ResidenceAbiLayoutV1, stamped access census, and mandatory target capability; strict versioned transport remains, while GEP/load and execution stay closed."
 next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0 (accepted)"
 next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-coseal-d0-2026-08-16.md"
 next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-I0"

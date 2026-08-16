@@ -34,6 +34,22 @@ allowed only at compatibility edges before the selected binder narrows the
 contract. The returned contract is owned and private; no loan, pointer, token,
 or mutable package reference escapes the callback.
 
+## Landed Rust subset
+
+The first vertical slice is now implemented:
+
+```text
+ResidenceAbiLayoutV1 is issued by runtime/text_formal_residence
+ResolvedCallablePhysicalSignatureLoanV1 lends complete lane rows
+ExactText selected closes reject a missing target capability
+the four-input contract is checked before collector mutation
+unpublished MirFunction metadata retains the private contract summary
+```
+
+Focused evidence: the explicit Residence ABI layout test, physical-signature
+lane tests (2/2), target-capability tests (3/3), and the normal package suite
+(19/19) are green. This does not open the strict transport consumer.
+
 ## Required contract fields
 
 The contract contains only mechanically checked facts:

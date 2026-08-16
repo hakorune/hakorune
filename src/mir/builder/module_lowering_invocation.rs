@@ -118,6 +118,7 @@ pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     Admission(ModuleDraftAdmissionErrorV1),
     ReceiptBrand(CollectorReceiptBrandErrorV1),
     PhysicalSignatureMismatch,
+    PinnedTextBackendFrameContractMismatch,
 }
 
 #[cfg(test)]
@@ -142,6 +143,10 @@ impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
                     "[freeze:contract][mir/resolved-child/physical-signature-mismatch]"
                 )
             }
+            Self::PinnedTextBackendFrameContractMismatch => write!(
+                formatter,
+                "[freeze:contract][mir/resolved-child/pinned-text-backend-frame-mismatch]"
+            ),
         }
     }
 }

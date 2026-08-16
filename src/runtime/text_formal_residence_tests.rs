@@ -17,6 +17,19 @@ fn published_pair(handle: u64) -> TextFormalWirePairV1 {
 }
 
 #[test]
+fn residence_abi_layout_is_explicit_and_not_host_inferred() {
+    let layout = residence_abi_layout_v1();
+    assert_eq!(layout.revision(), "text-formal-residence-v1");
+    assert_eq!(layout.frame_revision(), RESIDENCE_FRAME_REVISION_V1);
+    assert_eq!(layout.header_size(), RESIDENCE_FRAME_HEADER_SIZE_V1);
+    assert_eq!(layout.root_row_size(), RESIDENCE_ROOT_ROW_SIZE_V1);
+    assert_eq!(layout.header_alignment(), 8);
+    assert_eq!(layout.root_row_alignment(), 8);
+    assert_eq!(layout.frame_size_for_roots(2), Some(64));
+    assert!(layout.frame_size_for_roots(u32::MAX).is_none());
+}
+
+#[test]
 fn residence_projects_occurrence_ordered_roots_and_finishes() {
     let _guard = test_lock();
     let subject = host_handles::to_handle_text("subject");

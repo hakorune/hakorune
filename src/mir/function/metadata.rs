@@ -112,6 +112,11 @@ pub struct FunctionMetadata {
     pub(crate) pinned_text_access_plans:
         crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
 
+    /// Unpublished Rust-side backend-frame contract. JSON/C transport is a
+    /// later strict projection and may not reconstruct this relation.
+    pub(crate) pinned_text_backend_frame_contract:
+        Option<crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1>,
+
     /// Candidate-only Dynamic AOT projection. The canonical physical session
     /// installs it once; JSON borrows it without rebuilding site/ABI facts.
     pub(super) dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,

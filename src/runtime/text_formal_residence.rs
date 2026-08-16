@@ -18,6 +18,83 @@ pub(crate) use host_handles::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFin
 const RESIDENCE_FRAME_REVISION_V1: u32 = 1;
 const RESIDENCE_FRAME_HEADER_SIZE_V1: u32 = 32;
 const RESIDENCE_ROOT_ROW_SIZE_V1: u32 = 16;
+const RESIDENCE_FRAME_HEADER_ALIGNMENT_V1: u32 = 8;
+const RESIDENCE_ROOT_ROW_ALIGNMENT_V1: u32 = 8;
+const RESIDENCE_MAX_ROOT_COUNT_V1: u32 = 1024;
+const RESIDENCE_MAX_FRAME_BYTES_V1: u32 = 65_536;
+const RESIDENCE_ABI_REVISION_V1: &str = "text-formal-residence-v1";
+
+/// Compile-time ABI facts owned by the Residence implementation.
+///
+/// This view intentionally contains no pointer, lease token, or invocation
+/// state.  The backend-frame binder may compare it with the explicit compile
+/// target capability, but may not recreate it from host layout observations.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ResidenceAbiLayoutV1 {
+    revision: &'static str,
+    frame_revision: u32,
+    header_size: u32,
+    root_row_size: u32,
+    header_alignment: u32,
+    root_row_alignment: u32,
+    max_root_count: u32,
+    max_frame_bytes: u32,
+}
+
+impl ResidenceAbiLayoutV1 {
+    pub(crate) const fn revision(self) -> &'static str {
+        self.revision
+    }
+
+    pub(crate) const fn frame_revision(self) -> u32 {
+        self.frame_revision
+    }
+
+    pub(crate) const fn header_size(self) -> u32 {
+        self.header_size
+    }
+
+    pub(crate) const fn root_row_size(self) -> u32 {
+        self.root_row_size
+    }
+
+    pub(crate) const fn header_alignment(self) -> u32 {
+        self.header_alignment
+    }
+
+    pub(crate) const fn root_row_alignment(self) -> u32 {
+        self.root_row_alignment
+    }
+
+    pub(crate) const fn max_root_count(self) -> u32 {
+        self.max_root_count
+    }
+
+    pub(crate) const fn max_frame_bytes(self) -> u32 {
+        self.max_frame_bytes
+    }
+
+    pub(crate) const fn frame_size_for_roots(self, root_count: u32) -> Option<u32> {
+        match self.root_row_size.checked_mul(root_count) {
+            Some(rows) => self.header_size.checked_add(rows),
+            None => None,
+        }
+    }
+}
+
+/// Sole issuer for the Residence-owned compile-time ABI view.
+pub(crate) const fn residence_abi_layout_v1() -> ResidenceAbiLayoutV1 {
+    ResidenceAbiLayoutV1 {
+        revision: RESIDENCE_ABI_REVISION_V1,
+        frame_revision: RESIDENCE_FRAME_REVISION_V1,
+        header_size: RESIDENCE_FRAME_HEADER_SIZE_V1,
+        root_row_size: RESIDENCE_ROOT_ROW_SIZE_V1,
+        header_alignment: RESIDENCE_FRAME_HEADER_ALIGNMENT_V1,
+        root_row_alignment: RESIDENCE_ROOT_ROW_ALIGNMENT_V1,
+        max_root_count: RESIDENCE_MAX_ROOT_COUNT_V1,
+        max_frame_bytes: RESIDENCE_MAX_FRAME_BYTES_V1,
+    }
+}
 
 /// Private compiler/runtime frame header.  It is not the callable Text wire;
 /// the latter remains the separate slot/generation pair.

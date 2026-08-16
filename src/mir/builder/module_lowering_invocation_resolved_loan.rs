@@ -20,10 +20,30 @@ impl ModuleLoweringPortV1<'_> {
         if loan.owner() != admission.owner() {
             return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
         }
+        let backend_target =
+            if loan.has_exact_text_formal() {
+                Some(target_capability.ok_or(
+                    ModuleLoweringPortChildErrorV1::PinnedTextBackendFrameContractMismatch,
+                )?)
+            } else {
+                None
+            };
         let (key, symbol, arity) = admission.collector_parts();
-        pending.complete_before_restore(|draft| {
-            let _loan = loan;
-            let _target_capability = target_capability;
+        pending.complete_before_restore(|mut draft| {
+            let backend_contract = if let Some(target) = backend_target {
+                Some(crate::mir::compiler::pinned_text_backend_frame::issue_pinned_text_backend_frame_contract_v1(
+                    &loan,
+                    &draft.metadata.pinned_text_access_plans,
+                    crate::runtime::text_formal_residence::residence_abi_layout_v1(),
+                    target,
+                )
+                .map_err(|_| {
+                    ModuleLoweringPortChildErrorV1::PinnedTextBackendFrameContractMismatch
+                })?)
+            } else {
+                None
+            };
+            draft.metadata.pinned_text_backend_frame_contract = backend_contract;
             let prepared = self
                 .prepare_draft_admission(
                     key,

@@ -111,6 +111,25 @@ impl<'loan> ResolvedCallablePhysicalSignatureLoanV1<'loan> {
     pub(crate) const fn physical_formal_lane_count(&self) -> u32 {
         self.row.physical_formal_lane_count()
     }
+
+    pub(crate) fn has_exact_text_formal(&self) -> bool {
+        self.row.lanes().iter().any(|lane| {
+            matches!(
+                lane.role(),
+                crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::
+                    ExactTextSlot
+            )
+        })
+    }
+
+    /// Borrow the complete lane rows from the package-owned cohort.  This is
+    /// a scoped sibling view; it never copies or reissues the signature rows.
+    pub(crate) fn lanes(
+        &self,
+    ) -> &[crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneV1]
+    {
+        self.row.lanes()
+    }
 }
 
 /// Exactly-once selected input paired with the catalog admission that already
