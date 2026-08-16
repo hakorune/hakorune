@@ -39,5 +39,23 @@ PinnedTextOp lowering in this row.
 The typed binder must reject missing or foreign plan stamps/roots, census,
 operand or effect drift, unsupported leaf width/boundary, and any attempt to
 infer residence, UTF-8 safety, layout, or Text meaning. MIR JSON remains
-transport-only; the next design result is this contract and its structural
-negative matrix, not GEP/load implementation.
+transport-only; the binder requires an opaque backend-private residence-frame
+capability keyed by the same stamp/root order. Issuing that capability,
+adopting it into a session, and finishing it are the separate Residence
+successor; this card may name the input and reject its absence, but may not
+invent or publish a second residence authority.
+
+## Typed leaf contract (design-only)
+
+    ByteLen(root) -> i64
+    Utf8WidthAt(root, byte_offset:i64) -> i64 in 1..=4
+    Utf8ScalarSliceEqWholeText(lhs_root, offset:i64, width:i64, rhs_root) -> i1
+
+The binder consumes the stamped plan row, the final lifetime census, and the
+opaque residence-frame capability. It emits only the three typed leaf results;
+it never reconstructs a plan, reads raw JSON IDs as authority, or recaptures a
+generation. Reject before IR effect on foreign/missing frame or stamp, root
+row/count drift, incomplete or duplicate coverage, non-i64 offset/width,
+negative/overflowing range, invalid UTF-8 boundary, whole-text RHS mismatch,
+unsupported width/alignment, or non-READ effect. This is a contract matrix,
+not GEP/load permission.
