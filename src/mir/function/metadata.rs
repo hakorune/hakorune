@@ -107,6 +107,11 @@ pub struct FunctionMetadata {
     /// this table and is admitted exactly once by the canonical session.
     checked_callout_site_plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
 
+    /// Function-local stamped Text leaf plans. JSON export validates that
+    /// every row is emitted exactly once; no backend consumes this table yet.
+    pub(crate) pinned_text_access_plans:
+        crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
+
     /// Candidate-only Dynamic AOT projection. The canonical physical session
     /// installs it once; JSON borrows it without rebuilding site/ABI facts.
     pub(super) dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,

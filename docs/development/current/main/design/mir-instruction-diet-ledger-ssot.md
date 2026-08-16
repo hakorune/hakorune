@@ -49,10 +49,10 @@ capability gate rejects execution; these rows must not be added to
 
 | Cohort | Count |
 |---|---:|
-| kept | 47 |
+| kept | 48 |
 | lowered-away | 0 |
 | removed | 16 |
-| vocabulary | 63 |
+| vocabulary | 64 |
 
 運用注記（2026-03）:
 - `Catch/Throw` は語彙としては kept だが、selfhost/mainline の日常 lane では `NYASH_TRY_RESULT_MODE=1` に pin して legacy MIR `Catch/Throw` 実行を使わない。

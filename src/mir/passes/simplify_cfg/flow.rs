@@ -418,6 +418,9 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(operand, from, to);
             }
         }
+        MirInstruction::PinnedTextOp { kind, .. } => {
+            kind.rewrite_values(|value| rewrite_value_use(value, from, to));
+        }
         MirInstruction::BinOp { lhs, rhs, .. } | MirInstruction::Compare { lhs, rhs, .. } => {
             rewrite_value_use(lhs, from, to);
             rewrite_value_use(rhs, from, to);

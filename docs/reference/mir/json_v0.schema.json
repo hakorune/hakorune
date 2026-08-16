@@ -148,6 +148,7 @@
             "record_field_contract_check",
             "record_value_publish",
             "memop",
+            "pinned_text_op",
             "mir_call",
             "newbox",
             "phi",

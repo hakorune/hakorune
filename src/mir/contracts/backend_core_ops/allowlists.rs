@@ -75,6 +75,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::FutureSet { .. }
             | MirInstruction::Await { .. }
             | MirInstruction::Phi { .. }
+            | MirInstruction::PinnedTextOp { .. }
     )
 }
 
@@ -193,6 +194,10 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
             }
         }
 
+        // Transport-only in I0: it is serialized for typed round-trip but no
+        // backend may claim a lowering opcode yet.
+        MirInstruction::PinnedTextOp { .. } => &[],
+
         MirInstruction::Load { .. }
         | MirInstruction::Store { .. }
         | MirInstruction::NewClosure { .. }
@@ -251,6 +256,7 @@ pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
     "checked_callout_normal_result",
     "checked_callout_end",
     "checked_callout_fault",
+    "pinned_text_op",
 ];
 
 /// Canonical LLVM JSON opcode allowlist (Python lowerer frontend contract).

@@ -7,6 +7,7 @@
 
 use super::{EdgeArgs, EffectMask, ValueId};
 use crate::mir::definitions::Callee; // Import Callee from unified definitions
+use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextAccessPlanIdV1};
 use crate::mir::types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
@@ -343,6 +344,14 @@ pub enum MirInstruction {
         operands: Vec<ValueId>,
         access: Option<MemOpAccess>,
         effects: EffectMask,
+    },
+
+    /// Transport-only pinned Text leaf.  The plan table owns all safety facts;
+    /// this variant carries only the typed leaf and its function-local stamp.
+    PinnedTextOp {
+        dst: ValueId,
+        plan: PinnedTextAccessPlanIdV1,
+        kind: PinnedTextAccessKindV1,
     },
 
     /// Canonical object field read.

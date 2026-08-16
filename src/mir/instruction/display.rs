@@ -180,6 +180,16 @@ impl fmt::Display for MirInstruction {
                 }
                 write!(f, "); effects: {}", effects)
             }
+            MirInstruction::PinnedTextOp { dst, plan, kind } => {
+                write!(
+                    f,
+                    "{} = pinned_text.{} plan={} stamp={}",
+                    dst,
+                    kind.tag(),
+                    plan.index(),
+                    plan.stamp()
+                )
+            }
             _ => write!(f, "{:?}", self), // Fallback for other instructions
         }
     }

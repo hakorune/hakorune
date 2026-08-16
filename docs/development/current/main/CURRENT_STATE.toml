@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature BoxShape, caller-zero runtime lease substrate, StableText-only pinned-residence BoxShape, and caller-zero residence entry/frame I0 are closed; the live pointer is the Text-slice design stop. Call edge, session, Text execution, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature BoxShape, caller-zero runtime lease substrate, StableText-only pinned-residence BoxShape, caller-zero residence entry/frame I0, and the target-neutral Text-slice D0 are closed; the live pointer is the transport-only Text-slice I0. Call edge, session, direct backend, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-TEXT-SLICE-EXECUTION-D0; the StableText-only residence BoxShape and caller-zero entry/frame I0 are landed, while the CP-cursor proof, one-variant Text leaf, final census, and direct backend consumer remain design-only."
-work_mode = "design_stop"
-current_execution_row = "LOOP-TEXT-SLICE-EXECUTION-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextOpScopeWidened; design only the CP-cursor/one-variant Text operation boundary and keep session CFG, production backend, route admission, fallback, and retry closed."
+current_design_stop = "LOOP-TEXT-SLICE-EXECUTION-D0 accepted; the transport-only I0 is limited to the private stamped plan table, one PinnedTextOp variant with three fixed leaves, exact census, fixed READ effects, and typed MIR/JSON payload transport."
+work_mode = "fast"
+current_execution_row = "LOOP-TEXT-SLICE-EXECUTION-I0"
+current_blocker_token = "NoSafeSlice::PinnedTextOpScopeWidened; keep direct backend lowering, lifecycle CFG, session wiring, route admission, performance selection, fallback, retry, and production callers closed during transport I0."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (pinned Text residence I0 -> Text slice design stop)"
-active_lane_status = "The accepted callable boundary keeps explicit source arity, optional InstanceReceiver lane count, expanded physical-formal-lane count, and total physical-callable-lane count distinct; one ExactText formal maps to adjacent scalar slot/generation lanes. Caller-zero signature and StableText residence I0 now land their package/runtime substrates. The next design stop is the CP-cursor and one-variant Text operation boundary; call-edge actualization, session values, TextEq route, and production callers remain zero."
+active_lane = "Loop compiler frontier (pinned Text residence I0 -> Text slice transport I0)"
+active_lane_status = "The accepted callable boundary keeps explicit source arity, optional InstanceReceiver lane count, expanded physical-formal-lane count, and total physical-callable-lane count distinct; one ExactText formal maps to adjacent scalar slot/generation lanes. Caller-zero signature and StableText residence I0 land their package/runtime substrates, and the Text-slice D0 fixes a target-neutral CP-cursor/one-variant boundary. The current I0 is transport-only; call-edge actualization, lifecycle CFG, session values, direct backend, TextEq route, and production callers remain zero."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/investigations/callabl
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "callable-text-formal-physical-signature-d0"
 latest_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
-latest_card_summary = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0 and the StableText-only caller-zero Residence I0 are landed: one package-owned lane cohort plus one occurrence-ordered entry/frame transaction, private root table, and move-only finish; the next design stop is CP-cursor/one-variant Text execution, with no call edge, session, production caller, fallback, or retry opened."
-next_design_card = "LOOP-TEXT-SLICE-EXECUTION-D0"
+latest_card_summary = "CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0 and the StableText-only caller-zero Residence I0 are landed, and LOOP-TEXT-SLICE-EXECUTION-D0 is accepted: the bounded next row is transport-only private plan table + one PinnedTextOp variant/three leaves + exact census + typed MIR/JSON payload transport; no direct backend, session, route, production caller, fallback, or retry."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "LOOP-TEXT-SLICE-EXECUTION-I0"
+next_execution_card_path = "docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-16: LOOP-TEXT-SLICE-EXECUTION-D0 accepted and caller-zero I0 landed the transport-only Text shape: a private stamped plan table, exact plan/instruction census, one PinnedTextOp variant with ByteLen/Utf8WidthAt/Utf8ScalarSliceEqWholeText leaves, fixed READ effects, and typed MIR/JSON payload transport; lifecycle CFG, direct backend, session, route, production caller, fallback, and retry remain closed; focused plan/instruction/JSON tests and cargo check green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-I0 landed the StableText-only caller-zero substrate: already-published pairs are preflighted and pinned in one registry transaction, one root row is retained per formal occurrence in a private frame owner, and move-only finish is explicit; StringBox/literal/call-edge/MIR/session/Text execution/production/fallback remain closed; focused residence 4/4, call-lifetime 17/17, lease facade 2/2, cargo check/format/diff green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-D0 accepted the StableText-only, caller-zero Residence BoxShape: one physical-signature occurrence order drives atomic entry/frame fill, private root IDs, and one Completion-backed finish capability; StringBox/literal/call-edge/session/Text execution/production/fallback remain closed; pointer advances to Residence I0.",
   "2026-08-16: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0 landed the package-owned non-Clone physical lane cohort: StaticBoxMethod/InstanceBoxMethod rows verify exact Receiver binding and explicit parameter contracts, keep source/receiver/formal/callable counts distinct, map ExactText to adjacent slot/generation lanes, and transport selected input/contracts/S6C child/signature through one combined exactly-once Port loan; physical ValueIds, Completion, residence, call edge, Text execution, production caller, fallback, and retry remain closed; focused physical-signature 2/2, S6C 2/2, package 29/29, cargo check/format/diff green.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",
   "2026-08-15: CALLABLE-PARAMETER-EXACT-TEXT-HANDLE-I0 landed one source-backed ExactText(StringBox-as-Text) formal parameter kind through the existing callable-parameter issuer, preserved i64/OpaqueHandle behavior, and made Dynamic compatibility reject it explicitly; focused 8/8 + 1/1 + 1/1, cargo check (1826 inherited warnings; no new ExactText warning), format/diff/pointer/Loop guards green; no physical Text ABI, S6C package, Builder/session, fallback, retry, or production caller opened.",
   "2026-08-15: LOOP-TEXT-EQ-SITE-CONTRACT-I0 consumed the complete caller-zero ingress by value into one non-Clone VerifiedS6CTextEqSourceBindingV1 and lent only the exact source/Recipe/If site plus passive TextEqualityLawV1; no key/source copy, revalidation, Completion/Tail, ABI, route, residence, Builder, or session owner was opened. Pointer now advances to the common V2 pre-session design stop.",
-  "2026-08-15: LANG-TEXT-EQUALITY-LAW-I0 made docs/reference/language/types.md §4.3 the sole String/Text equality owner: exact Unicode scalar sequence, case-sensitive, normalization-free, locale/collation-free; explicitly admitted StringBox-as-Text follows the law while ordinary non-Text BoxRef identity remains unchanged; no runtime/compiler behavior changed.",
 ]

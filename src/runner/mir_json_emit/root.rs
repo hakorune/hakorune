@@ -59,6 +59,18 @@ pub(super) fn build_mir_json_root(
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(f)?;
         crate::mir::type_contracts::typed_array::validate_function(f)?;
+        let mut pinned_text_rows = Vec::new();
+        for block in f.blocks.values() {
+            for instruction in &block.instructions {
+                if let crate::mir::MirInstruction::PinnedTextOp { plan, kind, .. } = instruction {
+                    pinned_text_rows.push((*plan, *kind));
+                }
+            }
+        }
+        f.metadata
+            .pinned_text_access_plans
+            .verify_census(&pinned_text_rows)
+            .map_err(|error| format!("pinned Text plan census failed: {error:?}"))?;
         let boxed_sum_site_plans =
             crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
                 f,

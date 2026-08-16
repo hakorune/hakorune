@@ -90,6 +90,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             StaticDataLoad { index, .. } => vec![*index],
             Store { ptr, value } => vec![*ptr, *value],
             MemOp { operands, .. } => operands.clone(),
+            PinnedTextOp { kind, .. } => kind.used_values(),
             Call {
                 callee, func, args, ..
             } => {
@@ -170,6 +171,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Load { dst, .. }
             | StaticDataLoad { dst, .. }
             | MemOp { dst: Some(dst), .. }
+            | PinnedTextOp { dst, .. }
             | ArrayElementWrite { dst: Some(dst), .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }

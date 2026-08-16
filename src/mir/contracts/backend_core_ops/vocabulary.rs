@@ -19,6 +19,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
+        MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
@@ -90,6 +91,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "KeepAlive",
     "Load",
     "MemOp",
+    "PinnedTextOp",
     "NewBox",
     "NewClosure",
     "Phi",
@@ -167,6 +169,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
         | MirInstruction::MemOp { .. }
+        | MirInstruction::PinnedTextOp { .. }
         | MirInstruction::NewBox { .. }
         | MirInstruction::NewClosure { .. }
         | MirInstruction::Phi { .. }

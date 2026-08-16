@@ -27,6 +27,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
+        MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",

@@ -154,6 +154,16 @@ pub fn format_instruction(
             }
         }
 
+        MirInstruction::PinnedTextOp { dst, plan, kind } => {
+            format!(
+                "{} pinned_text.{} plan={} stamp={}",
+                format_dst(dst, types),
+                kind.tag(),
+                plan.index(),
+                plan.stamp()
+            )
+        }
+
         MirInstruction::FieldGet {
             dst,
             base,

@@ -32,10 +32,11 @@ Related:
 - **Current implementation status:** the pair validator and caller-zero atomic
   lease-set/pending-retirement substrate are landed; the package-owned total
   physical-signature mapping and every compiler consumer remain caller-zero.
-- **Next ordered task:** keep the package signature cohort landed and stop at
-  `TEXT-FORMAL-PINNED-RESIDENCE-D0`; its backing, lifecycle carrier, private
-  frame ABI, and final lifetime-verifier authority remain design-only until
-  that Decision is accepted.
+- **Next ordered task:** implement the accepted
+  `LOOP-TEXT-SLICE-EXECUTION-I0` transport-only row: one private stamped plan
+  table, one `PinnedTextOp` variant with three fixed leaves, and typed
+  MIR/JSON payload transport. Direct backend lowering, lifecycle CFG, session wiring,
+  and route admission remain later rows.
 - **Production stop line:** no raw handle may recapture generation, no lane may
   become a second logical value, and no pointer/length residence may cross the
   callable boundary or detach from its lease set.

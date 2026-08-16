@@ -1,5 +1,5 @@
 ---
-Status: Residence D0 BoxShape accepted; next caller-zero Residence I0
+Status: Text-slice D0 BoxShape accepted; next caller-zero Text-slice I0
 Date: 2026-08-16
 Work mode: fast
 Classification: T2 BoxShape accepted; T2 caller-zero BoxCount next
@@ -393,6 +393,14 @@ Utf8WidthAt                     -> i64 in 1..=4
 Utf8ScalarSliceEqWholeText      -> Bool under the exact Text equality law
 ```
 
+The transport shape is fixed before implementation: `ByteLen` carries one
+residence-branded whole-root operand; `Utf8WidthAt` carries one root plus one
+byte-offset `ValueId`; `Utf8ScalarSliceEqWholeText` carries one subject root,
+one byte-offset `ValueId`, one byte-width `ValueId`, and one whole-text needle
+root. No generic operand vector, raw pointer/length pair, or caller-supplied
+effect is admitted. `PinnedTextOp` is one tagged MIR variant; lifecycle enter
+and finish are separate typed carriers and are not extra leaves.
+
 The first `ny-llvmc(boundary pure-first)` consumer loads exactly the selected
 one-to-four bytes.
 It does not use a wider unaligned load, overread, SIMD, or `memcmp` contract.
@@ -403,6 +411,14 @@ and close an exact one-plan-to-one-instruction census before JSON emission.
 Missing, duplicate, orphan, foreign-stamp, kind/root/operand/site mismatch, or
 a decoder that tries to reissue authority from a numeric ID rejects the
 unpublished function.
+
+`LOOP-TEXT-SLICE-EXECUTION-I0` is transport-only: it adds the private plan
+table, the one-variant instruction vocabulary, destination/use/effect/printer
+  coverage, and versioned MIR-JSON emitter/DTO payload round-trip. The transport
+allowlist must reject backend admission; `ny-llvmc` direct loads, VM/
+`llvm_py`, lifecycle CFG, session wiring, route/performance selection, and
+production callers remain later rows. A decoder may validate the stamped
+table, but may not issue a plan or infer authority from its numeric ID.
 
 All three `PinnedTextOp` leaves have fixed physical `EffectMask::READ`; the
 instruction has no caller-supplied effect field. Semantic Text equality
@@ -706,7 +722,7 @@ Text leaf/backend/production caller. The next design row is
 `LOOP-TEXT-SLICE-EXECUTION-D0`; the later Residence cutover seams remain
 explicitly parked until a production call edge exists.
 
-## Next design stop: LOOP-TEXT-SLICE-EXECUTION-D0 (2026-08-16)
+## Accepted design stop: LOOP-TEXT-SLICE-EXECUTION-D0 (2026-08-16)
 
 ```text
 Decision: accept only a target-neutral code-point cursor/access BoxShape: one residence-branded root and one verified access-plan ID feed a single `PinnedTextOp` MIR family with exactly three leaves (`ByteLen`, `Utf8WidthAt`, `Utf8ScalarSliceEqWholeText`); existing integer/compare/branch/PHI/placement owners remain unchanged.
@@ -722,3 +738,13 @@ owner, CFG/SSA/PHI remains Canonical MIR, and the three leaves are verified
 physical accesses rather than a second Text physicalizer. The later direct
 backend row must prove that the loop has zero runtime calls, locks,
 allocations, handle births, publication, retain/release, and environment reads.
+
+## Caller-zero Text-slice I0 landing (2026-08-16)
+
+`pinned_text_access_plan.rs` now owns the private stamped plan table and
+exact-once plan/instruction census. `MirInstruction::PinnedTextOp` carries
+only the fixed typed leaf, plan id, and destination; effects are always
+`READ`, MIR JSON emits the versioned typed payload, and the backend allowlist
+keeps the op transport-only. Focused plan/instruction/JSON tests and
+`cargo check --lib` are green; direct lowering, lifecycle CFG, session, route,
+and production caller remain closed.

@@ -272,6 +272,7 @@ fn emit_instruction(
         } => Ok(fastmem::emit_memop(
             region, kind, dst, operands, access, effects,
         )),
+        I::PinnedTextOp { dst, plan, kind } => Ok(basic::emit_pinned_text_op(dst, plan, *kind)),
         I::ArrayElementWrite {
             site_id,
             dst,

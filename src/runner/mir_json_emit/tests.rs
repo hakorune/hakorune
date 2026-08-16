@@ -132,3 +132,41 @@ fn make_string_loop_function() -> MirFunction {
     function.blocks.insert(exit, BasicBlock::new(exit));
     function
 }
+
+#[test]
+fn build_mir_json_root_requires_and_emits_pinned_text_plan_census() {
+    use super::root::build_mir_json_root;
+    use crate::mir::pinned_text_access_plan::{
+        PinnedTextAccessKindV1, PinnedTextAccessPlanTableV1, PinnedTextRootIdV1,
+    };
+    use crate::mir::MirModule;
+
+    let mut function = make_function("pinned_text_transport", false);
+    let root = PinnedTextRootIdV1::from_frame_row(0);
+    let kind = PinnedTextAccessKindV1::ByteLen { root };
+    let mut plans = PinnedTextAccessPlanTableV1::new(19);
+    let plan = plans.issue(kind);
+    function.metadata.pinned_text_access_plans = plans;
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block")
+        .instructions
+        .extend([
+            MirInstruction::PinnedTextOp {
+                dst: ValueId::new(1),
+                plan,
+                kind,
+            },
+            MirInstruction::Return {
+                value: Some(ValueId::new(1)),
+            },
+        ]);
+    let mut module = MirModule::new("pinned_text_transport".to_owned());
+    module.add_function(function);
+    let root = build_mir_json_root(&module).expect("plan census should pass");
+    let instruction = &root["functions"][0]["blocks"][0]["instructions"][0];
+    assert_eq!(instruction["op"], "pinned_text_op");
+    assert_eq!(instruction["plan_stamp"], 19);
+    assert_eq!(instruction["access"]["kind"], "byte_len");
+}
