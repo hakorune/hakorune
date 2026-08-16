@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow, common V2 canonical-session admission/session-open canary, typed BlockExpr issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0, detached physical-skeleton I0, slot-only entry adoption, and the consuming physical-entry/session seam are landed. The copied-row lifecycle prototype is historical only. A-prime remains parked because selected-normal production still uses a legacy finalizer without PreparedFunctionExitV1. The active lane is now a design stop for a V2-native physical-ID-free layout/placement issuer before any post-entry effect. Direct Text lowering, route, and production remain closed."
+status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow, common V2 canonical-session admission/session-open canary, typed BlockExpr issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0, detached physical-skeleton I0, slot-only entry adoption, consuming physical-entry/session seam, and the V2-native physical-ID-free layout/placement BoxShape are landed. The active caller-zero slice now transports typed topology only; block/effect emission, A-prime lifecycle, Direct Text lowering, route, and production remain closed."
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "The physical-entry/session consuming I0 is landed with same-loan admission, one fresh Builder transaction, slot-only BindingSSA plus generation sidecar, and exactly-once outer discard. Before choosing a post-entry effect, the next bounded design stop is a V2-native physical-ID-free layout/placement issuer census from the same operation/control/JoinSig products. Do not open block/effect emission until that source authority, carrier, and rollback boundary are named. A-prime lifecycle remains parked."
-work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0"
-current_blocker_token = "NoSafeSlice::PhysicalLayoutInputIssuerUnsealed"
+current_design_stop = "The physical-entry/session consuming I0 and the V2-native physical-ID-free layout/placement BoxShape are accepted. The active caller-zero slice only transports typed loop/block/item topology and JoinSig transfer bindings through the same common-V2 cohort; no Builder effect is open. The next design stop is post-layout physical effect ownership. A-prime lifecycle remains parked."
+work_mode = "fast"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0"
+current_blocker_token = "none"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 physical entry)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, physical-entry descriptor I0, detached physical skeleton I0, slot-only ExactText adoption, and the consuming physical-entry/session seam are landed. The next design stop is a V2-native physical-ID-free layout/placement issuer census from the same operation/control/JoinSig products; no block/effect emission is permitted until that source-backed carrier and rollback boundary are closed. MirParamDecl stays source metadata; lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
+active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, physical-entry descriptor I0, detached physical skeleton I0, slot-only ExactText adoption, consuming physical-entry/session seam, and the V2-native physical-ID-free layout/placement BoxShape are landed. The active caller-zero I0 transports typed loop/block/item topology and JoinSig transfer bindings through the same cohort; no Builder/block/effect emission is permitted. MirParamDecl stays source metadata; lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, and the consuming physical-entry/session seam are landed. The next design stop is a V2-native physical-ID-free layout/placement issuer census before any post-entry effect; lifecycle, Text, route, and production remain closed."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, and the V2-native physical-ID-free layout/placement BoxShape are landed. The active I0 transports typed topology only; the next design stop is post-layout effect ownership, while lifecycle, Text, route, and production remain closed."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
+next_execution_card = "LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
