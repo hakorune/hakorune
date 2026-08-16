@@ -6,9 +6,10 @@ use crate::mir::compiler::source_projection::{
     SourceNavigationErrorV1, VerifiedSourceProjectionV1,
 };
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
-    SemanticOwnerRootProfileV1,
+    issue_resolved_block_expr_expectation_v1, FunctionSemanticResolverSessionV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1, ResolveOwnerForestErrorV1,
+    ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolvedBlockExpressionExpectationIssueV1, SemanticOwnerRootProfileV1,
 };
 use crate::parser::{
     FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
@@ -30,6 +31,7 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     RootProfileMismatch,
     BodyShapeMissing,
     BodyShapeOwnerMismatch,
+    BlockExprExpectation(ResolvedBlockExpressionExpectationIssueV1),
     DuplicateOwner,
     Projection(SourceNavigationErrorV1),
     ParameterCountOverflow,
@@ -138,6 +140,9 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 if !owners.insert(*owner) {
                     return Err(ResolvedCallableSemanticBatchIssueV1::DuplicateOwner);
                 }
+                let block_expr_expectation =
+                    issue_resolved_block_expr_expectation_v1(function, &body_shape)
+                        .map_err(ResolvedCallableSemanticBatchIssueV1::BlockExprExpectation)?;
                 let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
                     declaration,
                     &forest,
@@ -153,6 +158,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                     function_origin: function.function_origin(),
                     forest,
                     body_shape: Arc::new(body_shape),
+                    block_expr_expectation,
                     projection,
                     method_source_observation,
                 });

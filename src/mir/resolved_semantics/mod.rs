@@ -7,6 +7,7 @@
 #![allow(dead_code, unused_imports)]
 
 mod assignment_source;
+mod block_expr_expectation;
 mod body_effect_control_coverage;
 mod body_shape;
 mod body_shape_resolver;
@@ -69,6 +70,10 @@ mod source_site_inventory;
 mod verifier;
 
 pub(crate) use assignment_source::{ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1};
+pub(crate) use block_expr_expectation::{
+    issue_resolved_block_expr_expectation_v1, ResolvedBlockExpressionExpectationIssueV1,
+    VerifiedResolvedBlockExpressionExpectationV1,
+};
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
     BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,

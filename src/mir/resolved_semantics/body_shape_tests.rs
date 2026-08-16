@@ -77,6 +77,93 @@ fn return_value(value: Option<ASTNode>) -> ASTNode {
     }
 }
 
+fn block_expr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode {
+    ASTNode::BlockExpr {
+        prelude_stmts,
+        tail_expr: Box::new(tail_expr),
+        span: Span::unknown(),
+    }
+}
+
+#[test]
+fn resolved_shape_issues_typed_block_expr_and_exact_expectation() {
+    let tree = function(
+        vec![return_value(Some(block_expr(Vec::new(), int(1))))],
+        true,
+    );
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    assert!(product
+        .body_shape()
+        .expressions()
+        .iter()
+        .any(|row| matches!(row, BodyExpressionShapeV1::BlockExpr { .. })));
+    let expectation =
+        super::issue_resolved_block_expr_expectation_v1(product.function(), product.body_shape())
+            .unwrap();
+    assert_eq!(expectation.owner(), product.function().owner());
+    assert_eq!(
+        expectation.function_origin(),
+        product.function().function_origin()
+    );
+    assert_eq!(expectation.pair_count(), 1);
+}
+
+#[test]
+fn resolved_shape_issues_zero_block_expr_expectation_without_defaulting_a_count() {
+    let tree = function(vec![return_value(Some(int(1)))], true);
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let expectation =
+        super::issue_resolved_block_expr_expectation_v1(product.function(), product.body_shape())
+            .unwrap();
+    assert_eq!(expectation.pair_count(), 0);
+}
+
+#[test]
+fn resolved_shape_counts_nested_block_expr_pairs_from_the_same_source_product() {
+    let tree = function(
+        vec![return_value(Some(block_expr(
+            Vec::new(),
+            block_expr(Vec::new(), int(1)),
+        )))],
+        true,
+    );
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let expectation =
+        super::issue_resolved_block_expr_expectation_v1(product.function(), product.body_shape())
+            .unwrap();
+    assert_eq!(expectation.pair_count(), 2);
+}
+
+#[test]
+fn resolved_shape_expectation_rejects_a_foreign_body_shape_owner() {
+    let with_block = function(
+        vec![return_value(Some(block_expr(Vec::new(), int(1))))],
+        true,
+    );
+    let without_block = function(vec![return_value(Some(int(1)))], true);
+    let first = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&with_block).unwrap())
+        .unwrap();
+    let second = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&without_block).unwrap())
+        .unwrap();
+    assert!(matches!(
+        super::issue_resolved_block_expr_expectation_v1(first.function(), second.body_shape()),
+        Err(super::ResolvedBlockExpressionExpectationIssueV1::OwnerMismatch)
+    ));
+}
+
 #[test]
 fn resolved_shape_issues_return_and_exact_value_site() {
     let tree = function(vec![return_value(Some(int(0)))], true);

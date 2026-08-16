@@ -1618,3 +1618,16 @@ ValueId, Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
 publication, or a production caller. The next row is canonical V2 session
 admission, which must consume this scoped envelope without rescanning
 Recipe/JoinSig or adding an S6C physicalizer.
+
+## Typed resolved BlockExpr expectation I0 (2026-08-17)
+
+The resolver now records `BlockExpr` as a typed body-shape variant during the
+same shadow traversal that issues the resolved function and body-shape
+inventory. `ResolvedBlockExpressionExpectationIssuerV1` co-seals those two
+products, checks exact source-site to scope/region-pair coverage in both
+directions, and stores one private non-Clone expectation in the callable
+semantic batch row. A raw `Other("BlockExpr")` string, arena length, fixed zero,
+AST/MIR rescan, or session counter is not an authority. This I0 is source-only:
+selected/package transport, canonical session construction, CFG/SSA/PHI,
+Completion consumption, physical lowering, fallback, retry, and production
+caller remain unopened.

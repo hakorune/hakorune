@@ -62,6 +62,9 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                 method: method.clone().into_boxed_str(),
                 arity: arguments.len(),
             },
+            crate::ast::ASTNode::BlockExpr { .. } => {
+                ShadowExpressionShapeV0::BlockExpr { site: site.clone() }
+            }
             _ => ShadowExpressionShapeV0::Other {
                 site: site.clone(),
                 kind: expression.node_type().into(),

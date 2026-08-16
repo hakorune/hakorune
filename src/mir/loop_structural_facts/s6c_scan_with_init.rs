@@ -271,6 +271,7 @@ fn expression_shape_site(shape: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
         | BodyExpressionShapeV1::MethodCall { site, .. }
+        | BodyExpressionShapeV1::BlockExpr { site }
         | BodyExpressionShapeV1::Other { site, .. } => site.clone(),
     }
 }

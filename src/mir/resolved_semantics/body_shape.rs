@@ -36,7 +36,9 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
     /// Bare receiver name proven absent from the lexical environment.
     /// Source-call routing may later bind it as a qualified static owner.
-    QualifiedReceiver { site: SourceExprSiteV1 },
+    QualifiedReceiver {
+        site: SourceExprSiteV1,
+    },
     Me {
         site: SourceExprSiteV1,
         receiver: BodyMeReceiverV1,
@@ -51,6 +53,9 @@ pub(crate) enum BodyExpressionShapeV1 {
         object: SourceExprSiteV1,
         method: Box<str>,
         arity: u32,
+    },
+    BlockExpr {
+        site: SourceExprSiteV1,
     },
     Other {
         site: SourceExprSiteV1,
@@ -131,6 +136,9 @@ pub(crate) enum ShadowExpressionShapeV0 {
         object: SourceExprSiteV1,
         method: Box<str>,
         arity: usize,
+    },
+    BlockExpr {
+        site: SourceExprSiteV1,
     },
     Other {
         site: SourceExprSiteV1,
@@ -513,6 +521,7 @@ fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
         | BodyExpressionShapeV1::MethodCall { site, .. }
+        | BodyExpressionShapeV1::BlockExpr { site }
         | BodyExpressionShapeV1::Other { site, .. } => site.clone(),
     }
 }
@@ -655,6 +664,9 @@ pub(crate) fn seal_shadow_body_shape(
                     method,
                     arity,
                 })
+            }
+            ShadowExpressionShapeV0::BlockExpr { site } => {
+                Ok(BodyExpressionShapeV1::BlockExpr { site })
             }
             ShadowExpressionShapeV0::Other { site, kind } => {
                 Ok(BodyExpressionShapeV1::Other { site, kind })

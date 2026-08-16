@@ -333,6 +333,16 @@ RegionFlow, ProgramV0, and compatibility fallback remain disconnected.
 B0-L3a is the first bounded Lower consumer: it queries the sealed BlockExpr
 pair by exact expression site and does not change resolver ownership.
 
+The typed BlockExpr expectation slice keeps that identity source-owned. The
+shadow traversal emits `BodyExpressionShapeV1::BlockExpr { site }` directly;
+the old `Other("BlockExpr")` spelling is not an authority. A sibling issuer
+co-seals the same `VerifiedResolvedFunctionV1` and
+`VerifiedResolvedBodyShapeInventoryV1`, checks every exact scope/region pair
+and reciprocal source-origin coverage, then publishes one private,
+non-Clone `VerifiedResolvedBlockExpressionExpectationV1`. It owns only the
+function/root provenance and pair count. It does not create a Recipe key,
+session, CFG, SSA, PHI, ValueId, or physical lowering path.
+
 ## B0-L3b-S1 exact If identity bundle
 
 S1 derives one private ID-only index while sealing

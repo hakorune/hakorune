@@ -39,3 +39,10 @@ lifecycle, Recipe key, Builder state, MIR value, physical ABI, retry, or
 fallback. Those are child projections or later co-seals. A second resolver
 call, name-based pairing, numeric owner repair, and arbitrary verified
 constructors are forbidden.
+
+The batch issuer also retains the resolver-owned typed BlockExpr expectation
+once, beside the same function/body-shape row. The batch row is the only owner;
+future selected/package ports may borrow it inside their HRTB, but may not
+reissue it, count `Other` strings, scan AST/MIR, or substitute a fixed zero.
+This slice remains sessionless: no Canonical session, Completion consumption,
+CFG/SSA/PHI, physical lowering, fallback, or production caller is opened here.

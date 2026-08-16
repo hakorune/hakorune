@@ -3,8 +3,9 @@ use std::sync::Arc;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1,
-    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBlockExpressionExpectationV1,
+    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
+    VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
 use crate::parser::{CallableDeclarationIdentityV1, CallableMethodSourceObservationV1};
@@ -27,6 +28,7 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) function_origin: FunctionOriginV1,
     pub(super) forest: VerifiedSemanticOwnerForestV1,
     pub(super) body_shape: Arc<VerifiedResolvedBodyShapeInventoryV1>,
+    pub(super) block_expr_expectation: VerifiedResolvedBlockExpressionExpectationV1,
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
@@ -193,6 +195,14 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                         return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                     }
                     if function.function_origin() != semantic.function_origin {
+                        return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
+                    }
+                    if semantic.block_expr_expectation.owner() != semantic.owner
+                        || semantic.block_expr_expectation.function_origin()
+                            != semantic.function_origin
+                        || semantic.block_expr_expectation.body_root()
+                            != *semantic.body_shape.body_root()
+                    {
                         return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                     }
                     let parameters = syntax.parameters().map(|parameters| {

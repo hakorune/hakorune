@@ -81,8 +81,9 @@ Related:
   resolver-owned block-expression expectation; the canonical session stays
   closed until it lands. A-prime lifecycle activation remains parked until
   this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` implements the
-  accepted source receipt only. It does not issue the common-V2 admission,
+- **Next ordered task:** `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` lends
+  the landed batch-owned source receipt through the existing selected/package
+  HRTB. It does not reissue or clone the receipt, issue common-V2 admission,
   construct a session, or retrofit the legacy finalizer.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
@@ -124,11 +125,12 @@ Fail-fast boundary:
   Returns. Every rejection precedes session effects.
 
 Smallest next slice:
-  RESOLVED-BLOCK-EXPR-EXPECTATION-I0 adds typed BlockExpr body-shape rows and
-  a private non-Clone {owner, function_origin, body_root, pair_count} receipt.
-  The callable batch row owns it once. A separate
-  CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0 then lends it through the
-  selected/package HRTB; LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0
+  RESOLVED-BLOCK-EXPR-EXPECTATION-I0 is landed: typed BlockExpr body-shape
+  rows and one private non-Clone {owner, function_origin, body_root, pair_count}
+  receipt are issued from the same resolver product and owned once by the
+  callable batch row. The next bounded row is
+  CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0, which only lends that receipt
+  through selected/package HRTB; LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0
   follows and still constructs no session.
 
 Non-claims:
@@ -155,6 +157,17 @@ Stop:
   string matching, AST/MIR rescan, raw usize transport, fixed zero, session
   construction, Completion consumption, fallback, or retry is required
 ```
+
+### RESOLVED-BLOCK-EXPR-EXPECTATION-I0 implementation receipt (2026-08-17)
+
+The shadow resolver now emits a typed `BlockExpr { site }` body-shape row.
+`ResolvedBlockExpressionExpectationIssuerV1` co-seals the same resolved
+function/body-shape product, checks exact source-site, scope, and region
+coverage in both directions, and the callable semantic batch row owns the
+non-Clone receipt once. Focused resolver tests cover zero, one, nested, and
+foreign-owner cases; selected/package transport, session, CFG/SSA/PHI,
+Completion consumption, physical lowering, fallback, retry, and production
+callers remain closed.
 
 ## Decision
 
@@ -1265,8 +1278,8 @@ skip the After closure or reopen a Tail-only route.
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, while typed BlockExpr expectation is the sole missing input |
-| 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | BoxShape/source product only; no selected/package transport, raw count API change, or session effect |
-| 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | transport only; no reissue, clone, Completion consumption, or session construction |
+| 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
+| 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | next active row; transport only, no reissue, clone, Completion consumption, or session construction |
 | 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
 | 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | only after 25a-c; no S6C physicalizer, selector, retry, or fallback |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
