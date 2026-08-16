@@ -1373,6 +1373,24 @@ source/frame evidence are co-sealed before the envelope is returned. No
 After block, edge, terminator, operation, CFG/PHI, Completion/DraftSeal,
 lifecycle, Text, route, fallback, retry, or production caller is opened.
 
+## Common V2 synthetic After allocation I0 (2026-08-17)
+
+The accepted RootAfter relation now feeds one caller-zero placement effect.
+The common session validates the same-owner relation together with the
+complete source-segment block receipt, issues a private one-shot allocation
+plan, and lets the canonical session allocate exactly one unpublished
+`BasicBlockId`. Only a callback-scoped `PreparedAfterBlockViewV1` is exposed;
+the view cannot publish a function or express a successor/edge.
+
+The allocation is preflighted for RootAfter disposition, relation/layout
+parity, exact segment coverage, entry/segment collision, and checked monotonic
+cursor range. The outer function transaction remains the only discard owner;
+late failure leaves no published function and any numeric cursor gap is
+non-semantic and never reused. A second allocation is rejected by the
+session-local one-shot ledger. ParentResume, edges/terminators,
+operations/ReadBinding, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route, fallback/retry, and production remain outside this slice.
+
 ## Recursive After R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
 The R2 receipt cannot be the input to a neutral recursive edge writer: it maps

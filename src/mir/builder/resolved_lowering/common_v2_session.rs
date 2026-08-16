@@ -10,6 +10,10 @@ use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
 
 use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use super::common_v2_after_block_allocation::{
+    allocate_after_block, issue_after_allocation_plan, AfterBlockAllocationRejectV1,
+    AfterBlockAllocationStateV1, PreparedAfterBlockViewV1,
+};
 
 /// One callback-scoped session plus the exact envelope it consumed.  The
 /// envelope is retained as a sibling view so a later physicalizer cannot
@@ -17,6 +21,7 @@ use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
 pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     session: CanonicalSsaFunctionSessionV2<'source>,
     envelope: &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope>,
+    after_allocation_state: AfterBlockAllocationStateV1,
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
@@ -60,6 +65,25 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         )
     }
 
+    pub(in crate::mir::builder) fn allocate_v2_after_block<'session>(
+        &'session mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        segment_receipt: &super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+    ) -> Result<PreparedAfterBlockViewV1<'session>, AfterBlockAllocationRejectV1> {
+        let plan = issue_after_allocation_plan(
+            &mut self.after_allocation_state,
+            &self.session,
+            self.envelope,
+            segment_receipt,
+        )?;
+        allocate_after_block(
+            &mut self.after_allocation_state,
+            &mut self.session,
+            builder,
+            plan,
+        )
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn physical_entry_sidecar_row_count(&self) -> usize {
         self.session.physical_entry_sidecar_row_count()
@@ -78,7 +102,11 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
     admission.consume_for_canonical_session(|parts| {
         let envelope = parts.envelope();
         let session = CanonicalSsaFunctionSessionV2::new_common_v2(parts)?;
-        let mut common = CommonV2CanonicalSessionRefV1 { session, envelope };
+        let mut common = CommonV2CanonicalSessionRefV1 {
+            session,
+            envelope,
+            after_allocation_state: AfterBlockAllocationStateV1::Available,
+        };
         Ok(callback(&mut common))
     })
 }

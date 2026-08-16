@@ -31,6 +31,22 @@ pub(in crate::mir::builder::resolved_lowering) struct SegmentBlockReceiptRowV1 {
 }
 
 impl SegmentBlockReceiptRowV1 {
+    pub(in crate::mir::builder::resolved_lowering) const fn loop_key(
+        self,
+    ) -> crate::mir::loop_recipe_contract::LoopNodeKeyV1 {
+        self.loop_key
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn logical_block(
+        self,
+    ) -> crate::mir::loop_recipe_contract::LoopBlockKeyV1 {
+        self.logical_block
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) const fn split_ordinal(self) -> u32 {
+        self.split_ordinal
+    }
+
     pub(in crate::mir::builder::resolved_lowering) const fn physical_block(self) -> BasicBlockId {
         self.physical_block
     }

@@ -58,6 +58,25 @@ green. Synthetic After requires a separate source-backed design stop; CFG,
 PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
 production callers remain closed.
 
+## Common V2 synthetic After allocation I0
+
+The accepted After-boundary relation now has one caller-zero placement effect.
+`CommonV2CanonicalSessionRefV1::allocate_v2_after_block` validates the
+same-session RootAfter relation and the complete source-segment receipt,
+issues one internal one-shot allocation plan, and asks
+`CanonicalSsaFunctionSessionV2::create_unpublished_block` for exactly one
+unpublished `BasicBlockId`. The public result is only the callback-scoped
+`PreparedAfterBlockViewV1`; it carries source/frame evidence and a physical
+block but no successor, edge, operation, or publication power.
+
+The session-local allocation state rejects a second allocation. Existing
+entry/segment collision and checked cursor-range guards run before mutation;
+the outer `CanonicalFunctionLoweringSessionV1` remains the sole late-discard
+owner. Monotonic cursor gaps after discard are non-semantic and are never
+reused. Focused positive, one-shot, and late-discard tests are green. Parent
+Resume, edges/terminators, operations, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route, fallback/retry, and production callers remain closed.
+
 ## Current selected Dynamic V2 handoff
 
 The selected A-prime demand is a source/parameter/identity wrapper around the

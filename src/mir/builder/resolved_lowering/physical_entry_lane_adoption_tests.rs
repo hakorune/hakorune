@@ -174,12 +174,82 @@ fn segment_allocation_late_failure_discards_unpublished_blocks() {
                     .allocate_v2_segment_blocks(draft)
                     .expect("segment blocks");
                 assert_eq!(receipt.rows().len(), 3);
+                let after = canonical
+                    .allocate_v2_after_block(draft, &receipt)
+                    .expect("After block");
+                assert!(draft
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("unpublished function")
+                    .get_block(after.physical_block())
+                    .is_some());
                 Err::<(), _>("late segment rejection".to_owned())
             },
         );
         assert_eq!(rejected, Err("late segment rejection".to_owned()));
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn after_allocation_is_one_shot_and_unpublished() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(995).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let segment_receipt = canonical
+                    .allocate_v2_segment_blocks(draft)
+                    .expect("segment blocks");
+                let next = draft.core_ctx.peek_next_block();
+                let view = canonical
+                    .allocate_v2_after_block(draft, &segment_receipt)
+                    .expect("one unpublished After block");
+                assert_eq!(view.physical_block(), next);
+                assert!(draft
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("unpublished function")
+                    .get_block(view.physical_block())
+                    .is_some());
+                drop(view);
+
+                let second = canonical.allocate_v2_after_block(draft, &segment_receipt);
+                assert!(matches!(
+                    second,
+                    Err(super::common_v2_after_block_allocation::AfterBlockAllocationRejectV1::
+                        AlreadyAllocated)
+                ));
+                Ok(())
+            },
+        )
+        .expect("After allocation session");
+        assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
     port.complete().expect("selected child coverage");

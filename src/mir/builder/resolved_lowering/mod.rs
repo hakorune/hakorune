@@ -8,6 +8,7 @@ mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
+mod common_v2_after_block_allocation;
 mod common_v2_segment_block_allocation;
 mod common_v2_session;
 mod completion_consumption;
