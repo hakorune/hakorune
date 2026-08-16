@@ -260,6 +260,24 @@ occurrence order is preserved but aliasing occurrences may repeat a
 `ValueId`; caller and callee `ValueId` numbers belong to different scopes and
 are never compared as identity.
 
+### MIR carrier for the `u64` wire lanes
+
+The callable wire remains explicitly `u64` for both `slot` and `generation`.
+The current MIR/LLVM callable carrier is `i64`; the physical-signature row
+records this checked bit-preserving carrier as `U64BitsOnI64`. This is a
+mechanical transport fact, not a semantic `MirType::Integer` decision, a
+source-level `u64` type, or a reason to add a new unsigned MIR type. The lane
+role and signature row remain the sole authority for the unsigned-wire
+meaning. In particular, the generation lane is not an ordinary arithmetic
+value and may not be reconstructed from the `i64` carrier, a raw slot, a
+`MirType`, a JSON length, or a parameter-name string.
+
+Any consumer that cannot preserve the `U64BitsOnI64` contract must reject the
+physical signature before effect. A spelling such as `"u64"` must not be fed
+through source-type mapping (which would create an unrelated boxed type), and
+the existing scalar `i64` carrier must not be exposed as a second semantic
+authority.
+
 At callee entry, the Rust runtime owns exact pair validation, Text-class
 validation, generation identity, atomic invocation-wide pinning, pending
 retirement, and move-only finish. One pin is held per admitted ExactText formal

@@ -249,12 +249,16 @@ Source authority + canonical issuer:
   Source parameter names/types may be read only through the same storage
   header; `/N`, `FunctionSignature` length, raw `ValueId`, or lane index alone
   cannot supply the missing fields. The wire contract says `u64`, while the
-  current MIR type vocabulary exposes only `MirType::Integer` among scalar
-  integer carriers and `source_type_name_to_mir("u64")` is not an accepted
-  unsigned physical mapping. Therefore the input census must choose one
-  package-owned physical lane carrier (or explicitly accept a checked i64 bit
-  carrier) before creating `MirParamDecl`; a string spelling of `u64` is not a
-  valid substitute.
+  current MIR/LLVM callable carrier is `i64` and
+  `source_type_name_to_mir("u64")` would become an unrelated `Box("u64")`.
+  The carrier decision is therefore fixed as a checked package-owned
+  `U64BitsOnI64` physical-lane metadata: existing MIR/LLVM `i64` is only the
+  bit-preserving mechanical carrier, while the lane role remains the
+  authority for unsigned-wire meaning. This does not change semantic
+  `MirType`, add a new unsigned source type, or permit generation arithmetic.
+  The remaining input census must prove that this carrier row, every source
+  `MirParamDecl`, and the lane-role rows are exposed by one same-loan issuer;
+  a string spelling of `u64` is never a valid substitute.
 
   The source census fixes the seam: the installed
   `VerifiedSameModuleCallableDeclarationCatalogV1::declaration` row is the
@@ -288,18 +292,23 @@ Fail-fast boundary:
   BindingRef with two physical lanes; slot publication versus a private
   generation sidecar must be fixed before skeleton I0. Missing lane role/type,
   source-name drift, foreign loan, or incomplete header/effects means
-  `NoSafeSlice` before Builder effect. An unsigned-wire lane without a sealed
-  MIR carrier mapping is also `NoSafeSlice`; `MirType::Integer`, a source
-  `StringBox` type, or a guessed `Box("u64")` mapping cannot silently stand in
-  for it. Any later mutation failure must discard the unpublished transaction
-  once, with no retry or fallback.
+  `NoSafeSlice` before Builder effect. A lane without the sealed
+  `U64BitsOnI64` carrier metadata is also `NoSafeSlice`; `MirType::Integer`, a
+  source `StringBox` type, or a guessed `Box("u64")` mapping cannot silently
+  stand in for it. The generation lane is not an ordinary arithmetic value
+  and must not be reconstructed from the `i64` carrier, a raw slot, or a
+  `MirType`. Any later mutation failure must discard the unpublished
+  transaction once, with no retry or fallback.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` is design-only. Census
-  the exact same-loan issuer inputs and choose a single ParamDecl/lane-role
-  projection, including receiver and mixed scalar/ExactText rows, without
-  constructing a Builder or `ValueId`. If this census closes, the next I0 is
-  only a fresh unpublished skeleton reservation. If it does not, retain
+  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` is design-only. The
+  physical carrier choice is closed as `U64BitsOnI64`; census now has one
+  remaining question: can a single compiler-side issuer borrow the complete
+  same-cohort storage header, physical signature, effects, result, and
+  `U64BitsOnI64` lane rows while projecting every source-backed
+  `MirParamDecl` without reissuing meaning? Do this without constructing a
+  Builder or `ValueId`. If this census closes, the next I0 is only a fresh
+  unpublished skeleton reservation. If it does not, retain
   `NoSafeSlice::MissingSameCohortPhysicalFunctionEntryIssuer`.
 
   The preceding header/effects I0 already proved the package-side co-seal.
@@ -308,6 +317,27 @@ Smallest next slice:
   source meaning. Until then, missing/foreign header or effects projection,
   lane gap/swap, receiver drift, parameter/result drift, or duplicate
   ExactText BindingRef adoption remains `NoSafeSlice`, not a Builder error.
+
+Carrier decision receipt (2026-08-17):
+  The accepted wire remains two scalar `u64` lanes for one logical ExactText
+  formal. The accepted MIR/LLVM mechanical carrier is checked
+  `U64BitsOnI64`; it preserves bits but does not become semantic
+  `MirType::Integer`, a source `u64` type, or a new unsigned MIR type. The
+  package-owned lane role and physical-signature row remain the sole meaning
+  authority. The compiler-side same-loan ParamDecl/lane aggregate is still a
+  design stop, so no skeleton, session, ValueId adoption, or direct Text
+  lowering is authorized by this receipt.
+
+D0 acceptance gate (still open):
+  Accept the input BoxShape only when one compiler-side, non-Clone
+  same-loan view exposes the catalog-backed source `MirParamDecl` rows,
+  receiver-prefix row, physical-signature lane roles, `U64BitsOnI64` carrier
+  rows, result/header, and source-backed effects under one owner/origin/brand.
+  The view must be callback-scoped, issue no new semantic fact, and expose
+  complete/disjoint physical coverage. Caller and callee ValueId projection,
+  skeleton reservation, and BindingSSA adoption remain downstream consumers;
+  they are not evidence for closing this D0. Until this gate is met, the only
+  next action is issuer census or `NoSafeSlice`, never a Builder effect.
 
 Implementation receipt (2026-08-17):
   The I0 is landed. `VerifiedS6CStorageHeaderProjectionV1` is a distinct
@@ -1445,7 +1475,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | design stop narrowed to the input census below; no Builder effect, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-b | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-D0` | accept one package/installed-loan issuer for S6C storage header, result, attrs/uses, source-backed effects, and physical signature relation | accepted BoxShape; caller-zero I0 is the only open effect; no skeleton or Builder effect |
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
-| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | census the same-loan physical ParamDecl/lane-role projection, including receiver and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
+| 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; census the same-loan physical ParamDecl/lane-role projection, including receiver and ExactText pair policy, before Builder effect | current design stop; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | future caller-zero I0 only after 25b-c0 acceptance; no ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume the accepted skeleton and adopt ordinary lanes plus one ExactText BindingRef with adjacent `[slot,generation]` sidecar policy | future second I0; no reuse of one-value adoption for both ExactText lanes, no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
