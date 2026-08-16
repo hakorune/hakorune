@@ -1,5 +1,5 @@
 ---
-Status: selected-normal resolved-session handoff I0 landed; the compile-time backend-frame binder is the next design stop
+Status: parent design stop; the backend-frame co-seal child is the active design task
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape candidate
@@ -7,6 +7,12 @@ Parent: TEXT-FORMAL-PINNED-RESIDENCE-I0 / LOOP-TEXT-SLICE-DIRECT-AOT-D0
 ---
 
 # TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0
+
+The next bounded child is
+`TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0` in
+`text-formal-pinned-residence-backend-frame-coseal-d0-2026-08-16.md`.
+This parent records the broader binder boundary; the child freezes the
+four-input HRTB co-seal and receiver/root count law before any implementation.
 
 This row closes the missing bridge between the caller-zero StableText
 residence owner and the named ny-llvmc direct-AOT binder. It must not create a

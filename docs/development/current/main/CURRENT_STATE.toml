@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, compile-target capability D0, and Rust capability transport I0 are closed. The compile-time backend-frame binder is now the active design stop; JSON validation, direct backend, route admission, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, compile-target capability D0, and Rust capability transport I0 are closed. The backend-frame four-input co-seal is now the active design stop; JSON validation, direct backend, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0; the Rust compile-target capability transport I0 is landed, and the compile-time frame contract remains design-only."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0; the Rust compile-target capability transport I0 is landed, and the compile-time frame contract remains design-only."
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0"
-current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameBinderUnsealed; keep JSON/C validation, GEP/load, lifecycle CFG, session residence, route admission, fallback, retry, and production callers closed."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0"
+current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameCoSealUnsealed; keep JSON/C validation, GEP/load, lifecycle CFG, session residence, route admission, fallback, retry, and production callers closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (compile-target capability I0 landed -> backend-frame binder D0)"
-active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the future mandatory ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The sole profile is nyrt-text-residence-ptr64-as0-v1 and now reaches the selected-normal close HRTB as a scoped Rust capability. The compile-time frame contract, JSON/C validation, GEP/load, lifecycle, route, and production callers remain closed."
+active_lane = "Loop compiler frontier (compile-target capability I0 landed -> backend-frame co-seal D0)"
+active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the future mandatory ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The sole profile is nyrt-text-residence-ptr64-as0-v1 and now reaches the selected-normal close HRTB as a scoped Rust capability. The four-input frame co-seal, JSON/C validation, GEP/load, lifecycle, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,13 +25,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-coseal-d0-2026-08-16.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "text-formal-pinned-residence-backend-frame-d0"
-latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
-latest_card_summary = "The explicit compile-target capability D0 and Rust-only transport I0 are landed. The next design stop names one compile-time backend-frame contract issuer, same invocation/layout capability, target-owned frame derivation, and strict ny-llvmc validation without opening JSON/C/GEP/load or lifecycle."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0"
-next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+latest_card = "text-formal-pinned-residence-backend-frame-coseal-d0"
+latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-coseal-d0-2026-08-16.md"
+latest_card_summary = "The compile-target capability D0 and Rust-only transport I0 are landed. The active design stop freezes one four-input HRTB co-seal for lane order, stamped plan/census, Residence ABI, and target/layout capability; JSON/C/GEP/load and lifecycle remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-COSEAL-D0"
+next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-coseal-d0-2026-08-16.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 
