@@ -1122,6 +1122,29 @@ Smallest next slice:
   materializer/receipt admission canary only; it may not issue a ValueId or
   Compare instruction yet. If the seam is absent, remain at this NoSafeSlice.
 
+Ordered sub-slices (design-only; no session/CFG effect):
+  1. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-RECEIPT-CENSUS-D0`
+     census whether the existing canonical session/physical-entry cohort can
+     lend both logical CompareI64 operands as same-session typed physical
+     receipts. The logical producer relation and raw ValueId are evidence only;
+     no new receipt is issued until a source-backed issuer is named.
+  2. `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0`
+     retain the one prepared physical-entry cohort stamp through the consuming
+     session seam without copying or reconstructing it. The prepared skeleton
+     and installed loan remain the only stamp authorities.
+  3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
+     only after (1) and (2), fix the single session-local Bool result receipt,
+     the outer unpublished-function discard owner, and the sole later branch
+     consumer. This is still a BoxShape decision, not physical emission.
+  4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-I0`
+     may begin only after the BoxShape is accepted; it is a typed
+     materializer/receipt admission canary and still emits no ValueId,
+     Compare, edge, or terminator.
+
+The earlier canonical-session admission and physical-function-entry rows are
+already landed caller-zero seams. This stop must not reopen them or use their
+logical producer/descriptor rows as a second physical-result authority.
+
 Non-claims:
   No physical ValueId, Compare lowering, `emit_branch`, edge/terminator,
   CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, performance,
