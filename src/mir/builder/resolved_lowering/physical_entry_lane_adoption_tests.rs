@@ -50,7 +50,7 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
             reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
         let mut builder = MirBuilder::new();
         let input = skeleton.into_session_input();
-        with_common_v2_physical_entry_session(&mut builder, input, |canonical| {
+        with_common_v2_physical_entry_session(&mut builder, input, |canonical, _draft| {
             assert_eq!(canonical.physical_entry_sidecar_row_count(), 2);
             assert_eq!(canonical.owner(), expected_owner);
             Ok(())
@@ -86,10 +86,98 @@ fn late_callback_failure_discards_builder_and_physical_session() {
             reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
         let mut builder = MirBuilder::new();
         let input = skeleton.into_session_input();
-        let rejected = with_common_v2_physical_entry_session(&mut builder, input, |_canonical| {
-            Err::<(), _>("late canary rejection".to_owned())
-        });
+        let rejected =
+            with_common_v2_physical_entry_session(&mut builder, input, |_canonical, _draft| {
+                Err::<(), _>("late canary rejection".to_owned())
+            });
         assert_eq!(rejected, Err("late canary rejection".to_owned()));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn allocates_only_source_segment_blocks() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(993).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let receipt = canonical
+                    .allocate_v2_segment_blocks(draft)
+                    .expect("segment blocks");
+                assert_eq!(receipt.rows().len(), 3);
+                assert!(receipt
+                    .rows()
+                    .windows(2)
+                    .all(|rows| rows[0].physical_block() != rows[1].physical_block()));
+                Ok(())
+            },
+        )
+        .expect("segment allocation session");
+        assert!(builder.function_state.current_function.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn segment_allocation_late_failure_discards_unpublished_blocks() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(994).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let receipt = canonical
+                    .allocate_v2_segment_blocks(draft)
+                    .expect("segment blocks");
+                assert_eq!(receipt.rows().len(), 3);
+                Err::<(), _>("late segment rejection".to_owned())
+            },
+        );
+        assert_eq!(rejected, Err("late segment rejection".to_owned()));
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     })

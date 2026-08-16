@@ -85,7 +85,7 @@ pub(crate) struct PreparedLoopV2PhysicalLayoutInputV1<'source> {
     after: (LoopNodeKeyV1, LoopBindingKeyV1, LoopValueClassV2),
 }
 
-impl PreparedLoopV2PhysicalLayoutInputV1<'_> {
+impl<'source> PreparedLoopV2PhysicalLayoutInputV1<'source> {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -94,7 +94,9 @@ impl PreparedLoopV2PhysicalLayoutInputV1<'_> {
         &self.loops
     }
 
-    pub(crate) fn segments(&self) -> &[PreparedLoopV2LayoutSegmentRefV1<'_>] {
+    pub(crate) fn segments<'borrow>(
+        &'borrow self,
+    ) -> &'borrow [PreparedLoopV2LayoutSegmentRefV1<'source>] {
         &self.segments
     }
 

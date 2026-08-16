@@ -41,6 +41,23 @@ or lower lifecycle/Text/route code. `new_selected_dynamic` and raw BlockExpr
 counts are not valid substitutes; the first session-effects boundary remains
 an explicit design-stop task.
 
+## Common V2 source-segment block allocation I0
+
+The first common-V2 Builder effect is deliberately limited to source-backed
+segment blocks. A callback-scoped allocation plan is issued from the existing
+physical-ID-free layout, and the canonical session allocates one unpublished
+block per ordered source segment. The receipt keeps the source loop/block/
+split relation with its physical block id; it does not allocate synthetic
+After, edges, terminators, operations, or effects.
+
+Owner/function/cursor/collision checks run before mutation. The surrounding
+`CanonicalFunctionLoweringSessionV1` is the sole discard owner for late
+callback failure; CoreContext ids remain monotonic, so discarded unpublished
+ids are gaps and never reused. Positive and late-discard focused tests are
+green. Synthetic After requires a separate source-backed design stop; CFG,
+PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
+production callers remain closed.
+
 ## Current selected Dynamic V2 handoff
 
 The selected A-prime demand is a source/parameter/identity wrapper around the

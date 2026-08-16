@@ -1342,6 +1342,24 @@ legacy deletion remain closed. The R3-I0 implementation receipt below replaces
 this adapter on the selected Callable path; the investigation records both
 the correction and its closeout.
 
+## Common V2 source-segment block allocation I0 receipt (2026-08-17)
+
+The common V2 physical layout now has a caller-zero segment allocation slice.
+One source-backed allocation plan is borrowed from the installed cohort and
+consumed by the canonical function session. It allocates exactly one
+unpublished physical block for each ordered source segment, after preflighting
+owner/function identity, count/cursor range, entry collision, and coverage.
+The outer unpublished-function transaction is the sole rollback owner; a late
+callback failure discards the function but does not rewind the monotonic block
+cursor, so any resulting ID gap is unobservable and never reused.
+
+The receipt retains only the source segment relation and its physical block.
+It does not allocate synthetic After, edges, terminators, operations, or
+effects, and it does not open CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route selection, fallback/retry, publication, or a production caller. A
+source-backed `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` remains the next
+design stop; JoinSig's After port alone is not an allocation authority.
+
 ## Recursive After R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
 The R2 receipt cannot be the input to a neutral recursive edge writer: it maps

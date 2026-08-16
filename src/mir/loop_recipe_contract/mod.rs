@@ -5,6 +5,8 @@ mod continuation;
 mod common_v2_issuers;
 // Caller-zero V2 physical-ID-free layout input transport.
 mod common_v2_layout_input;
+// Caller-zero source-segment allocation demand; synthetic After is separate.
+mod common_v2_segment_allocation;
 mod direct_accum_producer;
 mod error;
 mod ids;
@@ -168,6 +170,11 @@ pub(crate) use common_v2_issuers::{
 pub(crate) use common_v2_layout_input::{
     LayoutInputRejectV1, PreparedLoopV2LayoutLoopV1, PreparedLoopV2LayoutSegmentRefV1,
     PreparedLoopV2PhysicalLayoutInputV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_segment_allocation::{
+    issue_v2_segment_allocation_plan, PreparedLoopV2SegmentAllocationPlanV1,
+    SegmentAllocationPlanRejectV1,
 };
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;

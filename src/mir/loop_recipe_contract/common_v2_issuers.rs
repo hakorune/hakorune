@@ -164,7 +164,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
-impl PreparedLoopV2PreSessionEnvelopeV1<'_, '_> {
+impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -177,7 +177,9 @@ impl PreparedLoopV2PreSessionEnvelopeV1<'_, '_> {
         &self.control
     }
 
-    pub(crate) fn layout(&self) -> &PreparedLoopV2PhysicalLayoutInputV1<'_> {
+    pub(crate) fn layout<'borrow>(
+        &'borrow self,
+    ) -> &'borrow PreparedLoopV2PhysicalLayoutInputV1<'source> {
         &self.layout
     }
 

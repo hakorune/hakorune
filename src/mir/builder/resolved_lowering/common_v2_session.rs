@@ -6,6 +6,7 @@
 
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableParameterDescriptorV1;
 use crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionAdmissionRefV1;
+use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
 
 use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
@@ -42,6 +43,23 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .adopt_physical_entry_lanes(builder, descriptors)
     }
 
+    pub(in crate::mir::builder) fn allocate_v2_segment_blocks(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+    ) -> Result<
+        super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+        super::common_v2_segment_block_allocation::SegmentBlockAllocationRejectV1,
+    > {
+        let plan = issue_v2_segment_allocation_plan(self.envelope).map_err(
+            super::common_v2_segment_block_allocation::SegmentBlockAllocationRejectV1::Plan,
+        )?;
+        super::common_v2_segment_block_allocation::allocate_v2_segment_blocks(
+            &mut self.session,
+            builder,
+            plan,
+        )
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn physical_entry_sidecar_row_count(&self) -> usize {
         self.session.physical_entry_sidecar_row_count()
@@ -54,15 +72,13 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 pub(in crate::mir) fn with_common_v2_canonical_session<R>(
     admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
     callback: impl for<'source, 'envelope> FnOnce(
-        CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+        &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
     ) -> R,
 ) -> Result<R, String> {
     admission.consume_for_canonical_session(|parts| {
         let envelope = parts.envelope();
         let session = CanonicalSsaFunctionSessionV2::new_common_v2(parts)?;
-        Ok(callback(CommonV2CanonicalSessionRefV1 {
-            session,
-            envelope,
-        }))
+        let mut common = CommonV2CanonicalSessionRefV1 { session, envelope };
+        Ok(callback(&mut common))
     })
 }

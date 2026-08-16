@@ -15,7 +15,8 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
     builder: &mut MirBuilder,
     mut prepared: PreparedPhysicalEntrySessionInputV1<'_, '_, '_>,
     callback: impl FnOnce(
-        &super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut MirBuilder,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
     if builder.function_state.current_function.is_some()
@@ -39,7 +40,7 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
                     .install(source_input.function())?;
                 draft.install_prepared_physical_function_skeleton(detached)?;
                 common.adopt_physical_entry_lanes(draft, &descriptors)?;
-                callback(&common)
+                callback(&mut common, draft)
             })();
 
             // The outer function transaction is the sole rollback owner.  It
