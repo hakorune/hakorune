@@ -9,7 +9,7 @@ use std::collections::BTreeSet;
 use super::common_v2_layout_input::{
     issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
 };
-use super::ids::{LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
+use super::ids::{LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::join_sig::{LoopJoinBranchArmTransferRefV2, LoopJoinLogicalTransferViewV2};
 use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2};
 use super::s6c_scan_with_init_joinir_output_rows::{S6CLogicalCallArgsV1, S6CLogicalItemV1};
@@ -235,7 +235,7 @@ fn validate_layout_relation(
         }
     }
     for row in operations.rows() {
-        if layout.segment_for_block(row.block()).is_none() || !covered.contains(&row.item()) {
+        if !layout_item_matches_block(layout, row.block(), row.item()) {
             return Err(CommonV2IssuerRejectV1::LayoutRelation);
         }
     }
@@ -248,8 +248,7 @@ fn validate_layout_relation(
                 else_block,
                 ..
             } => {
-                if !covered.contains(item)
-                    || layout.segment_for_block(*block).is_none()
+                if !layout_item_matches_block(layout, *block, *item)
                     || layout.segment_for_block(*then_block).is_none()
                     || else_block.is_some_and(|target| layout.segment_for_block(target).is_none())
                 {
@@ -257,7 +256,7 @@ fn validate_layout_relation(
                 }
             }
             PreparedLoopControlPlacementV2::Exit { item, block, .. } => {
-                if !covered.contains(item) || layout.segment_for_block(*block).is_none() {
+                if !layout_item_matches_block(layout, *block, *item) {
                     return Err(CommonV2IssuerRejectV1::LayoutRelation);
                 }
             }
@@ -273,6 +272,16 @@ fn validate_layout_relation(
         return Err(CommonV2IssuerRejectV1::LayoutRelation);
     }
     Ok(())
+}
+
+fn layout_item_matches_block(
+    layout: &PreparedLoopV2PhysicalLayoutInputV1<'_>,
+    block: LoopBlockKeyV1,
+    item: LoopItemKeyV1,
+) -> bool {
+    layout
+        .segment_for_block(block)
+        .is_some_and(|segment| segment.items().contains(&item))
 }
 
 fn issue_operation_source<'source, 'join>(
@@ -493,11 +502,14 @@ fn issue_coverage(
 
 #[cfg(test)]
 mod tests {
+    use super::super::ids::{LoopBlockKeyV1, LoopItemKeyV1};
     use super::super::produce_s6c_scan_with_init_recipe_v2;
     use super::super::s6c_prephysical_ingress::issue_s6c_prephysical_ingress_v2;
     use super::super::s6c_scan_with_init_joinir_output::issue_s6c_scan_with_init_logical_output_v1;
     use super::super::s6c_scan_with_init_tests::issue_facts;
-    use super::{issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1};
+    use super::{
+        issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
+    };
 
     const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
 
@@ -546,6 +558,101 @@ mod tests {
             .with_ingress(|view| {
                 let result = issue_s6c_common_v2_pre_session_v1(view, foreign_owner);
                 assert!(matches!(result, Err(CommonV2IssuerRejectV1::ForeignOwner)));
+                Ok(())
+            })
+            .expect("ingress view");
+    }
+
+    #[test]
+    fn common_v2_rejects_item_block_drift_for_operation_if_and_exit() {
+        let output = issue_s6c_scan_with_init_logical_output_v1(
+            produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 1403)).expect("S6C recipe"),
+        )
+        .expect("logical rows");
+        let ingress = issue_s6c_prephysical_ingress_v2(output).expect("ingress");
+        let owner = ingress
+            .with_ingress(|view| Ok(view.source_owner()))
+            .expect("owner view");
+        ingress
+            .with_ingress(|view| {
+                let layout =
+                    super::super::common_v2_layout_input::issue_s6c_v2_layout_input(view, owner)
+                        .expect("layout");
+                let drift_block = |original: LoopBlockKeyV1, item: LoopItemKeyV1| {
+                    layout
+                        .segments()
+                        .iter()
+                        .find(|segment| {
+                            segment.block() != original && !segment.items().contains(&item)
+                        })
+                        .map(|segment| segment.block())
+                        .expect("drift block")
+                };
+
+                let mut operations = super::issue_operation_source(view).expect("operations");
+                let operation_item = operations.rows()[0].item();
+                operations.rows[0].block = drift_block(operations.rows()[0].block, operation_item);
+                let control = super::issue_control_source(view).expect("control");
+                assert!(matches!(
+                    super::validate_layout_relation(&layout, &operations, &control),
+                    Err(CommonV2IssuerRejectV1::LayoutRelation)
+                ));
+
+                let operations = super::issue_operation_source(view).expect("operations");
+                let mut control = super::issue_control_source(view).expect("control");
+                let if_index = control
+                    .rows
+                    .iter()
+                    .position(|row| matches!(row, PreparedLoopControlPlacementV2::If { .. }))
+                    .expect("If row");
+                let PreparedLoopControlPlacementV2::If {
+                    item,
+                    block,
+                    condition,
+                    then_block,
+                    else_block,
+                } = control.rows[if_index]
+                else {
+                    unreachable!()
+                };
+                control.rows[if_index] = PreparedLoopControlPlacementV2::If {
+                    item,
+                    block: drift_block(block, item),
+                    condition,
+                    then_block,
+                    else_block,
+                };
+                assert!(matches!(
+                    super::validate_layout_relation(&layout, &operations, &control),
+                    Err(CommonV2IssuerRejectV1::LayoutRelation)
+                ));
+
+                let operations = super::issue_operation_source(view).expect("operations");
+                let mut control = super::issue_control_source(view).expect("control");
+                let exit_index = control
+                    .rows
+                    .iter()
+                    .position(|row| matches!(row, PreparedLoopControlPlacementV2::Exit { .. }))
+                    .expect("Exit row");
+                let PreparedLoopControlPlacementV2::Exit {
+                    item,
+                    block,
+                    exit,
+                    value,
+                } = control.rows[exit_index]
+                else {
+                    unreachable!()
+                };
+                control.rows[exit_index] = PreparedLoopControlPlacementV2::Exit {
+                    item,
+                    block: drift_block(block, item),
+                    exit,
+                    value,
+                };
+                assert!(matches!(
+                    super::validate_layout_relation(&layout, &operations, &control),
+                    Err(CommonV2IssuerRejectV1::LayoutRelation)
+                ));
                 Ok(())
             })
             .expect("ingress view");
