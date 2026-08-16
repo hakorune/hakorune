@@ -1621,7 +1621,7 @@ Non-claims:
   caller, fallback, or retry is opened by this BoxShape.
 ```
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` — design stop 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` — accepted BoxShape 2026-08-17
 
 ```text
 Decision:
@@ -1637,8 +1637,10 @@ Source authority + canonical issuer:
   authority. The canonical session is the sole direct Call/result issuer and
   owns the one-shot state, `MirInstruction::Call`, result type publication,
   and non-Clone result receipt. It mechanically consumes the source target
-  plan and does not re-resolve source meaning. The same outer unpublished
-  function transaction is the sole rollback owner.
+  plan and does not re-resolve source meaning. The typed method-target
+  projection is derived from that already-sealed plan plus the callback-scoped
+  receiver view; spelling, raw CallTarget, and MIR lookup are not authorities.
+  The same outer unpublished function transaction is the sole rollback owner.
 
 Non-authority:
   Raw ValueId, CallSlot rows, method spelling, current Builder cursor,
@@ -1649,8 +1651,9 @@ Non-authority:
 Fail-fast boundary:
   Missing/foreign receiver receipt, target/operand/condition-block/stamp
   drift, non-zero source arity, wrong `StringBox.length` callee/effect,
-  non-I64 result, duplicate/re-entry, receipt escape, or late failure rejects
-  before the Call is published. Fallback/retry is forbidden.
+  non-I64 result, generic-emitter alternate route, duplicate/re-entry, receipt
+  escape, or late failure rejects before the Call is published.
+  Fallback/retry is forbidden.
 
 Smallest next slice:
   `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0`
@@ -1664,6 +1667,13 @@ Non-claims:
   lifecycle, Text, route, performance, production caller, fallback, or retry
   is opened by this BoxShape.
 ```
+
+Acceptance clarification:
+The following I0 is caller-zero and remains inside the existing unpublished
+function transaction. Its successful Call/result receipt is discarded with
+that transaction; no module publication or production caller is implied. A
+future commit/publication path is a separate boundary and cannot be inferred
+from this D0.
 
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` — design stop 2026-08-17
 
@@ -2889,9 +2899,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-f-I0 | `LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0` | allocate source segments once and lend exactly one same-session condition-block target with late-discard and escape negatives | landed 2026-08-17; callback-scoped owner/logical-block/physical-block/stamp projection and late-discard canaries are green; no Length Call/result receipt, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-g-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` | fix the same-session source receiver BindingRef → canonical read receipt boundary before any Call effect | accepted BoxShape 2026-08-18; existing resolver relation → `LengthReceiverBindingRefV1` mechanical projection → canonical read receipt; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-g-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0` | lend exactly one same-session receiver operand receipt with no Call or result emission | landed 2026-08-17; canonical read only, with owner/type/target/stamp drift, duplicate/re-entry, and late-discard tests green; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
-| 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | pending after receiver operand D0/I0; one Call plus one I64 receipt only, with no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
-| 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | not started; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
-| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first close the receiver operand product, then the direct Call/result issuer before the parent Bool result | active NoSafeSlice design stop; the receiver projection is landed, while direct Call/result realization remains unsealed; no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
+| 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | accepted BoxShape 2026-08-17; same-session target/receiver/condition/stamp co-seal, canonical Call/result issuer, and unpublished canary/discard boundary are fixed; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | active next fast slice; positive, target/receiver/type/owner drift, alternate-route, duplicate/re-entry, foreign receipt, and late-discard tests; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first close the receiver operand product, then the direct Call/result issuer before the parent Bool result | next design stop after direct Call/result I0; receiver and direct-issuer BoxShapes are accepted, while parent Bool/result realization remains blocked; no Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

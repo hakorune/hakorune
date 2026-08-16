@@ -1802,6 +1802,14 @@ owner. Direct `StringBox.length` Call/result emission, Compare, edges,
 CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
 production remain closed; the next sibling is the direct Call emitter.
 
+The direct Call/result BoxShape is accepted separately. Its canonical session
+consumer will co-seal the already-issued target plan, callback-scoped receiver
+operand, physical condition block, and entry stamp before emitting one
+`StringBox.length` Call and one I64 result receipt. The first I0 is a
+caller-zero unpublished canary; the outer transaction discards it, and no
+module publication, parent Bool, Compare, edge, CFG/PHI, or production route
+is implied.
+
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 
 The first post-inventory consumer is a one-shot, Builder-neutral
