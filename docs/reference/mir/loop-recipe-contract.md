@@ -1733,3 +1733,21 @@ session owner but emits no Builder/CFG/SSA/PHI effect, operation or control
 placement, Completion claim, Return, DraftSeal, lifecycle, Text operation,
 route, fallback, retry, or production caller. The first session-effects
 boundary remains a separate design-stop task.
+
+## Common V2 predicate branch-plan transport I0 (2026-08-17)
+
+The accepted After boundary now transports one complete, source-backed
+predicate branch plan from the installed S6C cohort. The issuer co-seals the
+resolver-backed Bool condition, its condition segment, the logical
+`Header -> Body` and `Header -> RootAfter` transfer rows, and a future physical
+condition-carrier requirement. The plan is non-`Clone`, callback-scoped, and
+physical-ID-free: it issues no `ValueId`, `BasicBlockId`, terminator, or CFG
+mutation. Both successors are required; a false-only plan is rejected because
+the canonical branch operation is atomic over its two successors.
+
+The focused installed-loan receipt checks the same owner, Bool condition,
+Body target, and RootAfter target. This row is transport-only. It does not open
+condition materialization, `emit_branch`, operation emission, Completion/
+DraftSeal, lifecycle, Text route, fallback, retry, or a production caller.
+The next design stop must name the physical condition carrier before any edge
+effect is admitted.

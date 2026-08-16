@@ -13,6 +13,10 @@ use super::common_v2_after_boundary::{
 use super::common_v2_layout_input::{
     issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
 };
+use super::common_v2_predicate_branch_plan::{
+    issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
+    PreparedLoopV2PredicateBranchPlanV1,
+};
 use super::ids::{LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::join_sig::{LoopJoinBranchArmTransferRefV2, LoopJoinLogicalTransferViewV2};
 use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2};
@@ -39,6 +43,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     Layout(LayoutInputRejectV1),
     LayoutRelation,
     AfterBoundary(AfterBoundaryIssueRejectV1),
+    PredicateBranch(PredicateBranchPlanRejectV1),
 }
 
 #[derive(Debug)]
@@ -167,6 +172,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     control: PreparedLoopControlTransferProgramV2<'source, 'join>,
     layout: PreparedLoopV2PhysicalLayoutInputV1<'source>,
     after_boundary: VerifiedLoopV2AfterBoundarySourceRelationV1,
+    predicate_branch: PreparedLoopV2PredicateBranchPlanV1,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -196,6 +202,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) fn after_boundary(&self) -> &VerifiedLoopV2AfterBoundarySourceRelationV1 {
         &self.after_boundary
     }
+
+    pub(crate) fn predicate_branch(&self) -> &PreparedLoopV2PredicateBranchPlanV1 {
+        &self.predicate_branch
+    }
 }
 
 /// Issue the three sibling products from one S6C ingress.  The fixed S6C
@@ -214,6 +224,14 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     let after_boundary =
         issue_s6c_v2_after_boundary_source_relation_v1(ingress, &layout, expected_owner)
             .map_err(CommonV2IssuerRejectV1::AfterBoundary)?;
+    let predicate_branch = issue_s6c_v2_predicate_branch_plan_v1(
+        ingress,
+        &layout,
+        control.transfer(),
+        &after_boundary,
+        expected_owner,
+    )
+    .map_err(CommonV2IssuerRejectV1::PredicateBranch)?;
     validate_layout_relation(&layout, &operations, &control)?;
     let coverage = issue_coverage(&operations, &control)?;
     if operations.operation_count() != 13
@@ -233,6 +251,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         control,
         layout,
         after_boundary,
+        predicate_branch,
         coverage,
     })
 }
@@ -553,6 +572,18 @@ mod tests {
                 assert_eq!(
                     envelope.layout().segments()[0].loop_key(),
                     envelope.layout().after().0
+                );
+                let branch = envelope.predicate_branch();
+                assert_eq!(branch.loop_key(), envelope.layout().after().0);
+                assert_eq!(
+                    branch.condition().class(),
+                    super::super::schema_v2::LoopValueClassV2::Bool
+                );
+                assert_eq!(branch.true_target(), envelope.layout().loops()[0].body());
+                assert_eq!(
+                    branch.false_target(),
+                    super::super::common_v2_predicate_branch_plan::
+                        PreparedLoopV2PredicateFalseTargetV1::RootAfter
                 );
                 Ok(())
             })

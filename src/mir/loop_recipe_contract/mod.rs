@@ -7,6 +7,8 @@ mod common_v2_issuers;
 mod common_v2_after_boundary;
 // Caller-zero V2 physical-ID-free layout input transport.
 mod common_v2_layout_input;
+// Caller-zero source-backed complete predicate branch-plan transport.
+mod common_v2_predicate_branch_plan;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
 mod common_v2_segment_allocation;
 mod direct_accum_producer;
@@ -177,6 +179,12 @@ pub(crate) use common_v2_issuers::{
 pub(crate) use common_v2_layout_input::{
     LayoutInputRejectV1, PreparedLoopV2LayoutLoopV1, PreparedLoopV2LayoutSegmentRefV1,
     PreparedLoopV2PhysicalLayoutInputV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_predicate_branch_plan::{
+    issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
+    PreparedLoopV2ConditionCarrierRequirementV1, PreparedLoopV2PredicateBranchPlanV1,
+    PreparedLoopV2PredicateFalseTargetV1,
 };
 #[allow(unused_imports)]
 pub(crate) use common_v2_segment_allocation::{

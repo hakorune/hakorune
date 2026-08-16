@@ -812,3 +812,21 @@ The relation carries owner, source loop/frame evidence, and a typed
 `RootAfter`. This is transport-only: no After `BasicBlockId`, resume edge,
 terminator, operation, CFG/PHI, Completion/DraftSeal, lifecycle, Text route,
 fallback, retry, or production caller is opened.
+
+## Common V2 predicate branch-plan transport I0 (2026-08-17)
+
+The accepted After boundary now lends one complete, source-backed predicate
+branch plan through `common_v2_predicate_branch_plan.rs`. The issuer co-seals
+the resolver-backed Bool condition, its physical segment, the logical
+`Header -> Body` and `Header -> RootAfter` transfer rows, and the future
+condition-carrier requirement under the same S6C owner. The non-`Clone` plan is
+callback-scoped and contains no `ValueId`, `BasicBlockId`, terminator, or CFG
+mutation. Both successors are mandatory; a false-only intermediate plan is
+rejected because the canonical branch issuer is atomic over both edges.
+
+The common-V2 envelope transports this plan from the same installed cohort and
+the focused S6C loan test checks owner, Bool class, Body target, and RootAfter
+target. This is transport-only: no condition value is issued, no `emit_branch`
+or operation is emitted, and no Completion/DraftSeal, lifecycle, Text route,
+fallback, retry, or production caller is opened. The next design stop must
+name the physical condition carrier before an edge-effect slice can begin.

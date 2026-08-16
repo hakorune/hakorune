@@ -65,6 +65,20 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
             crate::mir::loop_recipe_contract::LoopV2AfterBoundaryRelationV1::RootAfter
         );
         assert_eq!(loan.envelope().after_boundary().owner(), child.owner());
+        let predicate = loan.envelope().predicate_branch();
+        assert_eq!(predicate.owner(), child.owner());
+        assert_eq!(
+            predicate.condition().class(),
+            crate::mir::loop_recipe_contract::LoopValueClassV2::Bool
+        );
+        assert_eq!(
+            predicate.true_target(),
+            loan.envelope().layout().loops()[0].body()
+        );
+        assert_eq!(
+            predicate.false_target(),
+            crate::mir::loop_recipe_contract::PreparedLoopV2PredicateFalseTargetV1::RootAfter
+        );
         child.with_completion_parity(|completion| {
             assert!(completion.cleanup_empty());
             assert_eq!(completion.explicit_exit_count(), 2);
