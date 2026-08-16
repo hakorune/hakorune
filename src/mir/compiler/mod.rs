@@ -33,6 +33,8 @@ mod canonical_physical_completion_p0;
 #[cfg(test)]
 mod capability_tests;
 #[cfg(test)]
+mod common_v2_session_admission_tests;
+#[cfg(test)]
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;

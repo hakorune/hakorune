@@ -79,14 +79,13 @@ Related:
   the outer-If residual, and the installed S6C child can lend the actual
   Completion without cloning. The resolver-owned BlockExpr expectation is
   now batch-owned and reaches the selected/package HRTB as a borrow. The
-  active boundary is the effect-free common admission; the canonical session
-  stays closed until that admission is accepted. A-prime lifecycle activation
-  remains parked until this session boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0`
-  co-seals the exact resolver Loop site/outer-If residual, typed BlockExpr
-  expectation, common V2 envelope, and borrowed Completion in one
-  callback-scoped admission. It does not construct a session, consume
-  Completion, rescan source/Recipe/MIR, or retrofit the legacy finalizer.
+  callback-scoped common admission is landed; the active boundary is the first
+  canonical session effect. A-prime lifecycle activation remains parked until
+  this session boundary owns `PreparedFunctionExitSetV1`.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` consumes the
+  accepted callback-scoped admission and opens one canonical CFG/
+  Binding-SSA/PHI/Completion/DraftSeal session. It does not add a second
+  physicalizer, retrofit lifecycle, or use fallback/retry.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -127,12 +126,11 @@ Fail-fast boundary:
   Returns. Every rejection precedes session effects.
 
 Smallest next slice:
-  RESOLVED-BLOCK-EXPR-EXPECTATION-I0 is landed: typed BlockExpr body-shape
-  rows and one private non-Clone {owner, function_origin, body_root, pair_count}
-  receipt are issued from the same resolver product, owned once by the
-  callable batch row, and lent through selected/package HRTB. The next
-  bounded row is LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0, which still
-  constructs no session.
+  The source-product and transport rows are landed, and
+  LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 now issues one callback-scoped
+  non-Clone fan-in with exact owner/origin/root/Loop/Completion checks. The
+  next bounded row is LOOP-COMMON-V2-PHYSICAL-SESSION-I0; it alone may consume
+  the admission to open the canonical session.
 
 Non-claims:
   No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
@@ -178,6 +176,20 @@ HRTB. The accessor is borrow-only and non-reconstructible: no clone, reissue,
 raw `usize`, AST/MIR rescan, session effect, Completion consumption, or legacy
 finalizer connection is added. A selected static callable containing a
 BlockExpr passes the focused transport handoff test.
+
+### LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 implementation receipt (2026-08-17)
+
+`common_v2_session_admission.rs` now issues one callback-scoped,
+non-`Clone` fan-in from the selected resolved input, the resolver singleton
+Loop site, the existing Loop-owned outer-If residual, the batch-owned typed
+BlockExpr expectation, the common V2 envelope, and the actual borrowed
+Completion. Owner, function-origin/body-root, Loop cardinality, Completion
+owner/target, and envelope ownership drift reject before any session effect.
+The focused S6C admission test proves the 15-placement envelope, exact
+Completion borrow, outer-If residual, and duplicate child-consumption fence.
+No `CanonicalSsaFunctionSessionV2`, CFG/SSA/PHI, Completion consumption,
+DraftSeal, lifecycle, Text route, physical lowering, fallback, retry, or
+production caller is opened.
 
 ## Decision
 
@@ -1290,8 +1302,8 @@ skip the After closure or reopen a Tail-only route.
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
 | 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
-| 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | next active row; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
-| 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | only after 25a-c; no S6C physicalizer, selector, retry, or fallback |
+| 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | landed 2026-08-17; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
+| 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open the first caller-zero canonical CFG/Binding-SSA/Phi/Completion/DraftSeal session | next active row; only after 25a-c; no S6C physicalizer, selector, retry, or fallback |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

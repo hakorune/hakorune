@@ -1636,3 +1636,10 @@ The follow-up transport row lends that receipt through the existing selected
 callable/package HRTB. It is a borrow of the batch owner, not a second issuer;
 the next canonical-session admission must consume the scoped view without
 recounting BlockExpr sites or reopening resolver traversal.
+
+The canonical-session admission row now performs that consume only as an
+effect-free, callback-scoped fan-in: resolver Loop/outer-If residual, typed
+BlockExpr expectation, common V2 envelope, and actual Completion are checked
+for one owner/target cohort. The next physical-session row may consume this
+admission to create the canonical session; no other caller may reacquire a
+sibling by key.

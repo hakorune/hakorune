@@ -52,6 +52,18 @@ TargetMachine session remain consumers only; runtime residence, lifecycle
 entry/finish, `PinnedTextOp`, GEP/load, and direct production lowering are
 still outside this row.
 
+### Common V2 canonical-session admission I0
+
+`common_v2_session_admission.rs` owns the effect-free fan-in after the typed
+BlockExpr expectation transport. Within one installed S6C HRTB loan it borrows
+the selected resolved input, obtains the resolver singleton Loop site, issues
+the existing Loop-owned outer-If residual, borrows the batch-owned typed
+expectation, checks the common V2 envelope owner, and nests the actual
+Completion borrow. The non-`Clone` admission is callback-scoped and contains
+no `ValueId`, `BasicBlockId`, Builder/session mutation, Completion consumption,
+Recipe/MIR rescan, legacy finalizer, fallback, or retry. A future physical
+session may consume this one fan-in; it may not reacquire any sibling by key.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque
