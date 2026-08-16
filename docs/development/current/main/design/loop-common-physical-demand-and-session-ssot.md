@@ -332,6 +332,36 @@ Carrier decision receipt (2026-08-17):
   design stop, so no skeleton, session, ValueId adoption, or direct Text
   lowering is authorized by this receipt.
 
+Physical descriptor policy (design-only):
+  The next compiler-side view is named
+  `PhysicalCallableParameterDescriptorV1` for design purposes. It is one
+  row per physical lane and carries only mechanical/source relation:
+  `physical_index`, `lane_role`, optional `logical_ordinal`, source
+  `BindingRef`, deterministic diagnostic name, source annotation text when
+  present, and a physical carrier tag. It has no `ValueId`, `MirType`, runtime
+  token, pointer, or semantic ownership effect. The carrier tags are
+  `ExistingCallableI64` for the receiver and ordinary scalar lanes, and
+  `U64BitsOnI64` for both adjacent ExactText lanes.
+
+  Naming is deterministic and never an authority: an instance receiver is
+  `me`; an ordinary lane uses its catalog-backed source `ParamDecl.name`; an
+  ExactText formal expands to `<source-name>.slot` followed by
+  `<source-name>.generation`. Missing or duplicate source names reject rather
+  than falling back to an ordinal, `/N`, or a generated placeholder. The
+  source annotation remains attached as evidence only; physical carrier is
+  selected by the package-owned lane role. Receiver is a prefix row and is
+  not an explicit logical ordinal. This descriptor is projected by the future
+  same-loan compiler aggregate, not stored as a second package semantic
+  authority.
+
+  Required negatives for the census are: foreign owner/brand, receiver row
+  in a static method, missing receiver row in an instance method, non-prefix
+  receiver, lane gap/overlap/swap, non-adjacent ExactText pair, duplicate
+  logical ordinal or BindingRef, missing source name, guessed `u64` type,
+  guessed `MirType::Integer`/`Box("u64")` carrier, source ParamDecl count
+  used as physical lane count, and any `ValueId` or Builder access before the
+  aggregate is consumed.
+
 D0 acceptance gate (still open):
   Accept the input BoxShape only when one compiler-side, non-Clone
   same-loan view exposes the catalog-backed source `ParamDecl` rows and a
