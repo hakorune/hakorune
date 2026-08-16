@@ -1082,6 +1082,60 @@ claim Completion/DraftSeal, open lifecycle/Text/route/performance, or add a
 production caller. The next design stop is the physical result receipt, not a
 second condition or edge authority.
 
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` — design stop 2026-08-17
+
+```text
+Decision:
+  Keep this D0 at NoSafeSlice. A physical condition result may be issued only
+  by one common-V2 operation materializer after it has borrowed the logical
+  producer relation and exact physical operand receipts from the same
+  canonical session. The materializer then uses the canonical session's sole
+  ValueId/type issuer and returns one session-scoped Bool result receipt to the
+  later branch consumer. This D0 does not issue or lower that result.
+
+Source authority + canonical issuer:
+  The source producer is `PreparedLoopV2ConditionProducerRelationV1`. Physical
+  SSA/type authority remains `CanonicalSsaFunctionSessionV2`; the future
+  materializer is only the co-seal bridge. The receipt must retain owner,
+  function/session or physical-entry stamp, producer item/block/result key, and
+  Bool type relation. The existing session currently retains owner but does
+  not expose a durable physical-entry stamp, so that retention seam is part of
+  this D0 rather than an implementation assumption.
+
+Non-authority:
+  `LoopOperationV2` rows, branch-plan condition keys, raw `ValueId`, legacy V1
+  Compare emitters, block cursors, MIR type maps, or a copied session stamp may
+  not issue or re-pair the result. The branch plan is only a consumer of the
+  future receipt; CFG/SSA/PHI ownership stays in the canonical session.
+
+Fail-fast boundary:
+  Missing same-session operand receipts, producer/item/block/result/op/class
+  drift, owner/session/function-stamp drift, use-before-producer, duplicate
+  materialization or receipt, missing Bool type publication, and receipt escape
+  reject before `emit_branch` or any edge mutation. Late failure uses the outer
+  unpublished-function discard exactly once; monotonic unissued ValueId gaps
+  are non-semantic and no local rollback/retry or fallback is allowed.
+
+Smallest next slice:
+  First close the issuer census for operand physical receipts and session-stamp
+  retention. If that seam is available, the next caller-zero I0 is a typed
+  materializer/receipt admission canary only; it may not issue a ValueId or
+  Compare instruction yet. If the seam is absent, remain at this NoSafeSlice.
+
+Non-claims:
+  No physical ValueId, Compare lowering, `emit_branch`, edge/terminator,
+  CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, performance,
+  production caller, fallback, or retry is admitted by this D0.
+```
+
+Current blockers are deliberately explicit:
+
+```text
+NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
+NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
+NoSafeSlice::AfterConditionSessionStampRetentionMissing
+```
+
 ## Decision
 
 Close the post-Recipe boundary before physical implementation begins.
@@ -2220,7 +2274,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | landed 2026-08-17; focused positive/duplicate/missing-boundary gates are green; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | accepted BoxShape 2026-08-17; logical CompareI64 producer relation is the next transport-only I0, while physical ValueId/operation/edge effects remain closed |
 | 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | landed 2026-08-17; source/operation row, owner, block, operand/result/class drift and non-Compare negatives are green; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | name the canonical physical result receipt, rollback owner, and sole branch consumer after the logical producer relation | active design stop; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
+| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

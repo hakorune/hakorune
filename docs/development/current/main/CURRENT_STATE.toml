@@ -21,7 +21,7 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0 is the active design stop after the logical CompareI64 producer relation I0 landed. It must name one canonical session-local physical result receipt, its rollback/discard owner, and the sole later branch consumer. ValueId issuance, operation lowering, emit_branch, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed."
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0 is the active design stop after the logical CompareI64 producer relation I0 landed. It must first close same-session operand physical receipts and durable session/physical-entry stamp retention, then name one canonical session-local physical result receipt, its rollback/discard owner, and the sole later branch consumer. ValueId issuance, operation lowering, emit_branch, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed."
 work_mode = "design_stop"
 current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0"
 current_blocker_token = "NoSafeSlice::AfterConditionPhysicalReceiptUnsealed"

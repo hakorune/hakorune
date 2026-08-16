@@ -835,3 +835,26 @@ one exact source-backed CompareI64 producer relation, checking the producer
 item/block, `Less` operation, I64 operands, Bool result, and owner. The next
 design stop names the canonical physical result receipt; physical ValueId
 issuance, operation emission, and edge effects remain closed.
+
+## Common V2 physical condition-result D0 (design stop)
+
+The logical producer relation is landed, but its physical result is not yet a
+safe product. A future common-V2 operation materializer must borrow that
+relation and exact physical operand receipts from the same canonical session,
+then use `CanonicalSsaFunctionSessionV2` as the sole `ValueId`/type issuer and
+return one session-scoped Bool result receipt. The current session retains its
+owner but not a durable physical-entry stamp, and the operand physical receipt
+issuer is not yet named; both remain `NoSafeSlice` blockers.
+
+The result receipt must be non-`Clone`, carry the producer item/block/result
+relation plus owner/session stamp, and be borrowed only by the later branch
+consumer. Missing or foreign operands, producer/result/block/type drift,
+duplicate materialization, use-before-producer, receipt escape, or late
+failure must reject before any edge mutation. The outer unpublished-function
+transaction remains the only discard owner; no local rollback, retry, or
+fallback is introduced.
+
+This D0 opens no physical `ValueId`, Compare lowering, `emit_branch`, CFG/PHI,
+Completion/DraftSeal, lifecycle, Text route, performance, or production
+caller. The next bounded action is an issuer census; implementation starts
+only after that census closes the operand and stamp seams.
