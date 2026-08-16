@@ -7,6 +7,8 @@ mod common_v2_issuers;
 mod common_v2_after_boundary;
 // Caller-zero V2 physical-ID-free layout input transport.
 mod common_v2_layout_input;
+// Caller-zero source-backed CompareI64 producer relation transport.
+mod common_v2_condition_producer;
 // Caller-zero source-backed complete predicate branch-plan transport.
 mod common_v2_predicate_branch_plan;
 // Caller-zero source-segment allocation demand; synthetic After is separate.

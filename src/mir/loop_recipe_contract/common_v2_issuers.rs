@@ -10,6 +10,10 @@ use super::common_v2_after_boundary::{
     issue_s6c_v2_after_boundary_source_relation_v1, AfterBoundaryIssueRejectV1,
     VerifiedLoopV2AfterBoundarySourceRelationV1,
 };
+use super::common_v2_condition_producer::{
+    issue_s6c_v2_condition_producer_relation_v1, ConditionProducerRelationRejectV1,
+    PreparedLoopV2ConditionProducerRelationV1,
+};
 use super::common_v2_layout_input::{
     issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
 };
@@ -44,6 +48,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     LayoutRelation,
     AfterBoundary(AfterBoundaryIssueRejectV1),
     PredicateBranch(PredicateBranchPlanRejectV1),
+    ConditionProducer(ConditionProducerRelationRejectV1),
 }
 
 #[derive(Debug)]
@@ -173,6 +178,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     layout: PreparedLoopV2PhysicalLayoutInputV1<'source>,
     after_boundary: VerifiedLoopV2AfterBoundarySourceRelationV1,
     predicate_branch: PreparedLoopV2PredicateBranchPlanV1,
+    condition_producer: PreparedLoopV2ConditionProducerRelationV1,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -206,6 +212,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) fn predicate_branch(&self) -> &PreparedLoopV2PredicateBranchPlanV1 {
         &self.predicate_branch
     }
+
+    pub(crate) fn condition_producer(&self) -> &PreparedLoopV2ConditionProducerRelationV1 {
+        &self.condition_producer
+    }
 }
 
 /// Issue the three sibling products from one S6C ingress.  The fixed S6C
@@ -232,6 +242,13 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         expected_owner,
     )
     .map_err(CommonV2IssuerRejectV1::PredicateBranch)?;
+    let condition_producer = issue_s6c_v2_condition_producer_relation_v1(
+        ingress,
+        &operations,
+        &predicate_branch,
+        expected_owner,
+    )
+    .map_err(CommonV2IssuerRejectV1::ConditionProducer)?;
     validate_layout_relation(&layout, &operations, &control)?;
     let coverage = issue_coverage(&operations, &control)?;
     if operations.operation_count() != 13
@@ -252,6 +269,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         layout,
         after_boundary,
         predicate_branch,
+        condition_producer,
         coverage,
     })
 }
@@ -536,6 +554,10 @@ fn issue_coverage(
 }
 
 #[cfg(test)]
+#[path = "common_v2_condition_producer_tests.rs"]
+mod condition_producer_tests;
+
+#[cfg(test)]
 mod tests {
     use super::super::ids::{LoopBlockKeyV1, LoopItemKeyV1};
     use super::super::produce_s6c_scan_with_init_recipe_v2;
@@ -585,6 +607,24 @@ mod tests {
                     super::super::common_v2_predicate_branch_plan::
                         PreparedLoopV2PredicateFalseTargetV1::RootAfter
                 );
+                let producer = envelope.condition_producer();
+                assert_eq!(producer.owner(), owner);
+                assert_eq!(producer.loop_key(), branch.loop_key());
+                assert_eq!(producer.condition_block(), branch.condition().block());
+                assert_eq!(producer.result(), branch.condition().value());
+                assert_eq!(
+                    producer.class(),
+                    super::super::schema_v2::LoopValueClassV2::Bool
+                );
+                assert_eq!(
+                    producer.op(),
+                    super::super::schema_v2::LoopCompareI64OpV2::Less
+                );
+                assert!(envelope
+                    .operations()
+                    .rows()
+                    .iter()
+                    .any(|row| row.item() == producer.producer_item()));
                 Ok(())
             })
             .expect("ingress view");

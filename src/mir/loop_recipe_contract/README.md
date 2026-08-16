@@ -801,7 +801,7 @@ This row remains caller-zero and Builder-free. It issues no CFG, ValueId,
 Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
 publication, or production caller. The canonical V2 session admission and
 session-open canary are already landed. The next bounded row is the
-source-backed physical condition-carrier design stop; it must consume this
+source-backed physical condition-result design stop; it must consume this
 scoped envelope rather than rescan Recipe/JoinSig or add an S6C physicalizer.
 
 ## Common V2 typed After-boundary transport I0
@@ -829,7 +829,9 @@ The common-V2 envelope transports this plan from the same installed cohort and
 the focused S6C loan test checks owner, Bool class, Body target, and RootAfter
 target. This is transport-only: no condition value is issued, no `emit_branch`
 or operation is emitted, and no Completion/DraftSeal, lifecycle, Text route,
-fallback, retry, or production caller is opened. The accepted next BoxShape is
-the two-stage condition-carrier boundary: its first I0 transports the exact
-source-backed CompareI64 producer relation, while physical ValueId issuance,
-operation emission, and edge effects remain closed.
+fallback, retry, or production caller is opened. The first I0 of the accepted
+two-stage condition-carrier boundary is now landed: the envelope also lends
+one exact source-backed CompareI64 producer relation, checking the producer
+item/block, `Less` operation, I64 operands, Bool result, and owner. The next
+design stop names the canonical physical result receipt; physical ValueId
+issuance, operation emission, and edge effects remain closed.

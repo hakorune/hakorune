@@ -85,12 +85,13 @@ Related:
   BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0`
-  is the active design stop. The complete logical predicate branch plan and
-  its transport I0 are landed. Before any Builder/block/effect emission, this
-  D0 must name the source-backed CompareI64 producer relation, the physical
-  condition-carrier issuer, and the sole later branch consumer. ValueId,
-  `emit_branch`, CFG/PHI, Completion claims, and DraftSeal remain closed.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0`
+  is the active design stop. The complete logical predicate branch plan,
+  transport I0, and exact source-backed CompareI64 producer relation are
+  landed. Before any Builder/block/effect emission, this D0 must name the
+  canonical session-local physical result receipt, its rollback owner, and
+  the sole later branch consumer. ValueId issuance, `emit_branch`, CFG/PHI,
+  Completion claims, and DraftSeal remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -213,8 +214,8 @@ does not mutate a Builder or emit a block, operation, control transfer, PHI,
 Completion claim, Return, DraftSeal, lifecycle, Text operation, route, or
 production caller. It does not reuse `new_selected_dynamic`, pass a raw
 BlockExpr count, or expose a second session. This receipt is landed; the
-current frontier is the source-backed physical condition-carrier design stop,
-not a session reopen or a second physical-entry authority.
+current frontier is the physical condition-result receipt design stop, not a
+session reopen or a second physical-entry authority.
 
 ### LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0
 
@@ -699,7 +700,7 @@ This I0 allocates no blocks, emits no operations/effects, opens no CFG/PHI or
 Completion/DraftSeal claim, and does not select a Text route, fallback, retry,
 or production caller. The post-layout effect frontier is now closed; this is a
 historical receipt, not a live physicalizer or session reopen. The live
-frontier is the source-backed physical condition-carrier design stop below.
+frontier is the physical condition-result receipt design stop below.
 
 ### Source-segment allocation boundary (landed 2026-08-17)
 
@@ -1062,6 +1063,24 @@ Non-claims:
   Completion/DraftSeal, lifecycle, Text route, performance, fallback/retry, or
   production caller is accepted by this D0.
 ```
+
+### Condition producer relation I0 implementation receipt (2026-08-17)
+
+`common_v2_condition_producer.rs` now issues one private, non-`Clone`
+`PreparedLoopV2ConditionProducerRelationV1` from the same installed S6C
+ingress as the predicate branch plan and operation program. It checks the
+resolver loop condition against exactly one source `CompareI64` row, requires
+the fixed `Less` producer and `I64` operands, and then checks the matching
+generic operation row, owner, block, result, and Bool class before the envelope
+is returned. The relation retains only logical keys and the producer item; the
+canonical session remains the sole future `ValueId`/type issuer.
+
+The focused common-V2 suite is green with the new non-Compare operation-row
+drift negative and the installed-loan positive assertions. This I0 does not
+issue a physical result, lower a Compare, call `emit_branch`, mutate CFG/PHI,
+claim Completion/DraftSeal, open lifecycle/Text/route/performance, or add a
+production caller. The next design stop is the physical result receipt, not a
+second condition or edge authority.
 
 ## Decision
 
@@ -2200,7 +2219,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-j | `LOOP-COMMON-V2-PHYSICAL-AFTER-EDGE-D0` | close the source-backed complete Predicate branch plan and condition-carrier admission for Header -> Body / Header -> RootAfter | accepted BoxShape 2026-08-17; the false-only edge is rejected because canonical `emit_branch` requires both successors; the next caller-zero I0 transports the physical-ID-free plan; no edge/terminator, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | landed 2026-08-17; focused positive/duplicate/missing-boundary gates are green; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | accepted BoxShape 2026-08-17; logical CompareI64 producer relation is the next transport-only I0, while physical ValueId/operation/edge effects remain closed |
-| 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | next execution slice; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | landed 2026-08-17; source/operation row, owner, block, operand/result/class drift and non-Compare negatives are green; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | name the canonical physical result receipt, rollback owner, and sole branch consumer after the logical producer relation | active design stop; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

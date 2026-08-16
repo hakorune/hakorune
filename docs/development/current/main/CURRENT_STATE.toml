@@ -11,20 +11,20 @@ detached physical-skeleton I0, slot-only entry adoption, consuming
 physical-entry/session seam, the V2-native physical-ID-free layout/placement
 BoxShape plus caller-zero layout transport, source-segment block allocation I0,
 typed After-boundary transport I0, accepted one-shot After allocation BoxShape,
-complete After predicate branch-plan BoxShape, and branch-plan transport I0 are
-landed. The two-stage physical condition-carrier BoxShape is accepted; the
-next execution slice transports its source-backed CompareI64 producer
-relation only. No physical edge effect is open. A-prime lifecycle, Direct Text
+complete After predicate branch-plan BoxShape, branch-plan transport I0, and
+the exact source-backed CompareI64 producer relation I0 are landed. The next
+design stop names the canonical physical condition result receipt before any
+physical edge effect. No physical edge effect is open. A-prime lifecycle, Direct Text
 lowering, route, and production remain closed.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0 is accepted as a two-stage BoxShape: same-cohort source condition plus exact CompareI64 producer relation first, session-local physical result receipt later. The next caller-zero I0 transports the producer relation only; no ValueId, emit_branch, CFG/PHI, operation, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production edge may open."
-work_mode = "fast"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0"
-current_blocker_token = "none"
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0 is the active design stop after the logical CompareI64 producer relation I0 landed. It must name one canonical session-local physical result receipt, its rollback/discard owner, and the sole later branch consumer. ValueId issuance, operation lowering, emit_branch, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed."
+work_mode = "design_stop"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0"
+current_blocker_token = "NoSafeSlice::AfterConditionPhysicalReceiptUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -32,7 +32,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 physical entry)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 admission/session, S6C header/effects, physical-entry, layout transport, relation guard, source-segment allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete branch-plan transport I0, and the accepted two-stage condition-carrier BoxShape are landed. The next I0 transports the exact source-backed CompareI64 producer relation only; ValueId, emit_branch, edge/terminator, operations, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, and production caller remain closed. MirParamDecl stays source metadata."
+active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 admission/session, S6C header/effects, physical-entry, layout transport, relation guard, source-segment allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete branch-plan transport I0, the accepted two-stage condition-carrier BoxShape, and the exact CompareI64 producer-relation I0 are landed. The next design stop names the canonical physical condition result receipt; ValueId, emit_branch, edge/terminator, operations, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, and production caller remain closed. MirParamDecl stays source metadata."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -45,10 +45,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, source-segment block allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete After predicate branch-plan BoxShape, branch-plan transport I0, and the accepted two-stage condition-carrier BoxShape are landed. The next I0 transports the exact CompareI64 producer relation without ValueId, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, or production."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, source-segment block allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete After predicate branch-plan BoxShape, branch-plan transport I0, the accepted two-stage condition-carrier BoxShape, and the exact CompareI64 producer-relation I0 are landed. The next design stop names the physical condition result receipt without ValueId, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, or production."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -63,7 +63,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0 accepted the consuming BoxShape after worker audit: a compiler-only non-Clone prepared input retains loan/shell/descriptors/stamp, common-V2 admission is consumed once, and the outer function session owns discard. The next caller-zero I0 must remove the public into_parts split and prove foreign/reordered/late-failure negatives; lifecycle, Text, route, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0 landed one detached MirFunction shell with mechanical i64 lanes, source metadata, result/effects, and retained descriptor carriers from the same installed loan; the ExactText entry-adoption BoxShape is now accepted: slot-only BindingSSA publication, a skeleton-bound private generation sidecar, and one rollback owner.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0 landed the caller-zero transport aggregate. One installed S6C HRTB loan now projects source ParamDecl evidence and complete physical lane descriptors with receiver-prefix ordering, adjacent ExactText [slot,generation] roles, and U64BitsOnI64 carrier tags; focused descriptor tests, cargo check/test, format, diff, and pointer guard are green. Skeleton reservation, ValueId/lane adoption, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0 landed the caller-zero S6C header/effects transport. The package issuer now co-seals a distinct catalog-backed VerifiedS6CStorageHeaderProjectionV1 and a source-backed VerifiedS6CPhysicalFunctionEffectsV1 beside the existing signature/result header; the installed HRTB lends one same-cohort view, focused package/S6C tests passed, and skeleton/ValueId/entry adoption/Loop CFG/lifecycle/Text/route/production remain closed.",
@@ -74,5 +73,6 @@ landed_tail = [
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0 landed typed RootAfter transport from the same S6C cohort. The relation carries owner, source loop/frame, and RootAfter|ParentResume disposition; current S6C is RootAfter-only, with no After block, edge, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0 accepted a one-shot RootAfter placement BoxShape. One prepared plan consumes the same relation and source-segment receipt; canonical session allocation is the sole BasicBlockId issuer, the outer function transaction is the sole discard owner, and the next I0 allocates exactly one unpublished block with monotonic gaps non-semantic.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0 landed one caller-zero RootAfter-only unpublished After block allocation. The prepared plan is private and one-shot, canonical session issues the BasicBlockId, outer discard removes the unpublished function on late failure, and focused positive/duplicate/late-discard tests are green. The next design stop is source-backed After-edge admission; no edge or successor is emitted.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0 landed one same-cohort physical-ID-free predicate branch-plan transport. The S6C envelope now lends the Bool condition, Header -> Body, Header -> RootAfter, and future condition-carrier requirement; missing/duplicate boundary negatives and installed-loan assertions are green. The next design stop is the source-backed physical condition carrier; no ValueId, emit_branch, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller is open.",
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0 landed one same-cohort physical-ID-free predicate branch-plan transport. The S6C envelope now lends the Bool condition, Header -> Body, Header -> RootAfter, and future condition-carrier requirement; missing/duplicate boundary negatives and installed-loan assertions are green. The following producer-relation I0 is also landed; the next design stop names the physical result receipt, with no ValueId, emit_branch, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller open.",
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0 landed one same-cohort non-Clone CompareI64 producer relation. The exact source producer, logical operation row, owner/block, I64 operands, Bool result, and Less operator are co-sealed; a non-Compare operation-row drift negative and installed-loan positive are green. No physical ValueId, operation lowering, emit_branch, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller is open.",
 ]
