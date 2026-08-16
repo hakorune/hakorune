@@ -1331,8 +1331,10 @@ Ordered sub-slices (design-only; no session/CFG effect):
   3. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` and its I0
      canary are landed; they prove only same-session source/stamp transport.
   4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0`
-     must name the one same-session physical Length receipt issuer; existing
-     Dynamic/legacy CallSlot emitters are not reused.
+     must name the one same-session `CanonicalLengthCallMaterializerV1`
+     (source-backed plan -> canonical session Call -> I64 result receipt).
+     Existing Dynamic/legacy CallSlot emitters and CheckedCallOut are not
+     reused as that issuer.
   5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0`
      may be accepted only after the physical Length issuer is closed; it then
      fixes the Bool receipt, outer discard owner, and sole later branch
@@ -1443,10 +1445,13 @@ Decision:
 Source authority + canonical issuer:
   The source Length contract, fixed Right operand row, matching operation row,
   Compare-right relation, and retained physical-entry stamp are borrowed from
-  the same common-V2 session. A future
-  `CanonicalLengthCallResultReceiptV1` is issued only by the common materializer
-  through `CanonicalSsaFunctionSessionV2`'s sole ValueId/type mechanics and is
-  consumed by the later Bool-result materializer in the same callback.
+  the same common-V2 session. A future non-Clone
+  `CanonicalLengthCallMaterializerV1` is the sole plan-to-effect bridge: it
+  validates that source-backed relation, issues exactly one canonical session
+  `Call` for the verified `StringLen` target, and returns one
+  `CanonicalLengthCallResultReceiptV1` through the session's sole ValueId/type
+  mechanics. The later Bool-result materializer consumes that receipt in the
+  same callback; it never reconstructs a CallSlot or re-pairs operands.
 
 Non-authority:
   `LengthCallMaterializationCanaryV1`, raw `LoopValueKeyV1`, raw `ValueId`,
@@ -1457,15 +1462,18 @@ Non-authority:
 Fail-fast boundary:
   Missing/foreign session stamp, owner/function drift, Length role/operation/
   placement/arity/receiver/result/class drift, absent canonical result/type,
-  duplicate publication, result re-entry, operand-pair mismatch, or receipt
-  escape rejects before Compare, branch, or edge effects. Late failure uses the
-  outer unpublished-function discard exactly once; fallback/retry is forbidden.
+  duplicate publication, result re-entry, operand-pair mismatch, target/callee
+  drift, or receipt escape rejects before any Call/Compare/branch/edge effect.
+  Late failure uses the outer unpublished-function discard exactly once;
+  fallback/retry is forbidden.
 
 Smallest next slice:
   `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-I0` may
-  first admit a typed same-session result-receipt plan/canary. It must not emit
-  ValueId, CallSlot, Compare, edge, terminator, CFG, or PHI until the issuer
-  and its physical operand pair are closed.
+  first admit the typed plan and one-shot source/stamp canary. The following
+  effectful I0 is a separate cell: it may emit exactly one canonical Call and
+  one I64 result receipt only after the target realization row, receiver/args,
+  session rollback, and no-repair boundary are closed. Until then it must not
+  emit ValueId, CallSlot, Compare, edge, terminator, CFG, or PHI.
 
 Non-claims:
   No parent Bool receipt, Compare instruction, `emit_branch`, edge/terminator,
