@@ -242,6 +242,20 @@ Source authority + canonical issuer:
   adoption owner; `CanonicalFunctionLoweringSessionV1` is only the downstream
   unpublished transaction/restore consumer, not an issuer input.
 
+  The source census fixes the eventual seam without opening it: the installed
+  `VerifiedSameModuleCallableDeclarationCatalogV1::declaration` row is the
+  source owner for symbol, ParamDecls, result annotation, `uses`, and attrs;
+  `issue_callable_physical_signature_v1` is the lane owner; and the retained
+  S6C ingress is the owner for Facts/Recipe/Join/Completion relations. None
+  of these currently issues the common-V2 physical function effects needed by
+  `FunctionSignature.effects`. A future package-side S6C issuer must
+  co-seal a catalog-backed storage header and a source-backed physical-effects
+  projection with the same owner/identity/brand before the compiler-side
+  entry aggregate can consume them. The Dynamic-only
+  `CatalogedBoxMethodPhysicalHeaderProjectionV1`, legacy
+  `NormalCatalogedBoxMethodDraftAdmissionV1::physical_arity`, attrs/uses
+  inference, and a literal `EffectMask::READ` are not substitutes.
+
 Non-authority:
   Common V2 operation/control/coverage rows, Recipe/JoinSig ordinals,
   logical `/N`, FunctionSignature length, raw `ParamDecl` one-to-one
