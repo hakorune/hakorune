@@ -39,6 +39,32 @@ backing, pins, and finish. The target capability remains the only target and
 layout expectation owner. The bridge compares/co-seals these facts; it does
 not issue a second Text, lifetime, ABI, or route meaning.
 
+## Current authority gaps (explicit blocker)
+
+The design names the required views, but the current tree does not yet issue
+all of them:
+
+```text
+ResolvedCallablePhysicalSignatureLoanV1 currently exposes counts and identity;
+  a future scoped projection must lend the complete lane rows (role, ordinal,
+  binding, and physical index) from the existing cohort without copying them.
+
+TextFormalResidenceFrameHeaderV1 currently exposes runtime/C rows and private
+  constants; a future Residence-owned `ResidenceAbiLayoutV1` view must lend
+  revision, header/root-row offsets and sizes, alignment, and limits without
+  lending a live pointer, token, or invocation residence.
+
+PinnedTextCompileTargetCapabilityV1 is currently optional at compatibility
+  edges; the backend-frame contract must require it and reject absence before
+  collector mutation. `Option` may remain only outside the selected binder
+  contract, never as a missing-field default.
+```
+
+Until these two scoped projections and the mandatory-target boundary are named
+and co-sealed, this D0 remains `NoSafeSlice::PinnedTextBackendFrameCoSealUnsealed`.
+Counts alone cannot prove root order, and runtime frame constants alone cannot
+become a compile-time ABI authority by observation.
+
 ## Count and order law
 
 The four axes must remain distinct:
@@ -92,6 +118,8 @@ receiver/formal/root overlap, swap, gap, or count drift reject
 frame-size/length/pointer-width/address-space/ABI overflow or mismatch reject
 unknown runtime fields, JSON reconstruction, loan return/store/escape reject
 collector entry without the four-input co-seal reject
+missing target capability at a selected binder entry rejects (no optional default)
+count-only signature loans or unissued Residence ABI views reject the design
 ```
 
 The focused design evidence is a census and type-boundary review only. It does
