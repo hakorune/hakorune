@@ -99,6 +99,22 @@ re-paired or stored as a second package authority. Skeleton reservation and
 entry-lane adoption remain separate future rows; lifecycle, Text lowering,
 route selection, fallback, and production callers are closed.
 
+### Common V2 physical function skeleton I0
+
+`common_v2_physical_function_skeleton.rs` consumes the same prepared entry
+input and reserves one detached `MirFunction` shell with one existing
+mechanical `i64` parameter lane per physical descriptor. The shell retains
+the source-backed symbol, result/effects, source declaration metadata, and
+descriptor carrier tags while keeping the installed loan alive. It uses a
+local unpublished entry block id and is never installed in a `MirBuilder` or
+module during this slice.
+
+ExactText remains one logical `BindingRef` with adjacent `[slot,generation]`
+descriptors; this I0 reserves the two `ValueId`s but does not publish either
+lane to BindingSSA. The sidecar/slot publication rule is the next design stop.
+No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text lowering, route,
+fallback, retry, or production caller is opened here.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

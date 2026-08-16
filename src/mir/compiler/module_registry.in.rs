@@ -49,6 +49,8 @@ pub(in crate::mir) mod common_v2_session_admission;
 #[allow(dead_code)]
 pub(in crate::mir) mod common_v2_physical_function_entry_input;
 #[allow(dead_code)]
+pub(in crate::mir) mod common_v2_physical_function_skeleton;
+#[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_capability;
 #[cfg(test)]
 pub(crate) mod direct_accum_observation;

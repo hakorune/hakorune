@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, and scoped Rust frame borrow are landed. The copied-row lifecycle prototype is historical only. A-prime remains parked because selected-normal production still uses a legacy finalizer without PreparedFunctionExitV1. Common V2 canonical-session admission D0, typed BlockExpr issuance/transport, callback-scoped co-seal, caller-zero session-open canary, S6C header/effects co-seal I0, and the transport-only physical-entry input I0 are landed; the next design stop must seal one same-cohort physical function skeleton plus entry-lane adoption before direct Text lowering, route, or production."
+status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow, common V2 canonical-session admission/session-open canary, typed BlockExpr issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0, and the accepted physical-skeleton BoxShape are landed. The copied-row lifecycle prototype is historical only. A-prime remains parked because selected-normal production still uses a legacy finalizer without PreparedFunctionExitV1. The active caller-zero slice is the detached physical skeleton reservation; ExactText lane adoption, direct Text lowering, route, and production remain closed."
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "The common V2 physical-entry input I0 is landed as a transport-only same-loan descriptor aggregate. The next design stop is the physical function skeleton: source-backed symbol/mode/header/effects/uses/attrs and the four-lane parameter carrier must be projected into one fresh unpublished skeleton without reusing the one-lane MirParamDecl path or publishing ExactText lanes prematurely. A-prime lifecycle remains parked."
-work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-D0"
-current_blocker_token = "NoSafeSlice::CanonicalFunctionSkeletonInputsUnsealed"
+current_design_stop = "The physical function skeleton BoxShape is accepted: the same installed S6C loan projects source-backed symbol/mode/header/effects/uses/attrs and complete lane descriptors into one detached mechanical-i64 shell. The active fast slice reserves that shell without Builder/module publication; the next design stop is the ExactText lane-adoption sidecar rule. A-prime lifecycle remains parked."
+work_mode = "fast"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0"
+current_blocker_token = "none"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 pre-session design resumes)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, and the transport-only physical-entry input I0 are landed. The active design stop is the physical skeleton input census: MirParamDecl stays source metadata, not the expanded carrier; skeleton reservation, lane adoption, lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
+active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 physical entry)"
+active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 issuers, installed Port HRTB, typed BlockExpr transport, callback admission, session-open canary, S6C header/effects I0, and physical-entry input I0 are landed. The active fast slice reserves one detached mechanical-i64 skeleton from the same loan; MirParamDecl stays source metadata, ExactText adoption, lifecycle, runtime finish, backend closure, GEP/load, route, and production remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,11 +29,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, and the physical-entry descriptor I0 are landed. The next design stop is the same-cohort physical skeleton and exact entry-lane adoption boundary; U64BitsOnI64 remains the wire carrier and MirParamDecl remains source metadata. Lifecycle, Text, route, and production remain closed."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, and the accepted skeleton BoxShape are landed. The active slice is a detached mechanical-i64 skeleton reservation; the next design stop is exact entry-lane adoption, with U64BitsOnI64 as the wire carrier and MirParamDecl as source metadata. Lifecycle, Text, route, and production remain closed."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0"
+next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-D0 accepted the same-loan skeleton BoxShape. The active caller-zero I0 reserves one detached MirFunction shell with mechanical i64 lanes, source metadata, result/effects, and retained descriptor carriers; no Builder/module publication or ExactText lane adoption is authorized.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0 landed the caller-zero transport aggregate. One installed S6C HRTB loan now projects source ParamDecl evidence and complete physical lane descriptors with receiver-prefix ordering, adjacent ExactText [slot,generation] roles, and U64BitsOnI64 carrier tags; focused descriptor tests, cargo check/test, format, diff, and pointer guard are green. Skeleton reservation, ValueId/lane adoption, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0 landed the caller-zero S6C header/effects transport. The package issuer now co-seals a distinct catalog-backed VerifiedS6CStorageHeaderProjectionV1 and a source-backed VerifiedS6CPhysicalFunctionEffectsV1 beside the existing signature/result header; the installed HRTB lends one same-cohort view, focused package/S6C tests passed, and skeleton/ValueId/entry adoption/Loop CFG/lifecycle/Text/route/production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-SESSION-I0 landed the caller-zero session-open canary: one callback-scoped admission is consumed once, the typed BlockExpr expectation is projected only inside new_common_v2, and one owned physical Completion consumer is issued from the installed cohort's borrowed semantic Completion. The same pre-session envelope remains beside the session; no Builder/CFG/SSA/PHI effect, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller was opened.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-I0 landed a private non-Clone proof-only prototype co-sealed from existing Completion/ExitSet/plan/frame facts; explicit-value Single and ExactTwo site matching plus owner/stamp/unit/duplicate negatives passed 4/4. Its copied exit rows are historical evidence only; the successor must use a stamp-only finish capability beside the canonical exit ledger, while runtime finish, DraftSeal Return, MIR, backend, route, and production callers remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0 landed a scoped non-Clone/non-Copy Rust PinnedTextBackendFrameBorrowV1 over the existing co-sealed contract; JSON metadata lends it only for serialization, with C validation, TargetMachine realization, runtime residence, lifecycle, GEP/load, route, and production callers unchanged; focused compiler test, cargo check/format/diff, pointer guard, and the 487-line source limit are green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0 landed the strict module census and one retained LLVM-18 C API TargetMachine session for contract-bearing object emission, with success-only publication, contracted-path fallback/compat rejection, legacy isolation, and focused transport smoke coverage; direct PinnedTextOp lowering, lifecycle, route, and production callers remain closed.",
-  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-EMITTER-TARGET-PARITY-D0 accepted C: one Rust-owned compile-invocation expectation projects to one retained LLVM-18 C API TargetMachine session that must validate and emit contract-bearing modules without env/default inference or external fallback; contract-free modules alone retain legacy opt/llc, and the caller-zero object-emitter I0 is now active while GEP/load, lifecycle, route, production caller, fallback, and retry remain closed.",
 ]
