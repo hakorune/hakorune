@@ -36,7 +36,7 @@ fn callable_source_request_retains_atomic_final_program_owner() {
             Some("scan.hako"),
             HashMap::new(),
         );
-        let (program, source, imports, admission, _) = request.into_parts();
+        let (program, source, imports, admission, _, target_capability) = request.into_parts();
         assert!(program.is_callable_source_backed());
         assert_eq!(source.source_file(), Some("scan.hako"));
         assert!(imports.is_empty());
@@ -46,6 +46,7 @@ fn callable_source_request_retains_atomic_final_program_owner() {
                 NormalPreparedSourceCallerV1::MirMode
             )
         );
+        assert!(target_capability.is_none());
     });
 }
 
@@ -68,7 +69,7 @@ fn llvm_callable_source_request_keeps_llvm_caller_identity() {
             Some("scan.hako"),
             HashMap::new(),
         );
-        let (program, source, imports, admission, _) = request.into_parts();
+        let (program, source, imports, admission, _, target_capability) = request.into_parts();
         assert!(program.is_callable_source_backed());
         assert_eq!(source.source_file(), Some("scan.hako"));
         assert!(imports.is_empty());
@@ -78,7 +79,25 @@ fn llvm_callable_source_request_keeps_llvm_caller_identity() {
                 NormalPreparedSourceCallerV1::LlvmSourceCompiler
             )
         );
+        assert!(target_capability.is_none());
     });
+}
+
+#[test]
+fn llvm_request_transports_one_invocation_target_capability_without_reissuing_it() {
+    let profile = crate::mir::compiler::target_capability::PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1;
+    let capability = crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        profile,
+    )
+    .expect("compile invocation capability");
+    let invocation = capability.invocation_ordinal();
+    let request = NormalCompileRequestV1::for_llvm_source(program(), Some("llvm.hako"), HashMap::new())
+        .expect("program root")
+        .with_compile_target_capability(capability);
+    let (_, _, _, _, _, transported) = request.into_parts();
+    let transported = transported.expect("capability remains in request");
+    assert_eq!(transported.invocation_ordinal(), invocation);
+    assert_eq!(transported.profile(), profile);
 }
 
 #[test]
@@ -226,7 +245,7 @@ fn all_typed_program_constructors_share_one_program_admission() {
 fn program_json_v0_import_bundle_fixes_source_and_empty_builder_imports() {
     let request = NormalCompileRequestV1::for_program_json_v0_import_bundle(program())
         .expect("Program-v0 import bundle must use typed Program admission");
-    let (_, source, imports, admission, _) = request.into_parts();
+    let (_, source, imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), Some("<json_v0/imports>"));
     assert!(imports.is_empty());
@@ -240,7 +259,7 @@ fn program_json_v0_import_bundle_fixes_source_and_empty_builder_imports() {
 fn repl_program_fixes_source_and_empty_builder_imports() {
     let request = NormalCompileRequestV1::for_repl_program(program())
         .expect("REPL must use typed Program admission");
-    let (_, source, imports, admission, _) = request.into_parts();
+    let (_, source, imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), Some("<repl>"));
     assert!(imports.is_empty());
@@ -256,7 +275,7 @@ fn post_macro_whole_file_seal_accepts_program_and_rejects_non_program() {
         VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
     let request =
         NormalCompileRequestV1::for_stage1_direct_post_macro(program, Some("stage1.hako"));
-    let (_, source, imports, admission, _) = request.into_parts();
+    let (_, source, imports, admission, _, _) = request.into_parts();
     assert_eq!(source.source_file(), Some("stage1.hako"));
     assert!(imports.is_empty());
     assert_eq!(
@@ -278,7 +297,7 @@ fn selfhost_macro_preexpand_fixes_anonymous_source_and_empty_imports() {
     let program =
         VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
     let request = NormalCompileRequestV1::for_selfhost_macro_preexpand(program);
-    let (_, source, imports, admission, _) = request.into_parts();
+    let (_, source, imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), None);
     assert!(imports.is_empty());
@@ -295,7 +314,7 @@ fn vm_hako_post_macro_preserves_named_source_and_exact_imports() {
     let imports = HashMap::from([("Alias".to_owned(), "Target".to_owned())]);
     let request =
         NormalCompileRequestV1::for_vm_hako_post_macro(program, "vm-hako.hako", imports.clone());
-    let (_, source, actual_imports, admission, _) = request.into_parts();
+    let (_, source, actual_imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), Some("vm-hako.hako"));
     assert_eq!(actual_imports, imports);
@@ -310,7 +329,7 @@ fn vm_fallback_post_macro_preserves_named_source_and_empty_imports() {
     let program =
         VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
     let request = NormalCompileRequestV1::for_vm_fallback_post_macro(program, "fallback.hako");
-    let (_, source, imports, admission, _) = request.into_parts();
+    let (_, source, imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), Some("fallback.hako"));
     assert!(imports.is_empty());
@@ -327,7 +346,7 @@ fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
     let imports = HashMap::from([("KeepAlias".to_owned(), "KeepTarget".to_owned())]);
     let request =
         NormalCompileRequestV1::for_vm_keep_post_macro(program, "vm-keep.hako", imports.clone());
-    let (_, source, actual_imports, admission, _) = request.into_parts();
+    let (_, source, actual_imports, admission, _, _) = request.into_parts();
 
     assert_eq!(source.source_file(), Some("vm-keep.hako"));
     assert_eq!(actual_imports, imports);

@@ -49,6 +49,16 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+
+/// Public compile-invocation target capability facade.  The concrete issuer
+/// lives with the compiler owner; the runner sees only this narrow profile and
+/// move-only capability surface.
+pub mod compile_target_capability {
+    pub use super::compiler::target_capability::{
+        PinnedTextCompileTargetCapabilityIssueV1, PinnedTextCompileTargetCapabilityIssuerV1,
+        PinnedTextCompileTargetCapabilityV1, PinnedTextCompileTargetProfileV1,
+    };
+}
 pub mod edge_args;
 pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabulary
 pub(crate) mod normal_callable_semantic_package;

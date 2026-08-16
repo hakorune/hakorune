@@ -1,5 +1,5 @@
 ---
-Status: selected fast slice; Rust compile-target capability transport
+Status: closed; Rust compile-target capability transport landed
 Date: 2026-08-16
 Work mode: fast
 Classification: T2 BoxShape implementation
@@ -86,3 +86,21 @@ TargetMachine, materialize pointers, add `PinnedTextOp` lowering, adopt a
 Canonical session residence, place Completion finishes, select a TextEq route,
 switch a production caller, admit literals/StringBox origins, or claim C-fast
 performance. Those remain later bounded rows.
+
+## Landed evidence
+
+The sole profile and move-only invocation capability live in
+`src/mir/compiler/target_capability.rs`. `LlvmCompileOptions` selects the
+profile explicitly and `MirCompilerBox` issues one capability before creating
+the LLVM `NormalCompileRequestV1`. The request carries that same owned value
+through the root-catalog lifecycle; the installed selected-normal adapter lends
+only a scoped reference beside the existing physical-signature loan and the
+`complete_before_restore` closure does not retain it in the collector.
+
+The Rust-only transport is covered by the profile/issuer tests and the request
+identity test
+`llvm_request_transports_one_invocation_target_capability_without_reissuing_it`.
+`cargo check -q`, `cargo test target_capability`, `cargo fmt --check`,
+`git diff --check`, and the current-state pointer guard are green. The next
+design stop is `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0`; actual LLVM
+layout validation remains intentionally unimplemented.

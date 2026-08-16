@@ -13,6 +13,9 @@ impl ModuleLoweringPortV1<'_> {
         pending: PendingFunctionSessionCloseV1<'_>,
         admission: ResolvedChildDraftAdmissionV1,
         loan: ResolvedCallablePhysicalSignatureLoanV1<'loan>,
+        target_capability: Option<
+            &'loan crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         if loan.owner() != admission.owner() {
             return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
@@ -20,6 +23,7 @@ impl ModuleLoweringPortV1<'_> {
         let (key, symbol, arity) = admission.collector_parts();
         pending.complete_before_restore(|draft| {
             let _loan = loan;
+            let _target_capability = target_capability;
             let prepared = self
                 .prepare_draft_admission(
                     key,

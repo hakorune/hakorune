@@ -46,6 +46,7 @@ impl MirCompilerBox {
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,
     ) -> Result<MirCompileResult, String> {
+        let target_capability = options.issue_pinned_text_target_capability()?;
         let request = match outcome {
             crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) => {
                 NormalCompileRequestV1::for_llvm_callable_source(source, filename, imports)
@@ -56,7 +57,10 @@ impl MirCompilerBox {
             } => NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
                 .map_err(|error| format!("MIR compilation error: {error}"))?,
         };
-        Self::compile_request(request, options)
+        Self::compile_request(
+            request.with_compile_target_capability(target_capability),
+            options,
+        )
     }
 
     /// Compile AST to MIR
@@ -68,9 +72,14 @@ impl MirCompilerBox {
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,
     ) -> Result<MirModule, String> {
+        let target_capability = options.issue_pinned_text_target_capability()?;
         let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
             .map_err(|error| format!("MIR compilation error: {error}"))?;
-        Self::compile_request(request, options).map(|result| result.module)
+        Self::compile_request(
+            request.with_compile_target_capability(target_capability),
+            options,
+        )
+        .map(|result| result.module)
     }
 
     fn compile_request(

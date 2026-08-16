@@ -22,24 +22,37 @@ use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
 };
+use crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1;
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
 
-pub(super) struct NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector> {
+pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
+    'package,
+    'loan,
+    'port,
+    'collector,
+    'target,
+> {
     inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
     package: NormalCallableSemanticPackagePortV1<'package>,
+    target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
 }
 
-impl<'package, 'loan, 'port, 'collector>
-    NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector>
+impl<'package, 'loan, 'port, 'collector, 'target>
+    NormalCallableSemanticPackagePortAdapterV1<'package, 'loan, 'port, 'collector, 'target>
 {
     pub(super) fn new(
         inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
         package: NormalCallableSemanticPackagePortV1<'package>,
+        target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
     ) -> Self {
-        Self { inner, package }
+        Self {
+            inner,
+            package,
+            target_capability,
+        }
     }
 
     pub(super) fn complete(self) -> Result<(), String> {
@@ -203,7 +216,9 @@ fn with_selected_source_scope<'port, 'collector, R>(
     }
 }
 
-impl RecursiveChildLoweringPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
+impl RecursiveChildLoweringPortV1
+    for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
+{
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
@@ -280,7 +295,7 @@ impl RecursiveChildLoweringPortV1 for NormalCallableSemanticPackagePortAdapterV1
     }
 }
 
-impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
+impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
     fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,
@@ -299,7 +314,7 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
     }
 }
 
-impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_> {
+impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
     fn lower_app_main_static_child(
         &mut self,
         builder: &mut MirBuilder,
@@ -450,6 +465,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             body,
                             uses,
                             attrs,
+                            self.target_capability,
                         )
                         .map_err(|error| error.to_string())
                 })
@@ -469,6 +485,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        let target_capability = self.target_capability;
         self.with_cataloged_callable_source_scope(
             admission,
             |inner, _transport, admission, signature| {
@@ -483,6 +500,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         body,
                         uses,
                         attrs,
+                        target_capability,
                     )
                     .map_err(|error| error.to_string())
             },

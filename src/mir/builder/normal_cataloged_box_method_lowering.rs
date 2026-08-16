@@ -146,6 +146,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
@@ -175,8 +178,12 @@ impl RawInvocationChildPortV1<'_, '_> {
                 })
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?
         };
-        self.module_port
-            .complete_resolved_child_with_physical_loan(pending, resolved, signature)
+        self.module_port.complete_resolved_child_with_physical_loan(
+            pending,
+            resolved,
+            signature,
+            target_capability,
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -191,6 +198,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
@@ -224,7 +234,11 @@ impl RawInvocationChildPortV1<'_, '_> {
                 })
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?
         };
-        self.module_port
-            .complete_resolved_child_with_physical_loan(pending, resolved, signature)
+        self.module_port.complete_resolved_child_with_physical_loan(
+            pending,
+            resolved,
+            signature,
+            target_capability,
+        )
     }
 }

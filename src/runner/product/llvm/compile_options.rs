@@ -5,7 +5,7 @@
 
 use nyash_rust::{
     ast::ASTNode,
-    mir::{MirCompileResult, MirModule},
+    mir::{compile_target_capability::*, MirCompileResult, MirModule},
 };
 use std::collections::HashMap;
 
@@ -33,13 +33,23 @@ impl FutureRewriteRoute {
 #[derive(Clone, Copy, Debug)]
 pub struct LlvmCompileOptions {
     pub future_rewrite_route: FutureRewriteRoute,
+    pub(crate) pinned_text_target_profile: PinnedTextCompileTargetProfileV1,
 }
 
 impl LlvmCompileOptions {
     pub fn current_default() -> Self {
         Self {
             future_rewrite_route: FutureRewriteRoute::EnvFutureExterns,
+            pinned_text_target_profile:
+                PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
         }
+    }
+
+    pub(crate) fn issue_pinned_text_target_capability(
+        &self,
+    ) -> Result<PinnedTextCompileTargetCapabilityV1, String> {
+        PinnedTextCompileTargetCapabilityIssuerV1::issue(self.pinned_text_target_profile)
+            .map_err(|error| error.to_string())
     }
 }
 

@@ -5,6 +5,22 @@ module, entry-block, or FunctionRegion state.
 
 ## Typed ingress contract
 
+### LLVM compile-target capability transport (I0)
+
+The LLVM runner selects the single cataloged
+`PinnedTextCompileTargetProfileV1` at the outer compile invocation and issues
+one move-only `PinnedTextCompileTargetCapabilityV1`. `NormalCompileRequestV1`
+transports that same invocation-branded capability through the normal
+root-catalog lifecycle; the selected-normal close lends it only as a scoped
+reference beside the existing physical-signature loan. The collector never
+stores it, and JSON, MIR arity, host probing, C `TargetMachine`, and backend
+code cannot reissue or infer it.
+
+This is transport-only. The capability does not yet validate an actual LLVM
+layout, derive a residence frame, materialize pointers, or open lifecycle/MIR
+Text lowering. Those remain the bounded Residence backend-frame rows recorded
+in the current investigation card.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

@@ -187,10 +187,30 @@ impl RejectedNormalDefaultRootCatalogLifecycleV1 {
 
 impl ModuleBuilderInvocationSessionV1 {
     pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle(
+        self,
+        source: PreparedNormalDefaultProgramRootV1,
+        materialization_policy: CallableMainMaterializationPolicyV1,
+        runtime_inputs: NormalRuntimeInputSnapshotV1,
+    ) -> Result<
+        CompletedNormalDefaultRootCatalogLifecycleV1,
+        RejectedNormalDefaultRootCatalogLifecycleV1,
+    > {
+        self.complete_normal_default_program_root_catalog_lifecycle_with_target(
+            source,
+            materialization_policy,
+            runtime_inputs,
+            None,
+        )
+    }
+
+    pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle_with_target(
         mut self,
         source: PreparedNormalDefaultProgramRootV1,
         materialization_policy: CallableMainMaterializationPolicyV1,
         runtime_inputs: NormalRuntimeInputSnapshotV1,
+        target_capability: Option<
+            crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
@@ -440,6 +460,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             None => NormalScriptRootLoweringMode::Deferred,
                         },
                         static_result_publication_owner,
+                        target_capability.as_ref(),
                     )
                     .map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())

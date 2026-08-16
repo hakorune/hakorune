@@ -131,6 +131,7 @@ mod nested_predicate_projection_tests;
 #[cfg(test)]
 mod nested_predicate_topology_tests;
 mod normal_default_pipeline;
+pub(crate) mod target_capability;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;
 pub(in crate::mir) mod publication_kernel;

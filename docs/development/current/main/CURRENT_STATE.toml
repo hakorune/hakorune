@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, and compile-target capability D0 are closed. The Rust capability transport I0 is now the only active implementation row; the binder, JSON validator, direct backend, route admission, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, compile-target capability D0, and Rust capability transport I0 are closed. The compile-time backend-frame binder is now the active design stop; JSON validation, direct backend, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-D0 accepted; implement the Rust-only capability transport I0 and keep all backend realization closed."
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-I0"
-current_blocker_token = "NoSafeSlice::PinnedTextCompileTargetCapabilityTransportUnsealed; keep binder contract, JSON/C validation, GEP/load, lifecycle CFG, session residence, route admission, fallback, retry, and production callers closed."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0; the Rust compile-target capability transport I0 is landed, and the compile-time frame contract remains design-only."
+work_mode = "design_stop"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0"
+current_blocker_token = "NoSafeSlice::PinnedTextBackendFrameBinderUnsealed; keep JSON/C validation, GEP/load, lifecycle CFG, session residence, route admission, fallback, retry, and production callers closed."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (compile-target capability D0 accepted -> Rust transport I0)"
-active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the mandatory ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The sole profile is nyrt-text-residence-ptr64-as0-v1, selected by the pre-MIR LLVM pipeline plan; the Rust capability must now reach the selected-normal close HRTB. JSON/C validation, GEP/load, lifecycle, route, and production callers remain closed."
+active_lane = "Loop compiler frontier (compile-target capability I0 landed -> backend-frame binder D0)"
+active_lane_status = "A is the canonical Rust compile-invocation target authority, B is the future mandatory ny-llvmc TargetMachine/layout validator, and C host/default inference is rejected. The sole profile is nyrt-text-residence-ptr64-as0-v1 and now reaches the selected-normal close HRTB as a scoped Rust capability. The compile-time frame contract, JSON/C validation, GEP/load, lifecycle, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-i0-2026-08-16.md"
+current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "text-formal-pinned-residence-compile-target-capability-i0"
-latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-i0-2026-08-16.md"
-latest_card_summary = "D0 accepted one explicit nyrt-text-residence-ptr64-as0-v1 profile and fixed the Rust issuer chain. The current I0 is Rust-only capability issuance and scoped transport through the LLVM normal compile request into the selected-normal close HRTB; JSON/C, GEP/load, lifecycle, route, production caller, fallback, and retry remain closed."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-COMPILE-TARGET-CAPABILITY-I0"
-next_execution_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-compile-target-capability-i0-2026-08-16.md"
+latest_card = "text-formal-pinned-residence-backend-frame-d0"
+latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+latest_card_summary = "The explicit compile-target capability D0 and Rust-only transport I0 are landed. The next design stop names one compile-time backend-frame contract issuer, same invocation/layout capability, target-owned frame derivation, and strict ny-llvmc validation without opening JSON/C/GEP/load or lifecycle."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0"
+next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-d0-2026-08-16.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-16: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-COMPILE-TARGET-I0 landed the explicit nyrt-text-residence-ptr64-as0-v1 compile-invocation capability: LlvmCompileOptions issues one move-only invocation brand, NormalCompileRequestV1 carries it through the normal root lifecycle, and the selected-normal close lends it only within the existing HRTB; profile/issuer/request tests 3/3, cargo check/test/format/diff/pointer green; backend frame binder, JSON/C validation, GEP/load, lifecycle, route, production caller, fallback, and retry remain closed.",
   "2026-08-16: TEXT-FORMAL-RESOLVED-SELECTED-NORMAL-HANDOFF-I0 landed the selected StaticBoxMethod/InstanceBoxMethod cutover from the identity-free legacy collector to the resolved admission/session seam: one package-Port HRTB lends selected input plus a non-Clone same-cohort physical-signature sibling, the admission stays identity-only, and canonical duplicate rejection happens before collection; package/physical-signature focused tests 32/32, cargo check/format/diff/pointer green; backend binder, JSON/GEP/load, lifecycle, route, production caller, fallback, and retry remain closed.",
   "2026-08-16: LOOP-TEXT-SLICE-DIRECT-AOT-D0 named the current ny-llvmc Boundary pure-first C lowerer and fixed the three typed leaf contract; the binder requires a Residence-owned opaque frame capability, and the pointer advances to TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-D0 for the frame input/rejection boundary; llvm_py/VM/native canary/future Hako LLVM-text, GEP/load, lifecycle CFG, session, route, production caller, fallback, and retry remain closed.",
   "2026-08-16: LOOP-TEXT-SLICE-EXECUTION-D0 accepted and caller-zero I0 landed the transport-only Text shape: a private stamped plan table, exact plan/instruction census, one PinnedTextOp variant with ByteLen/Utf8WidthAt/Utf8ScalarSliceEqWholeText leaves, fixed READ effects, and typed MIR/JSON payload transport; lifecycle CFG, direct backend, session, route, production caller, fallback, and retry remain closed; focused plan/instruction/JSON tests and cargo check green.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-I0 landed role-bearing Main child co-seal: AppMainRoot remains omitted, AppMainStaticChild rows retain parser identity/final slot and use a typed exactly-once Port loan, generic key-only admissions reject Main rows, and Dynamic eligibility is filtered before admission; package/catalog/Main focused tests 24+20+4 green, cargo check 1,828 inherited warnings, Loop/pointer guards and diff check green; no S6C, V2 transport, Builder/session, fallback, or retry route opened.",
   "2026-08-15: MAIN-STATIC-CHILD-SELECTED-MEMBERSHIP-D0 tightened as the next bounded parent-D0 design: Main.static_children must co-seal with parser opaque identity and existing selected-map rows, then issue a non-forgeable Main-child Port admission; Main.main Required materialization and Dynamic eligibility remain disjoint; no code, S6C, result/header, or session route opened.",
   "2026-08-15: CALLABLE-TEXT-PARAMETER-COHORT-I0 landed generic ordinary StringBox package/Port evidence: ExactText rows preserve ordinal/BindingRef/owner across same-brand install and scoped loan; missing/duplicate/owner-drift paths are typed and the parameter `unwrap_or(&[])` fail-open is removed; package suite 20/20, cargo check/format/diff/pointer/Loop guards green; no S6C/physical caller opened.",
-  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0 landed the caller-zero private frame bridge: target-checked repr(C) header/root rows, occurrence-ordered all-or-nothing enter/rollback, opaque move-only finish, fixed C status/header projections, and focused residence 7/7 plus nyash_kernel 1/1; no compile-time binder, GEP/load, lifecycle CFG, session, route, production caller, fallback, or retry opened.",
 ]

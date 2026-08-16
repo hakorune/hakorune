@@ -131,6 +131,9 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
@@ -143,6 +146,7 @@ impl MirBuilder {
             callable_mode,
             script_mode,
             static_result_publication_owner,
+            target_capability,
         )
     }
 
@@ -158,6 +162,9 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         collector.install_static_result_publication_owner(static_result_publication_owner)?;
@@ -179,6 +186,7 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
+                            target_capability,
                         )
                     })?,
                 NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
@@ -193,6 +201,7 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
+                            target_capability,
                         )
                     },
                 ),
@@ -224,13 +233,20 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         port: &mut RawInvocationChildPortV1<'_, '_>,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         match callable_mode {
             NormalCallableSemanticPackageMode::Installed(package) => {
                 let package_port = package.begin_lowering(&self.comp_ctx).map_err(|error| {
                     format!("[freeze:contract][mir/callable-semantic-package/open] {error:?}")
                 })?;
-                let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(port, package_port);
+                let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
+                    port,
+                    package_port,
+                    target_capability,
+                );
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
                     work,
                     snapshot,

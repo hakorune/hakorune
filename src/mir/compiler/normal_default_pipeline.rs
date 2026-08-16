@@ -71,6 +71,8 @@ pub struct NormalCompileRequestV1 {
     imports: HashMap<String, String>,
     admission: NormalCompileAdmissionV1,
     result_contract: CurrentNormalCompileResultContractV1,
+    compile_target_capability:
+        Option<super::target_capability::PinnedTextCompileTargetCapabilityV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -183,6 +185,7 @@ impl NormalCompileRequestV1 {
             imports,
             admission,
             result_contract: CurrentNormalCompileResultContractV1::ReportPreTransformVerification,
+            compile_target_capability: None,
         }
     }
 
@@ -201,6 +204,7 @@ impl NormalCompileRequestV1 {
                 imports,
                 admission,
                 result_contract,
+                compile_target_capability: None,
             }),
             Err(ast) => Err(RejectedNormalProgramCompileRequestV1 {
                 _ast: ast,
@@ -211,6 +215,14 @@ impl NormalCompileRequestV1 {
                 error: NormalProgramCompileRequestErrorV1::ExpectedProgramRoot,
             }),
         }
+    }
+
+    pub(crate) fn with_compile_target_capability(
+        mut self,
+        capability: super::target_capability::PinnedTextCompileTargetCapabilityV1,
+    ) -> Self {
+        self.compile_target_capability = Some(capability);
+        self
     }
 
     pub fn for_mir_mode(
@@ -391,6 +403,7 @@ impl NormalCompileRequestV1 {
         HashMap<String, String>,
         NormalCompileAdmissionV1,
         CurrentNormalCompileResultContractV1,
+        Option<super::target_capability::PinnedTextCompileTargetCapabilityV1>,
     ) {
         (
             self.program,
@@ -398,6 +411,7 @@ impl NormalCompileRequestV1 {
             self.imports,
             self.admission,
             self.result_contract,
+            self.compile_target_capability,
         )
     }
 }
@@ -409,7 +423,8 @@ impl NormalDefaultPublishedPipelineV1 {
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
-        let (program, source, imports, _admission, result_contract) = request.into_parts();
+        let (program, source, imports, _admission, result_contract, target_capability) =
+            request.into_parts();
         let runtime_inputs = NormalRuntimeInputSnapshotV1::capture_from_normal_ingress();
         let token = compiler
             .invocation_identity
@@ -426,10 +441,11 @@ impl NormalDefaultPublishedPipelineV1 {
 
         let stage_start = Instant::now();
         let completed = session
-            .complete_normal_default_program_root_catalog_lifecycle(
+            .complete_normal_default_program_root_catalog_lifecycle_with_target(
                 program,
                 materialization,
                 runtime_inputs,
+                target_capability,
             )
             .map_err(|rejected| {
                 let message = rejected.error().to_string();
