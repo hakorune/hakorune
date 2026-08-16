@@ -30,9 +30,10 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
     prepared.with_admission(|prepared, admission| {
         let source_input = admission.input();
         with_common_v2_canonical_session(admission, |mut common| {
+            let (detached, descriptors, stamp) = prepared.take_install_parts();
+            common.attach_physical_entry_stamp(stamp)?;
             let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
             let result = (|| {
-                let (detached, descriptors, _stamp) = prepared.take_install_parts();
                 let draft = outer.builder_view_mut_for_lowering();
                 draft
                     .function_state

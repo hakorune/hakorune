@@ -41,6 +41,19 @@ or lower lifecycle/Text/route code. `new_selected_dynamic` and raw BlockExpr
 counts are not valid substitutes; the first session-effects boundary remains
 an explicit design-stop task.
 
+## Common V2 physical-entry stamp retention I0
+
+The consuming physical-entry session takes the existing prepared
+`PhysicalFunctionEntryCohortStampV1` and attaches it to the same canonical
+session that consumed the prepared skeleton. Attachment is move-only and
+one-shot, and happens before the outer Builder transaction opens. The common
+session wrapper exposes only a callback-scoped borrow for later consumers;
+there is no copied stamp, second Port loan, reconstructed cohort, or detached
+result receipt. The stamp is mechanical same-cohort evidence only. Missing or
+already-consumed stamps, owner/key/signature/lane drift, foreign borrows, and
+late escape reject before physical result/edge/CFG effects. Focused positive,
+missing-stamp, and session-admission canary tests cover the seam.
+
 ## Common V2 source-segment block allocation I0
 
 The first common-V2 Builder effect is deliberately limited to source-backed

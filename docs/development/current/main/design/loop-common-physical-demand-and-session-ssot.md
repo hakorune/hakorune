@@ -81,16 +81,16 @@ Related:
   now batch-owned and reaches the selected/package HRTB as a borrow. The
   callback-scoped common admission is landed; the detached physical skeleton,
   slot-only ExactText adoption canary, and consuming physical-entry/session
-  seam are also landed. The V2-native physical-ID-free layout/placement
+  seam are also landed. The session-stamp retention I0 now moves the existing
+  mechanical cohort witness exactly once into the canonical session and lends
+  only a scoped borrow. The V2-native physical-ID-free layout/placement
   BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0`
-  is the active caller-zero implementation row. Its accepted BoxShape moves
-  the existing physical-entry cohort stamp exactly once from the prepared
-  skeleton/session input into the canonical session and exposes only a scoped
-  borrow to later consumers. The physical condition-result D0 remains blocked
-  until that stamp seam and the physical operand receipts are complete.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0`
+  is the active design stop. Session-stamp retention is landed as a caller-zero
+  move-only seam; the physical condition-result receipt, rollback owner, and
+  branch consumer remain unsealed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -670,6 +670,21 @@ The stamp is a cohort witness, not a unique invocation nonce. Its only valid
 consumer is the same unpublished canonical session that consumed the prepared
 entry input. A later condition-result receipt must borrow the session-held
 stamp rather than copy it into a detached product.
+
+### `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0` implementation receipt (2026-08-17)
+
+The prepared physical-entry input is now move-only at the stamp boundary:
+`take_install_parts` consumes the existing cohort stamp, and the consuming
+physical-entry session attaches it before opening the outer Builder
+transaction. `CanonicalSsaFunctionSessionV2` owns the stamp once, while
+`CommonV2CanonicalSessionRefV1` exposes only a callback-scoped borrow. The
+positive ExactText entry/session canary checks retained owner identity, and
+the common-session canary checks the missing-stamp state before attachment.
+`cargo test -q physical_entry --lib` (7 tests), `cargo test -q common_v2_ --lib`
+(15 tests), format, diff, and pointer guards are green; the repository's
+existing warning census is unchanged. No physical condition result, ValueId,
+edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller
+was opened.
 
 ### Accepted D0 / active I0: `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0`
 
@@ -2419,7 +2434,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; the source-backed Length CallSlot row is transported, but its canonical-session physical result receipt is still missing; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
 | 25b-l-a | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` | co-seal the source Length contract, CallSlot/result/class, matching common operation row, and Compare-right key from one S6C ingress | accepted BoxShape 2026-08-17; fixed two-row physical-ID-free inventory only; no physical receipt, ValueId, call lowering, Compare, branch, CFG/PHI, fallback, retry, or production |
 | 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | landed 2026-08-17; three focused inventory tests are green; no physical emission, Builder/session mutation, or parent-result unlock |
-| 25b-l-b | `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` | retain the existing physical-entry cohort stamp through the consuming canonical session without copy/reconstruction, then expose only a scoped borrow | accepted BoxShape 2026-08-17; next caller-zero I0 moves the stamp once into the canonical session; no physical condition result, ValueId, edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-b | `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` | retain the existing physical-entry cohort stamp through the consuming canonical session without copy/reconstruction, then expose only a scoped borrow | accepted BoxShape 2026-08-17; caller-zero I0 landed 2026-08-17 with move-only session ownership and scoped borrow; no physical condition result, ValueId, edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

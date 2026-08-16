@@ -115,6 +115,19 @@ descriptors; this I0 reserves the two `ValueId`s but does not publish either
 lane to BindingSSA. No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
 Text lowering, route, fallback, retry, or production caller is opened here.
 
+### Common V2 physical-session stamp retention I0
+
+The prepared physical-entry skeleton already carries one mechanical
+`PhysicalFunctionEntryCohortStampV1`. The consuming physical-entry/session seam
+moves that stamp exactly once into `CanonicalSsaFunctionSessionV2` before the
+Builder transaction or any callback-scoped physical consumer is exposed. The
+common-session wrapper lends only a scoped borrow; it does not clone,
+reconstruct, or re-pair the stamp. The stamp remains a cohort witness (owner,
+selected key, callable signature identity, and physical lane count), not a
+result, lifecycle, or semantic authority. Missing, foreign, drifted, duplicate,
+or escaped stamps reject before effect; the physical condition result and all
+later CFG/PHI/Text/route work remain closed.
+
 ### ExactText physical entry/session seam I0
 
 `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` and its caller-zero lane

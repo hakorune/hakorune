@@ -55,6 +55,7 @@ fn admission_co_seals_loop_outer_if_block_expr_envelope_and_completion() {
                 assert_eq!(session.owner(), owner);
                 assert!(!session.completion_is_implicit());
                 assert_eq!(session.envelope().coverage().placement_count(), 15);
+                assert!(session.physical_entry_stamp().is_err());
             })
             .expect("canonical session open");
         })

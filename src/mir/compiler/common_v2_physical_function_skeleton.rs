@@ -38,7 +38,7 @@ pub(crate) struct PreparedPhysicalFunctionSkeletonV1<'loan, 'source, 'join> {
     stamp: PhysicalFunctionEntryCohortStampV1,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(in crate::mir) struct PhysicalFunctionEntryCohortStampV1 {
     owner: FunctionOwnerIdV1,
     selected_key: SelectedNormalCallableKeyV1,
@@ -47,6 +47,10 @@ pub(in crate::mir) struct PhysicalFunctionEntryCohortStampV1 {
 }
 
 impl PhysicalFunctionEntryCohortStampV1 {
+    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(in crate::mir) fn matches_loan(
         &self,
         loan: &S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
@@ -69,7 +73,7 @@ pub(in crate::mir) struct PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'j
     loan: Option<S6CCommonV2PreSessionLoanRefV1<'loan, 'source, 'join>>,
     function: Option<MirFunction>,
     descriptors: Option<Box<[PhysicalCallableParameterDescriptorV1]>>,
-    stamp: PhysicalFunctionEntryCohortStampV1,
+    stamp: Option<PhysicalFunctionEntryCohortStampV1>,
 }
 
 impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join> {
@@ -96,7 +100,11 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
             .loan
             .take()
             .ok_or_else(|| "physical entry input was already consumed".to_owned())?;
-        if !self.stamp.matches_loan(&loan) {
+        if !self
+            .stamp
+            .as_ref()
+            .is_some_and(|stamp| stamp.matches_loan(&loan))
+        {
             self.loan = Some(loan);
             return Err("physical entry cohort stamp does not match retained loan".to_owned());
         }
@@ -123,7 +131,9 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
             self.descriptors
                 .take()
                 .expect("prepared physical entry descriptors consumed once"),
-            self.stamp.clone(),
+            self.stamp
+                .take()
+                .expect("prepared physical entry stamp consumed once"),
         )
     }
 }
@@ -151,7 +161,7 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
             loan: Some(self.loan),
             function: Some(self.function),
             descriptors: Some(self.descriptors),
-            stamp: self.stamp,
+            stamp: Some(self.stamp),
         }
     }
 }

@@ -5,6 +5,7 @@
 //! state.  No operation or control placement is emitted here.
 
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableParameterDescriptorV1;
+use crate::mir::compiler::common_v2_physical_function_skeleton::PhysicalFunctionEntryCohortStampV1;
 use crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionAdmissionRefV1;
 use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
@@ -46,6 +47,19 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     ) -> Result<(), String> {
         self.session
             .adopt_physical_entry_lanes(builder, descriptors)
+    }
+
+    pub(in crate::mir) fn attach_physical_entry_stamp(
+        &mut self,
+        stamp: PhysicalFunctionEntryCohortStampV1,
+    ) -> Result<(), String> {
+        self.session.attach_physical_entry_stamp(stamp)
+    }
+
+    pub(in crate::mir) fn physical_entry_stamp(
+        &self,
+    ) -> Result<&PhysicalFunctionEntryCohortStampV1, String> {
+        self.session.physical_entry_stamp()
     }
 
     pub(in crate::mir::builder) fn allocate_v2_segment_blocks(

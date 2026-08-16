@@ -53,6 +53,13 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
         with_common_v2_physical_entry_session(&mut builder, input, |canonical, _draft| {
             assert_eq!(canonical.physical_entry_sidecar_row_count(), 2);
             assert_eq!(canonical.owner(), expected_owner);
+            assert_eq!(
+                canonical
+                    .physical_entry_stamp()
+                    .expect("entry stamp")
+                    .owner(),
+                expected_owner
+            );
             Ok(())
         })
         .expect("one consuming common-V2 physical entry session");

@@ -1766,5 +1766,17 @@ rows before any physical effect. Focused positive, foreign-owner, and
 Length-operation-drift tests are green. This I0 does not issue a ValueId or
 physical result and does not open Compare lowering, branch/edge effects,
 CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
-The next design stop is retaining the prepared physical-entry stamp through
-the canonical session seam.
+
+## Common V2 physical-entry stamp retention I0 (2026-08-17)
+
+The consuming physical-entry/session seam now moves the existing
+`PhysicalFunctionEntryCohortStampV1` exactly once into the same canonical
+session that consumes the prepared physical skeleton. The stamp is a
+mechanical same-cohort witness (owner, selected key, callable signature
+identity, and physical lane count); it is not a new semantic nonce, result, or
+lifecycle authority. The common-session wrapper exposes only a scoped borrow,
+so clone/reconstruction, second-loan re-pairing, foreign drift, and callback
+escape reject before effect. The focused physical-entry and session-admission
+canaries are green. Physical condition results, ValueIds, edges, CFG/PHI,
+Completion/DraftSeal claims, lifecycle, Text, route, fallback, retry, and
+production remain closed.
