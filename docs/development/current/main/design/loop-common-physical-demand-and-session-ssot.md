@@ -694,8 +694,9 @@ prephysical-ingress tests are green, including the foreign-owner rejection;
 upstream source-row issuers retain the duplicate/missing topology negatives.
 This I0 allocates no blocks, emits no operations/effects, opens no CFG/PHI or
 Completion/DraftSeal claim, and does not select a Text route, fallback, retry,
-or production caller. The next bounded row is the post-layout effect design
-stop, not a physicalizer or session reopen.
+or production caller. The current stop is
+`NoSafeSlice::PhysicalEntryEffectOwnerUnsealed`: the next bounded row is the
+post-layout effect design stop, not a physicalizer or session reopen.
 
 ## Decision
 
