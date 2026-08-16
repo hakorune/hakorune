@@ -115,6 +115,21 @@ lane to BindingSSA. The sidecar/slot publication rule is the next design stop.
 No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text lowering, route,
 fallback, retry, or production caller is opened here.
 
+### ExactText entry-lane adoption design stop
+
+`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` is intentionally still a
+`NoSafeSlice::ExactTextSlotGenerationSidecarUnsealed`. The canonical BindingSSA map remains one logical
+`BindingRef -> slot ValueId`; the adjacent generation `ValueId` must live in a
+private move-only sidecar that is issued with the prepared physical parameter
+list. The sidecar is transport for entry/forward only: it is not a source
+rebind authority, an ordinary `read_entry` value, or a place to perform
+generation arithmetic. A fresh skeleton install/adoption transaction must own
+both the pending BindingSSA state and sidecar rollback, and must leave no
+published Builder/module state on rejection. Existing one-lane adoption APIs
+must not be called twice for one ExactText `BindingRef`. The next I0 is split
+into a skeleton-install canary and an entry-lane adoption canary only after
+this issuer/rollback BoxShape is accepted.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque
