@@ -97,12 +97,22 @@ fn length_result_canary_is_same_cohort_and_one_shot() {
             &mut builder,
             skeleton.into_session_input(),
             |canonical, _draft| {
+                let plan = canonical
+                    .issue_length_call_target_plan()
+                    .expect("same-cohort StringLen target plan");
+                assert_eq!(plan.owner(), expected_owner);
+                assert_eq!(plan.box_name(), "StringBox");
+                assert_eq!(plan.method_name(), "length");
                 let canary = canonical
                     .issue_length_call_materialization_canary()
                     .expect("same-cohort Length canary");
                 assert_eq!(canary.owner(), expected_owner);
                 assert_eq!(canary.stamp_owner(), expected_owner);
+                assert_eq!(plan.item(), canary.call_item());
+                assert_eq!(plan.block(), canary.condition_block());
+                assert_eq!(plan.result(), canary.result());
                 drop(canary);
+                assert!(canonical.issue_length_call_target_plan().is_err());
                 assert!(canonical
                     .issue_length_call_materialization_canary()
                     .is_err());
@@ -142,6 +152,9 @@ fn late_callback_failure_discards_builder_and_physical_session() {
         let input = skeleton.into_session_input();
         let rejected =
             with_common_v2_physical_entry_session(&mut builder, input, |canonical, _draft| {
+                canonical
+                    .issue_length_call_target_plan()
+                    .expect("target plan before late rejection");
                 canonical
                     .issue_length_call_materialization_canary()
                     .expect("Length canary before late rejection");

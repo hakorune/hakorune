@@ -72,6 +72,12 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.contract.target().row().row().op
     }
 
+    pub(crate) fn target(
+        self,
+    ) -> &'a crate::mir::resolved_semantics::VerifiedCoreMethodInstanceTargetV1 {
+        self.contract.target()
+    }
+
     pub(crate) fn arity(self) -> u32 {
         self.contract.target().row().arity()
     }

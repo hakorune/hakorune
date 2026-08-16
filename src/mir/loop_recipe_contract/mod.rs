@@ -11,6 +11,8 @@ mod common_v2_layout_input;
 mod common_v2_condition_producer;
 // Caller-zero source-backed condition operand inventory transport.
 mod common_v2_condition_operand_inventory;
+// Caller-zero source-backed StringLen target realization; no physical Call.
+mod common_v2_string_len_target_plan;
 // Caller-zero source-backed complete predicate branch-plan transport.
 mod common_v2_predicate_branch_plan;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
@@ -199,6 +201,11 @@ pub(crate) use common_v2_predicate_branch_plan::{
 pub(crate) use common_v2_segment_allocation::{
     issue_v2_segment_allocation_plan, PreparedLoopV2SegmentAllocationPlanV1,
     SegmentAllocationPlanRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_string_len_target_plan::{
+    issue_s6c_v2_string_len_call_target_plan_v1, PreparedLoopV2StringLenCallTargetPlanV1,
+    StringLenCallTargetPlanRejectV1,
 };
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;

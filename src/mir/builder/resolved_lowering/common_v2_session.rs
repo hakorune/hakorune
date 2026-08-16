@@ -11,7 +11,9 @@ use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
 use crate::mir::loop_recipe_contract::{
-    LoopValueClassV2, PreparedLoopV2ConditionOperandKindV1, S6CLogicalCallRoleV1,
+    issue_s6c_v2_string_len_call_target_plan_v1, LoopValueClassV2,
+    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2StringLenCallTargetPlanV1,
+    S6CLogicalCallRoleV1, StringLenCallTargetPlanRejectV1,
 };
 use crate::mir::resolved_semantics::ResolvedLoopPlacementV1;
 
@@ -29,6 +31,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     envelope: &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope>,
     after_allocation_state: AfterBlockAllocationStateV1,
     length_call_canary_issued: bool,
+    length_target_plan_issued: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,6 +42,14 @@ pub(in crate::mir) enum LengthCallMaterializationCanaryRejectV1 {
     ProducerMismatch,
     OperandInventoryMismatch,
     LengthSourceShapeMismatch,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum LengthCallTargetPlanRejectV1 {
+    AlreadyIssued,
+    MissingPhysicalEntryStamp,
+    OwnerMismatch,
+    SourcePlan(StringLenCallTargetPlanRejectV1),
 }
 
 /// Builder-neutral, one-shot evidence that the source Length result reached
@@ -115,6 +126,34 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         &self,
     ) -> Result<&PhysicalFunctionEntryCohortStampV1, String> {
         self.session.physical_entry_stamp()
+    }
+
+    /// Issue the source-backed StringLen target plan once.  This is still
+    /// Builder-neutral: no callee, ValueId, or MIR instruction is created.
+    pub(in crate::mir) fn issue_length_call_target_plan(
+        &mut self,
+    ) -> Result<PreparedLoopV2StringLenCallTargetPlanV1, LengthCallTargetPlanRejectV1> {
+        if self.length_target_plan_issued {
+            return Err(LengthCallTargetPlanRejectV1::AlreadyIssued);
+        }
+        let owner = self.session.owner();
+        let stamp = self
+            .session
+            .physical_entry_stamp()
+            .map_err(|_| LengthCallTargetPlanRejectV1::MissingPhysicalEntryStamp)?;
+        if stamp.owner() != owner || self.envelope.owner() != owner {
+            return Err(LengthCallTargetPlanRejectV1::OwnerMismatch);
+        }
+        let plan =
+            issue_s6c_v2_string_len_call_target_plan_v1(self.envelope.condition_operands(), owner)
+                .map_err(LengthCallTargetPlanRejectV1::SourcePlan)?;
+        if plan.owner() != owner
+            || plan.block() != self.envelope.condition_operands().condition_block()
+        {
+            return Err(LengthCallTargetPlanRejectV1::OwnerMismatch);
+        }
+        self.length_target_plan_issued = true;
+        Ok(plan)
     }
 
     /// Consume the source Length relation once without opening physical call
@@ -236,6 +275,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             envelope,
             after_allocation_state: AfterBlockAllocationStateV1::Available,
             length_call_canary_issued: false,
+            length_target_plan_issued: false,
         };
         Ok(callback(&mut common))
     })

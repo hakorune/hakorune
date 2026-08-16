@@ -1783,6 +1783,24 @@ same-session one-shot seam. It does not lower the Length call, publish an I64
 result, emit Compare/branch/edges, open CFG/SSA/PHI, claim Completion or
 DraftSeal, or activate lifecycle/Text/route/production/fallback behavior.
 
+## Common V2 StringLen target-plan I0 (2026-08-17)
+
+The first accepted target-realization product is the non-Clone,
+physical-ID-free `PreparedLoopV2StringLenCallTargetPlanV1`. It is issued from
+the same retained S6C logical call, Length CallSlot row, condition operand
+inventory, and physical-entry stamp. The plan records the verified StringBox
+target, receiver relation, zero arguments, I64 result, PureRead effect,
+non-suspending policy, and target/manifest brands. It does not create a MIR
+`Call`, `ValueId`, type, or `Callee`.
+
+The plan is one-shot and rejects foreign/mixed brands, owner or block drift,
+receiver/argument/result/class drift, missing stamp, duplicate issuance, and
+late callback escape before physical mutation. `CoreMethodOp::StringLen`,
+canonical spelling, `/N`, raw logical keys, MIR/JSON lookup, and legacy or
+Selected-Dynamic CallSlot emitters cannot issue or repair it. The next design
+stop is the canonical session materializer that consumes this plan and emits
+one Length Call/result receipt.
+
 ## Common V2 physical-entry stamp retention I0 (2026-08-17)
 
 The consuming physical-entry/session seam now moves the existing

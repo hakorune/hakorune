@@ -1430,6 +1430,46 @@ Non-claims:
   performance, production caller, fallback, or retry is admitted by this I0.
 ```
 
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-I0` — landed caller-zero 2026-08-17
+
+```text
+Decision:
+  Land one source-backed, non-physical StringLen target plan in the existing
+  canonical-session callback. The one-shot plan is a pure admission product;
+  it does not create a MIR Call, ValueId, type, or physical result.
+
+Source authority + canonical issuer:
+  `CommonV2CanonicalSessionRefV1` retains the installed S6C envelope and the
+  moved physical-entry stamp. Its issuer consumes the existing Length source
+  relation, CallSlot row, condition operand inventory, and CoreMethod target
+  facts to issue `PreparedLoopV2StringLenCallTargetPlanV1` exactly once.
+  The plan records only target/receiver/zero-args/I64/PureRead/non-suspending
+  facts; canonical session remains the future physical ValueId/Call issuer.
+
+Non-authority:
+  Raw logical keys, raw ValueId, `CoreMethodOp` alone, canonical spelling,
+  `/N`, MIR/JSON, generic/legacy CallSlot, CheckedCallOut, Selected-Dynamic
+  ledgers, host/default target data, and a second session cannot issue or repair
+  the plan.
+
+Fail-fast boundary:
+  Missing stamp, owner/brand/block/placement drift, wrong receiver/args/result/
+  class/effect/policy, malformed source CallSlot, duplicate plan issuance, or
+  late callback failure rejects before physical mutation; the outer unpublished
+  function transaction remains the sole discard owner.
+
+Acceptance:
+  Same-cohort target facts, canonical StringBox.length, plan/canary parity,
+  duplicate one-shot rejection, missing-stamp rejection, and late-discard
+  no-mutation tests are green. Source and builder modules remain under the
+  760/800-line limits.
+
+Non-claims:
+  No canonical Length Call/result receipt, parent Bool result, Compare,
+  branch/edge, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route,
+  performance, production caller, fallback, or retry is opened.
+```
+
 The canary is landed without opening a physical result. The next bounded
 decision is `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0`:
 one same-session physical Length-result receipt issuer must be named before
@@ -1491,14 +1531,8 @@ Decision:
 Source authority + canonical issuer:
   The source Length contract, fixed Right operand row, matching operation row,
   Compare-right relation, and retained physical-entry stamp are borrowed from
-  the same common-V2 session. The first missing product is a non-Clone
-  The target-plan BoxShape above is accepted, but its I0 is not yet landed.
-  The next missing product is a non-Clone
-  `PreparedLoopV2StringLenCallTargetPlanV1`, issued from the S6C logical call
-  relation, CallSlot row, operand inventory, and the verified CoreMethod target
-  facts. It owns only the source-backed target realization (StringBox receiver,
-  zero args, I64 result, PureRead, non-suspending policy, and target brand).
-  Only after that plan is closed may a non-Clone
+  the same common-V2 session. The target-plan BoxShape and its caller-zero I0
+  are landed. The next missing product is a non-Clone
   `CanonicalLengthCallMaterializerV1` become the sole plan-to-effect bridge: it
   issues exactly one canonical session `Call` and returns one
   `CanonicalLengthCallResultReceiptV1` through the session's sole ValueId/type
@@ -1555,6 +1589,7 @@ NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
 NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
 NoSafeSlice::CanonicalLengthResultIssuerMissing
 NoSafeSlice::CanonicalStringLenTargetRealizationUnsealed
+NoSafeSlice::CanonicalLengthCallMaterializerUnsealed
 ```
 
 ## Decision
@@ -2703,7 +2738,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-d | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` | name the sole same-session issuer for the Length CallSlot physical result required by the parent Bool receipt | accepted BoxShape 2026-08-17; the first consumer is a no-effect one-shot canary, with no ValueId, CallSlot lowering, Compare, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-d-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0` | consume the same-cohort Length relation/inventory/stamp exactly once as a Builder-neutral canary | landed 2026-08-17; positive, duplicate, missing-stamp, source-shape, and late-failure no-mutation gates are green; no physical Length result, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-e-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-D0` | accept one source-backed StringLen target/receiver/zero-args/I64 plan before any canonical Call effect | accepted BoxShape 2026-08-17; the next I0 issues the plan once with no ValueId, Call, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-e-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-I0` | issue and consume the source-backed target plan exactly once in the existing callback | next fast slice; positive mixed-cohort plus foreign/duplicate/drift/late-failure no-mutation gates; no canonical Call/result receipt or parent Bool effect |
+| 25b-l-e-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-TARGET-PLAN-I0` | issue and consume the source-backed target plan exactly once in the existing callback | landed 2026-08-17; same-cohort facts, canonical StringBox.length, plan/canary parity, duplicate, missing-stamp, and late-discard gates are green; no canonical Call/result receipt or parent Bool effect |
 | 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first issue the source-backed StringLen target-realization plan, then name the sole same-session canonical Length Call/result issuer and consumer before the parent Bool result | active NoSafeSlice design stop; the existing canary is protocol-only, target/receiver/args/result realization is not yet sealed, and no physical Length result, Bool receipt, CallSlot lowering, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |

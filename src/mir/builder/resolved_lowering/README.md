@@ -66,6 +66,24 @@ producer drift, malformed Length shape, and a second issue attempt reject
 before effect. This is a canary for the future Length result issuer, not a
 physical call lowering or a permission to emit the parent Bool comparison.
 
+## Common V2 StringLen target-plan I0 (2026-08-17)
+
+The caller-zero target-plan seam now fixes the source-backed realization facts
+needed before a physical Length call: the canonical StringBox target, receiver
+relation, zero arguments, I64 result, PureRead effect, non-suspending policy,
+and same-cohort target/manifest brands. `PreparedLoopV2StringLenCallTargetPlanV1`
+is non-Clone and physical-ID-free; it is issued only by the common session from
+the retained S6C logical call, CallSlot row, operand inventory, and physical
+entry stamp. The plan is one-shot and cannot be rebuilt from `CoreMethodOp`,
+`/N`, MIR/JSON, or a legacy emitter.
+
+Focused tests cover same-cohort target facts, canonical `StringBox.length`,
+plan/canary item-block-result parity, duplicate plan rejection, missing stamp,
+and late callback discard. This I0 emits no `Call`, `ValueId`, type, Compare,
+edge, CFG/PHI, Completion/DraftSeal, lifecycle, Text route, fallback, retry,
+or production caller. The next design stop is the canonical Length Call/result
+materializer.
+
 ## Common V2 source-segment block allocation I0
 
 The first common-V2 Builder effect is deliberately limited to source-backed
