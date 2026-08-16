@@ -23,11 +23,14 @@ Related:
   meaning through exact V1/V2 projections; neither projection authorizes a
   second physicalizer or V2-to-V1 coercion.
 - **Current implementation status:** source-to-Recipe S6C products, installed
-  child/header prerequisites, and the caller-zero Text lease-set substrate are
-  closed. The package physical-signature map and common V2 pre-session/session
-  boundary remain unopened.
-- **Next ordered task:** implement the accepted caller-zero ExactText
-  physical-signature map, then resume common V2 transport and S6C packaging.
+  child/header prerequisites, package physical-signature map, and the
+  caller-zero Text residence/backend transport substrate are closed. The
+  common V2 pre-session/session boundary remains unopened. A-prime Text
+  lifecycle activation is parked until that canonical session exists.
+- **Next ordered task:** resume
+  `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`, then the generic transport and
+  caller-zero S6C packaging rows; do not extend the selected-normal legacy
+  finalizer with lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -1599,9 +1602,9 @@ to jump directly into a function session.
 One ordered T2 task family closes the missing boundary without creating an S6C route:
 
 ```text
-LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0
-LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
-CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0
+LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0/I0       [closed]
+CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0    [closed]
+LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [current]
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0
 LOOP-S6C-COMMON-V2-PRESESSION-I0
 ```
@@ -1721,15 +1724,16 @@ this shallow ordered series:
 4. `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`
    - use the branded CompilationContext/Installed package cohort and Port as
      the sole outer transport;
-   - the installed child and one Completion owner are closed; delegate the
-     remaining callable mapping to the ordered child below;
+   - the installed child, one Completion owner, and callable physical-signature
+     mapping are closed prerequisites; close only the common operation/control
+     envelope and its scoped sibling boundary here;
    - remain `NoSafeSlice` if any issuer must be inferred from Recipe or MIR.
 4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0`
    - accept one logical ExactText ordinal/BindingRef -> adjacent scalar
      `[slot,generation]` lanes, with logical `/N` separate from physical lane
      count and no by-value aggregate;
-   - current I0 issues/transports only the complete Completion-independent
-     package mapping and combined Installed S6C loan;
+   - closed: the caller-zero I0 issued/transported the complete
+     Completion-independent package mapping and combined Installed S6C loan;
    - reject `/N`, MirType, validator order, detached ValueIds, root residence,
      and call-edge inference as signature authorities.
 5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then

@@ -72,13 +72,14 @@ Related:
   semantic program, JoinSig-bound layout, and canonical SSA session; V1 and V2
   are exact projections of that one responsibility graph.
 - **Current implementation status:** S6C source/site, ExactText formal,
-  result/header, installed child, and caller-zero runtime lease-set substrate
-  are closed. The common physicalizer remains test-only/V1-shaped; the
-  package physical-signature map, common V2 transport, and production caller
-  are not landed.
-- **Next ordered task:** issue and transport the caller-zero package-owned
-  physical-signature map; then resume the common V2 pre-session rows before
-  any physical activation.
+  result/header, installed child, package physical-signature map, and
+  caller-zero residence/backend transport substrate are closed. The common
+  physicalizer remains test-only/V1-shaped; common V2 transport/session and
+  every production caller are not landed. A-prime lifecycle activation is
+  parked until the canonical V2 session owns the exit set.
+- **Next ordered task:** resume
+  `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`, then the generic transport and
+  caller-zero S6C packaging rows before physical activation.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -270,14 +271,13 @@ retains the same-brand batch/selection/formal/header state.
 pre-session envelope is route-free and borrows that cohort only inside the
 Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
-child and one Completion ownership path are closed by the child I0. The next
-bounded implementation row is
-`CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0`: it issues and transports the
-Completion-independent package lane map selected by the accepted D0. Exact
-call-edge origin, pair-based entry residence, Canonical composite adoption,
-and Completion-backed finish coverage remain a later fan-in; they are never
-inferred from Recipe/MIR. The generic V2 exact-set partition remains the
-following common boundary.
+child, one Completion ownership path, and the Completion-independent package
+lane map are closed by their caller-zero I0 rows. The active design row is
+`LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0`; it closes the generic V2
+operation/control envelope boundary before transport. Exact call-edge origin,
+Canonical composite adoption, and Completion-backed lifecycle finish remain a
+later canonical-session fan-in; they are never inferred from Recipe/MIR. The
+generic V2 exact-set partition is the current common boundary.
 
 The stable callable boundary is not the function-internal Text carrier. A
 later non-splittable residence set couples the invocation lease-set token to
@@ -1083,8 +1083,8 @@ skip the After closure or reopen a Tail-only route.
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
-| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | design only; child/Completion and the signature Decision are closed, while mapping implementation or placement issuers remain unopened |
-| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | D0 accepted; current caller-zero I0 only; no call-edge actualization, residence, `ValueId`, aggregate ABI, fallback, or retry |
+| 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | active design stop; child/Completion and package signature mapping are closed, while complete operation/control placement issuers and the neutral envelope boundary remain unopened |
+| 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
 | 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the common boundary after 22c-a | BoxShape only; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |

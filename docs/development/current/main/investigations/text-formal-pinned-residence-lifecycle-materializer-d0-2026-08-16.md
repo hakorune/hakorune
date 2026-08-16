@@ -1,123 +1,119 @@
 ---
-Status: design stop; exit-ledger correction and trap-capability boundary
+Status: accepted Decision; superseded by the two-stage lifecycle-authority row
 Date: 2026-08-16
 Work mode: design_stop
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-BRIDGE-D0 / I0
+Successor: TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-R0 / I0
 ---
 
 # TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0
 
-This card follows the proof-only exit-obligation prototype. That prototype is
-historical evidence only: its copied per-exit rows are not a second exit
-authority and must not be carried into the lifecycle materializer. This card
-decides the corrected entry/normal-exit seam without yet executing a runtime
-finish, adding a lifecycle MIR instruction, or changing DraftSeal.
+This card closes the design stop opened by the proof-only exit-obligation
+prototype. The accepted correction is A-prime: materialization consumes a
+source-side admission, while a final backend closure is issued only after the
+actual C/LLVM realization is complete. A final backend proof is never required
+before the calls and control shape it verifies exist.
 
 ## Six-line brief
 
 ```text
-Decision: replace the prototype's copied exit rows with one private non-Clone PreparedTextFormalExitFinishSetV1 carrying only the same function/plan/frame/residence/session stamp; DraftSeal later consumes it beside the existing PreparedFunctionExitSetV1 in one exit iteration.
-Source authority + canonical issuer: PinnedTextBackendFrameContractV1 owns compile-time plan/frame stamps, TextFormalCallResidenceV1 owns pair validation/pin/root residence, VerifiedFunctionCompletionV1 plus PreparedFunctionExitSetV1 own normal exits, and the materializer only co-seals their same-owner relation. The accepted C-prime language policy owns Fault/no-catch semantics; an exact backend no-unwind capability must be issued and verified before this route is admitted.
-Non-authority: copied site/block/ValueId rows, raw slot/generation recapture, ptr/len or runtime token in common MIR/JSON, block scans, source ordinals, semantic cleanup, CheckedCallOut, superseded Stage0 prose, PinnedTextOp inference, a second Completion/Return writer, fallback, and retry.
-Fail-fast boundary: missing no-unwind capability, owner/plan/frame/residence drift, entry after a Text read, partial acquire, root escape, implicit/unit exit outside the typed domain, missing/duplicate/foreign coverage in the canonical exit set, finish before operand evaluation, finish after Return, and any catch/unwind-capable trap reject before publication.
-Smallest next slice: design the exact stamp-only finish capability and its DraftSeal handoff for explicit-value Single/ExactTwo only; reuse the existing exit-set iteration without copying rows or counts, and do not implement runtime/C/MIR/backend effects yet.
-Non-claims: no GEP/load, PinnedTextOp lowering, Canonical session adoption, TextEq route admission, literal/StringBox origin, production caller, performance result, external fallback, or main integration.
+Decision: accept A-prime: issue AdmittedPinnedTextLifecycleMaterializationV1 before materialization, then issue VerifiedPinnedTextBackendNoUnwindClosureV1 only after final C/LLVM lowering and transforms and before object emission.
+Source authority + canonical issuer: PreparedFunctionExitSetV1 remains the sole normal-exit ledger; PinnedTextLifecycleAuthorityIssuerV1 issues the opaque exit stamp, stamp-only finish capability, expected lifecycle obligation, and pre-materialization admission in one session-close scope; the final contract-bound backend verifier only compares that obligation with the realized module.
+Non-authority: the prototype's copied rows, an independent exit count, runtime-declaration facts alone, CheckedCallOut alone, C emitter output alone, LLVM attribute strings, JSON/MIR/name/Recipe inference, raw pointers/tokens, fallback, and retry.
+Fail-fast boundary: missing or foreign stamps and declarations reject before lifecycle MIR mutation; expected/observed call, fault, finish, EH, no-unwind, no-return, or target drift discards the unpublished module before object emission; absence of the final closure forbids contract-bound publication.
+Smallest next slice: resume LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0; the installed child, one Completion owner, physical signature mapping, residence substrate, and backend-frame transport are closed, but the common canonical session/DraftSeal ingress is still missing.
+Non-claims: no lifecycle CFG, runtime enter/finish emission, Canonical residence adoption, GEP/load, PinnedTextOp lowering, DraftSeal finish placement, route/perf admission, production caller, literal/StringBox origin, fallback/retry, or main integration.
 ```
 
-## Required decision
+## Accepted correction
 
-The next design must decide the private handoff between a compile-time
-finish capability and the move-only runtime residence. It must not duplicate
-either authority or copy the canonical exit ledger. The corrected capability
-contains only a same-function/session stamp; the existing
-`PreparedFunctionExitSetV1` remains the sole site/block/value ledger and
-establishes:
+The rejected one-stage graph required a final no-unwind proof before the
+lifecycle calls and terminal Fault shape existed:
 
 ```text
-normal entry -> every pinned read
-return operand evaluation -> one finish -> DraftSeal Return
-trap/unreachable -> no post-trap finish under a verified backend no-unwind capability
+final backend proof -> materialize calls -> inspect calls
 ```
 
-If this ordering cannot be represented without a second Return writer, a
-second exit ledger, a runtime token in common MIR, or an active no-unwind
-issuer, the row remains
-`NoSafeSlice::PinnedTextLifecycleMaterializerUnsealed`.
-
-## Current correction
-
-`PinnedTextResidenceExitObligationV1` from the predecessor I0 is retained as a
-prototype/test receipt only. Its site-keyed rows and expected count are not a
-canonical lifecycle product. The successor must issue a private
-`PreparedTextFormalExitFinishSetV1` with no copied exit rows, blocks, values,
-source order, or independent count. DraftSeal must join that capability with
-the existing `PreparedFunctionExitSetV1` during the same detached exit
-iteration; it may not rediscover exits from MIR/JSON or infer finish needs.
-
-## Trap-capability decision boundary
-
-The accepted C-prime language policy owns terminal `Fault` and rejects a
-catchable source `try/throw/catch` route. That semantic decision is not itself
-a backend execution guarantee. The missing backend product is a future,
-function-owned non-`Clone` `PinnedTextBackendNoUnwindCapabilityV1` that
-co-seals:
+The accepted graph is strictly forward:
 
 ```text
-compile-invocation brand
-exact function stamp
-residence/frame plan stamp
-target realization revision
-exact entry/fault call census
-nounwind + trap-noreturn verification
+canonical exit ledger + frame/plan/residence stamps + source control policy
+  -> expected lifecycle obligation
+  -> pre-materialization admission
+  -> unpublished lifecycle realization
+  -> final backend observation
+  -> no-unwind closure
+  -> contract-bound object emission
 ```
 
-`PinnedTextBackendFrameContractV1` alone is insufficient because it owns
-layout/target facts, not call/fault execution policy. LLVM attribute strings,
-`llvm.trap; unreachable` emitted by a consumer, `EffectMask`, and the
-superseded Stage0 inventory are non-authority. If the exact census cannot be
-carried to the final contract-bound verifier, the materializer remains closed.
+The first product says what must be realized and verified. It is not a claim
+that the future module is already no-unwind. The final closure says only that
+the realized module satisfies the admitted obligation; it does not reissue
+source, Text, Completion, target, or lifecycle meaning.
 
-The corrected finish capability is therefore conceptually:
+## Exit authority correction
+
+`PinnedTextResidenceExitObligationV1` remains historical prototype evidence.
+Its copied source sites, blocks, values, and count are not inputs to the
+successor.
+
+`PreparedFunctionExitSetV1` remains the only exit ledger and privately issues
+an opaque per-preparation stamp. The corrected
+`PreparedTextFormalExitFinishSetV1` carries only that stamp together with the
+same function/plan/frame/residence provenance. It carries no exit rows,
+cardinality, order, source sites, blocks, values, or return operands.
+
+DraftSeal later borrows the canonical exit set and uses its existing single
+iteration. The stamp proves that the finish obligation was issued for that
+exact preparation; it does not provide a second way to enumerate exits.
+
+## Current-HEAD chronology correction
+
+The A-prime owner graph is accepted, but current selected-normal production
+does not use the canonical exit-set path. It calls the legacy finalizer, which
+may write `Return` directly and yields a `MirFunction`; only afterward does
+`complete_resolved_child_with_physical_loan` issue the backend-frame contract.
+`PreparedFunctionExitSetV1` exists on separate canonical DraftSeal paths.
+
+Moving frame issue earlier on the legacy route would still not create the
+canonical exit ledger. A stamp transported through the already-sealed
+`MirFunction` cannot return to DraftSeal to place a finish before `Return`, and
+scanning those Returns in MIR/JSON would be a second exit authority. Therefore
+the lifecycle row is parked until the planned common V2 pre-session/session
+fan-in reaches `CanonicalSsaFunctionSessionV2`, Completion, and DraftSeal. The
+legacy finalizer is not extended with another lifecycle or finish authority.
+
+## Two-stage no-unwind authority
+
+The source-side admission owns obligations only:
 
 ```text
-PreparedTextFormalExitFinishSetV1 {
-  function/session/residence/plan/frame stamp
-  no_unwind capability stamp
-}
+entry acquire role                       exactly one
+entry success edge                       exactly one
+terminal Fault role                      exactly one
+normal finish policy                     every canonical normal exit
+finish on Fault path                     zero
+source catch edge                        zero
+calls within the live residence extent   no-unwind returnable or
+                                         no-unwind no-return terminal
 ```
 
-It is passed by value beside the existing `PreparedFunctionExitSetV1` into the
-future `PreparedFunctionExitPlanV1` handoff. It contains no exit rows, blocks,
-values, source order, or independent count.
+`normal finish policy` is deliberately not a copied integer count. The
+canonical exit set supplies cardinality and iteration when materialization is
+opened.
 
-## Exact next design task
+After all call/EH-changing transforms, the contract-bound backend verifier
+observes the final candidate and checks the admitted roles, effective call and
+declaration attributes, terminal `unreachable`, absence of EH structures,
+target realization, and exact plan/function provenance. Only then may it
+issue `VerifiedPinnedTextBackendNoUnwindClosureV1`. The object emitter is a
+consumer of the closed candidate and cannot issue or repair this proof.
 
-Before any caller-zero materializer implementation, close these four points in
-this D0:
+## Successor
 
-```text
-1. name the sole issuer of PinnedTextBackendNoUnwindCapabilityV1
-2. define the exact pre-DraftSeal call/fault census and final verifier
-3. define the stamp-only PreparedTextFormalExitFinishSetV1 handoff beside
-   PreparedFunctionExitSetV1
-4. prove that missing/foreign/no-unwind drift rejects before publication
-```
+The exact owner/timing contract and bounded precommit handoff I0 are owned by:
 
-This is still a design-only BoxShape. No new receipt is implemented until all
-four points have one owner and one fail-fast boundary.
+`text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md`.
 
-## Acceptance / non-claims
-
-```text
-positive:
-  one explicit-value exit, exact-two explicit-value exits, repeated pair alias
-
-negative:
-  implicit/unit, missing/duplicate/foreign canonical exit coverage, owner/stamp drift,
-  partial acquire, root/pointer escape, catch/unwind, finish-before-operand,
-  missing no-unwind capability, second Return writer, runtime fallback/retry
-
-not opened:
-  runtime lease code, DraftSeal Return changes, lifecycle MIR, PinnedTextOp
-  lowering, GEP/load, session residence, route admission, production caller
-```
+No materializer, DraftSeal, runtime, MIR, JSON, C, or LLVM execution change is
+authorized by this accepted BoxShape alone.
