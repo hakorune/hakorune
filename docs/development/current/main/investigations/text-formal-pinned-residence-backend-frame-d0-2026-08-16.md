@@ -1,5 +1,5 @@
 ---
-Status: design stop; no frame ABI or backend implementation permission
+Status: BoxShape accepted; caller-zero frame-contract I0 selected, production/backend route still closed
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape candidate
@@ -22,6 +22,70 @@ the existing Residence owner (`TextFormalCallResidenceV1`, acquired by
 `acquire_text_formal_residence_v1`) remains the sole issuer direction for the
 opaque frame capability (revision, root count/order, and exactly-once finish);
 the ny-llvmc Boundary pure-first C binder is a mechanical consumer.
+
+## Private bridge contract (design-only)
+
+The compile-time side is a projection contract, not a second Text or lifetime
+authority. The successor issuer consumes the existing physical-signature
+occurrence order, the function-local `PinnedTextAccessPlanTableV1`, and the
+final pinned-lifetime census, then co-seals one opaque contract containing:
+
+```text
+plan_stamp
+residence_frame_revision
+target triple + data-layout capability
+pointer width/alignment and ABI revision
+header/root-row offsets and sizes
+occurrence-ordered root count and coverage
+```
+
+It contains no `ValueId`, pointer, length, runtime token, `BindingRef`, or
+route choice. The binder receives this contract plus one opaque frame
+capability keyed by the same stamp and root order; it may only project the
+three already-fixed `PinnedTextOp` leaves. A JSON residence table and a raw
+pointer/length field in MIR are forbidden.
+
+The compile-time issuer is a mechanical aggregate seam named
+`PinnedTextBackendFrameContractIssuerV1` for the successor implementation. It
+consumes existing plan/lifetime facts and the target-layout capability; it
+does not become a new Text semantic owner. The runtime issuer remains
+`TextFormalCallResidenceV1` and is the only owner of actual backing pointers,
+pin records, and finish. The two products are linked by the same function
+stamp and occurrence order, never by a caller-reconstructed pointer/token
+pair.
+
+The runtime side remains the existing `TextFormalCallResidenceV1` owner. A
+future private C-facing projection uses a target-checked frame layout with
+`uintptr_t` pointer fields and signed `int64_t` byte lengths (lengths must fit
+the fixed leaf result contract). All ExactText pairs are preflighted and
+root rows are filled under the existing atomic residence transaction. No
+partially filled frame becomes visible; a post-acquire publication failure
+consumes the move-only residence and rolls back all pins. Body effects begin
+only after the frame is complete.
+
+The private V1 wire shape is intentionally narrow and target-bound: a
+`repr(C)` header carries revision, header size, total size, and occurrence
+count; each row carries one actual `const uint8_t*` backing pointer and one
+`int64_t` byte length. The implementation must prove the target triple,
+pointer width/address space, alignment, ABI revision, maximum root count, and
+stack frame size before lowering. It must not assume that a pointer can be
+round-tripped through `u64`, hard-code x86-64, or serialize the frame through
+MIR JSON. The frame is caller-owned for the invocation and the runtime does
+not retain its output-buffer pointer.
+
+The entry contract takes the already-published occurrence-ordered
+`[slot,generation]` lanes plus a caller-owned output frame and a fixed status
+wire. It validates all pairs, backing class, lengths, frame metadata, and
+input/output separation before the first pin or output write. Success commits
+all pins and rows together. Any reject, overflow, or output-publication
+failure leaves the registry unchanged; a post-acquire failure consumes the
+move-only Residence owner exactly once for rollback.
+
+Finish is not a semantic cleanup obligation. The later lifecycle successor
+must consume the same opaque frame/residence owner and hand one finish claim
+to the existing Completion/DraftSeal normal-exit projection. Trap/unreachable
+is admitted only under the existing no-unwind policy; fallback and retry are
+not recovery paths.
 Non-authority: MIR/JSON numeric IDs, raw ptr/len, TextFormalBorrowV1,
 generation recapture, StringSpan/ViewBox, nearby CFG, generic Load/Store,
 native/llvm_py/VM, environment selectors, benchmark, fallback, and retry.
@@ -30,15 +94,32 @@ index/count/order drift, incomplete/duplicate root coverage, lease/frame
 detachment, stale/non-Text/unstable backing, frame-size/pointer-width/ABI
 revision mismatch, escaped scope, unsupported leaf width/boundary, and any
 raw pointer crossing before IR effect.
-Smallest next slice: design the exact private input/output frame contract,
-revision and target-layout capability, occurrence-row mapping, atomic
-publication/rollback, and finish handoff; no C/Rust frame code, JSON
-residence table, GEP/load, lifecycle CFG, session adoption, route, or caller.
+Smallest next slice: implement only the private bridge contract and its
+caller-zero enter/rollback/finish evidence, with one target-layout capability
+and one occurrence-ordered mapping. Keep C/Rust frame code, GEP/load,
+lifecycle CFG, session adoption, route, and caller behind the successor seam;
+the implementation must not add a JSON residence table or public ptr/len ABI.
 Non-claims: no callable ABI aggregate, public ptr/len, production TextEq
 route, C-speed result, StringBox/literal origin, fallback/retry, or main
 integration.
 
 Acceptance requires one issuer direction, one opaque capability input, one
-occurrence-ordered row mapping, no detached pointer/token ownership, and a
-typed successor task for implementation. Until then:
-NoSafeSlice::PinnedTextResidenceTransportBoundaryUnsealed.
+occurrence-ordered row mapping, one target-layout capability, atomic
+all-or-nothing publication/rollback, and no detached pointer/token ownership.
+Those conditions are now the accepted BoxShape. The bounded successor is the
+caller-zero `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0`; its incomplete
+implementation remains the live stop:
+`NoSafeSlice::PinnedTextBackendFrameImplementationUnsealed`.
+
+## TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-I0
+
+Implementation scope is one behavior-preserving caller-zero substrate:
+publish the private `repr(C)` frame layout/capability, validate target-layout
+metadata, exercise all-or-nothing enter and rollback through the existing
+`TextFormalCallResidenceV1`, and consume one move-only finish. Keep the
+compile-time binder transport-only, and do not add lifecycle MIR, GEP/load,
+JSON residence state, Canonical session adoption, route admission, literal or
+StringBox origin, a production caller, fallback, or retry. Focused positives
+and negatives must cover occurrence order/alias multiplicity, target revision
+and pointer-width mismatch, frame size/length overflow, partial publication,
+stale/non-Text pairs, duplicate finish, and finish-after-rollback.
