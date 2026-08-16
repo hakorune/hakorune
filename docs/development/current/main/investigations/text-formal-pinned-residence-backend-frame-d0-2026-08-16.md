@@ -218,7 +218,8 @@ capability. The named issuer is therefore a successor design seam, not an
 existing callable or a permission to reconstruct identity from a batch slot,
 function name, JSON length, or `ValueId`.
 
-The existing lowering order makes the missing seam concrete:
+The existing lowering order makes the missing seam concrete, but the
+selected-normal route is not yet the canonical resolved route:
 
 ```text
 NormalCallableSemanticPackagePortAdapterV1
@@ -230,6 +231,22 @@ capture_*_pending_v1
   -> PreparedFunctionSessionCommitInputV1
   -> MirFunction metadata / JSON
 ```
+
+For the selected static/instance cataloged methods, the concrete calls are
+currently `capture_static_box_method_pending_v1` or
+`capture_normalized_instance_box_method_pending_v1`; both delegate to
+`capture_legacy_function_pending_session_v1` and then
+`commit_normal_cataloged_box_method_pending`/`commit_legacy_symbol_pending`.
+The inner session type is canonical in name, but the admission and collector
+path are still `LegacyChildDraftAdmissionV1` and the legacy symbol collector;
+they do not carry the installed physical-signature row or a resolved owner.
+The binder must therefore not be attached to this legacy pending tuple, and a
+legacy collector commit cannot be treated as the function-owned co-seal.
+The existing `ResolvedChildDraftAdmissionV1`, `capture_resolved_pending`,
+`complete_resolved_child`, and `commit_resolved_pending` are the disconnected
+successor seams to audit first. Top-level rows remain explicitly unsupported
+until a source-backed physical-signature row is named; they are not silently
+folded into the cataloged method path.
 
 Only the S6C callback currently exposes a physical-signature row, and that
 loan is profile-specific. Ordinary selected methods reach the function
@@ -282,25 +299,35 @@ admission, production caller, fallback, or retry until that co-seal is closed.
 
 ### Successor taskization (design stop; no implementation permission yet)
 
-The next bounded design slice has four ordered seams; it is not yet an I0:
+The next bounded design slice has five ordered seams; it is not yet an I0.
+The first seam is a resolved-session cutover design, not a binder
+implementation:
 
-1. **Bridge issuer:** name one canonical handoff at
-   `capture_*_pending_v1` → `CanonicalFunctionLoweringSessionV1` /
-   `PreparedFunctionSessionCommitInputV1`. It must consume the installed
+1. **Resolved-session handoff:** design one selected-normal transition from
+   the package Port adapter through `ResolvedChildDraftAdmissionV1` into
+   `capture_resolved_pending`/`complete_resolved_child`, carrying the same
+   package-owned physical-signature loan through
+   `PendingFunctionSessionCloseV1::complete_before_restore` and the canonical
+   `CanonicalRejectDuplicate` collector. The transition must cover the
+   admitted static/instance method rows with one same-cohort loan; unsupported
+   top-level rows stay `RejectBeforeEffect`. Do not attach the binder to
+   `LegacyFunctionPendingSessionV1` or `commit_legacy_symbol_pending`.
+2. **Bridge issuer after cutover:** name one canonical handoff at the
+   resolved function/session boundary. It must consume the installed
    physical-signature loan (or a same-cohort all-method successor), the active
    function's stamped plan/census, `TextFormalCallResidenceV1`, and one
    target-layout capability. It must not infer package identity from a
    function name, `ValueId`, JSON length, or batch slot.
-2. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
+3. **Private contract:** co-seal `PinnedTextBackendFrameContractV1` only after
    owner, stamp, receiver/formal order, root coverage, and target revision are
    proven. No runtime residence rows, pointer, length, token, slot/generation
    value, or `ValueId` may enter the product.
-3. **Transport choice:** after (1) and (2), use the typed
+4. **Transport choice:** after (1)–(3), use the typed
    `pinned_text_backend_frame_contract_v1` JSON projection and a strict
    ny-llvmc scoped consumer. Until then, JSON publication is rejected rather
    than emitted as a partial descriptor. `llvm_py`, VM, native, and future Hako
    LLVM-text remain non-consumers.
-4. **Evidence:** only after the issuer exists, cover mixed scalar/ExactText
+5. **Evidence:** only after the issuer exists, cover mixed scalar/ExactText
    lanes, instance receiver prefix, aliasing caller occurrences versus distinct
    callee lanes, missing/duplicate rows, stamp/target/layout drift, unknown
    fields, and all forbidden runtime fields.
