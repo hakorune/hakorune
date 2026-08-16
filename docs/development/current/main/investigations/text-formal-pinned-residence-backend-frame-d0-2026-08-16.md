@@ -1,5 +1,5 @@
 ---
-Status: BoxShape accepted; caller-zero frame-contract I0 selected, production/backend route still closed
+Status: caller-zero frame-contract I0 landed; compile-time binder D0 is the next design stop, production/backend route still closed
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape candidate
@@ -123,3 +123,54 @@ StringBox origin, a production caller, fallback, or retry. Focused positives
 and negatives must cover occurrence order/alias multiplicity, target revision
 and pointer-width mismatch, frame size/length overflow, partial publication,
 stale/non-Text pairs, duplicate finish, and finish-after-rollback.
+
+### I0 evidence (caller-zero frame contract)
+
+The bounded runtime projection now exists without opening the compiler route:
+
+- `TextFormalResidenceFrameHeaderV1` and `TextFormalResidenceRootRowV1` are
+  fixed `repr(C)` transport rows; the callable wire remains the separate
+  `{slot,generation}` pair.
+- `enter_text_formal_residence_c_v1` validates the one supported target layout,
+  pair/frame separation, frame capacity, and all pairs before publishing any
+  row; the existing registry transaction owns pinning and rollback.
+- `finish_text_formal_residence_c_v1` consumes the opaque lease token once and
+  clears it; semantic cleanup, MIR lifecycle, and backend return placement are
+  not part of this row.
+- `hako_text_formal_residence_enter_v1` / `finish_v1` and
+  `include/nyrt_text_formal_residence_v1.h` are transport-only projections.
+
+Focused evidence: `text_formal_residence` 7/7 and
+`nyash_kernel::exports::text_formal` 1/1; `cargo check --lib`, formatting,
+pointer guard, and `git diff --check` are green. This proves only the
+caller-zero frame contract, not a production caller or a direct Text backend.
+
+## TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0
+
+Decision: keep one compile-time binder as a mechanical projection from the
+package-owned physical-signature occurrence order plus the runtime residence
+frame capability; it may not issue Text meaning, lifetime, or route facts.
+
+Source authority + canonical issuer: the physical-signature cohort owns lane
+roles/order and the runtime `TextFormalCallResidenceV1` owns actual roots and
+finish; a single post-install `PinnedTextBackendFrameContractIssuerV1` may
+co-seal their existing stamps and target-layout capability for the selected
+ny-llvmc Boundary consumer.
+
+Non-authority: logical `/N`, JSON parameter counts, ValueId/ptr/len guesses,
+MIR generic Load/Store, `TextFormalBorrowV1` generation recapture, llvm_py/VM/
+native alternatives, environment or benchmark selection, fallback, and retry.
+
+Fail-fast boundary: reject receiver/formal occurrence drift, missing or
+duplicate root rows, mixed ABI revision/target data-layout, pointer-width or
+frame-size mismatch, detached residence/token, and any attempt to serialize
+the private frame through MIR JSON or expose raw pointers to common MIR.
+
+Smallest next slice: design-only census and acceptance for the binder's
+function stamp, target capability, occurrence mapping, and one scoped handoff
+to the existing ny-llvmc consumer; no GEP/load, lifecycle CFG, session
+adoption, route admission, production caller, fallback, or retry.
+
+Non-claims: this D0 does not make the direct backend C-fast, admit StringBox or
+literal origins, or change the callable ABI. A missing single binder issuer or
+target capability keeps `NoSafeSlice::PinnedTextBackendFrameBinderUnsealed`.

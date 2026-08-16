@@ -1,6 +1,7 @@
 use super::*;
 use crate::box_trait::StringBox;
 use crate::runtime::host_handles;
+use crate::runtime::text_formal_abi::issue_text_formal_borrow_v1;
 use std::sync::Arc;
 
 fn test_lock() -> std::sync::MutexGuard<'static, ()> {
@@ -78,5 +79,96 @@ fn residence_is_stable_text_only() {
             TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index: 0 }
         ))
     ));
+    host_handles::drop_handle(handle);
+}
+
+#[test]
+fn c_frame_entry_projects_rows_and_finishes_once() {
+    let _guard = test_lock();
+    let subject = host_handles::to_handle_text("subject");
+    let needle = host_handles::to_handle_text("needle");
+    let pairs = [
+        issue_text_formal_borrow_v1(subject).expect("published subject pair"),
+        issue_text_formal_borrow_v1(needle).expect("published needle pair"),
+    ];
+    let mut storage = [0_u64; 16];
+    let frame = storage
+        .as_mut_ptr()
+        .cast::<TextFormalResidenceFrameHeaderV1>();
+
+    let status = unsafe {
+        enter_text_formal_residence_c_v1(
+            pairs.as_ptr(),
+            pairs.len() as u32,
+            frame,
+            storage.len() as u32 * std::mem::size_of::<u64>() as u32,
+        )
+    };
+    assert_eq!(status, TextFormalResidenceCStatusV1::Valid.as_u32());
+    unsafe {
+        assert_eq!((*frame).root_count, 2);
+        assert_ne!((*frame).lease_token, 0);
+        let rows = frame
+            .cast::<u8>()
+            .add(std::mem::size_of::<TextFormalResidenceFrameHeaderV1>())
+            .cast::<TextFormalResidenceRootRowV1>();
+        assert_eq!((*rows.add(0)).byte_len, 7);
+        assert_eq!((*rows.add(1)).byte_len, 6);
+    }
+
+    let finish = unsafe { finish_text_formal_residence_c_v1(frame) };
+    assert_eq!(finish, TextFormalResidenceCStatusV1::Valid.as_u32());
+    unsafe { assert_eq!((*frame).lease_token, 0) };
+    assert_eq!(
+        unsafe { finish_text_formal_residence_c_v1(frame) },
+        TextFormalResidenceCStatusV1::InvalidFrame.as_u32()
+    );
+
+    host_handles::drop_handle(subject);
+    host_handles::drop_handle(needle);
+}
+
+#[test]
+fn c_frame_entry_rejects_small_frame_before_pinning() {
+    let _guard = test_lock();
+    let handle = host_handles::to_handle_text("small");
+    let pair = issue_text_formal_borrow_v1(handle).expect("published pair");
+    let mut storage = [0_u64; 8];
+    let frame = storage
+        .as_mut_ptr()
+        .cast::<TextFormalResidenceFrameHeaderV1>();
+
+    let status = unsafe {
+        enter_text_formal_residence_c_v1(
+            &pair,
+            1,
+            frame,
+            std::mem::size_of::<TextFormalResidenceFrameHeaderV1>() as u32,
+        )
+    };
+    assert_eq!(status, TextFormalResidenceCStatusV1::FrameTooSmall.as_u32());
+
+    host_handles::drop_handle(handle);
+}
+
+#[test]
+fn c_frame_entry_rejects_pair_frame_overlap_without_mutation() {
+    let _guard = test_lock();
+    let handle = host_handles::to_handle_text("overlap");
+    let pair = issue_text_formal_borrow_v1(handle).expect("published pair");
+    let pair_ptr = &pair as *const TextFormalBorrowV1;
+    let status = unsafe {
+        enter_text_formal_residence_c_v1(
+            pair_ptr,
+            1,
+            pair_ptr as *mut TextFormalResidenceFrameHeaderV1,
+            64,
+        )
+    };
+    assert_eq!(
+        status,
+        TextFormalResidenceCStatusV1::PairFrameOverlap.as_u32()
+    );
+
     host_handles::drop_handle(handle);
 }

@@ -106,6 +106,12 @@ impl CallLifetimeTableV1 {
 #[derive(Debug)]
 pub(in crate::runtime) struct RegistryTextFormalCallLeaseSetV1(NonZeroU64);
 
+impl RegistryTextFormalCallLeaseSetV1 {
+    pub(in crate::runtime) fn raw_token(&self) -> u64 {
+        self.0.get()
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(in crate::runtime) struct TextFormalRootDescriptorV1 {
     pub(in crate::runtime) ptr: *const u8,
@@ -129,6 +135,11 @@ impl RegistryTextFormalCallResidenceV1 {
 
     pub(in crate::runtime) fn finish(self) -> Result<(), TextFormalLeaseFinishRejectV1> {
         super::reg().finish_text_formal_call_lease_set(self.lease)
+    }
+
+    pub(in crate::runtime) fn into_raw_parts(self) -> (u64, Box<[TextFormalRootDescriptorV1]>) {
+        let Self { lease, roots } = self;
+        (lease.raw_token(), roots)
     }
 }
 
@@ -465,6 +476,15 @@ pub(in crate::runtime) fn finish_text_formal_call_lease_set_v1(
     token: RegistryTextFormalCallLeaseSetV1,
 ) -> Result<(), TextFormalLeaseFinishRejectV1> {
     super::reg().finish_text_formal_call_lease_set(token)
+}
+
+pub(in crate::runtime) fn finish_text_formal_call_lease_set_raw_v1(
+    raw_token: u64,
+) -> Result<(), TextFormalLeaseFinishRejectV1> {
+    let Some(token) = NonZeroU64::new(raw_token) else {
+        return Err(TextFormalLeaseFinishRejectV1::UnknownOrAlreadyFinished);
+    };
+    super::reg().finish_text_formal_call_lease_set(RegistryTextFormalCallLeaseSetV1(token))
 }
 
 #[cfg(test)]

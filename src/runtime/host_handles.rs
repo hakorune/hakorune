@@ -35,8 +35,9 @@ use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
 pub(super) use call_lifetime::{
     acquire_text_formal_call_lease_set_v1, acquire_text_formal_call_residence_v1,
-    finish_text_formal_call_lease_set_v1, RegistryTextFormalCallLeaseSetV1,
-    RegistryTextFormalCallResidenceV1,
+    finish_text_formal_call_lease_set_raw_v1, finish_text_formal_call_lease_set_v1,
+    RegistryTextFormalCallLeaseSetV1, RegistryTextFormalCallResidenceV1,
+    TextFormalRootDescriptorV1,
 };
 pub(crate) use call_lifetime::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFinishRejectV1};
 pub(crate) use lease_identity::{
