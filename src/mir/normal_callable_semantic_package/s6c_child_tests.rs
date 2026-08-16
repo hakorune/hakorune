@@ -47,6 +47,16 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
         assert_eq!(child.signature().source_logical_arity(), 2);
         assert_eq!(child.signature().physical_formal_lane_count(), 4);
         assert_eq!(child.selected().parameter_contracts().count(), 2);
+        assert_eq!(
+            child.storage_header().params(),
+            ["s".to_owned(), "ch".to_owned()]
+        );
+        assert_eq!(child.storage_header().return_type_name(), Some("i64"));
+        assert_eq!(
+            child.physical_effects().effect_mask(),
+            crate::mir::EffectMask::READ
+        );
+        assert_eq!(child.physical_effects().external_call_count(), 2);
         assert_eq!(loan.envelope().operations().operation_count(), 13);
         assert_eq!(loan.envelope().control().control_count(), 2);
         assert_eq!(loan.envelope().coverage().placement_count(), 15);

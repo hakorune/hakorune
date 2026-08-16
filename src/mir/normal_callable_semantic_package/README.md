@@ -162,6 +162,25 @@ recount, or expose a raw `usize`; a missing batch row is terminal. The receipt
 can therefore reach the later common admission without opening a session,
 Completion consumption, CFG/SSA/PHI, physical lowering, fallback, or retry.
 
+## S6C physical header/effects co-seal I0 (2026-08-17)
+
+The installed S6C loan now carries two additional sibling projections from
+the same source-backed cohort. `VerifiedS6CStorageHeaderProjectionV1` is a
+catalog-declaration projection for storage-facing params/result/attrs/uses;
+the catalog declaration remains its sole source authority and the projection
+is intentionally distinct from the Dynamic legacy header. The child also
+lends `VerifiedS6CPhysicalFunctionEffectsV1`, whose `EffectMask::READ` is
+issued only after the retained S6C call contracts prove the two external
+operations are exactly the expected pure reads. CoreMethod/Facts remain the
+semantic effect authority.
+
+This I0 is caller-zero and Builder-free. It opens no skeleton, `ValueId`,
+formal lane adoption, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
+Text residence, route selection, production caller, fallback, or retry. The
+future function-entry consumer must take header, signature, result, and
+effects through the same HRTB cohort rather than re-reading a declaration or
+reconstructing an effect from MIR.
+
 ## Typed BlockExpr transport I0 receipt (2026-08-17)
 
 `SelectedCallableLoweringInputRefV1::block_expr_expectation` now borrows the

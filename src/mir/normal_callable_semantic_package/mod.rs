@@ -13,6 +13,8 @@ mod model;
 mod physical_header;
 mod physical_signature;
 mod s6c_child;
+mod s6c_effects;
+mod s6c_storage_header;
 mod selected_mapping;
 
 #[cfg(test)]

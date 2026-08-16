@@ -221,6 +221,19 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.seal.inputs
     }
 
+    /// Project the two source-bound CoreMethod effects without exposing the
+    /// retained source relation.  The caller-zero physical header issuer
+    /// consumes this narrow view; it never infers effects from MIR or names.
+    pub(crate) fn external_call_effects(
+        self,
+    ) -> [crate::mir::core_method_result_kind::CoreMethodEffectV1; 2] {
+        let calls = self.source.facts().source().calls();
+        [
+            calls.length().target().row().row().effect,
+            calls.substring().target().row().row().effect,
+        ]
+    }
+
     pub(crate) const fn index_carrier_entry(self) -> LoopValueKeyV1 {
         self.seal.index_carrier_entry
     }

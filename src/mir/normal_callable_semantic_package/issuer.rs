@@ -40,6 +40,7 @@ use super::physical_signature::{
     issue_callable_physical_signature_v1, CallablePhysicalSignatureIssueV1,
 };
 use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
+use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
 };
@@ -68,6 +69,7 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     DynamicCleanup(DynamicInvocationCleanupProjectionRejectV1),
     DynamicExitTransaction(DynamicExitTransactionCoSealRejectV1),
     MissingDynamicPhysicalHeader,
+    MissingS6CStorageHeader,
 }
 
 pub(crate) fn issue_normal_callable_semantic_package_v1(
@@ -109,6 +111,21 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
     let mut completion_seeds = completion_seeds;
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(NormalCallableSemanticPackageIssueV1::S6CChild)?;
+    let s6c_storage_header = match s6c_child.as_ref() {
+        None => None,
+        Some(child) => {
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+                selected.key_for_batch_slot(child.batch_slot())
+            else {
+                return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
+            };
+            let declaration = catalog
+                .catalog()
+                .declaration(key)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
+            Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
+        }
+    };
     let missing_parameter_contract = completion_seeds.missing_parameter_contract();
     let physical_header = issue_callable_physical_header_from_seeds_v1(
         completion_seeds.into_rows(),
@@ -229,6 +246,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
         parameter_contracts,
         physical_signature,
         s6c_child,
+        s6c_storage_header,
         physical_header,
         dynamic,
         dynamic_physical_header,

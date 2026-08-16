@@ -39,6 +39,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) physical_signature:
         super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
+    pub(super) s6c_storage_header:
+        Option<super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1>,
     pub(super) physical_header:
         Option<super::physical_header::VerifiedCallablePhysicalHeaderCohortV1>,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,

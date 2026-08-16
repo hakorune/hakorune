@@ -28,6 +28,10 @@ use crate::mir::source_call_target::{
 };
 
 use super::completion_seed::VerifiedCallableCompletionSeedCohortV1;
+use super::s6c_effects::{
+    issue_s6c_physical_function_effects_v1, S6CPhysicalFunctionEffectsRejectV1,
+    VerifiedS6CPhysicalFunctionEffectsV1,
+};
 use super::selected_mapping::{
     SelectedCallableBatchMapRowRefV1, VerifiedSelectedCallableBatchMapV1,
 };
@@ -45,6 +49,7 @@ pub(super) enum S6CSemanticChildIssueV1 {
     Recipe(S6CScanWithInitRecipeProducerRejectV2),
     Logical(&'static str),
     Ingress(S6CPrephysicalIngressRejectV2),
+    PhysicalEffects(S6CPhysicalFunctionEffectsRejectV1),
     MissingCompletionSeed,
     DuplicateCandidate,
     ResultMismatch,
@@ -58,6 +63,7 @@ pub(super) struct VerifiedS6CSemanticChildV1 {
     role: SelectedCallableConsumptionRoleV1,
     result: crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1,
     ingress: crate::mir::loop_recipe_contract::VerifiedS6CPrephysicalIngressV2,
+    physical_effects: VerifiedS6CPhysicalFunctionEffectsV1,
 }
 
 impl VerifiedS6CSemanticChildV1 {
@@ -82,6 +88,10 @@ impl VerifiedS6CSemanticChildV1 {
     ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
         self.result
     }
+
+    pub(super) const fn physical_effects(&self) -> &VerifiedS6CPhysicalFunctionEffectsV1 {
+        &self.physical_effects
+    }
 }
 
 pub(super) struct S6CSemanticChildRefV1<'loan> {
@@ -97,6 +107,10 @@ impl S6CSemanticChildRefV1<'_> {
         &self,
     ) -> crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1 {
         self.child.result()
+    }
+
+    pub(crate) fn physical_effects(&self) -> &VerifiedS6CPhysicalFunctionEffectsV1 {
+        self.child.physical_effects()
     }
 
     pub(crate) fn with_completion<R>(
@@ -268,6 +282,8 @@ fn issue_s6c_child_for_row(
                 .map_err(|_| S6CSemanticChildIssueV1::Logical("logical output"))?;
             let ingress = issue_s6c_prephysical_ingress_v2(output)
                 .map_err(S6CSemanticChildIssueV1::Ingress)?;
+            let physical_effects = issue_s6c_physical_function_effects_v1(&ingress, owner)
+                .map_err(S6CSemanticChildIssueV1::PhysicalEffects)?;
             Ok(Some(VerifiedS6CSemanticChildV1 {
                 batch_slot,
                 owner,
@@ -275,6 +291,7 @@ fn issue_s6c_child_for_row(
                 role,
                 result,
                 ingress,
+                physical_effects,
             }))
         })
         .map_err(S6CSemanticChildIssueV1::BatchLoan)??;

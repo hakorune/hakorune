@@ -23,6 +23,7 @@ use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysic
 use super::physical_signature::{
     PhysicalCallableSignatureRowRefV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
+use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,6 +58,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
+    s6c_storage_header: Option<VerifiedS6CStorageHeaderProjectionV1>,
     physical_header: Option<VerifiedCallablePhysicalHeaderCohortV1>,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
@@ -151,6 +153,7 @@ pub(crate) struct S6CInstalledCallableLoanRefV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     child: super::s6c_child::S6CSemanticChildRefV1<'loan>,
     signature: PhysicalCallableSignatureRowRefV1<'loan>,
+    storage_header: &'loan VerifiedS6CStorageHeaderProjectionV1,
 }
 
 /// One installed S6C callable loan plus the generic common-V2 products
@@ -180,6 +183,16 @@ impl S6CInstalledCallableLoanRefV1<'_> {
 
     pub(crate) const fn signature(&self) -> PhysicalCallableSignatureRowRefV1<'_> {
         self.signature
+    }
+
+    pub(crate) fn storage_header(&self) -> &VerifiedS6CStorageHeaderProjectionV1 {
+        self.storage_header
+    }
+
+    pub(crate) fn physical_effects(
+        &self,
+    ) -> &super::s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1 {
+        self.child.physical_effects()
     }
 
     pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -311,6 +324,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             parameter_contracts,
             physical_signature,
             s6c_child,
+            s6c_storage_header,
             physical_header,
             dynamic,
             dynamic_physical_header,
@@ -325,6 +339,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             parameter_contracts,
             physical_signature,
             s6c_child,
+            s6c_storage_header,
             physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
@@ -482,6 +497,11 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             .s6c_child
             .as_ref()
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildUnavailable)?;
+        let storage_header = self
+            .installed
+            .s6c_storage_header
+            .as_ref()
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::S6CChildUnavailable)?;
         let key = self
             .installed
             .selected
@@ -510,6 +530,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                                 selected,
                                 child: super::s6c_child::S6CSemanticChildRefV1 { child },
                                 signature,
+                                storage_header,
                             },
                             envelope,
                         })
