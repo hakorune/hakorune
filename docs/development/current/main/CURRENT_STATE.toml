@@ -1,14 +1,14 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow, common V2 canonical-session admission/session-open canary, typed BlockExpr issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0, detached physical-skeleton I0, slot-only entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero layout transport, and source-segment block allocation I0 are landed. Synthetic After allocation remains a separate source-backed design stop. A-prime lifecycle, Direct Text lowering, route, and production remain closed."
+status = "Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour. The receiver-aware two-lane ExactText signature, caller-zero lease/residence/frame substrate, selected-normal handoff, backend-frame co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow, common V2 canonical-session admission/session-open canary, typed BlockExpr issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0, detached physical-skeleton I0, slot-only entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero layout transport, and source-segment block allocation I0 are landed. The source-backed After-boundary BoxShape is accepted; its typed transport I0 is next, while After allocation remains closed. A-prime lifecycle, Direct Text lowering, route, and production remain closed."
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "The source-segment-only block allocation I0 is landed with one outer discard owner and monotonic unpublished-ID gaps. LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0 remains NoSafeSlice::AfterResumeRelationMissing: current layout and JoinSig expose only (loop, binding, class), not a source-backed root/resume relation for a synthetic After block. The next bounded work is issuer census only; no After allocation or broader Builder/effect emission is allowed. A-prime lifecycle remains parked."
-work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0"
-current_blocker_token = "NoSafeSlice::AfterResumeRelationMissing"
+current_design_stop = "The source-segment-only block allocation I0 is landed with one outer discard owner and monotonic unpublished-ID gaps. LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0 is accepted as a source-backed typed RootAfter|ParentResume BoxShape; current S6C admits RootAfter and ParentResume remains parked until its issuer input exists. The next bounded work is transport-only I0: issue and carry the typed relation through the same common-V2 envelope. No After allocation, edges, operations, CFG/PHI, or broader Builder/effect emission is allowed. A-prime lifecycle remains parked."
+work_mode = "fast"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0"
+current_blocker_token = "none"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +16,7 @@ ai_verifiable_development_north_star = "docs/development/current/main/design/ai-
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
 active_lane = "Loop compiler frontier (pinned lifecycle target sealed -> common V2 physical entry)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 admission/session, S6C header/effects, physical-entry, layout transport, relation guard, and source-segment allocation I0 are landed with focused negatives green. The active lane is a design stop for a source-backed synthetic After issuer: current layout/JoinSig expose only (loop, binding, class), so AfterResumeRelationMissing remains live. No After block, edges, operations, CFG/PHI, Completion, lifecycle, Text, route, or production caller is permitted. MirParamDecl stays source metadata."
+active_lane_status = "Rust remains the sole compile-invocation expectation authority; contract-bearing modules use one retained LLVM-18 C API TargetMachine, while contract-free modules retain legacy opt/llc. Common V2 admission/session, S6C header/effects, physical-entry, layout transport, relation guard, and source-segment allocation I0 are landed with focused negatives green. The After-boundary D0 is accepted as a typed source-backed RootAfter|ParentResume relation; the current S6C arm is RootAfter-only, and the next I0 is transport-only through the same common-V2 envelope. No After block, edges, operations, CFG/PHI, Completion, lifecycle, Text, route, or production caller is permitted. MirParamDecl stays source metadata."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -29,10 +29,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, and source-segment block allocation I0 are landed. The item-to-block and late-discard guards are green. The active design stop is a source-backed synthetic After issuer; current layout/JoinSig expose only (loop, binding, class), so AfterResumeRelationMissing remains live. No After allocation, edges/operations, CFG/PHI, lifecycle, Text, route, or production is open."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0"
-next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, and source-segment block allocation I0 are landed. The item-to-block and late-discard guards are green. The After-boundary D0 is accepted as a typed source-backed RootAfter|ParentResume relation; the next I0 transports RootAfter only through the same envelope, with After allocation and all broader effects still closed."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
