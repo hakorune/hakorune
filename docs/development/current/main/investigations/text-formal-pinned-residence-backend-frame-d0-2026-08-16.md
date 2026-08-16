@@ -157,6 +157,22 @@ finish; a single post-install `PinnedTextBackendFrameContractIssuerV1` may
 co-seal their existing stamps and target-layout capability for the selected
 ny-llvmc Boundary consumer.
 
+The count/order projection is fixed, not inferred from a symbol or JSON length:
+`source_logical_arity` counts explicit source formals;
+`receiver_lane_count` is one only for `InstanceBoxMethod`; and
+`physical_formal_lane_count` is the sum of explicit-formal lane widths, while
+`physical_callable_lane_count = receiver_lane_count + physical_formal_lane_count`.
+Physical order is `[InstanceReceiver?]` followed by ordinal-ordered explicit
+lanes. The receiver is not an ExactText formal and never receives a residence
+root row; only ExactText occurrences map to occurrence-ordered roots. Callee
+parameter ValueIds are pairwise distinct per lane, while caller argument
+occurrences may alias; the two ValueId scopes are never compared.
+
+The consumer census is intentionally narrow: the transition owner is
+`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure` and its
+same-module C lowering path. `llvm_py`, VM, native, and future Hako LLVM-text
+paths remain non-consumers until a separate decision changes the pointer.
+
 Non-authority: logical `/N`, JSON parameter counts, ValueId/ptr/len guesses,
 MIR generic Load/Store, `TextFormalBorrowV1` generation recapture, llvm_py/VM/
 native alternatives, environment or benchmark selection, fallback, and retry.
