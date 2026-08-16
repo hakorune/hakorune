@@ -81,13 +81,15 @@ Related:
   now batch-owned and reaches the selected/package HRTB as a borrow. The
   callback-scoped common admission is landed; the detached physical skeleton,
   slot-only ExactText adoption canary, and consuming physical-entry/session
-  seam are also landed. The next boundary is a design stop for the first
-  post-entry physical effect owner. A-prime lifecycle activation remains
-  parked until this boundary owns `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` must name
-  one source-backed effect carrier and rollback owner without reopening the
-  same-cohort entry/session seam. Loop CFG/block effects, reads, PHI,
-  Completion claims, and DraftSeal remain closed.
+  seam are also landed. The next boundary is a design stop for a V2-native
+  physical-ID-free layout/placement issuer before any post-entry effect.
+  A-prime lifecycle activation remains parked until its boundary owns
+  `PreparedFunctionExitSetV1`.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0` must first
+  determine whether the same V2 operation/control/JoinSig products can issue a
+  source-backed, physical-ID-free placement/layout receipt. Until that issuer
+  exists, no post-entry effect (including a Const/read canary) may open. Loop
+  CFG/block effects, reads, PHI, Completion claims, and DraftSeal remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -595,11 +597,11 @@ Fail-fast boundary:
 
 Smallest next slice:
   The caller-zero I0 is landed. Its next design stop is
-  `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0`: decide the first post-entry
-  physical effect owner without reopening the same-cohort/session seam. Keep
-  Loop operation/control lowering, Completion claims, DraftSeal, lifecycle,
-  Text lowering, route, and production caller at zero until that boundary is
-  accepted.
+  `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0`: first census a V2-native,
+  physical-ID-free placement/layout issuer from the same operation/control/
+  JoinSig products. Keep block/effect emission, Loop operation/control
+  lowering, Completion claims, DraftSeal, lifecycle, Text lowering, route,
+  and production caller at zero until that boundary is accepted.
 
 Implementation receipt (2026-08-17):
   `with_common_v2_physical_entry_session` consumes the prepared input and
@@ -616,6 +618,47 @@ Non-claims:
   entry reservation, Completion consumption/claim, DraftSeal, lifecycle,
   PinnedTextOp, route/perf, production caller, fallback, retry, or main
   integration is opened by this D0/I0.
+```
+
+### Next design stop: `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0`
+
+```text
+Decision:
+  Keep the post-entry effects D0 unaccepted. The first bounded task is a
+  design-only census for a V2-native physical layout/placement issuer; do not
+  emit a Const, read, call, PHI, or Loop block yet.
+
+Source authority + canonical issuer:
+  The installed S6C loan's PreparedLoopV2PreSessionEnvelopeV1, its retained
+  Recipe/JoinSig topology, and the same function/session stamp are the only
+  admissible inputs. A compiler-side issuer must co-seal a physical-ID-free
+  segment/block/transfer layout and lend it to the canonical session effect
+  owner. The outer CanonicalFunctionLoweringSessionV1 remains the sole
+  rollback owner.
+
+Non-authority:
+  PreparedLoopPhysicalLayoutV1, fixed 13/15 counts, Recipe order alone,
+  current_block, MirFunction.blocks, bare BasicBlockId/ValueId, V1 adapters,
+  Dynamic topology, EffectMask, generic MirInstruction emission, and the
+  entry block are not layout or placement authority.
+
+Fail-fast boundary:
+  Before any Builder effect, reject missing/foreign/reordered operation,
+  control, JoinSig, segment, or transfer coverage; owner/target/stamp drift;
+  duplicate or missing placement; and any attempt to infer layout from MIR.
+  If a later allocation/effect is eventually opened, every failure must use
+  exactly one outer discard terminal with no retry, fallback, or publication.
+
+Smallest next slice:
+  Audit the existing resolver/Recipe/JoinSig issuers for a safe V2 layout
+  source. If found, fix the receipt shape and acceptance tests only; then a
+  separate caller-zero I0 may allocate session-owned blocks. If not found,
+  end this D0 at NoSafeSlice rather than inventing a count or adapter.
+
+Non-claims:
+  No block allocation, operation/read/Const emission, CFG edge/terminator,
+  PHI, Completion/DraftSeal, lifecycle, Text/PinnedTextOp, route/perf,
+  production caller, fallback/retry, or main integration.
 ```
 
 ## Decision
@@ -1743,7 +1786,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
 | 25b-e | `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-D0` | bind retained skeleton, descriptor cohort, common-V2 session, slot-only BindingSSA, sidecar, and one discard/poison owner into a consuming transaction | accepted BoxShape 2026-08-17; compiler-only consuming input and Builder rollback owner fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-e-I0 | `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-I0` | consume one prepared input and one common-V2 admission, install/adopt once, and return only a callback-scoped success view | landed 2026-08-17; same-loan admission, fresh Builder transaction, slot-only BindingSSA plus generation sidecar, and outer discard/no-retry are covered by positive and late-failure tests; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
-| 25b-f | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | name the first post-entry physical effect owner without reopening the same-cohort/session seam | next design stop; no effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-f | `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0` | census a V2-native physical-ID-free layout/placement issuer before any post-entry effect | next design stop; no block/effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-g | `LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0` | after layout input is sealed, name the first post-entry effect carrier and rollback boundary | blocked behind 25b-f; no effect emission, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

@@ -133,7 +133,11 @@ function, BindingSSA entry, sidecar, or module-visible state. No public
 `into_parts` split, second Port loan, ordinary generation read, Completion
 claim, DraftSeal, CFG/PHI, lifecycle, Text lowering, route, fallback, retry,
 or production caller is opened. The next design stop is
-`LOOP-COMMON-V2-PHYSICAL-ENTRY-EFFECTS-D0`.
+`LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0`: before any post-entry effect, a
+V2-native physical-ID-free placement/layout issuer must be named from the
+same operation/control/JoinSig loan. Const/read/CFG/PHI, Completion,
+lifecycle, Text, route, and production remain closed until that receipt and
+its outer-session rollback boundary are sealed.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
