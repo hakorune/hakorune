@@ -43,11 +43,6 @@ pub(crate) struct PinnedTextRootViewRef<'residence> {
 
 impl<'residence> PinnedTextRootViewRef<'residence> {
     #[inline(always)]
-    pub(crate) const fn as_ptr(self) -> *const u8 {
-        self.ptr
-    }
-
-    #[inline(always)]
     pub(crate) const fn byte_len(self) -> u64 {
         self.byte_len
     }

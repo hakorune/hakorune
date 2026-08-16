@@ -26,11 +26,7 @@ fn residence_projects_occurrence_ordered_roots_and_finishes() {
     assert_eq!(residence.frame_revision(), RESIDENCE_FRAME_REVISION_V1);
     assert_eq!(residence.root_count(), 2);
     assert_eq!(residence.frame_size(), 64);
-    let first_root = residence
-        .with_root(0, |root| (root.as_ptr(), root.byte_len()))
-        .expect("first root");
-    assert!(!first_root.0.is_null());
-    assert_eq!(first_root.1, 7);
+    assert_eq!(residence.with_root(0, |root| root.byte_len()), Some(7));
     assert_eq!(residence.with_root(1, |root| root.byte_len()), Some(6));
     residence.finish().expect("finish residence");
 
