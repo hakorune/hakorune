@@ -72,6 +72,22 @@ has a stable exit identity. A noreturn trap is accepted only when a
 `NoUnwindFailStop` capability is present; it does not require cleanup after the
 trap edge and must never fall through to Return.
 
+The missing compile-time witness is deliberately an exit obligation, not a
+runtime token carrier. The candidate shape is a private, non-`Clone`
+`PinnedTextResidenceExitObligationV1` containing only the function/plan/frame
+stamp, the expected explicit-value exit count, and the site-keyed exit claims.
+It is issued from the existing validated Completion/DraftSeal exit projection;
+it cannot be constructed from a block number, return ordinal, JSON metadata, or
+the runtime lease token. A later lifecycle implementation consumes this
+obligation together with the move-only `TextFormalCallResidenceV1`, while the
+obligation itself never owns or serializes the token.
+
+The D0 must also name the exact materialization seam: the same
+`PreparedFunctionExitSetV1` iteration that validates each detached exit must
+order `return operand -> residence finish -> Return`. If the current DraftSeal
+API cannot accept a private finish capability at that point without becoming a
+second Return writer, the D0 remains open and no I0 is authorized.
+
 ## Design acceptance matrix
 
 ```text
