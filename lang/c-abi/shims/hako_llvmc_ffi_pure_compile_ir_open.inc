@@ -14,7 +14,12 @@ if (!f) {
   break;
 }
 fprintf(f, "; nyash pure IR (generic)\n");
-fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+if (ptfb_contract_bound) {
+  fprintf(f, "target triple = \"%s\"\n", hako_llvmc_ptfb_session_triple(&ptfb_session));
+  fprintf(f, "target datalayout = \"%s\"\n\n", hako_llvmc_ptfb_session_data_layout(&ptfb_session));
+} else {
+  fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+}
 if (!hako_llvmc_c1_emit_artifact_descriptor(f, fn_metadata)) {
   note_pure_unsupported_shape(
       -1,

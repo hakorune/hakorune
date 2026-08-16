@@ -8,6 +8,12 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
+generic_lowerer_lines="$(wc -l < "$ROOT/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc")"
+if (( generic_lowerer_lines >= 800 )); then
+  echo "generic pure-first lowerer exceeds 800-line hard stop: $generic_lowerer_lines" >&2
+  exit 1
+fi
+
 ROOT="$ROOT" python3 - <<'PY'
 import copy
 import ctypes
@@ -32,9 +38,17 @@ if not fixture.is_file():
     raise SystemExit(f"missing fixture: {fixture}")
 
 base = json.loads(fixture.read_text())
+# Keep the fixture inside the generic pure subset so the contract-bound
+# TargetMachine session reaches object emission rather than the unsupported
+# shape diagnostic.  The source fixture intentionally contains a legacy nop.
+base["functions"][0]["blocks"][0]["instructions"] = [
+    instruction
+    for instruction in base["functions"][0]["blocks"][0]["instructions"]
+    if instruction.get("op") != "nop"
+]
 contract = {
-    "contract_id": "hako.pinned_text_backend_frame@1",
-    "schema_revision": 1,
+    "contract_id": "hako.pinned_text_backend_frame@2",
+    "schema_revision": 2,
     "owner": {"compilation_brand": 1, "slot": 1},
     "invocation_ordinal": 1,
     "source_logical_arity": 2,
@@ -68,7 +82,15 @@ contract = {
         "max_root_count": 1024,
         "max_private_frame_bytes": 65536,
         "residence_abi_revision": "text-formal-residence-v1",
-        "consumer_abi_revision": "hako-llvmc-pure-first-v1",
+        "consumer_abi_revision": "hako-llvmc-pure-first-v2",
+        "object_emitter": {
+            "llvm_c_api_abi_revision": "llvm-c-api-18-v1",
+            "cpu": "",
+            "features": "",
+            "codegen_opt_level": 3,
+            "relocation_model": 0,
+            "code_model": 0,
+        },
     },
 }
 
@@ -86,6 +108,8 @@ def invoke(payload, path, output):
     error = ctypes.c_void_p()
     old_env = os.environ.copy()
     os.environ["HAKO_BACKEND_COMPAT_REPLAY"] = "none"
+    os.environ["HAKO_CAPI_TM"] = "0"
+    os.environ["NYASH_NY_LLVM_LLC_TOOL"] = "/definitely/missing/legacy-llc"
     try:
         rc = compile_fn(str(path).encode(), str(output).encode(), ctypes.byref(error))
     finally:
@@ -105,8 +129,17 @@ with tempfile.TemporaryDirectory(prefix="hako-pinned-text-frame-") as directory:
         directory / "valid.json",
         directory / "valid.o",
     )
-    if rc == 0 or "unsupported pure shape" not in message:
-        raise SystemExit(f"valid contract did not reach the generic shape gate: {message}")
+    if rc != 0 or not (directory / "valid.o").is_file():
+        raise SystemExit(f"contract-bound session did not emit an object: {message}")
+
+    failed_output = directory / "missing-dir" / "failed.o"
+    rc, message = invoke(
+        payload_with(copy.deepcopy(contract)),
+        directory / "emit-failure.json",
+        failed_output,
+    )
+    if rc == 0 or failed_output.exists():
+        raise SystemExit("contract emission failure published an object or succeeded")
 
     bad_layout = copy.deepcopy(contract)
     bad_layout["target"]["data_layout"] = "bad"
@@ -138,5 +171,33 @@ with tempfile.TemporaryDirectory(prefix="hako-pinned-text-frame-") as directory:
     if rc == 0 or "target layout mismatch" not in message:
         raise SystemExit(f"missing target capability was not rejected: {message}")
 
-print("[pinned-text-backend-frame-transport-smoke] ok (strict projection + C API TargetMachine preflight accepted; drift/unknown/missing rejected)")
+    uncontracted_pinned_op = copy.deepcopy(base)
+    uncontracted_pinned_op["functions"][0]["blocks"][0]["instructions"].append(
+        {"op": "pinned_text_op"}
+    )
+    rc, message = invoke(
+        uncontracted_pinned_op,
+        directory / "uncontracted-pinned-op.json",
+        directory / "uncontracted-pinned-op.o",
+    )
+    if rc == 0 or "PinnedTextOp requires" not in message:
+        raise SystemExit(f"uncontracted PinnedTextOp was not rejected: {message}")
+
+    mixed_invocations = copy.deepcopy(payload_with(copy.deepcopy(contract)))
+    second_function = copy.deepcopy(mixed_invocations["functions"][0])
+    second_contract = copy.deepcopy(contract)
+    second_contract["invocation_ordinal"] = 2
+    second_function["metadata"] = {
+        "pinned_text_backend_frame_v1": second_contract,
+    }
+    mixed_invocations["functions"].append(second_function)
+    rc, message = invoke(
+        mixed_invocations,
+        directory / "mixed-invocations.json",
+        directory / "mixed-invocations.o",
+    )
+    if rc == 0 or "mixed pinned Text compile invocations" not in message:
+        raise SystemExit(f"mixed compile invocations were not rejected: {message}")
+
+print("[pinned-text-backend-frame-transport-smoke] ok (strict census + retained C API TargetMachine emission; drift/unknown/missing/mixed rejected)")
 PY

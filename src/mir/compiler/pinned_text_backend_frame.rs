@@ -16,8 +16,8 @@ use crate::mir::normal_callable_semantic_package::{
 };
 
 pub(crate) const PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1: &str =
-    "hako.pinned_text_backend_frame@1";
-pub(crate) const PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1: u32 = 1;
+    "hako.pinned_text_backend_frame@2";
+pub(crate) const PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1: u32 = 2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PinnedTextBackendFrameContractIssueV1 {
@@ -65,6 +65,12 @@ pub(crate) struct PinnedTextBackendFrameContractV1 {
     target_max_root_count: u32,
     target_max_private_frame_bytes: u32,
     consumer_abi_revision: &'static str,
+    llvm_c_api_abi_revision: &'static str,
+    object_cpu: &'static str,
+    object_features: &'static str,
+    object_codegen_opt_level: u8,
+    object_relocation_model: u8,
+    object_code_model: u8,
 }
 
 impl PinnedTextBackendFrameContractV1 {
@@ -123,6 +129,14 @@ impl PinnedTextBackendFrameContractV1 {
                 "max_private_frame_bytes": self.target_max_private_frame_bytes,
                 "residence_abi_revision": self.residence_abi_revision,
                 "consumer_abi_revision": self.consumer_abi_revision,
+                "object_emitter": {
+                    "llvm_c_api_abi_revision": self.llvm_c_api_abi_revision,
+                    "cpu": self.object_cpu,
+                    "features": self.object_features,
+                    "codegen_opt_level": self.object_codegen_opt_level,
+                    "relocation_model": self.object_relocation_model,
+                    "code_model": self.object_code_model,
+                },
             },
         })
     }
@@ -209,6 +223,12 @@ pub(crate) fn issue_pinned_text_backend_frame_contract_v1(
         target_max_root_count: profile.max_root_count(),
         target_max_private_frame_bytes: profile.max_private_frame_bytes(),
         consumer_abi_revision: profile.consumer_abi_revision(),
+        llvm_c_api_abi_revision: profile.llvm_c_api_abi_revision(),
+        object_cpu: profile.object_cpu(),
+        object_features: profile.object_features(),
+        object_codegen_opt_level: profile.object_codegen_opt_level(),
+        object_relocation_model: profile.object_relocation_model(),
+        object_code_model: profile.object_code_model(),
     })
 }
 
@@ -307,7 +327,13 @@ mod tests {
             target_pointer_alignment: 8,
             target_max_root_count: 1024,
             target_max_private_frame_bytes: 65_536,
-            consumer_abi_revision: "hako-llvmc-pure-first-v1",
+            consumer_abi_revision: "hako-llvmc-pure-first-v2",
+            llvm_c_api_abi_revision: "llvm-c-api-18-v1",
+            object_cpu: "",
+            object_features: "",
+            object_codegen_opt_level: 3,
+            object_relocation_model: 0,
+            object_code_model: 0,
         };
 
         let json = contract.to_transport_json();

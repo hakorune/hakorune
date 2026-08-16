@@ -191,6 +191,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   char* verr = NULL;
+  struct HakoPtfbModuleCensus ptfb_census;
+  struct HakoPtfbTargetMachineSession ptfb_session;
+  int ptfb_contract_bound = 0;
+  memset(&ptfb_census, 0, sizeof(ptfb_census));
+  hako_llvmc_ptfb_session_zero(&ptfb_session);
   struct HakoLlvmcPureUnsupportedShapeDiagnostic pure_unsupported_diag;
   hako_llvmc_pure_unsupported_shape_init(&pure_unsupported_diag);
 #define note_pure_unsupported_shape_detail(...) \
@@ -205,9 +210,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_json_v1_validate_file(json_in, &verr) != 0) {
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
   }
-  if (hako_llvmc_validate_pinned_text_backend_frame_contract_file(json_in, err_out) != 0) {
+  if (hako_llvmc_collect_pinned_text_module_census(json_in, &ptfb_census, err_out) != 0) {
     return -1;
   }
+  ptfb_contract_bound = ptfb_census.contract_count > 0;
 
   do {
     yyjson_read_err rerr_t; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_t);
@@ -233,6 +239,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       return -1;
     }
     if (exact_seed_route > 0) {
+      if (ptfb_contract_bound) {
+        return set_err_owned(
+            err_out,
+            "contract-bound module cannot use exact-seed or legacy dispatch");
+      }
       if (hako_llvmc_route_trace_enabled()) {
         hako_llvmc_emit_route_trace(
             "exact_seed_backend_route",
@@ -301,6 +312,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
+        if (ptfb_contract_bound) {
+          yyjson_doc_free(d);
+          return set_err_owned(
+              err_out,
+              "contract-bound module cannot use a pattern emitter");
+        }
         yyjson_doc_free(d);
         return 0;
       }
@@ -505,6 +522,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef generic_method_trace_budget
       #undef generic_capacity_overflow
       #undef generic_capacity_overflow_reason
+  if (ptfb_contract_bound) {
+    return set_err_owned(
+        err_out,
+        "contract-bound module cannot use compatibility replay");
+  }
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }

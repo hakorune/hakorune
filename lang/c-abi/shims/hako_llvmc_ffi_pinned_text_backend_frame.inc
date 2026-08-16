@@ -12,14 +12,20 @@
 #ifndef HAKO_LLVM_C_PTFB_CONTRACT_INC
 #define HAKO_LLVM_C_PTFB_CONTRACT_INC
 
-#define HAKO_PTFB_CONTRACT_ID "hako.pinned_text_backend_frame@1"
-#define HAKO_PTFB_SCHEMA_REVISION 1
+#define HAKO_PTFB_CONTRACT_ID "hako.pinned_text_backend_frame@2"
+#define HAKO_PTFB_SCHEMA_REVISION 2
 #define HAKO_PTFB_PROFILE_ID "nyrt-text-residence-ptr64-as0-v1"
 #define HAKO_PTFB_TARGET_TRIPLE "x86_64-pc-linux-gnu"
 #define HAKO_PTFB_DATA_LAYOUT \
   "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 #define HAKO_PTFB_RESIDENCE_ABI "text-formal-residence-v1"
-#define HAKO_PTFB_CONSUMER_ABI "hako-llvmc-pure-first-v1"
+#define HAKO_PTFB_CONSUMER_ABI "hako-llvmc-pure-first-v2"
+#define HAKO_PTFB_LLVM_C_API_ABI "llvm-c-api-18-v1"
+#define HAKO_PTFB_OBJECT_CPU ""
+#define HAKO_PTFB_OBJECT_FEATURES ""
+#define HAKO_PTFB_OBJECT_CODEGEN_OPT_LEVEL 3
+#define HAKO_PTFB_OBJECT_RELOCATION_MODEL 0
+#define HAKO_PTFB_OBJECT_CODE_MODEL 0
 #define HAKO_PTFB_HEADER_SIZE 32
 #define HAKO_PTFB_ROOT_ROW_SIZE 16
 #define HAKO_PTFB_ALIGNMENT 8
@@ -76,160 +82,6 @@ static int hako_llvmc_ptfb_bool(
   return value && yyjson_is_bool(value) && (yyjson_get_bool(value) ? 1 : 0) == expected;
 }
 
-/*
- * The Rust contract owns the expected profile.  This helper only observes
- * the selected LLVM TargetMachine and returns a private realization check;
- * it never issues or rewrites the contract.  It runs before the pure-first
- * lowering walk, so a missing library, unsupported triple, or realized layout
- * drift cannot reach IR effect.
- */
-static int hako_llvmc_ptfb_validate_target_machine_realization(
-    const char* expected_triple,
-    const char* expected_layout,
-    char** err_out) {
-#if defined(_WIN32)
-  (void)expected_triple;
-  (void)expected_layout;
-  return set_err_owned(
-      err_out,
-      "pinned Text backend-frame TargetMachine query unavailable");
-#else
-  typedef void (*ptfb_init_fn)(void);
-  typedef void (*ptfb_dispose_message_fn)(char*);
-  typedef int (*ptfb_get_target_from_triple_fn)(const char*, void**, char**);
-  typedef void* (*ptfb_create_target_machine_fn)(
-      void*, const char*, const char*, const char*, int, int, int);
-  typedef char* (*ptfb_get_target_machine_triple_fn)(void*);
-  typedef void* (*ptfb_create_target_data_layout_fn)(void*);
-  typedef char* (*ptfb_copy_target_data_layout_fn)(void*);
-  typedef void (*ptfb_dispose_target_data_fn)(void*);
-  typedef void (*ptfb_dispose_target_machine_fn)(void*);
-  static const char* const candidates[] = {
-      "libLLVM-20.so",
-      "libLLVM-18.so",
-      "libLLVM.so.18",
-      "libLLVM-17.so",
-      "libLLVM.so",
-      NULL};
-  void* handle = NULL;
-  void* target = NULL;
-  void* machine = NULL;
-  void* target_data = NULL;
-  char* diagnostic = NULL;
-  char* actual_triple = NULL;
-  char* actual_layout = NULL;
-  int result = -1;
-  ptfb_dispose_message_fn dispose_message;
-  ptfb_get_target_from_triple_fn get_target_from_triple;
-  ptfb_create_target_machine_fn create_target_machine;
-  ptfb_get_target_machine_triple_fn get_target_machine_triple;
-  ptfb_create_target_data_layout_fn create_target_data_layout;
-  ptfb_copy_target_data_layout_fn copy_target_data_layout;
-  ptfb_dispose_target_data_fn dispose_target_data;
-  ptfb_dispose_target_machine_fn dispose_target_machine;
-  ptfb_init_fn initialize_target_info;
-  ptfb_init_fn initialize_target;
-  ptfb_init_fn initialize_target_mc;
-  ptfb_init_fn initialize_asm_printer;
-
-  if (!expected_triple || !expected_layout) {
-    return set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine expectation missing");
-  }
-  for (size_t i = 0; candidates[i]; i++) {
-    handle = dlopen(candidates[i], RTLD_LAZY | RTLD_LOCAL);
-    if (handle) break;
-  }
-  if (!handle) {
-    return set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine query unavailable");
-  }
-
-#define HAKO_PTFB_DLSYM(name, type) ((type)dlsym(handle, name))
-  dispose_message = HAKO_PTFB_DLSYM("LLVMDisposeMessage", ptfb_dispose_message_fn);
-  get_target_from_triple = HAKO_PTFB_DLSYM(
-      "LLVMGetTargetFromTriple", ptfb_get_target_from_triple_fn);
-  create_target_machine = HAKO_PTFB_DLSYM(
-      "LLVMCreateTargetMachine", ptfb_create_target_machine_fn);
-  get_target_machine_triple = HAKO_PTFB_DLSYM(
-      "LLVMGetTargetMachineTriple", ptfb_get_target_machine_triple_fn);
-  create_target_data_layout = HAKO_PTFB_DLSYM(
-      "LLVMCreateTargetDataLayout", ptfb_create_target_data_layout_fn);
-  copy_target_data_layout = HAKO_PTFB_DLSYM(
-      "LLVMCopyStringRepOfTargetData", ptfb_copy_target_data_layout_fn);
-  dispose_target_data = HAKO_PTFB_DLSYM(
-      "LLVMDisposeTargetData", ptfb_dispose_target_data_fn);
-  dispose_target_machine = HAKO_PTFB_DLSYM(
-      "LLVMDisposeTargetMachine", ptfb_dispose_target_machine_fn);
-  initialize_target_info = HAKO_PTFB_DLSYM(
-      "LLVMInitializeX86TargetInfo", ptfb_init_fn);
-  initialize_target = HAKO_PTFB_DLSYM("LLVMInitializeX86Target", ptfb_init_fn);
-  initialize_target_mc = HAKO_PTFB_DLSYM("LLVMInitializeX86TargetMC", ptfb_init_fn);
-  initialize_asm_printer = HAKO_PTFB_DLSYM(
-      "LLVMInitializeX86AsmPrinter", ptfb_init_fn);
-#undef HAKO_PTFB_DLSYM
-
-  if (!dispose_message || !get_target_from_triple || !create_target_machine ||
-      !get_target_machine_triple || !create_target_data_layout ||
-      !copy_target_data_layout || !dispose_target_data ||
-      !dispose_target_machine || !initialize_target_info || !initialize_target ||
-      !initialize_target_mc || !initialize_asm_printer) {
-    set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine query unavailable");
-    goto cleanup;
-  }
-  initialize_target_info();
-  initialize_target();
-  initialize_target_mc();
-  initialize_asm_printer();
-
-  if (get_target_from_triple(expected_triple, &target, &diagnostic) != 0 || !target) {
-    if (diagnostic) dispose_message(diagnostic);
-    diagnostic = NULL;
-    set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine rejected triple");
-    goto cleanup;
-  }
-  if (diagnostic) {
-    dispose_message(diagnostic);
-    diagnostic = NULL;
-  }
-  machine = create_target_machine(
-      target, expected_triple, "", "", 0, /*Reloc*/ 0, /*CodeModel*/ 0);
-  if (!machine) {
-    set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine creation failed");
-    goto cleanup;
-  }
-  target_data = create_target_data_layout(machine);
-  actual_triple = get_target_machine_triple(machine);
-  actual_layout = target_data ? copy_target_data_layout(target_data) : NULL;
-  if (!actual_triple || !actual_layout ||
-      strcmp(actual_triple, expected_triple) != 0 ||
-      strcmp(actual_layout, expected_layout) != 0) {
-    set_err_owned(
-        err_out,
-        "pinned Text backend-frame TargetMachine layout mismatch");
-    goto cleanup;
-  }
-  result = 0;
-
-cleanup:
-  if (diagnostic && dispose_message) dispose_message(diagnostic);
-  if (actual_triple && dispose_message) dispose_message(actual_triple);
-  if (actual_layout && dispose_message) dispose_message(actual_layout);
-  if (target_data && dispose_target_data) dispose_target_data(target_data);
-  if (machine && dispose_target_machine) dispose_target_machine(machine);
-  dlclose(handle);
-  return result;
-#endif
-}
-
 static int hako_llvmc_ptfb_validate_contract(
     yyjson_val* contract,
     char** err_out) {
@@ -248,7 +100,10 @@ static int hako_llvmc_ptfb_validate_contract(
       "profile_id", "triple", "data_layout", "little_endian",
       "address_space_zero_pointer_width", "address_space_zero_abi_alignment",
       "max_root_count", "max_private_frame_bytes", "residence_abi_revision",
-      "consumer_abi_revision"};
+      "consumer_abi_revision", "object_emitter"};
+  static const char* const object_emitter_keys[] = {
+      "llvm_c_api_abi_revision", "cpu", "features", "codegen_opt_level",
+      "relocation_model", "code_model"};
   yyjson_val* owner;
   yyjson_val* residence;
   yyjson_val* target;
@@ -275,6 +130,10 @@ static int hako_llvmc_ptfb_validate_contract(
   long long target_max_bytes = 0;
   long long source_arity = 0;
   long long plan_count = 0;
+  long long object_codegen_opt_level = 0;
+  long long object_relocation_model = 0;
+  long long object_code_model = 0;
+  yyjson_val* object_emitter;
 
   if (!(contract && yyjson_is_obj(contract)) ||
       !hako_llvmc_ptfb_keys_only(
@@ -351,22 +210,72 @@ static int hako_llvmc_ptfb_validate_contract(
       target_max_bytes != HAKO_PTFB_MAX_FRAME_BYTES) {
     return set_err_owned(err_out, "pinned Text backend-frame target layout mismatch");
   }
+  object_emitter = yyjson_obj_get(target, "object_emitter");
+  if (!hako_llvmc_ptfb_keys_only(
+          object_emitter,
+          object_emitter_keys,
+          sizeof(object_emitter_keys) / sizeof(object_emitter_keys[0])) ||
+      !hako_llvmc_ptfb_text(
+          object_emitter,
+          "llvm_c_api_abi_revision",
+          HAKO_PTFB_LLVM_C_API_ABI) ||
+      !hako_llvmc_ptfb_text(object_emitter, "cpu", HAKO_PTFB_OBJECT_CPU) ||
+      !hako_llvmc_ptfb_text(object_emitter, "features", HAKO_PTFB_OBJECT_FEATURES) ||
+      !hako_llvmc_ptfb_nonnegative(
+          object_emitter, "codegen_opt_level", &object_codegen_opt_level) ||
+      !hako_llvmc_ptfb_nonnegative(
+          object_emitter, "relocation_model", &object_relocation_model) ||
+      !hako_llvmc_ptfb_nonnegative(
+          object_emitter, "code_model", &object_code_model) ||
+      object_codegen_opt_level != HAKO_PTFB_OBJECT_CODEGEN_OPT_LEVEL ||
+      object_relocation_model != HAKO_PTFB_OBJECT_RELOCATION_MODEL ||
+      object_code_model != HAKO_PTFB_OBJECT_CODE_MODEL) {
+    return set_err_owned(err_out, "pinned Text backend-frame object emitter mismatch");
+  }
   target_triple = yyjson_get_str(yyjson_obj_get(target, "triple"));
   target_layout = yyjson_get_str(yyjson_obj_get(target, "data_layout"));
-  if (hako_llvmc_ptfb_validate_target_machine_realization(
-          target_triple, target_layout, err_out) != 0) {
-    return -1;
+  (void)target_triple;
+  (void)target_layout;
+  return 0;
+}
+
+struct HakoPtfbModuleCensus {
+  size_t contract_count;
+  size_t pinned_text_op_count;
+  long long invocation_ordinal;
+};
+
+static int hako_llvmc_ptfb_function_has_pinned_text_op(yyjson_val* function) {
+  yyjson_val* blocks = function ? yyjson_obj_get(function, "blocks") : NULL;
+  if (!(blocks && yyjson_is_arr(blocks))) return 0;
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    yyjson_val* block = yyjson_arr_get(blocks, bi);
+    yyjson_val* instructions = block ? yyjson_obj_get(block, "instructions") : NULL;
+    if (!(instructions && yyjson_is_arr(instructions))) continue;
+    for (size_t ii = 0; ii < yyjson_arr_size(instructions); ii++) {
+      yyjson_val* instruction = yyjson_arr_get(instructions, ii);
+      yyjson_val* op = instruction ? yyjson_obj_get(instruction, "op") : NULL;
+      const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
+      if (name && (!strcmp(name, "pinned_text_op") ||
+                   !strcmp(name, "pinned_text_enter") ||
+                   !strcmp(name, "pinned_text_finish"))) {
+        return 1;
+      }
+    }
   }
   return 0;
 }
 
-static int hako_llvmc_validate_pinned_text_backend_frame_contract_file(
+static int hako_llvmc_collect_pinned_text_module_census(
     const char* json_in,
+    struct HakoPtfbModuleCensus* census,
     char** err_out) {
   yyjson_read_err read_error;
   yyjson_doc* document = yyjson_read_file(json_in, 0, NULL, &read_error);
   yyjson_val* root;
   yyjson_val* functions;
+  if (!census) return set_err_owned(err_out, "missing pinned Text module census");
+  memset(census, 0, sizeof(*census));
   if (!document) return set_err_owned(err_out, "cannot read pinned Text backend-frame JSON");
   root = yyjson_doc_get_root(document);
   functions = root ? yyjson_obj_get(root, "functions") : NULL;
@@ -378,14 +287,42 @@ static int hako_llvmc_validate_pinned_text_backend_frame_contract_file(
     yyjson_val* function = yyjson_arr_get(functions, i);
     yyjson_val* metadata = function ? yyjson_obj_get(function, "metadata") : NULL;
     yyjson_val* contract = metadata ? yyjson_obj_get(metadata, "pinned_text_backend_frame_v1") : NULL;
-    if (!contract) continue;
+    int has_pinned_text_op = hako_llvmc_ptfb_function_has_pinned_text_op(function);
+    if (has_pinned_text_op) census->pinned_text_op_count++;
+    if (!contract) {
+      if (has_pinned_text_op) {
+        yyjson_doc_free(document);
+        return set_err_owned(
+            err_out,
+            "PinnedTextOp requires a pinned Text backend-frame contract");
+      }
+      continue;
+    }
     if (hako_llvmc_ptfb_validate_contract(contract, err_out) != 0) {
       yyjson_doc_free(document);
       return -1;
     }
+    yyjson_val* invocation = yyjson_obj_get(contract, "invocation_ordinal");
+    long long ordinal = invocation ? (long long)yyjson_get_sint(invocation) : 0;
+    if (census->contract_count == 0) {
+      census->invocation_ordinal = ordinal;
+    } else if (census->invocation_ordinal != ordinal) {
+      yyjson_doc_free(document);
+      return set_err_owned(
+          err_out,
+          "mixed pinned Text compile invocations in one module");
+    }
+    census->contract_count++;
   }
   yyjson_doc_free(document);
   return 0;
+}
+
+static int hako_llvmc_validate_pinned_text_backend_frame_contract_file(
+    const char* json_in,
+    char** err_out) {
+  struct HakoPtfbModuleCensus census;
+  return hako_llvmc_collect_pinned_text_module_census(json_in, &census, err_out);
 }
 
 #endif

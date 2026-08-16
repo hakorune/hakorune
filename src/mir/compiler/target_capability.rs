@@ -50,7 +50,45 @@ impl PinnedTextCompileTargetProfileV1 {
 
     pub const fn consumer_abi_revision(self) -> &'static str {
         match self {
-            Self::NyRtTextResidencePtr64As0V1 => "hako-llvmc-pure-first-v1",
+            Self::NyRtTextResidencePtr64As0V1 => "hako-llvmc-pure-first-v2",
+        }
+    }
+
+    /// The contract-bound emitter is deliberately pinned to the LLVM 18 C
+    /// API row.  These are catalog values, never host or environment probes.
+    pub const fn llvm_c_api_abi_revision(self) -> &'static str {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => "llvm-c-api-18-v1",
+        }
+    }
+
+    pub const fn object_cpu(self) -> &'static str {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => "",
+        }
+    }
+
+    pub const fn object_features(self) -> &'static str {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => "",
+        }
+    }
+
+    pub const fn object_codegen_opt_level(self) -> u8 {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => 3,
+        }
+    }
+
+    pub const fn object_relocation_model(self) -> u8 {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => 0,
+        }
+    }
+
+    pub const fn object_code_model(self) -> u8 {
+        match self {
+            Self::NyRtTextResidencePtr64As0V1 => 0,
         }
     }
 

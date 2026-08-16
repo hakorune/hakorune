@@ -1,5 +1,5 @@
 ---
-Status: accepted Decision; contract-bound object-emitter I0 is active
+Status: accepted Decision; contract-bound object-emitter I0 landed
 Date: 2026-08-16
 Work mode: fast
 Parent: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-I0
@@ -109,3 +109,29 @@ Stop:
   before its target-neutral boundary is designed, contracted legacy fallback,
   partial publication, GEP/load, lifecycle/session work, or production callers.
 ```
+
+## I0 closeout evidence (2026-08-16)
+
+The module census, LLVM-18 C API session, and success-only object publication
+are landed. Contract-bearing modules retain one `TargetMachine` from
+realization validation through emission; they reject compatibility replay,
+external opt/llc fallback, and a second target-machine path. Contract-free
+modules keep the existing legacy route. The generic lowerer remains 713 lines;
+the legacy C API probe is isolated in a responsibility-owned include.
+
+Focused evidence:
+
+```text
+bash tools/build_hako_llvmc_ffi.sh                         green
+bash tools/checks/pinned_text_backend_frame_transport_smoke.sh green
+cargo check -q                                              green (baseline warnings only)
+cargo test --lib mir::compiler::pinned_text_backend_frame -- --nocapture green
+git diff --check                                            green
+bash tools/checks/current_state_pointer_guard.sh             green
+```
+
+The smoke covers successful contract-bound emission with a missing external
+llc sentinel, emission/publication failure, layout/target/unknown transport
+drift, uncontracted `PinnedTextOp`, and mixed invocation rows. This closes only
+the object-emitter I0; direct `PinnedTextOp` lowering, lifecycle/session
+residence, route admission, performance, and production callers remain closed.

@@ -1,5 +1,6 @@
 ---
-Status: accepted design; Rust target-capability I0 is the next bounded slice
+Status: accepted design; target-capability transport is landed and the
+contract-bound emitter I0 is the current bounded slice
 Date: 2026-08-16
 Work mode: design_stop
 Classification: T2 BoxShape decision
@@ -10,11 +11,11 @@ Parent: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0
 
 ```text
 Decision: A is the canonical contract authority, B is a mandatory realization validator, and C is rejected.
-Source authority + canonical issuer: one outer Rust compile invocation issues the explicit target capability before MIRBuilder; ny-llvmc consumes and validates it against the actual TargetMachine.
+Source authority + canonical issuer: one outer Rust compile invocation issues the explicit target capability before MIRBuilder; ny-llvmc consumes it through the strict versioned projection and the retained contract-bound TargetMachine session validates and realizes the same target.
 Non-authority: JSON, MIR, ValueId, NumericTarget::host(), runtime layout checks, environment/default target probing, and C TargetMachine discovery.
 Fail-fast boundary: missing/late/foreign capability, invocation/function/target drift, default inference, duplicate ABI tables, or inability to lend the capability at complete_before_restore rejects before collection.
 Smallest next slice: implement the named Rust capability and typed transport into the selected-normal resolved-session HRTB; no JSON or C consumer yet.
-Non-claims: no binder contract, JSON projection, TargetMachine receipt, GEP/load, lifecycle/session route, production caller, fallback/retry, or C-speed claim.
+Non-claims: no GEP/load, lifecycle/session residence route, production caller, fallback/retry, or C-speed claim.
 ```
 
 ## Decision
@@ -151,7 +152,10 @@ target triple:             x86_64-pc-linux-gnu
 data layout:               e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128
 endianness:                little
 address space 0:          pointer width 64, ABI alignment 8
-consumer ABI revision:    hako-llvmc-pure-first-v1
+consumer ABI revision:    hako-llvmc-pure-first-v2
+LLVM C API ABI revision:  llvm-c-api-18-v1
+object CPU/features:      empty / empty (explicit generic profile)
+codegen tuple:            opt=3, relocation=default, code model=default
 Residence ABI revision:   text-formal-residence-v1
 profile limits:            root_count <= 1024, private frame <= 65536 bytes
 ```

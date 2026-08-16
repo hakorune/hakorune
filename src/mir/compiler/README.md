@@ -16,10 +16,13 @@ reference beside the existing physical-signature loan. The collector never
 stores it, and JSON, MIR arity, host probing, C `TargetMachine`, and backend
 code cannot reissue or infer it.
 
-This is transport-only. The capability does not yet validate an actual LLVM
-layout, derive a residence frame, materialize pointers, or open lifecycle/MIR
-Text lowering. Those remain the bounded Residence backend-frame rows recorded
-in the current investigation card.
+The capability remains transport-only on the Rust side, but the contract-bound
+pure-first path now consumes its strict projection through one retained LLVM C
+API 18 TargetMachine session. That session validates the realized triple/data
+layout and emits the object with the same TargetMachine; it never consults
+host/default/env target selection or falls back to external opt/llc. Uncontracted
+modules retain the legacy path. The session does not derive a residence frame,
+materialize pointers, or open lifecycle/MIR Text lowering.
 
 ### Pinned Text backend-frame Binder I0
 
@@ -31,13 +34,13 @@ target capability. The contract records only checked counts, revisions,
 derived frame bounds, and invocation/owner stamps; it contains no `ValueId`,
 runtime token, pointer, JSON-owned meaning, or host-layout observation.
 
-This is the current Binder I0 task boundary. The strict versioned transport
-projection and profile-schema consumer are landed, and the C API preflight now
-observes the selected LLVM TargetMachine triple/data-layout before generic
-lowering. The Binder is not closed yet: the normal pure-first object path may
-finish through external `opt`/`llc`, so emitter target parity is the next
-design-owned D0. GEP/load, lifecycle CFG, session residence adoption, route
-selection, fallback/retry, and production callers remain closed.
+The strict versioned transport projection, profile-schema consumer, module
+census, and retained contract-bound TargetMachine object emitter are landed.
+Contract-bearing modules use the same session for realization validation and
+object emission with success-only temporary-file publication; uncontracted
+modules retain the legacy external path. GEP/load, lifecycle CFG, session
+residence adoption, route selection, fallback/retry, and production callers
+remain closed.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.

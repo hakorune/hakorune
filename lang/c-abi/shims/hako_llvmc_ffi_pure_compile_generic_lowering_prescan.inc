@@ -619,6 +619,11 @@
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
+      if (ptfb_contract_bound &&
+          hako_llvmc_ptfb_session_open(&ptfb_session, &ptfb_census, err_out) != 0) {
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
       #include "hako_llvmc_ffi_pure_compile_ir_open.inc"
       emit_module_function_declarations(f);
       if (needs.map_birth || module_has_planned_same_module_function_definition())
