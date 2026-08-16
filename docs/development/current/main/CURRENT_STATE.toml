@@ -13,19 +13,19 @@ BoxShape plus caller-zero layout transport, source-segment block allocation I0,
 typed After-boundary transport I0, accepted one-shot After allocation BoxShape,
 complete After predicate branch-plan BoxShape, branch-plan transport I0, and
 the exact source-backed CompareI64 producer relation I0, and the session-stamp
-retention I0 are landed. The next design stop names the canonical physical
-condition result receipt before any physical edge effect. No physical edge
-effect is open. A-prime lifecycle, Direct Text lowering, route, and production
-remain closed.
+retention I0 are landed. The next design stop names the canonical Length
+CallSlot result issuer before any physical edge effect. No physical edge effect
+is open. A-prime lifecycle, Direct Text lowering, route, and production remain
+closed.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0 is the active design stop: fix one session-local Bool result plan/receipt, its outer discard owner, and its sole later branch consumer. The two-row source-backed operand inventory and move-only session stamp are landed; the result remains blocked by NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed."
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0 is the active design stop: name one canonical same-session issuer for the Length CallSlot physical result before the parent Bool result can be admitted. The two-row source-backed operand inventory and move-only session stamp are landed; the parent result remains blocked by NoSafeSlice::CanonicalLengthResultIssuerMissing."
 work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0"
-current_blocker_token = "NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0"
+current_blocker_token = "NoSafeSlice::CanonicalLengthResultIssuerMissing"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -46,8 +46,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, source-segment block allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete After predicate branch-plan BoxShape, branch-plan transport I0, the accepted two-stage condition-carrier BoxShape, the exact CompareI64 producer-relation I0, the fixed two-row operand-inventory BoxShape plus transport I0, and session-stamp retention I0 are landed. The active design stop is the physical condition-result BoxShape; no ValueId, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-BOXSHAPE-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session-open, S6C header/effects I0, physical-entry descriptor I0, detached skeleton I0, ExactText entry adoption, consuming physical-entry/session seam, the V2-native physical-ID-free layout/placement BoxShape plus caller-zero transport, source-segment block allocation I0, typed After-boundary transport I0, one-shot After allocation I0, complete After predicate branch-plan BoxShape, branch-plan transport I0, the accepted two-stage condition-carrier BoxShape, the exact CompareI64 producer-relation I0, the fixed two-row operand-inventory BoxShape plus transport I0, and session-stamp retention I0 are landed. The active design stop is the missing canonical Length result issuer required by the physical condition-result BoxShape; no ValueId, CallSlot lowering, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
