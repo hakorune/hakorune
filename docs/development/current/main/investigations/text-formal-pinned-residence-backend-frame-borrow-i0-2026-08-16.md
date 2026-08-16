@@ -1,5 +1,5 @@
 ---
-Status: active caller-zero implementation row
+Status: closed caller-zero implementation row
 Date: 2026-08-16
 Work mode: fast
 Parent: LOOP-TEXT-SLICE-DIRECT-AOT-D0
@@ -53,12 +53,13 @@ continues to receive the owned contract, not a borrow that escapes Rust.
 
 ## Implementation boundary
 
-The only production file changed by this row is
-`src/mir/compiler/pinned_text_backend_frame.rs`; focused tests live beside the
-view. `src/runner/mir_json_emit/metadata.rs`, the C contract validator, the
-TargetMachine session, `TextFormalCallResidenceV1`, and all MIR lowering code
-remain untouched. This is a behavior-preserving ownership seal, not a new
-semantic or runtime receipt.
+The only production owners changed by this row are
+`src/mir/compiler/pinned_text_backend_frame.rs` and the existing JSON metadata
+projection in `src/runner/mir_json_emit/metadata.rs`, which lends the view
+only for the duration of serialization. Focused tests live beside the view.
+The C contract validator, TargetMachine session, `TextFormalCallResidenceV1`,
+and all MIR lowering code remain untouched. This is a behavior-preserving
+ownership seal, not a new semantic or runtime receipt.
 
 ## Acceptance
 
@@ -71,6 +72,20 @@ negative: no Clone/Copy or constructor from JSON/raw fields; no mutable or
 guard: source remains <800 lines and the existing transport smoke/pointer
        guard stays green
 ```
+
+## I0 evidence (2026-08-16)
+
+The scoped view and its existing metadata consumer are implemented without
+changing the contract issuer, JSON schema, C validator, TargetMachine session,
+runtime residence, or MIR lowering. The focused compiler test checks every
+non-pointer projection and asserts byte-for-byte semantic equivalence between
+the borrowed and owned transport projections. `cargo check -q`, formatting,
+`git diff --check`, and the current-state pointer guard remain green; the Rust
+source stays below the 800-line limit.
+
+This closes the borrow transport row only. The parent direct-AOT design stop
+remains the live pointer; a later Residence/lifecycle decision is required
+before any typed leaf lowering or pointer materialization can be opened.
 
 After this row, the next design stop is still the Residence/lifecycle bridge
 needed for a live runtime frame. This row does not authorize GEP/load or a

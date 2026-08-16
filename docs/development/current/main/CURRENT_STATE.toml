@@ -1,22 +1,22 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
-status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, backend-frame co-seal/transport, and contract-bound C API object emitter are landed. Direct Text lowering, route admission, and every production caller remain closed."
+status = "Selected Dynamic/AOT and the TextEq semantic/header/installed-child prerequisites are closed for this detour. The receiver-aware two-lane callable ExactText signature, caller-zero runtime lease/residence/frame substrate, target-neutral Text-slice transport, selected-normal resolved-session handoff, backend-frame co-seal/transport, contract-bound C API object emitter, and scoped Rust backend-frame borrow are landed. Direct Text lowering, route admission, and every production caller remain closed."
 date = "2026-08-16"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-TEXT-SLICE-DIRECT-AOT-D0 is accepted; the caller-zero Rust-only PinnedTextBackendFrameBorrowV1 projection is the selected bounded execution row, while live-frame lifecycle and direct lowering remain unopened."
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0"
-current_blocker_token = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0; add only the scoped non-pointer Rust borrow view and ownership evidence, with C/JSON/runtime/lifecycle/GEP/load unchanged."
+current_design_stop = "LOOP-TEXT-SLICE-DIRECT-AOT-D0 is accepted and its scoped Rust-only PinnedTextBackendFrameBorrowV1 child is landed; live-frame lifecycle, typed leaf lowering, and direct production lowering remain unopened."
+work_mode = "design_stop"
+current_execution_row = "LOOP-TEXT-SLICE-DIRECT-AOT-D0"
+current_blocker_token = "NoSafeSlice::PinnedTextDirectLoweringContractUnsealed; the borrow projection is closed, but Residence/lifecycle ownership and typed direct lowering still require a new accepted design slice."
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (contract-bound object emitter landed -> scoped backend-frame borrow I0)"
-active_lane_status = "Rust remains the sole compile-invocation expectation authority. Contract-bearing modules now use one retained LLVM-18 C API TargetMachine session for realization validation and object emission; only contract-free modules retain external opt/llc compatibility. The selected I0 adds only a scoped non-pointer Rust backend-frame borrow view; C/JSON/runtime lifecycle, GEP/load, route, and production callers remain closed."
+active_lane = "Loop compiler frontier (contract-bound object emitter and scoped backend-frame borrow landed -> direct-AOT design stop)"
+active_lane_status = "Rust remains the sole compile-invocation expectation authority. Contract-bearing modules now use one retained LLVM-18 C API TargetMachine session for realization validation and object emission; only contract-free modules retain external opt/llc compatibility. The scoped non-pointer Rust backend-frame borrow is landed and consumed only by the existing JSON projection; C/runtime lifecycle, GEP/load, typed direct lowering, route, and production callers remain closed."
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -25,15 +25,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 
-current_execution_design = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-borrow-i0-2026-08-16.md"
+current_execution_design = "docs/development/current/main/investigations/loop-text-slice-direct-aot-d0-2026-08-16.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "text-formal-pinned-residence-backend-frame-borrow-i0"
-latest_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-borrow-i0-2026-08-16.md"
-latest_card_summary = "The direct-AOT design stop is accepted. The active caller-zero I0 adds only PinnedTextBackendFrameContractV1::borrow as a scoped non-pointer Rust view with ownership tests; C/JSON/runtime/lifecycle/GEP/load remain closed."
+latest_card = "loop-text-slice-direct-aot-d0"
+latest_card_path = "docs/development/current/main/investigations/loop-text-slice-direct-aot-d0-2026-08-16.md"
+latest_card_summary = "The direct-AOT design stop is accepted and the scoped caller-zero Rust PinnedTextBackendFrameBorrowV1 child is landed; C/runtime lifecycle, GEP/load, typed direct lowering, route, and production callers remain closed."
 next_design_card = "LOOP-TEXT-SLICE-DIRECT-AOT-D0"
 next_design_card_path = "docs/development/current/main/investigations/loop-text-slice-direct-aot-d0-2026-08-16.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0"
-next_execution_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-backend-frame-borrow-i0-2026-08-16.md"
+next_execution_card = "none (design stop)"
+next_execution_card_path = "none (design stop)"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,6 +47,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0 landed a scoped non-Clone/non-Copy Rust PinnedTextBackendFrameBorrowV1 over the existing co-sealed contract; JSON metadata lends it only for serialization, with C validation, TargetMachine realization, runtime residence, lifecycle, GEP/load, route, and production callers unchanged; focused compiler test, cargo check/format/diff, pointer guard, and the 487-line source limit are green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-CONTRACT-BOUND-OBJECT-EMITTER-I0 landed the strict module census and one retained LLVM-18 C API TargetMachine session for contract-bearing object emission, with success-only publication, contracted-path fallback/compat rejection, legacy isolation, and focused transport smoke coverage; direct PinnedTextOp lowering, lifecycle, route, and production callers remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-EMITTER-TARGET-PARITY-D0 accepted C: one Rust-owned compile-invocation expectation projects to one retained LLVM-18 C API TargetMachine session that must validate and emit contract-bearing modules without env/default inference or external fallback; contract-free modules alone retain legacy opt/llc, and the caller-zero object-emitter I0 is now active while GEP/load, lifecycle, route, production caller, fallback, and retry remain closed.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-I0 added pre-IR C API TargetMachine observation: the strict Rust-owned descriptor is checked against realized triple/data-layout before generic lowering, with reusable smoke coverage; normal external opt/llc emitter parity is intentionally left as the next design stop, and GEP/load, lifecycle, session, route, production caller, fallback, and retry remain closed.",
@@ -58,5 +59,4 @@ landed_tail = [
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-I0 landed the StableText-only caller-zero substrate: already-published pairs are preflighted and pinned in one registry transaction, one root row is retained per formal occurrence in a private frame owner, and move-only finish is explicit; StringBox/literal/call-edge/MIR/session/Text execution/production/fallback remain closed; focused residence 4/4, call-lifetime 17/17, lease facade 2/2, cargo check/format/diff green.",
   "2026-08-16: TEXT-FORMAL-PINNED-RESIDENCE-D0 accepted the StableText-only, caller-zero Residence BoxShape: one physical-signature occurrence order drives atomic entry/frame fill, private root IDs, and one Completion-backed finish capability; StringBox/literal/call-edge/session/Text execution/production/fallback remain closed; pointer advances to Residence I0.",
   "2026-08-16: CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0 landed the package-owned non-Clone physical lane cohort: StaticBoxMethod/InstanceBoxMethod rows verify exact Receiver binding and explicit parameter contracts, keep source/receiver/formal/callable counts distinct, map ExactText to adjacent slot/generation lanes, and transport selected input/contracts/S6C child/signature through one combined exactly-once Port loan; physical ValueIds, Completion, residence, call edge, Text execution, production caller, fallback, and retry remain closed; focused physical-signature 2/2, S6C 2/2, package 29/29, cargo check/format/diff green.",
-  "2026-08-15: TEXT-FORMAL-CALL-LEASE-RUNTIME-I0 landed a caller-zero runtime substrate: all ExactText pairs acquire atomically, each formal occurrence owns one pin, nested entries own independent sets, raw and generation-matched drops share pending retirement, final finish alone recycles/increments DROP_EPOCH, and both registry/facade carriers are move-only; focused 17+2, host 14, Dynamic lease 4, TextFormal 5, cargo check/format/diff and Loop/pointer guards green; no compiler/C/session/TextEq/production caller opened.",
 ]

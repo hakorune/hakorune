@@ -516,9 +516,10 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> Result<serde_json
         insert_fastmem_metadata_json(obj, metadata);
         insert_plan_metadata_json(obj, metadata);
         if let Some(contract) = metadata.pinned_text_backend_frame_contract {
+            let borrow = contract.borrow();
             obj.insert(
                 "pinned_text_backend_frame_v1".to_owned(),
-                contract.to_transport_json(),
+                borrow.to_transport_json(),
             );
         }
     }

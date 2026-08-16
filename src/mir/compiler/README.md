@@ -42,6 +42,16 @@ modules retain the legacy external path. GEP/load, lifecycle CFG, session
 residence adoption, route selection, fallback/retry, and production callers
 remain closed.
 
+The caller-zero `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0` row now
+lends the co-sealed facts through a scoped, non-`Clone`/
+non-`Copy` `PinnedTextBackendFrameBorrowV1<'_>`. The JSON metadata writer uses
+that view only for the duration of its existing transport projection, so the
+borrow adds no serialization authority and exposes no pointer, byte length,
+runtime token, slot, generation, or `ValueId`. The C validator and retained
+TargetMachine session remain consumers only; runtime residence, lifecycle
+entry/finish, `PinnedTextOp`, GEP/load, and direct production lowering are
+still outside this row.
+
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque

@@ -74,6 +74,16 @@ pub(crate) struct PinnedTextBackendFrameContractV1 {
 }
 
 impl PinnedTextBackendFrameContractV1 {
+    /// Lend the already co-sealed facts for one synchronous backend callback.
+    ///
+    /// This is a compile-time view only: it carries no runtime residence,
+    /// pointer, length, lease token, or generation value and cannot outlive
+    /// the function-owned contract.
+    #[must_use = "a backend-frame borrow must remain scoped to its contract"]
+    pub(crate) fn borrow(&self) -> PinnedTextBackendFrameBorrowV1<'_> {
+        PinnedTextBackendFrameBorrowV1 { contract: self }
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -139,6 +149,108 @@ impl PinnedTextBackendFrameContractV1 {
                 },
             },
         })
+    }
+}
+
+/// Scoped, non-pointer projection of an already-issued backend-frame
+/// contract.  This view is deliberately not `Clone` or `Copy`; the lifetime
+/// ties every projection to the owning function contract and prevents a
+/// detached backend table from becoming a second authority.
+#[must_use = "a backend-frame borrow must be consumed within its callback"]
+#[derive(Debug)]
+pub(crate) struct PinnedTextBackendFrameBorrowV1<'contract> {
+    contract: &'contract PinnedTextBackendFrameContractV1,
+}
+
+impl<'contract> PinnedTextBackendFrameBorrowV1<'contract> {
+    pub(crate) const fn contract_id(&self) -> &'static str {
+        PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1
+    }
+
+    pub(crate) const fn schema_revision(&self) -> u32 {
+        PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1
+    }
+
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.contract.owner
+    }
+
+    pub(crate) const fn invocation_ordinal(&self) -> u64 {
+        self.contract.invocation_ordinal
+    }
+
+    pub(crate) const fn source_logical_arity(&self) -> u32 {
+        self.contract.source_logical_arity
+    }
+
+    pub(crate) const fn receiver_lane_count(&self) -> u32 {
+        self.contract.receiver_lane_count
+    }
+
+    pub(crate) const fn physical_formal_lane_count(&self) -> u32 {
+        self.contract.physical_formal_lane_count
+    }
+
+    pub(crate) const fn physical_callable_lane_count(&self) -> u32 {
+        self.contract.physical_callable_lane_count
+    }
+
+    pub(crate) const fn exact_text_root_count(&self) -> u32 {
+        self.contract.exact_text_root_count
+    }
+
+    pub(crate) const fn plan_stamp(&self) -> u64 {
+        self.contract.plan_stamp
+    }
+
+    pub(crate) const fn plan_count(&self) -> u32 {
+        self.contract.plan_count
+    }
+
+    pub(crate) const fn residence_abi_revision(&self) -> &'static str {
+        self.contract.residence_abi_revision
+    }
+
+    pub(crate) const fn frame_revision(&self) -> u32 {
+        self.contract.frame_revision
+    }
+
+    pub(crate) const fn frame_size(&self) -> u32 {
+        self.contract.frame_size
+    }
+
+    pub(crate) const fn target_profile_id(&self) -> &'static str {
+        self.contract.target_profile_id
+    }
+
+    pub(crate) const fn target_triple(&self) -> &'static str {
+        self.contract.target_triple
+    }
+
+    pub(crate) const fn target_data_layout(&self) -> &'static str {
+        self.contract.target_data_layout
+    }
+
+    pub(crate) const fn target_pointer_width(&self) -> u16 {
+        self.contract.target_pointer_width
+    }
+
+    pub(crate) const fn target_pointer_alignment(&self) -> u16 {
+        self.contract.target_pointer_alignment
+    }
+
+    pub(crate) const fn consumer_abi_revision(&self) -> &'static str {
+        self.contract.consumer_abi_revision
+    }
+
+    pub(crate) const fn llvm_c_api_abi_revision(&self) -> &'static str {
+        self.contract.llvm_c_api_abi_revision
+    }
+
+    /// Serialize the same owned contract projection without making the view
+    /// itself an independent transport or authority.
+    pub(crate) fn to_transport_json(&self) -> serde_json::Value {
+        self.contract.to_transport_json()
     }
 }
 
@@ -336,7 +448,34 @@ mod tests {
             object_code_model: 0,
         };
 
-        let json = contract.to_transport_json();
+        let owned_json = contract.to_transport_json();
+        let borrowed_json = {
+            let borrow = contract.borrow();
+            assert_eq!(borrow.contract_id(), PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1);
+            assert_eq!(borrow.schema_revision(), PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1);
+            assert_eq!(borrow.owner(), owner);
+            assert_eq!(borrow.invocation_ordinal(), 7);
+            assert_eq!(borrow.source_logical_arity(), 2);
+            assert_eq!(borrow.receiver_lane_count(), 1);
+            assert_eq!(borrow.physical_formal_lane_count(), 4);
+            assert_eq!(borrow.physical_callable_lane_count(), 5);
+            assert_eq!(borrow.exact_text_root_count(), 2);
+            assert_eq!(borrow.plan_stamp(), 19);
+            assert_eq!(borrow.plan_count(), 3);
+            assert_eq!(borrow.residence_abi_revision(), "text-formal-residence-v1");
+            assert_eq!(borrow.frame_revision(), 1);
+            assert_eq!(borrow.frame_size(), 64);
+            assert_eq!(borrow.target_profile_id(), "nyrt-text-residence-ptr64-as0-v1");
+            assert_eq!(borrow.target_triple(), "x86_64-pc-linux-gnu");
+            assert_eq!(borrow.target_data_layout(), "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128");
+            assert_eq!(borrow.target_pointer_width(), 64);
+            assert_eq!(borrow.target_pointer_alignment(), 8);
+            assert_eq!(borrow.consumer_abi_revision(), "hako-llvmc-pure-first-v2");
+            assert_eq!(borrow.llvm_c_api_abi_revision(), "llvm-c-api-18-v1");
+            borrow.to_transport_json()
+        };
+        assert_eq!(owned_json, borrowed_json);
+        let json = owned_json;
         assert_eq!(json["contract_id"], PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1);
         assert_eq!(json["schema_revision"], PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1);
         assert_eq!(json["physical_callable_lane_count"], 5);

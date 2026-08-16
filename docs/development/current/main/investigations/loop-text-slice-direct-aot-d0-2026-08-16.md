@@ -173,8 +173,9 @@ needs a live frame, lifecycle entry/finish becomes a separate Residence D0 and
 this row remains `NoSafeSlice` rather than smuggling that state through the
 borrow.
 
-The design stop is closed for this narrow projection. The next execution row
-is the caller-zero Rust-only
-`TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0` child. It may add the
-scoped view and its ownership tests, but it must not widen the C consumer or
-open live-frame lifecycle; those remain a later Residence design stop.
+The design stop is closed for this narrow projection. Its caller-zero Rust-only
+`TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0` child is now landed: the
+scoped view is consumed only by the existing JSON projection and its ownership
+tests are green. The live-frame lifecycle and typed direct lowering remain a
+later Residence design stop; this card still authorizes neither GEP/load nor a
+production caller.
