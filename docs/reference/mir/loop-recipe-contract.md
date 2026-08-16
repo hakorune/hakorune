@@ -1631,15 +1631,14 @@ Builder state, `BasicBlockId`, or `ValueId`.
 
 The issuer rejects foreign owners, missing or duplicate topology, invalid loop
 parents, block-owner drift, duplicate item membership, and an unknown After
-loop before returning the envelope. A relation check then proves that the
-operation and If/Exit rows cover the same disjoint item set and reference only
-borrowed blocks. A follow-up audit found that each row must also prove that
-its item belongs to its specified block segment; the I0 receipt remains open
-until that membership guard and its focused negatives land. The transport is
+loop before returning the envelope. A relation check proves that the operation
+and If/Exit rows cover the same disjoint item set, reference only borrowed
+blocks, and each item belongs to its specified block segment. The focused
+operation/If/Exit block-drift negatives are green. The transport is
 caller-zero and effect-free: no block allocation, operation/effect emission,
 CFG/PHI, Completion/DraftSeal claim, lifecycle, Text route, fallback, retry,
 or production caller is opened. The next bounded design stop is post-layout
-physical effect ownership after the guard repair.
+physical effect ownership.
 
 ## Typed resolved BlockExpr expectation I0 (2026-08-17)
 
