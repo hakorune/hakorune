@@ -1018,20 +1018,24 @@ Body, and RootAfter. Unit negatives reject a missing or duplicate predicate
 boundary. The next design stop is the source-backed physical condition
 carrier; no edge-effect slice is opened until that carrier has its own issuer.
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` — design stop 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` — accepted BoxShape 2026-08-17
 
 ```text
 Decision:
-  Keep the current logical condition requirement, and design one later
-  session-local physical carrier for the root CompareI64 result before any
-  branch edge effect. The carrier is not issued in this design stop.
+  Accept a two-stage condition carrier boundary. First, the same-cohort
+  common issuer co-seals the exact source-backed CompareI64 producer relation
+  with the logical branch requirement. Later, an operation materializer issues
+  a session-local physical result receipt; no physical carrier is issued by
+  this D0 or by the next transport-only I0.
 
 Source authority + canonical issuer:
   The resolver-sealed S6C logical loop condition and its exact CompareI64
-  producer row are the source spine. A future common-V2 operation materializer
-  must co-seal the producer item/block, left/right logical operands, result
-  key, Bool class, and same owner/session stamp; CanonicalSsaFunctionSessionV2
-  remains the sole ValueId issuer and typed physical-result owner.
+  producer row are the source spine. The common-V2 issuer must co-seal the
+  producer item/block, `Less` operation, left/right logical operands, result
+  key, Bool class, root loop, and owner/frame stamp. A later operation
+  materializer uses operand physical receipts and
+  `CanonicalSsaFunctionSessionV2` as the sole ValueId/type issuer; the branch
+  consumer only borrows that physical receipt.
 
 Non-authority:
   `PreparedLoopOperationProgramV2` result keys alone, Recipe order, MIR
@@ -1046,11 +1050,12 @@ Fail-fast boundary:
   must be materialized before the branch consumer can borrow its carrier.
 
 Smallest next slice:
-  Fix the physical receipt's issuer timing, exact CompareI64 producer match,
-  session-local lifetime, and sole branch-edge consumer. The follow-up I0 is
-  transport/verification only; it opens no operation lowering, ValueId
-  issuance, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
-  route, fallback, retry, or production caller.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` transports one typed
+  producer relation from the same envelope and tests missing/duplicate,
+  non-Compare, operand/result/block/class, and owner drift. It opens no
+  operation lowering, ValueId issuance, `emit_branch`, CFG/PHI,
+  Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production
+  caller.
 
 Non-claims:
   No physical condition ValueId, operation emission, edge/terminator, CFG/PHI,
@@ -2194,7 +2199,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-i-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0` | consume the private plan and allocate exactly one unpublished After block | landed 2026-08-17; positive/one-shot/late-discard gates are green; no After edge, successor, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-j | `LOOP-COMMON-V2-PHYSICAL-AFTER-EDGE-D0` | close the source-backed complete Predicate branch plan and condition-carrier admission for Header -> Body / Header -> RootAfter | accepted BoxShape 2026-08-17; the false-only edge is rejected because canonical `emit_branch` requires both successors; the next caller-zero I0 transports the physical-ID-free plan; no edge/terminator, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | landed 2026-08-17; focused positive/duplicate/missing-boundary gates are green; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | design stop after branch-plan transport; no skeleton/ValueId carrier, `emit_branch`, CFG/PHI, operation, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-k | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-CARRIER-D0` | name the source-backed physical condition carrier and its canonical issuer before any edge effect | accepted BoxShape 2026-08-17; logical CompareI64 producer relation is the next transport-only I0, while physical ValueId/operation/edge effects remain closed |
+| 25b-k-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0` | transport one exact source-backed CompareI64 producer relation for the root predicate | next execution slice; no ValueId issuance, Compare emission, `emit_branch`, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

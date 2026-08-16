@@ -829,5 +829,7 @@ The common-V2 envelope transports this plan from the same installed cohort and
 the focused S6C loan test checks owner, Bool class, Body target, and RootAfter
 target. This is transport-only: no condition value is issued, no `emit_branch`
 or operation is emitted, and no Completion/DraftSeal, lifecycle, Text route,
-fallback, retry, or production caller is opened. The next design stop must
-name the physical condition carrier before an edge-effect slice can begin.
+fallback, retry, or production caller is opened. The accepted next BoxShape is
+the two-stage condition-carrier boundary: its first I0 transports the exact
+source-backed CompareI64 producer relation, while physical ValueId issuance,
+operation emission, and edge effects remain closed.
