@@ -1638,7 +1638,9 @@ operation/If/Exit block-drift negatives are green. The transport is
 caller-zero and effect-free: no block allocation, operation/effect emission,
 CFG/PHI, Completion/DraftSeal claim, lifecycle, Text route, fallback, retry,
 or production caller is opened. The next bounded design stop is post-layout
-physical effect ownership.
+physical effect ownership. Its first candidate is source-segment-only block
+allocation; a synthetic After block requires a separate source-backed After
+boundary and is not inferred from the JoinSig After port alone.
 
 ## Typed resolved BlockExpr expectation I0 (2026-08-17)
 
