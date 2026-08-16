@@ -655,6 +655,18 @@ Smallest next slice:
   separate caller-zero I0 may allocate session-owned blocks. If not found,
   end this D0 at NoSafeSlice rather than inventing a count or adapter.
 
+Census receipt (2026-08-17):
+  `S6CLogicalOutputRowsV1` already retains loop/block/item rows, but the
+  current common V2 envelope lends only operation rows, control rows, JoinSig
+  transfer, and passive coverage. `LoopJoinLogicalTransferViewV2` intentionally
+  carries ports/roles/payload, not Recipe block placement. Therefore the
+  missing issuer is a typed borrowed topology view, not a new count. The
+  candidate layout shape is physical-ID-free `(loop, block, split ordinal)`
+  segments with ordered item sets plus entry/After/resume and JoinSig transfer
+  bindings. Allocation must remain a later session effect; its I0 must also
+  decide whether the current CoreContext block cursor leaves an allowed ID gap
+  on outer-session discard or receives an explicit transaction rollback.
+
 Non-claims:
   No block allocation, operation/read/Const emission, CFG edge/terminator,
   PHI, Completion/DraftSeal, lifecycle, Text/PinnedTextOp, route/perf,
