@@ -28,9 +28,11 @@ Related:
   common V2 pre-session BoxShape is accepted as design-only; its transport and
   caller-zero session boundary remain unopened. A-prime Text lifecycle
   activation is parked until that canonical session exists.
-- **Next ordered task:** resume
-  `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then the caller-zero S6C packaging
-  row; do not extend the selected-normal legacy finalizer with lifecycle or
+- **Next ordered task:** the source-level transport R0 is accepted as
+  design-only; resume
+  `LOOP-S6C-COMMON-V2-PRESESSION-I0` to name the source-backed operation,
+  JoinSig control, and passive coverage issuers before any caller-zero product
+  code. Do not extend the selected-normal legacy finalizer with lifecycle or
   Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
@@ -1606,8 +1608,8 @@ One ordered T2 task family closes the missing boundary without creating an S6C r
 LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0/I0       [closed]
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0    [closed]
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [accepted design-only]
-LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0            [current]
-LOOP-S6C-COMMON-V2-PRESESSION-I0
+LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0            [accepted design-only]
+LOOP-S6C-COMMON-V2-PRESESSION-I0                  [current design stop]
 ```
 
 The first child is narrower than the parent common-V2 contract:
@@ -1627,8 +1629,10 @@ The D0 BoxShape is now accepted as design-only: one same-brand parent HRTB
 loan lends sibling identity, signature, Completion, and retained S6C views;
 operation and If/Exit control remain separate products, and a passive union
 receipt proves their disjointness. The S6C adapter alone proves exact
-`13 + 1 + 1 = 15` coverage. Transport is the next row; no code or session
-effect is implied here:
+`13 + 1 + 1 = 15` coverage. Transport R0 is accepted as source-level
+design-only; no code or session effect is implied here. The next I0 must name
+the source-backed operation, JoinSig control, and passive coverage issuers
+before implementation:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
@@ -1734,8 +1738,8 @@ this shallow ordered series:
    - the installed child, one Completion owner, and callable physical-signature
      mapping are closed prerequisites; close only the common operation/control
      envelope and its scoped sibling boundary here;
-   - reject any issuer inferred from Recipe or MIR; transport R0 is now the
-     current next row.
+   - reject any issuer inferred from Recipe or MIR; transport R0 is accepted
+     as source-level design-only.
 4a. `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0`
    - accept one logical ExactText ordinal/BindingRef -> adjacent scalar
      `[slot,generation]` lanes, with logical `/N` separate from physical lane
@@ -1744,9 +1748,10 @@ this shallow ordered series:
      Completion-independent package mapping and combined Installed S6C loan;
    - reject `/N`, MirType, validator order, detached ValueIds, root residence,
      and call-edge inference as signature authorities.
-5. `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then
-   `LOOP-S6C-COMMON-V2-PRESESSION-I0`
-   - transport the generic complete operation set separately from the
+5. `LOOP-S6C-COMMON-V2-PRESESSION-I0`
+   - name the source-backed operation issuer, JoinSig control issuer, and
+     passive disjoint-union coverage issuer;
+   - then transport the generic complete operation set separately from the
      Recipe/JoinSig/Layout If/Exit control set;
    - let only the S6C adapter prove exact `13 + 1 + 1 = 15` coverage;
    - issue one caller-zero installed S6C child/envelope with no route policy

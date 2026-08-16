@@ -77,10 +77,10 @@ Related:
   physicalizer remains test-only/V1-shaped; common V2 transport/session and
   every production caller are not landed. A-prime lifecycle activation is
   parked until the canonical V2 session owns the exit set.
-- **Next ordered task:** the common V2 pre-session BoxShape is accepted as a
-  design-only boundary; resume
-  `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then the caller-zero S6C packaging
-  row before physical activation.
+- **Next ordered task:** the common V2 BoxShape and source-level transport R0
+  are accepted as design-only boundaries; the next design stop is
+  `LOOP-S6C-COMMON-V2-PRESESSION-I0`, which must name the three source-backed
+  issuers before any caller-zero product is implemented.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -273,10 +273,11 @@ pre-session envelope is route-free and borrows that cohort only inside the
 Port callback; it cannot retain a site borrowed from its own parent, clone
 source/Completion ledgers, or accept raw keys from a caller. The installed S6C
 child, one Completion ownership path, and the Completion-independent package
-lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape is
-accepted as a design-only boundary; the next design row is
-`LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`. It transports the generic V2
-operation/control envelope without Builder/session effects. Exact call-edge origin,
+lane map are closed by their caller-zero I0 rows. The common-V2 BoxShape and
+source-level transport R0 are accepted as design-only boundaries; the next
+design stop is `LOOP-S6C-COMMON-V2-PRESESSION-I0`, where the missing
+source-backed operation/control/coverage issuers must be named. No generic V2
+execution product or Builder/session effect is implied. Exact call-edge origin,
 Canonical composite adoption, and Completion-backed lifecycle finish remain a
 later canonical-session fan-in; they are never inferred from Recipe/MIR. The
 generic V2 exact-set partition is the current common boundary.
@@ -315,6 +316,33 @@ HRTB escape, a detached key or source ledger, or any requirement to infer the
 partition from MIR/Recipe order is `NoSafeSlice`. The next bounded row is
 transport R0; only after that row may the caller-zero S6C envelope be
 implemented.
+
+### Common V2 transport R0 (accepted design-only boundary)
+
+Transport is a source-level projection, not a MIR/JSON carrier. The sole target
+Port seam is one callback of the following shape; the name is a contract, not a
+landed API:
+
+```text
+NormalCallableSemanticPackagePortV1
+  -> with_s6c_common_v2_presession(|parent| { ... })
+```
+
+The callback consumes the same installed selected key once and lends a private
+parent whose sibling views are selected identity/brand, the package-owned
+physical signature, the one retained Completion owner, and the retained S6C
+Facts/Recipe/Join ingress. The existing `with_s6c_child` and separate
+signature/header accessors are not a second route: they are compatibility
+substrates to be replaced or wrapped by this single parent seam in the I0.
+No view may escape, be stored, or be recombined after the callback; the Port's
+existing consumption ledger remains the exactly-once owner.
+
+R0 deliberately emits no operation/control product. The future S6C I0 must
+name a source-backed operation issuer, a JoinSig-backed control issuer, and a
+passive disjoint-union coverage issuer before code creates any common V2
+product. Until those issuers are named, `NoSafeSlice::MissingCommonV2OperationControlIssuer`
+is retained. JSON, MIR metadata, Builder/session, physical IDs, Text route,
+lifecycle, fallback, and production caller remain out of scope.
 
 The stable callable boundary is not the function-internal Text carrier. A
 later non-splittable residence set couples the invocation lease-set token to
@@ -1122,8 +1150,8 @@ skip the After closure or reopen a Tail-only route.
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
 | 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | accepted design-only 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no code or session effect |
 | 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
-| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic complete operation set, separate If/Exit control set, JoinSig transfers, and passive disjoint-union coverage through the accepted 22c boundary | next design-only row; no S6C cardinality in the common type, route policy, Builder/session effect, or production caller |
-| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | same-brand installed child + TextFormal signature + one Completion + retained S6C ingress -> caller-zero exact S6C envelope | BoxCount only; route policy/session admission remain separate; no S6C physicalizer or production caller |
+| 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic parent/sibling boundary through one installed Port HRTB without emitting an execution product | accepted design-only 2026-08-16; no JSON/MIR, S6C cardinality, route policy, Builder/session effect, or production caller |
+| 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | name the source-backed operation issuer, JoinSig control issuer, and passive coverage issuer, then issue one caller-zero exact S6C envelope | current design stop; `NoSafeSlice::MissingCommonV2OperationControlIssuer` until all three issuers are fixed; no S6C physicalizer or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
