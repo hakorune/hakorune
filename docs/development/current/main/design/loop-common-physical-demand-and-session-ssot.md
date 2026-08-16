@@ -945,52 +945,61 @@ present in the physical-ID-free layout rows and must not be invented.
 
 ```text
 Decision:
-  Keep the newly allocated RootAfter block unreachable until a source-backed
-  successor relation and condition carrier are co-sealed. The likely first
-  edge is the loop predicate's false transfer Header -> After, but this D0
-  does not choose or emit that edge yet.
+  Keep the newly allocated RootAfter block unreachable until a complete
+  source-backed predicate branch plan and condition carrier are co-sealed.
+  The logical shape is the root predicate's Header -> Body / Header -> After
+  pair, with PredicateFalse targeting RootAfter. A false-only edge plan is
+  invalid because the canonical CFG branch issuer requires both successors.
 
 Source authority + canonical issuer:
-  The existing LoopJoinLogicalTransferViewV2 boundary row, the source physical
-  segment receipt, and the typed RootAfter relation are the only inputs. A
-  compiler-side admission issuer must co-seal the exact PredicateFalse source
-  row, its source segment, the RootAfter target, and a verified condition
-  carrier in one same-session scope. CanonicalSsaFunctionSessionV2 remains the
-  sole physical edge issuer after that admission is consumed.
+  The resolver-backed S6C logical loop condition (`condition_block` and
+  `condition_value`), the existing LoopJoinBranchTransferRefV2 branch row, the
+  source physical segment receipt, and the typed RootAfter relation are the
+  inputs. A compiler-side admission issuer must co-seal the condition logical
+  value, its condition segment, PredicateTrue -> Body, PredicateFalse ->
+  RootAfter, owner/frame stamps, and a future physical condition carrier in one
+  same-session scope. CanonicalSsaFunctionSessionV2 remains the sole physical
+  branch/edge issuer after that complete plan is consumed.
 
 Non-authority:
   JoinSig tuple alone, Recipe order, segment ordinal, current cursor,
   BasicBlockId, MirFunction predecessor lists, EffectMask, a copied source-site
-  array, or an already allocated After view may not infer a successor or
-  condition. Tail, Completion, ParentResume, operations, and generic CFG
-  repair remain outside this boundary.
+  array, an already allocated After view, or a legacy V1 physical condition
+  receipt may not infer a successor or condition carrier. Tail, Completion,
+  ParentResume, operations, and generic CFG repair remain outside this
+  boundary.
 
 Fail-fast boundary:
-  Before edge effect require one owner/function/frame relation, RootAfter
-  disposition, exact PredicateFalse row and source-segment coverage, a live
-  condition physical carrier, an unused edge slot, and a matching After block.
-  Missing/duplicate/foreign rows, nested or outer-loop drift, condition-value
-  absence, HRTB escape, late failure, or a second edge owner reject and invoke
-  the outer unpublished-function discard exactly once; no retry or fallback.
+  Before any edge effect require one owner/function/frame relation, RootAfter
+  disposition, exact branch row and source-segment coverage, both Body and
+  After targets, a source-backed condition carrier admission, and unused edge
+  slots. Missing/duplicate/foreign rows, nested or outer-loop drift, absent
+  condition projection, false-only planning, HRTB escape, late failure, or a
+  second edge owner reject and invoke the outer unpublished-function discard
+  exactly once; no retry or fallback.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-AFTER-EDGE-I0` may issue one canonical
-  `Header -> After` edge only after the condition-carrier issuer is closed.
-  It must return a callback-scoped edge view and add no operations, ReadBinding,
-  CFG/PHI repair, Completion/DraftSeal, lifecycle, Text, route, or production.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` must transport one typed,
+  callback-scoped complete branch plan and condition-carrier requirement from
+  the same S6C cohort. It must not issue a ValueId, call `emit_branch`, mutate
+  CFG, or add operations, ReadBinding, Completion/DraftSeal, lifecycle, Text,
+  route, or production. A later edge-effect D0/I0 may consume the plan only
+  after the condition physical carrier is itself closed.
 
 Non-claims:
-  No ParentResume admission, other successor, edge/terminator implementation,
-  operation lowering, PHI, Completion claim, DraftSeal, lifecycle, Text,
-  route/performance, fallback, retry, publication, or production caller.
+  No ParentResume admission, physical condition ValueId, `emit_branch` or
+  `emit_jump`, edge/terminator implementation, operation lowering, PHI,
+  Completion claim, DraftSeal, lifecycle, Text, route/performance, fallback,
+  retry, publication, or production caller.
 ```
 
 This is a design stop, not an implementation permission. The After allocation
 I0 remains the only landed effect: it creates one unpublished block and does
-not make it reachable. The next census must prove that the predicate-false
-condition carrier is source-backed and can be borrowed from the same common-V2
-cohort without re-reading Recipe/Builder state or creating a second edge
-authority.
+not make it reachable. The existing source issuer already exposes the logical
+condition and branch row inside the same ingress loan, but the common envelope
+does not yet carry a physical condition receipt. The next census therefore
+closes a typed complete branch-plan transport first; it must not retrofit the
+legacy V1 operation ledger or infer a `ValueId` from the logical value key.
 
 ## Decision
 
@@ -2126,7 +2135,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0` | transport the typed RootAfter/ParentResume boundary relation through the same common-V2 cohort | landed 2026-08-17; RootAfter is the only admitted S6C arm, ParentResume remains parked, and no block/edge/terminator/effect/CFG/PHI/Completion/DraftSeal/lifecycle/Text/route/production is open |
 | 25b-i | `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0` | accept one RootAfter-only one-shot unpublished After placement and its outer discard owner | accepted BoxShape 2026-08-17; one prepared plan, canonical BasicBlockId issuance, exact segment coverage, and monotonic unpublished cursor gaps are fixed; the next I0 is allocation-only |
 | 25b-i-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0` | consume the private plan and allocate exactly one unpublished After block | landed 2026-08-17; positive/one-shot/late-discard gates are green; no After edge, successor, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-j | `LOOP-COMMON-V2-PHYSICAL-AFTER-EDGE-D0` | close the source-backed PredicateFalse condition/edge admission from the loop Header to RootAfter | active design stop; condition carrier, exact source row/segment coverage, same-cohort ownership, and canonical edge issuer must be fixed before any edge I0; no edge/terminator, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-j | `LOOP-COMMON-V2-PHYSICAL-AFTER-EDGE-D0` | close the source-backed complete Predicate branch plan and condition-carrier admission for Header -> Body / Header -> RootAfter | active design stop; the false-only edge is rejected because canonical `emit_branch` requires both successors; condition projection, exact source row/segment coverage, same-cohort ownership, and canonical branch issuer remain unsealed; no edge/terminator, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0` | transport one typed complete predicate branch plan plus condition-carrier requirement from the same S6C cohort | next bounded slice after D0; no ValueId issuance, `emit_branch`, CFG mutation, operation/read/Const, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
