@@ -85,13 +85,12 @@ Related:
   BoxShape and its caller-zero transport I0 are now landed. A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
-- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0`
-  is the active design stop. The complete logical predicate branch plan,
-  transport I0, and exact source-backed CompareI64 producer relation are
-  landed. Before any Builder/block/effect emission, this D0 must name the
-  canonical session-local physical result receipt, its rollback owner, and
-  the sole later branch consumer. ValueId issuance, `emit_branch`, CFG/PHI,
-  Completion claims, and DraftSeal remain closed.
+- **Next ordered task:** `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0`
+  is the active caller-zero implementation row. Its accepted BoxShape moves
+  the existing physical-entry cohort stamp exactly once from the prepared
+  skeleton/session input into the canonical session and exposes only a scoped
+  borrow to later consumers. The physical condition-result D0 remains blocked
+  until that stamp seam and the physical operand receipts are complete.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -621,6 +620,56 @@ Non-claims:
   PinnedTextOp, route/perf, production caller, fallback, retry, or main
   integration is opened by this D0/I0.
 ```
+
+### `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` — accepted BoxShape 2026-08-17
+
+```text
+Decision:
+  Accept retention of the existing PhysicalFunctionEntryCohortStampV1 as a
+  mechanical same-cohort witness. Move it exactly once from the prepared
+  physical skeleton/session input into CanonicalSsaFunctionSessionV2 before
+  any callback-scoped physical consumer is exposed. Do not create a new
+  semantic stamp, session nonce, or physical-result authority.
+
+Source authority + canonical issuer:
+  reserve_common_v2_physical_function_skeleton is the sole issuer of the
+  stamp from the installed S6C loan and complete descriptor cohort. The
+  stamp carries only owner, selected callable key, callable signature
+  identity, and physical lane count. The consuming physical-entry session
+  moves that stamp into the canonical session; CommonV2CanonicalSessionRefV1
+  may lend only a scoped borrow to a later same-session materializer.
+
+Non-authority:
+  FunctionOwnerId alone, selected key alone, descriptor count, logical /N,
+  MirFunction/FunctionSignature, raw ValueId/BasicBlockId, Builder cursor,
+  copied or reconstructed stamp, a runtime/session nonce, or a second Port
+  loan cannot establish cohort identity. The stamp is not an exit, result,
+  Text, lifecycle, or source-semantic authority.
+
+Fail-fast boundary:
+  Reject missing or already-moved stamp, owner/key/signature/lane drift
+  against the retained loan, callback exposure before attachment, foreign
+  session borrow, stamp clone/re-pair, result-receipt value copying, and
+  escape beyond the session callback. Late unpublished-function discard must
+  drop the session-held stamp exactly once; no retry or fallback is allowed.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0` removes the clone/
+  discard seam, moves the stamp into the canonical session, adds one private
+  scoped accessor through the common session wrapper, and tests positive
+  retention plus missing/foreign/drift/late-discard negatives. It issues no
+  physical condition result or ValueId.
+
+Non-claims:
+  No Compare lowering, physical Bool result, branch/edge effect, CFG/PHI,
+  Completion/DraftSeal claim, lifecycle, Text/PinnedTextOp, route/performance,
+  production caller, fallback, retry, or main integration.
+```
+
+The stamp is a cohort witness, not a unique invocation nonce. Its only valid
+consumer is the same unpublished canonical session that consumed the prepared
+entry input. A later condition-result receipt must borrow the session-held
+stamp rather than copy it into a detached product.
 
 ### Accepted D0 / active I0: `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-D0`
 
@@ -2370,6 +2419,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-RESULT-D0` | close same-session operand receipts and stamp retention, then name the canonical physical result receipt, rollback owner, and sole branch consumer | active NoSafeSlice design stop; the source-backed Length CallSlot row is transported, but its canonical-session physical result receipt is still missing; physical ValueId/type issuance, operation lowering, edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production remain closed |
 | 25b-l-a | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-OPERAND-PRODUCER-D0` | co-seal the source Length contract, CallSlot/result/class, matching common operation row, and Compare-right key from one S6C ingress | accepted BoxShape 2026-08-17; fixed two-row physical-ID-free inventory only; no physical receipt, ValueId, call lowering, Compare, branch, CFG/PHI, fallback, retry, or production |
 | 25b-l-a-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` | transport the typed Left ReadBinding/Right Length CallSlot inventory with wrong-role/op/result/block/class, duplicate, foreign, provenance, and late-failure negatives | landed 2026-08-17; three focused inventory tests are green; no physical emission, Builder/session mutation, or parent-result unlock |
+| 25b-l-b | `LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-D0` | retain the existing physical-entry cohort stamp through the consuming canonical session without copy/reconstruction, then expose only a scoped borrow | accepted BoxShape 2026-08-17; next caller-zero I0 moves the stamp once into the canonical session; no physical condition result, ValueId, edge, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
