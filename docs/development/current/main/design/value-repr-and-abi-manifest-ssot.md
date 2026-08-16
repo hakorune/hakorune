@@ -32,9 +32,10 @@ Related:
 - **Current implementation status:** the pair validator and caller-zero atomic
   lease-set/pending-retirement substrate are landed; the package-owned total
   physical-signature mapping and every compiler consumer remain caller-zero.
-- **Next ordered task:** issue and transport one Completion-independent
-  package signature cohort from declaration mode, exact Receiver binding when
-  present, and the complete explicit parameter contracts.
+- **Next ordered task:** keep the package signature cohort landed and stop at
+  `TEXT-FORMAL-PINNED-RESIDENCE-D0`; its backing, lifecycle carrier, private
+  frame ABI, and final lifetime-verifier authority remain design-only until
+  that Decision is accepted.
 - **Production stop line:** no raw handle may recapture generation, no lane may
   become a second logical value, and no pointer/length residence may cross the
   callable boundary or detach from its lease set.
@@ -248,6 +249,13 @@ consumes the same-brand selected/batch identity, declaration mode, exact
 receiver binding when present, and the complete explicit parameter-contract
 cohort. It does not consume callable header, result, or Completion and contains
 no `ValueId`, pointer, length, lease token, or route policy.
+
+The lane map is also the only source for later physical parameter and call
+argument projections. Within one callee function, physical parameter
+`ValueId`s are pairwise distinct by lane. Within one caller function,
+occurrence order is preserved but aliasing occurrences may repeat a
+`ValueId`; caller and callee `ValueId` numbers belong to different scopes and
+are never compared as identity.
 
 At callee entry, the Rust runtime owns exact pair validation, Text-class
 validation, generation identity, atomic invocation-wide pinning, pending

@@ -1,7 +1,7 @@
 ---
 Status: caller-zero I0 landed; next Residence D0 design stop
 Date: 2026-08-16
-Work mode: fast
+Work mode: design_stop
 Classification: T2 BoxShape accepted; T2 caller-zero BoxCount landed
 Parent: LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
 ---
@@ -74,6 +74,13 @@ The receiver is a distinct source binding from
 `SourceBindingSiteV1::Receiver`; it is not an ExactText formal, does not
 consume an explicit formal ordinal, and cannot be reconstructed from a
 parameter-count difference. Static callables have no receiver row or lane.
+
+The four-axis count is also the module-wide ABI census boundary. A later
+projection may expose callee parameter `ValueId`s or caller argument
+`ValueId`s, but those are function-local carriers: callee lane `ValueId`s are
+pairwise distinct, while caller occurrence rows preserve order and may repeat
+one `ValueId` for aliasing occurrences (`f(text,text)` or receiver/argument
+alias). Caller and callee `ValueId` numbers are never compared as identity.
 
 The product contains no `ValueId`, `BasicBlockId`, runtime token, source call
 site, Completion, root residence, slice, pointer, length, or route policy.
