@@ -7761,3 +7761,54 @@ Substring-result residence, two Text operands, strict `0/1` Bool outcome, and
 fault/unsupported behavior) before any `Verified*`/`Prepared*` physical
 receipt, `Compare` emission, branch/Return CFG, fallback, or production
 switch is allowed.
+
+### LOOP-PHYSICAL-TEXTEQ-SUBSTRING-RESIDENCE-TRAP-D0 — checked operand residence and strict Trap (2026-08-18; NoSafeSlice remains)
+
+Decision: the bounded first representation is narrowed to generation-checked
+handle-handle, `Checked` rather than `Direct`. It is a design decision only;
+the row remains `NoSafeSlice` because the result residence and source-bound
+failure owner are not yet issued. Pointer/length and mixed handle/pointer
+routes are rejected for this lane: the substring result has no stable pointer
+residence, and a second representation would permit lifetime drift.
+
+Source authority + canonical issuer: the existing source chain remains
+`VerifiedResolvedMethodCallSourceV1` plus the source-bound `Substring` relation
+and `VerifiedS6CTypedInputRelationV1::TextEqual`; Recipe/Join owns V9
+Substring, V10 TextEq, If item 8, Return item 9, and FunctionExit item 10.
+If the source contract is extended with `StringEquals`, its authority must be
+`lang/src/runtime/meta/core_method_contract_box.hako` and generated Rust rows
+must stay projections. One future canonical S6C session materializer must
+co-seal the generation-branded Substring result residence, the ExactText
+formal residence, the strict call/status decode, and the Bool `ValueId`; the
+canonical SSA session remains the sole physical ID/type issuer.
+
+Residence and fault census: `TextFormalCallResidenceV1` pins only already
+published formal `{slot,generation}` roots. `dynamic_v2_lease::EndAuthorizedTextV1`
+and `DynamicV2CallOutV1` provide transport/one-shot lease mechanics only;
+`host_handles::call_lifetime` and the registry provide slot generation only.
+There is no S6C Substring-result publisher/pinner that co-seals those pieces
+with the Recipe V9 site. Likewise `CheckedCallOutFault` is only a mechanical
+admitted-site terminal, while the Dynamic fault enum, residence C statuses,
+and backend-local trap are not a source-bound S6C Trap/status owner.
+
+Fail-fast boundary: after transport decode and before Bool materialization,
+branch/Return/FunctionExit, or residence finish, reject missing/foreign
+receiver, argument, V9/V1/V10 site, frame, segment, scope, session, slot, or
+generation; reject nonzero status and every result except exactly `0` or `1`.
+The canonical S6C Trap must be fail-stop with no Bool `ValueId`; it must not
+be translated into a generic MIR Fault edge or truthified with `!= 0`.
+
+Smallest next slice: design-only acceptance of the sole Substring-result
+`publish -> pin -> consume -> finish/rollback` owner and an exhaustive
+source-bound TextEq status/Bool decoder plus Trap terminal owner. The same
+move-only session may later co-seal those operands and decoder, but this row
+does not authorize `StringEquals` code, a new semantic receipt, Compare
+emission, branch/Return/edge/PHI/CFG, fallback, retry, production, or legacy
+retirement.
+
+Non-claims: `StringBox.equals`, `string.eq_hh`, raw handles/pointers,
+`TextFormalCallResidenceV1` alone, `EndAuthorizedTextV1` alone,
+`DynamicV2CallOutV1`, `CheckedCallOutFault`, and `CanonicalCfgSessionV1`
+remain non-authority for S6C TextEq meaning. Outer Length/Bool V5 is not the
+inner TextEq V10 condition, and the existing logical Return-read co-seal does
+not issue a physical TextEq Bool.
