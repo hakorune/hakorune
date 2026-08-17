@@ -109,11 +109,16 @@ Related:
   remains closed because outer-loop Bool V5 cannot feed the inner TextEq If
   at V10. The premise-reset audit corrected TextEq from a source StringEquals
   call/Trap boundary to a portable non-faulting operation whose V9/V1
-  residences must be co-sealed before V10 materialization.
+  residences must be co-sealed before V10 materialization. The common-V2
+  Substring target/admission I0 is now effect-free and caller-zero; the
+  remaining boundary is only the source-backed V9 materializer and its
+  scoped lease/residence lifetime.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0` is the next design
-  stop. It must name the common-V2 source-backed provider/site-plan admission
-  and lifecycle sidecar before any CheckedCallOut or V9 ValueId is opened. No
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0` remains a design stop. It must
+  name one private checked materializer that consumes the landed target,
+  V6/V7/V8 receipt, and same Body segment, validates the End handle/token
+  pairing, lends an opaque callback-scoped Text result, and owns
+  residence-finish then End-consume with reverse-order rollback. No
   selected-Dynamic pair or `nyash.string.eq_hh` transport is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
@@ -1820,6 +1825,11 @@ Recipe meaning is closed, but no common-V2 canonical V9 materializer owns the
 checked Substring result, scoped text lend, and finish/rollback edge. Split the
 boundary into a V9 issuer first and a later V9+V1 residence co-seal; do not
 implement either aggregate or issue a new semantic receipt in this design row.
+The top-down chain remains intact: source/resolver -> exact Facts -> S6C
+Recipe -> one common physical owner -> unpublished session -> publication.
+The additional `nyash.string.eq_hh` export audit changes no link in that
+chain; it is a lossy raw-i64 transport and stays below the RejectBeforeEffect
+boundary. No architecture-wide rewrite is required.
 
 Source authority + canonical issuer: S6C `StringSubstring/2` and Recipe
 `CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)` remain the authority. The next
@@ -1842,8 +1852,13 @@ discards the unpublished function and never retries the session.
 
 Smallest next slice: design-only BoxShape
 `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`. Name the source-backed checked V9
-materializer, callback-scoped opaque result/lend API, lease and formal-residence
-finish owner, reverse-order partial rollback, and its complete negative matrix.
+materializer, callback-scoped opaque result/lend API, move-only End
+handle/token adoption that validates the pair, exact formal-residence acquire,
+and the single finish order `residence.finish -> End consume`; partial
+acquisition must roll back in reverse order while retaining primary and
+suppressed errors. Record the complete negative matrix, including wire drift,
+token/handle mismatch, stale generation, double finish/consume, and late
+unpublished-session failure.
 
 Acceptance/non-claims: the Decision must identify one issuer and one lifecycle
 owner plus Direct/Checked/RejectBeforeEffect classification. It must not add
