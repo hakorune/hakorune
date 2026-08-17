@@ -1810,6 +1810,18 @@ caller-zero unpublished canary; the outer transaction discards it, and no
 module publication, parent Bool, Compare, edge, CFG/PHI, or production route
 is implied.
 
+## Common V2 direct Length Call/result I0 (2026-08-17)
+
+The caller-zero canary now emits exactly one generic `StringBox.length` Call
+and one canonical I64 result receipt from the same target/receiver/
+condition/stamp cohort. The canonical session is the sole result/type issuer;
+the unified Call emitter is the sole Call constructor, and the session checks
+the final emitted callee, receiver, destination, and `READ` effect. The outer
+unpublished function transaction remains the only rollback owner, so late
+callback failure publishes neither Call nor receipt. No parent Bool/Compare,
+edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
+fallback, retry, or production caller is opened.
+
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 
 The first post-inventory consumer is a one-shot, Builder-neutral

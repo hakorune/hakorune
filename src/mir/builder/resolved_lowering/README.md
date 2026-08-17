@@ -141,6 +141,19 @@ result receipt. Its first I0 is caller-zero only; the existing outer
 unpublished transaction discards the canary, so module publication and the
 parent Bool/Compare path remain unopened.
 
+## Common V2 direct Length Call/result I0 (2026-08-17)
+
+The caller-zero canary now consumes that same-session target/receiver/
+condition/stamp cohort and emits exactly one generic `StringBox.length` Call
+with one canonical I64 result receipt. The generic unified Call emitter remains
+the sole Call constructor; the session verifies the emitted callee, receiver,
+destination, and `READ` effect before publishing the result type. A late
+callback failure discards the unpublished function transaction, so the receipt
+and Call never reach module publication. Focused direct-emitter and
+late-discard tests are green. Parent Bool/Compare, edges/terminators, CFG/PHI,
+Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production
+remain closed; the next stop is the parent physical-result design boundary.
+
 ## Common V2 synthetic After allocation I0
 
 The accepted After-boundary relation now has one caller-zero placement effect.

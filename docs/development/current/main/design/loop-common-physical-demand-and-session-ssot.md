@@ -1655,11 +1655,11 @@ Fail-fast boundary:
   escape, or late failure rejects before the Call is published.
   Fallback/retry is forbidden.
 
-Smallest next slice:
+Smallest next slice (landed below):
   `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0`
   emits exactly one canonical Call and one I64 receipt after the receiver
-  operand I0 is landed. Positive, type/owner/target drift, duplicate/re-entry,
-  foreign receipt, and late-discard tests are required.
+  operand I0. Its positive, final-shape, one-shot, and late-discard tests are
+  green.
 
 Non-claims:
   No parent Bool receipt, Compare instruction, `emit_branch`, edge/terminator,
@@ -1675,6 +1675,36 @@ that transaction; no module publication or production caller is implied. A
 future commit/publication path is a separate boundary and cannot be inferred
 from this D0.
 
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` — landed caller-zero canary 2026-08-17
+
+```text
+Decision:
+  Emit exactly one generic `StringBox.length` Call and one canonical I64
+  result receipt from the already-sealed target/receiver/condition/stamp
+  cohort, then discard the unpublished function transaction.
+
+Source authority + canonical issuer:
+  The canonical session is the sole physical result/type issuer and the
+  unified Call emitter is the sole Call constructor. The session verifies the
+  final emitted callee, receiver, destination, and READ effect before issuing
+  the non-Clone receipt. The outer unpublished function transaction is the
+  only rollback owner.
+
+Non-authority:
+  Raw ValueId, CallSlot, method spelling, MIR lookup, EffectMask alone,
+  alternate/legacy emitters, or a second session cannot construct or repair
+  the Call/result pair.
+
+Fail-fast boundary:
+  Target/receiver/condition/stamp drift, alternate Call shape/effect,
+  non-I64 destination, duplicate/re-entry, or late callback failure rejects
+  without publication; fallback/retry is forbidden.
+
+Acceptance:
+  Focused positive and late-discard tests are green. The canary is caller-zero
+  only: its Call/result receipt is discarded with the outer transaction.
+```
+
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` — design stop 2026-08-17
 
 ```text
@@ -1687,13 +1717,11 @@ Source authority + canonical issuer:
   The source Length contract, fixed Right operand row, matching operation row,
   Compare-right relation, retained physical-entry stamp, and the
   callback-scoped condition-block physical target are borrowed from the same
-  common-V2 session. The target-plan BoxShape and its caller-zero I0 are
-  landed. The next missing products are deliberately split: first a
-  callback-scoped receiver-operand receipt, then a non-Clone direct Call/result
-  issuer that returns one `CanonicalLengthCallResultReceiptV1` through the
-  session's sole ValueId/type mechanics. The later Bool-result materializer
-  consumes that receipt in the same callback; it never reconstructs a CallSlot
-  or re-pairs operands.
+  common-V2 session. The target-plan and receiver-operand BoxShapes plus the
+  caller-zero direct Call/result I0 are landed. The remaining product is the
+  parent Bool-result materializer, which must consume one
+  `CanonicalLengthCallResultReceiptV1` through the session's sole ValueId/type
+  mechanics; it never reconstructs a CallSlot or re-pairs operands.
 
 Non-authority:
   `LengthCallMaterializationCanaryV1`, raw `LoopValueKeyV1`, raw `ValueId`,
@@ -1713,11 +1741,10 @@ Fail-fast boundary:
   fallback/retry is forbidden.
 
 Smallest next slice:
-  First land `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0/I0`.
-  Only then may `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0/I0`
-  insert one canonical Call and one I64 result receipt. Until both products
-  are closed, the parent result must not emit CallSlot, Compare, edge,
-  terminator, CFG, or PHI.
+  Keep this parent at design stop and name the sole Bool-result plan/receipt
+  issuer. The direct Length Call/result I0 is already landed as an unpublished
+  canary; the parent result must still not publish a physical result, emit
+  Compare, edge, terminator, CFG, or PHI.
 
 Non-claims:
   No parent Bool receipt, Compare instruction, `emit_branch`, edge/terminator,
@@ -2900,8 +2927,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-g-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-D0` | fix the same-session source receiver BindingRef → canonical read receipt boundary before any Call effect | accepted BoxShape 2026-08-18; existing resolver relation → `LengthReceiverBindingRefV1` mechanical projection → canonical read receipt; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-g-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIVER-OPERAND-I0` | lend exactly one same-session receiver operand receipt with no Call or result emission | landed 2026-08-17; canonical read only, with owner/type/target/stamp drift, duplicate/re-entry, and late-discard tests green; no Call/result/parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | accepted BoxShape 2026-08-17; same-session target/receiver/condition/stamp co-seal, canonical Call/result issuer, and unpublished canary/discard boundary are fixed; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
-| 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | active next fast slice; positive, target/receiver/type/owner drift, alternate-route, duplicate/re-entry, foreign receipt, and late-discard tests; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
-| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | first close the receiver operand product, then the direct Call/result issuer before the parent Bool result | next design stop after direct Call/result I0; receiver and direct-issuer BoxShapes are accepted, while parent Bool/result realization remains blocked; no Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production is open |
+| 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | landed 2026-08-17; same-session target/receiver/condition/stamp checks, final generic-Call shape/effect checks, one-shot, and late-discard tests are green; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
+| 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | close the parent physical Bool-result boundary after the Length Call/result canary | next design stop; receiver and direct-issuer BoxShapes plus caller-zero I0 are landed, while published physical result, parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain blocked |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
