@@ -165,10 +165,11 @@ The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
 missing source-backed initial index seed. A fresh common-V2 session has no
 active canonical declaration/value for the S6C condition's left `ReadBinding`,
 so the receipt-owned materializer must not use a default zero, a raw `ValueId`,
-or a detached `read_entry` call. The source-only initializer relation
-transport is now landed. The next bounded slice is
-`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0`: it may issue one unpublished
-`ConstI64(0)` and one exact declaration publication in the same session.
+or a detached `read_entry` call. The source-only initializer relation and its
+seed materializer are now landed. The next bounded slice is
+`LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0`: it may consume the
+same-session seed/read and Length receipts to issue one Bool result and one
+`Less` Compare.
 Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
 Text, route, publication, fallback, retry, and production remain closed.
 
@@ -186,8 +187,20 @@ or consume it; they do not infer the seed. Missing/foreign site, binding,
 carrier, owner, stamp, type, or literal evidence rejects before physical
 effect. This I0 emits no Const, declaration, ValueId, read receipt, Bool,
 Compare, CFG/PHI, lifecycle, Text route, fallback, retry, or production
-caller. The next seed I0 may issue the physical `ConstI64(0)` from this
-transport.
+caller. The seed materializer I0 below issues the physical `ConstI64(0)` from
+this transport.
+
+## Common V2 initial index seed materializer I0
+
+`CommonV2CanonicalSessionRefV1::emit_initial_index_seed` is the sole physical
+issuer for the source-backed pre-loop index seed. It reserves one ValueId,
+writes one entry-block `ConstI64(0)`, and calls `publish_declaration_exact` for
+the resolver BindingRef. The returned non-Clone receipt keeps an exclusive
+session borrow and carries only the binding/carrier/value witness. Duplicate
+entry, missing function, entry drift, and late callback failure reject before
+publication or leave the outer unpublished function transaction as the sole
+discard owner. No Bool/Compare, branch/edge, CFG/PHI, lifecycle, Text, route,
+fallback, retry, or production caller is opened.
 
 ## Common V2 synthetic After allocation I0
 

@@ -88,16 +88,15 @@ Related:
   canary I0, direct Length Call/result I0, and exclusive session-scoped Length
   receipt lifetime I0 are also landed; the remaining design stop is the parent
   Bool result BoxShape. The source-only initial-index seed relation transport
-  I0 is now landed; the next effectful row is the seed materializer I0.
+  and its one-entry Const/exact-declaration materializer I0 are now landed.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` is the active caller-zero
-  effect slice under the accepted seed BoxShape. It may issue one unpublished
-  `ConstI64(0)` and one exact declaration publication/read receipt from the
-  already transported source relation. Bool/Compare and all later effects
-  remain closed.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` is the active
+  caller-zero effect slice. It may consume the same-session seed/read and
+  Length receipts to issue one Bool result and one Less Compare. Branch/edge,
+  CFG/PHI, lifecycle, Text, route, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1963,9 +1962,8 @@ Fail-fast boundary:
 Smallest next slice:
   The source-only relation field and scoped accessor are now present in the
   existing S6C ingress/common envelope. Positive and foreign-owner gates are
-  green; lifetime remains callback-scoped by construction. The next I0 is the
-  seed materializer, which may issue one unpublished `ConstI64(0)` plus exact
-  declaration publication.
+  green; lifetime remains callback-scoped by construction. The seed
+  materializer I0 is landed below.
 
 Non-claims:
   No Const/Write/ValueId/read receipt, Bool/Compare, Length re-emission,
@@ -1973,10 +1971,49 @@ Non-claims:
   route, performance, production caller, fallback, or retry is opened here.
 ```
 
+### `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` — landed caller-zero effect slice 2026-08-17
+
+```text
+Decision:
+  Issue exactly one unpublished `ConstI64(0)` in the canonical function entry
+  and publish it through `publish_declaration_exact` using the transported
+  source initializer relation. Return one callback-scoped seed/read receipt;
+  do not emit Compare, branch, edge, or loop CFG.
+
+Source authority + canonical issuer:
+  The same `PreparedLoopV2InitialIndexSeedRelationV1` owns the BindingRef,
+  declaration site, I64 type, Integer(0) witness, and logical carrier entry.
+  `CanonicalSsaFunctionSessionV2` is the sole physical ValueId/type issuer,
+  Const writer, and exact declaration/SSA publisher. The outer unpublished
+  function transaction remains the only discard owner.
+
+Non-authority:
+  hardcoded zero without the relation, `LoopValueKey` alone, raw ValueId,
+  detached `read_entry`, `activate_declaration_without_value`, MIR/type-map
+  scans, current block inference, the old loop physicalizer, or a second
+  canonical session cannot issue the seed.
+
+Fail-fast boundary:
+  Already-issued/re-entry, missing function, entry-block drift, owner or
+  source-shape mismatch, value/type drift, declaration/BindingSSA failure,
+  and callback escape reject before publication. A failure after reservation
+  poisons the unpublished session rather than exposing a retry path; the
+  outer transaction discards the Const and declaration together.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` may consume this
+  receipt (after its scoped borrow is dropped/consumed), read the Left binding,
+  emit one `Less`, and publish one Bool result. Branch/edge/terminator remain
+  closed.
+
+Non-claims:
+  No branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+  route, performance, production caller, fallback, or retry is opened here.
+```
+
 Current blockers are deliberately explicit:
 
 ```text
-NoSafeSlice::CanonicalInitialIndexSeedUnsealed
 NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
 NoSafeSlice::CanonicalConditionBoolMaterializerUnsealed
 ```
@@ -3140,8 +3177,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` | accept one same-session condition-result materializer consuming Left read + Length result and issuing one canonical Bool receipt | accepted BoxShape 2026-08-17; receipt-owned same-session method, one canonical Left read, one Bool ValueId/type, one `Less` Compare, no branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
 | 25b-l-j-seed-D0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0` | close the source-backed pre-loop index initializer relation needed before the Bool materializer can read the condition binding | accepted BoxShape 2026-08-17; `VerifiedS6CTypedInputRelationV1::initializer()` plus resolver/source literal evidence define one typed seed relation; no session effect, Bool/Compare, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-seed-transport-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` | carry the accepted source-only seed relation through the same S6C ingress/common envelope | landed caller-zero transport; positive/foreign-owner gates green; no Const/Write/ValueId/read receipt, Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | active caller-zero effect slice; positive/missing/foreign/duplicate/late-discard gates required; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | blocked behind `...INITIAL-INDEX-SEED-D0/I0`; consumes the Length receipt only after the same-session index declaration/value is seeded; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
+| 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | landed caller-zero effect slice; positive/duplicate/missing-function/late-discard gates green; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | active caller-zero effect slice; consumes the seed/read and Length receipts only after same-session checks; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

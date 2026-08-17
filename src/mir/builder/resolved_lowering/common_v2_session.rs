@@ -30,6 +30,12 @@ pub(in crate::mir::builder) use length_call::{
     CanonicalLengthCallResultReceiptV1, LengthCallDirectEmitterRejectV1,
 };
 
+#[path = "common_v2_initial_index_seed.rs"]
+mod initial_index_seed;
+pub(in crate::mir::builder) use initial_index_seed::{
+    CanonicalInitialIndexSeedReceiptV1, InitialIndexSeedMaterializationRejectV1,
+};
+
 /// A callback-scoped mechanical view of the physical block corresponding to
 /// the source condition block.  The row and entry stamp are borrowed from the
 /// same unpublished session, so this view cannot be re-paired with another
@@ -144,6 +150,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     length_target_plan_issued: bool,
     length_receiver_operand_issued: bool,
     length_call_direct_issued: bool,
+    initial_index_seed_issued: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -574,6 +581,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             length_target_plan_issued: false,
             length_receiver_operand_issued: false,
             length_call_direct_issued: false,
+            initial_index_seed_issued: false,
         };
         Ok(callback(&mut common))
     })

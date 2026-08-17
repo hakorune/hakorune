@@ -28,10 +28,10 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0 is accepted as a BoxShape; source transport is landed and the seed materializer I0 is the active bounded implementation."
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0 is accepted as a BoxShape; the initial-index seed transport/materializer are landed and the Bool materializer I0 is the active bounded implementation."
 work_mode = "fast"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0"
-current_blocker_token = "NoSafeSlice::CanonicalInitialIndexSeedUnsealed"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0"
+current_blocker_token = "NoSafeSlice::CanonicalConditionBoolMaterializerUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -51,13 +51,13 @@ BoxShape, its transport I0, session-stamp retention I0, Length-result canary
 I0, source-backed StringLen target-plan I0, and the callback-scoped physical
 condition-block target I0 are landed. The direct Length Call/result BoxShape,
 its unpublished caller-zero I0, and the exclusive session-scoped Length
-receipt lifetime I0 are landed. The Bool-result BoxShape is accepted, but its
-caller-zero I0 remains blocked until the source-backed initial index seed is
-admitted in the same canonical session. Source transport is landed; the
-active bounded slice may now materialize only that seed. No default zero or
-detached binding read may open the Bool effect.
-Published ValueId/result use, Compare lowering, emit_branch, edge/terminator, operations beyond
-this transport, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
+receipt lifetime I0 are landed. The Bool-result BoxShape is accepted. The
+source-backed initial-index seed transport and its one-entry Const/exact-
+declaration materializer are landed; the active bounded slice may now consume
+that same-session seed/read receipt and Length receipt for one Bool/Compare.
+No detached binding read may open the Bool effect.
+Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
+operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -72,10 +72,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, the receiver-operand canonical-read I0, the direct Length Call/result I0, the exclusive session-scoped Length receipt lifetime I0, and the source-only initial-index seed transport I0 are landed. The Bool-result BoxShape is accepted, but its I0 remains blocked until the seed materializer publishes the source-backed initial declaration/value. The active bounded slice is seed-only; branch/edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, the receiver-operand canonical-read I0, the direct Length Call/result I0, the exclusive session-scoped Length receipt lifetime I0, and the initial-index seed transport/materializer I0 are landed. The Bool-result BoxShape is accepted and its caller-zero materializer I0 is active; branch/edge/operations beyond Bool, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0"
+next_execution_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -90,7 +90,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-17: CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0 landed the selected/package HRTB borrow of the same batch-owned typed BlockExpr expectation. The focused selected static handoff test passed; no second issuer, raw count, session effect, Completion consumption, physical lowering, fallback, retry, or production caller was added.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-I0 landed typed RootAfter transport from the same S6C cohort. The relation carries owner, source loop/frame, and RootAfter|ParentResume disposition; current S6C is RootAfter-only, with no After block, edge, operation, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-D0 accepted a one-shot RootAfter placement BoxShape. One prepared plan consumes the same relation and source-segment receipt; canonical session allocation is the sole BasicBlockId issuer, the outer function transaction is the sole discard owner, and the next I0 allocates exactly one unpublished block with monotonic gaps non-semantic.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0 landed one caller-zero RootAfter-only unpublished After block allocation. The prepared plan is private and one-shot, canonical session issues the BasicBlockId, outer discard removes the unpublished function on late failure, and focused positive/duplicate/late-discard tests are green. The next design stop is source-backed After-edge admission; no edge or successor is emitted.",
@@ -102,4 +101,5 @@ landed_tail = [
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0 landed one callback-scoped projection from the same canonical session's source-segment receipt to the exact physical condition block. Owner, loop, split ordinal, layout coverage, and retained entry-stamp checks plus late-discard behavior are green. No Length Call/result, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller was opened; the Length receiver-operand projection is the next design stop, followed by a separate direct Call/result emitter.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0 landed one caller-zero generic StringBox.length Call and one canonical I64 result receipt from the same target/receiver/condition/stamp cohort. Final callee/receiver/destination/READ-effect checks, one-shot re-entry rejection, and late-discard no-publication tests are green. The outer unpublished transaction remains the only rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed. The next design stop is the full same-session lifetime seal for this receipt before the parent physical-result materializer.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0 landed the exclusive callback-scoped session borrow on the direct Length Call/result receipt. Duplicate/re-entry requires dropping the receipt first; direct-length and full physical-entry suites are green. The outer unpublished transaction remains the sole rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0 landed the source-backed entry ConstI64(0) and exact declaration/SSA publication from the same S6C seed relation. The callback-scoped non-Clone seed/read receipt is one-shot; missing-function, duplicate, and late-discard gates are green. Bool/Compare, branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
 ]

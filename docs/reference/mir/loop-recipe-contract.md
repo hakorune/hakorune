@@ -1843,11 +1843,11 @@ The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
 missing source-backed initial index seed. A fresh common-V2 session currently
 has no active canonical declaration/value for the condition's left
 `ReadBinding`; using a default zero, raw `ValueId`, or detached `read_entry`
-would create a second authority. The source-only initializer relation
-transport is now landed. The next bounded slice is
-`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0`: it may issue one unpublished
-`ConstI64(0)` and exact declaration publication before the later receipt-owned
-Bool materializer can issue one `Less` result. Branch/edge/terminator, CFG/PHI,
+would create a second authority. The source-only initializer relation and its
+seed materializer are now landed. The next bounded slice is
+`LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0`: it may consume the
+same-session seed/read and Length receipts before issuing one Bool result and
+one `Less` Compare. Branch/edge/terminator, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry,
 and production remain closed.
 
@@ -1865,8 +1865,20 @@ Missing/foreign initializer, site, binding, carrier, owner, stamp, type, or
 literal evidence rejects before physical effect; no defaulting, AST/MIR
 recount, fallback, or retry is permitted. This I0 emits no Const, declaration,
 ValueId, read receipt, Bool/Compare, CFG/PHI, lifecycle, Text route, or
-production. The next seed I0 may emit only the unpublished `ConstI64(0)` and
-exact declaration publication.
+production. The seed materializer I0 emits only the unpublished `ConstI64(0)`
+and exact declaration publication.
+
+## Common V2 initial index seed materializer I0
+
+`CommonV2CanonicalSessionRefV1::emit_initial_index_seed` is the sole physical
+issuer for the source-backed pre-loop index seed. It reserves one ValueId,
+writes one entry-block `ConstI64(0)`, and calls `publish_declaration_exact` for
+the resolver BindingRef. The callback-scoped non-Clone receipt carries the
+binding/carrier/value witness and prevents re-entry through the same session.
+Missing function, entry drift, and late callback failure reject before
+publication or are discarded by the outer unpublished function transaction.
+No Bool/Compare, branch/edge, CFG/PHI, lifecycle, Text, route, fallback,
+retry, or production caller is opened.
 
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 

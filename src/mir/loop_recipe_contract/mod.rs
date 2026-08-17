@@ -186,6 +186,10 @@ pub(crate) use common_v2_condition_operand_inventory::{
     PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2ConditionOperandRowV1,
 };
 #[allow(unused_imports)]
+pub(crate) use common_v2_initial_index_seed::{
+    InitialIndexSeedRelationRejectV1, PreparedLoopV2InitialIndexSeedRelationV1,
+};
+#[allow(unused_imports)]
 pub(crate) use common_v2_issuers::{
     issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
     PreparedLoopControlTransferProgramV2, PreparedLoopOperationProgramV2,
