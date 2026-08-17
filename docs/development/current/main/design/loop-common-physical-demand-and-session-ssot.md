@@ -7485,3 +7485,60 @@ Non-claims:
 This refresh authorizes no code, new semantic receipt, `emit_branch`,
 `emit_return`, edge/PHI/publication, production switch, fallback, retry, or
 legacy retirement.
+
+### Branch-emission D0 shared-segment audit (2026-08-18; NoSafeSlice remains)
+
+The follow-up authority audit found a second concrete mismatch before any CFG
+consumer can be implemented. `emit_length_call_result` currently allocates its
+own segment receipt internally, while `with_return_read_physical_receipt`
+accepts a segment receipt supplied by its caller. Therefore a green
+`CanonicalConditionBoolResultReceiptV1` and a green
+`CommonV2ReturnReadPhysicalReceiptV1` can still refer to different physical
+condition blocks. Owner/stamp equality alone cannot prove same allocation.
+
+Decision:
+
+Keep `NoSafeSlice::IfContinuationBranchEmissionAuthorityUnsealed`. The next
+design slice must name one canonical shared-segment consumer that owns the
+allocation and co-consumes the condition Bool receipt, Return-read receipt,
+and continuation target before `emit_branch`/`emit_return`. This is a physical
+co-consumer BoxShape, not a new semantic source/Recipe issuer; changing the
+existing Length API or adding a second segment allocation path is not
+authorized until that boundary is accepted.
+
+Source authority + canonical issuer:
+
+The condition producer/branch plan and `CommonV2ReturnReadCoSealRefV1` remain
+logical authorities. `CanonicalSsaFunctionSessionV2` is the sole physical
+segment/value owner, and `CanonicalCfgSessionV1` is the sole mechanical CFG
+writer. A future shared consumer must receive one session-owned segment receipt
+and pass it through both physical products without reacquiring or reconstructing
+layout meaning.
+
+Non-authority:
+
+Separate `allocate_v2_segment_blocks` calls, `condition_block`/`physical_block`
+equality, owner/stamp equality, placement blocks, raw `ValueId`s, and individual
+receipt green tests cannot establish same-session allocation or issue a branch
+source/terminal relation.
+
+Fail-fast boundary:
+
+Before any CFG mutation, reject distinct segment allocation identity, owner or
+stamp drift, condition logical-result/If-condition mismatch, condition physical
+block/If physical block mismatch, missing or duplicate split rows, mismatched
+then/continuation targets, and absent `FunctionExit` Completion evidence. The
+outer unpublished function transaction remains the sole rollback owner.
+
+Smallest next slice:
+
+Design-only API census for one shared segment receipt from allocation through
+Length/Bool/Return-read/branch-terminal consumption. No new receipt, branch,
+Return, edge/PHI/CFG publication, fallback, retry, production switch, or
+legacy retirement is authorized by this audit.
+
+Non-claims:
+
+The existing I0 receipts remain valid only for their individual bounded claims;
+they do not prove a branch-ready physical topology or authorize a caller to
+join independently allocated segment views.
