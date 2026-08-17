@@ -872,6 +872,24 @@ condition, and (4) the complete legacy-edge retirement list.  This checkpoint
 does not reopen `new_selected_dynamic`, the selected-normal legacy finalizer,
 physical session effects, or any fallback route.
 
+The audit must also close four readability risks without minting a new semantic
+receipt: `VerifiedCallableSemanticProgramV1::into_prepared_parts` remains a
+crate-local escape hatch until it is either replaced by a direct consuming
+callback or explicitly retired; `PreparedLoopOperationRowV2` remains an S6C
+provenance adapter and must not be relabeled as a Generic/G0 authority; every
+caller-zero canary gets a named final owner plus a same-commit deletion gate;
+and `DynamicProfileOwned`, `new_selected_dynamic`, and the selected-normal
+legacy finalizer each get a concrete zero-caller retirement condition.  A
+receipt that merely aliases an existing authority, transports a count, or
+copies a source site is folded into its parent rather than promoted to a new
+task/type.
+
+The output is a read-only convergence manifest (owner, duplicate-authority
+finding, final consumer, delete condition, evidence command).  It is not an
+implementation permission and cannot advance the Generic storage/lane design
+stop.  Any unresolved authority or missing production owner keeps the current
+`NoSafeSlice::GenericG0PhysicalEntryStorageLaneIssuerUnsealed` unchanged.
+
 ### Canonical session admission D0 (accepted three-step boundary)
 
 ```text
@@ -3932,7 +3950,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-completion | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` | retain the canonical resolver Completion in the Generic parent after result-ABI transport, with Generic tail/result/cleanup parity | accepted BoxShape 2026-08-17; canonical verifier remains the sole issuer; no Completion consumption, physical ABI/lane, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-completion-I0 | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0` | issue `verify_function_completion_v1(input)` once and lend the canonical non-Clone product through the parent callback | landed 2026-08-17; focused source-parent tests green; transport only, with no Completion consumer, physical/session effect, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
-| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, and legacy edges after the parent cohort | parked cleanup checkpoint; no new authority or production switch |
+| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the parent cohort | parked cleanup checkpoint; no new authority or production switch; unresolved storage/lane issuer keeps the current NoSafeSlice |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
