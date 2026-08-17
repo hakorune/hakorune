@@ -542,7 +542,7 @@ Non-claims:
   retry is opened by this census.
 ```
 
-### Generic G0 source-projection child tasks (queued, not yet activated)
+### Generic G0 source-projection child tasks (ordered; current row is effect D0)
 
 The external review is directionally compatible with this stop, but its
 reported branch/head is historical.  The current tree therefore keeps the
@@ -555,35 +555,47 @@ Builder/session effect.
 ```text
 Decision:
   Keep function-level effect as a separate Generic source-projection
-  decision.  Do not derive it from GenericG0StructuralFactsG0, operation-local
-  SourceRead/SourceWrite, or a default EffectMask.
+  decision.  The future `VerifiedGenericG0NoExternalEffectV1` is a bounded
+  source receipt, not a physical `EffectMask`; it is issued inside the existing
+  Generic source-parent transaction before demand/product consumption.
 
 Source authority + canonical issuer:
-  After the body-shape transport row is accepted, a future resolver-owned
-  issuer co-seals the same function's
-  VerifiedResolvedFunctionV1 body-effect/direct-call/method-call inventories,
-  a typed declaration-metadata-empty witness, and the Generic structural
-  facts.  It may issue a bounded NoExternalEffects projection only after all
-  three inputs are same-owner, same-origin, and same-root.
+  `input.body_shape().effects()` is the complete body-effect authority from
+  the same resolver traversal.  The future issuer co-seals it with the same
+  `VerifiedResolvedFunctionV1` direct/method-call and assignment/exit
+  inventories, the existing typed declaration-header metadata-empty witness,
+  and the selected Generic structural facts.  The structural facts are
+  borrowed from the selection before `issue_generic_g0_recipe_demand_v1`
+  consumes that selection; they are never reacquired or reconstructed.
 
 Non-authority:
-  Recipe-local effects, raw AST/MIR/JSON rescans, parameter count, `/N`,
-  EffectMask defaults, S6C effects, and Generic structural facts alone.
+  Recipe-local `SourceRead`/`SourceWrite`, raw AST/MIR/JSON rescans,
+  parameter count, `/N`, `EffectMask` defaults, S6C effects, body-shape count
+  alone, direct/method inventories alone, and Generic structural facts alone.
 
 Fail-fast boundary:
-  Reject direct/method calls, allocation/await/qmark/throw/non-local control,
-  field/upvar/index writes, non-empty uses/attrs/contracts, owner/origin/root
-  drift, missing effect rows, and any request to open physical/session effect.
+  Reject missing body-shape, owner/origin/source-kind/body-root or Generic
+  root-frame drift, non-empty uses/attrs/contracts, any direct or method call,
+  any `Allocation`/`Await`/`QMark`/`Throw`/`NonLocalControl` effect, field,
+  upvar, or index writes, extra local rebinds, write-site drift, and extra
+  Break/Continue/Return exits.  The admitted G0 fixture must have exactly two
+  `Write` rows, both local `BindingRebind` targets matching the outer/inner
+  structural update bindings, zero call-like effects, and exactly one explicit
+  tail Return.  Every rejection precedes receipt and physical/session effect.
 
 Smallest next slice:
-  Read-only issuer census and positive/negative matrix only, after the
-  resolver-owned body-shape transport is closed.  If the source issuer is
-  accepted, return to the parent cohort and continue the separate result /
-  Completion census; otherwise keep the parent NoSafeSlice.
+  This D0 is design-only: freeze the existing API inputs, expected rows,
+  same-cohort checks, and the positive/negative matrix.  After acceptance,
+  the first I0 may add one private, non-Clone effect module and issue the
+  bounded source receipt in the parent order
+  `validate input/body-shape/header/structural facts -> issue effect receipt
+  -> consume Generic demand/product`.  No `EffectMask` emission is part of
+  that I0.
 
 Non-claims:
-  No EffectMask emission, skeleton, lane adoption, ValueId/BindingSSA,
-  CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
+  No result/Completion co-seal, physical EffectMask, physical entry/header,
+  skeleton, lane adoption, ValueId/BindingSSA, CFG/PHI, lifecycle, Text,
+  route, fallback, retry, or production caller.
 ```
 
 #### `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` (landed transport I0)
