@@ -1404,40 +1404,94 @@ unknown variants, and late discard before any Builder effect.
 ```text
 Decision:
   Keep the five-variant Generic operation mapping as a mechanical input and
-  choose one physical emitter owner for ReadBinding, ConstI64, BinaryI64,
-  CompareI64, and WriteBinding.  This D0 does not emit MIR or open Builder
-  state; it only closes the owner and lowering-boundary census.
+  adopt the existing family-neutral Loop operation dispatcher as the sole
+  physical leaf-emitter candidate.  Do not connect the old V1 dispatcher to
+  Generic directly: first name the production issuer for one complete
+  `PreparedLoopOperationProgramV1`.  This D0 does not emit MIR or open Builder
+  state; it closes only the owner and lowering-boundary census.
 Source authority + canonical issuer:
   The same Generic source parent and its verified operation/evidence product
-  remain semantic authority.  The landed mapping is the only mechanical row
-  input.  A future Generic physical-operation emitter must consume that
-  mapping together with the installed physical function/session view in one
-  callback-scoped transaction; it may not reconstruct operations from AST,
-  MIR, S6C rows, or ValueIds.
+  remain semantic authority, and the landed mapping is the only mechanical row
+  input.  `PreparedLoopOperationProgramV1` is family-neutral; a future
+  Generic-only parent consumer must co-seal Generic context, operation effect,
+  After/continuation, and complete coverage exactly once, then lend that
+  program to the existing common dispatcher and canonical session services in
+  one callback-scoped transaction.  No Generic duplicate leaf emitter is
+  introduced.
 Non-authority:
-  S6C operation emitters, operation names alone, item ordinals, `/N`,
+  S6C provenance rows, the old V1 `ReadyLoopEntryV1`/block receipt as Generic
+  semantic input, operation names alone, item ordinals, `/N`,
   MirFunction/ValueId numbering, current block counters, EffectMask defaults,
   `new_selected_dynamic`, JSON, and late Builder scans are not operation
   meaning or placement authorities.
 Fail-fast boundary:
   Keep the stop for missing mapping rows, foreign owner/origin/frame/target,
-  binding or value-class drift, target-block/session-stamp drift, unsupported
-  variants, or an emitter that infers placement/effects after Builder
-  mutation.  Operation effect and mapping must be checked before any MIR
-  instruction, ValueId publication, CFG/SSA/PHI mutation, or retry/fallback.
+  binding or value-class drift, target-block/session-stamp drift, incomplete
+  Generic context/effect/continuation program, unsupported variants, or an
+  emitter that infers placement/effects after Builder mutation.  Program and
+  mapping checks must finish before any MIR instruction, ValueId publication,
+  CFG/SSA/PHI mutation, or retry/fallback.
 Smallest next slice:
-  Read-only census of existing Generic/common operation emitters and the
-  canonical session APIs, naming one sole emitter and its five variant
-  contracts plus positive/negative gates.  If no source-backed emitter seam
-  exists, retain this NoSafeSlice and do not add a speculative adapter.
+  Design-only census for a production Generic-to-
+  `PreparedLoopOperationProgramV1` issuer: exact context/effect/After/
+  continuation inputs, one-shot parent ownership, coverage, and the common
+  dispatcher/session callback.  If this source-backed seam is absent, retain
+  this NoSafeSlice and do not add a speculative adapter.
 Non-claims:
   No operation MIR emission, block/edge/CFG/SSA/PHI mutation, Completion or
   DraftSeal claim, lifecycle, Text, route, backend, fallback/retry, production
   caller, or main integration.
 ```
 
-The mapping I0 is complete, but physical operation emission remains a
-design-only boundary until one canonical session-owned emitter is named.
+The mapping I0 is complete, and the common dispatcher is the only accepted
+leaf-emitter candidate.  Physical operation emission remains a design-only
+boundary until the Generic production program issuer is named.  The next
+design stop is the ownership seam below: the current mapping borrows the
+parent/evidence while `PreparedLoopOperationProgramV1` owns its demand.
+
+### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (current design stop)
+
+```text
+Decision:
+  Keep operation emission closed and first define one source-owned Generic
+  operation cohort/port.  The cohort must resolve the lifetime conflict
+  between the borrowed mechanical mapping and the owned, family-neutral
+  `PreparedLoopOperationProgramV1`; it must not retain a self-reference or
+  make the old cfg(test) consuming split a production authority.
+Source authority + canonical issuer:
+  `VerifiedGenericG0SourceParentV1` and its verified recipe/core/effect
+  product remain the only source authority.  A single Generic parent/cohort
+  issuer, inside the same source-parent HRTB, must co-seal context, operation
+  effect, After/continuation, coverage, and the operation rows exactly once.
+  It may issue an owned family-neutral program and lend a transient mapping,
+  or issue one callback-scoped cohort that owns both; the choice must be
+  explicit and source-backed.
+Non-authority:
+  A raw parent borrow, `into_operation_demand_parts` under `cfg(test)`, a
+  second mapping reconstructed from MIR/AST/ValueId scans, S6C provenance,
+  item ordinals, `/N`, or a copied context/effect/continuation tuple is not
+  an operation cohort or ownership proof.  The common dispatcher remains a
+  mechanical consumer, not a Generic source issuer.
+Fail-fast boundary:
+  Reject before Builder/MIR effect on owner/origin/frame/target drift,
+  incomplete context/effect/continuation or 15-row coverage, mapping/program
+  mismatch, mapping borrow surviving program consumption, self-reference,
+  double consumption, loan escape, partial program construction, or any
+  request to publish a detached program without its cohort owner.
+Smallest next slice:
+  Design-only census of `PreparedLoopOperationProgramV1` ownership and the
+  Generic parent consume callback.  Decide whether the mapping is transient
+  preflight or part of an owned cohort, and name the one-shot port/rollback
+  owner.  No MIR, Builder, ValueId, operation leaf, CFG/SSA/PHI, or retry.
+Non-claims:
+  No operation emission, block/edge/Completion/DraftSeal mutation, lifecycle,
+  Text, route, backend, fallback/retry, production caller, or main integration.
+```
+
+The mapping I0 is complete and the common dispatcher is the only accepted
+leaf-emitter candidate.  The cohort D0 is now the live ownership stop; no
+physical operation effect is authorized until this source-owned program/port
+seam is closed.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -4512,7 +4566,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | current design-stop slice; no implementation or next execution row until every listed production/test caller has an owner and retirement gate |
 | 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | current design stop; read-only emitter/session census only; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | accepted leaf BoxShape; the common dispatcher is the only candidate, while the source-owned program/cohort seam is the next D0; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | current design stop; ownership/program census only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |

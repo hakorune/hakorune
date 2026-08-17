@@ -125,6 +125,17 @@ or owner drift, unsupported variants, and incomplete coverage fail before any
 physical effect.  No S6C operation row or `new_selected_dynamic` path is
 reused.
 
+The next design stop is the Generic operation cohort/port.  The common
+dispatcher above remains the only accepted leaf-emitter candidate, but it must
+not be wired directly to the old V1 entry/block receipts.  The Generic source
+parent currently lends the mechanical mapping while
+`PreparedLoopOperationProgramV1` owns its demand; a source-owned, one-shot
+cohort must resolve that lifetime split before any operation MIR or Builder
+effect.  The production seam must either make the mapping transient before
+program consumption or own both in one callback-scoped cohort.  The
+`cfg(test)` demand-part split, S6C provenance, and a second Generic emitter are
+not authorities.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)
