@@ -34,15 +34,15 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-TARGET-I0 is landed as a Builder-free, physical-ID-free source/provider target bridge. The next design stop names the canonical S6C integer operand issuer before any Substring effect; V9, TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-TARGET-I0 and the S6C V6/V7/V8 operand issuer I0 are landed. The next design stop names the common-V2 source-backed provider/site-plan admission and lifecycle sidecar before any CheckedCallOut or V9 ValueId; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0"
-current_blocker_token = "LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0. Name one callback-scoped S6C operand issuer for exact V6 ReadBinding, V7 ConstI64(1), and V8 Add(V6,V7) in the canonical Body segment; stop before Substring V9 effect, TextEq, Bool, CFG, publication, fallback, retry, or production."
+current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0"
+current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0. Name one common-V2 source-backed provider/site-plan admission and lifecycle sidecar for StringSubstring/2 item 6, using the landed V6/V7/V8 operand receipt and target plan; stop before CheckedCallOut effect, V9 ValueId, lease consume, TextEq, Bool, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq V9 operand-issuer D0)"
+active_lane = "Loop compiler frontier (S6C TextEq V9 callout-admission D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -90,8 +90,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, and the S6C canonical V6/V7/V8 operand issuer I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The V9 source/provider target-plan bridge I0 is landed with positive and foreign-owner gates; the next design stop names the S6C operand issuer, while V9 effect, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0"
+latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The next design stop names common-V2 provider/site-plan admission and lifecycle sidecar authority; CheckedCallOut, V9 ValueId/lease, TextEq V10, Bool, branch/Return CFG, and production remain closed."
+next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none (design stop pending acceptance)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
@@ -105,7 +105,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-18: LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-I0 landed one callback-scoped canonical V6/V7/V8 operand receipt. Source/Recipe/body-loop/segment checks, canonical identity read, integer Const/Add publication, duplicate/missing-seed/late-discard guards, quick check, format, and focused 4/4 tests are green; Substring V9, residence, TextEq V10, Bool, CFG, publication, fallback, retry, and production remain closed.",
+  "2026-08-18: S6C V6/V7/V8 operand issuer I0 and common-V2 Substring target-plan I0 are landed with same-cohort/foreign-owner/late-discard evidence. The next design stop is common-V2 provider/site-plan admission and lifecycle sidecar authority; CheckedCallOut, V9 ValueId/lease, TextEq V10, Bool, CFG, publication, fallback, retry, and production remain closed.",
   "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
   "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
   "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer; continuation relation and placement-consumer D0 are accepted, with target-placement I0 next and no edge/instruction/production claim.",

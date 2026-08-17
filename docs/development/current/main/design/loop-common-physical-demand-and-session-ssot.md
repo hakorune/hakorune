@@ -111,10 +111,10 @@ Related:
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization.
 - **Next ordered task:**
-  `LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0` is the next design stop. It
-  must name the S6C-only canonical issuer for the Body V6 read, V7 constant,
-  and V8 add before a Substring V9 result or any V10 capability is opened. No
-  Dynamic callout or C ABI is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0` is the next design
+  stop. It must name the common-V2 source-backed provider/site-plan admission
+  and lifecycle sidecar before any CheckedCallOut or V9 ValueId is opened. No
+  selected-Dynamic pair or `nyash.string.eq_hh` transport is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1744,82 +1744,46 @@ TextEq V10, Bool, source-level branch/Return CFG, publication, fallback,
 retry, or production selection. Any missing source contract or provider fact
 returns the row to `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`.
 
-### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0 (2026-08-18; design stop)
+### S6C V6/V7/V8 operand issuer I0 closeout (2026-08-18)
 
-Decision: split the V9 boundary once more at its canonical integer operands.
-S6C owns the exact body sequence `V6 = ReadBinding(index)`, `V7 = ConstI64(1)`,
-`V8 = Add(V6,V7)`, and `V9 = StringSubstring(V0,V6,V8)`. The next physical
-issuer is S6C-specific and may reuse only the existing canonical session
-mechanics for physical ID allocation, type publication, entry/segment reads,
-and integer instruction emission.
+The child issuer now validates the exact `ReadBinding(index) -> V6`,
+`ConstI64(1) -> V7`, `Add(V6,V7) -> V8` prefix and one Body segment, then lends
+the canonical values through a non-Clone callback receipt. The Substring
+target-plan I0 separately carries the exact source/Recipe/provider facts.
+Focused 4/4 operand tests and the target-plan positive/foreign-owner gates are
+green; no Substring effect, CheckedCallOut, V9 lease/ValueId, TextEq, Bool,
+CFG, publication, fallback, retry, or production path opened.
 
-Source authority + canonical issuer: resolver S6C source rows and Recipe roles
-`body_index_read`, `slice_one`, `slice_end_add`, and `substring_call` -> one
-future callback-scoped S6C operand issuer. `CanonicalSsaFunctionSessionV2`
-remains the sole ValueId/type issuer; the operand product carries no source
-meaning or runtime lease.
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0 (2026-08-18; design stop)
 
-Non-authority: selected-Dynamic V6/V8/V9 code, Dynamic formal values or value
-ledger, outer Less V5, generic AST `Equal`/`CompareOp::Eq`, raw item ordinals,
-caller-supplied ValueIds, and any S6C use of Dynamic I6/I7 CheckedCallOut.
+Decision: keep `MaterializationRelationMissing` at the common-V2 provider/site
+plan boundary. The source contract is closed by S6C `StringSubstring/2` and
+Recipe `CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`; the landed target plan
+and V6/V7/V8 operand receipt are the only inputs to the future materializer.
 
-Fail-fast boundary: before any body instruction, reject role/item/block/result
-drift, non-`B1` placement, foreign owner/session/segment brand, missing or
-duplicate body read, wrong `V7=1` literal, non-Add or wrong Add operands,
-operand type drift, or an operand receipt from another cohort. Late failure
-discards the unpublished function; same-session repair/retry is forbidden.
+Source authority + canonical issuer: one new private admission owned by
+`CommonV2CanonicalSessionRefV1` must co-seal the source target, checked
+`hako.text.scan.substring.v1` facts, one function-local site/entry/outcome
+plan, and an opaque lifecycle sidecar. The canonical session remains the sole
+physical `ValueId`/type/CFG issuer; runtime `dynamic_v2_lease` remains the sole
+handle/token owner.
 
-Smallest next slice: design-only BoxShape
-`LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0`. Name one private callback-scoped
-operand receipt that consumes the existing S6C ingress and shared Body segment,
-emits only V6/V7/V8 through canonical mechanics, and lends those values to the
-later source-backed V9 issuer. Do not emit Substring, TextEq, Bool, branch,
-Return, CFG/PHI, or runtime lease in this row.
+Non-authority: selected-Dynamic I6/I7 admission and lease slots, generic
+`substring_hii`, raw handles/tokens/ValueIds, `TextFormalCallResidenceV1` as a
+V9 result issuer, `nyash.string.eq_hh`, and any fallback/retry. Neutral
+`emit_checked_callout` and normal-result projection may be reused only as
+physical transport after this admission exists; they do not select a provider.
 
-Positive acceptance: exact S6C source/Recipe parity, one same-session Body
-segment brand, canonical `ValueId`/type publication, and callback-only receipt
-borrowing. Negative acceptance: any selected-Dynamic row reuse, outer V5
-substitution, missing/duplicate operand, foreign segment, wrong literal or
-Add shape, and detached ValueId tuple. No new semantic `Verified*` or
-`Prepared*` receipt is issued by this design row.
+Fail-fast boundary: before the first `CheckedCallOut`, reject source/Recipe
+role, item/block/result, owner/session/Body segment brand, V6/V7/V8 receipt,
+provider symbol/ABI/wire, site/entry/outcome identity, EndAuthorized shape,
+lease-slot uniqueness, and duplicate admission. Fault, ImmediateI64,
+Forwarded, unknown wire, or late callback failure emits no V9; the enclosing
+unpublished function transaction discards all physical state without retry.
 
-### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-I0 (2026-08-18; fast)
-
-The D0 is accepted for one BoxShape implementation. The owner will live in a
-new child module beside `common_v2_session.rs` so the session parent remains
-below the 800-line source limit. It will expose one private callback-scoped,
-non-`Clone` receipt for V6/V7/V8, consume only the existing S6C ingress and
-shared Body segment, and return the canonical ValueIds only through that
-receipt. A narrow source-row accessor may be added to the existing physical-
-ID-free operation program; it may not issue a second semantic product.
-
-Implementation acceptance: exact roles/items/blocks/classes are checked before
-the first body instruction; `identity.read_entry_receipt` issues V6, the
-canonical session issues V7 and V8, and only canonical type publication is
-used. Positive/negative focused tests must cover same-segment success,
-duplicate/foreign scope, wrong literal/Add shape, and late unpublished discard.
-The I0 ends before Substring V9, runtime lease, TextEq V10, Bool, branch,
-Return, CFG/PHI, publication, fallback, retry, and production selection.
-
-### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-I0 closeout (2026-08-18)
-
-Landed one child-module issuer beside `common_v2_session.rs`. It validates the
-source/Recipe prefix and one Body loop/segment, reads V6 through canonical
-identity/SSA, issues/publishes V7=`ConstI64(1)` and V8=`Add(V6,V7)` through the
-canonical session, and lends a non-Clone callback-scoped receipt. The one-shot
-session flag is reserved before the first body effect; foreign segment brands,
-duplicate rows, binding/layout drift, missing seed, and late callback failure
-cannot open a retry or fallback path. The existing physical-ID-free source-row
-accessor is projection-only and issues no second semantic product.
-
-Evidence: quick focused S6C operand suite 4/4 green; `cargo check --profile
-quick`, `cargo fmt --all`, and `git diff --check` green. Source files remain
-below the 800-line hard stop (`common_v2_s6c_operand_issuer.rs` 469 lines,
-tests 271, parent session 677). The additional `nyash.string.eq_hh` export
-audit remains closed read-only: it is generic raw-i64 hook/fallback transport,
-not S6C TextEq authority or a strict wire issuer.
-
-The I0 is complete as a BoxShape. Next bounded decision is
-`COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`; V9 residence/lease, TextEq V10,
-Bool, branch/Return CFG, Completion/DraftSeal, publication, fallback, retry,
-production selection, and legacy retirement remain closed.
+Smallest next slice: design-only BoxShape `COMMON-V2-TEXTEQ-SUBSTRING-V9-
+CALLOUT-ADMISSION-D0` itself. Name the common provider/site-plan identity
+issuer and lifecycle sidecar API; stop before `CheckedCallOut`, V9 `ValueId`,
+lease consume, TextEq V10, Bool, branch/Return CFG, publication, fallback,
+retry, and production. Worker review confirms the existing Dynamic pair is
+not reusable as authority; only its neutral CFG transport is reusable.
