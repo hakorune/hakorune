@@ -1909,11 +1909,16 @@ and no canonical numeric namespace for its strict Bool wire. Therefore the
 existing `NoSafeSlice::TextEqStrictDecoderTrapUnsealed` remains the blocker;
 no number or symbol is assigned by analogy.
 
+The runtime does expose `nyash_string_eq_hh_export` as a stable C entry, but
+it is Rust glue rather than a TextEq semantic owner: it accepts a generic
+`op + 3*i64` dispatch, may return a fallback hook-miss code, and has no
+source cohort, status/out/fault envelope, or strict Bool decoder.
+
 | candidate | classification | reason it cannot issue B |
 | --- | --- | --- |
 | `DynamicV2CallOutV1` status/tag/revision | transport only | generic carrier; no TextEq identity, cohort, or one-shot Bool consumer |
 | TextScan ABI revision 1 / out wire revision 2 | other source family | owns Substring/IndexOf facts, not StringEquals/1 |
-| `nyash.string.eq_hh` | non-authority hook | generic i64 route and truthification; no strict status/fault/Trap contract |
+| `nyash.string.eq_hh` / `nyash_string_eq_hh_export` | source export, non-authority route | generic dispatch/fallback i64 route and truthification; no strict status/fault/Trap contract |
 | C1 `llvm.trap` sites | backend-local | malformed transport traps have no source-bound S6C meaning |
 | `TextFormal*` borrow/residence | mechanical transport | slot/generation lease facts, not method result semantics |
 
@@ -1933,6 +1938,33 @@ adds the exhaustive negative matrix; if no producer can be named, remain at
 Non-claims: this census changes no code, fixture, ABI, transport, source
 entry, decoder, Trap, residence, Bool `ValueId`, production switch, or legacy
 retirement condition.
+
+### External architecture-review reconciliation (2026-08-18; parked)
+
+The supplied review targeted old HEAD `8237906da0`; current HEAD is
+`e66a8573ea`, where A0 `StringEquals/1` DesignOnly rejection is already
+landed. Its B stop therefore remains current; the review's missing-A claim is
+not a new task. The following confirmed shape concerns are parked after the
+TextEq boundary, not active-row switches:
+
+- `LOOP-GENERIC-PREFLIGHT-CONSUME-SHAPE-D0`: the session preflight exposes
+  narrow getters and `take_layout`/`expect` paths; design one opaque consumer
+  or typed duplicate rejection before any Generic production caller.
+- `LOOP-CALLABLE-OPAQUE-DEMAND-CONSUME-D0`: `consume<R>` lends four owned
+  values and the prepared wrapper has an uncalled `into_parts`; census the
+  real consumer, then choose an opaque aggregate/private handoff.
+- `LOOP-COMMON-DISPATCHER-ENTRY-CENSUS-D0`: target-explicit and block-receipt
+  mechanical entries remain; classify the single keeper and test-only callers
+  at production cutover, with no second leaf authority.
+- `STATE-PARSER-INTEGRITY-I0`: the state array was repaired after a standard
+  TOML parse audit; add parser-backed guard evidence before changing pointers.
+- `CURRENT-POINTER-COMPACTNESS-D0`: current pointer drift is corrected in
+  `CURRENT_STATE.toml`; any later slimming must preserve one live row and
+  remain docs-only.
+
+These tasks claim no code, fixture, receipt, production selector, fallback,
+retry, or TextEq physical effect. Re-select only after the current B/C stop
+is explicitly closed; until then `design_stop` and the B blocker remain.
 
 #### C — canonical Substring-result residence publisher/pinner
 

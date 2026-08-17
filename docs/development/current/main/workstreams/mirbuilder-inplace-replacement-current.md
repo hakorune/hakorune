@@ -29,6 +29,25 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
+## Parked follow-ups from external architecture review
+
+The review supplied on 2026-08-18 was based on old HEAD `8237906da0`; the
+current A0 StringEquals/1 DesignOnly rejection is already landed at the live
+HEAD. It does not reopen A or change the B blocker. Five bounded follow-up tasks
+are recorded for later selection only:
+
+| task | evidence now | acceptance when selected |
+| --- | --- | --- |
+| `LOOP-GENERIC-PREFLIGHT-CONSUME-SHAPE-D0` | `PreparedGenericG0PhysicalEmitterSessionPreflightV1` has borrowed getters plus `take_layout`/control extraction; canonical consumer is test-only and production callers are 0 | choose one opaque session consumer or typed duplicate rejection; no re-pairing and no Generic production switch |
+| `LOOP-CALLABLE-OPAQUE-DEMAND-CONSUME-D0` | `PreparedCallableOperationDemandV1::consume<R>` has two test-only direct callsites; wrapper `into_parts` has no caller | census callers, then hide tuple-like escape behind one private/opaque aggregate; preserve source co-seal |
+| `LOOP-COMMON-DISPATCHER-ENTRY-CENSUS-D0` | target-explicit and block-receipt dispatcher functions share leaf emitters; target path is mechanical, block path has tests | name one keeper, classify test-only callers, and retire/restrict duplicates at production cutover |
+| `STATE-PARSER-INTEGRITY-I0` | shell pointer guard was green while standard `tomllib` rejected missing commas; the array is now repaired | add standard-parser validation to the reusable state guard and make parse failure blocking |
+| `CURRENT-POINTER-COMPACTNESS-D0` | active lane drift was corrected; pointer is 115 lines and still contains bounded status/tail | only if selected, compact current pointers without copying history or changing semantic authority |
+
+All four are `design_stop` follow-ups. They may not add a `Verified*`/
+`Prepared*` receipt, production selector, fallback/retry, or physical effect
+until the current TextEq B/C boundary is explicitly closed.
+
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
