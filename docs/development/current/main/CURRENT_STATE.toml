@@ -34,15 +34,14 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0 is the next design stop after the placement-only I0. The existing JoinSig `NextItem`, envelope, segment receipt, canonical session, and sole rollback owners remain named; before any branch/Return effect, item-to-split and one-sided terminal/continuation terminator authority must be accepted. Layout rewrite, two-normal-arm PHI, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed."
+current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0 is the next design stop after branch-emission was rejected as NoSafeSlice. Placement is mechanical only; no source-backed item-to-physical-split or FunctionExit terminal owner exists. Layout rewrite, two-normal-arm PHI, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed."
 work_mode = "design_stop"
-current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0"
-current_blocker_token = "NoSafeSlice::IfContinuationBranchEmissionAuthorityUnsealed. Placement is landed, but no source-backed item-to-split and one-sided terminal/continuation terminator authority is named for branch/Return emission. Do not add code, a new semantic receipt, edge, Return, BlockEnd, CFG/SSA/PHI, production, fallback, or retry."
+current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0"
+current_blocker_token = "NoSafeSlice::IfContinuationSplitTerminalAuthorityUnsealed. Existing control/layout facts have no source-backed item-to-physical-split or FunctionExit terminal issuer. Do not add code, a new semantic receipt, edge, Return, BlockEnd, CFG/SSA/PHI, production, fallback, or retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-
 active_lane = "Loop compiler frontier (Generic-to-common operation emitter I0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
@@ -91,8 +90,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, and callback-scoped target-placement I0 are landed with focused positive/duplicate/late-discard evidence; branch/Return emission is now the next design stop. Dynamic exit-session and initializer bridge remain downstream."
-next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0"
+latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, and callback-scoped target-placement I0 are landed; branch/Return emission was rejected as NoSafeSlice because split/FunctionExit authorities are absent. Next is a read-only split-terminal authority census."
+next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -117,4 +116,5 @@ landed_tail = [
   "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
   "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer; continuation relation and placement-consumer D0 are accepted, with target-placement I0 next and no edge/instruction/production claim.",
   "2026-08-18: LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0 landed one callback-scoped, one-shot physical target reservation from the sealed Exit+Fallthrough(NextItem) relation. Same-block strict ordering, segment/split/stamp parity, duplicate rejection, and late unpublished-session discard are focused-green; no edge, terminator, operation, Return, BlockEnd, PHI, production, fallback, or retry opened. Next stop is branch-emission authority design.",
+  "2026-08-18: LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0 was audited and rejected as NoSafeSlice: logical If placement/layout has no source-backed item-to-physical-split or FunctionExit terminal issuer, while canonical CFG APIs require those physical facts. No branch/Return/BlockEnd/PHI or new receipt opened; next stop is split-terminal authority census.",
 ]
