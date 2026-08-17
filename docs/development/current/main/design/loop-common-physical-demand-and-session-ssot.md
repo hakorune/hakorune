@@ -1754,6 +1754,53 @@ Non-claims:
   selector/cutover change is opened here.
 ```
 
+#### `PHYSICAL-INPUT-AUTHORITY-I0` — Dynamic result/input conformance design stop (2026-08-18)
+
+The canonical callable result contract is already closed and must not be
+reopened here.  The remaining question is narrower: the existing selected
+Dynamic physical demand must prove that its source-side Dynamic program,
+package-owned header/ABI, exact physical input, and two-site Completion all
+describe the same exact `i64` callable before any session effect is admitted.
+
+```text
+Decision:
+  Keep `NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed`.  Open no new
+  result receipt and do not infer physical I64 compatibility from the source
+  annotation alone.  The next bounded design row is a private extension of
+  the existing A-prime issuer, not a second Dynamic classifier.
+Source authority + canonical issuer:
+  `VerifiedDynamicExitTransactionCoSealV1` owns the retained Dynamic
+  semantic/physical-input view; its A-prime source relation owns the exact
+  pos/end and operation classes; the package/catalog physical header owns
+  parameter/result ABI and storage facts; `VerifiedFunctionCompletionV1`
+  owns the exact two return sites and target.  The existing
+  `issue_selected_a_prime_i64_physical_demand` is the sole co-seal issuer.
+Non-authority:
+  `DynamicCallableFunctionExitTargetV1` alone, catalog header alone, a bare
+  `i64` string, Recipe/value IDs/MirType, static Callable Tail, owner equality,
+  session/DraftSeal state, or any AST/fixture rescan cannot establish the
+  physical contract.
+Fail-fast boundary:
+  Before Builder/session/CFG effect, reject owner/target/region/Loop drift,
+  missing or non-exact `i64` parameter/result ABI, Dynamic tail-binding drift,
+  missing/non-value return, Completion cardinality other than two, or any
+  source/physical coverage mismatch.  No fallback or retry is allowed.
+Smallest next slice:
+  Design and then implement one private A-prime authority product that
+  consumes the selected package loan once and co-seals physical input,
+  package header/ABI, Dynamic result/Tail relation, and Completion.  Add
+  positive/negative conformance tests before opening a session consumer.
+Non-claims:
+  No session generation, CFG/SSA/PHI, Completion consumption, DraftSeal,
+  lifecycle, PinnedTextOp, GEP/load, route/performance, production selector,
+  cutover, fallback, or retry is opened by this row.
+```
+
+This row supersedes the broader physical-input wording in the downstream H2
+ladder only for the current design stop: the earlier
+`DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` is landed, while the selected
+initializer bridge and physical session remain later consumers.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
