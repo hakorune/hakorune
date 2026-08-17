@@ -169,10 +169,10 @@ source authority. The dispatcher-preflight BoxShape now binds the
 admission-owned layout/program to the same-session canonical entry and
 layout-keyed segment receipt in one callback-scoped mechanical input. Its I0
 only runs the existing segment-dispatch preflight and drops the unpublished
-plan; no operation leaf or production caller is opened. The input cannot be
-re-paired from independent layout, entry, or segment getters. The next row may
-consume this same scoped input for operation rows under the existing outer
-discard owner.
+plan; the caller-zero operation emitter now consumes the same input through
+the existing common segment dispatcher under the outer discard owner. The
+input cannot be re-paired from independent layout, entry, or segment getters;
+no Completion/DraftSeal claim or production caller is opened.
 
 The old `VerifiedGenericRecipeProductG0::into_physical_boundary` topology
 split is now `cfg(test)` only.  It remains available to the caller-zero

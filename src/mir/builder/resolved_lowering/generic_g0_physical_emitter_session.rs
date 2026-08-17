@@ -2,15 +2,16 @@
 //!
 //! This is the first consumer of the combined prephysical admission.  It
 //! materializes a shell, adopts the source entry lanes, reads the canonical
-//! preheader rows, and allocates layout-keyed segment blocks.  No operation
-//! leaf is emitted and the unpublished outer transaction owns every rollback.
+//! preheader rows, and allocates layout-keyed segment blocks.  The callback may
+//! consume the existing common leaf dispatcher, while the unpublished outer
+//! transaction owns every rollback.
 
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::ReadyLoopEntryV1;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    allocate_for_layout, preflight_loop_segment_operation_dispatch_v1,
-    ready_loop_entry_from_canonical_rows, LoopPhysicalSegmentBlockReceiptV1,
-    LoopPhysicalServicesV1,
+    allocate_for_layout, emit_loop_segment_operation_dispatch_v1,
+    preflight_loop_segment_operation_dispatch_v1, ready_loop_entry_from_canonical_rows,
+    LoopOperationDispatchServicesV1, LoopPhysicalSegmentBlockReceiptV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_function_entry_input::GenericG0PhysicalLaneRoleV1;
@@ -37,6 +38,15 @@ impl GenericG0SegmentDispatchInputV1<'_> {
     fn preflight(self) -> Result<(), String> {
         preflight_loop_segment_operation_dispatch_v1(self.layout, self.entry, self.segment_receipt)
     }
+
+    fn emit(self, services: &mut LoopOperationDispatchServicesV1<'_, '_>) -> Result<usize, String> {
+        emit_loop_segment_operation_dispatch_v1(
+            self.layout,
+            self.entry,
+            self.segment_receipt,
+            services,
+        )
+    }
 }
 
 fn with_dispatch_input<R>(
@@ -53,9 +63,10 @@ fn with_dispatch_input<R>(
     })
 }
 
-/// Consume one whole Generic admission and run only the unpublished
-/// shell/entry/segment preflight.  The callback is deliberately caller-zero:
-/// the returned session view cannot publish a module or emit an operation.
+/// Consume one whole Generic admission, run the unpublished
+/// shell/entry/segment preflight, and lend one branded dispatcher input.  The
+/// callback remains caller-zero: it cannot publish a module, and every late
+/// failure returns through the outer discard owner.
 pub(in crate::mir::builder) fn with_generic_g0_physical_emitter_session_preflight<R>(
     builder: &mut MirBuilder,
     admission: PreparedGenericG0PhysicalEmitterAdmissionV1<'_>,
@@ -144,6 +155,7 @@ pub(in crate::mir::builder) fn with_generic_g0_physical_emitter_session_prefligh
 #[cfg(test)]
 mod tests {
     use super::with_generic_g0_physical_emitter_session_preflight;
+    use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::LoopOperationDispatchServicesV1;
     use crate::mir::builder::MirBuilder;
     use crate::mir::compiler::generic_g0_physical_operation_cohort::issue_generic_g0_physical_emitter_admission_v1;
     use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
@@ -161,7 +173,16 @@ mod tests {
             |session, draft, dispatch_input| {
                 assert_eq!(session.owner(), input.owner());
                 assert!(draft.current_function_name().is_some());
-                dispatch_input.preflight().expect("dispatch preflight");
+                let mut services = LoopOperationDispatchServicesV1::new(
+                    draft,
+                    &mut session.identity,
+                    &mut session.phis,
+                );
+                let emitted = dispatch_input
+                    .emit(&mut services)
+                    .expect("dispatch emission");
+                assert!(emitted > 0);
+                drop(services);
                 assert!(draft
                     .function_state
                     .current_function
@@ -169,7 +190,7 @@ mod tests {
                     .expect("unpublished shell")
                     .blocks
                     .values()
-                    .all(|block| block.instructions.is_empty()));
+                    .any(|block| !block.instructions.is_empty()));
                 Ok(())
             },
         );
@@ -208,13 +229,18 @@ mod tests {
         let error = with_generic_g0_physical_emitter_session_preflight(
             &mut builder,
             admission,
-            |_session, _draft, dispatch_input| {
-                dispatch_input.preflight()?;
-                Err::<(), _>("late preflight failure".to_owned())
+            |session, draft, dispatch_input| {
+                let mut services = LoopOperationDispatchServicesV1::new(
+                    draft,
+                    &mut session.identity,
+                    &mut session.phis,
+                );
+                dispatch_input.emit(&mut services)?;
+                Err::<(), _>("late emission failure".to_owned())
             },
         )
         .expect_err("late callback failure");
-        assert_eq!(error, "late preflight failure");
+        assert_eq!(error, "late emission failure");
         assert!(builder.current_function_name().is_none());
         assert!(builder.current_block_id().is_none());
     }

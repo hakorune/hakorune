@@ -1838,6 +1838,27 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
+#### Operation emitter I0 closeout (2026-08-17)
+
+The same callback-scoped input can now consume the existing common segment
+dispatcher once.  `emit_all` performs its complete target preflight before the
+first leaf, publishes the five-variant operation rows through the canonical
+Builder/identity/PHI services, and returns only an operation-count receipt to
+the caller-zero test.  A late callback failure after emission still reaches
+the outer unpublished discard owner, leaving no function or block published.
+No Generic leaf emitter, S6C adapter, Completion/DraftSeal claim, retry,
+fallback, or production caller was added.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib generic_g0 -- --nocapture  # 72 passed
+RUSTFLAGS='-Awarnings' cargo check -q
+cargo fmt --all
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
 ```text
 Decision:
   Keep `NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed`.
@@ -5088,7 +5109,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite 69/69, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits remain owned by the later parity retirement |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | landed 2026-08-17; retained source rows, shell/adoption, canonical preheader reads, layout-keyed segment allocation, and late-discard tests are green; operation leaf, publication, retry, fallback, and production remain closed |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
-| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | consume the callback-scoped program/layout/entry/segment input through the canonical unpublished session and emit the existing five-variant operation rows | next bounded fast slice; the dispatcher input is sealed, while completion/publication/production remain closed |
+| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | consume the callback-scoped program/layout/entry/segment input through the canonical unpublished session and emit the existing five-variant operation rows | landed 2026-08-17; existing common dispatcher emits inside the outer unpublished transaction, late failure discards, and completion/publication/production remain closed |
 | 25b-c0-G0-operation-dispatch-preflight-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0` | bind admission-owned program/layout to session-issued canonical entry and segment receipts, then run the existing segment-dispatch preflight without a leaf effect | landed 2026-08-17; one callback-scoped mechanical view and no-leaf preflight are green; operation emission remains a separate row |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
