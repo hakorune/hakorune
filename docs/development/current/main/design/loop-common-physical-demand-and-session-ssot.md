@@ -6184,7 +6184,7 @@ skip the After closure or reopen a Tail-only route.
 | 24b-g-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0` | retain the existing non-Clone relation in the common envelope after a test-only module split keeps the issuer below the source-size boundary | landed 2026-08-18; relation transport only, no aggregation meaning beyond co-seal, physical emission, session mutation, production, fallback, or retry |
 | 24b-g-CONSUMER-D0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-D0` | name one existing physical-demand consumer and its callback/rollback boundary for the retained relation | accepted BoxShape 2026-08-18; `with_common_v2_physical_entry_session` is the sole unpublished-session/rollback owner and `CommonV2CanonicalSessionRefV1` is its scoped view; no Return effect |
 | 24b-g-CONSUMER-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-I0` | lend the existing non-Clone relation through the canonical session callback and prove owner/late-discard behavior | landed 2026-08-18; admission + common 25/25, physical consumer/late-discard 2/2, S6C 9/9, no Return/edge/PHI |
-| 24b-h | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` | name one source-backed physical receipt owner for item 9 Return-read, its exact block/value, continuation split, and item 10 FunctionExit terminal | accepted NoSafeSlice 2026-08-18; common V2 has no reusable receipt owner and old V1 read emission is disconnected; no code or physical effect |
+| 24b-h | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` | name one source-backed physical receipt owner for item 9 Return-read, its exact block/value, continuation split, and item 10 FunctionExit terminal | accepted boundary and landed I0 2026-08-18; callback-scoped common-session receipt, canonical read, Completion/identity mark, and late-discard gates are green; branch/Return CFG remains closed |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
@@ -7365,3 +7365,72 @@ The next row is the separate
 `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` design stop;
 it must name a source-backed physical ValueId/read and FunctionExit-terminal
 owner before any CFG/SSA/PHI mutation.
+
+### Physical Return-read receipt D0 — accepted boundary (2026-08-18)
+
+The follow-up authority audit confirms that the co-seal I0 alone cannot be
+treated as a physical receipt. `identity.read_entry_receipt`, the segment
+receipt, the continuation target reservation, Completion, and `emit_return`
+remain separate owners when used independently. The old V1 read emitter is
+outside the common-V2 cohort and is not adapted.
+
+```text
+Decision:
+  accept one session-local, callback-scoped
+  `CommonV2ReturnReadPhysicalReceiptV1` that consumes the existing logical
+  co-seal, the same-session segment receipt, and the one-shot continuation
+  target; it issues the item 9 canonical BindingRef read and records the
+  exact item 10 FunctionExit Completion witness, but does not write a Return.
+Source authority + canonical issuer:
+  `VerifiedS6CReturnSourceRecipeBindingV1` -> existing
+  `CommonV2ReturnReadCoSealRefV1` supplies source site/binding/result/exit
+  meaning. The sole physical issuer is the new
+  `CommonV2CanonicalSessionRefV1::with_return_read_physical_receipt` callback
+  under `with_common_v2_physical_entry_session`; Completion remains the
+  existing canonical owner for the source-site/target claim.
+Non-authority:
+  Layout/segment rows, `IfContinuationPhysicalTargetRefV1`,
+  `identity.read_entry_receipt`, Completion, `CanonicalCfgSessionV1`, fixed
+  ordinals, and the old V1 emitter cannot independently pair Return meaning.
+Fail-fast boundary:
+  reject foreign owner/stamp, missing or duplicate segment/target rows,
+  source site/region/binding/result drift, target-function or explicit-site
+  mismatch, wrong physical block/type, duplicate issuance, and any missing
+  FunctionExit relation before the read/Completion mutation; the outer
+  unpublished session remains the sole rollback owner.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-I0`: implement
+  the callback-scoped receipt, canonical read, Completion claim/identity
+  mark, and positive/negative/late-discard gates. Keep branch/Return CFG
+  writing closed.
+Non-claims:
+  no `emit_branch`, `emit_return`, edge, PHI, CFG publication, DraftSeal
+  publication, fallback, retry, production switch, or legacy retirement.
+```
+
+This accepted boundary is a new physical session receipt, not a second
+semantic source/Recipe authority. Its terminal evidence is the existing
+Completion claim; the mechanical FunctionExit Return writer remains a later
+branch-emission design row.
+
+### Physical Return-read receipt I0 closeout (2026-08-18; landed)
+
+`CommonV2CanonicalSessionRefV1::with_return_read_physical_receipt` now
+consumes the existing co-seal, same-session segment receipt, and one-shot
+continuation target as one callback-scoped, non-Clone physical receipt. It
+validates owner/stamp, unique rows, split/item coverage, continuation parity,
+source binding/site/result, target function, and duplicate issuance before
+effect. The canonical identity/SSA owner issues the item-9 read; the existing
+canonical-session i64 type publication seam admits the source-proven class
+when an unsealed PHI is still `Unknown`; Completion claims the existing FunctionExit
+terminal witness and identity marks the return.
+
+Focused `common_v2_return_read` tests are green (2/2), including late callback
+failure with an empty outer Builder transaction. `cargo check --profile quick`,
+format, diff, current-state pointer, and loop physical-transfer authority
+guards are green. The touched Rust files remain below the 760-line design
+trigger and 800-line hard boundary. This I0 emits no branch/Return, edge,
+PHI/CFG publication, DraftSeal publication, fallback, retry, production
+switch, or legacy retirement. The next design stop is the existing
+`LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` / split-terminal authority
+row.

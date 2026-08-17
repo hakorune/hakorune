@@ -18,7 +18,7 @@ use super::join_sig::{
 use super::s6c_prephysical_ingress::S6CPrephysicalIngressRefV2;
 use super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 use super::schema_v2::LoopOperationV2;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ReturnReadCoSealRejectV1 {
@@ -61,6 +61,7 @@ pub(crate) struct CommonV2ReturnReadCoSealRefV1<'source> {
     continuation: LoopJoinNextItemV1,
     join_exit_item: LoopItemKeyV1,
     join_target: LoopJoinBranchExitTargetV2,
+    target_function: RegionId,
 }
 
 impl CommonV2ReturnReadCoSealRefV1<'_> {
@@ -115,6 +116,10 @@ impl CommonV2ReturnReadCoSealRefV1<'_> {
     pub(crate) const fn join_target(&self) -> LoopJoinBranchExitTargetV2 {
         self.join_target
     }
+
+    pub(crate) const fn target_function(&self) -> RegionId {
+        self.target_function
+    }
 }
 
 pub(crate) fn issue_s6c_v2_return_read_co_seal_v1<'rows, 'facts>(
@@ -125,6 +130,7 @@ pub(crate) fn issue_s6c_v2_return_read_co_seal_v1<'rows, 'facts>(
 ) -> Result<CommonV2ReturnReadCoSealRefV1<'facts>, ReturnReadCoSealRejectV1> {
     let owner = ingress.source_owner();
     let binding = ingress.return_source_binding();
+    let target_function = ingress.completion().target_function();
     if owner != operations.owner() || owner != layout.owner() || owner != binding.owner() {
         return Err(ReturnReadCoSealRejectV1::ForeignOwner);
     }
@@ -269,5 +275,6 @@ pub(crate) fn issue_s6c_v2_return_read_co_seal_v1<'rows, 'facts>(
         continuation,
         join_exit_item: exit_item,
         join_target: binding.join_target(),
+        target_function,
     })
 }

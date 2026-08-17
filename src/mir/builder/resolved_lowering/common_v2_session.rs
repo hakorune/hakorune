@@ -40,6 +40,12 @@ pub(in crate::mir::builder) use initial_index_seed::{
     CanonicalInitialIndexSeedReceiptV1, InitialIndexSeedMaterializationRejectV1,
 };
 
+#[path = "common_v2_return_read.rs"]
+mod return_read;
+pub(in crate::mir::builder) use return_read::{
+    CommonV2ReturnReadPhysicalReceiptV1, ReturnReadPhysicalReceiptRejectV1,
+};
+
 #[path = "common_v2_condition_bool.rs"]
 mod condition_bool;
 pub(in crate::mir::builder) use condition_bool::{
@@ -163,6 +169,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     initial_index_seed_issued: bool,
     condition_bool_issued: bool,
     if_continuation_target_issued: bool,
+    return_read_physical_issued: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -627,6 +634,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             initial_index_seed_issued: false,
             condition_bool_issued: false,
             if_continuation_target_issued: false,
+            return_read_physical_issued: false,
         };
         Ok(callback(&mut common))
     })

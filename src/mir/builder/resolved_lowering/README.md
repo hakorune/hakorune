@@ -148,6 +148,26 @@ edge, CFG/SSA/PHI, Completion/DraftSeal, publication, fallback, retry, or
 production caller is opened. The physical Return-read receipt and terminal
 issuer remain the next design-stop decision.
 
+## Common V2 physical Return-read receipt I0 (2026-08-18)
+
+`CommonV2CanonicalSessionRefV1::with_return_read_physical_receipt` is the
+session-local consumer of the existing Return-read co-seal. It consumes the
+same-session segment allocation and one-shot continuation target, validates
+owner/stamp/row/split parity, then asks canonical identity/SSA for the item-9
+`BindingRef` read. The existing Loop operation type authority may finalize an
+`Unknown` provisional PHI through the canonical session's existing i64 type
+publication seam; this is type publication reuse, not a second semantic type
+issuer. The receipt then claims the existing
+Completion `FunctionExit` witness and marks the source return once.
+
+The returned receipt is non-Clone and callback-scoped, and the session ledger
+poisons duplicate issuance before effects. The outer unpublished physical
+entry transaction remains the sole rollback owner, including late callback
+failure. Focused positive and late-discard tests are green (2/2). This I0
+does not emit `Return` or branch instructions, edges, PHI/CFG publication,
+DraftSeal publication, fallback, retry, or a production caller; split/terminal
+authority and branch/Return CFG writing remain the next design stop.
+
 ## Common V2 Length receiver operand I0
 
 `CommonV2CanonicalSessionRefV1::with_length_receiver_operand` consumes the

@@ -192,6 +192,29 @@ operation, placement, segment, branch, continuation, or value drift reject
 before physical mutation. Physical Return-read materialization and the
 FunctionExit terminal remain a separate `NoSafeSlice` design row.
 
+## Common V2 physical Return-read receipt I0 (2026-08-18)
+
+The accepted physical boundary is now implemented as one callback-scoped,
+non-Clone `CommonV2ReturnReadPhysicalReceiptV1` owned by the existing
+`CommonV2CanonicalSessionRefV1`. It consumes, without re-deriving meaning,
+the co-sealed source binding, same-session segment receipt, and reserved
+`NextItem` continuation target. Before any effect it checks owner/stamp,
+unique segment rows, split/item coverage, continuation parity, source
+site/binding/result, target function, and one-shot state.
+
+The canonical identity/SSA owner issues the item-9 read; the canonical
+session's existing i64 type publication seam resolves an `Unknown` provisional
+PHI; Completion claims the source Return against `FunctionExit`; and identity
+records the return coverage. The receipt itself only transports the joined
+evidence to its callback. The outer unpublished function session is
+the sole rollback owner, and late callback failure discards the read and
+continuation block. Focused positive and late-discard tests pass (2/2).
+
+No `emit_branch`, `emit_return`, edge, PHI, CFG publication, DraftSeal,
+fallback, retry, production switch, or legacy retirement is opened. The
+remaining branch/split/terminal authority must be accepted separately before
+mechanical CFG writing.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation
