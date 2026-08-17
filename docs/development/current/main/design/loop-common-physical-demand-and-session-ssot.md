@@ -92,16 +92,19 @@ Related:
   all-family source-parent/co-seal R0, Generic G0 source-parent BoxShape, and
   same-cohort source-view BoxShape are accepted; the Generic source-parent I0
   replaces the test-only ingress with one production issuer.  The next stop is
-  the complete Generic G0 physical-function-entry source projection census.
+  the resolver-owned body-shape transport census for Generic G0; its
+  function-effect issuer cannot open until the same body-shape product reaches
+  the Generic cohort.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` is the next design
-  stop.  The S6C-only physical-entry projection is landed; the Generic
-  source-parent I0 is landed but lacks a same-cohort physical header/effects
-  issuer.  Transfer migration, CFG/PHI, lifecycle, Text, route, fallback,
-  retry, and production remain closed.
+  `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` is the next design stop.  The
+  S6C-only physical-entry projection and Generic TopLevel declaration/header
+  projection are landed; the Generic source-parent still lacks a resolver-owned
+  body-shape transport, so no function-effect issuer may be opened.  Transfer
+  migration, CFG/PHI, lifecycle, Text, route, fallback, retry, and production
+  remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -458,19 +461,25 @@ issuer.
 The Generic G0 source parent currently lends resolver/Core/JoinSig/After facts
 and its exact two parameter-entry rows, but it does not carry a same-cohort
 physical storage header, result/Completion header, lane/receiver cohort, or
-physical-effect projection.  S6C receipts, raw source ParamDecls, `/N`, raw
-`MirFunction` parameter length, and a default `EffectMask` must not be reused
-or inferred to fill that gap.
+physical-effect projection.  The resolver-issued
+`ResolvedFunctionBodyShapeProductV1` does contain the complete body-effect
+inventory, but `VerifiedResolvedSourceUnitV1::root_function_input()` and
+`ResolvedFunctionLoweringInputV1` currently carry only the resolved function
+and forest, not that sibling product.  The callable batch has a body-shape
+transport seam, but it is a separate callable cohort and is not a Generic
+root issuer.  S6C receipts, raw source ParamDecls, `/N`, raw `MirFunction`
+parameter length, and a default `EffectMask` must not be reused or inferred
+to fill that gap.
 
 ```text
-NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed
+NoSafeSlice::GenericG0FunctionEffectBodyShapeTransportUnsealed
 ```
 
 remains the design stop.  The next bounded task is a read-only Generic G0
 source-projection census.  No new common skeleton, lane adoption, BindingSSA,
 Loop CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or
-production caller is authorized until a Generic same-cohort issuer and exact
-rejection boundary are named.
+production caller is authorized until a Generic same-cohort body-shape
+transport and exact rejection boundary are named.
 
 ### `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0`
 
@@ -491,8 +500,11 @@ Source authority + canonical issuer:
   inventories, a typed declaration-metadata-empty witness, and the Generic
   structural facts are co-sealed by a future
   `VerifiedGenericG0NoExternalEffectV1` issuer.  That product may project
-  `NoExternalEffects` later; it is not an `EffectMask` authority.  One Generic
-  parent must co-seal all four before lending a profile view;
+  `NoExternalEffects` later; it is not an `EffectMask` authority.  Before that
+  issuer exists, the resolver-owned `ResolvedFunctionBodyShapeProductV1` must
+  be transported into the Generic source cohort without a second resolver run
+  or a count-only receipt.  One Generic parent must co-seal all four before
+  lending a profile view;
   Package/Port and the S6C header are other-profile transport/owners.
 
 Non-authority:
@@ -508,16 +520,17 @@ Fail-fast boundary:
   mismatch, direct/method calls, allocation/await/qmark/throw/non-local
   control, field/upvar/index writes, or any request to open Builder/session
   effects before the issuer exists remains
-  `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`.
+  `NoSafeSlice::GenericG0FunctionEffectBodyShapeTransportUnsealed`.
 
 Smallest next slice:
-  Keep this parent task at design stop and close the next bounded subdecision
-  as `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0`: define the input
-  inventories, `VerifiedGenericG0NoExternalEffectV1` BoxShape, local-rebind
-  allowance, and positive/negative census.  Then return to the declaration /
-  result / Completion siblings; only when all four issue from one owner cohort
-  may a caller-zero physical-entry transport row open.  No guessed/default
-  receipt or `EffectMask` projection is allowed during this census.
+  Keep this parent task at design stop and first close the bounded
+  `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0`: identify the existing resolver
+  product owner, the source-unit/Generic-cohort transport seam, and the
+  same-owner/origin/body-root checks.  Only after that transport is accepted
+  may `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` define the
+  `VerifiedGenericG0NoExternalEffectV1` BoxShape, local-rebind allowance, and
+  positive/negative census.  No guessed/default receipt, AST rescan, or
+  `EffectMask` projection is allowed during either census.
 
 Non-claims:
   No common skeleton, lane adoption, ValueId/BindingSSA, CFG/PHI,
@@ -542,7 +555,8 @@ Decision:
   SourceRead/SourceWrite, or a default EffectMask.
 
 Source authority + canonical issuer:
-  A future resolver-owned issuer co-seals the same function's
+  After the body-shape transport row is accepted, a future resolver-owned
+  issuer co-seals the same function's
   VerifiedResolvedFunctionV1 body-effect/direct-call/method-call inventories,
   a typed declaration-metadata-empty witness, and the Generic structural
   facts.  It may issue a bounded NoExternalEffects projection only after all
@@ -558,13 +572,59 @@ Fail-fast boundary:
   drift, missing effect rows, and any request to open physical/session effect.
 
 Smallest next slice:
-  Read-only issuer census and positive/negative matrix only.  If the source
-  issuer is accepted, return to the parent cohort and then open the separate
-  TopLevel declaration/header I0; otherwise keep the parent NoSafeSlice.
+  Read-only issuer census and positive/negative matrix only, after the
+  resolver-owned body-shape transport is closed.  If the source issuer is
+  accepted, return to the parent cohort and continue the separate result /
+  Completion census; otherwise keep the parent NoSafeSlice.
 
 Non-claims:
   No EffectMask emission, skeleton, lane adoption, ValueId/BindingSSA,
   CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
+```
+
+#### `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` (active design stop)
+
+```text
+Decision:
+  Do not issue a Generic function-effect receipt yet.  First transport the
+  resolver-owned `ResolvedFunctionBodyShapeProductV1` already produced by the
+  shadow traversal into the same Generic source cohort that owns the resolved
+  function and structural facts.  This is a source-product transport seam, not
+  a new effect authority and not a count-only adapter.
+
+Source authority + canonical issuer:
+  The resolver remains the sole issuer of the function/body-shape product.
+  A future source-unit or Generic-cohort carrier may retain that product and
+  lend a borrowed view to the Generic parent, but it must be created from the
+  same resolver transaction and same owner/origin/body-root.  The existing
+  callable-batch body-shape carrier is evidence of the shape, not a Generic
+  issuer; Package/Port only transport the already-co-sealed view.
+
+Non-authority:
+  `VerifiedResolvedFunctionV1` without its body-shape sibling,
+  `ResolvedFunctionLoweringInputV1` alone, Generic structural facts, the
+  callable-batch row from another cohort, Recipe-local effects, AST/MIR/JSON
+  rescans, raw `usize` counts, `EffectMask`, and a second resolver invocation
+  are not body-effect authority.
+
+Fail-fast boundary:
+  Reject missing body-shape product, foreign owner/origin/body-root, source-unit
+  and Generic-cohort mismatch, duplicate or separately re-resolved product,
+  incomplete effect coverage, count-only reconstruction, and HRTB loan escape
+  before any effect issuer, physical header, skeleton, session, or Builder
+  mutation.  No default empty body-shape is permitted.
+
+Smallest next slice:
+  Read-only issuer/transport census: name the exact retained product owner,
+  the one source-unit-to-Generic-cohort seam, and the positive/negative
+  transport matrix.  If accepted, the following I0 may add only the borrowed
+  transport field/accessor and its focused tests; it must not issue
+  `VerifiedGenericG0NoExternalEffectV1` yet.
+
+Non-claims:
+  No function-effect projection, EffectMask, result/Completion co-seal,
+  physical entry/skeleton, ValueId/BindingSSA, CFG/PHI, lifecycle, Text,
+  route, fallback, retry, production caller, or main integration.
 ```
 
 #### `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` (accepted bounded source projection)
@@ -661,7 +721,7 @@ Smallest next slice:
   LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 now issues one callback-scoped
   non-Clone fan-in with exact owner/origin/root/Loop/Completion checks. The
   caller-zero session-open canary consumes that admission once; the next
-  bounded design row is LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0.
+  bounded design row is LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0.
 
 Non-claims:
   No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
@@ -3674,8 +3734,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
-| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | resolver-owned census for body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | queued design child; parent `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed` remains; no code/effect/session |
+| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | parent design stop; body-shape transport must close before the function-effect issuer; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | census the existing resolver body-shape product and the one source-unit/Generic-cohort transport seam; no count-only effect receipt | active design stop; `NoSafeSlice::GenericG0FunctionEffectBodyShapeTransportUnsealed`; no effect issuer, EffectMask, skeleton, session, or Builder |
+| 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | after body-shape transport, resolver-owned census for body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | queued behind body-shape transport; parent NoSafeSlice remains; no code/effect/session |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, and legacy edges after the parent cohort | parked cleanup checkpoint; no new authority or production switch |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
