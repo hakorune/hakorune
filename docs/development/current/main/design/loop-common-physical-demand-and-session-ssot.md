@@ -1879,9 +1879,9 @@ S6C ingress check no longer bans the legitimate borrowed `logical_items`,
 `logical_loops`, `logical_blocks`, and `logical_transfer` views; it retains the
 actual detached-authority checks (`anchor_count` and semantic-context
 reissuance).  This is guard correctness only, not a new authority or a
-production switch.  Until the missing evidence is added, keep
-`work_mode = "design_stop"` and leave If/Exit coverage, physical session,
-initializer consumption, production selection, fallback, and retry closed.
+production switch.  The accepted fast slice below closes the direct evidence
+gap; If/Exit coverage, physical session, initializer consumption, production
+selection, fallback, and retry remain closed.
 
 ### Accepted fast slice: transfer-authority negative evidence (2026-08-18)
 
@@ -1917,12 +1917,58 @@ Implementation closeout (2026-08-18):
   receipt, physical owner, old V1 caller migration, session effect, or
   production edge was added; `physical_layout.rs` remains 699 lines.
 
+Allocator implementation closeout (2026-08-18):
+  `segment_allocator.rs` now rejects a foreign `ReadyLoopEntryV1` owner before
+  calling any Builder allocation service.  The focused allocator test is 1/1
+  green; the existing view negatives remain 2/2 and physical-layout tests 4/4.
+  `physical_layout.rs` remains 699 lines and the allocator remains 105 lines.
+  No receipt, physical owner, old V1 caller migration, session effect, or
+  production edge was added.
+
+### Accepted design stop: topology retirement census (2026-08-18)
+
+```text
+Decision:
+  stop after the transfer-authority evidence closeout and perform only a
+  read-only census of the old fixed-role topology versus the segment receipt;
+  deletion is not authorized by this row.
+Source authority + canonical issuer:
+  topology.rs issues LoopPhysicalBlockReceiptV1 for the legacy role-indexed
+  path; segment_allocator.rs plus segment_topology.rs issue the ordered
+  LoopPhysicalSegmentBlockReceiptV1 consumed by the segment dispatcher.
+Non-authority:
+  operation names, Recipe order, current Builder cursor, test-only fixtures,
+  the transfer guard, and a local zero-caller result cannot select retirement.
+Fail-fast boundary:
+  classify every issuer and caller as production, test, guard, or docs; keep
+  both paths live until the segment route is proven sole production and all
+  remaining old callers are migrated or explicitly allowlisted.
+Smallest next slice:
+  publish the exact caller census for LoopPhysicalBlockReceiptV1,
+  operation_target::{issue,issue_for_segment}, and segment receipts, with the
+  reversible caller-zero deletion gate and no code edits.
+Non-claims:
+  no old-type deletion, operation-target migration, new semantic/physical
+  receipt, If/Exit/Always coverage, session, initializer, selector, fallback,
+  retry, or production cutover.
+```
+
+Worker read-only audit receipt (2026-08-18):
+  the legacy `physicalize_topology_*` path is currently allowed only from
+  `loop_recipe_physicalizer/tests.rs`; the old
+  `VerifiedLoopOperationTargetBlockV1::issue` still has compiled callers in
+  `operation_dispatcher.rs` and `operation_emitter.rs`.  The segment
+  `issue_for_segment` path is owned by `segment_dispatcher.rs`; allocator
+  evidence is limited to the two canaries plus the new foreign-owner test.
+  The existing guard checks the topology/segment route but does not yet prove
+  old `issue` caller-zero or a live production segment selector.  Therefore
+  the old type and role enum remain in place until those exact caller classes
+  are classified and the sole-production-route gate is observable.
+
 Next bounded slice:
-  add one focused segment-allocator negative for foreign owner or receipt
-  rejection, reusing the existing `PreparedLoopPhysicalLayoutV1`,
-  `ReadyLoopEntryV1`, and `LoopPhysicalSegmentBlockReceiptV1` owners.  Keep the
-  old `operation_target::issue`/topology caller census in its later retirement
-  gate.
+  read-only LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0; if the census cannot
+  prove a sole segment production route and explicit residual allowlist, keep
+  the old topology in place and return NoSafeSlice.
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
@@ -5595,7 +5641,7 @@ skip the After closure or reopen a Tail-only route.
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | repository-wide convergence; not a prerequisite for the bounded selected H2 first cutover unless its unchanged source needs that family |
 | 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | Callable-first BoxShape: consume one complete source-backed Callable parent into one private semantic-program envelope; generic G0/all-family issuer remains later | accepted design 2026-08-17; no production change |
 | 21a | `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` | caller-zero implementation of the one-shot Callable envelope and mechanical physical-demand projection; remove split caller ingress | **landed 2026-08-17**; no CFG/SSA/PHI, session effect, lifecycle, Text, route, fallback, retry, or production caller |
-| 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | implementation present in `542b3a794d`; direct transfer negative matrix remains a design-stop evidence gap |
+| 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | **closed 2026-08-18**; implementation `542b3a794d` plus direct view/binder and allocator negatives; no old V1 caller migration |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | implementation present in `28c4bdd5c4`; behavior-preserving only, no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | implementation present in `46fbf8d0d7`; BoxShape only, no profile callback, selector, or production switch |
 | 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | closed design boundary 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no session effect |
