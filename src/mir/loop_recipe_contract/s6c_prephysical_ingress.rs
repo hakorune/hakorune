@@ -221,6 +221,12 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.logical().logical_transfer()
     }
 
+    pub(crate) fn return_source_binding(
+        self,
+    ) -> &'facts super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.source.return_source_binding()
+    }
+
     pub(crate) const fn operation_count(self) -> usize {
         OPERATION_COUNT
     }
