@@ -17,6 +17,10 @@ use super::generic_g0_function_effect::{
     issue_generic_g0_no_external_effect_v1, GenericG0FunctionEffectRejectV1,
     VerifiedGenericG0NoExternalEffectV1,
 };
+use super::generic_g0_result_abi::{
+    issue_generic_g0_result_abi_transport_v1, GenericG0ResultAbiRejectV1,
+    VerifiedGenericG0ResultAbiV1,
+};
 use super::generic_g0_top_level_declaration_header::{
     issue_generic_g0_top_level_declaration_header_v1,
     GenericG0TopLevelDeclarationHeaderRejectV1,
@@ -60,6 +64,7 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     BodyShapeRootMismatch,
     DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
     FunctionEffect(GenericG0FunctionEffectRejectV1),
+    ResultAbi(GenericG0ResultAbiRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
 }
@@ -101,6 +106,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     body_shape: &'source VerifiedResolvedBodyShapeInventoryV1,
     declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
     function_effect: VerifiedGenericG0NoExternalEffectV1,
+    result_abi: VerifiedGenericG0ResultAbiV1,
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
@@ -133,6 +139,11 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
     pub(crate) fn function_effect(&self) -> &VerifiedGenericG0NoExternalEffectV1 {
         &self.function_effect
     }
+
+    pub(crate) fn result_abi(&self) -> &VerifiedGenericG0ResultAbiV1 {
+        &self.result_abi
+    }
+
 }
 
 /// Callback-scoped combined view.  No raw `(input, selection)` tuple or
@@ -171,6 +182,11 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
     pub(crate) fn function_effect(&self) -> &VerifiedGenericG0NoExternalEffectV1 {
         self.parent.function_effect()
     }
+
+    pub(crate) fn result_abi(&self) -> &VerifiedGenericG0ResultAbiV1 {
+        self.parent.result_abi()
+    }
+
 }
 
 pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
@@ -194,6 +210,12 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
             .structural(),
         _ => return Err(GenericG0SourceParentRejectV1::SelectionFamilyMismatch),
     };
+    let result_abi = issue_generic_g0_result_abi_transport_v1(
+        &input,
+        &selection,
+        &declaration_header,
+    )
+    .map_err(GenericG0SourceParentRejectV1::ResultAbi)?;
     let function_effect = issue_generic_g0_no_external_effect_v1(
         &input,
         body_shape,
@@ -214,6 +236,7 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         body_shape,
         declaration_header,
         function_effect,
+        result_abi,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
 }

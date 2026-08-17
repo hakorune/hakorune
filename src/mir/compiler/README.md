@@ -22,6 +22,11 @@ two-local-write/one-tail-return shape without becoming an `EffectMask`; it
 adds no Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text,
 route, fallback, retry, or production caller.
 
+The Generic source parent now also retains one private result-ABI row from the
+same selected observation before demand/product consumption.  The transport
+checks owner/origin/source-kind and declaration-header ABI parity; it does not
+classify a new ABI or open Completion, physical entry, or session effects.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)

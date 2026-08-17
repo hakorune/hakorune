@@ -1,6 +1,10 @@
+use super::generic_g0_result_abi::{
+    issue_generic_g0_result_abi_transport_v1, GenericG0ResultAbiRejectV1,
+};
 use super::generic_g0_source_parent::{
     with_generic_g0_source_parent_v1, GenericG0SourceParentRejectV1,
 };
+use super::generic_g0_top_level_declaration_header::issue_generic_g0_top_level_declaration_header_v1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
@@ -35,6 +39,8 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
         assert_eq!(cohort.function_effect().owner(), owner);
         assert_eq!(cohort.function_effect().local_write_count(), 2);
         assert_eq!(cohort.function_effect().tail_return_count(), 1);
+        assert_eq!(cohort.result_abi().owner(), owner);
+        assert_eq!(cohort.result_abi().abi().source_type_name(), "i64");
         cohort.product().core().owner()
     })
     .expect("source cohort");
@@ -53,6 +59,21 @@ fn source_parent_rejects_foreign_resolver_input_before_product() {
         Err(GenericG0SourceParentRejectV1::SelectionOwnerMismatch)
             | Err(GenericG0SourceParentRejectV1::SelectionOriginMismatch)
             | Err(GenericG0SourceParentRejectV1::SelectionSiteMismatch)
+    ));
+}
+
+#[test]
+fn result_abi_transport_rejects_foreign_candidate_before_retention() {
+    let (_, selection_a) = generic_source_unit_and_selection_for_test();
+    let (unit_b, _) = generic_source_unit_and_selection_for_test();
+    let input_b = unit_b.root_function_input().expect("root B");
+    let header_b = issue_generic_g0_top_level_declaration_header_v1(&input_b).expect("header B");
+
+    let result = issue_generic_g0_result_abi_transport_v1(&input_b, &selection_a, &header_b);
+
+    assert!(matches!(
+        result,
+        Err(GenericG0ResultAbiRejectV1::CandidateOwnerMismatch)
     ));
 }
 
