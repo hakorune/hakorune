@@ -34,10 +34,9 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-
-current_design_stop = "Generic G0 detached-entry retirement R0 is landed with zero old callers and neutral shared validators; the next human-gated decision is exact production selection and same-commit legacy-edge retirement."
+current_design_stop = "Generic G0 detached-entry retirement R0 is landed with zero old callers; the production candidate census confirms Generic remains caller-zero and only selected-Dynamic has a live package-loan to DraftSeal/collector handoff."
 work_mode = "design_stop"
-current_execution_row = "LOOP-PRODUCTION-SELECTION-D0"
+current_execution_row = "LOOP-PRODUCTION-CANDIDATE-CENSUS-R0"
 current_blocker_token = "NoSafeSlice::ProductionSelectionAuthorityUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -94,8 +93,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, and detached-entry retirement are landed. Production selection remains a human design stop."
-next_design_card = "LOOP-PRODUCTION-SELECTION-D0"
+latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, and detached-entry retirement are landed. Production candidate census shows no Generic production arm; selection remains a human design stop."
+next_design_card = "LOOP-PRODUCTION-CANDIDATE-CENSUS-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -116,5 +115,6 @@ landed_tail = [
   "2026-08-17: Generic operation cohort I0 and facts-extraction I0 landed. One source-parent consume owns the neutral operation program, and one compiler-private borrowed view supplies shared-axis validation without physical state.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0 landed a caller-zero whole-admission preflight: shell materialization, source-lane adoption, canonical preheader entry reads, layout-keyed segment allocation, and one outer discard owner. No operation leaf, publication, retry, fallback, or production caller opened; the next bounded slice was the callback-scoped Generic-to-common dispatcher preflight."
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0 landed one phantom-lifetime-branded mechanical program/layout/entry/segment input and ran the existing segment dispatcher preflight without emitting a leaf. The shell remained instruction-free and the unpublished transaction still discarded on late failure; operation emission and production remain closed.",
-  "2026-08-17: GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0 removed the detached Generic skeleton/canary/admission/session and tuple exits after zero-caller verification. Shared source-backed control and shell validators now live in neutral facts modules; the combined emitter admission and session-preflight remain the sole caller-zero Generic path. Production selection, fallback/retry, Completion/DraftSeal, and publication remain closed."
+  "2026-08-17: GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0 removed the detached Generic skeleton/canary/admission/session and tuple exits after zero-caller verification. Shared source-backed control and shell validators now live in neutral facts modules; the combined emitter admission and session-preflight remain the sole caller-zero Generic path. Production selection, fallback/retry, Completion/DraftSeal, and publication remain closed.",
+  "2026-08-17: LOOP-PRODUCTION-CANDIDATE-CENSUS-R0 confirmed that the live production adapter has only the selected-Dynamic package-loan -> A-prime -> physical-session -> DraftSeal -> collector path. Generic G0 remains caller-zero; no production selector arm, fallback, retry, or raw-loop retirement was opened."
 ]

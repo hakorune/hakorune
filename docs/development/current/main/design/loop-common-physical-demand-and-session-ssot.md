@@ -1566,6 +1566,41 @@ does not authorize a production switch, fallback/retry, Completion/DraftSeal,
 Text, route, or module publication. A future production slice must first name
 the exact selection authority and the same-commit old-edge retirement gate.
 
+#### Production candidate census R0 — Generic remains caller-zero (2026-08-17)
+
+```text
+Decision:
+  Keep `NoSafeSlice::ProductionSelectionAuthorityUnsealed`.  The Generic G0
+  source parent, admission, session-preflight, and common dispatcher are
+  caller-zero probes; there is no safe Generic production selection arm yet.
+  Do not turn the absence into a runtime fallback or a guessed NoCandidate
+  branch.
+Source authority + canonical issuer:
+  The live production adapter is
+  `NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method`.
+  Its selected-Dynamic arm alone owns the package loan -> A-prime demand ->
+  physical session -> DraftSeal -> collector commit chain.  A Generic arm
+  would have to be issued from that same selected package/key/signature HRTB;
+  the current Generic fixture parent is test-only.
+Non-authority:
+  `generic_source_unit_and_selection_for_test`, Generic mapping/preflight,
+  `ReadyLoopEntryV1`, operation counts, `EffectMask::PURE`, `new_generic`, raw
+  JoinIR lowering, or a copied source/AST input cannot select production.
+Fail-fast boundary:
+  Reject before effect while a production Generic arm cannot prove the same
+  package loan/key/signature, source-backed Generic coverage, canonical
+  Completion/DraftSeal handoff, and the same collector commit.  Generic ->
+  Dynamic/raw retry, source reclassification, and fallback are forbidden.
+Smallest next slice:
+  `LOOP-PRODUCTION-CANDIDATE-CENSUS-R0`: read-only enumerate the production
+  semantic arms and exact collector handoff.  If no Generic arm exists, keep
+  this `NoSafeSlice` and record the bounded `NoCandidate` result in the census;
+  do not add selector code.
+Non-claims:
+  No Generic production caller, selector branch, Completion/DraftSeal retrofit,
+  raw-loop retirement, fallback/retry, or main integration.
+```
+
 #### Structural convergence audit — migration thickness is classified, not an authority (2026-08-17)
 
 The repository-wide size census is useful for planning but is not a semantic
@@ -5175,6 +5210,7 @@ skip the After closure or reopen a Tail-only route.
 | 26c | `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` | design one opaque same-cohort source view that retains the resolver input while issuing Generic demand and parent callback | accepted BoxShape; callback-scoped owner/origin/site/frame/region/forest and entry coverage are fixed; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
 | 26d | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | landed 2026-08-17; production parent issuer, exact two-entry rows, foreign-input rejection, and callback-scoped loan are green; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
+| 27a | `LOOP-PRODUCTION-CANDIDATE-CENSUS-R0` | enumerate the production semantic arms and exact collector handoff before any Generic selection code | design-stop census 2026-08-17; selected-Dynamic is the only live package-loan -> DraftSeal -> collector path, Generic G0 remains caller-zero, and no selector/fallback/retry code is authorized |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Selected Dynamic first-cutover overlay (2026-08-11)
