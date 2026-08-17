@@ -1703,11 +1703,11 @@ Fail-fast boundary:
   canary `into_parts`, or a public lease facade) is closed only after the
   replacement consumes the complete owner and the old symbol has zero callers.
 Smallest next slice:
-  After the current session-preflight issuer census, land the already queued
-  `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; then use the manifest-led parity slice
-  to retire the detached Generic chain.  Keep the corpus TSV, common-V2
-  retirement, runtime lease facade, and byte-helper/micro-seed census parked
-  as separate rows.
+  The former `LOOP-GENERIC-G0-SEALED-CONSUME-I0` and detached-chain parity
+  retirement are landed with zero old callers.  The live next stop is the
+  human `LOOP-PRODUCTION-SELECTION-D0`; the corpus TSV, common-V2
+  function-level retirement census, runtime lease facade, and byte-helper/
+  micro-seed inventory remain parked as separate rows.
 Non-claims:
   This audit opens no session, Builder effect, operation emission, production
   switch, fallback/retry, global helper rewrite, runtime ABI change, or broad
@@ -1747,6 +1747,55 @@ requires a final owner, parity gate, and retirement row.  The existing
 the current Generic seams.  A separate `MIRBUILDER-BYTE-HELPER-INVENTORY-R0`
 may record the 1,145 helper pairs and micro-seed families, but byte identity is
 not a permission to merge them.
+
+#### Structural-debt disposition follow-up — parked behind production selection (2026-08-17)
+
+The external size audit is accepted as a disposition input, not as a new
+physical authority.  The current tree has no production caller for the old
+Generic detached skeleton/admission/session chain; that chain is already
+retired by the zero-caller R0.  The remaining thickness is therefore tracked
+as three bounded, design-only follow-ups rather than another parallel emitter.
+
+```text
+Decision:
+  Keep the source -> facts/recipe -> family parent -> common admission -> sole
+  session shape.  Do not perform repository-wide cleanup while production
+  selection is unresolved.  Every later deletion must be co-located with the
+  replacement switch and its zero-caller proof.
+Source authority + canonical issuer:
+  Existing source parents and the owner/retirement manifest remain the only
+  authorities.  These follow-ups issue no semantic or physical receipt; they
+  only record observed callers, final owners, parity gates, and deletion rows.
+Non-authority:
+  LOC totals, byte-identical helper bodies, micro-seed counts, public
+  visibility, `recipe.clone()` inside its lexical forest verifier, copied
+  `ValueId`/site data, and test-only green are not deletion or production
+  authority.
+Fail-fast boundary:
+  A row stays parked until its source-backed owner, replacement parity,
+  production/test caller census, and same-slice deletion condition are all
+  named.  No cleanup may add a selector, fallback, retry, or second dispatcher.
+Smallest next slice:
+  After the human `LOOP-PRODUCTION-SELECTION-D0`, run the one disposition R0
+  below.  If no production candidate is admitted, perform inventory only and
+  keep every physical/legacy edge unchanged.
+Non-claims:
+  No production switch, Generic selection, common-session rewrite, helper
+  dedupe, runtime ABI change, Text/lifecycle work, fallback/retry, or broad
+  LOC-driven deletion is opened by this follow-up.
+```
+
+| parked row | exact bounded work | acceptance / deletion gate |
+|---|---|---|
+| `MIRBUILDER-SEALING-ESCAPE-DISPOSITION-R0` | Census the remaining production-visible split surfaces (`VerifiedGenericRecipeProductG0::into_physical_boundary`, any non-test tuple boundary, and the public `EndAuthorizedTextV1` facade). Keep the lexical forest-verifier `recipe.clone()` as an explicitly non-escaping temporary unless a source-backed replacement is found. | Each row names one final owner, exact callers, parity evidence, and a same-slice zero-caller deletion. No public getter/tuple is narrowed merely because it is visible. Runtime facade work stays in `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0`. |
+| `MIRBUILDER-COMMON-V2-FUNCTION-DUPLICATE-CENSUS-R0` | Map S6C, Generic, and common-V2 function/session implementations at function granularity, including the existing common dispatcher and its legacy `ReadyLoopEntryV1`/segment inputs. Record which are intentional keep, waiting scaffold, or bounded retirement. | A future common-session replacement must have one rollback owner, one production consumer, and a zero-caller deletion row for each replaced function. This census may not retrofit the old dispatcher or create a Generic adapter. |
+| `MIRBUILDER-LEGACY-DISPOSITION-R0` | Fill `generic-loop-legacy-disposition-v1.tsv` only from the two censuses above and observed owner/caller evidence. Preserve sentinel rows and do not infer decisions from size or byte identity. | Every non-sentinel row has `owner`, `parity_gate`, `retire_row`, and evidence command; unresolved rows remain parked. |
+| `MIRBUILDER-BYTE-HELPER-INVENTORY-R0` | Record the byte-identical helper groups and micro-seed template families as an informational inventory with source owner and caller evidence. | Merge/archive/delete only in a later source-backed parity slice with zero callers. Inventory completion never unlocks physical emission or production selection. |
+
+This follow-up is a closeout/disposition plan, not a new layer.  In
+particular, the old detached Generic chain is not renamed into the new
+admission, the common dispatcher is not duplicated for Generic, and the
+production switch is still governed solely by `LOOP-PRODUCTION-SELECTION-D0`.
 
 ```text
 Decision:
@@ -5281,6 +5330,7 @@ skip the After closure or reopen a Tail-only route.
 | 26d | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | landed 2026-08-17; production parent issuer, exact two-entry rows, foreign-input rejection, and callback-scoped loan are green; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 27a | `LOOP-PRODUCTION-CANDIDATE-CENSUS-R0` | enumerate the production semantic arms and exact collector handoff before any Generic selection code | design-stop census 2026-08-17; selected-Dynamic is the only live package-loan -> DraftSeal -> collector path, Generic G0 remains caller-zero, and no selector/fallback/retry code is authorized |
+| 27b | `MIRBUILDER-STRUCTURAL-DEBT-DISPOSITION-R0` | after production selection, join the sealing-escape, function-level S6C/Generic/common-V2 duplicate census, legacy TSV disposition, and byte-helper/micro-seed inventory under one owner/retirement manifest | parked behind `LOOP-PRODUCTION-SELECTION-D0`; inventory only until each row has a source-backed owner, parity gate, exact callers, and same-slice zero-caller deletion; no new receipt, selector, fallback, retry, or LOC-driven cleanup |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Selected Dynamic first-cutover overlay (2026-08-11)
