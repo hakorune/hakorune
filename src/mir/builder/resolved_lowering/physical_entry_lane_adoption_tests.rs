@@ -7,7 +7,9 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{Callee, EffectMask, MirInstruction};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-use super::with_common_v2_physical_entry_session;
+use super::{
+    with_common_v2_physical_entry_session, with_common_v2_physical_entry_session_expected_brand,
+};
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -195,6 +197,10 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
             assert_eq!(canonical.physical_entry_sidecar_row_count(), 2);
             assert_eq!(canonical.owner(), expected_owner);
             assert_eq!(
+                canonical.invocation_brand(),
+                crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test()
+            );
+            assert_eq!(
                 canonical
                     .physical_entry_stamp()
                     .expect("entry stamp")
@@ -205,6 +211,49 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
         })
         .expect("one consuming common-V2 physical entry session");
         assert!(builder.function_state.current_function.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn foreign_expected_invocation_brand_rejects_before_session_open() {
+    let mut resolver = FunctionSemanticResolverSessionV1::new(9911).expect("resolver");
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        final_source(include_str!(
+            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
+        )),
+    )
+    .expect("same-cohort package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let input = skeleton.into_session_input();
+        let foreign =
+            crate::mir::module_invocation_identity::ModuleInvocationBrandV1::test_with_ordinal(2);
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_physical_entry_session_expected_brand(
+            &mut builder,
+            input,
+            foreign,
+            |_canonical, _draft| Ok::<_, String>(()),
+        );
+        assert_eq!(
+            rejected,
+            Err("common-V2 invocation brand mismatch".to_owned())
+        );
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
     port.complete().expect("selected child coverage");

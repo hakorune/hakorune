@@ -10,11 +10,12 @@ use crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionAdm
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 use crate::mir::loop_recipe_contract::{
-    issue_s6c_v2_string_len_call_target_plan_v1, LoopValueClassV2,
-    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2PreSessionEnvelopeV1,
+    issue_s6c_v2_string_len_call_target_plan_v1, issue_s6c_v2_substring_call_target_plan_v1,
+    LoopValueClassV2, PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2PreSessionEnvelopeV1,
     PreparedLoopV2StringLenCallTargetPlanV1, S6CLogicalCallRoleV1, StringLenCallTargetPlanRejectV1,
     VerifiedS6CReturnSourceRecipeBindingV1,
 };
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::ResolvedLoopPlacementV1;
 use std::marker::PhantomData;
 
@@ -26,6 +27,10 @@ use super::common_v2_after_block_allocation::{
 use super::common_v2_if_continuation_target::{
     issue_if_continuation_target, IfContinuationPhysicalTargetRefV1,
     IfContinuationPhysicalTargetRejectV1,
+};
+use super::common_v2_s6c_substring_callout_admission::{
+    issue_common_v2_s6c_substring_callout_admission_v1, CommonV2SubstringCallOutAdmissionRejectV1,
+    PreparedCommonV2SubstringCallOutAdmissionV1,
 };
 
 #[path = "common_v2_length_call.rs"]
@@ -166,6 +171,7 @@ pub(in crate::mir::builder) enum LengthReceiverPhysicalOperandRejectV1 {
 pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     session: CanonicalSsaFunctionSessionV2<'source>,
     envelope: &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope>,
+    invocation_brand: ModuleInvocationBrandV1,
     after_allocation_state: AfterBlockAllocationStateV1,
     length_call_canary_issued: bool,
     length_target_plan_issued: bool,
@@ -176,6 +182,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     if_continuation_target_issued: bool,
     return_read_physical_issued: bool,
     s6c_text_eq_operands_issued: bool,
+    s6c_substring_callout_admission_issued: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -282,6 +289,36 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         &self,
     ) -> Result<&PhysicalFunctionEntryCohortStampV1, String> {
         self.session.physical_entry_stamp()
+    }
+
+    pub(in crate::mir::builder) const fn invocation_brand(&self) -> ModuleInvocationBrandV1 {
+        self.invocation_brand
+    }
+
+    /// Admit the one common-V2 Substring provider/site plan without opening
+    /// a callout effect. The session reserves this consumer before target or
+    /// metadata work, so a failed attempt cannot be retried on the same draft.
+    pub(in crate::mir::builder) fn with_s6c_substring_callout_admission<R>(
+        &mut self,
+        physical_effects: &crate::mir::normal_callable_semantic_package::VerifiedS6CPhysicalFunctionEffectsV1,
+        callback: impl FnOnce(
+            &mut Self,
+            PreparedCommonV2SubstringCallOutAdmissionV1,
+        ) -> Result<R, String>,
+    ) -> Result<R, CommonV2SubstringCallOutAdmissionRejectV1> {
+        if self.s6c_substring_callout_admission_issued {
+            return Err(CommonV2SubstringCallOutAdmissionRejectV1::AlreadyIssued);
+        }
+        self.s6c_substring_callout_admission_issued = true;
+        let target =
+            issue_s6c_v2_substring_call_target_plan_v1(self.envelope, self.session.owner())
+                .map_err(CommonV2SubstringCallOutAdmissionRejectV1::Target)?;
+        let admission = issue_common_v2_s6c_substring_callout_admission_v1(
+            target,
+            physical_effects,
+            self.invocation_brand,
+        )?;
+        callback(self, admission).map_err(CommonV2SubstringCallOutAdmissionRejectV1::Callback)
     }
 
     /// Issue the source-backed StringLen target plan once.  This is still
@@ -647,8 +684,9 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 /// Consume one common admission and open one canonical session owner for the
 /// duration of the nested callback.  The caller-zero canary deliberately
 /// exposes no lowerer, DraftSeal, or physical placement API yet.
-pub(in crate::mir) fn with_common_v2_canonical_session<R>(
+pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
     admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+    invocation_brand: ModuleInvocationBrandV1,
     callback: impl for<'source, 'envelope> FnOnce(
         &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
     ) -> R,
@@ -659,6 +697,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
         let mut common = CommonV2CanonicalSessionRefV1 {
             session,
             envelope,
+            invocation_brand,
             after_allocation_state: AfterBlockAllocationStateV1::Available,
             length_call_canary_issued: false,
             length_target_plan_issued: false,
@@ -669,7 +708,33 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             if_continuation_target_issued: false,
             return_read_physical_issued: false,
             s6c_text_eq_operands_issued: false,
+            s6c_substring_callout_admission_issued: false,
         };
         Ok(callback(&mut common))
     })
+}
+
+#[cfg(not(test))]
+pub(in crate::mir) fn with_common_v2_canonical_session<R>(
+    admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+    invocation_brand: ModuleInvocationBrandV1,
+    callback: impl for<'source, 'envelope> FnOnce(
+        &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+    ) -> R,
+) -> Result<R, String> {
+    with_common_v2_canonical_session_branded(admission, invocation_brand, callback)
+}
+
+#[cfg(test)]
+pub(in crate::mir) fn with_common_v2_canonical_session<R>(
+    admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+    callback: impl for<'source, 'envelope> FnOnce(
+        &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+    ) -> R,
+) -> Result<R, String> {
+    with_common_v2_canonical_session_branded(
+        admission,
+        ModuleInvocationBrandV1::legacy_test(),
+        callback,
+    )
 }

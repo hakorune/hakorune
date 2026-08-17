@@ -110,6 +110,11 @@ pub(crate) enum CheckedCallOutSitePlanPairRejectV1 {
     PlanStampMismatch,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CheckedCallOutSingleSitePlanRejectV1 {
+    InvalidProvider,
+}
+
 /// Exactly the two admitted TextScan call plans.  It cannot be cloned or
 /// split; the selected session consumes it into its function-local plan table.
 #[derive(Debug)]
@@ -119,6 +124,36 @@ pub(crate) struct CheckedCallOutSitePlanPairV1 {
 }
 
 impl CheckedCallOutSitePlanV1 {
+    /// Issue one neutral function-local site for a source-backed single call.
+    /// Site and outcome zero belong to this one-entry namespace; the caller
+    /// must still reject an occupied table before installation.
+    pub(crate) fn from_admitted_single(
+        input: CheckedCallOutAdmittedSiteInputV1,
+        plan_stamp: ModuleInvocationBrandV1,
+    ) -> Result<Self, CheckedCallOutSingleSitePlanRejectV1> {
+        if input.call_abi_revision != 1
+            || input.wire_revision != 2
+            || !matches!(
+                input.normal_shape,
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: CheckedCallOutLeaseSlotIdV1(0)
+                }
+            )
+        {
+            return Err(CheckedCallOutSingleSitePlanRejectV1::InvalidProvider);
+        }
+        Ok(Self {
+            site_id: CheckedCallOutSiteIdV1(0),
+            admitted_entry: input.entry,
+            call_abi_revision: input.call_abi_revision,
+            wire_revision: input.wire_revision,
+            normal_shape: input.normal_shape,
+            effects: input.effects,
+            outcome_slot: CheckedCallOutOutcomeSlotIdV1(0),
+            plan_stamp,
+        })
+    }
+
     #[cfg(test)]
     pub(crate) fn from_test(
         site_id: CheckedCallOutSiteIdV1,

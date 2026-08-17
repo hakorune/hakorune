@@ -5,20 +5,28 @@
 //! unpublished function transaction, install the detached shell, adopt the
 //! entry lanes, and discard the outer session on every exit.
 
-use super::common_v2_session::with_common_v2_canonical_session;
+use super::common_v2_session::with_common_v2_canonical_session_branded;
+use crate::mir::builder::InvocationBranded;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::common_v2_physical_function_skeleton::PreparedPhysicalEntrySessionInputV1;
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
 /// Consume one prepared physical entry input and one same-loan common-V2
 /// admission.  No session, Builder view, or sidecar escapes this callback.
-pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
+fn with_common_v2_physical_entry_session_branded<R>(
     builder: &mut MirBuilder,
-    mut prepared: PreparedPhysicalEntrySessionInputV1<'_, '_, '_>,
+    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
+    expected_brand: ModuleInvocationBrandV1,
     callback: impl FnOnce(
         &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
         &mut MirBuilder,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
+    let invocation_brand = prepared.brand();
+    if invocation_brand != expected_brand {
+        return Err("common-V2 invocation brand mismatch".to_owned());
+    }
+    let mut prepared = prepared.into_payload();
     if builder.function_state.current_function.is_some()
         || builder.function_state.current_block.is_some()
     {
@@ -29,7 +37,7 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
 
     prepared.with_admission(|prepared, admission| {
         let source_input = admission.input();
-        with_common_v2_canonical_session(admission, |mut common| {
+        with_common_v2_canonical_session_branded(admission, invocation_brand, |mut common| {
             let (detached, descriptors, stamp) = prepared.take_install_parts();
             common.attach_physical_entry_stamp(stamp)?;
             let mut outer = builder.open_resolved_function_draft_seal_session_v1(&function_name);
@@ -51,4 +59,43 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
             result
         })
     })?
+}
+
+#[cfg(not(test))]
+pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
+    builder: &mut MirBuilder,
+    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
+    expected_brand: ModuleInvocationBrandV1,
+    callback: impl FnOnce(
+        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut MirBuilder,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    with_common_v2_physical_entry_session_branded(builder, prepared, expected_brand, callback)
+}
+
+#[cfg(test)]
+pub(in crate::mir::builder) fn with_common_v2_physical_entry_session<R>(
+    builder: &mut MirBuilder,
+    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
+    callback: impl FnOnce(
+        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut MirBuilder,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    let expected_brand = prepared.brand();
+    with_common_v2_physical_entry_session_branded(builder, prepared, expected_brand, callback)
+}
+
+#[cfg(test)]
+pub(in crate::mir::builder) fn with_common_v2_physical_entry_session_expected_brand<R>(
+    builder: &mut MirBuilder,
+    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
+    expected_brand: ModuleInvocationBrandV1,
+    callback: impl FnOnce(
+        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut MirBuilder,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    with_common_v2_physical_entry_session_branded(builder, prepared, expected_brand, callback)
 }

@@ -10,6 +10,7 @@ pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
 mod common_v2_after_block_allocation;
 mod common_v2_if_continuation_target;
+mod common_v2_s6c_substring_callout_admission;
 mod common_v2_segment_block_allocation;
 mod common_v2_session;
 mod completion_consumption;
@@ -47,8 +48,15 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
+pub(in crate::mir::builder) use common_v2_s6c_substring_callout_admission::{
+    issue_common_v2_s6c_substring_callout_admission_v1, CommonV2SubstringCallOutAdmissionRejectV1,
+    CommonV2SubstringEndConsumerRefV1, CommonV2SubstringEndObligationV1,
+    PreparedCommonV2SubstringCallOutAdmissionV1,
+};
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,

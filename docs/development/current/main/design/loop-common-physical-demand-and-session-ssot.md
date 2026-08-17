@@ -1790,3 +1790,25 @@ consume, TextEq V10, Bool, Branch/Return CFG, publication, fallback, retry, or
 production selection. Positive acceptance is same collector brand through
 entry→session→admission; negatives are unbranded/foreign brand, duplicate
 consume, missing lifecycle consumer, and late unpublished discard.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0 (2026-08-18; closeout)
+
+Change: landed the effect-free common-V2 seam. The real collector brand now
+travels through `InvocationBranded<PreparedPhysicalEntrySessionInputV1>` and
+the canonical session retains it as the sole neutral callout plan stamp. The
+session exposes one-shot Substring admission; the admission co-seals the
+landed target plan, checked provider facts, one single-site plan, and opaque
+`CommonV2SubstringEndObligationV1`. No new semantic source authority was
+issued.
+
+Evidence: `cargo check`, formatter, pointer/physical-transfer guards, the
+direct admission positive test, callback-scoped lifecycle test, same-brand
+session test, and foreign-brand pre-session rejection are green. The AOT
+activation guard remains a pre-existing selected-package-adapter baseline
+failure and is not part of this lane.
+
+Stop: no CheckedCallOut effect, V9 ValueId/lease or text residence,
+TextEq/Bool, CFG/PHI, Completion/DraftSeal, publication, fallback, retry, or
+production caller. The next design stop is
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0`; `nyash.string.eq_hh` remains
+transport-only and non-authoritative.

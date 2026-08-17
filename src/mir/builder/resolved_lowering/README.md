@@ -706,3 +706,20 @@ runtime text residence/lease, TextEq/Bool, branch/Return/CFG/PHI,
 Completion/DraftSeal, fallback, retry, publication, or a production selector.
 The `nyash.string.eq_hh` export remains a generic raw-i64 transport and is not
 an authority for this S6C lane.
+
+## Common V2 S6C Substring callout admission I0 (2026-08-18)
+
+The common physical-entry seam now transports the real collector
+`ModuleInvocationBrandV1` through `InvocationBranded<PreparedPhysicalEntrySessionInputV1>`
+into one canonical session. That session can issue one effect-free,
+physical-ID-free Substring admission containing the landed source-backed target plan,
+checked provider facts, one neutral single-site plan, and an opaque
+`CommonV2SubstringEndObligationV1`. The session owns duplicate rejection and the
+unpublished-function discard boundary; the invocation brand is the only plan stamp.
+
+This I0 emits no `CheckedCallOut`, V9 `ValueId`, lease/token, text residence,
+TextEq/Bool, CFG/PHI, Completion/DraftSeal, publication, fallback, retry, or
+production call. `nyash.string.eq_hh`, selected-Dynamic I6/I7, raw handles, and
+owner/provider IDs remain non-authority. Focused positive/foreign-brand and
+callback-scoped lifecycle tests cover the transport seam; the next design stop is
+the checked V9 materializer/residence owner.

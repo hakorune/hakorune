@@ -34,15 +34,15 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0 is accepted. The real collector-backed ModuleInvocationBrandV1 must travel through InvocationBranded<PreparedPhysicalEntrySessionInputV1> into one common-V2 session/admission; PhysicalFunctionEntryCohortStampV1 and owner/function/lane/provider IDs remain non-authority. The next execution row is the neutral single-site admission/lifecycle I0; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
-work_mode = "fast"
-current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0"
-current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0. Carry the real ModuleInvocationBrandV1 from ModuleLoweringPortV1::with_invocation_brand through the common entry/session seam; issue one neutral single-site plan and opaque CommonV2SubstringEndObligationV1. Reject unbranded/foreign brand, cohort/session mismatch, wrong source/Recipe/provider, duplicate admission, and absent lifecycle consumer before CheckedCallOut. Stop before callout effect, V9 ValueId/lease consume, TextEq, Bool, CFG, publication, fallback, retry, or production."
+current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0 is landed. The real collector-backed ModuleInvocationBrandV1 travels through InvocationBranded<PreparedPhysicalEntrySessionInputV1> into one common-V2 session/admission; the neutral single-site plan and opaque lifecycle sidecar remain effect-free. The next design stop is COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+work_mode = "design_stop"
+current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0"
+current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0. The source/Recipe TextEq path is closed, but the common-V2 checked Substring result still lacks a canonical V9 residence/materializer owner. Design the exact EndAuthorized lease/result/text-lend co-seal and finish/rollback boundary. Do not issue TextEq V10, Bool, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq V9 callout-admission D0)"
+active_lane = "Loop compiler frontier (S6C TextEq V9 residence D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -74,6 +74,11 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   TopLevel declaration/header, private no-external-effect, result-ABI, and
   direct canonical Completion transport I0 are landed; storage/lane source I0
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
+The common-V2 S6C Substring callout-admission I0 is now landed: collector brand
+transport, one neutral single-site plan, checked provider projection, and the
+callback-scoped lifecycle sidecar are effect-free and caller-zero. The next
+design stop is V9 residence/materializer ownership; the existing AOT activation
+guard's selected-package-adapter failure remains baseline debt.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
@@ -85,15 +90,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-
 current_execution_design = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission D0 is accepted: real ModuleInvocationBrandV1 transport through InvocationBranded<PreparedPhysicalEntrySessionInputV1>, a neutral single-site admission, and one lifecycle sidecar are the I0 scope. CheckedCallOut effect, V9 ValueId/lease, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0 accepted)"
+latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0 is landed: real ModuleInvocationBrandV1 transport through InvocationBranded<PreparedPhysicalEntrySessionInputV1>, a neutral single-site admission, and one lifecycle sidecar remain effect-free. The next design stop is the V9 residence/materializer owner; CheckedCallOut effect, V9 ValueId/lease consume, TextEq V10, Bool, branch/Return CFG, and production remain closed."
+next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0"
+next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 design stop)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -105,6 +109,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-18: COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0 landed the real collector brand transport, neutral single-site admission, checked provider projection, and callback-scoped lifecycle sidecar. Direct admission, same-brand session, foreign-brand pre-session rejection, and lifecycle tests are green; cargo check/format/pointer/physical-transfer guards are green. The AOT activation authority guard remains a known selected-package-adapter baseline failure. Next design stop: COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0; no CheckedCallOut effect, V9 ValueId/lease, TextEq, Bool, CFG, publication, fallback, retry, or production.",
   "2026-08-18: S6C V6/V7/V8 operand issuer I0 and common-V2 Substring target-plan I0 are landed with same-cohort/foreign-owner/late-discard evidence. A top-down admission audit found that common-V2 still lacks collector-backed ModuleInvocationBrand transport; owner/function/lane/provider IDs cannot mint the CheckedCallOut plan stamp. The next design stop is common-V2 provider/site-plan admission and lifecycle sidecar authority; CheckedCallOut, V9 ValueId/lease, TextEq V10, Bool, CFG, publication, fallback, retry, and production remain closed.",
   "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
   "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",

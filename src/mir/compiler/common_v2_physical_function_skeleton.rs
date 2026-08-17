@@ -5,7 +5,7 @@
 //! `MirBuilder`, publish a binding, or perform ExactText lane adoption.
 
 use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    InvocationBranded, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::compiler::common_v2_physical_function_entry_input::{
@@ -154,15 +154,35 @@ impl<'loan, 'source, 'join> PreparedPhysicalFunctionSkeletonV1<'loan, 'source, '
     /// Move the retained cohort, detached shell, and descriptor rows into the
     /// one compiler-only session transaction. No public caller can recover a
     /// second shell after this handoff.
+    #[cfg(not(test))]
     pub(crate) fn into_session_input(
         self,
-    ) -> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join> {
-        PreparedPhysicalEntrySessionInputV1 {
-            loan: Some(self.loan),
-            function: Some(self.function),
-            descriptors: Some(self.descriptors),
-            stamp: Some(self.stamp),
-        }
+        brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    ) -> InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>> {
+        InvocationBranded::from_source(
+            brand,
+            PreparedPhysicalEntrySessionInputV1 {
+                loan: Some(self.loan),
+                function: Some(self.function),
+                descriptors: Some(self.descriptors),
+                stamp: Some(self.stamp),
+            },
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) fn into_session_input(
+        self,
+    ) -> InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>> {
+        InvocationBranded::from_source(
+            crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
+            PreparedPhysicalEntrySessionInputV1 {
+                loan: Some(self.loan),
+                function: Some(self.function),
+                descriptors: Some(self.descriptors),
+                stamp: Some(self.stamp),
+            },
+        )
     }
 }
 
