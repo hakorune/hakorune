@@ -136,6 +136,18 @@ leaf-emitter candidate; the next design stop names its common
 session/layout/rollback boundary.  The `cfg(test)` demand-part split, S6C
 provenance, and a second Generic emitter remain non-authoritative.
 
+The current `CommonV2CanonicalSessionRefV1` is an S6C-bound envelope view;
+it is not a Generic operation-emitter owner and must not grow a Generic
+branch.  The next design stop must instead name one session-owned,
+family-neutral emitter projection.  Its safe ownership order is to consume
+the cohort into the existing source-backed `PreparedLoopPhysicalLayoutV1`,
+borrow `layout.program()` only while building the transient mapping, and
+co-seal that layout with same-session entry/segment/target receipts.  A
+separately re-paired program/mapping, an owner-only segment receipt, or the
+old V1 entry/block receipts is not a valid Generic input.  No MIR operation,
+Builder effect, or new session API is authorized until that boundary is
+accepted.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)
