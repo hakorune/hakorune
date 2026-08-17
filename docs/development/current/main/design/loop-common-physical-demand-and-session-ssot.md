@@ -1847,6 +1847,61 @@ not reuse DynamicV2/CheckedCallOut/TextFormal semantics and must not implement
 the decoder, publish residence, materialize Bool `ValueId`, emit Call/CFG, or
 open fallback, retry, or production.
 
+### TextEq strict decoder/Trap design boundary D0 (design-only audit)
+
+Decision: accept the dedicated field/state/fault boundary as a design-only
+BoxShape, while keeping `NoSafeSlice::TextEqStrictDecoderTrapUnsealed` until
+the source ABI and decoder implementation are separately accepted. Existing
+transport surfaces must not be widened or relabeled as this authority.
+
+Source authority + canonical issuer: the A row in `CoreMethodContractBox` and
+the source-bound `S6CPrephysicalIngressRefV2::with_text_eq_leaf` cohort supply
+identity, operands, Recipe TextEq/If, and the Bool result kind.
+`VerifiedS6CTextEqSourceBindingV1` remains a test-only parity witness and is not
+the production issuer. The design-only canonical issuer is
+named `issue_s6c_text_eq_strict_decode_v1` in the Loop contract layer; it must
+consume that cohort plus the dedicated wire and issue one source-bound
+success-or-Trap classification. The future canonical consumer is
+`CommonV2CanonicalSessionRefV1::with_text_eq_strict_decode`; it consumes the
+classification once and lends only the success proof to C's Substring
+residence/pinner boundary. These names are design names, not implemented
+symbols or receipts.
+
+Dedicated wire contract (numeric ABI remains a prerequisite):
+
+| phase | required invariant | failure result |
+| --- | --- | --- |
+| C return | exactly transport status 0 | `TransportReturnNonZero`, no-result |
+| out ownership | one non-null out, same source cohort, one consumer | `MissingOut`, `ForeignOut`, or `DuplicateOut` |
+| status | dedicated Normal/Fault only; unknown and Suspended are not equality results | `UnknownStatus` or `UnsupportedStatus` |
+| Fault | known source fault plus zero/none reserved fields | `SourceBoundFault` or `MalformedFaultShape` |
+| Normal carrier | expected handle×2 operands and dedicated Bool tag | `InvalidTextHandle`, `OperandCohortMismatch`, or `ResultTagMismatch` |
+| Bool payload | exactly 0 or 1; no truthy conversion | `InvalidBoolPayload` |
+| success | source/Recipe/If/result relation agrees and proof is unconsumed | one move-only success proof |
+
+Primary-error chronology is fixed: C return -> out/cohort -> status -> fault
+shape -> handle/tag -> exact Bool payload -> success proof. Once a primary
+error is selected, later fields are suppressed; every failure is a canonical
+source-bound Trap with no result and no physical publish. The existing
+DynamicV2CallOutV1, CheckedCallOutFault, TextFormal status/residence, backend
+`llvm.trap`, and `string.eq_hh` remain non-authority transport or fallback
+evidence. C receives only B's success proof; B owns no pointer, generation,
+lease, residence, `ValueId`, CFG edge, or Completion meaning.
+
+Fail-fast boundary: reject unknown/nonzero return, missing/foreign/duplicate
+out, unknown/nonzero/malformed status or fault, invalid handle/cohort/tag,
+payload other than 0/1, condition 5-versus-10 drift, and duplicate proof
+consumption before residence, Bool materialization, branch/Return, or CFG.
+
+Smallest next slice: design-only numeric wire revision/tag assignment and the
+source-backed C entry owner. Until those are named, do not implement the
+decoder, add a `Verified*`/`Prepared*` receipt, emit Call/Compare/CFG, publish
+residence, or open fallback, retry, production, or legacy retirement.
+
+Non-claims: this D0 closes no physical capability. A green transport or C1
+test cannot advance the blocker, and a generic `icmp != 0` cannot issue the
+TextEq Bool.
+
 #### C — canonical Substring-result residence publisher/pinner
 
 Source authority + canonical issuer: the source-bound `StringSubstring`
