@@ -6176,7 +6176,8 @@ skip the After closure or reopen a Tail-only route.
 | 24b-d | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COSEAL-D0` | name the source issuer that binds Return site/value to the logical Exit and FunctionExit arm | accepted NoSafeSlice 2026-08-18; existing source/Recipe/JoinSig issuers remain separate; no code, receipt, or physical effect |
 | 24b-e | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-ISSUER-BOUNDARY-D0` | design and accept one same-cohort canonical issuer boundary before any Return relation receipt | accepted NoSafeSlice 2026-08-18; common aggregation sees the loan but lacks source-to-key provenance; no code, receipt, or physical effect |
 | 24b-f | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0` | define source-layer Return-to-Recipe/Join key binding and the sole issuer handoff | accepted BoxShape 2026-08-18; source co-seal retains region/binding evidence, Recipe producer owns the key relation; I0 below |
-| 24b-f-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` | issue and transport one non-Clone source-to-Recipe/Join relation with negative drift guards | next execution; no physical block/edge/Return/PHI, session, production, fallback, or retry |
+| 24b-f-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` | issue and transport one non-Clone source-to-Recipe/Join relation with negative drift guards | landed 2026-08-18; focused S6C suite 9/9 green plus existing call/row/domain negatives; no physical block/edge/Return/PHI, session, production, fallback, or retry |
+| 24b-g | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0` | name the sole common pre-session consumer and rollback boundary for the borrowed source-to-Recipe/Join relation | design stop: common envelope does not yet retain this relation; no aggregation, physical emission, session, production, fallback, or retry |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
@@ -7079,3 +7080,26 @@ landed; its exact identity/source-coherence negative closeout remains current.
 After M8/M9, the semantic-program and transfer-authority rows above are the
 mandatory production-selection prerequisites. Current source task order is
 owned by the Loop pipeline SSOT and `CURRENT_STATE.toml`.
+
+### Return source-to-Recipe/Join binding I0 closeout (2026-08-18; Decision: accepted)
+
+`LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` is landed as
+one caller-zero transport-only BoxShape. The resolver-owned S6C Exit/Tail
+co-seal now retains the exact nested-If region, Return region, index
+`BindingRef`, Return site, and Return value. The sole S6C Recipe producer issues
+one non-Clone relation that binds those source facts to the fixed If/then
+blocks, `ReadBinding` Return item/result, logical Exit key, and the JoinSig
+Return/FunctionExit arm plus matching Body-to-FunctionExit summary. The
+relation is lent through the existing product, logical JOINIR, and logical
+output/prephysical façades; no second semantic issuer or Recipe key owner is
+introduced.
+
+Focused `s6c_scan_with_init` tests are green (9/9), including the positive
+source/Recipe/Join binding and existing swapped-call, swapped-argument, and
+domain-drift negatives. `current_state_pointer_guard.sh`,
+`loop_physical_transfer_authority_guard.sh`, formatting, and diff checks are
+green. No block/edge/terminator, Return emission, CFG/SSA/PHI, session,
+production, fallback, retry, or publication effect is opened. The next design
+stop is `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0`:
+the common pre-session envelope must first be named as the sole consumer and
+rollback owner before this relation can affect physical demand.
