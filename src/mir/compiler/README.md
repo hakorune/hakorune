@@ -47,7 +47,8 @@ allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
  the focused test proves the receiver/explicit order and that the loan cannot
  escape.  The Generic physical-effect BoxShape and its caller-zero projection
  are now landed.  There is no shortcut through S6C or `/N`/JSON counts.  The
- next consumer is the Generic-only detached skeleton reservation below.
+ next consumer is the combined Generic emitter admission; the old detached
+ shell probe is retired.
 
 The effect stop is narrower than assigning `EffectMask::PURE` to this
 fixture.  A future Generic issuer must consume the parent-owned source effect,
@@ -58,37 +59,23 @@ mapping proves every admitted lowered operation is MIR-pure.  Local-write or
  physical effects are not issuers.  The projection-only I0 is now landed;
  skeleton allocation is a separate Generic-only consumer.
 
-### Generic G0 detached physical-function skeleton I0
+### Generic G0 physical emitter admission and session
 
-`generic_g0_physical_function_skeleton.rs` consumes one complete Generic
-entry-input cohort and internally reissues the same-cohort PURE effect.  It
-derives the canonical symbol from the source name plus explicit source arity,
-then reserves physical i64 lanes in receiver-prefix order and an i64 result.
-The returned non-`Clone` wrapper retains the source parent, descriptors, effect
-projection, and unpublished `MirFunction`; dropping it is the rollback owner.
-The reserved parameter `ValueId`s are mechanical shell reservations only.
+`generic_g0_physical_operation_cohort/emitter_admission.rs` is now the sole
+prephysical owner. It consumes one source cohort and retains the neutral
+program/layout, declaration-only shell facts, resolver control facts,
+Completion, target, and full stamp. Mapping remains callback-scoped. The
+shared source validators live in `generic_g0_physical_entry_facts.rs` and
+`generic_g0_physical_shell_facts.rs`; they allocate no `MirFunction` or
+Builder state.
 
-This I0 does not install a function, adopt BindingSSA lanes, consume
-Completion, open Builder/session/CFG/SSA/PHI, or lower any loop operation.
-Exact-empty Generic attrs/uses remain required, and S6C skeleton/header rows,
-descriptor length as `/N`, JSON, `new_selected_dynamic`, and passed-in effect
-defaults remain non-authorities.
-
-### Generic G0 detached physical-entry canary
-
-`generic_g0_physical_entry_admission.rs` now names the old probe explicitly as
-`GenericG0DetachedEntryCanaryV1`. It shares only the resolver BlockExpr/
-outer-If validator with the combined admission; its weak name/lane stamp and
-detached shell are not inputs to the new owner.
-
-`resolved_lowering/generic_g0_physical_entry_session.rs` is the only caller-zero
-consumer in this slice.  It rejects a nonempty Builder, opens one unpublished
-draft transaction, installs the detached shell, and delegates receiver/ordinary
-declaration publication to the existing `CanonicalSsaFunctionSessionV2` identity
-issuer.  The outer draft transaction is the sole rollback owner.  The Generic
-session does not reuse the S6C/common-V2 admission, create loop blocks, consume
-Completion claims, lower operations, or publish a module; duplicate adoption
-and partial/foreign input remain fail-fast negatives.
+`resolved_lowering/generic_g0_physical_emitter_session.rs` is the only current
+caller-zero session probe. It creates the shell inside the unpublished
+transaction, adopts source lanes, prepares canonical entry/segment inputs,
+and can exercise the existing common dispatcher under one discard owner. The
+former detached skeleton/canary/session files and tuple exits are retired;
+no S6C/V1 adapter, second rollback owner, Completion claim, publication,
+fallback, or production caller is implied.
 
 ### Generic G0 physical-effect projection I0
 

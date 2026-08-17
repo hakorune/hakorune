@@ -147,19 +147,17 @@ design.  The live production path remains the explicit migration edge below
 cutover commit.  Do not add a second source observer, route planner, type
 repair, fallback, or retry to bridge this gap.
 
-### Generic G0 physical-entry adoption I0 (2026-08-17)
+### Generic G0 physical-entry adoption and retirement (2026-08-17)
 
-The Generic-only entry seam now consumes one callback-scoped admission from
-`src/mir/compiler/generic_g0_physical_entry_admission.rs`.  The thin consumer
-opens one unpublished draft transaction, installs the detached physical shell,
-and delegates receiver/ordinary declaration publication to the existing
-`CanonicalSsaFunctionSessionV2` identity owner.  The draft transaction is the
-sole rollback owner; duplicate adoption and occupied-Builder attempts reject.
-This is a bounded entry effect only: no Loop CFG/operations/PHI, Completion
-claims, lifecycle/Text, route selection, fallback/retry, production caller, or
-module publication is opened.  S6C/common-V2 admission and session types are
-not Generic authorities.  The next row is the read-only canary/convergence
-census before another physical effect is considered.
+The Generic entry facts are now consumed by the combined emitter admission and
+the caller-zero `generic_g0_physical_emitter_session` preflight.  The session
+transaction remains the sole owner of shell installation, lane adoption, and
+discard; the common dispatcher is only borrowed after canonical entry/segment
+receipts are ready.  The former detached skeleton, canary admission, and
+entry-session modules were removed by `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0`.
+No Generic Builder publication, Completion claim, CFG/PHI, lifecycle/Text,
+route, fallback/retry, or production caller is implied by the caller-zero
+probe.
 
 ## Legacy callable source ingress (pre-cutover edge)
 

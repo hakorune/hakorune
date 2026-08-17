@@ -1523,31 +1523,48 @@ Non-claims:
 cohort's private child module. One source parent is consumed into the neutral
 layout/program, declaration-only shell plan, resolver control, Completion,
 target, and full stamp; mapping remains HRTB-scoped. The module is 347 lines,
-its separate test file is 107 lines, the five focused tests and 63-test Generic
+its separate test file is 107 lines, the five focused tests and 68-test Generic
 suite are green, and the structural test rejects physical state, S6C/V1
 adapters, old-canary imports, and tuple escape surfaces.
 
-The old entry probe was atomically renamed to
-`GenericG0DetachedEntryCanaryV1`. Its detached shell, two tuple exits, and the
-duplicated reserved-parameter validator retire with the later session-owned
-parity switch; `issue_generic_g0_loop_ingress_v1` retires with the operation
-emitter production cutover. The legacy disposition TSV remains a corpus
-inventory rather than a replacement-decision authority. Repository-size and
-byte-identical-helper counts are informational census; they do not preempt
-this owner chain. Dynamic/Text getter or Seal findings stay in their owning
-parked lanes.
+The old entry probe was atomically retired by
+`GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0`. Its detached shell, weak stamp, two
+tuple exits, old admission/session files, and duplicated reserved-parameter
+validator are gone. The source-backed control and shell validators now live in
+neutral facts modules and are used only by the combined admission. The
+operation-emitter production cutover still owns the separate retirement of
+`issue_generic_g0_loop_ingress_v1`; no production caller is claimed here.
+The legacy disposition TSV remains a corpus inventory rather than a
+replacement-decision authority. Repository-size and byte-identical-helper
+counts are informational census; they do not preempt this owner chain.
+Dynamic/Text getter or Seal findings stay in their owning parked lanes.
 
 The split-API census has three distinct outcomes. The lexical `recipe.clone()`
 used by the forest-binding verifier never escapes its producer and is not an
 authority split. The production-visible but caller-zero
-`VerifiedGenericRecipeProductG0::into_physical_boundary` is a real sealing
-surface and must become `cfg(test)` in
-`LOOP-GENERIC-G0-SEALED-CONSUME-I0`, after this design census and before the
-first session-effect I0. The detached skeleton/canary `into_parts` methods
-still feed the named old canary; they are not inputs to the combined admission
-and are deleted atomically by `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` after
-session parity. This classification, rather than an aggregate line count,
-owns the cleanup order.
+`VerifiedGenericRecipeProductG0::into_physical_boundary` is already isolated
+behind the sealed-consume test boundary. The detached skeleton/canary
+`into_parts` methods and old session path were removed by the retirement R0;
+there is no remaining detached tuple consumer to re-pair. This classification,
+rather than an aggregate line count, owns the cleanup order.
+
+#### Generic G0 detached-entry retirement R0 closeout (2026-08-17)
+
+The retirement slice preserved the combined admission/session behavior while
+moving the two reusable validators into
+`generic_g0_physical_entry_facts.rs` and
+`generic_g0_physical_shell_facts.rs`. Source, Builder, and session effects did
+not gain a new authority: the retained session preflight remains the sole
+unpublished shell/entry/segment consumer and the outer discard remains the
+rollback owner. The focused Generic suite is green (68/68), `cargo check`,
+formatting, diff, and the old-symbol census are green, and every retired
+detached symbol has zero source callers.
+
+The next decision is the human-gated
+`LOOP-PRODUCTION-SELECTION-D0`. Operation emission is still caller-zero and
+does not authorize a production switch, fallback/retry, Completion/DraftSeal,
+Text, route, or module publication. A future production slice must first name
+the exact selection authority and the same-commit old-edge retirement gate.
 
 #### Structural convergence audit — migration thickness is classified, not an authority (2026-08-17)
 
@@ -5104,11 +5121,11 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone prephysical admission owning layout/program, shell plan, entry-control facts, Completion, target, and one full stamp | accepted BoxShape 2026-08-17; actual `MirFunction`, raw IDs, parent borrow, stored mapping, S6C/old-V1 adapter, and second rollback owner are forbidden |
 | 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | landed 2026-08-17; borrowed source-parts view plus shared-axis parity tests/guards are green; no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
-| 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; old probe renamed `GenericG0DetachedEntryCanaryV1`; five focused and 63 Generic tests plus structural/size guards are green; no function/session/raw-ID/dispatcher effect or production caller |
+| 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; five focused and 68 Generic tests plus structural/size guards are green; detached canary dependencies were removed by the later retirement R0; no function/session/raw-ID/dispatcher effect or production caller |
 | 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | accept one whole-admission family-neutral unpublished consumer for shell materialization, lane adoption, canonical entry projection, layout-keyed segment preflight, and sole rollback | accepted BoxShape 2026-08-17; implementation remains bounded behind `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; `ReadyLoopEntryV1::new_for_test`, S6C input, owner-only re-pairing, and leaf effect remain forbidden |
-| 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite 69/69, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits remain owned by the later parity retirement |
+| 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits were subsequently removed by the parity retirement R0 |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | landed 2026-08-17; retained source rows, shell/adoption, canonical preheader reads, layout-keyed segment allocation, and late-discard tests are green; operation leaf, publication, retry, fallback, and production remain closed |
-| 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
+| 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | landed 2026-08-17; old detached callers are zero, validators live in neutral facts modules, and the combined admission/session path is the only retained Generic probe |
 | 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | consume the callback-scoped program/layout/entry/segment input through the canonical unpublished session and emit the existing five-variant operation rows | landed 2026-08-17; existing common dispatcher emits inside the outer unpublished transaction, late failure discards, and completion/publication/production remain closed |
 | 25b-c0-G0-operation-dispatch-preflight-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0` | bind admission-owned program/layout to session-issued canonical entry and segment receipts, then run the existing segment-dispatch preflight without a leaf effect | landed 2026-08-17; one callback-scoped mechanical view and no-leaf preflight are green; operation emission remains a separate row |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |

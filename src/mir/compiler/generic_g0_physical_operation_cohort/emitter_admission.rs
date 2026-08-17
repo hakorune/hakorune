@@ -6,8 +6,8 @@
 //! function state and instruction identities are deliberately absent.
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::generic_g0_physical_entry_admission::{
-    issue_generic_g0_entry_control_facts_v1, GenericG0DetachedEntryCanaryRejectV1,
+use crate::mir::compiler::generic_g0_physical_entry_facts::{
+    issue_generic_g0_entry_control_facts_v1, GenericG0PhysicalEntryControlRejectV1,
     PreparedGenericG0EntryControlFactsV1,
 };
 use crate::mir::compiler::generic_g0_physical_function_effect::{
@@ -18,9 +18,9 @@ use crate::mir::compiler::generic_g0_physical_function_entry_input::{
     issue_generic_g0_physical_function_entry_input_v1,
     GenericG0PhysicalFunctionEntryRejectV1, GenericG0PhysicalParameterDescriptorV1,
 };
-use crate::mir::compiler::generic_g0_physical_function_skeleton::{
+use crate::mir::compiler::generic_g0_physical_shell_facts::{
     validate_generic_g0_physical_function_shell_facts,
-    GenericG0PhysicalFunctionSkeletonRejectV1,
+    GenericG0PhysicalShellFactsRejectV1,
 };
 use crate::mir::compiler::generic_g0_physical_operation_mapping::{
     issue_generic_g0_physical_operation_mapping_from_program_v1,
@@ -55,8 +55,8 @@ pub(crate) enum GenericG0PhysicalEmitterAdmissionRejectV1 {
     SourceParent(GenericG0SourceParentRejectV1),
     Entry(GenericG0PhysicalFunctionEntryRejectV1),
     Effect(GenericG0PhysicalFunctionEffectRejectV1),
-    Shell(GenericG0PhysicalFunctionSkeletonRejectV1),
-    Control(GenericG0DetachedEntryCanaryRejectV1),
+    Shell(GenericG0PhysicalShellFactsRejectV1),
+    Control(GenericG0PhysicalEntryControlRejectV1),
     Cohort(GenericG0PhysicalOperationCohortRejectV1),
     Mapping(GenericG0PhysicalOperationMappingRejectV1),
     Layout(LoopPhysicalLayoutRejectV1),
