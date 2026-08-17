@@ -1764,6 +1764,58 @@ Non-claims:
   production caller, fallback, retry, or main integration.
 ```
 
+#### Dispatcher input census — design-only refinement (2026-08-17)
+
+The read-only dispatcher audit closes the mechanical input list but does not
+open an emitter effect.  The existing segment-aware dispatcher consumes one
+complete `PreparedLoopPhysicalLayoutV1` (and therefore its owned
+`PreparedLoopOperationProgramV1`/value ledger), one session-issued canonical
+entry view, and one layout-keyed segment-block receipt.  Its target rows are
+derived from those three inputs before the first leaf; the eventual leaf
+callback borrows only the already-open canonical Builder, identity, and PHI
+services.  The current preflight callback returns only the segment receipt, so
+it is not yet safe to let a later caller re-pair that receipt with an
+independently borrowed layout or program.
+
+```text
+Decision:
+  Keep `NoSafeSlice::GenericG0OperationEmitterOwnerUnsealed`.  Reuse the
+  existing family-neutral segment dispatcher as the sole leaf candidate, but
+  first bind its three mechanical inputs to one callback-scoped view.  This is
+  a BoxShape/design boundary only; no new receipt or emitter is issued here.
+Source authority + canonical issuer:
+  The combined Generic emitter admission owns the program/layout and source
+  entry rows.  The same unpublished session preflight owns the canonical
+  preheader entry view and layout-keyed segment receipt.  One future
+  session-owned consumer must co-seal those facts and lend a transient
+  `GenericG0SegmentDispatchInput`-shaped view exactly once to
+  `prepare_loop_segment_operation_dispatch_v1`; the name is a design
+  placeholder, not an implementation permission or a new semantic authority.
+Non-authority:
+  A standalone `LoopPhysicalSegmentBlockReceiptV1`, old logical
+  `ReadyLoopEntryV1`/block receipts, S6C/CommonV2 envelopes, operation names
+  or ordinals, raw `ValueId`s, owner/name equality, operation counts, and
+  independent layout/program getters cannot establish dispatch ownership.
+Fail-fast boundary:
+  Before the first operation instruction, reject any program/layout/entry/
+  segment owner, preheader, target, segment-index, producer/operand, or
+  coverage drift; reject a missing or duplicate callback loan; and reject any
+  attempt to save the view, retry, fallback, or publish partial leaf effects.
+  All target rows must validate before the first leaf mutates MIR; the outer
+  unpublished function transaction remains the sole discard owner.
+Smallest next slice:
+  Design-only `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-D0`:
+  define the one-admission/one-session callback boundary and its exact
+  program+layout+canonical-entry+segment coverage, then census the existing
+  dispatcher call without emitting a row.  If this requires an S6C/V1
+  adapter, a second Generic program issuer, or source re-inference, retain
+  this NoSafeSlice.
+Non-claims:
+  No `Pinned*`/Text work, operation MIR, ReadBinding/Const/Binary/Compare/
+  Write emission, CFG/SSA/PHI, Completion/DraftSeal, route/backend,
+  production caller, publication, fallback, or retry.
+```
+
 ```text
 Decision:
   Keep `NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed`.
