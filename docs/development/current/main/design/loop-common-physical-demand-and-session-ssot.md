@@ -95,12 +95,11 @@ Related:
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` is the caller-zero implementation
-  of the accepted Callable-first semantic-program BoxShape. The existing
-  source/Core/JoinSig products are still the only semantic authorities; the
-  new parent merely prevents their re-pairing. G0/all-profile coverage,
-  transfer migration, CFG/PHI, lifecycle, Text, route, and production remain
-  closed.
+  `LOOP-PRECUTOVER-AUTHORITY-G0` is the next design-only gate. The Callable-
+  first semantic-program BoxShape and caller-zero I0 are landed; the existing
+  source/Core/JoinSig products remain the only semantic authorities. The
+  repository-wide issuer, transfer migration, CFG/PHI, lifecycle, Text, route,
+  and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -153,14 +152,14 @@ Fail-fast boundary:
   Builder/session effect. A positive census does not itself authorize G0.
 
 Smallest next slice:
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` — consume one complete Callable
-  parent in a caller-zero, Builder-free aggregate. Generic G0 keeps the
-  blocker above until an all-family issuer exists.
+  `LOOP-PRECUTOVER-AUTHORITY-G0` — design-only census for one repository-wide
+  source-backed issuer. Do not relabel the Callable parent, mint a generic
+  receipt, or open physical effect until all admitted families have the same
+  co-seal boundary.
 
 Acceptance:
-  the census names the Callable co-seal issuer and hands off to the active I0;
-  generic G0 still records its precise missing issuer and keeps `NoSafeSlice`
-  active. It must not fill a gap with zero, a count,
+  the Callable co-seal issuer is landed, while generic G0 records its precise
+  missing issuer and keeps `NoSafeSlice` active. It must not fill a gap with zero, a count,
   Recipe order, or MIR observation.
 
 #### Census result and next co-seal design stop
@@ -3272,7 +3271,7 @@ skip the After closure or reopen a Tail-only route.
 | 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | **closed 2026-08-08** caller-zero; no G0-specific physicalizer |
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | repository-wide convergence; not a prerequisite for the bounded selected H2 first cutover unless its unchanged source needs that family |
 | 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | Callable-first BoxShape: consume one complete source-backed Callable parent into one private semantic-program envelope; generic G0/all-family issuer remains later | accepted design 2026-08-17; no production change |
-| 21a | `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` | caller-zero implementation of the one-shot Callable envelope and mechanical physical-demand projection; remove split caller ingress | active fast row; no CFG/SSA/PHI, session effect, lifecycle, Text, route, fallback, retry, or production caller |
+| 21a | `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` | caller-zero implementation of the one-shot Callable envelope and mechanical physical-demand projection; remove split caller ingress | **landed 2026-08-17**; no CFG/SSA/PHI, session effect, lifecycle, Text, route, fallback, retry, or production caller |
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |

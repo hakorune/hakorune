@@ -31,12 +31,12 @@ Related:
   that individual source/Core/JoinSig/Layout/CFG owners still lack one
   source-backed semantic-program co-seal issuer. A-prime Text lifecycle and
   production selection remain parked.
-- **Next ordered task:** caller-zero
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`, after accepting the
-  Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` BoxShape. It consumes one
-  source-backed Callable parent before any all-19 G0 coverage or production
-  physical effect. Do not extend the selected-normal legacy finalizer with
-  lifecycle or Return authority.
+- **Next ordered task:** design-only
+  `LOOP-PRECUTOVER-AUTHORITY-G0`, after landing the Callable-first
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`. The repository-wide issuer must
+  still cover all admitted families before any all-19 G0 coverage or
+  production physical effect. Do not extend the selected-normal legacy
+  finalizer with lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
