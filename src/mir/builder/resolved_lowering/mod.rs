@@ -23,6 +23,8 @@ pub(in crate::mir::builder) use draft_seal_owner::{
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
 mod flow_consumption;
+#[cfg(test)]
+mod generic_g0_physical_emitter_session;
 mod generic_g0_physical_entry_session;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;

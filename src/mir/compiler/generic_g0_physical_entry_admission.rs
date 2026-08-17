@@ -56,19 +56,39 @@ impl GenericG0DetachedEntryCanaryStampV1 {
 /// combined emitter admission.  This is an aggregate of existing resolver
 /// products, not a second control authority.
 pub(in crate::mir::compiler) struct PreparedGenericG0EntryControlFactsV1 {
-    expectation: VerifiedResolvedBlockExpressionExpectationV1,
-    outer_if: VerifiedResolvedFunctionIfControlV1,
+    expectation: Option<VerifiedResolvedBlockExpressionExpectationV1>,
+    outer_if: Option<VerifiedResolvedFunctionIfControlV1>,
 }
 
 impl PreparedGenericG0EntryControlFactsV1 {
     pub(in crate::mir::compiler) fn expectation(
         &self,
     ) -> &VerifiedResolvedBlockExpressionExpectationV1 {
-        &self.expectation
+        self.expectation
+            .as_ref()
+            .expect("Generic entry control expectation already consumed")
     }
 
     pub(in crate::mir::compiler) fn outer_if(&self) -> &VerifiedResolvedFunctionIfControlV1 {
-        &self.outer_if
+        self.outer_if
+            .as_ref()
+            .expect("Generic entry control outer-if already consumed")
+    }
+
+    pub(in crate::mir::compiler) fn take_expectation(
+        &mut self,
+    ) -> Result<VerifiedResolvedBlockExpressionExpectationV1, String> {
+        self.expectation
+            .take()
+            .ok_or_else(|| "Generic entry control expectation already consumed".to_owned())
+    }
+
+    pub(in crate::mir::compiler) fn take_outer_if(
+        &mut self,
+    ) -> Result<VerifiedResolvedFunctionIfControlV1, String> {
+        self.outer_if
+            .take()
+            .ok_or_else(|| "Generic entry control outer-if already consumed".to_owned())
     }
 }
 
@@ -125,8 +145,8 @@ pub(in crate::mir::compiler) fn issue_generic_g0_entry_control_facts_v1(
         return Err(GenericG0DetachedEntryCanaryRejectV1::CompletionTargetMismatch);
     }
     Ok(PreparedGenericG0EntryControlFactsV1 {
-        expectation,
-        outer_if,
+        expectation: Some(expectation),
+        outer_if: Some(outer_if),
     })
 }
 
@@ -137,10 +157,13 @@ pub(crate) fn issue_generic_g0_detached_entry_canary_v1<'loan, 'source>(
 ) -> Result<GenericG0DetachedEntryCanaryV1<'loan, 'source>, GenericG0DetachedEntryCanaryRejectV1>
 {
     let parent = skeleton.parent();
-    let PreparedGenericG0EntryControlFactsV1 {
-        expectation,
-        outer_if,
-    } = issue_generic_g0_entry_control_facts_v1(parent)?;
+    let mut control = issue_generic_g0_entry_control_facts_v1(parent)?;
+    let expectation = control
+        .take_expectation()
+        .map_err(|_| GenericG0DetachedEntryCanaryRejectV1::OwnerMismatch)?;
+    let outer_if = control
+        .take_outer_if()
+        .map_err(|_| GenericG0DetachedEntryCanaryRejectV1::OwnerMismatch)?;
     let lane_count = skeleton.descriptors().len();
     let lane_count = u32::try_from(lane_count)
         .map_err(|_| GenericG0DetachedEntryCanaryRejectV1::LaneCountOverflow)?;

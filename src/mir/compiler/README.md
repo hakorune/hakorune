@@ -159,6 +159,15 @@ The raw test constructor, an S6C-envelope adapter, copied IDs, or a second
 Generic receipt keeps the preflight at `NoSafeSlice`; the existing
 segment-aware dispatcher remains the sole leaf consumer.
 
+The caller-zero session-preflight proof now consumes the whole admission,
+creates the shell only inside `CanonicalFunctionLoweringSessionV1`, adopts
+the retained lanes, reads canonical entry receipts at the live preheader, and
+allocates the layout-keyed segment receipt before invoking its callback. A
+late callback error discards the unpublished transaction. The bridge is
+mechanical and test-scoped; it does not make `ReadyLoopEntryV1` a Generic
+source authority. The Generic-to-common operation/session input remains the
+next design stop, so no operation leaf is emitted here.
+
 The old `VerifiedGenericRecipeProductG0::into_physical_boundary` topology
 split is now `cfg(test)` only.  It remains available to the caller-zero
 observation adapter, but production code must cross the complete

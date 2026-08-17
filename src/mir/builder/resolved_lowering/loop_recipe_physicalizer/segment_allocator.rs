@@ -14,13 +14,13 @@ use super::topology::{
 use crate::mir::loop_recipe_contract::{LoopPhysicalSegmentRoleV1, PreparedLoopPhysicalLayoutV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum LoopPhysicalSegmentAllocatorRejectV1 {
+pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalSegmentAllocatorRejectV1 {
     EntryOwnerMismatch,
     Block(LoopPhysicalizerRejectV1),
     Receipt(LoopPhysicalSegmentBlockReceiptRejectV1),
 }
 
-pub(super) fn allocate_for_layout(
+pub(in crate::mir::builder::resolved_lowering) fn allocate_for_layout(
     layout: &PreparedLoopPhysicalLayoutV1,
     entry: &ReadyLoopEntryV1,
     services: &mut LoopPhysicalServicesV1<'_>,

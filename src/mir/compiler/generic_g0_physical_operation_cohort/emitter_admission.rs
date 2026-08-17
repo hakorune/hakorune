@@ -36,10 +36,12 @@ use crate::mir::loop_recipe_contract::{
 use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
     CanonicalCallableSymbolV1, FunctionOriginV1, FunctionOwnerIdV1,
     LoopExecutionFrameKeyV1, RegionId, ResolvedScopeRegionPairV1,
     SemanticOwnerSourceKindV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    VerifiedResolvedBlockExpressionExpectationV1,
 };
 
 use super::{GenericG0PhysicalOperationCohortRejectV1, GenericG0PhysicalOperationCohortV1};
@@ -60,6 +62,7 @@ pub(crate) enum GenericG0PhysicalEmitterAdmissionRejectV1 {
     Layout(LoopPhysicalLayoutRejectV1),
     CountOverflow,
     CohortDrift,
+    EntryCoverageMismatch,
 }
 
 /// Declaration-only physical shell plan.  It owns no executable function
@@ -132,6 +135,18 @@ pub(crate) struct PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
     completion: VerifiedFunctionCompletionV1,
 }
 
+/// One-way handoff consumed by the unpublished session preflight.  The
+/// source siblings remain together; only narrow field borrows and one-shot
+/// control extraction are exposed to that later owner.
+pub(crate) struct PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    entries: Box<[VerifiedGenericG0EntryBindingV1]>,
+    layout_binding: VerifiedGenericG0PhysicalLayoutBindingV1,
+    shell_plan: PreparedGenericG0FunctionShellPlanV1,
+    control: PreparedGenericG0EntryControlFactsV1,
+    completion: VerifiedFunctionCompletionV1,
+}
+
 pub(crate) struct GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source> {
     admission: &'loan PreparedGenericG0PhysicalEmitterAdmissionV1<'source>,
 }
@@ -174,7 +189,54 @@ impl<'loan, 'source> GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source> {
     }
 }
 
+impl<'source> PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
+    pub(crate) const fn input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
+        self.input
+    }
+
+    pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
+        &self.entries
+    }
+
+    pub(crate) fn layout(&self) -> &PreparedLoopPhysicalLayoutV1 {
+        &self.layout_binding.layout
+    }
+
+    pub(crate) fn shell_plan(&self) -> &PreparedGenericG0FunctionShellPlanV1 {
+        &self.shell_plan
+    }
+
+    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+        &self.completion
+    }
+
+    pub(crate) fn take_expectation(
+        &mut self,
+    ) -> Result<VerifiedResolvedBlockExpressionExpectationV1, String> {
+        self.control.take_expectation()
+    }
+
+    pub(crate) fn take_outer_if(
+        &mut self,
+    ) -> Result<VerifiedResolvedFunctionIfControlV1, String> {
+        self.control.take_outer_if()
+    }
+}
+
 impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
+    pub(crate) fn into_session_preflight(
+        self,
+    ) -> PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
+        PreparedGenericG0PhysicalEmitterSessionPreflightV1 {
+            input: self.input,
+            entries: self.entries,
+            layout_binding: self.layout_binding,
+            shell_plan: self.shell_plan,
+            control: self.control,
+            completion: self.completion,
+        }
+    }
+
     pub(crate) fn consume<R>(
         self,
         callback: impl for<'loan> FnOnce(GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source>) -> R,
@@ -263,6 +325,25 @@ fn seal_admission<'source>(
         .prepare_physical_layout()
         .map_err(GenericG0PhysicalEmitterAdmissionRejectV1::Layout)?;
     let context = layout.program().demand().context();
+    let recipe = layout
+        .program()
+        .demand()
+        .operation_effect()
+        .core()
+        .recipe()
+        .as_recipe();
+    let entry_coverage_ok = entries.iter().all(|entry| {
+        recipe.inputs.contains(&entry.recipe_value())
+            && recipe
+                .carriers
+                .iter()
+                .filter(|carrier| carrier.entry_value == entry.recipe_value())
+                .count()
+                == 1
+    });
+    if !entry_coverage_ok || recipe.inputs.len() != entries.len() {
+        return Err(GenericG0PhysicalEmitterAdmissionRejectV1::EntryCoverageMismatch);
+    }
     let coverage = layout.coverage();
     let operation_count = u32::try_from(mapping_count)
         .map_err(|_| GenericG0PhysicalEmitterAdmissionRejectV1::CountOverflow)?;
