@@ -1330,6 +1330,11 @@ Non-claims:
 | `with_generic_g0_physical_entry_session` / `new_generic` | Caller-zero detached canary; it proves rollback/adoption but is not a production route. | One family-neutral canonical unpublished-session opener; Generic and S6C remain thin admission adapters, not duplicate session implementations. | After session-preflight parity, switch the caller and delete the detached skeleton/canary/session plus their tuple exits in the same zero-caller slice. | `rg -n "with_generic_g0_physical_entry_session|new_generic|GenericG0DetachedEntryCanaryV1" src/mir` |
 | `DynamicProfileOwned` / `new_selected_dynamic` | Current selected-Dynamic physical emitter still calls it; it is a live production owner, not a removable canary. | Common canonical session admission/session cutover for selected Dynamic. | First land the replacement, switch the production caller, verify zero `new_selected_dynamic` callers, then remove the enum arm and constructor. | `rg -n "DynamicProfileOwned|new_selected_dynamic" src/mir` |
 | `finalize_function_draft*` selected-normal legacy edges | Multiple production callers remain in normal cataloged methods, recursive child lowering, port-aware wrappers, indexing, and calls. | `PreparedFunctionExitSetV1` -> canonical Completion/DraftSeal -> atomic unpublished publication. | Switch every listed production caller, prove old-symbol caller count is zero, then delete the legacy facade; do not retrofit it for Text/lifecycle. | `rg -n "finalize_function_draft(_with_headers)?\\(" src/mir/builder` |
+| `VerifiedGenericRecipeProductG0::into_physical_boundary` | Production-visible but caller-zero split; it is a real sealing surface, not a second semantic issuer. | One-shot Generic source-parent/cohort/admission consumer. | Isolate behind `cfg(test)` in `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; prove production caller count zero before session effects. | `rg -n "into_physical_boundary" src/mir` |
+| `VerifiedCallableSemanticProgramV1::into_prepared_parts` | Crate-local six-tuple decomposition still has production/test consumers and permits re-decomposition. | Direct scoped/one-shot prepared-operation consumer. | Behavior-preserving refactor, migrate both caller classes, then zero callers before deleting the tuple surface. | `rg -n "into_prepared_parts" src/mir` |
+| `EndAuthorizedTextV1` public facade/getters | Runtime lease owner is valid, but the public wrapper/getters are a separate facade debt. | Runtime lease owner with a move-only/private completion surface. | Park in `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0`; preserve lease semantics and prove facade callers before narrowing. | `rg -n "EndAuthorizedTextV1|consume_end_authorized" src/runtime` |
+| `generic-loop-legacy-disposition-v1.tsv` decision column | Corpus inventory is intentionally P0 and currently contains non-applicable sentinels; it is not a replacement decision. | Manifest-led owner/retirement evidence. | Fill only observed rows with owner, parity gate, and retire row; no bulk relabel or LOC-driven deletion. | `sed -n '1p' docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv` |
+| byte-identical helper/micro-seed groups | Informational duplicate census; byte identity does not prove semantic interchangeability. | Each helper's source-backed owner, or explicit archive/keep owner. | Separate inventory R0 first; merge/delete only in a focused parity slice with zero callers. | `rg --files src lang/c-abi | wc -l` |
 
 **Manifest result.**  The Generic entry adoption I0 is complete.  The
 canary/legacy graph now has an owner and a zero-caller deletion gate for every
@@ -1543,6 +1548,84 @@ still feed the named old canary; they are not inputs to the combined admission
 and are deleted atomically by `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` after
 session parity. This classification, rather than an aggregate line count,
 owns the cleanup order.
+
+#### Structural convergence audit — migration thickness is classified, not an authority (2026-08-17)
+
+The repository-wide size census is useful for planning but is not a semantic
+decision authority.  The currently coexisting Generic/S6C/common lanes are
+intentional migration scaffolding until a named production consumer and a
+zero-caller retirement gate exist.  A large line count, a byte-identical helper
+pair, or a test-only canary does not by itself justify deletion or a new
+physical owner.
+
+```text
+Decision:
+  Keep the current source -> cohort -> admission -> session design.  Record
+  migration thickness in an owner/retirement manifest and remove old lanes in
+  the same bounded slice that switches their replacement.  Do not widen the
+  current Generic session-preflight design stop to perform global cleanup.
+Source authority + canonical issuer:
+  Each existing family parent and the already-landed Generic emitter admission
+  remain the only semantic/prephysical issuers.  A cleanup row may narrow an
+  API or migrate a caller, but it may not mint a replacement receipt or infer
+  meaning from a line census.  The future unpublished session remains the
+  sole MirFunction/rollback owner.
+Non-authority:
+  Repository LOC totals, helper byte identity, micro-seed counts, TSV row
+  order, public visibility alone, test-green canaries, `recipe.clone()` in its
+  lexical forest verifier scope, raw `ValueId`, and owner/name equality are
+  not production authority or retirement proof.
+Fail-fast boundary:
+  Keep a lane until its final owner, production/test caller census, replacement
+  parity gate, and same-slice deletion condition are named.  A sealing escape
+  (`into_physical_boundary`, semantic-program tuple decomposition, detached
+  canary `into_parts`, or a public lease facade) is closed only after the
+  replacement consumes the complete owner and the old symbol has zero callers.
+Smallest next slice:
+  After the current session-preflight issuer census, land the already queued
+  `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; then use the manifest-led parity slice
+  to retire the detached Generic chain.  Keep the corpus TSV, common-V2
+  retirement, runtime lease facade, and byte-helper/micro-seed census parked
+  as separate rows.
+Non-claims:
+  This audit opens no session, Builder effect, operation emission, production
+  switch, fallback/retry, global helper rewrite, runtime ABI change, or broad
+  legacy deletion.
+```
+
+The scale findings are therefore classified as follows.
+
+| class | current examples | policy and exit condition |
+|---|---|---|
+| intentional keep | raw compatibility ingress, versioned V1/V2 projections, the `llvm_py`/ny-llvmc keep lane, and test-only observation adapters | keep only under the owning SSOT; no new caller or semantic authority; retire only when the documented replacement is integrated |
+| waiting scaffolding | `loop_recipe_physicalizer`, common-V2 session/skeleton candidates, and the Text-formal runtime entry substrate | not dead code; the next production owner must be named before effects; no silent reuse of an S6C/V1 receipt |
+| bounded retirement | Generic detached skeleton/canary chain, `into_physical_boundary`, semantic-program tuple decomposition, and selected-normal legacy finalizer edges | replacement parity, zero caller census, then delete in the same cutover slice; do not delete by LOC |
+| parked inventory | legacy disposition TSV, byte-identical helper groups, micro-seed templates, `json_v0_bridge`, and archived `llvm_py` surface | inventory only until a source-backed owner and deletion gate are written; no bulk decision-column relabeling or mechanical dedupe |
+
+The three current sealing debts are tracked explicitly rather than folded into
+the admission design:
+
+1. `LOOP-GENERIC-G0-SEALED-CONSUME-I0` isolates the caller-zero
+   `VerifiedGenericRecipeProductG0::into_physical_boundary` split.  The
+   lexical forest-verifier `recipe.clone()` remains unchanged because it does
+   not escape its producer.  Detached skeleton/canary `into_parts` remains a
+   later parity-retirement edge, not a second admission issuer.
+2. `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` replaces the production
+   `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with a
+   direct scoped/one-shot consumer, migrates its test seam, and proves zero
+   callers before removal.  It must not be mixed with Generic session effects.
+3. `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0` is a parked runtime-lane task for
+   the public `EndAuthorizedTextV1` surface and its getters.  It is not part of
+   the Generic session owner and cannot be repaired by hiding a MIR receipt.
+
+`MIRBUILDER-LEGACY-DISPOSITION-R0` is also parked to fill the disposition TSV
+only from observed caller/owner evidence.  The `decision` column must not be
+mass-filled with `-`, `keep`, or `delete` guesses; each non-sentinel decision
+requires a final owner, parity gate, and retirement row.  The existing
+`MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` remains the decision authority for
+the current Generic seams.  A separate `MIRBUILDER-BYTE-HELPER-INVENTORY-R0`
+may record the 1,145 helper pairs and micro-seed families, but byte identity is
+not a permission to merge them.
 
 ```text
 Decision:
@@ -4774,6 +4857,11 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | design-stop envelope; its concrete deliverable is the manifest below, with no new authority or production switch |
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | landed 2026-08-17; deletion owners and retirement gates are recorded, with no production switch |
+| 25b-c0-structure-audit | `MIRBUILDER-STRUCTURAL-CONVERGENCE-AUDIT-R0` | classify intentional keep, waiting scaffolding, bounded retirement, and parked inventory; record scale as informational rather than authority | landed as design-only audit 2026-08-17; current Generic session-preflight blocker and work mode are unchanged |
+| 25b-c0-semantic-consume | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` | replace the production six-tuple `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with one direct scoped/one-shot consumer | parked; requires behavior-preserving refactor, production/test caller census, and zero callers before deleting the tuple surface |
+| 25b-c0-lease-facade | `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0` | narrow the public `EndAuthorizedTextV1`/getter facade without changing lease semantics or the Generic MIR owner graph | parked in the runtime lane; no MIR receipt, Text route, or production caller change is authorized here |
+| 25b-c0-disposition | `MIRBUILDER-LEGACY-DISPOSITION-R0` | fill the legacy disposition TSV only from observed owner/caller/parity evidence and attach a deletion gate per non-sentinel decision | parked; no bulk relabeling, route activation, or deletion by LOC |
+| 25b-c0-helper-inventory | `MIRBUILDER-BYTE-HELPER-INVENTORY-R0` | inventory byte-identical helper groups and micro-seed families with an owner and evidence command, without semantic dedupe | parked informational census; merge/delete requires a separate source-backed owner and focused parity slice |
 | 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | accepted BoxShape 2026-08-17; the bounded mechanical mapping I0 is landed, while operation MIR and production remain closed |
 | 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | accepted ownership BoxShape 2026-08-17: one prephysical admission, no detached `MirFunction`, session-owned shell/rollback, existing dispatcher only; leaf emission remains closed behind the later session-preflight D0 |

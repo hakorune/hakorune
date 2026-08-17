@@ -29,7 +29,7 @@ input is already landed; it is not a Generic/common issuer. The resolver-owned
 body-shape transport into the Generic G0 cohort is now landed with
 same-owner/body-root checks; its private function-effect, result-ABI, and direct
 canonical Completion transport I0 are landed before demand/product consumption.
-Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, source-owned operation cohort, source-parts extraction, and no-MirFunction emitter admission rows are landed; the common dispatcher remains the only leaf-emitter candidate. Session-owned shell/adoption and later physical effects remain closed at the session-preflight design stop.
+Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, source-owned operation cohort, source-parts extraction, and no-MirFunction emitter admission rows are landed; the common dispatcher remains the only leaf-emitter candidate. Session-owned shell/adoption and later physical effects remain closed at the session-preflight design stop. A design-only structural convergence audit labels intentional keep lanes, waiting scaffolding, bounded retirement edges, and parked inventory; repository size, helper byte identity, and micro-seed counts remain informational and do not change this blocker.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
@@ -73,7 +73,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed. The Generic skeleton BoxShape and detached-shell I0 are landed;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
-  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. The current design stop is the sole session-owned shell/adoption and mechanical entry/segment preflight; later physical effects remain closed.
+  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. The current design stop is the sole session-owned shell/adoption and mechanical entry/segment preflight; later physical effects remain closed. A design-only structural convergence audit now records the three sealing-debt rows and parked inventory without opening cleanup or production.
   TopLevel declaration/header, private no-external-effect, result-ABI, and
   direct canonical Completion transport I0 are landed; storage/lane source I0
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
