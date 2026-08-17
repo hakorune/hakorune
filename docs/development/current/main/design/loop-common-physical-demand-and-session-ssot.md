@@ -2433,30 +2433,58 @@ Worker follow-up authority audit (2026-08-18):
   Return/FunctionExit arm. Fixed role/ordinal/owner equality would still be
   convention-based pairing. No code, receipt, or physical effect opened.
 
-#### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0
+#### Accepted D0: LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0 (2026-08-18)
 
 ```text
 Decision:
-  do not add a common transport receipt until a source-layer issuer exposes
-  the complete Return-to-Recipe/Join binding as one move-only relation.
+  accept one caller-zero BoxShape: the source co-seal retains resolver
+  Return/If region and index-binding evidence, and the sole S6C Recipe
+  producer issues one non-Clone source-to-Recipe/Join relation. This is
+  transport only; common physical demand may aggregate it later.
 Source authority + canonical issuer:
-  audit the resolver `S6CExitTailSourceCoSealV1` fields/region evidence and
-  the S6C Recipe producer's key issuer together; define the one handoff that
-  may bind source sites to Recipe item/block/exit/value and JoinSig arm.
+  `issue_s6c_exit_tail_source_coseal_v1` remains the source authority and is
+  extended only to retain its already-proven Return/If regions and index
+  binding. `produce_s6c_scan_with_init_recipe_v2` is the sole key issuer and
+  canonical co-sealer of the source evidence, exact Recipe keys, and JoinSig
+  Return/FunctionExit arm. Common pre-session only consumes this relation.
 Non-authority:
-  `S6CPrephysicalCompletionRefV2`, fixed role maps, ordinals, block order,
-  owner/name equality, common pre-session aggregation, and physical layout do
-  not issue source-to-key provenance.
+  `S6CPrephysicalCompletionRefV2` count/cleanup, role or ordinal arithmetic,
+  block order, owner/name equality, common aggregation, and physical layout do
+  not issue or re-infer source-to-key provenance.
 Fail-fast boundary:
-  absent/foreign/duplicate/drifted source site/value, source region, Recipe
-  item/block/exit/value, or JoinSig Return/FunctionExit arm stops before any
-  Prepared relation, physical block, edge, Return, or session effect.
+  absent/foreign/duplicate/drifted source site/value, source region/binding,
+  Recipe item/block/exit/value, or JoinSig Return/FunctionExit arm rejects
+  before the relation is published; no physical/session effect is opened.
 Smallest next slice:
-  read-only source-relation schema and issuer handoff brief; no code, fixture,
-  semantic receipt, physical effect, fallback, or retry.
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0`: retain the
+  source evidence, issue/transport the private relation, and add focused
+  positive/negative/foreign-drift guards. No physical block/edge/Return/PHI,
+  production, fallback, or retry.
 Non-claims:
-  no branch emission, item-to-split allocation, Layout rewrite, CFG/SSA/PHI,
-  production cutover, initializer bridge, or legacy retirement.
+  no common physical emission, item-to-split allocation, Layout rewrite,
+  CFG/SSA/PHI, session, production cutover, initializer bridge, or retirement.
+```
+
+#### Next execution: LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0
+
+```text
+Change:
+  extend the existing source co-seal with retained Return/If region and index
+  binding evidence; let the S6C Recipe producer issue one move-only relation
+  carrying source site/value, source region/binding, exact Recipe Exit/read
+  keys, and the JoinSig Return/FunctionExit arm. Transport it through the
+  existing logical/prephysical façade without touching physical consumers.
+Contract:
+  one source→Facts→Recipe→Join issuer; no fixed ordinal, owner equality,
+  layout inference, common aggregation, or second semantic authority.
+Done:
+  focused positive plus missing/foreign/duplicate/drift rejection, a reusable
+  source-authority guard, touched-file line counts below 760/800, and the
+  existing pointer/authority/format gates green.
+Stop:
+  any missing source region/binding or source-to-key proof returns to
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0`; do not add
+  a default relation, physical edge, Return, PHI, session, fallback, or retry.
 ```
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
@@ -6147,7 +6175,8 @@ skip the After closure or reopen a Tail-only route.
 | 24b-c | `LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0` | co-seal the source-backed continuation item-to-split and one-sided Return/FunctionExit terminal authorities | accepted NoSafeSlice; separate source site/value and Exit item/block/value lack a canonical co-seal issuer |
 | 24b-d | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COSEAL-D0` | name the source issuer that binds Return site/value to the logical Exit and FunctionExit arm | accepted NoSafeSlice 2026-08-18; existing source/Recipe/JoinSig issuers remain separate; no code, receipt, or physical effect |
 | 24b-e | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-ISSUER-BOUNDARY-D0` | design and accept one same-cohort canonical issuer boundary before any Return relation receipt | accepted NoSafeSlice 2026-08-18; common aggregation sees the loan but lacks source-to-key provenance; no code, receipt, or physical effect |
-| 24b-f | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0` | define source-layer Return-to-Recipe/Join key binding and the sole issuer handoff | next design stop; read-only schema/issuer brief only; no code, receipt, physical effect, fallback, or retry |
+| 24b-f | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0` | define source-layer Return-to-Recipe/Join key binding and the sole issuer handoff | accepted BoxShape 2026-08-18; source co-seal retains region/binding evidence, Recipe producer owns the key relation; I0 below |
+| 24b-f-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` | issue and transport one non-Clone source-to-Recipe/Join relation with negative drift guards | next execution; no physical block/edge/Return/PHI, session, production, fallback, or retry |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
