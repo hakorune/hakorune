@@ -39,6 +39,9 @@ mod producer_id;
 pub(crate) mod route_id;
 #[allow(dead_code)]
 mod s6c_scan_with_init;
+// Caller-zero source-to-Recipe/Join Return binding; no physical effect.
+#[allow(dead_code)]
+mod s6c_return_source_binding;
 // Caller-zero product-first JOINIR input façade; no physical consumer.
 #[allow(dead_code)]
 mod s6c_scan_with_init_joinir;

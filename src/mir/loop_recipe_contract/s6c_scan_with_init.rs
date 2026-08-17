@@ -18,6 +18,10 @@ use super::join_sig::{
     LoopJoinBranchExitTargetV2, LoopJoinClosureRejectV2, LoopJoinEdgeRoleV1,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2, VerifiedLoopJoinClosureV2,
 };
+use super::s6c_return_source_binding::{
+    issue_s6c_return_source_recipe_binding_v1, S6CReturnSourceBindingRejectV1,
+    VerifiedS6CReturnSourceRecipeBindingV1,
+};
 use super::s6c_scan_with_init_rows::S6CScanWithInitRecipeRowsRefV2;
 use super::schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopNodeV2,
@@ -36,6 +40,7 @@ pub(crate) enum S6CScanWithInitRecipeProducerRejectV2 {
     Recipe(LoopRecipeV2RejectReason),
     Join(LoopJoinClosureRejectV2),
     Transfer(LoopJoinLogicalTransferRejectV2),
+    ReturnSourceBinding(S6CReturnSourceBindingRejectV1),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -250,6 +255,7 @@ pub(crate) struct VerifiedS6CScanWithInitRecipeProductV2 {
     roles: VerifiedS6CScanWithInitRecipeRolesV2,
     join: VerifiedLoopJoinClosureV2,
     join_role_seal: VerifiedS6CJoinRoleSealV2,
+    return_source_binding: VerifiedS6CReturnSourceRecipeBindingV1,
 }
 
 impl VerifiedS6CScanWithInitRecipeProductV2 {
@@ -270,6 +276,7 @@ impl VerifiedS6CScanWithInitRecipeProductV2 {
                 roles: S6CScanWithInitRecipeRolesRefV2 { roles: &self.roles },
                 transfer,
                 join_role_seal: self.join_role_seal,
+                return_source_binding: &self.return_source_binding,
             })
         })
     }
@@ -282,6 +289,7 @@ pub(crate) struct S6CScanWithInitRecipeProductRefV2<'a> {
     roles: S6CScanWithInitRecipeRolesRefV2<'a>,
     transfer: LoopJoinLogicalTransferViewV2<'a>,
     join_role_seal: VerifiedS6CJoinRoleSealV2,
+    return_source_binding: &'a VerifiedS6CReturnSourceRecipeBindingV1,
 }
 
 impl S6CScanWithInitRecipeProductRefV2<'_> {
@@ -302,6 +310,9 @@ impl S6CScanWithInitRecipeProductRefV2<'_> {
     }
     pub(crate) const fn join_role_seal(&self) -> VerifiedS6CJoinRoleSealV2 {
         self.join_role_seal
+    }
+    pub(crate) const fn return_source_binding(&self) -> &VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.return_source_binding
     }
 }
 
@@ -327,12 +338,20 @@ pub(crate) fn produce_s6c_scan_with_init_recipe_v2(
         .logical_transfer_view()
         .map_err(S6CScanWithInitRecipeProducerRejectV2::Transfer)?;
     let join_role_seal = verify_join_transfer(&transfer, &roles)?;
+    let return_source_binding = issue_s6c_return_source_recipe_binding_v1(
+        &facts,
+        &recipe,
+        S6CScanWithInitRecipeRolesRefV2 { roles: &roles },
+        &transfer,
+    )
+    .map_err(S6CScanWithInitRecipeProducerRejectV2::ReturnSourceBinding)?;
     Ok(VerifiedS6CScanWithInitRecipeProductV2 {
         facts,
         recipe,
         roles,
         join,
         join_role_seal,
+        return_source_binding,
     })
 }
 

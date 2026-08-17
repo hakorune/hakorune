@@ -48,6 +48,9 @@ pub(crate) struct S6CExitTailSourceCoSealRefV1<'a> {
     calls: S6CSourceBoundCallRelationRefV1<'a>,
     completion: &'a VerifiedFunctionCompletionV1,
     if_site: &'a SourceStmtSiteV1,
+    if_then_region: crate::mir::resolved_semantics::RegionId,
+    loop_return_binding: crate::mir::resolved_semantics::BindingRefV1,
+    loop_return_region: crate::mir::resolved_semantics::RegionId,
     loop_return_site: &'a SourceStmtSiteV1,
     loop_return_value: &'a SourceExprSiteV1,
     tail_site: &'a SourceStmtSiteV1,
@@ -66,6 +69,18 @@ impl<'a> S6CExitTailSourceCoSealRefV1<'a> {
 
     pub(crate) const fn if_site(self) -> &'a SourceStmtSiteV1 {
         self.if_site
+    }
+
+    pub(crate) const fn if_then_region(self) -> crate::mir::resolved_semantics::RegionId {
+        self.if_then_region
+    }
+
+    pub(crate) const fn loop_return_binding(self) -> crate::mir::resolved_semantics::BindingRefV1 {
+        self.loop_return_binding
+    }
+
+    pub(crate) const fn loop_return_region(self) -> crate::mir::resolved_semantics::RegionId {
+        self.loop_return_region
     }
 
     pub(crate) const fn loop_return_site(self) -> &'a SourceStmtSiteV1 {
@@ -95,6 +110,9 @@ pub(crate) struct VerifiedS6CExitTailSourceCoSealV1 {
     calls: VerifiedSourceBoundS6CCallRelationV1,
     completion: VerifiedFunctionCompletionV1,
     if_site: SourceStmtSiteV1,
+    if_then_region: crate::mir::resolved_semantics::RegionId,
+    loop_return_binding: crate::mir::resolved_semantics::BindingRefV1,
+    loop_return_region: crate::mir::resolved_semantics::RegionId,
     loop_return_site: SourceStmtSiteV1,
     loop_return_value: SourceExprSiteV1,
     tail_site: SourceStmtSiteV1,
@@ -112,6 +130,9 @@ impl VerifiedS6CExitTailSourceCoSealV1 {
                 calls,
                 completion: &self.completion,
                 if_site: &self.if_site,
+                if_then_region: self.if_then_region,
+                loop_return_binding: self.loop_return_binding,
+                loop_return_region: self.loop_return_region,
                 loop_return_site: &self.loop_return_site,
                 loop_return_value: &self.loop_return_value,
                 tail_site: &self.tail_site,
@@ -211,7 +232,7 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
         });
         match (is_index, tail_operand) {
             (true, None) if exit.source_region() == then_region && loop_return.is_none() => {
-                loop_return = Some((site.clone(), value));
+                loop_return = Some((site.clone(), value, exit.source_region()));
             }
             (false, Some(tail_operand))
                 if exit.source_region() == ledger.root_body_region() && tail.is_none() =>
@@ -239,7 +260,7 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
             }
         }
     }
-    let (loop_return_site, loop_return_value) = loop_return.ok_or(
+    let (loop_return_site, loop_return_value, loop_return_region) = loop_return.ok_or(
         S6CExitTailSourceCoSealRejectV1::WrongExitShape(S6CExitRoleV1::LoopReturn),
     )?;
     let (tail_site, tail_value, tail_operand) = tail.ok_or(
@@ -250,6 +271,9 @@ pub(crate) fn issue_s6c_exit_tail_source_coseal_v1(
         calls,
         completion,
         if_site,
+        if_then_region: then_region,
+        loop_return_binding: index,
+        loop_return_region,
         loop_return_site,
         loop_return_value,
         tail_site,

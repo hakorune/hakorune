@@ -5,6 +5,7 @@
 //! private façade; raw Recipe, JoinSig, and constituent products never cross
 //! this boundary.
 
+use super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 use super::s6c_scan_with_init::VerifiedS6CScanWithInitRecipeProductV2;
 use super::s6c_scan_with_init_joinir::{
     with_s6c_scan_with_init_logical_join_input,
@@ -63,6 +64,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
                 roles: input.roles(),
                 calls,
                 transfer: input.logical_transfer(),
+                return_source_binding: input.return_source_binding(),
                 domains: S6CLogicalOutputDomainCountsV1 {
                     loops: input.rows().loop_count(),
                     blocks: input.rows().block_count(),
@@ -114,6 +116,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
                         },
                     },
                     transfer: input.logical_transfer(),
+                    return_source_binding: input.return_source_binding(),
                     domains: S6CLogicalOutputDomainCountsV1 {
                         loops: input.rows().loop_count(),
                         blocks: input.rows().block_count(),
@@ -160,6 +163,7 @@ impl VerifiedS6CScanWithInitLogicalOutputV1 {
                     },
                 },
                 transfer: input.logical_transfer(),
+                return_source_binding: input.return_source_binding(),
                 domains: S6CLogicalOutputDomainCountsV1 {
                     loops: input.rows().loop_count(),
                     blocks: input.rows().block_count(),
@@ -203,6 +207,12 @@ impl<'rows, 'facts> S6CPrephysicalSourceInputRefV2<'rows, 'facts> {
     pub(super) const fn facts(self) -> S6CScanWithInitFactsRefV1<'facts> {
         self.facts
     }
+
+    pub(super) const fn return_source_binding(
+        self,
+    ) -> &'facts VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.logical.return_source_binding()
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -211,6 +221,7 @@ pub(crate) struct S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
     roles: super::s6c_scan_with_init::S6CScanWithInitRecipeRolesRefV2<'product>,
     calls: S6CLogicalCallPairsRefV1<'product>,
     transfer: &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product>,
+    return_source_binding: &'product VerifiedS6CReturnSourceRecipeBindingV1,
     domains: S6CLogicalOutputDomainCountsV1,
 }
 
@@ -233,6 +244,12 @@ impl<'rows, 'product> S6CScanWithInitLogicalOutputRefV1<'rows, 'product> {
         self,
     ) -> &'product super::join_sig::LoopJoinLogicalTransferViewV2<'product> {
         self.transfer
+    }
+
+    pub(crate) const fn return_source_binding(
+        self,
+    ) -> &'product VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.return_source_binding
     }
 
     pub(crate) const fn domains(self) -> S6CLogicalOutputDomainCountsV1 {

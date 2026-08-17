@@ -21,6 +21,7 @@ use super::join_sig::{
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1,
     LoopJoinLogicalTransferViewV2,
 };
+use super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 use super::s6c_scan_with_init::{
     DefinedRoleV2, S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
 };
@@ -118,6 +119,7 @@ pub(crate) struct S6CScanWithInitLogicalJoinInputRefV1<'a> {
     length: S6CLogicalCallInputRefV1<'a>,
     substring: S6CLogicalCallInputRefV1<'a>,
     transfer: &'a LoopJoinLogicalTransferViewV2<'a>,
+    return_source_binding: &'a VerifiedS6CReturnSourceRecipeBindingV1,
 }
 
 impl<'a> S6CScanWithInitLogicalJoinInputRefV1<'a> {
@@ -139,6 +141,10 @@ impl<'a> S6CScanWithInitLogicalJoinInputRefV1<'a> {
 
     pub(crate) const fn logical_transfer(self) -> &'a LoopJoinLogicalTransferViewV2<'a> {
         self.transfer
+    }
+
+    pub(crate) const fn return_source_binding(self) -> &'a VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.return_source_binding
     }
 
     pub(super) const fn facts(
@@ -224,6 +230,7 @@ fn issue_input_view<'a, R>(
             row: substring_row,
         },
         transfer: product.logical_transfer(),
+        return_source_binding: product.return_source_binding(),
     }))
 }
 
@@ -263,6 +270,7 @@ pub(super) fn with_s6c_scan_with_init_retained_logical_join_input<R>(
                 row: substring_row,
             },
             transfer: product.logical_transfer(),
+            return_source_binding: product.return_source_binding(),
         })
     })
 }

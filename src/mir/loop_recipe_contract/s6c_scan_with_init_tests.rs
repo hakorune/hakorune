@@ -123,6 +123,30 @@ fn producer_seals_exact_recipe_and_join_facade() {
 }
 
 #[test]
+fn producer_issues_return_source_recipe_join_binding() {
+    let product = produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 905))
+        .expect("exact S6C Recipe product");
+    product.with_product(|view| {
+        let binding = view.return_source_binding();
+        assert_eq!(binding.recipe_if_item().raw(), 8);
+        assert_eq!(binding.recipe_if_block().raw(), 1);
+        assert_eq!(binding.recipe_then_block().raw(), 2);
+        assert_eq!(binding.recipe_return_item().raw(), 9);
+        assert_eq!(binding.recipe_exit().raw(), 0);
+        assert_eq!(binding.recipe_return_value().raw(), 11);
+        assert_eq!(binding.join_exit_item().raw(), 10);
+        assert_eq!(binding.join_role(), super::LoopJoinEdgeRoleV1::Return);
+        assert_eq!(
+            binding.join_target(),
+            super::LoopJoinBranchExitTargetV2::FunctionExit
+        );
+        assert_eq!(binding.return_region(), binding.if_then_region());
+        assert_eq!(binding.source_binding().binding().raw(), 2);
+        assert_eq!(binding.owner(), binding.source_binding().owner());
+    });
+}
+
+#[test]
 fn logical_join_input_facade_co_seals_calls_and_transfer() {
     let product = produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 902))
         .expect("exact S6C Recipe product");
