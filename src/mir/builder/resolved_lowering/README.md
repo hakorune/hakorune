@@ -159,6 +159,18 @@ escape the callback. The caller-zero lifetime I0 changes only that return
 signature and its focused borrow/duplicate/late-discard gates; Bool/Compare
 materialization remains a separate later row.
 
+## Common V2 Bool-result materializer I0
+
+The Bool-result BoxShape is now accepted. The caller-zero consumer is a
+receipt-owned method on `CanonicalLengthCallResultReceiptV1`: it recovers the
+same exclusive canonical-session borrow, resolves the source Left
+`ReadBinding` through the canonical identity/SSA owner, issues one Bool value
+and type, and emits one mechanical `Less` Compare in the condition block. It
+returns one scoped non-Clone Bool result receipt. Raw producer rows, `ValueId`
+pairs, copied stamps, and a second session cannot issue or re-pair the result.
+Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
+publication, fallback, retry, and production remain closed.
+
 ## Common V2 synthetic After allocation I0
 
 The accepted After-boundary relation now has one caller-zero placement effect.

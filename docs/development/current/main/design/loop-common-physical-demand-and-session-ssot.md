@@ -91,9 +91,10 @@ Related:
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` is the next design
-  stop. The Length receipt lifetime I0 is landed; the Bool materializer must
-  consume that receipt through its own receipt-owned same-session method.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` is the active
+  caller-zero implementation after the accepted Bool-result BoxShape D0. The
+  materializer must consume the Length receipt through its own receipt-owned
+  same-session method, issue one Bool result, and emit one `Less` Compare.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1330,14 +1331,13 @@ Ordered sub-slices (design-only; no session/CFG effect):
      canary are landed; the direct target/receiver/Call/result I0 is now also
      landed, but its full session lifetime remains unsealed.
   4. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0`
-     is the next design-only child; it seals the receipt without adding a new
-     effect.
-  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0`
-     may be accepted only after the receipt lifetime is closed; it fixes the
-     one same-session Bool materializer and later branch consumer.
-  6. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0`
-     may begin after that BoxShape; it is a caller-zero Compare/result canary
-     and does not open a branch, edge, or terminator.
+     and its I0 are landed; the receipt now owns the same-session lifetime.
+  5. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` is accepted
+     below; it fixes the one same-session Bool materializer and later branch
+     consumer.
+  6. `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` is the active
+     caller-zero Compare/result canary and does not open a branch, edge, or
+     terminator.
 
 ### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-D0` — accepted BoxShape 2026-08-17
 
@@ -1827,13 +1827,56 @@ Non-claims:
   production caller, fallback, or retry is admitted by this D0.
 ```
 
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` — accepted BoxShape 2026-08-17
+
+```text
+Decision:
+  Accept one receipt-owned same-session Bool materializer. It consumes the
+  existing `CanonicalLengthCallResultReceiptV1` by value, resolves the source
+  Left ReadBinding through the same canonical session, issues one fresh Bool
+  ValueId/type, emits exactly one mechanical `Less` Compare in the condition
+  block, and returns one non-Clone Bool result receipt carrying the exclusive
+  borrow of that same session. This is the only bridge from the two operand
+  receipts to the physical condition result.
+
+Source authority + canonical issuer:
+  `PreparedLoopV2ConditionProducerRelationV1` owns the Less/left/right/result
+  relation and `PreparedLoopV2ConditionOperandInventoryV1` owns the exact
+  Left ReadBinding + Right Length rows. The canonical session is the sole
+  issuer of the Left `CanonicalBindingReadReceiptV1`, Bool ValueId/type, and
+  Compare instruction. The Length receipt's owned session borrow is recovered
+  only by its receipt-owned `consume_for_condition_bool` method.
+
+Non-authority:
+  raw `ValueId`, raw producer/inventory rows, `emit_compare_i64_at` alone,
+  copied owner/stamp metadata, current Builder block, MIR/type-map scans,
+  `CallSlot`, branch-plan Bool key, legacy/Selected-Dynamic emitter, and a
+  second canonical session cannot issue or re-pair either operand or result.
+  The Bool receipt is a physical result witness, not a branch or CFG authority.
+
+Fail-fast boundary:
+  Missing/foreign Length receipt, missing or duplicate Left row, owner/session/
+  stamp/block drift, non-I64 operands, wrong producer/result/op/class, stale or
+  conflicting Bool destination type, duplicate materialization, receipt escape,
+  or late callback failure rejects before the next effect or publication. The
+  outer unpublished function transaction is the sole discard owner; no local
+  rollback, fallback, or retry is allowed.
+
+Smallest next slice:
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` implements this
+  caller-zero materializer in a child module. It consumes the Length receipt,
+  reads the Left binding, emits one `Less` Compare, publishes Bool, and returns
+  the scoped Bool receipt. Branch/edge/terminator remain closed.
+
+Non-claims:
+  No `emit_branch`, Header/Body or Header/After edge, terminator, CFG/PHI,
+  Completion/DraftSeal, lifecycle, Text, route, performance, production
+  caller, publication, fallback, or retry is opened here.
+```
+
 Current blockers are deliberately explicit:
 
 ```text
-NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
-NoSafeSlice::AfterConditionSessionStampRetentionMissing
-NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed
-NoSafeSlice::AfterConditionPhysicalReceiptUnsealed
 NoSafeSlice::CanonicalConditionBoolMaterializerUnsealed
 ```
 
@@ -2993,8 +3036,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | close the parent physical Bool-result boundary after the Length Call/result canary | superseded by the ordered receipt-lifetime and Bool-result rows below; the direct canary and session-scoped Length receipt lifetime are landed |
 | 25b-l-i | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0` | seal the full physical-entry/session stamp and issue one callback-scoped non-repairable Length result receipt | accepted BoxShape 2026-08-17; the receipt owns the exclusive canonical-session borrow, with no Compare, branch, edge, CFG/PHI, lifecycle, Text, route, publication, fallback, retry, or production caller |
 | 25b-l-i-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0` | change the Length receipt to an exclusive callback-scoped session borrow and add lifetime/duplicate/late-discard gates | landed 2026-08-17; direct-length and full physical-entry suites green; no Bool ValueId/Compare, branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
-| 25b-l-j-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` | accept one same-session condition-result materializer consuming Left read + Length result and issuing one canonical Bool receipt | current design stop after the Length receipt lifetime I0; no Compare, branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
-| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | future caller-zero canary only; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
+| 25b-l-j-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` | accept one same-session condition-result materializer consuming Left read + Length result and issuing one canonical Bool receipt | accepted BoxShape 2026-08-17; receipt-owned same-session method, one canonical Left read, one Bool ValueId/type, one `Less` Compare, no branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
+| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | active caller-zero implementation; consumes the Length receipt and returns a scoped Bool receipt; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

@@ -1837,6 +1837,20 @@ discard owner. This I0 emits no Bool ValueId, Compare, branch, edge,
 terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback,
 retry, publication, or production caller.
 
+## Common V2 Bool-result materializer I0
+
+The Bool-result BoxShape is accepted and its caller-zero I0 is the active
+physical consumer. A receipt-owned method consumes the callback-scoped Length
+receipt, recovers the same canonical-session borrow, resolves the source Left
+`ReadBinding` through the canonical identity/SSA owner, issues one Bool
+`ValueId` and type, and emits exactly one mechanical `Less` Compare in the
+condition block. It returns one non-Clone scoped Bool result receipt. The
+producer relation and operand inventory remain the source authorities; raw
+`ValueId` pairs, copied stamps, a standalone compare helper, or another
+session cannot re-pair the operands. Branch/edge/terminator, CFG/PHI,
+Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry,
+and production remain closed.
+
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 
 The first post-inventory consumer is a one-shot, Builder-neutral
