@@ -301,6 +301,37 @@ Use the three result classes owned by
 debt, and informational census. An unclassified failure is blocking, and an
 agent may not invent a waiver or turn census output into completion evidence.
 
+### Local Cargo resource-safety contract
+
+One repository checkout and shared `target/` directory may have at most one
+agent-started top-level Cargo build, check, or test command in flight.  Before
+starting Cargo, inspect the agent's background terminals; wait for the active
+Cargo command or stop a redundant one.  Do not use background terminals to
+race equivalent focused gates.
+
+Agent-driven development commands use the quick profile, one library target
+when applicable, and an explicit four-job ceiling:
+
+```bash
+CARGO_BUILD_JOBS=4 cargo check
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter>
+```
+
+Use `--exact` only with the complete test path.  Omit `--nocapture` unless the
+test output is required evidence.  Do not change `RUSTFLAGS` while another
+Cargo command is active: a different flag set creates a separate artifact
+graph and may start a full rebuild beside the first one.  In particular, do
+not launch an `RUSTFLAGS=-Awarnings` retry merely to hide a large warning
+transcript; wait for the current build and keep the existing flag set.
+
+The repository's configured parallelism and release profile remain available
+for deliberate standalone use.  `--release` is reserved for an active card's
+explicit final evidence, not ordinary iteration.  If a required gate itself
+spawns Cargo, it is the sole top-level Cargo owner until it exits.  Stop and
+report resource pressure instead of opening another build when aggregate
+build RSS approaches 8 GiB, swap grows continuously, or the terminal has
+stopped producing progress.
+
 ### Active SSOT current capsule
 
 Use the five-field Current Capsule defined by

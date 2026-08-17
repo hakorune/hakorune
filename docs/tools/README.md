@@ -25,6 +25,20 @@ git status -sb
 tools/checks/dev_gate.sh quick
 ```
 
+### 0.1 ローカルCargoの安全な反復
+
+agentや複数terminalから同じcheckoutのCargoを同時実行しない。focused testは
+不要なintegration test binaryをlinkしないよう、原則として次を使う:
+
+```bash
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter>
+```
+
+`--release`、`--exact`、`--nocapture`、`RUSTFLAGS`切替の条件、およびOOM時の
+停止線は
+[`agent-current-entry-contract-ssot.md`](../development/current/main/design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
+を唯一の運用policyとして参照する。
+
 ### 1. バグ起点の切り分け（archived internal engineering triage）
 
 ```bash
