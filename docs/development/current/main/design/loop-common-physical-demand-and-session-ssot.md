@@ -2018,6 +2018,63 @@ Non-claims:
   fallback, retry, or production cutover.
 ```
 
+### Scope correction: LoopRecipe If coverage (2026-08-18)
+
+```text
+Decision:
+  row 24 is the LoopRecipe `If` item in the common Loop physicalizer, not the
+  resolved-trivial fixed-shell `IfRecipe` physicalizer.  Keep the row at
+  NoSafeSlice until the physical merge authority and one consumer are named.
+Source authority + canonical issuer:
+  `LoopRecipeVerifierV1/V2` verifies the source-bound Recipe; the existing
+  `LoopJoinSigElaboratorV1::elaborate`/`branch_row` issues the logical
+  `LoopJoinBranchV1/V2`; `LoopJoinLogicalTransferViewV2` lends those existing
+  branch arms without physical IDs.  No new issuer is authorized.
+Non-authority:
+  `LoopRecipeItemV1::If` placement alone, old V1 `physical_layout`, the
+  resolved-trivial `IfRecipe` physicalizer, Recipe rescans, BasicBlockId/
+  ValueId, and a guessed merge/PHI plan cannot issue branch meaning.
+Fail-fast boundary:
+  before Layout/CFG/SSA/PHI, reject foreign or duplicate branch rows, owner or
+  item drift, condition/value drift, arm-target/disposition drift, missing or
+  ambiguous merge identity, predecessor/value mismatch, and merge aliasing.
+Smallest next slice:
+  design-only census of the existing common Loop physical CFG/SSA/PHI owner
+  and the one consumer that can accept one complete V2 branch-arm view plus an
+  explicit merge relation; do not adapt V2 to old V1 layout or infer merge.
+Non-claims:
+  no code, new `Verified*`/`Prepared*` receipt, V2-to-V1 adapter, old If
+  physicalizer migration, CFG/SSA/PHI, session, lifecycle, route, selector,
+  fallback, retry, production cutover, or topology retirement.
+```
+
+Worker read-only premise audit (2026-08-18):
+  `LoopRecipeVerifierV1/V2` is the source-bound structural verifier and
+  `LoopJoinSigElaboratorV1`/`branch_row` is the canonical logical branch
+  issuer.  `LoopJoinLogicalTransferViewV2` already lends `owner_loop`,
+  `if_item`, `condition`, and each arm as `Exit` or `Fallthrough`, but it has
+  no merge block or PHI relation.  `PreparedLoopV2PreSessionEnvelopeV1` already
+  transports the If placement and view; `CommonV2CanonicalSessionRefV1` owns
+  the existing `CanonicalSsaFunctionSessionV2` and is the only plausible
+  mutable consumer, but exposes no branch/merge API.  The older V1
+  `physical_layout` consumes only predicate/backedge/nested transfers and
+  returns `UnsupportedIf(item)`.
+
+Source/Core merge-relation census (2026-08-18):
+  both `LoopRecipeItemV1::If` and `LoopRecipeItemV2::If` carry only the
+  condition and the `then_block`/`else_block` child keys.  The S6C logical If
+  row and the resolver-owned control placement carry the same three-way
+  relation; neither names a merge block, predecessor set, or value/PHI
+  relation.  Therefore no existing source/Core issuer can currently bind the
+  required physical merge identity, and the common session must not infer one
+  from layout order or a next segment.
+
+Why not Fast path:
+  the source/JoinSig branch mapping is closed, but the common physical merge
+  authority and named consumer are not.  Adding a view, adapter, or receipt
+  now would invent a second authority or pair a V2 view with the old V1
+  layout, so this row remains `NoSafeSlice`.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
@@ -5698,7 +5755,7 @@ skip the After closure or reopen a Tail-only route.
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | implement the named source-backed operation adapter, JoinSig/Recipe control co-seal, and passive coverage issuer inside one caller-zero parent loan | closed caller-zero implementation 2026-08-16; focused positive/negative/duplicate tests green; no S6C physicalizer, Builder/session, lifecycle, route, or production caller |
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | guard/docs present in `1544d128d2`/`1e93ad6be9`; transitive old-edge census remains before deletion |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
-| 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
+| 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | consume one existing V2 branch-arm view with a named physical merge owner | design stop: NoSafeSlice until merge authority/consumer are named; no V2-to-V1 adapter or Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
