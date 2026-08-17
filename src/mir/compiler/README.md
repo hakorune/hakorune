@@ -106,9 +106,24 @@ exactly `ReadBinding`, `ConstI64`, `BinaryI64`, `CompareI64`, and
 
 The projection is borrowed/mechanical and creates no `MirFunction`,
 `ValueId`, Builder/session state, CFG/SSA/PHI, lifecycle, Text, route, or
-publication.  The focused Generic suite is green.  Its detached skeleton and
-entry-adoption consumers are now landed; the next bounded work is the
-read-only canary/convergence checkpoint before further physical effects.
+publication.  The focused Generic suite is green.
+
+### Generic G0 physical-operation mapping I0
+
+`generic_g0_physical_operation_mapping.rs` is the sole caller-zero consumer
+for the accepted Generic operation contract.  It borrows the same source
+parent's verified operation/evidence product and produces one private,
+non-`Clone` mapping over exactly `ReadBinding`, `ConstI64`, `BinaryI64`,
+`CompareI64`, and `WriteBinding`.  The mapping preserves item/block/loop
+placement and source evidence identity; nested item `4` and carrier/tail rows
+remain outside the operation mapping.
+
+This I0 is mechanical only: it does not create a `MirFunction`, `ValueId`,
+Builder/session state, CFG/SSA/PHI, Completion/DraftSeal claim, lifecycle,
+Text, route, or publication.  Missing/duplicate/foreign evidence, placement
+or owner drift, unsupported variants, and incomplete coverage fail before any
+physical effect.  No S6C operation row or `new_selected_dynamic` path is
+reused.
 
 ## Typed ingress contract
 

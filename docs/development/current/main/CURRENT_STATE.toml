@@ -29,23 +29,23 @@ input is already landed; it is not a Generic/common issuer. The resolver-owned
 body-shape transport into the Generic G0 cohort is now landed with
 same-owner/body-root checks; its private function-effect, result-ABI, and direct
 canonical Completion transport I0 are landed before demand/product consumption.
-The Generic storage/lane source BoxShape is accepted with receiver policy as a separate source axis; its source-only projection I0 is landed. The Generic-only physical-entry input BoxShape and its caller-zero source-to-mechanical projection I0 are landed; the Generic physical-effect D0 and projection-only I0 are landed. The Generic detached physical-function skeleton BoxShape and shell I0 are landed; its entry-lane adoption D0 and bounded admission-to-declaration I0 are landed with focused rollback/duplicate gates. The convergence manifest is landed; the next stop is a Generic-only physical-operation contract census, and later physical effects remain closed.
+The Generic storage/lane source BoxShape is accepted with receiver policy as a separate source axis; its source-only projection I0 is landed. The Generic-only physical-entry input BoxShape and its caller-zero source-to-mechanical projection I0 are landed; the Generic physical-effect D0 and projection-only I0 are landed. The Generic detached physical-function skeleton BoxShape and shell I0 are landed; its entry-lane adoption D0 and bounded admission-to-declaration I0 are landed with focused rollback/duplicate gates. The convergence manifest is landed; the Generic-only five-variant physical-operation contract D0 is accepted and its caller-zero mechanical mapping I0 is the only open effect; later physical effects remain closed.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "Generic entry-lane adoption D0/I0 and the convergence manifest are landed; the current bounded row is the Generic-only physical-operation contract census."
+current_design_stop = "Generic operation mapping I0 is landed; the next design stop is the sole physical-operation emission owner and its fail-fast boundary."
 work_mode = "design_stop"
-current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0"
-current_blocker_token = "NoSafeSlice::GenericG0PhysicalOperationContractIssuerUnsealed"
+current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0"
+current_blocker_token = "NoSafeSlice::GenericG0PhysicalOperationEmissionOwnerUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Generic physical entry adopted -> operation-contract census)"
+active_lane = "Loop compiler frontier (Generic physical-operation emission design stop)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -73,7 +73,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed. The Generic skeleton BoxShape and detached-shell I0 are landed;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
-  and the next row is a Generic-only operation-contract census; later physical effects remain closed.
+  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the next stop is the operation-emission owner, while later physical effects remain closed.
   TopLevel declaration/header, private no-external-effect, result-ABI, and
   direct canonical Completion transport I0 are landed; storage/lane source I0
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
@@ -93,11 +93,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, S6C-only physical-entry input, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. Generic G0 source-parent I0 is landed with exact two-entry coverage, TopLevel declaration/header, resolver-owned body-shape, private no-external-effect, same-cohort result-ABI, direct canonical Completion, source-only storage/lane, Generic-only physical-entry input I0, physical-effect projection I0, detached skeleton I0, admission-to-declaration entry I0, and the convergence manifest. The next row is the Generic-only physical-operation contract census; later physical effects remain closed."
-next_design_card = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0"
+latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, S6C-only physical-entry input, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. Generic G0 source-parent I0 is landed with exact two-entry coverage, TopLevel declaration/header, resolver-owned body-shape, private no-external-effect, same-cohort result-ABI, direct canonical Completion, source-only storage/lane, Generic-only physical-entry input I0, physical-effect projection I0, detached skeleton I0, admission-to-declaration entry I0, and the convergence manifest. Generic operation-contract D0 and its caller-zero five-variant mapping I0 are landed; the next row is the physical-operation emission D0, while later effects remain closed."
+next_design_card = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0 landed one receipt-owned same-session Bool materializer. It consumes the seeded entry read and Length result, emits one canonical Less Compare and Bool type/result receipt, and passes missing-seed/type plus late-discard tests. Branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next gate is LOOP-PRECUTOVER-AUTHORITY-G0.",
   "2026-08-17: LOOP-PRECUTOVER-AUTHORITY-G0-I0 landed one production Generic source-parent issuer. It co-seals the exact resolver input and selected Generic row, validates the root-plus-child forest and two source-parameter entry rows, and lends a non-Clone callback-scoped parent. Physical demand, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next stop is complete physical-function-entry input census.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0 landed one private same-cohort `EffectMask::PURE` projection from the finite five-variant Generic operation contract after owner/origin/source-kind/body-root/frame, result/header/storage, target, and operation-evidence parity checks. The focused Generic suite is green; no `MirFunction`, `ValueId`, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller opened.",
-  "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the Generic-specific admission-to-session consumer: existing resolver BlockExpr expectation, outer-If residual for the selected parent loop, and borrowed Completion are co-sealed with the detached shell and a Generic mechanical cohort stamp; one unpublished transaction installs the shell and adopts receiver/ordinary declarations through the canonical identity issuer. Duplicate adoption, occupied Builder, and late rollback gates plus the 62-test Generic suite are green; session/CFG/PHI/lifecycle/Text/route/fallback/retry/production remain closed. The convergence manifest is landed; the next row is the Generic-only physical-operation contract census.",
+  "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the Generic-specific admission-to-session consumer: existing resolver BlockExpr expectation, outer-If residual for the selected parent loop, and borrowed Completion are co-sealed with the detached shell and a Generic mechanical cohort stamp; one unpublished transaction installs the shell and adopts receiver/ordinary declarations through the canonical identity issuer. Duplicate adoption, occupied Builder, and late rollback gates plus the 62-test Generic suite are green; session/CFG/PHI/lifecycle/Text/route/fallback/retry/production remain closed. The convergence manifest, Generic operation-contract D0, and caller-zero five-variant operation mapping I0 are landed; the next stop is physical-operation emission design."
 ]

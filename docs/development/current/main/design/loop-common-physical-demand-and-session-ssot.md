@@ -1370,6 +1370,75 @@ Non-claims:
   lifecycle, Text, route, fallback/retry, production caller, or main switch.
 ```
 
+**D0 audit result (2026-08-17).**  The source census confirms that the
+canonical operation/evidence owner already exists:
+`VerifiedGenericG0SourceParentV1` ->
+`VerifiedGenericRecipeProductG0::operation_effect()` ->
+`VerifiedLoopOperationEffectProductV1`.  Its Generic producer proves complete
+coverage for 15 rows (items `0,1,2,3,5..15`); item `4` is a nested Loop and the
+carrier/tail are separate contracts.  No new semantic operation receipt is
+needed.  The S6C `PreparedLoopOperationRowV2` remains a provenance adapter and
+is not a Generic input.
+
+The D0 is accepted as a mechanical BoxShape.  The next bounded implementation
+is a caller-zero private mapping over the five admitted operation variants:
+
+```text
+LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0
+  parent callback -> operation/evidence borrow
+  -> exhaustive five-variant mechanical mapping
+  -> private non-Clone mapping product
+  -> no Builder / ValueId / CFG / SSA / PHI effect
+```
+
+Its issuer must preserve the Generic operation/evidence item identity and
+BindingRef/value-class relations, reject item `4`/carrier/tail leakage, and
+never construct an S6C source row.  The mapping is a physical projection, not
+a new semantic authority.  Focused positives cover all five variants and the
+15-row coverage; the landed negative boundary keeps item `4`/carrier/tail out
+and rejects missing/duplicate/foreign evidence, binding or value-class drift,
+unknown variants, and late discard before any Builder effect.
+
+### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` (current design stop)
+
+```text
+Decision:
+  Keep the five-variant Generic operation mapping as a mechanical input and
+  choose one physical emitter owner for ReadBinding, ConstI64, BinaryI64,
+  CompareI64, and WriteBinding.  This D0 does not emit MIR or open Builder
+  state; it only closes the owner and lowering-boundary census.
+Source authority + canonical issuer:
+  The same Generic source parent and its verified operation/evidence product
+  remain semantic authority.  The landed mapping is the only mechanical row
+  input.  A future Generic physical-operation emitter must consume that
+  mapping together with the installed physical function/session view in one
+  callback-scoped transaction; it may not reconstruct operations from AST,
+  MIR, S6C rows, or ValueIds.
+Non-authority:
+  S6C operation emitters, operation names alone, item ordinals, `/N`,
+  MirFunction/ValueId numbering, current block counters, EffectMask defaults,
+  `new_selected_dynamic`, JSON, and late Builder scans are not operation
+  meaning or placement authorities.
+Fail-fast boundary:
+  Keep the stop for missing mapping rows, foreign owner/origin/frame/target,
+  binding or value-class drift, target-block/session-stamp drift, unsupported
+  variants, or an emitter that infers placement/effects after Builder
+  mutation.  Operation effect and mapping must be checked before any MIR
+  instruction, ValueId publication, CFG/SSA/PHI mutation, or retry/fallback.
+Smallest next slice:
+  Read-only census of existing Generic/common operation emitters and the
+  canonical session APIs, naming one sole emitter and its five variant
+  contracts plus positive/negative gates.  If no source-backed emitter seam
+  exists, retain this NoSafeSlice and do not add a speculative adapter.
+Non-claims:
+  No operation MIR emission, block/edge/CFG/SSA/PHI mutation, Completion or
+  DraftSeal claim, lifecycle, Text, route, backend, fallback/retry, production
+  caller, or main integration.
+```
+
+The mapping I0 is complete, but physical operation emission remains a
+design-only boundary until one canonical session-owned emitter is named.
+
 ### Canonical session admission D0 (accepted three-step boundary)
 
 ```text
@@ -4442,6 +4511,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | design-stop envelope; its concrete deliverable is the manifest below, with no new authority or production switch |
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | current design-stop slice; no implementation or next execution row until every listed production/test caller has an owner and retirement gate |
 | 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | current design stop; read-only emitter/session census only; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
