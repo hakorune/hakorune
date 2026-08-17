@@ -94,16 +94,71 @@ Related:
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-G0` is the next caller-zero gate. The Bool
-  materializer I0 is landed: it consumes the same-session seed/read and
-  Length receipts to issue one Bool result and one Less Compare. Branch/edge,
-  CFG/PHI, lifecycle, Text, route, and production remain closed.
+  `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` is the design-only census beneath
+  the still-blocked `LOOP-PRECUTOVER-AUTHORITY-G0` gate. The Bool materializer
+  I0 is landed: it consumes the same-session seed/read and Length receipts to
+  issue one Bool result and one Less Compare. Branch/edge, CFG/PHI, lifecycle,
+  Text, route, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
 - **Retirement finish line:** all admitted profiles use one common physical
   owner and old topology, route-local schedulers, direct transfer inference,
   retry, and fallback have zero callers.
+
+### Pre-cutover authority coverage census (design stop)
+
+`LOOP-PRECUTOVER-AUTHORITY-G0` is not accepted yet. Existing source/Facts,
+Core/Recipe, JoinSig, neutral layout, and canonical CFG/SSA owners are
+individually present, but no single source-backed issuer currently co-seals
+the complete semantic program and its transfer/layout/CFG coverage. The
+current blocker remains:
+
+```text
+NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed
+```
+
+Decision:
+  first run a read-only `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` census;
+  do not mint a new semantic receipt, physicalizer, scheduler, or Builder
+  effect from the census. If the seam is confirmed, continue with the
+  existing `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`, then
+  `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`, and only then the Always/If/Exit
+  coverage rows.
+
+Source authority + canonical issuer:
+  resolver/source Facts and the Core-owned semantic program issue source
+  relations; that same Core's JoinSig issues transfers; neutral Layout only
+  binds already-issued placement; `CanonicalSsaFunctionSessionV2` and its
+  CFG/PHI owners remain the sole physical owners. The census may reference
+  these owners, but it is not a new semantic authority. The eventual
+  composite issuer must co-seal exact node/source/entry coverage with the
+  Core JoinSig continuation before any selection or physical effect.
+
+Non-authority:
+  the 19 task labels, raw Recipe/JoinSig/AST/MIR/JSON rescans, bare counts,
+  `physical_layout.rs` or topology Recipe re-interpretation, Dynamic/V1/
+  legacy physicalizers, profile-local wrappers, raw `ValueId`/
+  `BasicBlockId`, benchmark/environment/fallback, and separate coverage
+  receipts that can be re-paired are not G0 authority.
+
+Fail-fast boundary:
+  the census records missing/duplicate/foreign owner or brand, JoinSig/layout
+  drift, missing Always/If/Exit coverage, competing target-subtree owners,
+  and any re-scan/recombination requirement as a blocker before selection or
+  Builder/session effect. A positive census does not itself authorize G0.
+
+Smallest next slice:
+  `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` — read-only owner mapping and
+  competing-authority census, with focused missing/duplicate/foreign/drift
+  cases and a reusable guard. No new `Verified*`/`Prepared*` semantic receipt,
+  CFG mutation, physicalizer, production caller, fallback, or retry.
+
+Acceptance:
+  either the census names one co-seal issuer and hands off to the existing
+  semantic-program/transfer rows, or it records the precise missing issuer
+  and keeps `NoSafeSlice` active. It must not fill a gap with zero, a count,
+  Recipe order, or MIR observation.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -3194,6 +3249,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | landed caller-zero effect slice; positive/duplicate/missing-function/late-discard gates green; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | landed caller-zero effect slice; receipt-owned same-session consume, canonical entry seed/read, one Bool ValueId/type, one Compare, and missing-seed/type/late-discard gates are green; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
+| 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | design stop; no new `Verified*`/`Prepared*`, CFG mutation, physicalizer, selection, fallback, or retry |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
