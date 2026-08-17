@@ -360,6 +360,33 @@ separate context/Core/continuation arguments. G0/M8/M9 remain blocked until a
 same-parent issuer exists for each admitted family; no production selection or
 physical cutover is implied by the Callable I0.
 
+### All-family semantic-program co-seal R0 (2026-08-17)
+
+The next design-only boundary is
+`LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0`. It does not promote the
+Callable parent into a universal issuer. Each admitted family keeps its own
+resolver/source producer and issues one complete parent; a thin compiler-side
+co-seal then consumes exactly one parent and validates the shared relations:
+owner/origin/site/frame, Core-owned Recipe/JoinSig continuation,
+item/carrier/input/After coverage, and version revision.
+
+The current parent matrix is:
+
+```text
+Callable  -> VerifiedCallableSingleLoopRecipeProductV1
+Generic   -> VerifiedGenericRecipeProductG0
+Dynamic   -> VerifiedDynamicFullLoopSemanticProgramV2
+M8        -> each VariableAccum Facts/Recipe producer
+M9        -> versioned .hako portable Recipe/provenance wire projection
+```
+
+M9 wire data is not a Rust HRTB/source authority: raw JSON, AST, environment
+values, and parity artifacts cannot be reinterpreted as source coverage. A
+missing family parent, mixed V1/V2 revision, foreign frame, incomplete
+coverage, or split/re-pair ingress keeps
+`NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed`; only after this R0
+may `LOOP-SEMANTIC-PROGRAM-COSEAL-GENERIC-G0-D0` open for one Generic parent.
+
 ## SSOT role disambiguation
 
 The authority split is:

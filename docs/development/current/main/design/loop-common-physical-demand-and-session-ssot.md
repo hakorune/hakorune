@@ -89,8 +89,8 @@ Related:
   receipt lifetime I0 are also landed. The source-only initial-index seed
   relation transport, its one-entry Const/exact-declaration materializer I0,
   and the receipt-owned Bool/Compare materializer I0 are now landed; the active
-  bounded gate is the Callable-first semantic-program co-seal, while generic
-  pre-cutover authority coverage remains the downstream G0 blocker.
+  design stop is the all-family source-parent/co-seal census before any
+  Generic G0 D0.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
@@ -126,7 +126,7 @@ Decision:
   it accepted the Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` handoff,
   while generic G0 still may not mint a repository-wide semantic receipt,
   physicalizer, scheduler, or Builder effect. The active bounded row is the
-  Callable I0; later generic work must still close
+  all-family source-parent/co-seal R0; later generic work must still close
   `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`, and only then the Always/If/Exit
   coverage rows.
 
@@ -153,14 +153,15 @@ Fail-fast boundary:
   Builder/session effect. A positive census does not itself authorize G0.
 
 Smallest next slice:
-  `LOOP-PRECUTOVER-AUTHORITY-G0` — design-only census for one repository-wide
-  source-backed issuer. Do not relabel the Callable parent, mint a generic
-  receipt, or open physical effect until all admitted families have the same
-  co-seal boundary.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` — design-only census for each
+  source-backed family parent and the shared two-stage co-seal. Do not relabel
+  the Callable parent, mint a generic receipt, or open physical effect until
+  all admitted families have the same co-seal boundary.
 
 Acceptance:
-  the Callable co-seal issuer is landed, while generic G0 records its precise
-  missing issuer and keeps `NoSafeSlice` active. It must not fill a gap with zero, a count,
+  the Callable co-seal issuer is landed, while the all-family census records
+  each missing parent/adapter and keeps `NoSafeSlice` active. It must not fill
+  a gap with zero, a count,
   Recipe order, or MIR observation.
 
 #### Census result and next co-seal design stop
@@ -260,6 +261,23 @@ Source authority + canonical issuer:
   source relations or re-pair context/Core/continuation. Callable is the only
   landed adapter so far.
 
+Family parent census:
+
+| family | source-backed parent | current boundary |
+| --- | --- | --- |
+| Callable | `VerifiedCallableSingleLoopRecipeProductV1` | `VerifiedCallableSemanticProgramV1` is landed caller-zero |
+| Generic G0 | `VerifiedGenericRecipeDemandG0` -> `VerifiedGenericRecipeProductG0` | parent adapter and complete-entry coverage are not sealed; test-only split remains non-authority |
+| Dynamic V2 | `VerifiedDynamicFullLoopSourceRecipeEnvelopeV2` -> `VerifiedDynamicFullLoopSemanticProgramV2` | versioned V2 parent exists, but common site/frame/Core/coverage co-seal is not established |
+| M8 Rust cohorts | each `VerifiedVariableAccum*FactsV1` -> Recipe product | each producer keeps its own source authority; no all-family parent adapter exists |
+| M9 `.hako` | portable Recipe/provenance wire | only a versioned verified-wire projection may cross into Rust; raw JSON/AST/HRTB is forbidden |
+
+The common compiler seam is therefore two-stage: each source producer issues
+its own complete parent, then one profile-neutral co-seal consumes exactly one
+parent and validates owner/origin/site/frame, Core-owned JoinSig continuation,
+item/carrier/input coverage, and schema revision. The compiler seam does not
+re-walk source, relabel a profile parent, or turn M9 wire evidence into a Rust
+source authority.
+
 Non-authority:
   `VerifiedCallableSemanticProgramV1`, Generic test-only split helpers,
   Dynamic V2 semantic programs, M8 Facts/products, M9 parity artifacts,
@@ -273,7 +291,7 @@ Fail-fast boundary:
 
 Smallest next slice:
   `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` — design-only source-parent
-  census and shared BoxShape. If the census succeeds, open
+  census and shared two-stage BoxShape. If the census succeeds, open
   `LOOP-SEMANTIC-PROGRAM-COSEAL-GENERIC-G0-D0` for one Generic parent;
   otherwise keep the blocker and do not mint a guessed receipt.
 
@@ -2203,7 +2221,7 @@ failure discards the whole unpublished function.
 No branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
 route, publication, fallback, retry, or production caller is opened. The
 read-only G0 owner census is complete; the active bounded row is the
-Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`.
+all-family `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` design stop.
 
 Current blockers are deliberately explicit:
 
