@@ -18,6 +18,7 @@ static box CoreMethodContractBox {
 
   tier_warm_direct_abi() { return "warm_direct_abi" }
   tier_cold_fallback() { return "cold_fallback" }
+  tier_design_only() { return "design_only" }
 
   op_none() { return "None" }
   op_array_len() { return "ArrayLen" }

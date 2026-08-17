@@ -5,7 +5,7 @@
  * may borrow a row, but they must not reissue its result/effect meaning.
  */
 
-use super::core_method_op::CoreMethodOp;
+use super::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 pub(crate) use super::generated::core_method_contract_rows::{
     CoreMethodManifestBrandV1, CORE_METHOD_CONTRACT_RESULT_ROWS_V1, CORE_METHOD_MANIFEST_BRAND_V1,
 };
@@ -65,6 +65,7 @@ pub(crate) struct CoreMethodContractResultRowV1 {
     pub(crate) op: CoreMethodOp,
     pub(crate) result_kind: CoreMethodResultKindV1,
     pub(crate) effect: CoreMethodEffectV1,
+    pub(crate) lowering_tier: CoreMethodLoweringTier,
 }
 
 /// Opaque generated-row reference branded by the `.hako` manifest projection.
@@ -90,6 +91,10 @@ impl CoreMethodManifestRowRefV1 {
 
     pub(crate) const fn arity(self) -> u32 {
         self.arity
+    }
+
+    pub(crate) const fn lowering_tier(self) -> CoreMethodLoweringTier {
+        self.row.lowering_tier
     }
 }
 

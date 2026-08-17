@@ -66,6 +66,7 @@ struct CoreMethodTargetIdentityV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CoreMethodInstanceTargetRejectV1 {
     ManifestBrandMismatch,
+    DesignOnlyRow,
     UnsupportedHomeSchema,
     UnsupportedOperation { op: CoreMethodOp, arity: u32 },
     ReceiverMismatch,
@@ -120,6 +121,9 @@ impl CoreMethodInstanceTargetIssuerV1 {
     ) -> Result<VerifiedCoreMethodInstanceTargetV1, CoreMethodInstanceTargetRejectV1> {
         if row.brand() != self.manifest_brand {
             return Err(CoreMethodInstanceTargetRejectV1::ManifestBrandMismatch);
+        }
+        if row.lowering_tier().is_design_only() {
+            return Err(CoreMethodInstanceTargetRejectV1::DesignOnlyRow);
         }
         if self.schema != CoreMethodHomeSchemaV1::StringBoxText {
             return Err(CoreMethodInstanceTargetRejectV1::UnsupportedHomeSchema);

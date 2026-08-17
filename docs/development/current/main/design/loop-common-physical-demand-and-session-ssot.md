@@ -7787,6 +7787,47 @@ issuers must reject it before any effect. The source owner remains
 hand-edited. This A0 slice claims no StringEquals row, decoder, residence,
 Call, Bool `ValueId`, fallback, or production route.
 
+### LOOP-PHYSICAL-TEXTEQ-COREMETHOD-DESIGN-ONLY-TIER-I0 — projection and reject guard (2026-08-18; fast)
+
+Decision: implement only the accepted A0 BoxShape. Add a `DesignOnly` carrier
+tier with manifest spelling `design_only`; project it through the generated
+CoreMethod row, map its plan tier and emission kind to `Unsupported`, and make
+the canonical admission helper reject it before any route or physical effect.
+Existing Hot/Warm/Cold rows and their callers must remain byte/behavior
+stable. The checked-in manifest/Rust files are regenerated projections, not
+hand-edited authority.
+
+Source authority + canonical issuer: `CoreMethodContractBox` schema and the
+`core_method_contract_manifest_codegen.py` projection own the tier identity;
+`CoreMethodLoweringTier` is only the mechanical carrier. The positive gate is
+that DesignOnly maps exactly to `LoweringPlanTier::Unsupported` and
+`LoweringPlanEmitKind::Unsupported`; the negative gate proves it cannot become
+DirectAbi/RuntimeCall or enter a route before effect.
+
+Non-authority: no StringEquals row, `status=seed`, empty guards, dummy
+`cold_lowering`, `LoweringPlanTier::Unsupported` without carrier provenance,
+DynamicV2 transport, `StringBox::equals`, `eq_hh`, or any TextEq physical path.
+
+Fail-fast boundary: reject a DesignOnly row at the canonical manifest/admission
+boundary before CallSlot, route, Builder/session, ValueId, residence, CFG,
+fallback, retry, publication, or production selection. Focused positive and
+negative tier tests plus the manifest/codegen guard are the required evidence.
+
+Non-claims: this I0 does not add `StringEquals`, TextEq status/Bool decoding,
+Substring residence, Bool materialization, branch/Return/edge/PHI/CFG,
+fallback, retry, production, or legacy retirement. After this closeout the
+next design row returns to A source contract -> B decoder/Trap -> C residence.
+
+Closeout evidence (2026-08-18): the manifest projection check, `cargo fmt
+--all -- --check`, current-state pointer guard, and `git diff --check` are
+green. The quick focused suite passed 5/5 (`core_method_op`), and the
+negative admission guard passed 1/1
+(`target_issuer_rejects_design_only_row_before_home_effects`). The run used
+one top-level `CARGO_BUILD_JOBS=4 cargo test --profile quick` at a time and no
+`--nocapture`; baseline warnings are informational. No StringEquals row,
+decoder, residence, Call, Bool `ValueId`, CFG, route, fallback, retry, or
+production path was opened.
+
 #### A — source-owned `StringEquals/1` method contract (BoxCount)
 
 Source authority + canonical issuer after A0: `CoreMethodContractBox` in

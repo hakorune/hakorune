@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::core_method_op::CoreMethodOp;
+use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::core_method_result_kind::{
     issue_core_method_manifest_row_ref_for_test, issue_core_method_manifest_row_ref_v1,
     issue_core_method_manifest_test_row_ref, CoreMethodContractResultRowV1, CoreMethodEffectV1,
@@ -96,11 +96,31 @@ fn target_issuer_rejects_foreign_brand_and_wrong_receiver() {
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
+        lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     };
     let wrong_receiver = issue_core_method_manifest_test_row_ref(&ARRAY_ROW, 0, false);
     assert!(matches!(
         issuer().issue(wrong_receiver),
         Err(CoreMethodInstanceTargetRejectV1::ReceiverMismatch)
+    ));
+}
+
+#[test]
+fn target_issuer_rejects_design_only_row_before_home_effects() {
+    static DESIGN_ONLY_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
+        receiver_box: "StringBox",
+        canonical: "design_only",
+        aliases: &[],
+        arities: &[0],
+        op: CoreMethodOp::StringLen,
+        result_kind: CoreMethodResultKindV1::I64Value,
+        effect: CoreMethodEffectV1::PureRead,
+        lowering_tier: CoreMethodLoweringTier::DesignOnly,
+    };
+    let design_only = issue_core_method_manifest_test_row_ref(&DESIGN_ONLY_ROW, 0, false);
+    assert!(matches!(
+        issuer().issue(design_only),
+        Err(CoreMethodInstanceTargetRejectV1::DesignOnlyRow)
     ));
 }
 
@@ -114,6 +134,7 @@ fn target_issuer_rejects_wrong_effect_and_result() {
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::MutatesSlot,
+        lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     };
     let wrong_effect = issue_core_method_manifest_test_row_ref(&MUTATING_ROW, 0, false);
     assert!(matches!(
@@ -129,6 +150,7 @@ fn target_issuer_rejects_wrong_effect_and_result() {
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::StringValue,
         effect: CoreMethodEffectV1::PureRead,
+        lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     };
     let wrong_result = issue_core_method_manifest_test_row_ref(&STRING_RESULT_ROW, 0, false);
     assert!(matches!(
