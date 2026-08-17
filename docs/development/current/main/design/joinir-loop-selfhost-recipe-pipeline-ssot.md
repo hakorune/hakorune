@@ -1,6 +1,6 @@
 ---
 Status: Active task-order SSOT
-Date: 2026-08-16
+Date: 2026-08-17
 Decision: accepted — `JOINIR-LOOP-SELFHOST-RECIPE-PIPELINE0-D0`
 Scope: production Loop meaning, selfhost-portable recipe, terminal candidate lowering, and atomic retirement
 Related:
@@ -23,16 +23,20 @@ Related:
   meaning through exact V1/V2 projections; neither projection authorizes a
   second physicalizer or V2-to-V1 coercion.
 - **Current implementation status:** source-to-Recipe S6C products, installed
-  child/header prerequisites, package physical-signature map, and the
-  caller-zero Text residence/backend transport substrate are closed. The
-  common V2 pre-session BoxShape is accepted as design-only; its transport and
-  caller-zero session boundary remain unopened. A-prime Text lifecycle
-  activation is parked until that canonical session exists.
-- **Next ordered task:** the source-level transport R0 and the three-issuer
-  I0 contract are accepted as design-only. The next bounded execution slice is
-  the caller-zero implementation of
-  `LOOP-S6C-COMMON-V2-PRESESSION-I0`. Do not extend the selected-normal legacy
-  finalizer with lifecycle or Return authority.
+  child/header prerequisites, package physical-signature map, caller-zero Text
+  residence/backend transport, common V2 pre-session transport, canonical
+  session admission/session-open canary, physical-entry/layout/After/branch
+  canaries, and the receipt-owned Bool/Compare materializer are closed as
+  caller-zero slices. The repository-wide pre-cutover authority census found
+  that individual source/Core/JoinSig/Layout/CFG owners still lack one
+  source-backed semantic-program co-seal issuer. A-prime Text lifecycle and
+  production selection remain parked.
+- **Next ordered task:** design-only
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`. It must bind the existing resolver
+  context, Core/JoinSig, complete operation/effect evidence, and JoinSig-owned
+  continuation once before any all-19 G0 coverage or physical effect. Do not
+  extend the selected-normal legacy finalizer with lifecycle or Return
+  authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -346,6 +350,14 @@ Typed fail-fast remains mandatory. Until JoinSig has exact capabilities for a
 structural family, `Always`, ordinary `If`, and `Exit` remain unsupported in
 the common physical path. Layout-only inference, profile relabeling, and
 fallback to a route-local physicalizer are forbidden.
+
+The `VerifiedLoopSemanticProgramV1` shape above remains a target design, not a
+landed public issuer. The current pre-cutover census has confirmed that the
+existing context/Core/operation/continuation products are individually
+source-backed but still independently re-pairable. Until
+`LOOP-SEMANTIC-PROGRAM-COSEAL-R0` names and lands the one same-parent issuer,
+`NoSafeSlice::LoopSemanticProgramCosealUnsealed` remains active and no G0
+selection or physical effect may proceed.
 
 ## SSOT role disambiguation
 
