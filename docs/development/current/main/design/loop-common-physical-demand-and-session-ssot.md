@@ -1754,61 +1754,39 @@ Focused 4/4 operand tests and the target-plan positive/foreign-owner gates are
 green; no Substring effect, CheckedCallOut, V9 lease/ValueId, TextEq, Bool,
 CFG, publication, fallback, retry, or production path opened.
 
-### COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0 (2026-08-18; design stop)
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-D0 (2026-08-18; accepted)
 
-Decision: keep `MaterializationRelationMissing` at the common-V2 provider/site
-plan boundary. The source contract is closed by S6C `StringSubstring/2` and
-Recipe `CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`; the landed target plan
-and V6/V7/V8 operand receipt are the only inputs to the future materializer.
+Decision: accept one physical-only common-V2 admission boundary. The source
+contract remains S6C `StringSubstring/2` plus Recipe `CallSlot(item 6, B1,
+V0, [V6,V8] -> V9:Text)`; the target plan and V6/V7/V8 receipt remain its only
+semantic inputs. `MaterializationRelationMissing` is narrowed to the missing
+runtime result/lifecycle implementation, not source meaning.
 
-Top-down admission audit: the common-V2 physical-entry/session seam currently
-does not carry the collector-backed `ModuleInvocationBrandV1` used by the
-neutral CheckedCallOut `plan_stamp`. `PhysicalFunctionEntryCohortStampV1` and
-`FunctionOwnerIdV1` are not substitutes. Until one named common-V2 transport
-borrows the real invocation brand, the site/entry/outcome plan cannot be
-issued; synthesizing a stamp from owner, function name, lane count, provider
-entry, or fixed test IDs is rejected before any callout effect.
+Source authority + canonical issuer: the real collector brand borrowed from
+`ModuleLoweringPortV1::with_invocation_brand` is carried as
+`InvocationBranded<PreparedPhysicalEntrySessionInputV1>` through the common
+entry/session seam. A private admission owned by
+`CommonV2CanonicalSessionRefV1` co-seals that brand, the landed Substring
+target, checked provider facts, one neutral single-site plan, and an opaque
+`CommonV2SubstringEndObligationV1`. `PhysicalFunctionEntryCohortStampV1`
+remains only owner/signature/lane evidence and is not extended or used as a
+plan stamp.
 
-Concrete D0 shape from the worker review: keep the future admission in a
-private `common_v2_s6c_substring_callout_admission` module as one move-only
-`PreparedCommonV2SubstringCallOutAdmissionV1` plus an opaque
-`CommonV2SubstringEndObligationV1`. The aggregate may retain owner, exact
-item/block/result (`6/B1/V9`), provider entry/ABI/wire, the neutral single-site
-plan, the real invocation plan stamp, and an End obligation carrying only
-site/lease/result identity. It must not retain a runtime handle/token,
-`EndAuthorizedTextV1`, semantic source meaning, or a cloneable parts tuple.
-The issuer consumes the landed target plan and the exact physical effect
-projection, validates `EndAuthorizedHandle { lease_slot: 0 }`, and receives the
-collector brand as an external borrow. `CheckedCallOutSitePlanPairV1`,
-selected-Dynamic admission, and `legacy_test` brands are forbidden. A private
-session one-shot reserves the admission before metadata installation; only a
-single callback-scoped materializer consumer may use it. The production caller
-and the common lifecycle terminal that consumes the End obligation are still
-unlanded, so this shape remains design-only and `NoSafeSlice` continues.
+Non-authority: selected-Dynamic I6/I7 pairs, `legacy_test` brands, owner or
+provider IDs, `nyash.string.eq_hh`, generic `substring_hii`, raw handles/tokens/
+ValueIds, and fallback/retry. The aggregate owns no runtime handle/token,
+`EndAuthorizedTextV1`, semantic source meaning, or cloneable parts tuple.
 
-Source authority + canonical issuer: one new private admission owned by
-`CommonV2CanonicalSessionRefV1` must co-seal the source target, checked
-`hako.text.scan.substring.v1` facts, one function-local site/entry/outcome
-plan, and an opaque lifecycle sidecar. The canonical session remains the sole
-physical `ValueId`/type/CFG issuer; runtime `dynamic_v2_lease` remains the sole
-handle/token owner.
+Fail-fast boundary: unbranded/foreign invocation, cohort or session mismatch,
+wrong source/Recipe role/item/block/result, provider ABI/wire drift,
+non-`EndAuthorized` shape, duplicate site/lease/admission, or absent lifecycle
+consumer rejects before the first CheckedCallOut. Late callback failure uses
+the existing unpublished-function discard; no retry or same-session reuse.
 
-Non-authority: selected-Dynamic I6/I7 admission and lease slots, generic
-`substring_hii`, raw handles/tokens/ValueIds, `TextFormalCallResidenceV1` as a
-V9 result issuer, `nyash.string.eq_hh`, and any fallback/retry. Neutral
-`emit_checked_callout` and normal-result projection may be reused only as
-physical transport after this admission exists; they do not select a provider.
-
-Fail-fast boundary: before the first `CheckedCallOut`, reject source/Recipe
-role, item/block/result, owner/session/Body segment brand, V6/V7/V8 receipt,
-provider symbol/ABI/wire, site/entry/outcome identity, EndAuthorized shape,
-lease-slot uniqueness, and duplicate admission. Fault, ImmediateI64,
-Forwarded, unknown wire, or late callback failure emits no V9; the enclosing
-unpublished function transaction discards all physical state without retry.
-
-Smallest next slice: design-only BoxShape `COMMON-V2-TEXTEQ-SUBSTRING-V9-
-CALLOUT-ADMISSION-D0` itself. Name the common provider/site-plan identity
-issuer and lifecycle sidecar API; stop before `CheckedCallOut`, V9 `ValueId`,
-lease consume, TextEq V10, Bool, branch/Return CFG, publication, fallback,
-retry, and production. Worker review confirms the existing Dynamic pair is
-not reusable as authority; only its neutral CFG transport is reusable.
+Smallest next slice: `COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0`.
+Implement only brand transport, a neutral single-site plan/admission, and the
+one-shot lifecycle sidecar API; stop before callout effect, V9 ValueId/lease
+consume, TextEq V10, Bool, Branch/Return CFG, publication, fallback, retry, or
+production selection. Positive acceptance is same collector brand through
+entry→session→admission; negatives are unbranded/foreign brand, duplicate
+consume, missing lifecycle consumer, and late unpublished discard.
