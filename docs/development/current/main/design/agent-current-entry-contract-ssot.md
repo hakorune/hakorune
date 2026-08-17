@@ -332,6 +332,10 @@ report resource pressure instead of opening another build when aggregate
 build RSS approaches 8 GiB, swap grows continuously, or the terminal has
 stopped producing progress.
 
+The checked-in `tools/checks/dev_gate.sh` applies the same four-job ceiling to
+all Cargo steps it launches (while respecting a smaller caller value), so the
+single-entry gate cannot silently restore host-wide parallelism.
+
 ### Active SSOT current capsule
 
 Use the five-field Current Capsule defined by

@@ -21,9 +21,17 @@ bash tools/checks/current_state_pointer_guard.sh
 Run heavier gates only when the next slice is ready:
 
 ```bash
-tools/checks/dev_gate.sh quick
-cargo check -q
+bash tools/checks/dev_gate.sh quick
+# standalone check only when the gate did not already cover it
+CARGO_BUILD_JOBS=4 cargo check
 ```
+
+同じcheckoutの別terminalやbackground terminalでCargoを重ねて起動しない。
+開始前に既存の `cargo`/`rustc` が終わっていることを確認し、Cargoは常に1本ずつ
+実行する。`dev_gate.sh` も子Cargoを最大4 jobへ制限する。`--release`、
+`--nocapture`、`RUSTFLAGS`切替の扱いとOOM停止線は
+[`agent-current-entry-contract-ssot.md`](design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
+に従う。
 
 ## Current Lane
 

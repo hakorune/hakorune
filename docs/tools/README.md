@@ -22,8 +22,11 @@ Related:
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
-tools/checks/dev_gate.sh quick
+bash tools/checks/dev_gate.sh quick
 ```
+
+このgateは子Cargoのjob数を最大4に制限する。同じcheckoutで別terminalの
+Cargoを同時に起動せず、前のCargoが終了してから次を実行する。
 
 ### 0.1 ローカルCargoの安全な反復
 
@@ -213,14 +216,14 @@ tools/perf/run_micro_llc_flags_matrix.sh kilo_micro_array_getset --warmup 0 --re
 日常の「多すぎるコマンド」を 1 本にまとめた導線:
 
 ```bash
-tools/checks/dev_gate.sh --list
-tools/checks/dev_gate.sh --list-steps  # detailed quick-step listing
-tools/checks/dev_gate.sh quick
-tools/checks/dev_gate.sh hotpath
-tools/checks/dev_gate.sh portability
-tools/checks/dev_gate.sh milestone
-tools/checks/dev_gate.sh milestone-runtime
-tools/checks/dev_gate.sh milestone-perf
+bash tools/checks/dev_gate.sh --list
+bash tools/checks/dev_gate.sh --list-steps  # detailed quick-step listing
+bash tools/checks/dev_gate.sh quick
+bash tools/checks/dev_gate.sh hotpath
+bash tools/checks/dev_gate.sh portability
+bash tools/checks/dev_gate.sh milestone
+bash tools/checks/dev_gate.sh milestone-runtime
+bash tools/checks/dev_gate.sh milestone-perf
 ```
 
 プロファイル:

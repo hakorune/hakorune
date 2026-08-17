@@ -25,6 +25,20 @@ set -euo pipefail
 
 PROFILE="${1:-quick}"
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+
+# Keep the single-entry gate bounded even when the caller did not export the
+# repository's day-to-day Cargo limit.  A smaller caller value is respected;
+# values above the four-job ceiling are clamped before any child Cargo step.
+requested_cargo_jobs="${CARGO_BUILD_JOBS:-4}"
+if [[ "$requested_cargo_jobs" =~ ^[0-9]+$ ]] && (( requested_cargo_jobs > 0 )); then
+  if (( requested_cargo_jobs > 4 )); then
+    requested_cargo_jobs=4
+  fi
+else
+  requested_cargo_jobs=4
+fi
+export CARGO_BUILD_JOBS="$requested_cargo_jobs"
+
 source "${ROOT_DIR}/tools/lib/ffi_contract.sh"
 source "${ROOT_DIR}/tools/checks/lib/dev_gate_group.sh"
 DEV_GATE_QUICK_STEPS="${ROOT_DIR}/tools/checks/lib/dev_gate_quick_steps.sh"
