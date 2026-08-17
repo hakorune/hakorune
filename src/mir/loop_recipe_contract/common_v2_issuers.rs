@@ -27,6 +27,9 @@ use super::common_v2_predicate_branch_plan::{
     issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
     PreparedLoopV2PredicateBranchPlanV1,
 };
+use super::common_v2_return_read_co_seal::{
+    issue_s6c_v2_return_read_co_seal_v1, CommonV2ReturnReadCoSealRefV1, ReturnReadCoSealRejectV1,
+};
 use super::ids::{LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::join_sig::{LoopJoinBranchArmTransferRefV2, LoopJoinLogicalTransferViewV2};
 use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2};
@@ -59,6 +62,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     ConditionProducer(ConditionProducerRelationRejectV1),
     ConditionOperandInventory(ConditionOperandInventoryRejectV1),
     InitialIndexSeed(InitialIndexSeedRelationRejectV1),
+    ReturnReadCoSeal(ReturnReadCoSealRejectV1),
 }
 
 #[derive(Debug)]
@@ -187,6 +191,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     condition_operands: PreparedLoopV2ConditionOperandInventoryV1<'join>,
     initial_index_seed: PreparedLoopV2InitialIndexSeedRelationV1<'join>,
     return_source_binding: &'join VerifiedS6CReturnSourceRecipeBindingV1,
+    return_read_co_seal: CommonV2ReturnReadCoSealRefV1<'join>,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -236,6 +241,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) fn return_source_binding(&self) -> &'join VerifiedS6CReturnSourceRecipeBindingV1 {
         self.return_source_binding
     }
+
+    pub(crate) fn return_read_co_seal(&self) -> &CommonV2ReturnReadCoSealRefV1<'join> {
+        &self.return_read_co_seal
+    }
 }
 
 pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
@@ -255,6 +264,9 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     let control = issue_control_source(ingress)?;
     let layout = issue_s6c_v2_layout_input(ingress, expected_owner)
         .map_err(CommonV2IssuerRejectV1::Layout)?;
+    let return_read_co_seal =
+        issue_s6c_v2_return_read_co_seal_v1(ingress, &operations, &control, &layout)
+            .map_err(CommonV2IssuerRejectV1::ReturnReadCoSeal)?;
     let after_boundary =
         issue_s6c_v2_after_boundary_source_relation_v1(ingress, &layout, expected_owner)
             .map_err(CommonV2IssuerRejectV1::AfterBoundary)?;
@@ -304,6 +316,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         condition_operands,
         initial_index_seed,
         return_source_binding,
+        return_read_co_seal,
         coverage,
     })
 }

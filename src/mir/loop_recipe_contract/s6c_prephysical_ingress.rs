@@ -262,6 +262,10 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.seal.index_carrier_entry
     }
 
+    pub(crate) const fn index_binding(self) -> LoopBindingKeyV1 {
+        self.source.logical().roles().index_binding()
+    }
+
     pub(crate) const fn after(self) -> (LoopNodeKeyV1, LoopBindingKeyV1, LoopValueClassV2) {
         self.seal.after
     }

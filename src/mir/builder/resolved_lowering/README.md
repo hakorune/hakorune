@@ -133,6 +133,21 @@ edge, terminator, operation, Return, BlockEnd, CFG/SSA/PHI, publication,
 fallback, retry, or production caller; branch emission and item-to-split
 authority remain the next design stop.
 
+## Common V2 Return-read co-seal view I0 (2026-08-18)
+
+The common pre-session envelope now retains one callback-scoped
+`CommonV2ReturnReadCoSealRefV1` from the existing source-to-Recipe Return
+binding. The view co-seals the Return-read operation, If/Exit placement,
+physical-ID-free segment coverage, and the Join `Return -> FunctionExit` plus
+`Fallthrough(NextItem)` relation in one cohort. It lends logical keys and split
+ordinals only; it does not allocate or expose a physical block or `ValueId`.
+
+The operation/control/layout drift negatives fail before the canonical session
+can consider a later physical materializer. No Return instruction, terminal,
+edge, CFG/SSA/PHI, Completion/DraftSeal, publication, fallback, retry, or
+production caller is opened. The physical Return-read receipt and terminal
+issuer remain the next design-stop decision.
+
 ## Common V2 Length receiver operand I0
 
 `CommonV2CanonicalSessionRefV1::with_length_receiver_operand` consumes the

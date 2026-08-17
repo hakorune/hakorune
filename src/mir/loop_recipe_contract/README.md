@@ -64,6 +64,24 @@ fallback is opened by the ledger or boundary cleanup. The fixed-role topology
 census is caller-zero for its top-level issuers; transitive canary-only types
 remain until the selected production cutover and post-cutover retirement row.
 
+### Common V2 Return-read co-seal view D0/I0 (2026-08-18)
+
+`issue_s6c_v2_return_read_co_seal_v1` is the bounded same-cohort view for the
+S6C Return-read arm. It borrows the existing
+`VerifiedS6CReturnSourceRecipeBindingV1` and checks its item/block/value and
+FunctionExit relation against the common operation rows, If/Exit placement,
+physical-ID-free layout segments, and Join transfer. The existing
+`issue_s6c_common_v2_pre_session_v1` remains the sole issuer of the aggregate;
+this child does not create a new source authority or Recipe key.
+
+The returned `CommonV2ReturnReadCoSealRefV1` is callback-scoped and non-Clone.
+It carries only logical item/block/value keys, split ordinals, the logical
+continuation, and the existing Join target. It contains no `BasicBlockId`,
+`ValueId`, edge, terminator, Completion, publication, fallback, or retry
+authority. Missing/duplicate/drifted operation, placement, segment, branch,
+or continuation rows fail before any physical effect. Physical Return-read
+materialization and the FunctionExit terminal remain a separate design stop.
+
 The dedicated `tools/checks/loop_physical_transfer_authority_guard.sh` is the
 reusable boundary guard. Its S6C ingress rule deliberately permits the
 borrowed `logical_items`/`logical_loops`/`logical_blocks`/`logical_transfer`

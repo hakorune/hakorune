@@ -1,4 +1,4 @@
-use super::super::ids::{LoopBlockKeyV1, LoopItemKeyV1};
+use super::super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::super::produce_s6c_scan_with_init_recipe_v2;
 use super::super::s6c_prephysical_ingress::issue_s6c_prephysical_ingress_v2;
 use super::super::s6c_scan_with_init_joinir_output::issue_s6c_scan_with_init_logical_output_v1;
@@ -29,6 +29,23 @@ fn common_v2_issues_generic_operation_control_and_passive_coverage() {
             assert_eq!(envelope.coverage().operation_count(), 13);
             assert_eq!(envelope.return_source_binding().owner(), owner);
             assert_eq!(envelope.return_source_binding().join_exit_item().raw(), 10);
+            let return_read = envelope.return_read_co_seal();
+            assert_eq!(return_read.owner(), owner);
+            assert_eq!(return_read.return_item().raw(), 9);
+            assert_eq!(return_read.return_block().raw(), 2);
+            assert_eq!(return_read.return_value().raw(), 11);
+            assert_eq!(return_read.return_split_ordinal(), 2);
+            assert_eq!(return_read.if_item().raw(), 8);
+            assert_eq!(return_read.if_block().raw(), 1);
+            assert_eq!(return_read.if_condition().raw(), 10);
+            assert_eq!(return_read.if_split_ordinal(), 1);
+            assert_eq!(return_read.continuation().block.raw(), 1);
+            assert_eq!(return_read.continuation().item.raw(), 11);
+            assert_eq!(return_read.join_exit_item().raw(), 10);
+            assert_eq!(
+                return_read.join_target(),
+                super::super::join_sig::LoopJoinBranchExitTargetV2::FunctionExit
+            );
             assert_eq!(envelope.layout().loop_count(), 1);
             assert_eq!(envelope.layout().segment_count(), 3);
             assert_eq!(envelope.layout().segments()[0].split_ordinal(), 0);
@@ -177,6 +194,72 @@ fn common_v2_rejects_item_block_drift_for_operation_if_and_exit() {
             assert!(matches!(
                 super::validate_layout_relation(&layout, &operations, &control),
                 Err(CommonV2IssuerRejectV1::LayoutRelation)
+            ));
+            Ok(())
+        })
+        .expect("ingress view");
+}
+
+#[test]
+fn return_read_co_seal_rejects_operation_and_exit_drift() {
+    let output = issue_s6c_scan_with_init_logical_output_v1(
+        produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 1404)).expect("S6C recipe"),
+    )
+    .expect("logical rows");
+    let ingress = issue_s6c_prephysical_ingress_v2(output).expect("ingress");
+    let owner = ingress
+        .with_ingress(|view| Ok(view.source_owner()))
+        .expect("owner view");
+    ingress
+        .with_ingress(|view| {
+            let layout =
+                super::super::common_v2_layout_input::issue_s6c_v2_layout_input(view, owner)
+                    .expect("layout");
+            let control = super::issue_control_source(view).expect("control");
+            let mut operations = super::issue_operation_source(view).expect("operations");
+            let return_index = operations
+                .rows
+                .iter()
+                .position(|row| row.item().raw() == 9)
+                .expect("Return-read row");
+            operations.rows[return_index].block = LoopBlockKeyV1::new(0);
+            assert!(matches!(
+                super::super::issue_s6c_v2_return_read_co_seal_v1(
+                    view,
+                    &operations,
+                    &control,
+                    &layout,
+                ),
+                Err(super::super::ReturnReadCoSealRejectV1::ReturnOperationMismatch)
+            ));
+
+            let operations = super::issue_operation_source(view).expect("operations");
+            let mut control = super::issue_control_source(view).expect("control");
+            let exit_index = control
+                .rows
+                .iter()
+                .position(|row| matches!(row, PreparedLoopControlPlacementV2::Exit { .. }))
+                .expect("Exit row");
+            let PreparedLoopControlPlacementV2::Exit {
+                item, block, exit, ..
+            } = control.rows[exit_index]
+            else {
+                unreachable!()
+            };
+            control.rows[exit_index] = PreparedLoopControlPlacementV2::Exit {
+                item,
+                block,
+                exit,
+                value: LoopValueKeyV1::new(12),
+            };
+            assert!(matches!(
+                super::super::issue_s6c_v2_return_read_co_seal_v1(
+                    view,
+                    &operations,
+                    &control,
+                    &layout,
+                ),
+                Err(super::super::ReturnReadCoSealRejectV1::ExitPlacementMismatch)
             ));
             Ok(())
         })

@@ -19,6 +19,8 @@ mod common_v2_initial_index_seed;
 mod common_v2_string_len_target_plan;
 // Caller-zero source-backed complete predicate branch-plan transport.
 mod common_v2_predicate_branch_plan;
+// Caller-zero same-cohort Return-read logical/layout/Join co-seal view.
+mod common_v2_return_read_co_seal;
 // Caller-zero source-segment allocation demand; synthetic After is separate.
 mod common_v2_segment_allocation;
 mod direct_accum_producer;
@@ -209,6 +211,10 @@ pub(crate) use common_v2_predicate_branch_plan::{
     issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
     PreparedLoopV2ConditionCarrierRequirementV1, PreparedLoopV2PredicateBranchPlanV1,
     PreparedLoopV2PredicateFalseTargetV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_return_read_co_seal::{
+    issue_s6c_v2_return_read_co_seal_v1, CommonV2ReturnReadCoSealRefV1, ReturnReadCoSealRejectV1,
 };
 #[allow(unused_imports)]
 pub(crate) use common_v2_segment_allocation::{

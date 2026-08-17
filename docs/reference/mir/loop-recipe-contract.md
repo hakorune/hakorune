@@ -173,6 +173,25 @@ policy site-free and requires later common semantic-program/transfer rows plus
 an installed Normal-package port with an exact source-backed result/header ABI
 before any common V2 session can open.
 
+## Common V2 Return-read co-seal view D0/I0 (2026-08-18)
+
+Decision: accepted as a transport-only BoxShape. The existing
+`VerifiedS6CReturnSourceRecipeBindingV1` remains the sole source-to-key
+authority for S6C item 9 `ReadBinding`, item 10 `Exit`, the then block, and the
+Join `Return -> FunctionExit` arm. The existing common V2 pre-session issuer
+co-seals that binding with exactly one matching operation row, If/Exit
+placement, physical-ID-free layout segments, and strict
+`Fallthrough(NextItem)` continuation.
+
+`CommonV2ReturnReadCoSealRefV1` is a callback-scoped non-`Clone` logical view.
+It exposes only item/block/value keys, split ordinals, the continuation, and
+the existing Join target. It does not issue a physical block or `ValueId`,
+canonical binding-read receipt, edge, terminator, Completion, publication,
+fallback, retry, or production route. Missing/duplicate/foreign-owner and
+operation, placement, segment, branch, continuation, or value drift reject
+before physical mutation. Physical Return-read materialization and the
+FunctionExit terminal remain a separate `NoSafeSlice` design row.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation

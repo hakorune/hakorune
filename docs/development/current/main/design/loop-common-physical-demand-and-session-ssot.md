@@ -7347,3 +7347,21 @@ Non-claims:
 The next physical materialization design remains separate.  The co-seal view
 may prove which existing logical/layout/Join rows must later agree, but it
 does not authorize a `ValueId`, physical block, terminal, or CFG mutation.
+
+### Return-read co-seal view I0 closeout (2026-08-18; landed)
+
+`CommonV2ReturnReadCoSealRefV1` is now transported inside the existing common
+V2 pre-session envelope. Its issuer validates one same-cohort operation row
+for item 9, exact If/Exit placement, physical-ID-free segment coverage, and
+the Join `Return -> FunctionExit` plus strict `Fallthrough(NextItem)` relation.
+The view remains callback-scoped and non-Clone; no physical block, `ValueId`,
+edge, terminator, Completion, publication, fallback, retry, or production
+authority was added.
+
+Focused `common_v2_issuers` tests are green (8/8), including operation and
+Exit-value drift negatives. `cargo check --profile quick`, format, diff,
+current-state pointer, and loop physical-transfer authority guards are green.
+The next row is the separate
+`LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` design stop;
+it must name a source-backed physical ValueId/read and FunctionExit-terminal
+owner before any CFG/SSA/PHI mutation.
