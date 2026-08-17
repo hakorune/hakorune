@@ -2075,15 +2075,19 @@ Why not Fast path:
   now would invent a second authority or pair a V2 view with the old V1
   layout, so this row remains `NoSafeSlice`.
 
-### Next bounded design-only task: LOOP-PHYSICAL-IF-MERGE-AUTHORITY-D0 (2026-08-18)
+### Next bounded design-only task: LOOP-PHYSICAL-IF-CONTINUATION-RELATION-D0 (2026-08-18)
 
 ```text
 Decision:
   keep `LOOP-PHYSICAL-IF-COVERAGE-I0` at `NoSafeSlice` and first name one
-  source/Core/JoinSig/S6C merge-relation authority plus one common consumer.
+  source/Core/JoinSig/S6C continuation-relation authority plus one common
+  consumer.
 Source authority + canonical issuer:
-  the D0 must be issued from one same-owner Source/Recipe/JoinSig/S6C cohort;
-  no current issuer is allowed to mint the physical-ID-free merge relation.
+  `LoopJoinSigElaboratorV1::branch_row` is the logical continuation issuer
+  candidate because it owns the verified Flow context; the D0 must co-seal its
+  result with one same-owner Source/Recipe/JoinSig/S6C cohort.  It currently
+  emits only arm disposition/payload, so no physical-ID-free merge relation
+  is authorized yet.
 Non-authority:
   `ResolvedIfJoinContractV1`, `VerifiedTrivialIfMergeProfileV1`, legacy
   `IfPhiJoin`/`ControlForm`, layout order, next-segment guesses, raw ValueId,
@@ -2092,8 +2096,9 @@ Fail-fast boundary:
   before CFG/SSA/PHI, reject missing/foreign/duplicate/ambiguous merge,
   condition or arm-target drift, predecessor/value/class mismatch, and alias.
 Smallest next slice:
-  design-only census that fixes one issuer, one `CommonV2CanonicalSessionRefV1`
-  consumer API, and the exact negative matrix for a physical-ID-free relation.
+  design-only census that fixes one issuer, one continuation/merge identity,
+  one `CommonV2CanonicalSessionRefV1` consumer API, and the exact negative
+  matrix for a physical-ID-free relation.
 Non-claims:
   no code, new `Verified*`/`Prepared*` receipt, V2-to-V1 adapter, Layout
   inference, CFG/SSA/PHI, session mutation, production, fallback, or retry.
@@ -2108,6 +2113,17 @@ Worker authority audit (2026-08-18):
   Acceptance for D0 is positive explicit-If mapping plus negative evidence for
   missing, foreign, duplicate, ambiguous, drifted, or aliased merge rows, with
   no V2-to-V1 adapter or Layout inference.
+
+Continuation authority census (2026-08-18):
+  `branch_row` receives the parent `Flow` context and the two branch flows,
+  then emits only `owner_loop/if_item/condition`, `Exit` or `Fallthrough`, and
+  visible payload.  `Flow.bindings/available` are merged for later logical
+  processing, but no nested-If continuation block, merge identity, or exact
+  two-predecessor/value relation is retained.  The JoinSig ports (`Body`,
+  `After`, `FunctionExit`, etc.) cannot be reused as an If merge; `After` is a
+  loop boundary.  Any extension must stay inside the verified JoinSig Flow
+  and be co-sealed by the source-bound Core; synthetic merge/next-segment or
+  Recipe-order inference remains forbidden.
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
@@ -5790,7 +5806,7 @@ skip the After closure or reopen a Tail-only route.
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | guard/docs present in `1544d128d2`/`1e93ad6be9`; transitive old-edge census remains before deletion |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | consume one existing V2 branch-arm view with a named physical merge owner | design stop: NoSafeSlice until merge authority/consumer are named; no V2-to-V1 adapter or Layout inference |
-| 24a | `LOOP-PHYSICAL-IF-MERGE-AUTHORITY-D0` | name one source/Core/JoinSig/S6C issuer and one common consumer for a physical-ID-free merge relation | design-only acceptance: explicit positive mapping plus missing/foreign/duplicate/ambiguous/drift/alias negatives; no code or physical effect |
+| 24a | `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-D0` | name one JoinSig Flow continuation issuer and one common consumer for a physical-ID-free merge relation | design-only acceptance: explicit positive mapping plus missing/foreign/duplicate/ambiguous/drift/alias negatives; no code or physical effect |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
