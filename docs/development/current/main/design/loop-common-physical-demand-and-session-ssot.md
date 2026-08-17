@@ -1761,6 +1761,14 @@ plan boundary. The source contract is closed by S6C `StringSubstring/2` and
 Recipe `CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`; the landed target plan
 and V6/V7/V8 operand receipt are the only inputs to the future materializer.
 
+Top-down admission audit: the common-V2 physical-entry/session seam currently
+does not carry the collector-backed `ModuleInvocationBrandV1` used by the
+neutral CheckedCallOut `plan_stamp`. `PhysicalFunctionEntryCohortStampV1` and
+`FunctionOwnerIdV1` are not substitutes. Until one named common-V2 transport
+borrows the real invocation brand, the site/entry/outcome plan cannot be
+issued; synthesizing a stamp from owner, function name, lane count, provider
+entry, or fixed test IDs is rejected before any callout effect.
+
 Source authority + canonical issuer: one new private admission owned by
 `CommonV2CanonicalSessionRefV1` must co-seal the source target, checked
 `hako.text.scan.substring.v1` facts, one function-local site/entry/outcome
