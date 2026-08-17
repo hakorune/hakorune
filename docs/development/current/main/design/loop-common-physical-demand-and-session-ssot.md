@@ -111,10 +111,10 @@ Related:
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0` is the next design stop. It must
-  name one source-backed checked Substring-result issuer and scoped text-lend
-  owner before V9 can co-seal with ExactText formal V1 or any V10 capability
-  classification. No C ABI or source Trap is implied.
+  `LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0` is the next design stop. It
+  must name the S6C-only canonical issuer for the Body V6 read, V7 constant,
+  and V8 add before a Substring V9 result or any V10 capability is opened. No
+  Dynamic callout or C ABI is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1674,3 +1674,42 @@ receipts for the `V6` index read or `V8` `Add(V6,1)` operand, and no
 `StringSubstring/2` target plan. Those three source-backed operand/target
 relations are part of the V9 issuer design; they must not be reconstructed
 from raw item ordinals, `ValueId`s, or the selected-Dynamic cursor.
+
+### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0 (2026-08-18; design stop)
+
+Decision: split the V9 boundary once more at its canonical integer operands.
+S6C owns the exact body sequence `V6 = ReadBinding(index)`, `V7 = ConstI64(1)`,
+`V8 = Add(V6,V7)`, and `V9 = StringSubstring(V0,V6,V8)`. The next physical
+issuer is S6C-specific and may reuse only the existing canonical session
+mechanics for physical ID allocation, type publication, entry/segment reads,
+and integer instruction emission.
+
+Source authority + canonical issuer: resolver S6C source rows and Recipe roles
+`body_index_read`, `slice_one`, `slice_end_add`, and `substring_call` -> one
+future callback-scoped S6C operand issuer. `CanonicalSsaFunctionSessionV2`
+remains the sole ValueId/type issuer; the operand product carries no source
+meaning or runtime lease.
+
+Non-authority: selected-Dynamic V6/V8/V9 code, Dynamic formal values or value
+ledger, outer Less V5, generic AST `Equal`/`CompareOp::Eq`, raw item ordinals,
+caller-supplied ValueIds, and any S6C use of Dynamic I6/I7 CheckedCallOut.
+
+Fail-fast boundary: before any body instruction, reject role/item/block/result
+drift, non-`B1` placement, foreign owner/session/segment brand, missing or
+duplicate body read, wrong `V7=1` literal, non-Add or wrong Add operands,
+operand type drift, or an operand receipt from another cohort. Late failure
+discards the unpublished function; same-session repair/retry is forbidden.
+
+Smallest next slice: design-only BoxShape
+`LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0`. Name one private callback-scoped
+operand receipt that consumes the existing S6C ingress and shared Body segment,
+emits only V6/V7/V8 through canonical mechanics, and lends those values to the
+later source-backed V9 issuer. Do not emit Substring, TextEq, Bool, branch,
+Return, CFG/PHI, or runtime lease in this row.
+
+Positive acceptance: exact S6C source/Recipe parity, one same-session Body
+segment brand, canonical `ValueId`/type publication, and callback-only receipt
+borrowing. Negative acceptance: any selected-Dynamic row reuse, outer V5
+substitution, missing/duplicate operand, foreign segment, wrong literal or
+Add shape, and detached ValueId tuple. No new semantic `Verified*` or
+`Prepared*` receipt is issued by this design row.
