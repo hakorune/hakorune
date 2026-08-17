@@ -15,6 +15,10 @@ use super::common_v2_condition_producer::{
     issue_s6c_v2_condition_producer_relation_v1, ConditionProducerRelationRejectV1,
     PreparedLoopV2ConditionProducerRelationV1,
 };
+use super::common_v2_initial_index_seed::{
+    issue_s6c_v2_initial_index_seed_relation_v1, InitialIndexSeedRelationRejectV1,
+    PreparedLoopV2InitialIndexSeedRelationV1,
+};
 use super::common_v2_layout_input::{
     issue_s6c_v2_layout_input, LayoutInputRejectV1, PreparedLoopV2PhysicalLayoutInputV1,
 };
@@ -51,6 +55,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     PredicateBranch(PredicateBranchPlanRejectV1),
     ConditionProducer(ConditionProducerRelationRejectV1),
     ConditionOperandInventory(ConditionOperandInventoryRejectV1),
+    InitialIndexSeed(InitialIndexSeedRelationRejectV1),
 }
 
 #[derive(Debug)]
@@ -177,6 +182,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     predicate_branch: PreparedLoopV2PredicateBranchPlanV1,
     condition_producer: PreparedLoopV2ConditionProducerRelationV1,
     condition_operands: PreparedLoopV2ConditionOperandInventoryV1<'join>,
+    initial_index_seed: PreparedLoopV2InitialIndexSeedRelationV1<'join>,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
 }
 
@@ -218,6 +224,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     pub(crate) fn condition_operands(&self) -> &PreparedLoopV2ConditionOperandInventoryV1<'join> {
         &self.condition_operands
     }
+
+    pub(crate) fn initial_index_seed(&self) -> &PreparedLoopV2InitialIndexSeedRelationV1<'join> {
+        &self.initial_index_seed
+    }
 }
 
 pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
@@ -227,6 +237,8 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     if ingress.source_owner() != expected_owner {
         return Err(CommonV2IssuerRejectV1::ForeignOwner);
     }
+    let initial_index_seed = issue_s6c_v2_initial_index_seed_relation_v1(ingress, expected_owner)
+        .map_err(CommonV2IssuerRejectV1::InitialIndexSeed)?;
     let operations = issue_operation_source(ingress)?;
     let control = issue_control_source(ingress)?;
     let layout = issue_s6c_v2_layout_input(ingress, expected_owner)
@@ -278,6 +290,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         predicate_branch,
         condition_producer,
         condition_operands,
+        initial_index_seed,
         coverage,
     })
 }

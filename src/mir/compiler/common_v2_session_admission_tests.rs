@@ -50,6 +50,14 @@ fn admission_co_seals_loop_outer_if_block_expr_envelope_and_completion() {
             assert_eq!(admission.envelope().coverage().placement_count(), 15);
             assert_eq!(admission.completion().explicit_sites().len(), 2);
             assert_eq!(admission.outer_if().row_count(), 0);
+            let seed = loan.envelope().initial_index_seed();
+            assert_eq!(seed.owner(), owner);
+            assert_eq!(seed.declared_type_name(), Some("i64"));
+            assert_eq!(
+                seed.literal(),
+                &crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(0)
+            );
+            assert_eq!(seed.index_carrier_entry().raw(), 2);
 
             with_common_v2_canonical_session(admission, |session| {
                 assert_eq!(session.owner(), owner);

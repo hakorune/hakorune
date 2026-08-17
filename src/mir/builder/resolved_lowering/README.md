@@ -165,17 +165,17 @@ The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
 missing source-backed initial index seed. A fresh common-V2 session has no
 active canonical declaration/value for the S6C condition's left `ReadBinding`,
 so the receipt-owned materializer must not use a default zero, a raw `ValueId`,
-or a detached `read_entry` call. The next design stop is
-`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0`: the resolver/S6C initializer
-relation must be co-sealed first, after which a later I0 may issue one
-unpublished `ConstI64(0)` and one exact declaration publication in the same
-session. Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
+or a detached `read_entry` call. The source-only initializer relation
+transport is now landed. The next bounded slice is
+`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0`: it may issue one unpublished
+`ConstI64(0)` and one exact declaration publication in the same session.
+Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
 Text, route, publication, fallback, retry, and production remain closed.
 
 ## Common V2 initial index seed source transport I0
 
-The seed BoxShape is accepted, and the active caller-zero slice is only the
-source transport. The seed authority comes from
+The seed BoxShape is accepted, and the caller-zero source transport is now
+landed. The seed authority comes from
 `VerifiedS6CTypedInputRelationV1::initializer()`, the resolver-owned
 `ResolvedInitializerRelationV1`, and the source ledger's
 `ResolvedLiteralSourceV1::Integer(0)`. The transport I0 adds one private,
@@ -186,8 +186,8 @@ or consume it; they do not infer the seed. Missing/foreign site, binding,
 carrier, owner, stamp, type, or literal evidence rejects before physical
 effect. This I0 emits no Const, declaration, ValueId, read receipt, Bool,
 Compare, CFG/PHI, lifecycle, Text route, fallback, retry, or production
-caller. The following seed I0 may issue the physical `ConstI64(0)` only after
-this transport is closed.
+caller. The next seed I0 may issue the physical `ConstI64(0)` from this
+transport.
 
 ## Common V2 synthetic After allocation I0
 

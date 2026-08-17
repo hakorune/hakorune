@@ -1843,17 +1843,18 @@ The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
 missing source-backed initial index seed. A fresh common-V2 session currently
 has no active canonical declaration/value for the condition's left
 `ReadBinding`; using a default zero, raw `ValueId`, or detached `read_entry`
-would create a second authority. The next design stop is
-`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0`: resolver/S6C initializer
-evidence must be co-sealed before the later receipt-owned Bool materializer
-can issue one `Less` result. Branch/edge/terminator, CFG/PHI,
+would create a second authority. The source-only initializer relation
+transport is now landed. The next bounded slice is
+`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0`: it may issue one unpublished
+`ConstI64(0)` and exact declaration publication before the later receipt-owned
+Bool materializer can issue one `Less` result. Branch/edge/terminator, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry,
 and production remain closed.
 
 ## Common V2 initial index seed source transport I0
 
-The seed BoxShape is accepted; the active caller-zero slice transports only
-the source relation. It must be issued from
+The seed BoxShape is accepted; the caller-zero source transport is now
+landed. The relation is issued from
 `VerifiedS6CTypedInputRelationV1::initializer()`,
 `ResolvedInitializerRelationV1`, and the source ledger's
 `ResolvedLiteralSourceV1::Integer(0)`. The transport product
@@ -1864,7 +1865,7 @@ Missing/foreign initializer, site, binding, carrier, owner, stamp, type, or
 literal evidence rejects before physical effect; no defaulting, AST/MIR
 recount, fallback, or retry is permitted. This I0 emits no Const, declaration,
 ValueId, read receipt, Bool/Compare, CFG/PHI, lifecycle, Text route, or
-production. A later seed I0 may emit only the unpublished `ConstI64(0)` and
+production. The next seed I0 may emit only the unpublished `ConstI64(0)` and
 exact declaration publication.
 
 ## Common V2 Length-result materialization canary I0 (2026-08-17)

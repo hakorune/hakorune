@@ -136,6 +136,7 @@ pub(crate) struct VerifiedS6CTypedInputRelationV1 {
     membership: VerifiedCallableLoopMembershipV1,
     inputs: [S6CTypedBindingV1; 3],
     initializer: ResolvedInitializerRelationV1,
+    initializer_literal: ResolvedLiteralSourceV1,
     binaries: [S6CBinaryRelationV1; 4],
     calls: VerifiedS6CCallSitePairV1,
     index_update: ResolvedAssignmentSourceV1,
@@ -153,6 +154,10 @@ impl VerifiedS6CTypedInputRelationV1 {
 
     pub(crate) const fn initializer(&self) -> &ResolvedInitializerRelationV1 {
         &self.initializer
+    }
+
+    pub(crate) const fn initializer_literal(&self) -> &ResolvedLiteralSourceV1 {
+        &self.initializer_literal
     }
 
     pub(crate) const fn binaries(&self) -> &[S6CBinaryRelationV1; 4] {
@@ -276,7 +281,11 @@ pub(crate) fn issue_s6c_typed_input_relation_v1(
     let initializer_site = initializer
         .initializer_site()
         .ok_or(S6CTypedInputRelationRejectV1::MissingInitializer)?;
-    if ledger.literal_source(initializer_site) != Some(&ResolvedLiteralSourceV1::Integer(0)) {
+    let initializer_literal = ledger
+        .literal_source(initializer_site)
+        .cloned()
+        .ok_or(S6CTypedInputRelationRejectV1::WrongInitializerLiteral)?;
+    if initializer_literal != ResolvedLiteralSourceV1::Integer(0) {
         return Err(S6CTypedInputRelationRejectV1::WrongInitializerLiteral);
     }
     let index = initializer.binding();
@@ -453,6 +462,7 @@ pub(crate) fn issue_s6c_typed_input_relation_v1(
             },
         ],
         initializer: initializer.clone(),
+        initializer_literal,
         binaries: [
             binary_relation(
                 S6CBinaryRoleV1::LoopConditionLess,

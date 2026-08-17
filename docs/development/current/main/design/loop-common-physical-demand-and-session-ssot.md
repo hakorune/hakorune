@@ -87,14 +87,17 @@ Related:
   BoxShape and its caller-zero transport I0 are now landed. The Length-result
   canary I0, direct Length Call/result I0, and exclusive session-scoped Length
   receipt lifetime I0 are also landed; the remaining design stop is the parent
-  Bool result BoxShape. A-prime lifecycle
+  Bool result BoxShape. The source-only initial-index seed relation transport
+  I0 is now landed; the next effectful row is the seed materializer I0.
+  A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` is the
-  active caller-zero transport slice under the accepted seed BoxShape. It
-  carries the resolver/S6C initializer and literal witness into the same
-  ingress/envelope; it emits no Const, declaration, ValueId, or read receipt.
+  `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` is the active caller-zero
+  effect slice under the accepted seed BoxShape. It may issue one unpublished
+  `ConstI64(0)` and one exact declaration publication/read receipt from the
+  already transported source relation. Bool/Compare and all later effects
+  remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1927,14 +1930,14 @@ Non-claims:
   or production caller is opened here.
 ```
 
-### `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` — active caller-zero slice 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` — landed caller-zero slice 2026-08-17
 
 ```text
 Decision:
-  Implement only the missing source-to-ingress transport for the accepted
-  initial-index seed BoxShape. The transport must lend one typed,
-  callback-scoped seed relation from the same S6C cohort; it must not issue a
-  Const, declaration, ValueId, read receipt, or physical effect.
+  Land only the source-to-ingress transport for the accepted initial-index
+  seed BoxShape. The transport lends one typed, callback-scoped seed relation
+  from the same S6C cohort; it issues no Const, declaration, ValueId, read
+  receipt, or physical effect.
 
 Source authority + canonical issuer:
   `VerifiedS6CTypedInputRelationV1::initializer()` remains the S6C source
@@ -1958,10 +1961,11 @@ Fail-fast boundary:
   late callback failure has no publication or local rollback path.
 
 Smallest next slice:
-  Add the source-only relation field and scoped accessor to the existing S6C
-  ingress/common envelope, with positive, missing, foreign, duplicate, and
-  callback-escape tests. After this transport closes, the next I0 may issue
-  one unpublished `ConstI64(0)` plus exact declaration publication.
+  The source-only relation field and scoped accessor are now present in the
+  existing S6C ingress/common envelope. Positive and foreign-owner gates are
+  green; lifetime remains callback-scoped by construction. The next I0 is the
+  seed materializer, which may issue one unpublished `ConstI64(0)` plus exact
+  declaration publication.
 
 Non-claims:
   No Const/Write/ValueId/read receipt, Bool/Compare, Length re-emission,
@@ -3135,8 +3139,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-i-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0` | change the Length receipt to an exclusive callback-scoped session borrow and add lifetime/duplicate/late-discard gates | landed 2026-08-17; direct-length and full physical-entry suites green; no Bool ValueId/Compare, branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
 | 25b-l-j-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` | accept one same-session condition-result materializer consuming Left read + Length result and issuing one canonical Bool receipt | accepted BoxShape 2026-08-17; receipt-owned same-session method, one canonical Left read, one Bool ValueId/type, one `Less` Compare, no branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
 | 25b-l-j-seed-D0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0` | close the source-backed pre-loop index initializer relation needed before the Bool materializer can read the condition binding | accepted BoxShape 2026-08-17; `VerifiedS6CTypedInputRelationV1::initializer()` plus resolver/source literal evidence define one typed seed relation; no session effect, Bool/Compare, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-j-seed-transport-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` | carry the accepted source-only seed relation through the same S6C ingress/common envelope | active caller-zero transport; no Const/Write/ValueId/read receipt, Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | parked behind source transport; positive/missing/foreign/duplicate/late-discard gates only; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-j-seed-transport-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` | carry the accepted source-only seed relation through the same S6C ingress/common envelope | landed caller-zero transport; positive/foreign-owner gates green; no Const/Write/ValueId/read receipt, Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
+| 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | active caller-zero effect slice; positive/missing/foreign/duplicate/late-discard gates required; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | blocked behind `...INITIAL-INDEX-SEED-D0/I0`; consumes the Length receipt only after the same-session index declaration/value is seeded; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |

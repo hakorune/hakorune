@@ -11,6 +11,8 @@ mod common_v2_layout_input;
 mod common_v2_condition_producer;
 // Caller-zero source-backed condition operand inventory transport.
 mod common_v2_condition_operand_inventory;
+// Caller-zero source-backed initial-index seed transport; no physical effect.
+mod common_v2_initial_index_seed;
 // Caller-zero source-backed StringLen target realization; no physical Call.
 mod common_v2_string_len_target_plan;
 // Caller-zero source-backed complete predicate branch-plan transport.
@@ -100,6 +102,10 @@ mod s6c_scan_with_init_tests;
 #[cfg(test)]
 #[path = "s6c_prephysical_ingress_tests.rs"]
 mod s6c_prephysical_ingress_tests;
+
+#[cfg(test)]
+#[path = "common_v2_initial_index_seed_tests.rs"]
+mod common_v2_initial_index_seed_tests;
 
 #[cfg(test)]
 #[path = "s6c_text_eq_site_contract_tests.rs"]

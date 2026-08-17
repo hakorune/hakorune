@@ -233,6 +233,12 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.seal.inputs
     }
 
+    pub(crate) fn typed_input_relation(
+        self,
+    ) -> &'facts crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1 {
+        self.source.facts().source().calls().typed()
+    }
+
     /// Project the two source-bound CoreMethod effects without exposing the
     /// retained source relation.  The caller-zero physical header issuer
     /// consumes this narrow view; it never infers effects from MIR or names.
