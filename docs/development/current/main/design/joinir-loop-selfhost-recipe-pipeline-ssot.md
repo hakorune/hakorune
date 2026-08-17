@@ -27,16 +27,15 @@ Related:
   residence/backend transport, common V2 pre-session transport, canonical
   session admission/session-open canary, physical-entry/layout/After/branch
   canaries, and the receipt-owned Bool/Compare materializer are closed as
-  caller-zero slices. The all-family source-parent/co-seal boundary and the
-  Generic G0 source-parent BoxShape are accepted, but its same-cohort source
-  view is not sealed. A-prime Text lifecycle and production selection remain
-  parked.
-- **Next ordered task:** design-only
-  `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0`, before the parked
-  `LOOP-PRECUTOVER-AUTHORITY-G0-I0`. The source view must retain the resolver
-  input while issuing Generic demand; no all-19 coverage or production
-  physical effect opens. Do not extend the selected-normal legacy finalizer
-  with lifecycle or Return authority.
+  caller-zero slices. The all-family source-parent/co-seal boundary, Generic
+  G0 source-parent BoxShape, and same-cohort source-view BoxShape are accepted.
+  A-prime Text lifecycle and production selection remain parked.
+- **Next ordered task:** fast
+  `LOOP-PRECUTOVER-AUTHORITY-G0-I0`. The source view retains the resolver
+  input while issuing Generic demand, and this I0 replaces only the Generic
+  cfg(test) ingress; no all-19 coverage or production physical effect opens.
+  Do not extend the selected-normal legacy finalizer with lifecycle or Return
+  authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.

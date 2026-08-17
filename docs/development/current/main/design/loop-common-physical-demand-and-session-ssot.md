@@ -89,18 +89,18 @@ Related:
   receipt lifetime I0 are also landed. The source-only initial-index seed
   relation transport, its one-entry Const/exact-declaration materializer I0,
   and the receipt-owned Bool/Compare materializer I0 are now landed; the
-  all-family source-parent/co-seal R0 and Generic G0 source-parent BoxShape
-  are accepted, with the active design stop sealing the private same-cohort
-  source view before the Generic parent I0.
+  all-family source-parent/co-seal R0, Generic G0 source-parent BoxShape, and
+  same-cohort source-view BoxShape are accepted; the active fast row replaces
+  the Generic test-only ingress with one production issuer.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` is the next design-only
-  gate. The Callable-first semantic-program BoxShape/I0, all-family
-  source-parent/co-seal R0, and Generic G0 source-parent BoxShape are accepted,
-  but the source view needed by the Generic parent I0 is not sealed. Transfer
-  migration, CFG/PHI, lifecycle, Text, route, and production remain closed.
+  `LOOP-PRECUTOVER-AUTHORITY-G0-I0` is the next fast gate. The Callable-first
+  semantic-program BoxShape/I0, all-family source-parent/co-seal R0, Generic
+  G0 source-parent BoxShape, and same-cohort source-view BoxShape are accepted.
+  This I0 only replaces the Generic test-only ingress; transfer migration,
+  CFG/PHI, lifecycle, Text, route, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -380,7 +380,7 @@ production issuer replaces the `cfg(test)` split, the implementation blocker
 `NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed` remains
 active and no G0 physical or session effect may open.
 
-#### LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0 design stop
+#### LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0 accepted design boundary
 
 The current selector drops `ResolvedFunctionLoweringInputV1` after it issues
 the Generic candidate, so a later parent issuer cannot safely accept a bare
@@ -404,11 +404,11 @@ the candidate enum lifetime-parameterized.
 Acceptance is the exact root-plus-one-child-loop positive shape, with
 selection mismatch, foreign input, owner/origin/site/frame/region drift,
 missing/duplicate entry or coverage, callback escape, and double-consumption
-negatives.  Until this seam is accepted, the blocker remains
-`NoSafeSlice::GenericG0EntrySourceCoverageParentUnsealed` and the source
-parent I0 stays closed.
+negatives.  The seam is accepted; the implementation blocker is
+`NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed` until the
+source-parent I0 replaces the `cfg(test)` split.
 
-#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation boundary (parked)
+#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation boundary
 
 ```text
 Decision:
