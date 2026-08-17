@@ -41,6 +41,14 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
         assert_eq!(cohort.function_effect().tail_return_count(), 1);
         assert_eq!(cohort.result_abi().owner(), owner);
         assert_eq!(cohort.result_abi().abi().source_type_name(), "i64");
+        assert_eq!(cohort.completion().owner(), owner);
+        assert_eq!(
+            cohort.completion().target_function(),
+            input.function().function_region()
+        );
+        assert!(cohort.completion().returns_value());
+        assert_eq!(cohort.completion().explicit_sites().len(), 1);
+        assert!(cohort.completion().cleanup().crossed_scopes().is_empty());
         cohort.product().core().owner()
     })
     .expect("source cohort");

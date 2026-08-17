@@ -13,6 +13,9 @@ use crate::mir::loop_recipe_contract::{
     LoopValueClassV1, LoopValueKeyV1, VerifiedGenericRecipeProductG0,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
+use super::generic_g0_completion::{
+    issue_generic_g0_completion_transport_v1, GenericG0CompletionRejectV1,
+};
 use super::generic_g0_function_effect::{
     issue_generic_g0_no_external_effect_v1, GenericG0FunctionEffectRejectV1,
     VerifiedGenericG0NoExternalEffectV1,
@@ -33,6 +36,7 @@ use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, FunctionOwnerIdV1,
     SourceBindingSiteV1, SourceStmtSiteV1, VerifiedResolvedBodyShapeInventoryV1,
 };
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0SourceParentRejectV1 {
@@ -65,6 +69,7 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
     FunctionEffect(GenericG0FunctionEffectRejectV1),
     ResultAbi(GenericG0ResultAbiRejectV1),
+    Completion(GenericG0CompletionRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
 }
@@ -107,6 +112,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
     function_effect: VerifiedGenericG0NoExternalEffectV1,
     result_abi: VerifiedGenericG0ResultAbiV1,
+    completion: VerifiedFunctionCompletionV1,
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
@@ -144,6 +150,9 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
         &self.result_abi
     }
 
+    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+        &self.completion
+    }
 }
 
 /// Callback-scoped combined view.  No raw `(input, selection)` tuple or
@@ -187,6 +196,9 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
         self.parent.result_abi()
     }
 
+    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+        self.parent.completion()
+    }
 }
 
 pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
@@ -216,6 +228,8 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         &declaration_header,
     )
     .map_err(GenericG0SourceParentRejectV1::ResultAbi)?;
+    let completion = issue_generic_g0_completion_transport_v1(input, &result_abi)
+        .map_err(GenericG0SourceParentRejectV1::Completion)?;
     let function_effect = issue_generic_g0_no_external_effect_v1(
         &input,
         body_shape,
@@ -237,6 +251,7 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         declaration_header,
         function_effect,
         result_abi,
+        completion,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
 }

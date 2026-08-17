@@ -81,6 +81,8 @@ pub(in crate::mir) mod generic_g0_source_parent;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_function_effect;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_completion;
+#[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_result_abi;
 pub(in crate::mir) mod generic_g0_top_level_declaration_header;
 #[allow(dead_code)]

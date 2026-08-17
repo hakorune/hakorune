@@ -26,6 +26,9 @@ The Generic source parent now also retains one private result-ABI row from the
 same selected observation before demand/product consumption.  The transport
 checks owner/origin/source-kind and declaration-header ABI parity; it does not
 classify a new ABI or open Completion, physical entry, or session effects.
+It now lends the canonical `VerifiedFunctionCompletionV1` from the same input
+after checking Generic tail, value-result, declared-`i64`, and empty-cleanup
+parity.  Completion remains unconsumed and no physical/session effect opens.
 
 ## Typed ingress contract
 

@@ -95,18 +95,19 @@ Related:
   body-shape product is now transported from the same source-unit resolution
   into the root lowering input and Generic source parent with owner/body-root
   checks.  The private Generic no-external-effect receipt and same-cohort
-  result-ABI transport I0 are now landed before demand/product consumption.
-  The next stop is the separate resolver-owned Generic Completion issuer; it
-  cannot open an EffectMask or any physical/session effect until that source
-  census is accepted.
+  result-ABI transport I0 and direct canonical Completion transport I0 are now
+  landed before demand/product consumption.  The next stop is the independent
+  Generic storage/lane projection; it cannot open an EffectMask or any
+  physical/session effect until that source-backed projection is accepted.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` is the next design stop.  The
-  S6C-only physical-entry projection, Generic TopLevel declaration/header,
-  body-shape transport, function-effect receipt, and result-ABI transport are
-  landed; Completion remains an independent source census.  Transfer
+  `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` is the next design
+  stop.  The S6C-only physical-entry projection, Generic TopLevel
+  declaration/header, body-shape transport, function-effect receipt,
+  result-ABI transport, and direct canonical Completion transport are landed;
+  storage/lane projection remains an independent source census.  Transfer
   migration, CFG/PHI, lifecycle, Text, route, fallback, retry, and production
   remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
@@ -705,19 +706,21 @@ parent.  Focused exact/foreign transport tests are green.  No new classifier,
 Completion, EffectMask, physical ABI, skeleton, ValueId, session, CFG/PHI,
 lifecycle, Text, route, fallback, retry, or production caller was opened.
 
-#### `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` (ordered after result ABI)
+#### `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` (accepted BoxShape 2026-08-17)
 
 ```text
 Decision:
   Keep Generic Completion as an independent source-projection decision after
-  the result-ABI row.  Do not create a combined result/Completion authority.
+  the result-ABI row.  Accept direct transport of the canonical
+  `VerifiedFunctionCompletionV1`; do not create a combined result/Completion
+  authority or a duplicate Completion wrapper.
 
 Source authority + canonical issuer:
-  `verify_function_completion_v1(input)` is the sole candidate Completion
-  issuer for the exact Generic function.  A future private row may be stored
-  in the existing Generic parent only after owner, target region, value-return
-  shape, terminal site, and cleanup policy are checked against the same source
-  cohort.
+  `verify_function_completion_v1(input)` is the sole Completion issuer for the
+  exact Generic function.  The existing Generic parent may retain that
+  non-Clone canonical product once, after owner, target region, value-return
+  shape, terminal site, declared `i64`, and cleanup policy are checked against
+  the same source cohort.
 
 Non-authority:
   S6C Completion, copied exit summaries, Recipe Tail/After return ABI,
@@ -725,18 +728,38 @@ Non-authority:
   source-order count cannot issue Generic Completion.
 
 Fail-fast boundary:
-  Reject foreign or duplicate verification, owner/target drift, non-value or
-  cleanup-bearing completion, terminal-site/declared-result mismatch, and any
-  request to consume or claim Completion before this source receipt exists.
+  The canonical verifier rejects foreign/source-region/origin/transfer/
+  terminal/result drift.  The Generic transport additionally rejects owner,
+  target, source-kind, non-value or implicit completion, terminal-site mismatch
+  with the Generic tail statement, declared-result mismatch, cleanup-bearing
+  completion, duplicate transport, and any request to consume or claim
+  Completion before this source product exists.
 
 Smallest next slice:
-  Run the issuer census after the result-ABI row, then open a separate
-  caller-zero Completion I0 only if the source-backed BoxShape is accepted.
+  Open `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0`: call the canonical verifier
+  once before selection demand/product consumption, retain the canonical
+  product in the existing parent, and lend only a callback-scoped borrow.
+  Completion consumption remains a later physical/session slice.
 
 Non-claims:
   No Completion consumption, physical header/lane/skeleton/session, CFG/SSA/
   PHI, lifecycle, Text, route, fallback, retry, or production caller.
 ```
+
+Implementation scope for the next I0 is intentionally mechanical: the
+parent may validate the canonical completion against its existing result ABI
+and Generic tail facts, but it may not issue a second semantic Completion
+receipt or copy sites/counts into a summary row.
+
+Implementation receipt (2026-08-17):
+`issue_generic_g0_completion_transport_v1` calls the canonical verifier once
+before Generic demand/product consumption, then retains the resulting
+non-Clone `VerifiedFunctionCompletionV1` directly in the source parent.  It
+checks owner/target, value-return, the exact Generic tail site, declared `i64`,
+and empty cleanup; the parent callback lends only a borrow.  Focused source
+parent tests are green.  No Completion consumer, physical/session effect,
+CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller
+was opened.
 
 #### `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` (landed transport I0)
 
@@ -3905,12 +3928,14 @@ skip the After closure or reopen a Tail-only route.
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
-| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | parent design stop; body-shape transport, function-effect receipt, and result-ABI transport are landed, while Completion remains unsealed; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | parent design stop; body-shape transport, function-effect receipt, result-ABI transport, and canonical Completion transport are landed; storage/lane projection remains unsealed; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion consumption, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |
 | 25b-c0-G0-result | `LOOP-GENERIC-G0-RESULT-ABI-TRANSPORT-D0` | transport the existing same-cohort Generic return ABI row before any Completion or physical entry | accepted BoxShape 2026-08-17; no new classifier, combined result/Completion receipt, default ABI, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-result-I0 | `LOOP-GENERIC-G0-RESULT-ABI-TRANSPORT-I0` | retain one candidate-owned result ABI row in the Generic parent before demand/product consumption | landed 2026-08-17; focused exact/foreign transport tests green; no Completion, physical ABI, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-completion | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` | retain the canonical resolver Completion in the Generic parent after result-ABI transport, with Generic tail/result/cleanup parity | accepted BoxShape 2026-08-17; canonical verifier remains the sole issuer; no Completion consumption, physical ABI/lane, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-completion-I0 | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0` | issue `verify_function_completion_v1(input)` once and lend the canonical non-Clone product through the parent callback | landed 2026-08-17; focused source-parent tests green; transport only, with no Completion consumer, physical/session effect, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, and legacy edges after the parent cohort | parked cleanup checkpoint; no new authority or production switch |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
