@@ -27,16 +27,15 @@ Related:
   residence/backend transport, common V2 pre-session transport, canonical
   session admission/session-open canary, physical-entry/layout/After/branch
   canaries, and the receipt-owned Bool/Compare materializer are closed as
-  caller-zero slices. The repository-wide pre-cutover authority census found
-  that individual source/Core/JoinSig/Layout/CFG owners still lack one
-  source-backed semantic-program co-seal issuer. A-prime Text lifecycle and
+  caller-zero slices. The all-family source-parent/co-seal boundary and the
+  Generic G0 source-parent BoxShape are accepted. A-prime Text lifecycle and
   production selection remain parked.
-- **Next ordered task:** design-only
-  `LOOP-PRECUTOVER-AUTHORITY-G0-D0`, after accepting the all-family
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` boundary. Generic G0 must retain
-  its own source/entry-coverage parent before any all-19 coverage or production
-  physical effect. Do not extend the selected-normal legacy finalizer with
-  lifecycle or Return authority.
+- **Next ordered task:** fast
+  `LOOP-PRECUTOVER-AUTHORITY-G0-I0`, after accepting the all-family
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` and Generic G0 D0 boundaries.
+  Replace only the Generic cfg(test) ingress with one source-parent issuer;
+  no all-19 coverage or production physical effect opens. Do not extend the
+  selected-normal legacy finalizer with lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
