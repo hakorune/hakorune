@@ -19,18 +19,19 @@ and its caller-zero I0 are landed. The condition-block physical target
 BoxShape and its callback-scoped caller-zero I0 are landed; the receiver
 operand projection BoxShape is accepted and its caller-zero canonical-read I0
 is landed. The direct Length Call/result BoxShape and its caller-zero I0 are
-landed; the parent Bool result remains
-blocked and no physical edge effect is open.
+landed; the parent Bool result remains blocked because the current Length
+receipt does not yet carry a full same-session lifetime seal, and no physical
+edge effect is open.
 A-prime lifecycle, Direct Text lowering, route, and production remain closed.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0 remains the next design stop after the direct Call/result canary landed."
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0 remains the design stop; first seal the Length receipt lifetime, then open the Bool-result materializer."
 work_mode = "design_stop"
 current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0"
-current_blocker_token = "NoSafeSlice::AfterConditionPhysicalResultBoxShapeUnsealed"
+current_blocker_token = "NoSafeSlice::ConditionLengthReceiptLifetimeUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -49,8 +50,9 @@ the exact CompareI64 producer-relation I0, the two-row operand-inventory
 BoxShape, its transport I0, session-stamp retention I0, Length-result canary
 I0, source-backed StringLen target-plan I0, and the callback-scoped physical
 condition-block target I0 are landed. The direct Length Call/result BoxShape
-and its unpublished caller-zero I0 are landed; published physical
-Length result and parent physical condition result remain blocked.
+and its unpublished caller-zero I0 are landed; the current receipt still
+needs a full same-session lifetime seal before the published physical Length
+result and parent physical condition result can open.
 Published ValueId/result use, Compare lowering, emit_branch, edge/terminator, operations beyond
 this transport, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
@@ -67,7 +69,7 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, and the receiver-operand canonical-read I0 are landed. The direct Length Call/result BoxShape and its caller-zero I0 are landed; the parent Bool result remains blocked. Call/result publication beyond the unpublished canary, CallSlot lowering, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, and the receiver-operand canonical-read I0 are landed. The direct Length Call/result BoxShape and its caller-zero I0 are landed; the parent Bool result remains blocked until the Length receipt carries a full same-session lifetime seal. Call/result publication beyond the unpublished canary, Compare, emit_branch, edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
 next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
@@ -96,5 +98,5 @@ landed_tail = [
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0 landed the caller-zero move-only session seam. The prepared physical-entry stamp is consumed once, attached before the outer Builder transaction, and borrowed only through the common session wrapper; positive retention and missing-stamp canaries are green. The next design stop is the physical condition-result BoxShape; ValueId, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RESULT-I0 landed the Builder-neutral one-shot Length materialization canary. The same canonical session now checks the source StringLen relation, fixed operand inventory, and retained physical-entry stamp exactly once; missing stamp, re-entry, and late-failure no-mutation gates are green. No ValueId, CallSlot, Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller was opened; the parent Bool result is the next design stop.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0 landed one callback-scoped projection from the same canonical session's source-segment receipt to the exact physical condition block. Owner, loop, split ordinal, layout coverage, and retained entry-stamp checks plus late-discard behavior are green. No Length Call/result, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller was opened; the Length receiver-operand projection is the next design stop, followed by a separate direct Call/result emitter.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0 landed one caller-zero generic StringBox.length Call and one canonical I64 result receipt from the same target/receiver/condition/stamp cohort. Final callee/receiver/destination/READ-effect checks, one-shot re-entry rejection, and late-discard no-publication tests are green. The outer unpublished transaction remains the only rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed. The next stop is the parent physical-result D0.",
+  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0 landed one caller-zero generic StringBox.length Call and one canonical I64 result receipt from the same target/receiver/condition/stamp cohort. Final callee/receiver/destination/READ-effect checks, one-shot re-entry rejection, and late-discard no-publication tests are green. The outer unpublished transaction remains the only rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed. The next design stop is the full same-session lifetime seal for this receipt before the parent physical-result materializer.",
 ]
