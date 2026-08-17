@@ -123,6 +123,10 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
+    pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
+        self.input
+    }
+
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.input.owner()
     }
@@ -175,6 +179,10 @@ pub(crate) struct GenericG0SourceParentRefV1<'loan, 'source> {
 }
 
 impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
+    pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
+        self.parent.source_input()
+    }
+
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.parent.owner()
     }

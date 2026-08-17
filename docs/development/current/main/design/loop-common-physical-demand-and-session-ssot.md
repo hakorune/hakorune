@@ -803,7 +803,7 @@ Source authority + canonical issuer:
   inventory, and semantic Completion.  The existing resolver issuer
   `issue_resolved_block_expr_expectation_v1` supplies the typed BlockExpr
   expectation, and `empty_for_owned_loop_profile` supplies the outer-If
-  residual from the resolver singleton Loop site.  A new compiler-side
+  residual for the exact loop site retained by the Generic source parent.  A new compiler-side
   `GenericG0PhysicalEntryAdmissionV1` only co-seals these existing views with
   the detached shell/descriptors and a Generic mechanical cohort stamp.  The
   later session consumer snapshots Completion through
@@ -841,9 +841,46 @@ Non-claims:
   route, fallback/retry, production caller, or main integration.
 ```
 
+Implementation receipt (2026-08-17):
+`generic_g0_physical_entry_admission.rs` now co-seals the detached Generic
+shell with the resolver-owned typed BlockExpr expectation, the outer-If
+residual for the source parent's selected loop (so nested-loop source is not
+collapsed to a function-wide singleton), the borrowed canonical Completion,
+and a mechanical function/lane stamp.  The new
+`with_generic_g0_physical_entry_session` consumer rejects a nonempty Builder,
+opens one unpublished draft transaction, installs the detached shell, and
+delegates receiver/ordinary declaration publication to the existing canonical
+identity issuer.  The outer draft transaction is the sole rollback owner;
+duplicate adoption is rejected.  Two focused tests and the 62-test Generic
+suite are green.  Loop operations/CFG/PHI, Completion claims, lifecycle, Text,
+route, fallback/retry, and production caller remain closed.
+
 The D0 is accepted as a source/cohort BoxShape.  The implementation blocker is
-now `NoSafeSlice::GenericG0PhysicalEntryAdoptionI0Unsealed` until the one
-admission-to-session consumer is landed.
+now closed for this slice; the next bounded work is the post-adoption
+convergence checkpoint below.
+
+### `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` (next design stop)
+
+```text
+Decision:
+  Run one read-only convergence census before opening the next physical
+  effect.  Do not add a new receipt or production edge in this checkpoint.
+Source authority + canonical issuer:
+  Existing active-card owners and the current production call graph; this R0
+  issues no semantic product and only records retirement/ownership facts.
+Non-authority:
+  test-only canaries, `new_selected_dynamic`, S6C-specific envelopes,
+  legacy finalizers, copied counts, and local green are not production owners.
+Fail-fast boundary:
+  Any duplicate authority, unresolved canary retirement owner, stale current
+  pointer, or hidden caller prevents the next I0 from opening.
+Smallest next slice:
+  Census duplicate receipts, canary constructors, retirement conditions, and
+  old edges; then publish one ordered next row with its owner and negatives.
+Non-claims:
+  No Generic/common session expansion, Loop CFG/ops/PHI, Completion claims,
+  lifecycle/Text, route, fallback/retry, production switch, or main integration.
+```
 
 #### Adoption I0 implementation census (2026-08-17)
 
@@ -886,9 +923,9 @@ The bounded implementation checks are ordered:
 
 The session-admission side is a Generic consumer, not a reason to reuse the
 S6C admission aggregate.  The I0 admission obtains the typed BlockExpr
-expectation from `issue_resolved_block_expr_expectation_v1`, obtains the
-outer-If residual from `empty_for_owned_loop_profile` using the resolver
-singleton Loop site, and borrows the parent's Completion for the later
+  expectation from `issue_resolved_block_expr_expectation_v1`, obtains the
+  outer-If residual from `empty_for_owned_loop_profile` using the exact loop
+  site retained by the Generic source parent, and borrows the parent's Completion for the later
 `new_borrowed` physical consumer.  The current
 `LoopV2CanonicalSessionAdmissionRefV1` remains S6C-only; the Generic opener
 must co-seal these three views with the Generic parent/stamp in one
@@ -899,7 +936,7 @@ performs exact shell-parameter checks, and atomically adopts receiver/ordinary
 declarations.  It does not open Loop blocks, operations, PHI, Completion
 claims, lifecycle, Text, route selection, fallback, or production.
 
-### Generic G0 source-projection child tasks (ordered; next row is entry adoption I0)
+### Generic G0 source-projection child tasks (ordered; post-adoption checkpoint next)
 
 The Generic parent now has all four source siblings.  The following rows keep
 the source projection and physical consumers separate; they do not authorize
@@ -4317,7 +4354,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-skeleton | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` | accept the Generic-only detached skeleton reservation: source explicit-arity symbol, receiver-prefix/physical lanes, i64 result, same-cohort PURE effect, exact-empty metadata, and non-Clone rollback owner | accepted BoxShape 2026-08-17; next caller-zero I0 is allocation-only; no entry adoption, Builder/session, Completion, CFG/PHI, lifecycle, Text, route, fallback/retry, or production caller |
 | 25b-c0-G0-skeleton-I0 | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one unpublished detached Generic `MirFunction` from the consumed same-parent entry/effect cohort and retain it in a non-Clone wrapper | landed 2026-08-17; two focused tests plus Generic suite 60/60 green; explicit `/N`, receiver-prefix ordering, PURE/i64 signature, exact-empty metadata, and descriptor preflight are covered; entry adoption remains closed |
 | 25b-c0-G0-entry-adoption | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept one Generic callback-scoped admission that co-seals existing parent/BlockExpr/outer-If/Completion views with the detached shell and a Generic mechanical cohort stamp | accepted BoxShape 2026-08-17; S6C stamp/session reuse remains forbidden; the admission issues no new semantic fact and is consumed only by the next I0 |
-| 25b-c0-G0-entry-adoption-I0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume one Generic admission, open one fresh unpublished transaction, install the detached shell, and atomically adopt receiver/ordinary declarations through the canonical SSA issuer | current fast row; `NoSafeSlice::GenericG0PhysicalEntryAdoptionI0Unsealed`; no Loop CFG/operations/PHI/Completion claims, lifecycle, Text, route, fallback/retry, or production caller |
+| 25b-c0-G0-entry-adoption-I0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume one Generic admission, open one fresh unpublished transaction, install the detached shell, and atomically adopt receiver/ordinary declarations through the canonical SSA issuer | landed 2026-08-17; two focused entry-session tests plus Generic suite 62/62 green; no Loop CFG/operations/PHI/Completion claims, lifecycle, Text, route, fallback/retry, or production caller |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |
@@ -4326,7 +4363,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-completion | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` | retain the canonical resolver Completion in the Generic parent after result-ABI transport, with Generic tail/result/cleanup parity | accepted BoxShape 2026-08-17; canonical verifier remains the sole issuer; no Completion consumption, physical ABI/lane, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-completion-I0 | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0` | issue `verify_function_completion_v1(input)` once and lend the canonical non-Clone product through the parent callback | landed 2026-08-17; focused source-parent tests green; transport only, with no Completion consumer, physical/session effect, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
-| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | parked cleanup checkpoint; no new authority or production switch; physical-effect and skeleton issuer stops remain ahead of convergence |
+| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | next design-stop row after Generic entry adoption I0; no new authority or production switch; physical effects remain closed until the census names one ordered next owner |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |

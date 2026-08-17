@@ -74,6 +74,26 @@ Exact-empty Generic attrs/uses remain required, and S6C skeleton/header rows,
 descriptor length as `/N`, JSON, `new_selected_dynamic`, and passed-in effect
 defaults remain non-authorities.
 
+### Generic G0 physical-entry admission I0
+
+`generic_g0_physical_entry_admission.rs` is the Generic-only co-seal between
+the detached skeleton and the existing resolver products.  It obtains the
+typed BlockExpr expectation from `issue_resolved_block_expr_expectation_v1`,
+uses the selected Generic parent loop site for the resolver outer-If residual,
+and retains the parent's canonical Completion without cloning or reissuing any
+source fact.  Its mechanical cohort stamp checks the detached function name
+and physical lane count; the retained parent/skeleton products remain the
+owner/origin/frame and descriptor authorities.
+
+`resolved_lowering/generic_g0_physical_entry_session.rs` is the only caller-zero
+consumer in this slice.  It rejects a nonempty Builder, opens one unpublished
+draft transaction, installs the detached shell, and delegates receiver/ordinary
+declaration publication to the existing `CanonicalSsaFunctionSessionV2` identity
+issuer.  The outer draft transaction is the sole rollback owner.  The Generic
+session does not reuse the S6C/common-V2 admission, create loop blocks, consume
+Completion claims, lower operations, or publish a module; duplicate adoption
+and partial/foreign input remain fail-fast negatives.
+
 ### Generic G0 physical-effect projection I0
 
 `generic_g0_physical_function_effect.rs` is the sole Generic mapping issuer.
@@ -86,9 +106,9 @@ exactly `ReadBinding`, `ConstI64`, `BinaryI64`, `CompareI64`, and
 
 The projection is borrowed/mechanical and creates no `MirFunction`,
 `ValueId`, Builder/session state, CFG/SSA/PHI, lifecycle, Text, route, or
-publication.  The focused Generic suite is green.  Its detached skeleton
-consumer is now separately accepted; entry adoption remains the next design
-stop after the shell reservation.
+publication.  The focused Generic suite is green.  Its detached skeleton and
+entry-adoption consumers are now landed; the next bounded work is the
+read-only canary/convergence checkpoint before further physical effects.
 
 ## Typed ingress contract
 

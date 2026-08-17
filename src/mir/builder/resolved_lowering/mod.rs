@@ -23,6 +23,7 @@ pub(in crate::mir::builder) use draft_seal_owner::{
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
 mod flow_consumption;
+mod generic_g0_physical_entry_session;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
@@ -45,6 +46,7 @@ pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
+pub(in crate::mir::builder) use generic_g0_physical_entry_session::with_generic_g0_physical_entry_session;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,

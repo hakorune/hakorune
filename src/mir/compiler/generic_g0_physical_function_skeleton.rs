@@ -70,6 +70,17 @@ impl<'loan, 'source> PreparedGenericG0PhysicalFunctionSkeletonV1<'loan, 'source>
     pub(crate) fn parent(&self) -> &GenericG0SourceParentRefV1<'loan, 'source> {
         &self.parent
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        GenericG0SourceParentRefV1<'loan, 'source>,
+        VerifiedGenericG0PhysicalFunctionEffectsV1,
+        Box<[GenericG0PhysicalParameterDescriptorV1]>,
+        MirFunction,
+    ) {
+        (self.parent, self.effects, self.descriptors, self.function)
+    }
 }
 
 /// Reserve one unpublished physical shell from one Generic entry cohort.

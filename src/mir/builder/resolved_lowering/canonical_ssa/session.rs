@@ -22,6 +22,8 @@ use super::super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
 
+#[path = "session/generic_g0_entry_adoption.rs"]
+mod generic_g0_entry_adoption;
 #[path = "session/physical_entry_lane_adoption.rs"]
 mod physical_entry_lane_adoption;
 
@@ -72,6 +74,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
     physical_entry_stamp: Option<PhysicalFunctionEntryCohortStampV1>,
+    generic_entry_adopted: bool,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -190,6 +193,38 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         )
     }
 
+    /// Generic-only session opener.  It consumes the resolver-issued outer-If
+    /// and borrows Completion while projecting the typed BlockExpr count; no
+    /// S6C envelope or common-V2 admission is involved.
+    pub(in crate::mir::builder::resolved_lowering) fn new_generic(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+        if_control: VerifiedResolvedFunctionIfControlV1,
+        expectation: &crate::mir::resolved_semantics::VerifiedResolvedBlockExpressionExpectationV1,
+        completion: &VerifiedFunctionCompletionV1,
+    ) -> Result<Self, String> {
+        if expectation.owner() != input.owner()
+            || expectation.function_origin() != input.function().function_origin()
+            || expectation.body_root() != input.function().root_profile().body_root()
+            || if_control.owner() != input.owner()
+            || completion.owner() != input.owner()
+            || completion.target_function() != input.function().function_region()
+        {
+            return Err("[freeze:contract][generic_session/source_cohort_mismatch]".to_owned());
+        }
+        let block_expr_count = usize::try_from(expectation.pair_count())
+            .map_err(|_| "[freeze:contract][generic_session/block_expr_overflow]".to_owned())?;
+        let implicit_completion = completion.is_implicit_void();
+        let completion =
+            ResolvedFunctionCompletionConsumptionV1::new_borrowed(input.owner(), completion)?;
+        Self::from_consumption(
+            input,
+            if_control,
+            completion,
+            block_expr_count,
+            implicit_completion,
+        )
+    }
+
     /// Common V2 session opener.  It consumes the one-shot admission parts,
     /// projects the typed BlockExpr expectation here, and snapshots the
     /// installed parent's Completion exactly once into the session-local
@@ -261,6 +296,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             implicit_completion,
             physical_entry_sidecar: None,
             physical_entry_stamp: None,
+            generic_entry_adopted: false,
         })
     }
 
@@ -312,6 +348,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             implicit_completion,
             physical_entry_sidecar: None,
             physical_entry_stamp: None,
+            generic_entry_adopted: false,
         })
     }
 
@@ -601,6 +638,15 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             PhysicalCallableParameterDescriptorV1],
     ) -> Result<(), String> {
         physical_entry_lane_adoption::adopt(self, builder, descriptors)
+    }
+
+    pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(
+        &mut self,
+        builder: &mut MirBuilder,
+        descriptors: &[crate::mir::compiler::generic_g0_physical_function_entry_input::
+            GenericG0PhysicalParameterDescriptorV1],
+    ) -> Result<(), String> {
+        generic_g0_entry_adoption::adopt(self, builder, descriptors)
     }
 
     #[cfg(test)]
