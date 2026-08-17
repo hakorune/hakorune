@@ -1331,11 +1331,44 @@ Non-claims:
 | `DynamicProfileOwned` / `new_selected_dynamic` | Current selected-Dynamic physical emitter still calls it; it is a live production owner, not a removable canary. | Common canonical session admission/session cutover for selected Dynamic. | First land the replacement, switch the production caller, verify zero `new_selected_dynamic` callers, then remove the enum arm and constructor. | `rg -n "DynamicProfileOwned|new_selected_dynamic" src/mir` |
 | `finalize_function_draft*` selected-normal legacy edges | Multiple production callers remain in normal cataloged methods, recursive child lowering, port-aware wrappers, indexing, and calls. | `PreparedFunctionExitSetV1` -> canonical Completion/DraftSeal -> atomic unpublished publication. | Switch every listed production caller, prove old-symbol caller count is zero, then delete the legacy facade; do not retrofit it for Text/lifecycle. | `rg -n "finalize_function_draft(_with_headers)?\\(" src/mir/builder` |
 
-**Manifest result.**  The Generic entry adoption I0 is complete, but the
-canary/legacy graph is not yet converged.  `MIRBUILDER-CANARY-CONVERGENCE-
-MANIFEST-R0` therefore remains the only next design-stop slice; no physical
+**Manifest result.**  The Generic entry adoption I0 is complete.  The
+canary/legacy graph now has an owner and a zero-caller deletion gate for every
+listed seam; those gates remain cutover blockers and are not silently deleted.
+The next design stop is the operation-contract census below.  No physical
 operation, CFG, lifecycle, Text, or production cutover is authorized by this
-record.
+manifest.
+
+### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` (next design stop)
+
+```text
+Decision:
+  Census one Generic-only physical operation contract for the admitted finite
+  set {ReadBinding, ConstI64, BinaryI64, CompareI64, WriteBinding}.  Do not
+  reuse the S6C `PreparedLoopOperationRowV2` or open a Builder effect here.
+Source authority + canonical issuer:
+  The existing `VerifiedGenericG0SourceParentV1` cohort is the only source
+  input: its resolver-bound operation/evidence product, entry BindingRefs,
+  function-effect receipt, result/header/storage rows, target, and frame must
+  be consumed together by a future Generic operation-contract issuer.  This
+  D0 only names and audits that seam; it issues no new receipt.
+Non-authority:
+  S6C provenance rows, `issue_generic_g0_loop_ingress_v1`, Recipe variant names
+  alone, MIR/JSON/AST rescans, `MirFunction`/ValueId numbering, `/N`, raw
+  counts, `EffectMask::PURE`, and `new_selected_dynamic` are not issuers.
+Fail-fast boundary:
+  Keep the stop if operation evidence is incomplete/duplicated, owner/origin/
+  root/frame/target drifts, a binding row cannot map to the retained entry
+  BindingRef, or any heap/call/alloc/load/store/control-effect operation is
+  admitted. Unknown future variants reject before Builder/session effect.
+Smallest next slice:
+  Read-only issuer census: decide whether a family-neutral operation view can
+  consume Generic rows without carrying S6C provenance, then publish one
+  BoxShape and its focused negatives. No I0 is authorized until that result is
+  named.
+Non-claims:
+  No operation emission, block/edge/CFG/SSA/PHI mutation, Completion/DraftSeal,
+  lifecycle, Text, route, fallback/retry, production caller, or main switch.
+```
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -4408,6 +4441,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | design-stop envelope; its concrete deliverable is the manifest below, with no new authority or production switch |
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | current design-stop slice; no implementation or next execution row until every listed production/test caller has an owner and retirement gate |
+| 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
