@@ -42,6 +42,9 @@ use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, SourceStmtSiteV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+use super::generic_g0_physical_operation_cohort::{
+    GenericG0PhysicalOperationCohortRejectV1, GenericG0PhysicalOperationCohortV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0SourceParentRejectV1 {
@@ -170,6 +173,34 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
         &self.completion
     }
+
+    pub(super) fn into_physical_operation_cohort(
+        self,
+    ) -> Result<GenericG0PhysicalOperationCohortV1<'source>, GenericG0PhysicalOperationCohortRejectV1>
+    {
+        let Self {
+            input,
+            product,
+            entries,
+            body_shape,
+            declaration_header,
+            function_effect,
+            result_abi,
+            storage_lane,
+            completion,
+        } = self;
+        GenericG0PhysicalOperationCohortV1::from_parent_parts(
+            input,
+            product,
+            entries,
+            body_shape,
+            declaration_header,
+            function_effect,
+            result_abi,
+            storage_lane,
+            completion,
+        )
+    }
 }
 
 /// Callback-scoped combined view.  No raw `(input, selection)` tuple or
@@ -228,11 +259,10 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
     }
 }
 
-pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
+pub(super) fn issue_generic_g0_source_parent_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     selection: CanonicalLoopFamilySelectionV1,
-    callback: impl for<'loan> FnOnce(GenericG0SourceParentRefV1<'loan, 'source>) -> R,
-) -> Result<R, GenericG0SourceParentRejectV1> {
+)-> Result<VerifiedGenericG0SourceParentV1<'source>, GenericG0SourceParentRejectV1> {
     validate_selection_input(&input, &selection)?;
     let body_shape = input
         .body_shape()
@@ -289,6 +319,15 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         storage_lane,
         completion,
     };
+    Ok(parent)
+}
+
+pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    selection: CanonicalLoopFamilySelectionV1,
+    callback: impl for<'loan> FnOnce(GenericG0SourceParentRefV1<'loan, 'source>) -> R,
+) -> Result<R, GenericG0SourceParentRejectV1> {
+    let parent = issue_generic_g0_source_parent_v1(input, selection)?;
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
 }
 

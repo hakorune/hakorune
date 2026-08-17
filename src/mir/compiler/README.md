@@ -125,16 +125,16 @@ or owner drift, unsupported variants, and incomplete coverage fail before any
 physical effect.  No S6C operation row or `new_selected_dynamic` path is
 reused.
 
-The next design stop is the Generic operation cohort/port.  The common
-dispatcher above remains the only accepted leaf-emitter candidate, but it must
-not be wired directly to the old V1 entry/block receipts.  The Generic source
-parent currently lends the mechanical mapping while
-`PreparedLoopOperationProgramV1` owns its demand; a source-owned, one-shot
-cohort must resolve that lifetime split before any operation MIR or Builder
-effect.  The production seam must either make the mapping transient before
-program consumption or own both in one callback-scoped cohort.  The
-`cfg(test)` demand-part split, S6C provenance, and a second Generic emitter are
-not authorities.
+The Generic operation cohort I0 is landed: one source-parent consume
+transition owns the family-neutral `PreparedLoopOperationProgramV1` and the
+independent Generic source siblings, while a consuming `with_mapping`
+callback lends a transient mechanical mapping from the program's owned
+effect/evidence.  The focused cohort test is green.  The borrow-only
+parent/entry/skeleton wrappers cannot cross that transition and must be
+replaced by cohort views.  The common dispatcher remains the only accepted
+leaf-emitter candidate; the next design stop names its common
+session/layout/rollback boundary.  The `cfg(test)` demand-part split, S6C
+provenance, and a second Generic emitter remain non-authoritative.
 
 ## Typed ingress contract
 

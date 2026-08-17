@@ -1405,19 +1405,20 @@ unknown variants, and late discard before any Builder effect.
 Decision:
   Keep the five-variant Generic operation mapping as a mechanical input and
   adopt the existing family-neutral Loop operation dispatcher as the sole
-  physical leaf-emitter candidate.  Do not connect the old V1 dispatcher to
-  Generic directly: first name the production issuer for one complete
-  `PreparedLoopOperationProgramV1`.  This D0 does not emit MIR or open Builder
-  state; it closes only the owner and lowering-boundary census.
+  physical leaf-emitter candidate.  The source-owned cohort now supplies one
+  complete `PreparedLoopOperationProgramV1`; this D0 must name the remaining
+  common/session/layout/rollback boundary rather than create another Generic
+  program issuer.  This D0 does not emit MIR or open Builder state; it closes
+  only the owner and lowering-boundary census.
 Source authority + canonical issuer:
   The same Generic source parent and its verified operation/evidence product
   remain semantic authority, and the landed mapping is the only mechanical row
-  input.  `PreparedLoopOperationProgramV1` is family-neutral; a future
-  Generic-only parent consumer must co-seal Generic context, operation effect,
-  After/continuation, and complete coverage exactly once, then lend that
-  program to the existing common dispatcher and canonical session services in
-  one callback-scoped transaction.  No Generic duplicate leaf emitter is
-  introduced.
+  input.  The accepted cohort owns the family-neutral
+  `PreparedLoopOperationProgramV1` and lends a transient mapping only inside
+  its callback.  The remaining canonical issuer must consume that cohort view
+  once, co-seal the common session/layout/target/rollback facts, and lend the
+  program to the existing dispatcher without introducing a Generic duplicate
+  leaf emitter.
 Non-authority:
   S6C provenance rows, the old V1 `ReadyLoopEntryV1`/block receipt as Generic
   semantic input, operation names alone, item ordinals, `/N`,
@@ -1426,17 +1427,17 @@ Non-authority:
   meaning or placement authorities.
 Fail-fast boundary:
   Keep the stop for missing mapping rows, foreign owner/origin/frame/target,
-  binding or value-class drift, target-block/session-stamp drift, incomplete
-  Generic context/effect/continuation program, unsupported variants, or an
-  emitter that infers placement/effects after Builder mutation.  Program and
-  mapping checks must finish before any MIR instruction, ValueId publication,
+  binding or value-class drift, target-block/session-stamp/layout drift,
+  incomplete cohort program, unsupported variants, or an emitter that infers
+  placement/effects after Builder mutation.  Program, mapping, and common
+  session checks must finish before any MIR instruction, ValueId publication,
   CFG/SSA/PHI mutation, or retry/fallback.
 Smallest next slice:
-  Design-only census for a production Generic-to-
-  `PreparedLoopOperationProgramV1` issuer: exact context/effect/After/
-  continuation inputs, one-shot parent ownership, coverage, and the common
-  dispatcher/session callback.  If this source-backed seam is absent, retain
-  this NoSafeSlice and do not add a speculative adapter.
+  Design-only census for a production cohort-to-common dispatcher seam:
+  exact session/layout/target block inputs, one-shot consumption, rollback and
+  publication boundary, and the existing common leaf callback.  If any
+  source-backed input is absent, retain this NoSafeSlice and do not add a
+  speculative adapter.
 Non-claims:
   No operation MIR emission, block/edge/CFG/SSA/PHI mutation, Completion or
   DraftSeal claim, lifecycle, Text, route, backend, fallback/retry, production
@@ -1449,49 +1450,60 @@ boundary until the Generic production program issuer is named.  The next
 design stop is the ownership seam below: the current mapping borrows the
 parent/evidence while `PreparedLoopOperationProgramV1` owns its demand.
 
-### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (current design stop)
+### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
 ```text
 Decision:
-  Keep operation emission closed and first define one source-owned Generic
-  operation cohort/port.  The cohort must resolve the lifetime conflict
-  between the borrowed mechanical mapping and the owned, family-neutral
-  `PreparedLoopOperationProgramV1`; it must not retain a self-reference or
-  make the old cfg(test) consuming split a production authority.
+  Adopt one source-owned, one-shot `GenericG0PhysicalOperationCohortV1`.
+  It owns the family-neutral `PreparedLoopOperationProgramV1` and the
+  independent Generic source siblings needed by later consumers.  The
+  mechanical mapping is a transient callback view over the cohort's owned
+  operation/evidence product; it is never stored beside a parent borrow and
+  never survives program consumption.  Operation emission stays closed until
+  the cohort I0 is implemented.
 Source authority + canonical issuer:
   `VerifiedGenericG0SourceParentV1` and its verified recipe/core/effect
-  product remain the only source authority.  A single Generic parent/cohort
-  issuer, inside the same source-parent HRTB, must co-seal context, operation
-  effect, After/continuation, coverage, and the operation rows exactly once.
-  It may issue an owned family-neutral program and lend a transient mapping,
-  or issue one callback-scoped cohort that owns both; the choice must be
-  explicit and source-backed.
+  product remain the only source authority.  A single
+  `with_generic_g0_physical_operation_cohort_v1(input, selection, callback)`
+  issuer performs the source-parent construction and the one-shot ownership
+  transition.  It co-seals context, operation effect, After/continuation,
+  schedule/coverage, and the independent entry/source siblings, then issues
+  an owned program through `VerifiedLoopOperationPhysicalDemandV1::issue`
+  followed by `prepare_all`.  A scoped `with_mapping` port may borrow the
+  program's owned effect/evidence for mechanical preflight; it cannot return
+  the mapping or a parent reference outside the callback.
 Non-authority:
-  A raw parent borrow, `into_operation_demand_parts` under `cfg(test)`, a
-  second mapping reconstructed from MIR/AST/ValueId scans, S6C provenance,
-  item ordinals, `/N`, or a copied context/effect/continuation tuple is not
-  an operation cohort or ownership proof.  The common dispatcher remains a
-  mechanical consumer, not a Generic source issuer.
+  The current borrow-only parent/entry/skeleton wrappers, the
+  `cfg(test)` `into_operation_demand_parts` split, a second mapping
+  reconstructed from MIR/AST/ValueId scans, S6C provenance, item ordinals,
+  `/N`, or a copied context/effect/continuation tuple are not an operation
+  cohort or ownership proof.  The common dispatcher remains a mechanical
+  consumer, not a Generic source issuer.
 Fail-fast boundary:
   Reject before Builder/MIR effect on owner/origin/frame/target drift,
   incomplete context/effect/continuation or 15-row coverage, mapping/program
-  mismatch, mapping borrow surviving program consumption, self-reference,
-  double consumption, loan escape, partial program construction, or any
-  request to publish a detached program without its cohort owner.
+  mismatch, parent borrow retained across the ownership transition,
+  mapping borrow surviving program consumption, self-reference, double
+  consumption, loan escape, partial program construction, or any request to
+  publish a detached program without its cohort owner.  Existing entry-input
+  and skeleton wrappers must be refactored to borrow the cohort, not the
+  consumed source parent.
 Smallest next slice:
-  Design-only census of `PreparedLoopOperationProgramV1` ownership and the
-  Generic parent consume callback.  Decide whether the mapping is transient
-  preflight or part of an owned cohort, and name the one-shot port/rollback
-  owner.  No MIR, Builder, ValueId, operation leaf, CFG/SSA/PHI, or retry.
+  Caller-zero `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0`: add the one
+  source-parent consume transition, detached non-Clone cohort owner, and
+  callback-scoped transient mapping port.  This I0 may prepare the complete
+  family-neutral program and run mapping preflight only; it must not emit MIR,
+  open Builder/session state, issue ValueIds, or call a physical leaf.
 Non-claims:
   No operation emission, block/edge/Completion/DraftSeal mutation, lifecycle,
   Text, route, backend, fallback/retry, production caller, or main integration.
 ```
 
-The mapping I0 is complete and the common dispatcher is the only accepted
-leaf-emitter candidate.  The cohort D0 is now the live ownership stop; no
-physical operation effect is authorized until this source-owned program/port
-seam is closed.
+The mapping I0 and cohort I0 are complete, and the common dispatcher is the
+only accepted leaf-emitter candidate.  The cohort BoxShape is accepted and
+now owns the neutral program with a scoped mapping port.  No physical
+operation leaf is authorized until the next emission D0 names the common
+session/layout/rollback owner.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -4567,7 +4579,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | accepted leaf BoxShape; the common dispatcher is the only candidate, while the source-owned program/cohort seam is the next D0; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | current design stop; ownership/program census only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | accepted BoxShape 2026-08-17 after ownership census; next caller-zero cohort I0 only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |

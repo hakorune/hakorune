@@ -12,7 +12,8 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 use super::generic_g0_source_parent::GenericG0SourceParentRefV1;
 use crate::mir::loop_recipe_contract::{
-    LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, VerifiedLoopOperationSourceEvidenceV1,
+    LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, PreparedLoopOperationProgramV1,
+    VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationSourceEvidenceV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -87,8 +88,26 @@ pub(crate) fn issue_generic_g0_physical_operation_mapping_v1<'view, 'loan, 'sour
     parent: &'view GenericG0SourceParentRefV1<'loan, 'source>,
 ) -> Result<GenericG0PhysicalOperationMappingV1<'view>, GenericG0PhysicalOperationMappingRejectV1>
 {
-    let effect = parent.product().operation_effect();
-    if effect.core().owner() != parent.owner() {
+    issue_mapping_from_effect(parent.product().operation_effect(), parent.owner())
+}
+
+/// Build the same mechanical view from an owned neutral program.  The view
+/// is intentionally callback-scoped by the cohort; it cannot outlive the
+/// program's owned evidence.
+pub(crate) fn issue_generic_g0_physical_operation_mapping_from_program_v1<'program>(
+    program: &'program PreparedLoopOperationProgramV1,
+) -> Result<GenericG0PhysicalOperationMappingV1<'program>, GenericG0PhysicalOperationMappingRejectV1>
+{
+    let owner = program.demand().operation_effect().core().owner();
+    issue_mapping_from_effect(program.demand().operation_effect(), owner)
+}
+
+fn issue_mapping_from_effect<'effect>(
+    effect: &'effect VerifiedLoopOperationEffectProductV1,
+    owner: FunctionOwnerIdV1,
+) -> Result<GenericG0PhysicalOperationMappingV1<'effect>, GenericG0PhysicalOperationMappingRejectV1>
+{
+    if effect.core().owner() != owner {
         return Err(GenericG0PhysicalOperationMappingRejectV1::OwnerMismatch);
     }
 
@@ -122,10 +141,10 @@ pub(crate) fn issue_generic_g0_physical_operation_mapping_v1<'view, 'loan, 'sour
         if evidence.block() != block || evidence.owner_loop() != owner_loop {
             return Err(GenericG0PhysicalOperationMappingRejectV1::PlacementMismatch { item });
         }
-        if evidence.anchor().owner() != parent.owner()
+        if evidence.anchor().owner() != owner
             || evidence
                 .source_binding()
-                .is_some_and(|binding| binding.owner() != parent.owner())
+                .is_some_and(|binding| binding.owner() != owner)
         {
             return Err(GenericG0PhysicalOperationMappingRejectV1::SourceOwnerMismatch { item });
         }
@@ -148,7 +167,7 @@ pub(crate) fn issue_generic_g0_physical_operation_mapping_v1<'view, 'loan, 'sour
         });
     }
     Ok(GenericG0PhysicalOperationMappingV1 {
-        owner: parent.owner(),
+        owner,
         rows: rows.into_boxed_slice(),
     })
 }

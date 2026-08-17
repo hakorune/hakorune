@@ -23,6 +23,10 @@ use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
 use super::super::super::loop_recipe_contract::{
     VerifiedLoopContinuationContractV1, VerifiedLoopSemanticContextV1,
 };
+use super::super::operation_physical_demand::{
+    LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
+    VerifiedLoopOperationPhysicalDemandV1,
+};
 use super::after::{
     issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0,
     VerifiedGenericG0TailCapabilityV1,
@@ -78,6 +82,26 @@ impl VerifiedGenericRecipeProductG0 {
 
     pub(crate) const fn target(&self) -> NumericTarget {
         self.target
+    }
+
+    /// Consume the complete Generic operation product into the neutral
+    /// Builder-free program.  This is the production ownership transition;
+    /// the old demand-part split remains test-only below.
+    pub(crate) fn into_prepared_operation_program(
+        self,
+    ) -> Result<PreparedLoopOperationProgramV1, LoopOperationPhysicalDemandRejectV1> {
+        let Self {
+            operation_effect,
+            after,
+            context,
+            target: _,
+        } = self;
+        let continuation = VerifiedLoopContinuationContractV1::from_after(
+            operation_effect.core().owner(),
+            after.into_after_binding(),
+        );
+        VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)?
+            .prepare_all()
     }
 
     pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
