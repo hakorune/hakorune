@@ -34,10 +34,10 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0 is the next NoSafeSlice: the common pre-session envelope does not yet retain the landed source-to-Recipe/Join relation, so its sole consumer and rollback owner must be named before aggregation or physical demand."
-work_mode = "design_stop"
-current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0"
-current_blocker_token = "NoSafeSlice::IfContinuationReturnSourceCommonAggregateD0. The S6C source-to-Recipe/Join relation is landed and transport-only; common pre-session ownership, rollback, and retention are not yet canonical. No aggregation, physical emission, edge, Return, BlockEnd, CFG/SSA/PHI, production, fallback, or retry."
+current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0 is accepted as a transport-only BoxShape: common pre-session is the sole borrower/aggregator and the outer unpublished session owns rollback. Its I0 may retain the already-issued non-Clone relation; no new semantic issuer or physical effect."
+work_mode = "fast"
+current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0"
+current_blocker_token = "Fast::IfContinuationReturnSourceCommonAggregateI0. Split embedded common tests to preserve the source-size boundary, then retain the existing Return source-to-Recipe/Join relation in the common envelope with owner/foreign-drift guards. No new semantic receipt, aggregation inference, physical emission, edge, Return, PHI, session mutation, production, fallback, or retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -67,7 +67,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed; the Generic-only physical-entry input BoxShape and its caller-zero
   source-to-mechanical I0 are landed. No detached binding read may open later
   physical effects; Generic physical-effect D0 and projection-only I0 are
-  landed. The If continuation placement and source-to-Recipe Return binding I0 are landed; common aggregation is the next design stop. Generic skeleton facts were validated by a caller-zero canary and the detached shell/canary chain is now retired;
+  landed. The If continuation placement and source-to-Recipe Return binding I0 are landed; common aggregation D0 is accepted and its transport I0 is next. Generic skeleton facts were validated by a caller-zero canary and the detached shell/canary chain is now retired;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
   and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. Session-preflight D0 names one whole-admission unpublished consumer and sole rollback owner; sealed-consume I0, caller-zero shell/adoption/entry/segment preflight, and operation emission canary are landed. The detached Generic entry chain is retired after zero-caller verification. Production selection, Completion/DraftSeal, fallback/retry, and publication remain closed; a design-only structural convergence audit records the remaining parked inventory.
@@ -90,11 +90,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, target-placement I0, and source-to-Recipe Return binding I0 are landed; common aggregation remains NoSafeSlice until its sole consumer and rollback owner are named, with no physical emission or production."
-next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0"
+latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, target-placement I0, source-to-Recipe Return binding I0, and common aggregation D0 are accepted/landed; caller-zero relation transport I0 is next, with no new semantic issuer, physical emission, or production."
+next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none-until-Decision"
-next_execution_card_path = ""
+next_execution_card = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0"
+next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
   "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer; continuation relation and placement-consumer D0 are accepted, with target-placement I0 next and no edge/instruction/production claim.",
   "2026-08-18: LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0 landed one callback-scoped, one-shot physical target reservation from the sealed Exit+Fallthrough(NextItem) relation. Same-block strict ordering, segment/split/stamp parity, duplicate rejection, and late unpublished-session discard are focused-green; no edge, terminator, operation, Return, BlockEnd, PHI, production, fallback, or retry opened. Next stop is branch-emission authority design.",
-  "2026-08-18: IF branch-emission/split-terminal D0 remain NoSafeSlice; placement lacks source-backed item-to-split/FunctionExit issuers and a canonical source co-seal; no physical effect.", "2026-08-18: Return source-to-Recipe/Join binding I0 landed in fd06c8fe75; focused S6C 9/9, pointer/authority guards, format, and diff checks are green. Next design stop: common aggregation D0; no aggregation, physical effect, session, production, fallback, or retry.",
+  "2026-08-18: IF branch-emission/split-terminal D0 remain NoSafeSlice; placement lacks source-backed item-to-split/FunctionExit issuers and a canonical source co-seal; no physical effect.", "2026-08-18: Return source-to-Recipe/Join binding I0 landed in fd06c8fe75; focused S6C 9/9, pointer/authority guards, format, and diff checks are green. Common aggregation D0 is accepted; its transport I0 is next with no new semantic issuer or physical effect.",
 ]

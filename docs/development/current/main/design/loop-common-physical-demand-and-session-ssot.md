@@ -6177,7 +6177,8 @@ skip the After closure or reopen a Tail-only route.
 | 24b-e | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-ISSUER-BOUNDARY-D0` | design and accept one same-cohort canonical issuer boundary before any Return relation receipt | accepted NoSafeSlice 2026-08-18; common aggregation sees the loan but lacks source-to-key provenance; no code, receipt, or physical effect |
 | 24b-f | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-D0` | define source-layer Return-to-Recipe/Join key binding and the sole issuer handoff | accepted BoxShape 2026-08-18; source co-seal retains region/binding evidence, Recipe producer owns the key relation; I0 below |
 | 24b-f-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` | issue and transport one non-Clone source-to-Recipe/Join relation with negative drift guards | landed 2026-08-18; focused S6C suite 9/9 green plus existing call/row/domain negatives; no physical block/edge/Return/PHI, session, production, fallback, or retry |
-| 24b-g | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0` | name the sole common pre-session consumer and rollback boundary for the borrowed source-to-Recipe/Join relation | design stop: common envelope does not yet retain this relation; no aggregation, physical emission, session, production, fallback, or retry |
+| 24b-g | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0` | name the sole common pre-session consumer and rollback boundary for the borrowed source-to-Recipe/Join relation | accepted BoxShape 2026-08-18; common pre-session is the sole borrower/aggregator and the outer unpublished session owns rollback; no new semantic issuer or physical effect |
+| 24b-g-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0` | retain the existing non-Clone relation in the common envelope after a test-only module split keeps the issuer below the source-size boundary | next execution; relation transport only, no aggregation meaning beyond co-seal, physical emission, session mutation, production, fallback, or retry |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
@@ -7103,3 +7104,37 @@ production, fallback, retry, or publication effect is opened. The next design
 stop is `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0`:
 the common pre-session envelope must first be named as the sole consumer and
 rollback owner before this relation can affect physical demand.
+
+### Return source common aggregation D0 (2026-08-18; Decision: accepted)
+
+```text
+Decision:
+  accept one transport-only BoxShape: the existing common pre-session issuer
+  borrows and retains the already-issued Return source-to-Recipe/Join relation
+  in its envelope; it does not reissue or reinterpret semantic meaning.
+Source authority + canonical issuer:
+  `VerifiedS6CReturnSourceRecipeBindingV1`, issued by the S6C Recipe producer,
+  remains the sole source-to-key authority. `issue_s6c_common_v2_pre_session_v1`
+  is the sole common borrower/aggregator for the same ingress cohort.
+Non-authority:
+  prephysical count/cleanup, fixed ordinals, layout, item-set equality, and
+  physical/session code cannot create or re-pair this relation.
+Fail-fast boundary:
+  missing/foreign relation or owner mismatch rejects before returning the
+  common envelope; the outer unpublished canonical session remains the only
+  rollback owner for later effects.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0`: split
+  embedded common tests to preserve the 760/800 source boundary, then retain
+  the borrowed relation field/accessor and add focused transport negatives.
+Non-claims:
+  no new semantic receipt, Recipe key, branch/edge/Return/PHI, session
+  mutation, production switch, fallback, retry, or publication.
+```
+
+The common envelope is a mechanical aggregate of existing sibling receipts,
+not a new authority. The test-module split is a behavior-preserving source
+shape cleanup required before adding the narrow field; it does not change the
+common operation/control contract. The relation must remain callback-scoped
+and non-Clone, and it must never be reconstructed from Recipe ordinals or
+layout placement.
