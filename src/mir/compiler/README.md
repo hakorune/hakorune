@@ -14,10 +14,13 @@ body-shape-free, so they cannot fabricate a Generic effect product.
 
 `with_generic_g0_source_parent_v1` requires the borrowed sibling and checks
 owner/body-root equality before issuing its existing demand/product cohort.
-This is transport only: it adds no `EffectMask`, physical function effect,
-Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text, route,
-fallback, retry, or production caller.  The next design stop is the separate
-resolver-owned Generic function-effect projection census.
+The accepted follow-up effect row now borrows the selected Generic structural
+facts before moving the selection into demand/product, co-seals them with the
+same body-shape/function/header cohort, and retains one private
+`VerifiedGenericG0NoExternalEffectV1`.  That receipt records the exact bounded
+two-local-write/one-tail-return shape without becoming an `EffectMask`; it
+adds no Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text,
+route, fallback, retry, or production caller.
 
 ## Typed ingress contract
 

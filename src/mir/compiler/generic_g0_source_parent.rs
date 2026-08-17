@@ -13,6 +13,10 @@ use crate::mir::loop_recipe_contract::{
     LoopValueClassV1, LoopValueKeyV1, VerifiedGenericRecipeProductG0,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
+use super::generic_g0_function_effect::{
+    issue_generic_g0_no_external_effect_v1, GenericG0FunctionEffectRejectV1,
+    VerifiedGenericG0NoExternalEffectV1,
+};
 use super::generic_g0_top_level_declaration_header::{
     issue_generic_g0_top_level_declaration_header_v1,
     GenericG0TopLevelDeclarationHeaderRejectV1,
@@ -55,6 +59,7 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     BodyShapeOwnerMismatch,
     BodyShapeRootMismatch,
     DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
+    FunctionEffect(GenericG0FunctionEffectRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
 }
@@ -95,6 +100,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     entries: Box<[VerifiedGenericG0EntryBindingV1]>,
     body_shape: &'source VerifiedResolvedBodyShapeInventoryV1,
     declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
+    function_effect: VerifiedGenericG0NoExternalEffectV1,
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
@@ -122,6 +128,10 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
         &self,
     ) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
         &self.declaration_header
+    }
+
+    pub(crate) fn function_effect(&self) -> &VerifiedGenericG0NoExternalEffectV1 {
+        &self.function_effect
     }
 }
 
@@ -157,6 +167,10 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
     ) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
         self.parent.declaration_header()
     }
+
+    pub(crate) fn function_effect(&self) -> &VerifiedGenericG0NoExternalEffectV1 {
+        self.parent.function_effect()
+    }
 }
 
 pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
@@ -169,20 +183,37 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         .body_shape()
         .ok_or(GenericG0SourceParentRejectV1::BodyShapeMissing)?;
     validate_body_shape_input(&input, body_shape)?;
+    let declaration_header = issue_generic_g0_top_level_declaration_header_v1(&input)
+        .map_err(GenericG0SourceParentRejectV1::DeclarationHeader)?;
+    let structural = match selection.candidate() {
+        CanonicalLoopFamilyCandidateV1::GenericG0(candidate) => candidate
+            .observation()
+            .handoff()
+            .bundle()
+            .source()
+            .structural(),
+        _ => return Err(GenericG0SourceParentRejectV1::SelectionFamilyMismatch),
+    };
+    let function_effect = issue_generic_g0_no_external_effect_v1(
+        &input,
+        body_shape,
+        &declaration_header,
+        structural,
+    )
+    .map_err(GenericG0SourceParentRejectV1::FunctionEffect)?;
     let demand = issue_generic_g0_recipe_demand_v1(selection)
         .map_err(GenericG0SourceParentRejectV1::Demand)?;
     let product = produce_generic_g0_recipe_v1(demand)
         .map_err(GenericG0SourceParentRejectV1::Product)?;
     validate_product_input(&input, &product)?;
     let entries = issue_entry_rows(&input, &product)?;
-    let declaration_header = issue_generic_g0_top_level_declaration_header_v1(&input)
-        .map_err(GenericG0SourceParentRejectV1::DeclarationHeader)?;
     let parent = VerifiedGenericG0SourceParentV1 {
         input,
         product,
         entries,
         body_shape,
         declaration_header,
+        function_effect,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
 }

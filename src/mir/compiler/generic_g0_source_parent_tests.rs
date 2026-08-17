@@ -32,6 +32,9 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
             input.function().root_profile().body_root()
         );
         assert!(!cohort.body_shape().effects().is_empty());
+        assert_eq!(cohort.function_effect().owner(), owner);
+        assert_eq!(cohort.function_effect().local_write_count(), 2);
+        assert_eq!(cohort.function_effect().tail_return_count(), 1);
         cohort.product().core().owner()
     })
     .expect("source cohort");
