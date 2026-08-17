@@ -1731,6 +1731,66 @@ Non-claims:
   publication, or production switch.
 ```
 
+#### Session-preflight D0 decision — accepted BoxShape (2026-08-17)
+
+The issuer census closes as a single consumer boundary.  This accepts the
+session-preflight shape, but it does not yet open operation emission or a
+production caller.
+
+```text
+Decision:
+  Accept one family-neutral `with_generic_g0_physical_emitter_session_preflight`
+  consumer.  It takes exactly one whole
+  `PreparedGenericG0PhysicalEmitterAdmissionV1` and owns the unpublished
+  transaction from shell materialization through entry/segment preflight.
+  The admission is consumed once; no sibling layout/shell/control/Completion
+  arguments and no `into_parts` tuple are accepted.
+Source authority + canonical issuer:
+  The admission's one-shot consume view retains the source input, entry rows,
+  program/layout, declaration-only shell plan, control facts, typed BlockExpr
+  expectation, outer-If residual, canonical Completion, target, and full stamp.
+  `CanonicalFunctionLoweringSessionV1` is the sole mutable transaction and
+  rollback owner: it opens the unpublished draft, materializes `MirFunction`
+  from the shell plan, installs it, and opens the existing Generic canonical
+  session.  The semantic Completion is borrowed once to issue the session-local
+  physical consumer; no Completion claim or DraftSeal placement is opened here.
+  The session then adopts the source-ordered receiver/ordinary lanes and issues
+  the entry projection from retained `LoopValueKeyV1`/`BindingRefV1` rows plus
+  the program's verified input/carrier `entry_value` relations.  Each row is
+  read through canonical identity at the live preheader; no numeric ValueId or
+  `[0, 1]` reconstruction is allowed.  The existing segment-aware allocator
+  is reused only after that entry projection, through a thin mechanical bridge
+  that accepts the canonical entry receipt and returns the layout-keyed segment
+  receipt.  It never consumes the old logical block receipt or S6C envelope.
+Non-authority:
+  `GenericG0DetachedEntryCanaryV1`, detached `MirFunction` shells,
+  `new_generic` as a whole-admission issuer, `ReadyLoopEntryV1::new_for_test`,
+  old `LoopPhysicalBlockReceiptV1`, S6C/V1 receipts, copied IDs, owner/name/
+  lane-count stamps, operation counts, late Builder scans, and a second
+  dispatcher are not session authorities.  The shared control facts are moved
+  to a neutral validator module before canary retirement; the old module is
+  not allowed to become a Generic semantic owner.
+Fail-fast boundary:
+  Before any Builder effect, reject missing retained entry rows, program
+  input/carrier drift, owner/origin/body-root/frame/target drift, symbol or
+  lane-order drift, nonempty Builder state, stale preheader, missing/duplicate
+  canonical entry row, layout/segment coverage drift, foreign Completion, or
+  any HRTB/tuple escape.  After opening, the outer unpublished transaction is
+  the only discard owner; late failure performs one discard and never retries
+  or falls back.  Segment allocation is allowed only inside that transaction
+  and only after exact entry coverage; operation leaf emission remains later.
+Smallest next slice:
+  `LOOP-GENERIC-G0-SEALED-CONSUME-I0` first isolates the caller-zero
+  `into_physical_boundary` split.  Its successor
+  `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` retains entry rows,
+  moves control validation to its neutral owner, and implements the one-shot
+  session callback with shell/adoption/entry/segment preflight only.
+Non-claims:
+  No operation MIR/leaf dispatch, edge/terminator, new CFG/SSA/PHI shape,
+  Completion/DraftSeal publication, lifecycle/Text/route, production caller,
+  module publication, fallback, or retry.
+```
+
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
 ```text
@@ -4870,7 +4930,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone prephysical admission owning layout/program, shell plan, entry-control facts, Completion, target, and one full stamp | accepted BoxShape 2026-08-17; actual `MirFunction`, raw IDs, parent borrow, stored mapping, S6C/old-V1 adapter, and second rollback owner are forbidden |
 | 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | landed 2026-08-17; borrowed source-parts view plus shared-axis parity tests/guards are green; no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
 | 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; old probe renamed `GenericG0DetachedEntryCanaryV1`; five focused and 63 Generic tests plus structural/size guards are green; no function/session/raw-ID/dispatcher effect or production caller |
-| 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | name the single unpublished transaction that creates/installs the shell, adopts entry lanes, canonically issues the mechanical Loop entry from adopted BindingSSA, and allocates the layout-derived segment receipt | current design stop; `ReadyLoopEntryV1::new_for_test`, S6C envelope input, owner-only re-pairing, segment/leaf effect before full preflight, and a second receipt remain forbidden |
+| 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | accept one whole-admission family-neutral unpublished consumer for shell materialization, lane adoption, canonical entry projection, layout-keyed segment preflight, and sole rollback | accepted BoxShape 2026-08-17; implementation remains bounded behind `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; `ReadyLoopEntryV1::new_for_test`, S6C input, owner-only re-pairing, and leaf effect remain forbidden |
 | 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | queued after the session-preflight census and before its effect I0; lexical verifier clone is unchanged, while detached-canary tuple exits remain owned by the later parity retirement |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0 and sealed-consume I0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
