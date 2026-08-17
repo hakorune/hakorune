@@ -7764,11 +7764,13 @@ switch is allowed.
 
 ### LOOP-PHYSICAL-TEXTEQ-STRINGEQUALS-CONTRACT-D0 — ordered contract/residence/Trap design (2026-08-18; NoSafeSlice remains)
 
-Decision: keep `NoSafeSlice` and split the missing authority in the safe
-order `A -> B -> C`. The bounded first representation is generation-checked
-handle-handle, `Checked` rather than `Direct`; pointer/length and mixed
-handle/pointer routes are rejected for this lane. No implementation or new
-semantic receipt is authorized by this design row.
+Decision: keep `NoSafeSlice` for the physical family and split the missing
+authority in the safe order `A -> B -> C`. A is accepted as one source-only
+BoxCount: `StringBox.equals/1` (receiver excluded from arity), `PureRead`,
+`BoolValue`, no aliases, and `DesignOnly` lowering. The bounded first physical
+representation remains generation-checked handle-handle, `Checked` rather
+than `Direct`; pointer/length and mixed handle/pointer routes are rejected for
+this lane. Only the A source-row projection/reject slice is authorized next.
 
 ### LOOP-PHYSICAL-TEXTEQ-COREMETHOD-DESIGN-ONLY-TIER-D0 — design-only carrier premise gate (2026-08-18; NoSafeSlice remains)
 
@@ -7827,6 +7829,48 @@ one top-level `CARGO_BUILD_JOBS=4 cargo test --profile quick` at a time and no
 `--nocapture`; baseline warnings are informational. No StringEquals row,
 decoder, residence, Call, Bool `ValueId`, CFG, route, fallback, retry, or
 production path was opened.
+
+### LOOP-PHYSICAL-TEXTEQ-STRINGEQUALS-CONTRACT-I0 — source-row projection (2026-08-18; fast)
+
+Decision: implement only the accepted A BoxCount. `CoreMethodContractBox` is
+the sole semantic owner of the `StringBox` `equals` row: canonical `equals`,
+aliases empty, arity `1` (one Text argument), `PureRead`, `BoolValue`,
+`CoreMethodOp::StringEquals`, `lowering_tier=design_only`,
+`cold_lowering=none`, and the existing StringBox runtime-owner description.
+Generated JSON/Rust are projections. The canonical Home issuer must reject
+the projected row as `DesignOnlyRow` before route/physical effects.
+
+Source authority + canonical issuer: the `.hako` row and its codegen own the
+meaning; the generated manifest brand and Home issuer provide only projection
+and pre-effect rejection. Existing `StringLen`/`StringSubstring` rows and
+their callers remain unchanged.
+
+Non-authority: `StringBox::equals` universal trait, `StringMethodId`,
+`string.eq_hh`, DynamicV2 transport, generic `Equal`, `status=seed`,
+`guards=[]`, runtime/MIR inference, and any guessed ABI or residence.
+
+Fail-fast boundary: codegen rejects unknown/duplicate operation or spelling,
+invalid arity, non-`design_only` tier, and a design-only row whose
+`cold_lowering` is not `none`; Home admission rejects the exact generated row
+before CallSlot, route, Builder/session, ValueId, residence, CFG, fallback,
+retry, publication, or production selection.
+
+Acceptance: positive exact lookup/parity for `StringBox.equals/1`; negative
+wrong receiver/spelling/arity/result/effect/foreign brand and actual generated
+`StringEquals/1` `DesignOnlyRow` rejection. This I0 claims no strict status
+decoder/Trap, Text residence/pinner, Bool ValueId, TextEq emission, branch,
+Return, edge/PHI, fallback, retry, production, or legacy retirement.
+
+Closeout evidence (2026-08-18): codegen `--check`, `cargo fmt --all --
+--check`, `git diff --check`, and the current-state pointer guard are green.
+The quick focused suites passed: `core_method_op` 5/5,
+`core_method_result_kind` 7/7,
+`string_equals_source_row_is_design_only_bool_contract` 1/1, and
+`target_issuer_rejects_generated_string_equals_row_before_home_effects` 1/1.
+All Cargo runs were sequential, used `CARGO_BUILD_JOBS=4 cargo test
+--profile quick`, and omitted `--nocapture`; the 926 baseline warnings are
+informational. No decoder, Trap, Text residence, Bool `ValueId`, TextEq
+emission, CFG, route, fallback, retry, or production path opened.
 
 #### A — source-owned `StringEquals/1` method contract (BoxCount)
 

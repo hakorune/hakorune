@@ -45,6 +45,28 @@ EFFECTS = {
     "mutates_slot",
     "mutates_shape",
 }
+CORE_OPS = {
+    "ArrayLen",
+    "ArrayGet",
+    "ArrayHas",
+    "ArraySet",
+    "ArrayPush",
+    "AnyGet",
+    "AnyHas",
+    "MapGet",
+    "MapSet",
+    "MapHas",
+    "MapDelete",
+    "MapLen",
+    "MapKeys",
+    "AnyLen",
+    "StringLen",
+    "StringSubstring",
+    "StringIndexOf",
+    "StringLastIndexOf",
+    "StringContains",
+    "StringEquals",
+}
 EFFECT_RUST_VARIANTS = {
     "pure_read": "PureRead",
     "mutates_slot": "MutatesSlot",
@@ -226,6 +248,10 @@ def validate_rows(rows: list[dict[str, object]]) -> None:
         effect = row["effect"]
         if effect not in EFFECTS:
             raise ValueError(f"{row_id} has unknown effect: {effect!r}")
+
+        core_op = row["core_op"]
+        if core_op not in CORE_OPS:
+            raise ValueError(f"{row_id} has unknown core_op: {core_op!r}")
 
         lowering_tier = row["lowering_tier"]
         if lowering_tier not in LOWERING_TIER_RUST_VARIANTS:

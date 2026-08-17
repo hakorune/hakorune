@@ -189,4 +189,14 @@ pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResult
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
+    CoreMethodContractResultRowV1 {
+        receiver_box: "StringBox",
+        canonical: "equals",
+        aliases: &[],
+        arities: &[1],
+        op: CoreMethodOp::StringEquals,
+        result_kind: CoreMethodResultKindV1::BoolValue,
+        effect: CoreMethodEffectV1::PureRead,
+        lowering_tier: CoreMethodLoweringTier::DesignOnly,
+    },
 ];

@@ -253,6 +253,17 @@ mod tests {
     }
 
     #[test]
+    fn string_equals_source_row_is_design_only_bool_contract() {
+        let equals = lookup_core_method_result_row_v1("StringBox", "equals", 1)
+            .expect("generated StringEquals/1 row");
+        assert_eq!(equals.op, CoreMethodOp::StringEquals);
+        assert_eq!(equals.result_kind, CoreMethodResultKindV1::BoolValue);
+        assert_eq!(equals.effect, CoreMethodEffectV1::PureRead);
+        assert_eq!(equals.lowering_tier, CoreMethodLoweringTier::DesignOnly);
+        assert!(equals.aliases.is_empty());
+    }
+
+    #[test]
     fn json_and_static_rust_rows_have_normalized_parity() {
         let manifest = include_str!(
             "../../lang/src/runtime/meta/generated/core_method_contract_manifest.json"

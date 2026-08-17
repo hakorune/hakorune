@@ -125,6 +125,16 @@ fn target_issuer_rejects_design_only_row_before_home_effects() {
 }
 
 #[test]
+fn target_issuer_rejects_generated_string_equals_row_before_home_effects() {
+    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringEquals, 1)
+        .expect("generated StringEquals/1 row");
+    assert!(matches!(
+        issuer().issue(row),
+        Err(CoreMethodInstanceTargetRejectV1::DesignOnlyRow)
+    ));
+}
+
+#[test]
 fn target_issuer_rejects_wrong_effect_and_result() {
     static MUTATING_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
         receiver_box: "StringBox",

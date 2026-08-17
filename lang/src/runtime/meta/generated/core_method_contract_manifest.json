@@ -15,7 +15,7 @@
     "status",
     "guards"
   ],
-  "row_count": 16,
+  "row_count": 17,
   "rows": [
     {
       "box": "ArrayBox",
@@ -271,6 +271,21 @@
       "status": "seed",
       "guards": [],
       "id": "StringBox.contains/1"
+    },
+    {
+      "box": "StringBox",
+      "canonical": "equals",
+      "aliases": [],
+      "arity": "1",
+      "effect": "pure_read",
+      "core_op": "StringEquals",
+      "result_kind": "BoolValue",
+      "lowering_tier": "design_only",
+      "cold_lowering": "none",
+      "runtime_owner": ".hako StringBox contract / Rust string substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "StringBox.equals/1"
     }
   ]
 }
