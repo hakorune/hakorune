@@ -37,7 +37,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "Generic G0 source-parent I0 is landed and S6C physical-entry input is closed; the next design stop audits a Generic G0 physical-entry source projection before any further effect."
 work_mode = "design_stop"
 current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0"
-current_blocker_token = "NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed"
+current_blocker_token = "NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

@@ -463,7 +463,7 @@ physical-effect projection.  S6C receipts, raw source ParamDecls, `/N`, raw
 or inferred to fill that gap.
 
 ```text
-NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed
+NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed
 ```
 
 remains the design stop.  The next bounded task is a read-only Generic G0
@@ -477,15 +477,18 @@ rejection boundary are named.
 ```text
 Decision:
   Keep the landed S6C physical-entry input as an S6C-only closed seam and do
-  not relabel it as a Generic/common issuer.  Audit whether Generic G0 can
-  obtain a source-backed symbol/mode, ParamDecl/attrs/uses, result/header,
-  receiver/lane policy, and physical-effect projection from one owner cohort.
+  not relabel it as a Generic/common issuer.  Generic G0 is a TopLevel
+  function, so audit four source-backed siblings before physical entry:
+  declaration/header, result ABI, function effect, and Completion.
 
 Source authority + canonical issuer:
   Generic resolver/Core/JoinSig/After products remain the Generic source
-  authority.  A future Generic physical-entry issuer must co-seal the missing
-  callable declaration/result/effect siblings once, then lend a profile view;
-  Package/Port and the S6C header are transport or another profile's owner.
+  authority.  The final parser/batch declaration row can own the TopLevel
+  declaration projection, `VerifiedGenericTypedSourceBundleG0::return_abi`
+  owns result evidence, `verify_function_completion_v1` is the candidate
+  Completion issuer, and a new source-backed function-effect issuer must be
+  named.  One Generic parent must co-seal all four before lending a profile
+  view; Package/Port and the S6C header are other-profile transport/owners.
 
 Non-authority:
   S6C physical headers/effects, Generic source-parent entry rows, raw
@@ -493,15 +496,18 @@ Non-authority:
   rescans, and a profile-local descriptor copy cannot issue Generic ABI.
 
 Fail-fast boundary:
-  Foreign owner/brand, missing or mixed storage/result/effect cohort, receiver
-  or lane drift, incomplete attrs/uses, result/Completion mismatch, or any
-  request to open Builder/session effects before the issuer exists remains
-  `NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed`.
+  Foreign owner/brand, missing or mixed declaration/result/effect/Completion
+  cohort, TopLevel receiver/lane drift, incomplete attrs/uses, result/target
+  mismatch, or any request to open Builder/session effects before the issuer
+  exists remains
+  `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`.
 
 Smallest next slice:
-  Read-only issuer census only.  If a safe Generic issuer exists, open one
-  caller-zero transport row for a neutral pre-effect aggregate; otherwise keep
-  this task parked and do not add a guessed/default receipt.
+  Read-only issuer census only, in this order: declaration/header projection;
+  result/ABI parity; source-backed function-effect issuer; Completion co-seal.
+  If all four can be issued from one owner cohort, open one caller-zero
+  transport row for a neutral pre-effect aggregate; otherwise keep this task
+  parked and do not add a guessed/default receipt.
 
 Non-claims:
   No common skeleton, lane adoption, ValueId/BindingSSA, CFG/PHI,
@@ -3559,7 +3565,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
-| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 source-backed symbol/mode, declaration/attrs/uses, result/header, receiver/lane, and physical-effect cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
