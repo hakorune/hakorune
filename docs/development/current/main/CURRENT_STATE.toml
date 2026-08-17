@@ -35,17 +35,17 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "Session-preflight I0 is landed as a caller-zero shell/adoption/entry/segment preflight; before any operation leaf effect, the Generic-to-common dispatcher input and its single source-backed owner must be closed."
-work_mode = "design_stop"
-current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0"
-current_blocker_token = "NoSafeSlice::GenericG0OperationEmitterOwnerUnsealed"
+current_design_stop = "Dispatcher-preflight I0 is landed with one scoped program/layout/entry/segment input; the next bounded slice may consume that same input for operation rows under the existing outer discard owner."
+work_mode = "fast"
+current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0"
+current_blocker_token = "NoSafeSlice::GenericG0OperationLeafEmissionUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Generic-to-common operation-emitter owner D0)"
+active_lane = "Loop compiler frontier (Generic-to-common operation emitter I0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -73,7 +73,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed. The Generic skeleton BoxShape and detached-shell I0 are landed;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
-  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. Session-preflight D0 names one whole-admission unpublished consumer and sole rollback owner; sealed-consume I0 and the caller-zero shell/adoption/entry/segment preflight are landed. The Generic-to-common dispatcher/session owner remains a design stop; later physical effects remain closed. A design-only structural convergence audit now records the three sealing-debt rows and parked inventory without opening cleanup or production.
+  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. Session-preflight D0 names one whole-admission unpublished consumer and sole rollback owner; sealed-consume I0 and the caller-zero shell/adoption/entry/segment preflight are landed. The dispatcher-preflight BoxShape is accepted and its no-leaf I0 is landed; the next fast slice may emit operation rows from that same session-owned view under the outer discard owner. A design-only structural convergence audit now records the three sealing-debt rows and parked inventory without opening cleanup or production.
   TopLevel declaration/header, private no-external-effect, result-ABI, and
   direct canonical Completion transport I0 are landed; storage/lane source I0
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
@@ -93,10 +93,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, and caller-zero session-preflight are landed. The next design stop is the single Generic-to-common dispatcher/session input; operation effects remain closed."
+latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, and caller-zero session-preflight are landed. The dispatcher-preflight BoxShape is accepted; the next bounded I0 binds one session-owned program/layout/entry/segment view before any operation leaf effect."
 next_design_card = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (design stop until Generic operation-emitter owner is accepted)"
+next_execution_card = "LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -113,5 +113,6 @@ landed_tail = [
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0 landed one private same-cohort `EffectMask::PURE` projection from the finite five-variant Generic operation contract after owner/origin/source-kind/body-root/frame, result/header/storage, target, and operation-evidence parity checks. The focused Generic suite is green; no `MirFunction`, `ValueId`, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller opened.",
   "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the detached caller-zero rollback/adoption canary. Its final name is `GenericG0DetachedEntryCanaryV1`; it is not the combined admission and retires after session-owned parity and zero callers.",
   "2026-08-17: Generic operation cohort I0 and facts-extraction I0 landed. One source-parent consume owns the neutral operation program, and one compiler-private borrowed view supplies shared-axis validation without physical state.",
-  "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0 landed a caller-zero whole-admission preflight: shell materialization, source-lane adoption, canonical preheader entry reads, layout-keyed segment allocation, and one outer discard owner. No operation leaf, publication, retry, fallback, or production caller opened; the next stop is the Generic-to-common dispatcher/session owner census."
+  "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0 landed a caller-zero whole-admission preflight: shell materialization, source-lane adoption, canonical preheader entry reads, layout-keyed segment allocation, and one outer discard owner. No operation leaf, publication, retry, fallback, or production caller opened; the next bounded slice was the callback-scoped Generic-to-common dispatcher preflight."
+  "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0 landed one phantom-lifetime-branded mechanical program/layout/entry/segment input and ran the existing segment dispatcher preflight without emitting a leaf. The shell remained instruction-free and the unpublished transaction still discarded on late failure; operation emission and production remain closed."
 ]

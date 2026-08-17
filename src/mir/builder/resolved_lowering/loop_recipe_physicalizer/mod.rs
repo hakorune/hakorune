@@ -36,5 +36,7 @@ use operation_dispatcher::*;
 pub(super) use operation_emitter::*;
 use operation_ledger::*;
 pub(super) use segment_allocator::allocate_for_layout;
+pub(super) use segment_dispatcher::preflight_loop_segment_operation_dispatch_v1;
 pub(super) use segment_topology::LoopPhysicalSegmentBlockReceiptV1;
+pub(super) use topology::ReadyLoopEntryV1;
 pub(super) use topology::*;

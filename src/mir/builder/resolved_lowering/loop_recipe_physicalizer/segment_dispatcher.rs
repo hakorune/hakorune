@@ -273,6 +273,20 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
     })
 }
 
+/// Run the complete segment-dispatch preflight without exposing the prepared
+/// leaf plan to a sibling owner.  The caller must already have co-sealed the
+/// layout, canonical entry, and segment receipt; this helper only validates
+/// the existing mechanical dispatcher input and drops the unpublished plan.
+pub(in crate::mir::builder::resolved_lowering) fn preflight_loop_segment_operation_dispatch_v1(
+    layout: PreparedLoopPhysicalLayoutV1,
+    entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+) -> Result<(), String> {
+    prepare_loop_segment_operation_dispatch_v1(layout, entry, segment_receipt)
+        .map(|_| ())
+        .map_err(|error| format!("segment dispatch preflight: {error:?}"))
+}
+
 fn segment_index(
     layout: &PreparedLoopPhysicalLayoutV1,
 ) -> Result<BTreeMap<LoopItemKeyV1, LoopPhysicalSegmentKeyV1>, LoopOperationDispatchPreflightRejectV1>

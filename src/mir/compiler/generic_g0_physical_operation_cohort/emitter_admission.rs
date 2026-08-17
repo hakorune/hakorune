@@ -141,7 +141,7 @@ pub(crate) struct PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
 pub(crate) struct PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     entries: Box<[VerifiedGenericG0EntryBindingV1]>,
-    layout_binding: VerifiedGenericG0PhysicalLayoutBindingV1,
+    layout_binding: Option<VerifiedGenericG0PhysicalLayoutBindingV1>,
     shell_plan: PreparedGenericG0FunctionShellPlanV1,
     control: PreparedGenericG0EntryControlFactsV1,
     completion: VerifiedFunctionCompletionV1,
@@ -199,7 +199,18 @@ impl<'source> PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
     }
 
     pub(crate) fn layout(&self) -> &PreparedLoopPhysicalLayoutV1 {
-        &self.layout_binding.layout
+        &self
+            .layout_binding
+            .as_ref()
+            .expect("session preflight layout is present")
+            .layout
+    }
+
+    pub(crate) fn take_layout(&mut self) -> PreparedLoopPhysicalLayoutV1 {
+        self.layout_binding
+            .take()
+            .expect("session preflight layout is consumed once")
+            .layout
     }
 
     pub(crate) fn shell_plan(&self) -> &PreparedGenericG0FunctionShellPlanV1 {
@@ -230,7 +241,7 @@ impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
         PreparedGenericG0PhysicalEmitterSessionPreflightV1 {
             input: self.input,
             entries: self.entries,
-            layout_binding: self.layout_binding,
+            layout_binding: Some(self.layout_binding),
             shell_plan: self.shell_plan,
             control: self.control,
             completion: self.completion,

@@ -6,8 +6,10 @@
 //! leaf is emitted and the unpublished outer transaction owns every rollback.
 
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::ReadyLoopEntryV1;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    allocate_for_layout, ready_loop_entry_from_canonical_rows, LoopPhysicalSegmentBlockReceiptV1,
+    allocate_for_layout, preflight_loop_segment_operation_dispatch_v1,
+    ready_loop_entry_from_canonical_rows, LoopPhysicalSegmentBlockReceiptV1,
     LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
@@ -16,7 +18,40 @@ use crate::mir::compiler::generic_g0_physical_operation_cohort::{
     issue_generic_g0_physical_emitter_admission_v1, PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
 use crate::mir::function::MirParamDecl;
+use crate::mir::loop_recipe_contract::PreparedLoopPhysicalLayoutV1;
 use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
+use std::marker::PhantomData;
+
+/// Mechanical dispatch inputs branded to one callback scope.  The input owns
+/// the already-issued receipts, so a later consumer cannot re-pair a segment
+/// receipt with another admission.  It contains no source meaning or leaf
+/// instruction state.
+struct GenericG0SegmentDispatchInputV1<'scope> {
+    layout: PreparedLoopPhysicalLayoutV1,
+    entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+    _scope: PhantomData<&'scope mut ()>,
+}
+
+impl GenericG0SegmentDispatchInputV1<'_> {
+    fn preflight(self) -> Result<(), String> {
+        preflight_loop_segment_operation_dispatch_v1(self.layout, self.entry, self.segment_receipt)
+    }
+}
+
+fn with_dispatch_input<R>(
+    layout: PreparedLoopPhysicalLayoutV1,
+    entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+    callback: impl for<'scope> FnOnce(GenericG0SegmentDispatchInputV1<'scope>) -> Result<R, String>,
+) -> Result<R, String> {
+    callback(GenericG0SegmentDispatchInputV1 {
+        layout,
+        entry,
+        segment_receipt,
+        _scope: PhantomData,
+    })
+}
 
 /// Consume one whole Generic admission and run only the unpublished
 /// shell/entry/segment preflight.  The callback is deliberately caller-zero:
@@ -24,10 +59,10 @@ use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 pub(in crate::mir::builder) fn with_generic_g0_physical_emitter_session_preflight<R>(
     builder: &mut MirBuilder,
     admission: PreparedGenericG0PhysicalEmitterAdmissionV1<'_>,
-    callback: impl FnOnce(
+    callback: impl for<'scope> FnOnce(
         &mut CanonicalSsaFunctionSessionV2<'_>,
         &mut MirBuilder,
-        &LoopPhysicalSegmentBlockReceiptV1,
+        GenericG0SegmentDispatchInputV1<'scope>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
     if builder.function_state.current_function.is_some()
@@ -97,7 +132,10 @@ pub(in crate::mir::builder) fn with_generic_g0_physical_emitter_session_prefligh
         let mut services = LoopPhysicalServicesV1::new(draft, &mut session.cfg);
         let segment_receipt = allocate_for_layout(preflight.layout(), &ready_entry, &mut services)
             .map_err(|error| format!("generic segment preflight: {error:?}"))?;
-        callback(&mut session, draft, &segment_receipt)
+        let layout = preflight.take_layout();
+        with_dispatch_input(layout, ready_entry, segment_receipt, |dispatch_input| {
+            callback(&mut session, draft, dispatch_input)
+        })
     })();
     outer.discard_unpublished();
     result
@@ -120,9 +158,18 @@ mod tests {
         let result = with_generic_g0_physical_emitter_session_preflight(
             &mut builder,
             admission,
-            |session, draft, _receipt| {
+            |session, draft, dispatch_input| {
                 assert_eq!(session.owner(), input.owner());
                 assert!(draft.current_function_name().is_some());
+                dispatch_input.preflight().expect("dispatch preflight");
+                assert!(draft
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("unpublished shell")
+                    .blocks
+                    .values()
+                    .all(|block| block.instructions.is_empty()));
                 Ok(())
             },
         );
@@ -144,7 +191,7 @@ mod tests {
         let error = with_generic_g0_physical_emitter_session_preflight(
             &mut builder,
             admission,
-            |_session, _draft, _receipt| Ok(()),
+            |_session, _draft, _dispatch_input| Ok(()),
         )
         .expect_err("occupied builder must reject");
         assert!(error.contains("empty Builder"));
@@ -161,7 +208,10 @@ mod tests {
         let error = with_generic_g0_physical_emitter_session_preflight(
             &mut builder,
             admission,
-            |_session, _draft, _receipt| Err::<(), _>("late preflight failure".to_owned()),
+            |_session, _draft, dispatch_input| {
+                dispatch_input.preflight()?;
+                Err::<(), _>("late preflight failure".to_owned())
+            },
         )
         .expect_err("late callback failure");
         assert_eq!(error, "late preflight failure");

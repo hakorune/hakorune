@@ -1779,10 +1779,11 @@ independently borrowed layout or program.
 
 ```text
 Decision:
-  Keep `NoSafeSlice::GenericG0OperationEmitterOwnerUnsealed`.  Reuse the
-  existing family-neutral segment dispatcher as the sole leaf candidate, but
-  first bind its three mechanical inputs to one callback-scoped view.  This is
-  a BoxShape/design boundary only; no new receipt or emitter is issued here.
+  Accept the dispatcher-preflight BoxShape and keep operation leaf effects
+  closed.  Reuse the existing family-neutral segment dispatcher as the sole
+  leaf candidate, but bind its three mechanical inputs to one callback-scoped
+  view before any later leaf plan can be borrowed.  This is a mechanical
+  aggregate of existing receipts, not a new semantic authority.
 Source authority + canonical issuer:
   The combined Generic emitter admission owns the program/layout and source
   entry rows.  The same unpublished session preflight owns the canonical
@@ -1804,16 +1805,37 @@ Fail-fast boundary:
   All target rows must validate before the first leaf mutates MIR; the outer
   unpublished function transaction remains the sole discard owner.
 Smallest next slice:
-  Design-only `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-D0`:
-  define the one-admission/one-session callback boundary and its exact
-  program+layout+canonical-entry+segment coverage, then census the existing
-  dispatcher call without emitting a row.  If this requires an S6C/V1
-  adapter, a second Generic program issuer, or source re-inference, retain
-  this NoSafeSlice.
+  `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0`: consume one
+  whole admission through the existing unpublished session, construct one
+  callback-scoped dispatch-input view, and run the existing segment-dispatch
+  preflight without emitting a leaf.  If this requires an S6C/V1 adapter, a
+  second Generic program issuer, or source re-inference, return to the
+  design stop instead of adding an adapter.
 Non-claims:
   No `Pinned*`/Text work, operation MIR, ReadBinding/Const/Binary/Compare/
   Write emission, CFG/SSA/PHI, Completion/DraftSeal, route/backend,
   production caller, publication, fallback, or retry.
+```
+
+#### Dispatcher preflight I0 closeout (2026-08-17)
+
+The caller-zero session now moves the admission-owned layout out of the
+preflight handoff only after segment allocation, pairs it with the canonical
+entry rows and segment receipt in one phantom-lifetime-branded input, and
+invokes the existing segment dispatcher preflight.  The input owns no source
+meaning and cannot escape the callback; the prepared leaf plan is immediately
+dropped.  The positive Generic suite remains green, and the shell contains no
+operation instructions after the preflight.  Operation emission, publication,
+retry, fallback, and production callers remain closed for the next row.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib generic_g0 -- --nocapture  # 72 passed
+RUSTFLAGS='-Awarnings' cargo check -q
+cargo fmt --all
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
 ```
 
 ```text
@@ -5066,7 +5088,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite 69/69, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits remain owned by the later parity retirement |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | landed 2026-08-17; retained source rows, shell/adoption, canonical preheader reads, layout-keyed segment allocation, and late-discard tests are green; operation leaf, publication, retry, fallback, and production remain closed |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
-| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after session-preflight D0, consume one admission through the canonical unpublished session and issue one callback-scoped dispatch preflight/leaf plan | parked at the next design stop; the S6C `CommonV2CanonicalSessionRefV1` and raw/test receipt constructors are not reusable, and the Generic-to-common operation/session input still needs one source-backed owner |
+| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | consume the callback-scoped program/layout/entry/segment input through the canonical unpublished session and emit the existing five-variant operation rows | next bounded fast slice; the dispatcher input is sealed, while completion/publication/production remain closed |
+| 25b-c0-G0-operation-dispatch-preflight-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0` | bind admission-owned program/layout to session-issued canonical entry and segment receipts, then run the existing segment-dispatch preflight without a leaf effect | landed 2026-08-17; one callback-scoped mechanical view and no-leaf preflight are green; operation emission remains a separate row |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
