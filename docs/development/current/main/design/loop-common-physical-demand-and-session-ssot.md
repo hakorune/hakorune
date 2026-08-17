@@ -7434,3 +7434,54 @@ PHI/CFG publication, DraftSeal publication, fallback, retry, production
 switch, or legacy retirement. The next design stop is the existing
 `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` / split-terminal authority
 row.
+
+### Branch-emission D0 refresh after Return-read I0 (2026-08-18; NoSafeSlice remains)
+
+The read receipt is intentionally not a branch/terminal receipt. A read/Completion
+co-seal now carries the source return binding, exact If/then/continuation layout,
+and FunctionExit witness, but it does not carry the condition `ValueId` from the
+existing `CanonicalConditionBoolResultReceiptV1`. Those two receipts must not be
+joined by caller convention or by a placement block alone.
+
+Decision:
+
+Keep `NoSafeSlice::IfContinuationBranchEmissionAuthorityUnsealed`. The next
+design slice is one callback-scoped canonical branch/terminal consumer that
+co-seals the existing condition Bool receipt, the Return-read receipt, exact
+item-to-split/then/continuation targets, and the FunctionExit terminal before
+any CFG writer is reachable. No new semantic source/Recipe issuer is justified.
+
+Source authority + canonical issuer:
+
+`issue_s6c_v2_return_read_co_seal_v1` remains the source/Join authority;
+`CommonV2CanonicalSessionRefV1::with_return_read_physical_receipt` remains the
+canonical Return-read physical issuer; `CanonicalConditionBoolResultReceiptV1`
+is the existing condition-result issuer; Completion remains the terminal/claim
+owner. The missing authority is their single consumer/co-seal, not a new
+caller-supplied value.
+
+Non-authority:
+
+`IfContinuationPhysicalTargetRefV1::continuation_physical_block`, a standalone
+condition destination, `terminal_block`, caller-supplied condition `ValueId`,
+and raw `CanonicalCfgSessionV1::emit_branch`/`emit_return` are placement or
+mechanical evidence only.
+
+Fail-fast boundary:
+
+Reject foreign owner/stamp, missing/duplicate/drifted condition result, missing
+or mismatched item-to-split and then/continuation rows, and any FunctionExit or
+terminal mismatch before CFG mutation. A late callback failure must discard the
+outer unpublished session transaction.
+
+Smallest next slice:
+
+Design-only audit of that existing-receipt consumer. Keep branch/Return,
+edge/PHI/CFG publication, fallback, retry, production selection, and legacy
+retirement closed until the co-seal is accepted.
+
+Non-claims:
+
+This refresh authorizes no code, new semantic receipt, `emit_branch`,
+`emit_return`, edge/PHI/publication, production switch, fallback, retry, or
+legacy retirement.
