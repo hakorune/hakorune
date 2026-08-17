@@ -33,6 +33,18 @@ CARGO_BUILD_JOBS=4 cargo check
 [`agent-current-entry-contract-ssot.md`](design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
 に従う。
 
+`Waiting for background terminal` は完了ではない。再起動・強制終了後は、まず
+次を実行して残存プロセスが空になるまで新しい Cargo を起動しない。
+
+```bash
+git status -sb
+ps -eo pid,ppid,stat,etime,pcpu,pmem,args | rg '[c]argo|[r]ustc|[s]ccache|[r]ustdoc' || true
+```
+
+focused test の `0 passed` / `0 tests` は green の証拠ではなく、filter の誤りとして
+完全な test path を `--exact` で選び直す。warning を隠すための
+`RUSTFLAGS=-Awarnings` 再試行や `--nocapture` の常用も行わない。
+
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`

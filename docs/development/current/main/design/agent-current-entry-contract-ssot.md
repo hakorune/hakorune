@@ -336,6 +336,28 @@ The checked-in `tools/checks/dev_gate.sh` applies the same four-job ceiling to
 all Cargo steps it launches (while respecting a smaller caller value), so the
 single-entry gate cannot silently restore host-wide parallelism.
 
+#### Forced-termination recovery
+
+`Waiting for background terminal` is an orchestration state, not a successful
+Cargo result.  If the terminal reports multiple background terminals, or a
+focused test reports `0 passed`/`0 tests`, treat the run as invalid evidence:
+do not start a second Cargo command and do not infer that the test is green.
+First inspect the process table and stop or wait for every redundant
+`cargo`/`rustc` child, then rerun one complete test path serially with the
+existing flag set.  A `--nocapture` transcript full of warnings is not a
+reason to launch an `RUSTFLAGS=-Awarnings` retry.  After an interruption or
+forced termination, the restart order is:
+
+```bash
+git status -sb
+ps -eo pid,ppid,stat,etime,pcpu,pmem,args | rg '[c]argo|[r]ustc|[s]ccache|[r]ustdoc' || true
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Only after the process check is empty may the single quick Cargo gate resume.
+Record the command and its nonzero executed-test count as the evidence; a
+zero-match filter is a command-selection error, not a passing test.
+
 ### Active SSOT current capsule
 
 Use the five-field Current Capsule defined by

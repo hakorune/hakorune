@@ -42,6 +42,10 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter>
 [`agent-current-entry-contract-ssot.md`](../development/current/main/design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
 を唯一の運用policyとして参照する。
 
+`Waiting for background terminal` は成功表示ではない。強制終了や中断からの再開は、
+残存 `cargo`/`rustc` がないことを確認してから一つずつ行う。focused test の
+`0 passed` / `0 tests` は filter miss であり、成功証拠として記録しない。
+
 ### 1. バグ起点の切り分け（archived internal engineering triage）
 
 ```bash
