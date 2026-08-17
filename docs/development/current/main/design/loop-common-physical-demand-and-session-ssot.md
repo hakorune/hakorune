@@ -1707,6 +1707,15 @@ before canary retirement, and isolate the caller-zero
 `VerifiedGenericRecipeProductG0::into_physical_boundary` split in
 `LOOP-GENERIC-G0-SEALED-CONSUME-I0`. Neither cleanup creates a semantic owner.
 
+#### Session-preflight entry-row retention closeout (2026-08-17)
+
+The first implementation sub-slice closes the admission-side loss of source
+entry rows. `PreparedGenericG0PhysicalEmitterAdmissionV1` now retains the
+same-cohort `LoopValueKeyV1`/`BindingRefV1` rows and lends them only through
+its callback-scoped view. The focused Generic suite remains green; shell
+materialization, canonical preheader reads, segment allocation, and operation
+effects remain successor session-preflight work.
+
 ```text
 Decision:
   Keep `NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed`.
@@ -4955,7 +4964,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; old probe renamed `GenericG0DetachedEntryCanaryV1`; five focused and 63 Generic tests plus structural/size guards are green; no function/session/raw-ID/dispatcher effect or production caller |
 | 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | accept one whole-admission family-neutral unpublished consumer for shell materialization, lane adoption, canonical entry projection, layout-keyed segment preflight, and sole rollback | accepted BoxShape 2026-08-17; implementation remains bounded behind `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; `ReadyLoopEntryV1::new_for_test`, S6C input, owner-only re-pairing, and leaf effect remain forbidden |
 | 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite 69/69, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits remain owned by the later parity retirement |
-| 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0 and sealed-consume I0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |
+| 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | active; admission-side source entry-row retention is landed as the first sub-slice, while shell/adoption/entry-read/segment allocation remains; failures discard the whole candidate, with no retry/fallback or leaf effect |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
 | 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after session-preflight D0, consume one admission through the canonical unpublished session and issue one callback-scoped dispatch preflight/leaf plan | parked; the S6C `CommonV2CanonicalSessionRefV1` and raw/test receipt constructors are not reusable, while only canonically session-issued mechanical entry/segment capabilities may feed the existing dispatcher |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |

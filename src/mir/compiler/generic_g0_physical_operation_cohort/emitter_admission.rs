@@ -43,6 +43,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::{GenericG0PhysicalOperationCohortRejectV1, GenericG0PhysicalOperationCohortV1};
+use super::super::generic_g0_source_parent::VerifiedGenericG0EntryBindingV1;
 
 const GENERIC_G0_OPERATION_PROGRAM_REVISION_V1: u16 = 1;
 const GENERIC_G0_PHYSICAL_LAYOUT_REVISION_V1: u16 = 1;
@@ -120,6 +121,11 @@ struct VerifiedGenericG0PhysicalLayoutBindingV1 {
 /// borrowed views, preventing independently owned siblings from being paired.
 pub(crate) struct PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
+    /// Source-backed LoopValueKey/BindingRef rows retained for the later
+    /// canonical preheader read. These rows belong to the same one-shot
+    /// admission as the program/layout; downstream must not reconstruct them
+    /// from arity, operation counts, or physical identifiers.
+    entries: Box<[VerifiedGenericG0EntryBindingV1]>,
     layout_binding: VerifiedGenericG0PhysicalLayoutBindingV1,
     shell_plan: PreparedGenericG0FunctionShellPlanV1,
     control: PreparedGenericG0EntryControlFactsV1,
@@ -153,6 +159,10 @@ impl<'loan, 'source> GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source> {
 
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
         &self.admission.completion
+    }
+
+    pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
+        &self.admission.entries
     }
 
     pub(crate) const fn program_revision(&self) -> u16 {
@@ -339,6 +349,7 @@ fn seal_admission<'source>(
     );
     Ok(PreparedGenericG0PhysicalEmitterAdmissionV1 {
         input,
+        entries,
         layout_binding: VerifiedGenericG0PhysicalLayoutBindingV1 { layout, stamp },
         shell_plan,
         control,

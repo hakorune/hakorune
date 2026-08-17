@@ -20,6 +20,18 @@ fn owns_one_complete_prephysical_cohort_and_lends_mapping_scoped() {
             assert_eq!(view.layout().coverage().item_count(), 16);
             assert_eq!(view.layout().coverage().operation_count(), 15);
             assert_eq!(view.layout().coverage().segment_count(), 5);
+            assert_eq!(view.entries().len(), 2);
+            assert_eq!(
+                view.entries()
+                    .iter()
+                    .map(|row| row.parameter_index())
+                    .collect::<Vec<_>>(),
+                vec![0, 1]
+            );
+            assert!(view
+                .entries()
+                .iter()
+                .all(|row| row.binding().owner() == owner));
             assert_eq!(mapping.owner(), owner);
             assert_eq!(mapping.operation_count(), 15);
 

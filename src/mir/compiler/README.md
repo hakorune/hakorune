@@ -130,6 +130,10 @@ cohort stamp.  Mapping remains a callback-only borrow from
 `layout.program()`.  The admission owns no `MirFunction`, `ValueId`,
 `BasicBlockId`, Builder, or session; the later unpublished function
 transaction alone creates the shell and owns rollback.
+The same admission also retains the resolver-issued source entry rows
+(`LoopValueKeyV1`/`BindingRefV1`) for the later canonical preheader read; the
+session must borrow those rows from the whole admission rather than rebuild
+them from arity or physical identifiers.
 
 The current `CommonV2CanonicalSessionRefV1` remains an S6C-bound envelope view
 and must not grow a Generic branch.  The current detached Generic skeleton,
