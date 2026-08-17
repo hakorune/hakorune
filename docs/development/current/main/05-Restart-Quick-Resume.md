@@ -45,6 +45,32 @@ focused test の `0 passed` / `0 tests` は green の証拠ではなく、filter
 完全な test path を `--exact` で選び直す。warning を隠すための
 `RUSTFLAGS=-Awarnings` 再試行や `--nocapture` の常用も行わない。
 
+### Observed forced-termination pattern (2026-08-18)
+
+The interrupted run printed a very large warning transcript from
+`cargo test -q ... -- --nocapture`, matched zero tests, and then remained in
+`Waiting for background terminal` while several background terminals were
+still active. A second Cargo command with a different `RUSTFLAGS` was also
+queued. This is invalid evidence and is consistent with host/artifact
+resource pressure from overlapping top-level Cargo commands; the transcript
+does not show a Rust panic or establish an application-code crash.
+
+Prevent recurrence with this fixed sequence:
+
+1. Run one focused library target with `CARGO_BUILD_JOBS=4 cargo test
+   --profile quick --lib <filter>` and omit `--nocapture`.
+2. Treat `0 passed`/`0 tests` as a filter error; rerun the complete test path
+   with `--exact` only after confirming the name.
+3. Never start a second Cargo command, warning-suppression retry, or
+   `--release` build while another top-level Cargo process is active.
+4. After interruption, inspect `cargo`/`rustc` processes and wait or stop
+   redundant children before resuming. Only an empty process check permits
+   the next Cargo invocation.
+
+Use `--release` only for an active card's final evidence. Day-to-day
+iteration uses `--profile quick`; its parallel code generation is the
+repository's intended fast path.
+
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`

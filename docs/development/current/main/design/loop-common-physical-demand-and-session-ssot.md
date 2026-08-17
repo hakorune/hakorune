@@ -7218,3 +7218,47 @@ is the existing `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0`; item-to-
 split and one-sided Return/FunctionExit terminator authority remain unnamed.
 No Return/edge/PHI emission, publication, production switch, fallback, retry,
 or legacy retirement is claimed.
+
+### Branch emission D0 refresh — worker premise gate (2026-08-18)
+
+This remains a design stop rather than Fast path: the new source-to-Recipe/Join
+relation proves semantic Return provenance, but it still does not name the
+physical split target, Return value receipt, or one-sided terminator owner.
+
+### Branch emission D0 premise audit — circuit-breaker check (2026-08-18)
+
+The same responsibility has now produced the placement D0, split/terminal D0,
+Return source co-seal D0, and branch-emission refresh D0. Apply the required
+premise audit before opening another suffix:
+
+- **Semantic unit and window:** one source-backed If continuation from the
+  resolver-owned Return/If regions through the Recipe Exit and JoinSig arm,
+  ending at the first physical branch/Return mutation. The source-to-
+  Recipe/Join relation and canonical-session transport now cover provenance
+  and consumption, but not physical realization.
+- **Classifier/partition arms:** the accepted logical shapes are the
+  `Exit { exit_item, Return, FunctionExit }` arm and the one-sided
+  `Fallthrough(NextItem)` arm. No layout ordinal, two-normal-arm merge, or
+  inferred “else” arm may fill a missing relation; every unsupported or
+  ambiguous arm remains a rejection.
+- **Transferred/opaque subtrees:** `IfContinuationPhysicalTargetRefV1`, the
+  layout segment/split receipt, and the borrowed common-session view are
+  transport/placement evidence only. They do not hide an item-specific
+  physical split, Return value, or terminal owner.
+- **Structural requirement:** an emitter needs a source-issued item-to-split
+  relation, a source-issued Return value receipt, and one-sided
+  `FunctionExit`/terminator ownership before `emit_branch` or `emit_return`.
+  `CanonicalCfgSessionV1` can write those physical objects mechanically but
+  cannot issue their meaning.
+- **Counterexample:** owner/stamp parity and target placement can all pass
+  while the Return value or FunctionExit block is absent. Calling the CFG
+  writer from that state would pair separate authorities by Layout/ordinal and
+  could terminate the wrong block; therefore the current green placement and
+  transport tests do not authorize physical emission.
+
+**Audit result:** `NoSafeSlice::IfContinuationBranchEmissionAuthorityUnsealed`
+remains the correct development state. The next bounded slice is still a
+design-only source issuer/consumer decision; do not add a new semantic
+`Verified*`/`Prepared*` receipt, branch/Return/edge/PHI effect, fallback,
+retry, publication, or production switch until that issuer and fail-fast
+boundary are named.
