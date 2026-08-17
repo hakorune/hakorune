@@ -329,8 +329,11 @@ for deliberate standalone use.  `--release` is reserved for an active card's
 explicit final evidence, not ordinary iteration.  If a required gate itself
 spawns Cargo, it is the sole top-level Cargo owner until it exits.  Stop and
 report resource pressure instead of opening another build when aggregate
-build RSS approaches 8 GiB, swap grows continuously, or the terminal has
-stopped producing progress.
+host RSS (the agent plus Cargo/rustc children) approaches 8 GiB, swap grows
+continuously, or the terminal has stopped producing progress.  This is a
+hard safety boundary: the 2026-08-18 incident was confirmed by the kernel as
+`global_oom` killing the Codex process while overlapping Cargo/rustc workers
+were resident, not as a Rust panic.
 
 The checked-in `tools/checks/dev_gate.sh` applies the same four-job ceiling to
 all Cargo steps it launches (while respecting a smaller caller value), so the
@@ -357,6 +360,14 @@ bash tools/checks/current_state_pointer_guard.sh
 Only after the process check is empty may the single quick Cargo gate resume.
 Record the command and its nonzero executed-test count as the evidence; a
 zero-match filter is a command-selection error, not a passing test.
+
+When the cause of an unexpected termination is unclear, inspect the kernel
+record before retrying so an OOM kill is not mistaken for a test failure:
+
+```bash
+dmesg -T 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
+journalctl -k -b 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
+```
 
 ### Active SSOT current capsule
 

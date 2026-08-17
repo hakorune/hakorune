@@ -51,9 +51,10 @@ The interrupted run printed a very large warning transcript from
 `cargo test -q ... -- --nocapture`, matched zero tests, and then remained in
 `Waiting for background terminal` while several background terminals were
 still active. A second Cargo command with a different `RUSTFLAGS` was also
-queued. This is invalid evidence and is consistent with host/artifact
-resource pressure from overlapping top-level Cargo commands; the transcript
-does not show a Rust panic or establish an application-code crash.
+queued. The host kernel log later confirmed `global_oom` and
+`Out of memory: Killed process ... (codex)` while Cargo/rustc workers were
+resident (Codex anonymous RSS was about 10.3 GiB). The forced termination was
+therefore host-level OOM, not a Rust panic or an application-code test crash.
 
 Prevent recurrence with this fixed sequence:
 
