@@ -91,11 +91,10 @@ Related:
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` is the
-  active design stop. The direct Length Call/result canary consumed the same
-  target/receiver/condition/stamp cohort, but its receipt still needs a full
-  session-scoped lifetime seal; only then may the Bool-result materializer
-  consume Left read + Right Length and emit one Compare.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0` is the
+  active caller-zero implementation. Its D0 is accepted: the direct Length
+  Call/result receipt must own an exclusive borrow of the exact canonical
+  session, and only its later consumer may open the Bool-result materializer.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1761,38 +1760,44 @@ Non-claims:
   caller or a published physical result.
 ```
 
-### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0` — bounded child design stop 2026-08-17
+### `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0` — accepted BoxShape 2026-08-17
 
 ```text
 Decision:
-  Strengthen the landed Length Call/result witness into one callback-scoped,
-  non-Clone receipt whose lifetime is tied to the exact canonical session that
-  issued its ValueId/type. Do not add a second session stamp or a detachable
-  owner-only token.
+  Accept one linear, callback-scoped Length Call/result receipt. The receipt
+  owns the exclusive borrow of the exact `CommonV2CanonicalSessionRefV1` that
+  issued its ValueId/type; it is non-Clone and can only be consumed by a
+  receipt-owned later materializer. Do not add a second session stamp or a
+  detachable owner-only token.
 
 Source authority + canonical issuer:
   The existing retained physical-entry stamp and the live
   `CommonV2CanonicalSessionRefV1` are the only issuer inputs. The canonical
   session returns the receipt from the same callback that emitted the direct
-  Length Call and published its I64 type; the receipt borrows the complete
-  session stamp and cannot outlive that callback.
+  Length Call and published its I64 type. The receipt stores the exclusive
+  `&mut CommonV2CanonicalSessionRefV1` borrow plus immutable result metadata;
+  it cannot outlive the callback or be accepted by another session.
 
 Non-authority:
   `stamp_owner`, raw ValueIds, physical block numbers, CallSlot/result keys,
   instruction scans, or a copied owner/stamp struct cannot prove session
-  identity or issue the receipt. The outer unpublished function transaction
-  remains the only discard owner.
+  identity or issue/consume the receipt. A second Common/session has no
+  accepting API. The outer unpublished function transaction remains the only
+  discard owner.
 
 Fail-fast boundary:
   Missing full stamp, foreign session, result/type/condition drift, duplicate
   issuance, callback escape, or any attempt to use the receipt after session
-  close rejects before Bool materialization. No local rollback, fallback, or
-  retry is permitted.
+  close is rejected by the private type/API boundary before Bool materialization.
+  While the receipt exists, another mutable borrow of the canonical session is
+  unavailable; duplicate/re-entry must first consume or drop the receipt. No
+  local rollback, fallback, or retry is permitted.
 
 Smallest next slice:
-  Add the session-scoped receipt shape and focused lifetime/foreign-session/
-  duplicate/late-discard tests only. After this D0 is accepted, open the
-  `...BOOL-RESULT-D0/I0` materializer; keep branch and edge effects closed.
+  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0`
+  changes only the receipt return signature and adds focused lifetime,
+  duplicate, callback-escape, and late-discard tests. After that I0, open the
+  `...BOOL-RESULT-D0` materializer; keep branch and edge effects closed.
 
 Non-claims:
   No Compare, Bool ValueId publication, branch/edge/terminator, CFG/PHI,
@@ -2975,7 +2980,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-h-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-D0` | consume the receiver receipt and name the sole direct StringBox.length Call/result issuer | accepted BoxShape 2026-08-17; same-session target/receiver/condition/stamp co-seal, canonical Call/result issuer, and unpublished canary/discard boundary are fixed; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-h-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0` | emit exactly one canonical Length Call and one I64 receipt under the outer unpublished transaction | landed 2026-08-17; same-session target/receiver/condition/stamp checks, final generic-Call shape/effect checks, one-shot, and late-discard tests are green; no parent Bool/Compare/edge/CFG/PHI/lifecycle/Text/route/fallback/retry/production |
 | 25b-l-e | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-PHYSICAL-RESULT-D0` | close the parent physical Bool-result boundary after the Length Call/result canary | current design stop; the direct canary is landed, but the Length receipt still needs a full same-session lifetime before Bool materialization can be accepted |
-| 25b-l-i | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0` | seal the full physical-entry/session stamp and issue one callback-scoped non-repairable Length result receipt | next bounded design slice; no new effect, Compare, branch, edge, CFG/PHI, lifecycle, Text, route, publication, fallback, retry, or production caller |
+| 25b-l-i | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-D0` | seal the full physical-entry/session stamp and issue one callback-scoped non-repairable Length result receipt | accepted BoxShape 2026-08-17; the receipt owns the exclusive canonical-session borrow, with no Compare, branch, edge, CFG/PHI, lifecycle, Text, route, publication, fallback, retry, or production caller |
+| 25b-l-i-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0` | change the Length receipt to an exclusive callback-scoped session borrow and add lifetime/duplicate/late-discard gates | current caller-zero implementation; no Bool ValueId/Compare, branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
 | 25b-l-j-D0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0` | accept one same-session condition-result materializer consuming Left read + Length result and issuing one canonical Bool receipt | blocked behind receipt-lifetime D0; no Compare, branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, or production |
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | future caller-zero canary only; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
