@@ -1090,7 +1090,11 @@ LoopJoinBranchV1
 
 LoopJoinBranchArmV1
   Exit(LoopJoinBranchExitV1)
-  Fallthrough { payload }
+  Fallthrough { continuation, payload }
+
+LoopJoinNextItemV1
+  block
+  item
 
 LoopJoinBranchExitV1
   exit_item
@@ -1123,6 +1127,15 @@ Two normal arms must agree on binding/value state. This is a caller-zero
 logical contract only: source observation, physical CFG/PHI, Builder/MIR,
 selector, retry/fallback, production activation, and legacy deletion remain
 closed.
+
+Reference receipt — `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0` (2026-08-18):
+the Fallthrough arm now carries one explicit physical-ID-free
+`NextItem { block, item }` copied from the verified parent block at JoinSig
+issuance. The V2 control view transports the same relation, and the retained
+source consumer rejects missing/foreign/duplicate/non-strict targets before
+Layout. No `item + 1` inference, BlockEnd, two-normal-arm PHI, physical edge,
+canonical session, CFG/SSA/PHI mutation, production switch, retry, or fallback
+is opened by this receipt.
 
 ### Visible carrier payloads
 

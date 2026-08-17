@@ -155,7 +155,9 @@ fn loop_true_branch_exit_join_sig_records_implicit_else_fallthrough() {
     ));
     assert!(matches!(
         branch.else_arm,
-        LoopJoinBranchArmV1::Fallthrough { .. }
+        LoopJoinBranchArmV1::Fallthrough { continuation, .. }
+            if continuation.block == LoopBlockKeyV1::new(0)
+                && continuation.item == LoopItemKeyV1::new(2)
     ));
     assert_eq!(
         sig.as_sig().loops[0]

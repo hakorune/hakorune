@@ -34,10 +34,10 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-RELATION-D0 is accepted for one caller-zero `Exit + Fallthrough` relation with an explicit same-parent-block `NextItem` target. BlockEnd, two-normal-arm PHI, canonical-session consumer, physical Layout splitting, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed. Old topology deletion remains NoSafeSlice without a selected segment production caller."
-work_mode = "fast"
-current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0"
-current_blocker_token = "Fast::IfContinuationNextItemI0. Add only the JoinSig-owned physical-ID-free `NextItem { block, item }` relation for one Exit+Fallthrough branch and transport it through the existing V2 control view. Reject foreign/duplicate/missing/non-strict targets and arm drift before Layout; do not open BlockEnd, two-normal-arm PHI, V2-to-V1 adaptation, session, CFG/SSA/PHI, production, fallback, or retry."
+current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0 is the next design stop after landing caller-zero I0 for one `Exit + Fallthrough` relation with explicit same-parent-block `NextItem`. The named physical/session consumer, BlockEnd, two-normal-arm PHI, Layout splitting, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed. Old topology deletion remains NoSafeSlice without a selected segment production caller."
+work_mode = "design_stop"
+current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0"
+current_blocker_token = "NoSafeSlice::IfContinuationPhysicalConsumerMissing. I0 transports and validates one physical-ID-free JoinSig `NextItem`; no canonical session branch/merge consumer authority exists yet. Do not infer BlockEnd, two-normal-arm PHI, CFG/SSA/PHI, Layout splitting, production, fallback, or retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -92,10 +92,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If scope is corrected and D0 is accepted for one Exit+NextItem Fallthrough transport; I0 is caller-zero pre-Layout only. Dynamic exit-session and initializer bridge remain downstream."
-next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0"
+latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If scope is corrected; D0 and caller-zero I0 are landed for one Exit+NextItem Fallthrough transport with pre-Layout negative guards. The next stop names the missing physical/session consumer; Dynamic exit-session and initializer bridge remain downstream."
+next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-17: MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0 replaced the Callable six-element tuple escape with one source-free non-Clone PreparedCallableOperationDemandV1 consumed once by the existing prepared-demand handoff. Compiler 3/3 and Builder 1/1 focused tests, cargo check, format, diff, and zero source callers are green; no Builder/session/CFG/SSA/PHI, Completion/DraftSeal, Text, route, fallback, retry, publication, or production selector opened."
   "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
   "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
-  "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer and D0 accepted one Exit+NextItem Fallthrough continuation transport; I0 remains caller-zero pre-Layout with no physical edge."
+  "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer and D0 accepted one Exit+NextItem Fallthrough continuation transport; I0 remains caller-zero pre-Layout with no physical edge.",
 ]

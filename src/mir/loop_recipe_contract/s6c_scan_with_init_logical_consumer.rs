@@ -3,6 +3,7 @@
 //! This owner only checks and acknowledges an already sealed logical view.  It
 //! does not issue Facts, Recipe, Join, MIR, or physical meaning.
 
+use super::ids::{LoopBlockKeyV1, LoopItemKeyV1};
 use super::join_sig::{
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1,
 };
@@ -92,7 +93,9 @@ fn validate_view<'rows, 'product>(
     }
     if !matches!(
         branch.else_arm,
-        LoopJoinBranchArmTransferRefV2::Fallthrough { .. }
+        LoopJoinBranchArmTransferRefV2::Fallthrough { continuation, .. }
+            if continuation.block == LoopBlockKeyV1::new(1)
+                && continuation.item == LoopItemKeyV1::new(11)
     ) {
         return Err(S6CLogicalOutputRejectV1::Control("else fallthrough"));
     }

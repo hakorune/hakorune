@@ -12,8 +12,8 @@ use crate::mir::resolved_semantics::{
 
 use super::error::LoopRecipeRejectReasonV1 as Reject;
 use super::ids::{LoopBindingKeyV1, LoopCarrierKeyV1};
-use super::join_sig::VerifiedLoopJoinSigV1;
-use super::schema::{LoopRecipeV1, LoopValueClassV1};
+use super::join_sig::{LoopJoinBranchArmV1, VerifiedLoopJoinSigV1};
+use super::schema::{LoopRecipeItemV1, LoopRecipeV1, LoopValueClassV1};
 use super::source_binding::StructurallyVerifiedLoopRecipeSourceClaimV1;
 use super::verify::LoopRecipeVerifierV1;
 use super::verify::{VerifiedLoopRecipeArtifactV1, VerifiedLoopRecipeV1};
@@ -467,6 +467,9 @@ fn verify_join_sig_pair(
             }
         }
     }
+    if !verify_branch_continuations(recipe, sig) {
+        return Err(Reject::SourceBoundJoinSigMismatch);
+    }
     let port_bindings = sig
         .port_bindings
         .iter()
@@ -484,4 +487,54 @@ fn verify_join_sig_pair(
         return Err(Reject::SourceBoundJoinSigMismatch);
     }
     Ok(())
+}
+
+fn verify_branch_continuations(
+    recipe: &LoopRecipeV1,
+    sig: &super::join_sig::LoopJoinSigV1,
+) -> bool {
+    let mut seen_targets = BTreeSet::new();
+    for branch in &sig.branches {
+        let Some(if_row) = recipe.items.iter().find(|row| row.key == branch.if_item) else {
+            return false;
+        };
+        if !matches!(if_row.item, LoopRecipeItemV1::If { .. }) {
+            return false;
+        }
+        let Some(parent_block) = recipe
+            .blocks
+            .iter()
+            .find(|block| block.items.contains(&branch.if_item))
+        else {
+            return false;
+        };
+        for arm in [&branch.then_arm, &branch.else_arm] {
+            let LoopJoinBranchArmV1::Fallthrough { continuation, .. } = arm else {
+                continue;
+            };
+            if continuation.block != parent_block.key
+                || !seen_targets.insert((continuation.block, continuation.item))
+            {
+                return false;
+            }
+            let Some(if_index) = parent_block
+                .items
+                .iter()
+                .position(|item| *item == branch.if_item)
+            else {
+                return false;
+            };
+            let Some(target_index) = parent_block
+                .items
+                .iter()
+                .position(|item| *item == continuation.item)
+            else {
+                return false;
+            };
+            if target_index <= if_index {
+                return false;
+            }
+        }
+    }
+    true
 }

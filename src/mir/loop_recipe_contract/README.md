@@ -642,8 +642,10 @@ LoopJoinBranchV1
   owner_loop
   if_item
   condition
-  then_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { payload }
-  else_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { payload }
+  then_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation, payload }
+  else_arm: Exit(LoopJoinBranchExitV1) | Fallthrough { continuation, payload }
+
+continuation = NextItem { block, item }
 ```
 
 An omitted source `else` is an implicit logical `Fallthrough`; no AST node or
@@ -653,6 +655,13 @@ merge binding state. The normal arm continues with its state, while the loop
 row receives the terminal `Break`/`Continue` edge and a normal `Backedge`.
 Two normal arms must have equal binding/value state and are rejected otherwise.
 The existing explicit `Break`-then/`Continue`-else pair remains valid.
+
+For the accepted one-sided shape, `NextItem` is copied from the verified
+parent block's explicit next item at JoinSig issuance time. It is logical
+source evidence only: consumers must not reconstruct it with `item + 1`,
+physical layout order, or a synthetic merge. A missing continuation is a
+typed JoinSig reject; the retained V2 source consumer also rejects foreign,
+duplicate, or non-strict `(block, item)` targets before Layout.
 
 This is a caller-zero logical JoinSig contract only. `LoopRecipeV1` is
 unchanged; source observation, Recipe production, physical CFG/PHI, Builder,

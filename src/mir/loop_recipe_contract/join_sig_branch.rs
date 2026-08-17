@@ -4,7 +4,8 @@ use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::join_sig::recipe_view::{LoopJoinExitView, LoopJoinItemView, LoopJoinRecipeView};
 use super::join_sig::{
     visible_payloads_from_view, Flow, LoopJoinBranch, LoopJoinBranchArm, LoopJoinBranchExit,
-    LoopJoinBranchTarget, LoopJoinEdgeRoleV1, LoopJoinPayload, LoopJoinSigRejectReasonV1,
+    LoopJoinBranchTarget, LoopJoinEdgeRoleV1, LoopJoinNextItemV1, LoopJoinPayload,
+    LoopJoinSigRejectReasonV1,
 };
 
 pub(super) fn branch_row<V: LoopJoinRecipeView>(
@@ -14,13 +15,21 @@ pub(super) fn branch_row<V: LoopJoinRecipeView>(
     condition: LoopValueKeyV1,
     then_block: LoopBlockKeyV1,
     else_block: Option<LoopBlockKeyV1>,
+    continuation: Option<LoopJoinNextItemV1>,
     then_flow: &Flow<V::Class>,
     else_flow: &Flow<V::Class>,
 ) -> Result<LoopJoinBranch<V::Class, V::BranchTarget>, LoopJoinSigRejectReasonV1> {
-    let then_arm = branch_arm(recipe, owner_loop, then_block, then_flow)?;
+    let then_arm = branch_arm(
+        recipe,
+        owner_loop,
+        if_item,
+        then_block,
+        continuation,
+        then_flow,
+    )?;
     let else_arm = match else_block {
-        Some(block) => branch_arm(recipe, owner_loop, block, else_flow)?,
-        None => fallthrough_arm(recipe, owner_loop, else_flow)?,
+        Some(block) => branch_arm(recipe, owner_loop, if_item, block, continuation, else_flow)?,
+        None => fallthrough_arm(recipe, owner_loop, if_item, continuation, else_flow)?,
     };
     if !supported_arm_pair(&then_arm, &else_arm) {
         return Err(LoopJoinSigRejectReasonV1::BranchMergeMismatch { item: if_item });
@@ -37,7 +46,9 @@ pub(super) fn branch_row<V: LoopJoinRecipeView>(
 fn branch_arm<V: LoopJoinRecipeView>(
     recipe: &V,
     owner_loop: LoopNodeKeyV1,
+    if_item: LoopItemKeyV1,
     block: LoopBlockKeyV1,
+    continuation: Option<LoopJoinNextItemV1>,
     flow: &Flow<V::Class>,
 ) -> Result<LoopJoinBranchArm<V::Class, V::BranchTarget>, LoopJoinSigRejectReasonV1> {
     if let Some((item, kind)) = flow.exit {
@@ -54,15 +65,20 @@ fn branch_arm<V: LoopJoinRecipeView>(
             visible_payloads_from_view(recipe, owner_loop, &flow.bindings)?,
         )?));
     }
-    fallthrough_arm(recipe, owner_loop, flow)
+    fallthrough_arm(recipe, owner_loop, if_item, continuation, flow)
 }
 
 fn fallthrough_arm<V: LoopJoinRecipeView>(
     recipe: &V,
     owner_loop: LoopNodeKeyV1,
+    if_item: LoopItemKeyV1,
+    continuation: Option<LoopJoinNextItemV1>,
     flow: &Flow<V::Class>,
 ) -> Result<LoopJoinBranchArm<V::Class, V::BranchTarget>, LoopJoinSigRejectReasonV1> {
+    let continuation = continuation
+        .ok_or(LoopJoinSigRejectReasonV1::MissingFallthroughContinuation { item: if_item })?;
     Ok(LoopJoinBranchArm::Fallthrough {
+        continuation,
         payload: visible_payloads_from_view(recipe, owner_loop, &flow.bindings)?,
     })
 }

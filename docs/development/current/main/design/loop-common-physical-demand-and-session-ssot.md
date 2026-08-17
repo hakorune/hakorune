@@ -2149,6 +2149,32 @@ Stop:
   canonical-session consumer is a later design/physicalization row.
 ```
 
+Implementation receipt (2026-08-18):
+`LoopJoinNextItemV1` is now issued from the verified parent block's explicit
+next item and carried by each logical `Fallthrough` arm through the existing
+V2 transfer view. `issue_control_source` delegates source-block validation to
+one bounded caller-zero owner, which rejects foreign, duplicate, missing, and
+non-strict targets before Layout. The implicit-else/S6C target positives and
+the negative matrix are green under the quick profile. The broader
+`loop_recipe_contract` suite has 151 passing tests and one unchanged
+`source_bound_core` baseline failure with an unchanged test, reproduced before
+the I0 parity guard; it is recorded as baseline debt, not a current-change
+failure. The source-bound Core parity
+guard also rejects Recipe/JoinSig continuation drift before co-seal. No
+physical IDs, session API,
+CFG/SSA/PHI mutation, production switch, fallback, or retry was opened.
+
+The next row is a design stop for naming the sole physical/session consumer;
+I0 does not authorize Layout inference or branch terminator emission.
+
+### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0 (2026-08-18)
+
+The next bounded decision must name the sole physical/session consumer for the
+borrowed `NextItem` relation and its rollback owner. Until that authority is
+accepted, `CommonV2CanonicalSessionRefV1` remains unchanged and no Layout
+split, branch terminator, BlockEnd, two-normal-arm PHI, CFG/SSA/PHI mutation,
+production switch, fallback, or retry may open.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
@@ -5830,7 +5856,8 @@ skip the After closure or reopen a Tail-only route.
 | 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | guard/docs present in `1544d128d2`/`1e93ad6be9`; transitive old-edge census remains before deletion |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | consume one existing V2 branch-arm view with a named physical merge owner | design stop: NoSafeSlice until merge authority/consumer are named; no V2-to-V1 adapter or Layout inference |
-| 24a | `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0` | issue one JoinSig `NextItem` continuation for an Exit+Fallthrough branch and transport it through the existing V2 control view | one BoxCount; positive/negative pre-Layout evidence; no BlockEnd, two-normal-arm PHI, session, or physical effect |
+| 24a | `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0` | issue one JoinSig `NextItem` continuation for an Exit+Fallthrough branch and transport it through the existing V2 control view | landed; positive/negative pre-Layout evidence; no BlockEnd, two-normal-arm PHI, session, or physical effect |
+| 24b | `LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0` | name the sole physical/session consumer and rollback owner for the borrowed `NextItem` relation | design stop; no Layout split, branch terminator, BlockEnd, PHI, or production effect |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |

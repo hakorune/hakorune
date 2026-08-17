@@ -15,6 +15,7 @@ use super::common_v2_condition_producer::{
     issue_s6c_v2_condition_producer_relation_v1, ConditionProducerRelationRejectV1,
     PreparedLoopV2ConditionProducerRelationV1,
 };
+use super::common_v2_continuation_relation::validate_continuation_relation;
 use super::common_v2_initial_index_seed::{
     issue_s6c_v2_initial_index_seed_relation_v1, InitialIndexSeedRelationRejectV1,
     PreparedLoopV2InitialIndexSeedRelationV1,
@@ -43,6 +44,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     MissingControl,
     DuplicateControl,
     ControlRelation,
+    ContinuationRelation,
     CoverageOverlap,
     S6CCoverage {
         operations: usize,
@@ -503,6 +505,11 @@ fn issue_control_source<'source, 'join>(
         rows.push(row);
     }
     let transfer = ingress.logical_transfer();
+    validate_continuation_relation(
+        transfer.branches(),
+        ingress.logical_items(),
+        ingress.logical_blocks(),
+    )?;
     if rows.is_empty() {
         return Err(CommonV2IssuerRejectV1::MissingControl);
     }

@@ -6,8 +6,9 @@ use super::super::ids::{
 use super::super::join_sig_branch::{branch_row, is_supported_loop_branch_pair};
 use super::super::verify::VerifiedLoopRecipeV1;
 use super::model::{
-    LoopJoinBranch, LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinPayload, LoopJoinSig,
-    LoopJoinSigRejectReasonV1, VerifiedLoopJoinSig, VerifiedLoopJoinSigV1,
+    LoopJoinBranch, LoopJoinEdge, LoopJoinEdgeRoleV1, LoopJoinLoop, LoopJoinNextItemV1,
+    LoopJoinPayload, LoopJoinSig, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSig,
+    VerifiedLoopJoinSigV1,
 };
 use super::port::{loop_exit_edge, port_bindings};
 use super::recipe_view::{
@@ -393,7 +394,12 @@ fn process_block<V: LoopJoinRecipeView>(
         alternate_exit_payload: None,
         side_exits: Vec::new(),
     };
-    for item_key in block.items {
+    for (index, item_key) in block.items.iter().enumerate() {
+        let continuation = block
+            .items
+            .get(index + 1)
+            .copied()
+            .map(|item| LoopJoinNextItemV1 { block: key, item });
         if flow.exit.is_some() || flow.alternate_exit.is_some() {
             return Err(LoopJoinSigRejectReasonV1::UnreachableItem { item: *item_key });
         }
@@ -485,6 +491,7 @@ fn process_block<V: LoopJoinRecipeView>(
                         condition,
                         then_block,
                         explicit_else_block,
+                        continuation,
                         &then_flow,
                         &else_flow,
                     )?);
@@ -530,6 +537,7 @@ fn process_block<V: LoopJoinRecipeView>(
                         condition,
                         then_block,
                         explicit_else_block,
+                        continuation,
                         &then_flow,
                         &else_flow,
                     )?;

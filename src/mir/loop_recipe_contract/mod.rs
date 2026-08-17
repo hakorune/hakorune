@@ -9,6 +9,8 @@ mod common_v2_after_boundary;
 mod common_v2_layout_input;
 // Caller-zero source-backed CompareI64 producer relation transport.
 mod common_v2_condition_producer;
+// Caller-zero source-block validation for JoinSig If continuation targets.
+mod common_v2_continuation_relation;
 // Caller-zero source-backed condition operand inventory transport.
 mod common_v2_condition_operand_inventory;
 // Caller-zero source-backed initial-index seed transport; no physical effect.
@@ -242,10 +244,10 @@ pub(crate) use join_sig::{
     LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinClosureRejectV2,
     LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV1,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV1,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
-    LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2,
-    VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinNextItemV1, LoopJoinPayloadV1, LoopJoinPayloadV2,
+    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
+    VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
