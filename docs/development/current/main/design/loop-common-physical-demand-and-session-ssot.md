@@ -1902,6 +1902,38 @@ Non-claims: this D0 closes no physical capability. A green transport or C1
 test cannot advance the blocker, and a generic `icmp != 0` cannot issue the
 TextEq Bool.
 
+### TextEq numeric wire / source-C census D0 (2026-08-18; NoSafeSlice remains)
+
+The read-only census found no source-backed C entry that owns StringEquals/1
+and no canonical numeric namespace for its strict Bool wire. Therefore the
+existing `NoSafeSlice::TextEqStrictDecoderTrapUnsealed` remains the blocker;
+no number or symbol is assigned by analogy.
+
+| candidate | classification | reason it cannot issue B |
+| --- | --- | --- |
+| `DynamicV2CallOutV1` status/tag/revision | transport only | generic carrier; no TextEq identity, cohort, or one-shot Bool consumer |
+| TextScan ABI revision 1 / out wire revision 2 | other source family | owns Substring/IndexOf facts, not StringEquals/1 |
+| `nyash.string.eq_hh` | non-authority hook | generic i64 route and truthification; no strict status/fault/Trap contract |
+| C1 `llvm.trap` sites | backend-local | malformed transport traps have no source-bound S6C meaning |
+| `TextFormal*` borrow/residence | mechanical transport | slot/generation lease facts, not method result semantics |
+
+Source authority remains the `CoreMethodContractBox` A row plus
+`S6CPrephysicalIngressRefV2::with_text_eq_leaf`; a future source-backed C ABI
+entry must be co-sealed with that cohort before the design issuer
+`issue_s6c_text_eq_strict_decode_v1` can be implemented. The numeric revision,
+status/tag values, C symbol/owner, and canonical consumer are consequently
+unresolved design inputs, not defaults.
+
+Fail-fast boundary: stop before declaring a C symbol, assigning a tag/revision,
+creating a wire or receipt, or emitting Call/Compare/CFG. The next bounded
+slice is a source-owned ABI decision that names all of those together and
+adds the exhaustive negative matrix; if no producer can be named, remain at
+`design_stop` rather than inventing a fallback.
+
+Non-claims: this census changes no code, fixture, ABI, transport, source
+entry, decoder, Trap, residence, Bool `ValueId`, production switch, or legacy
+retirement condition.
+
 #### C — canonical Substring-result residence publisher/pinner
 
 Source authority + canonical issuer: the source-bound `StringSubstring`
