@@ -486,34 +486,134 @@ Source authority + canonical issuer:
   authority.  The final parser/batch declaration row can own the TopLevel
   declaration projection, `VerifiedGenericTypedSourceBundleG0::return_abi`
   owns result evidence, `verify_function_completion_v1` is the candidate
-  Completion issuer, and a new source-backed function-effect issuer must be
-  named.  One Generic parent must co-seal all four before lending a profile
-  view; Package/Port and the S6C header are other-profile transport/owners.
+  Completion issuer, and the function-effect sibling has a bounded issuer
+  shape: `VerifiedResolvedFunctionV1` body-effect/direct-call/method-call
+  inventories, a typed declaration-metadata-empty witness, and the Generic
+  structural facts are co-sealed by a future
+  `VerifiedGenericG0NoExternalEffectV1` issuer.  That product may project
+  `NoExternalEffects` later; it is not an `EffectMask` authority.  One Generic
+  parent must co-seal all four before lending a profile view;
+  Package/Port and the S6C header are other-profile transport/owners.
 
 Non-authority:
   S6C physical headers/effects, Generic source-parent entry rows, raw
   ParamDecl, `/N`, MIR parameter length, default `EffectMask`, AST/MIR/JSON
-  rescans, and a profile-local descriptor copy cannot issue Generic ABI.
+  rescans, `GenericG0StructuralFactsG0` alone, Generic operation-local
+  `SourceRead`/`SourceWrite`, and a profile-local descriptor copy cannot issue
+  Generic ABI or function effect.
 
 Fail-fast boundary:
   Foreign owner/brand, missing or mixed declaration/result/effect/Completion
   cohort, TopLevel receiver/lane drift, incomplete attrs/uses, result/target
-  mismatch, or any request to open Builder/session effects before the issuer
-  exists remains
+  mismatch, direct/method calls, allocation/await/qmark/throw/non-local
+  control, field/upvar/index writes, or any request to open Builder/session
+  effects before the issuer exists remains
   `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`.
 
 Smallest next slice:
-  Read-only issuer census only, in this order: declaration/header projection;
-  result/ABI parity; source-backed function-effect issuer; Completion co-seal.
-  If all four can be issued from one owner cohort, open one caller-zero
-  transport row for a neutral pre-effect aggregate; otherwise keep this task
-  parked and do not add a guessed/default receipt.
+  Keep this parent task at design stop and close the next bounded subdecision
+  as `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0`: define the input
+  inventories, `VerifiedGenericG0NoExternalEffectV1` BoxShape, local-rebind
+  allowance, and positive/negative census.  Then return to the declaration /
+  result / Completion siblings; only when all four issue from one owner cohort
+  may a caller-zero physical-entry transport row open.  No guessed/default
+  receipt or `EffectMask` projection is allowed during this census.
 
 Non-claims:
   No common skeleton, lane adoption, ValueId/BindingSSA, CFG/PHI,
   Completion claim, lifecycle, Text, route, production caller, fallback, or
   retry is opened by this census.
 ```
+
+### Generic G0 source-projection child tasks (queued, not yet activated)
+
+The external review is directionally compatible with this stop, but its
+reported branch/head is historical.  The current tree therefore keeps the
+Generic physical-entry cohort closed and records only the following ordered
+tasks.  These rows are source-projection work; they do not authorize a
+Builder/session effect.
+
+#### `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0`
+
+```text
+Decision:
+  Keep function-level effect as a separate Generic source-projection
+  decision.  Do not derive it from GenericG0StructuralFactsG0, operation-local
+  SourceRead/SourceWrite, or a default EffectMask.
+
+Source authority + canonical issuer:
+  A future resolver-owned issuer co-seals the same function's
+  VerifiedResolvedFunctionV1 body-effect/direct-call/method-call inventories,
+  a typed declaration-metadata-empty witness, and the Generic structural
+  facts.  It may issue a bounded NoExternalEffects projection only after all
+  three inputs are same-owner, same-origin, and same-root.
+
+Non-authority:
+  Recipe-local effects, raw AST/MIR/JSON rescans, parameter count, `/N`,
+  EffectMask defaults, S6C effects, and Generic structural facts alone.
+
+Fail-fast boundary:
+  Reject direct/method calls, allocation/await/qmark/throw/non-local control,
+  field/upvar/index writes, non-empty uses/attrs/contracts, owner/origin/root
+  drift, missing effect rows, and any request to open physical/session effect.
+
+Smallest next slice:
+  Read-only issuer census and positive/negative matrix only.  If the source
+  issuer is accepted, return to the parent cohort and then open the separate
+  TopLevel declaration/header I0; otherwise keep the parent NoSafeSlice.
+
+Non-claims:
+  No EffectMask emission, skeleton, lane adoption, ValueId/BindingSSA,
+  CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
+```
+
+#### `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` (queued after issuer acceptance)
+
+```text
+Decision:
+  Add one source-backed declaration/header projection for Generic G0
+  TopLevel only.  This is a mechanical source projection, not a physical ABI
+  or function-effect issuer.
+
+Source authority + canonical issuer:
+  `ResolvedFunctionLoweringInputV1::source()` and its
+  `CallableHeaderSyntaxViewV1` are the sole source.  The Generic source-parent
+  issuer issues one private, non-Clone
+  `VerifiedGenericG0TopLevelDeclarationHeaderV1` inside its existing
+  callback-scoped cohort transaction and lends it through the cohort view.
+
+Non-authority:
+  S6C storage headers, raw ParamDecl outside the source view, `/N`, MIR
+  parameter length, JSON, ValueId, runtime metadata, Generic effect facts, and
+  any caller-side reconstructed header.
+
+Fail-fast boundary:
+  Reject non-function roots, owner/origin/source-kind drift, parameter or
+  ParamDecl count/name/order/type drift, return-annotation drift, non-empty
+  uses/attrs/contracts when the TopLevel profile requires metadata-empty, and
+  callback loan escape or duplicate consumption.
+
+Smallest next slice:
+  Add source-view getters, issue/store the typed header in the existing
+  Generic cohort, and add focused positive/negative tests.  Keep result ABI,
+  receiver/lane layout, function effect, Completion, skeleton, and session
+  outside this I0.
+
+Non-claims:
+  No physical signature, receiver lane, EffectMask, Completion, CFG/SSA/PHI,
+  lifecycle, Text, route, fallback/retry, production caller, or main
+  integration.
+```
+
+#### `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` (parked after the parent cohort)
+
+After the Generic source-parent cohort and its first child projections land,
+run one read-only convergence audit before adding more leaf receipts.  Record
+only: (1) caller-zero/test-only constructor count, (2) duplicate receipts that
+carry the same authority, (3) each canary's final production owner and delete
+condition, and (4) the complete legacy-edge retirement list.  This checkpoint
+does not reopen `new_selected_dynamic`, the selected-normal legacy finalizer,
+physical session effects, or any fallback route.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -3566,6 +3666,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | resolver-owned census for body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | queued design child; parent `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed` remains; no code/effect/session |
+| 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort after issuer acceptance | queued fast child; source projection only; no result/lane/effect/Completion/skeleton/session |
+| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, and legacy edges after the parent cohort | parked cleanup checkpoint; no new authority or production switch |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
