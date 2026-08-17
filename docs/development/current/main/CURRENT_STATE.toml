@@ -28,18 +28,19 @@ The Generic G0 source-parent I0 is landed with a callback-scoped non-Clone
 parent and exact two-entry coverage. The S6C-only physical-entry descriptor
 input is already landed; it is not a Generic/common issuer. The resolver-owned
 body-shape transport into the Generic G0 cohort is now landed with
-same-owner/body-root checks. The next design stop is the separate
-function-effect projection census before any EffectMask or physical/session
+same-owner/body-root checks; its private function-effect receipt is landed
+before demand/product consumption. The next design stop is the separate
+result-ABI source census before Completion, EffectMask, or physical/session
 effect.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "Generic G0 function-effect projection BoxShape is accepted; the caller-zero I0 may issue one private source receipt before demand/product consumption, while EffectMask and physical/session effects remain closed."
-work_mode = "fast"
-current_execution_row = "LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0"
-current_blocker_token = "NoSafeSlice::GenericG0FunctionEffectIssuerImplementationUnsealed"
+current_design_stop = "Generic G0 function-effect projection I0 is landed; the next bounded design stop is the resolver-owned Generic result-ABI projection census, with Completion and all physical/session effects still closed."
+work_mode = "design_stop"
+current_execution_row = "LOOP-GENERIC-G0-RESULT-ABI-PROJECTION-D0"
+current_blocker_token = "NoSafeSlice::GenericG0ResultAbiIssuerUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -67,9 +68,9 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   source-parent I0 is landed; its resolver-owned body-shape sibling is now
   transported from the same source-unit resolution with owner/body-root
   checks. The S6C-only physical-entry input is closed, while Generic G0
-  remains a design stop for its own source-backed storage/result/lane/effect
-  projection. The TopLevel declaration/header source projection is landed; no
-  effect child fast row is currently open beneath that stop.
+  remains a design stop for its source-backed result/Completion/storage/lane
+  projection. TopLevel declaration/header and the private no-external-effect
+  receipt are landed; no physical/session effect child is open beneath it.
 No detached binding read may open later physical effects.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
@@ -87,10 +88,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, S6C-only physical-entry input, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. Generic G0 source-parent I0 is landed with exact two-entry coverage, its TopLevel declaration/header projection is landed, and the resolver-owned body-shape sibling now reaches the root input and Generic parent with owner/body-root checks. The parent physical-entry cohort is blocked on the separate function-effect projection, then result/Completion siblings. CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
-next_design_card = "LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0"
+latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, S6C-only physical-entry input, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. Generic G0 source-parent I0 is landed with exact two-entry coverage, its TopLevel declaration/header projection and resolver-owned body-shape transport are landed, and the private no-external-effect receipt now lands before demand/product consumption. The parent physical-entry cohort is blocked on the separate result-ABI census, then Completion and remaining storage/lane siblings. CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+next_design_card = "LOOP-GENERIC-G0-RESULT-ABI-PROJECTION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0"
+next_execution_card = "none (result-ABI issuer BoxShape is not accepted)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -105,8 +106,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-ALLOCATION-I0 landed one caller-zero RootAfter-only unpublished After block allocation. The prepared plan is private and one-shot, canonical session issues the BasicBlockId, outer discard removes the unpublished function on late failure, and focused positive/duplicate/late-discard tests are green. The next design stop is source-backed After-edge admission; no edge or successor is emitted.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-BRANCH-PLAN-I0 landed one same-cohort physical-ID-free predicate branch-plan transport. The S6C envelope now lends the Bool condition, Header -> Body, Header -> RootAfter, and future condition-carrier requirement; missing/duplicate boundary negatives and installed-loan assertions are green. The following producer-relation I0 is also landed; the next design stop names the physical result receipt, with no ValueId, emit_branch, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller open.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-PRODUCER-I0 landed one same-cohort non-Clone CompareI64 producer relation. The exact source producer, logical operation row, owner/block, I64 operands, Bool result, and Less operator are co-sealed; a non-Compare operation-row drift negative and installed-loan positive are green. No physical ValueId, operation lowering, emit_branch, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller is open.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0 landed one same-cohort two-row source inventory: condition-block ReadBinding on the left and Length CallSlot on the right. The inventory retains typed source provenance and rejects foreign owner, Length-operation drift, and malformed transport before any physical/session effect; the next stop is physical-entry stamp retention.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-SESSION-STAMP-RETENTION-I0 landed the caller-zero move-only session seam. The prepared physical-entry stamp is consumed once, attached before the outer Builder transaction, and borrowed only through the common session wrapper; positive retention and missing-stamp canaries are green. The next design stop is the physical condition-result BoxShape; ValueId, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
@@ -117,4 +116,5 @@ landed_tail = [
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0 landed the source-backed entry ConstI64(0) and exact declaration/SSA publication from the same S6C seed relation. The callback-scoped non-Clone seed/read receipt is one-shot; missing-function, duplicate, and late-discard gates are green. Bool/Compare, branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0 landed one receipt-owned same-session Bool materializer. It consumes the seeded entry read and Length result, emits one canonical Less Compare and Bool type/result receipt, and passes missing-seed/type plus late-discard tests. Branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next gate is LOOP-PRECUTOVER-AUTHORITY-G0.",
   "2026-08-17: LOOP-PRECUTOVER-AUTHORITY-G0-I0 landed one production Generic source-parent issuer. It co-seals the exact resolver input and selected Generic row, validates the root-plus-child forest and two source-parameter entry rows, and lends a non-Clone callback-scoped parent. Physical demand, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next stop is complete physical-function-entry input census.",
+  "2026-08-17: LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0 landed one private non-Clone no-external-effect source receipt before Generic demand/product consumption. It co-seals the same-resolver body-shape effect inventory, resolved call/assignment/exit inventories, metadata-empty declaration header, and selected Generic structural facts; no EffectMask or physical/session effect opened. The next stop is the separate result-ABI issuer census.",
 ]
