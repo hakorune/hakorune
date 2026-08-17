@@ -835,6 +835,51 @@ Non-claims:
 The next blocker is
 `NoSafeSlice::GenericG0PhysicalEntryAdoptionSessionSeamUnsealed`.
 
+#### Adoption D0 census (2026-08-17)
+
+The read-only census closes the boundary, but not the implementation permit:
+
+```text
+source -> GenericG0SourceParentV1 + entry descriptors
+       -> (missing) Generic cohort/adoption stamp
+       -> (missing) neutral lane adapter
+       -> (missing) fresh unpublished Builder/session transaction
+       -> canonical identity.publish_declaration_exact
+```
+
+The existing `PhysicalFunctionEntryCohortStampV1` and
+`with_common_v2_physical_entry_session` are S6C/common owners.  They retain
+S6C selected-key and loan provenance, so reclassifying them as Generic would
+create a second source relation.  The Generic D0 therefore remains a design
+stop until one Generic-owned, non-Clone stamp/adapter seam is named and its
+rollback owner is proven.
+
+The bounded sub-decisions are ordered and effect-free:
+
+1. **Cohort stamp.**  Co-seal the retained Generic parent, detached shell,
+   descriptor cohort, owner/origin/source-kind/body-root/frame, and physical
+   parameter count.  The stamp must also cover each descriptor's physical
+   index, receiver/formal role, BindingRef, source site, and carrier type.
+2. **Neutral lane adapter.**  Prove that each descriptor consumes exactly the
+   installed shell parameter at `params[index]`; preserve receiver-prefix and
+   explicit-formal order; create no new `ValueId`, BindingSSA row, sidecar, or
+   semantic meaning.  The adapter is a mechanical view, not an S6C session.
+3. **Fresh rollback seam.**  Identify one unpublished function transaction
+   whose discard owns every partial shell/identity mutation.  The canonical
+   session may consume the admitted stamp, but it is not the source issuer and
+   no Builder/session may open before the co-seal succeeds.
+4. **Adoption contract.**  Fix the one-shot rule for receiver and ordinary
+   scalar declarations, including parameter type and current entry-block
+   checks.  Duplicate, foreign, reordered, or partially published rows reject
+   before BindingSSA effect.
+
+Only after these four products are closed may
+`LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` open.  That I0 is limited to
+one fresh unpublished transaction, exact shell-parameter checks, and atomic
+receiver/ordinary declaration adoption.  It does not open Loop blocks,
+operations, PHI, Completion, lifecycle, Text, route selection, fallback, or
+production.
+
 ### Generic G0 source-projection child tasks (ordered; next row is entry adoption D0)
 
 The Generic parent now has all four source siblings.  The following rows keep
