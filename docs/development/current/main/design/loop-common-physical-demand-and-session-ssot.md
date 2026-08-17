@@ -1769,6 +1769,23 @@ borrows the real invocation brand, the site/entry/outcome plan cannot be
 issued; synthesizing a stamp from owner, function name, lane count, provider
 entry, or fixed test IDs is rejected before any callout effect.
 
+Concrete D0 shape from the worker review: keep the future admission in a
+private `common_v2_s6c_substring_callout_admission` module as one move-only
+`PreparedCommonV2SubstringCallOutAdmissionV1` plus an opaque
+`CommonV2SubstringEndObligationV1`. The aggregate may retain owner, exact
+item/block/result (`6/B1/V9`), provider entry/ABI/wire, the neutral single-site
+plan, the real invocation plan stamp, and an End obligation carrying only
+site/lease/result identity. It must not retain a runtime handle/token,
+`EndAuthorizedTextV1`, semantic source meaning, or a cloneable parts tuple.
+The issuer consumes the landed target plan and the exact physical effect
+projection, validates `EndAuthorizedHandle { lease_slot: 0 }`, and receives the
+collector brand as an external borrow. `CheckedCallOutSitePlanPairV1`,
+selected-Dynamic admission, and `legacy_test` brands are forbidden. A private
+session one-shot reserves the admission before metadata installation; only a
+single callback-scoped materializer consumer may use it. The production caller
+and the common lifecycle terminal that consumes the End obligation are still
+unlanded, so this shape remains design-only and `NoSafeSlice` continues.
+
 Source authority + canonical issuer: one new private admission owned by
 `CommonV2CanonicalSessionRefV1` must co-seal the source target, checked
 `hako.text.scan.substring.v1` facts, one function-local site/entry/outcome
