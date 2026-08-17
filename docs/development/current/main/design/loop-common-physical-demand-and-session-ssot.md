@@ -1680,6 +1680,38 @@ The existing H2 task document records the same consumer census and negative
 cases.  This card keeps the row visible in the Loop pipeline SSOT; it does not
 create a second H2 authority.
 
+Current consumer census (read-only):
+
+```text
+package semantic program:
+  VerifiedDynamicExitTransactionCoSealV1
+  -> SelectedCallableSemanticRefV1::Dynamic
+  -> selected package adapter (source-seed/origin handoff only)
+
+local materialization:
+  PreparedDynamicLocalEntryV1
+  -> CallableDynamicOriginLoweringStateV1::local_entries
+  -> no selected Loop physical consumer
+
+located Loop:
+  PreparedLocatedRawLoopChildEntryV1
+  -> lower_with_existing_route_v1
+  -> legacy lower_loop_or_freeze_v1 for the non-child shape
+
+existing physical demand:
+  issue_selected_a_prime_i64_physical_demand
+  -> DynamicV2PhysicalEmissionSessionV1
+  -> live selected-Dynamic production arm only
+```
+
+The missing issuer is the one-shot selected-callable bridge that relates the
+package program, exact local initializer (`initializer ValueId -> local
+ValueId -> BindingRef`), and exact located Loop/method/frame/scope/region.  A
+diagnostic `GenericLoopAdmissionObservationV1`, a copied `ASTNode`, or the
+existing raw route cannot fill that gap.  The first implementation cell must
+consume the bridge in the same bounded caller; an adapter that merely creates
+and drops a receipt is not progress.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
@@ -5410,7 +5442,7 @@ skip the After closure or reopen a Tail-only route.
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 27a | `LOOP-PRODUCTION-CANDIDATE-CENSUS-R0` | enumerate the production semantic arms and exact collector handoff before any Generic selection code | design-stop census 2026-08-17; selected-Dynamic is the only live package-loan -> DraftSeal -> collector path, Generic G0 remains caller-zero, and no selector/fallback/retry code is authorized |
 | 27b | `MIRBUILDER-STRUCTURAL-DEBT-DISPOSITION-R0` | after production selection, join the sealing-escape, function-level S6C/Generic/common-V2 duplicate census, legacy TSV disposition, and byte-helper/micro-seed inventory under one owner/retirement manifest | parked behind `LOOP-PRODUCTION-SELECTION-D0`; inventory only until each row has a source-backed owner, parity gate, exact callers, and same-slice zero-caller deletion; no new receipt, selector, fallback, retry, or LOC-driven cleanup |
-| 27c | `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` | design the selected-Dynamic replacement boundary: site-keyed Completion claims, one unpublished session, DraftSeal exit projection, and the same collector handoff | parked after the no-switch D0; source-backed multi-site Completion and common physical handoff must be closed before any production effect or old-edge deletion |
+| 27c | `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` | co-seal `VerifiedDynamicExitTransactionCoSealV1`, `PreparedDynamicLocalEntryV1`, the exact located Loop/method/frame/scope/region, site-keyed Completion claims, one unpublished session, DraftSeal exit projection, and the same collector handoff | parked after the no-switch D0; the selected-callable bridge is missing, so no production effect or old-edge deletion is allowed |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Selected Dynamic first-cutover overlay (2026-08-11)
