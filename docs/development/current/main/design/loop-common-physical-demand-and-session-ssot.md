@@ -1965,10 +1965,28 @@ Worker read-only audit receipt (2026-08-18):
   the old type and role enum remain in place until those exact caller classes
   are classified and the sole-production-route gate is observable.
 
+Exact caller census (2026-08-18):
+
+| surface | observed issuer/callers | classification |
+| --- | --- | --- |
+| `physicalize_topology_*` / `LoopPhysicalBlockReceiptV1::issue` | issuer definitions in `topology.rs`; seven `physicalize_topology_v1` calls plus old-receipt fixtures in `tests.rs`, `operation_family_tests.rs`, and `read_emitter_tests.rs`; no caller of the operation-demand variant | compiled legacy owner with test-only callers; no selected production caller |
+| `operation_target::issue` | four calls from `operation_dispatcher.rs` and three from `operation_emitter.rs`; their old prepare/wrapper entry points are reached only by the old operation-family/read tests | compiled compatibility path; transitive caller-zero outside tests, but no direct guard proves this yet |
+| `LoopPhysicalSegmentBlockReceiptV1` / `allocate_for_layout` | allocator definition plus Generic preflight definition, Callable/Generic canaries, and allocator negative; segment receipt validation fixtures in `segment_topology.rs`, `segment_dispatcher.rs`, and `recursive_after.rs` tests | segment owner is compiled; current external reachability is caller-zero/test-only, with no selected production selector |
+| `operation_target::issue_for_segment` / segment dispatch | owned by `segment_dispatcher.rs`; two direct negative fixtures there; Generic session calls preflight/emit only from its test callbacks | canonical segment mechanical route, not yet a production caller |
+
+Retirement gate fixed by this census:
+  do not delete the old type, role enum, `physicalize_topology_*`, or
+  `operation_target::issue` until (a) a named selected production caller uses
+  the segment route, (b) a whole-tree guard proves zero non-test callers of
+  the old topology/issuer, (c) residual tests are migrated or explicitly
+  allowlisted, and (d) no compatibility wrapper pairs old and new receipts.
+  The current evidence satisfies none of (a)–(d) completely, so the census
+  is accepted as a design receipt only and remains a NoSafeSlice for deletion.
+
 Next bounded slice:
-  read-only LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0; if the census cannot
-  prove a sole segment production route and explicit residual allowlist, keep
-  the old topology in place and return NoSafeSlice.
+  select the next BoxCount design consultation for
+  `LOOP-PHYSICAL-IF-COVERAGE-I0`; keep topology retirement parked behind the
+  production-route gate above.
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
