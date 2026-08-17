@@ -2311,28 +2311,73 @@ Worker/code authority audit (2026-08-18):
   preflight -> first physical mutation -> outer transaction discard`; local
   rollback, retry, and fallback stay forbidden.
 
-#### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0
+#### Accepted D0: LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0 (2026-08-18)
 
 ```text
 Decision:
-  keep NoSafeSlice until one source-backed issuer co-seals the exact
-  continuation item-to-physical-split relation and the one-sided
-  Return/FunctionExit terminal relation for this S6C shape.
+  keep physical split/terminal emission at NoSafeSlice.  Existing facts carry
+  the required pieces in separate views, but no canonical source issuer
+  co-seals the continuation item, physical split target, and FunctionExit
+  Return terminal relation.
 Source authority + canonical issuer:
-  audit `LoopJoinLogicalTransferViewV2`, the existing S6C control/source rows,
-  and the canonical CFG/SSA owners; do not create a physical receipt yet.
+  `S6CPrephysicalCompletionRefV2` owns resolver source sites/values,
+  `S6CLogicalItemV1::Exit` owns logical item/block/exit/value, and
+  `LoopJoinLogicalTransferViewV2` owns arm disposition.  The canonical
+  co-sealing issuer for their source relation is still missing; existing
+  `S6CPrephysicalIngressSealV2` only proves completion count/cleanup.
 Non-authority:
-  item+1 arithmetic, segment ordinal, logical `FunctionExit`, placement target,
-  Builder cursor, V1 physicalizer, and a test fixture are not issuers.
+  downstream owner/role equality, `FunctionExit` enum, `LoopExitKeyV1`,
+  segment ordinal, placement target, Builder cursor, V1 physicalizer, and a
+  test fixture cannot pair the separate facts or issue a terminal.
 Fail-fast boundary:
-  missing/foreign/duplicate split or terminal facts stop before any edge,
-  Return, BlockEnd, operation, CFG/SSA/PHI, or publication effect.
+  missing/foreign/duplicate source-site/item/block/value/exit pairing stops
+  before any new receipt, edge, Return, BlockEnd, operation, CFG/SSA/PHI, or
+  publication effect.
 Smallest next slice:
-  read-only authority census plus one accepted source-to-Facts-to-Recipe
-  mapping; no code, fixture, fallback, retry, or new semantic receipt.
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COSEAL-D0` — a design-only
+  census to name one source issuer for the exact Return source site/value,
+  logical Exit item/block/value, and FunctionExit arm; no code or new receipt
+  is authorized until accepted.
 Non-claims:
   no branch emission, Layout rewrite, two-normal-arm merge, Dynamic exit
   session, initializer bridge, production cutover, or legacy retirement.
+```
+
+Worker/code authority audit (2026-08-18):
+  `S6CPrephysicalCompletionRefV2` (`s6c_prephysical_ingress.rs`) exposes
+  `loop_return_site` and `loop_return_value`, but no LoopItemKey, block, or
+  exit key. `S6CLogicalItemV1::Exit` and the common control rows carry those
+  logical keys, while `s6c_scan_with_init_joinir_output_rows.rs` validates the
+  fixed role/value shape without retaining a source-site relation. The common
+  ingress seal retains only completion target/count/cleanup, and the existing
+  V1 `LoopPhysicalTransferV1` supports Jump/Predicate/OpenNestedLoop but not
+  If/Return. Reusing any of these as a physical terminal issuer would pair
+  separate authorities by convention. The safe ordering remains
+  `source co-seal -> split/terminal preflight -> first physical mutation ->
+  outer transaction discard`; local rollback, retry, and fallback stay closed.
+
+#### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COSEAL-D0
+
+```text
+Decision:
+  keep NoSafeSlice until the source layer issues one relation that binds the
+  verified Return site/value to the logical Exit item/block/value and its
+  FunctionExit arm.
+Source authority + canonical issuer:
+  audit the S6C resolver facts, logical output rows, JoinSig branch, and the
+  common pre-session issuer together; do not re-read AST/MIR downstream.
+Non-authority:
+  completion count, role names, owner equality, item ordinal, Layout order,
+  placement block, and V1 physicalizer are not a source relation.
+Fail-fast boundary:
+  absent/foreign/duplicate source co-seal stops before issuing a semantic
+  Prepared receipt or opening any physical/session effect.
+Smallest next slice:
+  read-only source→Facts→Recipe authority census and six-line brief; no code,
+  fixture, physical block, edge, Return, PHI, fallback, or retry.
+Non-claims:
+  no branch emission, item-to-split allocation, Layout rewrite, production
+  cutover, initializer bridge, or legacy retirement.
 ```
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
@@ -6020,7 +6065,8 @@ skip the After closure or reopen a Tail-only route.
 | 24b | `LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0` | name the sole physical/session consumer and rollback owner for the borrowed `NextItem` relation | accepted placement-only BoxShape; target-placement I0 landed; branch-emission D0 is next |
 | 24b-a | `LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0` | validate one existing segment and reserve one canonical unpublished continuation target block for the exact `NextItem` | landed 2026-08-18; focused positive/duplicate/late-discard gates green; no edge or instruction |
 | 24b-b | `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` | name item-to-split and one-sided terminal/continuation terminator authorities before physical emission | accepted NoSafeSlice; current placement view cannot issue split/FunctionExit meaning; no code or physical effect |
-| 24b-c | `LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0` | co-seal the source-backed continuation item-to-split and one-sided Return/FunctionExit terminal authorities | next design stop; read-only census only; no new receipt, edge, Return, BlockEnd, PHI, or production |
+| 24b-c | `LOOP-PHYSICAL-IF-CONTINUATION-SPLIT-TERMINAL-AUTHORITY-D0` | co-seal the source-backed continuation item-to-split and one-sided Return/FunctionExit terminal authorities | accepted NoSafeSlice; separate source site/value and Exit item/block/value lack a canonical co-seal issuer |
+| 24b-d | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COSEAL-D0` | name the source issuer that binds Return site/value to the logical Exit and FunctionExit arm | next design stop; read-only census only; no code, receipt, physical effect, fallback, or retry |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
