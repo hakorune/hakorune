@@ -105,12 +105,15 @@ Related:
   design-stop closeout until their direct negative fixtures and old-edge
   caller census are recorded. The If continuation source/Recipe/Join binding,
   common aggregation, and canonical-session consumer transport I0 are landed;
-  branch-emission authority remains a NoSafeSlice design stop.
+  branch-emission authority remains a NoSafeSlice design stop; the fresh
+  audit narrowed the missing boundary to a source-backed physical Return-read
+  receipt owner for item 9/10.
 - **Next ordered task:**
-  `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` is the next design stop.
-  Source Return-to-Recipe/Join meaning now reaches the sole canonical session
-  consumer, but item-to-split and one-sided Return/FunctionExit terminator
-  authority must be named before any physical effect.
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` is the next
+  design stop under the branch-emission row. Source Return-to-Recipe/Join
+  meaning now reaches the sole canonical session consumer, but no common-V2
+  owner issues the item 9 physical value, exact split pairing, or one-sided
+  FunctionExit terminal before physical effect.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -6181,6 +6184,7 @@ skip the After closure or reopen a Tail-only route.
 | 24b-g-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0` | retain the existing non-Clone relation in the common envelope after a test-only module split keeps the issuer below the source-size boundary | landed 2026-08-18; relation transport only, no aggregation meaning beyond co-seal, physical emission, session mutation, production, fallback, or retry |
 | 24b-g-CONSUMER-D0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-D0` | name one existing physical-demand consumer and its callback/rollback boundary for the retained relation | accepted BoxShape 2026-08-18; `with_common_v2_physical_entry_session` is the sole unpublished-session/rollback owner and `CommonV2CanonicalSessionRefV1` is its scoped view; no Return effect |
 | 24b-g-CONSUMER-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-I0` | lend the existing non-Clone relation through the canonical session callback and prove owner/late-discard behavior | landed 2026-08-18; admission + common 25/25, physical consumer/late-discard 2/2, S6C 9/9, no Return/edge/PHI |
+| 24b-h | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` | name one source-backed physical receipt owner for item 9 Return-read, its exact block/value, continuation split, and item 10 FunctionExit terminal | accepted NoSafeSlice 2026-08-18; common V2 has no reusable receipt owner and old V1 read emission is disconnected; no code or physical effect |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
@@ -7262,3 +7266,39 @@ design-only source issuer/consumer decision; do not add a new semantic
 `Verified*`/`Prepared*` receipt, branch/Return/edge/PHI effect, fallback,
 retry, publication, or production switch until that issuer and fail-fast
 boundary are named.
+
+### Branch emission D0 — physical Return-read receipt audit (2026-08-18)
+
+The fresh worker audit narrows the remaining boundary. The existing
+`issue_s6c_return_source_recipe_binding_v1` is now the canonical logical issuer
+for item 9 `ReadBinding`, its Recipe value, item 10 `Exit`, the then block, and
+the JoinSig `Return -> FunctionExit` arm. It does not issue a physical
+`ValueId`, a physical then/continuation split pair, or a terminal block.
+
+No existing common-V2 physical receipt owner can be reused:
+
+- `S6CPrephysicalIngressRefV2::operation_source` is a source-site anchor only;
+  it is not a physical result or block receipt.
+- `CanonicalSsaFunctionSessionV2::issue_physical_value_id` only allocates a
+  raw value identity, and `CanonicalCfgSessionV1::emit_return` only writes a
+  preselected physical terminator. Neither issues item 9/10 meaning.
+- The old V1 `ReadBindingEmissionReceiptV1`/`emit_prepared_read_binding_v1`
+  owner is outside common V2. A V2-to-V1 adapter would create a second
+  physical authority and is rejected.
+
+**Decision:** keep physical branch/Return emission at `NoSafeSlice` and name
+the next bounded design row
+`LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0`. That row must
+identify one source-backed issuer for the item 9 binding/result, its exact
+physical block, the continuation split target, and the item 10
+`FunctionExit` terminal before any `ValueId`, `emit_branch`, `emit_return`,
+edge, PHI, publication, fallback, retry, or production effect is allowed.
+
+The fail-fast sentence is:
+
+```text
+source Return/If co-seal -> existing Recipe/Join binding -> one named
+physical Return-read receipt issuer -> reject missing/foreign/duplicate/
+ambiguous item/block/value/terminal before CFG/SSA/PHI mutation; the outer
+unpublished session remains the sole rollback owner
+```
