@@ -1712,6 +1712,48 @@ existing raw route cannot fill that gap.  The first implementation cell must
 consume the bridge in the same bounded caller; an adapter that merely creates
 and drops a receipt is not progress.
 
+#### H2-S2-S1-R1 selected-initializer bridge feasibility closeout (design stop, 2026-08-18)
+
+The source authorities are already sufficient; the missing piece is scope
+wiring, not another semantic issuer.  `SelectedCallableSemanticRefV1::Dynamic`
+owns the package program/source, `VerifiedDynamicLoopSourceV1::membership()`
+owns the resolver Loop/frame/scope-region relation, and
+`CallableDynamicOriginLoweringStateV1::local_entries` owns the exact
+initializer-to-local `PreparedDynamicLocalEntryV1`.  The current raw child
+context drops the program and does not carry frame/scope/region, while the
+located-loop path drops its method/admission observation before entering the
+legacy route.  Therefore a receipt-only bridge would be a false completion.
+
+```text
+Decision:
+  Keep `NoSafeSlice::DynamicExitPhysicalSessionConsumerUnsealed`.  The bridge
+  may open only as one issue+consume cell that reaches the selected-Dynamic
+  physical consumer in the same bounded caller.
+Source authority + canonical issuer:
+  The installed package HRTB lends Dynamic program/source; resolver membership
+  and the existing local-origin ledger are borrowed in that same scope.  A
+  private selected-Dynamic consumer co-seals owner, site, frame, scope/region,
+  method provenance, carrier BindingRef, and initializer/local ValueIds.
+Non-authority:
+  `RawInvocationSourceContextV1`, Generic-loop diagnostics, local-init
+  observations, copied AST/name/arity/ValueId, and the legacy raw loop route
+  cannot supply the missing relation or select a physical consumer.
+Fail-fast boundary:
+  Reject Static/Ordinary variants, foreign owner/site/frame/scope/region,
+  missing or duplicate local entries, method/child-site drift, program-loan
+  escape, and any request for fallback/retry before Builder effect.
+Smallest next slice:
+  After this P0 is accepted, implement
+  `H2-S2-S1-R1-SELECTED-INITIALIZER-ADMISSION-CONSUME-I0` in a private module:
+  borrow the package Dynamic program, exact resolver membership, one local
+  entry, and located child; consume them once into the selected Dynamic
+  physical consumer and add positive/negative/zero-caller guards.
+Non-claims:
+  No standalone bridge receipt, GenericLoop change, new Dynamic semantic
+  issuer, result-ABI/Completion redesign, CFG/PHI, Text, fallback/retry, or
+  selector/cutover change is opened here.
+```
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
@@ -1907,6 +1949,58 @@ This follow-up is a closeout/disposition plan, not a new layer.  In
 particular, the old detached Generic chain is not renamed into the new
 admission, the common dispatcher is not duplicated for Generic, and the
 production switch is still governed solely by `LOOP-PRODUCTION-SELECTION-D0`.
+
+#### Structural debt review follow-up — accepted disposition, still parked (2026-08-18)
+
+The external size review is directionally correct: the target architecture is
+thin (`source parent -> prephysical admission -> one session -> one leaf
+dispatcher`), while the current tree is temporarily thick because old
+caller-zero probes, compatibility lanes, and future consumers coexist.  The
+measured LOC/helper/micro-seed totals are **informational census only**; they do
+not authorize a deletion, a new owner, or a production claim.  The following
+rows make the three concrete sealing escapes and the missing retirement gates
+explicit without changing the current `design_stop` or Dynamic blocker.
+
+```text
+Decision:
+  Keep the one-authority chain and classify the remaining thickness as
+  bounded disposition work.  Do not “solve” scale by broad dedupe or by
+  relabeling a caller-zero probe as production.
+Source authority + canonical issuer:
+  Existing S4/Generic/Callable source producers, the common dispatcher, and
+  the runtime lease owner remain their current authorities.  These rows issue
+  no semantic receipt; they record callers, final owners, parity, and deletion.
+Non-authority:
+  LOC totals, byte identity, micro-seed counts, public visibility, lexical
+  recipe.clone(), Clone-able seal wrappers, owner/name equality, and test-only
+  green are not retirement or production authority.
+Fail-fast boundary:
+  Keep a row parked until exact callers, final owner, parity gate, and
+  same-slice zero-caller deletion are named.  No fallback, retry, selector,
+  second dispatcher, or public getter narrowing is inferred from census data.
+Smallest next slice:
+  Run the bounded R1 census rows below after the active Dynamic bridge stop;
+  if a source-backed replacement is absent, record keep/park and stop.
+Non-claims:
+  No Generic/Dynamic production switch, common-session rewrite, Text/lifecycle
+  activation, runtime ABI change, broad helper dedupe, or LOC-driven deletion.
+```
+
+| parked R1 row | bounded responsibility | required evidence / exit |
+|---|---|---|
+| `MIRBUILDER-S4-PRODUCER-ESCAPE-DISPOSITION-R1` | Census the S4 producer's four physical-boundary splits (`into_operation_effect`, demand/physical-part helpers, and `into_physical_boundary`) together with the lexical `recipe.clone()`. Separate true production escape surfaces from producer-local temporaries; do not copy the recipe or create a fifth issuer. | Exact non-test callers, one final source-parent/cohort consumer, parity with the landed semantic-program consume shape, and a same-slice zero-caller guard for each retired symbol. A lexical verifier clone remains keep-only unless an actual escaping caller is found. |
+| `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0` | Audit `EndAuthorizedTextV1` visibility, token/getter callers, and any `Clone`-derivable seal wrapper. Keep lease semantics and the runtime retirement terminal unchanged; design a private/move-only surface only where the caller census proves it is safe. | Runtime owner, exact callers, and compatibility boundary are recorded before visibility changes. No MIR receipt or compiler-side alias may replace the runtime lease owner; unresolved callers remain parked. |
+| `MIRBUILDER-COMMON-V2-RETIREMENT-GATE-D0` | Extend the existing function-level S6C/Generic/common-V2 census with explicit entry/exit conditions for the common V2 session and dispatcher: one session/rollback owner, one production consumer, exact replacement inputs for legacy `ReadyLoopEntryV1`/segment receipts, and the old-edge disposition. | A replacement row is not accepted until every replaced function has a final consumer, parity gate, and zero-caller deletion row. This D0 may observe the dispatcher but may not retrofit it or create a Generic adapter. |
+| `MIRBUILDER-NYLLVM-C-ALLOWLIST-REVISION-R0` | Inventory the ny-llvmc allowlist synchronization and the repeated consumer/revision literals. Centralize or version them only after the C API/JSON owner and actual callers are identified; this is a backend governance row, not a Loop physicalizer row. | Focused allowlist-sync test, one revision owner, and legacy/contract-bound consumer separation. Missing evidence keeps the row parked; no Text/GEP/load or emitter-route change is implied. |
+
+The previously recorded `MIRBUILDER-SEALING-ESCAPE-DISPOSITION-R0`,
+`MIRBUILDER-COMMON-V2-FUNCTION-DUPLICATE-CENSUS-R0`,
+`MIRBUILDER-LEGACY-DISPOSITION-R0`, and
+`MIRBUILDER-BYTE-HELPER-INVENTORY-R0` remain the parent inventory rows.  The
+new R1 rows refine their missing evidence; they do not create a parallel
+cleanup registry.  In particular, the old Generic detached chain is already
+retired, and the common dispatcher remains a waiting scaffold until the
+selected-Dynamic replacement/cutover proves its final consumer.
 
 ```text
 Decision:
