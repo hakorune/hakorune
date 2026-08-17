@@ -77,6 +77,24 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
     pub(in crate::mir::builder) const fn destination(&self) -> crate::mir::ValueId {
         self.destination
     }
+
+    pub(in crate::mir::builder) fn into_condition_bool_parts(
+        self,
+    ) -> (
+        &'call mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+        crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+        crate::mir::BasicBlockId,
+        crate::mir::ValueId,
+    ) {
+        (
+            self._session,
+            self.owner,
+            self.condition_block,
+            self.physical_block,
+            self.destination,
+        )
+    }
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {

@@ -161,17 +161,17 @@ materialization remains a separate later row.
 
 ## Common V2 Bool-result materializer I0
 
-The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
-missing source-backed initial index seed. A fresh common-V2 session has no
-active canonical declaration/value for the S6C condition's left `ReadBinding`,
-so the receipt-owned materializer must not use a default zero, a raw `ValueId`,
-or a detached `read_entry` call. The source-only initializer relation and its
-seed materializer are now landed. The next bounded slice is
-`LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0`: it may consume the
-same-session seed/read and Length receipts to issue one Bool result and one
-`Less` Compare.
-Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
-Text, route, publication, fallback, retry, and production remain closed.
+`CanonicalLengthCallResultReceiptV1::consume_for_condition_bool` is the sole
+bridge from the source Left ReadBinding and Length result to the physical
+condition value. It consumes the same-session Length receipt, reads the seeded
+Left binding at canonical entry (without provisional PHI creation), issues one
+Bool ValueId/type, and emits one mechanical `Less` Compare in the physical
+condition block. The returned non-Clone receipt retains the exclusive session
+borrow. Missing seed, wrong role/type, duplicate/re-entry, and late callback
+failure reject before publication; the outer unpublished transaction is the
+only discard owner. No branch/edge/terminator, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route, publication, fallback, retry, or production caller is
+opened. The next bounded gate is `LOOP-PRECUTOVER-AUTHORITY-G0`.
 
 ## Common V2 initial index seed source transport I0
 

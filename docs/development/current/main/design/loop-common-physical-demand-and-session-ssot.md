@@ -86,15 +86,16 @@ Related:
   only a scoped borrow. The V2-native physical-ID-free layout/placement
   BoxShape and its caller-zero transport I0 are now landed. The Length-result
   canary I0, direct Length Call/result I0, and exclusive session-scoped Length
-  receipt lifetime I0 are also landed; the remaining design stop is the parent
-  Bool result BoxShape. The source-only initial-index seed relation transport
-  and its one-entry Const/exact-declaration materializer I0 are now landed.
+  receipt lifetime I0 are also landed. The source-only initial-index seed
+  relation transport, its one-entry Const/exact-declaration materializer I0,
+  and the receipt-owned Bool/Compare materializer I0 are now landed; the next
+  bounded gate is pre-cutover authority coverage.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` is the active
-  caller-zero effect slice. It may consume the same-session seed/read and
+  `LOOP-PRECUTOVER-AUTHORITY-G0` is the next caller-zero gate. The Bool
+  materializer I0 is landed: it consumes the same-session seed/read and
   Length receipts to issue one Bool result and one Less Compare. Branch/edge,
   CFG/PHI, lifecycle, Text, route, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
@@ -1865,10 +1866,9 @@ Fail-fast boundary:
   rollback, fallback, or retry is allowed.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0` must first close the
-  source-backed pre-loop index declaration/value. Only then may the
-  caller-zero Bool materializer consume the Length receipt, read the Left
-  binding, emit one `Less` Compare, publish Bool, and return its scoped receipt.
+  The seed transport/materializer are landed. The caller-zero Bool materializer
+  may consume the Length receipt, read the seeded Left binding at canonical
+  entry, emit one `Less` Compare, publish Bool, and return its scoped receipt.
   Branch/edge/terminator remain closed.
 
 Non-claims:
@@ -2001,21 +2001,35 @@ Fail-fast boundary:
   outer transaction discards the Const and declaration together.
 
 Smallest next slice:
-  `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` may consume this
-  receipt (after its scoped borrow is dropped/consumed), read the Left binding,
-  emit one `Less`, and publish one Bool result. Branch/edge/terminator remain
-  closed.
+  The Bool-result materializer I0 now consumes this receipt (after its scoped
+  borrow is consumed), reads the Left binding at canonical entry, emits one
+  `Less`, and publishes one Bool result. Branch/edge/terminator remain closed.
 
 Non-claims:
   No branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
   route, performance, production caller, fallback, or retry is opened here.
 ```
 
+## `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` — landed caller-zero effect slice 2026-08-17
+
+`CanonicalLengthCallResultReceiptV1::consume_for_condition_bool` is the sole
+bridge from the source Left ReadBinding and Length result to the physical
+condition value. It validates the same owner, producer, two-row operand
+inventory, seeded entry declaration, and I64 types; then the canonical session
+issues one Bool destination, emits one `Less` Compare, and publishes its Bool
+type. The result receipt is non-Clone and retains the same-session borrow, so a
+second session or detached operand pair cannot be introduced. Missing seed,
+wrong role/type, and late callback failure are covered by focused tests; late
+failure discards the whole unpublished function.
+
+No branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route, publication, fallback, retry, or production caller is opened. The next
+bounded task is `LOOP-PRECUTOVER-AUTHORITY-G0`, which remains a coverage gate.
+
 Current blockers are deliberately explicit:
 
 ```text
-NoSafeSlice::AfterConditionOperandPhysicalReceiptMissing
-NoSafeSlice::CanonicalConditionBoolMaterializerUnsealed
+NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed
 ```
 
 ## Decision
@@ -3178,7 +3192,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-seed-D0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0` | close the source-backed pre-loop index initializer relation needed before the Bool materializer can read the condition binding | accepted BoxShape 2026-08-17; `VerifiedS6CTypedInputRelationV1::initializer()` plus resolver/source literal evidence define one typed seed relation; no session effect, Bool/Compare, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-seed-transport-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` | carry the accepted source-only seed relation through the same S6C ingress/common envelope | landed caller-zero transport; positive/foreign-owner gates green; no Const/Write/ValueId/read receipt, Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | landed caller-zero effect slice; positive/duplicate/missing-function/late-discard gates green; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
-| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | active caller-zero effect slice; consumes the seed/read and Length receipts only after same-session checks; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
+| 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | landed caller-zero effect slice; receipt-owned same-session consume, canonical entry seed/read, one Bool ValueId/type, one Compare, and missing-seed/type/late-discard gates are green; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

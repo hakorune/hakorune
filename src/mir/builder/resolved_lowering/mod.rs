@@ -65,6 +65,8 @@ mod block_expr_tests;
 #[cfg(test)]
 mod callable_module_transaction_tests;
 #[cfg(test)]
+mod common_v2_condition_bool_tests;
+#[cfg(test)]
 mod common_v2_initial_index_seed_tests;
 #[cfg(test)]
 mod completion_consumption_tests;
