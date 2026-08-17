@@ -74,16 +74,12 @@ Exact-empty Generic attrs/uses remain required, and S6C skeleton/header rows,
 descriptor length as `/N`, JSON, `new_selected_dynamic`, and passed-in effect
 defaults remain non-authorities.
 
-### Generic G0 physical-entry admission I0
+### Generic G0 detached physical-entry canary
 
-`generic_g0_physical_entry_admission.rs` is the Generic-only co-seal between
-the detached skeleton and the existing resolver products.  It obtains the
-typed BlockExpr expectation from `issue_resolved_block_expr_expectation_v1`,
-uses the selected Generic parent loop site for the resolver outer-If residual,
-and retains the parent's canonical Completion without cloning or reissuing any
-source fact.  Its mechanical cohort stamp checks the detached function name
-and physical lane count; the retained parent/skeleton products remain the
-owner/origin/frame and descriptor authorities.
+`generic_g0_physical_entry_admission.rs` now names the old probe explicitly as
+`GenericG0DetachedEntryCanaryV1`. It shares only the resolver BlockExpr/
+outer-If validator with the combined admission; its weak name/lane stamp and
+detached shell are not inputs to the new owner.
 
 `resolved_lowering/generic_g0_physical_entry_session.rs` is the only caller-zero
 consumer in this slice.  It rejects a nonempty Builder, opens one unpublished
@@ -125,19 +121,7 @@ or owner drift, unsupported variants, and incomplete coverage fail before any
 physical effect.  No S6C operation row or `new_selected_dynamic` path is
 reused.
 
-The Generic operation cohort I0 is landed: one source-parent consume
-transition owns the family-neutral `PreparedLoopOperationProgramV1` and the
-independent Generic source siblings, while a consuming `with_mapping`
-callback lends a transient mechanical mapping from the program's owned
-effect/evidence.  The focused cohort test is green.  The borrow-only
-parent/entry/skeleton wrappers cannot cross that transition and must be
-replaced by cohort views.  The common dispatcher remains the only accepted
-leaf-emitter candidate.  The corrected no-`MirFunction` emitter-admission
-BoxShape is accepted below; actual session/layout target effects remain behind
-its later session-preflight D0.  The `cfg(test)` demand-part split, S6C
-provenance, and a second Generic emitter remain non-authoritative.
-
-The Generic emitter-admission BoxShape is now accepted.  One
+The Generic operation cohort and combined emitter admission are landed. One
 `PreparedGenericG0PhysicalEmitterAdmissionV1` consumes the source-owned
 operation cohort exactly once and owns only prephysical facts: the neutral
 `PreparedLoopPhysicalLayoutV1` (which owns the program), a physical-ID-free
@@ -151,26 +135,12 @@ The current `CommonV2CanonicalSessionRefV1` remains an S6C-bound envelope view
 and must not grow a Generic branch.  The current detached Generic skeleton,
 weak owner/name/lane-count stamp, tuple `into_parts`, S6C-bound segment-plan
 ingress, and old V1 receipts are canary/legacy artifacts, not admission
-inputs.  The implementation order is: private validator extraction, combined
-admission, then a separate session-preflight D0.  The first fast row is
-refactor-only and creates no admission or physical state; the admission module
-is capped at 350 lines with tests in a separate <=260-line file.
-
-The current facts-extraction row is intentionally thinner than that future
-admission.  The source parent exposes one compiler-private borrowed view from
+inputs. The source parent exposes one compiler-private borrowed view from
 `generic_g0_source_parent/physical_emitter_source_parts.rs`; entry, effect,
 skeleton, and entry-control canaries use it only for shared owner/origin/
 source-kind/body-root/frame checks.  The view is not a new semantic receipt,
 does not return a tuple or store a mapping, and imports no MIR/Builder/session
-or physical layout state.  Variant-specific descriptor, effect, shell, and
-control validation stays in the existing owner modules until the combined
-emitter admission replaces the canaries.
-
-During that migration, the old `GenericG0PhysicalEntryAdmissionV1` is a
-test-only detached-entry canary and must become
-`GenericG0DetachedEntryCanaryV1` atomically with the new emitter admission;
-two production-looking `Admission` names may not coexist.  Its
-skeleton/admission tuple exits retire with the old session once
+or physical layout state. The old skeleton/canary tuple exits retire once
 the session-owned shell/adoption path has parity and zero callers.  The
 Generic and ExactText adopters may later share their mechanical reserved-param
 validation, but their role/publication and ExactText sidecar policies remain

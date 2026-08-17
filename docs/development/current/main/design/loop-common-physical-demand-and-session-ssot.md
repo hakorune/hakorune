@@ -803,8 +803,8 @@ Source authority + canonical issuer:
   inventory, and semantic Completion.  The existing resolver issuer
   `issue_resolved_block_expr_expectation_v1` supplies the typed BlockExpr
   expectation, and `empty_for_owned_loop_profile` supplies the outer-If
-  residual for the exact loop site retained by the Generic source parent.  A new compiler-side
-  `GenericG0PhysicalEntryAdmissionV1` only co-seals these existing views with
+  residual for the exact loop site retained by the Generic source parent.  The compiler-side
+  `GenericG0DetachedEntryCanaryV1` only co-seals these existing views with
   the detached shell/descriptors and a Generic mechanical cohort stamp.  The
   later session consumer snapshots Completion through
   `ResolvedFunctionCompletionConsumptionV1::new_borrowed`; the sole physical
@@ -1326,8 +1326,8 @@ Non-claims:
 |---|---|---|---|---|
 | `VerifiedCallableSemanticProgramV1::into_prepared_parts` | A crate-local six-tuple escape hatch still has a production consumer plus a test consumer; it is not a second semantic issuer, but it permits re-decomposition. | `normal_callable_prepared_operation::prepare_full_demand` until a direct consuming callback or single prepared-operation parent replaces it. | Replace the production consumer and test seam in one refactor slice, then require zero callers before removal. | `rg -n "into_prepared_parts" src/mir` |
 | `PreparedLoopOperationRowV2` | S6C source provenance is retained by design; it must not be relabeled as Generic/common authority. | S6C common-V2 adapter, later consumed by the family-neutral parent. | Keep until S6C provenance is consumed by the neutral parent; no Generic conversion or duplicate row. | `rg -n "PreparedLoopOperationRowV2" src/mir` |
-| `issue_generic_g0_loop_ingress_v1` | All current callers are tests/canaries; no production caller remains after the Generic source-parent I0. | Generic source parent -> physical entry input -> detached skeleton/adoption chain. | Delete old ingress and its tests only in the same production-switch slice that gives the parent a real caller and reaches zero old callers. | `rg -n "issue_generic_g0_loop_ingress_v1" src/mir` |
-| `with_generic_g0_physical_entry_session` / `new_generic` | Caller-zero implementation canary; it proves rollback/adoption but is not a production route. | Future Generic/common canonical session opener. | Keep until that opener is the selected production caller; then remove the canary constructor and tests together. | `rg -n "with_generic_g0_physical_entry_session|new_generic" src/mir` |
+| `issue_generic_g0_loop_ingress_v1` | All current callers are tests/canaries; no production caller remains after the Generic source-parent I0. | Combined Generic emitter admission -> neutral canonical session -> common dispatcher. | Delete old ingress and migrate its tests in the operation-emitter production-switch slice, then prove zero callers. | `rg -n "issue_generic_g0_loop_ingress_v1" src/mir` |
+| `with_generic_g0_physical_entry_session` / `new_generic` | Caller-zero detached canary; it proves rollback/adoption but is not a production route. | One family-neutral canonical unpublished-session opener; Generic and S6C remain thin admission adapters, not duplicate session implementations. | After session-preflight parity, switch the caller and delete the detached skeleton/canary/session plus their tuple exits in the same zero-caller slice. | `rg -n "with_generic_g0_physical_entry_session|new_generic|GenericG0DetachedEntryCanaryV1" src/mir` |
 | `DynamicProfileOwned` / `new_selected_dynamic` | Current selected-Dynamic physical emitter still calls it; it is a live production owner, not a removable canary. | Common canonical session admission/session cutover for selected Dynamic. | First land the replacement, switch the production caller, verify zero `new_selected_dynamic` callers, then remove the enum arm and constructor. | `rg -n "DynamicProfileOwned|new_selected_dynamic" src/mir` |
 | `finalize_function_draft*` selected-normal legacy edges | Multiple production callers remain in normal cataloged methods, recursive child lowering, port-aware wrappers, indexing, and calls. | `PreparedFunctionExitSetV1` -> canonical Completion/DraftSeal -> atomic unpublished publication. | Switch every listed production caller, prove old-symbol caller count is zero, then delete the legacy facade; do not retrofit it for Text/lifecycle. | `rg -n "finalize_function_draft(_with_headers)?\\(" src/mir/builder` |
 
@@ -1336,7 +1336,9 @@ canary/legacy graph now has an owner and a zero-caller deletion gate for every
 listed seam; those gates remain cutover blockers and are not silently deleted.
 The next design stop is the operation-contract census below.  No physical
 operation, CFG, lifecycle, Text, or production cutover is authorized by this
-manifest.
+manifest. `generic-loop-legacy-disposition-v1.tsv` remains a source-corpus
+inventory, not this replacement-decision authority; its inventory rows are
+not bulk-relabeled to simulate retirement decisions.
 
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` (next design stop)
 
@@ -1454,7 +1456,8 @@ admission BoxShape below now closes the source/prephysical ownership boundary:
 one parent consume, neutral layout/program, physical-ID-free shell plan, entry
 control, Completion, target, and one full stamp.  Actual shell/session/segment
 effects remain closed behind the later session-preflight D0.  The first fast
-row is pure validator extraction, not another Generic program issuer.
+row and combined admission are now landed; no second Generic program issuer
+was added.
 
 #### D0 audit result — emitter admission BoxShape accepted 2026-08-17
 
@@ -1484,7 +1487,7 @@ Source authority + canonical issuer:
   borrowed only from `layout.program()` inside a scoped callback.
 Non-authority:
   Owner equality, the weak owner/name/lane-count
-  `GenericG0PhysicalEntryCohortStampV1`, S6C
+  `GenericG0DetachedEntryCanaryStampV1`, S6C
   `PhysicalFunctionEntryCohortStampV1`, the current parent-borrowed detached
   skeleton/entry admission, their tuple `into_parts`, a detached
   `MirFunction`, raw IDs, `NumericTarget` or `EffectMask::PURE` alone, the S6C
@@ -1500,123 +1503,71 @@ Fail-fast boundary:
   After a later session opens, only the outer unpublished transaction may
   discard a failed candidate; local repair, retry, and fallback are forbidden.
 Smallest next slice:
-  `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` first extracts the
-  existing pure descriptor/header/effect/result and entry-control validators
-  into private source-parts helpers; old canaries delegate for parity.  It
-  creates no admission or physical state.  The following admission I0 consumes
-  the existing operation cohort into layout/shell-plan/control/stamp facts.
-  A separate session-preflight D0 then names shell creation, entry adoption,
-  segment/target receipts, and rollback timing before any leaf effect.
+  `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` names shell
+  creation, lane adoption, mechanical entry/segment issuance, and rollback
+  timing before any leaf effect.
 Non-claims:
   No `MirFunction` generation, operation MIR, ValueId/BasicBlockId, block
   allocation, CFG/SSA/PHI, Completion consumption/DraftSeal, lifecycle, Text,
   route/backend, production caller, fallback/retry, or module publication.
 ```
 
-The former detached skeleton and weak-stamp entry admission remain
-caller-zero canary artifacts only.  They are not inputs to the new admission
-and retire after the session-owned shell/adoption path reaches parity and
-their production/test caller census reaches zero.  `from_parent_parts` and
-tuple-returning `into_parts` are narrowed or removed as their replacement
-lands; no fourth source-parent issuer is added.
+#### Admission I0 closeout and bounded retirement order (2026-08-17)
 
-Implementation is intentionally split into three bounded cells:
+`PreparedGenericG0PhysicalEmitterAdmissionV1` is landed in the operation
+cohort's private child module. One source parent is consumed into the neutral
+layout/program, declaration-only shell plan, resolver control, Completion,
+target, and full stamp; mapping remains HRTB-scoped. The module is 347 lines,
+its separate test file is 107 lines, the five focused tests and 63-test Generic
+suite are green, and the structural test rejects physical state, S6C/V1
+adapters, old-canary imports, and tuple escape surfaces.
 
-1. `PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` adds one private child helper at
-   `generic_g0_source_parent/physical_emitter_source_parts.rs` (target <=300
-   lines).  It lends one borrowed source-parts view and centralizes only the
-   shared identity axes; descriptor/effect/shell/control-specific validators
-   remain with their existing owners.  Old canaries delegate and retain
-   behavior.  No admission or physical state is created.
-2. `PHYSICAL-EMITTER-ADMISSION-I0` adds
-   `generic_g0_physical_emitter_admission.rs` (target <=350 lines) and a
-   separate focused test file (target <=260 lines).  It consumes the operation
-   cohort into layout/shell-plan/control/stamp ownership and exposes only
-   `consume` plus scoped `with_mapping` projections.
-3. `PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` is design-only.  It must name the
-   sole session-owned shell materializer and Generic-neutral segment/target
-   view before any dispatcher effect is implemented.
+The old entry probe was atomically renamed to
+`GenericG0DetachedEntryCanaryV1`. Its detached shell, two tuple exits, and the
+duplicated reserved-parameter validator retire with the later session-owned
+parity switch; `issue_generic_g0_loop_ingress_v1` retires with the operation
+emitter production cutover. The legacy disposition TSV remains a corpus
+inventory rather than a replacement-decision authority. Repository-size and
+byte-identical-helper counts are informational census; they do not preempt
+this owner chain. Dynamic/Text getter or Seal findings stay in their owning
+parked lanes.
 
-Stable guards require zero `MirFunction`, `MirBuilder`, `ValueId`,
-`BasicBlockId`, S6C, old V1 receipt, `into_parts`, or stored-mapping use in the
-new admission module, and exactly one source-parent-to-admission issuer.
-
-#### Transition-thickness audit and retirement order (2026-08-17)
-
-The external audit is confirmed in source: the target authority graph is
-thin, but three generations of migration scaffolding still coexist.  The old
-Generic ingress, detached skeleton/admission/session, and their focused
-callers are canary/test paths; the common dispatcher remains the only leaf
-emitter.  This is bounded migration debt, not three semantic authorities.
-Approximate aggregate LOC is diagnostic only because the file groups overlap;
-the deletion gates below, not an estimated line total, are canonical.
-
-Two concrete readability debts are now part of the ordered work:
-
-1. The old `GenericG0PhysicalEntryAdmissionV1` must not coexist under an
-   ambiguous production-looking name with
-   `PreparedGenericG0PhysicalEmitterAdmissionV1`.  The admission I0 atomically
-   renames the old type and issuer to
-   `GenericG0DetachedEntryCanaryV1` /
-   `issue_generic_g0_detached_entry_canary_v1` before exporting the new
-   admission.  This is a behavior-preserving rename, not a new receipt or
-   execution route.
-2. The old admission and skeleton expose two tuple `into_parts` transitions,
-   while `GenericG0PhysicalOperationCohortV1::from_parent_parts` is wider than
-   its sole source-parent caller requires.  The facts/admission series narrows
-   the constructor surface, and the later session-owned parity switch deletes
-   both tuple exits with the detached shell chain.  No new admission may offer
-   a raw-parts getter.
-
-The Generic and ExactText entry adopters also duplicate the mechanical
-reserved-parameter-vector validation.  They intentionally retain separate
-role/publication policy for now.  After the session-owned Generic entry path
-has parity, one BoxShape cleanup may extract only that mechanical validation
-into a private shared helper; it must not merge Generic roles with the
-ExactText slot/generation sidecar authority.
-
-The next real design gate is the session-preflight input to the existing
-segment-aware dispatcher.  `ReadyLoopEntryV1` and
-`LoopPhysicalSegmentBlockReceiptV1` are allowed only as **session-local
-mechanical outputs**; neither may enter the new source/prephysical admission
-or act as Generic semantics.  The preferred thin path is:
+The split-API census has three distinct outcomes. The lexical `recipe.clone()`
+used by the forest-binding verifier never escapes its producer and is not an
+authority split. The production-visible but caller-zero
+`VerifiedGenericRecipeProductG0::into_physical_boundary` is a real sealing
+surface and must become `cfg(test)` in
+`LOOP-GENERIC-G0-SEALED-CONSUME-I0`, after this design census and before the
+first session-effect I0. The detached skeleton/canary `into_parts` methods
+still feed the named old canary; they are not inputs to the combined admission
+and are deleted atomically by `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` after
+session parity. This classification, rather than an aggregate line count,
+owns the cleanup order.
 
 ```text
-emitter admission owns layout/program
-  -> canonical unpublished session creates shell and adopts entry lanes
-  -> same session projects exact Recipe input key/binding rows
-     through canonical entry reads at the actual preheader
-  -> existing segment allocator consumes layout + mechanical entry
-  -> existing segment-aware dispatcher consumes layout + entry + segment receipt
+Decision:
+  Keep `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` at design stop.
+Source authority + canonical issuer:
+  The landed admission owns layout/program and entry facts; one canonical
+  unpublished session must consume one whole admission ref, alone create the
+  shell, adopt lanes, and issue the existing mechanical entry/segment inputs
+  for the sole common dispatcher. It never accepts independently supplied
+  layout, shell-plan, control, or Completion siblings.
+Non-authority:
+  Raw `ReadyLoopEntryV1::new_for_test`, S6C envelopes, copied IDs, owner-only
+  pairing, old detached canaries, and a second Generic dispatcher are not
+  preflight authorities.
+Fail-fast boundary:
+  Retain `NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed` unless exact
+  Recipe key/binding/value coverage can be issued at the actual preheader in
+  the same rollback-owned transaction before any leaf operation.
+Smallest next slice:
+  Read-only issuer census for shell creation, lane adoption, canonical
+  mechanical entry projection, layout segment allocation, and rollback timing.
+Non-claims:
+  No session implementation, operation MIR, CFG/SSA/PHI, Completion consume,
+  lifecycle/Text, route, publication, fallback/retry, or production switch.
 ```
-
-The current raw `ReadyLoopEntryV1::new_for_test` is not a production issuer.
-`PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` must name one canonical session issuer
-that checks the layout/program binding relations against the adopted
-BindingSSA rows and actual preheader before issuing the existing mechanical
-entry capability.  It must then use the existing layout-owned segment
-allocator in the same outer transaction.  Prefer re-homing/renaming the one
-mechanical type over adding a Generic adapter or a second receipt.  If exact
-key/binding/value coverage cannot be issued in that callback without an S6C
-envelope, raw constructor, copied ValueId, or owner-only re-pairing, retain
-`NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed`.
-
-The resulting bounded order is:
-
-1. current facts extraction: private pure validators and narrowed sole-caller
-   construction only;
-2. emitter admission I0: one no-`MirFunction` admission, scoped mapping, and
-   atomic old-entry-admission canary rename;
-3. session-preflight D0: canonical mechanical entry issuer, segment allocator,
-   and one rollback/session boundary;
-4. after that D0 is accepted, a session-preflight I0 creates/adopts the shell
-   and prepares entry/segment dispatch inputs, but emits no leaf operation;
-5. once the new session path has parity and zero old callers, delete the
-   detached skeleton/canary admission/session and fold only the duplicated
-   reserved-parameter validator;
-6. the later operation-emitter cutover migrates the old Generic ingress tests
-   and deletes `issue_generic_g0_loop_ingress_v1` in the same zero-caller
-   slice.  No open-ended cleanup tail is permitted.
 
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
@@ -4751,9 +4702,10 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone prephysical admission owning layout/program, shell plan, entry-control facts, Completion, target, and one full stamp | accepted BoxShape 2026-08-17; actual `MirFunction`, raw IDs, parent borrow, stored mapping, S6C/old-V1 adapter, and second rollback owner are forbidden |
 | 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | landed 2026-08-17; borrowed source-parts view plus shared-axis parity tests/guards are green; no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
-| 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | queued after facts extraction; atomically rename the old entry admission to `GenericG0DetachedEntryCanaryV1`; no `MirFunction`, Builder/session, raw IDs, S6C, old V1 admission input, dispatcher effect, or production caller |
-| 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | after admission I0, name the single unpublished transaction that creates/installs the shell, adopts entry lanes, canonically issues the mechanical Loop entry from adopted BindingSSA, and allocates the layout-derived segment receipt | next design stop after admission; `ReadyLoopEntryV1::new_for_test`, S6C envelope input, owner-only re-pairing, segment/leaf effect before full preflight, and a second receipt remain forbidden |
-| 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 is accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |
+| 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; old probe renamed `GenericG0DetachedEntryCanaryV1`; five focused and 63 Generic tests plus structural/size guards are green; no function/session/raw-ID/dispatcher effect or production caller |
+| 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | name the single unpublished transaction that creates/installs the shell, adopts entry lanes, canonically issues the mechanical Loop entry from adopted BindingSSA, and allocates the layout-derived segment receipt | current design stop; `ReadyLoopEntryV1::new_for_test`, S6C envelope input, owner-only re-pairing, segment/leaf effect before full preflight, and a second receipt remain forbidden |
+| 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | queued after the session-preflight census and before its effect I0; lexical verifier clone is unchanged, while detached-canary tuple exits remain owned by the later parity retirement |
+| 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0 and sealed-consume I0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
 | 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after session-preflight D0, consume one admission through the canonical unpublished session and issue one callback-scoped dispatch preflight/leaf plan | parked; the S6C `CommonV2CanonicalSessionRefV1` and raw/test receipt constructors are not reusable, while only canonically session-issued mechanical entry/segment capabilities may feed the existing dispatcher |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |

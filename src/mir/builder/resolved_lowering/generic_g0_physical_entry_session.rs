@@ -2,14 +2,14 @@
 
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::MirBuilder;
-use crate::mir::compiler::generic_g0_physical_entry_admission::GenericG0PhysicalEntryAdmissionV1;
+use crate::mir::compiler::generic_g0_physical_entry_admission::GenericG0DetachedEntryCanaryV1;
 
 /// Consume one Generic admission, install one unpublished shell, and adopt
 /// only the receiver/ordinary declaration lanes.  The outer draft session is
 /// the sole rollback owner; no module publication is reachable here.
 pub(in crate::mir::builder) fn with_generic_g0_physical_entry_session<R>(
     builder: &mut MirBuilder,
-    admission: GenericG0PhysicalEntryAdmissionV1<'_, '_>,
+    admission: GenericG0DetachedEntryCanaryV1<'_, '_>,
     callback: impl FnOnce(&mut CanonicalSsaFunctionSessionV2<'_>, &mut MirBuilder) -> Result<R, String>,
 ) -> Result<R, String> {
     if builder.function_state.current_function.is_some()
@@ -45,7 +45,7 @@ pub(in crate::mir::builder) fn with_generic_g0_physical_entry_session<R>(
 mod tests {
     use super::with_generic_g0_physical_entry_session;
     use crate::mir::builder::MirBuilder;
-    use crate::mir::compiler::generic_g0_physical_entry_admission::issue_generic_g0_physical_entry_admission_v1;
+    use crate::mir::compiler::generic_g0_physical_entry_admission::issue_generic_g0_detached_entry_canary_v1;
     use crate::mir::compiler::generic_g0_physical_function_entry_input::issue_generic_g0_physical_function_entry_input_v1;
     use crate::mir::compiler::generic_g0_physical_function_skeleton::reserve_generic_g0_physical_function_skeleton;
     use crate::mir::compiler::generic_g0_source_parent::with_generic_g0_source_parent_v1;
@@ -62,7 +62,7 @@ mod tests {
                 .map_err(|_| "entry input".to_owned())?;
             let skeleton = reserve_generic_g0_physical_function_skeleton(prepared)
                 .map_err(|_| "skeleton".to_owned())?;
-            let admission = issue_generic_g0_physical_entry_admission_v1(skeleton)
+            let admission = issue_generic_g0_detached_entry_canary_v1(skeleton)
                 .map_err(|error| format!("admission: {error:?}"))?;
             with_generic_g0_physical_entry_session(&mut builder, admission, |session, draft| {
                 let function = draft
@@ -104,7 +104,7 @@ mod tests {
                 .map_err(|_| "entry input".to_owned())?;
             let skeleton = reserve_generic_g0_physical_function_skeleton(prepared)
                 .map_err(|_| "skeleton".to_owned())?;
-            let admission = issue_generic_g0_physical_entry_admission_v1(skeleton)
+            let admission = issue_generic_g0_detached_entry_canary_v1(skeleton)
                 .map_err(|error| format!("admission: {error:?}"))?;
             with_generic_g0_physical_entry_session(&mut builder, admission, |_session, _draft| {
                 Ok(())

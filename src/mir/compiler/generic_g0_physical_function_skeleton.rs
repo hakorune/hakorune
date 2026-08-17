@@ -106,7 +106,7 @@ fn reserve_from_parts<'loan, 'source>(
 > {
     let effects = issue_generic_g0_physical_function_effects_v1(&parent)
         .map_err(GenericG0PhysicalFunctionSkeletonRejectV1::PhysicalEffect)?;
-    validate_cohort(&parent, &effects, &descriptors)?;
+    validate_generic_g0_physical_function_shell_facts(&parent, &effects, &descriptors)?;
 
     let header = parent.declaration_header();
     let symbol = CanonicalCallableSymbolV1::from_name_arity(
@@ -146,7 +146,7 @@ fn reserve_from_parts<'loan, 'source>(
     })
 }
 
-fn validate_cohort(
+pub(in crate::mir::compiler) fn validate_generic_g0_physical_function_shell_facts(
     parent: &GenericG0SourceParentRefV1<'_, '_>,
     effects: &VerifiedGenericG0PhysicalFunctionEffectsV1,
     descriptors: &[GenericG0PhysicalParameterDescriptorV1],
@@ -341,7 +341,11 @@ mod tests {
                 let effects = issue_generic_g0_physical_function_effects_v1(&parent)
                     .map_err(|_| "effect")?;
                 assert_eq!(
-                    super::validate_cohort(&parent, &effects, &descriptors),
+                    super::validate_generic_g0_physical_function_shell_facts(
+                        &parent,
+                        &effects,
+                        &descriptors,
+                    ),
                     Err(super::GenericG0PhysicalFunctionSkeletonRejectV1::DescriptorCoverage)
                 );
                 Ok::<(), &'static str>(())

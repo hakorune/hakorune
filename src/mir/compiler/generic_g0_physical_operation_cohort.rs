@@ -5,6 +5,16 @@
 //! is lent only for the duration of `with_mapping`; no parent borrow or
 //! self-reference is retained.
 
+mod emitter_admission;
+#[cfg(test)]
+mod emitter_admission_tests;
+
+pub(crate) use emitter_admission::{
+    issue_generic_g0_physical_emitter_admission_v1,
+    GenericG0PhysicalEmitterAdmissionRefV1, GenericG0PhysicalEmitterAdmissionRejectV1,
+    PreparedGenericG0FunctionShellPlanV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
+};
+
 use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     VerifiedGenericRecipeProductG0,
@@ -58,7 +68,7 @@ pub(crate) struct GenericG0PhysicalOperationCohortV1<'source> {
 }
 
 impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
-    pub(crate) fn from_parent_parts(
+    pub(super) fn from_parent_parts(
         input: ResolvedFunctionLoweringInputV1<'source>,
         product: VerifiedGenericRecipeProductG0,
         entries: Box<[VerifiedGenericG0EntryBindingV1]>,

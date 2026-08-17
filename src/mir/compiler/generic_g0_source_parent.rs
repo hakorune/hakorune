@@ -132,6 +132,14 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
+    /// Lend this exact owned parent to prephysical validators before the
+    /// one-way operation-cohort transition consumes it.
+    pub(super) fn borrow_for_physical_emitter(
+        &self,
+    ) -> GenericG0SourceParentRefV1<'_, 'source> {
+        GenericG0SourceParentRefV1 { parent: self }
+    }
+
     pub(in crate::mir::compiler) fn physical_emitter_source_parts(
         &self,
     ) -> GenericG0PhysicalEmitterSourcePartsRef<'_, 'source> {

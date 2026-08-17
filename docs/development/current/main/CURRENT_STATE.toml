@@ -29,23 +29,23 @@ input is already landed; it is not a Generic/common issuer. The resolver-owned
 body-shape transport into the Generic G0 cohort is now landed with
 same-owner/body-root checks; its private function-effect, result-ABI, and direct
 canonical Completion transport I0 are landed before demand/product consumption.
-Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, and source-owned operation cohort rows are landed; the common dispatcher remains the only leaf-emitter candidate. The no-detached-MirFunction emitter-admission BoxShape is accepted; source-parts facts extraction I0 is landed and combined admission is current. Later physical effects remain closed.
+Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, source-owned operation cohort, source-parts extraction, and no-MirFunction emitter admission rows are landed; the common dispatcher remains the only leaf-emitter candidate. Session-owned shell/adoption and later physical effects remain closed at the session-preflight design stop.
 """
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "Generic emitter-admission D0 is accepted: the combined owner holds prephysical facts only, while the unpublished canonical transaction alone creates MirFunction and owns rollback."
-work_mode = "fast"
-current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0"
-current_blocker_token = "NoSafeSlice::GenericG0PhysicalEmitterAdmissionI0Unsealed"
+current_design_stop = "Generic emitter admission is landed. The next design must name one unpublished session owner for shell creation, lane adoption, mechanical entry/segment issuance, and rollback before any dispatcher effect."
+work_mode = "design_stop"
+current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0"
+current_blocker_token = "NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 
-active_lane = "Loop compiler frontier (Generic physical emitter facts extraction I0)"
+active_lane = "Loop compiler frontier (Generic emitter session-preflight D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -73,7 +73,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed. The Generic skeleton BoxShape and detached-shell I0 are landed;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
-  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate, the source-owned operation cohort I0 is landed, and the no-MirFunction emitter-admission BoxShape is accepted. The source-parts facts-extraction I0 is landed with a compiler-private borrowed view and shared-axis parity guards. The current fast row is combined emitter admission; later physical effects remain closed.
+  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. The current design stop is the sole session-owned shell/adoption and mechanical entry/segment preflight; later physical effects remain closed.
   TopLevel declaration/header, private no-external-effect, result-ABI, and
   direct canonical Completion transport I0 are landed; storage/lane source I0
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
@@ -93,10 +93,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime parked. Common V2 admission/session, S6C header/effects, S6C-only physical-entry input, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. Generic G0 source-parent, declaration/header, body-shape, effect, result ABI, Completion, storage/lane, entry input, detached canary skeleton/adoption, operation mapping, and source-owned operation cohort I0 are landed. The corrected combined emitter-admission BoxShape is accepted: it owns layout/program, shell plan, entry-control facts, Completion, target, and full stamp but no MirFunction/raw IDs; source-parts facts extraction I0 is landed and the current fast row is combined admission I0."
-next_design_card = "none"
+latest_card_summary = "A-prime parked. Common V2 and Generic G0 semantic/prephysical prerequisites through the combined emitter admission are landed. The admission owns layout/program, shell plan, entry control, Completion, target, and a full stamp without executable function state or raw IDs. The current design stop must name the single unpublished session owner and mechanical entry/segment issuance before dispatcher effects."
+next_design_card = "LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -108,13 +108,10 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-CONDITION-BLOCK-TARGET-I0 landed one callback-scoped projection from the same canonical session's source-segment receipt to the exact physical condition block. Owner, loop, split ordinal, layout coverage, and retained entry-stamp checks plus late-discard behavior are green. No Length Call/result, receiver ValueId, Compare, edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller was opened; the Length receiver-operand projection is the next design stop, followed by a separate direct Call/result emitter.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-CALL-DIRECT-EMITTER-I0 landed one caller-zero generic StringBox.length Call and one canonical I64 result receipt from the same target/receiver/condition/stamp cohort. Final callee/receiver/destination/READ-effect checks, one-shot re-entry rejection, and late-discard no-publication tests are green. The outer unpublished transaction remains the only rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed. The next design stop is the full same-session lifetime seal for this receipt before the parent physical-result materializer.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-LENGTH-RECEIPT-LIFETIME-I0 landed the exclusive callback-scoped session borrow on the direct Length Call/result receipt. Duplicate/re-entry requires dropping the receipt first; direct-length and full physical-entry suites are green. The outer unpublished transaction remains the sole rollback owner; parent Bool/Compare, edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0 landed the source-backed entry ConstI64(0) and exact declaration/SSA publication from the same S6C seed relation. The callback-scoped non-Clone seed/read receipt is one-shot; missing-function, duplicate, and late-discard gates are green. Bool/Compare, branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed.",
   "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0 landed one receipt-owned same-session Bool materializer. It consumes the seeded entry read and Length result, emits one canonical Less Compare and Bool type/result receipt, and passes missing-seed/type plus late-discard tests. Branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next gate is LOOP-PRECUTOVER-AUTHORITY-G0.",
   "2026-08-17: LOOP-PRECUTOVER-AUTHORITY-G0-I0 landed one production Generic source-parent issuer. It co-seals the exact resolver input and selected Generic row, validates the root-plus-child forest and two source-parameter entry rows, and lends a non-Clone callback-scoped parent. Physical demand, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next stop is complete physical-function-entry input census.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0 landed one private same-cohort `EffectMask::PURE` projection from the finite five-variant Generic operation contract after owner/origin/source-kind/body-root/frame, result/header/storage, target, and operation-evidence parity checks. The focused Generic suite is green; no `MirFunction`, `ValueId`, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller opened.",
-  "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the Generic-specific admission-to-session consumer: existing resolver BlockExpr expectation, outer-If residual for the selected parent loop, and borrowed Completion are co-sealed with the detached shell and a Generic mechanical cohort stamp; one unpublished transaction installs the shell and adopts receiver/ordinary declarations through the canonical identity issuer. Duplicate adoption, occupied Builder, and late rollback gates plus the 62-test Generic suite are green; session/CFG/PHI/lifecycle/Text/route/fallback/retry/production remain closed. The convergence manifest, Generic operation-contract D0, and caller-zero five-variant operation mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate, the source-owned operation cohort BoxShape is accepted, and the next stop is the Generic/common emitter boundary."
-  "2026-08-17: Generic operation cohort I0 and facts-extraction I0 landed. One source-parent consume transition owns the operation cohort; the accepted emitter-admission D0 still owns only prephysical facts, while the later canonical transaction owns MirFunction/rollback. The new compiler-private source-parts view gives shared-axis parity without re-pairing or physical state. Generic/source-parts tests, diff/format, pointer, and helper guards are green. Next is combined no-MirFunction emitter admission; operation MIR, session effects, lifecycle/Text, route, fallback/retry, and production remain closed."
+  "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the detached caller-zero rollback/adoption canary. Its final name is `GenericG0DetachedEntryCanaryV1`; it is not the combined admission and retires after session-owned parity and zero callers.",
+  "2026-08-17: Generic operation cohort I0 and facts-extraction I0 landed. One source-parent consume owns the neutral operation program, and one compiler-private borrowed view supplies shared-axis validation without physical state.",
+  "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0 landed one non-Clone combined prephysical owner with neutral layout/program, declaration-only shell plan, resolver control, Completion, target, and full stamp. Mapping is callback-scoped; physical function state, raw IDs, session effects, fallback/retry, and production remain closed. Five focused and 63 Generic tests plus format/diff/pointer/structural guards are green. Next is the session-preflight design stop."
 ]

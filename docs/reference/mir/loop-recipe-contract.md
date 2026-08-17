@@ -1333,6 +1333,24 @@ After writer, Tail/Completion path, selector, retry/fallback, or production
 caller. Segment-aware canonical block cutover is the next R2 task; physical
 G0 and legacy retirement remain closed.
 
+## Generic G0 prephysical emitter admission receipt (2026-08-17)
+
+One `PreparedGenericG0PhysicalEmitterAdmissionV1` now consumes the exact
+source-owned Generic operation cohort. It owns the neutral physical layout
+and its complete operation program, a declaration-only shell plan, the
+resolver BlockExpr and outer-If products, canonical Completion, target, and
+one full cohort stamp. The stamp co-seals source identity, selected Loop/frame,
+logical arity, receiver-prefix and physical-lane coverage, operation/layout
+coverage, and target; matching owner values alone cannot assemble it.
+
+The admission exposes only one-shot callback-scoped views. Its mechanical
+operation mapping is borrowed from `layout.program()` and is never stored.
+No executable function, physical ID, Builder/session state, block allocation,
+operation emission, Completion consumption, publication, or fallback is
+created here. The old detached entry probe is explicitly named
+`GenericG0DetachedEntryCanaryV1` and remains outside this owner until the
+session-owned shell/adoption path reaches parity and retires it.
+
 ## Segment block cutover R2 receipt (2026-08-08)
 
 `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed for the selected Callable
