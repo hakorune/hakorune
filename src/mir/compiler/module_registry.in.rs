@@ -82,6 +82,7 @@ pub(in crate::mir) mod generic_g0_source_parent;
 pub(in crate::mir) mod generic_g0_storage_lane_source;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_physical_function_entry_input;
+pub(in crate::mir) mod generic_g0_physical_function_effect;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_function_effect;
 #[allow(dead_code)]

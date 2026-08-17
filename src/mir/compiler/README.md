@@ -45,9 +45,9 @@ allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
 `EffectMask`, consume Completion, or mutate Builder/session/CFG/SSA state.
 The callback-scoped `consume` seam moves the parent and descriptors together;
 the focused test proves the receiver/explicit order and that the loan cannot
-escape.  The next stop is a Generic source-to-physical effect projection;
-only after that issuer is accepted may a fresh skeleton be designed.  There
-is no shortcut through S6C or `/N`/JSON counts.
+escape.  The Generic physical-effect BoxShape and its caller-zero projection
+are now landed.  There is no shortcut through S6C or `/N`/JSON counts, and a
+fresh skeleton remains closed.
 
 The effect stop is narrower than assigning `EffectMask::PURE` to this
 fixture.  A future Generic issuer must consume the parent-owned source effect,
@@ -55,9 +55,25 @@ result/header/storage rows, product target, and execution frame together with
 an explicit physical-operation mapping.  It may project `PURE` only when that
 mapping proves every admitted lowered operation is MIR-pure.  Local-write or
 tail-return counts, absent calls, `NumericTarget`, MIR construction, and S6C
-physical effects are not issuers.  The first implementation row is a
-caller-zero projection with rejection/no-publication tests; skeleton,
-`MirFunction`, `ValueId`, Builder, and session effects remain closed.
+physical effects are not issuers.  The projection-only I0 is now landed;
+skeleton, `MirFunction`, `ValueId`, Builder, and session effects remain
+closed.
+
+### Generic G0 physical-effect projection I0
+
+`generic_g0_physical_function_effect.rs` is the sole Generic mapping issuer.
+It consumes the same callback-scoped source parent as the entry-input row and
+checks owner/origin/source-kind/body-root/frame, result/header/storage parity,
+the product target, and complete operation evidence before issuing a private,
+non-`Clone` `EffectMask::PURE` projection.  The admitted operation set is
+exactly `ReadBinding`, `ConstI64`, `BinaryI64`, `CompareI64`, and
+`WriteBinding`; it is a source-to-physical mapping, not a default effect.
+
+The projection is borrowed/mechanical and creates no `MirFunction`,
+`ValueId`, Builder/session state, CFG/SSA/PHI, lifecycle, Text, route, or
+publication.  The focused Generic suite is green.  The next design stop is
+the Generic physical-function skeleton census, which must name the detached
+rollback owner before opening any skeleton effect.
 
 ## Typed ingress contract
 
