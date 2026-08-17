@@ -1479,7 +1479,13 @@ Source authority + canonical issuer:
   `layout.program()` only for callback-scoped mapping preflight, then co-seal
   that layout with the same-session entry/segment/target receipts.  A
   self-referential or separately re-paired `program + mapping` shape is not
-  allowed.
+  allowed.  The current layout product is still only a candidate: its public
+  output has no Generic owner/origin/frame/session stamp, and its current
+  segment allocator is fed by the S6C `PreparedLoopV2PreSessionEnvelopeV1`.
+  The Generic `new_generic` session likewise does not attach the common
+  `PhysicalFunctionEntryCohortStampV1`.  These facts must be closed by the
+  source-backed Generic emitter seam; copying a stamp or passing an
+  owner-only `PreparedSegmentBlockReceiptV1` is not a valid bridge.
 Non-authority:
   `ReadyLoopEntryV1`/`LoopPhysicalBlockReceiptV1` as a Generic source product,
   raw `BasicBlockId`/`ValueId`, item ordinals, `EffectMask` defaults, S6C rows,
@@ -1488,18 +1494,21 @@ Non-authority:
   and a second Generic dispatcher.
 Fail-fast boundary:
   Before the first MIR instruction or ValueId publication, reject owner,
-  origin, frame, target, program/mapping, entry-lane, layout segment, logical
-  block/role, predecessor, stamp, duplicate, missing, foreign, sealed, or
-  terminated-target drift.  A late leaf failure discards the whole outer
-  unpublished transaction; local repair, retry, and fallback are forbidden.
+  origin, frame, target, program/mapping, entry-lane, Generic session stamp,
+  layout segment, logical block/role, predecessor, stamp, duplicate, missing,
+  foreign, sealed, or terminated-target drift.  Reject while still in the
+  design stop if the Generic layout can only be obtained by reusing the S6C
+  envelope or if Generic session entry has no source-backed stamp to bind.
+  A late leaf failure discards the whole outer unpublished transaction; local
+  repair, retry, and fallback are forbidden.
 Smallest next slice:
   Design-only census for `with_generic_g0_operation_cohort_v1` plus one future
   session-owned emitter view: exact Generic layout consumption order,
-  same-session entry/segment/target receipt coverage, one-shot mapping
-  borrowing, and rollback/publication timing.  Confirm that the view is a
-  projection of the canonical session rather than a Generic or S6C second
-  session.  Only after this is closed may an emitter-I0 preflight plan be
-  named.
+  same-session entry/segment/target receipt coverage, Generic entry-stamp
+  issuance, one-shot mapping borrowing, and rollback/publication timing.
+  Confirm that the view is a projection of the canonical session rather than
+  a Generic or S6C second session.  Only after this is closed may an emitter-I0
+  preflight plan be named.
 Non-claims:
   No operation MIR, Const/Read effect, CFG/SSA/PHI, Completion/DraftSeal,
   lifecycle, Text, route/backend, production caller, fallback, retry, or

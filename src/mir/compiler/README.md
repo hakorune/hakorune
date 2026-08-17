@@ -146,7 +146,11 @@ co-seal that layout with same-session entry/segment/target receipts.  A
 separately re-paired program/mapping, an owner-only segment receipt, or the
 old V1 entry/block receipts is not a valid Generic input.  No MIR operation,
 Builder effect, or new session API is authorized until that boundary is
-accepted.
+accepted.  The current layout output has no Generic owner/origin/frame stamp,
+`issue_v2_segment_allocation_plan` consumes the S6C pre-session envelope, and
+the Generic `new_generic` session does not attach the common physical-entry
+stamp.  These are the remaining D0 census items; copying a stamp or widening
+the S6C envelope is not an implementation shortcut.
 
 ## Typed ingress contract
 
