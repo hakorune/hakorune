@@ -10,11 +10,12 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_full_loop_operation_physical_demand_v2, DynamicAPrimeI64SourceRelationViewV1,
     DynamicFullLoopPhysicalInputViewV2,
 };
+use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::normal_callable_semantic_package::{
-    SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
+    CallablePhysicalHeaderRefV1, SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
     SelectedCatalogedCallableLoweringInputV1,
 };
 
@@ -55,6 +56,12 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader)?;
     let physical_function_header =
         issue_physical_function_header(catalog, physical_header, function_effects)?;
+    validate_package_physical_header(
+        &input,
+        input.physical_header(),
+        &source_relation,
+        &physical_function_header,
+    )?;
     Ok(from_parts(
         input.source(),
         selected_key,
@@ -64,6 +71,34 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         operation_program,
         physical_function_header,
     ))
+}
+
+fn validate_package_physical_header(
+    input: &SelectedCallableLoweringInputRefV1<'_>,
+    package_header: Option<CallablePhysicalHeaderRefV1<'_>>,
+    source_relation: &DynamicAPrimeI64SourceRelationViewV1<'_>,
+    physical_header: &APrimePhysicalFunctionHeaderV1,
+) -> Result<(), APrimeI64PhysicalDemandRejectV1> {
+    let package_header = require_package_physical_header(package_header)?;
+    if package_header.owner() != input.source().owner()
+        || package_header.result() != ExactTrivialScalarAbiV1::I64
+        || package_header.completion_owner() != source_relation.owner()
+        || package_header.completion_target_function() != input.source().function().function_region()
+        || !package_header.completion_returns_value()
+        || package_header.completion_explicit_site_count() != source_relation.completion_sites().len()
+        || package_header.completion_explicit_site_count() != 2
+        || !package_header.completion_cleanup_is_empty()
+        || physical_header.return_type_name() != Some(ExactTrivialScalarAbiV1::I64.source_type_name())
+    {
+        return Err(APrimeI64PhysicalDemandRejectV1::PackagePhysicalHeader);
+    }
+    Ok(())
+}
+
+fn require_package_physical_header(
+    package_header: Option<CallablePhysicalHeaderRefV1<'_>>,
+) -> Result<CallablePhysicalHeaderRefV1<'_>, APrimeI64PhysicalDemandRejectV1> {
+    package_header.ok_or(APrimeI64PhysicalDemandRejectV1::PackagePhysicalHeader)
 }
 
 fn issue_physical_function_header(
@@ -173,4 +208,17 @@ fn validate_call_edges(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{require_package_physical_header, APrimeI64PhysicalDemandRejectV1};
+
+    #[test]
+    fn package_header_is_required_before_physical_admission() {
+        assert!(matches!(
+            require_package_physical_header(None),
+            Err(APrimeI64PhysicalDemandRejectV1::PackagePhysicalHeader)
+        ));
+    }
 }

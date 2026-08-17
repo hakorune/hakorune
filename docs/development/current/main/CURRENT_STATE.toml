@@ -31,13 +31,13 @@ same-owner/body-root checks; its private function-effect, result-ABI, and direct
 canonical Completion transport I0 are landed before demand/product consumption.
 Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, source-owned operation cohort, source-parts extraction, and no-MirFunction emitter admission rows are landed; the admission retains same-cohort source entry rows for canonical preheader reads. The common dispatcher remains the only leaf-emitter candidate. Session-preflight D0 is accepted as one whole-admission unpublished consumer; sealed-consume I0 and caller-zero shell/adoption/entry/segment preflight are landed, while operation leaf effects and production remain closed. A design-only structural convergence audit labels intentional keep lanes, waiting scaffolding, bounded retirement edges, and parked inventory; repository size, helper byte identity, and micro-seed counts remain informational and do not change this blocker.
 """
-date = "2026-08-17"
+date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Production selection D0 is closed as a no-switch decision: selected-Dynamic is the sole live package-loan -> DraftSeal/collector arm, while Generic remains caller-zero evidence. The callable result contract is closed and PHYSICAL-INPUT-AUTHORITY-D0 is accepted as a BoxShape: existing A-prime demand remains the sole pre-session admission, with one package-header/Completion co-seal validator to implement. The broader Dynamic exit-session bridge remains downstream. Structural-debt disposition (sealing escapes, function-level duplicate census, legacy TSV, and byte-helper/micro-seed inventory) remains parked and cannot open a new physical owner."
-work_mode = "fast"
-current_execution_row = "PHYSICAL-INPUT-AUTHORITY-I0"
-current_blocker_token = "PHYSICAL-INPUT-AUTHORITY-I0"
+current_design_stop = "PHYSICAL-INPUT-AUTHORITY-I0 is landed: the existing A-prime demand is the sole pre-session admission and now fail-fast co-seals the package header/ABI with the retained Dynamic source/physical-input and exact two-site Completion. The next stop is LOOP-UNIFICATION-AFTER-DYNAMIC-D0, limited to its fixed BoxShape co-seal/transfer/ledger/common-boundary cleanup and topology census series. If/Exit BoxCount, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed."
+work_mode = "design_stop"
+current_execution_row = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
+current_blocker_token = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -93,11 +93,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, detached-entry retirement, Callable semantic-program consume I0, and the production candidate census are landed. Production selection retains selected-Dynamic as the sole live arm. The callable result contract is closed; PHYSICAL-INPUT-AUTHORITY-I0 is the next design stop for one existing A-prime co-seal of Dynamic physical input, package header/ABI, Dynamic result/Tail, and exact Completion. Dynamic exit-session and initializer bridge remain downstream. Structural-debt disposition remains inventory/retirement evidence only."
-next_design_card = "PHYSICAL-INPUT-AUTHORITY-I0"
-next_design_card_path = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-next_execution_card = "PHYSICAL-INPUT-AUTHORITY-I0"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, detached-entry retirement, Callable semantic-program consume I0, and the production candidate census are landed. Production selection retains selected-Dynamic as the sole live arm. The callable result contract and PHYSICAL-INPUT-AUTHORITY-I0 are closed; the existing A-prime issuer now co-seals Dynamic physical input, package header/ABI, Dynamic result/Tail, and exact two-site Completion before session effects. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 is the next design stop. Dynamic exit-session and initializer bridge remain downstream. Structural-debt disposition remains inventory/retirement evidence only."
+next_design_card = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
+next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -108,7 +108,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-17: LOOP-PRECUTOVER-AUTHORITY-G0-I0 landed one production Generic source-parent issuer. It co-seals the exact resolver input and selected Generic row, validates the root-plus-child forest and two source-parameter entry rows, and lends a non-Clone callback-scoped parent. Physical demand, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next stop is complete physical-function-entry input census.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0 landed one private same-cohort `EffectMask::PURE` projection from the finite five-variant Generic operation contract after owner/origin/source-kind/body-root/frame, result/header/storage, target, and operation-evidence parity checks. The focused Generic suite is green; no `MirFunction`, `ValueId`, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller opened.",
   "2026-08-17: Generic operation cohort I0 and facts-extraction I0 landed. One source-parent consume owns the neutral operation program, and one compiler-private borrowed view supplies shared-axis validation without physical state.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0 landed a caller-zero whole-admission preflight: shell materialization, source-lane adoption, canonical preheader entry reads, layout-keyed segment allocation, and one outer discard owner. No operation leaf, publication, retry, fallback, or production caller opened; the next bounded slice was the callback-scoped Generic-to-common dispatcher preflight."
@@ -116,5 +115,6 @@ landed_tail = [
   "2026-08-17: GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0 removed the detached Generic skeleton/canary/admission/session and tuple exits after zero-caller verification. Shared source-backed control and shell validators now live in neutral facts modules; the combined emitter admission and session-preflight remain the sole caller-zero Generic path. Production selection, fallback/retry, Completion/DraftSeal, and publication remain closed.",
   "2026-08-17: LOOP-PRODUCTION-CANDIDATE-CENSUS-R0 confirmed that the live production adapter has only the selected-Dynamic package-loan -> A-prime -> physical-session -> DraftSeal -> collector path. Generic G0 remains caller-zero; no production selector arm, fallback, retry, or raw-loop retirement was opened.",
   "2026-08-17: MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0 replaced the Callable six-element tuple escape with one source-free non-Clone PreparedCallableOperationDemandV1 consumed once by the existing prepared-demand handoff. Compiler 3/3 and Builder 1/1 focused tests, cargo check, format, diff, and zero source callers are green; no Builder/session/CFG/SSA/PHI, Completion/DraftSeal, Text, route, fallback, retry, publication, or production selector opened."
-  "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed."
+  "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
+  "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next stop: LOOP-UNIFICATION-AFTER-DYNAMIC-D0."
 ]

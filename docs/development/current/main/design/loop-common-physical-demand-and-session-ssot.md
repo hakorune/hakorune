@@ -1838,6 +1838,18 @@ Non-claims:
   production cutover, fallback, or retry.
 ```
 
+Implementation closeout (2026-08-18):
+  `PHYSICAL-INPUT-AUTHORITY-I0` extends the sole A-prime issuer with one
+  private pre-session validator.  It requires the package-owned physical
+  header and checks owner, exact I64 result, Completion owner/target/value,
+  exact two-site coverage, empty cleanup, and catalog return-type parity
+  before returning the existing demand.  No new receipt, Builder/session
+  effect, Completion consumption, DraftSeal, selector, fallback, or retry was
+  added.  The dedicated physical-input authority guard, formatting,
+  `cargo check`, and the quick A-prime focused suite (11/11) are green.  The
+  next stop is the fixed `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` BoxShape series;
+  it may not absorb If/Exit BoxCount or open the Dynamic physical session.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text

@@ -28,6 +28,7 @@ pub(in crate::mir) enum APrimeI64PhysicalDemandRejectV1 {
     PhysicalDemand(DynamicFullLoopPhysicalDemandRejectV2),
     PhysicalFunctionEffect,
     PhysicalFunctionHeader,
+    PackagePhysicalHeader,
     CallEdgeCoverage,
     PhysicalHeader(NormalCatalogedBoxMethodAdmissionErrorV1),
 }
