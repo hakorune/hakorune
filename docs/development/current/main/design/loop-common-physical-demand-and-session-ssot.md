@@ -92,16 +92,16 @@ Related:
   all-family source-parent/co-seal R0, Generic G0 source-parent BoxShape, and
   same-cohort source-view BoxShape are accepted; the Generic source-parent I0
   replaces the test-only ingress with one production issuer.  The next stop is
-  the complete same-cohort physical-function-entry input census.
+  the complete Generic G0 physical-function-entry source projection census.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` is the next design stop.  The
-  Generic source-parent I0 is landed; the next row must first name a complete
-  same-cohort storage-header/result/effects projection.  Transfer migration,
-  CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain
-  closed.
+  `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` is the next design
+  stop.  The S6C-only physical-entry projection is landed; the Generic
+  source-parent I0 is landed but lacks a same-cohort physical header/effects
+  issuer.  Transfer migration, CFG/PHI, lifecycle, Text, route, fallback,
+  retry, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -446,26 +446,68 @@ Non-claims:
   physical IDs, migrate all-family profiles, or activate production.
 ```
 
-### Post-G0 design stop: physical function-entry input completeness
+### Post-G0 design stop: split S6C physical entry from Generic G0
 
-The Generic source-parent I0 is closed, but the next physical-entry row is
-not opened by that result.  Before another Builder effect, the same installed
-S6C loan must provide one complete source-backed projection of symbol/mode,
-physical lane order and carrier, result/header, storage attributes/uses, and
-the source-backed effect mask.  The existing descriptor and skeleton canaries
-are transport evidence only until those fields are co-sealed by one compiler
-issuer; logical `/N`, raw `MirFunction` parameter length, or a default effect
-must not fill the gap.
+The installed S6C cohort already closes its own physical-entry input: one
+`S6CCommonV2PreSessionLoanRefV1` lends the catalog storage header, physical
+signature/result, source-backed effects, and Completion sibling, and the
+caller-zero descriptor aggregate projects those facts without Builder or
+ValueId effects.  That result is S6C-specific; it is not a common Generic G0
+issuer.
+
+The Generic G0 source parent currently lends resolver/Core/JoinSig/After facts
+and its exact two parameter-entry rows, but it does not carry a same-cohort
+physical storage header, result/Completion header, lane/receiver cohort, or
+physical-effect projection.  S6C receipts, raw source ParamDecls, `/N`, raw
+`MirFunction` parameter length, and a default `EffectMask` must not be reused
+or inferred to fill that gap.
 
 ```text
 NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed
 ```
 
-remains the design stop.  The next bounded task is a read-only issuer census
-for that complete function-entry input.  No new skeleton, lane adoption,
-BindingSSA, Loop CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
-or production caller is authorized until the census names a same-cohort
-issuer and exact rejection boundary.
+remains the design stop.  The next bounded task is a read-only Generic G0
+source-projection census.  No new common skeleton, lane adoption, BindingSSA,
+Loop CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or
+production caller is authorized until a Generic same-cohort issuer and exact
+rejection boundary are named.
+
+### `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0`
+
+```text
+Decision:
+  Keep the landed S6C physical-entry input as an S6C-only closed seam and do
+  not relabel it as a Generic/common issuer.  Audit whether Generic G0 can
+  obtain a source-backed symbol/mode, ParamDecl/attrs/uses, result/header,
+  receiver/lane policy, and physical-effect projection from one owner cohort.
+
+Source authority + canonical issuer:
+  Generic resolver/Core/JoinSig/After products remain the Generic source
+  authority.  A future Generic physical-entry issuer must co-seal the missing
+  callable declaration/result/effect siblings once, then lend a profile view;
+  Package/Port and the S6C header are transport or another profile's owner.
+
+Non-authority:
+  S6C physical headers/effects, Generic source-parent entry rows, raw
+  ParamDecl, `/N`, MIR parameter length, default `EffectMask`, AST/MIR/JSON
+  rescans, and a profile-local descriptor copy cannot issue Generic ABI.
+
+Fail-fast boundary:
+  Foreign owner/brand, missing or mixed storage/result/effect cohort, receiver
+  or lane drift, incomplete attrs/uses, result/Completion mismatch, or any
+  request to open Builder/session effects before the issuer exists remains
+  `NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed`.
+
+Smallest next slice:
+  Read-only issuer census only.  If a safe Generic issuer exists, open one
+  caller-zero transport row for a neutral pre-effect aggregate; otherwise keep
+  this task parked and do not add a guessed/default receipt.
+
+Non-claims:
+  No common skeleton, lane adoption, ValueId/BindingSSA, CFG/PHI,
+  Completion claim, lifecycle, Text, route, production caller, fallback, or
+  retry is opened by this census.
+```
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -504,7 +546,7 @@ Smallest next slice:
   LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0 now issues one callback-scoped
   non-Clone fan-in with exact owner/origin/root/Loop/Completion checks. The
   caller-zero session-open canary consumes that admission once; the next
-  bounded design row is LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0.
+  bounded design row is LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0.
 
 Non-claims:
   No CanonicalSsaFunctionSessionV2 construction, CFG/SSA/PHI mutation,
@@ -585,17 +627,18 @@ BlockExpr count, or expose a second session. This receipt is landed; the
 current frontier is the physical condition-result receipt design stop, not a
 session reopen or a second physical-entry authority.
 
-### LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0
+### LOOP-S6C-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0/I0 (S6C-only; landed)
 
 ```text
 Decision:
   The physical-header BoxShape and its caller-zero I0 are landed. The
-  physical-function-entry input BoxShape is now accepted: one same-cohort
-  transport-only aggregate may expose source ParamDecl evidence and complete
-  physical lane descriptors without making the existing one-value
-  formal-adoption API guess how an ExactText pair is represented. The active
-  implementation is limited to that aggregate; do not open Builder effects,
-  skeleton allocation, or lane adoption in this row.
+  physical-function-entry input BoxShape is accepted only for the installed
+  S6C cohort: one same-cohort transport-only aggregate may expose source
+  ParamDecl evidence and complete physical lane descriptors without making
+  the existing one-value formal-adoption API guess how an ExactText pair is
+  represented. This is not a Generic G0/common issuer; its implementation is
+  limited to that S6C aggregate and does not open Builder effects, skeleton
+  allocation, or lane adoption in this row.
 
   The design stop is intentionally split into:
     LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0
@@ -607,7 +650,7 @@ Decision:
   Only the middle row is executable in the current fast lane.
 
 Source authority + canonical issuer:
-  Existing package issuers remain the authorities: the catalog declaration
+  Existing S6C package issuers remain the authorities: the catalog declaration
   owns symbol/ParamDecls/result/attrs/uses, the physical-signature cohort owns
   lane order/role/BindingRef, the physical header owns result/Completion, and
   `VerifiedS6CPhysicalFunctionEffectsV1` owns only the source-backed physical
@@ -618,7 +661,7 @@ Source authority + canonical issuer:
   Its only output is a non-Clone, pre-effect relation consumed by the existing
   skeleton owner.
 
-  The missing design choice is the physical ParamDecl projection: receiver
+  The S6C-only design choice is the physical ParamDecl projection: receiver
   prefix, ordinary scalar lane, and each adjacent ExactText
   `[slot,generation]` lane need a deterministic declared name/type policy.
   Source parameter names/types may be read only through the same storage
@@ -3511,11 +3554,12 @@ skip the After closure or reopen a Tail-only route.
 | 25a-b | `CALLABLE-BLOCK-EXPR-EXPECTATION-TRANSPORT-I0` | lend the batch-owned expectation through the existing selected/package HRTB | landed 2026-08-17; transport only, no reissue, clone, Completion consumption, or session construction |
 | 25a-c | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-I0` | co-seal exact Loop outer-If residual, typed BlockExpr expectation, common V2 envelope, and actual borrowed Completion in one callback-scoped admission | landed 2026-08-17; caller-zero/effect-free; no `CanonicalSsaFunctionSessionV2`, DraftSeal, lifecycle, Return rescan, or legacy-finalizer retrofit |
 | 25b | `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` | consume the accepted admission and open one caller-zero canonical session owner without exposing a second loan | landed 2026-08-17; typed expectation projects inside `new_common_v2`, borrowed Completion yields one owned physical consumer, and the envelope remains callback-scoped; no Builder/CFG effect, claim, DraftSeal, lifecycle, or physicalizer |
-| 25b-a | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` | census one same-cohort physical function skeleton and exact entry-lane adoption boundary | accepted BoxShape; input and detached skeleton I0 are landed, while lane adoption remains a separate design stop; no Builder effect, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
+| 25b-a | `LOOP-S6C-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0/I0` | S6C-only same-cohort physical function-entry input and descriptor projection | landed caller-zero S6C seam; this does not issue Generic/common ABI and does not open skeleton, lane adoption, Loop CFG/block allocation, operation/control physicalization, PHI, Completion claims, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-b | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-D0` | accept one package/installed-loan issuer for S6C storage header, result, attrs/uses, source-backed effects, and physical signature relation | accepted BoxShape; caller-zero I0 is the only open effect; no skeleton or Builder effect |
 | 25b-b-I0 | `LOOP-COMMON-V2-PHYSICAL-HEADER-COSEAL-I0` | issue/transport the same-brand S6C storage header and source-backed physical-effects projection beside the existing signature | landed 2026-08-17; focused package/S6C tests green; no session, skeleton, ValueId, ExactText adoption, Loop block, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, retry, or production caller |
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
+| 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 source-backed symbol/mode, declaration/attrs/uses, result/header, receiver/lane, and physical-effect cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
