@@ -1731,3 +1731,26 @@ used. Positive/negative focused tests must cover same-segment success,
 duplicate/foreign scope, wrong literal/Add shape, and late unpublished discard.
 The I0 ends before Substring V9, runtime lease, TextEq V10, Bool, branch,
 Return, CFG/PHI, publication, fallback, retry, and production selection.
+
+### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-I0 closeout (2026-08-18)
+
+Landed one child-module issuer beside `common_v2_session.rs`. It validates the
+source/Recipe prefix and one Body loop/segment, reads V6 through canonical
+identity/SSA, issues/publishes V7=`ConstI64(1)` and V8=`Add(V6,V7)` through the
+canonical session, and lends a non-Clone callback-scoped receipt. The one-shot
+session flag is reserved before the first body effect; foreign segment brands,
+duplicate rows, binding/layout drift, missing seed, and late callback failure
+cannot open a retry or fallback path. The existing physical-ID-free source-row
+accessor is projection-only and issues no second semantic product.
+
+Evidence: quick focused S6C operand suite 4/4 green; `cargo check --profile
+quick`, `cargo fmt --all`, and `git diff --check` green. Source files remain
+below the 800-line hard stop (`common_v2_s6c_operand_issuer.rs` 469 lines,
+tests 271, parent session 677). The additional `nyash.string.eq_hh` export
+audit remains closed read-only: it is generic raw-i64 hook/fallback transport,
+not S6C TextEq authority or a strict wire issuer.
+
+The I0 is complete as a BoxShape. Next bounded decision is
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`; V9 residence/lease, TextEq V10,
+Bool, branch/Return CFG, Completion/DraftSeal, publication, fallback, retry,
+production selection, and legacy retirement remain closed.

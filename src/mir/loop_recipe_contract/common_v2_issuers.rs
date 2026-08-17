@@ -87,6 +87,13 @@ impl PreparedLoopOperationRowV2<'_> {
         &self.operation
     }
 
+    /// Lend the already-issued S6C logical row to a physical consumer.
+    /// This is a source projection only; it does not issue another semantic
+    /// receipt or expose physical IDs.
+    pub(crate) fn source(&self) -> &S6CLogicalItemV1 {
+        self.source
+    }
+
     pub(crate) const fn execution(&self) -> LoopOperationExecutionClassV2 {
         self.execution
     }

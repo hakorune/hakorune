@@ -53,6 +53,10 @@ pub(in crate::mir::builder) use condition_bool::{
     ConditionBoolReturnReadRejectV1,
 };
 
+#[path = "common_v2_s6c_operand_issuer.rs"]
+mod s6c_operand_issuer;
+pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
+
 /// A callback-scoped mechanical view of the physical block corresponding to
 /// the source condition block.  The row and entry stamp are borrowed from the
 /// same unpublished session, so this view cannot be re-paired with another
@@ -171,6 +175,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     condition_bool_issued: bool,
     if_continuation_target_issued: bool,
     return_read_physical_issued: bool,
+    s6c_text_eq_operands_issued: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -663,6 +668,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             condition_bool_issued: false,
             if_continuation_target_issued: false,
             return_read_physical_issued: false,
+            s6c_text_eq_operands_issued: false,
         };
         Ok(callback(&mut common))
     })

@@ -315,6 +315,10 @@ pub(crate) use s6c_scan_with_init_joinir_output::{
     VerifiedS6CScanWithInitLogicalOutputV1,
 };
 #[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_joinir_output_rows::{
+    S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
+};
+#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init_logical_consumer::{
     consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
     S6CLogicalConsumerResultV1,

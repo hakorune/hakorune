@@ -76,6 +76,8 @@ mod common_v2_initial_index_seed_tests;
 #[cfg(test)]
 mod common_v2_return_read_tests;
 #[cfg(test)]
+mod common_v2_s6c_operand_issuer_tests;
+#[cfg(test)]
 mod completion_consumption_tests;
 #[cfg(test)]
 mod completion_draft_seal_tests;

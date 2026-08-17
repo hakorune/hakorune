@@ -684,3 +684,25 @@ Tail, selector, retry, fallback, collector, or publication authority.
 This is caller-zero evidence only. M8/M9, production selection, M10b/M11/M12,
 and broad legacy retirement remain closed. The next row is the design-only
 top-down audit `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`.
+
+## Common V2 S6C TextEq operand issuer I0 (2026-08-18)
+
+`CommonV2CanonicalSessionRefV1::with_s6c_text_eq_operands` is the first
+physical consumer of the S6C inner TextEq prefix. It validates the retained
+source/Recipe rows for `ReadBinding(index) -> V6`, `ConstI64(1) -> V7`,
+`Add(V6,V7) -> V8`, and the following `Substring(V0,V6,V8) -> V9` relation,
+then resolves exactly one Body segment from the same session brand. The
+canonical identity/SSA owner reads V6, and the canonical session issues and
+publishes V7/V8 as integers. The non-Clone receipt is callback-scoped and
+retains the mutable session borrow, so the three physical values cannot be
+detached and re-paired.
+
+The one-shot ledger poisons duplicate entry before the first body instruction;
+owner, body-loop/layout, source-shape, segment-brand, and canonical-read
+drift reject without opening the later Substring effect. Focused tests cover
+positive V6/V7/V8 emission, duplicate rejection, missing-seed rejection before
+Const/Add, and whole-session late discard (4/4). This I0 does not issue V9,
+runtime text residence/lease, TextEq/Bool, branch/Return/CFG/PHI,
+Completion/DraftSeal, fallback, retry, publication, or a production selector.
+The `nyash.string.eq_hh` export remains a generic raw-i64 transport and is not
+an authority for this S6C lane.
