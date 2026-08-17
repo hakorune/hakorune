@@ -1601,6 +1601,85 @@ Non-claims:
   raw-loop retirement, fallback/retry, or main integration.
 ```
 
+#### Production selection D0 closeout — retain the selected-Dynamic arm (2026-08-18)
+
+The human selection review is now recorded as a **no-switch decision**.  The
+current selected-Dynamic branch is already the only source-backed production
+arm; this D0 does not pretend that the caller-zero Generic probe is a second
+candidate.
+
+```text
+Decision:
+  Retain `NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method`
+  as the sole live production selector.  Its selected-Dynamic arm remains the
+  canonical route.  Keep `NoSafeSlice::DynamicExitPhysicalSessionConsumerUnsealed`
+  for the replacement/cutover until a separately admitted common physical
+  consumer exists; do not add a Generic selector or fallback.
+Source authority + canonical issuer:
+  `InstalledNormalCallableSemanticPackageV1` / `NormalCallableSemanticPackagePortV1`
+  lend the selected key, source, parameter contract, physical signature,
+  header, dynamic source relations, and Completion-backed facts in one HRTB.
+  The existing Dynamic arm alone owns A-prime demand, physical session,
+  canonical finish/DraftSeal, and the same collector commit brand.
+Non-authority:
+  Generic test parent/preflight/dispatcher, `ReadyLoopEntryV1`, counts,
+  `EffectMask::PURE`, `new_generic`, raw JoinIR, copied AST/input,
+  name/owner equality, fallback, and retry cannot select production.
+Fail-fast boundary:
+  A future replacement must prove the same package/key/signature HRTB,
+  Dynamic source/header/Completion relation, target and collector brand,
+  canonical session/DraftSeal, and same-commit old-edge retirement before
+  changing the adapter.  Dynamic -> Generic/raw reclassification is rejected.
+Smallest next slice:
+  Keep the existing H2/M10b design rows as the only future cutover path:
+  `H2-SELECTED-DYNAMIC-LOWERING-AUTHORITY-R0` then
+  `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`.  Until their exact source-backed
+  common handoff is closed, perform only read-only census/disposition work.
+Non-claims:
+  No Generic production caller, new selector branch, new Completion/DraftSeal
+  owner, raw-loop retirement, fallback/retry, publication, or main integration.
+```
+
+This closes the question “which arm is live?” without claiming that the
+common-V2 caller-zero probes are production-ready.  The production selector is
+therefore settled for the current tree, while the replacement remains a
+separate H2/M10b gate with its own same-commit retirement evidence.
+
+#### `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` — next design stop
+
+```text
+Decision:
+  Design one bounded in-place replacement of the selected-Dynamic Loop work
+  inside the existing callable terminal.  Do not implement or switch the
+  selector until the sole consumer and its exit/lifetime owner are closed.
+Source authority + canonical issuer:
+  The installed package's retained Dynamic semantic program, the exact
+  `PreparedDynamicLocalEntryV1`, the located Loop admission, and the existing
+  Dynamic physical-demand issuer must be co-sealed from the same package/key
+  HRTB.  The current A-prime/Dynamic session remains the behavior oracle only.
+Non-authority:
+  test-only Dynamic demand callers, Generic G0 parent/preflight, raw
+  `lower_loop_or_freeze_v1`, AST/name/arity/ValueId rescans, runtime tags,
+  `MirType::Unknown`, and fallback/retry are not a consumer authority.
+Fail-fast boundary:
+  Reject before Builder effect if package/program/owner/frame/scope/Loop,
+  local-materialization, result/ABI, Completion, or target/collector brand
+  cannot be tied to one exact selected-Dynamic occurrence. Ordinary/Static
+  must never enter this cell, and Dynamic must not route through GenericLoop.
+Smallest next slice:
+  Read-only census the existing exit-transaction program, local materializer,
+  located Loop, multi-site Completion claims, and DraftSeal projection; name
+  one unpublished session/rollback owner and the exact old-edge retirement row.
+  Only after this D0 is accepted may a bounded I0 issue/consume the admission.
+Non-claims:
+  No new receipt, selector branch, CFG/PHI/session effect, DraftSeal/Collector
+  change, GenericLoop change, publication, fallback/retry, or main integration.
+```
+
+The existing H2 task document records the same consumer census and negative
+cases.  This card keeps the row visible in the Loop pipeline SSOT; it does not
+create a second H2 authority.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
@@ -5331,6 +5410,7 @@ skip the After closure or reopen a Tail-only route.
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 27a | `LOOP-PRODUCTION-CANDIDATE-CENSUS-R0` | enumerate the production semantic arms and exact collector handoff before any Generic selection code | design-stop census 2026-08-17; selected-Dynamic is the only live package-loan -> DraftSeal -> collector path, Generic G0 remains caller-zero, and no selector/fallback/retry code is authorized |
 | 27b | `MIRBUILDER-STRUCTURAL-DEBT-DISPOSITION-R0` | after production selection, join the sealing-escape, function-level S6C/Generic/common-V2 duplicate census, legacy TSV disposition, and byte-helper/micro-seed inventory under one owner/retirement manifest | parked behind `LOOP-PRODUCTION-SELECTION-D0`; inventory only until each row has a source-backed owner, parity gate, exact callers, and same-slice zero-caller deletion; no new receipt, selector, fallback, retry, or LOC-driven cleanup |
+| 27c | `DYNAMIC-EXIT-PHYSICAL-SESSION-P0` | design the selected-Dynamic replacement boundary: site-keyed Completion claims, one unpublished session, DraftSeal exit projection, and the same collector handoff | parked after the no-switch D0; source-backed multi-site Completion and common physical handoff must be closed before any production effect or old-edge deletion |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
 ### Selected Dynamic first-cutover overlay (2026-08-11)
