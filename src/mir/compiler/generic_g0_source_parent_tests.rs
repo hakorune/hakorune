@@ -14,6 +14,17 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
         assert_eq!(cohort.entries().len(), 2);
         assert_eq!(cohort.entries()[0].parameter_index(), 0);
         assert_eq!(cohort.entries()[1].parameter_index(), 1);
+        assert_eq!(cohort.declaration_header().name(), "generic_g0");
+        assert_eq!(cohort.declaration_header().parameters().len(), 2);
+        assert_eq!(cohort.declaration_header().parameters()[0].ordinal(), 0);
+        assert_eq!(cohort.declaration_header().parameters()[0].name(), "i");
+        assert_eq!(
+            cohort.declaration_header().parameters()[0].declared_type_name(),
+            Some("i64")
+        );
+        assert_eq!(cohort.declaration_header().return_type_name(), Some("i64"));
+        assert!(!cohort.declaration_header().is_static());
+        assert!(cohort.declaration_header().metadata_is_empty());
         cohort.product().core().owner()
     })
     .expect("source cohort");

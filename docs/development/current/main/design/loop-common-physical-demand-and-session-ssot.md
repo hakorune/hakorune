@@ -567,13 +567,14 @@ Non-claims:
   CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
 ```
 
-#### `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` (queued after issuer acceptance)
+#### `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` (accepted bounded source projection)
 
 ```text
 Decision:
-  Add one source-backed declaration/header projection for Generic G0
+  Accept one source-backed declaration/header projection for Generic G0
   TopLevel only.  This is a mechanical source projection, not a physical ABI
-  or function-effect issuer.
+  or function-effect issuer.  It may run while the parent physical-entry
+  cohort remains blocked on result/effect/Completion siblings.
 
 Source authority + canonical issuer:
   `ResolvedFunctionLoweringInputV1::source()` and its
@@ -589,7 +590,8 @@ Non-authority:
 
 Fail-fast boundary:
   Reject non-function roots, owner/origin/source-kind drift, parameter or
-  ParamDecl count/name/order/type drift, return-annotation drift, non-empty
+  ParamDecl count/name/order drift; retain the exact declared type spelling;
+  reject return-annotation drift, non-empty
   uses/attrs/contracts when the TopLevel profile requires metadata-empty, and
   callback loan escape or duplicate consumption.
 
@@ -604,6 +606,13 @@ Non-claims:
   lifecycle, Text, route, fallback/retry, production caller, or main
   integration.
 ```
+
+Implementation receipt (2026-08-17):
+  The source view now exposes mechanical `uses`/`attrs` accessors, and the
+  existing Generic source-parent transaction stores one typed, non-Clone
+  declaration/header row.  Focused source-parent tests cover the exact name,
+  parameter, type-spelling, return annotation, and metadata-empty projection;
+  the parent physical-entry blocker remains unchanged.
 
 #### `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` (parked after the parent cohort)
 
@@ -3667,7 +3676,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | active design stop; `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed`; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | resolver-owned census for body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | queued design child; parent `NoSafeSlice::GenericG0TopLevelPhysicalEntryCohortUnsealed` remains; no code/effect/session |
-| 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort after issuer acceptance | queued fast child; source projection only; no result/lane/effect/Completion/skeleton/session |
+| 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, and legacy edges after the parent cohort | parked cleanup checkpoint; no new authority or production switch |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |

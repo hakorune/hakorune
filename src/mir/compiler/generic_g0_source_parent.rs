@@ -13,6 +13,11 @@ use crate::mir::loop_recipe_contract::{
     LoopValueClassV1, LoopValueKeyV1, VerifiedGenericRecipeProductG0,
 };
 use super::function_input::ResolvedFunctionLoweringInputV1;
+use super::generic_g0_top_level_declaration_header::{
+    issue_generic_g0_top_level_declaration_header_v1,
+    GenericG0TopLevelDeclarationHeaderRejectV1,
+    VerifiedGenericG0TopLevelDeclarationHeaderV1,
+};
 use crate::mir::loop_route_policy::{
     CanonicalLoopFamilyCandidateV1, CanonicalLoopFamilySelectionV1,
 };
@@ -46,6 +51,7 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     EntryBindingOriginMismatch,
     EntryBindingIndexMismatch,
     EntryBindingClassMismatch,
+    DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
 }
@@ -84,6 +90,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     product: VerifiedGenericRecipeProductG0,
     entries: Box<[VerifiedGenericG0EntryBindingV1]>,
+    declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
@@ -101,6 +108,12 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
 
     pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
         &self.entries
+    }
+
+    pub(crate) fn declaration_header(
+        &self,
+    ) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
+        &self.declaration_header
     }
 }
 
@@ -126,6 +139,12 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
     pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
         self.parent.entries()
     }
+
+    pub(crate) fn declaration_header(
+        &self,
+    ) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
+        self.parent.declaration_header()
+    }
 }
 
 pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
@@ -140,10 +159,13 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         .map_err(GenericG0SourceParentRejectV1::Product)?;
     validate_product_input(&input, &product)?;
     let entries = issue_entry_rows(&input, &product)?;
+    let declaration_header = issue_generic_g0_top_level_declaration_header_v1(&input)
+        .map_err(GenericG0SourceParentRejectV1::DeclarationHeader)?;
     let parent = VerifiedGenericG0SourceParentV1 {
         input,
         product,
         entries,
+        declaration_header,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
 }

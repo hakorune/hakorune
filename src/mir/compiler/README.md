@@ -414,6 +414,23 @@ retain typed expected/observed identity, mode, and coverage evidence on every
 C/D/U/R disposition. This R0 evidence-preservation change is caller-zero and
 does not open the common admission assembler or any production lowering.
 
+## Generic G0 TopLevel declaration/header I0
+
+`generic_g0_top_level_declaration_header.rs` is the only issuer for the
+Generic G0 TopLevel declaration/header projection. It consumes the exact
+`ResolvedFunctionLoweringInputV1::source()` view already held by the
+source-parent transaction, validates the declared-function root, owner/source
+kind, parameter name/`ParamDecl` coverage, return annotation, and empty
+signature metadata, then stores one private non-`Clone`
+`VerifiedGenericG0TopLevelDeclarationHeaderV1` in the same parent. The
+callback lends that row; it does not re-scan AST or reconstruct a header from
+`/N`, MIR parameter length, or S6C storage facts.
+
+This I0 is a source projection only. Result ABI, receiver/lane layout,
+function effect, Completion, skeleton/session, CFG/SSA/PHI, lifecycle, Text,
+route, fallback, retry, and production caller remain closed by the active
+physical-entry design stop.
+
 ## NestedPredicate S1 source observation
 
 `nested_predicate_observation.rs` is a `#![cfg(test)]` adapter from the
