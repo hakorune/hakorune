@@ -95,11 +95,12 @@ Related:
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-G0` is the next design-only gate. The Callable-
-  first semantic-program BoxShape and caller-zero I0 are landed; the existing
-  source/Core/JoinSig products remain the only semantic authorities. The
-  repository-wide issuer, transfer migration, CFG/PHI, lifecycle, Text, route,
-  and production remain closed.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` is the next design-only gate.
+  The Callable-first semantic-program BoxShape and caller-zero I0 are landed;
+  the all-family source-parent/co-seal boundary must be fixed before a Generic
+  G0 D0. The existing source/Core/JoinSig products remain the only semantic
+  authorities. Transfer migration, CFG/PHI, lifecycle, Text, route, and
+  production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -243,6 +244,44 @@ prepared-ingress test remains green through the new consumer. The slice is
 caller-zero and Builder-free: no CFG/SSA/PHI, physical IDs, lifecycle, Text,
 route, fallback, retry, or production caller is opened. The repository-wide
 G0/all-family semantic-program issuer remains a separate `NoSafeSlice`.
+
+### LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0 design stop (2026-08-17)
+
+```text
+Decision:
+  Do not promote the Callable parent to a generic issuer. First census whether
+  every admitted family can supply one source-backed parent/co-seal boundary;
+  Generic G0 receives its own D0 only after that boundary is named.
+
+Source authority + canonical issuer:
+  Each family keeps its resolver/source producer and Core-owned Recipe/JoinSig.
+  A future all-family compiler issuer may consume one complete family parent
+  and issue one non-Clone semantic-program envelope; it must not reconstruct
+  source relations or re-pair context/Core/continuation. Callable is the only
+  landed adapter so far.
+
+Non-authority:
+  `VerifiedCallableSemanticProgramV1`, Generic test-only split helpers,
+  Dynamic V2 semantic programs, M8 Facts/products, M9 parity artifacts,
+  `PhysicalDemand::issue`, Recipe/route counts, Layout/CFG observations, and
+  separate context/Core/Continuation arguments cannot be relabeled as G0.
+
+Fail-fast boundary:
+  Missing family parent, owner/origin/site/frame drift, Core/JoinSig mismatch,
+  incomplete item/carrier/input/After coverage, V1/V2 mixing, HRTB escape, or
+  any split/re-pair ingress keeps `NoSafeSlice` before selection/effect.
+
+Smallest next slice:
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` — design-only source-parent
+  census and shared BoxShape. If the census succeeds, open
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-GENERIC-G0-D0` for one Generic parent;
+  otherwise keep the blocker and do not mint a guessed receipt.
+
+Non-claims:
+  No Generic G0 issuer, all-19 migration, JoinSig transfer migration,
+  Layout/CFG/SSA/PHI, session, lifecycle, Text, route, selector, production,
+  fallback, retry, or legacy retirement is opened.
+```
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -3334,7 +3373,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-seed-transport-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-SOURCE-TRANSPORT-I0` | carry the accepted source-only seed relation through the same S6C ingress/common envelope | landed caller-zero transport; positive/foreign-owner gates green; no Const/Write/ValueId/read receipt, Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | landed caller-zero effect slice; positive/duplicate/missing-function/late-discard gates green; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | landed caller-zero effect slice; receipt-owned same-session consume, canonical entry seed/read, one Bool ValueId/type, one Compare, and missing-seed/type/late-discard gates are green; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
-| 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
+| 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | downstream after `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` and any Generic G0 D0/I0; missing coverage blocks selection |
 | 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | census complete; Callable-first R0 handoff accepted, while `NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed` remains for generic G0; no CFG mutation, physicalizer, selection, fallback, or retry |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |

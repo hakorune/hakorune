@@ -32,11 +32,11 @@ Related:
   source-backed semantic-program co-seal issuer. A-prime Text lifecycle and
   production selection remain parked.
 - **Next ordered task:** design-only
-  `LOOP-PRECUTOVER-AUTHORITY-G0`, after landing the Callable-first
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`. The repository-wide issuer must
-  still cover all admitted families before any all-19 G0 coverage or
-  production physical effect. Do not extend the selected-normal legacy
-  finalizer with lifecycle or Return authority.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0`, after landing the
+  Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`. The repository-wide
+  source-parent/co-seal boundary must cover all admitted families before a
+  Generic G0 D0, all-19 coverage, or production physical effect. Do not extend
+  the selected-normal legacy finalizer with lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
