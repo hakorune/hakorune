@@ -27,10 +27,11 @@ pub(in crate::mir::builder) enum LengthCallDirectEmitterRejectV1 {
 }
 
 /// One unpublished generic `StringBox.length` Call and its canonical I64
-/// destination. This receipt is non-Clone and contains no source-site copy or
-/// route selector; it is only a same-session physical result witness.
-#[derive(Debug)]
-pub(in crate::mir::builder) struct CanonicalLengthCallResultReceiptV1 {
+/// destination. The exclusive session borrow is intentional: a later
+/// materializer must be reached through this receipt, never by handing its
+/// metadata back to another session.
+pub(in crate::mir::builder) struct CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope> {
+    _session: &'call mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     condition_block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
     call_item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
@@ -38,10 +39,9 @@ pub(in crate::mir::builder) struct CanonicalLengthCallResultReceiptV1 {
     physical_block: crate::mir::BasicBlockId,
     receiver: crate::mir::ValueId,
     destination: crate::mir::ValueId,
-    stamp_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 }
 
-impl CanonicalLengthCallResultReceiptV1 {
+impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope> {
     pub(in crate::mir::builder) const fn owner(
         &self,
     ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -77,12 +77,6 @@ impl CanonicalLengthCallResultReceiptV1 {
     pub(in crate::mir::builder) const fn destination(&self) -> crate::mir::ValueId {
         self.destination
     }
-
-    pub(in crate::mir::builder) const fn stamp_owner(
-        &self,
-    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.stamp_owner
-    }
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
@@ -90,10 +84,13 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     /// its I64 type through the canonical session. This remains caller-zero:
     /// the surrounding entry transaction discards the unpublished Call and
     /// result after the callback returns.
-    pub(in crate::mir::builder) fn emit_length_call_result(
-        &mut self,
+    pub(in crate::mir::builder) fn emit_length_call_result<'call>(
+        &'call mut self,
         builder: &mut crate::mir::builder::MirBuilder,
-    ) -> Result<CanonicalLengthCallResultReceiptV1, LengthCallDirectEmitterRejectV1> {
+    ) -> Result<
+        CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope>,
+        LengthCallDirectEmitterRejectV1,
+    > {
         if self.length_call_direct_issued {
             return Err(LengthCallDirectEmitterRejectV1::AlreadyIssued);
         }
@@ -199,15 +196,16 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .publish_physical_value_type(builder, destination, crate::mir::MirType::Integer)
             .map_err(LengthCallDirectEmitterRejectV1::PhysicalValue)?;
         self.length_call_direct_issued = true;
+        let owner = self.session.owner();
         Ok(CanonicalLengthCallResultReceiptV1 {
-            owner: self.session.owner(),
+            _session: self,
+            owner,
             condition_block,
             call_item: plan.item(),
             result: plan.result(),
             physical_block: emitted.1,
             receiver: emitted.0,
             destination,
-            stamp_owner,
         })
     }
 }

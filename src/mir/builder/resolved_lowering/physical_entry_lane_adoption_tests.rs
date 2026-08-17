@@ -54,21 +54,23 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
             &mut builder,
             skeleton.into_session_input(),
             |canonical, draft| {
-                let receipt =
-                    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-                        canonical.emit_length_call_result(draft)
-                    })
-                    .expect("direct StringBox.length Call");
-                assert_eq!(receipt.owner(), expected_owner);
-                assert_eq!(receipt.stamp_owner(), expected_owner);
-                assert_ne!(receipt.destination(), crate::mir::ValueId::INVALID);
-                assert_eq!(
-                    draft
-                        .function_state
-                        .type_ctx
-                        .get_type(receipt.destination()),
-                    Some(&crate::mir::MirType::Integer)
-                );
+                let (destination, expected_receiver) = {
+                    let receipt =
+                        crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+                            canonical.emit_length_call_result(draft)
+                        })
+                        .expect("direct StringBox.length Call");
+                    assert_eq!(receipt.owner(), expected_owner);
+                    assert_ne!(receipt.destination(), crate::mir::ValueId::INVALID);
+                    assert_eq!(
+                        draft
+                            .function_state
+                            .type_ctx
+                            .get_type(receipt.destination()),
+                        Some(&crate::mir::MirType::Integer)
+                    );
+                    (receipt.destination(), receipt.receiver())
+                };
 
                 let instructions = draft.current_function_instructions();
                 let calls: Vec<_> = instructions
@@ -86,7 +88,7 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
                     .collect();
                 assert_eq!(calls.len(), 1);
                 let (dst, callee, args, effects) = calls[0];
-                assert_eq!(dst, Some(receipt.destination()));
+                assert_eq!(dst, Some(destination));
                 assert_eq!(effects, EffectMask::READ);
                 assert!(args
                     .first()
@@ -100,7 +102,7 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
                         ..
                     } if box_name == "StringBox"
                         && method == "length"
-                        && *receiver == receipt.receiver()
+                        && *receiver == expected_receiver
                 ));
                 assert!(matches!(
                     canonical.emit_length_call_result(draft),

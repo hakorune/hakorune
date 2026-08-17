@@ -1820,7 +1820,22 @@ the final emitted callee, receiver, destination, and `READ` effect. The outer
 unpublished function transaction remains the only rollback owner, so late
 callback failure publishes neither Call nor receipt. No parent Bool/Compare,
 edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
-fallback, retry, or production caller is opened.
+fallback, retry, or production caller is opened. The follow-up lifetime
+BoxShape is accepted: the result receipt owns the exclusive borrow of the
+exact canonical session that issued it, and a future materializer must be
+entered through that receipt rather than by passing copied metadata to another
+session.
+
+## Common V2 Length-result receipt lifetime I0 (2026-08-17)
+
+The direct Length receipt is now callback-scoped and non-Clone. Its return type
+contains an exclusive borrow of `CommonV2CanonicalSessionRefV1`, so the Rust
+type boundary prevents it from escaping the physical-entry callback or being
+accepted by a foreign session. A duplicate/re-entry check must first drop or
+consume the receipt; the outer unpublished transaction remains the sole late
+discard owner. This I0 emits no Bool ValueId, Compare, branch, edge,
+terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback,
+retry, publication, or production caller.
 
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 

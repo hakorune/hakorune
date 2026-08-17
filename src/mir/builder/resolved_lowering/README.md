@@ -152,7 +152,12 @@ callback failure discards the unpublished function transaction, so the receipt
 and Call never reach module publication. Focused direct-emitter and
 late-discard tests are green. Parent Bool/Compare, edges/terminators, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and production
-remain closed; the next stop is the parent physical-result design boundary.
+remain closed. The follow-up receipt-lifetime BoxShape is accepted: the
+receipt now owns an exclusive borrow of the exact `CommonV2CanonicalSessionRefV1`
+that issued the Call/result, so it cannot be re-paired with another session or
+escape the callback. The caller-zero lifetime I0 changes only that return
+signature and its focused borrow/duplicate/late-discard gates; Bool/Compare
+materialization remains a separate later row.
 
 ## Common V2 synthetic After allocation I0
 
