@@ -1522,10 +1522,11 @@ lands; no fourth source-parent issuer is added.
 
 Implementation is intentionally split into three bounded cells:
 
-1. `PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` adds one private
-   `generic_g0_physical_emitter_facts.rs` helper (target <=300 lines).  It
-   extracts the existing pure descriptor/header/effect/result and
-   BlockExpr/outer-If/Completion validations; old canaries delegate and retain
+1. `PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` adds one private child helper at
+   `generic_g0_source_parent/physical_emitter_source_parts.rs` (target <=300
+   lines).  It lends one borrowed source-parts view and centralizes only the
+   shared identity axes; descriptor/effect/shell/control-specific validators
+   remain with their existing owners.  Old canaries delegate and retain
    behavior.  No admission or physical state is created.
 2. `PHYSICAL-EMITTER-ADMISSION-I0` adds
    `generic_g0_physical_emitter_admission.rs` (target <=350 lines) and a
@@ -4749,7 +4750,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | accepted BoxShape 2026-08-17 after ownership census; next caller-zero cohort I0 only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone prephysical admission owning layout/program, shell plan, entry-control facts, Completion, target, and one full stamp | accepted BoxShape 2026-08-17; actual `MirFunction`, raw IDs, parent borrow, stored mapping, S6C/old-V1 adapter, and second rollback owner are forbidden |
-| 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | current fast BoxCount; refactor-only, no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
+| 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | landed 2026-08-17; borrowed source-parts view plus shared-axis parity tests/guards are green; no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
 | 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | queued after facts extraction; atomically rename the old entry admission to `GenericG0DetachedEntryCanaryV1`; no `MirFunction`, Builder/session, raw IDs, S6C, old V1 admission input, dispatcher effect, or production caller |
 | 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | after admission I0, name the single unpublished transaction that creates/installs the shell, adopts entry lanes, canonically issues the mechanical Loop entry from adopted BindingSSA, and allocates the layout-derived segment receipt | next design stop after admission; `ReadyLoopEntryV1::new_for_test`, S6C envelope input, owner-only re-pairing, segment/leaf effect before full preflight, and a second receipt remain forbidden |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 is accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |

@@ -15,7 +15,10 @@ use crate::mir::compiler::generic_g0_physical_function_entry_input::{
     GenericG0PhysicalFunctionEntryRejectV1, GenericG0PhysicalLaneRoleV1,
     GenericG0PhysicalParameterDescriptorV1, PreparedGenericG0PhysicalFunctionEntryInputV1,
 };
-use crate::mir::compiler::generic_g0_source_parent::GenericG0SourceParentRefV1;
+use crate::mir::compiler::generic_g0_source_parent::{
+    physical_emitter_source_parts::GenericG0PhysicalEmitterSourcePartsRejectV1,
+    GenericG0SourceParentRefV1,
+};
 use crate::mir::resolved_semantics::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::CanonicalCallableSymbolV1;
 use crate::mir::function::MirParamDecl;
@@ -148,6 +151,10 @@ fn validate_cohort(
     effects: &VerifiedGenericG0PhysicalFunctionEffectsV1,
     descriptors: &[GenericG0PhysicalParameterDescriptorV1],
 ) -> Result<(), GenericG0PhysicalFunctionSkeletonRejectV1> {
+    let parts = parent.physical_emitter_source_parts();
+    parts
+        .validate_shared_axes()
+        .map_err(map_source_parts_reject)?;
     let header = parent.declaration_header();
     let storage = parent.storage_lane();
     let result = parent.result_abi();
@@ -164,28 +171,16 @@ fn validate_cohort(
     if u32::try_from(header.parameters().len()).is_err() {
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::SourceArityOverflow);
     }
-    if effects.owner() != parent.owner()
-        || header.owner() != parent.owner()
-        || storage.owner() != parent.owner()
-        || result.owner() != parent.owner()
-    {
+    if effects.owner() != parent.owner() {
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::OwnerMismatch);
     }
-    if effects.origin() != header.origin()
-        || storage.origin() != header.origin()
-        || result.origin() != header.origin()
-    {
+    if effects.origin() != parent.product().context().origin() {
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::OriginMismatch);
     }
-    if effects.source_kind() != header.source_kind()
-        || storage.source_kind() != header.source_kind()
-        || result.source_kind() != header.source_kind()
-    {
+    if effects.source_kind() != parent.product().context().source_kind() {
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::SourceKindMismatch);
     }
-    if effects.body_root() != storage.body_root()
-        || effects.body_root() != parent.body_shape().body_root()
-    {
+    if effects.body_root() != storage.body_root() {
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::BodyRootMismatch);
     }
     if !effects.frame().matches(context.frame()) || !storage.frame().matches(context.frame()) {
@@ -268,6 +263,28 @@ fn validate_cohort(
         return Err(GenericG0PhysicalFunctionSkeletonRejectV1::DescriptorTypeMismatch);
     }
     Ok(())
+}
+
+fn map_source_parts_reject(
+    reject: GenericG0PhysicalEmitterSourcePartsRejectV1,
+) -> GenericG0PhysicalFunctionSkeletonRejectV1 {
+    match reject {
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OwnerMismatch => {
+            GenericG0PhysicalFunctionSkeletonRejectV1::OwnerMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OriginMismatch => {
+            GenericG0PhysicalFunctionSkeletonRejectV1::OriginMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::SourceKindMismatch => {
+            GenericG0PhysicalFunctionSkeletonRejectV1::SourceKindMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::BodyRootMismatch => {
+            GenericG0PhysicalFunctionSkeletonRejectV1::BodyRootMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::FrameMismatch => {
+            GenericG0PhysicalFunctionSkeletonRejectV1::FrameMismatch
+        }
+    }
 }
 
 #[cfg(test)]

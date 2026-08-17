@@ -46,6 +46,12 @@ use super::generic_g0_physical_operation_cohort::{
     GenericG0PhysicalOperationCohortRejectV1, GenericG0PhysicalOperationCohortV1,
 };
 
+#[path = "generic_g0_source_parent/physical_emitter_source_parts.rs"]
+pub(in crate::mir::compiler) mod physical_emitter_source_parts;
+pub(in crate::mir::compiler) use physical_emitter_source_parts::{
+    GenericG0PhysicalEmitterSourcePartsRef,
+};
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum GenericG0SourceParentRejectV1 {
     SelectionOwnerMismatch,
@@ -126,6 +132,12 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
 }
 
 impl<'source> VerifiedGenericG0SourceParentV1<'source> {
+    pub(in crate::mir::compiler) fn physical_emitter_source_parts(
+        &self,
+    ) -> GenericG0PhysicalEmitterSourcePartsRef<'_, 'source> {
+        GenericG0PhysicalEmitterSourcePartsRef::from_parent(self)
+    }
+
     pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
         self.input
     }
@@ -210,6 +222,12 @@ pub(crate) struct GenericG0SourceParentRefV1<'loan, 'source> {
 }
 
 impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
+    pub(in crate::mir::compiler) fn physical_emitter_source_parts(
+        &self,
+    ) -> GenericG0PhysicalEmitterSourcePartsRef<'_, 'source> {
+        self.parent.physical_emitter_source_parts()
+    }
+
     pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'source> {
         self.parent.source_input()
     }

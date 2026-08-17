@@ -156,6 +156,16 @@ admission, then a separate session-preflight D0.  The first fast row is
 refactor-only and creates no admission or physical state; the admission module
 is capped at 350 lines with tests in a separate <=260-line file.
 
+The current facts-extraction row is intentionally thinner than that future
+admission.  The source parent exposes one compiler-private borrowed view from
+`generic_g0_source_parent/physical_emitter_source_parts.rs`; entry, effect,
+skeleton, and entry-control canaries use it only for shared owner/origin/
+source-kind/body-root/frame checks.  The view is not a new semantic receipt,
+does not return a tuple or store a mapping, and imports no MIR/Builder/session
+or physical layout state.  Variant-specific descriptor, effect, shell, and
+control validation stays in the existing owner modules until the combined
+emitter admission replaces the canaries.
+
 During that migration, the old `GenericG0PhysicalEntryAdmissionV1` is a
 test-only detached-entry canary and must become
 `GenericG0DetachedEntryCanaryV1` atomically with the new emitter admission;

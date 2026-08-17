@@ -80,22 +80,23 @@ pub(crate) fn issue_generic_g0_physical_entry_admission_v1<'loan, 'source>(
 ) -> Result<GenericG0PhysicalEntryAdmissionV1<'loan, 'source>, GenericG0PhysicalEntryAdmissionRejectV1>
 {
     let parent = skeleton.parent();
-    let input = parent.source_input();
+    let parts = parent.physical_emitter_source_parts();
+    let input = parts.input();
     let expectation = issue_resolved_block_expr_expectation_v1(
         input.function(),
-        parent.body_shape(),
+        parts.body_shape(),
     )
     .map_err(|error| GenericG0PhysicalEntryAdmissionRejectV1::BlockExpr(format!("{error:?}")))?;
     // The Generic source parent retains the exact loop selected by the
     // source cohort.  Do not collapse this to a function-wide singleton:
     // Generic fixtures may legitimately contain a nested loop.
-    let loop_site = parent.loop_site();
+    let loop_site = parts.product().context().loop_site();
     let outer_if = VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile(
-        input,
+        *input,
         loop_site.node(),
     )
     .map_err(GenericG0PhysicalEntryAdmissionRejectV1::OuterIf)?;
-    let completion = parent.completion();
+    let completion = parts.completion();
     if expectation.owner() != parent.owner()
         || outer_if.owner() != parent.owner()
         || completion.owner() != parent.owner()

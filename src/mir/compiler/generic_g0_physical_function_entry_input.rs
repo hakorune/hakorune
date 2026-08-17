@@ -13,7 +13,10 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, ReceiverPolicyV1,
 };
 
-use super::generic_g0_source_parent::GenericG0SourceParentRefV1;
+use super::generic_g0_source_parent::{
+    physical_emitter_source_parts::GenericG0PhysicalEmitterSourcePartsRejectV1,
+    GenericG0SourceParentRefV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0PhysicalLaneRoleV1 {
@@ -129,40 +132,15 @@ pub(crate) fn issue_generic_g0_physical_function_entry_input_v1<'loan, 'source>(
     PreparedGenericG0PhysicalFunctionEntryInputV1<'loan, 'source>,
     GenericG0PhysicalFunctionEntryRejectV1,
 > {
-    let header = parent.declaration_header();
-    let storage = parent.storage_lane();
-    let result = parent.result_abi();
-    let effect = parent.function_effect();
-    let completion = parent.completion();
-
-    if storage.owner() != parent.owner()
-        || header.owner() != parent.owner()
-        || result.owner() != parent.owner()
-        || effect.owner() != parent.owner()
-        || completion.owner() != parent.owner()
-    {
-        return Err(GenericG0PhysicalFunctionEntryRejectV1::OwnerMismatch);
-    }
-    if storage.origin() != header.origin()
-        || result.origin() != header.origin()
-        || effect.origin() != header.origin()
-    {
-        return Err(GenericG0PhysicalFunctionEntryRejectV1::OriginMismatch);
-    }
-    if storage.source_kind() != header.source_kind()
-        || result.source_kind() != header.source_kind()
-        || effect.source_kind() != header.source_kind()
-    {
-        return Err(GenericG0PhysicalFunctionEntryRejectV1::SourceKindMismatch);
-    }
-    if effect.body_root() != storage.body_root() {
-        return Err(GenericG0PhysicalFunctionEntryRejectV1::BodyRootMismatch);
-    }
-    if !storage.frame().matches(parent.product().context().frame())
-        || !effect.root_frame().matches(parent.product().context().frame())
-    {
-        return Err(GenericG0PhysicalFunctionEntryRejectV1::FrameMismatch);
-    }
+    let parts = parent.physical_emitter_source_parts();
+    parts
+        .validate_shared_axes()
+        .map_err(map_source_parts_reject)?;
+    let header = parts.declaration_header();
+    let storage = parts.storage_lane();
+    let result = parts.result_abi();
+    let effect = parts.function_effect();
+    let completion = parts.completion();
     if header.return_type_name() != Some(result.abi().source_type_name())
         || result.abi().source_type_name() != "i64"
     {
@@ -195,7 +173,7 @@ pub(crate) fn issue_generic_g0_physical_function_entry_input_v1<'loan, 'source>(
     }
 
     if header.parameters().len() != storage.formals().len()
-        || header.parameters().len() != parent.entries().len()
+        || header.parameters().len() != parts.entries().len()
     {
         return Err(GenericG0PhysicalFunctionEntryRejectV1::HeaderParameterCountMismatch);
     }
@@ -233,7 +211,7 @@ pub(crate) fn issue_generic_g0_physical_function_entry_input_v1<'loan, 'source>(
         .formals()
         .iter()
         .zip(header.parameters())
-        .zip(parent.entries())
+        .zip(parts.entries())
     {
         if formal.ordinal() != parameter.ordinal() || formal.ordinal() != entry.parameter_index() {
             return Err(GenericG0PhysicalFunctionEntryRejectV1::HeaderParameterOrdinalMismatch);
@@ -288,6 +266,28 @@ pub(crate) fn issue_generic_g0_physical_function_entry_input_v1<'loan, 'source>(
         descriptors: descriptors.into_boxed_slice(),
         physical_callable_lane_count: physical_index,
     })
+}
+
+fn map_source_parts_reject(
+    reject: GenericG0PhysicalEmitterSourcePartsRejectV1,
+) -> GenericG0PhysicalFunctionEntryRejectV1 {
+    match reject {
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OwnerMismatch => {
+            GenericG0PhysicalFunctionEntryRejectV1::OwnerMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OriginMismatch => {
+            GenericG0PhysicalFunctionEntryRejectV1::OriginMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::SourceKindMismatch => {
+            GenericG0PhysicalFunctionEntryRejectV1::SourceKindMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::BodyRootMismatch => {
+            GenericG0PhysicalFunctionEntryRejectV1::BodyRootMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::FrameMismatch => {
+            GenericG0PhysicalFunctionEntryRejectV1::FrameMismatch
+        }
+    }
 }
 
 #[cfg(test)]

@@ -13,7 +13,10 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::EffectMask;
 
-use super::generic_g0_source_parent::GenericG0SourceParentRefV1;
+use super::generic_g0_source_parent::{
+    physical_emitter_source_parts::GenericG0PhysicalEmitterSourcePartsRejectV1,
+    GenericG0SourceParentRefV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericG0PhysicalFunctionEffectRejectV1 {
@@ -87,45 +90,16 @@ pub(crate) fn issue_generic_g0_physical_function_effects_v1<'loan, 'source>(
     VerifiedGenericG0PhysicalFunctionEffectsV1,
     GenericG0PhysicalFunctionEffectRejectV1,
 > {
-    let context = parent.product().context();
-    let source_effect = parent.function_effect();
-    let result = parent.result_abi();
-    let header = parent.declaration_header();
-    let storage = parent.storage_lane();
+    let parts = parent.physical_emitter_source_parts();
+    parts
+        .validate_shared_axes()
+        .map_err(map_source_parts_reject)?;
+    let context = parts.product().context();
+    let source_effect = parts.function_effect();
+    let result = parts.result_abi();
+    let header = parts.declaration_header();
+    let storage = parts.storage_lane();
     let operation_effect = parent.product().operation_effect();
-
-    if context.owner() != parent.owner()
-        || source_effect.owner() != parent.owner()
-        || result.owner() != parent.owner()
-        || header.owner() != parent.owner()
-        || storage.owner() != parent.owner()
-    {
-        return Err(GenericG0PhysicalFunctionEffectRejectV1::OwnerMismatch);
-    }
-    if context.origin() != source_effect.origin()
-        || context.origin() != result.origin()
-        || context.origin() != header.origin()
-        || context.origin() != storage.origin()
-    {
-        return Err(GenericG0PhysicalFunctionEffectRejectV1::OriginMismatch);
-    }
-    if context.source_kind() != source_effect.source_kind()
-        || context.source_kind() != result.source_kind()
-        || context.source_kind() != header.source_kind()
-        || context.source_kind() != storage.source_kind()
-    {
-        return Err(GenericG0PhysicalFunctionEffectRejectV1::SourceKindMismatch);
-    }
-    if source_effect.body_root() != storage.body_root()
-        || source_effect.body_root() != parent.body_shape().body_root()
-    {
-        return Err(GenericG0PhysicalFunctionEffectRejectV1::BodyRootMismatch);
-    }
-    if !source_effect.root_frame().matches(context.frame())
-        || !storage.frame().matches(context.frame())
-    {
-        return Err(GenericG0PhysicalFunctionEffectRejectV1::FrameMismatch);
-    }
     if header.return_type_name() != Some(result.abi().source_type_name())
         || result.abi().source_type_name() != "i64"
     {
@@ -174,6 +148,28 @@ pub(crate) fn issue_generic_g0_physical_function_effects_v1<'loan, 'source>(
         operation_count,
         effect_mask: EffectMask::PURE,
     })
+}
+
+fn map_source_parts_reject(
+    reject: GenericG0PhysicalEmitterSourcePartsRejectV1,
+) -> GenericG0PhysicalFunctionEffectRejectV1 {
+    match reject {
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OwnerMismatch => {
+            GenericG0PhysicalFunctionEffectRejectV1::OwnerMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::OriginMismatch => {
+            GenericG0PhysicalFunctionEffectRejectV1::OriginMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::SourceKindMismatch => {
+            GenericG0PhysicalFunctionEffectRejectV1::SourceKindMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::BodyRootMismatch => {
+            GenericG0PhysicalFunctionEffectRejectV1::BodyRootMismatch
+        }
+        GenericG0PhysicalEmitterSourcePartsRejectV1::FrameMismatch => {
+            GenericG0PhysicalFunctionEffectRejectV1::FrameMismatch
+        }
+    }
 }
 
 fn is_mir_pure_generic_operation(operation: LoopOperationV1) -> bool {
