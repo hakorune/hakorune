@@ -2,8 +2,8 @@
 
 use crate::mir::resolved_semantics::{
     locate_catalog_function_v1, CanonicalCallableKeyV1, FunctionOwnerIdV1,
-    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedResolvedFunctionV1,
-    VerifiedSemanticOwnerForestV1,
+    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedResolvedBodyShapeInventoryV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
@@ -17,6 +17,7 @@ pub(crate) struct ResolvedFunctionLoweringInputV1<'a> {
     source: FunctionSourceViewV1<'a>,
     function: &'a VerifiedResolvedFunctionV1,
     forest: &'a VerifiedSemanticOwnerForestV1,
+    body_shape: Option<&'a VerifiedResolvedBodyShapeInventoryV1>,
     callable_index: Option<&'a VerifiedCallableIndexV1>,
     callable_header: Option<&'a VerifiedCallableHeaderV1>,
 }
@@ -25,11 +26,17 @@ impl VerifiedResolvedSourceUnitV1 {
     pub(crate) fn root_function_input(
         &self,
     ) -> Result<ResolvedFunctionLoweringInputV1<'_>, CanonicalLoweringErrorV1> {
-        ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
             self.syntax_root(),
             self.forest(),
             self.projection(),
-        )
+        )?;
+        let body_shape = self.body_shape(input.owner()).ok_or_else(|| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "resolved_source_unit_body_shape_missing".to_string(),
+            }
+        })?;
+        Ok(input.with_body_shape(body_shape))
     }
 }
 
@@ -72,6 +79,7 @@ impl VerifiedResolvedCallableModuleV1 {
             source,
             function,
             forest: unit.forest(),
+            body_shape: None,
             callable_index: Some(self.source().catalog().index()),
             callable_header: Some(header),
         })
@@ -105,6 +113,7 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
             source,
             function,
             forest,
+            body_shape: None,
             callable_index: None,
             callable_header: None,
         })
@@ -135,6 +144,20 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
 
     pub(crate) const fn forest(self) -> &'a VerifiedSemanticOwnerForestV1 {
         self.forest
+    }
+
+    pub(crate) const fn body_shape(
+        self,
+    ) -> Option<&'a VerifiedResolvedBodyShapeInventoryV1> {
+        self.body_shape
+    }
+
+    fn with_body_shape(
+        mut self,
+        body_shape: &'a VerifiedResolvedBodyShapeInventoryV1,
+    ) -> Self {
+        self.body_shape = Some(body_shape);
+        self
     }
 
     pub(crate) const fn callable_index(self) -> Option<&'a VerifiedCallableIndexV1> {

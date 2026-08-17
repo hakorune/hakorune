@@ -23,7 +23,7 @@ use crate::mir::loop_route_policy::{
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, FunctionOwnerIdV1,
-    SourceBindingSiteV1, SourceStmtSiteV1,
+    SourceBindingSiteV1, SourceStmtSiteV1, VerifiedResolvedBodyShapeInventoryV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -51,6 +51,9 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     EntryBindingOriginMismatch,
     EntryBindingIndexMismatch,
     EntryBindingClassMismatch,
+    BodyShapeMissing,
+    BodyShapeOwnerMismatch,
+    BodyShapeRootMismatch,
     DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
@@ -90,6 +93,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     product: VerifiedGenericRecipeProductG0,
     entries: Box<[VerifiedGenericG0EntryBindingV1]>,
+    body_shape: &'source VerifiedResolvedBodyShapeInventoryV1,
     declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
 }
 
@@ -108,6 +112,10 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
 
     pub(crate) fn entries(&self) -> &[VerifiedGenericG0EntryBindingV1] {
         &self.entries
+    }
+
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        self.body_shape
     }
 
     pub(crate) fn declaration_header(
@@ -140,6 +148,10 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
         self.parent.entries()
     }
 
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        self.parent.body_shape()
+    }
+
     pub(crate) fn declaration_header(
         &self,
     ) -> &VerifiedGenericG0TopLevelDeclarationHeaderV1 {
@@ -153,6 +165,10 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
     callback: impl for<'loan> FnOnce(GenericG0SourceParentRefV1<'loan, 'source>) -> R,
 ) -> Result<R, GenericG0SourceParentRejectV1> {
     validate_selection_input(&input, &selection)?;
+    let body_shape = input
+        .body_shape()
+        .ok_or(GenericG0SourceParentRejectV1::BodyShapeMissing)?;
+    validate_body_shape_input(&input, body_shape)?;
     let demand = issue_generic_g0_recipe_demand_v1(selection)
         .map_err(GenericG0SourceParentRejectV1::Demand)?;
     let product = produce_generic_g0_recipe_v1(demand)
@@ -165,9 +181,23 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         input,
         product,
         entries,
+        body_shape,
         declaration_header,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))
+}
+
+fn validate_body_shape_input(
+    input: &ResolvedFunctionLoweringInputV1<'_>,
+    body_shape: &VerifiedResolvedBodyShapeInventoryV1,
+) -> Result<(), GenericG0SourceParentRejectV1> {
+    if body_shape.owner() != input.owner() {
+        return Err(GenericG0SourceParentRejectV1::BodyShapeOwnerMismatch);
+    }
+    if *body_shape.body_root() != input.function().root_profile().body_root() {
+        return Err(GenericG0SourceParentRejectV1::BodyShapeRootMismatch);
+    }
+    Ok(())
 }
 
 fn validate_selection_input(

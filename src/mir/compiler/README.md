@@ -3,6 +3,22 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
+### Generic G0 body-shape transport I0
+
+`VerifiedResolvedSourceUnitV1::resolve_function` resolves the forest and the
+resolver-owned body-shape inventories in one traversal.  The source unit
+retains those inventories by `FunctionOwnerIdV1`; its root
+`ResolvedFunctionLoweringInputV1` lends only the exact owner-matched body-shape
+sibling.  Bare mechanical inputs and callable-module inputs remain explicitly
+body-shape-free, so they cannot fabricate a Generic effect product.
+
+`with_generic_g0_source_parent_v1` requires the borrowed sibling and checks
+owner/body-root equality before issuing its existing demand/product cohort.
+This is transport only: it adds no `EffectMask`, physical function effect,
+Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text, route,
+fallback, retry, or production caller.  The next design stop is the separate
+resolver-owned Generic function-effect projection census.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)

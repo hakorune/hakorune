@@ -1,6 +1,7 @@
 use super::generic_g0_source_parent::{
     with_generic_g0_source_parent_v1, GenericG0SourceParentRejectV1,
 };
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
 
@@ -25,6 +26,12 @@ fn source_parent_lends_one_cohort_with_exact_entry_rows() {
         assert_eq!(cohort.declaration_header().return_type_name(), Some("i64"));
         assert!(!cohort.declaration_header().is_static());
         assert!(cohort.declaration_header().metadata_is_empty());
+        assert_eq!(cohort.body_shape().owner(), owner);
+        assert_eq!(
+            *cohort.body_shape().body_root(),
+            input.function().root_profile().body_root()
+        );
+        assert!(!cohort.body_shape().effects().is_empty());
         cohort.product().core().owner()
     })
     .expect("source cohort");
@@ -43,5 +50,23 @@ fn source_parent_rejects_foreign_resolver_input_before_product() {
         Err(GenericG0SourceParentRejectV1::SelectionOwnerMismatch)
             | Err(GenericG0SourceParentRejectV1::SelectionOriginMismatch)
             | Err(GenericG0SourceParentRejectV1::SelectionSiteMismatch)
+    ));
+}
+
+#[test]
+fn source_parent_rejects_bare_input_before_product() {
+    let (unit, selection) = generic_source_unit_and_selection_for_test();
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        unit.syntax_root(),
+        unit.forest(),
+        unit.projection(),
+    )
+    .expect("bare input");
+
+    let result = with_generic_g0_source_parent_v1(input, selection, |_| ());
+
+    assert!(matches!(
+        result,
+        Err(GenericG0SourceParentRejectV1::BodyShapeMissing)
     ));
 }

@@ -55,6 +55,17 @@ seal. OF0 rejects a second root, mixed compilation brands, cycles, duplicate
 parent/definition sites, and a parent scope that is not the exact lexical
 scope containing the Lambda definition.
 
+## Generic G0 body-shape transport I0
+
+The resolver's `resolve_forest_with_body_shapes` path emits the forest and its
+per-owner `VerifiedResolvedBodyShapeInventoryV1` siblings in one shadow
+traversal.  The compiler source unit retains those passive inventories by
+`FunctionOwnerIdV1`; it does not re-resolve the body or issue a function-effect
+receipt.  Downstream Generic G0 transport borrows only the exact owner/root
+matching sibling.  Missing, foreign, or drifted products reject before any
+effect, skeleton, session, or Builder mutation.  The next design stop is the
+separate Generic function-effect projection issuer.
+
 ## Resolver callable-contract I0
 
 `ResolverCoreMethodCallableContractIssuerV1` is the bounded Loop bridge. It
