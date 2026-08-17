@@ -49,6 +49,16 @@ escape.  The next stop is a Generic source-to-physical effect projection;
 only after that issuer is accepted may a fresh skeleton be designed.  There
 is no shortcut through S6C or `/N`/JSON counts.
 
+The effect stop is narrower than assigning `EffectMask::PURE` to this
+fixture.  A future Generic issuer must consume the parent-owned source effect,
+result/header/storage rows, product target, and execution frame together with
+an explicit physical-operation mapping.  It may project `PURE` only when that
+mapping proves every admitted lowered operation is MIR-pure.  Local-write or
+tail-return counts, absent calls, `NumericTarget`, MIR construction, and S6C
+physical effects are not issuers.  The first implementation row is a
+caller-zero projection with rejection/no-publication tests; skeleton,
+`MirFunction`, `ValueId`, Builder, and session effects remain closed.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)
