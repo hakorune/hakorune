@@ -155,6 +155,13 @@ The raw test constructor, an S6C-envelope adapter, copied IDs, or a second
 Generic receipt keeps the preflight at `NoSafeSlice`; the existing
 segment-aware dispatcher remains the sole leaf consumer.
 
+The old `VerifiedGenericRecipeProductG0::into_physical_boundary` topology
+split is now `cfg(test)` only.  It remains available to the caller-zero
+observation adapter, but production code must cross the complete
+source-parent/cohort/admission boundary.  The lexical `recipe.clone()` used by
+the forest verifier is unrelated: it stays inside that verifier scope and is
+not a physical or semantic escape.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)

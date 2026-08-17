@@ -11,6 +11,7 @@ use super::super::super::loop_recipe_contract::ids::{LoopBindingKeyV1, LoopNodeK
 use super::super::super::loop_recipe_contract::join_sig::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
 };
+#[cfg(test)]
 use super::super::super::loop_recipe_contract::physical_input::VerifiedLoopPhysicalBoundaryV1;
 use super::super::super::loop_recipe_contract::producer_id::LoopRecipeProducerIdV1;
 use super::super::super::loop_recipe_contract::schema::{
@@ -104,6 +105,10 @@ impl VerifiedGenericRecipeProductG0 {
             .prepare_all()
     }
 
+    /// Legacy topology-only split retained for the caller-zero observation
+    /// adapter.  Production consumers must take the complete operation
+    /// program/cohort; this boundary is not a physical-owner ingress.
+    #[cfg(test)]
     pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
         let (core, _) = self.operation_effect.into_parts();
         VerifiedLoopPhysicalBoundaryV1::from_parts(core, self.after.into_after_binding())

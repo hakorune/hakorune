@@ -1791,6 +1791,29 @@ Non-claims:
   module publication, fallback, or retry.
 ```
 
+#### `LOOP-GENERIC-G0-SEALED-CONSUME-I0` closeout (2026-08-17)
+
+The caller-zero `VerifiedGenericRecipeProductG0::into_physical_boundary` split
+is now `cfg(test)` only.  The production Generic source-parent/cohort/admission
+path is unchanged, and the lexical forest-verifier `recipe.clone()` remains
+inside its producer scope.  No session, Builder, `MirFunction`, `ValueId`,
+operation, CFG/SSA/PHI, Completion/DraftSeal, route, fallback, retry, or
+production caller was opened.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib generic_g0 -- --nocapture  # 69 passed
+RUSTFLAGS='-Awarnings' cargo check -q
+cargo fmt --all -- --check
+git diff --check
+rg -n "into_physical_boundary" src/mir/loop_recipe_contract/generic_g0/producer.rs src/mir
+```
+
+The remaining detached skeleton/canary `into_parts` methods stay owned by the
+later parity retirement.  This I0 is a sealing refactor, not permission to
+open the session-preflight effect.
+
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
 ```text
@@ -4931,7 +4954,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers, narrow the sole source-parent construction seam, and keep old canary behavior through delegation | landed 2026-08-17; borrowed source-parts view plus shared-axis parity tests/guards are green; no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
 | 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | landed 2026-08-17; old probe renamed `GenericG0DetachedEntryCanaryV1`; five focused and 63 Generic tests plus structural/size guards are green; no function/session/raw-ID/dispatcher effect or production caller |
 | 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | accept one whole-admission family-neutral unpublished consumer for shell materialization, lane adoption, canonical entry projection, layout-keyed segment preflight, and sole rollback | accepted BoxShape 2026-08-17; implementation remains bounded behind `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; `ReadyLoopEntryV1::new_for_test`, S6C input, owner-only re-pairing, and leaf effect remain forbidden |
-| 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | queued after the session-preflight census and before its effect I0; lexical verifier clone is unchanged, while detached-canary tuple exits remain owned by the later parity retirement |
+| 25b-c0-G0-sealed-consume-I0 | `LOOP-GENERIC-G0-SEALED-CONSUME-I0` | isolate the caller-zero production-visible `into_physical_boundary` split behind `cfg(test)` without changing the source-parent/cohort/admission path | landed 2026-08-17; Generic suite 69/69, cargo check, fmt, diff, and caller census are green; detached-canary tuple exits remain owned by the later parity retirement |
 | 25b-c0-G0-operation-emitter-session-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0` | after the D0 and sealed-consume prerequisite are accepted, consume one admission into the sole unpublished session and prepare exact entry/segment dispatch inputs without emitting an operation | queued behind session-preflight D0 and sealed-consume I0; shell/adoption/entry-read/segment-allocation failures discard the whole candidate, with no retry/fallback or leaf effect |
 | 25b-c0-G0-entry-canary-retire | `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0` | after session-preflight parity, migrate focused tests, delete the detached skeleton/canary admission/session and their tuple exits, and share only reserved-parameter validation | parked behind zero old callers; role-specific Generic publication and ExactText sidecar authority remain separate |
 | 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after session-preflight D0, consume one admission through the canonical unpublished session and issue one callback-scoped dispatch preflight/leaf plan | parked; the S6C `CommonV2CanonicalSessionRefV1` and raw/test receipt constructors are not reusable, while only canonically session-issued mechanical entry/segment capabilities may feed the existing dispatcher |
