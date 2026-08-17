@@ -1592,6 +1592,18 @@ Premise-reset evidence:
   `i64`, and downstream `!= 0` truthification make it RejectBeforeEffect
   for this strict lane.
 
+Additional export re-check (2026-08-18; closed read-only audit): the C export
+`nyash_string_eq_hh_export` does exist at
+`crates/nyash_kernel/src/exports/string.rs`, but it is only a generic
+dispatch/fallback raw-`i64` transport. It does not issue the S6C source
+cohort, `{slot,generation}` residence, strict result/fault contract, or a
+common-session lease. Its lossy invalid-handle path and hook-miss values make
+it `RejectBeforeEffect` for this lane. The runtime `TextFormalCallResidenceV1`
+and `dynamic_v2_lease` owners are reusable substrate components only; neither
+has a current common-V2 caller. Therefore this audit revalidates the
+non-authority classification and does not create a StringEquals/1 task or
+change the next row.
+
 Residence issuer census: `CanonicalSsaFunctionSessionV2` currently exposes
 only the physical-entry ExactText slot/generation sidecar; that sidecar
 stores integer carriers and is not a live runtime pin. The existing
