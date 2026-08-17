@@ -1422,6 +1422,26 @@ Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
 production caller. The next design stop is the same-session canonical Length
 Call/result materializer, which must consume this callback-scoped target.
 
+## Common V2 If continuation target placement I0 (2026-08-18)
+
+The common physical session now consumes the sealed
+`Exit + Fallthrough(NextItem)` relation through
+`with_if_continuation_target`. Before the first physical mutation it checks
+the exact one-branch S6C shape, the same source block and strict later item,
+owner/loop/split parity, the existing segment receipt, and the retained
+physical-entry stamp. It then reserves exactly one unpublished continuation
+`BasicBlockId` through the canonical session and lends a
+`IfContinuationPhysicalTargetRefV1` only inside the callback.
+
+This is placement-only evidence: the non-Clone view carries no `ValueId`,
+edge, terminator, operation, Return, BlockEnd, publication, or PHI power. A
+session-local one-shot guard rejects duplicate consumption, while any late
+callback error is discarded by the outer unpublished function transaction.
+Focused positive, duplicate, and late-discard tests are green. Branch/Return
+emission, operation item-to-split mapping, Layout rewriting, CFG/SSA/PHI,
+production selection, fallback, and retry remain closed at the next design
+stop.
+
 ## Common V2 typed After-boundary transport I0 (2026-08-17)
 
 The installed S6C ingress now issues one non-Clone,

@@ -2167,13 +2167,131 @@ CFG/SSA/PHI mutation, production switch, fallback, or retry was opened.
 The next row is a design stop for naming the sole physical/session consumer;
 I0 does not authorize Layout inference or branch terminator emission.
 
-### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0 (2026-08-18)
+### Accepted D0: LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0 (2026-08-18)
 
-The next bounded decision must name the sole physical/session consumer for the
-borrowed `NextItem` relation and its rollback owner. Until that authority is
-accepted, `CommonV2CanonicalSessionRefV1` remains unchanged and no Layout
-split, branch terminator, BlockEnd, two-normal-arm PHI, CFG/SSA/PHI mutation,
-production switch, fallback, or retry may open.
+```text
+Decision:
+  accept one placement-only physical consumer for the already sealed
+  `Exit + Fallthrough(NextItem)` relation.  It may validate the exact source
+  segment, allocate one unpublished continuation target block through the
+  canonical session, and lend a callback-scoped mechanical view.  It may not
+  emit an edge, terminator, operation, Return, BlockEnd, or PHI.
+Source authority + canonical issuer:
+  `LoopJoinLogicalTransferViewV2` remains the sole logical continuation
+  authority.  `PreparedLoopV2PreSessionEnvelopeV1` transports that view and
+  the source-backed layout; `PreparedSegmentBlockReceiptV1` is the existing
+  physical segment placement.  `CommonV2CanonicalSessionRefV1` is the only
+  common consumer façade and `CanonicalSsaFunctionSessionV2::create_unpublished_block`
+  is the only physical block issuer.
+Non-authority:
+  layout order, item+1 arithmetic, old V1 physicalizer, `After`/port rows,
+  `ResolvedIfJoinContractV1`, raw `ValueId`, a second session, or a caller-
+  supplied branch/target cannot establish continuation placement.
+Fail-fast boundary:
+  before the first physical allocation, reject missing/duplicate branch or
+  If placement, wrong owner/stamp, arm/condition drift, missing or foreign
+  segment row, absent/same/preceding target item, target control item, and
+  aliased/colliding placement.  Any callback failure is a late terminal owned
+  by `with_common_v2_physical_entry_session`, which discards the whole
+  unpublished function exactly once; no local retry or fallback exists.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0`: add the one-shot,
+  callback-scoped `IfContinuationPhysicalTargetRefV1` and its source/segment
+  parity checks.  Allocate no edge or instruction.
+Non-claims:
+  no branch terminator, Return terminal, operation item-to-split mapping,
+  Layout rewrite, BlockEnd, two-normal-arm merge, CFG/SSA/PHI mutation,
+  Dynamic exit-session, initializer bridge, production switch, fallback,
+  retry, or old-topology retirement.
+```
+
+Worker authority audit (2026-08-18):
+  the existing canonical session is the sole mutable physical owner and
+  `with_common_v2_physical_entry_session` is the sole rollback owner.  The
+  smallest safe slice is target placement only: validate `NextItem` against
+  the same source segment, allocate one unpublished block through
+  `create_unpublished_block`, and return a non-Clone callback-scoped view.
+  Branch/Return/operation emission is unsafe until a later item-to-split and
+  terminal design names those authorities.  No new semantic `Verified*` or
+  `Prepared*` receipt is needed.
+
+#### LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0 — execution brief
+
+```text
+Change:
+  add one one-shot `CommonV2CanonicalSessionRefV1` consumer that borrows the
+  exact envelope transfer and an existing `PreparedSegmentBlockReceiptV1`,
+  validates the S6C one-branch shape and same-block strict `NextItem`, then
+  allocates one unpublished continuation target block and lends
+  `IfContinuationPhysicalTargetRefV1` only during the callback.
+Contract:
+  the view carries owner, If item, explicit NextItem, source block/split
+  provenance, physical target block, and the existing entry stamp.  It has no
+  ValueId, edge, terminator, operation, or publication API.
+Done:
+  positive S6C target placement, one-shot/duplicate rejection, late callback
+  discard evidence, source/segment/stamp parity checks, focused gate, and
+  line/format/pointer guards; touched source files stay below the 760-line
+  design trigger and 800-line hard boundary.
+Stop:
+  branch/Return emission, operation relocation, Layout splitting beyond this
+  target reservation, BlockEnd, PHI, production, fallback, and retry remain
+  later design stops.
+```
+
+#### LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0 — implementation receipt (2026-08-18)
+
+The common V2 canonical session now consumes the existing
+`Exit + Fallthrough(NextItem)` relation exactly once through
+`with_if_continuation_target`. It validates the S6C one-branch shape,
+same-block strict target ordering, owner/loop/split/segment/stamp parity, and
+target-item non-control status, then reserves one unpublished target block
+through `CanonicalSsaFunctionSessionV2::create_unpublished_block`. The
+callback-scoped `IfContinuationPhysicalTargetRefV1` is non-Clone and carries
+only mechanical placement evidence; it cannot emit an edge or instruction.
+
+Focused evidence is green:
+
+```text
+continuation_target_placement_is_callback_scoped_and_one_shot  1 passed
+continuation_target_late_failure_discards_unpublished_block    1 passed
+rejects_foreign_non_strict_and_duplicate_targets               1 passed
+cargo check; cargo fmt --all -- --check; git diff --check; pointer guard     green
+```
+
+The touched Rust files remain below the 760-line design trigger and 800-line
+hard boundary. No branch/Return/operation/BlockEnd/CFG/SSA/PHI, publication,
+production selector, fallback, or retry was opened. The broader loop suite's
+pre-existing `source_bound_core` failure remains baseline debt and is not a
+current-change failure.
+
+#### Next design stop: LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0
+
+```text
+Decision:
+  stop after placement.  Before any branch or Return effect, name the single
+  authority that maps the sealed continuation item to its physical split and
+  owns the one-sided terminal/fallthrough terminator.
+Source authority + canonical issuer:
+  `LoopJoinLogicalTransferViewV2` remains the logical transfer authority;
+  `PreparedLoopV2PreSessionEnvelopeV1` and the segment receipt transport
+  source evidence; the canonical session remains the only physical owner.
+Non-authority:
+  the placement view, Builder cursor, item ordinal arithmetic, Layout lookup,
+  owner/name equality, and local green tests cannot invent an edge, Return,
+  BlockEnd, or PHI input.
+Fail-fast boundary:
+  reject absent/foreign/ambiguous item-to-split and terminal relations before
+  any terminator or CFG/SSA/PHI mutation; keep the outer unpublished function
+  transaction as the sole rollback owner.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` — a design-only authority
+  audit for the exact one-sided branch and continuation split; no code or new
+  semantic receipt is authorized until accepted.
+Non-claims:
+  no Layout rewrite, two-normal-arm merge, Dynamic exit session, initializer
+  bridge, production cutover, fallback, retry, or legacy retirement.
+```
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
@@ -5857,7 +5975,9 @@ skip the After closure or reopen a Tail-only route.
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | consume one existing V2 branch-arm view with a named physical merge owner | design stop: NoSafeSlice until merge authority/consumer are named; no V2-to-V1 adapter or Layout inference |
 | 24a | `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0` | issue one JoinSig `NextItem` continuation for an Exit+Fallthrough branch and transport it through the existing V2 control view | landed; positive/negative pre-Layout evidence; no BlockEnd, two-normal-arm PHI, session, or physical effect |
-| 24b | `LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0` | name the sole physical/session consumer and rollback owner for the borrowed `NextItem` relation | design stop; no Layout split, branch terminator, BlockEnd, PHI, or production effect |
+| 24b | `LOOP-PHYSICAL-IF-CONTINUATION-CONSUMER-D0` | name the sole physical/session consumer and rollback owner for the borrowed `NextItem` relation | accepted placement-only BoxShape; target-placement I0 landed; branch-emission D0 is next |
+| 24b-a | `LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0` | validate one existing segment and reserve one canonical unpublished continuation target block for the exact `NextItem` | landed 2026-08-18; focused positive/duplicate/late-discard gates green; no edge or instruction |
+| 24b-b | `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` | name item-to-split and one-sided terminal/continuation terminator authorities before physical emission | design stop after placement; no code, new receipt, edge, Return, BlockEnd, or PHI |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |

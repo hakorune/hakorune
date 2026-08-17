@@ -115,6 +115,24 @@ Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
 production caller. Focused positive and late-callback-discard tests are green;
 the next bounded slice is the callback-scoped Length receiver operand.
 
+## Common V2 If continuation target placement I0 (2026-08-18)
+
+`CommonV2CanonicalSessionRefV1::with_if_continuation_target` consumes the
+existing JoinSig `Exit + Fallthrough(NextItem)` relation and the already
+allocated source-segment receipt. It validates the one-branch S6C shape,
+same-block strict target ordering, loop/split/stamp parity, and target-item
+non-control status before allocating exactly one unpublished continuation
+block through `CanonicalSsaFunctionSessionV2::create_unpublished_block`.
+
+The returned `IfContinuationPhysicalTargetRefV1` is non-Clone and
+callback-scoped. It carries only the owner, If/NextItem relation, source
+segment provenance, physical target block, and retained entry stamp. The
+session-local one-shot ledger rejects re-entry, and the outer unpublished
+function transaction remains the sole late-discard owner. This I0 emits no
+edge, terminator, operation, Return, BlockEnd, CFG/SSA/PHI, publication,
+fallback, retry, or production caller; branch emission and item-to-split
+authority remain the next design stop.
+
 ## Common V2 Length receiver operand I0
 
 `CommonV2CanonicalSessionRefV1::with_length_receiver_operand` consumes the

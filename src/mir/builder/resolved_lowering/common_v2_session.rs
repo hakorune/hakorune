@@ -23,6 +23,10 @@ use super::common_v2_after_block_allocation::{
     allocate_after_block, issue_after_allocation_plan, AfterBlockAllocationRejectV1,
     AfterBlockAllocationStateV1, PreparedAfterBlockViewV1,
 };
+use super::common_v2_if_continuation_target::{
+    issue_if_continuation_target, IfContinuationPhysicalTargetRefV1,
+    IfContinuationPhysicalTargetRejectV1,
+};
 
 #[path = "common_v2_length_call.rs"]
 mod length_call;
@@ -158,6 +162,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     length_call_direct_issued: bool,
     initial_index_seed_issued: bool,
     condition_bool_issued: bool,
+    if_continuation_target_issued: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -356,6 +361,31 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             &mut self.session,
             builder,
             plan,
+        )
+    }
+
+    /// Reserve one unpublished physical target for the exact source
+    /// fallthrough item.  The callback receives no edge or instruction API;
+    /// the outer physical-entry session owns rollback on every late error.
+    pub(in crate::mir::builder) fn with_if_continuation_target<R>(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        segment_receipt: &super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+        callback: impl for<'target> FnOnce(
+            &mut crate::mir::builder::MirBuilder,
+            IfContinuationPhysicalTargetRefV1<'target>,
+        ) -> Result<R, String>,
+    ) -> Result<R, IfContinuationPhysicalTargetRejectV1> {
+        if self.if_continuation_target_issued {
+            return Err(IfContinuationPhysicalTargetRejectV1::AlreadyIssued);
+        }
+        self.if_continuation_target_issued = true;
+        issue_if_continuation_target(
+            &mut self.session,
+            self.envelope,
+            segment_receipt,
+            builder,
+            callback,
         )
     }
 
@@ -590,6 +620,7 @@ pub(in crate::mir) fn with_common_v2_canonical_session<R>(
             length_call_direct_issued: false,
             initial_index_seed_issued: false,
             condition_bool_issued: false,
+            if_continuation_target_issued: false,
         };
         Ok(callback(&mut common))
     })
