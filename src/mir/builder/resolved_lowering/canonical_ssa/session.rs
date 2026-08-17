@@ -17,6 +17,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
+use super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1;
 use super::super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
@@ -26,6 +27,10 @@ use super::identity::ResolvedSsaIdentityStateV2;
 mod generic_g0_entry_adoption;
 #[path = "session/physical_entry_lane_adoption.rs"]
 mod physical_entry_lane_adoption;
+#[path = "session/physical_entry_stamp.rs"]
+mod physical_entry_stamp;
+#[path = "session/segment_scope.rs"]
+mod segment_scope;
 
 enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
@@ -75,6 +80,8 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
     physical_entry_stamp: Option<PhysicalFunctionEntryCohortStampV1>,
     generic_entry_adopted: bool,
+    segment_block_brand: SegmentBlockAllocationBrandV1,
+    segment_blocks_issued: bool,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -297,6 +304,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             physical_entry_sidecar: None,
             physical_entry_stamp: None,
             generic_entry_adopted: false,
+            segment_block_brand: SegmentBlockAllocationBrandV1::new(),
+            segment_blocks_issued: false,
         })
     }
 
@@ -349,6 +358,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             physical_entry_sidecar: None,
             physical_entry_stamp: None,
             generic_entry_adopted: false,
+            segment_block_brand: SegmentBlockAllocationBrandV1::new(),
+            segment_blocks_issued: false,
         })
     }
 
@@ -365,25 +376,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
 
     pub(in crate::mir::builder::resolved_lowering) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn attach_physical_entry_stamp(
-        &mut self,
-        stamp: PhysicalFunctionEntryCohortStampV1,
-    ) -> Result<(), String> {
-        if self.physical_entry_stamp.is_some() {
-            return Err("canonical session already owns a physical entry stamp".to_owned());
-        }
-        self.physical_entry_stamp = Some(stamp);
-        Ok(())
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_stamp(
-        &self,
-    ) -> Result<&PhysicalFunctionEntryCohortStampV1, String> {
-        self.physical_entry_stamp
-            .as_ref()
-            .ok_or_else(|| "canonical session has no physical entry stamp".to_owned())
     }
 
     /// Allocate one unpublished physical block through the canonical CFG

@@ -20,6 +20,7 @@ pub(in crate::mir::builder) enum LengthCallDirectEmitterRejectV1 {
     AlreadyIssued,
     TargetPlan(LengthCallTargetPlanRejectV1),
     SegmentAllocation(String),
+    SegmentScopeMismatch,
     ConditionTarget(ConditionBlockTargetRejectV1),
     TargetShapeMismatch,
     PhysicalValue(String),
@@ -39,6 +40,7 @@ pub(in crate::mir::builder) struct CanonicalLengthCallResultReceiptV1<'call, 'so
     physical_block: crate::mir::BasicBlockId,
     receiver: crate::mir::ValueId,
     destination: crate::mir::ValueId,
+    segment_brand: super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1,
 }
 
 impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope> {
@@ -78,6 +80,12 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         self.destination
     }
 
+    pub(in crate::mir::builder) fn segment_brand(
+        &self,
+    ) -> super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1 {
+        self.segment_brand.clone()
+    }
+
     pub(in crate::mir::builder) fn into_condition_bool_parts(
         self,
     ) -> (
@@ -86,6 +94,7 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         crate::mir::loop_recipe_contract::LoopBlockKeyV1,
         crate::mir::BasicBlockId,
         crate::mir::ValueId,
+        super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1,
     ) {
         (
             self._session,
@@ -93,15 +102,15 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
             self.condition_block,
             self.physical_block,
             self.destination,
+            self.segment_brand,
         )
     }
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
-    /// Emit exactly one generic physical `StringBox.length` Call and publish
-    /// its I64 type through the canonical session. This remains caller-zero:
-    /// the surrounding entry transaction discards the unpublished Call and
-    /// result after the callback returns.
+    /// Compatibility canary: allocate one private segment scope and emit the
+    /// Length result through it. The shared branch path uses the explicit
+    /// scope method below so later consumers cannot re-pair a second receipt.
     pub(in crate::mir::builder) fn emit_length_call_result<'call>(
         &'call mut self,
         builder: &mut crate::mir::builder::MirBuilder,
@@ -109,8 +118,39 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope>,
         LengthCallDirectEmitterRejectV1,
     > {
+        let segment_receipt = self.allocate_v2_segment_blocks(builder).map_err(|error| {
+            LengthCallDirectEmitterRejectV1::SegmentAllocation(format!("{error:?}"))
+        })?;
+        self.emit_length_call_result_from_segment_receipt(builder, &segment_receipt)
+    }
+
+    /// Emit Length from the exact session-owned segment allocation. This is
+    /// the only API that can feed the shared Bool -> Return-read transition.
+    pub(in crate::mir::builder) fn emit_length_call_result_from_scope<'call>(
+        &'call mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
+    ) -> Result<
+        CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope>,
+        LengthCallDirectEmitterRejectV1,
+    > {
+        self.emit_length_call_result_from_segment_receipt(builder, scope.receipt())
+    }
+
+    fn emit_length_call_result_from_segment_receipt<'call>(
+        &'call mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        segment_receipt:
+            &super::super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
+    ) -> Result<
+        CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope>,
+        LengthCallDirectEmitterRejectV1,
+    > {
         if self.length_call_direct_issued {
             return Err(LengthCallDirectEmitterRejectV1::AlreadyIssued);
+        }
+        if !self.session.owns_segment_receipt(segment_receipt) {
+            return Err(LengthCallDirectEmitterRejectV1::SegmentScopeMismatch);
         }
         let plan = self
             .issue_length_call_target_plan()
@@ -125,9 +165,6 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             return Err(LengthCallDirectEmitterRejectV1::TargetShapeMismatch);
         }
 
-        let segment_receipt = self.allocate_v2_segment_blocks(builder).map_err(|error| {
-            LengthCallDirectEmitterRejectV1::SegmentAllocation(format!("{error:?}"))
-        })?;
         let condition_target = self
             .condition_block_target_from_receipt(&segment_receipt)
             .map_err(LengthCallDirectEmitterRejectV1::ConditionTarget)?;
@@ -224,6 +261,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             physical_block: emitted.1,
             receiver: emitted.0,
             destination,
+            segment_brand: segment_receipt.brand(),
         })
     }
 }

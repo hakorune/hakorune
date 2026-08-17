@@ -7542,3 +7542,70 @@ Non-claims:
 The existing I0 receipts remain valid only for their individual bounded claims;
 they do not prove a branch-ready physical topology or authorize a caller to
 join independently allocated segment views.
+
+### Shared-segment scope I0 — accepted BoxShape (2026-08-18)
+
+Decision:
+
+Accept one private, callback-scoped `CommonV2SharedSegmentScopeV1` as the
+mechanical bridge for this cohort. The scope owns exactly one session-local
+segment allocation brand and lends the same `PreparedSegmentBlockReceiptV1`
+through Length/Bool/Return-read consumers. This is transport/lifetime
+evidence only; it issues no semantic source/Recipe meaning and no CFG effect.
+
+Source authority + canonical issuer:
+
+The existing condition producer/branch plan and
+`CommonV2ReturnReadCoSealRefV1` remain logical authorities. The canonical
+session owns the one-shot allocation and brand; its outer unpublished function
+transaction remains the rollback owner. The scope itself is not a new
+`Verified*`/`Prepared*` semantic issuer.
+
+Non-authority:
+
+Owner/stamp equality, raw physical block equality, detached segment rows,
+caller-held `ValueId`s, and separate direct Length allocation cannot establish
+same-scope provenance. The old direct Length canary may remain only as a
+caller-zero compatibility wrapper; the shared scope path is the only successor
+allowed to feed the later branch consumer.
+
+Fail-fast boundary:
+
+Reject second scope/allocation, foreign brand/session/owner/stamp, missing or
+duplicate/split-drifted rows, and any Length/Bool/Return-read transition that
+does not carry the exact scope before physical branch mutation. A late callback
+failure discards the outer unpublished session once.
+
+Smallest next slice:
+
+`LOOP-PHYSICAL-IF-CONTINUATION-SHARED-SEGMENT-SCOPE-I0`: implement the private
+scope and explicit Length-from-scope consumer with positive, second-scope, and
+late-discard gates. The Bool adapter retains the scope brand. The current S6C
+fixture's Return-read If is the inner TextEq condition, not the outer
+Length/Bool condition, so the Bool→Return-read adapter is guarded by an
+expected `ConditionLogicalMismatch` negative rather than a false positive.
+Keep branch/Return, edge/PHI/CFG publication, fallback, retry, production
+switch, and legacy retirement closed.
+
+### Shared-segment scope I0 closeout (2026-08-18)
+
+Implemented one private `CommonV2SharedSegmentScopeV1` with a session-local
+one-shot `Rc` brand. Length can only emit through the exact scope receipt;
+Bool retains that brand; second allocation, foreign scope, and late callback
+paths fail before publication. The Bool→Return-read adapter also checks the
+co-sealed logical condition and rejects the fixture's outer-vs-inner mismatch
+before any Return-read effect.
+
+Evidence: common condition suite 7/7 green (including positive Length→Bool,
+second-allocation, logical-mismatch, and late-discard cases); Return-read suite
+2/2 green; `cargo fmt --all -- --check` green. No branch/Return CFG, edge/PHI,
+publication, fallback, retry, production switch, or legacy retirement opened.
+
+The next design decision remains branch/terminal authority; no further fast
+slice is selected by this closeout.
+
+Non-claims:
+
+This BoxShape does not authorize `emit_branch`, `emit_return`, any new semantic
+receipt, edge/PHI/publication, production selection, fallback, retry, or legacy
+retirement.

@@ -215,6 +215,21 @@ fallback, retry, production switch, or legacy retirement is opened. The
 remaining branch/split/terminal authority must be accepted separately before
 mechanical CFG writing.
 
+## Common V2 shared-segment scope I0 (2026-08-18)
+
+This mechanical BoxShape owns one session-local, one-shot segment allocation
+brand and transports the exact `PreparedSegmentBlockReceiptV1` through the
+Length-to-Bool path. It introduces no Recipe key, semantic issuer, physical
+branch, or publication authority. Duplicate allocation and late callback
+rollback are guarded by focused tests.
+
+The Bool-to-Return-read adapter rejects a logical condition mismatch before
+effects. In the current S6C fixture the loop Length/Bool condition and the
+inner TextEq If condition are distinct values, so `ConditionLogicalMismatch`
+is expected negative evidence. A future branch/Return consumer still needs a
+source-backed same-condition co-seal; this section does not authorize CFG
+writing, fallback, retry, production selection, or legacy retirement.
+
 ## Accepted Dynamic value boundary — V2 only
 
 Decision: accepted and schema I0 landed — the source-backed Dynamic invocation

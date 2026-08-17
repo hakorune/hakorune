@@ -50,6 +50,7 @@ pub(in crate::mir::builder) use return_read::{
 mod condition_bool;
 pub(in crate::mir::builder) use condition_bool::{
     CanonicalConditionBoolResultReceiptV1, ConditionBoolMaterializationRejectV1,
+    ConditionBoolReturnReadRejectV1,
 };
 
 /// A callback-scoped mechanical view of the physical block corresponding to
@@ -170,6 +171,12 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     condition_bool_issued: bool,
     if_continuation_target_issued: bool,
     return_read_physical_issued: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum SharedSegmentScopeRejectV1 {
+    Allocation(String),
+    Callback(String),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -375,6 +382,27 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             builder,
             plan,
         )
+    }
+
+    /// Open one private, one-shot segment scope for the exact canonical
+    /// session. The callback receives the same allocation that later
+    /// Length/Bool/Return-read consumers must thread; no second allocation
+    /// path is exposed by this scope.
+    pub(in crate::mir::builder) fn with_shared_segment_scope<R>(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        callback: impl FnOnce(
+            &mut Self,
+            &mut crate::mir::builder::MirBuilder,
+            super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
+        ) -> Result<R, String>,
+    ) -> Result<R, SharedSegmentScopeRejectV1> {
+        let receipt = self
+            .allocate_v2_segment_blocks(builder)
+            .map_err(|error| SharedSegmentScopeRejectV1::Allocation(format!("{error:?}")))?;
+        let scope =
+            super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1::new(receipt);
+        callback(self, builder, scope).map_err(SharedSegmentScopeRejectV1::Callback)
     }
 
     /// Reserve one unpublished physical target for the exact source

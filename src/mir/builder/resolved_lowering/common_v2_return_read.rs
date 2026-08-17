@@ -31,6 +31,7 @@ pub(in crate::mir::builder) enum ReturnReadPhysicalReceiptRejectV1 {
     SegmentMissing,
     SegmentDuplicate,
     SegmentMismatch,
+    SegmentScopeMismatch,
     Target(IfContinuationPhysicalTargetRejectV1),
     TargetMismatch,
     CanonicalRead(String),
@@ -68,6 +69,7 @@ pub(in crate::mir::builder) struct CommonV2ReturnReadPhysicalReceiptV1<'receipt,
     then_physical_block: BasicBlockId,
     if_item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
     if_block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    if_condition: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     if_split_ordinal: u32,
     if_physical_block: BasicBlockId,
     continuation: LoopJoinNextItemV1,
@@ -77,6 +79,7 @@ pub(in crate::mir::builder) struct CommonV2ReturnReadPhysicalReceiptV1<'receipt,
     target_function: RegionId,
     join_target: LoopJoinBranchExitTargetV2,
     physical_value: ValueId,
+    segment_brand: super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1,
 }
 
 impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
@@ -126,6 +129,12 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
         self.if_block
     }
 
+    pub(in crate::mir::builder) const fn if_condition(
+        &self,
+    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
+        self.if_condition
+    }
+
     pub(in crate::mir::builder) const fn if_split_ordinal(&self) -> u32 {
         self.if_split_ordinal
     }
@@ -163,6 +172,12 @@ impl CommonV2ReturnReadPhysicalReceiptV1<'_, '_, '_> {
     pub(in crate::mir::builder) const fn physical_value(&self) -> ValueId {
         self.physical_value
     }
+
+    pub(in crate::mir::builder) fn segment_brand(
+        &self,
+    ) -> super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1 {
+        self.segment_brand.clone()
+    }
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
@@ -193,6 +208,9 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .owner();
         if stamp_owner != owner || segment_receipt.owner() != owner {
             return Err(ReturnReadPhysicalReceiptRejectV1::OwnerMismatch);
+        }
+        if !self.session.owns_segment_receipt(segment_receipt) {
+            return Err(ReturnReadPhysicalReceiptRejectV1::SegmentScopeMismatch);
         }
 
         let return_segment = self
@@ -327,6 +345,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             then_physical_block: return_row.physical_block(),
             if_item: co_seal.if_item(),
             if_block: co_seal.if_block(),
+            if_condition: co_seal.if_condition(),
             if_split_ordinal: if_row.split_ordinal(),
             if_physical_block: if_row.physical_block(),
             continuation,
@@ -336,6 +355,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             target_function: co_seal.target_function(),
             join_target: co_seal.join_target(),
             physical_value: read.physical_value(),
+            segment_brand: segment_receipt.brand(),
         };
         callback(builder, receipt).map_err(ReturnReadPhysicalReceiptRejectV1::Callback)
     }

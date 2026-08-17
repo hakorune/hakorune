@@ -10,6 +10,7 @@ use crate::mir::{CompareOp, MirBuilder, MirType, ValueId};
 
 use super::CanonicalLengthCallResultReceiptV1;
 use super::CommonV2CanonicalSessionRefV1;
+use super::{CommonV2ReturnReadPhysicalReceiptV1, ReturnReadPhysicalReceiptRejectV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ConditionBoolMaterializationRejectV1 {
@@ -29,6 +30,14 @@ pub(in crate::mir::builder) enum ConditionBoolMaterializationRejectV1 {
     Compare(String),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ConditionBoolReturnReadRejectV1 {
+    SegmentScopeMismatch,
+    ConditionLogicalMismatch,
+    ConditionPhysicalBlockMismatch,
+    ReturnRead(ReturnReadPhysicalReceiptRejectV1),
+}
+
 /// One callback-scoped physical Bool result. The receipt owns the exclusive
 /// canonical-session borrow so its operands cannot be detached and re-paired.
 pub(in crate::mir::builder) struct CanonicalConditionBoolResultReceiptV1<
@@ -45,9 +54,12 @@ pub(in crate::mir::builder) struct CanonicalConditionBoolResultReceiptV1<
     left: ValueId,
     right: ValueId,
     destination: ValueId,
+    segment_brand: super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1,
 }
 
-impl CanonicalConditionBoolResultReceiptV1<'_, '_, '_> {
+impl<'bool_result, 'source, 'envelope>
+    CanonicalConditionBoolResultReceiptV1<'bool_result, 'source, 'envelope>
+{
     pub(in crate::mir::builder) const fn owner(
         &self,
     ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -87,6 +99,50 @@ impl CanonicalConditionBoolResultReceiptV1<'_, '_, '_> {
     pub(in crate::mir::builder) const fn destination(&self) -> ValueId {
         self.destination
     }
+
+    /// Consume this Bool receipt and the exact shared segment scope into the
+    /// existing Return-read physical receipt. No branch or Return is written.
+    pub(in crate::mir::builder) fn with_return_read_physical_receipt<R>(
+        self,
+        builder: &mut MirBuilder,
+        scope: super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
+        callback: impl FnOnce(
+            &mut MirBuilder,
+            CommonV2ReturnReadPhysicalReceiptV1<'bool_result, 'source, 'envelope>,
+        ) -> Result<R, String>,
+    ) -> Result<R, ConditionBoolReturnReadRejectV1> {
+        let CanonicalConditionBoolResultReceiptV1 {
+            _session: session,
+            owner,
+            condition_block,
+            logical_result,
+            physical_block,
+            segment_brand,
+            ..
+        } = self;
+        let segment_receipt = scope.receipt();
+        if !segment_receipt.belongs_to(&segment_brand)
+            || !session.session.owns_segment_receipt(segment_receipt)
+        {
+            return Err(ConditionBoolReturnReadRejectV1::SegmentScopeMismatch);
+        }
+        if session.envelope.owner() != owner
+            || session.envelope.return_read_co_seal().if_condition() != logical_result
+        {
+            return Err(ConditionBoolReturnReadRejectV1::ConditionLogicalMismatch);
+        }
+        session
+            .with_return_read_physical_receipt(builder, segment_receipt, |builder, receipt| {
+                if receipt.owner() != owner
+                    || receipt.if_block() != condition_block
+                    || receipt.if_physical_block() != physical_block
+                {
+                    return Err("condition/Return-read physical block mismatch".to_owned());
+                }
+                callback(builder, receipt)
+            })
+            .map_err(ConditionBoolReturnReadRejectV1::ReturnRead)
+    }
 }
 
 impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'source, 'envelope> {
@@ -100,7 +156,7 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         CanonicalConditionBoolResultReceiptV1<'call, 'source, 'envelope>,
         ConditionBoolMaterializationRejectV1,
     > {
-        let (session, owner, condition_block, physical_block, length_destination) =
+        let (session, owner, condition_block, physical_block, length_destination, segment_brand) =
             self.into_condition_bool_parts();
 
         if session.condition_bool_issued {
@@ -221,6 +277,7 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
             left: read.physical_value(),
             right: length_destination,
             destination,
+            segment_brand,
         })
     }
 }

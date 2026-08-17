@@ -6,7 +6,9 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{MirBuilder, MirInstruction, MirType};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-use super::common_v2_session::ConditionBoolMaterializationRejectV1;
+use super::common_v2_session::{
+    ConditionBoolMaterializationRejectV1, ConditionBoolReturnReadRejectV1,
+};
 use super::with_common_v2_physical_entry_session;
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
@@ -184,6 +186,200 @@ fn condition_bool_late_failure_discards_compare_and_receipt() {
             },
         );
         assert_eq!(rejected, Err("late condition rejection".to_owned()));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn shared_segment_scope_threads_length_into_condition_bool() {
+    let (installed, context) = installed_port(1204);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let seed = canonical
+                    .emit_initial_index_seed(draft)
+                    .expect("initial index seed");
+                drop(seed);
+                canonical
+                    .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                        let length = crate::test_support::with_env_var(
+                            "NYASH_MIR_UNIFIED_CALL",
+                            "1",
+                            || canonical.emit_length_call_result_from_scope(draft, &scope),
+                        )
+                        .map_err(|error| format!("{error:?}"))?;
+                        let condition = length
+                            .consume_for_condition_bool(draft)
+                            .map_err(|error| format!("{error:?}"))?;
+                        assert_eq!(condition.logical_result().raw(), 5);
+                        assert_eq!(
+                            draft
+                                .function_state
+                                .type_ctx
+                                .get_type(condition.destination()),
+                            Some(&MirType::Bool)
+                        );
+                        drop(condition);
+                        drop(scope);
+                        Ok(())
+                    })
+                    .map_err(|error| format!("{error:?}"))?;
+                Ok(())
+            },
+        )
+        .expect("shared segment scope session");
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn shared_segment_scope_rejects_second_allocation() {
+    let (installed, context) = installed_port(1205);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                canonical
+                    .with_shared_segment_scope(draft, |_canonical, _draft, _scope| {
+                        Ok::<(), String>(())
+                    })
+                    .expect("first shared segment scope");
+                let second = canonical
+                    .with_shared_segment_scope(draft, |_canonical, _draft, _scope| {
+                        Ok::<(), String>(())
+                    });
+                assert!(matches!(
+                    second,
+                    Err(super::common_v2_session::SharedSegmentScopeRejectV1::Allocation(
+                        message
+                    )) if message.contains("AlreadyIssued")
+                ));
+                Ok(())
+            },
+        )
+        .expect("second-allocation guard session");
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn shared_segment_scope_rejects_return_read_condition_mismatch() {
+    let (installed, context) = installed_port(1206);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let seed = canonical
+                    .emit_initial_index_seed(draft)
+                    .expect("initial index seed");
+                drop(seed);
+                canonical
+                    .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                        let length = crate::test_support::with_env_var(
+                            "NYASH_MIR_UNIFIED_CALL",
+                            "1",
+                            || canonical.emit_length_call_result_from_scope(draft, &scope),
+                        )
+                        .map_err(|error| format!("{error:?}"))?;
+                        let condition = length
+                            .consume_for_condition_bool(draft)
+                            .map_err(|error| format!("{error:?}"))?;
+                        let rejected = condition.with_return_read_physical_receipt(
+                            draft,
+                            scope,
+                            |_draft, _receipt| Ok::<(), String>(()),
+                        );
+                        assert!(matches!(
+                            rejected,
+                            Err(ConditionBoolReturnReadRejectV1::ConditionLogicalMismatch)
+                        ));
+                        Ok(())
+                    })
+                    .map_err(|error| format!("{error:?}"))
+            },
+        )
+        .expect("shared Return-read mismatch guard session");
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn shared_segment_scope_late_callback_discards_everything() {
+    let (installed, context) = installed_port(1207);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let seed = canonical
+                    .emit_initial_index_seed(draft)
+                    .expect("initial index seed");
+                drop(seed);
+                canonical
+                    .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                        let length = crate::test_support::with_env_var(
+                            "NYASH_MIR_UNIFIED_CALL",
+                            "1",
+                            || canonical.emit_length_call_result_from_scope(draft, &scope),
+                        )
+                        .map_err(|error| format!("{error:?}"))?;
+                        let condition = length
+                            .consume_for_condition_bool(draft)
+                            .map_err(|error| format!("{error:?}"))?;
+                        drop(condition);
+                        Err::<(), _>("late shared-scope rejection".to_owned())
+                    })
+                    .map_err(|error| format!("{error:?}"))
+            },
+        );
+        assert!(matches!(
+            rejected,
+            Err(message) if message.contains("late shared-scope rejection")
+        ));
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     })

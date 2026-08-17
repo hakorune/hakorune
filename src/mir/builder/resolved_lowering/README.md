@@ -168,6 +168,20 @@ does not emit `Return` or branch instructions, edges, PHI/CFG publication,
 DraftSeal publication, fallback, retry, or a production caller; split/terminal
 authority and branch/Return CFG writing remain the next design stop.
 
+## Common V2 shared-segment scope I0 (2026-08-18)
+
+`CommonV2CanonicalSessionRefV1::with_shared_segment_scope` owns one private,
+one-shot segment allocation brand and lends the exact receipt through the
+explicit Length-from-scope API. The Bool receipt retains that brand, so a
+second allocation or foreign receipt cannot be paired later. Positive,
+second-allocation, and late-callback rollback tests are green.
+
+Return-read consumption also checks the logical condition identity before any
+effect. The current S6C fixture intentionally rejects the outer Length/Bool
+condition against the inner TextEq If as `ConditionLogicalMismatch`; this is
+negative evidence, not a branch-ready claim. No branch, Return, edge,
+PHI/CFG publication, fallback, retry, or production caller is opened.
+
 ## Common V2 Length receiver operand I0
 
 `CommonV2CanonicalSessionRefV1::with_length_receiver_operand` consumes the
