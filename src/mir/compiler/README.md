@@ -149,12 +149,31 @@ transaction alone creates the shell and owns rollback.
 
 The current `CommonV2CanonicalSessionRefV1` remains an S6C-bound envelope view
 and must not grow a Generic branch.  The current detached Generic skeleton,
-weak owner/name/lane-count stamp, tuple `into_parts`, S6C segment allocator,
-and old V1 receipts are canary/legacy artifacts, not admission inputs.  The
-implementation order is: private validator extraction, combined admission,
-then a separate session-preflight D0.  The first fast row is refactor-only and
-creates no admission or physical state; the admission module is capped at 350
-lines with tests in a separate <=260-line file.
+weak owner/name/lane-count stamp, tuple `into_parts`, S6C-bound segment-plan
+ingress, and old V1 receipts are canary/legacy artifacts, not admission
+inputs.  The implementation order is: private validator extraction, combined
+admission, then a separate session-preflight D0.  The first fast row is
+refactor-only and creates no admission or physical state; the admission module
+is capped at 350 lines with tests in a separate <=260-line file.
+
+During that migration, the old `GenericG0PhysicalEntryAdmissionV1` is a
+test-only detached-entry canary and must become
+`GenericG0DetachedEntryCanaryV1` atomically with the new emitter admission;
+two production-looking `Admission` names may not coexist.  Its
+skeleton/admission tuple exits retire with the old session once
+the session-owned shell/adoption path has parity and zero callers.  The
+Generic and ExactText adopters may later share their mechanical reserved-param
+validation, but their role/publication and ExactText sidecar policies remain
+separate authorities.
+
+`ReadyLoopEntryV1` and the segment receipt are not source-admission inputs.
+The session-preflight D0 must treat them only as mechanical outputs of the
+same canonical unpublished session: derive exact Recipe key/binding rows from
+the admission-owned program, read the adopted BindingSSA values at the actual
+preheader, then let the existing layout segment allocator issue the receipt.
+The raw test constructor, an S6C-envelope adapter, copied IDs, or a second
+Generic receipt keeps the preflight at `NoSafeSlice`; the existing
+segment-aware dispatcher remains the sole leaf consumer.
 
 ## Typed ingress contract
 
