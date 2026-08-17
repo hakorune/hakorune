@@ -29,10 +29,10 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "All-family LOOP-SEMANTIC-PROGRAM-COSEAL-R0 and Generic G0 source-parent BoxShape are accepted; the next fast row replaces the cfg(test) split with one same-cohort production issuer."
-work_mode = "fast"
-current_execution_row = "LOOP-PRECUTOVER-AUTHORITY-G0-I0"
-current_blocker_token = "NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed"
+current_design_stop = "Generic G0 source-parent BoxShape is accepted, but its private same-cohort source-view/callback issuer is not sealed; design that seam before the parent I0."
+work_mode = "design_stop"
+current_execution_row = "LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0"
+current_blocker_token = "NoSafeSlice::GenericG0EntrySourceCoverageParentUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -56,8 +56,8 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   initial-index seed transport/materializer, and receipt-owned Bool/Compare
   materializer I0 and the Callable-first semantic-program co-seal I0 are
   landed; the all-family source-parent/co-seal R0 and Generic G0 source-parent
-  BoxShape are accepted, and the active fast row replaces the Generic test-only
-  ingress with one same-cohort production issuer.
+  BoxShape are accepted, but the active design stop must seal the private
+  same-cohort source view before the parent I0 can replace the test-only ingress.
 No detached binding read may open later physical effects.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
@@ -75,10 +75,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. All-family source-parent/co-seal R0 and Generic G0 source-parent BoxShape are accepted; the active fast row replaces the Generic cfg(test) ingress with one same-cohort production issuer. G0 physical effect, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
-next_design_card = "none (LOOP-PRECUTOVER-AUTHORITY-G0-D0 accepted)"
+latest_card_summary = "A-prime remains parked. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After/branch/Compare producers, operand and session-stamp receipts, Length/Bool materializers, and Callable semantic-program co-seal are landed. All-family source-parent/co-seal R0 and Generic G0 source-parent BoxShape are accepted; the active design stop seals one opaque same-cohort source view before the Generic parent I0. G0 physical effect, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+next_design_card = "LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-PRECUTOVER-AUTHORITY-G0-I0"
+next_execution_card = "none (design stop until LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0 is accepted)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

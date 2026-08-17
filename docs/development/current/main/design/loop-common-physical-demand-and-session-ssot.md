@@ -90,18 +90,17 @@ Related:
   relation transport, its one-entry Const/exact-declaration materializer I0,
   and the receipt-owned Bool/Compare materializer I0 are now landed; the
   all-family source-parent/co-seal R0 and Generic G0 source-parent BoxShape
-  are accepted, with the active fast row replacing the Generic test-only
-  ingress.
+  are accepted, with the active design stop sealing the private same-cohort
+  source view before the Generic parent I0.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-G0-I0` is the next fast gate. The
-  Callable-first semantic-program BoxShape/I0, all-family source-parent/
-  co-seal R0, and Generic G0 source-parent BoxShape are accepted. The existing
-  source/Core/JoinSig products remain the only semantic authorities; this I0
-  only replaces the Generic test-only ingress. Transfer migration, CFG/PHI,
-  lifecycle, Text, route, and production remain closed.
+  `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` is the next design-only
+  gate. The Callable-first semantic-program BoxShape/I0, all-family
+  source-parent/co-seal R0, and Generic G0 source-parent BoxShape are accepted,
+  but the source view needed by the Generic parent I0 is not sealed. Transfer
+  migration, CFG/PHI, lifecycle, Text, route, and production remain closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -293,12 +292,12 @@ Fail-fast boundary:
   any split/re-pair ingress keeps `NoSafeSlice` before selection/effect.
 
 Smallest next slice:
-  `LOOP-PRECUTOVER-AUTHORITY-G0-I0` — replace the Generic test-only split
-  with the accepted same-cohort source-parent issuer and callback-scoped
-  transport. Do not open physical effect in this slice.
+  `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` — seal the private
+  same-cohort source view before replacing the Generic test-only split. Do not
+  open physical effect in this slice.
 
 Non-claims:
-  No Generic G0 physical effect, all-19 migration, JoinSig transfer migration,
+  No Generic G0 parent I0/physical effect, all-19 migration, JoinSig transfer migration,
   Layout/CFG/SSA/PHI, session, lifecycle, Text, route, selector, production,
   fallback, retry, or legacy retirement is opened.
 ```
@@ -381,7 +380,35 @@ production issuer replaces the `cfg(test)` split, the implementation blocker
 `NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed` remains
 active and no G0 physical or session effect may open.
 
-#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation boundary
+#### LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0 design stop
+
+The current selector drops `ResolvedFunctionLoweringInputV1` after it issues
+the Generic candidate, so a later parent issuer cannot safely accept a bare
+`(Demand, input)` tuple.  The next design-only seam is:
+
+```text
+issue_generic_g0_source_cohort_v1(
+    resolver-owned input + selected Generic source row,
+    for<'loan> |cohort: GenericG0SourceCohortRef<'loan>| ...
+)
+```
+
+The issuer must perform the Generic demand issuance inside the same private
+cohort transaction, validate owner/origin/source-kind/root-site/frame/
+scope-region and entry/coverage identity, and lend an opaque combined view.
+The callback may invoke the one source-parent issuer, but it cannot receive
+or return a bare Demand, input, candidate, stamp tuple, or second loan.  This
+is a source/authority seam only; it does not change family selection or make
+the candidate enum lifetime-parameterized.
+
+Acceptance is the exact root-plus-one-child-loop positive shape, with
+selection mismatch, foreign input, owner/origin/site/frame/region drift,
+missing/duplicate entry or coverage, callback escape, and double-consumption
+negatives.  Until this seam is accepted, the blocker remains
+`NoSafeSlice::GenericG0EntrySourceCoverageParentUnsealed` and the source
+parent I0 stays closed.
+
+#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation boundary (parked)
 
 ```text
 Decision:
@@ -3512,7 +3539,8 @@ skip the After closure or reopen a Tail-only route.
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | downstream after `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` and `LOOP-PRECUTOVER-AUTHORITY-G0-D0`; missing coverage blocks selection |
 | 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | census complete; Callable-first R0 handoff accepted, while `NoSafeSlice::GenericG0EntrySourceCoverageParentUnsealed` remains for Generic G0; no CFG mutation, physicalizer, selection, fallback, or retry |
 | 26b | `LOOP-PRECUTOVER-AUTHORITY-G0-D0` | design the Generic source parent, entry/source coverage retention, same-Core JoinSig continuation, and test-only split retirement boundary | accepted BoxShape; implementation remains closed until the source-parent I0 |
-| 26c | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | next fast row; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
+| 26c | `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` | design one opaque same-cohort source view that retains the resolver input while issuing Generic demand and parent callback | design stop; no parent receipt, physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
+| 26d | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | parked behind source-cohort D0; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 
