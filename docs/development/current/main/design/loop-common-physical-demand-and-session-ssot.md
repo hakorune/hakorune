@@ -1713,3 +1713,21 @@ borrowing. Negative acceptance: any selected-Dynamic row reuse, outer V5
 substitution, missing/duplicate operand, foreign segment, wrong literal or
 Add shape, and detached ValueId tuple. No new semantic `Verified*` or
 `Prepared*` receipt is issued by this design row.
+
+### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-I0 (2026-08-18; fast)
+
+The D0 is accepted for one BoxShape implementation. The owner will live in a
+new child module beside `common_v2_session.rs` so the session parent remains
+below the 800-line source limit. It will expose one private callback-scoped,
+non-`Clone` receipt for V6/V7/V8, consume only the existing S6C ingress and
+shared Body segment, and return the canonical ValueIds only through that
+receipt. A narrow source-row accessor may be added to the existing physical-
+ID-free operation program; it may not issue a second semantic product.
+
+Implementation acceptance: exact roles/items/blocks/classes are checked before
+the first body instruction; `identity.read_entry_receipt` issues V6, the
+canonical session issues V7 and V8, and only canonical type publication is
+used. Positive/negative focused tests must cover same-segment success,
+duplicate/foreign scope, wrong literal/Add shape, and late unpublished discard.
+The I0 ends before Substring V9, runtime lease, TextEq V10, Bool, branch,
+Return, CFG/PHI, publication, fallback, retry, and production selection.
