@@ -1839,17 +1839,30 @@ retry, publication, or production caller.
 
 ## Common V2 Bool-result materializer I0
 
-The Bool-result BoxShape is accepted and its caller-zero I0 is the active
-physical consumer. A receipt-owned method consumes the callback-scoped Length
-receipt, recovers the same canonical-session borrow, resolves the source Left
-`ReadBinding` through the canonical identity/SSA owner, issues one Bool
-`ValueId` and type, and emits exactly one mechanical `Less` Compare in the
-condition block. It returns one non-Clone scoped Bool result receipt. The
-producer relation and operand inventory remain the source authorities; raw
-`ValueId` pairs, copied stamps, a standalone compare helper, or another
-session cannot re-pair the operands. Branch/edge/terminator, CFG/PHI,
+The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
+missing source-backed initial index seed. A fresh common-V2 session currently
+has no active canonical declaration/value for the condition's left
+`ReadBinding`; using a default zero, raw `ValueId`, or detached `read_entry`
+would create a second authority. The next design stop is
+`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0`: resolver/S6C initializer
+evidence must be co-sealed before the later receipt-owned Bool materializer
+can issue one `Less` result. Branch/edge/terminator, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry,
 and production remain closed.
+
+## Common V2 initial index seed design stop
+
+The future seed relation must be issued from
+`VerifiedS6CTypedInputRelationV1::initializer()`,
+`ResolvedInitializerRelationV1`, and the source ledger's
+`ResolvedLiteralSourceV1::Integer(0)`. It must carry the S6C index carrier,
+binding, entry relation, I64 type, and literal witness as one private
+non-Clone same-cohort product. Missing/foreign initializer, site, binding,
+carrier, owner, stamp, type, or literal evidence rejects before physical
+effect; no defaulting, AST/MIR recount, fallback, or retry is permitted. The
+subsequent I0 may emit only the unpublished `ConstI64(0)` and exact
+declaration publication; Bool/Compare, CFG/PHI, lifecycle, Text route, and
+production remain closed.
 
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 

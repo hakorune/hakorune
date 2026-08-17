@@ -161,15 +161,31 @@ materialization remains a separate later row.
 
 ## Common V2 Bool-result materializer I0
 
-The Bool-result BoxShape is now accepted. The caller-zero consumer is a
-receipt-owned method on `CanonicalLengthCallResultReceiptV1`: it recovers the
-same exclusive canonical-session borrow, resolves the source Left
-`ReadBinding` through the canonical identity/SSA owner, issues one Bool value
-and type, and emits one mechanical `Less` Compare in the condition block. It
-returns one scoped non-Clone Bool result receipt. Raw producer rows, `ValueId`
-pairs, copied stamps, and a second session cannot issue or re-pair the result.
-Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
-publication, fallback, retry, and production remain closed.
+The Bool-result BoxShape is accepted, but its caller-zero I0 is blocked by a
+missing source-backed initial index seed. A fresh common-V2 session has no
+active canonical declaration/value for the S6C condition's left `ReadBinding`,
+so the receipt-owned materializer must not use a default zero, a raw `ValueId`,
+or a detached `read_entry` call. The next design stop is
+`LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0`: the resolver/S6C initializer
+relation must be co-sealed first, after which a later I0 may issue one
+unpublished `ConstI64(0)` and one exact declaration publication in the same
+session. Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
+Text, route, publication, fallback, retry, and production remain closed.
+
+## Common V2 initial index seed design stop
+
+The seed authority must come from
+`VerifiedS6CTypedInputRelationV1::initializer()`, the resolver-owned
+`ResolvedInitializerRelationV1`, and the source ledger's
+`ResolvedLiteralSourceV1::Integer(0)`. A future
+`PreparedLoopV2InitialIndexSeedRelationV1` will carry the binding, I64 type,
+literal witness, S6C index carrier, and entry relation as one non-Clone
+same-cohort product. Package/Port and the Bool materializer only transport or
+consume it; they do not infer the seed. Missing/foreign site, binding,
+carrier, owner, stamp, type, or literal evidence rejects before physical
+effect. No seed implementation, Bool/Compare emission, CFG/PHI, lifecycle,
+Text route, fallback, retry, or production caller is opened by this design
+stop.
 
 ## Common V2 synthetic After allocation I0
 

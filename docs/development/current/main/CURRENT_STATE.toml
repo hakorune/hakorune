@@ -20,7 +20,7 @@ BoxShape and its callback-scoped caller-zero I0 are landed; the receiver
 operand projection BoxShape is accepted and its caller-zero canonical-read I0
 is landed. The direct Length Call/result BoxShape and its caller-zero I0 are
 landed; the Length receipt lifetime I0 is landed and the next design stop is
-the parent Bool result; published physical condition results, edges, CFG/PHI,
+the source-backed initial index seed before the accepted Bool result; published physical results, edges, CFG/PHI,
 lifecycle, Text, route, and production remain closed.
 A-prime lifecycle, Direct Text lowering, route, and production remain closed.
 """
@@ -28,10 +28,10 @@ date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 
-current_design_stop = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0 is accepted; its caller-zero I0 is the active bounded implementation."
-work_mode = "fast"
-current_execution_row = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0"
-current_blocker_token = "NoSafeSlice::CanonicalConditionBoolResultI0Unlanded"
+current_design_stop = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0 is the next design stop before the accepted Bool-result I0."
+work_mode = "design_stop"
+current_execution_row = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0"
+current_blocker_token = "NoSafeSlice::CanonicalInitialIndexSeedUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -51,8 +51,10 @@ BoxShape, its transport I0, session-stamp retention I0, Length-result canary
 I0, source-backed StringLen target-plan I0, and the callback-scoped physical
 condition-block target I0 are landed. The direct Length Call/result BoxShape,
 its unpublished caller-zero I0, and the exclusive session-scoped Length
-receipt lifetime I0 are landed. The Bool-result BoxShape is accepted; its
-caller-zero I0 is the only open effect before branch or edge materialization.
+receipt lifetime I0 are landed. The Bool-result BoxShape is accepted, but its
+caller-zero I0 is blocked until the source-backed initial index seed is
+admitted in the same canonical session; no default zero or detached binding
+read may open the Bool effect.
 Published ValueId/result use, Compare lowering, emit_branch, edge/terminator, operations beyond
 this transport, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
@@ -69,11 +71,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, the receiver-operand canonical-read I0, the direct Length Call/result I0, and the exclusive session-scoped Length receipt lifetime I0 are landed. The Bool-result BoxShape is accepted and its caller-zero I0 is active. Branch/edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
-next_design_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-D0"
+latest_card_summary = "A-prime remains parked behind canonical exit-set ingress. Common V2 admission/session, S6C header/effects, physical-entry, layout/placement, After allocation, branch-plan, CompareI64 producer, operand inventory, session-stamp retention, Length-result BoxShape, its no-effect canary, source-backed StringLen target-plan I0, the callback-scoped physical condition-block target I0, the receiver-operand canonical-read I0, the direct Length Call/result I0, and the exclusive session-scoped Length receipt lifetime I0 are landed. The Bool-result BoxShape is accepted, but its I0 is blocked by the missing source-backed initial index seed; the next design stop names that seed relation. Branch/edge/operations, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed."
+next_design_card = "LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+next_execution_card = "none"
+next_execution_card_path = ""
 
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
