@@ -788,73 +788,84 @@ descriptor drift is rejected before shell creation.  Two focused tests and the
 Completion, CFG/PHI, lifecycle, Text, route, fallback, retry, or production
 caller opened.
 
-### `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-D0` (current design stop)
+### `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-D0` (accepted BoxShape, 2026-08-17)
 
 ```text
 Decision:
-  Keep Generic lane adoption separate from the S6C/common entry-session
-  consumer.  The detached Generic shell is complete, but installing its
-  physical parameter rows and publishing BindingSSA values needs a
-  Generic-owned cohort stamp and one fresh transaction seam.
+  Accept a Generic-specific callback-scoped entry admission as a BoxShape.
+  It co-seals already-issued Generic source products with the detached shell
+  and gives one canonical session consumer enough evidence to adopt the
+  receiver/ordinary lanes.  It does not reuse the S6C/common admission or
+  issue a second semantic source fact.
 
 Source authority + canonical issuer:
-  The Generic source parent/entry descriptors issue the neutral mechanical
-  lane contract: receiver is `SourceBindingSiteV1::Receiver`, ordinary rows
-  are `Parameter { index }`, and the installed shell's `params[index]` is the
-  only physical carrier.  The canonical SSA issuer remains
-  `CanonicalSsaFunctionSessionV2::identity.publish_declaration_exact`; a
-  later Generic admission must co-seal the parent, shell, descriptor stamp,
-  and the same source-backed outer-If/BlockExpr/Completion views.
+  `VerifiedGenericG0SourceParentV1` owns the resolver input, body-shape
+  inventory, and semantic Completion.  The existing resolver issuer
+  `issue_resolved_block_expr_expectation_v1` supplies the typed BlockExpr
+  expectation, and `empty_for_owned_loop_profile` supplies the outer-If
+  residual from the resolver singleton Loop site.  A new compiler-side
+  `GenericG0PhysicalEntryAdmissionV1` only co-seals these existing views with
+  the detached shell/descriptors and a Generic mechanical cohort stamp.  The
+  later session consumer snapshots Completion through
+  `ResolvedFunctionCompletionConsumptionV1::new_borrowed`; the sole physical
+  declaration issuer remains
+  `CanonicalSsaFunctionSessionV2::identity.publish_declaration_exact`.
 
 Non-authority:
-  S6C loan/key/stamp, Generic shell name, `/N`, `ValueId::new` alone, raw
-  BindingSSA, descriptor names, or a second sidecar/SSA owner cannot issue
-  Generic adoption.  The S6C session seam may be reused only for mechanical
-  reservation/rollback after Generic provenance is sealed.
+  S6C loan/key/stamp or admission aggregate, Generic shell name, `/N`, raw
+  `pair_count`, `ValueId::new` alone, AST/MIR/arena recounts, Completion
+  clone/move, raw BindingSSA, descriptor names, or a second sidecar/SSA owner
+  cannot issue Generic adoption.  The S6C session's mechanical rollback
+  pattern may be reused only behind the Generic admission boundary.
 
 Fail-fast boundary:
-  Foreign parent/origin/source-kind/body-root/frame, shell symbol/arity or
+  Foreign parent/origin/source-kind/body-root/frame, expectation owner/root,
+  outer-If partition, Completion owner/target, shell symbol/arity or
   descriptor index/role/binding/site/type drift, `params[index]` mismatch,
-  duplicate adoption, pre-existing session/function, partial publication, or
-  a request to consume Completion/CFG/PHI before the Generic transaction is
-  sealed rejects before BindingSSA effect.  The fresh unpublished transaction
-  is the only rollback owner.
+  duplicate adoption, pre-existing session/function, partial publication,
+  borrowed Completion escape, or raw-count/session re-pair rejects before
+  Builder or BindingSSA effect.  The fresh unpublished transaction is the
+  only rollback owner.
 
 Smallest next slice:
-  First close the Generic cohort-stamp and neutral mechanical lane-adapter
-  census.  Only after that may an I0 install one shell and adopt receiver /
-  ordinary rows atomically through the canonical session; no Loop CFG or
-  operation lowering is part of this row.
+  `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` consumes one admission,
+  opens one fresh unpublished transaction, installs the detached shell, and
+  adopts receiver/ordinary rows atomically through the canonical session.  A
+  Generic session opener may be added as a thin consumer of the admission, but
+  it must not create a second CFG/SSA owner or reuse the S6C envelope.  No
+  Loop CFG, operation lowering, or Completion claim is part of this row.
 
 Non-claims:
-  No Generic session construction, BindingSSA/ValueId publication, CFG/PHI,
-  Completion consumption, operation lowering, ExactText lifecycle, route,
-  fallback/retry, production caller, or main integration.
+  This D0 does not construct a session, publish BindingSSA/ValueId, mutate
+  CFG/PHI, consume Completion, lower operations, or open ExactText lifecycle,
+  route, fallback/retry, production caller, or main integration.
 ```
 
-The next blocker is
-`NoSafeSlice::GenericG0PhysicalEntryAdoptionSessionSeamUnsealed`.
+The D0 is accepted as a source/cohort BoxShape.  The implementation blocker is
+now `NoSafeSlice::GenericG0PhysicalEntryAdoptionI0Unsealed` until the one
+admission-to-session consumer is landed.
 
-#### Adoption D0 census (2026-08-17)
+#### Adoption I0 implementation census (2026-08-17)
 
-The read-only census closes the boundary, but not the implementation permit:
+The D0 is accepted; this census narrows the implementation seam without
+adding another source authority:
 
 ```text
 source -> GenericG0SourceParentV1 + entry descriptors
-       -> (missing) Generic cohort/adoption stamp
-       -> (missing) neutral lane adapter
-       -> (missing) fresh unpublished Builder/session transaction
+       -> Generic cohort/adoption stamp (I0 implementation)
+       -> neutral lane adapter (I0 implementation)
+       -> fresh unpublished Builder/session transaction (I0 consumer)
        -> canonical identity.publish_declaration_exact
 ```
 
 The existing `PhysicalFunctionEntryCohortStampV1` and
 `with_common_v2_physical_entry_session` are S6C/common owners.  They retain
 S6C selected-key and loan provenance, so reclassifying them as Generic would
-create a second source relation.  The Generic D0 therefore remains a design
-stop until one Generic-owned, non-Clone stamp/adapter seam is named and its
-rollback owner is proven.
+create a second source relation.  The I0 must implement a Generic-owned,
+non-Clone stamp/adapter while retaining the existing outer transaction as the
+rollback owner.
 
-The bounded sub-decisions are ordered and effect-free:
+The bounded implementation checks are ordered:
 
 1. **Cohort stamp.**  Co-seal the retained Generic parent, detached shell,
    descriptor cohort, owner/origin/source-kind/body-root/frame, and physical
@@ -873,26 +884,22 @@ The bounded sub-decisions are ordered and effect-free:
    checks.  Duplicate, foreign, reordered, or partially published rows reject
    before BindingSSA effect.
 
-The session-admission side is an independent missing input, not a reason to
-reuse the S6C admission aggregate.  The Generic parent retains the resolver
-input, body-shape inventory, and semantic Completion, but it does not yet
-carry a Generic-owned typed BlockExpr expectation or an outer-If residual.
-`VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile` may be
-used only after the Generic resolver singleton loop site is co-sealed; the
-Completion may be borrowed only by the later session consumer.  The current
-`LoopV2CanonicalSessionAdmissionRefV1` is therefore a transport for the S6C
-installed loan, not a Generic authority.  A future Generic admission must
-co-seal these three source views with the Generic parent/stamp in one
-callback-scoped product before opening any session.
+The session-admission side is a Generic consumer, not a reason to reuse the
+S6C admission aggregate.  The I0 admission obtains the typed BlockExpr
+expectation from `issue_resolved_block_expr_expectation_v1`, obtains the
+outer-If residual from `empty_for_owned_loop_profile` using the resolver
+singleton Loop site, and borrows the parent's Completion for the later
+`new_borrowed` physical consumer.  The current
+`LoopV2CanonicalSessionAdmissionRefV1` remains S6C-only; the Generic opener
+must co-seal these three views with the Generic parent/stamp in one
+callback-scoped product.
 
-Only after these four products are closed may
-`LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` open.  That I0 is limited to
-one fresh unpublished transaction, exact shell-parameter checks, and atomic
-receiver/ordinary declaration adoption.  It does not open Loop blocks,
-operations, PHI, Completion, lifecycle, Text, route selection, fallback, or
-production.
+The I0 closes these four products in one fresh unpublished transaction,
+performs exact shell-parameter checks, and atomically adopts receiver/ordinary
+declarations.  It does not open Loop blocks, operations, PHI, Completion
+claims, lifecycle, Text, route selection, fallback, or production.
 
-### Generic G0 source-projection child tasks (ordered; next row is entry adoption D0)
+### Generic G0 source-projection child tasks (ordered; next row is entry adoption I0)
 
 The Generic parent now has all four source siblings.  The following rows keep
 the source projection and physical consumers separate; they do not authorize
@@ -4309,7 +4316,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-physical-effect-I0 | `LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0` | issue one private same-cohort physical-effect projection and focused no-publication/rejection gates | landed 2026-08-17; focused Generic suite 58/58 green; source/evidence parity and `EffectMask::PURE` projection only; skeleton, `MirFunction`, ValueId, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production caller remain closed |
 | 25b-c0-G0-skeleton | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` | accept the Generic-only detached skeleton reservation: source explicit-arity symbol, receiver-prefix/physical lanes, i64 result, same-cohort PURE effect, exact-empty metadata, and non-Clone rollback owner | accepted BoxShape 2026-08-17; next caller-zero I0 is allocation-only; no entry adoption, Builder/session, Completion, CFG/PHI, lifecycle, Text, route, fallback/retry, or production caller |
 | 25b-c0-G0-skeleton-I0 | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one unpublished detached Generic `MirFunction` from the consumed same-parent entry/effect cohort and retain it in a non-Clone wrapper | landed 2026-08-17; two focused tests plus Generic suite 60/60 green; explicit `/N`, receiver-prefix ordering, PURE/i64 signature, exact-empty metadata, and descriptor preflight are covered; entry adoption remains closed |
-| 25b-c0-G0-entry-adoption | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | census the Generic cohort stamp, neutral mechanical lane adapter, and fresh canonical-session rollback seam before installing shell params or publishing BindingSSA | current design stop; `NoSafeSlice::GenericG0PhysicalEntryAdoptionSessionSeamUnsealed`; S6C stamp/session reuse is forbidden until Generic provenance is sealed; no Generic session, ValueId publication, CFG/PHI, Completion, lifecycle, Text, route, fallback/retry, or production caller |
+| 25b-c0-G0-entry-adoption | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept one Generic callback-scoped admission that co-seals existing parent/BlockExpr/outer-If/Completion views with the detached shell and a Generic mechanical cohort stamp | accepted BoxShape 2026-08-17; S6C stamp/session reuse remains forbidden; the admission issues no new semantic fact and is consumed only by the next I0 |
+| 25b-c0-G0-entry-adoption-I0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` | consume one Generic admission, open one fresh unpublished transaction, install the detached shell, and atomically adopt receiver/ordinary declarations through the canonical SSA issuer | current fast row; `NoSafeSlice::GenericG0PhysicalEntryAdoptionI0Unsealed`; no Loop CFG/operations/PHI/Completion claims, lifecycle, Text, route, fallback/retry, or production caller |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |
