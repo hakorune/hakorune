@@ -7609,3 +7609,36 @@ Non-claims:
 This BoxShape does not authorize `emit_branch`, `emit_return`, any new semantic
 receipt, edge/PHI/publication, production selection, fallback, retry, or legacy
 retirement.
+
+### Branch-emission D0 same-condition TextEq audit (2026-08-18; NoSafeSlice remains)
+
+Decision: NoSafeSlice continues. The outer loop Length/Bool is `ValueKeyV1(5)`
+(`CompareI64 Less`), while the Return-read belongs to the inner TextEq If whose
+source condition is `ValueKeyV1(10)`; these are different meanings and different
+branches, not fixture noise.
+
+Source authority + canonical issuer: `S6CPrephysicalIngressRefV2::with_text_eq_leaf`
+and `VerifiedS6CTextEqSourceBindingV1` own the source-backed TextEq/If relation;
+`CommonV2ReturnReadCoSealRefV1` carries the logical If condition and the existing
+canonical condition producer is the `Less`-only physical issuer. No TextEq Bool
+`ValueId` issuer currently exists.
+
+Non-authority: the outer `CanonicalConditionBoolResultReceiptV1`, raw `ValueId`,
+`CommonV2SharedSegmentScopeV1`/brand, physical-block or owner/stamp equality,
+item ordinals, `trivial_ssa::operation::Equal`, and the selected dynamic emitter
+are not inner-TextEq condition authority.
+
+Fail-fast boundary: preserve `ConditionLogicalMismatch(5 != 10)` before
+Return-read, continuation, Completion, or CFG effects. A future consumer must
+co-seal TextEq operands/source binding, If item/block/condition/then block,
+shared segment provenance, canonical Bool owner, continuation, and FunctionExit
+inside the unpublished outer session transaction.
+
+Smallest next slice: design-only census of an existing TextEq physical-demand
+issuer and one canonical inner-If Bool receipt boundary; decide whether an
+existing issuer can be reused without issuing new source meaning. No code or
+new semantic receipt is authorized by this D0.
+
+Non-claims: existing logical co-seal proves condition `10` but emits no physical
+Bool. `emit_branch`, `emit_return`, edge/PHI/CFG publication, fallback, retry,
+production selection, and legacy retirement remain closed.
