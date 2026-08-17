@@ -111,10 +111,9 @@ Related:
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-PORTABLE-PHYSICALIZER-D0` is the next design stop. It must
-  co-seal Substring-result V9 residence/lease and ExactText-formal V1
-  residence/generation with item 7/B1/V10, then classify exactly one Direct,
-  Checked, or RejectBeforeEffect physical capability. No C ABI or source Trap
+  `COMMON-V2-TEXTEQ-RESIDENCE-D0` is the next design stop. It must name one
+  canonical runtime-residence issuer for Substring-result V9 and ExactText
+  formal V1 before any V10 capability classification. No C ABI or source Trap
   is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
@@ -1533,7 +1532,7 @@ This BoxShape does not authorize `emit_branch`, `emit_return`, any new semantic
 receipt, edge/PHI/publication, production selection, fallback, retry, or legacy
 retirement.
 
-### TextEq premise-reset decision (2026-08-18; accepted design correction)
+### COMMON-V2-TEXTEQ-RESIDENCE-D0 (2026-08-18; design stop)
 
 Decision: reject the old `A -> B -> C` premise. S6C TextEq is the portable,
 non-faulting `LoopOperationV2::TextEq` physicalizer boundary; it is not a
@@ -1558,12 +1557,12 @@ without exact content equality. TextEq remains semantically `NonFaulting`;
 unsupported shapes reject before effect, and late physical failure discards
 the unpublished function without fallback or retry. No source Trap is minted.
 
-Smallest next slice: design-only BoxShape
-`COMMON-V2-TEXTEQ-PORTABLE-PHYSICALIZER-D0`. Co-seal the live
-Substring-result V9 residence and ExactText-formal V1 residence with the
-existing TextEq leaf, then classify one exact-result capability as
-Direct, Checked, or RejectBeforeEffect. No implementation starts until that
-choice and its sole canonical consumer are accepted.
+Smallest next slice: design-only BoxShape `COMMON-V2-TEXTEQ-RESIDENCE-D0`.
+Name one canonical runtime-residence issuer that consumes the existing
+S6C ingress, the adopted ExactText slot/generation sidecar, and the live
+Substring result/lease relation in one session-scoped callback. Only after
+that issuer is accepted may the TextEq leaf classify one exact-result
+capability as Direct, Checked, or RejectBeforeEffect.
 
 Non-claims: no new source/Recipe acceptance, C status/out ABI, source Trap,
 Bool V10 materialization, branch/Return/CFG, selected-Dynamic parity,
@@ -1592,6 +1591,23 @@ Premise-reset evidence:
   `c951539dfc`: hook/fallback behavior, lossy invalid-handle handling, raw
   `i64`, and downstream `!= 0` truthification make it RejectBeforeEffect
   for this strict lane.
+
+Residence issuer census: `CanonicalSsaFunctionSessionV2` currently exposes
+only the physical-entry ExactText slot/generation sidecar; that sidecar
+stores integer carriers and is not a live runtime pin. The existing
+`TextFormalCallResidenceV1` owns formal slot/generation pins, but no current
+common-session caller acquires or lends it. `dynamic_v2_lease` owns a
+Substring EndAuthorized handle/token, but no common-V2 consumer carries it
+from the source `CallSlot` result. The selected-Dynamic lifecycle terminal
+and its checked-callout pair are a different caller-zero cohort. Therefore
+there is no existing V9/V1 residence issuer to reuse, and inventing one from
+raw `ValueId`, handle bits, or backend-frame metadata would violate the
+authority boundary.
+
+The primary missing-boundary class is `MaterializationRelationMissing`, not
+semantic authority. The design row remains `NoSafeSlice` until the one
+session-scoped residence owner, its finish/rollback edge, and its negative
+matrix (foreign/stale/duplicate/missing lease or slot-generation) are named.
 
 The landed DesignOnly `StringEquals/1` row is retained as a separate,
 caller-zero method-surface capability and remains rejected before effect. It
