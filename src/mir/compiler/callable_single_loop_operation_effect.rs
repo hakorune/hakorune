@@ -462,13 +462,15 @@ mod tests {
         let program = crate::mir::compiler::callable_semantic_program::
             issue_callable_semantic_program_v1(recipe)
             .expect("Callable parent should co-seal once");
-        let (operation_effect, input, context, continuation, prelude, tail) =
-            program.into_prepared_parts();
-
-        assert_eq!(operation_effect.evidence().len(), 7);
-        assert_eq!(input.owner(), context.owner());
-        assert_eq!(continuation.loop_key().raw(), 0);
-        assert_eq!(prelude.owner(), tail.owner());
+        let prepared = program
+            .into_prepared_operation_demand()
+            .expect("prepared demand");
+        prepared.consume(|input, operation, prelude, tail| {
+            assert_eq!(operation.demand().operation_effect().evidence().len(), 7);
+            assert_eq!(input.owner(), operation.demand().context().owner());
+            assert_eq!(operation.demand().continuation().loop_key().raw(), 0);
+            assert_eq!(prelude.owner(), tail.owner());
+        });
     }
 
     #[test]

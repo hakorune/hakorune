@@ -12,8 +12,10 @@ use super::callable_single_loop_recipe_coseal::{
     VerifiedCallablePreludeV1, VerifiedCallableSingleLoopRecipeProductV1, VerifiedCallableTailV1,
 };
 use crate::mir::loop_recipe_contract::{
+    LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
     VerifiedLoopContinuationContractV1, VerifiedLoopInitializedLocalInputSourceSetV1,
-    VerifiedLoopOperationEffectProductV1, VerifiedLoopSemanticContextV1,
+    VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationPhysicalDemandV1,
+    VerifiedLoopSemanticContextV1,
 };
 
 /// One Callable-first semantic-program parent.  This is a profile adapter,
@@ -29,26 +31,60 @@ pub(in crate::mir) struct VerifiedCallableSemanticProgramV1 {
     tail: VerifiedCallableTailV1,
 }
 impl VerifiedCallableSemanticProgramV1 {
-    /// Consume the parent exactly once for the existing prepared-operation
-    /// consumer.  The tuple is never published as an independent product.
-    pub(in crate::mir) fn into_prepared_parts(
+    /// Consume the complete semantic parent into one source-free prepared
+    /// demand parent.  Demand construction remains here so callers cannot
+    /// re-pair operation/effect/context/continuation rows.
+    pub(in crate::mir) fn into_prepared_operation_demand(
         self,
-    ) -> (
-        VerifiedLoopOperationEffectProductV1,
-        VerifiedLoopInitializedLocalInputSourceSetV1,
-        VerifiedLoopSemanticContextV1,
-        VerifiedLoopContinuationContractV1,
-        VerifiedCallablePreludeV1,
-        VerifiedCallableTailV1,
-    ) {
-        (
-            self.operation_effect,
-            self.input,
-            self.context,
-            self.continuation,
-            self.prelude,
-            self.tail,
-        )
+    ) -> Result<PreparedCallableOperationDemandV1, LoopOperationPhysicalDemandRejectV1> {
+        let Self {
+            operation_effect,
+            input,
+            context,
+            continuation,
+            prelude,
+            tail,
+        } = self;
+        let operation = VerifiedLoopOperationPhysicalDemandV1::issue(
+            context,
+            operation_effect,
+            continuation,
+        )?
+        .prepare_all()?;
+        Ok(PreparedCallableOperationDemandV1 {
+            input,
+            operation,
+            prelude,
+            tail,
+        })
+    }
+}
+
+/// Source-free, one-shot prepared demand for the Callable profile.  It is an
+/// aggregate of already-issued rows, not a new semantic authority; the only
+/// consumer is the prepared Callable operation handoff (plus its test probe).
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedCallableOperationDemandV1 {
+    input: VerifiedLoopInitializedLocalInputSourceSetV1,
+    operation: PreparedLoopOperationProgramV1,
+    prelude: VerifiedCallablePreludeV1,
+    tail: VerifiedCallableTailV1,
+}
+
+impl PreparedCallableOperationDemandV1 {
+    /// Lend all prepared rows in one one-shot callback.  No tuple or
+    /// independent field getter is exposed, so a consumer cannot re-pair
+    /// rows from separate semantic parents.
+    pub(in crate::mir) fn consume<R>(
+        self,
+        consumer: impl FnOnce(
+            VerifiedLoopInitializedLocalInputSourceSetV1,
+            PreparedLoopOperationProgramV1,
+            VerifiedCallablePreludeV1,
+            VerifiedCallableTailV1,
+        ) -> R,
+    ) -> R {
+        consumer(self.input, self.operation, self.prelude, self.tail)
     }
 }
 

@@ -34,10 +34,10 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-17"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Generic G0 detached-entry retirement R0 is landed with zero old callers; the production candidate census confirms Generic remains caller-zero and only selected-Dynamic has a live package-loan to DraftSeal/collector handoff. Production selection stays separately unsealed. The Callable semantic-program consume D0 is accepted; the selected fast slice is its source-free prepared-demand parent I0."
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0"
-current_blocker_token = "none"
+current_design_stop = "Generic G0 detached-entry retirement R0 and the Callable semantic-program consume I0 are landed with zero old tuple callers. The production candidate census still finds Generic caller-zero and only selected-Dynamic has a live package-loan to DraftSeal/collector handoff; production selection remains the next human design stop."
+work_mode = "design_stop"
+current_execution_row = "LOOP-PRODUCTION-SELECTION-D0"
+current_blocker_token = "NoSafeSlice::ProductionSelectionAuthorityUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -93,11 +93,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, detached-entry retirement, and the production candidate census are landed. Generic has no production arm; Callable semantic-program consume D0 is accepted and its source-free prepared-demand I0 is selected."
-next_design_card = "none"
+latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, detached-entry retirement, Callable semantic-program consume I0, and the production candidate census are landed. Generic has no production arm; production selection remains a human design stop."
+next_design_card = "LOOP-PRODUCTION-SELECTION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -108,7 +108,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-17: LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0 landed one receipt-owned same-session Bool materializer. It consumes the seeded entry read and Length result, emits one canonical Less Compare and Bool type/result receipt, and passes missing-seed/type plus late-discard tests. Branch/edge/CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next gate is LOOP-PRECUTOVER-AUTHORITY-G0.",
   "2026-08-17: LOOP-PRECUTOVER-AUTHORITY-G0-I0 landed one production Generic source-parent issuer. It co-seals the exact resolver input and selected Generic row, validates the root-plus-child forest and two source-parameter entry rows, and lends a non-Clone callback-scoped parent. Physical demand, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain closed; the next stop is complete physical-function-entry input census.",
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-I0 landed one private same-cohort `EffectMask::PURE` projection from the finite five-variant Generic operation contract after owner/origin/source-kind/body-root/frame, result/header/storage, target, and operation-evidence parity checks. The focused Generic suite is green; no `MirFunction`, `ValueId`, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller opened.",
   "2026-08-17: Generic physical-entry lane-adoption D0/I0 landed the detached caller-zero rollback/adoption canary. Its final name is `GenericG0DetachedEntryCanaryV1`; it is not the combined admission and retires after session-owned parity and zero callers.",
@@ -116,5 +115,6 @@ landed_tail = [
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-I0 landed a caller-zero whole-admission preflight: shell materialization, source-lane adoption, canonical preheader entry reads, layout-keyed segment allocation, and one outer discard owner. No operation leaf, publication, retry, fallback, or production caller opened; the next bounded slice was the callback-scoped Generic-to-common dispatcher preflight."
   "2026-08-17: LOOP-GENERIC-G0-PHYSICAL-OPERATION-DISPATCH-PREFLIGHT-I0 landed one phantom-lifetime-branded mechanical program/layout/entry/segment input and ran the existing segment dispatcher preflight without emitting a leaf. The shell remained instruction-free and the unpublished transaction still discarded on late failure; operation emission and production remain closed.",
   "2026-08-17: GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0 removed the detached Generic skeleton/canary/admission/session and tuple exits after zero-caller verification. Shared source-backed control and shell validators now live in neutral facts modules; the combined emitter admission and session-preflight remain the sole caller-zero Generic path. Production selection, fallback/retry, Completion/DraftSeal, and publication remain closed.",
-  "2026-08-17: LOOP-PRODUCTION-CANDIDATE-CENSUS-R0 confirmed that the live production adapter has only the selected-Dynamic package-loan -> A-prime -> physical-session -> DraftSeal -> collector path. Generic G0 remains caller-zero; no production selector arm, fallback, retry, or raw-loop retirement was opened."
+  "2026-08-17: LOOP-PRODUCTION-CANDIDATE-CENSUS-R0 confirmed that the live production adapter has only the selected-Dynamic package-loan -> A-prime -> physical-session -> DraftSeal -> collector path. Generic G0 remains caller-zero; no production selector arm, fallback, retry, or raw-loop retirement was opened.",
+  "2026-08-17: MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0 replaced the Callable six-element tuple escape with one source-free non-Clone PreparedCallableOperationDemandV1 consumed once by the existing prepared-demand handoff. Compiler 3/3 and Builder 1/1 focused tests, cargo check, format, diff, and zero source callers are green; no Builder/session/CFG/SSA/PHI, Completion/DraftSeal, Text, route, fallback, retry, publication, or production selector opened."
 ]

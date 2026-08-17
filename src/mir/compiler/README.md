@@ -257,6 +257,16 @@ This is a Callable-first caller-zero slice. It does not claim a generic G0
 issuer, CFG/SSA/PHI, Builder/session effects, lifecycle, Text lowering, route
 selection, fallback, retry, or production activation.
 
+The follow-up semantic-program consume I0 is now landed. The complete parent
+is consumed once into the source-free, non-`Clone`
+`PreparedCallableOperationDemandV1`; its one-shot `consume` method lends the
+already-issued input, prepared operation, Prelude, and Tail together to the
+existing Builder-side handoff. The former six-element
+`into_prepared_parts` escape hatch has zero source callers and is removed.
+Demand owner/continuation validation remains the existing neutral issuer, and
+no Builder, `MirFunction`, `ValueId`, CFG/SSA/PHI, Completion, lifecycle, Text,
+route, fallback, retry, or production selector is opened by this cleanup.
+
 ### Common V2 physical function-entry input I0
 
 `common_v2_physical_function_entry_input.rs` is the transport-only consumer

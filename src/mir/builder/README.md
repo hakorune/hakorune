@@ -172,9 +172,12 @@ is now closed by `normal_callable_prepared_operation.rs`. That assembler
 consumes the ingress exactly once, issues the existing neutral operation/effect
 demand, and calls `prepare_all` for the complete Recipe-order schedule. The
 result retains only the callable source/input/Prelude/Tail transport while the
-common program owns operation/effect/continuation meaning. It creates no
-Builder/session effect or physical ID; the next bounded row is the caller-zero
-full physical canary.
+common program owns operation/effect/continuation meaning. The semantic parent
+now hands the assembler one source-free prepared-demand parent through a
+one-shot consume method; no six-element tuple or independently re-pairable
+semantic rows cross the compiler/Builder seam. It creates no Builder/session
+effect or physical ID; the next bounded row is the caller-zero full physical
+canary.
 
 `normal_callable_dynamic_source.rs` owns the source-only co-seal for deliberate
 untyped/dynamic callables. It combines the exact function root,

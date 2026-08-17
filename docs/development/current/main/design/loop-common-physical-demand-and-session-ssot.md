@@ -1324,14 +1324,14 @@ Non-claims:
 
 | seam | current finding | final owner | deletion / cutover gate | evidence |
 |---|---|---|---|---|
-| `VerifiedCallableSemanticProgramV1::into_prepared_parts` | A crate-local six-tuple escape hatch still has a production consumer plus a test consumer; it is not a second semantic issuer, but it permits re-decomposition. | `normal_callable_prepared_operation::prepare_full_demand` until a direct consuming callback or single prepared-operation parent replaces it. | Replace the production consumer and test seam in one refactor slice, then require zero callers before removal. | `rg -n "into_prepared_parts" src/mir` |
+| `VerifiedCallableSemanticProgramV1::into_prepared_parts` | Landed sealing refactor; the old six-tuple symbol has zero Rust source callers. | `PreparedCallableOperationDemandV1` plus `normal_callable_prepared_operation::prepare_full_demand` | Keep the source-free parent/one-shot consumer; do not reintroduce tuple getters or a second semantic issuer. | `rg -n --glob '*.rs' "into_prepared_parts" src/mir` |
 | `PreparedLoopOperationRowV2` | S6C source provenance is retained by design; it must not be relabeled as Generic/common authority. | S6C common-V2 adapter, later consumed by the family-neutral parent. | Keep until S6C provenance is consumed by the neutral parent; no Generic conversion or duplicate row. | `rg -n "PreparedLoopOperationRowV2" src/mir` |
 | `issue_generic_g0_loop_ingress_v1` | All current callers are tests/canaries; no production caller remains after the Generic source-parent I0. | Combined Generic emitter admission -> neutral canonical session -> common dispatcher. | Delete old ingress and migrate its tests in the operation-emitter production-switch slice, then prove zero callers. | `rg -n "issue_generic_g0_loop_ingress_v1" src/mir` |
 | `with_generic_g0_physical_entry_session` / `new_generic` | Caller-zero detached canary; it proves rollback/adoption but is not a production route. | One family-neutral canonical unpublished-session opener; Generic and S6C remain thin admission adapters, not duplicate session implementations. | After session-preflight parity, switch the caller and delete the detached skeleton/canary/session plus their tuple exits in the same zero-caller slice. | `rg -n "with_generic_g0_physical_entry_session|new_generic|GenericG0DetachedEntryCanaryV1" src/mir` |
 | `DynamicProfileOwned` / `new_selected_dynamic` | Current selected-Dynamic physical emitter still calls it; it is a live production owner, not a removable canary. | Common canonical session admission/session cutover for selected Dynamic. | First land the replacement, switch the production caller, verify zero `new_selected_dynamic` callers, then remove the enum arm and constructor. | `rg -n "DynamicProfileOwned|new_selected_dynamic" src/mir` |
 | `finalize_function_draft*` selected-normal legacy edges | Multiple production callers remain in normal cataloged methods, recursive child lowering, port-aware wrappers, indexing, and calls. | `PreparedFunctionExitSetV1` -> canonical Completion/DraftSeal -> atomic unpublished publication. | Switch every listed production caller, prove old-symbol caller count is zero, then delete the legacy facade; do not retrofit it for Text/lifecycle. | `rg -n "finalize_function_draft(_with_headers)?\\(" src/mir/builder` |
 | `VerifiedGenericRecipeProductG0::into_physical_boundary` | Production-visible but caller-zero split; it is a real sealing surface, not a second semantic issuer. | One-shot Generic source-parent/cohort/admission consumer. | Isolate behind `cfg(test)` in `LOOP-GENERIC-G0-SEALED-CONSUME-I0`; prove production caller count zero before session effects. | `rg -n "into_physical_boundary" src/mir` |
-| `VerifiedCallableSemanticProgramV1::into_prepared_parts` | Crate-local six-tuple decomposition still has production/test consumers and permits re-decomposition. | Direct scoped/one-shot prepared-operation consumer. | Behavior-preserving refactor, migrate both caller classes, then zero callers before deleting the tuple surface. | `rg -n "into_prepared_parts" src/mir` |
+| `VerifiedCallableSemanticProgramV1::into_prepared_parts` | Retired by the semantic-program consume I0; remaining mentions are documentation evidence only. | `PreparedCallableOperationDemandV1` | Zero Rust source callers is landed; preserve the one-shot parent and keep this escape hatch retired. | `rg -n --glob '*.rs' "into_prepared_parts" src/mir` |
 | `EndAuthorizedTextV1` public facade/getters | Runtime lease owner is valid, but the public wrapper/getters are a separate facade debt. | Runtime lease owner with a move-only/private completion surface. | Park in `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0`; preserve lease semantics and prove facade callers before narrowing. | `rg -n "EndAuthorizedTextV1|consume_end_authorized" src/runtime` |
 | `generic-loop-legacy-disposition-v1.tsv` decision column | Corpus inventory is intentionally P0 and currently contains non-applicable sentinels; it is not a replacement decision. | Manifest-led owner/retirement evidence. | Fill only observed rows with owner, parity gate, and retire row; no bulk relabel or LOC-driven deletion. | `sed -n '1p' docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv` |
 | byte-identical helper/micro-seed groups | Informational duplicate census; byte identity does not prove semantic interchangeability. | Each helper's source-backed owner, or explicit archive/keep owner. | Separate inventory R0 first; merge/delete only in a focused parity slice with zero callers. | `rg --files src lang/c-abi | wc -l` |
@@ -1638,6 +1638,37 @@ Non-claims:
   DraftSeal, lifecycle/Text, route, fallback/retry, publication, or legacy
   finalizer retrofit.
 ```
+
+#### Semantic-program consume I0 closeout (2026-08-17)
+
+`VerifiedCallableSemanticProgramV1` now consumes its complete parent into the
+source-free, non-`Clone` `PreparedCallableOperationDemandV1`.  The parent owns
+the already-issued input, prepared Recipe-order operation program, Prelude, and
+Tail, and exposes only one `consume` callback; the Builder-side
+`prepare_full_demand` handoff remains the sole production consumer.  The
+compiler test observation was migrated to the same parent, and the former
+`into_prepared_parts` symbol has zero source callers.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib callable_single_loop_operation_effect -- --nocapture  # 3 passed
+RUSTFLAGS='-Awarnings' cargo test --lib normal_callable_prepared_operation -- --nocapture      # 1 passed
+RUSTFLAGS='-Awarnings' cargo check -q
+cargo fmt --all -- --check
+git diff --check
+rg -n --glob '*.rs' "into_prepared_parts" src/mir  # zero
+```
+
+This is a BoxShape-only sealing refactor.  It opens no Builder/MIR effect,
+session, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback,
+retry, publication, or Generic/selected-Dynamic production selection.
+
+The full `cargo test --lib` baseline remains red independently of this slice
+(6787 passed, 146 failed, 29 ignored); the failures are in existing FileBox,
+parser-freeze, legacy JoinIR, and broad MIR/route fixtures, while the changed
+compiler/Builder focused tests and `cargo check` are green.  This is recorded
+as known baseline debt, not a current-change failure.
 
 #### Structural convergence audit — migration thickness is classified, not an authority (2026-08-17)
 
@@ -5184,7 +5215,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | landed 2026-08-17; deletion owners and retirement gates are recorded, with no production switch |
 | 25b-c0-structure-audit | `MIRBUILDER-STRUCTURAL-CONVERGENCE-AUDIT-R0` | classify intentional keep, waiting scaffolding, bounded retirement, and parked inventory; record scale as informational rather than authority | landed as design-only audit 2026-08-17; current design-stop blocker and work mode remain explicit in CURRENT_STATE |
 | 25b-c0-semantic-consume-D0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-D0` | close the source owner, direct-consumer shape, caller census, parity checks, and zero-caller retirement contract for the Callable six-tuple escape hatch | accepted BoxShape 2026-08-17; source-free prepared-demand parent, one-shot consumer, and no-six-tuple boundary are fixed |
-| 25b-c0-semantic-consume-I0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` | replace the production six-tuple `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with one direct source-free prepared-demand parent consumer | next fast slice; production/test parity, negative checks, and zero callers are required before deleting the tuple surface |
+| 25b-c0-semantic-consume-I0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` | replace the production six-tuple `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with one direct source-free prepared-demand parent consumer | landed 2026-08-17; compiler 3/3 and Builder 1/1 focused tests, cargo check, format, diff, and zero-caller census are green |
 | 25b-c0-lease-facade | `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0` | narrow the public `EndAuthorizedTextV1`/getter facade without changing lease semantics or the Generic MIR owner graph | parked in the runtime lane; no MIR receipt, Text route, or production caller change is authorized here |
 | 25b-c0-disposition | `MIRBUILDER-LEGACY-DISPOSITION-R0` | fill the legacy disposition TSV only from observed owner/caller/parity evidence and attach a deletion gate per non-sentinel decision | parked; no bulk relabeling, route activation, or deletion by LOC |
 | 25b-c0-helper-inventory | `MIRBUILDER-BYTE-HELPER-INVENTORY-R0` | inventory byte-identical helper groups and micro-seed families with an owner and evidence command, without semantic dedupe | parked informational census; merge/delete requires a separate source-backed owner and focused parity slice |

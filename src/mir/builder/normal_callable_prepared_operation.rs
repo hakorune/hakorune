@@ -16,8 +16,7 @@ use crate::mir::compiler::callable_single_loop_recipe_coseal::{
 };
 use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
-    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopOperationPhysicalDemandV1,
-    VerifiedLoopSemanticContextV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopSemanticContextV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -61,30 +60,27 @@ impl<'source> PreparedCallableLoopIngressV1<'source> {
         let (source, logical) = self.into_parts();
         let program = issue_callable_semantic_program_v1(logical)
             .map_err(PreparedCallableLoopOperationRejectV1::OperationEffect)?;
-        let (operation_effect, input, context, continuation, prelude, tail) =
-            program.into_prepared_parts();
-        verify_source_context(&source, &context)?;
-        if input.owner() != source.owner() {
-            return Err(PreparedCallableLoopOperationRejectV1::InputOwnerMismatch);
-        }
-        if prelude.owner() != source.owner() {
-            return Err(PreparedCallableLoopOperationRejectV1::PreludeOwnerMismatch);
-        }
-        if tail.owner() != source.owner() {
-            return Err(PreparedCallableLoopOperationRejectV1::TailOwnerMismatch);
-        }
-        let demand =
-            VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)
-                .map_err(PreparedCallableLoopOperationRejectV1::Demand)?;
-        let operation = demand
-            .prepare_all()
+        let prepared = program
+            .into_prepared_operation_demand()
             .map_err(PreparedCallableLoopOperationRejectV1::Demand)?;
-        Ok(PreparedCallableLoopOperationProgramV1 {
-            source,
-            input,
-            operation,
-            prelude,
-            tail,
+        prepared.consume(|input, operation, prelude, tail| {
+            verify_source_context(&source, operation.demand().context())?;
+            if input.owner() != source.owner() {
+                return Err(PreparedCallableLoopOperationRejectV1::InputOwnerMismatch);
+            }
+            if prelude.owner() != source.owner() {
+                return Err(PreparedCallableLoopOperationRejectV1::PreludeOwnerMismatch);
+            }
+            if tail.owner() != source.owner() {
+                return Err(PreparedCallableLoopOperationRejectV1::TailOwnerMismatch);
+            }
+            Ok(PreparedCallableLoopOperationProgramV1 {
+                source,
+                input,
+                operation,
+                prelude,
+                tail,
+            })
         })
     }
 }
