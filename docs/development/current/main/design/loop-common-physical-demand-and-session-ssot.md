@@ -7770,9 +7770,26 @@ handle-handle, `Checked` rather than `Direct`; pointer/length and mixed
 handle/pointer routes are rejected for this lane. No implementation or new
 semantic receipt is authorized by this design row.
 
+### LOOP-PHYSICAL-TEXTEQ-COREMETHOD-DESIGN-ONLY-TIER-D0 — design-only carrier premise gate (2026-08-18; NoSafeSlice remains)
+
+The existing `CoreMethodContractBox` schema requires `lowering_tier` and
+`cold_lowering`, but `CoreMethodLoweringTier` has only Hot/Warm/Cold. There is
+no safe way to add the source-owned StringEquals/1 row without falsely
+claiming `warm_direct_abi`, `cold_fallback`, or a runtime symbol. `status=seed`
+and empty `guards` are metadata, not an admission stop, and
+`LoweringPlanTier::Unsupported` is not connected to the CoreMethod carrier.
+
+Decision: keep `NoSafeSlice` until a design-only `DesignOnly` tier is accepted.
+Its manifest spelling must be `design_only`, its plan tier/emission must map to
+`Unsupported`, its cold symbol must be explicit `none`, and route/physical
+issuers must reject it before any effect. The source owner remains
+`CoreMethodContractBox`; generated manifest/Rust views are projections, never
+hand-edited. This A0 slice claims no StringEquals row, decoder, residence,
+Call, Bool `ValueId`, fallback, or production route.
+
 #### A — source-owned `StringEquals/1` method contract (BoxCount)
 
-Source authority + canonical issuer: `CoreMethodContractBox` in
+Source authority + canonical issuer after A0: `CoreMethodContractBox` in
 `lang/src/runtime/meta/core_method_contract_box.hako` is the sole source
 contract owner; generated JSON/Rust rows are projections. The row must fix
 `StringEquals/1` (receiver plus one Text argument), `PureRead`, `BoolValue`,
