@@ -1975,3 +1975,20 @@ operand or producer drift, absent Length result, duplicate publication,
 materializer re-entry, branch-consumer mismatch, and receipt escape reject
 before effect. This D0 does not open ValueId/Compare/call/edge/CFG/PHI,
 Completion, lifecycle, Text, route, fallback, retry, or production.
+
+## Post-Dynamic transfer-authority closeout boundary (2026-08-18)
+
+The current implementation already contains the behavior-neutral transfer,
+ledger, common-After, and topology-census surfaces from the bounded
+post-Dynamic series. The authority split is fixed: Core/JoinSig issues logical
+transfers, Recipe supplies structure, Layout binds placement, and the canonical
+session owns physical CFG/SSA effects. The series does not authorize a V2-to-V1
+adapter, a second semantic receipt, or a production switch.
+
+The design stop remains open until direct missing/duplicate/foreign/
+wrong-target transfer negatives, a focused segment-allocation negative, and the
+transitive legacy fixed-topology caller census are recorded. The reusable guard
+is `tools/checks/loop_physical_transfer_authority_guard.sh`; its S6C ingress
+rule permits legitimate borrowed `logical_*` views and checks detached-
+authority patterns instead of using a broad method-name match. If any of those
+evidence rows cannot be closed without re-pairing, stop with `NoSafeSlice`.

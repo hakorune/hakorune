@@ -197,7 +197,6 @@ do
 done
 
 for forbidden in \
-  'pub(crate) fn logical' \
   'anchor_count' \
   'VerifiedLoopSemanticContextV1::from_parts'
 do

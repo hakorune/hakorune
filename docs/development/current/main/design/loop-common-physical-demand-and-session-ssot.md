@@ -99,17 +99,18 @@ Related:
   landed before demand/product consumption.  The next stop is the independent
   Generic storage/lane projection; it cannot open an EffectMask or any
   physical/session effect until that source-backed projection is accepted.
-  A-prime lifecycle
-  activation remains parked until its boundary owns
-  `PreparedFunctionExitSetV1`.
+  A-prime lifecycle activation remains parked until its boundary owns
+  `PreparedFunctionExitSetV1`.  The selected Dynamic physical-input
+  authority is landed; the post-Dynamic unification rows below remain a
+  design-stop closeout until their direct negative fixtures and old-edge
+  caller census are recorded.
 - **Next ordered task:**
-  `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` is the next design
-  stop.  The S6C-only physical-entry projection, Generic TopLevel
-  declaration/header, body-shape transport, function-effect receipt,
-  result-ABI transport, and direct canonical Completion transport are landed;
-  storage/lane projection remains an independent source census.  Transfer
-  migration, CFG/PHI, lifecycle, Text, route, fallback, retry, and production
-  remain closed.
+  `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` is the next design stop.  The
+  Callable-first semantic-program consume and Dynamic physical-input
+  authority are landed; transfer/ledger/common-boundary cleanup and the
+  topology census must be reconciled against their existing implementations
+  before any If/Exit BoxCount, session, route, fallback, retry, or production
+  work opens.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1849,6 +1850,38 @@ Implementation closeout (2026-08-18):
   `cargo check`, and the quick A-prime focused suite (11/11) are green.  The
   next stop is the fixed `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` BoxShape series;
   it may not absorb If/Exit BoxCount or open the Dynamic physical session.
+
+#### Post-Dynamic unification audit receipt (2026-08-18)
+
+The read-only worker audit reconciled the current source with the existing
+BoxShape series.  The behavior-preserving surfaces are already present in
+history, but this receipt does not close the design stop by inference:
+
+```text
+542b3a794d  JoinSig transfer view -> private physical transfer binding
+28c4bdd5c4  complete ordered operation/source-effect ledger consumers
+46fbf8d0d7  common After stops at ReadyLoopAfterContinuationV1
+1544d128d2  topology caller census guard
+1e93ad6be9  topology census documentation closeout
+```
+
+The current authority split is confirmed: source/Core co-seals Recipe and
+JoinSig; JoinSig issues logical transfers; Recipe supplies structure only;
+Layout binds placement; the canonical CFG/session remains the sole physical
+owner.  The worker found no need for a new semantic receipt, V2-to-V1 adapter,
+profile repair, or public traversal plan.  Remaining acceptance evidence is
+explicitly bounded: direct missing/duplicate/foreign/wrong-target tests for
+the transfer binder/layout, a focused allocator negative, and the old
+`operation_target::issue`/fixed-topology transitive caller census.
+
+The dedicated `loop_physical_transfer_authority_guard.sh` now passes.  Its
+S6C ingress check no longer bans the legitimate borrowed `logical_items`,
+`logical_loops`, `logical_blocks`, and `logical_transfer` views; it retains the
+actual detached-authority checks (`anchor_count` and semantic-context
+reissuance).  This is guard correctness only, not a new authority or a
+production switch.  Until the missing evidence is added, keep
+`work_mode = "design_stop"` and leave If/Exit coverage, physical session,
+initializer consumption, production selection, fallback, and retry closed.
 
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
@@ -5521,14 +5554,14 @@ skip the After closure or reopen a Tail-only route.
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | repository-wide convergence; not a prerequisite for the bounded selected H2 first cutover unless its unchanged source needs that family |
 | 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | Callable-first BoxShape: consume one complete source-backed Callable parent into one private semantic-program envelope; generic G0/all-family issuer remains later | accepted design 2026-08-17; no production change |
 | 21a | `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` | caller-zero implementation of the one-shot Callable envelope and mechanical physical-demand projection; remove split caller ingress | **landed 2026-08-17**; no CFG/SSA/PHI, session effect, lifecycle, Text, route, fallback, retry, or production caller |
-| 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
-| 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
-| 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
+| 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | implementation present in `542b3a794d`; direct transfer negative matrix remains a design-stop evidence gap |
+| 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | implementation present in `28c4bdd5c4`; behavior-preserving only, no V2-to-V1 adapter or new source/effect authority |
+| 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | implementation present in `46fbf8d0d7`; BoxShape only, no profile callback, selector, or production switch |
 | 22c | `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` | parent BoxShape: order the installed child, TextFormal mapping, one Completion owner, and generic V2 operation/control envelope | closed design boundary 2026-08-16; one parent HRTB/sibling views, generic operation/control partition, and passive coverage are fixed; no session effect |
 | 22c-a | `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0` | accepted mapping: one logical ExactText ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes; issue one complete/disjoint Completion-independent package cohort and transport it through one combined Installed S6C loan | closed caller-zero implementation; no call-edge actualization, `ValueId`, aggregate ABI, fallback, or retry |
 | 22d | `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0` | transport the generic parent/sibling boundary through one installed Port HRTB without emitting an execution product | closed caller-zero source transport 2026-08-16; one selected-key consumption seam; no JSON/MIR, route policy, Builder/session effect, or production caller |
 | 22e | `LOOP-S6C-COMMON-V2-PRESESSION-I0` | implement the named source-backed operation adapter, JoinSig/Recipe control co-seal, and passive coverage issuer inside one caller-zero parent loan | closed caller-zero implementation 2026-08-16; focused positive/negative/duplicate tests green; no S6C physicalizer, Builder/session, lifecycle, route, or production caller |
-| 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | independent census before cutover; never a prerequisite for issuing V2 meaning and delete only after production/test callers reach zero |
+| 22f | `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-CENSUS-D0` | census fixed-role receipts versus segment receipts and publish the caller-zero deletion gate | guard/docs present in `1544d128d2`/`1e93ad6be9`; transitive old-edge census remains before deletion |
 | 23 | `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` | add one JoinSig-authorized Always physical family | one BoxCount commit; no fallback |
 | 24 | `LOOP-PHYSICAL-IF-COVERAGE-I0` | add exact branch/merge transfer capabilities and common physicalization | one BoxCount commit; no Layout inference |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |

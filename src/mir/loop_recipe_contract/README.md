@@ -56,11 +56,19 @@ the matching Loop summary and exposes that summary as integrity-only evidence;
 it is not a second physical action. The common physicalizer boundary now stops
 at `ReadyLoopAfterContinuationV1`; Callable profile-close, Tail, ABI,
 Completion, Return, and DraftSeal remain outside this owner. The next row is
-the selected I10 transfer coverage; no Builder, MIR/CFG/PHI, ABI, session,
-retry, or fallback is opened by the ledger or boundary cleanup. The completed
-fixed-role topology census is caller-zero for its top-level issuers; its
-transitive canary-only types remain until the selected production cutover and
-post-cutover retirement row.
+the post-Dynamic unification design-stop closeout: direct transfer
+missing/duplicate/foreign/wrong-target negatives and the transitive legacy
+topology caller census must be recorded before the selected I10/I12 coverage
+or any physical session opens. No Builder, MIR/CFG/PHI, ABI, session, retry, or
+fallback is opened by the ledger or boundary cleanup. The fixed-role topology
+census is caller-zero for its top-level issuers; transitive canary-only types
+remain until the selected production cutover and post-cutover retirement row.
+
+The dedicated `tools/checks/loop_physical_transfer_authority_guard.sh` is the
+reusable boundary guard. Its S6C ingress rule deliberately permits the
+borrowed `logical_items`/`logical_loops`/`logical_blocks`/`logical_transfer`
+views and checks only detached-authority patterns; this prevents a broad
+method-name match from masking the actual transfer checks.
 
 - `LoopRecipeArtifactV1` owns schema version, a required source wire claim,
   `LoopRecipeProducerIdV1` receipt, and one `LoopRecipeV1`.
