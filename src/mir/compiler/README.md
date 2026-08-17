@@ -38,26 +38,41 @@ private, non-`Clone` input keeps the parent attached while projecting a
 receiver-prefix row (when the resolver says `DeclaredInstance`) followed by
 dense ordinary `i64` rows.  The row records source binding/name/type evidence
 and may borrow only the existing `ExistingCallableI64` carrier tag as a
-mechanical transport detail.
+ mechanical transport detail.
 
 This module does not reuse the S6C physical descriptor/header/signature,
 allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
 `EffectMask`, consume Completion, or mutate Builder/session/CFG/SSA state.
-The callback-scoped `consume` seam moves the parent and descriptors together;
-the focused test proves the receiver/explicit order and that the loan cannot
-escape.  The Generic physical-effect BoxShape and its caller-zero projection
-are now landed.  There is no shortcut through S6C or `/N`/JSON counts, and a
-fresh skeleton remains closed.
+ The callback-scoped `consume` seam moves the parent and descriptors together;
+ the focused test proves the receiver/explicit order and that the loan cannot
+ escape.  The Generic physical-effect BoxShape and its caller-zero projection
+ are now landed.  There is no shortcut through S6C or `/N`/JSON counts.  The
+ next consumer is the Generic-only detached skeleton reservation below.
 
 The effect stop is narrower than assigning `EffectMask::PURE` to this
 fixture.  A future Generic issuer must consume the parent-owned source effect,
 result/header/storage rows, product target, and execution frame together with
 an explicit physical-operation mapping.  It may project `PURE` only when that
 mapping proves every admitted lowered operation is MIR-pure.  Local-write or
-tail-return counts, absent calls, `NumericTarget`, MIR construction, and S6C
-physical effects are not issuers.  The projection-only I0 is now landed;
-skeleton, `MirFunction`, `ValueId`, Builder, and session effects remain
-closed.
+ tail-return counts, absent calls, `NumericTarget`, MIR construction, and S6C
+ physical effects are not issuers.  The projection-only I0 is now landed;
+ skeleton allocation is a separate Generic-only consumer.
+
+### Generic G0 detached physical-function skeleton I0
+
+`generic_g0_physical_function_skeleton.rs` consumes one complete Generic
+entry-input cohort and internally reissues the same-cohort PURE effect.  It
+derives the canonical symbol from the source name plus explicit source arity,
+then reserves physical i64 lanes in receiver-prefix order and an i64 result.
+The returned non-`Clone` wrapper retains the source parent, descriptors, effect
+projection, and unpublished `MirFunction`; dropping it is the rollback owner.
+The reserved parameter `ValueId`s are mechanical shell reservations only.
+
+This I0 does not install a function, adopt BindingSSA lanes, consume
+Completion, open Builder/session/CFG/SSA/PHI, or lower any loop operation.
+Exact-empty Generic attrs/uses remain required, and S6C skeleton/header rows,
+descriptor length as `/N`, JSON, `new_selected_dynamic`, and passed-in effect
+defaults remain non-authorities.
 
 ### Generic G0 physical-effect projection I0
 
@@ -71,9 +86,9 @@ exactly `ReadBinding`, `ConstI64`, `BinaryI64`, `CompareI64`, and
 
 The projection is borrowed/mechanical and creates no `MirFunction`,
 `ValueId`, Builder/session state, CFG/SSA/PHI, lifecycle, Text, route, or
-publication.  The focused Generic suite is green.  The next design stop is
-the Generic physical-function skeleton census, which must name the detached
-rollback owner before opening any skeleton effect.
+publication.  The focused Generic suite is green.  Its detached skeleton
+consumer is now separately accepted; entry adoption remains the next design
+stop after the shell reservation.
 
 ## Typed ingress contract
 
