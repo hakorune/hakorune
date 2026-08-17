@@ -642,12 +642,60 @@ Implementation receipt (2026-08-17):
   `BindingSSA`, `EffectMask`, Builder/session, Completion consumption, CFG/PHI,
   lifecycle, Text, route, fallback, retry, or production caller opened.
 
-### `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` (next design stop)
+### `LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-D0` (current design stop)
 
 ```text
 Decision:
-  Keep the landed Generic entry-input row as a source-to-mechanical product
-  and stop before any skeleton effect.  The next BoxShape must decide how one
+  Do not open a Generic physical skeleton yet.  The landed entry-input row
+  has source lane/header facts, but its Generic no-external-effect receipt is
+  semantic evidence only; it does not by itself issue the MIR physical
+  `EffectMask` required by `MirFunction::new`.
+
+Source authority + canonical issuer:
+  The future Generic physical-effect issuer must consume the same parent-owned
+  source effect receipt, result/header/storage rows, and target/physical
+  operation contract, then issue one private physical-effect projection.  It
+  must be a Generic issuer; S6C physical effects are not reusable authority.
+
+Non-authority:
+  `EffectMask::PURE` as a default, `MirFunction` construction, local-write
+  counts, Recipe operation effects, `/N`, `FunctionSignature`, S6C effects,
+  AST/MIR/JSON rescans, and the absence of external calls cannot issue the
+  Generic physical effect contract by themselves.
+
+Fail-fast boundary:
+  Missing source-to-physical effect relation, target/owner/frame drift,
+  unsupported local or heap effect, result/header mismatch, or any need to
+  construct a skeleton before the physical effect is sealed remains
+  `NoSafeSlice::GenericG0PhysicalEffectProjectionUnsealed`.
+
+Smallest next slice:
+  Read-only issuer census for the one Generic physical-effect projection and
+  its target-specific mapping.  Keep skeleton allocation, `ValueId` creation,
+  Builder/session effects, and rollback implementation closed until this
+  issuer is accepted.
+
+Non-claims:
+  No physical `EffectMask` implementation, skeleton, entry adoption,
+  Completion consumption, CFG/SSA/PHI, lifecycle, Text, route,
+  fallback/retry, production caller, or main integration.
+```
+
+Design audit receipt (2026-08-17):
+  The Generic parent/entry input has the source-side symbol/mode/result,
+  attrs/uses, and ordered lane facts, but no canonical physical-effect row.
+  `common_v2_physical_function_skeleton.rs` requires a physical effect mask
+  before `MirFunction::new`; Generic `VerifiedGenericG0NoExternalEffectV1`
+  is intentionally weaker than that mask.  Therefore `PURE` defaulting or
+  S6C effect reuse is rejected, and the skeleton remains closed.
+
+### `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` (parked behind effect issuer)
+
+```text
+Decision:
+  After the physical-effect projection is accepted, keep the landed Generic
+  entry-input row as a source-to-mechanical product.  The next BoxShape must
+  decide how one
   fresh unpublished Generic physical function skeleton is issued from this
   same cohort without importing S6C or inferring layout from `/N`, JSON, or
   descriptor length.
@@ -672,9 +720,9 @@ Fail-fast boundary:
   `NoSafeSlice::GenericG0PhysicalSkeletonInputUnsealed`.
 
 Smallest next slice:
-  Read-only issuer census for a fresh unpublished Generic skeleton input;
-  implementation must remain stopped until the full source-backed input and
-  rollback owner are named.
+  Open only after the physical-effect issuer and fresh unpublished skeleton
+  rollback owner are both named; no implementation is authorized by this
+  parked design row.
 
 Non-claims:
   No skeleton allocation, Builder/session effect, entry-lane adoption,
@@ -4093,9 +4141,10 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, Completion, and source storage/lane cohort without borrowing S6C receipts | accepted source-only BoxShape 2026-08-17; body-shape transport, function-effect receipt, result-ABI transport, canonical Completion transport, and storage/lane source policy are landed/accepted; no physical signature, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, Completion consumption, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-storage-lane | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-PROJECTION-D0` | accept the same-parent source storage/header, receiver-policy, and explicit-row BoxShape; keep receiver separate from explicit formal arity and forbid S6C reuse | accepted 2026-08-17; next source-only caller-zero I0; no physical signature, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-storage-lane-I0 | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-PROJECTION-I0` | retain one private/non-Clone Generic parent-owned source row: attrs/uses, receiver policy/BindingRef, dense explicit rows, and checked mechanical `ExistingCallableI64` carrier tag | landed 2026-08-17; six focused source-parent tests green; checked explicit/callable counts and instance/absent policy are source-only; next was the Generic entry BoxShape; no physical/session effect |
-| 25b-c0-G0-entry | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-ENTRY-D0` | accept one Generic-only pre-effect entry-input BoxShape over the same source parent; forbid S6C descriptor/header/signature reuse and keep receiver prefix separate from explicit arity | accepted 2026-08-17 after issuer census; its caller-zero input I0 is landed and the next stop is Generic skeleton D0; no skeleton, ValueId, BindingSSA, EffectMask, Builder/session, Completion consumption, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-entry | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-ENTRY-D0` | accept one Generic-only pre-effect entry-input BoxShape over the same source parent; forbid S6C descriptor/header/signature reuse and keep receiver prefix separate from explicit arity | accepted 2026-08-17 after issuer census; its caller-zero input I0 is landed and the next stop is Generic physical-effect projection D0; no skeleton, ValueId, BindingSSA, EffectMask, Builder/session, Completion consumption, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-entry-I0 | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-ENTRY-I0` | project one same-parent Generic source row into private non-Clone mechanical entry descriptors with receiver policy, dense explicit rows, metadata, and existing i64 carrier | landed 2026-08-17; focused positive plus parent rejection/no-publication gates green; no S6C/common descriptor reuse, skeleton, ValueId, BindingSSA, EffectMask, Builder/session, Completion consumption, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-skeleton | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` | census the source-backed symbol/mode/result/effect/attrs/uses and rollback owner required before a fresh Generic physical skeleton | next design stop; keep `NoSafeSlice::GenericG0PhysicalSkeletonInputUnsealed`; no skeleton allocation, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-physical-effect | `LOOP-GENERIC-G0-PHYSICAL-EFFECT-PROJECTION-D0` | decide one Generic-only source-to-physical `EffectMask` projection from the parent no-external-effect receipt before any skeleton effect | current design stop; keep `NoSafeSlice::GenericG0PhysicalEffectProjectionUnsealed`; no skeleton, ValueId, BindingSSA, Builder/session, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-skeleton | `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-SKELETON-D0` | after physical-effect projection, census the source-backed symbol/mode/result/effect/attrs/uses and detached rollback owner required before a fresh Generic physical skeleton | parked behind physical-effect issuer; keep `NoSafeSlice::GenericG0PhysicalSkeletonInputUnsealed`; no skeleton allocation, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |
@@ -4104,7 +4153,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-completion | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-D0` | retain the canonical resolver Completion in the Generic parent after result-ABI transport, with Generic tail/result/cleanup parity | accepted BoxShape 2026-08-17; canonical verifier remains the sole issuer; no Completion consumption, physical ABI/lane, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-completion-I0 | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0` | issue `verify_function_completion_v1(input)` once and lend the canonical non-Clone product through the parent callback | landed 2026-08-17; focused source-parent tests green; transport only, with no Completion consumer, physical/session effect, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
-| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the parent cohort | parked cleanup checkpoint; no new authority or production switch; unresolved storage/lane issuer keeps the current NoSafeSlice |
+| 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | parked cleanup checkpoint; no new authority or production switch; physical-effect and skeleton issuer stops remain ahead of convergence |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |

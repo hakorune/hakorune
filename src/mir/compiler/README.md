@@ -45,8 +45,9 @@ allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
 `EffectMask`, consume Completion, or mutate Builder/session/CFG/SSA state.
 The callback-scoped `consume` seam moves the parent and descriptors together;
 the focused test proves the receiver/explicit order and that the loan cannot
-escape.  The next stop is a fresh Generic physical-skeleton design, not a
-shortcut through S6C or `/N`/JSON counts.
+escape.  The next stop is a Generic source-to-physical effect projection;
+only after that issuer is accepted may a fresh skeleton be designed.  There
+is no shortcut through S6C or `/N`/JSON counts.
 
 ## Typed ingress contract
 
