@@ -448,6 +448,30 @@ mod tests {
     }
 
     #[test]
+    fn semantic_program_consumes_the_complete_callable_parent_once() {
+        let unit = unit_for_fixture();
+        let (input, loop_stmt, context) = input_loop_and_context(&unit);
+        let syntax = issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context).unwrap();
+        let ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .unwrap();
+        let map = issue_callable_single_loop_source_map_v1(&ledger, syntax).unwrap();
+        let recipe = issue_callable_single_loop_recipe_v1(&ledger, map).unwrap();
+
+        let program = crate::mir::compiler::callable_semantic_program::
+            issue_callable_semantic_program_v1(recipe)
+            .expect("Callable parent should co-seal once");
+        let (operation_effect, input, context, continuation, prelude, tail) =
+            program.into_prepared_parts();
+
+        assert_eq!(operation_effect.evidence().len(), 7);
+        assert_eq!(input.owner(), context.owner());
+        assert_eq!(continuation.loop_key().raw(), 0);
+        assert_eq!(prelude.owner(), tail.owner());
+    }
+
+    #[test]
     fn callable_adapter_rejects_recipe_operation_mismatch() {
         let unit = unit(None, integer(1));
         let (input, loop_stmt, context) = input_loop_and_context(&unit);

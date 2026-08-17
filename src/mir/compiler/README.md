@@ -76,6 +76,22 @@ operations, claims, Returns, DraftSeal, lifecycle, Text, route, fallback, or
 production code; the first session-effects boundary remains a separate design
 stop.
 
+### Callable-first semantic-program co-seal I0
+
+`callable_semantic_program.rs` consumes one complete
+`VerifiedCallableSingleLoopRecipeProductV1` parent and keeps its
+operation/effect product, initialized-local input, resolver context,
+JoinSig-owned continuation, and Callable Prelude/Tail together until the
+existing prepared-operation consumer. The issuer accepts no separately
+supplied Core, context, or continuation, so matching owner values cannot
+re-pair products from different source frames. The existing
+`VerifiedLoopOperationPhysicalDemandV1::issue` remains a mechanical
+projection inside this adapter rather than a second semantic authority.
+
+This is a Callable-first caller-zero slice. It does not claim a generic G0
+issuer, CFG/SSA/PHI, Builder/session effects, lifecycle, Text lowering, route
+selection, fallback, retry, or production activation.
+
 ### Common V2 physical function-entry input I0
 
 `common_v2_physical_function_entry_input.rs` is the transport-only consumer

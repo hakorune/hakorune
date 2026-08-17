@@ -31,12 +31,12 @@ Related:
   that individual source/Core/JoinSig/Layout/CFG owners still lack one
   source-backed semantic-program co-seal issuer. A-prime Text lifecycle and
   production selection remain parked.
-- **Next ordered task:** design-only
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`. It must bind the existing resolver
-  context, Core/JoinSig, complete operation/effect evidence, and JoinSig-owned
-  continuation once before any all-19 G0 coverage or physical effect. Do not
-  extend the selected-normal legacy finalizer with lifecycle or Return
-  authority.
+- **Next ordered task:** caller-zero
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`, after accepting the
+  Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` BoxShape. It consumes one
+  source-backed Callable parent before any all-19 G0 coverage or production
+  physical effect. Do not extend the selected-normal legacy finalizer with
+  lifecycle or Return authority.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -351,13 +351,14 @@ structural family, `Always`, ordinary `If`, and `Exit` remain unsupported in
 the common physical path. Layout-only inference, profile relabeling, and
 fallback to a route-local physicalizer are forbidden.
 
-The `VerifiedLoopSemanticProgramV1` shape above remains a target design, not a
-landed public issuer. The current pre-cutover census has confirmed that the
-existing context/Core/operation/continuation products are individually
-source-backed but still independently re-pairable. Until
-`LOOP-SEMANTIC-PROGRAM-COSEAL-R0` names and lands the one same-parent issuer,
-`NoSafeSlice::LoopSemanticProgramCosealUnsealed` remains active and no G0
-selection or physical effect may proceed.
+The repository-wide `VerifiedLoopSemanticProgramV1` remains a target design,
+not a landed all-profile issuer. The Callable-first refinement is now accepted:
+`VerifiedCallableSingleLoopRecipeProductV1` is the one source-backed parent and
+`issue_callable_semantic_program_v1` is its one compiler-side consumer. It may
+wrap the existing mechanical operation/effect projection, but it cannot accept
+separate context/Core/continuation arguments. G0/M8/M9 remain blocked until a
+same-parent issuer exists for each admitted family; no production selection or
+physical cutover is implied by the Callable I0.
 
 ## SSOT role disambiguation
 
@@ -1735,14 +1736,15 @@ production boundary. Before `LOOP-PRODUCTION-SELECTION-D0` and M10b, close
 this shallow ordered series:
 
 1. `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`
-   - add exact Loop-node source relations and a resolver-capability-backed
-     semantic context issuer;
+   - accepted as a Callable-first BoxShape: the complete
+     `VerifiedCallableSingleLoopRecipeProductV1` is the one parent and the
+     caller-zero I0 consumes it into one private semantic-program aggregate;
+   - the repository-wide issuer still must add exact Loop-node source
+     relations, a resolver-capability-backed semantic context, and one
+     opaque complete-entry-source coverage receipt before G0/M8/M9 migration;
    - issue continuation only from the JoinSig owned by the moved Core;
-   - co-seal the operation/effect product, node/item/carrier source relations,
-     and one opaque complete-entry-source coverage receipt into
-     `VerifiedLoopSemanticProgramV1`;
-   - migrate Callable, Generic G0, and the M8/M9 producer cohorts to that one
-     input and delete the public split/re-pair ingress;
+   - keep the Callable I0's mechanical demand projection inside the parent and
+     delete split/re-pair ingress as each later cohort is migrated;
    - keep initialized-local and Generic parameter input owners distinct.
 2. `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`
    - first extract one private behavior-preserving Recipe traversal used by

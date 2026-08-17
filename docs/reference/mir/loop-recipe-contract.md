@@ -611,6 +611,20 @@ shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
 Recipe kind or physicalizer. The callable row is one more instance of the
 single recursive algebra; it is not a twentieth Recipe variant.
 
+### Callable-first semantic-program parent
+
+The Callable adapter now consumes the complete
+`VerifiedCallableSingleLoopRecipeProductV1` once into a private,
+non-`Clone` semantic-program parent. The parent keeps the existing
+operation/effect product, initialized-local input, resolver semantic context,
+JoinSig-owned continuation, and Callable Prelude/Tail together until the
+prepared-operation consumer. It does not mint a second Core, JoinSig, source
+fact, or physical identity. A mechanical demand projection may run inside the
+parent consumer, but callers cannot provide context/Core/continuation as
+independent arguments. This closes only the Callable-first caller-zero
+co-seal; the all-family G0 issuer, physical CFG/SSA, lifecycle, Text route,
+production selection, fallback, and retry remain outside this reference.
+
 ## Callable source/facts issuer S0
 
 Decision: accepted implementation slice —

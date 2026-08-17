@@ -9,9 +9,8 @@
 use super::normal_callable_semantic_source::{
     PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
 };
-use crate::mir::compiler::callable_single_loop_operation_effect::{
-    issue_callable_operation_effect_parts_v1, CallableOperationEffectAdapterRejectV1,
-};
+use crate::mir::compiler::callable_semantic_program::issue_callable_semantic_program_v1;
+use crate::mir::compiler::callable_single_loop_operation_effect::CallableOperationEffectAdapterRejectV1;
 use crate::mir::compiler::callable_single_loop_recipe_coseal::{
     VerifiedCallablePreludeV1, VerifiedCallableTailV1,
 };
@@ -60,9 +59,10 @@ impl<'source> PreparedCallableLoopIngressV1<'source> {
         PreparedCallableLoopOperationRejectV1,
     > {
         let (source, logical) = self.into_parts();
-        let parts = issue_callable_operation_effect_parts_v1(logical)
+        let program = issue_callable_semantic_program_v1(logical)
             .map_err(PreparedCallableLoopOperationRejectV1::OperationEffect)?;
-        let (operation_effect, input, context, continuation, prelude, tail) = parts.into_parts();
+        let (operation_effect, input, context, continuation, prelude, tail) =
+            program.into_prepared_parts();
         verify_source_context(&source, &context)?;
         if input.owner() != source.owner() {
             return Err(PreparedCallableLoopOperationRejectV1::InputOwnerMismatch);

@@ -88,17 +88,19 @@ Related:
   canary I0, direct Length Call/result I0, and exclusive session-scoped Length
   receipt lifetime I0 are also landed. The source-only initial-index seed
   relation transport, its one-entry Const/exact-declaration materializer I0,
-  and the receipt-owned Bool/Compare materializer I0 are now landed; the next
-  bounded gate is pre-cutover authority coverage.
+  and the receipt-owned Bool/Compare materializer I0 are now landed; the active
+  bounded gate is the Callable-first semantic-program co-seal, while generic
+  pre-cutover authority coverage remains the downstream G0 blocker.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` is the design-only census beneath
-  the still-blocked `LOOP-PRECUTOVER-AUTHORITY-G0` gate. The Bool materializer
-  I0 is landed: it consumes the same-session seed/read and Length receipts to
-  issue one Bool result and one Less Compare. Branch/edge, CFG/PHI, lifecycle,
-  Text, route, and production remain closed.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` is the caller-zero implementation
+  of the accepted Callable-first semantic-program BoxShape. The existing
+  source/Core/JoinSig products are still the only semantic authorities; the
+  new parent merely prevents their re-pairing. G0/all-profile coverage,
+  transfer migration, CFG/PHI, lifecycle, Text, route, and production remain
+  closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -106,7 +108,7 @@ Related:
   owner and old topology, route-local schedulers, direct transfer inference,
   retry, and fallback have zero callers.
 
-### Pre-cutover authority coverage census (design stop)
+### Historical pre-cutover authority coverage census (G0 remains parked)
 
 `LOOP-PRECUTOVER-AUTHORITY-G0` is not accepted yet. Existing source/Facts,
 Core/Recipe, JoinSig, neutral layout, and canonical CFG/SSA owners are
@@ -116,14 +118,15 @@ census closes this inventory stop and hands off to the more precise issuer
 blocker below:
 
 ```text
-NoSafeSlice::LoopSemanticProgramCosealUnsealed
+  NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed
 ```
 
 Decision:
-  first run a read-only `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` census;
-  do not mint a new semantic receipt, physicalizer, scheduler, or Builder
-  effect from the census. If the seam is confirmed, continue with the
-  existing `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`, then
+  the read-only `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` census is complete;
+  it accepted the Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` handoff,
+  while generic G0 still may not mint a repository-wide semantic receipt,
+  physicalizer, scheduler, or Builder effect. The active bounded row is the
+  Callable I0; later generic work must still close
   `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0`, and only then the Always/If/Exit
   coverage rows.
 
@@ -150,15 +153,14 @@ Fail-fast boundary:
   Builder/session effect. A positive census does not itself authorize G0.
 
 Smallest next slice:
-  `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` — read-only owner mapping and
-  competing-authority census, with focused missing/duplicate/foreign/drift
-  cases and a reusable guard. No new `Verified*`/`Prepared*` semantic receipt,
-  CFG mutation, physicalizer, production caller, fallback, or retry.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` — consume one complete Callable
+  parent in a caller-zero, Builder-free aggregate. Generic G0 keeps the
+  blocker above until an all-family issuer exists.
 
 Acceptance:
-  either the census names one co-seal issuer and hands off to the existing
-  semantic-program/transfer rows, or it records the precise missing issuer
-  and keeps `NoSafeSlice` active. It must not fill a gap with zero, a count,
+  the census names the Callable co-seal issuer and hands off to the active I0;
+  generic G0 still records its precise missing issuer and keeps `NoSafeSlice`
+  active. It must not fill a gap with zero, a count,
   Recipe order, or MIR observation.
 
 #### Census result and next co-seal design stop
@@ -175,28 +177,30 @@ The read-only census found the following existing source-backed products:
 
 `VerifiedLoopRecipeCoSealV1` is a valid Callable-specific source product, but
 it is not a repository-wide all-19 issuer. The G0 census therefore closes its
-own inventory task while leaving the parent gate blocked by:
+own inventory task while leaving generic G0 blocked by:
 
 ```text
-NoSafeSlice::LoopSemanticProgramCosealUnsealed
+NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed
 ```
 
 Decision:
-  accept the next BoxShape design stop
-  `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`. Its one private, non-`Clone` envelope
-  must be issued from one source-backed parent and must consume the four
-  existing products exactly once. It may mechanically call the existing
-  `VerifiedLoopOperationPhysicalDemandV1::issue` internally, but that method
-  must not become a second authority or remain a public split ingress.
+  accept the Callable-first BoxShape for `LOOP-SEMANTIC-PROGRAM-COSEAL-R0`.
+  One private, non-`Clone` `VerifiedCallableSemanticProgramV1` consumes the
+  complete `VerifiedCallableSingleLoopRecipeProductV1` parent exactly once.
+  It owns the already-issued operation/effect, input, context, JoinSig-owned
+  continuation, callable prelude, and callable tail until the next consumer;
+  it does not mint a second semantic fact. The generic all-profile issuer
+  remains a later G0 decision.
 
 Source authority + canonical issuer:
-  the same resolver/Core producer that owns the context, Core, operation
-  evidence, and JoinSig-owned continuation is the canonical co-seal issuer.
-  It verifies exact Loop site/frame/Scope-Region, Core JoinSig lineage,
-  complete node/item/carrier source coverage, and continuation ownership before
-  issuing the envelope. Callable/G0/M8/M9 adapters only feed their existing
-  source-backed parent; they do not construct the envelope from names, counts,
-  Recipe order, or physical observations.
+  `issue_callable_single_loop_recipe_v1` remains the source-backed issuer of
+  the complete Callable parent. The new compiler-side
+  `issue_callable_semantic_program_v1` consumes that whole parent and wraps
+  the existing operation/effect adapter output without accepting separately
+  supplied context, Core, or continuation arguments. The existing
+  `VerifiedLoopOperationPhysicalDemandV1::issue` is only a mechanical
+  projection used inside this issuer. G0/M8/M9 require their own same-parent
+  adapter decision and cannot reuse this Callable issuer by relabeling.
 
 Non-authority:
   separate `VerifiedLoopOperationPhysicalDemandV1::issue` arguments, its
@@ -205,22 +209,41 @@ Non-authority:
   wrapper are not the semantic-program issuer.
 
 Fail-fast boundary:
-  reject missing/foreign/duplicate parent products, owner/origin/site/frame or
-  JoinSig drift, incomplete node/item/carrier coverage, continuation from a
-  different Core, HRTB escape, and any second split/re-pair ingress before
-  selection or Builder/session effect. Keep G0 blocked if the source-backed
-  parent cannot issue this envelope without a new authority.
+  reject a foreign/missing/partially consumed Callable parent, operation/effect
+  mismatch, owner/origin/site/frame drift, continuation from a different Core,
+  or any second split/re-pair ingress before physical demand or Builder/session
+  effect. The aggregate has one move-only consumer; no default, count, Recipe
+  order, MIR observation, retry, or fallback repairs a failure.
 
 Smallest next slice:
-  design-only `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` BoxShape review. Fix the
-  private envelope fields, one issuer location, one-shot consumption, and
-  positive/negative acceptance matrix. No code, fixture, CFG/SSA/PHI,
-  physical Layout, session, selector, fallback, retry, or production caller.
+  `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` consumes one Callable parent,
+  exposes one private aggregate to the existing prepared-operation consumer,
+  and proves one-shot/foreign/operation-drift rejection. It is caller-zero and
+  Builder-free; G0 remains blocked by the missing repository-wide issuer.
 
 Non-claims:
-  this census and R0 design do not accept all-19 G0 coverage, JoinSig transfer
-  migration, physicalization, Canonical session construction, lifecycle/Text,
-  route admission, publication, or legacy retirement.
+  this Callable-first R0/I0 does not accept all-19 G0 coverage, JoinSig
+  transfer migration, new physicalization, CFG/SSA/PHI, Canonical session
+  construction, lifecycle/Text, route admission, publication, or legacy
+  retirement.
+
+### LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0 implementation receipt (2026-08-17)
+
+`callable_semantic_program.rs` now consumes one complete
+`VerifiedCallableSingleLoopRecipeProductV1` and keeps the existing
+operation/effect product, initialized-local input, semantic context,
+JoinSig-owned continuation, Callable Prelude, and Callable Tail in one
+non-`Clone` parent until the prepared-operation consumer. The existing
+operation/effect adapter is called only inside this issuer; no caller supplies
+separate context/Core/continuation arguments and the old split ingress no
+longer feeds `prepare_full_demand`.
+
+The focused co-seal test proves one parent produces the complete seven-row
+operation/effect product, matching context/continuation ownership, and the
+prepared-ingress test remains green through the new consumer. The slice is
+caller-zero and Builder-free: no CFG/SSA/PHI, physical IDs, lifecycle, Text,
+route, fallback, retry, or production caller is opened. The repository-wide
+G0/all-family semantic-program issuer remains a separate `NoSafeSlice`.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -2141,13 +2164,13 @@ failure discards the whole unpublished function.
 
 No branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
 route, publication, fallback, retry, or production caller is opened. The
-read-only G0 owner census is complete; the next bounded design stop is
-`LOOP-SEMANTIC-PROGRAM-COSEAL-R0`.
+read-only G0 owner census is complete; the active bounded row is the
+Callable-first `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0`.
 
 Current blockers are deliberately explicit:
 
 ```text
-NoSafeSlice::LoopSemanticProgramCosealUnsealed
+NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed
 ```
 
 ## Decision
@@ -3248,7 +3271,8 @@ skip the After closure or reopen a Tail-only route.
 | 18 | `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` | common per-transfer Predicate values plus profile-neutral DerivedCarrierEntry emission | **closed 2026-08-08**; no G0-specific owner or production selection |
 | 19 | `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` | exact parameters, five segments + root After, all fifteen operations, distinct Tail/Completion, finish/DraftSeal | **closed 2026-08-08** caller-zero; no G0-specific physicalizer |
 | 20 | existing M8 S6A..S6G + M9 S7A..S7G | close all-19 ingress coverage and Rust/.hako portable producer parity | repository-wide convergence; not a prerequisite for the bounded selected H2 first cutover unless its unchanged source needs that family |
-| 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | exact node/source/entry coverage + Core-owned continuation -> one semantic-program input; migrate callers and delete split issuance | BoxShape Refactor Series; no accepted-shape or production change |
+| 21 | `LOOP-SEMANTIC-PROGRAM-COSEAL-R0` | Callable-first BoxShape: consume one complete source-backed Callable parent into one private semantic-program envelope; generic G0/all-family issuer remains later | accepted design 2026-08-17; no production change |
+| 21a | `LOOP-SEMANTIC-PROGRAM-COSEAL-CALLABLE-I0` | caller-zero implementation of the one-shot Callable envelope and mechanical physical-demand projection; remove split caller ingress | active fast row; no CFG/SSA/PHI, session effect, lifecycle, Text, route, fallback, retry, or production caller |
 | 22 | `LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0` | one private traversal, JoinSig-issued transfers, Layout binding only, direct transfer inference deletion | BoxShape Refactor Series; current Predicate/nested cohort only |
 | 22a | `LOOP-COMMON-TRANSFER-BOUND-SEGMENT-INPUT-R0` | make V1/V2 physical consumers borrow one complete ordered operation/source-effect ledger; remove repeated Recipe/evidence `find` scans | behavior-preserving consumer refactor only; no V2-to-V1 adapter or new source/effect authority |
 | 22b | `LOOP-PHYSICALIZER-BOUNDARY-CLEANUP-D0` | move Callable profile-close/Tail/ABI/Completion out of the common Loop physicalizer; common stop is `ReadyLoopAfterContinuationV1` | BoxShape only; no accepted shape, profile callback, selector, or production switch |
@@ -3312,7 +3336,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-seed-I0 | `LOOP-COMMON-V2-PHYSICAL-INITIAL-INDEX-SEED-I0` | emit one unpublished `ConstI64(0)` and exact declaration publication from the transported seed relation | landed caller-zero effect slice; positive/duplicate/missing-function/late-discard gates green; no Bool/Compare, branch/edge/terminator, CFG/PHI, lifecycle, Text, route, fallback, retry, or production |
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | landed caller-zero effect slice; receipt-owned same-session consume, canonical entry seed/read, one Bool ValueId/type, one Compare, and missing-seed/type/late-discard gates are green; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | caller-zero gate; missing coverage blocks selection |
-| 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | census complete; `NoSafeSlice::LoopSemanticProgramCosealUnsealed` remains for the next R0 design stop; no CFG mutation, physicalizer, selection, fallback, or retry |
+| 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | census complete; Callable-first R0 handoff accepted, while `NoSafeSlice::LoopPrecutoverAuthorityCoverageUnsealed` remains for generic G0; no CFG mutation, physicalizer, selection, fallback, or retry |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 

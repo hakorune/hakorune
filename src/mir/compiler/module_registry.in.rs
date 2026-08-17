@@ -17,6 +17,7 @@ pub(crate) mod callable_loop_physical_canary;
 pub(in crate::mir) mod callable_scc_partition;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_single_loop_operation_effect;
+pub(in crate::mir) mod callable_semantic_program;
 #[cfg(test)]
 pub(crate) mod callable_single_loop_prelude_arguments;
 #[allow(dead_code)]
