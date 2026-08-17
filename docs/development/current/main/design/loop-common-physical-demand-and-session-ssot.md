@@ -7725,3 +7725,39 @@ authorized before that decision.
 Non-claims: this D0 does not authorize reusing `string.eq_hh`, raw `ValueId`
 equality, `icmp != 0`, outer V5, or any downstream branch/Return/edge/PHI/
 publication/production path.
+
+### TextEq ABI census addendum (2026-08-18; capability remains RejectBeforeEffect)
+
+The representation audit narrows the missing boundary. The checked AOT
+TextScan facts in `src/abi/text_scan_aot_export_facts.rs` admit only
+`Substring` and `IndexOf`: both use a `HostHandle` receiver, but only
+`Substring` has an `EndAuthorized` handle result, and both expose a U32
+status/out-pointer call wire. There is no `StringEq` entry, result wire, or
+strict equality status in that authority. `CoreMethodOp` likewise has
+`StringLen`, `StringSubstring`, `StringIndexOf`, `StringLastIndexOf`, and
+`StringContains`, but no `StringEquals` carrier.
+
+`StringBox::equals` implements the runtime `NyashBox` universal trait and
+`StringMethodId` does not expose it as a source CoreMethod surface. It is
+therefore not a source-bound S6C issuer. `TextFormalBorrowV1` and the
+`TextFormalCallResidenceV1` frame do provide checked slot/generation and
+pinned byte-root substrates, but they have no S6C substring-result consumer
+or TextEq result owner. Reusing any of these surfaces would cross authority
+boundaries.
+
+Capability classification for this row is consequently:
+
+| Candidate | TextEq capability | Reason |
+| --- | --- | --- |
+| TextScan `Substring` HostHandle | Checked | proves only substring result transport/lifetime |
+| TextFormal `{slot,generation}` / residence frame | Checked | proves formal Text roots only |
+| `MirInstruction::Compare` / generic `Equal` | RejectBeforeEffect | no source/representation/ABI provenance |
+| `StringBox::equals` universal trait | RejectBeforeEffect | no source CoreMethod/selected AOT issuer |
+| C/Python `string.eq_hh` | RejectBeforeEffect | mutable hook/fallback route, not strict Bool |
+
+Decision remains `NoSafeSlice::TextEqPhysicalRepresentationAbiUnsealed`.
+The next design slice must name one canonical S6C equality ABI (including
+Substring-result residence, two Text operands, strict `0/1` Bool outcome, and
+fault/unsupported behavior) before any `Verified*`/`Prepared*` physical
+receipt, `Compare` emission, branch/Return CFG, fallback, or production
+switch is allowed.
