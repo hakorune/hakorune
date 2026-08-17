@@ -1444,11 +1444,49 @@ Non-claims:
   caller, or main integration.
 ```
 
-The mapping I0 is complete, and the common dispatcher is the only accepted
-leaf-emitter candidate.  Physical operation emission remains a design-only
-boundary until the Generic production program issuer is named.  The next
-design stop is the ownership seam below: the current mapping borrows the
-parent/evidence while `PreparedLoopOperationProgramV1` owns its demand.
+The mapping I0 and source-owned cohort I0 are complete, and the common
+dispatcher is the only accepted leaf-emitter candidate.  Physical operation
+emission remains a design-only boundary because its canonical session,
+layout/target, and rollback owner are not yet named as one callback-scoped
+consumer.  The cohort now owns the neutral program; the next stop is the
+cohort-to-common-emitter seam, not another Generic program issuer.
+
+#### D0 audit result — emitter/session boundary remains `NoSafeSlice`
+
+```text
+Decision:
+  Keep `NoSafeSlice::GenericG0PhysicalOperationEmissionOwnerUnsealed`.  The
+  common dispatcher is the only leaf emitter; it must be consumed through one
+  callback-scoped common-V2 session view, never wired to the old V1 entry or
+  block receipts directly.
+Source authority + canonical issuer:
+  The Generic operation cohort owns `PreparedLoopOperationProgramV1` and lends
+  its transient mapping.  The future common emitter seam must co-seal that
+  view with the installed common-V2 physical entry stamp, source-backed layout
+  segment/block receipt, target rows, and the canonical session's identity/PHI
+  services. `CanonicalFunctionLoweringSessionV1` remains the sole unpublished
+  function/rollback owner.
+Non-authority:
+  `ReadyLoopEntryV1`/`LoopPhysicalBlockReceiptV1` as a Generic source product,
+  raw `BasicBlockId`/`ValueId`, item ordinals, `EffectMask` defaults, S6C rows,
+  `new_selected_dynamic`, MIR/JSON scans, and a second Generic dispatcher.
+Fail-fast boundary:
+  Before the first MIR instruction or ValueId publication, reject owner,
+  origin, frame, target, program/mapping, entry-lane, layout segment, logical
+  block/role, predecessor, stamp, duplicate, missing, foreign, sealed, or
+  terminated-target drift.  A late leaf failure discards the whole outer
+  unpublished transaction; local repair, retry, and fallback are forbidden.
+Smallest next slice:
+  Design-only census for `with_generic_g0_operation_cohort_v1` plus a future
+  `CommonV2CanonicalSessionRefV1::with_operation_emitter` view: exact input
+  rows, one-shot consumption, target/block receipt coverage, and rollback/
+  publication timing.  Only after this is closed may an emitter-I0 preflight
+  plan be named.
+Non-claims:
+  No operation MIR, Const/Read effect, CFG/SSA/PHI, Completion/DraftSeal,
+  lifecycle, Text, route/backend, production caller, fallback, retry, or
+  module publication.
+```
 
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
@@ -1460,7 +1498,7 @@ Decision:
   mechanical mapping is a transient callback view over the cohort's owned
   operation/evidence product; it is never stored beside a parent borrow and
   never survives program consumption.  Operation emission stays closed until
-  the cohort I0 is implemented.
+  the common emitter boundary above is accepted.
 Source authority + canonical issuer:
   `VerifiedGenericG0SourceParentV1` and its verified recipe/core/effect
   product remain the only source authority.  A single
@@ -4578,9 +4616,10 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | current design-stop slice; no implementation or next execution row until every listed production/test caller has an owner and retirement gate |
 | 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | accepted leaf BoxShape; the common dispatcher is the only candidate, while the source-owned program/cohort seam is the next D0; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | current design stop; cohort I0 is landed, but common session/layout/target/rollback ownership and the callback seam remain NoSafeSlice; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | accepted BoxShape 2026-08-17 after ownership census; next caller-zero cohort I0 only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after the emitter D0 is accepted, consume one cohort plus one canonical session/layout/target cohort and issue one callback-scoped dispatch preflight/leaf plan | parked behind `NoSafeSlice::GenericG0PhysicalOperationEmissionOwnerUnsealed`; no effect until the D0 closes the common owner and rollback boundary |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
