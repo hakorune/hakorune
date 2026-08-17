@@ -1399,7 +1399,11 @@ a new semantic authority.  Focused positives cover all five variants and the
 and rejects missing/duplicate/foreign evidence, binding or value-class drift,
 unknown variants, and late discard before any Builder effect.
 
-### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` (current design stop)
+### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` (accepted ownership BoxShape)
+
+The following was the input census brief.  Its unresolved owner boundary is
+closed by the accepted emitter-admission audit immediately below; it is not the
+current execution row.
 
 ```text
 Decision:
@@ -1445,85 +1449,96 @@ Non-claims:
 ```
 
 The mapping I0 and source-owned cohort I0 are complete, and the common
-dispatcher is the only accepted leaf-emitter candidate.  Physical operation
-emission remains a design-only boundary because its canonical session,
-layout/target, and rollback owner are not yet named as one callback-scoped
-consumer.  The cohort now owns the neutral program; the next stop is the
-cohort-to-common-emitter seam, not another Generic program issuer.
+dispatcher is the only accepted leaf-emitter candidate.  The corrected
+admission BoxShape below now closes the source/prephysical ownership boundary:
+one parent consume, neutral layout/program, physical-ID-free shell plan, entry
+control, Completion, target, and one full stamp.  Actual shell/session/segment
+effects remain closed behind the later session-preflight D0.  The first fast
+row is pure validator extraction, not another Generic program issuer.
 
-#### D0 audit result — emitter owner cohort remains `NoSafeSlice`
+#### D0 audit result — emitter admission BoxShape accepted 2026-08-17
 
 ```text
 Decision:
-  Keep `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`.  The common
-  dispatcher is the only leaf emitter, but the current operation cohort,
-  detached skeleton, and entry admission each retain a parent borrow.  They
-  cannot be recombined by owner equality without creating a second authority;
-  the dispatcher must wait for one source-owned emitter cohort and one
-  callback-scoped Generic-neutral session view.
+  Accept one non-Clone `PreparedGenericG0PhysicalEmitterAdmissionV1` as the
+  combined source/prephysical owner.  It owns no `MirFunction`, `ValueId`,
+  `BasicBlockId`, Builder, or session.  A later
+  `CanonicalFunctionLoweringSessionV1` consumes it, creates the shell inside
+  the unpublished transaction, and remains the sole rollback owner.  The
+  existing common dispatcher stays the only leaf-emitter candidate.
 Source authority + canonical issuer:
-  The Generic source parent remains the semantic authority.  The missing sole
-  issuer is a candidate
-  `issue_generic_g0_physical_emitter_cohort_v1` that consumes that parent once
-  and, without self-reference, owns the input, one
-  `PreparedLoopOperationProgramV1`, Generic source-backed layout, detached
-  shell/effects/descriptors, BlockExpr expectation, outer-If, Completion, and
-  one entry stamp.  Its mapping is borrowed only inside a scoped callback.
-  `CanonicalFunctionLoweringSessionV2`/`CanonicalFunctionLoweringSessionV1`
-  remains the sole unpublished function/rollback owner after this cohort is
-  consumed; neither current wrapper may be promoted to a second owner.
-  The existing `CommonV2CanonicalSessionRefV1` is currently an S6C-bound
-  envelope view, not a Generic issuer; adding a Generic branch to that type
-  would leak S6C provenance and create a second family authority.  A future
-  `with_loop_operation_emitter_v2`-style method is only a candidate for a
-  session-owned projection after the Generic facts are sealed, not an API that
-  exists or is authorized by this D0.
-  The source-backed layout candidate is the existing family-neutral
-  `PreparedLoopPhysicalLayoutV1::from_program(program)`.  Because it consumes
-  the program while the mapping borrows its evidence, the only admissible
-  transaction order is: consume the cohort once into an owning layout, borrow
-  `layout.program()` only for callback-scoped mapping preflight, then co-seal
-  that layout with the same-session entry/segment/target receipts.  A
-  self-referential or separately re-paired `program + mapping` shape is not
-  allowed.  The current layout product is still only a candidate: its public
-  output has no Generic owner/origin/frame/session stamp, and its current
-  segment allocator is fed by the S6C `PreparedLoopV2PreSessionEnvelopeV1`.
-  The Generic `new_generic` session likewise does not attach the common
-  `PhysicalFunctionEntryCohortStampV1`.  These facts must be closed by the
-  source-backed Generic emitter seam; copying a stamp or passing an
-  owner-only `PreparedSegmentBlockReceiptV1` is not a valid bridge.
+  `VerifiedGenericG0SourceParentV1` remains the sole semantic authority.
+  `issue_generic_g0_physical_emitter_admission_v1` consumes it exactly once,
+  issues the existing `PreparedLoopOperationProgramV1`, validates the scoped
+  five-variant mapping, and moves that program into the family-neutral
+  `PreparedLoopPhysicalLayoutV1`.  A private
+  `VerifiedGenericG0PhysicalLayoutBindingV1` binds that layout to the same
+  source cohort without making the neutral layout Generic-specific.
+  The admission also owns one physical-ID-free shell plan (canonical symbol,
+  ordered descriptors, declared metadata, result ABI, and physical effects),
+  typed BlockExpr expectation, outer-If residual, canonical Completion,
+  target, and one full mechanical cohort stamp.  The stamp co-seals owner,
+  origin, source kind, body root, exact Loop site, frame/scope/region,
+  explicit arity/receiver/lane coverage, program/layout coverage revisions,
+  and target identity; it does not reissue those semantic facts.  Mapping is
+  borrowed only from `layout.program()` inside a scoped callback.
 Non-authority:
-  `GenericG0PhysicalOperationCohortV1`,
-  `PreparedGenericG0PhysicalFunctionSkeletonV1`, and
-  `GenericG0PhysicalEntryAdmissionV1` when separately re-paired, old
-  `ReadyLoopEntryV1`/`LoopPhysicalBlockReceiptV1`, raw `BasicBlockId`/`ValueId`,
-  item ordinals, `EffectMask` defaults, S6C rows,
-  `CommonV2CanonicalSessionRefV1`'s current S6C envelope, an owner-only
-  `PreparedSegmentBlockReceiptV1`, `new_selected_dynamic`, MIR/JSON scans,
-  and a second Generic dispatcher.
+  Owner equality, the weak owner/name/lane-count
+  `GenericG0PhysicalEntryCohortStampV1`, S6C
+  `PhysicalFunctionEntryCohortStampV1`, the current parent-borrowed detached
+  skeleton/entry admission, their tuple `into_parts`, a detached
+  `MirFunction`, raw IDs, `NumericTarget` or `EffectMask::PURE` alone, the S6C
+  common-V2 envelope/segment allocator, old V1 receipts, MIR/JSON rescans, and
+  a second Generic dispatcher are not admission or layout authorities.
 Fail-fast boundary:
-  Before the first MIR instruction or ValueId publication, reject a second
-  source-parent issue, owner/origin/source-kind/body-root/frame/target drift,
-  program/mapping mismatch, entry-lane/effect/layout/segment/target drift,
-  missing or duplicate Generic entry stamp, logical block/role or predecessor
-  drift, and duplicate/missing/foreign/sealed/terminated targets.  Reject
-  while still in the design stop if layout can only be obtained by reusing the
-  S6C envelope or if Generic entry has no source-backed stamp to bind.  A late
-  leaf failure discards the whole outer unpublished transaction; local repair,
-  retry, and fallback are forbidden.
+  Before an unpublished transaction opens, reject a second source-parent
+  issue; owner/origin/source-kind/body-root/Loop/frame/scope/region drift;
+  program/mapping/layout coverage drift; symbol/explicit arity/receiver/lane,
+  header/effect/result/Completion/target drift; missing or duplicate full
+  stamp; callback escape; or double consume.  Admission exposes no raw tuple,
+  independent program/layout/Completion/stamp getter, or stored mapping.
+  After a later session opens, only the outer unpublished transaction may
+  discard a failed candidate; local repair, retry, and fallback are forbidden.
 Smallest next slice:
-  Design-only census for the combined source-owned emitter cohort: exact
-  parent-consume order, physical-ID-free Generic layout issuer, one entry
-  stamp, same-session segment/target receipt coverage, one-shot mapping
-  borrowing, and rollback/publication timing.  Confirm that the future
-  session view is a projection of the canonical session rather than a Generic
-  or S6C second session.  Only after this is closed may the cohort I0 and then
-  the emitter-I0 preflight be named.
+  `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` first extracts the
+  existing pure descriptor/header/effect/result and entry-control validators
+  into private source-parts helpers; old canaries delegate for parity.  It
+  creates no admission or physical state.  The following admission I0 consumes
+  the existing operation cohort into layout/shell-plan/control/stamp facts.
+  A separate session-preflight D0 then names shell creation, entry adoption,
+  segment/target receipts, and rollback timing before any leaf effect.
 Non-claims:
-  No operation MIR, Const/Read effect, CFG/SSA/PHI, Completion/DraftSeal,
-  lifecycle, Text, route/backend, production caller, fallback, retry, or
-  module publication.
+  No `MirFunction` generation, operation MIR, ValueId/BasicBlockId, block
+  allocation, CFG/SSA/PHI, Completion consumption/DraftSeal, lifecycle, Text,
+  route/backend, production caller, fallback/retry, or module publication.
 ```
+
+The former detached skeleton and weak-stamp entry admission remain
+caller-zero canary artifacts only.  They are not inputs to the new admission
+and retire after the session-owned shell/adoption path reaches parity and
+their production/test caller census reaches zero.  `from_parent_parts` and
+tuple-returning `into_parts` are narrowed or removed as their replacement
+lands; no fourth source-parent issuer is added.
+
+Implementation is intentionally split into three bounded cells:
+
+1. `PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` adds one private
+   `generic_g0_physical_emitter_facts.rs` helper (target <=300 lines).  It
+   extracts the existing pure descriptor/header/effect/result and
+   BlockExpr/outer-If/Completion validations; old canaries delegate and retain
+   behavior.  No admission or physical state is created.
+2. `PHYSICAL-EMITTER-ADMISSION-I0` adds
+   `generic_g0_physical_emitter_admission.rs` (target <=350 lines) and a
+   separate focused test file (target <=260 lines).  It consumes the operation
+   cohort into layout/shell-plan/control/stamp ownership and exposes only
+   `consume` plus scoped `with_mapping` projections.
+3. `PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` is design-only.  It must name the
+   sole session-owned shell materializer and Generic-neutral segment/target
+   view before any dispatcher effect is implemented.
+
+Stable guards require zero `MirFunction`, `MirBuilder`, `ValueId`,
+`BasicBlockId`, S6C, old V1 receipt, `into_parts`, or stored-mapping use in the
+new admission module, and exactly one source-parent-to-admission issuer.
 
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
@@ -4650,15 +4665,17 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-completion-I0 | `LOOP-GENERIC-G0-COMPLETION-PROJECTION-I0` | issue `verify_function_completion_v1(input)` once and lend the canonical non-Clone product through the parent callback | landed 2026-08-17; focused source-parent tests green; transport only, with no Completion consumer, physical/session effect, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-header | `LOOP-GENERIC-G0-TOPLEVEL-DECLARATION-HEADER-I0` | source-backed TopLevel declaration/header projection in the existing Generic cohort | landed 2026-08-17; parent physical-entry blocker remains; no result/lane/effect/Completion/skeleton/session |
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | design-stop envelope; its concrete deliverable is the manifest below, with no new authority or production switch |
-| 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | current design-stop slice; no implementation or next execution row until every listed production/test caller has an owner and retirement gate |
-| 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | next design-stop after the convergence manifest; no operation I0, CFG/SSA/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | landed 2026-08-17; deletion owners and retirement gates are recorded, with no production switch |
+| 25b-c0-G0-operation-contract | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-CONTRACT-D0` | census a Generic-only operation contract over the finite five-variant source/evidence set without S6C provenance reuse or Builder effect | accepted BoxShape 2026-08-17; the bounded mechanical mapping I0 is landed, while operation MIR and production remain closed |
 | 25b-c0-G0-operation-mapping-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-MAPPING-I0` | project the same-parent Generic operation/evidence product into one private mechanical five-variant mapping; preserve item/BindingRef/value-class identity and keep item 4/carrier/tail out | landed 2026-08-17; focused mapping test is green with 15-row coverage and item-4 exclusion; no Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | current design stop; cohort I0 is landed, but common session/layout/target/rollback ownership and the callback seam remain NoSafeSlice; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | accepted ownership BoxShape 2026-08-17: one prephysical admission, no detached `MirFunction`, session-owned shell/rollback, existing dispatcher only; leaf emission remains closed behind the later session-preflight D0 |
 | 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | accepted BoxShape 2026-08-17 after ownership census; next caller-zero cohort I0 only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone cohort owning program/layout/detached shell/entry facts before any dispatcher or session effect | current design stop behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; current operation cohort/skeleton/admission cannot be re-paired; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emitter-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-I0` | after the cohort D0 is accepted, consume one combined cohort, issue one Generic layout/stamp view, and expose only callback-scoped mapping/preflight state | parked behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; no dispatcher effect until the combined owner and rollback boundary close |
-| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after the cohort/emitter D0s are accepted, consume one cohort into a Generic source-backed layout, borrow its program only for mapping preflight, then co-seal one canonical-session entry/segment/target view and issue one callback-scoped dispatch preflight/leaf plan | parked behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; current S6C `CommonV2CanonicalSessionRefV1` and old V1 entry/block receipts are not reusable; no effect until the common owner and rollback boundary close |
+| 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone prephysical admission owning layout/program, shell plan, entry-control facts, Completion, target, and one full stamp | accepted BoxShape 2026-08-17; actual `MirFunction`, raw IDs, parent borrow, stored mapping, S6C/old-V1 adapter, and second rollback owner are forbidden |
+| 25b-c0-G0-emitter-facts-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-FACTS-EXTRACTION-I0` | extract existing pure entry/effect/shell/control validators into private source-parts helpers and keep old canary behavior through delegation | current fast BoxCount; refactor-only, no new admission, `MirFunction`, Builder/session, ValueId, layout, dispatcher, fallback/retry, or production caller |
+| 25b-c0-G0-operation-emitter-admission-I0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-ADMISSION-I0` | consume the existing operation cohort once into `PreparedGenericG0PhysicalEmitterAdmissionV1`, owning the neutral layout/program, shell plan, entry-control facts, Completion, target, and full stamp; lend mapping only inside HRTB | queued after facts extraction; new module <=350 lines and tests <=260; no `MirFunction`, Builder/session, raw IDs, S6C, old V1 receipts, dispatcher effect, or production caller |
+| 25b-c0-G0-operation-emitter-session-D0 | `LOOP-GENERIC-G0-PHYSICAL-EMITTER-SESSION-PREFLIGHT-D0` | after admission I0, name the single unpublished transaction that creates/installs the shell, adopts entry lanes, and lends same-session layout/segment/target preflight | next design stop after admission; segment allocation and leaf emission remain 0 until the sole rollback/session boundary is accepted |
+| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after session-preflight D0, consume one admission through the canonical unpublished session and issue one callback-scoped dispatch preflight/leaf plan | parked; current S6C `CommonV2CanonicalSessionRefV1` and old V1 entry/block receipts are not reusable; no effect until the session/rollback boundary closes |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |

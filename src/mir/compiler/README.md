@@ -132,29 +132,29 @@ callback lends a transient mechanical mapping from the program's owned
 effect/evidence.  The focused cohort test is green.  The borrow-only
 parent/entry/skeleton wrappers cannot cross that transition and must be
 replaced by cohort views.  The common dispatcher remains the only accepted
-leaf-emitter candidate; the next design stop names its common
-session/layout/rollback boundary.  The `cfg(test)` demand-part split, S6C
+leaf-emitter candidate.  The corrected no-`MirFunction` emitter-admission
+BoxShape is accepted below; actual session/layout target effects remain behind
+its later session-preflight D0.  The `cfg(test)` demand-part split, S6C
 provenance, and a second Generic emitter remain non-authoritative.
 
-The current `CommonV2CanonicalSessionRefV1` is an S6C-bound envelope view;
-it is not a Generic operation-emitter owner and must not grow a Generic
-branch.  The next design stop must instead name one session-owned,
-family-neutral emitter projection.  Its safe ownership order is to consume
-the cohort into the existing source-backed `PreparedLoopPhysicalLayoutV1`,
-borrow `layout.program()` only while building the transient mapping, and
-co-seal that layout with same-session entry/segment/target receipts.  A
-separately re-paired program/mapping, an owner-only segment receipt, or the
-old V1 entry/block receipts is not a valid Generic input.  No MIR operation,
-Builder effect, or new session API is authorized until that boundary is
-accepted.  The current layout output has no Generic owner/origin/frame stamp,
-`issue_v2_segment_allocation_plan` consumes the S6C pre-session envelope, and
-the Generic `new_generic` session does not attach the common physical-entry
-stamp.  These are the remaining D0 census items; copying a stamp or widening
-the S6C envelope is not an implementation shortcut.  The existing operation
-cohort, detached skeleton, and entry admission each retain a parent borrow, so
-owner equality cannot combine them.  The next issuer must consume one source
-parent into a non-`Clone` combined emitter cohort; only that cohort may later
-lend the mapping and session view.
+The Generic emitter-admission BoxShape is now accepted.  One
+`PreparedGenericG0PhysicalEmitterAdmissionV1` consumes the source-owned
+operation cohort exactly once and owns only prephysical facts: the neutral
+`PreparedLoopPhysicalLayoutV1` (which owns the program), a physical-ID-free
+shell plan, entry-control facts, canonical Completion, target, and one full
+cohort stamp.  Mapping remains a callback-only borrow from
+`layout.program()`.  The admission owns no `MirFunction`, `ValueId`,
+`BasicBlockId`, Builder, or session; the later unpublished function
+transaction alone creates the shell and owns rollback.
+
+The current `CommonV2CanonicalSessionRefV1` remains an S6C-bound envelope view
+and must not grow a Generic branch.  The current detached Generic skeleton,
+weak owner/name/lane-count stamp, tuple `into_parts`, S6C segment allocator,
+and old V1 receipts are canary/legacy artifacts, not admission inputs.  The
+implementation order is: private validator extraction, combined admission,
+then a separate session-preflight D0.  The first fast row is refactor-only and
+creates no admission or physical state; the admission module is capped at 350
+lines with tests in a separate <=260-line file.
 
 ## Typed ingress contract
 
