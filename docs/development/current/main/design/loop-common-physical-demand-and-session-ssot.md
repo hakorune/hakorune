@@ -7902,6 +7902,31 @@ statuses, and backend-local traps remain transport/mechanical shapes only.
 The B slice claims no Text residence, Substring pin, Bool `ValueId`, Call
 emission, branch/Return/Completion, PHI, or production.
 
+### TextEq strict decoder/Trap audit addendum (2026-08-18; NoSafeSlice remains)
+
+The B boundary is still unsealed. `DynamicV2CallOutV1` can classify transport
+status/tag/fault/disposition, but it has no source-bound StringEquals identity,
+strict Bool result tag, or one-shot TextEq consumer brand. `CheckedCallOutFault`
+and its fault terminal are physical CFG transport markers; `TextFormal*`
+status/residence is formal-root transport; TextScan `llvm.trap` is backend-local
+Substring/IndexOf validation; and `string.eq_hh` is a mutable hook/fallback.
+None can issue the S6C Trap meaning.
+
+Required chronology for the future dedicated decoder is:
+`C return == 0` -> out exists and matches the A/source cohort -> wire status is
+exactly Normal `0` -> expected handle×2 result carrier/tag -> payload is exactly
+`0` or `1` -> issue one source-bound success proof. Missing/foreign/duplicate
+out, unknown status/fault/tag, nonzero status/return, reserved or malformed
+combinations, invalid handle, and any payload other than `0/1` fail before
+physical publish. No truthy `!= 0` conversion is allowed.
+
+Decision: keep `NoSafeSlice::TextEqStrictDecoderTrapUnsealed`. The smallest
+next slice is design-only naming of that dedicated wire, exhaustive fault
+classification, and the canonical source-bound fail-stop Trap issuer. It must
+not reuse DynamicV2/CheckedCallOut/TextFormal semantics and must not implement
+the decoder, publish residence, materialize Bool `ValueId`, emit Call/CFG, or
+open fallback, retry, or production.
+
 #### C — canonical Substring-result residence publisher/pinner
 
 Source authority + canonical issuer: the source-bound `StringSubstring`
