@@ -30,6 +30,24 @@ It now lends the canonical `VerifiedFunctionCompletionV1` from the same input
 after checking Generic tail, value-result, declared-`i64`, and empty-cleanup
 parity.  Completion remains unconsumed and no physical/session effect opens.
 
+### Generic G0 physical function-entry input I0
+
+`generic_g0_physical_function_entry_input.rs` is the Generic-only,
+caller-zero projection after the source parent has been co-sealed.  Its
+private, non-`Clone` input keeps the parent attached while projecting a
+receiver-prefix row (when the resolver says `DeclaredInstance`) followed by
+dense ordinary `i64` rows.  The row records source binding/name/type evidence
+and may borrow only the existing `ExistingCallableI64` carrier tag as a
+mechanical transport detail.
+
+This module does not reuse the S6C physical descriptor/header/signature,
+allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
+`EffectMask`, consume Completion, or mutate Builder/session/CFG/SSA state.
+The callback-scoped `consume` seam moves the parent and descriptors together;
+the focused test proves the receiver/explicit order and that the loan cannot
+escape.  The next stop is a fresh Generic physical-skeleton design, not a
+shortcut through S6C or `/N`/JSON counts.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)
