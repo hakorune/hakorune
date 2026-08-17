@@ -111,10 +111,10 @@ Related:
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-RESIDENCE-D0` is the next design stop. It must name one
-  canonical runtime-residence issuer for Substring-result V9 and ExactText
-  formal V1 before any V10 capability classification. No C ABI or source Trap
-  is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0` is the next design stop. It must
+  name one source-backed checked Substring-result issuer and scoped text-lend
+  owner before V9 can co-seal with ExactText formal V1 or any V10 capability
+  classification. No C ABI or source Trap is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1557,12 +1557,12 @@ without exact content equality. TextEq remains semantically `NonFaulting`;
 unsupported shapes reject before effect, and late physical failure discards
 the unpublished function without fallback or retry. No source Trap is minted.
 
-Smallest next slice: design-only BoxShape `COMMON-V2-TEXTEQ-RESIDENCE-D0`.
-Name one canonical runtime-residence issuer that consumes the existing
-S6C ingress, the adopted ExactText slot/generation sidecar, and the live
-Substring result/lease relation in one session-scoped callback. Only after
-that issuer is accepted may the TextEq leaf classify one exact-result
-capability as Direct, Checked, or RejectBeforeEffect.
+Smallest next slice: design-only BoxShape
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`. First name the canonical
+source-backed V9 result/lend issuer; only after it is accepted may one
+session-scoped owner co-seal V9 with the adopted ExactText slot/generation
+sidecar and classify a TextEq capability as Direct, Checked, or
+RejectBeforeEffect.
 
 Non-claims: no new source/Recipe acceptance, C status/out ABI, source Trap,
 Bool V10 materialization, branch/Return/CFG, selected-Dynamic parity,
@@ -1668,3 +1668,9 @@ safe BoxShape but not implementation-ready. Existing
 `TextFormalCallResidenceV1` and `EndAuthorizedTextV1` remain lifetime
 substrates; neither currently has a common-V2 caller. The active pointer
 therefore advances only to this V9 issuer design stop.
+
+Issuer census addendum: the common session currently has no canonical Body
+receipts for the `V6` index read or `V8` `Add(V6,1)` operand, and no
+`StringSubstring/2` target plan. Those three source-backed operand/target
+relations are part of the V9 issuer design; they must not be reconstructed
+from raw item ordinals, `ValueId`s, or the selected-Dynamic cursor.
