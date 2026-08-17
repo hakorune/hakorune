@@ -1624,3 +1624,47 @@ matrix (foreign/stale/duplicate/missing lease or slot-generation) are named.
 The landed DesignOnly `StringEquals/1` row is retained as a separate,
 caller-zero method-surface capability and remains rejected before effect. It
 does not authorize, block, or name the S6C binary-equality path.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0 (2026-08-18; design stop)
+
+Decision: split the missing residence boundary at the first physical result.
+The S6C `Substring` CallSlot is the only source-backed authority for V9; a
+future common-V2 issuer must produce a checked `EndAuthorized` V9 result and
+its scoped text-lend relation before the V1 formal residence can be co-sealed.
+The previously proposed `CommonV2TextEqResidenceScopeV1` remains a private
+aggregate design only: it may co-seal already-issued V9/V1 capabilities, but
+it may not create either capability or issue TextEq meaning.
+
+Source authority + canonical issuer: S6C source `StringSubstring` (arity 2,
+Body) -> Recipe item 6/B1 `CallSlot(V0,[V6,V8] -> V9:Text)` -> one future
+source-backed V9 materializer using the checked TextScan Substring contract;
+the canonical session remains the only physical `ValueId`/type issuer.
+
+Non-authority: `publish_end_authorized_text(String)` with an arbitrary fresh
+String, `nyash.string.eq_hh`, raw handles or `ValueId` bits, selected-Dynamic
+I6/CheckedCallOut, MIR `MirType`, and any generic fallback or retry.
+
+Fail-fast boundary: before the first Substring effect, reject wrong role,
+operation, arity, placement, item/block/result drift, foreign owner/session or
+segment brand, missing/duplicate V9 receipt, non-Text result lane, invalid
+out-wire status/tag, zero/unknown/stale lease, or a result without a scoped
+text-lend owner. A Substring fault emits no V9 and no End. Late failure
+discards the unpublished function; it never reuses the session.
+
+Smallest next slice: design-only BoxShape
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`. Name the source-backed V9
+materializer, its scoped text-lend view, and its exact finish/rollback owner.
+Only after that decision is accepted may the private V9+V1 residence scope be
+implemented; TextEq V10 remains closed.
+
+Required negative matrix: wrong S6C row or block, foreign session/segment,
+duplicate or missing lease, `ImmediateI64`/`Forwarded`/`None` treated as V9,
+stale token, missing or non-Text result, double consume, finish omission,
+fault-path End, and partial-acquisition rollback failure. No fallback/retry or
+semantic `Verified*`/`Prepared*` receipt is issued by this design row.
+
+Consultation closure: both read-only workers agree that the aggregate is a
+safe BoxShape but not implementation-ready. Existing
+`TextFormalCallResidenceV1` and `EndAuthorizedTextV1` remain lifetime
+substrates; neither currently has a common-V2 caller. The active pointer
+therefore advances only to this V9 issuer design stop.
