@@ -504,6 +504,15 @@ Source authority + canonical issuer:
   `VerifiedGenericG0PhysicalEntrySourceProjectionV1` is therefore only a
   candidate mechanical aggregate after that source row and lane policy exist.
 
+  The census confirms that attrs/uses are available from the same
+  `CallableHeaderSyntaxViewV1`, and receiver presence can be checked from
+  `root_profile().receiver_policy()`,
+  `declaration_binding(SourceBindingSiteV1::Receiver)`, and its binding record.
+  It has not found a canonical physical receiver carrier or type issuer.  The
+  current Generic fixture omits `is_static`, so resolver policy is
+  `DeclaredInstance` and a receiver lane is required; its two explicit i64
+  parameters do not justify a guessed two-lane physical shape.
+
 Non-authority:
   S6C physical headers/effects, the S6C entry-input module, raw ParamDecl or
   AST rescans after the source boundary, `/N`, MIR/JSON parameter length,
@@ -518,14 +527,19 @@ Fail-fast boundary:
   ordinal or BindingRef drift, missing/duplicate lane, S6C reuse, or any request
   for `ValueId`, `MirFunction`, `EffectMask`, Builder, or session state.  Keep
   `NoSafeSlice::GenericG0PhysicalEntryStorageLaneIssuerUnsealed` until the
-  source row and receiver/lane issuer are named.
+  source row and receiver/lane issuer are named.  A receiver carrier/type must
+  come from a source-backed canonical issuer; a raw `MirType`, S6C
+  physical-signature row, or fixture rewrite cannot close this boundary.
 
 Smallest next slice:
   `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-CENSUS-D0` is design-only.  Name the
   same-parent source storage/header row (params/decls/result/attrs/uses/
-  receiver relation) and the exact `[receiver?] + explicit ordinal` lane policy.
-  If that issuer is real, accept a later caller-zero projection I0; otherwise
-  retain this NoSafeSlice without inventing a count, empty metadata, or lane.
+  receiver relation), then either identify the canonical receiver carrier/type
+  issuer or explicitly narrow the accepted Generic cohort to a source-backed
+  static subset.  Only after that choice can the exact `[receiver?] + explicit
+  ordinal` lane policy be accepted and a caller-zero projection I0 opened;
+  otherwise retain this NoSafeSlice without inventing a count, empty metadata,
+  fixture-only staticness, or lane.
 
 Non-claims:
   No physical signature reclassification, `EffectMask` issuance, skeleton,
@@ -3941,7 +3955,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-D0` | carrier choice is fixed as package-owned `U64BitsOnI64` over the existing i64 mechanical carrier; define the same-loan physical-parameter descriptor/lane-role contract, including source ParamDecl, receiver, and ExactText pair policy | accepted BoxShape 2026-08-17; no skeleton, ValueId, lane adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, and Completion cohort without borrowing S6C receipts | parent design stop; body-shape transport, function-effect receipt, result-ABI transport, and canonical Completion transport are landed; storage/lane projection remains unsealed; no guessed/default receipt, skeleton, ValueId, BindingSSA, CFG/PHI, Completion consumption, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-storage-lane | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-CENSUS-D0` | name the same-parent storage/header attrs/uses/receiver source row and explicit lane policy before any physical projection | current design child; issuer not yet sealed; no I0, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-storage-lane | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-CENSUS-D0` | name the same-parent storage/header attrs/uses/receiver row, then choose a canonical receiver carrier/type or a source-backed static-only subset before the `[receiver?] + explicit ordinal` lane policy | current design child; receiver carrier issuer is missing; no I0, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |
