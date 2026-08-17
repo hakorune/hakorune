@@ -172,20 +172,22 @@ unpublished `ConstI64(0)` and one exact declaration publication in the same
 session. Branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle,
 Text, route, publication, fallback, retry, and production remain closed.
 
-## Common V2 initial index seed design stop
+## Common V2 initial index seed source transport I0
 
-The seed authority must come from
+The seed BoxShape is accepted, and the active caller-zero slice is only the
+source transport. The seed authority comes from
 `VerifiedS6CTypedInputRelationV1::initializer()`, the resolver-owned
 `ResolvedInitializerRelationV1`, and the source ledger's
-`ResolvedLiteralSourceV1::Integer(0)`. A future
-`PreparedLoopV2InitialIndexSeedRelationV1` will carry the binding, I64 type,
-literal witness, S6C index carrier, and entry relation as one non-Clone
-same-cohort product. Package/Port and the Bool materializer only transport or
-consume it; they do not infer the seed. Missing/foreign site, binding,
+`ResolvedLiteralSourceV1::Integer(0)`. The transport I0 adds one private,
+non-Clone `PreparedLoopV2InitialIndexSeedRelationV1` view to the same S6C
+ingress/common envelope, carrying binding, I64 type, literal witness, index
+carrier, and entry relation. Package/Port and the Bool materializer only lend
+or consume it; they do not infer the seed. Missing/foreign site, binding,
 carrier, owner, stamp, type, or literal evidence rejects before physical
-effect. No seed implementation, Bool/Compare emission, CFG/PHI, lifecycle,
-Text route, fallback, retry, or production caller is opened by this design
-stop.
+effect. This I0 emits no Const, declaration, ValueId, read receipt, Bool,
+Compare, CFG/PHI, lifecycle, Text route, fallback, retry, or production
+caller. The following seed I0 may issue the physical `ConstI64(0)` only after
+this transport is closed.
 
 ## Common V2 synthetic After allocation I0
 

@@ -1850,19 +1850,22 @@ can issue one `Less` result. Branch/edge/terminator, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry,
 and production remain closed.
 
-## Common V2 initial index seed design stop
+## Common V2 initial index seed source transport I0
 
-The future seed relation must be issued from
+The seed BoxShape is accepted; the active caller-zero slice transports only
+the source relation. It must be issued from
 `VerifiedS6CTypedInputRelationV1::initializer()`,
 `ResolvedInitializerRelationV1`, and the source ledger's
-`ResolvedLiteralSourceV1::Integer(0)`. It must carry the S6C index carrier,
+`ResolvedLiteralSourceV1::Integer(0)`. The transport product
+`PreparedLoopV2InitialIndexSeedRelationV1` carries the S6C index carrier,
 binding, entry relation, I64 type, and literal witness as one private
-non-Clone same-cohort product. Missing/foreign initializer, site, binding,
-carrier, owner, stamp, type, or literal evidence rejects before physical
-effect; no defaulting, AST/MIR recount, fallback, or retry is permitted. The
-subsequent I0 may emit only the unpublished `ConstI64(0)` and exact
-declaration publication; Bool/Compare, CFG/PHI, lifecycle, Text route, and
-production remain closed.
+non-Clone same-cohort view through the existing ingress/envelope HRTB.
+Missing/foreign initializer, site, binding, carrier, owner, stamp, type, or
+literal evidence rejects before physical effect; no defaulting, AST/MIR
+recount, fallback, or retry is permitted. This I0 emits no Const, declaration,
+ValueId, read receipt, Bool/Compare, CFG/PHI, lifecycle, Text route, or
+production. A later seed I0 may emit only the unpublished `ConstI64(0)` and
+exact declaration publication.
 
 ## Common V2 Length-result materialization canary I0 (2026-08-17)
 
