@@ -1601,38 +1601,38 @@ Non-claims:
   raw-loop retirement, fallback/retry, or main integration.
 ```
 
-#### Semantic-program consume D0 — independent sealing cleanup (2026-08-17)
+#### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
 Decision:
   Keep `NoSafeSlice::ProductionSelectionAuthorityUnsealed` as a separate
-  production-selection stop for the absent Generic arm.  The current blocker
-  is `NoSafeSlice::SemanticProgramConsumeOwnerUnsealed`; the next independent
-  design slice is `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-D0`.  This is a
-  behavior-preserving sealing design, not permission to activate production
+  production-selection stop for the absent Generic arm.  Accept
+  `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-D0` as a behavior-preserving
+  BoxShape, then open only its bounded I0; this does not activate production
   selection.
 Source authority + canonical issuer:
   `VerifiedCallableSemanticProgramV1` remains the sole owner of the complete
   Callable operation/effect, input, context, continuation, prelude, and tail
   parent.  The existing `normal_callable_prepared_operation::prepare_full_demand`
   consumer is the only production handoff; the test consumer is the only test
-  observation.  D0 must name one direct consuming callback/consumer over that
-  parent without copying or re-issuing any semantic row.
+  observation.  The accepted successor is a source-free, non-Clone prepared
+  demand parent issued by consuming the complete semantic parent once.  Its
+  one consumer method may lend/move the already-issued input, prepared
+  operation, prelude, and tail together; it may not expose a six-element tuple.
 Non-authority:
   The six-element tuple from `into_prepared_parts`, individual context/Core/
   continuation arguments, `PreparedLoopOperationRowV2`, raw counts, source
   rescans, owner/name equality, and local test green are not new authority.
 Fail-fast boundary:
-  Keep the stop until production and test callers are enumerated, the callback
-  cannot return/store/escape a parent view, the prepared-demand output has the
-  same owner/origin/site/frame checks, and the old tuple symbol has a same-slice
-  zero-caller deletion gate.  Do not mix this with Generic session effects or
-  the selected-Dynamic production branch.
+  The I0 must reject foreign/partial/double consumption, preserve the existing
+  source owner/origin/site/frame checks, and prove production/test parity with
+  zero callers of the old tuple symbol in the same slice.  Do not mix this with
+  Generic session effects or the selected-Dynamic production branch.
 Smallest next slice:
-  Design-only caller/owner census for `into_prepared_parts`, followed by one
-  accepted BoxShape for a direct one-shot consumer and its parity/retirement
-  contract.  No code, fixture, new semantic receipt, Builder effect, or route
-  selector is opened while `work_mode = "design_stop"`.
+  `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0`: add the private prepared-demand
+  parent and one-shot consumer, replace the production and test tuple callers,
+  add parity/negative/zero-caller guards, and delete `into_prepared_parts`.
+  No Builder effect, new semantic issuer, or route selector is included.
 Non-claims:
   No Generic production arm, canonical session/CFG/SSA/PHI, Completion/
   DraftSeal, lifecycle/Text, route, fallback/retry, publication, or legacy
@@ -5183,8 +5183,8 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-converge | `MIRBUILDER-CANARY-CONVERGENCE-CHECKPOINT-R0` | read-only census of duplicate receipts, canary owners, retirement conditions, legacy edges, semantic-program tuple escape hatches, and S6C-only provenance adapters after the Generic physical-entry cohort | design-stop envelope; its concrete deliverable is the manifest below, with no new authority or production switch |
 | 25b-c0-converge-manifest | `MIRBUILDER-CANARY-CONVERGENCE-MANIFEST-R0` | publish one owner/final-consumer/zero-caller deletion manifest for the six remaining seams before naming another physical owner | landed 2026-08-17; deletion owners and retirement gates are recorded, with no production switch |
 | 25b-c0-structure-audit | `MIRBUILDER-STRUCTURAL-CONVERGENCE-AUDIT-R0` | classify intentional keep, waiting scaffolding, bounded retirement, and parked inventory; record scale as informational rather than authority | landed as design-only audit 2026-08-17; current design-stop blocker and work mode remain explicit in CURRENT_STATE |
-| 25b-c0-semantic-consume-D0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-D0` | close the source owner, direct-consumer shape, caller census, parity checks, and zero-caller retirement contract for the Callable six-tuple escape hatch | design-stop next slice 2026-08-17; no code or new receipt while production selection remains unsealed |
-| 25b-c0-semantic-consume-I0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` | replace the production six-tuple `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with one direct scoped/one-shot consumer | parked behind D0; behavior-preserving refactor, production/test parity, and zero callers are required before deleting the tuple surface |
+| 25b-c0-semantic-consume-D0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-D0` | close the source owner, direct-consumer shape, caller census, parity checks, and zero-caller retirement contract for the Callable six-tuple escape hatch | accepted BoxShape 2026-08-17; source-free prepared-demand parent, one-shot consumer, and no-six-tuple boundary are fixed |
+| 25b-c0-semantic-consume-I0 | `MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0` | replace the production six-tuple `VerifiedCallableSemanticProgramV1::into_prepared_parts` consumer with one direct source-free prepared-demand parent consumer | next fast slice; production/test parity, negative checks, and zero callers are required before deleting the tuple surface |
 | 25b-c0-lease-facade | `RUNTIME-END-AUTHORIZED-TEXT-FACADE-I0` | narrow the public `EndAuthorizedTextV1`/getter facade without changing lease semantics or the Generic MIR owner graph | parked in the runtime lane; no MIR receipt, Text route, or production caller change is authorized here |
 | 25b-c0-disposition | `MIRBUILDER-LEGACY-DISPOSITION-R0` | fill the legacy disposition TSV only from observed owner/caller/parity evidence and attach a deletion gate per non-sentinel decision | parked; no bulk relabeling, route activation, or deletion by LOC |
 | 25b-c0-helper-inventory | `MIRBUILDER-BYTE-HELPER-INVENTORY-R0` | inventory byte-identical helper groups and micro-seed families with an owner and evidence command, without semantic dedupe | parked informational census; merge/delete requires a separate source-backed owner and focused parity slice |
