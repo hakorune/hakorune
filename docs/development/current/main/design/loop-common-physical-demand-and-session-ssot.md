@@ -1801,6 +1801,43 @@ ladder only for the current design stop: the earlier
 `DYNAMIC-CALLABLE-RESULT-CONTRACT-I0` is landed, while the selected
 initializer bridge and physical session remain later consumers.
 
+#### `PHYSICAL-INPUT-AUTHORITY-D0` — accepted BoxShape (2026-08-18)
+
+The design stop is closed without adding another semantic product.  The
+existing A-prime demand is the pre-session admission; its issuer now needs one
+private validator that borrows the package-owned `CallablePhysicalHeaderRefV1`
+and checks the already-issued Dynamic/source relations against it.
+
+```text
+Decision:
+  Accept the existing `VerifiedAPrimeI64PhysicalDemandV1` as the sole
+  pre-session admission.  Add one private co-seal validation step to its
+  existing issuer; do not add a second Dynamic result/ABI/Completion receipt.
+Source authority + canonical issuer:
+  `VerifiedDynamicExitTransactionCoSealV1` and its physical-input/source
+  views, package `CallablePhysicalHeaderRefV1`, the catalog ABI projection,
+  and the canonical `VerifiedFunctionCompletionV1` retained by that header
+  are co-sealed by `issue_selected_a_prime_i64_physical_demand`.
+Non-authority:
+  `APrimePhysicalFunctionHeaderV1` alone, a catalog `"i64"` string alone,
+  `DynamicCallableFunctionExitTargetV1` alone, Recipe/ValueId/MirType,
+  owner equality, or post-session inspection do not issue this contract.
+Fail-fast boundary:
+  Before Builder/session effect, reject foreign owner/target/region, missing
+  package header, non-I64 result/parameters, non-value or non-two-site
+  Completion, Dynamic inner-return/outer-tail drift, and physical-input
+  coverage mismatch.  No fallback or retry.
+Smallest next slice:
+  Transport the existing package header reference through the selected
+  cataloged loan, add the one issuer validator, and add focused positive,
+  negative, and structural no-session tests. Keep all session/CFG/PHI work
+  in the later Dynamic exit-session row.
+Non-claims:
+  No new semantic receipt, session generation, Completion consumption,
+  DraftSeal, lifecycle, Text, GEP/load, route, performance, selector,
+  production cutover, fallback, or retry.
+```
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
