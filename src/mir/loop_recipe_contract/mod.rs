@@ -290,6 +290,8 @@ pub(crate) use s6c_prephysical_ingress::{
     VerifiedS6CPrephysicalIngressV2,
 };
 #[allow(unused_imports)]
+pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
+#[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
     S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,

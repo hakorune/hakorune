@@ -814,6 +814,11 @@ common envelope from one exactly-once HRTB loan. The existing
 create a second child authority. Focused tests cover the positive envelope,
 foreign-owner rejection, and duplicate-consumption boundary.
 
+The envelope also retains the already-issued non-Clone
+`VerifiedS6CReturnSourceRecipeBindingV1` from that same cohort. This is
+transport only: the common adapter does not reissue or re-pair Return meaning;
+the later canonical session may borrow the relation through its callback view.
+
 This row remains caller-zero and Builder-free. It issues no CFG, ValueId,
 Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
 publication, or production caller. The canonical V2 session admission and

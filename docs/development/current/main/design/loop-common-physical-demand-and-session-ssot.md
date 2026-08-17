@@ -103,14 +103,14 @@ Related:
   `PreparedFunctionExitSetV1`.  The selected Dynamic physical-input
   authority is landed; the post-Dynamic unification rows below remain a
   design-stop closeout until their direct negative fixtures and old-edge
-  caller census are recorded.
+  caller census are recorded. The If continuation source/Recipe/Join binding,
+  common aggregation, and canonical-session consumer transport I0 are landed;
+  branch-emission authority remains a NoSafeSlice design stop.
 - **Next ordered task:**
-  `LOOP-UNIFICATION-AFTER-DYNAMIC-D0` is the next design stop.  The
-  Callable-first semantic-program consume and Dynamic physical-input
-  authority are landed; transfer/ledger/common-boundary cleanup and the
-  topology census must be reconciled against their existing implementations
-  before any If/Exit BoxCount, session, route, fallback, retry, or production
-  work opens.
+  `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0` is the next design stop.
+  Source Return-to-Recipe/Join meaning now reaches the sole canonical session
+  consumer, but item-to-split and one-sided Return/FunctionExit terminator
+  authority must be named before any physical effect.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -6179,6 +6179,8 @@ skip the After closure or reopen a Tail-only route.
 | 24b-f-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-RECIPE-BINDING-I0` | issue and transport one non-Clone source-to-Recipe/Join relation with negative drift guards | landed 2026-08-18; focused S6C suite 9/9 green plus existing call/row/domain negatives; no physical block/edge/Return/PHI, session, production, fallback, or retry |
 | 24b-g | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-D0` | name the sole common pre-session consumer and rollback boundary for the borrowed source-to-Recipe/Join relation | accepted BoxShape 2026-08-18; common pre-session is the sole borrower/aggregator and the outer unpublished session owns rollback; no new semantic issuer or physical effect |
 | 24b-g-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-AGGREGATE-I0` | retain the existing non-Clone relation in the common envelope after a test-only module split keeps the issuer below the source-size boundary | landed 2026-08-18; relation transport only, no aggregation meaning beyond co-seal, physical emission, session mutation, production, fallback, or retry |
+| 24b-g-CONSUMER-D0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-D0` | name one existing physical-demand consumer and its callback/rollback boundary for the retained relation | accepted BoxShape 2026-08-18; `with_common_v2_physical_entry_session` is the sole unpublished-session/rollback owner and `CommonV2CanonicalSessionRefV1` is its scoped view; no Return effect |
+| 24b-g-CONSUMER-I0 | `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-I0` | lend the existing non-Clone relation through the canonical session callback and prove owner/late-discard behavior | landed 2026-08-18; admission + common 25/25, physical consumer/late-discard 2/2, S6C 9/9, no Return/edge/PHI |
 | 25 | `LOOP-PHYSICAL-EXIT-COVERAGE-I0` | add item-keyed Break/Continue/Return transfer capabilities and common physicalization | one BoxCount commit; no route-local exit writer |
 | 25a | `LOOP-COMMON-V2-CANONICAL-SESSION-ADMISSION-D0` | fix the two-stage admission BoxShape and census its three source authorities | accepted 2026-08-16; outer-If and Completion reuse existing issuers, and typed BlockExpr issuance/transport are now landed |
 | 25a-a | `RESOLVED-BLOCK-EXPR-EXPECTATION-I0` | co-seal typed BlockExpr body-shape sites with the exact resolver scope/region pairs and store one non-Clone receipt in the callable batch row | landed 2026-08-17; no selected/package transport, raw count API change, or session effect |
@@ -7157,3 +7159,62 @@ is opened. The next design stop is
 `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-D0`: name the
 single physical-demand consumer and its fail-fast/rollback boundary before
 the retained relation can drive any physical effect.
+
+### Return source common consumer D0 — worker premise gate (2026-08-18)
+
+This is not Fast path: the retained semantic relation has several existing
+session/preflight entry points, and the sole physical-demand consumer plus its
+RejectBeforeEffect/rollback boundary is not yet named from source authority.
+
+### Return source common consumer D0 (2026-08-18; Decision: accepted)
+
+```text
+Decision:
+  accept one transport-only BoxShape: the existing consuming
+  `with_common_v2_physical_entry_session` is the sole physical-demand and
+  outer rollback owner; its callback-scoped `CommonV2CanonicalSessionRefV1`
+  is the only consumer view for the retained relation.
+Source authority + canonical issuer:
+  `VerifiedS6CReturnSourceRecipeBindingV1` remains issued by the S6C Recipe
+  producer; common admission aggregates it, and the canonical session consumes
+  that same envelope cohort without reacquiring a sibling loan.
+Non-authority:
+  `CommonV2CanonicalSessionRefV1` may not reissue source meaning; Recipe
+  ordinals, owner equality, Layout, segment rows, MIR IDs, or a second
+  physicalizer cannot create or re-pair the Return relation.
+Fail-fast boundary:
+  admission/owner/stamp/entry adoption rejects before the session callback;
+  callback errors call the existing outer `discard_unpublished` exactly once.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-I0`: expose
+  the already-issued relation through the canonical session callback and add
+  owner/late-discard evidence, without emitting Return/edge/PHI.
+Non-claims:
+  no new semantic receipt, physical Return/terminator, CFG/SSA/PHI,
+  publication, production switch, fallback, retry, or legacy retirement.
+```
+
+The Decision closes only the named-consumer question; it does not authorize a
+Return emitter. The outer session seam remains the single failure terminal,
+and the next I0 is a callback-scoped transport check over the existing
+relation.
+
+### Return source common consumer I0 closeout (2026-08-18; Decision: accepted)
+
+`LOOP-PHYSICAL-IF-CONTINUATION-RETURN-SOURCE-COMMON-CONSUMER-I0` is landed as
+the smallest callback-scoped transport slice. The canonical session now lends
+the existing `VerifiedS6CReturnSourceRecipeBindingV1` from its retained common
+envelope; no relation is cloned, reissued, or rebuilt from Layout/Recipe
+ordinals. `with_common_v2_physical_entry_session` remains the sole unpublished
+function-session and rollback owner, and callback failure still discards the
+unpublished shell once.
+
+The focused admission/consumer path is green (common 25/25), the physical
+consumer placement/late-discard pair is green (2/2), and S6C source/Recipe/Join
+coverage remains green (9/9). `cargo fmt --all -- --check`, `git diff --check`,
+`current_state_pointer_guard.sh`, and
+`loop_physical_transfer_authority_guard.sh` are green. The next design stop
+is the existing `LOOP-PHYSICAL-IF-CONTINUATION-BRANCH-EMISSION-D0`; item-to-
+split and one-sided Return/FunctionExit terminator authority remain unnamed.
+No Return/edge/PHI emission, publication, production switch, fallback, retry,
+or legacy retirement is claimed.

@@ -239,7 +239,9 @@ pre-session envelope beside the session, so no second Port loan can be
 reacquired. This canary does not mutate Builder/CFG/SSA/PHI state or emit
 operations, claims, Returns, DraftSeal, lifecycle, Text, route, fallback, or
 production code; the first session-effects boundary remains a separate design
-stop.
+stop. The canonical callback is also the sole scoped consumer boundary for
+the existing `VerifiedS6CReturnSourceRecipeBindingV1`; it lends that relation
+from the retained envelope without issuing a second semantic receipt.
 
 ### Callable-first semantic-program co-seal I0
 
@@ -336,7 +338,10 @@ callback rejection calls `discard_unpublished` once and leaves no current
 function, BindingSSA entry, sidecar, or module-visible state. No public
 `into_parts` split, second Port loan, ordinary generation read, Completion
 claim, DraftSeal, CFG/PHI, lifecycle, Text lowering, route, fallback, retry,
-or production caller is opened. The V2-native physical-ID-free
+or production caller is opened. The same callback-scoped seam is the only
+physical-demand consumer boundary for retained source relations; it does not
+reconstruct meaning from Layout or Recipe ordinals. The V2-native
+physical-ID-free
 layout/placement BoxShape is now accepted; the active caller-zero slice is
 `LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0`, which lends typed loop/block/item
 topology and JoinSig transfer bindings through the same operation/control

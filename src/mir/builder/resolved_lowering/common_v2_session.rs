@@ -9,11 +9,11 @@ use crate::mir::compiler::common_v2_physical_function_skeleton::PhysicalFunction
 use crate::mir::compiler::common_v2_session_admission::LoopV2CanonicalSessionAdmissionRefV1;
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
-use crate::mir::loop_recipe_contract::PreparedLoopV2PreSessionEnvelopeV1;
 use crate::mir::loop_recipe_contract::{
     issue_s6c_v2_string_len_call_target_plan_v1, LoopValueClassV2,
-    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2StringLenCallTargetPlanV1,
-    S6CLogicalCallRoleV1, StringLenCallTargetPlanRejectV1,
+    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2PreSessionEnvelopeV1,
+    PreparedLoopV2StringLenCallTargetPlanV1, S6CLogicalCallRoleV1, StringLenCallTargetPlanRejectV1,
+    VerifiedS6CReturnSourceRecipeBindingV1,
 };
 use crate::mir::resolved_semantics::ResolvedLoopPlacementV1;
 use std::marker::PhantomData;
@@ -235,6 +235,12 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         &self,
     ) -> &'envelope PreparedLoopV2PreSessionEnvelopeV1<'envelope, 'envelope> {
         self.envelope
+    }
+
+    pub(in crate::mir) fn return_source_binding(
+        &self,
+    ) -> &'envelope VerifiedS6CReturnSourceRecipeBindingV1 {
+        self.envelope.return_source_binding()
     }
 
     pub(in crate::mir) fn adopt_physical_entry_lanes(
