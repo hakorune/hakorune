@@ -93,3 +93,55 @@ impl VerifiedLoopJoinSigV1 {
         issue(self)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn boundary(loop_key: LoopNodeKeyV1) -> LoopJoinBoundaryTransferRefV1<'static> {
+        LoopJoinBoundaryTransferRefV1 {
+            loop_key,
+            from: LoopJoinPortV1::Preheader,
+            to: LoopJoinPortV1::Header,
+            role: LoopJoinEdgeRoleV1::Enter,
+            condition: None,
+            payload: &[],
+        }
+    }
+
+    #[test]
+    fn logical_transfer_view_rejects_missing_and_foreign_rows() {
+        let view = LoopJoinLogicalTransferViewV1 {
+            boundaries: vec![boundary(LoopNodeKeyV1::new(1))].into_boxed_slice(),
+        };
+        assert_eq!(
+            view.require(LoopNodeKeyV1::new(0), LoopJoinEdgeRoleV1::Enter),
+            Err(LoopJoinLogicalTransferRejectV1::MissingBoundary {
+                loop_key: LoopNodeKeyV1::new(0),
+                role: LoopJoinEdgeRoleV1::Enter,
+            })
+        );
+        assert_eq!(
+            view.require(LoopNodeKeyV1::new(1), LoopJoinEdgeRoleV1::Backedge),
+            Err(LoopJoinLogicalTransferRejectV1::MissingBoundary {
+                loop_key: LoopNodeKeyV1::new(1),
+                role: LoopJoinEdgeRoleV1::Backedge,
+            })
+        );
+    }
+
+    #[test]
+    fn logical_transfer_view_rejects_duplicate_rows_without_repair() {
+        let row = boundary(LoopNodeKeyV1::new(0));
+        let view = LoopJoinLogicalTransferViewV1 {
+            boundaries: vec![row, row].into_boxed_slice(),
+        };
+        assert_eq!(
+            view.require(LoopNodeKeyV1::new(0), LoopJoinEdgeRoleV1::Enter),
+            Err(LoopJoinLogicalTransferRejectV1::DuplicateBoundary {
+                loop_key: LoopNodeKeyV1::new(0),
+                role: LoopJoinEdgeRoleV1::Enter,
+            })
+        );
+    }
+}

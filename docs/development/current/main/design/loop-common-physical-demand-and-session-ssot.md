@@ -1883,6 +1883,47 @@ production switch.  Until the missing evidence is added, keep
 `work_mode = "design_stop"` and leave If/Exit coverage, physical session,
 initializer consumption, production selection, fallback, and retry closed.
 
+### Accepted fast slice: transfer-authority negative evidence (2026-08-18)
+
+```text
+Decision:
+  close only the missing direct rejection evidence for the existing private
+  JoinSig transfer view and physical binder; behavior and accepted shapes stay
+  unchanged.
+Source authority + canonical issuer:
+  VerifiedLoopJoinSigV1 -> logical_transfer_view(); the existing
+  physical_transfer::{bind_predicate, bind_backedge, bind_nested_loop} is the
+  sole binder from logical evidence to private physical transfer.
+Non-authority:
+  Recipe condition data, Layout target inference, operation_target legacy
+  lookup, V2-to-V1 adaptation, raw IDs, names, counts, and fallback/retry.
+Fail-fast boundary:
+  reject missing/duplicate view rows and wrong role/port/loop/condition before
+  any layout/Builder/CFG effect.
+Smallest next slice:
+  add direct unit negatives in transfer_view_v1.rs and physical_transfer.rs;
+  retain the existing positive layout parity tests and caller census as-is.
+Non-claims:
+  no new semantic receipt, old V1 caller migration, If/Exit/Always coverage,
+  session, initializer, production selector, fallback, or retry.
+```
+
+Implementation closeout (2026-08-18):
+  `transfer_view_v1.rs` now has direct missing/foreign and duplicate-row
+  rejection tests.  `physical_layout.rs` covers binder role, port, loop, and
+  condition drift, plus wrong-role backedge and wrong-loop nested-entry
+  rejection.  The existing Callable/Generic layout parity tests remain green:
+  view negatives are 2/2 and physical-layout tests are 4/4.  No semantic
+  receipt, physical owner, old V1 caller migration, session effect, or
+  production edge was added; `physical_layout.rs` remains 699 lines.
+
+Next bounded slice:
+  add one focused segment-allocator negative for foreign owner or receipt
+  rejection, reusing the existing `PreparedLoopPhysicalLayoutV1`,
+  `ReadyLoopEntryV1`, and `LoopPhysicalSegmentBlockReceiptV1` owners.  Keep the
+  old `operation_target::issue`/topology caller census in its later retirement
+  gate.
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text

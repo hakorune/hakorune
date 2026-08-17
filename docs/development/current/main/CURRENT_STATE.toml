@@ -34,11 +34,10 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "PHYSICAL-INPUT-AUTHORITY-I0 is landed: the existing A-prime demand is the sole pre-session admission and now fail-fast co-seals the package header/ABI with the retained Dynamic source/physical-input and exact two-site Completion. The next stop is LOOP-UNIFICATION-AFTER-DYNAMIC-D0, limited to its fixed BoxShape co-seal/transfer/ledger/common-boundary cleanup and topology census series. If/Exit BoxCount, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed."
-work_mode = "design_stop"
-current_execution_row = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
-current_blocker_token = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
-
+current_design_stop = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0 design reconciliation is accepted for one fast evidence slice: direct JoinSig transfer-view/binder negatives are landed. The next bounded slice is the segment allocator negative; old V1 operation_target/topology caller census remains a later retirement gate. If/Exit BoxCount, Dynamic exit-session, initializer bridge consumption, production cutover, fallback, and retry remain closed."
+work_mode = "fast"
+current_execution_row = "LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0"
+current_blocker_token = "Add only one focused segment allocator negative proving foreign-owner or allocation/receipt rejection before physical consumers. Reuse the existing layout/segment receipt owners; do not add a semantic receipt, migrate old V1 operation_target callers, open If/Exit coverage, session, initializer, production, fallback, or retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -94,10 +93,10 @@ g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 latest_card_summary = "A-prime parked. Generic G0 semantic/prephysical prerequisites, combined admission, sealed-consume, caller-zero session-preflight, operation emission canary, detached-entry retirement, Callable semantic-program consume I0, and the production candidate census are landed. Production selection retains selected-Dynamic as the sole live arm. The callable result contract and PHYSICAL-INPUT-AUTHORITY-I0 are closed; the existing A-prime issuer now co-seals Dynamic physical input, package header/ABI, Dynamic result/Tail, and exact two-site Completion before session effects. LOOP-UNIFICATION-AFTER-DYNAMIC-D0 is the next design stop. Dynamic exit-session and initializer bridge remain downstream. Structural-debt disposition remains inventory/retirement evidence only."
-next_design_card = "LOOP-UNIFICATION-AFTER-DYNAMIC-D0"
+next_design_card = "LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0"
+next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -116,5 +115,6 @@ landed_tail = [
   "2026-08-17: LOOP-PRODUCTION-CANDIDATE-CENSUS-R0 confirmed that the live production adapter has only the selected-Dynamic package-loan -> A-prime -> physical-session -> DraftSeal -> collector path. Generic G0 remains caller-zero; no production selector arm, fallback, retry, or raw-loop retirement was opened.",
   "2026-08-17: MIRBUILDER-SEMANTIC-PROGRAM-CONSUME-I0 replaced the Callable six-element tuple escape with one source-free non-Clone PreparedCallableOperationDemandV1 consumed once by the existing prepared-demand handoff. Compiler 3/3 and Builder 1/1 focused tests, cargo check, format, diff, and zero source callers are green; no Builder/session/CFG/SSA/PHI, Completion/DraftSeal, Text, route, fallback, retry, publication, or production selector opened."
   "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
-  "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next stop: LOOP-UNIFICATION-AFTER-DYNAMIC-D0."
+  "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
+  "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct evidence landed: JoinSig view missing/duplicate/foreign rejection plus private binder role/port/loop/condition and nested/backedge mismatch tests; physical layout positives remain green. No new authority or old V1 caller migration opened. Next bounded slice: segment allocator negative."
 ]
