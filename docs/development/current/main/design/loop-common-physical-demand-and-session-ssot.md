@@ -90,17 +90,18 @@ Related:
   relation transport, its one-entry Const/exact-declaration materializer I0,
   and the receipt-owned Bool/Compare materializer I0 are now landed; the
   all-family source-parent/co-seal R0, Generic G0 source-parent BoxShape, and
-  same-cohort source-view BoxShape are accepted; the active fast row replaces
-  the Generic test-only ingress with one production issuer.
+  same-cohort source-view BoxShape are accepted; the Generic source-parent I0
+  replaces the test-only ingress with one production issuer.  The next stop is
+  the complete same-cohort physical-function-entry input census.
   A-prime lifecycle
   activation remains parked until its boundary owns
   `PreparedFunctionExitSetV1`.
 - **Next ordered task:**
-  `LOOP-PRECUTOVER-AUTHORITY-G0-I0` is the next fast gate. The Callable-first
-  semantic-program BoxShape/I0, all-family source-parent/co-seal R0, Generic
-  G0 source-parent BoxShape, and same-cohort source-view BoxShape are accepted.
-  This I0 only replaces the Generic test-only ingress; transfer migration,
-  CFG/PHI, lifecycle, Text, route, and production remain closed.
+  `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-D0` is the next design stop.  The
+  Generic source-parent I0 is landed; the next row must first name a complete
+  same-cohort storage-header/result/effects projection.  Transfer migration,
+  CFG/PHI, lifecycle, Text, route, fallback, retry, and production remain
+  closed.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -374,11 +375,11 @@ co-seal.  The common co-seal checks only the parent stamp, schema revision,
 and complete coverage; it does not re-walk source or turn the parent into a
 second G0 semantic issuer.  Acceptance requires the exact root-plus-one-child-
 loop shape plus missing/duplicate/foreign entry, owner/origin/frame/region
-drift, Core/JoinSig/After drift, coverage gap, target-sibling mismatch at the
-later co-seal, and one-shot/loan-escape negatives.  Until this parent and its
-production issuer replaces the `cfg(test)` split, the implementation blocker
-`NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed` remains
-active and no G0 physical or session effect may open.
+  drift, Core/JoinSig/After drift, coverage gap, target-sibling mismatch at the
+  later co-seal, and one-shot/loan-escape negatives.  This parent and its
+  production issuer are now landed in
+  `compiler::generic_g0_source_parent`; no G0 physical or session effect is
+  opened by this row.
 
 #### LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0 accepted design boundary
 
@@ -404,25 +405,24 @@ the candidate enum lifetime-parameterized.
 Acceptance is the exact root-plus-one-child-loop positive shape, with
 selection mismatch, foreign input, owner/origin/site/frame/region drift,
 missing/duplicate entry or coverage, callback escape, and double-consumption
-negatives.  The seam is accepted; the implementation blocker is
-`NoSafeSlice::GenericG0SourceParentIssuerImplementationUnsealed` until the
-source-parent I0 replaces the `cfg(test)` split.
+negatives.  The seam and its implementation are accepted; the old
+`cfg(test)` ingress remains only as a historical canary.
 
-#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation boundary
+#### LOOP-PRECUTOVER-AUTHORITY-G0-I0 implementation receipt (2026-08-17)
 
 ```text
 Decision:
-  Replace the test-only Generic ingress with one production source-parent
-  issuer.  It consumes one same-cohort `GenericG0SourceCohortRef` and issues
-  one private, non-Clone `VerifiedGenericG0SourceParentV1`; no semantic fact
-  is reconstructed by the compiler co-seal.
+  The test-only Generic ingress is replaced by one production source-parent
+  issuer.  It consumes one exact resolver input plus the selected Generic row
+  and issues one private, non-Clone `VerifiedGenericG0SourceParentV1`; no
+  semantic fact is reconstructed by the compiler co-seal.
 
 Source authority + canonical issuer:
-  The resolver/source projector owns the cohort view and entry bindings;
+  The resolver/source projector and selected Generic row own source identity;
   `issue_generic_g0_recipe_demand_v1` and `produce_generic_g0_recipe_v1`
   remain the Generic source/Recipe/Core/JoinSig/After issuers.  The new
-  parent issuer only co-seals those products with the resolver input, exact
-  root-plus-child-loop coverage, and the parent-owned continuation projection.
+  parent issuer only co-seals those products with the resolver input, the
+  exact root-plus-child-loop forest, and the two source-parameter entry rows.
 
 Non-authority:
   `generic_g0_physical_prepare.rs`, `into_physical_parts_for_test`, raw
@@ -436,15 +436,36 @@ Fail-fast boundary:
   reachability before any physical/session effect.
 
 Smallest next slice:
-  Move the parent issuer and focused positive/negative tests into production
-  modules, transport one callback-scoped parent to the common co-seal, and
-  retire the cfg(test) split.  Keep physical demand, Builder/session, CFG,
+  Keep the production parent and focused positive/negative tests as the only
+  source-parent seam.  The old cfg(test) ingress remains a historical canary
+  and is not a production caller.  Keep physical demand, Builder/session, CFG,
   PHI, lifecycle, Text, route, fallback, retry, and production caller at 0.
 
 Non-claims:
   This I0 does not issue Generic physical demand, create a session, allocate
   physical IDs, migrate all-family profiles, or activate production.
 ```
+
+### Post-G0 design stop: physical function-entry input completeness
+
+The Generic source-parent I0 is closed, but the next physical-entry row is
+not opened by that result.  Before another Builder effect, the same installed
+S6C loan must provide one complete source-backed projection of symbol/mode,
+physical lane order and carrier, result/header, storage attributes/uses, and
+the source-backed effect mask.  The existing descriptor and skeleton canaries
+are transport evidence only until those fields are co-sealed by one compiler
+issuer; logical `/N`, raw `MirFunction` parameter length, or a default effect
+must not fill the gap.
+
+```text
+NoSafeSlice::CanonicalSessionAdmissionInputsUnsealed
+```
+
+remains the design stop.  The next bounded task is a read-only issuer census
+for that complete function-entry input.  No new skeleton, lane adoption,
+BindingSSA, Loop CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
+or production caller is authorized until the census names a same-cohort
+issuer and exact rejection boundary.
 
 ### Canonical session admission D0 (accepted three-step boundary)
 
@@ -3538,9 +3559,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-l-j-I0 | `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-BOOL-RESULT-I0` | emit one mechanical `Less` Compare and one Bool type/result receipt under the outer unpublished transaction | landed caller-zero effect slice; receipt-owned same-session consume, canonical entry seed/read, one Bool ValueId/type, one Compare, and missing-seed/type/late-discard gates are green; branch/edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, publication, fallback, retry, and production remain closed |
 | 26 | `LOOP-PRECUTOVER-AUTHORITY-G0` | all-19 semantic-program/JoinSig/Layout/CFG coverage plus zero competing target-subtree authorities | downstream after `LOOP-SEMANTIC-PROGRAM-COSEAL-ALL-FAMILY-R0` and `LOOP-PRECUTOVER-AUTHORITY-G0-D0`; missing coverage blocks selection |
 | 26a | `LOOP-PRECUTOVER-AUTHORITY-COVERAGE-D0` | read-only owner mapping and competing-authority census beneath G0; name the missing co-seal issuer without minting a semantic receipt | census complete; Callable-first R0 handoff accepted, while `NoSafeSlice::GenericG0EntrySourceCoverageParentUnsealed` remains for Generic G0; no CFG mutation, physicalizer, selection, fallback, or retry |
-| 26b | `LOOP-PRECUTOVER-AUTHORITY-G0-D0` | design the Generic source parent, entry/source coverage retention, same-Core JoinSig continuation, and test-only split retirement boundary | accepted BoxShape; implementation remains closed until the source-parent I0 |
-| 26c | `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` | design one opaque same-cohort source view that retains the resolver input while issuing Generic demand and parent callback | design stop; no parent receipt, physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
-| 26d | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | parked behind source-cohort D0; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
+| 26b | `LOOP-PRECUTOVER-AUTHORITY-G0-D0` | design the Generic source parent, entry/source coverage retention, same-Core JoinSig continuation, and test-only split retirement boundary | accepted BoxShape; source-parent implementation is landed, while physical/session effects remain closed |
+| 26c | `LOOP-PRECUTOVER-AUTHORITY-G0-SOURCE-COHORT-D0` | design one opaque same-cohort source view that retains the resolver input while issuing Generic demand and parent callback | accepted BoxShape; callback-scoped owner/origin/site/frame/region/forest and entry coverage are fixed; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
+| 26d | `LOOP-PRECUTOVER-AUTHORITY-G0-I0` | replace the cfg(test) Generic ingress with one same-cohort non-Clone source parent and callback-scoped common co-seal transport | landed 2026-08-17; production parent issuer, exact two-entry rows, foreign-input rejection, and callback-scoped loan are green; no physical demand, Builder/session, CFG/SSA/PHI, lifecycle, route, fallback, retry, or production caller |
 | 27 | `LOOP-PRODUCTION-SELECTION-D0` | decide exact family admission after all required gates | human consultation stop; `NoCandidate` is valid |
 | 28 | existing `M10b-I0-R0` + R1/M11/M12/R2 | one production switch, same-commit old-edge deletion, direct Ready-constructor retirement, then manifest-led sole-authority proof | no fallback; cutover must be green before retirement |
 

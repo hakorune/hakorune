@@ -115,28 +115,26 @@ mod s6c_text_eq_site_contract_tests;
 #[path = "source_bound_core_tests.rs"]
 mod source_bound_core_tests;
 
-#[cfg(test)]
 mod generic_g0_demand;
 
-#[cfg(test)]
 mod generic_g0;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
-#[cfg(test)]
 pub(crate) use generic_g0_demand::{
     issue_generic_g0_recipe_demand_v1, GenericG0RecipeDemandIssueV1, GenericG0RoleLeaseRejectV1,
     VerifiedGenericG0RoleLeaseV1, VerifiedGenericRecipeDemandG0,
 };
 
-#[cfg(test)]
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
-    generic_operation_demand_parts_for_test, produce_generic_g0_recipe_v1,
-    GenericG0RecipeProducerRejectV1, VerifiedGenericG0TailCapabilityV1,
-    VerifiedGenericRecipeProductG0,
+    produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1,
+    VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
 };
+
+#[cfg(test)]
+pub(crate) use generic_g0::generic_operation_demand_parts_for_test;
 
 #[cfg(test)]
 pub(crate) use source_bound_core::issue_source_bound_core_for_test;

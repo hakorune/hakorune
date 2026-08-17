@@ -116,15 +116,15 @@ witness remains a cfg(test)-only source lease witness and is not a second
 production authority. The handoff implementation is caller-zero and does not
 open demand, Recipe, Builder/MIR, retry, fallback, or legacy deletion.
 
-The S3 demand witness is now closed caller-zero in
+The S3 demand witness is now a production-capable caller-zero seam in
 `loop_recipe_contract::generic_g0_demand`. It consumes the selected Generic
 product once, keeps the canonical lease plus the borrowed brand, typed source
 bundle, post-loop tail read, and an opaque role proof, and does not copy or
-reconstruct role/BindingRef rows. The worker-reviewed S4 design is closed; the
-next caller-zero producer is `GENERIC-G0-RECIPE-S4-I0-R0`. S4 consumes this
-demand once and owns only Generic key/effect/provenance assembly while common
-Recipe/JoinSig/Core owners remain separate. P0 owns executable
-completion/DraftSeal.
+reconstruct role/BindingRef rows. The compiler-side
+`generic_g0_source_parent` issuer co-seals that product with the exact
+resolver input and two source-parameter entry rows through one callback-scoped
+non-Clone parent. Physical demand, Builder/MIR, retry, fallback, and
+production selection remain closed.
 
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together

@@ -77,6 +77,8 @@ pub(crate) mod generic_g0_physical_prepare;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_source_parent;
+#[allow(dead_code)]
 pub(in crate::mir) mod located;
 #[cfg(test)]
 pub(crate) mod loop_cond_break_continue_observation;

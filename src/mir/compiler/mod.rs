@@ -45,6 +45,8 @@ mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]
+mod generic_g0_source_parent_tests;
+#[cfg(test)]
 mod if_recipe_candidate_abort_d2_tests;
 #[cfg(test)]
 mod legacy_candidate_session_tests;

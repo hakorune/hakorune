@@ -382,18 +382,21 @@ candidate-envelope witness remains cfg(test)-only evidence and is not wrapped
 or paired after the fact.
 
 Focused G0 observation/policy tests and the shared caller-zero guard are
-green. This row still has no production caller, demand, Recipe, Builder/MIR,
+green. The production source-parent row consumes this handoff only through
+the selected Generic source cohort; it still has no physical, Builder/MIR,
 retry, fallback, or legacy-retirement claim.
 
 ## Generic G0 demand S3 I0/R0 (caller-zero implementation)
 
-The test-only selector-to-demand issuer consumes `Selected(Generic)` by value
-and retains one canonical window lease, the borrowed handoff brand, the typed
+The selector-to-demand issuer consumes `Selected(Generic)` by value and
+retains one canonical window lease, the borrowed handoff brand, the typed
 source/numeric/return bundle, the post-loop return read, profile/mode/coverage,
 and an opaque exact-role proof. Candidate evidence is checked against the
-selector lease before the product is sealed. It does not issue Recipe keys or
-touch Builder/MIR; the next boundary is the caller-zero S4 Recipe producer
-`GENERIC-G0-RECIPE-S4-I0-R0`.
+selector lease before the product is sealed. The production
+`generic_g0_source_parent` issuer invokes this demand and the S4 producer
+inside one source-parent transaction, then validates the exact resolver input
+and two source-parameter entry rows before lending a callback-scoped parent.
+It does not issue physical demand or touch Builder/MIR.
 
 ## Generic G0 Recipe S4 (design accepted)
 

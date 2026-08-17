@@ -1,11 +1,9 @@
 //! Caller-zero Generic G0 demand product.
 //!
-//! This test-only seam consumes the canonical family selection exactly once.
+//! This seam consumes the canonical family selection exactly once.
 //! It retains the resolver window, the handoff brand, the typed source bundle,
 //! post-loop completion read, and the common admission context.  It does not
 //! issue Recipe keys, relations, JoinSig, After, Builder, or MIR products.
-
-#![cfg(test)]
 
 use crate::mir::loop_route_policy::{
     CanonicalLoopFamilySelectionV1, GenericG0CoverageV1, GenericG0ObservationEvidenceV1,
