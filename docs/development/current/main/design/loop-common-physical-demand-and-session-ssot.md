@@ -7642,3 +7642,40 @@ new semantic receipt is authorized by this D0.
 Non-claims: existing logical co-seal proves condition `10` but emits no physical
 Bool. `emit_branch`, `emit_return`, edge/PHI/CFG publication, fallback, retry,
 production selection, and legacy retirement remain closed.
+
+### Branch-emission D0 physical TextEq issuer census (2026-08-18; NoSafeSlice remains)
+
+Decision: NoSafeSlice remains after the issuer census. There is no existing
+canonical S6C TextEq physical Bool/`ValueId` issuer to reuse. The source/Recipe
+TextEq row is present, but the physical operand chain (`substring` result and
+the exact TextEq inputs) has no common-V2 materializer.
+
+Source authority + canonical issuer: `S6CPrephysicalIngressRefV2::with_text_eq_leaf`
+is the only existing source input for the TextEq relation, and
+`CommonV2ReturnReadCoSealRefV1` is the existing logical If/Return/FunctionExit
+co-seal. A future canonical-session consumer must be the sole physical issuer
+for the TextEq operand/result demand; no such issuer is currently landed.
+`VerifiedS6CTextEqSourceBindingV1` is a parent-retaining test-only witness, not a
+production-held physical authority.
+
+Non-authority: `trivial_ssa::operation::Equal`, the old V1 I64-only operation
+emitter, the selected Dynamic operation cursor's explicit TextEq rejection,
+the backend `string.eq_hh` helper, the outer Length/Bool receipt, and raw
+`ValueId`/item/block equality. Each is either generic downstream behavior,
+RejectBeforeEffect evidence, or a different semantic/physical owner.
+
+Fail-fast boundary: before any TextEq Bool, Return-read, continuation,
+Completion, or CFG effect, reject missing/foreign TextEq source operands,
+unsupported String representation/ABI, duplicate or drifted physical values,
+scope/session mismatch, and the existing outer-Length/inner-TextEq condition
+mismatch. The outer unpublished function transaction remains the rollback owner.
+
+Smallest next slice: design-only `TextEq physical-demand representation/ABI D0`.
+Name the canonical operand/result issuer and its supported/rejected String
+capability, then co-seal that result with Return-read, continuation, and
+FunctionExit. No code, fixture, generic Equal adapter, or new semantic receipt
+is authorized until that boundary is accepted.
+
+Non-claims: this census does not authorize `emit_branch`, `emit_return`, edge,
+PHI, CFG/publication, fallback, retry, production selection, or legacy
+retirement.
