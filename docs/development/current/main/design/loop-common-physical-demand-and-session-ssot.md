@@ -104,16 +104,18 @@ Related:
   authority is landed; the post-Dynamic unification rows below remain a
   design-stop closeout until their direct negative fixtures and old-edge
   caller census are recorded. The If continuation source/Recipe/Join binding,
-  common aggregation, and canonical-session consumer transport I0 are landed;
-  branch-emission authority remains a NoSafeSlice design stop; the fresh
-  audit narrowed the missing boundary to a source-backed physical Return-read
-  receipt owner for item 9/10.
+  common aggregation, canonical-session consumer transport, Return-read
+  receipt, and one-shot shared-segment scope I0 are landed. Branch emission
+  remains closed because outer-loop Bool V5 cannot feed the inner TextEq If
+  at V10. The premise-reset audit corrected TextEq from a source StringEquals
+  call/Trap boundary to a portable non-faulting operation whose V9/V1
+  residences must be co-sealed before V10 materialization.
 - **Next ordered task:**
-  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0` is the next
-  design stop under the branch-emission row. Source Return-to-Recipe/Join
-  meaning now reaches the sole canonical session consumer, but no common-V2
-  owner issues the item 9 physical value, exact split pairing, or one-sided
-  FunctionExit terminal before physical effect.
+  `COMMON-V2-TEXTEQ-PORTABLE-PHYSICALIZER-D0` is the next design stop. It must
+  co-seal Substring-result V9 residence/lease and ExactText-formal V1
+  residence/generation with item 7/B1/V10, then classify exactly one Direct,
+  Checked, or RejectBeforeEffect physical capability. No C ABI or source Trap
+  is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -926,8 +928,9 @@ opens a production switch by itself.
    source-backed If/Return relation transport.
 4. The active branch/Return consumer must finish its source-backed physical
    receipt and one-sided terminal co-seal before any branch/CFG effect.
-5. TextEq remains ordered A (source contract), B (strict decoder/Trap), C
-   (Substring residence/pinner); B is the current NoSafeSlice boundary.
+5. TextEq ordering is Substring V9 residence plus ExactText V1 residence,
+   portable non-faulting TextEq V10 materialization, then If/Return. A checked
+   C transport, if selected later, is subordinate to that physicalizer.
 6. Production selection, fallback/retry retirement, publication, and legacy
    deletion remain closed until the named authority and caller census are
    complete.
@@ -1530,459 +1533,66 @@ This BoxShape does not authorize `emit_branch`, `emit_return`, any new semantic
 receipt, edge/PHI/publication, production selection, fallback, retry, or legacy
 retirement.
 
-### Branch-emission D0 same-condition TextEq audit (2026-08-18; NoSafeSlice remains)
-
-Decision: NoSafeSlice continues. The outer loop Length/Bool is `ValueKeyV1(5)`
-(`CompareI64 Less`), while the Return-read belongs to the inner TextEq If whose
-source condition is `ValueKeyV1(10)`; these are different meanings and different
-branches, not fixture noise.
-
-Source authority + canonical issuer: `S6CPrephysicalIngressRefV2::with_text_eq_leaf`
-and `VerifiedS6CTextEqSourceBindingV1` own the source-backed TextEq/If relation;
-`CommonV2ReturnReadCoSealRefV1` carries the logical If condition and the existing
-canonical condition producer is the `Less`-only physical issuer. No TextEq Bool
-`ValueId` issuer currently exists.
-
-Non-authority: the outer `CanonicalConditionBoolResultReceiptV1`, raw `ValueId`,
-`CommonV2SharedSegmentScopeV1`/brand, physical-block or owner/stamp equality,
-item ordinals, `trivial_ssa::operation::Equal`, and the selected dynamic emitter
-are not inner-TextEq condition authority.
-
-Fail-fast boundary: preserve `ConditionLogicalMismatch(5 != 10)` before
-Return-read, continuation, Completion, or CFG effects. A future consumer must
-co-seal TextEq operands/source binding, If item/block/condition/then block,
-shared segment provenance, canonical Bool owner, continuation, and FunctionExit
-inside the unpublished outer session transaction.
-
-Smallest next slice: design-only census of an existing TextEq physical-demand
-issuer and one canonical inner-If Bool receipt boundary; decide whether an
-existing issuer can be reused without issuing new source meaning. No code or
-new semantic receipt is authorized by this D0.
-
-Non-claims: existing logical co-seal proves condition `10` but emits no physical
-Bool. `emit_branch`, `emit_return`, edge/PHI/CFG publication, fallback, retry,
-production selection, and legacy retirement remain closed.
-
-### Branch-emission D0 physical TextEq issuer census (2026-08-18; NoSafeSlice remains)
-
-Decision: NoSafeSlice remains after the issuer census. There is no existing
-canonical S6C TextEq physical Bool/`ValueId` issuer to reuse. The source/Recipe
-TextEq row is present, but the physical operand chain (`substring` result and
-the exact TextEq inputs) has no common-V2 materializer.
-
-Source authority + canonical issuer: `S6CPrephysicalIngressRefV2::with_text_eq_leaf`
-is the only existing source input for the TextEq relation, and
-`CommonV2ReturnReadCoSealRefV1` is the existing logical If/Return/FunctionExit
-co-seal. A future canonical-session consumer must be the sole physical issuer
-for the TextEq operand/result demand; no such issuer is currently landed.
-`VerifiedS6CTextEqSourceBindingV1` is a parent-retaining test-only witness, not a
-production-held physical authority.
-
-Non-authority: `trivial_ssa::operation::Equal`, the old V1 I64-only operation
-emitter, the selected Dynamic operation cursor's explicit TextEq rejection,
-the backend `string.eq_hh` helper, the outer Length/Bool receipt, and raw
-`ValueId`/item/block equality. Each is either generic downstream behavior,
-RejectBeforeEffect evidence, or a different semantic/physical owner.
-
-Fail-fast boundary: before any TextEq Bool, Return-read, continuation,
-Completion, or CFG effect, reject missing/foreign TextEq source operands,
-unsupported String representation/ABI, duplicate or drifted physical values,
-scope/session mismatch, and the existing outer-Length/inner-TextEq condition
-mismatch. The outer unpublished function transaction remains the rollback owner.
-
-Smallest next slice: design-only `TextEq physical-demand representation/ABI D0`.
-Name the canonical operand/result issuer and its supported/rejected String
-capability, then co-seal that result with Return-read, continuation, and
-FunctionExit. No code, fixture, generic Equal adapter, or new semantic receipt
-is authorized until that boundary is accepted.
-
-Non-claims: this census does not authorize `emit_branch`, `emit_return`, edge,
-PHI, CFG/publication, fallback, retry, production selection, or legacy
-retirement.
-
-### LOOP-PHYSICAL-TEXTEQ-REPRESENTATION-ABI-D0 — TextEq physical-demand representation/ABI (2026-08-18; NoSafeSlice remains)
-
-Decision: NoSafeSlice remains. The source-to-Facts-to-Recipe meaning is already
-closed, but there is no strict physical Text representation/residence and
-TextEq result ABI that the common session can issue. The next slice is design
-only; it must not turn the logical TextEq row into a physical effect by
-inference.
-
-Source authority + canonical issuer: the source chain is
-`VerifiedResolvedMethodCallSourceV1` + the source-bound `substring` relation
-for receiver `s`, operands `i`/`i+1`, and exact result site, together with
-`VerifiedS6CTypedInputRelationV1::TextEqual` for the lexical `ch` binding. The
-Recipe producer/Join co-seal fixes substring item 6/result V9, TextEq item
-7/result V10, If item 8/then B2, Return read item 9/result V11, and FunctionExit
-item 10. A future single canonical-session materializer must co-seal the
-Substring physical residence, both Text operands, and Bool result; the
-canonical SSA session remains the sole `ValueId`/type owner. Existing
-`VerifiedS6CTextEqSourceBindingV1` is a test-only source witness and has no
-physical ID, ABI, or session ownership.
-
-Non-authority: outer Length/Bool V5, raw ValueKey/ValueId or item ordinals,
-owner/stamp equality, `trivial_ssa::operation::Equal`, the old V1 emitter,
-selected-Dynamic's explicit TextEq rejection, ExactText formal
-`[slot,generation]` alone, and runtime/C/Python `string.eq_hh` routes. The
-last group is compatibility evidence with hook/fallback behavior, not a
-strict S6C Bool issuer.
-
-Fail-fast boundary: before any TextEq Bool, Return-read, continuation,
-Completion, or CFG effect, reject missing or foreign receiver/args/result
-sites, Substring target or V9/V1/V10 class drift, missing Body segment,
-scope/session mismatch, unsupported Text representation/ABI, wrong physical
-operand types, and TextEq-to-If condition mismatch. The outer unpublished
-function transaction remains the rollback owner.
-
-Smallest next slice: decide one generation-checked Text operand/residence
-representation (including the Substring result lifetime) and one strict Bool
-wire (`0=false`, `1=true`, other values reject/trap), then name its sole
-canonical issuer and co-seal it with the exact If/Return-read/continuation/
-FunctionExit relation. No code, fixture, generic Equal adapter, new semantic
-receipt, branch/Return/CFG, fallback, retry, or production switch is
-authorized before that decision.
-
-Non-claims: this D0 does not authorize reusing `string.eq_hh`, raw `ValueId`
-equality, `icmp != 0`, outer V5, or any downstream branch/Return/edge/PHI/
-publication/production path.
-
-### TextEq ABI census addendum (2026-08-18; capability remains RejectBeforeEffect)
-
-The representation audit narrows the missing boundary. The checked AOT
-TextScan facts in `src/abi/text_scan_aot_export_facts.rs` admit only
-`Substring` and `IndexOf`: both use a `HostHandle` receiver, but only
-`Substring` has an `EndAuthorized` handle result, and both expose a U32
-status/out-pointer call wire. There is no `StringEq` entry, result wire, or
-strict equality status in that authority. `CoreMethodOp` likewise has
-`StringLen`, `StringSubstring`, `StringIndexOf`, `StringLastIndexOf`, and
-`StringContains`, but no `StringEquals` carrier.
-
-`StringBox::equals` implements the runtime `NyashBox` universal trait and
-`StringMethodId` does not expose it as a source CoreMethod surface. It is
-therefore not a source-bound S6C issuer. `TextFormalBorrowV1` and the
-`TextFormalCallResidenceV1` frame do provide checked slot/generation and
-pinned byte-root substrates, but they have no S6C substring-result consumer
-or TextEq result owner. Reusing any of these surfaces would cross authority
-boundaries.
-
-Capability classification for this row is consequently:
-
-| Candidate | TextEq capability | Reason |
-| --- | --- | --- |
-| TextScan `Substring` HostHandle | Checked | proves only substring result transport/lifetime |
-| TextFormal `{slot,generation}` / residence frame | Checked | proves formal Text roots only |
-| `MirInstruction::Compare` / generic `Equal` | RejectBeforeEffect | no source/representation/ABI provenance |
-| `StringBox::equals` universal trait | RejectBeforeEffect | no source CoreMethod/selected AOT issuer |
-| C/Python `string.eq_hh` | RejectBeforeEffect | mutable hook/fallback route, not strict Bool |
-
-Decision remains `NoSafeSlice::TextEqPhysicalRepresentationAbiUnsealed`.
-The next design slice must name one canonical S6C equality ABI (including
-Substring-result residence, two Text operands, strict `0/1` Bool outcome, and
-fault/unsupported behavior) before any `Verified*`/`Prepared*` physical
-receipt, `Compare` emission, branch/Return CFG, fallback, or production
-switch is allowed.
-
-### LOOP-PHYSICAL-TEXTEQ-STRINGEQUALS-CONTRACT-D0 — ordered contract/residence/Trap design (2026-08-18; NoSafeSlice remains)
-
-Decision: keep `NoSafeSlice` for the physical family and split the missing
-authority in the safe order `A -> B -> C`. A is accepted as one source-only
-BoxCount: `StringBox.equals/1` (receiver excluded from arity), `PureRead`,
-`BoolValue`, no aliases, and `DesignOnly` lowering. The bounded first physical
-representation remains generation-checked handle-handle, `Checked` rather
-than `Direct`; pointer/length and mixed handle/pointer routes are rejected for
-this lane. Only the A source-row projection/reject slice is authorized next.
-
-### LOOP-PHYSICAL-TEXTEQ-COREMETHOD-DESIGN-ONLY-TIER-D0 — design-only carrier premise gate (2026-08-18; NoSafeSlice remains)
-
-The existing `CoreMethodContractBox` schema requires `lowering_tier` and
-`cold_lowering`, but `CoreMethodLoweringTier` has only Hot/Warm/Cold. There is
-no safe way to add the source-owned StringEquals/1 row without falsely
-claiming `warm_direct_abi`, `cold_fallback`, or a runtime symbol. `status=seed`
-and empty `guards` are metadata, not an admission stop, and
-`LoweringPlanTier::Unsupported` is not connected to the CoreMethod carrier.
-
-Decision: keep `NoSafeSlice` until a design-only `DesignOnly` tier is accepted.
-Its manifest spelling must be `design_only`, its plan tier/emission must map to
-`Unsupported`, its cold symbol must be explicit `none`, and route/physical
-issuers must reject it before any effect. The source owner remains
-`CoreMethodContractBox`; generated manifest/Rust views are projections, never
-hand-edited. This A0 slice claims no StringEquals row, decoder, residence,
-Call, Bool `ValueId`, fallback, or production route.
-
-### LOOP-PHYSICAL-TEXTEQ-COREMETHOD-DESIGN-ONLY-TIER-I0 — projection and reject guard (2026-08-18; fast)
-
-Decision: implement only the accepted A0 BoxShape. Add a `DesignOnly` carrier
-tier with manifest spelling `design_only`; project it through the generated
-CoreMethod row, map its plan tier and emission kind to `Unsupported`, and make
-the canonical admission helper reject it before any route or physical effect.
-Existing Hot/Warm/Cold rows and their callers must remain byte/behavior
-stable. The checked-in manifest/Rust files are regenerated projections, not
-hand-edited authority.
-
-Source authority + canonical issuer: `CoreMethodContractBox` schema and the
-`core_method_contract_manifest_codegen.py` projection own the tier identity;
-`CoreMethodLoweringTier` is only the mechanical carrier. The positive gate is
-that DesignOnly maps exactly to `LoweringPlanTier::Unsupported` and
-`LoweringPlanEmitKind::Unsupported`; the negative gate proves it cannot become
-DirectAbi/RuntimeCall or enter a route before effect.
-
-Non-authority: no StringEquals row, `status=seed`, empty guards, dummy
-`cold_lowering`, `LoweringPlanTier::Unsupported` without carrier provenance,
-DynamicV2 transport, `StringBox::equals`, `eq_hh`, or any TextEq physical path.
-
-Fail-fast boundary: reject a DesignOnly row at the canonical manifest/admission
-boundary before CallSlot, route, Builder/session, ValueId, residence, CFG,
-fallback, retry, publication, or production selection. Focused positive and
-negative tier tests plus the manifest/codegen guard are the required evidence.
-
-Non-claims: this I0 does not add `StringEquals`, TextEq status/Bool decoding,
-Substring residence, Bool materialization, branch/Return/edge/PHI/CFG,
-fallback, retry, production, or legacy retirement. After this closeout the
-next design row returns to A source contract -> B decoder/Trap -> C residence.
-
-Closeout evidence (2026-08-18): the manifest projection check, `cargo fmt
---all -- --check`, current-state pointer guard, and `git diff --check` are
-green. The quick focused suite passed 5/5 (`core_method_op`), and the
-negative admission guard passed 1/1
-(`target_issuer_rejects_design_only_row_before_home_effects`). The run used
-one top-level `CARGO_BUILD_JOBS=4 cargo test --profile quick` at a time and no
-`--nocapture`; baseline warnings are informational. No StringEquals row,
-decoder, residence, Call, Bool `ValueId`, CFG, route, fallback, retry, or
-production path was opened.
-
-### LOOP-PHYSICAL-TEXTEQ-STRINGEQUALS-CONTRACT-I0 — source-row projection (2026-08-18; fast)
-
-Decision: implement only the accepted A BoxCount. `CoreMethodContractBox` is
-the sole semantic owner of the `StringBox` `equals` row: canonical `equals`,
-aliases empty, arity `1` (one Text argument), `PureRead`, `BoolValue`,
-`CoreMethodOp::StringEquals`, `lowering_tier=design_only`,
-`cold_lowering=none`, and the existing StringBox runtime-owner description.
-Generated JSON/Rust are projections. The canonical Home issuer must reject
-the projected row as `DesignOnlyRow` before route/physical effects.
-
-Source authority + canonical issuer: the `.hako` row and its codegen own the
-meaning; the generated manifest brand and Home issuer provide only projection
-and pre-effect rejection. Existing `StringLen`/`StringSubstring` rows and
-their callers remain unchanged.
-
-Non-authority: `StringBox::equals` universal trait, `StringMethodId`,
-`string.eq_hh`, DynamicV2 transport, generic `Equal`, `status=seed`,
-`guards=[]`, runtime/MIR inference, and any guessed ABI or residence.
-
-Fail-fast boundary: codegen rejects unknown/duplicate operation or spelling,
-invalid arity, non-`design_only` tier, and a design-only row whose
-`cold_lowering` is not `none`; Home admission rejects the exact generated row
-before CallSlot, route, Builder/session, ValueId, residence, CFG, fallback,
-retry, publication, or production selection.
-
-Acceptance: positive exact lookup/parity for `StringBox.equals/1`; negative
-wrong receiver/spelling/arity/result/effect/foreign brand and actual generated
-`StringEquals/1` `DesignOnlyRow` rejection. This I0 claims no strict status
-decoder/Trap, Text residence/pinner, Bool ValueId, TextEq emission, branch,
-Return, edge/PHI, fallback, retry, production, or legacy retirement.
-
-Closeout evidence (2026-08-18): codegen `--check`, `cargo fmt --all --
---check`, `git diff --check`, and the current-state pointer guard are green.
-The quick focused suites passed: `core_method_op` 5/5,
-`core_method_result_kind` 7/7,
-`string_equals_source_row_is_design_only_bool_contract` 1/1, and
-`target_issuer_rejects_generated_string_equals_row_before_home_effects` 1/1.
-All Cargo runs were sequential, used `CARGO_BUILD_JOBS=4 cargo test
---profile quick`, and omitted `--nocapture`; the 926 baseline warnings are
-informational. No decoder, Trap, Text residence, Bool `ValueId`, TextEq
-emission, CFG, route, fallback, retry, or production path opened.
-
-#### A — source-owned `StringEquals/1` method contract (BoxCount)
-
-Source authority + canonical issuer after A0: `CoreMethodContractBox` in
-`lang/src/runtime/meta/core_method_contract_box.hako` is the sole source
-contract owner; generated JSON/Rust rows are projections. The row must fix
-`StringEquals/1` (receiver plus one Text argument), `PureRead`, `BoolValue`,
-and the runtime owner. The physical two-handle wire and strict status/result
-contract belong to the later B slice, not to a guessed CoreMethod enum row.
-
-Fail-fast boundary: reject arity, owner/manifest, effect, result-kind, or
-source-row drift before call admission. Non-authority includes
-`StringBox::equals`, `string.eq_hh`, `CoreMethodOp` without the source row,
-and any physical/session inference. This A slice claims no Call, residence,
-decoder, Trap CFG, Bool `ValueId`, branch, Return, PHI, or production.
-
-#### B — exhaustive status/Bool decoder and source-bound Trap
-
-Source authority + canonical issuer: A's source-owned method identity/result
-contract plus a dedicated source-bound S6C wire/fault contract issue one
-builder-free decoder. The wire carries the physical handle×2 call and strict
-status/result rule; it is not a DynamicV2 transport extension. Reject unknown
-or nonzero status, invalid out/handle, and every result except exactly `0` or
-`1` before any physical publish; failure is a canonical fail-stop Trap, not a
-generic MIR Fault edge and not `icmp != 0` truthification.
-
-`DynamicV2CallOutV1`, its fault enum, `CheckedCallOutFault`, residence C
-statuses, and backend-local traps remain transport/mechanical shapes only.
-The B slice claims no Text residence, Substring pin, Bool `ValueId`, Call
-emission, branch/Return/Completion, PHI, or production.
-
-### TextEq strict decoder/Trap audit addendum (2026-08-18; NoSafeSlice remains)
-
-The B boundary is still unsealed. `DynamicV2CallOutV1` can classify transport
-status/tag/fault/disposition, but it has no source-bound StringEquals identity,
-strict Bool result tag, or one-shot TextEq consumer brand. `CheckedCallOutFault`
-and its fault terminal are physical CFG transport markers; `TextFormal*`
-status/residence is formal-root transport; TextScan `llvm.trap` is backend-local
-Substring/IndexOf validation; and `string.eq_hh` is a mutable hook/fallback.
-None can issue the S6C Trap meaning.
-
-Required chronology for the future dedicated decoder is:
-`C return == 0` -> out exists and matches the A/source cohort -> wire status is
-exactly Normal `0` -> expected handle×2 result carrier/tag -> payload is exactly
-`0` or `1` -> issue one source-bound success proof. Missing/foreign/duplicate
-out, unknown status/fault/tag, nonzero status/return, reserved or malformed
-combinations, invalid handle, and any payload other than `0/1` fail before
-physical publish. No truthy `!= 0` conversion is allowed.
-
-Decision: keep `NoSafeSlice::TextEqStrictDecoderTrapUnsealed`. The smallest
-next slice is design-only naming of that dedicated wire, exhaustive fault
-classification, and the canonical source-bound fail-stop Trap issuer. It must
-not reuse DynamicV2/CheckedCallOut/TextFormal semantics and must not implement
-the decoder, publish residence, materialize Bool `ValueId`, emit Call/CFG, or
-open fallback, retry, or production.
-
-### TextEq strict decoder/Trap design boundary D0 (design-only audit)
-
-Decision: accept the dedicated field/state/fault boundary as a design-only
-BoxShape, while keeping `NoSafeSlice::TextEqStrictDecoderTrapUnsealed` until
-the source ABI and decoder implementation are separately accepted. Existing
-transport surfaces must not be widened or relabeled as this authority.
-
-Source authority + canonical issuer: the A row in `CoreMethodContractBox` and
-the source-bound `S6CPrephysicalIngressRefV2::with_text_eq_leaf` cohort supply
-identity, operands, Recipe TextEq/If, and the Bool result kind.
-`VerifiedS6CTextEqSourceBindingV1` remains a test-only parity witness and is not
-the production issuer. The design-only canonical issuer is
-named `issue_s6c_text_eq_strict_decode_v1` in the Loop contract layer; it must
-consume that cohort plus the dedicated wire and issue one source-bound
-success-or-Trap classification. The future canonical consumer is
-`CommonV2CanonicalSessionRefV1::with_text_eq_strict_decode`; it consumes the
-classification once and lends only the success proof to C's Substring
-residence/pinner boundary. These names are design names, not implemented
-symbols or receipts.
-
-Dedicated wire contract (numeric ABI remains a prerequisite):
-
-| phase | required invariant | failure result |
-| --- | --- | --- |
-| C return | exactly transport status 0 | `TransportReturnNonZero`, no-result |
-| out ownership | one non-null out, same source cohort, one consumer | `MissingOut`, `ForeignOut`, or `DuplicateOut` |
-| status | dedicated Normal/Fault only; unknown and Suspended are not equality results | `UnknownStatus` or `UnsupportedStatus` |
-| Fault | known source fault plus zero/none reserved fields | `SourceBoundFault` or `MalformedFaultShape` |
-| Normal carrier | expected handle×2 operands and dedicated Bool tag | `InvalidTextHandle`, `OperandCohortMismatch`, or `ResultTagMismatch` |
-| Bool payload | exactly 0 or 1; no truthy conversion | `InvalidBoolPayload` |
-| success | source/Recipe/If/result relation agrees and proof is unconsumed | one move-only success proof |
-
-Primary-error chronology is fixed: C return -> out/cohort -> status -> fault
-shape -> handle/tag -> exact Bool payload -> success proof. Once a primary
-error is selected, later fields are suppressed; every failure is a canonical
-source-bound Trap with no result and no physical publish. The existing
-DynamicV2CallOutV1, CheckedCallOutFault, TextFormal status/residence, backend
-`llvm.trap`, and `string.eq_hh` remain non-authority transport or fallback
-evidence. C receives only B's success proof; B owns no pointer, generation,
-lease, residence, `ValueId`, CFG edge, or Completion meaning.
-
-Fail-fast boundary: reject unknown/nonzero return, missing/foreign/duplicate
-out, unknown/nonzero/malformed status or fault, invalid handle/cohort/tag,
-payload other than 0/1, condition 5-versus-10 drift, and duplicate proof
-consumption before residence, Bool materialization, branch/Return, or CFG.
-
-Smallest next slice: design-only numeric wire revision/tag assignment and the
-source-backed C entry owner. Until those are named, do not implement the
-decoder, add a `Verified*`/`Prepared*` receipt, emit Call/Compare/CFG, publish
-residence, or open fallback, retry, production, or legacy retirement.
-
-Non-claims: this D0 closes no physical capability. A green transport or C1
-test cannot advance the blocker, and a generic `icmp != 0` cannot issue the
-TextEq Bool.
-
-### TextEq numeric wire / source-C census D0 (2026-08-18; NoSafeSlice remains)
-
-The read-only census found no source-backed C entry that owns StringEquals/1
-and no canonical numeric namespace for its strict Bool wire. Therefore the
-existing `NoSafeSlice::TextEqStrictDecoderTrapUnsealed` remains the blocker;
-no number or symbol is assigned by analogy.
-
-The runtime does expose `nyash_string_eq_hh_export` as a stable C entry, but
-it is Rust glue rather than a TextEq semantic owner: it accepts a generic
-`op + 3*i64` dispatch, may return a fallback hook-miss code, and has no
-source cohort, status/out/fault envelope, or strict Bool decoder.
-
-| candidate | classification | reason it cannot issue B |
-| --- | --- | --- |
-| `DynamicV2CallOutV1` status/tag/revision | transport only | generic carrier; no TextEq identity, cohort, or one-shot Bool consumer |
-| TextScan ABI revision 1 / out wire revision 2 | other source family | owns Substring/IndexOf facts, not StringEquals/1 |
-| `nyash.string.eq_hh` / `nyash_string_eq_hh_export` | source export, non-authority route | generic dispatch/fallback i64 route and truthification; no strict status/fault/Trap contract |
-| C1 `llvm.trap` sites | backend-local | malformed transport traps have no source-bound S6C meaning |
-| `TextFormal*` borrow/residence | mechanical transport | slot/generation lease facts, not method result semantics |
-
-Source authority remains the `CoreMethodContractBox` A row plus
-`S6CPrephysicalIngressRefV2::with_text_eq_leaf`; a future source-backed C ABI
-entry must be co-sealed with that cohort before the design issuer
-`issue_s6c_text_eq_strict_decode_v1` can be implemented. The numeric revision,
-status/tag values, C symbol/owner, and canonical consumer are consequently
-unresolved design inputs, not defaults.
-
-Fail-fast boundary: stop before declaring a C symbol, assigning a tag/revision,
-creating a wire or receipt, or emitting Call/Compare/CFG. The next bounded
-slice is a source-owned ABI decision that names all of those together and
-adds the exhaustive negative matrix; if no producer can be named, remain at
-`design_stop` rather than inventing a fallback.
-
-Non-claims: this census changes no code, fixture, ABI, transport, source
-entry, decoder, Trap, residence, Bool `ValueId`, production switch, or legacy
-retirement condition.
-
-### External architecture-review reconciliation (2026-08-18; parked)
-
-The supplied review targeted old HEAD `8237906da0`; current HEAD is
-`e66a8573ea`, where A0 `StringEquals/1` DesignOnly rejection is already
-landed. Its B stop therefore remains current; the review's missing-A claim is
-not a new task. The following confirmed shape concerns are parked after the
-TextEq boundary, not active-row switches:
-
-- `LOOP-GENERIC-PREFLIGHT-CONSUME-SHAPE-D0`: the session preflight exposes
-  narrow getters and `take_layout`/`expect` paths; design one opaque consumer
-  or typed duplicate rejection before any Generic production caller.
-- `LOOP-CALLABLE-OPAQUE-DEMAND-CONSUME-D0`: `consume<R>` lends four owned
-  values and the prepared wrapper has an uncalled `into_parts`; census the
-  real consumer, then choose an opaque aggregate/private handoff.
-- `LOOP-COMMON-DISPATCHER-ENTRY-CENSUS-D0`: target-explicit and block-receipt
-  mechanical entries remain; classify the single keeper and test-only callers
-  at production cutover, with no second leaf authority.
-- `STATE-PARSER-INTEGRITY-I0`: the state array was repaired after a standard
-  TOML parse audit; add parser-backed guard evidence before changing pointers.
-- `CURRENT-POINTER-COMPACTNESS-D0`: current pointer drift is corrected in
-  `CURRENT_STATE.toml`; any later slimming must preserve one live row and
-  remain docs-only.
-
-These tasks claim no code, fixture, receipt, production selector, fallback,
-retry, or TextEq physical effect. Re-select only after the current B/C stop
-is explicitly closed; until then `design_stop` and the B blocker remain.
-
-#### C — canonical Substring-result residence publisher/pinner
-
-Source authority + canonical issuer: the source-bound `StringSubstring`
-receiver/index/result relation and Recipe V9 are consumed by one canonical
-S6C session, which is the sole owner of the generation-branded result
-residence and physical IDs. It may consume B's success proof, then perform
-`publish -> pin -> consume -> finish/rollback` in one callback-scoped,
-move-only transaction; `TextFormalCallResidenceV1` alone is only formal-root
-transport and cannot issue the substring result.
-
-Fail-fast boundary: reject missing B proof, source/result-key drift, duplicate
-or missing V9 result, owner/frame/stamp/generation/representation mismatch,
-and late failure before any Bool/CFG effect. C claims no StringEquals Bool
-materialization, new source meaning, branch/edge/Return/FunctionExit/PHI,
-fallback, retry, production, or legacy retirement.
-
-The eventual TextEq Bool materializer is downstream of A/B/C and must co-seal
-the Substring residence, ExactText formal residence, TextEq V9/V1/V10 parity,
-and the canonical SSA Bool `ValueId`; outer Length/Bool V5 and the existing
- logical Return-read co-seal remain a different owner.
+### TextEq premise-reset decision (2026-08-18; accepted design correction)
+
+Decision: reject the old `A -> B -> C` premise. S6C TextEq is the portable,
+non-faulting `LoopOperationV2::TextEq` physicalizer boundary; it is not a
+source `StringEquals/1` method call. Physical ordering is Substring V9
+residence plus ExactText V1 residence -> TextEq V10 -> If/Return.
+
+Source authority + canonical issuer: resolver `Equal(Text, Text) -> Bool` ->
+`VerifiedS6CTypedInputRelationV1` -> S6C Facts/Recipe ->
+`TextEq(item 7, B1, V9, V1 -> V10)` -> `If(item 8, condition V10)` ->
+Return-read/FunctionExit. `CanonicalSsaFunctionSessionV2` remains the sole
+physical `ValueId` and type issuer.
+
+Non-authority: the caller-zero DesignOnly `StringEquals/1` row,
+`nyash.string.eq_hh`, raw MIR/handle equality, `CheckedCallOut`,
+selected-Dynamic's TextEq rejection, and outer-loop Bool V5 cannot issue this
+meaning.
+
+Fail-fast boundary: before the first TextEq MIR effect, reject item/block/key
+drift, missing/foreign/duplicate/stale V9 lease or V1 slot/generation,
+owner/session/segment mismatch, unsupported Text representation, or a backend
+without exact content equality. TextEq remains semantically `NonFaulting`;
+unsupported shapes reject before effect, and late physical failure discards
+the unpublished function without fallback or retry. No source Trap is minted.
+
+Smallest next slice: design-only BoxShape
+`COMMON-V2-TEXTEQ-PORTABLE-PHYSICALIZER-D0`. Co-seal the live
+Substring-result V9 residence and ExactText-formal V1 residence with the
+existing TextEq leaf, then classify one exact-result capability as
+Direct, Checked, or RejectBeforeEffect. No implementation starts until that
+choice and its sole canonical consumer are accepted.
+
+Non-claims: no new source/Recipe acceptance, C status/out ABI, source Trap,
+Bool V10 materialization, branch/Return/CFG, selected-Dynamic parity,
+production switch, fallback, retry, or legacy retirement is opened.
+
+Premise-reset evidence:
+
+- the typed source census admits exactly two calls, Length and Substring, and
+  exactly four binaries, Less/Add/TextEqual/Add; there is no hidden third
+  StringEquals call;
+- AST/body classification exhaustively visits the S6C callable body; its
+  transferred program-root placement does not make any If/Loop/Return/
+  Assignment/Binary/MethodCall child opaque;
+- Recipe V2 gives TextEq its own `Text x Text -> Bool` variant and classifies
+  it `NonFaulting`; only CallSlot is `ExternallyBoundOutcome`;
+- exact order is item 6 Substring -> V9, item 7 TextEq(V9,V1) -> V10, item 8
+  If(V10), then Return-read/Exit. Substring residence must therefore precede
+  TextEq materialization;
+- V5 is the outer `CompareI64 Less` condition and cannot substitute for V10.
+  For input `"abc", "b"`, wiring V5 to the inner If returns 0 immediately;
+  the correct V10 returns index 1;
+- the checked TextScan Substring EndAuthorizedHandle/lease is reusable only as
+  V9 transport substrate. CheckedCallOut and any later checked C equality
+  entry remain children of the portable physicalizer, never source authority;
+- `nyash.string.eq_hh` was independently classified and recorded at
+  `c951539dfc`: hook/fallback behavior, lossy invalid-handle handling, raw
+  `i64`, and downstream `!= 0` truthification make it RejectBeforeEffect
+  for this strict lane.
+
+The landed DesignOnly `StringEquals/1` row is retained as a separate,
+caller-zero method-surface capability and remains rejected before effect. It
+does not authorize, block, or name the S6C binary-equality path.
