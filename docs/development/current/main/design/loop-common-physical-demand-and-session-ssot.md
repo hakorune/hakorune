@@ -1988,6 +1988,36 @@ Next bounded slice:
   `LOOP-PHYSICAL-IF-COVERAGE-I0`; keep topology retirement parked behind the
   production-route gate above.
 
+### Accepted design stop: If branch/merge coverage consultation (2026-08-18)
+
+```text
+Decision:
+  open only a design consultation for the one new If branch/merge transfer
+  capability; do not add code, a receipt, or a physical CFG path yet.
+Source authority + canonical issuer:
+  `IfRecipeVerifierV1` verifies the source-bound artifact, and
+  `IfJoinSigElaboratorV1::elaborate` issues the existing logical ports,
+  True/False, Then/Else transfer, and ImplicitBaseline edges.  The existing
+  `VerifiedIfPhysicalInputV1::from_artifact` co-seals that pair.
+Non-authority:
+  `IfRecipeV1` condition/assignment fields alone, the old
+  `trivial_ssa::if_recipe_physicalizer` receipt, `lower_if_recipe_selected`,
+  Builder cursor/physical IDs, names, and source rescans cannot issue a new
+  common transfer capability.
+Fail-fast boundary:
+  before Layout or CFG/SSA/PHI effect, reject source-site/binding drift,
+  explicit-vs-implicit disposition drift, wrong JoinSig port/role/value class,
+  missing merge/continuation transfer, and duplicate branch/merge obligations.
+Smallest next slice:
+  perform a read-only worker/source audit of how the existing If JoinSig can
+  lend one complete branch/merge view to a common physicalizer without pairing
+  old physical receipts; only then accept the smallest BoxCount implementation.
+Non-claims:
+  no new `Verified*`/`Prepared*` receipt, old If physicalizer migration,
+  CFG/SSA/PHI, Completion/DraftSeal, session, lifecycle, route, selector,
+  fallback, retry, or production cutover.
+```
+
 #### Semantic-program consume D0 — accepted BoxShape (2026-08-17)
 
 ```text
