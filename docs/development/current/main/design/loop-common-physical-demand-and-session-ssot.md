@@ -517,8 +517,8 @@ Fail-fast boundary:
   receiver/static mismatch, non-prefix receiver, parameter count/name/type/
   ordinal or BindingRef drift, missing/duplicate lane, S6C reuse, or any request
   for `ValueId`, `MirFunction`, `EffectMask`, Builder, or session state.  Keep
-  `NoSafeSlice::GenericG0StorageMetadataWitnessUnsealed` until the source row
-  and receiver/lane issuer are named.
+  `NoSafeSlice::GenericG0PhysicalEntryStorageLaneIssuerUnsealed` until the
+  source row and receiver/lane issuer are named.
 
 Smallest next slice:
   `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-CENSUS-D0` is design-only.  Name the

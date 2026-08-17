@@ -38,7 +38,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "Generic G0 Completion transport I0 is landed; the next design stop is the independent storage/lane source projection, while Completion consumption and all physical/session effects remain closed."
 work_mode = "design_stop"
 current_execution_row = "LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0"
-current_blocker_token = "NoSafeSlice::GenericG0StorageMetadataWitnessUnsealed"
+current_blocker_token = "NoSafeSlice::GenericG0PhysicalEntryStorageLaneIssuerUnsealed"
 
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
