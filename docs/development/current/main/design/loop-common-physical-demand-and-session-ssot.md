@@ -1569,6 +1569,85 @@ Non-claims:
   lifecycle/Text, route, publication, fallback/retry, or production switch.
 ```
 
+#### Session-preflight issuer census — design stop remains open (2026-08-17)
+
+The combined admission is accepted as the source/prephysical owner, but this
+D0 is not yet an implementation permission. The current Generic opener still
+consumes `GenericG0DetachedEntryCanaryV1` and its detached `MirFunction` in
+`resolved_lowering/generic_g0_physical_entry_session.rs`; it cannot be
+relabelled as the canonical consumer. `CanonicalSsaFunctionSessionV2::new_generic`
+is a reusable session consumer for the already-issued control/Completion
+facts, not an issuer that accepts the whole combined admission.
+
+The next census must close these exact seams in one owner graph:
+
+```text
+PreparedGenericG0PhysicalEmitterAdmissionV1
+  -> one callback-scoped consume_into_session boundary
+  -> outer unpublished DraftSeal transaction
+  -> shell plan materialization and install
+  -> CanonicalSsaFunctionSessionV2::new_generic
+  -> canonical lane adoption
+  -> entry receipt from identity/BindingSSA at the actual preheader
+  -> layout-owned segment allocation
+  -> callback-scoped session-preflight view
+```
+
+There is a concrete P0 in the landed shape: the admission currently
+destructures and drops the cohort's `VerifiedGenericG0EntryBindingV1` rows
+while sealing (`emitter_admission.rs`), so a later session cannot issue the
+source-backed `LoopValueKeyV1 ↔ BindingRefV1 ↔ canonical ValueId` entry rows
+without re-reading or guessing. The next admission/session boundary must
+retain those rows as part of the same one-shot owner and co-seal them against
+the program's verified input/carrier `entry_value` relations. It may not use a
+hard-coded `[0, 1]`, raw operation count, or a copied entry table.
+
+`ReadyLoopEntryV1::new_for_test` and old V1 block/segment receipts are test or
+mechanical consumers, not source authority. The entry receipt must be issued
+from the adopted resolver `BindingRef` rows and canonical `read_entry_receipt`
+at the live preheader; arity, item ordinal, copied `ValueId`, or owner-only
+pairing are insufficient. `segment_allocator::allocate_for_layout` is a
+reusable mechanical leaf only after that receipt exists in the same outer
+transaction. The future session API accepts one whole admission reference,
+never separately supplied layout/shell/control/Completion siblings.
+
+The old logical `LoopPhysicalBlockReceiptV1` is also not the Generic bridge:
+Generic's five-segment layout can split one logical body block across multiple
+physical segments, which that receipt rejects. The session census must bind the
+layout's exact segment keys to the segment-aware receipt/allocator and then
+issue target rows from those same keys; no logical-block adapter or S6C receipt
+may be introduced.
+
+The census also records two bounded cleanup prerequisites: move the shared
+`PreparedGenericG0EntryControlFactsV1` validator out of the old canary module
+before canary retirement, and isolate the caller-zero
+`VerifiedGenericRecipeProductG0::into_physical_boundary` split in
+`LOOP-GENERIC-G0-SEALED-CONSUME-I0`. Neither cleanup creates a semantic owner.
+
+```text
+Decision:
+  Keep `NoSafeSlice::GenericG0EmitterSessionPreflightUnsealed`.
+Source authority + canonical issuer:
+  The combined admission remains the sole prephysical authority; a future
+  family-neutral unpublished-session opener is the only issuer allowed to
+  create/install the shell, adopt lanes, issue entry/segment receipts, and own
+  rollback.
+Non-authority:
+  Detached canary/session, `new_for_test`, S6C envelope, old V1 receipts,
+  copied IDs, owner-only stamps, and any sibling-argument constructor.
+Fail-fast boundary:
+  Reject before session effect if whole-admission consume, actual-preheader
+  entry coverage, segment binding, shared control facts, or one-shot rollback
+  ownership cannot be proved in the same callback.
+Smallest next slice:
+  Read-only census of the canonical entry issuer and the single consume opener;
+  then record the bounded sealed-consume prerequisite before session I0.
+Non-claims:
+  No new receipt, session implementation, Builder mutation, operation effect,
+  CFG/SSA/PHI, Completion/DraftSeal, lifecycle/Text, route, fallback, retry,
+  publication, or production switch.
+```
+
 ### `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` (accepted BoxShape)
 
 ```text
