@@ -150,7 +150,11 @@ accepted.  The current layout output has no Generic owner/origin/frame stamp,
 `issue_v2_segment_allocation_plan` consumes the S6C pre-session envelope, and
 the Generic `new_generic` session does not attach the common physical-entry
 stamp.  These are the remaining D0 census items; copying a stamp or widening
-the S6C envelope is not an implementation shortcut.
+the S6C envelope is not an implementation shortcut.  The existing operation
+cohort, detached skeleton, and entry admission each retain a parent borrow, so
+owner equality cannot combine them.  The next issuer must consume one source
+parent into a non-`Clone` combined emitter cohort; only that cohort may later
+lend the mapping and session view.
 
 ## Typed ingress contract
 

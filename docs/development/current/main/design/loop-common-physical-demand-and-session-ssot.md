@@ -1451,21 +1451,27 @@ layout/target, and rollback owner are not yet named as one callback-scoped
 consumer.  The cohort now owns the neutral program; the next stop is the
 cohort-to-common-emitter seam, not another Generic program issuer.
 
-#### D0 audit result — emitter/session boundary remains `NoSafeSlice`
+#### D0 audit result — emitter owner cohort remains `NoSafeSlice`
 
 ```text
 Decision:
-  Keep `NoSafeSlice::GenericG0PhysicalOperationEmissionOwnerUnsealed`.  The
-  common dispatcher is the only leaf emitter; it must be consumed through one
-  callback-scoped common-V2 session view, never wired to the old V1 entry or
-  block receipts directly.
+  Keep `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`.  The common
+  dispatcher is the only leaf emitter, but the current operation cohort,
+  detached skeleton, and entry admission each retain a parent borrow.  They
+  cannot be recombined by owner equality without creating a second authority;
+  the dispatcher must wait for one source-owned emitter cohort and one
+  callback-scoped Generic-neutral session view.
 Source authority + canonical issuer:
-  The Generic operation cohort owns `PreparedLoopOperationProgramV1` and lends
-  its transient mapping.  The future common emitter seam must co-seal that
-  view with the installed common-V2 physical entry stamp, source-backed layout
-  segment/block receipt, target rows, and the canonical session's identity/PHI
-  services. `CanonicalFunctionLoweringSessionV1` remains the sole unpublished
-  function/rollback owner.
+  The Generic source parent remains the semantic authority.  The missing sole
+  issuer is a candidate
+  `issue_generic_g0_physical_emitter_cohort_v1` that consumes that parent once
+  and, without self-reference, owns the input, one
+  `PreparedLoopOperationProgramV1`, Generic source-backed layout, detached
+  shell/effects/descriptors, BlockExpr expectation, outer-If, Completion, and
+  one entry stamp.  Its mapping is borrowed only inside a scoped callback.
+  `CanonicalFunctionLoweringSessionV2`/`CanonicalFunctionLoweringSessionV1`
+  remains the sole unpublished function/rollback owner after this cohort is
+  consumed; neither current wrapper may be promoted to a second owner.
   The existing `CommonV2CanonicalSessionRefV1` is currently an S6C-bound
   envelope view, not a Generic issuer; adding a Generic branch to that type
   would leak S6C provenance and create a second family authority.  A future
@@ -1487,28 +1493,32 @@ Source authority + canonical issuer:
   source-backed Generic emitter seam; copying a stamp or passing an
   owner-only `PreparedSegmentBlockReceiptV1` is not a valid bridge.
 Non-authority:
-  `ReadyLoopEntryV1`/`LoopPhysicalBlockReceiptV1` as a Generic source product,
-  raw `BasicBlockId`/`ValueId`, item ordinals, `EffectMask` defaults, S6C rows,
+  `GenericG0PhysicalOperationCohortV1`,
+  `PreparedGenericG0PhysicalFunctionSkeletonV1`, and
+  `GenericG0PhysicalEntryAdmissionV1` when separately re-paired, old
+  `ReadyLoopEntryV1`/`LoopPhysicalBlockReceiptV1`, raw `BasicBlockId`/`ValueId`,
+  item ordinals, `EffectMask` defaults, S6C rows,
   `CommonV2CanonicalSessionRefV1`'s current S6C envelope, an owner-only
   `PreparedSegmentBlockReceiptV1`, `new_selected_dynamic`, MIR/JSON scans,
   and a second Generic dispatcher.
 Fail-fast boundary:
-  Before the first MIR instruction or ValueId publication, reject owner,
-  origin, frame, target, program/mapping, entry-lane, Generic session stamp,
-  layout segment, logical block/role, predecessor, stamp, duplicate, missing,
-  foreign, sealed, or terminated-target drift.  Reject while still in the
-  design stop if the Generic layout can only be obtained by reusing the S6C
-  envelope or if Generic session entry has no source-backed stamp to bind.
-  A late leaf failure discards the whole outer unpublished transaction; local
-  repair, retry, and fallback are forbidden.
+  Before the first MIR instruction or ValueId publication, reject a second
+  source-parent issue, owner/origin/source-kind/body-root/frame/target drift,
+  program/mapping mismatch, entry-lane/effect/layout/segment/target drift,
+  missing or duplicate Generic entry stamp, logical block/role or predecessor
+  drift, and duplicate/missing/foreign/sealed/terminated targets.  Reject
+  while still in the design stop if layout can only be obtained by reusing the
+  S6C envelope or if Generic entry has no source-backed stamp to bind.  A late
+  leaf failure discards the whole outer unpublished transaction; local repair,
+  retry, and fallback are forbidden.
 Smallest next slice:
-  Design-only census for `with_generic_g0_operation_cohort_v1` plus one future
-  session-owned emitter view: exact Generic layout consumption order,
-  same-session entry/segment/target receipt coverage, Generic entry-stamp
-  issuance, one-shot mapping borrowing, and rollback/publication timing.
-  Confirm that the view is a projection of the canonical session rather than
-  a Generic or S6C second session.  Only after this is closed may an emitter-I0
-  preflight plan be named.
+  Design-only census for the combined source-owned emitter cohort: exact
+  parent-consume order, physical-ID-free Generic layout issuer, one entry
+  stamp, same-session segment/target receipt coverage, one-shot mapping
+  borrowing, and rollback/publication timing.  Confirm that the future
+  session view is a projection of the canonical session rather than a Generic
+  or S6C second session.  Only after this is closed may the cohort I0 and then
+  the emitter-I0 preflight be named.
 Non-claims:
   No operation MIR, Const/Read effect, CFG/SSA/PHI, Completion/DraftSeal,
   lifecycle, Text, route/backend, production caller, fallback, retry, or
@@ -4646,7 +4656,9 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-G0-operation-emission | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMISSION-D0` | name the sole Generic/common physical operation emitter and its five variant lowering boundary from the landed mapping | current design stop; cohort I0 is landed, but common session/layout/target/rollback ownership and the callback seam remain NoSafeSlice; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-D0` | resolve the borrowed Generic mapping versus owned `PreparedLoopOperationProgramV1` lifetime with one source-owned one-shot cohort/port; choose transient mapping or owned cohort without self-reference | accepted BoxShape 2026-08-17 after ownership census; next caller-zero cohort I0 only; no operation MIR, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-operation-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-COHORT-I0` | consume the Generic source parent once, own the family-neutral program and independent source siblings, and lend only a callback-scoped transient mapping | landed 2026-08-17; focused cohort test green; program/mapping preflight only, with no operation leaf, Builder, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after the emitter D0 is accepted, consume one cohort into a Generic source-backed layout, borrow its program only for mapping preflight, then co-seal one canonical-session entry/segment/target view and issue one callback-scoped dispatch preflight/leaf plan | parked behind `NoSafeSlice::GenericG0PhysicalOperationEmissionOwnerUnsealed`; current S6C `CommonV2CanonicalSessionRefV1` and old V1 entry/block receipts are not reusable; no effect until the common owner and rollback boundary close |
+| 25b-c0-G0-operation-emitter-cohort-D0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-D0` | consume one Generic source parent exactly once and name the combined non-Clone cohort owning program/layout/detached shell/entry facts before any dispatcher or session effect | current design stop behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; current operation cohort/skeleton/admission cannot be re-paired; no MIR, ValueId, CFG/SSA/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, or production caller |
+| 25b-c0-G0-operation-emitter-cohort-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-COHORT-I0` | after the cohort D0 is accepted, consume one combined cohort, issue one Generic layout/stamp view, and expose only callback-scoped mapping/preflight state | parked behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; no dispatcher effect until the combined owner and rollback boundary close |
+| 25b-c0-G0-operation-emitter-I0 | `LOOP-GENERIC-G0-PHYSICAL-OPERATION-EMITTER-I0` | after the cohort/emitter D0s are accepted, consume one cohort into a Generic source-backed layout, borrow its program only for mapping preflight, then co-seal one canonical-session entry/segment/target view and issue one callback-scoped dispatch preflight/leaf plan | parked behind `NoSafeSlice::GenericG0EmitterOwnerCohortUnsealed`; current S6C `CommonV2CanonicalSessionRefV1` and old V1 entry/block receipts are not reusable; no effect until the common owner and rollback boundary close |
 | 25b-c | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-SKELETON-I0` | reserve one fresh unpublished physical function skeleton from the accepted same-cohort entry input | landed 2026-08-17; detached mechanical-i64 shell and descriptor retention only; no Builder installation, ExactText adoption, Loop blocks, PHI, Completion claim, DraftSeal, lifecycle, route, fallback, or production caller |
 | 25b-d | `LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` | accept the one-value BindingSSA plus private generation-sidecar adoption and its fresh-transaction rollback owner | accepted BoxShape 2026-08-17; slot-only publication and skeleton-bound sidecar are fixed; no Loop CFG/PHI, lifecycle, route, fallback, or production caller |
 | 25b-d-I0 | `EXACT-TEXT-ENTRY-LANE-ADOPTION-I0` | consume one prepared skeleton for ordinary lanes and one logical ExactText slot lane plus adjacent private generation sidecar | landed caller-zero canary 2026-08-17; positive install/adopt and duplicate-adoption rejection are green, but atomic same-cohort/session ownership remains the next design stop |
