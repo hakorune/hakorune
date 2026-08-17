@@ -7679,3 +7679,49 @@ is authorized until that boundary is accepted.
 Non-claims: this census does not authorize `emit_branch`, `emit_return`, edge,
 PHI, CFG/publication, fallback, retry, production selection, or legacy
 retirement.
+
+### LOOP-PHYSICAL-TEXTEQ-REPRESENTATION-ABI-D0 — TextEq physical-demand representation/ABI (2026-08-18; NoSafeSlice remains)
+
+Decision: NoSafeSlice remains. The source-to-Facts-to-Recipe meaning is already
+closed, but there is no strict physical Text representation/residence and
+TextEq result ABI that the common session can issue. The next slice is design
+only; it must not turn the logical TextEq row into a physical effect by
+inference.
+
+Source authority + canonical issuer: the source chain is
+`VerifiedResolvedMethodCallSourceV1` + the source-bound `substring` relation
+for receiver `s`, operands `i`/`i+1`, and exact result site, together with
+`VerifiedS6CTypedInputRelationV1::TextEqual` for the lexical `ch` binding. The
+Recipe producer/Join co-seal fixes substring item 6/result V9, TextEq item
+7/result V10, If item 8/then B2, Return read item 9/result V11, and FunctionExit
+item 10. A future single canonical-session materializer must co-seal the
+Substring physical residence, both Text operands, and Bool result; the
+canonical SSA session remains the sole `ValueId`/type owner. Existing
+`VerifiedS6CTextEqSourceBindingV1` is a test-only source witness and has no
+physical ID, ABI, or session ownership.
+
+Non-authority: outer Length/Bool V5, raw ValueKey/ValueId or item ordinals,
+owner/stamp equality, `trivial_ssa::operation::Equal`, the old V1 emitter,
+selected-Dynamic's explicit TextEq rejection, ExactText formal
+`[slot,generation]` alone, and runtime/C/Python `string.eq_hh` routes. The
+last group is compatibility evidence with hook/fallback behavior, not a
+strict S6C Bool issuer.
+
+Fail-fast boundary: before any TextEq Bool, Return-read, continuation,
+Completion, or CFG effect, reject missing or foreign receiver/args/result
+sites, Substring target or V9/V1/V10 class drift, missing Body segment,
+scope/session mismatch, unsupported Text representation/ABI, wrong physical
+operand types, and TextEq-to-If condition mismatch. The outer unpublished
+function transaction remains the rollback owner.
+
+Smallest next slice: decide one generation-checked Text operand/residence
+representation (including the Substring result lifetime) and one strict Bool
+wire (`0=false`, `1=true`, other values reject/trap), then name its sole
+canonical issuer and co-seal it with the exact If/Return-read/continuation/
+FunctionExit relation. No code, fixture, generic Equal adapter, new semantic
+receipt, branch/Return/CFG, fallback, retry, or production switch is
+authorized before that decision.
+
+Non-claims: this D0 does not authorize reusing `string.eq_hh`, raw `ValueId`
+equality, `icmp != 0`, outer V5, or any downstream branch/Return/edge/PHI/
+publication/production path.
