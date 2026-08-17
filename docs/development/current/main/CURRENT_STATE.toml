@@ -34,10 +34,10 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0 remains NoSafeSlice under branch emission: source Return-to-Recipe/Join meaning and callback transport are landed, but no common-V2 owner issues the item 9 physical value, exact split pairing, or one-sided FunctionExit terminal; no physical effect."
-work_mode = "design_stop"
-current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0"
-current_blocker_token = "NoSafeSlice::IfContinuationReturnReadPhysicalReceipt. Common V2 has no source-backed physical receipt owner for item 9 Return-read, exact block/value, continuation split, and item 10 FunctionExit terminal. Do not issue ValueId, emit_branch, emit_return, edge/PHI, or mutate publication/production state."
+current_design_stop = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-COSEAL-VIEW-I0 is Fast-ready after the accepted co-seal BoxShape; physical Return-read materialization and terminal emission remain a separate design stop."
+work_mode = "fast"
+current_execution_row = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-COSEAL-VIEW-I0"
+current_blocker_token = "FastReady::IfContinuationReturnReadCoSealView. Implement only the callback-scoped same-cohort logical/layout/Join co-seal view; no physical block/ValueId, Completion claim, emit_branch, emit_return, edge/PHI, publication, fallback, retry, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -67,7 +67,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   landed; the Generic-only physical-entry input BoxShape and its caller-zero
   source-to-mechanical I0 are landed. No detached binding read may open later
   physical effects; Generic physical-effect D0 and projection-only I0 are
-  landed. The If continuation placement, source-to-Recipe Return binding I0, common aggregation D0/I0, and canonical-session consumer I0 are landed; branch emission remains a design stop, now narrowed to the missing physical Return-read receipt owner. Generic skeleton facts were validated by a caller-zero canary and the detached shell/canary chain is now retired;
+  landed. The If continuation placement, source-to-Recipe Return binding I0, common aggregation D0/I0, and canonical-session consumer I0 are landed; the Return-read co-seal view D0 is accepted and its callback-scoped physical-effect-free I0 is selected next. Physical Return-read materialization/terminal emission remains a separate design stop. Generic skeleton facts were validated by a caller-zero canary and the detached shell/canary chain is now retired;
   Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
   consumer and focused rollback/duplicate gates; the convergence manifest is landed
   and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. Session-preflight D0 names one whole-admission unpublished consumer and sole rollback owner; sealed-consume I0, caller-zero shell/adoption/entry/segment preflight, and operation emission canary are landed. The detached Generic entry chain is retired after zero-caller verification. Production selection, Completion/DraftSeal, fallback/retry, and publication remain closed; a design-only structural convergence audit records the remaining parked inventory.
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, target-placement I0, source-to-Recipe Return binding I0, common aggregation D0/I0, and canonical-session consumer D0/I0 are landed; branch emission remains NoSafeSlice because common V2 has no source-backed physical Return-read receipt owner for item 9/10."
+latest_card_summary = "Generic G0 prerequisites, admission/consume/preflight canaries, Callable semantic consume, and the production candidate census are landed; selected-Dynamic remains the sole live arm. A-prime physical-input co-seal and transfer-authority evidence are closed. Topology deletion is NoSafeSlice without a selected segment caller. The LoopRecipe/common-physicalizer If continuation relation, placement-consumer D0, target-placement I0, source-to-Recipe Return binding I0, common aggregation D0/I0, and canonical-session consumer D0/I0 are landed; the Return-read logical/layout/Join co-seal view D0 is accepted and its physical-effect-free I0 is selected next. Physical Return-read materialization and terminal emission remain a separate design stop."
 next_design_card = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-PHYSICAL-RECEIPT-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none-until-Decision"
+next_execution_card = "LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-COSEAL-VIEW-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

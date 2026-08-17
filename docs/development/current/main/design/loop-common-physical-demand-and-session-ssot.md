@@ -7302,3 +7302,48 @@ physical Return-read receipt issuer -> reject missing/foreign/duplicate/
 ambiguous item/block/value/terminal before CFG/SSA/PHI mutation; the outer
 unpublished session remains the sole rollback owner
 ```
+
+### Return-read co-seal view D0 (2026-08-18; Decision: accepted)
+
+The worker premise audit closes the design question only as a BoxShape.  The
+next product is a same-cohort logical/layout/Join co-seal view, not a physical
+Return-read receipt and not a new semantic `Verified*`/`Prepared*` authority.
+
+```text
+Decision:
+  accept one callback-scoped `CommonV2ReturnReadCoSealRefV1` view that retains
+  the existing Return source binding and copies only the already-issued
+  logical item 9/result, logical then block, layout split ordinals for the
+  then/body segments, the exact logical continuation item, and the existing
+  Join `Return -> FunctionExit` target. It carries no physical block, ValueId,
+  edge, terminator, or Completion claim.
+Source authority + canonical issuer:
+  `VerifiedS6CReturnSourceRecipeBindingV1` remains the sole source-to-key
+  issuer. Existing `issue_s6c_common_v2_pre_session_v1` is the sole
+  same-cohort co-seal issuer; it may validate the existing operation row,
+  If/Exit rows, layout segments, and Join transfer, but may not invent a key.
+Non-authority:
+  fixed ordinals, Layout alone, `IfContinuationPhysicalTargetRefV1`, raw
+  Builder/session cursors, MIR IDs, the old V1 read emitter, and a V2-to-V1
+  adapter cannot issue or pair Return meaning. The view is not a physical
+  receipt and cannot be cloned or retained outside its callback/session loan.
+Fail-fast boundary:
+  reject foreign owner, missing/duplicate/ambiguous item 9 or item 10,
+  ReadBinding/Exit/value/block drift, source-site/region drift, non-Return or
+  non-FunctionExit Join arm, continuation non-strictness, and layout segment /
+  split mismatch before any physical mutation; the outer unpublished session
+  remains the sole rollback owner.
+Smallest next slice:
+  `LOOP-PHYSICAL-IF-CONTINUATION-RETURN-READ-COSEAL-VIEW-I0`: implement the
+  callback-scoped co-seal view and focused positive/negative transport gates;
+  consume it only through `CommonV2CanonicalSessionRefV1` and emit no physical
+  effect.
+Non-claims:
+  no physical block/value, canonical binding read, Completion claim,
+  `emit_branch`, `emit_return`, edge/PHI, publication, fallback, retry,
+  production switch, or old-path retirement is opened by this BoxShape.
+```
+
+The next physical materialization design remains separate.  The co-seal view
+may prove which existing logical/layout/Join rows must later agree, but it
+does not authorize a `ValueId`, physical block, terminal, or CFG mutation.
