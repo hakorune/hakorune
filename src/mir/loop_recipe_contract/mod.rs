@@ -17,6 +17,8 @@ mod common_v2_condition_operand_inventory;
 mod common_v2_initial_index_seed;
 // Caller-zero source-backed StringLen target realization; no physical Call.
 mod common_v2_string_len_target_plan;
+// Caller-zero source-backed StringSubstring target realization; no physical Call.
+mod common_v2_substring_target_plan;
 // Caller-zero source-backed complete predicate branch-plan transport.
 mod common_v2_predicate_branch_plan;
 // Caller-zero same-cohort Return-read logical/layout/Join co-seal view.
@@ -225,6 +227,11 @@ pub(crate) use common_v2_segment_allocation::{
 pub(crate) use common_v2_string_len_target_plan::{
     issue_s6c_v2_string_len_call_target_plan_v1, PreparedLoopV2StringLenCallTargetPlanV1,
     StringLenCallTargetPlanRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_substring_target_plan::{
+    issue_s6c_v2_substring_call_target_plan_v1, PreparedLoopV2SubstringCallTargetPlanV1,
+    SubstringCallTargetPlanRejectV1,
 };
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;

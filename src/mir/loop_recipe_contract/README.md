@@ -844,6 +844,26 @@ session-open canary are already landed. The next bounded row is the
 source-backed physical condition-result design stop; it must consume this
 scoped envelope rather than rescan Recipe/JoinSig or add an S6C physicalizer.
 
+## Common V2 StringSubstring target-plan I0 (2026-08-18)
+
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-TARGET-I0` transports the retained S6C
+`StringSubstring/2` source contract into the common pre-session envelope and
+issues one Builder-free, physical-ID-free `PreparedLoopV2SubstringCallTargetPlanV1`.
+The plan co-seals the existing Body `CallSlot` row and its
+`ExternallyBoundOutcome(normal_result)` class with the resolver-issued
+`StringBoxTextV1`/`TextToCaller`/`PureRead` target and the checked
+`hako.text.scan.substring.v1` export facts (`HostHandle`, two `ImmediateI64`,
+`EndAuthorized`). The export facts are subordinate transport capability, not
+source meaning or a selector.
+
+The plan rejects foreign owners, wrong source role/op/arity/placement, Recipe
+receiver/arguments/result drift, target-brand/schema/ABI drift, and provider
+wire/lane/lease drift before any effect. It contains no MIR `ValueId` or
+`Call`, runtime handle, lease token, fallback, retry, CFG, TextEq Bool, or
+publication authority. The focused positive and foreign-owner tests are
+caller-zero evidence only; actual V9 materialization remains the next design
+row.
+
 ## Common V2 condition operand inventory I0 (2026-08-17)
 
 `LOOP-COMMON-V2-PHYSICAL-AFTER-CONDITION-OPERAND-INVENTORY-I0` is landed as a

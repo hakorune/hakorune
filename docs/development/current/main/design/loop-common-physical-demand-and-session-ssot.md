@@ -1663,6 +1663,11 @@ stale token, missing or non-Text result, double consume, finish omission,
 fault-path End, and partial-acquisition rollback failure. No fallback/retry or
 semantic `Verified*`/`Prepared*` receipt is issued by this design row.
 
+Worker premise gate: Fast path is disallowed because no common-V2 caller yet
+co-seals source CallSlot V9 with a checked EndAuthorized residence and its
+finish/rollback owner; workers must decide whether an existing issuer is
+reusable or a new BoxShape is required.
+
 Consultation closure: both read-only workers agree that the aggregate is a
 safe BoxShape but not implementation-ready. Existing
 `TextFormalCallResidenceV1` and `EndAuthorizedTextV1` remain lifetime
@@ -1674,6 +1679,70 @@ receipts for the `V6` index read or `V8` `Add(V6,1)` operand, and no
 `StringSubstring/2` target plan. Those three source-backed operand/target
 relations are part of the V9 issuer design; they must not be reconstructed
 from raw item ordinals, `ValueId`s, or the selected-Dynamic cursor.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0 consultation closure (2026-08-18)
+
+Decision: accept `MaterializationRelationMissing` as the sole remaining
+boundary. The source/Recipe relation is closed, but no common-V2 canonical V9
+issuer exists. The checked `hako.text.scan.substring.v1` export is the only
+candidate transport; it is not source authority and cannot be borrowed from
+the selected-Dynamic corridor as-is.
+
+Source authority + canonical issuer: the retained S6C resolver
+`StringSubstring/2` contract and Recipe `CallSlot(item 6, B1, V0, [V6,V8] ->
+V9:Text)` are the source facts. The next issuer must co-seal that contract
+with the existing V6/V7/V8 callback receipt and the same Body segment; the
+canonical session remains the sole physical `ValueId`/type issuer.
+
+Non-authority: `nyash.string.eq_hh`, generic `substring_hii`, raw handles or
+`ValueId` bits, `publish_end_authorized_text(String)`, Dynamic I6/I7 site
+plans, `TextFormalCallResidenceV1` as a V9 result owner, and any fallback or
+retry. The private V9 receipt may only lend an opaque callback-scoped result;
+it may not mint TextEq/Bool meaning or consume runtime End by itself.
+
+Fail-fast boundary: before a Substring effect, reject source role/op/arity/
+placement/result drift, wrong receiver or `[V6,V8]` arguments, foreign
+owner/session/body segment/stamp, non-Text or non-`EndAuthorized` provider
+facts, zero/unknown/stale lease, duplicate receipt, and unsupported wire. A
+fault emits no V9; late callback failure discards the unpublished function;
+the runtime lease owner and the outer MIR transaction remain separate.
+
+Smallest next slice: `COMMON-V2-TEXTEQ-SUBSTRING-V9-TARGET-I0` (BoxShape).
+Transport the already-issued resolver Substring target contract into the
+pre-session envelope and issue one Builder-free, physical-ID-free checked
+TextScan target plan. It must stop before `CheckedCallOut`, V9 `ValueId`,
+lease consumption, TextEq V10, Bool, source-level branch/Return CFG,
+publication, fallback, retry, or production selection.
+
+Acceptance for the next row: exact source/Recipe/target/provider parity and
+same-cohort ownership are observable; wrong role/arity/receiver/args/result,
+foreign source, and wrong provider lane reject before any Builder effect.
+Only after this target plan is landed may the actual callback-scoped V9
+materializer and its local checked-callout corridor be opened.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-TARGET-I0 (2026-08-18; fast)
+
+Change: add one Builder-free, physical-ID-free `Prepared` target plan for the
+source-backed S6C `StringSubstring/2` row and the checked TextScan Substring
+export facts; transport the existing resolver call contract into the retained
+common-V2 envelope without issuing a second semantic source product.
+
+Contract: source/Recipe `item 6 / B1 / V0 / [V6,V8] -> V9:Text`, target
+`StringBoxTextV1`/`TextToCaller`/`PureRead`, and checked provider
+`HostHandle + ImmediateI64×2 -> HostHandle + EndAuthorized` must match one
+owner/cohort. No MIR ID, CallOut site, lease token, or runtime text lend is
+owned here.
+
+Done: the positive exact-parity target-plan test and the foreign-owner
+pre-effect rejection are green. The retained S6C source/Recipe ingress already
+rejects wrong role/arity/receiver/args/result, while the provider projection
+is checked as an exact static fact set. The quick focused gates, formatter,
+authority guard, and module/reference receipt are green.
+
+Stop: do not emit `CheckedCallOut`, V9 `ValueId`, End/lease consumption,
+TextEq V10, Bool, source-level branch/Return CFG, publication, fallback,
+retry, or production selection. Any missing source contract or provider fact
+returns the row to `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`.
 
 ### LOOP-PHYSICAL-S6C-TEXTEQ-OPERAND-ISSUER-D0 (2026-08-18; design stop)
 

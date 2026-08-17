@@ -34,6 +34,7 @@ use super::ids::{LoopBlockKeyV1, LoopExitKeyV1, LoopItemKeyV1, LoopValueKeyV1};
 use super::join_sig::{LoopJoinBranchArmTransferRefV2, LoopJoinLogicalTransferViewV2};
 use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalIngressRejectV2};
 use super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
+use super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1;
 use super::s6c_scan_with_init_joinir_output_rows::{S6CLogicalCallArgsV1, S6CLogicalItemV1};
 use super::schema_v2::{LoopOperationExecutionClassV2, LoopOperationV2};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -190,6 +191,7 @@ impl VerifiedLoopV2EnvelopeCoverageV1 {
 pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     owner: FunctionOwnerIdV1,
     operations: PreparedLoopOperationProgramV2<'source>,
+    substring_source: S6CLogicalCallInputRefV1<'join>,
     control: PreparedLoopControlTransferProgramV2<'source, 'join>,
     layout: PreparedLoopV2PhysicalLayoutInputV1<'source>,
     after_boundary: VerifiedLoopV2AfterBoundarySourceRelationV1,
@@ -209,6 +211,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
 
     pub(crate) fn operations(&self) -> &PreparedLoopOperationProgramV2<'_> {
         &self.operations
+    }
+
+    pub(crate) const fn substring_source(&self) -> S6CLogicalCallInputRefV1<'join> {
+        self.substring_source
     }
 
     pub(crate) fn control(&self) -> &PreparedLoopControlTransferProgramV2<'_, '_> {
@@ -268,6 +274,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         return Err(CommonV2IssuerRejectV1::ForeignOwner);
     }
     let operations = issue_operation_source(ingress)?;
+    let substring_source = ingress.substring_source();
     let control = issue_control_source(ingress)?;
     let layout = issue_s6c_v2_layout_input(ingress, expected_owner)
         .map_err(CommonV2IssuerRejectV1::Layout)?;
@@ -315,6 +322,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     Ok(PreparedLoopV2PreSessionEnvelopeV1 {
         owner: expected_owner,
         operations,
+        substring_source,
         control,
         layout,
         after_boundary,

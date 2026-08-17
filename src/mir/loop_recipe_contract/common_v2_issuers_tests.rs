@@ -3,6 +3,7 @@ use super::super::produce_s6c_scan_with_init_recipe_v2;
 use super::super::s6c_prephysical_ingress::issue_s6c_prephysical_ingress_v2;
 use super::super::s6c_scan_with_init_joinir_output::issue_s6c_scan_with_init_logical_output_v1;
 use super::super::s6c_scan_with_init_tests::issue_facts;
+use super::super::{issue_s6c_v2_substring_call_target_plan_v1, SubstringCallTargetPlanRejectV1};
 use super::{
     issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
 };
@@ -83,6 +84,43 @@ fn common_v2_issues_generic_operation_control_and_passive_coverage() {
                 .rows()
                 .iter()
                 .any(|row| row.item() == producer.producer_item()));
+            let target_plan = issue_s6c_v2_substring_call_target_plan_v1(&envelope, owner)
+                .expect("source-backed StringSubstring target plan");
+            assert_eq!(target_plan.owner(), owner);
+            assert_eq!(target_plan.item().raw(), 6);
+            assert_eq!(target_plan.block().raw(), 1);
+            assert_eq!(target_plan.result().raw(), 9);
+            assert_eq!(target_plan.method_name(), "substring");
+            assert_eq!(
+                target_plan.provider().entry,
+                crate::abi::text_scan_aot_export_facts::TextScanAotEntryIdV1::Substring
+            );
+            Ok(())
+        })
+        .expect("ingress view");
+}
+
+#[test]
+fn substring_target_plan_rejects_foreign_owner_before_effect() {
+    let output = issue_s6c_scan_with_init_logical_output_v1(
+        produce_s6c_scan_with_init_recipe_v2(issue_facts(FIXTURE, 1404)).expect("S6C recipe"),
+    )
+    .expect("logical rows");
+    let ingress = issue_s6c_prephysical_ingress_v2(output).expect("ingress");
+    let owner = ingress
+        .with_ingress(|view| Ok(view.source_owner()))
+        .expect("owner view");
+    let mut issuer = crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+        .expect("foreign compilation brand");
+    let foreign_owner = issuer.issue().expect("foreign owner");
+    ingress
+        .with_ingress(|view| {
+            let envelope =
+                issue_s6c_common_v2_pre_session_v1(view, owner).expect("common V2 envelope");
+            assert!(matches!(
+                issue_s6c_v2_substring_call_target_plan_v1(&envelope, foreign_owner),
+                Err(SubstringCallTargetPlanRejectV1::ForeignOwner)
+            ));
             Ok(())
         })
         .expect("ingress view");

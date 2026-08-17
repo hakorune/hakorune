@@ -245,6 +245,15 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.facts().source().calls().typed()
     }
 
+    /// Lend the resolver-issued StringSubstring contract that already belongs
+    /// to this retained source cohort.  This is transport only: no new
+    /// semantic receipt or physical target is issued here.
+    pub(crate) fn substring_source(
+        self,
+    ) -> super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1<'facts> {
+        self.source.logical().calls().substring().source()
+    }
+
     /// Project the two source-bound CoreMethod effects without exposing the
     /// retained source relation.  The caller-zero physical header issuer
     /// consumes this narrow view; it never infers effects from MIR or names.
