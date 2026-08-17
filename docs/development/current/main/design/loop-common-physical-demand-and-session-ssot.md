@@ -1812,3 +1812,41 @@ TextEq/Bool, CFG/PHI, Completion/DraftSeal, publication, fallback, retry, or
 production caller. The next design stop is
 `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0`; `nyash.string.eq_hh` remains
 transport-only and non-authoritative.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 (2026-08-18; consultation closure)
+
+Decision: keep `NoSafeSlice::MaterializationRelationMissing`. The source and
+Recipe meaning is closed, but no common-V2 canonical V9 materializer owns the
+checked Substring result, scoped text lend, and finish/rollback edge. Split the
+boundary into a V9 issuer first and a later V9+V1 residence co-seal; do not
+implement either aggregate or issue a new semantic receipt in this design row.
+
+Source authority + canonical issuer: S6C `StringSubstring/2` and Recipe
+`CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)` remain the authority. The next
+private issuer must consume the existing V6/V7/V8 callback receipt, the same
+Body segment brand, and checked `hako.text.scan.substring.v1` facts; the
+canonical session remains the sole physical `ValueId`/type issuer.
+
+Non-authority: `nyash.string.eq_hh`, `substring_hii`, raw handles/tokens or
+`ValueId` bits, `publish_end_authorized_text(String)`, selected-Dynamic I6/I7,
+`TextFormalCallResidenceV1` as a V9 owner, and fallback/retry. The future
+`CommonV2TextEqResidenceScopeV1` may only co-seal already-issued V9 and ExactText
+V1 capabilities; it may not mint either capability or TextEq meaning.
+
+Fail-fast boundary: before Substring effect reject wrong role/op/arity/receiver,
+item/block/result or argument drift, foreign owner/session/segment/stamp,
+non-Text or non-`EndAuthorized` output, unknown/reserved/zero/stale lease,
+missing/duplicate receipt, escaped raw capability, double consume, and partial
+acquisition without rollback. A fault emits no V9/End; late callback failure
+discards the unpublished function and never retries the session.
+
+Smallest next slice: design-only BoxShape
+`COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0`. Name the source-backed checked V9
+materializer, callback-scoped opaque result/lend API, lease and formal-residence
+finish owner, reverse-order partial rollback, and its complete negative matrix.
+
+Acceptance/non-claims: the Decision must identify one issuer and one lifecycle
+owner plus Direct/Checked/RejectBeforeEffect classification. It must not add
+code, fixtures, `Verified*`/`Prepared*` receipts, CheckedCallOut effect, V9
+ValueId/lease consumption, TextEq V10, Bool, CFG/Return, publication,
+production selection, fallback, retry, or legacy retirement.

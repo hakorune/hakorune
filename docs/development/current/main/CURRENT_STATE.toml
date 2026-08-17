@@ -34,15 +34,15 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0 is landed. The real collector-backed ModuleInvocationBrandV1 travels through InvocationBranded<PreparedPhysicalEntrySessionInputV1> into one common-V2 session/admission; the neutral single-site plan and opaque lifecycle sidecar remain effect-free. The next design stop is COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 consultation is closed as NoSafeSlice::MaterializationRelationMissing. Source/Recipe meaning is closed, but no common-V2 canonical V9 materializer owns checked Substring result, scoped text lend, and finish/rollback. The next bounded design slice is COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0"
-current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0. The source/Recipe TextEq path is closed, but the common-V2 checked Substring result still lacks a canonical V9 residence/materializer owner. Design the exact EndAuthorized lease/result/text-lend co-seal and finish/rollback boundary. Do not issue TextEq V10, Bool, CFG, publication, fallback, retry, or production."
+current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0"
+current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0. Name one source-backed checked V9 materializer, callback-scoped opaque result/lend, EndAuthorized lease and formal-residence finish owner, reverse-order partial rollback, and the full negative matrix. Do not add code, fixtures, new semantic receipts, CheckedCallOut effect, V9 ValueId/lease consume, TextEq, Bool, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq V9 residence D0)"
+active_lane = "Loop compiler frontier (S6C TextEq V9 issuer D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -76,9 +76,9 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
   is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
 The common-V2 S6C Substring callout-admission I0 is now landed: collector brand
 transport, one neutral single-site plan, checked provider projection, and the
-callback-scoped lifecycle sidecar are effect-free and caller-zero. The next
-design stop is V9 residence/materializer ownership; the existing AOT activation
-guard's selected-package-adapter failure remains baseline debt.
+callback-scoped lifecycle sidecar are effect-free and caller-zero. The V9
+residence consultation is closed as MaterializationRelationMissing; the next design slice is the checked V9 issuer/lend/rollback owner. The existing AOT
+activation guard's selected-package-adapter failure remains baseline debt.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
@@ -94,10 +94,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0 is landed: real ModuleInvocationBrandV1 transport through InvocationBranded<PreparedPhysicalEntrySessionInputV1>, a neutral single-site admission, and one lifecycle sidecar remain effect-free. The next design stop is the V9 residence/materializer owner; CheckedCallOut effect, V9 ValueId/lease consume, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0"
+latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0 is landed and effect-free. The V9 residence consultation is closed as MaterializationRelationMissing; the next design slice names the checked V9 issuer, scoped text lend, lease/finish owner, and rollback. CheckedCallOut effect, V9 ValueId/lease consume, TextEq V10, Bool, branch/Return CFG, and production remain closed."
+next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 design stop)"
+next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0 design stop)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
