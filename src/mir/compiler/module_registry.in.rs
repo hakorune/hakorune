@@ -79,6 +79,8 @@ pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_source_parent;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_storage_lane_source;
+#[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_function_effect;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_completion;

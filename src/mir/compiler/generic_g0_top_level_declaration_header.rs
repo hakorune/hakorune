@@ -31,6 +31,22 @@ pub(crate) struct GenericG0DeclarationParameterV1 {
     declared_type_name: Option<Box<str>>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct GenericG0DeclarationAttrV1 {
+    name: Box<str>,
+    args: Box<[Box<str>]>,
+}
+
+impl GenericG0DeclarationAttrV1 {
+    pub(crate) fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub(crate) fn args(&self) -> &[Box<str>] {
+        &self.args
+    }
+}
+
 impl GenericG0DeclarationParameterV1 {
     pub(crate) const fn ordinal(&self) -> u32 {
         self.ordinal
@@ -55,6 +71,8 @@ pub(crate) struct VerifiedGenericG0TopLevelDeclarationHeaderV1 {
     source_kind: SemanticOwnerSourceKindV1,
     name: Box<str>,
     parameters: Box<[GenericG0DeclarationParameterV1]>,
+    uses: Box<[Box<str>]>,
+    attrs: Box<[GenericG0DeclarationAttrV1]>,
     return_type_name: Option<Box<str>>,
     is_static: bool,
     metadata_is_empty: bool,
@@ -79,6 +97,14 @@ impl VerifiedGenericG0TopLevelDeclarationHeaderV1 {
 
     pub(crate) fn parameters(&self) -> &[GenericG0DeclarationParameterV1] {
         &self.parameters
+    }
+
+    pub(crate) fn uses(&self) -> &[Box<str>] {
+        &self.uses
+    }
+
+    pub(crate) fn attrs(&self) -> &[GenericG0DeclarationAttrV1] {
+        &self.attrs
     }
 
     pub(crate) fn return_type_name(&self) -> Option<&str> {
@@ -141,12 +167,36 @@ pub(crate) fn issue_generic_g0_top_level_declaration_header_v1(
         });
     }
 
+    let uses = header
+        .uses()
+        .iter()
+        .map(|use_name| use_name.as_str().into())
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+    let attrs = header
+        .attrs()
+        .runes
+        .iter()
+        .map(|attr| GenericG0DeclarationAttrV1 {
+            name: attr.name.as_str().into(),
+            args: attr
+                .args
+                .iter()
+                .map(|arg| arg.as_str().into())
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+
     Ok(VerifiedGenericG0TopLevelDeclarationHeaderV1 {
         owner: input.owner(),
         origin: input.function().function_origin(),
         source_kind: input.function().source_kind(),
         name: header.name().into(),
         parameters: parameters.into_boxed_slice(),
+        uses,
+        attrs,
         return_type_name: header.return_type_name().map(Into::into),
         is_static: header.is_static(),
         metadata_is_empty: header.metadata_is_empty(),

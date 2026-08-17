@@ -24,6 +24,11 @@ use super::generic_g0_result_abi::{
     issue_generic_g0_result_abi_transport_v1, GenericG0ResultAbiRejectV1,
     VerifiedGenericG0ResultAbiV1,
 };
+use super::generic_g0_storage_lane_source::{
+    issue_generic_g0_storage_lane_source_projection_v1,
+    GenericG0StorageLaneSourceRejectV1,
+    VerifiedGenericG0StorageLaneSourceProjectionV1,
+};
 use super::generic_g0_top_level_declaration_header::{
     issue_generic_g0_top_level_declaration_header_v1,
     GenericG0TopLevelDeclarationHeaderRejectV1,
@@ -69,6 +74,7 @@ pub(crate) enum GenericG0SourceParentRejectV1 {
     DeclarationHeader(GenericG0TopLevelDeclarationHeaderRejectV1),
     FunctionEffect(GenericG0FunctionEffectRejectV1),
     ResultAbi(GenericG0ResultAbiRejectV1),
+    StorageLane(GenericG0StorageLaneSourceRejectV1),
     Completion(GenericG0CompletionRejectV1),
     Demand(GenericG0RecipeDemandIssueV1),
     Product(GenericG0RecipeProducerRejectV1),
@@ -112,6 +118,7 @@ pub(crate) struct VerifiedGenericG0SourceParentV1<'source> {
     declaration_header: VerifiedGenericG0TopLevelDeclarationHeaderV1,
     function_effect: VerifiedGenericG0NoExternalEffectV1,
     result_abi: VerifiedGenericG0ResultAbiV1,
+    storage_lane: VerifiedGenericG0StorageLaneSourceProjectionV1,
     completion: VerifiedFunctionCompletionV1,
 }
 
@@ -148,6 +155,12 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
 
     pub(crate) fn result_abi(&self) -> &VerifiedGenericG0ResultAbiV1 {
         &self.result_abi
+    }
+
+    pub(crate) fn storage_lane(
+        &self,
+    ) -> &VerifiedGenericG0StorageLaneSourceProjectionV1 {
+        &self.storage_lane
     }
 
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
@@ -194,6 +207,12 @@ impl<'loan, 'source> GenericG0SourceParentRefV1<'loan, 'source> {
 
     pub(crate) fn result_abi(&self) -> &VerifiedGenericG0ResultAbiV1 {
         self.parent.result_abi()
+    }
+
+    pub(crate) fn storage_lane(
+        &self,
+    ) -> &VerifiedGenericG0StorageLaneSourceProjectionV1 {
+        self.parent.storage_lane()
     }
 
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
@@ -243,6 +262,14 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         .map_err(GenericG0SourceParentRejectV1::Product)?;
     validate_product_input(&input, &product)?;
     let entries = issue_entry_rows(&input, &product)?;
+    let storage_lane = issue_generic_g0_storage_lane_source_projection_v1(
+        &input,
+        &product,
+        &declaration_header,
+        body_shape,
+        &entries,
+    )
+    .map_err(GenericG0SourceParentRejectV1::StorageLane)?;
     let parent = VerifiedGenericG0SourceParentV1 {
         input,
         product,
@@ -251,6 +278,7 @@ pub(crate) fn with_generic_g0_source_parent_v1<'source, R>(
         declaration_header,
         function_effect,
         result_abi,
+        storage_lane,
         completion,
     };
     Ok(callback(GenericG0SourceParentRefV1 { parent: &parent }))

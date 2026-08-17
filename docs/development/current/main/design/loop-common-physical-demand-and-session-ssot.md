@@ -548,7 +548,34 @@ Non-claims:
   Text, route, production caller, fallback, or retry is opened by this census.
 ```
 
-### Generic G0 source-projection child tasks (ordered; current row is storage/lane projection I0)
+Implementation receipt (2026-08-17):
+  `generic_g0_storage_lane_source.rs` now issues one private, non-`Clone`
+  source row from the same Generic parent transaction.  The row retains the
+  declaration attrs/uses witness, receiver policy and source `BindingRef`,
+  dense explicit i64 rows, and the local mechanical
+  `ExistingCallableI64` carrier.  It stores checked explicit logical arity
+  and checked callable lane count; receiver count remains a separate axis.
+  Instance-shaped and absent-receiver source facts, foreign-parent rejection,
+  and late no-publication behavior are covered by the focused Generic source
+  parent suite.  This receipt is source-only: it issues no physical signature,
+  `EffectMask`, `ValueId`, skeleton, BindingSSA, Builder/session, CFG/PHI,
+  lifecycle, Text, route, fallback, retry, or production caller.
+
+### Next design stop: Generic G0 physical-entry input
+
+The source projection I0 is complete, but it is not yet a physical-entry
+issuer.  The next stop is `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-ENTRY-D0` with
+`NoSafeSlice::GenericG0PhysicalEntryInputIssuerUnsealed` kept live.  A design
+audit must name one same-cohort Generic issuer for the later mechanical lane
+descriptor (including receiver prefix, explicit row order, result/header,
+storage metadata, and source-backed effects) before any skeleton or entry
+adoption effect is opened.  The local `ExistingCallableI64` tag, `/N`, MIR or
+JSON lengths, S6C physical rows, `ValueId`, and `MirFunction` are not that
+issuer.  Until that input is closed, the next slice is design-only and must
+not create a skeleton, reserve/adopt lanes, open a session, or consume
+Completion.
+
+### Generic G0 source-projection child tasks (ordered; source-only I0 landed; next is physical-entry design)
 
 The Generic parent now has all four source siblings.  The following rows keep
 the source projection and physical consumers separate; they do not authorize
@@ -3958,7 +3985,7 @@ skip the After closure or reopen a Tail-only route.
 | 25b-c0-I0 | `LOOP-COMMON-V2-PHYSICAL-FUNCTION-ENTRY-INPUT-I0` | consume one accepted same-loan view and expose nonsemantic physical parameter descriptors for the later skeleton consumer | landed 2026-08-17; caller-zero transport only; no skeleton allocation, ValueId, BindingSSA, Completion consumption, Loop CFG, lifecycle, route, fallback, or production caller |
 | 25b-c0-G0 | `LOOP-GENERIC-G0-PHYSICAL-ENTRY-SOURCE-PROJECTION-D0` | census a Generic G0 TopLevel declaration/header, result/ABI, function-effect, Completion, and source storage/lane cohort without borrowing S6C receipts | accepted source-only BoxShape 2026-08-17; body-shape transport, function-effect receipt, result-ABI transport, canonical Completion transport, and storage/lane source policy are landed/accepted; no physical signature, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, Completion consumption, lifecycle, Text, route, fallback, retry, or production caller |
 | 25b-c0-G0-storage-lane | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-PROJECTION-D0` | accept the same-parent source storage/header, receiver-policy, and explicit-row BoxShape; keep receiver separate from explicit formal arity and forbid S6C reuse | accepted 2026-08-17; next source-only caller-zero I0; no physical signature, EffectMask, skeleton, ValueId, BindingSSA, CFG/PHI, lifecycle, Text, route, fallback, retry, or production caller |
-| 25b-c0-G0-storage-lane-I0 | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-PROJECTION-I0` | retain one private/non-Clone Generic parent-owned source row: attrs/uses, receiver policy/BindingRef, dense explicit rows, and checked mechanical `ExistingCallableI64` carrier tag | next fast slice; instance/absent policy and foreign/mismatch/duplicate/drift/late-failure negatives; source projection only, no physical/session effect |
+| 25b-c0-G0-storage-lane-I0 | `LOOP-GENERIC-G0-STORAGE-LANE-SOURCE-PROJECTION-I0` | retain one private/non-Clone Generic parent-owned source row: attrs/uses, receiver policy/BindingRef, dense explicit rows, and checked mechanical `ExistingCallableI64` carrier tag | landed 2026-08-17; six focused source-parent tests green; checked explicit/callable counts and instance/absent policy are source-only; next is `LOOP-GENERIC-G0-PHYSICAL-FUNCTION-ENTRY-D0`; no physical/session effect |
 | 25b-c0-G0-effect-transport | `LOOP-GENERIC-G0-BODY-EFFECT-TRANSPORT-D0` | transport the same-resolver body-shape product through the source unit/root input into the Generic cohort; no count-only effect receipt | landed 2026-08-17; owner/body-root checks and bare-input/foreign-cohort negatives green; no effect issuer, EffectMask, skeleton, session, or Builder |
 | 25b-c0-G0-effect | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-D0` | use the transported body-shape sibling for a resolver-owned census of body effects, calls, metadata-empty witness, and Generic structural facts; issue no physical EffectMask | accepted BoxShape 2026-08-17; next caller-zero I0 is the private source receipt; no physical EffectMask/session |
 | 25b-c0-G0-effect-I0 | `LOOP-GENERIC-G0-FUNCTION-EFFECT-PROJECTION-I0` | issue one same-cohort private non-Clone Generic no-external-effect receipt before demand/product consumption | landed 2026-08-17; focused source-receipt and late-failure gates green; no physical/session effect |

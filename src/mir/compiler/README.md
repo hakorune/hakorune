@@ -456,7 +456,29 @@ callback lends that row; it does not re-scan AST or reconstruct a header from
 This I0 is a source projection only. Result ABI, receiver/lane layout,
 function effect, Completion, skeleton/session, CFG/SSA/PHI, lifecycle, Text,
 route, fallback, retry, and production caller remain closed by the active
-physical-entry design stop.
+physical-entry design stop. The source-only projection I0 is landed; the next
+design stop is one same-cohort Generic physical-entry input issuer. No
+skeleton, lane adoption, or session effect is authorized until that issuer is
+named.
+
+## Generic G0 storage/lane source projection I0
+
+`generic_g0_storage_lane_source.rs` retains one parent-owned source row after
+the declaration/header, result, effect, and Completion siblings have been
+co-sealed.  It records the exact receiver policy and optional resolver
+`BindingRef`, declaration metadata witnesses, dense explicit parameter rows,
+and a local mechanical `ExistingCallableI64` carrier tag.  Receiver policy is
+separate from explicit formal arity: `DeclaredInstance` contributes a
+receiver prefix, while `Absent` contributes none; `/N`, MIR/JSON length, and
+S6C physical rows are not consulted.
+
+The row is non-`Clone` and callback-scoped through
+`VerifiedGenericG0SourceParentV1`.  It owns no physical signature,
+`EffectMask`, `ValueId`, `MirFunction`, Builder/session state, or lane
+materialization.  Foreign owner/origin/frame, receiver-policy or BindingRef
+drift, duplicate/missing rows, and type/ABI drift reject before any physical
+effect.  Generic static narrowing, S6C descriptor reuse, and production
+caller activation remain separate decisions.
 
 ## NestedPredicate S1 source observation
 
