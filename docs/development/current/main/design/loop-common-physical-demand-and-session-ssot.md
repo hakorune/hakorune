@@ -873,6 +873,18 @@ The bounded sub-decisions are ordered and effect-free:
    checks.  Duplicate, foreign, reordered, or partially published rows reject
    before BindingSSA effect.
 
+The session-admission side is an independent missing input, not a reason to
+reuse the S6C admission aggregate.  The Generic parent retains the resolver
+input, body-shape inventory, and semantic Completion, but it does not yet
+carry a Generic-owned typed BlockExpr expectation or an outer-If residual.
+`VerifiedResolvedFunctionIfControlV1::empty_for_owned_loop_profile` may be
+used only after the Generic resolver singleton loop site is co-sealed; the
+Completion may be borrowed only by the later session consumer.  The current
+`LoopV2CanonicalSessionAdmissionRefV1` is therefore a transport for the S6C
+installed loan, not a Generic authority.  A future Generic admission must
+co-seal these three source views with the Generic parent/stamp in one
+callback-scoped product before opening any session.
+
 Only after these four products are closed may
 `LOOP-GENERIC-G0-PHYSICAL-ENTRY-LANE-ADOPTION-I0` open.  That I0 is limited to
 one fresh unpublished transaction, exact shell-parameter checks, and atomic
