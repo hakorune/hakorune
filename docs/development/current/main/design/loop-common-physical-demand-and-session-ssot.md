@@ -2191,6 +2191,44 @@ Non-claims: no implementation, StringBox runtime-pair issuer, residence pin,
 TextEq V10/Bool, inner If/Return CFG, Completion/DraftSeal, publication,
 production switch, fallback, retry, or legacy retirement.
 
+#### D0 consultation closure (2026-08-18; accepted)
+
+The worker audits close the authority question without changing the source
+architecture. The canonical materializer is one private, callback-scoped
+consumer of the existing admission: it co-seals the admitted site plan,
+source result key, owner/session/Body-segment brand, Normal/Fault landing
+blocks, and every source-authorized normal exit cutpoint before the first MIR
+mutation. It does not expose a decomposable site-plan/End tuple or accept a
+runtime wire.
+
+The only physical writers remain the existing canonical owners:
+
+```text
+CanonicalCfgSessionV1
+  -> CheckedCallOut and Fault terminal
+CanonicalSsaFunctionSessionV2
+  -> NormalResult(V9) and End at each verified normal cutpoint
+outer unpublished function transaction
+  -> rollback for every compiler failure
+```
+
+Normal is exactly `CheckedCallOut -> NormalResult(V9) -> source-proven
+consumer -> End`; Fault is a successorless `CheckedCallOutFault` with no V9
+and no End. End coverage is issued from existing source Join/Completion and
+cleanup facts, not inferred from MIR adjacency. The runtime-wire issuer stays
+a caller-zero lifecycle canary. A materializer failure rejects before its
+first mutation when possible; any late failure discards the whole unpublished
+function and never retries the same session.
+
+Accepted smallest next slice: `COMMON-V2-S6C-STRUCTURE-R0`, a behavior-neutral
+split that keeps one `VerifiedS6CPrephysicalIngressV2` owner and one
+`CommonV2CanonicalSessionRefV1` owner while moving validation/segment helpers
+behind private child modules. No new semantic receipt is required.
+
+Non-claims: this closure does not open V9 I0 implementation, TextEq V10,
+StringBox residence, inner CFG, Completion/publication, production switch,
+fallback, retry, or compatibility retirement.
+
 #### Layer review
 
 | Layer | Verdict | Boundary |
@@ -2305,6 +2343,28 @@ hot loop. Root ptr/len loads occur in the preheader. Initial promotion targets,
 on the same target/optimization level with warmup and at least 30 samples, are
 ASCII exact-kernel p50 at most 1.10x C, mixed UTF-8 at most 1.15x, 4 KiB-or-
 larger meso at most 1.15x, long whole-call at most 1.20x, and p95 at most 1.30x.
+
+#### COMMON-V2-S6C-STRUCTURE-R0 closeout (2026-08-18; accepted)
+
+This behavior-neutral split is complete. `s6c_prephysical_ingress.rs` is now
+672 lines and keeps the sole `VerifiedS6CPrephysicalIngressV2` owner; its
+source-anchor verifier is a private `s6c_prephysical_ingress_validation.rs`
+child. `common_v2_session.rs` is now 392 lines and keeps the sole
+`CommonV2CanonicalSessionRefV1` owner; Length and segment/target projections
+extend that same type from private child modules. No semantic receipt, Recipe
+key, physical ID, MIR effect, runtime wire, or second session was added.
+
+Evidence: `cargo fmt --all`, `tools/checks/common_v2_s6c_structure_guard.sh`,
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`,
+the exact `prephysical_ingress_seals_exact_source_and_transfer_census` test,
+and the exact `shared_segment_scope_threads_length_into_condition_bool` test
+are green. The initial short filter that matched zero tests is not counted as
+evidence; the full test paths were resolved with `-- --list` and rerun exactly.
+
+Accepted smallest next slice: `COMMON-V2-S6C-V9-CALLOUT-MIR-I0`. It may now
+bind the existing canonical CFG/SSA writers through the accepted callback
+boundary, while TextEq V10, residence, inner CFG, publication, production,
+fallback, retry, and compatibility retirement remain closed.
 
 The independent structural audit remains a separate pre-production backlog:
 

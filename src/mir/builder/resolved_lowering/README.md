@@ -740,3 +740,13 @@ production call. Foreign/stale/mismatched leases, non-normal or immediate
 wire results, duplicate body rows, and owner/segment/plan drift reject before
 the next physical effect. The next design stop is the V9+ExactText V1
 residence co-seal.
+
+## Common V2 structure R0 (2026-08-18)
+
+`CommonV2CanonicalSessionRefV1` remains the single session owner. Its
+length-specific projections are implemented in the private
+`common_v2_session_length.rs` child, while segment/condition/continuation
+projections are in `common_v2_session_segments.rs`; both extend the same
+parent type and cannot create a sibling session or semantic receipt. The
+facade is now well below the 800-line source ceiling, and this refactor emits
+no new MIR, runtime wire, TextEq, CFG, publication, fallback, or retry.

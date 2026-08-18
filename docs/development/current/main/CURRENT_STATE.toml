@@ -3,32 +3,32 @@
 status = """
 S6C source Binary Equal(Text,Text), StringSubstring/2, exact Facts, portable
 Recipe TextEq, Join/Completion, physical entry, target/admission, and operand
-proofs are closed caller-zero substrate. A phase audit found that the landed
-concrete-wire V9 issuer is a runtime-contract canary, not a production MIR
-physicalizer: it emits no CheckedCallOut and no V9 ValueId. The source
-architecture stays intact; the compiler/runtime physical seam returns to
-design_stop. Selected Dynamic remains the sole production arm.
+proofs are closed caller-zero substrate. The V9 MIR materializer D0 and the
+behavior-neutral Structure-R0 split are accepted: canonical CFG/SSA writers
+remain bound by one callback-scoped owner with Normal/Fault/End lifecycle and
+unpublished rollback. The next row is V9 MIR I0; Selected Dynamic remains the
+sole production arm and all runtime/direct/TextEq work stays parked.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Close the canonical S6C V9 CheckedCallOut MIR materializer boundary. Compile time must emit Normal/Fault/End structure and must not receive or mint a concrete runtime wire. TextEq V10, inner CFG, residence optimization, and production remain closed."
-work_mode = "design_stop"
-current_execution_row = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0"
-current_blocker_token = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0. Design only: name one canonical CheckedCallOut -> { NormalResult(V9) -> consumer -> End | Fault } materializer with pre-mutation validation. No code, concrete runtime wire, StringBox pair issuer, TextEq, CFG, publication, fallback, retry, or production."
+current_design_stop = "D0 and Structure-R0 accepted. V9 MIR I0 may bind the existing canonical CFG/SSA writers; compile time still receives or mints no concrete runtime wire, and TextEq V10, residence, inner CFG, publication, and production remain closed."
+work_mode = "fast"
+current_execution_row = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
+current_blocker_token = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0. One BoxShape implementation: emit canonical CheckedCallOut, NormalResult(V9), source-authorized consumer, End at every verified normal cutpoint, and separate terminal Fault through existing CFG/SSA writers. No runtime wire, StringBox residence, TextEq V10, inner CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C V9 canonical callout D0)"
+active_lane = "Loop compiler frontier (S6C V9 MIR I0 after Structure-R0)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
 operand proof, invocation brand, and lifecycle sidecar are landed without
-physical effect. Existing canonical CFG/SSA APIs already own CheckedCallOut,
-NormalResult, End, and Fault writes. The next D0 connects those compile-time
-owners; runtime wire/LeaseSet canaries remain subordinate only. C-speed work is
-parked until correctness and production cutover.
+runtime wire. Structure-R0 keeps the ingress and canonical session façades
+thin. The next row emits only the canonical V9 MIR lifecycle; runtime
+wire/LeaseSet canaries, C-speed work, TextEq, and production cutover remain
+parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -41,10 +41,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is reclassified as a caller-zero runtime-contract canary; canonical CheckedCallOut/NormalResult/Fault/End MIR materialization is the immediate design boundary. StringBox runtime residence, TextEq V10, inner CFG, production, performance promotion, and eq_hh retirement are later rows."
-next_design_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is a caller-zero runtime-contract canary; the canonical CheckedCallOut/NormalResult/Fault/End materializer D0 and Structure-R0 split are accepted. V9 MIR I0 is the next bounded effect row. StringBox residence, TextEq V10, inner CFG, production, performance promotion, and eq_hh retirement remain later rows."
+next_design_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (COMMON-V2-S6C-V9-CALLOUT-MIR-D0 design stop)"
+next_execution_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

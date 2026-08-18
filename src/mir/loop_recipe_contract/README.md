@@ -934,3 +934,12 @@ This D0 opens no physical `ValueId`, Compare lowering, `emit_branch`, CFG/PHI,
 Completion/DraftSeal, lifecycle, Text route, performance, or production
 caller. The next bounded action is an issuer census; implementation starts
 only after that census closes the operand and stamp seams.
+
+## S6C prephysical ingress structure R0 (2026-08-18)
+
+`VerifiedS6CPrephysicalIngressV2` remains the sole semantic ingress owner.
+Its source-anchor checks now live in the private
+`s6c_prephysical_ingress_validation.rs` child, which only validates existing
+Facts/Recipe/Join anchors and returns the parent-owned seal. The split changes
+no accepted shape, key issuer, or physical authority; every rejected anchor
+still fails before a Builder/session effect.
