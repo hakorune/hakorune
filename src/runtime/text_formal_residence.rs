@@ -75,8 +75,14 @@ impl ResidenceAbiLayoutV1 {
     }
 
     pub(crate) const fn frame_size_for_roots(self, root_count: u32) -> Option<u32> {
+        if root_count > self.max_root_count {
+            return None;
+        }
         match self.root_row_size.checked_mul(root_count) {
-            Some(rows) => self.header_size.checked_add(rows),
+            Some(rows) => match self.header_size.checked_add(rows) {
+                Some(size) if size <= self.max_frame_bytes => Some(size),
+                _ => None,
+            },
             None => None,
         }
     }
@@ -245,6 +251,11 @@ impl TextFormalCallResidenceV1 {
 pub(crate) fn acquire_text_formal_residence_v1(
     pairs: &[TextFormalWirePairV1],
 ) -> Result<TextFormalCallResidenceV1, TextFormalResidenceAcquireRejectV1> {
+    if pairs.len() > RESIDENCE_MAX_ROOT_COUNT_V1 as usize {
+        return Err(TextFormalResidenceAcquireRejectV1::FrameSizeOverflow {
+            root_count: pairs.len(),
+        });
+    }
     let inner = host_handles::acquire_text_formal_call_residence_v1(pairs)
         .map_err(TextFormalResidenceAcquireRejectV1::Lease)?;
     let root_count = inner.root_count();
@@ -293,7 +304,7 @@ fn rollback_residence(
 
 #[inline(always)]
 fn frame_total_size(root_count: u32) -> Option<u32> {
-    RESIDENCE_FRAME_HEADER_SIZE_V1.checked_add(RESIDENCE_ROOT_ROW_SIZE_V1.checked_mul(root_count)?)
+    residence_abi_layout_v1().frame_size_for_roots(root_count)
 }
 
 #[inline(always)]
@@ -399,6 +410,9 @@ pub unsafe fn enter_text_formal_residence_c_v1(
     }
 
     let pair_count_usize = pair_count as usize;
+    if pair_count > RESIDENCE_MAX_ROOT_COUNT_V1 {
+        return TextFormalResidenceCStatusV1::FrameSizeOverflow.as_u32();
+    }
     let pair_bytes = match size_of::<TextFormalBorrowV1>().checked_mul(pair_count_usize) {
         Some(bytes) => bytes,
         None => return TextFormalResidenceCStatusV1::FrameSizeOverflow.as_u32(),

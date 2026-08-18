@@ -2586,6 +2586,29 @@ there is no copied root `Arc`, byte snapshot, whole-function lock, or mutable
 alias escape. The existing row-11 mutable-reachability census is a release
 gate, not an informational grep.
 
+#### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
+
+The Residence ABI maxima are now enforced at every runtime entry before any
+pair Vec materialization or host-table pin. The compile-time ABI view,
+Rust-owned Residence acquisition, and C frame entry all share the same
+root-count/frame-size boundary; an over-limit request is mutation-free and
+cannot publish a token or root row. The guard is representation-only and does
+not widen the StableText classifier or create a TextRef.
+
+Evidence: `cargo fmt --all`,
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+text_formal_residence` (9 passed / 0 failed), and
+`tools/checks/current_state_pointer_guard.sh` are green. The focused test
+covers the exact maximum ABI size, over-limit C rejection before pinning,
+stale/overlap/frame negatives, occurrence ordering, and exactly-once finish.
+Warnings are baseline-only; no `--nocapture`, release profile, StringBox
+admission, TextRef, TextEq V10, fallback, retry, or production switch opened.
+
+Accepted next slice: `TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0`. It must keep
+one exact payload classifier, allocate root descriptors only for the
+root-bearing Residence path, and preserve the same atomic validation/pin and
+rollback boundary.
+
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:

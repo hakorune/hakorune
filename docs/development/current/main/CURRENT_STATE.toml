@@ -3,33 +3,34 @@
 status = """
 S6C source Binary Equal(Text,Text), StringSubstring/2, exact Facts, portable
 Recipe TextEq, Join/Completion, physical entry, target/admission, operand
-proofs, Structure-R0, and the callback-scoped canonical V9 MIR lifecycle are
-closed caller-zero substrate. The V9 + ExactText occurrence co-seal is closed
-and the strict portable TextEq capability is named; its TextRef residence
-issuer is still a design stop. Selected Dynamic remains the sole production
-arm and all residence/direct/production work stays parked.
+proofs, Structure-R0, callback-scoped canonical V9 MIR lifecycle, V9 +
+ExactText occurrence co-seal, and the strict portable TextEq capability are
+closed caller-zero substrate. Residence ABI/frame limits are now guarded;
+the selected runtime canary is row 10, lease/root admission separation.
+TextRef residence, TextEq V10, direct leaf, publication, and production remain
+closed; Selected Dynamic remains the sole production arm.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "D0, Structure-R0, V9 MIR I0, ExactText co-seal D0/I0, and the strict portable TextEq capability decision are accepted. TextEq is stopped at NoSafeSlice::PortableTextEqTextRefResidenceUnsealed; residence, V10 effect, inner CFG, publication, and production remain closed."
-work_mode = "design_stop"
-current_execution_row = "COMMON-V2-S6C-TEXTEQ-TEXTREF-D0"
-current_blocker_token = "NoSafeSlice::PortableTextEqTextRefResidenceUnsealed. Name one canonical producer/finish owner for V9 and ExactText opaque TextRefs before any Bool V10 MIR effect. No raw handle Compare, StringEquals/C ABI, fallback, retry, guessed residence, inner CFG, publication, or production."
+current_design_stop = "TextEq remains stopped at NoSafeSlice::PortableTextEqTextRefResidenceUnsealed. The selected row 10 is a bounded runtime-only lease/root admission split and does not issue TextRefs, MIR effects, publication, or production."
+work_mode = "fast"
+current_execution_row = "TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0"
+current_blocker_token = "Row 10 only: remove the stable_text_only boolean; lease-only acquisition must create no root vector, while root-bearing Residence uses the exact classifier under the same write-lock transaction. Do not open StringBox admission, TextRef residence, V10, fallback, retry, publication, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler design stop (S6C TextEq TextRef residence after strict capability decision)"
+active_lane = "Loop compiler runtime canary (S6C Text lease/root admission split)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
 operand proof, invocation brand, canonical CheckedCallOut/NormalResult/Fault/End
 lifecycle, Structure-R0 thin façades, V9 + ExactText occurrence co-seal, and
 the strict backend-neutral TextEq capability decision are landed without a
-runtime wire. The next boundary is a canonical V9/ExactText TextRef residence
-producer; no V10 effect exists yet. LeaseSet/C-speed, StringBox admission,
-inner CFG, and production cutover remain parked.
+production caller. Row 9's ABI/frame guard is closed; row 10 now owns only the
+lease/root admission split. StringBox, TextRef, V10, direct-leaf, publication,
+and production remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -42,11 +43,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is a caller-zero runtime-contract canary; the canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, and strict backend-neutral TextEq capability decision are accepted. TextEq is stopped at NoSafeSlice::PortableTextEqTextRefResidenceUnsealed until one canonical V9/ExactText TextRef residence producer is named. Residence, V10 effect, inner CFG, production, performance promotion, and eq_hh retirement remain closed."
-next_design_card = "COMMON-V2-S6C-TEXTEQ-TEXTREF-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, and strict backend-neutral TextEq capability decision are accepted caller-zero substrate. Row 9's Residence ABI/frame guard is closed; the selected fast row is TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0. TextRef residence, V10, production, performance promotion, and eq_hh retirement remain closed."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0"
+next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -66,5 +67,6 @@ landed_tail = [
   "2026-08-18: Common-V2 S6C V9 + ExactText co-seal now passes one opaque source occurrence/sidecar proof with the canonical NormalResult; no runtime pair or physical sidecar ValueId escapes the callback.",
   "2026-08-18: Portable TextEq V10 reaches NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed; current MIR has no strict content-equality leaf, and raw handle Compare/eq_hh remain non-authority.",
   "2026-08-18: CommonV2S6CPortableTextEqBoolCapabilityV1 is now named as the sole strict backend-neutral TextEq contract; its V9/ExactText TextRef residence producer remains a design stop and no V10 effect is emitted.",
-  "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover."
+  "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
+  "2026-08-18: TextFormal Residence ABI/frame maxima now reject before pair materialization or pin; exact-limit and over-limit mutation-free guards are green."
 ]

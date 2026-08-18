@@ -26,6 +26,14 @@ fn residence_abi_layout_is_explicit_and_not_host_inferred() {
     assert_eq!(layout.header_alignment(), 8);
     assert_eq!(layout.root_row_alignment(), 8);
     assert_eq!(layout.frame_size_for_roots(2), Some(64));
+    assert_eq!(
+        layout.frame_size_for_roots(layout.max_root_count()),
+        Some(16_416)
+    );
+    assert_eq!(
+        layout.frame_size_for_roots(layout.max_root_count() + 1),
+        None
+    );
     assert!(layout.frame_size_for_roots(u32::MAX).is_none());
 }
 
@@ -161,6 +169,32 @@ fn c_frame_entry_rejects_small_frame_before_pinning() {
     };
     assert_eq!(status, TextFormalResidenceCStatusV1::FrameTooSmall.as_u32());
 
+    host_handles::drop_handle(handle);
+}
+
+#[test]
+fn c_frame_entry_rejects_root_limit_before_pinning() {
+    let _guard = test_lock();
+    let handle = host_handles::to_handle_text("root-limit");
+    let pair = issue_text_formal_borrow_v1(handle).expect("published pair");
+    let mut storage = [0_u64; 64];
+    let frame = storage
+        .as_mut_ptr()
+        .cast::<TextFormalResidenceFrameHeaderV1>();
+    let layout = residence_abi_layout_v1();
+
+    let status = unsafe {
+        enter_text_formal_residence_c_v1(
+            &pair,
+            layout.max_root_count() + 1,
+            frame,
+            storage.len() as u32 * std::mem::size_of::<u64>() as u32,
+        )
+    };
+    assert_eq!(
+        status,
+        TextFormalResidenceCStatusV1::FrameSizeOverflow.as_u32()
+    );
     host_handles::drop_handle(handle);
 }
 
