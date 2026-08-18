@@ -1158,13 +1158,13 @@ Non-claims: this D0 does not claim C/LLVM lowering, final ABI attributes,
 terminal-fault EH closure, Return publication, production selection,
 performance promotion, `eq_hh` retirement, fallback/retry, or kernel syntax.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0 (2026-08-19; design stop)
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0 (2026-08-19; accepted)
 
-Decision: keep `work_mode = "design_stop"` and do not implement the final
-observer yet. The first executable backend slice is a selected-carrier
-materialization, not an observer-only guard. It must carry one exact
-caller-zero lifecycle candidate through the existing contract-bound LLVM 18 C
-path before any no-unwind claim can be observed.
+Decision: accept the selected-carrier materialization design and keep the
+final observer closed. The first executable slices are a selected-carrier
+transport followed by a C-lowering fixture, not an observer-only guard. They
+must carry one exact caller-zero lifecycle candidate through the existing
+contract-bound LLVM 18 C path before any no-unwind claim can be observed.
 
 Source authority + canonical issuer: Source/Facts/Recipe/Join/Completion,
 the canonical physical lifecycle carrier, `PreparedFunctionExitSetV1`, the
@@ -1206,10 +1206,12 @@ Finish-on-every-normal-exit obligation
 Residence ABI revision
 ```
 
-Then implement only the caller-zero carrier/lowerer needed to produce one
-inspectable contract-bound LLVM module. The final observer remains a separate
-later I0 at `hako_llvmc_ptfb_session_emit_object`, after parse and target /
-layout setup and immediately before `LLVMTargetMachineEmitToFile`.
+The bounded implementation is split into two one-owner cells. First issue the
+Rust physical carrier and strict JSON projection. Then add the selected C
+lowerer fixture that consumes that JSON and produces one inspectable module.
+The final observer remains a separate later I0 at
+`hako_llvmc_ptfb_session_emit_object`, after parse and target/layout setup and
+immediately before `LLVMTargetMachineEmitToFile`.
 
 Acceptance for this D0/I0 boundary:
 
@@ -1224,6 +1226,39 @@ Acceptance for this D0/I0 boundary:
    allocation, lock, lease, callback, fallback, or retry;
 6. missing/drifting carrier data rejects before object publication, and the
    later observer is still forbidden until this module exists.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0 (selected; caller-zero)
+
+Decision: add only the Rust-side physical carrier and its strict JSON
+projection. The carrier co-seals the existing frame contract, source-issued
+physical signature lanes, and already-installed Enter/Finish placement. It
+does not lower C, issue runtime calls, or become a semantic receipt.
+
+Source authority + canonical issuer: `PhysicalCallableSignatureRowRefV1` and
+the existing frame/lifecycle products. The issuer emits one ordered row per
+ExactText slot/generation pair with source binding, logical ordinal, physical
+slot lane, generation lane, and frame row. Lifecycle sites are transported
+only from the canonical Enter/Finish carrier already present on the function.
+
+Fail-fast boundary: reject missing/foreign owner, non-contiguous lane pairs,
+duplicate logical ordinals, frame-root cardinality drift, missing/duplicate
+Enter, Finish on a trap or hot-loop block, unsupported exit shape, or any
+unknown transport key. No numeric root/row inference is allowed in the JSON
+consumer.
+
+Acceptance: positive fixture proves the source lane map and
+`pinned_text_residence_carrier@1` JSON round-trip; negative fixtures reject
+lane drift, root drift, duplicate lifecycle sites, and trap Finish. The
+metadata remains caller-zero and no C/LLVM/runtime path is enabled.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0 (parked)
+
+The next cell consumes only the strict carrier JSON. It adds a thin
+`hako_llvmc` pure-first lowerer and one textual LLVM IR fixture: direct
+`enter_v1 -> i32` with normal/trap branching and direct success-only Finish
+before each explicit Return. It must reject absent/drifting carrier data and
+must not add fallback or non-selected-backend parity. The post-transform
+observer remains closed until this fixture is real.
 
 Non-claims: this row does not yet claim a final post-transform
 `nounwind`/`noreturn` proof, object emission success, production selection,
@@ -1305,10 +1340,13 @@ Task ladder (canonical consumer design first, runtime effect later):
    design stop. The selected LLVM 18 C carrier is named, but the observer is
    blocked until a lifecycle-bearing module exists.
 7. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0` —
-   active design stop. Define one versioned lifecycle transport, source-issued
-   slot/generation/root mapping, and a caller-zero module materializer. Only
-   after that module is inspectable may the separate post-transform observer
-   I0 open.
+   accepted. Define one versioned lifecycle transport, source-issued
+   slot/generation/root mapping, and a caller-zero module materializer.
+8. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0` — selected
+   caller-zero Rust carrier/JSON projection; no C/runtime effect.
+9. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0` — parked
+   until the strict carrier transport is landed; only then may the separate
+   post-transform observer I0 open.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
