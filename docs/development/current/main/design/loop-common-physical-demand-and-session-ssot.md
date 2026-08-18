@@ -170,15 +170,17 @@ Related:
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
 - **Next ordered task:** hold the design stop
-  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0`. The
-  selected backend is the contract-bound LLVM 18 C path
-  (`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->
-  contract-bound generic lowering -> HakoPtfbTargetMachineSession`). A final
-  no-unwind observer belongs only after `LLVMParseIRInContext` and target/
-  layout installation, immediately before object emission, but no lifecycle-
-  bearing module reaches that boundary yet. First fix one source-issued,
-  versioned carrier for a caller-zero module; do not open the observer,
-  production, runtime backing, or fallback before that carrier exists.
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-MATERIALIZATION-D0`.
+  The landed C helper is a synthetic textual fixture, not a canonical
+  lifecycle-bearing module: it does not consume a real DraftSeal function and
+  never reaches the LLVM 18 target-machine boundary. First materialize one
+  actual caller-zero function through the full pre-DraftSeal ingress, existing
+  DraftSeal Return owner, and strict carrier JSON. Only then may the selected
+  path (`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->
+  contract-bound generic lowering -> HakoPtfbTargetMachineSession`) be used to
+  reach parse plus target/layout setup. The final no-unwind observer remains
+  closed until that candidate exists; production, runtime backing, and
+  fallback remain closed.
 - **Production stop line:** the current typed cursor handoff is caller-zero
   transport evidence, not a completed physical corridor. Residence
   exit/finish, publication, production selector, performance promotion,
@@ -1293,6 +1295,62 @@ promotion, `Arc<str>` migration, new runtime frame/backing, `eq_hh`
 retirement, fallback/retry, or kernel syntax. The later observer remains the
 sole no-unwind issuer.
 
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-MATERIALIZATION-D0 (2026-08-19; accepted design stop)
+
+Decision: keep the post-transform observer closed and open a bounded two-cell
+caller-zero series. The existing textual LLVM helper is inspection-only: it
+synthesizes a function, does not consume a real DraftSeal candidate, and never
+reaches the selected LLVM 18 target-machine parse/layout boundary. The first
+cell must materialize one actual lifecycle-bearing `MirFunction`/JSON from the
+canonical DraftSeal owner; only the second cell may route that exact candidate
+through the selected C generic lowerer to the target-machine boundary.
+
+Source authority + canonical issuer: the S6C
+`PhysicalCallableSignatureRowRefV1` loan, the existing
+`PreparedPinnedTextPhysicalEntryIngressV1` (session target and pre-DraftSeal
+frame), canonical CFG/SSA lifecycle writers, `PreparedFunctionExitSetV1`,
+`FunctionDraftSealProjectionV1`, and the existing physical
+`PinnedTextResidenceBackendCarrierV1::issue` product. The caller-zero owner is
+the existing `ModuleBuilderInvocationSessionV1::with_builder_and_pinned_text_invocation_binding`
+path and its `with_common_v2_s6c_physical_entry_draft_seal` handoff. The
+physical carrier may co-seal these products, but no new semantic
+`Verified*`/`Prepared*` receipt is authorized.
+
+Non-authority: the synthetic carrier fixture, hand-written or injected JSON,
+metadata/string scans, MIR-derived lane or root inference, C headers and
+symbol names, frame counts without the source map, raw pointers/`ValueId`s,
+the object emitter, `nyash.string.eq_hh`, fallback, retry, and any
+non-selected backend. The existing `function/metadata.rs` is already over the
+source-size budget and is not a place to grow a second lifecycle owner.
+
+Fail-fast boundary: before mutating the detached draft, co-seal owner,
+signature, frame, plan, ABI, target, one Enter normal/trap pair, the explicit
+`Single`/`ExactTwo` exit set, source-issued slot/generation/root mapping, and
+Finish-on-every-normal-exit. Consume the full ingress without dropping its
+frame; late Rust failure discards the unpublished outer session and emits no
+JSON. C must validate the actual function/op/block/Return rows before opening
+or publishing output. Foreign/stale/drifting cohorts, missing or duplicate
+lifecycle sites, trap/hot-loop Finish, unsupported exits, recoverable EH, and
+parse/layout failure reject without fallback or retry.
+
+Smallest next slice: first `I0-A` extends the existing caller-zero DraftSeal
+handoff. Inside `with_builder_and_pinned_text_invocation_binding`, prepare the
+full ingress and let the detached projection consume the authoritative exit
+blocks; emit operand -> Residence Finish -> the existing Return projection and
+install the already-issued frame/carrier metadata on that same unpublished
+function. Do not call a consuming helper that loses the ingress frame, and do
+not patch the live Builder. Then `I0-B` routes the strict JSON through
+`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->` the
+contract-bound generic lowerer ->
+`hako_llvmc_ptfb_session_emit_object`, producing only a caller-zero temporary
+artifact. A separate observer/no-unwind I0 opens only after both cells are
+real.
+
+Non-claims: no observer or `nounwind`/`noreturn` evidence, production caller
+or selector switch, new ABI/frame/backing, semantic receipt, non-selected
+backend parity, fallback/retry, performance promotion, or `eq_hh`
+retirement. The textual fixture remains a negative control, not the candidate.
+
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
 Decision: keep the lifecycle boundary closed beyond the landed finish-or-abort
@@ -1373,8 +1431,15 @@ Task ladder (canonical consumer design first, runtime effect later):
    caller-zero Rust carrier/JSON projection; no C/runtime effect.
 9. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0` — selected
    caller-zero; it may consume only the landed strict carrier transport. The
-   separate post-transform observer remains closed until one lifecycle-bearing
-   module exists.
+   helper is synthetic textual inspection only; the separate post-transform
+   observer remains closed until one lifecycle-bearing canonical module exists.
+10. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — next:
+    consume the full pre-DraftSeal ingress in the existing caller-zero owner,
+    materialize one real lifecycle-bearing function/JSON candidate, and keep
+    the detached DraftSeal transaction as the rollback boundary.
+11. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+    route that exact candidate through the selected LLVM 18 C generic path to
+    parse plus target/layout setup and a temporary artifact; no observer claim.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
