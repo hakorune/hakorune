@@ -2533,11 +2533,28 @@ stale TextRef residence, non-UTF-8 backing, mismatched V9/ExactText owner,
 session, segment, body, or occurrence, and unsupported representation. A late
 failure discards the unpublished function; no partial Bool or retry survives.
 
-Smallest next slice: design the one residence producer and its finish order:
-entry ExactText root admission, V9 result lending, TextEq consumer scope, then
-V9 End/finish. The row-11 mutable-reachability census is a mandatory acceptance
-input for the future exact StringBox fast route; it is already recorded in this
-SSOT and must be reused rather than duplicated.
+Residence candidate: one private
+`CommonV2S6CTextEqResidenceScopeV1` owns the callback-scoped pair. It consumes
+the existing ExactText entry lane proof and the V9 End-authorized result
+obligation, and lends occurrence-ordered opaque roots `[V9, ExactText]` to the
+TextEq leaf. The V9 root is borrowed from its existing End lease; it is not
+repinned or recaptured from a raw handle. ExactText roots are admitted in one
+entry transaction with occurrence multiplicity, and unsupported payloads are
+rejected before a root row is published.
+
+The only legal finish order is:
+
+```text
+TextEq leaf completes
+  -> residence finishes ExactText pins and root scope
+  -> canonical V9 CheckedCallOutEnd consumes the V9 lease
+```
+
+Any fault/unwind-capable path remains closed until the same order is proven;
+there is no retry or second finish owner. The row-11 mutable-reachability
+census is a mandatory acceptance input for the future exact StringBox fast
+route; it is already recorded in this SSOT and must be reused rather than
+duplicated.
 
 Non-claims: no V10 MIR effect, `MirInstruction::PinnedTextOp`, StringBox
 runtime admission, `TextFormalCallResidenceV1` widening, inner CFG/Return,
