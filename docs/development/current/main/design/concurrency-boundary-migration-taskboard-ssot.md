@@ -38,6 +38,43 @@ Structured parallelism remains a future concept, but `worker_scope` and
 shared-mutable surface is `sync box`; raw locks remain implementation concepts,
 historical/provisional compatibility, or runtime/internal primitives.
 
+## 2026-08-19 Surface Census Receipt
+
+The current repository census keeps the public surface decision small and
+separates it from the runtime thread substrate:
+
+```text
+canonical meaning surfaces:
+  Future<T> / nowait / await / co
+  Channel<T>
+  sync box
+  context
+
+future design only:
+  structured parallelism (exact spelling undecided)
+
+runtime-only:
+  Scheduler / ThreadApi / ThreadRegistry / worker-local-TLS / mutexes
+```
+
+The active `.hako` corpus has no `task_scope`, `scoped`, `sync box`,
+`worker_scope`, `parallel`, raw `thread {}`, `lock<T>`, or `worker_local`
+source use. It still contains seven historical `nowait name = expr` lines and
+no `local name = nowait expr` lines, so `CONC-NOWAIT-EXPR-D0` remains a
+design decision rather than an already-landed syntax claim. `ChannelBox` has
+no in-repo construction caller, but its crate-root export and builtin type
+name are externally observable; its disposition therefore needs a public-API
+decision before deletion.
+
+The first cleanup row is `CONC-GUARD-AST-CRATE0`: refresh the three stale
+guards to the current frontend-AST, split decoder, Program JSON, and MIR owner
+paths with behavior/grammar delta zero. Only after that row should the
+grammar/compatibility sequence proceed. `worker_scope` is not an alternate
+spelling of `co`: it would describe a future worker-budget/parallel boundary,
+whereas `co` owns structured child Futures and cancellation. Its exact source
+spelling is intentionally unreserved until Send/Share/ThreadRoot capture
+safety is closed.
+
 ## Runtime Substrate Side Lane
 
 The runtime thread substrate already exists below the source surface:

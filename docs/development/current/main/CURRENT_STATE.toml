@@ -29,15 +29,15 @@ fallback, and performance remain closed.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "canonical lifecycle-bearing DraftSeal candidate cannot yet be materialized; the synthetic LLVM fixture is not target-machine input"
+current_design_stop = "canonical lifecycle-bearing DraftSeal candidate is blocked at entry ownership: Residence Enter is a terminator while the existing S6C sidecar entry owns the seed/cursor"
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-MATERIALIZATION-D0"
-current_blocker_token = "The caller-zero C fixture is synthetic textual LLVM only; first materialize one actual DraftSeal lifecycle function/JSON candidate, then route it through the selected LLVM 18 target-machine parse/layout boundary; do not issue observer or no-unwind evidence."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0"
+current_blocker_token = "Before I0-A, decide and source-co-seal one canonical entry/prologue ownership for the lifecycle Enter terminator, physical entry sidecar, initial index seed, and S6C cursor; reject guessed block remapping, second CFG authority, observer, target-machine routing, and production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence backend canonical candidate materialization D0"
+active_lane = "S6C Text Residence lifecycle entry/prologue co-seal D0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -46,16 +46,10 @@ Predicate/index physical I0 and the DraftSeal ingress probe are landed with
 one canonical source-index Binding SSA, one private byte-offset PHI, one
 ByteLen, and atomic unpublished discard. Lifecycle identity/materializer I0
 is landed caller-zero with seven focused tests, but emits no lifecycle MIR.
-Worker census invalidated the immediate envelope proposal: its exit admission
-would self-borrow the owned exit set, the backend-frame contract is issued
-after DraftSeal in complete_resolved_child_with_physical_loan, and the
-compiler has no Residence enter/finish carrier. D0 now fixes one
-pre-DraftSeal physical-entry owner: ModuleBuilderInvocationSessionV1 owns the
-brand and target, a private scoped binding is co-sealed with the S6C
-source/signature loan, access plans, Residence ABI, and the existing frame
-contract. The selected ingress I0 is landed effect-free and caller-zero: the
-session owns brand plus target, the S6C loan is the only signature source, and
-one private affine ingress issues the pre-DraftSeal frame contract. Focused
+Worker census closed the immediate envelope proposal and noted no lifecycle
+carrier. D0 fixes ModuleBuilderInvocationSessionV1 as the pre-DraftSeal owner
+of target, source/signature loan, access plans, Residence ABI, and frame
+contract. The selected ingress I0 is landed effect-free and caller-zero. Focused
 tests, cargo check, fmt, and the reusable structure guard are green. The ABI
 Decision selects exactly one public finish meaning: a void wrapper returns
 only on status 0 and aborts on all nonzero statuses. The lifecycle-carrier I0
@@ -74,9 +68,11 @@ caller-zero: source-backed root-map and trap-Finish rejection tests are
 green, and the reusable structure guard checks the contract and no-raw-
 authority boundary. The C-lowering fixture now consumes only this carrier and emits
 inspectable textual LLVM with direct Enter/normal-trap/Finish shape. It
-is an inspection helper, not a target-machine candidate. The next design stop
-is canonical DraftSeal candidate materialization, followed by selected
-target-machine routing; the post-transform observer, lifecycle production,
+is an inspection helper, not a target-machine candidate. The real-candidate
+probe then exposed EntryBlockDrift: Enter is a terminator, while the existing
+physical entry sidecar and initial index seed/cursor require the same entry
+block. The next design stop is one source-backed entry/prologue co-seal;
+target-machine routing, the post-transform observer, lifecycle production,
 fallback, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -90,8 +86,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, and caller-zero C textual-lowering fixture are landed. One private affine aggregate replaces the single-normal-landing finish state and is consumed once over the existing explicit exit set. The selected backend is the contract-bound LLVM 18 C path, but the C fixture is synthetic and no lifecycle-bearing canonical candidate reaches its target-machine boundary. The next design stop is canonical DraftSeal candidate materialization, followed by selected target-machine routing; observer, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-MATERIALIZATION-D0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, and caller-zero C textual-lowering fixture are landed. The first real-candidate probe exposed a structural EntryBlockDrift: lifecycle Enter is a terminator, while the existing physical entry sidecar and initial index seed/cursor require the same canonical entry block. The next design stop is one source-backed entry/prologue co-seal; observer, target-machine routing, production, fallback, and performance remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"

@@ -1433,17 +1433,62 @@ Task ladder (canonical consumer design first, runtime effect later):
    caller-zero; it may consume only the landed strict carrier transport. The
    helper is synthetic textual inspection only; the separate post-transform
    observer remains closed until one lifecycle-bearing canonical module exists.
-10. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — next:
+10. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0` — next:
+    decide the source-backed owner for the lifecycle Enter terminator, the
+    existing physical-entry sidecar, the initial index seed, and the S6C
+    cursor before any candidate mutation. Do not remap blocks by observation.
+11. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — later:
     consume the full pre-DraftSeal ingress in the existing caller-zero owner,
     materialize one real lifecycle-bearing function/JSON candidate, and keep
     the detached DraftSeal transaction as the rollback boundary.
-11. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+12. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
 promotion, or `eq_hh` retirement is selected by this umbrella row.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0 (2026-08-19; accepted design stop)
+
+Decision: keep canonical candidate materialization closed until the physical
+entry/prologue ownership is fixed. The first real-candidate probe reached the
+existing S6C entry path and rejected with `EntryBlockDrift`: Residence Enter
+is a terminator, while the physical-entry sidecar and the initial index
+seed/cursor require the canonical entry block and current-block ownership.
+This is a structural authority mismatch, not a test or backend failure.
+
+Source authority + canonical issuer: the existing physical-entry sidecar and
+canonical `emit_initial_index_seed`/cursor consumers, the lifecycle CFG writer,
+and `PreparedFunctionExitSetV1`/`FunctionDraftSealProjectionV1`. A new
+prologue or entry-transfer issuer does not yet exist and must be named before
+any new `Verified*`/`Prepared*` product or lifecycle candidate is issued.
+
+Non-authority: selecting the normal landing as a cursor entry, raw
+`BasicBlockId` remapping, a second sidecar/CFG/SSA owner, the synthetic C
+fixture, metadata-only carrier rows, MIR adjacency, or a late DraftSeal patch.
+The observer, target-machine path, and production selector remain closed.
+
+Fail-fast boundary: before detached mutation, require one same-cohort proof for
+the entry block, sidecar entry, initial seed, cursor entry, lifecycle Enter
+source/landings, and canonical session owner. Missing, foreign, duplicated, or
+terminator-conflicting entry obligations reject as `NoSafeSlice`; any late
+failure discards the unpublished outer session and emits no JSON/object.
+
+Smallest next slice: decide one of two source-backed shapes, without coding:
+(a) the canonical entry owner creates one lifecycle-aware prologue and
+atomically transfers the sidecar/seed/cursor into its successor, or (b) the
+lifecycle Enter is placed at a distinct canonical boundary that the existing
+sidecar and cursor products already own. The selected shape must preserve one
+CFG/SSA/PHI authority and then reopen `...CANONICAL-CANDIDATE-I0-A`.
+
+Non-claims: no lifecycle MIR candidate, new frame/backing/token, C lowering,
+observer/no-unwind evidence, target-machine routing, production switch,
+fallback/retry, performance promotion, or `eq_hh` retirement.
+
+Evidence: the attempted caller-zero probe was reverted after the focused
+`EntryBlockDrift` rejection; the repository is back at `design_stop` with no
+partial lifecycle implementation.
 
 #### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (landed design task)
 
