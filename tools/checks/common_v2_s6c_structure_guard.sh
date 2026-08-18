@@ -92,13 +92,23 @@ if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$draftseal"; t
 fi
 lifecycle="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
 guard_expect_fixed_in_file "$TAG" 'PreparedTextFormalExitFinishSetV1' "$lifecycle" \
-  "Residence lifecycle I0 must use one private stamp-only admission"
+  "Residence lifecycle I0 must use one private lifetime-bound admission"
 guard_expect_fixed_in_file "$TAG" 'issue_pinned_text_residence_exit_finish_set_v1' "$lifecycle" \
   "Residence lifecycle I0 must have one named issuer"
 guard_expect_fixed_in_file "$TAG" 'consume_for_materializer' "$lifecycle" \
   "Residence lifecycle admission must have one consuming boundary"
+guard_expect_fixed_in_file "$TAG" "exits: &'exits PreparedFunctionExitSetV1" "$lifecycle" \
+  "Residence lifecycle admission must retain the exact exit-set borrow"
+guard_expect_fixed_in_file "$TAG" 'callback(self.exits)' "$lifecycle" \
+  "Residence lifecycle consumer must use the retained exit-set borrow"
 guard_expect_fixed_in_file "$TAG" 'Result<(), String>' "$lifecycle" \
   "lifecycle callback must not return an exit aggregate"
+if rg -U -n 'consume_for_materializer\([^)]*exits\s*:' "$lifecycle"; then
+  guard_fail "$TAG" "Residence lifecycle consumer must not accept an external exit-set argument"
+fi
+if rg -U -n '#\[derive\(Debug, Clone, Copy, PartialEq, Eq\)\]\s*struct FunctionExitSetStampV1' "$lifecycle"; then
+  guard_fail "$TAG" "Residence lifecycle provenance identity must remain non-copyable"
+fi
 if rg -n 'PinnedTextResidenceExitObligation|PinnedTextResidenceExitRow|rows:|TextContentFrame|Arc<|MirInstruction' "$lifecycle"; then
   guard_fail "$TAG" "Residence lifecycle I0 must not retain copied rows or open runtime/MIR owners"
 fi
