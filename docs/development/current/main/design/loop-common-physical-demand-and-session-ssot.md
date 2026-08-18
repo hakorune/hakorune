@@ -482,6 +482,12 @@ recoverable-unwind paths, copied rows, or a required second scan remain
 
 Task ladder (design first, implementation later):
 
+0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` — first make the S6C common-V2
+   physical-entry callback co-reside with the unpublished canonical
+   `CanonicalFunctionLoweringSessionV1`, complete `PreparedFunctionExitSetV1`,
+   and `ReadyFunctionDraftSealV1`. It must hand off through the existing
+   `finish_for_draft_seal`/DraftSeal owner instead of discarding the outer
+   session. No Residence or lifecycle effect is allowed in this row.
 1. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0` — on the common V2
    canonical session/DraftSeal ingress, issue one opaque exit-set stamp and
    stamp-only finish/materialization admission; keep `PreparedFunctionExitSetV1`
@@ -497,16 +503,31 @@ Non-claims: no new semantic receipt is implemented in this design stop; no
 runtime ABI revision, new frame, `Arc<str>` migration, production caller,
 fallback/retry, performance promotion, or `eq_hh` retirement.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0 (selected design task)
+#### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (selected design task)
 
-This is the current design-stop task. Reuse the accepted authority contract
-in `investigations/text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md`;
-do not implement it until the common V2 canonical DraftSeal ingress can own
-the same function, exit set, residence/frame provenance, and unpublished
-candidate. The I0 acceptance is stamp-only provenance plus expected lifecycle
-roles, with no copied exit rows, runtime token, MIR Return, backend pointer, or
-production caller. A later materializer and final no-unwind observer are
-separate rows.
+This is the current design-stop task. The existing
+`with_common_v2_physical_entry_session*` callback is test-only and always
+discards the unpublished outer session. Define one same-cohort handoff that
+keeps the canonical function session alive through complete S6C CFG/SSA,
+Completion/exit coverage, `finish_for_draft_seal`, and existing DraftSeal
+prepare/commit. Do not add a lifecycle receipt, Residence finish, runtime
+token, backend pointer, production caller, or legacy-finalizer patch here.
+
+Acceptance is one owner chain:
+
+```text
+prepared S6C entry cohort
+  -> one unpublished CanonicalFunctionLoweringSessionV1
+  -> one CanonicalSsaFunctionSessionV2
+  -> exact normal/early Completion exits
+  -> existing finish_for_draft_seal
+  -> ReadyFunctionDraftSealV1 / DraftSeal
+```
+
+Any missing outer exit, callback-only discard, second session, MIR/JSON Return
+scan, or late failure outside the unpublished transaction remains
+`NoSafeSlice`. The lifecycle authority I0 is the next row only after this
+ingress is accepted.
 
 Ingress census (current HEAD): `with_common_v2_canonical_session*` and
 `with_common_v2_physical_entry_session*` have no production caller; their
