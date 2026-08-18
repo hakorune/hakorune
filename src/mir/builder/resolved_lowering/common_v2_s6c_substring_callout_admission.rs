@@ -114,6 +114,27 @@ impl PreparedCommonV2SubstringCallOutAdmissionV1 {
         } = self;
         end.with_consumer(|end_ref| callback(&target, &site_plan, end_ref))
     }
+
+    /// One-shot consumer for the canonical compiler materializer.  The site
+    /// plan is moved into the callback together with the target and End
+    /// obligation, so the materializer cannot install a plan and later
+    /// re-pair it with a separately borrowed lifecycle tuple.
+    pub(in crate::mir::builder) fn consume_for_canonical_materializer<R>(
+        self,
+        callback: impl FnOnce(
+            &PreparedLoopV2SubstringCallTargetPlanV1,
+            CheckedCallOutSitePlanV1,
+            CommonV2SubstringEndConsumerRefV1,
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let Self {
+            target,
+            site_plan,
+            end,
+            invocation_brand: _,
+        } = self;
+        end.with_consumer(|end_ref| callback(&target, site_plan, end_ref))
+    }
 }
 
 pub(in crate::mir::builder) fn issue_common_v2_s6c_substring_callout_admission_v1(
@@ -233,34 +254,35 @@ mod tests {
             .commit();
         let mut port = installed.begin_lowering(&context).expect("same catalog");
 
-        port.with_s6c_common_v2_pre_session(|loan| {
-            let owner = loan.callable().owner();
-            let target = issue_s6c_v2_substring_call_target_plan_v1(loan.envelope(), owner)
-                .expect("source-backed target");
-            let admission = issue_common_v2_s6c_substring_callout_admission_v1(
-                target,
-                loan.callable().physical_effects(),
-                ModuleInvocationBrandV1::legacy_test(),
-            )
-            .expect("checked single-site admission");
-            assert_eq!(admission.site_plan().site_id().as_u32(), 0);
-            assert_eq!(
-                admission.invocation_brand(),
-                ModuleInvocationBrandV1::legacy_test()
-            );
-            admission.consume(|target, site_plan, end| {
-                assert_eq!(target.owner(), owner);
-                assert_eq!(target.result().raw(), 9);
+        let _ = port
+            .with_s6c_common_v2_pre_session(|loan| {
+                let owner = loan.callable().owner();
+                let target = issue_s6c_v2_substring_call_target_plan_v1(loan.envelope(), owner)
+                    .expect("source-backed target");
+                let admission = issue_common_v2_s6c_substring_callout_admission_v1(
+                    target,
+                    loan.callable().physical_effects(),
+                    ModuleInvocationBrandV1::legacy_test(),
+                )
+                .expect("checked single-site admission");
+                assert_eq!(admission.site_plan().site_id().as_u32(), 0);
                 assert_eq!(
-                    site_plan.plan_stamp(),
+                    admission.invocation_brand(),
                     ModuleInvocationBrandV1::legacy_test()
                 );
-                assert_eq!(end.owner(), owner);
-                assert_eq!(end.result().raw(), 9);
-            });
-            Ok::<(), String>(())
-        })
-        .expect("one installed S6C callback");
+                admission.consume(|target, site_plan, end| {
+                    assert_eq!(target.owner(), owner);
+                    assert_eq!(target.result().raw(), 9);
+                    assert_eq!(
+                        site_plan.plan_stamp(),
+                        ModuleInvocationBrandV1::legacy_test()
+                    );
+                    assert_eq!(end.owner(), owner);
+                    assert_eq!(end.result().raw(), 9);
+                });
+                Ok::<(), String>(())
+            })
+            .expect("one installed S6C callback");
         port.complete().expect("selected child coverage");
     }
 }

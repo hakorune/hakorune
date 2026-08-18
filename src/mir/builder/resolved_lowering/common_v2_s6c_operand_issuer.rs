@@ -16,6 +16,9 @@ use crate::mir::{MirBuilder, MirType, ValueId};
 use super::super::common_v2_segment_block_allocation::{
     PreparedSegmentBlockReceiptV1, SegmentBlockAllocationBrandV1,
 };
+use super::s6c_substring_callout_materializer::{
+    CommonV2SubstringCallOutMirMaterializerRejectV1, CommonV2SubstringCallOutNormalResultRefV1,
+};
 use super::CommonV2CanonicalSessionRefV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,6 +51,7 @@ pub(in crate::mir::builder) struct S6CTextEqOperandReceiptV1<'receipt, 'source, 
     index_value: ValueId,
     one_value: ValueId,
     end_value: ValueId,
+    receiver_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     index_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     end_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     substring_result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
@@ -99,6 +103,49 @@ impl S6CTextEqOperandReceiptV1<'_, '_, '_> {
         &self,
     ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.substring_result
+    }
+
+    pub(in crate::mir::builder) fn with_s6c_substring_callout_mir<R>(
+        self,
+        builder: &mut MirBuilder,
+        segment_receipt: &PreparedSegmentBlockReceiptV1,
+        physical_effects: &crate::mir::normal_callable_semantic_package::
+            VerifiedS6CPhysicalFunctionEffectsV1,
+        callback: impl FnOnce(
+            &mut MirBuilder,
+            CommonV2SubstringCallOutNormalResultRefV1,
+        ) -> Result<R, String>,
+    ) -> Result<R, CommonV2SubstringCallOutMirMaterializerRejectV1> {
+        let Self {
+            _session,
+            owner: _,
+            body_block,
+            physical_block,
+            index_value,
+            end_value,
+            receiver_key,
+            index_key,
+            end_key,
+            substring_result,
+            segment_brand: _,
+            ..
+        } = self;
+        super::s6c_substring_callout_materializer::emit(
+            _session,
+            builder,
+            segment_receipt,
+            physical_effects,
+            body_block,
+            physical_block,
+            receiver_key,
+            ValueId::new(0),
+            index_key,
+            index_value,
+            end_key,
+            end_value,
+            substring_result,
+            callback,
+        )
     }
 
     pub(in crate::mir::builder) fn segment_brand(&self) -> SegmentBlockAllocationBrandV1 {
@@ -253,6 +300,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             index_value: index_read.physical_value(),
             one_value,
             end_value,
+            receiver_key: substring.receiver,
             index_key: index.result,
             end_key: add.result,
             substring_result: substring.result,
@@ -441,6 +489,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 struct SourceCallRow {
     item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
     block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+    receiver: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     args: S6CLogicalCallArgsV1,
     result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
 }
@@ -450,6 +499,7 @@ impl SourceCallRow {
         Self {
             item: call.item,
             block: call.block,
+            receiver: call.receiver,
             args: call.args,
             result: call.result,
         }

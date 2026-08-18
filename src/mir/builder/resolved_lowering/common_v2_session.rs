@@ -60,6 +60,12 @@ pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
     CommonV2SubstringV9IssuerRejectV1, CommonV2SubstringV9MaterializationV1,
 };
 
+#[path = "common_v2_s6c_substring_callout_materializer.rs"]
+mod s6c_substring_callout_materializer;
+pub(in crate::mir::builder) use s6c_substring_callout_materializer::{
+    CommonV2SubstringCallOutMirMaterializerRejectV1, CommonV2SubstringCallOutNormalResultRefV1,
+};
+
 #[path = "common_v2_session_length.rs"]
 mod session_length;
 
@@ -188,6 +194,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     s6c_text_eq_operands_issued: bool,
     s6c_text_eq_occurrence_issued: bool,
     s6c_substring_callout_admission_issued: bool,
+    s6c_substring_callout_mir_issued: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -361,6 +368,7 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
             s6c_text_eq_operands_issued: false,
             s6c_text_eq_occurrence_issued: false,
             s6c_substring_callout_admission_issued: false,
+            s6c_substring_callout_mir_issued: false,
         };
         Ok(callback(&mut common))
     })

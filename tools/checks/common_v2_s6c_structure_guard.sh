@@ -14,6 +14,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_length.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_segments.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -32,5 +33,7 @@ guard_expect_fixed_in_file "$TAG" 'common_v2_session_length.rs' "$session" \
   "session must retain the private Length child"
 guard_expect_fixed_in_file "$TAG" 'common_v2_session_segments.rs' "$session" \
   "session must retain the private segment child"
+guard_expect_fixed_in_file "$TAG" 's6c_substring_callout_materializer.rs' "$session" \
+  "session must retain the private canonical V9 materializer child"
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"

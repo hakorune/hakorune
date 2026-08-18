@@ -7,7 +7,9 @@ use crate::mir::{MirBuilder, MirInstruction, MirType};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
 use super::common_v2_session::{S6CTextEqOccurrenceViewRejectV1, S6CTextEqOperandIssuerRejectV1};
-use super::with_common_v2_physical_entry_session;
+use super::{
+    with_common_v2_physical_entry_session, with_common_v2_physical_entry_session_with_s6c_effects,
+};
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -53,77 +55,260 @@ fn s6c_operand_issuer_emits_only_v6_v7_v8_in_one_body_segment() {
     let (installed, context) = installed_port(1301);
     let mut port = installed.begin_lowering(&context).expect("same catalog");
 
-    port.with_s6c_common_v2_pre_session(|loan| {
+    let _ = port
+        .with_s6c_common_v2_pre_session(|loan| {
+            let owner = loan.callable().owner();
+            let prepared =
+                issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+            let skeleton =
+                reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+            let mut builder = MirBuilder::new();
+            with_common_v2_physical_entry_session(
+                &mut builder,
+                skeleton.into_session_input(),
+                |canonical, draft| {
+                    let seed = canonical
+                        .emit_initial_index_seed(draft)
+                        .expect("initial index seed");
+                    drop(seed);
+                    canonical
+                        .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                            let receipt = canonical
+                                .with_s6c_text_eq_operands(
+                                    draft,
+                                    scope.receipt(),
+                                    |draft, receipt| {
+                                        assert_eq!(receipt.owner(), owner);
+                                        assert_eq!(receipt.index_key().raw(), 6);
+                                        assert_eq!(receipt.end_key().raw(), 8);
+                                        assert_eq!(receipt.substring_result().raw(), 9);
+                                        assert_eq!(
+                                            draft
+                                                .function_state
+                                                .type_ctx
+                                                .get_type(receipt.index_value()),
+                                            Some(&MirType::Integer)
+                                        );
+                                        assert_eq!(
+                                            draft
+                                                .function_state
+                                                .type_ctx
+                                                .get_type(receipt.one_value()),
+                                            Some(&MirType::Integer)
+                                        );
+                                        assert_eq!(
+                                            draft
+                                                .function_state
+                                                .type_ctx
+                                                .get_type(receipt.end_value()),
+                                            Some(&MirType::Integer)
+                                        );
+                                        assert!(draft.current_function_instructions().iter().any(
+                                            |instruction| matches!(
+                                                instruction,
+                                                MirInstruction::Const {
+                                                    dst,
+                                                    value: crate::mir::ConstValue::Integer(1)
+                                                } if *dst == receipt.one_value()
+                                            )
+                                        ));
+                                        assert!(draft.current_function_instructions().iter().any(
+                                            |instruction| matches!(
+                                                instruction,
+                                                MirInstruction::BinOp {
+                                                    dst, lhs, rhs, ..
+                                                } if *dst == receipt.end_value()
+                                                    && *lhs == receipt.index_value()
+                                                    && *rhs == receipt.one_value()
+                                            )
+                                        ));
+                                        Ok::<(), String>(())
+                                    },
+                                )
+                                .expect("S6C operand receipt");
+                            Ok::<(), String>(())
+                        })
+                        .expect("shared body segment");
+                    Ok(())
+                },
+            )
+            .expect("caller-zero S6C operand session");
+            assert!(builder.function_state.current_function.is_none());
+            assert!(builder.function_state.current_block.is_none());
+        })
+        .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn s6c_substring_callout_materializer_emits_normal_fault_and_end_once() {
+    let (installed, context) = installed_port(1311);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    let _ = port.with_s6c_common_v2_pre_session(|loan| {
         let owner = loan.callable().owner();
         let prepared =
             issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
         let skeleton =
             reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
         let mut builder = MirBuilder::new();
-        with_common_v2_physical_entry_session(
+        with_common_v2_physical_entry_session_with_s6c_effects(
             &mut builder,
             skeleton.into_session_input(),
-            |canonical, draft| {
+            |canonical, draft, physical_effects| {
                 let seed = canonical
                     .emit_initial_index_seed(draft)
                     .expect("initial index seed");
                 drop(seed);
                 canonical
                     .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                        let receipt = canonical
-                            .with_s6c_text_eq_operands(draft, scope.receipt(), |draft, receipt| {
-                                assert_eq!(receipt.owner(), owner);
-                                assert_eq!(receipt.index_key().raw(), 6);
-                                assert_eq!(receipt.end_key().raw(), 8);
-                                assert_eq!(receipt.substring_result().raw(), 9);
-                                assert_eq!(
-                                    draft
-                                        .function_state
-                                        .type_ctx
-                                        .get_type(receipt.index_value()),
-                                    Some(&MirType::Integer)
-                                );
-                                assert_eq!(
-                                    draft.function_state.type_ctx.get_type(receipt.one_value()),
-                                    Some(&MirType::Integer)
-                                );
-                                assert_eq!(
-                                    draft.function_state.type_ctx.get_type(receipt.end_value()),
-                                    Some(&MirType::Integer)
-                                );
-                                assert!(draft.current_function_instructions().iter().any(
-                                    |instruction| matches!(
-                                        instruction,
-                                        MirInstruction::Const {
-                                            dst,
-                                            value: crate::mir::ConstValue::Integer(1)
-                                        } if *dst == receipt.one_value()
+                        canonical
+                            .with_s6c_text_eq_operands(draft, scope.receipt(), |draft, operands| {
+                                let value = operands
+                                    .with_s6c_substring_callout_mir(
+                                        draft,
+                                        scope.receipt(),
+                                        physical_effects,
+                                        |draft, result| {
+                                            assert_eq!(result.owner(), owner);
+                                            assert_eq!(result.source_result().raw(), 9);
+                                            assert_eq!(result.site().as_u32(), 0);
+                                            assert!(draft.current_function_instructions().iter().any(
+                                                |instruction| matches!(
+                                                    instruction,
+                                                    MirInstruction::CheckedCallOutNormalResult {
+                                                        site_id, dst
+                                                    } if site_id.as_u32() == 0 && *dst == result.value()
+                                                )
+                                            ));
+                                            assert!(!draft.current_function_instructions().iter().any(
+                                                |instruction| matches!(
+                                                    instruction,
+                                                    MirInstruction::CheckedCallOutEnd { .. }
+                                                )
+                                            ));
+                                            Ok::<_, String>(result.value())
+                                        },
                                     )
-                                ));
-                                assert!(draft.current_function_instructions().iter().any(
-                                    |instruction| matches!(
-                                        instruction,
-                                        MirInstruction::BinOp {
-                                            dst, lhs, rhs, ..
-                                        } if *dst == receipt.end_value()
-                                            && *lhs == receipt.index_value()
-                                            && *rhs == receipt.one_value()
-                                    )
-                                ));
-                                Ok::<(), String>(())
+                                    .expect("canonical Substring callout materializer");
+                                assert_ne!(value, crate::mir::ValueId::INVALID);
+                                let function = draft
+                                    .function_state
+                                    .current_function
+                                    .as_ref()
+                                    .expect("unpublished function");
+                                let terminators = function
+                                    .blocks
+                                    .values()
+                                    .filter_map(|block| block.terminator.as_ref());
+                                let callout_count = terminators
+                                    .clone()
+                                    .filter(|instruction| {
+                                        matches!(instruction, MirInstruction::CheckedCallOut { .. })
+                                    })
+                                    .count();
+                                let fault_count = function
+                                    .blocks
+                                    .values()
+                                    .filter_map(|block| block.terminator.as_ref())
+                                    .filter(|instruction| {
+                                        matches!(
+                                            instruction,
+                                            MirInstruction::CheckedCallOutFault { .. }
+                                        )
+                                    })
+                                    .count();
+                                let end_count = function
+                                    .blocks
+                                    .values()
+                                    .flat_map(|block| block.instructions.iter())
+                                    .filter(|instruction| {
+                                        matches!(instruction, MirInstruction::CheckedCallOutEnd { .. })
+                                    })
+                                    .count();
+                                assert_eq!(
+                                    callout_count,
+                                    1
+                                );
+                                assert_eq!(
+                                    fault_count,
+                                    1
+                                );
+                                assert_eq!(
+                                    end_count,
+                                    1
+                                );
+                                Ok::<_, String>(())
                             })
-                            .expect("S6C operand receipt");
-                        Ok::<(), String>(())
+                            .expect("Substring callout lifecycle");
+                        Ok::<_, String>(())
                     })
                     .expect("shared body segment");
-                Ok(())
+                Ok::<_, String>(())
             },
         )
-        .expect("caller-zero S6C operand session");
+        .expect("unpublished canonical callout session");
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn s6c_substring_callout_materializer_late_callback_discards_unpublished_function() {
+    let (installed, context) = installed_port(1312);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    let _ = port
+        .with_s6c_common_v2_pre_session(|loan| {
+            let prepared =
+                issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+            let skeleton =
+                reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+            let mut builder = MirBuilder::new();
+            let rejected = with_common_v2_physical_entry_session_with_s6c_effects(
+                &mut builder,
+                skeleton.into_session_input(),
+                |canonical, draft, physical_effects| {
+                    canonical
+                        .emit_initial_index_seed(draft)
+                        .map(|_| ())
+                        .map_err(|error| format!("{error:?}"))?;
+                    canonical
+                        .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                            canonical
+                                .with_s6c_text_eq_operands(
+                                    draft,
+                                    scope.receipt(),
+                                    |draft, operands| {
+                                        operands
+                                            .with_s6c_substring_callout_mir(
+                                                draft,
+                                                scope.receipt(),
+                                                physical_effects,
+                                                |_draft, _result| {
+                                                    Err::<(), String>(
+                                                        "intentional late consumer rejection"
+                                                            .to_owned(),
+                                                    )
+                                                },
+                                            )
+                                            .map(|_| ())
+                                            .map_err(|error| format!("{error:?}"))
+                                    },
+                                )
+                                .map_err(|error| format!("{error:?}"))
+                        })
+                        .map_err(|error| format!("{error:?}"))
+                },
+            );
+            assert!(rejected.is_err());
+            assert!(builder.function_state.current_function.is_none());
+            assert!(builder.function_state.current_block.is_none());
+            Ok::<_, String>(())
+        })
+        .expect("one installed S6C callback");
     port.complete().expect("selected child coverage");
 }
 

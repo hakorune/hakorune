@@ -120,14 +120,15 @@ Related:
   and the source-bound ExactText occurrence view remain valid subordinate
   substrate, but neither can bridge compile-time MIR values to concrete
   runtime pairs. The source/Facts/Recipe/Join chain is retained; only the
-  compiler/runtime physical boundary is reset.
+  compiler/runtime physical boundary is reset. The separate compiler-side V9
+  MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
+  lifecycle through the existing CFG/SSA writers without accepting that wire;
+  its outer unpublished-function rollback remains the only failure owner.
 - **Next ordered task:**
-  `COMMON-V2-S6C-V9-CALLOUT-MIR-D0` is the design stop. It must name one
-  canonical compile-time materializer for
-  `CheckedCallOut -> { NormalResult(V9) -> consumer -> End | Fault }` without
-  accepting a concrete runtime wire. StringBox runtime residence and direct
-  pinned-Text optimization are later runtime/backend rows, not this compiler
-  seam.
+  `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` must co-seal the existing V9
+  NormalResult with the adopted ExactText entry sidecar in the same
+  session/Body segment. StringBox runtime residence and direct pinned-Text
+  optimization are later runtime/backend rows, not this compiler seam.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   select a second physicalizer, or treat a runtime wire canary as production
@@ -2277,11 +2278,12 @@ pair/root validation both finish before their first effect. Later compiler
 failure discards the unpublished function; no retry, fallback, partial pin,
 or partial publication is allowed.
 
-Smallest next slice: only `COMMON-V2-S6C-V9-CALLOUT-MIR-D0`. Every runtime,
-direct-leaf, performance, and retirement row below remains parked.
+Smallest next slice: only `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0`. Every
+runtime, direct-leaf, performance, and retirement row below remains parked.
 
-Non-claims: no StringBox residence, TextEq V10, inner CFG, production switch,
-direct kernel, C-speed result, or legacy retirement is open now.
+Non-claims: no TextEq V10, inner CFG, Completion/publication, production
+switch, StringBox residence, direct kernel, C-speed result, or legacy
+retirement is open now.
 
 #### Final convergence task graph
 
@@ -2381,6 +2383,46 @@ The independent structural audit remains a separate pre-production backlog:
   raw-handle-only release and retires the legacy surface only after its own
   compatibility caller census. It is not a prerequisite for the already
   generation-branded ExactText lane.
+
+#### COMMON-V2-S6C-V9-CALLOUT-MIR-I0 closeout (2026-08-18; accepted)
+
+The canonical compiler-side V9 lifecycle is now implemented as a private
+callback-scoped materializer on the existing `CommonV2CanonicalSessionRefV1`.
+The source-backed Substring target, checked single-site plan, V6/V8 operand
+receipt, Body segment, invocation brand, and physical-entry stamp are
+validated before the first callout mutation. The admission's new private
+`consume_for_canonical_materializer` moves the site plan with its target and
+End obligation; no decomposable site-plan/End tuple can be re-paired.
+
+The materializer reuses the sole canonical writers in this exact order:
+
+```text
+CheckedCallOut(source, V0, [V6,V8], normal, fault)
+  -> CheckedCallOutFault(fault)             # terminal, no V9/End
+  -> CheckedCallOutNormalResult(normal,V9)
+  -> callback-scoped V9 consumer
+  -> CheckedCallOutEnd(normal, lease_slot=0)
+```
+
+The concrete `DynamicV2CallOutV1`/EndAuthorizedText issuer remains a runtime
+canary and is not called by the compiler materializer. Late callback or End
+failure is rejected through the existing outer unpublished-function
+transaction; the session's one-shot state forbids retry. The source result is
+the existing CallSlot item 6 / Body block 1 / V9 key 9; TextEq V10 and all
+later consumers remain closed.
+
+Evidence: `cargo fmt --all`,
+`tools/checks/common_v2_s6c_structure_guard.sh`,
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`, and the exact
+`s6c_substring_callout_materializer_emits_normal_fault_and_end_once` plus
+`s6c_substring_callout_materializer_late_callback_discards_unpublished_function`
+tests are green. The positive test observes NormalResult before End and
+verifies exactly one CheckedCallOut, one terminal Fault, and one End across the
+unpublished function's blocks; the negative test verifies a late callback
+rejection leaves no current function/block for publication. Warning output
+remains baseline-only; no `--nocapture`, release profile, runtime wire, TextEq,
+residence, inner CFG, publication, fallback, retry, production switch, or
+`eq_hh` retirement was opened.
 
 #### C-speed and legacy verdict
 

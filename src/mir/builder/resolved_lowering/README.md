@@ -750,3 +750,30 @@ projections are in `common_v2_session_segments.rs`; both extend the same
 parent type and cannot create a sibling session or semantic receipt. The
 facade is now well below the 800-line source ceiling, and this refactor emits
 no new MIR, runtime wire, TextEq, CFG, publication, fallback, or retry.
+
+## Common V2 S6C canonical Substring callout materializer I0 (2026-08-18)
+
+`S6CTextEqOperandReceiptV1::with_s6c_substring_callout_mir` is the first
+compiler-side V9 lifecycle consumer. It co-seals the source-backed Substring
+target, the checked single-site plan, the V6/V8 operand receipt, the Body
+segment, and the same canonical session before any callout mutation. The
+private `common_v2_s6c_substring_callout_materializer.rs` child then installs
+that plan and delegates all MIR writes to the existing canonical CFG/SSA
+writers:
+
+```text
+CheckedCallOut
+  -> separate terminal Fault
+  -> NormalResult(V9)
+  -> callback-scoped source consumer
+  -> EndAuthorized End
+```
+
+The materializer accepts no runtime wire, handle, lease token, raw slot,
+generation pair, or `eq_hh` transport. A late callback/terminal failure is
+discarded by the surrounding unpublished-function transaction; the same
+session cannot retry. Focused evidence covers one Normal/Fault/End lifecycle
+and checks that End is absent until the Normal consumer callback returns.
+TextEq V10, ExactText residence, inner CFG/Return, Completion/DraftSeal,
+publication, fallback, retry, production selection, and `eq_hh` retirement
+remain closed.

@@ -2,33 +2,31 @@
 # the archive index and git history; this file selects the live lane.
 status = """
 S6C source Binary Equal(Text,Text), StringSubstring/2, exact Facts, portable
-Recipe TextEq, Join/Completion, physical entry, target/admission, and operand
-proofs are closed caller-zero substrate. The V9 MIR materializer D0 and the
-behavior-neutral Structure-R0 split are accepted: canonical CFG/SSA writers
-remain bound by one callback-scoped owner with Normal/Fault/End lifecycle and
-unpublished rollback. The next row is V9 MIR I0; Selected Dynamic remains the
-sole production arm and all runtime/direct/TextEq work stays parked.
+Recipe TextEq, Join/Completion, physical entry, target/admission, operand
+proofs, Structure-R0, and the callback-scoped canonical V9 MIR lifecycle are
+closed caller-zero substrate. The next row is ExactText co-seal D0/I0;
+Selected Dynamic remains the sole production arm and all runtime/direct/TextEq
+work stays parked.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "D0 and Structure-R0 accepted. V9 MIR I0 may bind the existing canonical CFG/SSA writers; compile time still receives or mints no concrete runtime wire, and TextEq V10, residence, inner CFG, publication, and production remain closed."
+current_design_stop = "D0, Structure-R0, and V9 MIR I0 accepted. ExactText co-seal D0/I0 may bind the existing entry sidecar to V9 in one session/segment; TextEq V10, residence, inner CFG, publication, and production remain closed."
 work_mode = "fast"
-current_execution_row = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
-current_blocker_token = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0. One BoxShape implementation: emit canonical CheckedCallOut, NormalResult(V9), source-authorized consumer, End at every verified normal cutpoint, and separate terminal Fault through existing CFG/SSA writers. No runtime wire, StringBox residence, TextEq V10, inner CFG, publication, fallback, retry, or production."
+current_execution_row = "COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0"
+current_blocker_token = "COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0. One BoxShape implementation: co-seal the existing V9 NormalResult with the adopted ExactText entry sidecar in the same session/Body segment, with no runtime pair issuer. No TextEq V10, residence, inner CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C V9 MIR I0 after Structure-R0)"
+active_lane = "Loop compiler frontier (S6C ExactText co-seal after V9 MIR I0)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
-operand proof, invocation brand, and lifecycle sidecar are landed without
-runtime wire. Structure-R0 keeps the ingress and canonical session façades
-thin. The next row emits only the canonical V9 MIR lifecycle; runtime
-wire/LeaseSet canaries, C-speed work, TextEq, and production cutover remain
-parked.
+operand proof, invocation brand, canonical CheckedCallOut/NormalResult/Fault/End
+lifecycle, and Structure-R0 thin façades are landed without runtime wire. The
+next row co-seals V9 with the existing ExactText entry sidecar; LeaseSet/C-speed,
+TextEq, and production cutover remain parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -41,10 +39,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is a caller-zero runtime-contract canary; the canonical CheckedCallOut/NormalResult/Fault/End materializer D0 and Structure-R0 split are accepted. V9 MIR I0 is the next bounded effect row. StringBox residence, TextEq V10, inner CFG, production, performance promotion, and eq_hh retirement remain later rows."
-next_design_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is a caller-zero runtime-contract canary; the canonical CheckedCallOut/NormalResult/Fault/End materializer D0/I0 and Structure-R0 split are accepted. ExactText co-seal D0/I0 is the next bounded row. StringBox residence, TextEq V10, inner CFG, production, performance promotion, and eq_hh retirement remain later rows."
+next_design_card = "COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-I0"
+next_execution_card = "COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -61,5 +59,6 @@ landed_tail = [
   "2026-08-18: ExactText adjacent slot/generation entry sidecar and source-bound occurrence view are landed compile-time substrate; they do not mint runtime values.",
   "2026-08-18: StableText wire ingress and the concrete-wire V9 End/lend issuer are landed runtime-contract canaries; the phase audit explicitly removes them from the production compiler claim.",
   "2026-08-18: Canonical CFG/SSA CheckedCallOut, NormalResult, End, and Fault writers already exist and remain the only permitted MIR mutation owners.",
+  "2026-08-18: Common-V2 S6C V9 MIR I0 now binds the existing canonical writers through one callback-scoped materializer; exactly one Normal/Fault/End lifecycle is emitted without a runtime wire, and late failure remains outer-transaction discard.",
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover."
 ]
