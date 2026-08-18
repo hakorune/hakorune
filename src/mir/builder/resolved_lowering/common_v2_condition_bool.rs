@@ -113,58 +113,6 @@ impl<'bool_result, 'source, 'envelope>
         self.destination
     }
 
-    /// Consume the typed V5 condition receipt directly into the existing
-    /// cursor CFG materializer.  The raw Bool `ValueId` never crosses this
-    /// method boundary; source, entry bridge, cursor, leaf, and CFG remain
-    /// one same-session handoff.
-    pub(in crate::mir::builder::resolved_lowering) fn consume_s6c_cursor_cfg(
-        self,
-        builder: &mut MirBuilder,
-        scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
-        source: S6CScalarScanSourceRefV1<'_, '_, '_>,
-    ) -> Result<
-        CommonV2S6CCursorCfgReceiptV1<'bool_result, 'source, 'envelope>,
-        ConditionBoolCursorCfgHandoffRejectV1,
-    > {
-        let CanonicalConditionBoolResultReceiptV1 {
-            _session: session,
-            owner,
-            segment_brand,
-            destination,
-            ..
-        } = self;
-        if source.owner() != owner {
-            return Err(ConditionBoolCursorCfgHandoffRejectV1::OwnerMismatch);
-        }
-        if !scope.receipt().belongs_to(&segment_brand)
-            || !session.session.owns_segment_receipt(scope.receipt())
-        {
-            return Err(ConditionBoolCursorCfgHandoffRejectV1::SegmentScopeMismatch);
-        }
-        let bridge = session
-            .session
-            .issue_s6c_textref_entry_bridge_plan()
-            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Bridge(format!("{error:?}")))?;
-        let admission = crate::mir::builder::resolved_lowering::
-            issue_common_v2_s6c_text_content_root_admission_v1(source, bridge)
-            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Root(format!("{error:?}")))?;
-        let cursor =
-            crate::mir::builder::resolved_lowering::issue_common_v2_s6c_text_cursor_preheader_v1(
-                admission,
-            )
-            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Cursor(format!("{error:?}")))?;
-        let leaf = session
-            .consume_s6c_scalar_equality_leaf(cursor)
-            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Leaf(format!("{error:?}")))?;
-        super::s6c_cursor_cfg::materialize_common_v2_s6c_cursor_cfg_v1(
-            leaf,
-            builder,
-            scope,
-            destination,
-        )
-        .map_err(ConditionBoolCursorCfgHandoffRejectV1::Materializer)
-    }
-
     /// Consume this Bool receipt and the exact shared segment scope into the
     /// existing Return-read physical receipt. No branch or Return is written.
     pub(in crate::mir::builder) fn with_return_read_physical_receipt<R>(
@@ -344,5 +292,48 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
             destination,
             segment_brand,
         })
+    }
+}
+
+impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
+    /// Consume the same-session S6C source directly into the cursor
+    /// materializer.  V5 is not a generic Length-call Bool: the materializer
+    /// emits one pinned subject ByteLen and compares it with its private byte
+    /// offset PHI, then updates the canonical source index binding.
+    pub(in crate::mir::builder::resolved_lowering) fn consume_s6c_cursor_cfg(
+        &mut self,
+        builder: &mut MirBuilder,
+        scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
+        source: S6CScalarScanSourceRefV1<'_, '_, '_>,
+    ) -> Result<
+        CommonV2S6CCursorCfgReceiptV1<'_, 'source, 'envelope>,
+        ConditionBoolCursorCfgHandoffRejectV1,
+    > {
+        if source.owner() != self.session.owner()
+            || !self.session.owns_segment_receipt(scope.receipt())
+        {
+            return Err(if source.owner() != self.session.owner() {
+                ConditionBoolCursorCfgHandoffRejectV1::OwnerMismatch
+            } else {
+                ConditionBoolCursorCfgHandoffRejectV1::SegmentScopeMismatch
+            });
+        }
+        let bridge = self
+            .session
+            .issue_s6c_textref_entry_bridge_plan()
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Bridge(format!("{error:?}")))?;
+        let admission = crate::mir::builder::resolved_lowering::
+            issue_common_v2_s6c_text_content_root_admission_v1(source, bridge)
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Root(format!("{error:?}")))?;
+        let cursor =
+            crate::mir::builder::resolved_lowering::issue_common_v2_s6c_text_cursor_preheader_v1(
+                admission,
+            )
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Cursor(format!("{error:?}")))?;
+        let leaf = self
+            .consume_s6c_scalar_equality_leaf(cursor)
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Leaf(format!("{error:?}")))?;
+        super::s6c_cursor_cfg::materialize_common_v2_s6c_cursor_cfg_v1(leaf, builder, scope, source)
+            .map_err(ConditionBoolCursorCfgHandoffRejectV1::Materializer)
     }
 }

@@ -959,8 +959,8 @@ fallback/retry, performance, and `eq_hh` retirement remain closed.
 `CommonV2S6CTextScalarEqualityLeafCapabilityV1` is the next narrow,
 effect-free consumer of the one-shot cursor/preheader plan. The canonical
 session consumes that plan exactly once and co-seals the existing Subject and
-Needle root roles with the two backend-neutral leaf shapes:
-`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`. V9 remains a derived tuple
+Needle root roles with the three backend-neutral leaf shapes:
+`ByteLen`, `Utf8WidthAt`, and `Utf8ScalarSliceEqWholeText`. V9 remains a derived tuple
 (`SubjectRoot + byte_offset + scalar_width`); it is never registered as a root
 or materialized as a runtime value.
 
@@ -984,25 +984,17 @@ performance, fallback/retry, and `eq_hh` retirement remain closed.
 `materialize_common_v2_s6c_cursor_cfg_v1` is the only caller-zero shape that
 consumes the scalar-equality leaf receipt. It stays inside the canonical
 session and checks the same owner, physical-entry stamp, source segment,
-TextEq/Return-read co-seal, and exact `Utf8WidthAt`/
-`Utf8ScalarSliceEqWholeText` shapes. Its typed transport is landed, but its
-current generic Length V5 and private CP-index PHI are canary mechanics, not
-the final canonical physical route. The outer V5 remains distinct from V10,
-but must be reissued as `byte_offset < ByteLen(root 0)` before this route can
-advance.
+TextEq/Return-read co-seal, and exact `ByteLen`/`Utf8WidthAt`/
+`Utf8ScalarSliceEqWholeText` shapes. V5 is issued once from `ByteLen(root 0)`
+and one private byte-offset PHI; no generic `StringBox.length` Call or private
+CP-index PHI remains. Continuation defines `i + 1` through the source
+assignment relation and canonical Binding SSA, and Return-read observes that
+same binding. Canonical CFG/Binding-SSA witnesses seal entry, body,
+continuation, and condition. Positive and late-failure fixtures are green;
+the outer unpublished function transaction remains the only late-discard
+owner.
 
-`CanonicalConditionBoolResultReceiptV1::consume_s6c_cursor_cfg` is now the
-sole typed handoff. It lends the installed source corridor, issues the
-canonical-session entry bridge, consumes the base-root/cursor/leaf products
-exactly once, and passes V5 internally without exposing a re-pairable outer
-`ValueId` to the fixture. Positive and late-failure fixtures are green; the
-outer unpublished function transaction remains the only late-discard owner.
-
-This closes only the typed no-re-pairing handoff. D0 has accepted the next
-BoxShape I0 while `NoSafeSlice::S6CCursorPredicateBindingSsaUnsealed` remains
-the implementation stop: source `i` must be owned only by canonical Binding
-SSA, the private CP-index PHI/getters must disappear, ByteLen must be loaded
-once, and canonical CFG/Binding-SSA sealing must cover the backedge. Residence
-exit, normal-return finish, runtime frame,
-publication, production edge, fallback/retry, performance promotion, and
-`eq_hh` retirement remain closed.
+This closes the predicate/index physical I0 only. Residence exit,
+normal-return finish, runtime/backend frame work, publication, production
+edge, fallback/retry, performance promotion, and `eq_hh` retirement remain
+closed.

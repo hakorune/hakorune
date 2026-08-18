@@ -80,38 +80,26 @@ fn cursor_cfg_consumes_typed_condition_and_same_cohort_source() {
             |canonical, draft, loan| {
                 loan.callable()
                     .with_scalar_scan_source(|source| {
-                        source_result((|| {
+                        let result = (|| {
                             let seed = canonical
                                 .emit_initial_index_seed(draft)
                                 .map_err(|error| format!("{error:?}"))?;
                             drop(seed);
                             canonical
                                 .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                                    let length = crate::test_support::with_env_var(
-                                        "NYASH_MIR_UNIFIED_CALL",
-                                        "1",
-                                        || {
-                                            canonical
-                                                .emit_length_call_result_from_scope(draft, &scope)
-                                        },
-                                    )
-                                    .map_err(|error| format!("{error:?}"))?;
-                                    let condition = length
-                                        .consume_for_condition_bool(draft)
-                                        .map_err(|error| format!("{error:?}"))?;
-                                    let outer_condition = condition.destination();
-                                    let cursor = condition
+                                    let cursor = canonical
                                         .consume_s6c_cursor_cfg(draft, &scope, source)
                                         .map_err(|error| format!("{error:?}"))?;
                                     assert_ne!(cursor.text_equal_value(), cursor.width_value());
-                                    assert_ne!(cursor.text_equal_value(), outer_condition);
-                                    assert_eq!(pinned_text_count(draft), 2);
+                                    assert_ne!(cursor.text_equal_value(), cursor.loop_condition());
+                                    assert_eq!(pinned_text_count(draft), 3);
                                     drop(cursor);
                                     drop(scope);
                                     Ok(())
                                 })
                                 .map_err(|error| format!("{error:?}"))
-                        })())
+                        })();
+                        source_result(result)
                     })
                     .map_err(|error| format!("{error:?}"))
             },
@@ -148,24 +136,11 @@ fn cursor_cfg_late_failure_discards_typed_handoff() {
                             drop(seed);
                             canonical
                                 .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                                    let length = crate::test_support::with_env_var(
-                                        "NYASH_MIR_UNIFIED_CALL",
-                                        "1",
-                                        || {
-                                            canonical
-                                                .emit_length_call_result_from_scope(draft, &scope)
-                                        },
-                                    )
-                                    .map_err(|error| format!("{error:?}"))?;
-                                    let condition = length
-                                        .consume_for_condition_bool(draft)
-                                        .map_err(|error| format!("{error:?}"))?;
-                                    let outer_condition = condition.destination();
-                                    let cursor = condition
+                                    let cursor = canonical
                                         .consume_s6c_cursor_cfg(draft, &scope, source)
                                         .map_err(|error| format!("{error:?}"))?;
-                                    assert_ne!(cursor.text_equal_value(), outer_condition);
-                                    assert_eq!(pinned_text_count(draft), 2);
+                                    assert_ne!(cursor.text_equal_value(), cursor.loop_condition());
+                                    assert_eq!(pinned_text_count(draft), 3);
                                     drop(cursor);
                                     drop(scope);
                                     Err::<(), _>("late cursor CFG rejection".to_owned())

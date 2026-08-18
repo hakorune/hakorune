@@ -337,8 +337,9 @@ remain closed.
 
 `issue_common_v2_s6c_text_scalar_equality_leaf_v1` is now the sole leaf
 capability issuer for this row. It consumes the cursor/preheader plan once and
-records only the two existing backend-neutral shapes:
-`Utf8WidthAt(root 0)` and `Utf8ScalarSliceEqWholeText(root 0, root 1)`.
+records the three existing backend-neutral shapes:
+`ByteLen(root 0)`, `Utf8WidthAt(root 0)`, and
+`Utf8ScalarSliceEqWholeText(root 0, root 1)`.
 The callback-scoped receipt lends the exact canonical session together with
 the capability; it emits no `ValueId`, `PinnedTextOp`, Bool, CFG, runtime
 frame, or production edge. The focused leaf tests are green (`2/2`), and the
@@ -356,12 +357,12 @@ backedge, and Return-read placement. Positive and late-failure fixtures are
 green; the outer unpublished function transaction discards all partial MIR on
 late rejection.
 
-This closes only the typed transport/re-pairing stop. It does **not** close the
-physical scalar-scan route. The current V5 was produced by the generic
-`StringBox.length` Call canary, its source-index read was taken from the entry
-block, and the cursor materializer created a separate `s6c:cp` PHI/next value
-while Return-read continued to use canonical Binding SSA. Those mechanics are
-counterexample evidence for the active D0, not production-ready authority.
+This closes the typed transport and predicate/index physical I0. V5 is now
+issued from one entry `ByteLen(root 0)` plus one private byte-offset PHI; the
+generic `StringBox.length` Call and independent `s6c:cp` PHI/next are absent.
+Continuation updates `i + 1` through the source assignment relation and
+canonical Binding SSA, and Return-read observes that same binding. Canonical
+CFG/Binding-SSA witnesses seal entry, body, continuation, and condition.
 Residence exit/finish, publication, production selection, runtime
 pointer/frame work, fallback, retry, performance promotion, and `eq_hh`
 retirement remain closed. The integration test module is below 800 lines, and
@@ -369,10 +370,10 @@ the cursor materializer remains below the hard source limit.
 
 ### S6C pinned cursor predicate / canonical binding D0 (2026-08-18; accepted)
 
-Decision: keep the landed typed handoff, but replace its canary physical
-mechanics before opening residence exit. The final loop owns one canonical
-source-index Binding SSA and one profile-private byte-offset PHI. Physical V5
-is `byte_offset < ByteLen(Subject root 0)`; it is not the result of a generic
+Decision: keep the landed typed handoff and the completed predicate/index
+physical mechanics. The final loop owns one canonical source-index Binding
+SSA and one profile-private byte-offset PHI. Physical V5 is
+`byte_offset < ByteLen(Subject root 0)`; it is not the result of a generic
 Length Call.
 
 Source authority + canonical issuer: the existing
@@ -402,22 +403,14 @@ escaping, stale, or ambiguous inputs reject before effect. Any later CFG,
 SSA, PHI, or leaf failure discards the whole unpublished function; retry and
 fallback remain zero.
 
-Smallest next slice: execute one BoxShape series
-named `S6C-PINNED-CURSOR-PREDICATE-BINDING-I0` in two bounded commits. The
-first commit closes the effect-free relation: retain the exact step
-read/update sites, perform an explicit all-item V9-use census, and add the
-already-existing `ByteLen` leaf shape to the cursor capability. The second
-commit replaces the canary materializer: issue ByteLen once in entry/preheader,
-keep only the byte-offset private PHI, define `i + 1` through
-`define_assignment_exact`, seal CFG and Binding SSA through their canonical
-witnesses, and let Return-read observe that same binding. Do not create a new
-orchestrator or a second session.
+Smallest next slice: reopen only the existing Residence exit/finish boundary
+after the two bounded I0 commits. Do not create a new orchestrator or a second
+session.
 
-Non-claims: the accepted D0 authorizes only the named BoxShape I0. It does not
-authorize a new semantic `Verified*`/`Prepared*` product, Residence finish,
-Return materialization, backend lowering, publication, production selection,
-fallback/retry, performance promotion, `eq_hh` retirement, a new frame, or
-`Arc<str>`.
+Non-claims: this closeout does not authorize a new semantic
+`Verified*`/`Prepared*` product, Residence finish, Return materialization,
+backend lowering, publication, production selection, fallback/retry,
+performance promotion, `eq_hh` retirement, a new frame, or `Arc<str>`.
 
 The exact I0 acceptance is:
 
@@ -439,18 +432,18 @@ late failure publication                 = 0
 
 | feedback | disposition | scheduled boundary |
 | --- | --- | --- |
-| raw public V5 `ValueId` handoff | partly stale: commit `60201abdcb` landed a typed private handoff | retire its generic-condition dependency in 5b |
-| generic Length physical V5 | live P0 | 5a/5b |
-| private CP-index SSA beside canonical `i` | live P0 | 5a/5b |
-| same-cohort Return value proof | live P0 | 5b positive/negative evidence |
-| V9 sole-use claim is indirect | live pre-effect hardening | first 5b commit |
+| raw public V5 `ValueId` handoff | closed: direct same-session consumer owns V5 | — |
+| generic Length physical V5 | closed: one entry ByteLen plus byte-offset predicate | — |
+| private CP-index SSA beside canonical `i` | closed: only canonical Binding SSA owns `i` | — |
+| same-cohort Return value proof | closed: continuation assignment and Return-read share binding | — |
+| V9 sole-use claim is indirect | closed: all-logical-item census rejects every non-TextEq-left use | — |
 | `with_published_pairs<R>` can return raw runtime pairs | valid, but not the current semantic blocker | CutoverBlocker: direct-consume in backend/runtime entry owner before production |
 | generic `consume<R>` surfaces can re-export Copy views | valid API-hardening debt | CleanupParked after physical closure/cutover |
 | one-shot bool flag bag in common session | valid growth debt | CleanupParked profile claim ledger |
 | stale StringBox rejection comment | valid documentation debt | CleanupParked; no lifetime redesign |
 | `Arc<str>` migration/new frame | no present counterexample | LatentParked; open only if mutable-reachability guard finds a sanctioned writer |
 
-Residence exit remains the next dependency after 5b, not a parallel task.
+Residence exit remains the next dependency, not a parallel task.
 
 
 ## Historical boundary

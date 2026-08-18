@@ -26,8 +26,6 @@ pub(in crate::mir::builder) enum CommonV2S6CCursorCfgRejectV1 {
     OwnerMismatch,
     MissingPhysicalEntryStamp,
     EntryMismatch,
-    OuterConditionType(Option<MirType>),
-    OuterConditionAliasesTextEq,
     LeafShapeMismatch,
     SegmentOwnerMismatch,
     SegmentRow(String),
@@ -54,12 +52,12 @@ pub(in crate::mir::builder) struct CommonV2S6CCursorCfgReceiptV1<'session, 'sour
     condition_block: BasicBlockId,
     body_block: BasicBlockId,
     after_block: BasicBlockId,
+    subject_byte_len: ValueId,
     byte_offset_phi: ValueId,
-    cp_index_phi: ValueId,
+    loop_condition: ValueId,
     width_value: ValueId,
     text_equal_value: ValueId,
     byte_next: ValueId,
-    cp_next: ValueId,
     return_block: BasicBlockId,
     continuation_block: BasicBlockId,
 }
@@ -87,8 +85,12 @@ impl CommonV2S6CCursorCfgReceiptV1<'_, '_, '_> {
         self.byte_offset_phi
     }
 
-    pub(in crate::mir::builder) const fn cp_index_phi(&self) -> ValueId {
-        self.cp_index_phi
+    pub(in crate::mir::builder) const fn subject_byte_len(&self) -> ValueId {
+        self.subject_byte_len
+    }
+
+    pub(in crate::mir::builder) const fn loop_condition(&self) -> ValueId {
+        self.loop_condition
     }
 
     pub(in crate::mir::builder) const fn width_value(&self) -> ValueId {
@@ -101,10 +103,6 @@ impl CommonV2S6CCursorCfgReceiptV1<'_, '_, '_> {
 
     pub(in crate::mir::builder) const fn byte_next(&self) -> ValueId {
         self.byte_next
-    }
-
-    pub(in crate::mir::builder) const fn cp_next(&self) -> ValueId {
-        self.cp_next
     }
 
     pub(in crate::mir::builder) const fn return_block(&self) -> BasicBlockId {
@@ -220,7 +218,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
     capability: &CommonV2S6CTextScalarEqualityLeafCapabilityV1,
     builder: &mut MirBuilder,
     scope: &CommonV2SharedSegmentScopeV1,
-    outer_condition: ValueId,
+    source: crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'_, '_, '_>,
 ) -> Result<CommonV2S6CCursorCfgReceiptV1<'session, 'source, 'envelope>, CommonV2S6CCursorCfgRejectV1>
 {
     if session.s6c_cursor_cfg_issued {
@@ -239,15 +237,6 @@ fn materialize_inner<'session, 'source, 'envelope>(
     }
     if scope.receipt().owner() != owner {
         return Err(CommonV2S6CCursorCfgRejectV1::SegmentOwnerMismatch);
-    }
-    if builder.function_state.type_ctx.get_type(outer_condition) != Some(&MirType::Bool) {
-        return Err(CommonV2S6CCursorCfgRejectV1::OuterConditionType(
-            builder
-                .function_state
-                .type_ctx
-                .get_type(outer_condition)
-                .cloned(),
-        ));
     }
     let [byte_len_shape, width_shape, eq_shape] = *capability.shapes();
     if byte_len_shape != (CommonV2S6CTextScalarEqualityLeafShapeV1::ByteLen { root_index: 0 })
@@ -294,22 +283,23 @@ fn materialize_inner<'session, 'source, 'envelope>(
         entry,
         capability.initial().byte_offset() as i64,
     )?;
-    let entry_cp = issue_i64(session, builder, entry, capability.initial().cp_index())?;
+    let subject_byte_len = issue_pinned_text(
+        session,
+        builder,
+        entry,
+        capability.root_plan_stamp(),
+        PinnedTextAccessKindV1::ByteLen {
+            root: PinnedTextRootIdV1::from_frame_row(capability.subject_root_index()),
+        },
+        MirType::Integer,
+    )?;
     let byte_phi = session
-        .session
-        .issue_physical_value_id(builder)
-        .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
-    let cp_phi = session
         .session
         .issue_physical_value_id(builder)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
     session
         .session
         .publish_physical_value_type(builder, byte_phi, MirType::Integer)
-        .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
-    session
-        .session
-        .publish_physical_value_type(builder, cp_phi, MirType::Integer)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
     let byte_token: PhiToken = session
         .session
@@ -321,11 +311,23 @@ fn materialize_inner<'session, 'source, 'envelope>(
             "s6c:byte",
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
-    let cp_token: PhiToken = session
+    let loop_condition = session
         .session
-        .phis
-        .define_provisional_phi(builder, condition_row.physical_block(), cp_phi, "s6c:cp")
-        .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
+        .issue_physical_value_id(builder)
+        .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
+    loop_operation::emit_compare_i64_at_with_dst(
+        builder,
+        condition_row.physical_block(),
+        loop_condition,
+        crate::mir::CompareOp::Lt,
+        byte_phi,
+        subject_byte_len,
+    )
+    .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
+    session
+        .session
+        .publish_physical_value_type(builder, loop_condition, MirType::Bool)
+        .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
 
     let width = issue_pinned_text(
         session,
@@ -351,10 +353,6 @@ fn materialize_inner<'session, 'source, 'envelope>(
         },
         MirType::Bool,
     )?;
-    if text_equal == outer_condition {
-        return Err(CommonV2S6CCursorCfgRejectV1::OuterConditionAliasesTextEq);
-    }
-
     let return_placement = session
         .with_return_read_physical_receipt(builder, scope.receipt(), |_, receipt| {
             if receipt.if_physical_block() != body_row.physical_block()
@@ -373,7 +371,39 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .session
         .issue_physical_value_id(builder)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
-    let cp_next = session
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(source.step_read_site(), source.index_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    let current_i = session
+        .session
+        .identity
+        .read_entry_receipt(
+            builder,
+            &mut session.session.phis,
+            return_placement.continuation_block,
+            source.index_binding(),
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    match builder
+        .function_state
+        .type_ctx
+        .get_type(current_i.physical_value())
+        .cloned()
+    {
+        None | Some(MirType::Unknown) => session
+            .session
+            .publish_physical_value_type(builder, current_i.physical_value(), MirType::Integer)
+            .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?,
+        Some(MirType::Integer) => {}
+        Some(other) => {
+            return Err(CommonV2S6CCursorCfgRejectV1::ReturnRead(format!(
+                "canonical index read is not i64: {other:?}"
+            )))
+        }
+    }
+    let index_next = session
         .session
         .issue_physical_value_id(builder)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
@@ -389,8 +419,8 @@ fn materialize_inner<'session, 'source, 'envelope>(
     loop_operation::emit_add_i64_at_with_dst(
         builder,
         return_placement.continuation_block,
-        cp_next,
-        cp_phi,
+        index_next,
+        current_i.physical_value(),
         one,
     )
     .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
@@ -400,15 +430,25 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
     session
         .session
-        .publish_physical_value_type(builder, cp_next, MirType::Integer)
+        .publish_physical_value_type(builder, index_next, MirType::Integer)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
+    session
+        .session
+        .identity
+        .define_assignment_exact(
+            source.index_update().target_site(),
+            source.index_binding(),
+            return_placement.continuation_block,
+            index_next,
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
     emit_jump(session, builder, entry, condition_row.physical_block())?;
     emit_branch(
         session,
         builder,
         condition_row.physical_block(),
-        outer_condition,
+        loop_condition,
         body_row.physical_block(),
         after_block,
     )?;
@@ -439,19 +479,74 @@ fn materialize_inner<'session, 'source, 'envelope>(
             "s6c:byte",
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
+    let (entry_witness, body_witness, continuation_witness, condition_witness) = {
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
+        let entry_witness = session
+            .session
+            .cfg
+            .seal_block(function, entry)
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        let body_witness = session
+            .session
+            .cfg
+            .seal_block(function, body_row.physical_block())
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        let continuation_witness = session
+            .session
+            .cfg
+            .seal_block(function, return_placement.continuation_block)
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        let condition_witness = session
+            .session
+            .cfg
+            .seal_block(function, condition_row.physical_block())
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        (
+            entry_witness,
+            body_witness,
+            continuation_witness,
+            condition_witness,
+        )
+    };
     session
         .session
-        .phis
-        .patch_phi_inputs(
+        .identity
+        .seal_block(builder, &mut session.session.phis, entry, &entry_witness)
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .seal_block(
             builder,
-            cp_token,
-            vec![
-                (entry, entry_cp),
-                (return_placement.continuation_block, cp_next),
-            ],
-            "s6c:cp",
+            &mut session.session.phis,
+            body_row.physical_block(),
+            &body_witness,
         )
-        .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .seal_block(
+            builder,
+            &mut session.session.phis,
+            return_placement.continuation_block,
+            &continuation_witness,
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .seal_block(
+            builder,
+            &mut session.session.phis,
+            condition_row.physical_block(),
+            &condition_witness,
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
     Ok(CommonV2S6CCursorCfgReceiptV1 {
         _session: session,
@@ -459,29 +554,28 @@ fn materialize_inner<'session, 'source, 'envelope>(
         condition_block: condition_row.physical_block(),
         body_block: body_row.physical_block(),
         after_block,
+        subject_byte_len,
         byte_offset_phi: byte_phi,
-        cp_index_phi: cp_phi,
+        loop_condition,
         width_value: width,
         text_equal_value: text_equal,
         byte_next,
-        cp_next,
         return_block: return_placement.then_block,
         continuation_block: return_placement.continuation_block,
     })
 }
 
-/// Internal materializer used only by the typed V5 condition consumer below
-/// the common-session boundary.  The raw `outer_condition` is not exposed to
-/// the integration fixture; the typed receipt owns that handoff and the outer
-/// unpublished transaction remains the rollback boundary.
+/// Internal materializer used only by the same-session scalar-scan consumer.
+/// V5 is issued here from the pinned subject byte length; no generic runtime
+/// Length call or detached Bool `ValueId` is accepted.
 pub(super) fn materialize_common_v2_s6c_cursor_cfg_v1<'session, 'source, 'envelope>(
     leaf: CommonV2S6CTextScalarEqualityLeafReceiptV1<'session, 'source, 'envelope>,
     builder: &mut MirBuilder,
     scope: &CommonV2SharedSegmentScopeV1,
-    outer_condition: ValueId,
+    source: crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'_, '_, '_>,
 ) -> Result<CommonV2S6CCursorCfgReceiptV1<'session, 'source, 'envelope>, CommonV2S6CCursorCfgRejectV1>
 {
     leaf.with_session(|session, capability| {
-        materialize_inner(session, capability, builder, scope, outer_condition)
+        materialize_inner(session, capability, builder, scope, source)
     })
 }
