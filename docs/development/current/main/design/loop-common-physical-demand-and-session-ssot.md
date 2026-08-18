@@ -113,8 +113,10 @@ Related:
   Substring target/admission I0 is now effect-free and caller-zero; the
   source-backed V9 issuer I0 is now landed: it validates the checked wire,
   adopts a generation-branded End lease, and lends Text only through a
-  callback-scoped view. The remaining boundary is the source-bound
-  ExactText-occurrence view plus a runtime wire issuer; the existing
+  callback-scoped view. The runtime-only StableText wire issuer I0 is now
+  landed and validates an already-published `{slot,generation}` pair without
+  raw-handle recapture. The remaining boundary is the source-bound
+  ExactText-occurrence view and its residence co-seal; the existing
   StableText-only Residence cannot silently accept the S6C StringBox shape.
 - **Next ordered task:**
   `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0` remains a design
@@ -2043,3 +2045,42 @@ does not add code, fixtures, semantic receipts, runtime pinning, CheckedCallOut,
 V9 `ValueId`, TextEq/Bool/CFG, publication, production, fallback, retry, or
 legacy retirement. The blocker remains
 `NoSafeSlice::ExactTextResidenceOccurrenceIssuerUnsealed`.
+
+### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
+
+Decision: open one runtime-only, behavior-preserving ingress for an already
+published StableText `{slot,generation}` pair. It validates the existing host
+generation table and returns the existing private `TextFormalWirePairV1`; it
+does not create source meaning, a MIR value, a residence pin, or a TextEq
+operand. This is a BoxShape transport slice, not a production switch.
+
+Source authority + canonical issuer: the host-handle generation table and its
+StableText payload classifier are the sole runtime authorities. The issuer is
+`runtime::text_formal_abi`; the future common-V2 occurrence view is its only
+named consumer. The canonical physical session and ExactText sidecar remain
+compile-time owners and are not consulted by this runtime helper.
+
+Non-authority: raw handles and generation recapture, MIR `ValueId`, logical
+ordinal, physical sidecar rows, `PinnedTextBackendFrameContractV1`, C
+`eq_hh`/status exports, StringBox-to-StableText conversion, fallback/retry,
+and `TextFormalCallResidenceV1` pin or root ownership.
+
+Fail-fast boundary: reject zero/out-of-range or missing slots, zero or stale
+generations, non-StableText payloads (including StringBox), and any attempted
+raw-pair escape before a caller can acquire residence. Existing exact-text
+borrow and residence APIs are unchanged; no partial resource is acquired.
+
+Closeout evidence: the narrow private issuer and focused positive/negative
+tests are landed. `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+text_formal_abi` is green (7/7), `CARGO_BUILD_JOBS=4 RUSTFLAGS=-Awarnings
+cargo check --profile quick -q` is green, and formatter, diff, pointer,
+physical-transfer, and TextScan authority guards are green. Cargo runs were
+serialized with `CARGO_BUILD_JOBS=4` and did not use `--nocapture` or release
+LTO. Do not add the common-V2 occurrence view, TextFormal residence,
+CheckedCallOut, V9 `ValueId`, TextEq/Bool/CFG, publication, production,
+fallback, retry, or legacy retirement.
+
+Acceptance/non-claims: one issuer, one future consumer, no raw tuple or
+semantic receipt escape, StableText positive, zero/stale/missing/foreign and
+StringBox negatives, and source under 800 lines. The next design boundary is
+the source-bound common-V2 occurrence co-seal; this I0 does not claim it.

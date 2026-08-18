@@ -100,6 +100,23 @@ impl TextFormalBorrowV1 {
     }
 }
 
+/// Issue a validated wire from already-published StableText lanes.  The
+/// caller supplies both halves of the generation-branded pair; this function
+/// never recaptures a generation from a raw handle and never exposes a raw
+/// tuple outside the runtime owner.
+#[inline(always)]
+pub(crate) fn issue_stable_text_formal_wire_v1(
+    slot: u64,
+    generation: u64,
+) -> Result<TextFormalWirePairV1, TextFormalBorrowStatusV1> {
+    if slot == 0 || generation == 0 {
+        return Err(TextFormalBorrowStatusV1::ZeroOrOutOfRangeSlot);
+    }
+    host_handles::with_stable_text_formal_wire(slot, generation, |_| ())
+        .map(|_| TextFormalWirePairV1::from_published_wire(slot, generation))
+        .map_err(TextFormalBorrowStatusV1::from_lookup_reject)
+}
+
 /// Sole Rust issuer for a callable-entry Text formal capability.
 #[inline(always)]
 pub fn issue_text_formal_borrow_v1(

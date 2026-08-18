@@ -42,8 +42,8 @@ pub(super) use call_lifetime::{
 pub(crate) use call_lifetime::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFinishRejectV1};
 pub(crate) use lease_identity::{
     capture_text_formal_pair, capture_text_lease_identity, drop_if_lease_identity_matches,
-    to_handle_text_with_lease_identity, with_text_formal_wire, HostHandleLeaseIdentityV1,
-    TextFormalLookupRejectV1,
+    to_handle_text_with_lease_identity, with_stable_text_formal_wire, with_text_formal_wire,
+    HostHandleLeaseIdentityV1, TextFormalLookupRejectV1,
 };
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;

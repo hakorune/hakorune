@@ -56,6 +56,14 @@ pub(super) fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
     }
 }
 
+#[inline(always)]
+fn stable_text_ref(payload: &HandlePayload) -> Option<&str> {
+    match payload {
+        HandlePayload::StableText(text) => Some(text.as_str()),
+        HandlePayload::StableBox(_) => None,
+    }
+}
+
 impl Registry {
     /// Capture a generation-branded Text formal identity without exposing the
     /// registry or a raw-handle-only capability.
@@ -105,6 +113,31 @@ impl Registry {
             return Err(TextFormalLookupRejectV1::GenerationMismatch);
         }
         let text = exact_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
+        Ok(f(text))
+    }
+
+    /// Validate and lend only the registry's StableText payload.  StringBox
+    /// remains an exact-text payload for the caller-zero borrow API, but it is
+    /// deliberately rejected by the root-bearing Residence owner.
+    #[inline(always)]
+    pub(super) fn with_stable_text_formal_identity<R>(
+        &self,
+        identity: &HostHandleLeaseIdentityV1,
+        f: impl FnOnce(&str) -> R,
+    ) -> Result<R, TextFormalLookupRejectV1> {
+        let idx = usize::try_from(identity.handle)
+            .map_err(|_| TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot)?;
+        let table = self.table.read();
+        if idx >= table.slots.len() {
+            return Err(TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot);
+        }
+        let payload = table.slots[idx]
+            .as_ref()
+            .ok_or(TextFormalLookupRejectV1::MissingSlot)?;
+        if table.lease_generations[idx] != identity.generation {
+            return Err(TextFormalLookupRejectV1::GenerationMismatch);
+        }
+        let text = stable_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
         Ok(f(text))
     }
 }
@@ -168,6 +201,19 @@ pub(crate) fn with_text_formal_wire<R>(
 ) -> Result<R, TextFormalLookupRejectV1> {
     let identity = HostHandleLeaseIdentityV1 { handle, generation };
     super::reg().with_text_formal_identity(&identity, f)
+}
+
+/// Validate an already-published StableText pair without recapturing a
+/// generation from a raw handle.  This is the only constructor path for the
+/// runtime-only StableText wire issuer.
+#[inline(always)]
+pub(crate) fn with_stable_text_formal_wire<R>(
+    handle: u64,
+    generation: u64,
+    f: impl FnOnce(&str) -> R,
+) -> Result<R, TextFormalLookupRejectV1> {
+    let identity = HostHandleLeaseIdentityV1 { handle, generation };
+    super::reg().with_stable_text_formal_identity(&identity, f)
 }
 
 /// Drop only if the raw slot still contains the captured lease identity.

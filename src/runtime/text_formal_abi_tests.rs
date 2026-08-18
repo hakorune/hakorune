@@ -1,4 +1,6 @@
-use super::{issue_text_formal_borrow_v1, TextFormalBorrowStatusV1};
+use super::{
+    issue_stable_text_formal_wire_v1, issue_text_formal_borrow_v1, TextFormalBorrowStatusV1,
+};
 use crate::box_trait::{IntegerBox, NyashBox, StringBox};
 use crate::runtime::host_handles;
 use std::sync::Arc;
@@ -80,4 +82,41 @@ fn published_wire_requires_nonzero_generation() {
         super::validate_text_formal_wire_v1(1, 0),
         TextFormalBorrowStatusV1::ZeroOrOutOfRangeSlot
     );
+}
+
+#[test]
+fn stable_wire_issuer_accepts_published_stable_text_pair() {
+    with_policy("lifo", || {
+        let handle = host_handles::to_handle_text("stable-wire");
+        let (slot, generation) =
+            host_handles::capture_text_formal_pair(handle).expect("published pair");
+        let pair = issue_stable_text_formal_wire_v1(slot, generation).expect("stable wire");
+        assert_eq!(pair.slot(), slot);
+        assert_eq!(pair.generation(), generation);
+        host_handles::drop_handle(handle);
+    });
+}
+
+#[test]
+fn stable_wire_issuer_rejects_stringbox_and_stale_pair() {
+    with_policy("lifo", || {
+        let boxed = host_handles::to_handle_arc(Arc::new(StringBox::new("boxed")));
+        let (boxed_slot, boxed_generation) =
+            host_handles::capture_text_formal_pair(boxed).expect("exact text pair");
+        assert_eq!(
+            issue_stable_text_formal_wire_v1(boxed_slot, boxed_generation),
+            Err(TextFormalBorrowStatusV1::NonTextPayload)
+        );
+        host_handles::drop_handle(boxed);
+
+        let old = host_handles::to_handle_text("old");
+        let (slot, generation) = host_handles::capture_text_formal_pair(old).expect("old pair");
+        host_handles::drop_handle(old);
+        let replacement = host_handles::to_handle_text("replacement");
+        assert_eq!(
+            issue_stable_text_formal_wire_v1(slot, generation),
+            Err(TextFormalBorrowStatusV1::GenerationMismatch)
+        );
+        host_handles::drop_handle(replacement);
+    });
 }
