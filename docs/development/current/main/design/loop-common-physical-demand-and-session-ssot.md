@@ -1333,18 +1333,42 @@ or publishing output. Foreign/stale/drifting cohorts, missing or duplicate
 lifecycle sites, trap/hot-loop Finish, unsupported exits, recoverable EH, and
 parse/layout failure reject without fallback or retry.
 
-Smallest next slice: first `I0-A` extends the existing caller-zero DraftSeal
-handoff. Inside `with_builder_and_pinned_text_invocation_binding`, prepare the
-full ingress and let the detached projection consume the authoritative exit
-blocks; emit operand -> Residence Finish -> the existing Return projection and
-install the already-issued frame/carrier metadata on that same unpublished
-function. Do not call a consuming helper that loses the ingress frame, and do
-not patch the live Builder. Then `I0-B` routes the strict JSON through
+Smallest next slice: do not wire the current ingress directly into DraftSeal.
+The real candidate is split into three bounded cells:
+
+1. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — the
+   pre-DraftSeal ingress retains only the same target/signature/ABI provenance;
+   the final `PinnedTextBackendFrameContractV1` is issued exactly once from
+   the function-owned `metadata.pinned_text_access_plans` after all leaf rows
+   exist and before DraftSeal. A caller-provided `&plans`, an empty detached
+   table, or `into_prepared()` that drops the frame relation is forbidden.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — choose an explicit
+   physical fail-stop terminal for the Enter trap edge and seal it through the
+   canonical CFG owner. `Throw` and `CheckedCallOutFault` are different
+   authorities and must not be reused; no inferred empty trap is allowed.
+3. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — after the
+   first two cells, consume the existing exact exit set once, place Finish at
+   each explicit value exit, and let the existing Return projection emit
+   Return. Frame/carrier metadata is installed only on that detached verified
+   function; all late failure discards the outer draft.
+
+Only after these cells does the later `I0-B` route the strict JSON through
 `hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->` the
 contract-bound generic lowerer ->
 `hako_llvmc_ptfb_session_emit_object`, producing only a caller-zero temporary
 artifact. A separate observer/no-unwind I0 opens only after both cells are
 real.
+
+The accepted six-line brief for the first cell is:
+
+```text
+Decision: final frame issuance belongs to the function-owned plan table, not the borrowed ingress.
+Source authority + canonical issuer: S6C signature loan, canonical session metadata, and the existing frame issuer.
+Non-authority: caller-provided plan tables, `into_prepared()`, frame counts without source mapping, MIR scans, and synthetic JSON.
+Fail-fast boundary: same owner/target/signature/ABI/stamp before mutation; exact finalized plan census before frame issue; late failure discards the unpublished draft.
+Smallest next slice: split pre-entry physical provenance from exactly-once final frame issuance, with no lifecycle MIR or backend routing.
+Non-claims: no real lifecycle candidate, trap terminal, detached Finish/Return projection, observer, production, fallback, or performance.
+```
 
 Non-claims: no observer or `nounwind`/`noreturn` evidence, production caller
 or selector switch, new ABI/frame/backing, semantic receipt, non-selected
@@ -1440,11 +1464,16 @@ Task ladder (canonical consumer design first, runtime effect later):
 11. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0` — landed
     caller-zero: issue the physical boundary once and prove the CFG/SSA shape
     before reopening lifecycle-bearing candidate materialization.
-12. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — later:
-    consume the full pre-DraftSeal ingress in the existing caller-zero owner,
-    materialize one real lifecycle-bearing function/JSON candidate, and keep
-    the detached DraftSeal transaction as the rollback boundary.
-13. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+12. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — next:
+    split pre-entry physical provenance from exactly-once final frame issuance
+    sourced by the completed function-owned plan table; no lifecycle effect.
+13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — parked after the frame
+    timing cell: choose and seal the explicit physical fail-stop trap terminal.
+14. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — later:
+    consume the full ingress in the existing caller-zero owner, materialize
+    one real lifecycle-bearing function/JSON candidate, and keep the detached
+    DraftSeal transaction as the rollback boundary.
+15. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
