@@ -2355,7 +2355,7 @@ legacy retirement is open now.
 
 ```text
 portable correctness and first production edge
-  1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+  1 -> 2 -> 3 -> 4 -> 4v9 -> 4a -> 5 -> 6 -> 7 -> 8
 
 runtime root foundation and direct physical projection
   8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16
@@ -2370,6 +2370,8 @@ independent compatibility retirement
 | 2 | `COMMON-V2-S6C-STRUCTURE-R0` | BoxShape | Split the 786-line S6C ingress and 752-line common session before adding orchestration; semantic ownership remains singular. |
 | 3 | `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` | BoxShape | Emit canonical Normal/Fault landings, V9, End, and Fault; the concrete-wire canary stays test-only and caller-zero. |
 | 4 | `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` | BoxShape | Co-seal V9 with the adopted ExactText lanes in one session/segment without constructing a runtime pair in the compiler. |
+| 4v9 | `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0` | design stop | Name the one source-bound runtime producer that binds canonical V9 NormalResult/End to `EndAuthorizedTextV1`; no post-hoc runtime-owner pairing and no MIR TextRef scope yet. |
+| 4a | `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` | BoxShape | After a source-bound V9 runtime producer is proven, consume the existing V9/ExactText co-seal through one private opaque scope, with one consumer, one ExactText finish, and canonical V9 End order; no V10 effect. |
 | 5 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` | one BoxCount or `NoSafeSlice` | Select one strict non-fallback physical capability for the existing portable TextEq and issue Bool V10. |
 | 6 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | BoxShape | Consume V10 with existing Return-read, shared-segment, and FunctionExit proofs to write the inner If/Return CFG. |
 | 7 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | evidence | Close positive/negative behavior, exact lifecycle census, and late unpublished-function discard. |
@@ -2624,6 +2626,49 @@ The row-11 mutable-reachability census is a mandatory acceptance input for the
 future exact StringBox fast route; it is already recorded in this SSOT and must
 be reused rather than duplicated.
 
+#### COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0 (2026-08-18; design stop)
+
+Decision: keep `NoSafeSlice::SourceBoundV9RuntimeProducerUnsealed`. The
+canonical V9 `NormalResult`/`End` pair is already a compile-time physical
+product, but the source-bound runtime owner that turns its normal host-handle
+and lease result into `EndAuthorizedTextV1` has not been named. Do not bridge
+that gap by importing `TextFormalCallResidenceV1` into MIR or by pairing two
+runtime owners after the fact.
+
+Source authority + canonical issuer: resolver `StringSubstring/2`, S6C
+Facts/Recipe `CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`, the existing
+same-cohort V9/ExactText occurrence co-seal, and the checked site plan's
+`EndAuthorizedHandle { lease_slot }` shape. The canonical session remains the
+sole physical `ValueId`/type issuer. A future source-bound producer must be
+the only issuer that binds the canonical normal result, its End obligation,
+and the runtime `EndAuthorizedTextV1` owner for this exact site/occurrence.
+
+Non-authority: `DynamicV2CallOutV1` as a compiler input, raw handle/token or
+slot/generation recapture, `TextFormalCallResidenceV1` imported into MIR,
+`with_text` on a runtime canary, sidecar `ValueId` reinterpretation,
+`nyash.string.eq_hh`, raw handle equality, and any MIR adjacency heuristic.
+
+Fail-fast boundary: before the first callout effect, reject wrong source/item/
+block/result, missing or duplicate End obligation, ImmediateI64 or non-READ
+site shape, foreign owner/session/segment/brand, lease-slot drift, unsupported
+runtime representation, and absent source-bound provider. At runtime, a
+normal result must validate as exact live Text plus its matching End lease in
+one owner transaction; no partial `EndAuthorizedTextV1`, residence root, or
+V9 capability may escape. Fault has no V9 and no End; late compiler failure
+discards the unpublished function and never retries.
+
+Smallest next slice: name the private source-bound producer contract only:
+its input co-seal, normal-result/End binding, runtime owner handoff, primary /
+suppressed cleanup order, and one consumer. It must explicitly state whether
+the producer lives in the canonical backend/runtime boundary or a private
+bridge, without adding a new source meaning or public C export.
+
+Acceptance/non-claims: one issuer, one runtime owner, exact site/occurrence
+binding, live/stale/foreign/duplicate/unsupported negatives, and no post-hoc
+pairing. TextRef scope I0, TextEq V10/Bool, CFG/Return, Completion/publication,
+production, direct leaf, fallback, retry, and `eq_hh` retirement remain
+closed.
+
 ##### TextRef residence D0 audit decision (2026-08-18; accepted design boundary)
 
 Decision: keep `design_stop` and name
@@ -2660,6 +2705,72 @@ reuse the registry payload under one write-lock validation/pin transaction;
 there is no copied root `Arc`, byte snapshot, whole-function lock, or mutable
 alias escape. The existing row-11 mutable-reachability census is a release
 gate, not an informational grep.
+
+##### TextRef residence D0 decision closure (2026-08-18; accepted)
+
+The smallest accepted shape is one private
+`CommonV2S6CTextEqResidenceScopeV1` owned by the existing common-V2 session.
+It is a mechanical co-seal of already-issued products, not a new source or
+Recipe authority:
+
+```text
+S6C V9/ExactText occurrence co-seal
+  + issued V9 End-authorized lifetime
+  + one entry ExactText Residence
+  -> one move-only TextEqResidenceScope
+  -> one callback-scoped [V9Ref, ExactTextRootsRef] view
+```
+
+The scope must consume, rather than reconstruct, the existing V9
+NormalResult/End obligation and ExactText entry-lane proof. It may not accept
+raw `ValueId`, sidecar slot/generation, handle/token, runtime wire, or MIR
+adjacency. The canonical session remains the sole Bool `ValueId` issuer and
+the existing runtime Residence remains the sole pin/root/finish owner.
+
+The private API contract is deliberately one-way:
+
+```text
+admit(co-seal, issued-v9, exacttext-entry)
+  -> scope.with_text_refs(|opaque_v9, opaque_exact| consumer)
+  -> scope.finish_exacttext()
+  -> existing canonical V9 End consume
+```
+
+`with_text_refs` is the sole consumer and cannot return either root or V9
+capability. ExactText roots are invocation-scoped and occurrence-ordered;
+V9 is occurrence-scoped and is never inserted into the formal root array.
+The only legal normal order is:
+
+```text
+TextEq leaf completes
+  -> ExactText residence.finish()
+  -> canonical V9 End consume
+```
+
+Preflight rejects owner/session/segment/body/occurrence drift, absent or
+duplicate co-seal, stale/foreign/retiring/non-Text roots, unsupported backing,
+and any second consumer before the first effect. If the consumer fails, the
+consumer error is primary and residence cleanup is suppressed evidence; if
+the consumer succeeds, residence finish precedes End and its failure is
+primary. An End failure after successful finish is primary. There is no
+implicit Drop cleanup, retry, fallback, or second finish owner until an
+unwind/noexcept proof is separately accepted; the outer unpublished function
+transaction remains the compiler rollback boundary.
+
+Acceptance: one private scope owner, one consumer, one finish owner, opaque
+`[V9, ExactText]` views only, exact primary/suppressed error order, and
+negative coverage for foreign/duplicate/stale/unsupported/late failure. No
+V10 Bool, additional CheckedCallOut, CFG/Return, Completion/publication,
+production, direct leaf, performance, or `eq_hh` retirement is opened.
+
+The proposed `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-I0` remains parked: a
+source-bound V9 runtime producer must first prove the relation between the
+canonical NormalResult/End obligation and the runtime `EndAuthorizedTextV1`.
+Importing `TextFormalCallResidenceV1` into MIR or pairing the two existing
+runtime owners after the fact would violate the authority chain. The next
+design boundary is therefore
+`COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0`; only after it is accepted may
+the private scope API/test row open.
 
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 

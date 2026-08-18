@@ -14,15 +14,15 @@ the sole production arm.
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. The lane-borrow I0 is closed as runtime-only; the next source-bound TextRef residence producer must be named before any V10 effect."
+current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. The TextRef scope design is accepted but parked until a source-bound V9 runtime producer binds canonical NormalResult/End to EndAuthorizedTextV1 without post-hoc runtime-owner pairing."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-S6C-TEXTEQ-TEXTREF-D0"
-current_blocker_token = "Design stop only: name and co-seal the existing V9/V1 source-bound TextRef residence producer and exact finish order. Do not issue TextEq V10, add fallback/retry, publish, switch production, or retire eq_hh."
+current_execution_row = "COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0"
+current_blocker_token = "Design stop only: name the one source-bound V9 runtime producer and its canonical End/finish handoff. Do not import TextFormalCallResidence into MIR, re-pair runtime owners, issue TextEq V10, or open CFG/publication/production/fallback/retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler TextRef residence design stop (S6C V9/V1 source-bound co-seal)"
+active_lane = "Loop compiler V9 runtime producer design stop (S6C NormalResult/End to TextRef)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
@@ -37,9 +37,10 @@ co-seal is caller-zero. The D0 authority review selected the private
 Rust-only lane-borrow adapter and existing invocation Residence owner; fused C
 lane-entry remains rejected. ExactText residence is invocation-scoped and V9
 End occurrence-scoped, so the rejected per-iteration LeaseSet/lock/callback
-path is not reopened. The adapter I0 is closed with no MIR/V10, publication,
-or production caller; the next work is a design stop for the source-bound
-TextRef producer and finish order.
+path is not reopened. The lane adapter I0 is closed with no MIR/V10,
+publication, or production caller. The TextRef scope design is accepted but
+parked until the source-bound V9 runtime producer is designed; no V10 MIR is
+issued.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -52,8 +53,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, strict backend-neutral TextEq capability decision, exact concrete StringBox residence, and private lane-borrow ingress are accepted caller-zero substrate. TextEq V10, source-bound TextRef residence, production, performance promotion, and eq_hh retirement remain closed."
-next_design_card = "COMMON-V2-S6C-TEXTEQ-TEXTREF-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, strict backend-neutral TextEq capability decision, exact concrete StringBox residence, private lane-borrow ingress, and accepted one-shot TextRef scope design are caller-zero substrate. The TextRef scope I0 is parked until the source-bound V9 runtime producer is designed; TextEq V10, production, performance promotion, and eq_hh retirement remain closed."
+next_design_card = "COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"

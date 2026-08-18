@@ -797,3 +797,30 @@ single residence owner can produce and finish both TextRefs. Raw handles,
 slot/generation pairs, sidecar ValueIds, and MIR adjacency may not manufacture
 that residence. If/Return CFG, StringBox admission, production selection, and
 `eq_hh` retirement remain closed.
+
+## TextRef residence scope D0 (2026-08-18; accepted)
+
+The next bounded owner is the private
+`CommonV2S6CTextEqResidenceScopeV1`. It mechanically consumes the existing
+V9/ExactText occurrence co-seal and exposes one callback-scoped opaque view:
+
+```text
+co-sealed V9 End obligation + ExactText entry residence
+  -> one scope consumer ([V9Ref, ExactTextRootsRef])
+  -> ExactText finish
+  -> canonical V9 End consume
+```
+
+The scope does not reissue source meaning, Recipe facts, runtime wires,
+handles, slot/generation lanes, or `ValueId`s. ExactText roots are
+invocation-scoped; V9 is occurrence-scoped and is never placed in the formal
+root array. One consumer and one finish owner are enforced by move-only
+callback boundaries. Primary/suppressed error precedence and late outer
+transaction discard are part of the contract; implicit Drop cleanup,
+fallback, retry, V10, CFG/Return, publication, and production remain closed.
+
+The scope row is parked until a source-bound V9 runtime producer proves the
+relation between the canonical NormalResult/End obligation and the runtime
+`EndAuthorizedTextV1`. The next design boundary is
+`COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0`; importing runtime Residence into
+MIR or re-pairing two runtime owners after the fact is forbidden.
