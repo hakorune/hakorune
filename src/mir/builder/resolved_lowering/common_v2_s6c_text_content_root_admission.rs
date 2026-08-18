@@ -536,7 +536,7 @@ mod tests {
     }
 
     #[test]
-    fn scalar_equality_leaf_keeps_v9_derived_and_issues_two_existing_shapes() {
+    fn scalar_equality_leaf_keeps_v9_derived_and_issues_three_existing_shapes() {
         let ingress = ingress(1206);
         with_source(&ingress, |source| {
             let plan = bridge_plan(
@@ -562,6 +562,7 @@ mod tests {
             assert_eq!(
                 capability.shapes(),
                 &[
+                    CommonV2S6CTextScalarEqualityLeafShapeV1::ByteLen { root_index: 0 },
                     CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8WidthAt { root_index: 0 },
                     CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8ScalarSliceEqWholeText {
                         lhs_root_index: 0,

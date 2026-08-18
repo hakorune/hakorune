@@ -249,8 +249,9 @@ fn materialize_inner<'session, 'source, 'envelope>(
                 .cloned(),
         ));
     }
-    let [width_shape, eq_shape] = *capability.shapes();
-    if width_shape != (CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8WidthAt { root_index: 0 })
+    let [byte_len_shape, width_shape, eq_shape] = *capability.shapes();
+    if byte_len_shape != (CommonV2S6CTextScalarEqualityLeafShapeV1::ByteLen { root_index: 0 })
+        || width_shape != (CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8WidthAt { root_index: 0 })
         || eq_shape
             != (CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8ScalarSliceEqWholeText {
                 lhs_root_index: 0,

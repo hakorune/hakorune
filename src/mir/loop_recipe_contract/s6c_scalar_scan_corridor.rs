@@ -61,6 +61,8 @@ pub(crate) struct S6CScalarScanSourceRefV1<'a, 'rows, 'facts> {
     text_equal_result: LoopValueKeyV1,
     text_equal_if: LoopItemKeyV1,
     step_add: LoopValueKeyV1,
+    index_update: &'facts crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
+    step_read_site: &'facts crate::mir::resolved_semantics::SourceExprSiteV1,
     length_law: CoreMethodSemanticLawV2,
     substring_law: CoreMethodSemanticLawV2,
     transfer: &'facts super::join_sig::LoopJoinLogicalTransferViewV2<'facts>,
@@ -134,6 +136,18 @@ impl<'a, 'rows, 'facts> S6CScalarScanSourceRefV1<'a, 'rows, 'facts> {
 
     pub(crate) const fn step_add(self) -> LoopValueKeyV1 {
         self.step_add
+    }
+
+    pub(crate) const fn index_update(
+        self,
+    ) -> &'facts crate::mir::resolved_semantics::ResolvedAssignmentSourceV1 {
+        self.index_update
+    }
+
+    pub(crate) const fn step_read_site(
+        self,
+    ) -> &'facts crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.step_read_site
     }
 
     pub(crate) const fn length_law(self) -> CoreMethodSemanticLawV2 {
@@ -321,6 +335,11 @@ pub(super) fn issue_s6c_scalar_scan_source_v1<'a, 'rows, 'facts>(
         })
         .ok_or(S6CScalarScanSourceRejectV1::IfRelation)?;
 
+    let step_add_binary = typed_binary(typed, S6CBinaryRoleV1::StepAdd)
+        .map_err(|_| S6CScalarScanSourceRejectV1::StepRelation)?;
+    if typed.index_update().value_site() != step_add_binary.source().site() {
+        return Err(S6CScalarScanSourceRejectV1::StepRelation);
+    }
     let step_add_item = ingress
         .operation(S6CPrephysicalOperationRoleV2::StepAdd)
         .item();
@@ -351,6 +370,17 @@ pub(super) fn issue_s6c_scalar_scan_source_v1<'a, 'rows, 'facts>(
         )
     }) {
         return Err(S6CScalarScanSourceRejectV1::StepRelation);
+    }
+
+    let mut v9_text_eq_left = 0usize;
+    let mut v9_forbidden_uses = 0usize;
+    for item in ingress.logical_items() {
+        let (text_eq_left, forbidden) = value_uses(*item, substring_result);
+        v9_text_eq_left += text_eq_left;
+        v9_forbidden_uses += forbidden;
+    }
+    if v9_text_eq_left != 1 || v9_forbidden_uses != 0 {
+        return Err(S6CScalarScanSourceRejectV1::EscapeRelation);
     }
 
     let body_method_calls = typed
@@ -402,11 +432,58 @@ pub(super) fn issue_s6c_scalar_scan_source_v1<'a, 'rows, 'facts>(
         text_equal_result,
         text_equal_if,
         step_add,
+        index_update: typed.index_update(),
+        step_read_site: step_add_binary.source().lhs(),
         length_law,
         substring_law,
         transfer,
         completion: ingress.completion(),
     })
+}
+
+fn value_uses(item: S6CLogicalItemV1, value: LoopValueKeyV1) -> (usize, usize) {
+    match item {
+        S6CLogicalItemV1::ReadBinding { .. } | S6CLogicalItemV1::ConstI64 { .. } => (0, 0),
+        S6CLogicalItemV1::Exit { value: result, .. } => (0, usize::from(result == value)),
+        S6CLogicalItemV1::BinaryI64 {
+            left,
+            right,
+            result: _,
+            ..
+        }
+        | S6CLogicalItemV1::CompareI64 {
+            left,
+            right,
+            result: _,
+            ..
+        } => (
+            0,
+            [left, right]
+                .into_iter()
+                .filter(|candidate| *candidate == value)
+                .count(),
+        ),
+        S6CLogicalItemV1::CallSlot(call) => {
+            let mut count = usize::from(call.receiver == value);
+            count += match call.args {
+                super::s6c_scan_with_init_joinir_output_rows::S6CLogicalCallArgsV1::Empty => 0,
+                super::s6c_scan_with_init_joinir_output_rows::S6CLogicalCallArgsV1::Pair(args) => {
+                    args.into_iter()
+                        .filter(|candidate| *candidate == value)
+                        .count()
+                }
+            };
+            (0, count)
+        }
+        S6CLogicalItemV1::TextEq {
+            left,
+            right,
+            result: _,
+            ..
+        } => (usize::from(left == value), usize::from(right == value)),
+        S6CLogicalItemV1::If { condition, .. } => (0, usize::from(condition == value)),
+        S6CLogicalItemV1::WriteBinding { value: written, .. } => (0, usize::from(written == value)),
+    }
 }
 
 fn exact_law(

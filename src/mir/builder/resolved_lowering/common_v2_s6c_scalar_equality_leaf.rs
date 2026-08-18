@@ -18,6 +18,9 @@ use super::CommonV2CanonicalSessionRefV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CommonV2S6CTextScalarEqualityLeafShapeV1 {
+    ByteLen {
+        root_index: u32,
+    },
     Utf8WidthAt {
         root_index: u32,
     },
@@ -39,7 +42,7 @@ pub(in crate::mir::builder) struct CommonV2S6CTextScalarEqualityLeafCapabilityV1
     needle: CommonV2S6CTextCursorRootLoadV1,
     initial: CommonV2S6CTextCursorInitialStateV1,
     relation: CommonV2S6CTextCursorSourceRelationV1,
-    shapes: [CommonV2S6CTextScalarEqualityLeafShapeV1; 2],
+    shapes: [CommonV2S6CTextScalarEqualityLeafShapeV1; 3],
 }
 
 impl CommonV2S6CTextScalarEqualityLeafCapabilityV1 {
@@ -73,7 +76,7 @@ impl CommonV2S6CTextScalarEqualityLeafCapabilityV1 {
 
     pub(in crate::mir::builder) const fn shapes(
         &self,
-    ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 2] {
+    ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 3] {
         &self.shapes
     }
 }
@@ -136,7 +139,7 @@ impl<'session, 'source, 'envelope>
 
     pub(in crate::mir::builder) const fn shapes(
         &self,
-    ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 2] {
+    ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 3] {
         self.capability.shapes()
     }
 
@@ -204,6 +207,7 @@ pub(in crate::mir::builder) fn issue_common_v2_s6c_text_scalar_equality_leaf_v1<
                 initial,
                 relation,
                 shapes: [
+                    CommonV2S6CTextScalarEqualityLeafShapeV1::ByteLen { root_index: 0 },
                     CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8WidthAt { root_index: 0 },
                     CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8ScalarSliceEqWholeText {
                         lhs_root_index: 0,
