@@ -2175,6 +2175,28 @@ Smallest next slice: design-only API contract for one private runtime pair
 issuer plus callback scope; classify whether the pair arrives from a named
 callee ABI or remains `NoSafeSlice::StringBoxRuntimePairIngressUnsealed`.
 
+Design consultation outcome: no named callee ABI or Common-V2 caller exists at
+this HEAD. `issue_text_formal_borrow_v1(handle)` recaptures from a raw handle;
+`issue_stable_text_formal_wire_v1(slot, generation)` rejects StringBox;
+`validate_text_formal_wire_v1`/the C validator reports status but does not mint
+an opaque LeaseSet capability; and `nyash.string.eq_hh` is only a subordinate
+transport with lossy/fallback behavior. Therefore retain
+`NoSafeSlice::StringBoxRuntimePairIngressUnsealed` and keep the following
+contract design-only:
+
+```text
+proposed private issuer:
+  issue_stringbox_text_formal_pair_v1(slot, generation)
+    -> opaque StringBox-branded capability
+capability -> existing exact-text LeaseSet(stable_text_only = false)
+```
+
+The issuer must validate the already-published pair and its
+`StableBox(StringBox)` payload inside the runtime owner; it must not return a
+raw tuple, raw handle, MIR `ValueId`, or a StableText coercion. LeaseSet
+completion precedes V9 End completion, with reverse-order rollback. This is a
+design contract only, not an implementation or a new semantic receipt.
+
 Non-claims: no runtime-pair implementation, StringBox residence I0,
 CheckedCallOut, V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry,
 or production.
