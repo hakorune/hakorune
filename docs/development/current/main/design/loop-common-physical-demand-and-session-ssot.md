@@ -445,6 +445,37 @@ late failure publication                 = 0
 
 Residence exit remains the next dependency, not a parallel task.
 
+### S6C-RESIDENCE-EXIT-FINISH-D0 (next bounded row)
+
+Decision: reopen only the existing ExactText Residence normal-exit/finish
+boundary. The predicate/index physical I0 above is the sole upstream input;
+do not add a new Content frame, `Arc<str>` owner, V9 runtime object, or
+per-iteration lock/callback path.
+
+Source authority + canonical issuer: the already-landed
+`PreparedFunctionExitSetV1`, `CommonV2ReturnReadPhysicalReceiptV1`, and
+existing ExactText Residence lifecycle remain the owners. The next issuer must
+co-seal normal/early Return coverage with the same function/session and make
+`finish` precede each physical Return; it may not infer exits from MIR
+adjacency or reopen the generic Length/Substring route.
+
+Non-authority: raw residence tokens, frame pointers, `ValueId` ordinals,
+`nyash.string.eq_hh`, fallback/retry, benchmark results, and a new runtime
+backing/frame design do not authorize this row.
+
+Fail-fast boundary: before any new exit effect, verify the existing residence
+entry/owner, all normal and early Return sites, exactly-once finish coverage,
+Return-read binding/result, no unwind/catch path, and unpublished transaction
+ownership. Missing, duplicate, foreign, recoverable-fault, or partial-finish
+evidence remains `NoSafeSlice`; late failure discards the whole draft.
+
+Smallest next slice: one BoxShape I0 that emits no production switch and no
+backend pointer lowering, but proves the existing finish/Return ordering with
+positive, duplicate/missing-exit negatives and the current residence guard.
+
+Non-claims: no runtime ABI revision, new frame, `Arc<str>` migration,
+production caller, fallback/retry, performance promotion, or `eq_hh` retirement.
+
 
 ## Historical boundary
 
