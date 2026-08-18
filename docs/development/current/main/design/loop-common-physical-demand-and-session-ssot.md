@@ -1938,3 +1938,55 @@ Stop/next: TextEq V10, Bool, branch/Return CFG, Completion/DraftSeal,
 publication, fallback, retry, and production remain closed. The next design
 stop is `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0`, limited to co-sealing
 the already-issued V9 lifetime with the existing ExactText V1 sidecar.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 (2026-08-18; consultation closure)
+
+Decision: retain design stop. The top-down MIRBuilder chain does not need an
+architecture-wide rewrite, and V9 issuer I0 remains the sole owner of the
+already-issued Substring result. A later private residence scope may borrow
+that V9 lifetime, co-seal the exact ExactText V1 occurrence, and own one
+runtime formal residence, but the runtime ingress from the canonical
+slot/generation lane to an already-issued `TextFormalWirePairV1` is not named.
+Do not derive that wire from `ValueId`, a logical ordinal, a bare sidecar row,
+or the `nyash.string.eq_hh` C export.
+
+Source authority + canonical issuer: source Binary
+`Equal(Text,Text)->Bool` and its existing S6C Recipe relation
+`StringSubstring/2 -> CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)` remain
+authoritative. `CommonV2CanonicalSessionRefV1::with_s6c_substring_v9_issuer`
+owns V9 adoption/lend/finish; canonical entry adoption owns the ExactText
+slot/generation sidecar; `acquire_text_formal_residence_v1` is subordinate
+runtime residence ownership only after a source-bound wire issuer is named.
+
+Non-authority: sidecar `ValueId(slot,generation)` pairs as runtime wires,
+logical ordinal alone, `PhysicalFunctionEntryCohortStampV1` as a residence
+root, raw handles/tokens/pointers, selected-Dynamic I6/I7, `nyash.string.eq_hh`,
+and any fallback, retry, TextEq/Bool/CFG, or production selector.
+
+Fail-fast boundary: before any CheckedCallOut or residence pin, reject source/
+Recipe role or item drift; wrong V9/V1 relation; foreign owner, invocation,
+session, entry, Body segment, physical block, brand, or stamp; missing,
+duplicate, non-adjacent, stale, zero, or carrier-mismatched ExactText lane;
+absent or mismatched runtime wire ingress; unsupported StableText-only
+residence for the actual StringBox payload; duplicate scope/finish, escaped
+borrow, partial rollback, or late unpublished-session failure. Existing I0
+must finish V9 exactly once; a future scope must finish runtime residence
+before that V9 End lease and preserve primary/suppressed errors.
+
+Smallest next slice: `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0`
+(design-only). Name one source-bound, callback-scoped occurrence view that
+connects the existing S6C TextEq needle binding to the canonical ExactText
+sidecar and identifies the one legitimate issuer of an already-published
+`TextFormalWirePairV1`. Classify Direct/Checked/RejectBeforeEffect for the
+current StringBox/StableText mismatch. This row may only co-seal existing V9,
+V1, and session/segment brands; it may not issue a semantic receipt or open a
+physical effect.
+
+Acceptance/non-claims: the decision must identify one occurrence authority,
+one runtime wire issuer, and one rollback owner; prove same owner/session/
+entry/body-segment and exact needle relation; and enumerate foreign/stale/
+duplicate/escape negatives. It must not emit CheckedCallOut, V9 `ValueId`,
+TextEq V10, Bool, Branch/Return CFG, publication, production, fallback, retry,
+or legacy retirement. Until this ingress exists, the correct state is
+`NoSafeSlice::ExactTextResidenceOccurrenceIssuerUnsealed`, not a speculative
+residence implementation.

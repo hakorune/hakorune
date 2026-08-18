@@ -34,15 +34,15 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-I0 is landed after the source/cohort/provider and runtime-lifetime audit. The next design stop is COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
-work_mode = "closeout"
-current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-I0"
-current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-I0 closeout: End adoption, generation-checked callback-scoped Text lend/finish, reverse rollback, and one caller-zero common-V2 issuer seam are landed. Next is the residence design stop; do not emit CheckedCallOut, V9 ValueId, TextEq, Bool, CFG, publication, fallback, retry, or production."
+current_design_stop = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 consultation is closed without an architecture rewrite. The next design stop is COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0: name the source-bound runtime wire ingress before any V9+ExactText residence co-seal; TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+work_mode = "design_stop"
+current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0"
+current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0. Design only: name one source-bound issuer from the canonical ExactText slot/generation lane to an already-issued TextFormalWirePairV1 and classify StringBox/StableText residence. No code, fixtures, new semantic receipts, ValueId-to-wire inference, CheckedCallOut effect, V9 residence, TextEq, Bool, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq V9 residence D0)"
+active_lane = "Loop compiler frontier (S6C TextEq V9 residence occurrence D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -77,8 +77,7 @@ its unpublished caller-zero I0, and the exclusive session-scoped Length
 The common-V2 S6C callout-admission I0 is landed: collector brand, neutral plan,
 provider projection, and lifecycle sidecar are effect-free/caller-zero. Issuer-D0/I0
 are closed: V9 performs generation-checked End adoption, callback-scoped Text
-lend/finish, reverse rollback, and no physical effect. Next is V9+ExactText V1
-residence co-seal D0; the AOT selected-package-adapter guard remains baseline debt.
+lend/finish, reverse rollback, and no physical effect. Residence D0 has no architecture rewrite; its blocker is source-bound ExactText-to-`TextFormalWirePairV1` ingress. The AOT selected-package-adapter guard remains baseline debt.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback, retry,
 and production caller remain closed. MirParamDecl stays source metadata.
@@ -94,10 +93,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0 and V9 issuer I0 are landed; the issuer only adopts a checked End lease, lends Text in a callback, and owns one-shot finish/rollback. The top-down chain is unchanged; next is V9+ExactText V1 residence D0. CheckedCallOut effect, V9 ValueId, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0"
+latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0 and V9 issuer I0 are landed; the issuer only adopts a checked End lease, lends Text in a callback, and owns one-shot finish/rollback. The top-down chain is unchanged; residence D0 now stops on the unnamed source-bound runtime wire ingress from ExactText to TextFormalWirePairV1. CheckedCallOut effect, V9 residence, V9 ValueId, TextEq V10, Bool, branch/Return CFG, and production remain closed."
+next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0 design stop)"
+next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0 design stop)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
