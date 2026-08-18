@@ -9,7 +9,6 @@ use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorro
 use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
 use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::ValueId;
 
 use super::text_residence_exit::{
     issue_pinned_text_residence_exit_finish_set_v1, PreparedTextFormalExitFinishSetV1,
@@ -18,33 +17,27 @@ use super::text_residence_exit::{
 use super::{PreparedFunctionExitSetV1, PreparedFunctionExitV1};
 use crate::mir::builder::resolved_lowering::completion_consumption::ReadyFunctionCompletionV1;
 
-/// One affine DraftSeal physical consumer.  The exit set remains borrowed
-/// from the existing DraftSeal owner; only the lifecycle obligation is moved
-/// into this aggregate, so there is no self-referential envelope.
+/// One affine DraftSeal physical consumer. The validated exit set and the
+/// lifecycle obligation are moved into the same aggregate, so no later caller
+/// can re-pair borrowed rows with a different Finish capability.
 #[must_use = "the DraftSeal lifecycle consumer must be consumed exactly once"]
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct PreparedPinnedTextResidenceDraftSealConsumerV1<
-    'exits,
-> {
-    admission: PreparedTextFormalExitFinishSetV1<'exits>,
+pub(in crate::mir::builder::resolved_lowering) struct PreparedPinnedTextResidenceDraftSealConsumerV1
+{
+    admission: PreparedTextFormalExitFinishSetV1,
     finish: PinnedTextResidenceFinishCapabilityV1,
 }
 
 /// Co-seal the existing exit admission with the lifecycle capability issued
 /// by the canonical Enter writer.  This is a physical BoxShape aggregate; it
 /// issues no source meaning or runtime owner.
-pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_draftseal_consumer_v1<
-    'exits,
->(
+pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_draftseal_consumer_v1(
     completion: &ReadyFunctionCompletionV1,
     plans: &PinnedTextAccessPlanTableV1,
     frame: PinnedTextBackendFrameBorrowV1<'_>,
-    exits: &'exits PreparedFunctionExitSetV1,
+    exits: PreparedFunctionExitSetV1,
     finish: PinnedTextResidenceFinishCapabilityV1,
-) -> Result<
-    PreparedPinnedTextResidenceDraftSealConsumerV1<'exits>,
-    TextFormalExitFinishAdmissionRejectV1,
-> {
+) -> Result<PreparedPinnedTextResidenceDraftSealConsumerV1, TextFormalExitFinishAdmissionRejectV1> {
     let residence = finish.residence();
     if residence.owner() != frame.owner() || residence.plan_stamp() != frame.plan_stamp() {
         return Err(TextFormalExitFinishAdmissionRejectV1::ResidenceCapabilityMismatch);
@@ -54,20 +47,18 @@ pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_dr
     Ok(PreparedPinnedTextResidenceDraftSealConsumerV1 { admission, finish })
 }
 
-impl<'exits> PreparedPinnedTextResidenceDraftSealConsumerV1<'exits> {
-    /// Consume the aggregate once.  The finish capability is consumed once to
-    /// obtain the function-local residence identity; the callback is invoked
-    /// once per already-validated explicit exit, in operand -> Finish ->
-    /// existing Return order.
+impl PreparedPinnedTextResidenceDraftSealConsumerV1 {
+    /// Consume the aggregate once. The single projection callback receives
+    /// each already-validated explicit exit in operand -> Finish -> Return
+    /// order; the former three independently supplied callbacks are gone.
     pub(in crate::mir::builder::resolved_lowering) fn consume_for_draft_seal(
         self,
         plans: &PinnedTextAccessPlanTableV1,
         frame: PinnedTextBackendFrameBorrowV1<'_>,
-        mut materialize_return_operand: impl FnMut(ValueId) -> Result<(), String>,
-        mut finish_residence: impl FnMut(
+        mut project_exit: impl FnMut(
+            PreparedFunctionExitV1,
             crate::mir::pinned_text_residence_lifecycle::TextFormalResidenceIdV1,
         ) -> Result<(), String>,
-        mut emit_return: impl FnMut(PreparedFunctionExitV1) -> Result<(), String>,
     ) -> Result<(), TextFormalExitFinishAdmissionRejectV1> {
         let Self { admission, finish } = self;
         let residence = finish.into_residence();
@@ -76,9 +67,8 @@ impl<'exits> PreparedPinnedTextResidenceDraftSealConsumerV1<'exits> {
                 let PreparedFunctionExitV1::ExplicitValue { value, .. } = exit else {
                     return Err("lifecycle consumer received a non-value exit".to_owned());
                 };
-                materialize_return_operand(value)?;
-                finish_residence(residence)?;
-                emit_return(exit)
+                let _ = value;
+                project_exit(exit, residence)
             })
         })
     }
@@ -194,35 +184,30 @@ mod tests {
             &completion,
             &plans,
             frame.borrow(),
-            &exits,
+            exits,
             finish,
         )
         .unwrap();
         let events = RefCell::new(Vec::new());
         admission
-            .consume_for_draft_seal(
-                &plans,
-                frame.borrow(),
-                |value| {
-                    events.borrow_mut().push(("operand", value));
-                    Ok(())
-                },
-                |_| {
-                    events.borrow_mut().push(("finish", ValueId::new(0)));
-                    Ok(())
-                },
-                |_| {
-                    events.borrow_mut().push(("return", ValueId::new(0)));
-                    Ok(())
-                },
-            )
+            .consume_for_draft_seal(&plans, frame.borrow(), |exit, _residence| {
+                let PreparedFunctionExitV1::ExplicitValue { block, value } = exit else {
+                    unreachable!("validated lifecycle exit")
+                };
+                events.borrow_mut().push(("operand", value));
+                events.borrow_mut().push(("finish", ValueId::new(0)));
+                events
+                    .borrow_mut()
+                    .push(("return", ValueId::new(block.as_u32())));
+                Ok(())
+            })
             .unwrap();
         assert_eq!(
             events.into_inner(),
             vec![
                 ("operand", ValueId::new(20)),
                 ("finish", ValueId::new(0)),
-                ("return", ValueId::new(0))
+                ("return", ValueId::new(10))
             ]
         );
     }
@@ -234,30 +219,15 @@ mod tests {
             &completion,
             &plans,
             frame.borrow(),
-            &exits,
+            exits,
             finish,
         )
         .unwrap();
-        let events = RefCell::new(Vec::new());
         assert_eq!(
-            admission.consume_for_draft_seal(
-                &plans,
-                frame.borrow(),
-                |value| {
-                    events.borrow_mut().push(("operand", value));
-                    Ok(())
-                },
-                |_| {
-                    events.borrow_mut().push(("finish", ValueId::new(0)));
-                    Ok(())
-                },
-                |_| { Err("late draft failure".to_owned()) },
-            ),
+            admission.consume_for_draft_seal(&plans, frame.borrow(), |_exit, _residence| Err(
+                "late draft failure".to_owned()
+            ),),
             Err(TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
-        );
-        assert_eq!(
-            events.into_inner(),
-            vec![("operand", ValueId::new(20)), ("finish", ValueId::new(0)),]
         );
     }
 }

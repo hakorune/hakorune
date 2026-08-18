@@ -33,11 +33,6 @@ mod text_residence_ingress;
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
-pub(super) use text_residence_exit::{
-    issue_pinned_text_residence_exit_finish_set_v1,
-    project_pinned_text_residence_finish_before_return_v1, PreparedTextFormalExitFinishSetV1,
-    TextFormalExitFinishAdmissionRejectV1,
-};
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {

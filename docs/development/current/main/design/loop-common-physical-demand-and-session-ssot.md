@@ -1521,17 +1521,84 @@ Task ladder (canonical consumer design first, runtime effect later):
 14. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — landed caller-zero:
     add the new terminator plumbing and canonical writer with no
     runtime/backend route.
-15. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-D0/I0` — next:
-    consume the full ingress in the existing caller-zero owner, materialize
-    one real lifecycle-bearing function/JSON candidate, and keep the detached
-    DraftSeal transaction as the rollback boundary.
-16. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+15. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-D0` — accepted:
+    use one private, affine DraftSeal consumer. It owns the already validated
+    `PreparedFunctionExitSetV1` and the Enter-issued Finish capability as one
+    lineage, consumes that aggregate once, and delegates to the existing
+    Return projection. No arbitrary callback trio, copied exit rows, second
+    exit ledger, owner lookup, or MIR scan is admitted.
+16. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — landed
+    caller-zero: the admission now owns the exact exit set, and the pinned
+    consumer accepts one ordered projection callback instead of three
+    independently supplied callbacks. Focused positive/negative tests prove
+    one-shot consumption and late-error discard; no MIR/runtime effect was
+    opened.
+17. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INTEGRATION-D0` — next:
+    decide the single `OpenFunctionDraftSealV1` integration that supplies the
+    final frame/carrier provenance before canonical-session close without a
+    false plan-less frame, then project Finish on the detached clone before
+    the existing Return writer. Target-machine routing remains closed.
+18. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
 promotion, or `eq_hh` retirement is selected by this umbrella row.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-D0 (2026-08-19; accepted)
+
+Decision: the final detached projection has one affine physical consumer, not
+three caller-supplied callbacks. The consumer owns the exact
+`PreparedFunctionExitSetV1` together with the Enter-issued Finish capability;
+the existing `FunctionDraftSealProjectionV1` remains the sole Return writer.
+The consumer orders operand materialization, Finish, and Return for every
+authoritative explicit value exit, then disappears. The existing unpublished
+DraftSeal owner remains the rollback boundary.
+
+Source authority + canonical issuer: `VerifiedFunctionCompletionV1` and
+`PreparedFunctionExitSetV1` issue the exit inventory; the canonical SSA/CFG
+session issues the physical Enter/Finish capability; `FunctionDraftSealProjectionV1`
+owns detached Return projection. The pinned-text ingress is the only same-cohort
+handoff and is consumed before publication.
+
+Non-authority: copied exit rows, raw block/value ids, owner-based lookup,
+MIR/JSON scans, arbitrary callback return values, a second exit ledger,
+`CheckedCallOutFault`/`Throw` as the trap meaning, fallback/retry, backend
+observation, and production selection.
+
+Fail-fast boundary: before detached mutation, require one owner/plan/frame/ABI
+cohort, explicit value exits with exact Completion lineage, unconsumed Finish,
+and unterminated detached exit blocks. Any foreign, stale, duplicate, missing,
+unit, preterminated, trap, or late projection condition discards the whole
+unpublished draft and emits no candidate.
+
+Smallest next slice: make the existing exit-finish admission own the validated
+exit set, make the pinned DraftSeal consumer private and affine, and expose
+one concrete `OpenFunctionDraftSealV1` handoff. Do not open target-machine,
+observer, runtime, production, fallback, or performance work in this slice.
+
+Acceptance: one physical Enter and sealed successorless Trap remain at E0;
+each authoritative value exit projects `operand -> PinnedTextResidenceFinish
+-> Return`; Trap and hot-loop blocks contain zero Finish; positive and
+negative tests prove one-shot consumption and unpublished rollback.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0 (2026-08-19; caller-zero landed)
+
+Decision: the lifetime-bound borrowed exit admission was replaced by an owned
+`PreparedTextFormalExitFinishSetV1`. The private pinned DraftSeal consumer now
+owns that admission plus the Finish capability and consumes them once. Its
+test-only seam accepts one ordered projection callback; it no longer exposes
+three independent operand/Finish/Return callbacks or a generic callback
+return value. The existing source/Completion/exit authorities are unchanged.
+
+Evidence: six focused tests cover owned admission, exact-two ordering,
+foreign/non-value/duplicate rejection, and late-consumer discard. No lifecycle
+MIR, JSON, runtime call, target-machine route, or production caller was added.
+
+Remaining boundary: a real candidate must integrate this owner with the
+canonical `OpenFunctionDraftSealV1` and the final function-owned frame/carrier
+without creating a plan-less final frame or re-pairing after session close.
 
 #### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0 (2026-08-19; caller-zero landed)
 

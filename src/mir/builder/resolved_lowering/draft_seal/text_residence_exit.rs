@@ -50,13 +50,13 @@ impl FunctionExitSetStampV1 {
 }
 
 /// Move-only admission issued after the canonical Completion and exit-set
-/// checks. It retains only a lifetime-bound borrow of the exact set owned by
-/// DraftSeal; no exit rows are copied or re-paired.
+/// checks. It owns the exact set supplied by DraftSeal; no copied exit rows
+/// are produced or re-paired after this boundary.
 #[must_use = "a lifecycle admission must be consumed by the canonical materializer"]
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct PreparedTextFormalExitFinishSetV1<'exits> {
+pub(in crate::mir::builder::resolved_lowering) struct PreparedTextFormalExitFinishSetV1 {
     stamp: FunctionExitSetStampV1,
-    exits: &'exits PreparedFunctionExitSetV1,
+    exits: PreparedFunctionExitSetV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -73,16 +73,14 @@ pub(in crate::mir::builder::resolved_lowering) enum TextFormalExitFinishAdmissio
 }
 
 /// Issue one provenance admission from the existing Completion, plan, frame,
-/// and prepared exit-set authorities. The exact exit-set borrow remains tied
-/// to its DraftSeal owner; no copied exit rows are produced or moved out.
-pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_exit_finish_set_v1<
-    'exits,
->(
+/// and prepared exit-set authorities. The validated exit set is moved into
+/// the admission so the later consumer cannot re-pair it with another owner.
+pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_exit_finish_set_v1(
     completion: &ReadyFunctionCompletionV1,
     plans: &PinnedTextAccessPlanTableV1,
     frame: PinnedTextBackendFrameBorrowV1<'_>,
-    exits: &'exits PreparedFunctionExitSetV1,
-) -> Result<PreparedTextFormalExitFinishSetV1<'exits>, TextFormalExitFinishAdmissionRejectV1> {
+    exits: PreparedFunctionExitSetV1,
+) -> Result<PreparedTextFormalExitFinishSetV1, TextFormalExitFinishAdmissionRejectV1> {
     let owner = completion.owner();
     if owner != frame.owner() {
         return Err(TextFormalExitFinishAdmissionRejectV1::CompletionOwnerMismatch);
@@ -101,9 +99,10 @@ pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_ex
     Ok(PreparedTextFormalExitFinishSetV1 { stamp, exits })
 }
 
-impl<'exits> PreparedTextFormalExitFinishSetV1<'exits> {
-    /// Consume the admission once.  `Result<(), E>` is deliberate: the exit
-    /// set cannot escape as a returned aggregate or become a second authority.
+impl PreparedTextFormalExitFinishSetV1 {
+    /// Consume the admission once. `Result<(), E>` is deliberate: the owned
+    /// exit set is lent only to this one canonical projection callback and
+    /// cannot escape as a second authority.
     pub(in crate::mir::builder::resolved_lowering) fn consume_for_materializer(
         self,
         plans: &PinnedTextAccessPlanTableV1,
@@ -114,33 +113,8 @@ impl<'exits> PreparedTextFormalExitFinishSetV1<'exits> {
         if !self.stamp.matches_frame(owner, plans, &frame) {
             return Err(TextFormalExitFinishAdmissionRejectV1::InvalidFrameProvenance);
         }
-        callback(self.exits).map_err(|_| TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
+        callback(&self.exits).map_err(|_| TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
     }
-}
-
-/// Private DraftSeal projector seam.  The canonical caller supplies the three
-/// existing physical consumers; this helper owns only their ordering and the
-/// one-shot exit iteration.  It emits no MIR or runtime effect by itself.
-pub(in crate::mir::builder::resolved_lowering) fn project_pinned_text_residence_finish_before_return_v1<
-    'exits,
->(
-    admission: PreparedTextFormalExitFinishSetV1<'exits>,
-    plans: &PinnedTextAccessPlanTableV1,
-    frame: PinnedTextBackendFrameBorrowV1<'_>,
-    mut materialize_return_operand: impl FnMut(ValueId) -> Result<(), String>,
-    mut finish_residence: impl FnMut() -> Result<(), String>,
-    mut emit_return: impl FnMut(PreparedFunctionExitV1) -> Result<(), String>,
-) -> Result<(), TextFormalExitFinishAdmissionRejectV1> {
-    admission.consume_for_materializer(plans, frame, |exits| {
-        exits.try_for_each_exit(|exit| {
-            let PreparedFunctionExitV1::ExplicitValue { value, .. } = exit else {
-                return Err("lifecycle projector received a non-value exit".to_owned());
-            };
-            materialize_return_operand(value)?;
-            finish_residence()?;
-            emit_return(exit)
-        })
-    })
 }
 
 fn validate_exit_set(
@@ -213,7 +187,6 @@ mod tests {
         FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
     };
     use crate::mir::{BasicBlockId, ValueId};
-    use std::cell::RefCell;
 
     fn site(index: u32) -> SourceStmtSiteV1 {
         SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
@@ -258,7 +231,7 @@ mod tests {
     }
 
     #[test]
-    fn issues_lifetime_bound_admission_and_consumes_once() {
+    fn issues_owned_admission_and_consumes_once() {
         let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = issuers.issue().unwrap();
         let (frame, plans) = frame_and_plans(owner, 19);
@@ -282,7 +255,7 @@ mod tests {
             &completion_two(owner),
             &plans,
             frame.borrow(),
-            &exits,
+            exits,
         )
         .unwrap();
         let mut visits = 0;
@@ -295,174 +268,6 @@ mod tests {
             })
             .unwrap();
         assert_eq!(visits, 2);
-    }
-
-    #[test]
-    fn canonical_projector_orders_operand_finish_return_per_exit() {
-        #[derive(Debug, PartialEq, Eq)]
-        enum Event {
-            Operand(ValueId),
-            Finish,
-            Return(BasicBlockId),
-        }
-
-        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuers.issue().unwrap();
-        let (frame, plans) = frame_and_plans(owner, 23);
-        let exits = PreparedFunctionExitSetV1::exact_two([
-            DetachedFunctionExitClaimV1::from_test(
-                site(2),
-                PreparedFunctionExitV1::ExplicitValue {
-                    block: BasicBlockId::new(11),
-                    value: ValueId::new(21),
-                },
-            ),
-            DetachedFunctionExitClaimV1::from_test(
-                site(1),
-                PreparedFunctionExitV1::ExplicitValue {
-                    block: BasicBlockId::new(10),
-                    value: ValueId::new(20),
-                },
-            ),
-        ]);
-        let admission = issue_pinned_text_residence_exit_finish_set_v1(
-            &completion_two(owner),
-            &plans,
-            frame.borrow(),
-            &exits,
-        )
-        .unwrap();
-        let events = RefCell::new(Vec::new());
-        project_pinned_text_residence_finish_before_return_v1(
-            admission,
-            &plans,
-            frame.borrow(),
-            |value| {
-                events.borrow_mut().push(Event::Operand(value));
-                Ok(())
-            },
-            || {
-                events.borrow_mut().push(Event::Finish);
-                Ok(())
-            },
-            |exit| {
-                let PreparedFunctionExitV1::ExplicitValue { block, .. } = exit else {
-                    unreachable!("validated lifecycle exit")
-                };
-                events.borrow_mut().push(Event::Return(block));
-                Ok(())
-            },
-        )
-        .unwrap();
-        assert_eq!(
-            events.into_inner(),
-            vec![
-                Event::Operand(ValueId::new(21)),
-                Event::Finish,
-                Event::Return(BasicBlockId::new(11)),
-                Event::Operand(ValueId::new(20)),
-                Event::Finish,
-                Event::Return(BasicBlockId::new(10)),
-            ]
-        );
-    }
-
-    #[test]
-    fn canonical_projector_suppresses_return_after_finish_failure() {
-        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuers.issue().unwrap();
-        let (frame, plans) = frame_and_plans(owner, 29);
-        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
-            block: BasicBlockId::new(1),
-            value: ValueId::new(2),
-        });
-        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
-            owner,
-            vec![ExplicitReturnClaimV1::from_test_value(
-                site(0),
-                BasicBlockId::new(1),
-                ValueId::new(2),
-            )]
-            .into_boxed_slice(),
-        );
-        let admission = issue_pinned_text_residence_exit_finish_set_v1(
-            &completion,
-            &plans,
-            frame.borrow(),
-            &exits,
-        )
-        .unwrap();
-        let events = RefCell::new(Vec::new());
-        assert_eq!(
-            project_pinned_text_residence_finish_before_return_v1(
-                admission,
-                &plans,
-                frame.borrow(),
-                |_| {
-                    events.borrow_mut().push("operand");
-                    Ok(())
-                },
-                || {
-                    events.borrow_mut().push("finish");
-                    Err("finish failed".to_owned())
-                },
-                |_| {
-                    events.borrow_mut().push("return");
-                    Ok(())
-                },
-            ),
-            Err(TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
-        );
-        assert_eq!(events.into_inner(), vec!["operand", "finish"]);
-    }
-
-    #[test]
-    fn canonical_projector_suppresses_finish_after_operand_failure() {
-        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuers.issue().unwrap();
-        let (frame, plans) = frame_and_plans(owner, 37);
-        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
-            block: BasicBlockId::new(1),
-            value: ValueId::new(2),
-        });
-        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
-            owner,
-            vec![ExplicitReturnClaimV1::from_test_value(
-                site(0),
-                BasicBlockId::new(1),
-                ValueId::new(2),
-            )]
-            .into_boxed_slice(),
-        );
-        let admission = issue_pinned_text_residence_exit_finish_set_v1(
-            &completion,
-            &plans,
-            frame.borrow(),
-            &exits,
-        )
-        .unwrap();
-        let events = RefCell::new(Vec::new());
-        assert_eq!(
-            project_pinned_text_residence_finish_before_return_v1(
-                admission,
-                &plans,
-                frame.borrow(),
-                |_| {
-                    events.borrow_mut().push("operand");
-                    Err("operand failed".to_owned())
-                },
-                || {
-                    events.borrow_mut().push("finish");
-                    Ok(())
-                },
-                |_| {
-                    events.borrow_mut().push("return");
-                    Ok(())
-                },
-            ),
-            Err(TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
-        );
-        assert_eq!(events.into_inner(), vec!["operand"]);
     }
 
     #[test]
@@ -490,7 +295,7 @@ mod tests {
                 &completion,
                 &plans,
                 foreign_frame.borrow(),
-                &exits,
+                exits,
             ),
             Err(TextFormalExitFinishAdmissionRejectV1::CompletionOwnerMismatch)
         );
@@ -504,7 +309,7 @@ mod tests {
                 &unit,
                 &plans,
                 frame.borrow(),
-                &unit_exit,
+                unit_exit,
             ),
             Err(TextFormalExitFinishAdmissionRejectV1::UnsupportedExitKind)
         );
@@ -537,7 +342,7 @@ mod tests {
                 &completion_two(owner),
                 &plans,
                 frame.borrow(),
-                &exits,
+                exits,
             ),
             Err(TextFormalExitFinishAdmissionRejectV1::DuplicateExitSite)
         );
@@ -565,7 +370,7 @@ mod tests {
             &completion,
             &plans,
             frame.borrow(),
-            &exits,
+            exits,
         )
         .unwrap();
         assert_eq!(
