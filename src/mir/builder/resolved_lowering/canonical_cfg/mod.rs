@@ -5,6 +5,7 @@
 //! checked witnesses and are never repaired here.
 
 mod error;
+mod pinned_text_finish;
 mod predecessors;
 mod session;
 

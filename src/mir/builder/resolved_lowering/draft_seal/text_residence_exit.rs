@@ -100,6 +100,21 @@ pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_ex
 }
 
 impl PreparedTextFormalExitFinishSetV1 {
+    /// Move the exact exit inventory into the one detached projector after a
+    /// final same-cohort check. This private handoff does not expose a
+    /// re-pairable tuple to callers.
+    pub(in crate::mir::builder::resolved_lowering) fn into_validated_exit_set(
+        self,
+        plans: &PinnedTextAccessPlanTableV1,
+        frame: PinnedTextBackendFrameBorrowV1<'_>,
+    ) -> Result<PreparedFunctionExitSetV1, TextFormalExitFinishAdmissionRejectV1> {
+        let owner = self.stamp.owner;
+        if !self.stamp.matches_frame(owner, plans, &frame) {
+            return Err(TextFormalExitFinishAdmissionRejectV1::InvalidFrameProvenance);
+        }
+        Ok(self.exits)
+    }
+
     /// Consume the admission once. `Result<(), E>` is deliberate: the owned
     /// exit set is lent only to this one canonical projection callback and
     /// cannot escape as a second authority.

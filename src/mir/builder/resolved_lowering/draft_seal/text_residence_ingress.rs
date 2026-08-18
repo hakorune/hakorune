@@ -14,7 +14,7 @@ use super::text_residence_exit::{
     issue_pinned_text_residence_exit_finish_set_v1, PreparedTextFormalExitFinishSetV1,
     TextFormalExitFinishAdmissionRejectV1,
 };
-use super::{PreparedFunctionExitSetV1, PreparedFunctionExitV1};
+use super::{FunctionDraftSealProjectionV1, PreparedFunctionExitSetV1, PreparedFunctionExitV1};
 use crate::mir::builder::resolved_lowering::completion_consumption::ReadyFunctionCompletionV1;
 
 /// One affine DraftSeal physical consumer. The validated exit set and the
@@ -48,6 +48,25 @@ pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_dr
 }
 
 impl PreparedPinnedTextResidenceDraftSealConsumerV1 {
+    #[cfg(test)]
+    pub(super) fn into_projection_parts(
+        self,
+        plans: &PinnedTextAccessPlanTableV1,
+        frame: PinnedTextBackendFrameBorrowV1<'_>,
+    ) -> Result<
+        (
+            PreparedFunctionExitSetV1,
+            PinnedTextResidenceFinishCapabilityV1,
+        ),
+        String,
+    > {
+        let Self { admission, finish } = self;
+        let exits = admission
+            .into_validated_exit_set(plans, frame)
+            .map_err(|error| format!("{error:?}"))?;
+        Ok((exits, finish))
+    }
+
     /// Consume the aggregate once. The single projection callback receives
     /// each already-validated explicit exit in operand -> Finish -> Return
     /// order; the former three independently supplied callbacks are gone.
@@ -229,5 +248,67 @@ mod tests {
             ),),
             Err(TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
         );
+    }
+
+    #[test]
+    fn detached_projection_places_finish_before_each_existing_return() {
+        let (_owner, plans, frame, completion, exits, finish) = fixture(2, 79);
+        let consumer = issue_pinned_text_residence_draftseal_consumer_v1(
+            &completion,
+            &plans,
+            frame.borrow(),
+            exits,
+            finish,
+        )
+        .unwrap();
+        let mut builder = crate::mir::MirBuilder::new();
+        builder.enter_function_for_test("pinned_text_detached_projection/0".to_owned());
+        builder.ensure_block_exists(BasicBlockId::new(10)).unwrap();
+        builder.ensure_block_exists(BasicBlockId::new(11)).unwrap();
+        for block in [BasicBlockId::new(10), BasicBlockId::new(11)] {
+            builder
+                .function_state
+                .current_function
+                .as_mut()
+                .expect("function")
+                .get_block_mut(block)
+                .expect("exit")
+                .seal();
+        }
+
+        let projection = FunctionDraftSealProjectionV1::project_from_builder_pinned_text(
+            &builder,
+            consumer,
+            &plans,
+            frame.borrow(),
+        )
+        .expect("detached pinned-text projection");
+        for (block, value) in [
+            (BasicBlockId::new(10), ValueId::new(20)),
+            (BasicBlockId::new(11), ValueId::new(21)),
+        ] {
+            let exit = projection
+                .function()
+                .get_block(block)
+                .expect("projected exit");
+            assert!(matches!(
+                exit.instructions.as_slice(),
+                [crate::mir::MirInstruction::PinnedTextResidenceFinish { .. }]
+            ));
+            assert!(matches!(
+                exit.terminator,
+                Some(crate::mir::MirInstruction::Return { value: Some(actual) })
+                    if actual == value
+            ));
+            assert!(builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("live function")
+                .get_block(block)
+                .expect("live exit")
+                .terminator
+                .is_none());
+        }
     }
 }

@@ -1534,11 +1534,22 @@ Task ladder (canonical consumer design first, runtime effect later):
     one-shot consumption and late-error discard; no MIR/runtime effect was
     opened.
 17. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INTEGRATION-D0` — next:
-    decide the single `OpenFunctionDraftSealV1` integration that supplies the
-    final frame/carrier provenance before canonical-session close without a
-    false plan-less frame, then project Finish on the detached clone before
-    the existing Return writer. Target-machine routing remains closed.
-18. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+    accepted below. The first implementation cell is a detached projection
+    BoxShape; the follow-on ExactTwo ingress cell supplies final
+    frame/carrier provenance before canonical-session close. Target-machine
+    routing remains closed.
+18. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-WRITER-I0` — landed:
+    moved the existing canonical Finish emission into the one detached
+    projection seam. It must consume the owned exact exit set and Finish
+    capability once, emit Finish immediately before the existing Return
+    writer, and leave the live function unchanged until commit.
+19. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INGRESS-I0` — current:
+    caller-zero `ExactTwo` integration only: after all S6C leaf rows exist,
+    issue the final frame, Enter, and successorless Trap before canonical
+    session close; move the resulting capability and frame provenance into
+    the same private consumer. `Single`, backend, observer, production,
+    fallback, and performance remain closed.
+20. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
@@ -1599,6 +1610,70 @@ MIR, JSON, runtime call, target-machine route, or production caller was added.
 Remaining boundary: a real candidate must integrate this owner with the
 canonical `OpenFunctionDraftSealV1` and the final function-owned frame/carrier
 without creating a plan-less final frame or re-pairing after session close.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INTEGRATION-D0 (2026-08-19; accepted)
+
+Decision: use one private affine physical consumer for the complete lifecycle
+handoff. The canonical CFG lifecycle writer issues the Enter/Trap shape and a
+Finish capability; the consumer owns that capability together with the
+already-validated `PreparedFunctionExitSetV1`. `FunctionDraftSealProjectionV1`
+remains the sole Return writer. The first code cell is a BoxShape that moves
+Finish placement into the detached projection seam; the next cell connects
+the full `ExactTwo` ingress and final frame issuance before canonical-session
+close.
+
+Source authority + canonical issuer: source/Completion issue the exact exit
+inventory; the canonical SSA/CFG owner issues Enter, Trap, and Finish
+capability; the function-owned pinned-text plan table and retained S6C
+signature loan issue the final frame contract; the detached projection owns
+the only `Finish -> Return` placement.
+
+Non-authority: the live session's finish-block set after close, a second CFG
+session, direct detached `add_instruction` calls, copied exit rows, owner-ID
+lookups, caller-supplied plans/frames, MIR/JSON scans, arbitrary callback
+tuples, `CheckedCallOutFault`/`Throw` as trap meaning, target-machine
+inspection, fallback/retry, and production selection.
+
+Fail-fast boundary: before any detached mutation, require one owner/plan/frame/
+ABI cohort, an unconsumed Finish capability, exact explicit-value exits with
+one Completion lineage, and detached exit blocks that are not already
+terminated. Enter/Trap and final frame must have been issued before canonical
+session close. Any foreign, stale, missing, duplicate, unit, trap,
+preterminated, unsealed, or late projection condition discards the detached
+clone and the outer unpublished draft; no candidate or retry is published.
+
+Smallest next slices:
+
+1. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-WRITER-I0` — a
+   session-independent canonical detached Finish writer used only by the
+   existing projection seam. It receives the same owned exit set; no second
+   exit ledger or live-session mutation is allowed.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INGRESS-I0` — the selected
+   caller-zero `ExactTwo` path finalizes the frame from the function-owned
+   plan table after leaf issuance, then issues Enter/Trap while the canonical
+   session is live and passes the resulting capability into the private
+   consumer.
+
+Acceptance: each authoritative normal exit is physically ordered as
+`operand -> PinnedTextResidenceFinish -> existing Return`; Trap and hot-loop
+blocks contain zero Finish; one frame/plan/carrier cohort is consumed once;
+late failure leaves the live function and published output empty. No runtime,
+backend, observer, production, fallback, or performance claim is opened.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-WRITER-I0 (2026-08-19; caller-zero landed)
+
+Decision: the canonical CFG substrate now owns a session-independent writer
+for a sealed detached exit. The pinned consumer hands its exact exit set and
+Finish capability to the detached projection once; the writer places one
+`PinnedTextResidenceFinish`, and the existing projection remains the only
+Return writer. The live Builder/function is unchanged until the outer draft
+commits.
+
+Evidence: focused positives cover `Finish -> Return` ordering and the
+consumer-backed ExactTwo projection; negatives reject unsealed, terminated,
+and duplicate Finish sites. Source/Completion, frame timing, Enter/Trap
+issuance, backend, and production remain unchanged. The next cell is the
+caller-zero ExactTwo ingress/frame timing integration.
 
 #### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0 (2026-08-19; caller-zero landed)
 

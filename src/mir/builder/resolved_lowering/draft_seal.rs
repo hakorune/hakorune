@@ -89,6 +89,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     CurrentFunctionMissing,
     ExitBlockMissing { block: BasicBlockId },
     ExitBlockAlreadyTerminated { block: BasicBlockId },
+    PinnedTextResidence(String),
     ReturnValueTypeMissing { value: ValueId },
     UnknownReturnValueType { value: ValueId },
     UnsupportedReturnValueType { value: ValueId, actual: MirType },

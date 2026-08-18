@@ -424,6 +424,7 @@ fn stage_for_projection_error(
         }
         FunctionDraftSealProjectionErrorV1::ExitBlockMissing { .. }
         | FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { .. }
+        | FunctionDraftSealProjectionErrorV1::PinnedTextResidence(_)
         | FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing
         | FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch { .. }
         | FunctionDraftSealProjectionErrorV1::ValueIdOverflow => FunctionDraftSealStageV1::Exit,
