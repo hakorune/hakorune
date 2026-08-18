@@ -1,7 +1,16 @@
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
+use crate::mir::compiler::pinned_text_backend_frame::issue_pinned_text_backend_frame_contract_v1;
+use crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierIssueV1;
+use crate::mir::compiler::target_capability::{
+    PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetProfileV1,
+};
 use crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneRoleV1;
+use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
+use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
+use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
+use crate::runtime::text_formal_residence::residence_abi_layout_v1;
 
 use super::issue_normal_callable_semantic_package_v1;
 
@@ -123,4 +132,95 @@ fn ordinary_formal_stays_one_lane_and_exact_text_pair_is_adjacent() {
         ]
     );
     assert_eq!(row.lanes()[1].binding(), row.lanes()[2].binding());
+}
+
+#[test]
+fn residence_backend_carrier_exports_source_issued_root_mapping() {
+    let package = issue("static box Api { run(text: StringBox) { return 0 } }");
+    let row = package.physical_signature().rows().next().expect("one row");
+    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(row);
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    let plans = PinnedTextAccessPlanTableV1::new(41);
+    let frame = issue_pinned_text_backend_frame_contract_v1(
+        &loan,
+        &plans,
+        residence_abi_layout_v1(),
+        &target,
+    )
+    .expect("frame contract");
+    let lifecycle = PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(
+        row.owner(),
+        &plans,
+        frame.borrow(),
+        crate::mir::BasicBlockId::new(1),
+        crate::mir::BasicBlockId::new(2),
+    )
+    .expect("lifecycle carrier");
+    let carrier = crate::mir::compiler::pinned_text_residence_backend_carrier::
+        PinnedTextResidenceBackendCarrierV1::issue(
+            row,
+            frame.borrow(),
+            lifecycle.plan(),
+            crate::mir::BasicBlockId::new(0),
+            crate::mir::BasicBlockId::new(1),
+            crate::mir::BasicBlockId::new(2),
+            vec![crate::mir::BasicBlockId::new(3)].into_boxed_slice(),
+            1,
+        )
+        .expect("carrier");
+    let json = carrier.to_transport_json();
+    assert_eq!(json["contract_id"], "hako.pinned_text_residence_carrier@1");
+    assert_eq!(json["roots"][0]["frame_row"], 0);
+    assert_eq!(json["roots"][0]["logical_ordinal"], 0);
+    assert_eq!(json["roots"][0]["slot_lane"], 0);
+    assert_eq!(json["roots"][0]["generation_lane"], 1);
+    assert_eq!(
+        json["finish_obligation"],
+        "finish_every_explicit_normal_return"
+    );
+}
+
+#[test]
+fn residence_backend_carrier_rejects_finish_on_trap_before_transport() {
+    let package = issue("static box Api { run(text: StringBox) { return 0 } }");
+    let row = package.physical_signature().rows().next().expect("one row");
+    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(row);
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    let plans = PinnedTextAccessPlanTableV1::new(42);
+    let frame = issue_pinned_text_backend_frame_contract_v1(
+        &loan,
+        &plans,
+        residence_abi_layout_v1(),
+        &target,
+    )
+    .expect("frame contract");
+    let lifecycle = PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(
+        row.owner(),
+        &plans,
+        frame.borrow(),
+        crate::mir::BasicBlockId::new(1),
+        crate::mir::BasicBlockId::new(2),
+    )
+    .expect("lifecycle carrier");
+    let result = crate::mir::compiler::pinned_text_residence_backend_carrier::
+        PinnedTextResidenceBackendCarrierV1::issue(
+            row,
+            frame.borrow(),
+            lifecycle.plan(),
+            crate::mir::BasicBlockId::new(0),
+            crate::mir::BasicBlockId::new(1),
+            crate::mir::BasicBlockId::new(2),
+            vec![crate::mir::BasicBlockId::new(2)].into_boxed_slice(),
+            1,
+        );
+    assert_eq!(
+        result,
+        Err(PinnedTextResidenceBackendCarrierIssueV1::FinishOnTrap)
+    );
 }

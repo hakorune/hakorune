@@ -273,6 +273,18 @@ fn emit_instruction(
             region, kind, dst, operands, access, effects,
         )),
         I::PinnedTextOp { dst, plan, kind } => Ok(basic::emit_pinned_text_op(dst, plan, *kind)),
+        I::PinnedTextResidenceEnter {
+            plan,
+            normal_landing,
+            trap_landing,
+        } => Ok(basic::emit_pinned_text_residence_enter(
+            plan,
+            normal_landing,
+            trap_landing,
+        )),
+        I::PinnedTextResidenceFinish { residence } => {
+            Ok(basic::emit_pinned_text_residence_finish(residence))
+        }
         I::ArrayElementWrite {
             site_id,
             dst,

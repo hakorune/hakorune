@@ -522,6 +522,12 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> Result<serde_json
                 borrow.to_transport_json(),
             );
         }
+        if let Some(carrier) = metadata.pinned_text_residence_backend_carrier.as_ref() {
+            obj.insert(
+                "pinned_text_residence_carrier_v1".to_owned(),
+                carrier.to_transport_json(),
+            );
+        }
     }
     Ok(metadata_json)
 }

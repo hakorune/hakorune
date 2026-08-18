@@ -218,6 +218,38 @@ pub(crate) fn emit_pinned_text_op(
     })
 }
 
+pub(crate) fn emit_pinned_text_residence_enter(
+    plan: &crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1,
+    normal_landing: &crate::mir::BasicBlockId,
+    trap_landing: &crate::mir::BasicBlockId,
+) -> serde_json::Value {
+    let owner = plan.owner();
+    json!({
+        "op": "pinned_text_residence_enter",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": plan.plan_stamp(),
+        "normal": normal_landing.as_u32(),
+        "trap": trap_landing.as_u32(),
+    })
+}
+
+pub(crate) fn emit_pinned_text_residence_finish(
+    residence: &crate::mir::pinned_text_residence_lifecycle::TextFormalResidenceIdV1,
+) -> serde_json::Value {
+    let owner = residence.owner();
+    json!({
+        "op": "pinned_text_residence_finish",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": residence.plan_stamp(),
+    })
+}
+
 pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
     json!({
         "op":"debug",

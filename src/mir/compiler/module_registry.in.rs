@@ -111,6 +111,7 @@ mod lowering_input;
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 pub(in crate::mir) mod pinned_text_backend_frame;
+pub(in crate::mir) mod pinned_text_residence_backend_carrier;
 mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_effect_plan;

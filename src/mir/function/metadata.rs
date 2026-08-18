@@ -117,6 +117,13 @@ pub struct FunctionMetadata {
     pub(crate) pinned_text_backend_frame_contract:
         Option<crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1>,
 
+    /// Caller-zero physical carrier linking the source-issued lane map to the
+    /// existing Residence lifecycle placement.  This is transport metadata,
+    /// not a source semantic receipt or a backend lowering result.
+    pub(crate) pinned_text_residence_backend_carrier: Option<
+        crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierV1,
+    >,
+
     /// Candidate-only Dynamic AOT projection. The canonical physical session
     /// installs it once; JSON borrows it without rebuilding site/ABI facts.
     pub(super) dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,
