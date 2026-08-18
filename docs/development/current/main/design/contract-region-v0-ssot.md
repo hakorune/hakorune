@@ -297,6 +297,36 @@ Payload is profile-specific.
 Owner words may rhyme across layers, but their invariants do not.
 ```
 
+## Generic Fastpath Reading
+
+`fastpath` is a routing and evidence term, not a second optimizer, a universal
+MIR dialect, or an automatic permission to bypass ordinary lowering. The
+generic part that is safe to share is only the contract-region envelope:
+
+```text
+source origin / profile / obligations / proof stamp
+  -> profile-owned verified plan
+  -> one canonical physical consumer
+```
+
+The leaf vocabulary, lifetime proof, alias rule, effect law, and backend
+consumer remain profile-owned. A Text-scan region therefore does not reuse
+`FastMemRegion`'s memory operations, and a future SIMD or IO region must not
+inherit Text or memory proofs by naming convention.
+
+An eventual source spelling such as `direct { ... }`, `fastpath TextScanV1 { ... }`,
+or another small scoped form is a producer for this same envelope. It
+must be thin syntax over the profile issuer and verifier; it must not create a
+second verifier, a source-visible pointer type, a helper-name matcher, or a
+profile-selection branch in MIRBuilder. Until the automatic corridor has at
+least two independently proven consumer shapes, a general "sole consumer means
+fusion" rule is intentionally not accepted. The first corridor is evidence for
+the rule, not its authority.
+
+The deferred commonization task is reserved as `GENERAL-CORRIDOR-FUSION-D0` in
+the parked task ladder below. It does not open the current S6C row, add a
+parser keyword, or authorize a performance claim.
+
 ## Parked Text-Scan Kernel Region Idea
 
 This section records a future design candidate, not an accepted language
@@ -465,6 +495,11 @@ TEXTKERNEL-LOWER-I0
 TEXTKERNEL-PROMOTE-R0
   publish reference docs only after semantic conformance, structural hot-loop
   gates, exact/meso/whole performance evidence, and production caller proof
+
+GENERAL-CORRIDOR-FUSION-D0
+  only after the promotion prerequisites and a second independently proven
+  consumer shape; make the shared producer/use/escape/exit law explicit and
+  keep profile payloads and physical consumers separate
 ```
 
 `TEXTKERNEL-CONTRACT-D0` is the only docs-first decision row. If accepted, its

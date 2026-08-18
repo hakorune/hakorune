@@ -47,6 +47,7 @@ this reference page to avoid duplicating semantics.
 | `docs/development/current/main/design/type-system-policy-ssot.md` | Type meaning policy. `MirType` is not language semantics. |
 | `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md` | Record and PackedArray lowering owner. |
 | `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md` | Rune effect/capability metadata lane. |
+| `docs/development/current/main/design/contract-region-v0-ssot.md` | Generic contract-region envelope, parked Text-scan profile, and deferred fastpath/kernel task order. |
 
 Stage0 may only parse, transport metadata, or perform trivial desugar for these
 features. Stage1 owns semantic checks, verifier facts, CorePlan decisions, and
@@ -184,6 +185,12 @@ winner claim
 Future `fastpath ProfileName { ... }` spelling for memory / IO / SIMD contract
 regions is a design idea only. It is not the accepted source spelling for this
 reference; use `fastmem ContractName { ... }` for the current memory row.
+
+The same rule applies to a future Text-scan/kernel spelling: it would be a
+thin producer of a profile-owned verified corridor plan, not a universal
+fastpath dialect or a raw-pointer escape hatch. Its design and task order are
+owned by `contract-region-v0-ssot.md`; no parser, verifier, backend, or
+production route is opened by this reference paragraph.
 
 ### Box, Record, And Mutable State
 
