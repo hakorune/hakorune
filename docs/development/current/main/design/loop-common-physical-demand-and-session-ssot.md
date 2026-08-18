@@ -534,6 +534,20 @@ Foreign/duplicate/missing exits, legacy-finalizer ingress, catch/EH or
 recoverable-unwind paths, copied rows, or a required second scan remain
 `NoSafeSlice`; late failure discards the whole draft.
 
+Top-down worker audit (2026-08-19): keep this row at `NoSafeSlice` until the
+admission is bound to the *same* DraftSeal-owned `PreparedFunctionExitSetV1`,
+not merely to a copyable provenance stamp plus an externally supplied exit
+set.  The internal stamp must not be a copyable identity, and the consumer
+must use a private brand/one-shot seam so a same-provenance foreign set cannot
+be re-paired.  Only after that correction may the canonical private projector
+be opened; its order is `return operand materialize -> Residence finish ->
+canonical Return`, once for every normal/early exit.  Acquire/terminal Fault
+has no finish, recoverable unwind/EH remains rejected, and the first late
+failure is primary while the unpublished DraftSeal is discarded without
+retry.  The existing runtime `TextFormalCallResidenceV1::finish` remains the
+sole runtime finish owner; no `Arc<str>`, new frame, or `eq_hh` authority is
+introduced by this row.
+
 Task ladder (stamp-only authority first, runtime effect later):
 
 0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` (landed through its probe) — make the S6C common-V2
@@ -546,9 +560,11 @@ Task ladder (stamp-only authority first, runtime effect later):
    issue one opaque exit-set stamp and stamp-only finish/materialization
    admission; keep `PreparedFunctionExitSetV1` as the sole iterator. No
    runtime call, Return writer, or production switch.
-2. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` — consume that
-   admission in the unpublished candidate and realize `finish` immediately
-   before each canonical Return. No legacy finalizer patch or MIR rescan.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` — first repair
+   the admission to consume the exact DraftSeal-owned exit set through a
+   private one-shot brand, then use one canonical private projector in the
+   unpublished candidate to realize `finish` immediately before each
+   canonical Return. No legacy finalizer patch or MIR rescan.
 3. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-I0` — observe the
    final transformed module and close the no-unwind/EH contract before object
    emission. Only after these three rows may production/performance reopen.
