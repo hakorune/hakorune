@@ -14,15 +14,15 @@ closed; Selected Dynamic remains the sole production arm.
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. The source-bound V9 runtime producer I0 is closed as caller-zero canary evidence; the next design stop names the one TextRef scope consumer and finish order. TextRef scope, V10, CFG/publication, and production remain closed."
+current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. The source-bound V9 runtime producer I0 is closed as caller-zero canary evidence; TextRef scope is now held at the runtime entry bridge D0 until source ExactText occurrence order is explicitly bound to published runtime pairs/root indices. TextRef scope, V10, CFG/publication, and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0"
-current_blocker_token = "Design stop only: name the one private TextRef scope consumer over the source-bound V9 opaque input and ExactText residence, with one finish owner and canonical End order. Do not issue V10, import runtime Residence into MIR, open CFG/publication/production/fallback/retry, or retire eq_hh."
+current_execution_row = "COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0"
+current_blocker_token = "Design stop only: bind the source ExactText occurrence cohort to published runtime {slot,generation} pairs and Residence root indices through one private entry bridge. Do not issue V10, import runtime Residence into MIR, open CFG/publication/production/fallback/retry, or retire eq_hh."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler TextRef scope design stop (S6C V9 + ExactText to TextEq)"
+active_lane = "Loop compiler TextRef entry-bridge design stop (S6C V9 + ExactText to TextEq)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
@@ -40,7 +40,9 @@ End occurrence-scoped, so the rejected per-iteration LeaseSet/lock/callback
 path is not reopened. The lane adapter I0 is closed with no MIR/V10,
 publication, or production caller. The producer contract and I0 canary are
 closed with exact lifecycle/identity negatives; the old wire issuer remains a
-canary. TextRef scope is the next design stop. No V10 MIR is issued.
+canary. TextRef scope is held behind an entry bridge D0: source ExactText
+occurrence order is not yet explicitly bound to published runtime pairs/root
+indices. No V10 MIR is issued.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -53,8 +55,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, strict backend-neutral TextEq capability decision, exact concrete StringBox residence, private lane-borrow ingress, and source-bound V9 runtime producer I0 are caller-zero substrate with focused lifecycle and identity gates green. The next design stop is TextRef scope; TextEq V10, production, performance promotion, and eq_hh retirement remain closed."
-next_design_card = "COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, strict backend-neutral TextEq capability decision, exact concrete StringBox residence, private lane-borrow ingress, and source-bound V9 runtime producer I0 are caller-zero substrate with focused lifecycle and identity gates green. The next design stop is the TextRef runtime entry bridge, which must bind source occurrence order to published runtime pairs/root indices without ordinal rematching; TextEq V10, production, performance promotion, and eq_hh retirement remain closed."
+next_design_card = "COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
@@ -79,5 +81,5 @@ landed_tail = [
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
   "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
   "2026-08-18: Published ExactText lane-borrow ingress now validates entry pairs once and delegates to the existing invocation Residence owner; ABI and Residence focused gates are green, with no MIR/V10 or production caller.",
-  "2026-08-18: Source-bound V9 runtime producer I0 is closed as caller-zero canary evidence: one private provider-return Rust bridge owns EndAuthorizedText adoption and lends only an opaque scope input; TextRef scope is the next design stop."
+  "2026-08-18: Source-bound V9 runtime producer I0 is closed as caller-zero canary evidence: one private provider-return Rust bridge owns EndAuthorizedText adoption and lends only an opaque scope input; TextRef scope is held behind the entry-bridge D0 for explicit source-to-runtime root binding."
 ]

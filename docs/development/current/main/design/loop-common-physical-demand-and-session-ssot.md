@@ -2342,8 +2342,8 @@ pair/root validation both finish before their first effect. Later compiler
 failure discards the unpublished function; no retry, fallback, partial pin,
 or partial publication is allowed.
 
-Smallest next slice: `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0` remains the current
-design boundary for the portable correctness path. Independently, rows 9–11
+Smallest next slice: `COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0` remains
+the current design boundary for the portable correctness path. Independently, rows 9–11
 may be selected as a caller-zero runtime canary prerequisite; rows 12–17 stay
 parked until correctness and the first production cutover.
 
@@ -2355,7 +2355,7 @@ legacy retirement is open now.
 
 ```text
 portable correctness and first production edge
-  1 -> 2 -> 3 -> 4 -> 4v9 -> 4a -> 5 -> 6 -> 7 -> 8
+  1 -> 2 -> 3 -> 4 -> 4v9 -> 4b -> 4a -> 5 -> 6 -> 7 -> 8
 
 runtime root foundation and direct physical projection
   8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16
@@ -2371,7 +2371,8 @@ independent compatibility retirement
 | 3 | `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` | BoxShape | Emit canonical Normal/Fault landings, V9, End, and Fault; the concrete-wire canary stays test-only and caller-zero. |
 | 4 | `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` | BoxShape | Co-seal V9 with the adopted ExactText lanes in one session/segment without constructing a runtime pair in the compiler. |
 | 4v9 | `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0/I0` | BoxShape | Use one private provider-return Rust bridge: static producer plan -> move-only runtime result -> opaque scope input; one `EndAuthorizedTextV1` adopter, atomic normal/fault wire, and no post-hoc pairing. |
-| 4a | `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` | BoxShape | After a source-bound V9 runtime producer is proven, consume the existing V9/ExactText co-seal through one private opaque scope, with one consumer, one ExactText finish, and canonical V9 End order; no V10 effect. |
+| 4b | `COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0` | design stop | Bind source ExactText occurrence order to published `{slot,generation}` pairs and Residence root indices through one private runtime bridge; no ordinal rematching, partial pin, or MIR Residence import. |
+| 4a | `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` | BoxShape | After the entry bridge is proven, consume the existing V9/ExactText co-seal through one private opaque scope, with one consumer, one ExactText finish, and canonical V9 End order; no V10 effect. |
 | 5 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` | one BoxCount or `NoSafeSlice` | Select one strict non-fallback physical capability for the existing portable TextEq and issue Bool V10. |
 | 6 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | BoxShape | Consume V10 with existing Return-read, shared-segment, and FunctionExit proofs to write the inner If/Return CFG. |
 | 7 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | evidence | Close positive/negative behavior, exact lifecycle census, and late unpublished-function discard. |
@@ -2850,7 +2851,8 @@ retry, C-speed, and `eq_hh` retirement remain closed.
 
 The next selected row is
 `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-I0`; only after that row is green may
-`COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` consume the opaque input.
+`COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0` specify the runtime root
+mapping that a later scope I0 may consume.
 
 #### COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-I0 closeout (2026-08-18; accepted)
 
@@ -2874,7 +2876,44 @@ baseline-only.
 Non-claims: the provider remains caller-zero; TextRef scope, TextEq V10,
 CFG/Return, publication, production, direct leaf, C-speed, fallback/retry,
 and `eq_hh` retirement remain closed. The next design stop is
-`COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.
+`COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0`.
+
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0 (2026-08-18; reopened design stop)
+
+Decision: keep TextRef scope I0 parked until one runtime-private entry bridge
+binds the source ExactText occurrence cohort to the published runtime pairs
+and the invocation Residence root indices. Do not import Residence into MIR,
+issue V10, or infer the mapping from an ordinal or `ValueId`.
+
+Source authority + canonical issuer: the existing S6C ExactText sidecar and
+V9/ExactText occurrence co-seal own source order and multiplicity; the runtime
+`acquire_text_formal_residence_from_published_wires_v1` path remains the sole
+pin/root/finish owner. The bridge is only a mechanical Rust handoff between
+those already-issued products.
+
+Non-authority: bare source ordinals, `ValueId` numbers, MIR adjacency, raw
+handles/tokens, JSON, `ptr/len` values, `nyash.string.eq_hh`, or a later scan
+that re-pairs rows by position. `PinnedTextRootViewRef` is an opaque,
+callback-borrowed view; it is not a backing-stability or source-meaning issuer.
+
+Fail-fast boundary: before any residence effect, require exact source/runtime
+pair count and occurrence order, one owner/session/segment/body cohort, an
+explicit published `{slot,generation}` binding for every root index, live
+non-retiring concrete Text payloads, representable lengths, and no duplicate
+or foreign pair. Any mismatch rejects with zero published root rows and no
+partial pin. A root view or pointer/length projection may not escape its
+callback; the current `with_root` byte-length-only API does not authorize a
+content-comparison leaf.
+
+Smallest next slice: define one private bridge product and one consumer that
+accepts the source/co-seal proof plus the published pair binding, acquires
+ExactText once, and lends only occurrence-scoped opaque views to the future
+scope. Record primary/suppressed cleanup order and negative coverage for
+missing, stale, foreign, duplicate, reordered, retiring, and overflow input.
+
+Non-claims: no TextRef scope implementation, V10 Bool, pinned-text leaf,
+additional MIR/CFG/Return, publication, production switch, direct C-speed
+route, fallback/retry, or `eq_hh` retirement.
 
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 
