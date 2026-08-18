@@ -3,197 +3,220 @@
 
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::core_method_result_kind::{
-    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,
+    CoreMethodContractRowV2, CoreMethodEffectV1, CoreMethodResultKindV1, CoreMethodSemanticLawV2,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct CoreMethodManifestBrandV1 {
+pub(crate) struct CoreMethodManifestBrandV2 {
     schema: &'static str,
 }
 
-impl CoreMethodManifestBrandV1 {
+impl CoreMethodManifestBrandV2 {
     pub(crate) const fn schema(self) -> &'static str {
         self.schema
     }
 }
 
-pub(crate) const CORE_METHOD_MANIFEST_BRAND_V1: CoreMethodManifestBrandV1 =
-    CoreMethodManifestBrandV1 {
-        schema: "core_method_contract_manifest/v1",
+pub(crate) const CORE_METHOD_MANIFEST_BRAND_V2: CoreMethodManifestBrandV2 =
+    CoreMethodManifestBrandV2 {
+        schema: "core_method_contract_manifest/v2",
     };
 
 #[cfg(test)]
-pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV1 =
-    CoreMethodManifestBrandV1 {
+pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV2 =
+    CoreMethodManifestBrandV2 {
         schema: "foreign/core_method_contract_manifest",
     };
 
-pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[
-    CoreMethodContractResultRowV1 {
+pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[
+    CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "length",
         aliases: &["len", "size"],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::ArrayLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "get",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::ArrayGet,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "has",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::ArrayHas,
         result_kind: CoreMethodResultKindV1::BoolValue,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "set",
         aliases: &[],
         arities: &[2],
+        semantic_law: &[(2, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::ArraySet,
         result_kind: CoreMethodResultKindV1::NoValue,
         effect: CoreMethodEffectV1::MutatesSlot,
         lowering_tier: CoreMethodLoweringTier::ColdFallback,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "push",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::ArrayPush,
         result_kind: CoreMethodResultKindV1::NoValue,
         effect: CoreMethodEffectV1::MutatesShape,
         lowering_tier: CoreMethodLoweringTier::ColdFallback,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "get",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapGet,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "set",
         aliases: &[],
         arities: &[2],
+        semantic_law: &[(2, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapSet,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::MutatesSlot,
         lowering_tier: CoreMethodLoweringTier::ColdFallback,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "has",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapHas,
         result_kind: CoreMethodResultKindV1::BoolValue,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "delete",
         aliases: &["remove"],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapDelete,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::MutatesShape,
         lowering_tier: CoreMethodLoweringTier::ColdFallback,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "keys",
         aliases: &[],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapKeys,
         result_kind: CoreMethodResultKindV1::Dynamic,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "MapBox",
         canonical: "size",
         aliases: &["len", "length"],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::MapLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "length",
         aliases: &["len", "size"],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::CodePointCount)],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "substring",
         aliases: &["substr"],
         arities: &[1, 2],
+        semantic_law: &[
+            (1, CoreMethodSemanticLawV2::Unprojected),
+            (2, CoreMethodSemanticLawV2::CodePointHalfOpenClamped),
+        ],
         op: CoreMethodOp::StringSubstring,
         result_kind: CoreMethodResultKindV1::StringValue,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "indexOf",
         aliases: &["find"],
         arities: &[1, 2],
+        semantic_law: &[
+            (1, CoreMethodSemanticLawV2::Unprojected),
+            (2, CoreMethodSemanticLawV2::Unprojected),
+        ],
         op: CoreMethodOp::StringIndexOf,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "lastIndexOf",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringLastIndexOf,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "contains",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringContains,
         result_kind: CoreMethodResultKindV1::BoolValue,
         effect: CoreMethodEffectV1::PureRead,
         lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
     },
-    CoreMethodContractResultRowV1 {
+    CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "equals",
         aliases: &[],
         arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringEquals,
         result_kind: CoreMethodResultKindV1::BoolValue,
         effect: CoreMethodEffectV1::PureRead,

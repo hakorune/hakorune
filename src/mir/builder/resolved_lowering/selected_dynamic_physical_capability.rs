@@ -97,8 +97,8 @@ pub(in crate::mir) struct DynamicV2CompareI64CapabilityDemandV1 {
     result: LoopValueKeyV1,
     v11: DynamicV2ProducerReceiptRequirementV1,
     v12: DynamicV2ProducerReceiptRequirementV1,
-    substring_core: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
-    index_of_core: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    substring_core: &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
+    index_of_core: &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
 }
 
 impl DynamicV2CompareI64CapabilityDemandV1 {
@@ -128,13 +128,13 @@ impl DynamicV2CompareI64CapabilityDemandV1 {
 
     pub(in crate::mir) const fn substring_core(
         &self,
-    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2 {
         self.substring_core
     }
 
     pub(in crate::mir) const fn index_of_core(
         &self,
-    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2 {
         self.index_of_core
     }
 }

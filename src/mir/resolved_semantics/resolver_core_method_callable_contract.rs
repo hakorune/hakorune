@@ -21,7 +21,7 @@ use super::{
     ResolvedMethodCallArgumentSourceV1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
-use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CORE_METHOD_MANIFEST_BRAND_V1};
+use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CORE_METHOD_MANIFEST_BRAND_V2};
 
 /// Fail-closed boundary for the bounded resolver contract.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -285,7 +285,7 @@ fn verify_target(
     target: &VerifiedCoreMethodInstanceTargetV1,
     call: &VerifiedResolvedMethodCallSourceV1,
 ) -> Result<(), ResolverCoreMethodCallableContractRejectV1> {
-    if target.manifest_brand() != CORE_METHOD_MANIFEST_BRAND_V1 {
+    if target.manifest_brand() != CORE_METHOD_MANIFEST_BRAND_V2 {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetManifestBrandMismatch);
     }
     if target.schema() != CoreMethodHomeSchemaV1::StringBoxText {

@@ -11,7 +11,7 @@ use crate::mir::callable_semantic_batch::{
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    issue_core_method_manifest_row_ref_v1, CORE_METHOD_MANIFEST_BRAND_V1,
+    issue_core_method_manifest_row_ref_v2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 use crate::mir::loop_recipe_contract::{
     issue_s6c_prephysical_ingress_v2, issue_s6c_scan_with_init_logical_output_v1,
@@ -211,13 +211,13 @@ fn issue_s6c_child_for_row(
                 Err(_) => return Ok(None),
             };
             let mut targets =
-                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1)
+                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2)
                     .map_err(|_| {
                         S6CSemanticChildIssueV1::CallRelation(
                             S6CSourceBoundCallRelationRejectV1::MixedManifestBrand,
                         )
                     })?;
-            let length_row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+            let length_row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
                 .ok_or(S6CSemanticChildIssueV1::CallRelation(
                     S6CSourceBoundCallRelationRejectV1::WrongTargetRole {
                         role: crate::mir::source_call_target::S6CSourceBoundCallRoleV1::Length,
@@ -234,7 +234,7 @@ fn issue_s6c_child_for_row(
                     },
                 )
             })?;
-            let substring_row = issue_core_method_manifest_row_ref_v1(
+            let substring_row = issue_core_method_manifest_row_ref_v2(
                 CoreMethodOp::StringSubstring,
                 2,
             )

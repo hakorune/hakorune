@@ -5,22 +5,22 @@ The final S6C TextEq corridor decision is accepted. Reuse the existing
 ExactText Residence/frame for subject and needle base roots; represent V9 only
 as a source-backed derived UTF-8 scalar slice, with no physical Length or
 Substring call in the fast route. The existing CheckedCallOut/V9/End chain is
-a caller-zero correctness oracle until cutover. The next bounded BoxShape adds
-the missing typed CodePoint law to the generated CoreMethod authority. V10,
+a caller-zero correctness oracle until cutover. The typed CodePoint law is
+landed; the next bounded row is the source/Facts/Recipe corridor view. V10,
 CFG, publication, performance promotion, and production remain closed.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The downstream scalar-scan corridor remains at NoSafeSlice::S6CTextSemanticLawUnsealed until the active generated-law row lands. No cursor, root admission, V10, CFG/publication, production, fallback/retry, performance promotion, or eq_hh retirement is open."
+current_design_stop = "The downstream scalar-scan corridor remains at NoSafeSlice::S6CTextScalarCorridorSourceUnsealed until one source/Facts/Recipe/Join ingress lends the complete subject/needle and sequential scalar relation. No cursor, root admission, V10, CFG/publication, production, fallback/retry, performance promotion, or eq_hh retirement is open."
 work_mode = "fast"
-current_execution_row = "CORE-METHOD-TEXT-SEMANTIC-LAW-I0"
-current_blocker_token = "Fast BoxShape only: add one complete arity-indexed semantic_law to each .hako-owned CoreMethod row; Len/0 is CodePointCount, Substring/2 is CodePointHalfOpenClamped, and Substring/1 plus all other arities are Unprojected. Bump manifest/row/ref to v2, migrate row consumers mechanically, and add positive, negative, generator, README/reference evidence. Do not emit Recipe, MIR, runtime/frame, or production behavior."
+current_execution_row = "S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0"
+current_blocker_token = "Fast BoxShape only: lend the accepted v2 CodePoint law and closed source/Facts/Recipe/Join cohort through the sole prephysical ingress; prove subject/needle roles, initial CP index, CP Length, sequential substring(i,i+1), sole-use V9->TextEq, and bounded Join/Completion before any physical effect. Do not emit Bool V10, CFG, runtime/frame, or production behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "CoreMethod Text semantic-law projection (S6C scalar-scan prerequisite)"
+active_lane = "S6C scalar-scan source corridor (typed-law prerequisite landed)"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion cohort and caller-zero correctness
 route remain closed substrate. Independent census confirmed the existing S6C
@@ -28,10 +28,10 @@ physical signature already supplies two ExactText roots in logical order:
 subject then needle. Existing invocation Residence is therefore the sole
 base-content lifetime owner; no V9 root, second view owner, new frame, Arc
 migration, snapshot, or per-iteration lock/callback path is selected. The
-accepted corridor removes physical Length and Substring only after a typed
+accepted corridor removes physical Length and Substring only after the typed
 CodePoint law and the complete S6C relation are co-sealed before effects. The
-active row changes generated semantic metadata only. Selected Dynamic remains
-the sole production arm.
+generated law row is landed; the active source-corridor row remains
+effect-free. Selected Dynamic remains the sole production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -44,10 +44,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. A new content frame, separate V9 view, Arc migration, and per-iteration runtime work are rejected. The first executable BoxShape is a v2 arity-indexed CoreMethod law: Len/0 and Substring/2 are typed while Substring/1 and every other arity remain explicitly Unprojected. All physical and production rows remain closed."
+latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. A new content frame, separate V9 view, Arc migration, and per-iteration runtime work are rejected. The v2 arity-indexed CoreMethod law is landed: Len/0 and Substring/2 are typed while Substring/1 and every other arity remain explicitly Unprojected. The next source-corridor row is effect-free; all physical and production rows remain closed."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "CORE-METHOD-TEXT-SEMANTIC-LAW-I0"
+next_execution_card = "S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -70,5 +70,5 @@ landed_tail = [
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
   "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
   "2026-08-18: Published ExactText lane-borrow ingress now validates entry pairs once and delegates to the existing invocation Residence owner; ABI and Residence focused gates are green, with no MIR/V10 or production caller.",
-  "2026-08-18: S6C scalar-scan D0 is accepted: reuse the existing subject/needle ExactText roots, make V9 a derived scalar slice, reject a new frame/Arc migration, and open only CORE-METHOD-TEXT-SEMANTIC-LAW-I0."
+  "2026-08-18: S6C scalar-scan D0 is accepted: reuse the existing subject/needle ExactText roots, make V9 a derived scalar slice, reject a new frame/Arc migration, and open CORE-METHOD-TEXT-SEMANTIC-LAW-I0; that v2 law is now landed with green generator negatives, manifest parity, README/reference, and focused Rust tests, without Recipe/MIR/runtime/production behavior."
 ]

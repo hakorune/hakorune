@@ -19,7 +19,7 @@ python3 "$ROOT_DIR/tools/checks/lib/core_method_contract_codegen_tests.py"
 python3 "$ROOT_DIR/tools/core_method_contract_manifest_codegen.py" --check
 
 guard_expect_fixed_in_file "$TAG" \
-  "CoreMethodManifestBrandV1" \
+  "CoreMethodManifestBrandV2" \
   "$ROOT_DIR/src/mir/generated/core_method_contract_rows.rs" \
   "generated CoreMethod manifest brand is missing"
 guard_expect_fixed_in_file "$TAG" \
@@ -55,7 +55,7 @@ guard_expect_fixed_in_file "$TAG" \
   "source-bound S6C relation must be the sole non-test callable-contract consumer"
 
 core_lookup_consumers="$({
-  rg -l 'lookup_core_method_result_row_v1' "$ROOT_DIR/src/mir" \
+  rg -l 'lookup_core_method_result_row_v2' "$ROOT_DIR/src/mir" \
     --glob '*.rs' --glob '!core_method_result_kind.rs' || true
 } | sort -u)"
 if [[ -z "$core_lookup_consumers" ]]; then
@@ -70,7 +70,7 @@ while IFS= read -r path; do
 done <<< "$core_lookup_consumers"
 
 core_lookup_call_count="$({
-  rg -o 'lookup_core_method_result_row_v1\(' \
+  rg -o 'lookup_core_method_result_row_v2\(' \
     "$ROOT_DIR/src/mir/callable_result_representation" --glob '*.rs' \
       --glob '!**/tests/**' --glob '!*_tests.rs' || true
 } | wc -l)"
@@ -80,7 +80,7 @@ if [[ "$core_lookup_call_count" -ne 1 ]]; then
 fi
 
 core_by_op_consumers="$({
-  rg -l 'lookup_core_method_result_row_by_op_v1' "$ROOT_DIR/src/mir" \
+  rg -l 'lookup_core_method_result_row_by_op_v2' "$ROOT_DIR/src/mir" \
     --glob '*.rs' --glob '!core_method_result_kind.rs' || true
 } | sort -u)"
 expected_core_by_op_consumer="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/calls.rs"
@@ -90,7 +90,7 @@ if [[ "$core_by_op_consumers" != "$expected_core_by_op_consumer" ]]; then
 fi
 
 core_by_op_call_count="$({
-  rg -o 'lookup_core_method_result_row_by_op_v1\(' \
+  rg -o 'lookup_core_method_result_row_by_op_v2\(' \
     "$expected_core_by_op_consumer" || true
 } | wc -l)"
 if [[ "$core_by_op_call_count" -ne 1 ]]; then

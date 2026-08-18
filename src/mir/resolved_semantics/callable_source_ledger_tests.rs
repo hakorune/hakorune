@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span, UnaryOperator};
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    issue_core_method_manifest_row_ref_v1, CORE_METHOD_MANIFEST_BRAND_V1,
+    issue_core_method_manifest_row_ref_v2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 
 use super::{
@@ -251,10 +251,10 @@ fn resolver_callable_contract_co_seals_condition_length_and_generated_target() {
     let owner = forest.roots()[0];
     let view = forest.callable_source_ledger(owner).unwrap();
     let (call_site, call) = view.method_calls().next().expect("one method call");
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated length row");
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let target = target_issuer.issue(row).unwrap();
     let membership = view.resolved_loop_source(&stmt(1)).unwrap();
 
@@ -299,10 +299,10 @@ fn resolver_callable_contract_co_seals_body_substring_and_generated_target() {
     let owner = forest.roots()[0];
     let view = forest.callable_source_ledger(owner).unwrap();
     let (_, call) = view.method_calls().next().expect("one method call");
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 2)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2)
         .expect("generated substring row");
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let target = target_issuer.issue(row).unwrap();
     let membership = view.resolved_loop_source(&stmt(1)).unwrap();
 
@@ -340,10 +340,10 @@ fn resolver_callable_contract_rejects_call_outside_selected_loop_body() {
     let owner = forest.roots()[0];
     let view = forest.callable_source_ledger(owner).unwrap();
     let (_, call) = view.method_calls().next().expect("one method call");
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated length row");
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let target = target_issuer.issue(row).unwrap();
     let membership = view.resolved_loop_source(&stmt(1)).unwrap();
 
@@ -377,10 +377,10 @@ fn resolver_callable_contract_rejects_target_placement_drift() {
     let view = forest.callable_source_ledger(owner).unwrap();
     let (_, call) = view.method_calls().next().expect("one method call");
     let membership = view.resolved_loop_source(&stmt(1)).unwrap();
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated length row");
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let target = target_issuer.issue(row).unwrap();
 
     assert!(matches!(
@@ -425,10 +425,10 @@ fn resolver_callable_contract_rejects_foreign_loop_membership() {
     let second_view = second.callable_source_ledger(second.roots()[0]).unwrap();
     let foreign_membership = second_view.resolved_loop_source(&stmt(1)).unwrap();
 
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated length row");
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let target = target_issuer.issue(row).unwrap();
 
     assert_eq!(

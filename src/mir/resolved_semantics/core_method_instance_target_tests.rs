@@ -1,19 +1,19 @@
 use super::*;
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::core_method_result_kind::{
-    issue_core_method_manifest_row_ref_for_test, issue_core_method_manifest_row_ref_v1,
-    issue_core_method_manifest_test_row_ref, CoreMethodContractResultRowV1, CoreMethodEffectV1,
-    CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V1,
+    issue_core_method_manifest_row_ref_for_test, issue_core_method_manifest_row_ref_v2,
+    issue_core_method_manifest_test_row_ref, CoreMethodContractRowV2, CoreMethodEffectV1,
+    CoreMethodResultKindV1, CoreMethodSemanticLawV2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 
 fn issuer() -> CoreMethodInstanceTargetIssuerV1 {
-    CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1)
+    CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2)
         .expect("generated manifest brand should issue")
 }
 
 #[test]
 fn string_len_issues_exact_typed_home_target() {
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated StringLen/0 row");
     let mut issuer = issuer();
     let target = issuer.issue(row).expect("StringLen/0 target");
@@ -38,7 +38,7 @@ fn string_len_issues_exact_typed_home_target() {
 
 #[test]
 fn string_substring_specializes_union_row_to_exact_arity_two() {
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 2)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2)
         .expect("generated StringSubstring/2 row");
     let mut issuer = issuer();
     let target = issuer.issue(row).expect("StringSubstring/2 target");
@@ -56,7 +56,7 @@ fn string_substring_specializes_union_row_to_exact_arity_two() {
 
 #[test]
 fn target_issuer_rejects_union_arity_one_and_duplicate_target() {
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 1)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 1)
         .expect("generated union row should still be observable");
     let mut issuer = issuer();
     assert!(matches!(
@@ -67,7 +67,7 @@ fn target_issuer_rejects_union_arity_one_and_duplicate_target() {
         })
     ));
 
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
         .expect("generated StringLen/0 row");
     issuer.issue(row).expect("first target");
     assert!(matches!(
@@ -88,11 +88,12 @@ fn target_issuer_rejects_foreign_brand_and_wrong_receiver() {
         Err(CoreMethodInstanceTargetRejectV1::ManifestBrandMismatch)
     ));
 
-    static ARRAY_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
+    static ARRAY_ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
         receiver_box: "ArrayBox",
         canonical: "length",
         aliases: &[],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
@@ -107,11 +108,12 @@ fn target_issuer_rejects_foreign_brand_and_wrong_receiver() {
 
 #[test]
 fn target_issuer_rejects_design_only_row_before_home_effects() {
-    static DESIGN_ONLY_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
+    static DESIGN_ONLY_ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "design_only",
         aliases: &[],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::PureRead,
@@ -126,7 +128,7 @@ fn target_issuer_rejects_design_only_row_before_home_effects() {
 
 #[test]
 fn target_issuer_rejects_generated_string_equals_row_before_home_effects() {
-    let row = issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringEquals, 1)
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringEquals, 1)
         .expect("generated StringEquals/1 row");
     assert!(matches!(
         issuer().issue(row),
@@ -136,11 +138,12 @@ fn target_issuer_rejects_generated_string_equals_row_before_home_effects() {
 
 #[test]
 fn target_issuer_rejects_wrong_effect_and_result() {
-    static MUTATING_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
+    static MUTATING_ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "length",
         aliases: &[],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::I64Value,
         effect: CoreMethodEffectV1::MutatesSlot,
@@ -152,11 +155,12 @@ fn target_issuer_rejects_wrong_effect_and_result() {
         Err(CoreMethodInstanceTargetRejectV1::EffectMismatch)
     ));
 
-    static STRING_RESULT_ROW: CoreMethodContractResultRowV1 = CoreMethodContractResultRowV1 {
+    static STRING_RESULT_ROW: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
         receiver_box: "StringBox",
         canonical: "length",
         aliases: &[],
         arities: &[0],
+        semantic_law: &[(0, CoreMethodSemanticLawV2::Unprojected)],
         op: CoreMethodOp::StringLen,
         result_kind: CoreMethodResultKindV1::StringValue,
         effect: CoreMethodEffectV1::PureRead,

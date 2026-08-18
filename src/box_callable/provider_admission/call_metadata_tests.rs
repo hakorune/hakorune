@@ -8,7 +8,7 @@ use crate::mir::checked_callout::{
     CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1,
 };
 use crate::mir::core_method_op::CoreMethodOp;
-use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_RESULT_ROWS_V1;
+use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_ROWS_V2;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::{
     BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
@@ -149,11 +149,11 @@ fn malformed_receipt_is_rejected_before_projection() {
 }
 
 fn admission() -> PreparedAotExecutableAdmissionV1 {
-    let substring = CORE_METHOD_CONTRACT_RESULT_ROWS_V1
+    let substring = CORE_METHOD_CONTRACT_ROWS_V2
         .iter()
         .find(|row| row.op == CoreMethodOp::StringSubstring)
         .expect("substring core row");
-    let index_of = CORE_METHOD_CONTRACT_RESULT_ROWS_V1
+    let index_of = CORE_METHOD_CONTRACT_ROWS_V2
         .iter()
         .find(|row| row.op == CoreMethodOp::StringIndexOf)
         .expect("indexOf core row");

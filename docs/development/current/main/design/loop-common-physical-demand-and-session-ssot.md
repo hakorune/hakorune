@@ -128,19 +128,23 @@ Related:
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
   its outer unpublished-function rollback remains the only failure owner.
-- **Current stop:** the separate-V9-view candidate is superseded by
-  `NoSafeSlice::S6CTextSemanticLawUnsealed`. The final fast route does not
+- **Current stop:** the separate-V9-view candidate is superseded by the
+  accepted v2 arity-indexed CoreMethod law. The final fast route does not
   materialize V9. It reuses the two existing ExactText formal roots as
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
-  selected by the verified `substring(i, i + 1)` relation. The source rows do
-  not yet carry a typed CodePoint Length/Substring law, so no cursor, leaf, or
-  Bool effect is open.
+  selected by the verified `substring(i, i + 1)` relation. The next stop is
+  `NoSafeSlice::S6CTextScalarCorridorSourceUnsealed`: no cursor, leaf, or Bool
+  effect is open until the source/Facts/Recipe/Join relation is lent by its
+  sole prephysical ingress.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, and the caller-zero concrete StringBox
   Residence canary are complete. The row-11 mutable-reachability census is
   already an explicit acceptance input and reusable guard; no duplicate
-  census task is needed.
+  census task is needed. The generated CoreMethod manifest now carries a
+  complete exact-arity law map: StringLen/0 is CodePointCount,
+  StringSubstring/2 is CodePointHalfOpenClamped, and StringSubstring/1 is
+  explicitly Unprojected.
 - **Runtime ownership decision:** keep the existing zero-copy
   `TextFormalCallResidenceV1` and `hako.pinned_text_backend_frame@2`. The
   S6C physical signature already expands both `StringBox` parameters into
@@ -150,14 +154,12 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** project the language's already documented CodePoint
-  semantics from the `.hako` `CoreMethodContractBox` into one typed generated
-  arity-indexed law: `StringLen/0 = CodePointCount`,
-  `StringSubstring/2 = CodePointHalfOpenClamped`, and
-  `StringSubstring/1 = Unprojected`. The current union row therefore stays one
-  authority without lending the `/2` law to `/1`. Until that exact source
-  authority is present and co-sealed, remain `NoSafeSlice`; do not infer a
-  byte cursor from Recipe ordinals or MIR adjacency.
+- **Next ordered task:** lend the accepted typed law and the already closed
+  source/Facts/Recipe/Join cohort through one source corridor ingress. It must
+  prove subject/needle roles, the initial CP index, CP Length, sequential
+  `substring(i, i + 1)`, sole-use V9 to TextEq, and the bounded Join/Completion
+  relation before any physical effect. Do not infer a byte cursor from Recipe
+  ordinals or MIR adjacency.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -232,16 +234,19 @@ foreign, reordered, mutable, stale, third-exit, unwind, pointer-escape, or
 fallback requirement is RejectBeforeEffect. Late compiler failure discards
 the unpublished function.
 
-Smallest next slice: `CORE-METHOD-TEXT-SEMANTIC-LAW-I0` is one BoxShape. Add
+The first executable BoxShape was `CORE-METHOD-TEXT-SEMANTIC-LAW-I0`: it added
 `Unprojected`, `CodePointCount`, and `CodePointHalfOpenClamped` to one complete
-arity-indexed law owned by each `.hako` row; bump to
+arity-indexed law owned by each `.hako` row; bumped to
 `core_method_contract_manifest/v2`, `CoreMethodContractRowV2`, and exact-arity
-`CoreMethodManifestRowRefV2`. Require sorted unique law entries with exact
-coverage of every declared arity. Preserve result/effect/Home/lowering
-behavior, migrate consumers mechanically, and guard `/2` against the
-subordinate TextScan policy while `/1` stays unprojected. Every touched source
-remains below 800 lines. It emits no Recipe, physical plan, MIR, runtime frame,
-or production edge.
+`CoreMethodManifestRowRefV2`; required sorted unique law entries with exact
+coverage of every declared arity; preserved result/effect/Home/lowering
+behavior; and migrated consumers mechanically. Every touched source remains
+below 800 lines. It emitted no Recipe, physical plan, MIR, runtime frame, or
+production edge.
+
+Smallest next slice: `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` lends the accepted
+law and closed source/Facts/Recipe/Join cohort through one prephysical ingress;
+it emits no physical effect, Bool V10, CFG, runtime frame, or production edge.
 
 Non-claims: no source corridor I0, byte cursor, root admission, V9
 non-materialization, V10, CFG/PHI/Return, runtime entry/finish, production

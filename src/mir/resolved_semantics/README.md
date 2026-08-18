@@ -282,15 +282,18 @@ may repeat across owners without aliasing.
 
 `core_method_instance_target.rs` is the separate manifest-backed issuer for
 the bounded Loop text-call prerequisite. It consumes only the generated
-`CoreMethodManifestRowRefV1` brand and a dedicated `StringBoxText` Home schema;
+`CoreMethodManifestRowRefV2` brand and a dedicated `StringBoxText` Home schema;
 it does not widen the user-instance `I64UnitTrivial` ABI. `StringLen/0` and
 `StringSubstring/2` are specialized into explicit receiver, parameter, result,
-`PureRead`, ABI/profile, and non-suspending/non-control relations. Foreign or
-mixed manifest brands, union/incorrect arity, wrong receiver/result/effect,
-duplicate targets, and inferred MIR/ResultKind meaning reject before a target
-capability is issued. The target remains source-bound-consumer/Facts/Recipe and
-production caller zero; those later rows borrow this capability rather than
-reissuing the generated CoreMethod row.
+`PureRead`, ABI/profile, and non-suspending/non-control relations. The v2 row
+also carries one complete exact-arity semantic-law map: `StringLen/0` projects
+`CodePointCount`, `StringSubstring/2` projects
+`CodePointHalfOpenClamped`, and `StringSubstring/1` remains explicitly
+`Unprojected`. Foreign or mixed manifest brands, union/incorrect arity, wrong
+receiver/result/effect, duplicate targets, and inferred MIR/ResultKind meaning
+reject before a target capability is issued. The target remains
+source-bound-consumer/Facts/Recipe and production caller zero; those later rows
+borrow this capability rather than reissuing the generated CoreMethod row.
 
 UP0 adds only a structural read relation:
 

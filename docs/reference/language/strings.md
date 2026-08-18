@@ -26,6 +26,23 @@ capability contract projection, not a new global runtime toggle: the
 provider/export admission is a later step. It does not authorize Rust-VM
 parity or generic String compatibility fallback.
 
+## CoreMethod semantic-law projection
+
+The `.hako` `CoreMethodContractBox` is the callable semantic owner. Its v2
+generated row contains a complete law entry for every declared arity; the
+exact-arity `CoreMethodManifestRowRefV2` is the only projection boundary.
+
+```text
+StringLen/0          -> CodePointCount
+StringSubstring/2    -> CodePointHalfOpenClamped
+StringSubstring/1    -> Unprojected
+```
+
+This metadata does not emit Recipe, MIR, runtime-frame, or production behavior.
+It does not change the legacy runtime toggle or authorize VM/provider parity;
+the later scalar-scan corridor must consume the typed law before any physical
+cursor or leaf is admitted.
+
 ## Model
 - `StringBox`: immutable UTF‑8 string value. Public text APIs are CP‑indexed.
 - `Utf8CursorBox`: delegated implementation for scanning and slicing `StringBox` as CPs.

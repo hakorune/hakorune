@@ -9,8 +9,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    CoreMethodEffectV1, CoreMethodManifestBrandV1, CoreMethodManifestRowRefV1,
-    CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V1,
+    CoreMethodEffectV1, CoreMethodManifestBrandV2, CoreMethodManifestRowRefV2,
+    CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 
 use super::home_relation::{HomeRelationBrandIssuerV1, HomeRelationBrandV1, HomeRelationRejectV1};
@@ -79,7 +79,7 @@ pub(crate) enum CoreMethodInstanceTargetRejectV1 {
 
 #[derive(Debug)]
 pub(crate) struct CoreMethodInstanceTargetIssuerV1 {
-    manifest_brand: CoreMethodManifestBrandV1,
+    manifest_brand: CoreMethodManifestBrandV2,
     schema: CoreMethodHomeSchemaV1,
     relation_brand: HomeRelationBrandV1,
     issued: BTreeSet<CoreMethodTargetIdentityV1>,
@@ -87,9 +87,9 @@ pub(crate) struct CoreMethodInstanceTargetIssuerV1 {
 
 impl CoreMethodInstanceTargetIssuerV1 {
     pub(crate) fn string_box_text(
-        manifest_brand: CoreMethodManifestBrandV1,
+        manifest_brand: CoreMethodManifestBrandV2,
     ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
-        if manifest_brand != CORE_METHOD_MANIFEST_BRAND_V1 {
+        if manifest_brand != CORE_METHOD_MANIFEST_BRAND_V2 {
             return Err(CoreMethodInstanceTargetRejectV1::ManifestBrandMismatch);
         }
         let relation_brand = HomeRelationBrandIssuerV1::issue()
@@ -103,7 +103,7 @@ impl CoreMethodInstanceTargetIssuerV1 {
         })
     }
 
-    pub(crate) const fn manifest_brand(&self) -> CoreMethodManifestBrandV1 {
+    pub(crate) const fn manifest_brand(&self) -> CoreMethodManifestBrandV2 {
         self.manifest_brand
     }
 
@@ -117,7 +117,7 @@ impl CoreMethodInstanceTargetIssuerV1 {
 
     pub(crate) fn issue(
         &mut self,
-        row: CoreMethodManifestRowRefV1,
+        row: CoreMethodManifestRowRefV2,
     ) -> Result<VerifiedCoreMethodInstanceTargetV1, CoreMethodInstanceTargetRejectV1> {
         if row.brand() != self.manifest_brand {
             return Err(CoreMethodInstanceTargetRejectV1::ManifestBrandMismatch);
@@ -202,11 +202,11 @@ impl CoreMethodInstanceTargetIssuerV1 {
 /// Move-only target capability consumed by the later source-bound relation.
 #[derive(Debug)]
 pub(crate) struct VerifiedCoreMethodInstanceTargetV1 {
-    manifest_brand: CoreMethodManifestBrandV1,
+    manifest_brand: CoreMethodManifestBrandV2,
     target_brand: CoreMethodTargetBrandV1,
     relation_brand: HomeRelationBrandV1,
     schema: CoreMethodHomeSchemaV1,
-    row: CoreMethodManifestRowRefV1,
+    row: CoreMethodManifestRowRefV2,
     receiver: CoreMethodHomeReceiverRelationV1,
     parameters: Box<[CoreMethodHomeParameterRelationV1]>,
     result: CoreMethodHomeResultRelationV1,
@@ -215,7 +215,7 @@ pub(crate) struct VerifiedCoreMethodInstanceTargetV1 {
 }
 
 impl VerifiedCoreMethodInstanceTargetV1 {
-    pub(crate) const fn manifest_brand(&self) -> CoreMethodManifestBrandV1 {
+    pub(crate) const fn manifest_brand(&self) -> CoreMethodManifestBrandV2 {
         self.manifest_brand
     }
 
@@ -231,7 +231,7 @@ impl VerifiedCoreMethodInstanceTargetV1 {
         self.schema
     }
 
-    pub(crate) const fn row(&self) -> CoreMethodManifestRowRefV1 {
+    pub(crate) const fn row(&self) -> CoreMethodManifestRowRefV2 {
         self.row
     }
 

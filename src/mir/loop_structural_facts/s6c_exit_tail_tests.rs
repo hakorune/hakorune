@@ -4,7 +4,7 @@ use crate::mir::callable_semantic_batch::{
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    issue_core_method_manifest_row_ref_v1, CORE_METHOD_MANIFEST_BRAND_V1,
+    issue_core_method_manifest_row_ref_v2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
@@ -55,14 +55,14 @@ fn issue(
             let loop_site = row.function().only_loop_site().unwrap();
             let typed = issue_s6c_typed_input_relation_v1(row, &loop_site).unwrap();
             let mut targets =
-                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1)
+                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2)
                     .unwrap();
             let length = targets
-                .issue(issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0).unwrap())
+                .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0).unwrap())
                 .unwrap();
             let substring = targets
                 .issue(
-                    issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 2)
+                    issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2)
                         .unwrap(),
                 )
                 .unwrap();
@@ -141,14 +141,14 @@ fn foreign_ledger_rejects_before_exit_tail_product() {
             let loop_site = row.function().only_loop_site().unwrap();
             let typed = issue_s6c_typed_input_relation_v1(row, &loop_site).unwrap();
             let mut targets =
-                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1)
+                CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2)
                     .unwrap();
             let length = targets
-                .issue(issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0).unwrap())
+                .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0).unwrap())
                 .unwrap();
             let substring = targets
                 .issue(
-                    issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 2)
+                    issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2)
                         .unwrap(),
                 )
                 .unwrap();

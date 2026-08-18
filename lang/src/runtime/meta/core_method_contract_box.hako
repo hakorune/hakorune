@@ -45,12 +45,22 @@ static box CoreMethodContractBox {
   result_no_value() { return "NoValue" }
   result_dynamic() { return "Dynamic" }
 
+  semantic_law_unprojected() { return "Unprojected" }
+  semantic_law_code_point_count() { return "CodePointCount" }
+  semantic_law_code_point_half_open_clamped() { return "CodePointHalfOpenClamped" }
+
+  _law0(law) { return "0=" + law }
+  _law1(law) { return "1=" + law }
+  _law2(law) { return "2=" + law }
+  _law1_2(law1, law2) { return "1=" + law1 + "|2=" + law2 }
+
   schema_fields() {
     local out = new ArrayBox()
     out.push("box")
     out.push("canonical")
     out.push("aliases")
     out.push("arity")
+    out.push("semantic_law")
     out.push("effect")
     out.push("core_op")
     out.push("result_kind")
@@ -83,12 +93,13 @@ static box CoreMethodContractBox {
     return new ArrayBox()
   }
 
-  _row(box_name, canonical, aliases, arity, effect, core_op, result_kind, lowering_tier, cold_lowering, runtime_owner) {
+  _row(box_name, canonical, aliases, arity, semantic_law, effect, core_op, result_kind, lowering_tier, cold_lowering, runtime_owner) {
     local row = new MapBox()
     row.set("box", box_name)
     row.set("canonical", canonical)
     row.set("aliases", aliases)
     row.set("arity", arity)
+    row.set("semantic_law", semantic_law)
     row.set("effect", effect)
     row.set("core_op", core_op)
     row.set("result_kind", result_kind)
@@ -110,6 +121,7 @@ static box CoreMethodContractBox {
       "length",
       me._aliases2("len", "size"),
       "0",
+      me._law0(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_array_len(),
       me.result_i64_value(),
@@ -125,6 +137,7 @@ static box CoreMethodContractBox {
       "get",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_array_get(),
       me.result_dynamic(),
@@ -140,6 +153,7 @@ static box CoreMethodContractBox {
       "has",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_array_has(),
       me.result_bool_value(),
@@ -155,6 +169,7 @@ static box CoreMethodContractBox {
       "set",
       me._aliases0(),
       "2",
+      me._law2(me.semantic_law_unprojected()),
       me.effect_mutates_slot(),
       me.op_array_set(),
       me.result_no_value(),
@@ -170,6 +185,7 @@ static box CoreMethodContractBox {
       "push",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_mutates_shape(),
       me.op_array_push(),
       me.result_no_value(),
@@ -185,6 +201,7 @@ static box CoreMethodContractBox {
       "get",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_map_get(),
       me.result_dynamic(),
@@ -200,6 +217,7 @@ static box CoreMethodContractBox {
       "set",
       me._aliases0(),
       "2",
+      me._law2(me.semantic_law_unprojected()),
       me.effect_mutates_slot(),
       me.op_map_set(),
       me.result_dynamic(),
@@ -215,6 +233,7 @@ static box CoreMethodContractBox {
       "has",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_map_has(),
       me.result_bool_value(),
@@ -230,6 +249,7 @@ static box CoreMethodContractBox {
       "delete",
       me._aliases1("remove"),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_mutates_shape(),
       me.op_map_delete(),
       me.result_dynamic(),
@@ -245,6 +265,7 @@ static box CoreMethodContractBox {
       "keys",
       me._aliases0(),
       "0",
+      me._law0(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_map_keys(),
       me.result_dynamic(),
@@ -260,6 +281,7 @@ static box CoreMethodContractBox {
       "size",
       me._aliases2("len", "length"),
       "0",
+      me._law0(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_map_len(),
       me.result_i64_value(),
@@ -275,6 +297,7 @@ static box CoreMethodContractBox {
       "length",
       me._aliases2("len", "size"),
       "0",
+      me._law0(me.semantic_law_code_point_count()),
       me.effect_pure_read(),
       me.op_string_len(),
       me.result_i64_value(),
@@ -290,6 +313,7 @@ static box CoreMethodContractBox {
       "substring",
       me._aliases1("substr"),
       "1|2",
+      me._law1_2(me.semantic_law_unprojected(), me.semantic_law_code_point_half_open_clamped()),
       me.effect_pure_read(),
       me.op_string_substring(),
       me.result_string_value(),
@@ -305,6 +329,7 @@ static box CoreMethodContractBox {
       "indexOf",
       me._aliases1("find"),
       "1|2",
+      me._law1_2(me.semantic_law_unprojected(), me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_string_indexof(),
       me.result_i64_value(),
@@ -320,6 +345,7 @@ static box CoreMethodContractBox {
       "lastIndexOf",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_string_lastindexof(),
       me.result_i64_value(),
@@ -335,6 +361,7 @@ static box CoreMethodContractBox {
       "contains",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_string_contains(),
       me.result_bool_value(),
@@ -350,6 +377,7 @@ static box CoreMethodContractBox {
       "equals",
       me._aliases0(),
       "1",
+      me._law1(me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_string_equals(),
       me.result_bool_value(),

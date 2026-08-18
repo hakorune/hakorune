@@ -18,13 +18,14 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = ROOT / "lang/src/runtime/meta/core_method_contract_box.hako"
 DEFAULT_OUTPUT = ROOT / "lang/src/runtime/meta/generated/core_method_contract_manifest.json"
 DEFAULT_RUST_OUTPUT = ROOT / "src/mir/generated/core_method_contract_rows.rs"
-MANIFEST_SCHEMA = "core_method_contract_manifest/v1"
+MANIFEST_SCHEMA = "core_method_contract_manifest/v2"
 
 ROW_FIELDS = [
     "box",
     "canonical",
     "aliases",
     "arity",
+    "semantic_law",
     "effect",
     "core_op",
     "result_kind",
@@ -78,6 +79,12 @@ LOWERING_TIER_RUST_VARIANTS = {
     "warm_direct_abi": "WarmDirectAbi",
     "cold_fallback": "ColdFallback",
 }
+SEMANTIC_LAW_RUST_VARIANTS = {
+    "Unprojected": "Unprojected",
+    "CodePointCount": "CodePointCount",
+    "CodePointHalfOpenClamped": "CodePointHalfOpenClamped",
+}
+SEMANTIC_LAWS = set(SEMANTIC_LAW_RUST_VARIANTS)
 
 
 def extract_block(text: str, marker: str) -> str:
@@ -177,6 +184,18 @@ def eval_expr(expr: str, returns: dict[str, str]) -> object:
                 f"alias helper count mismatch: helper={count} actual={len(aliases)}"
             )
         return aliases
+    law_match = re.fullmatch(r"me\._law([0-9_]+)\((.*)\)", expr, re.DOTALL)
+    if law_match:
+        arities = tuple(int(part) for part in law_match.group(1).split("_"))
+        args = extract_call_args(expr, "me._law")
+        if len(args) != len(arities):
+            raise ValueError(
+                f"semantic law helper count mismatch: helper={len(arities)} actual={len(args)}"
+            )
+        laws = [eval_expr(arg, returns) for arg in args]
+        if any(not isinstance(law, str) for law in laws):
+            raise ValueError(f"semantic law helper requires string laws: {expr}")
+        return "|".join(f"{arity}={law}" for arity, law in zip(arities, laws))
     call_match = re.fullmatch(r"me\.([A-Za-z0-9_]+)\(\)", expr)
     if call_match:
         name = call_match.group(1)
@@ -203,15 +222,30 @@ def parse_rows(text: str) -> list[dict[str, object]]:
             raise ValueError(
                 f"{method} row arity mismatch: expected {len(ROW_FIELDS)}, got {len(args)}"
             )
-        row = {
-            field: eval_expr(expr, returns)
-            for field, expr in zip(ROW_FIELDS, args)
-        }
+        row = {}
+        for field, expr in zip(ROW_FIELDS, args):
+            value = eval_expr(expr, returns)
+            row[field] = parse_semantic_law(value) if field == "semantic_law" else value
         row["status"] = returns.get("status_seed", "seed")
         row["guards"] = []
         row["id"] = f'{row["box"]}.{row["canonical"]}/{row["arity"]}'
         rows.append(row)
     return rows
+
+
+def parse_semantic_law(value: object) -> dict[str, str]:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"invalid semantic_law: {value!r}")
+    entries: dict[str, str] = {}
+    for raw_entry in value.split("|"):
+        parts = raw_entry.split("=", 1)
+        if len(parts) != 2 or not parts[0].isdigit() or not parts[1]:
+            raise ValueError(f"invalid semantic_law entry: {raw_entry!r}")
+        arity, law = parts
+        if arity in entries:
+            raise ValueError(f"duplicate semantic_law arity: {arity}")
+        entries[arity] = law
+    return entries
 
 
 def parse_arities(pattern: object) -> tuple[int, ...]:
@@ -261,6 +295,22 @@ def validate_rows(rows: list[dict[str, object]]) -> None:
                 f"{row_id} design_only rows must use cold_lowering=none"
             )
 
+        arities = parse_arities(row["arity"])
+        semantic_law = row["semantic_law"]
+        if not isinstance(semantic_law, dict):
+            raise ValueError(f"{row_id} semantic_law must be an arity map")
+        expected_law_arities = [str(arity) for arity in arities]
+        if list(semantic_law) != expected_law_arities:
+            raise ValueError(
+                f"{row_id} semantic_law must exactly cover sorted arities: "
+                f"expected={expected_law_arities!r} actual={list(semantic_law)!r}"
+            )
+        for law_arity, law in semantic_law.items():
+            if law not in SEMANTIC_LAWS:
+                raise ValueError(
+                    f"{row_id} has unknown semantic_law for arity {law_arity}: {law!r}"
+                )
+
         receiver = str(row["box"])
         canonical = str(row["canonical"])
         if not receiver or not canonical:
@@ -271,7 +321,7 @@ def validate_rows(rows: list[dict[str, object]]) -> None:
         spellings = [canonical, *(str(alias) for alias in aliases)]
         if any(not spelling for spelling in spellings):
             raise ValueError(f"{row_id} contains an empty method spelling")
-        for arity in parse_arities(row["arity"]):
+        for arity in arities:
             op_key = (receiver, str(row["core_op"]), arity)
             previous_by_op = selected_by_op.get(op_key)
             if previous_by_op is not None:
@@ -329,43 +379,57 @@ def generate_rust(source: Path, rows: list[dict[str, object]]) -> str:
         "",
         "use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};",
         "use crate::mir::core_method_result_kind::{",
-        "    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,",
+        "    CoreMethodContractRowV2, CoreMethodEffectV1, CoreMethodResultKindV1, CoreMethodSemanticLawV2,",
         "};",
         "",
         "#[derive(Debug, Clone, Copy, PartialEq, Eq)]",
-        "pub(crate) struct CoreMethodManifestBrandV1 {",
+        "pub(crate) struct CoreMethodManifestBrandV2 {",
         "    schema: &'static str,",
         "}",
         "",
-        "impl CoreMethodManifestBrandV1 {",
+        "impl CoreMethodManifestBrandV2 {",
         "    pub(crate) const fn schema(self) -> &'static str {",
         "        self.schema",
         "    }",
         "}",
         "",
-        "pub(crate) const CORE_METHOD_MANIFEST_BRAND_V1: CoreMethodManifestBrandV1 =",
-        "    CoreMethodManifestBrandV1 {",
+        "pub(crate) const CORE_METHOD_MANIFEST_BRAND_V2: CoreMethodManifestBrandV2 =",
+        "    CoreMethodManifestBrandV2 {",
         f"        schema: {rust_string(MANIFEST_SCHEMA)},",
         "    };",
         "",
         "#[cfg(test)]",
-        "pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV1 =",
-        "    CoreMethodManifestBrandV1 {",
+        "pub(crate) const CORE_METHOD_MANIFEST_FOREIGN_BRAND_FOR_TEST: CoreMethodManifestBrandV2 =",
+        "    CoreMethodManifestBrandV2 {",
         '        schema: "foreign/core_method_contract_manifest",',
         "    };",
         "",
-        "pub(crate) const CORE_METHOD_CONTRACT_RESULT_ROWS_V1: &[CoreMethodContractResultRowV1] = &[",
+        "pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[",
     ]
     for row in rows:
         aliases = ", ".join(rust_string(alias) for alias in row["aliases"])
         arities = ", ".join(str(arity) for arity in parse_arities(row["arity"]))
+        law_entries = [
+            f"({arity}, CoreMethodSemanticLawV2::{SEMANTIC_LAW_RUST_VARIANTS[law]})"
+            for arity, law in row["semantic_law"].items()
+        ]
+        semantic_law_lines = (
+            [f"        semantic_law: &[{law_entries[0]}],"]
+            if len(law_entries) == 1
+            else [
+                "        semantic_law: &[",
+                *(f"            {entry}," for entry in law_entries),
+                "        ],",
+            ]
+        )
         lines.extend(
             [
-                "    CoreMethodContractResultRowV1 {",
+                "    CoreMethodContractRowV2 {",
                 f"        receiver_box: {rust_string(row['box'])},",
                 f"        canonical: {rust_string(row['canonical'])},",
                 f"        aliases: &[{aliases}],",
                 f"        arities: &[{arities}],",
+                *semantic_law_lines,
                 f"        op: CoreMethodOp::{row['core_op']},",
                 f"        result_kind: CoreMethodResultKindV1::{row['result_kind']},",
                 f"        effect: CoreMethodEffectV1::{EFFECT_RUST_VARIANTS[row['effect']]},",

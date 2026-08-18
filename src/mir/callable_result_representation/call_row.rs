@@ -1,5 +1,5 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::core_method_result_kind::CoreMethodContractResultRowV1;
+use crate::mir::core_method_result_kind::CoreMethodContractRowV2;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetV1;
 use crate::mir::source_core_receiver::SourceCoreReceiverFactV1;
@@ -20,7 +20,7 @@ pub(crate) enum VerifiedCallableResultEvidenceV1<'target> {
     },
     CoreStringMethod {
         receiver_fact: SourceCoreReceiverFactV1,
-        contract: &'static CoreMethodContractResultRowV1,
+        contract: &'static CoreMethodContractRowV2,
     },
 }
 
@@ -49,7 +49,7 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
 
     pub(super) fn core_string_method(
         receiver_fact: SourceCoreReceiverFactV1,
-        contract: &'static CoreMethodContractResultRowV1,
+        contract: &'static CoreMethodContractRowV2,
     ) -> Self {
         Self {
             evidence: VerifiedCallableResultEvidenceV1::CoreStringMethod {

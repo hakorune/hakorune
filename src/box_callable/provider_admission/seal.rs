@@ -10,7 +10,7 @@ use crate::abi::text_scan_aot_export_facts::{
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    CoreMethodContractResultRowV1, CoreMethodEffectV1, CoreMethodResultKindV1,
+    CoreMethodContractRowV2, CoreMethodEffectV1, CoreMethodResultKindV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
@@ -69,8 +69,8 @@ impl ProviderAdmissionSealV1 {
     /// The rows are borrowed only for validation and are not copied into the
     /// resulting admission.
     pub(crate) fn consume_text_scan(
-        substring_core: &CoreMethodContractResultRowV1,
-        index_of_core: &CoreMethodContractResultRowV1,
+        substring_core: &CoreMethodContractRowV2,
+        index_of_core: &CoreMethodContractRowV2,
         aliases: TextScanAliasProjectionV1,
         plan_stamp: ModuleInvocationBrandV1,
     ) -> Result<PreparedAotExecutableAdmissionV1, ProviderAdmissionRejectV1> {
@@ -114,7 +114,7 @@ impl ProviderAdmissionSealV1 {
 }
 
 fn validate_core_row(
-    row: &CoreMethodContractResultRowV1,
+    row: &CoreMethodContractRowV2,
     expected_op: CoreMethodOp,
     expected_arity: u32,
     expected_result: CoreMethodResultKindV1,

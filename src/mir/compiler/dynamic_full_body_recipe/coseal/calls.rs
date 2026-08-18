@@ -2,7 +2,7 @@
 
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    lookup_core_method_result_row_by_op_v1, CoreMethodResultKindV1,
+    lookup_core_method_result_row_by_op_v2, CoreMethodResultKindV1,
 };
 use crate::mir::loop_recipe_contract::{
     LoopItemKeyV1, LoopOperationV2, LoopRecipeItemV2, LoopValueClassV2, LoopValueKeyV1,
@@ -40,13 +40,13 @@ pub(super) struct DynamicFullLoopCallRelationV2 {
     pub(super) item: LoopItemKeyV1,
     pub(super) call_role: DynamicFullBodySourceRoleV1,
     pub(super) target: VerifiedSourceBoundDynamicMemberCallV1,
-    core_method: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    core_method: &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
 }
 
 impl DynamicFullLoopCallRelationV2 {
     pub(super) fn core_method(
         &self,
-    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1 {
+    ) -> &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2 {
         self.core_method
     }
 }
@@ -194,7 +194,7 @@ fn verify_one(
     recipe: &VerifiedLoopRecipeV2,
     targets: &mut Vec<VerifiedSourceBoundDynamicMemberCallV1>,
     expected: DynamicCallExpectationV2,
-    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
 ) -> Result<DynamicFullLoopCallRelationV2, DynamicFullLoopCallRelationRejectV2> {
     let call_site = expr_site(source, expected.call)?;
     let receiver_site = expr_site(source, expected.receiver_site)?;
@@ -254,7 +254,7 @@ fn verify_one(
 fn verify_recipe_call(
     recipe: &VerifiedLoopRecipeV2,
     expected: &DynamicCallExpectationV2,
-    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    core_row: &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
 ) -> Result<(), DynamicFullLoopCallRelationRejectV2> {
     let recipe = recipe.as_recipe();
     let Some(row) = recipe.items.iter().find(|row| row.key == expected.item) else {
@@ -316,10 +316,10 @@ fn verify_recipe_call(
 fn core_method_row(
     expected: &DynamicCallExpectationV2,
 ) -> Result<
-    &'static crate::mir::core_method_result_kind::CoreMethodContractResultRowV1,
+    &'static crate::mir::core_method_result_kind::CoreMethodContractRowV2,
     DynamicFullLoopCallRelationRejectV2,
 > {
-    lookup_core_method_result_row_by_op_v1("StringBox", expected.core_method_op, expected.arity)
+    lookup_core_method_result_row_by_op_v2("StringBox", expected.core_method_op, expected.arity)
         .ok_or(DynamicFullLoopCallRelationRejectV2::CoreMethodContractMismatch)
 }
 

@@ -4,7 +4,7 @@ use crate::mir::callable_semantic_batch::{
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    issue_core_method_manifest_row_ref_v1, CORE_METHOD_MANIFEST_BRAND_V1,
+    issue_core_method_manifest_row_ref_v2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 use crate::mir::resolved_semantics::{
     CoreMethodInstanceTargetIssuerV1, FunctionSemanticResolverSessionV1,
@@ -43,12 +43,12 @@ fn same_session_targets() -> (
     VerifiedCoreMethodInstanceTargetV1,
 ) {
     let mut issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V1).unwrap();
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
     let length = issuer
-        .issue(issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringLen, 0).unwrap())
+        .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0).unwrap())
         .unwrap();
     let substring = issuer
-        .issue(issue_core_method_manifest_row_ref_v1(CoreMethodOp::StringSubstring, 2).unwrap())
+        .issue(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2).unwrap())
         .unwrap();
     (length, substring)
 }

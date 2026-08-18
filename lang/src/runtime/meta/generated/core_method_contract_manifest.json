@@ -1,11 +1,12 @@
 {
-  "schema": "core_method_contract_manifest/v1",
+  "schema": "core_method_contract_manifest/v2",
   "source": "lang/src/runtime/meta/core_method_contract_box.hako",
   "fields": [
     "box",
     "canonical",
     "aliases",
     "arity",
+    "semantic_law",
     "effect",
     "core_op",
     "result_kind",
@@ -25,6 +26,9 @@
         "size"
       ],
       "arity": "0",
+      "semantic_law": {
+        "0": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "ArrayLen",
       "result_kind": "I64Value",
@@ -40,6 +44,9 @@
       "canonical": "get",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "ArrayGet",
       "result_kind": "Dynamic",
@@ -55,6 +62,9 @@
       "canonical": "has",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "ArrayHas",
       "result_kind": "BoolValue",
@@ -70,6 +80,9 @@
       "canonical": "set",
       "aliases": [],
       "arity": "2",
+      "semantic_law": {
+        "2": "Unprojected"
+      },
       "effect": "mutates_slot",
       "core_op": "ArraySet",
       "result_kind": "NoValue",
@@ -85,6 +98,9 @@
       "canonical": "push",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "mutates_shape",
       "core_op": "ArrayPush",
       "result_kind": "NoValue",
@@ -100,6 +116,9 @@
       "canonical": "get",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "MapGet",
       "result_kind": "Dynamic",
@@ -115,6 +134,9 @@
       "canonical": "set",
       "aliases": [],
       "arity": "2",
+      "semantic_law": {
+        "2": "Unprojected"
+      },
       "effect": "mutates_slot",
       "core_op": "MapSet",
       "result_kind": "Dynamic",
@@ -130,6 +152,9 @@
       "canonical": "has",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "MapHas",
       "result_kind": "BoolValue",
@@ -147,6 +172,9 @@
         "remove"
       ],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "mutates_shape",
       "core_op": "MapDelete",
       "result_kind": "Dynamic",
@@ -162,6 +190,9 @@
       "canonical": "keys",
       "aliases": [],
       "arity": "0",
+      "semantic_law": {
+        "0": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "MapKeys",
       "result_kind": "Dynamic",
@@ -180,6 +211,9 @@
         "length"
       ],
       "arity": "0",
+      "semantic_law": {
+        "0": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "MapLen",
       "result_kind": "I64Value",
@@ -198,6 +232,9 @@
         "size"
       ],
       "arity": "0",
+      "semantic_law": {
+        "0": "CodePointCount"
+      },
       "effect": "pure_read",
       "core_op": "StringLen",
       "result_kind": "I64Value",
@@ -215,6 +252,10 @@
         "substr"
       ],
       "arity": "1|2",
+      "semantic_law": {
+        "1": "Unprojected",
+        "2": "CodePointHalfOpenClamped"
+      },
       "effect": "pure_read",
       "core_op": "StringSubstring",
       "result_kind": "StringValue",
@@ -232,6 +273,10 @@
         "find"
       ],
       "arity": "1|2",
+      "semantic_law": {
+        "1": "Unprojected",
+        "2": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "StringIndexOf",
       "result_kind": "I64Value",
@@ -247,6 +292,9 @@
       "canonical": "lastIndexOf",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "StringLastIndexOf",
       "result_kind": "I64Value",
@@ -262,6 +310,9 @@
       "canonical": "contains",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "StringContains",
       "result_kind": "BoolValue",
@@ -277,6 +328,9 @@
       "canonical": "equals",
       "aliases": [],
       "arity": "1",
+      "semantic_law": {
+        "1": "Unprojected"
+      },
       "effect": "pure_read",
       "core_op": "StringEquals",
       "result_kind": "BoolValue",

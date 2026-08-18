@@ -18,7 +18,7 @@ use crate::abi::text_scan_aot_export_facts::{
 };
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::core_method_result_kind::{
-    CoreMethodEffectV1, CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V1,
+    CoreMethodEffectV1, CoreMethodResultKindV1, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 use crate::mir::resolved_semantics::{
     CoreMethodHomeAbiProfileV1, CoreMethodHomeExecutionPolicyV1, CoreMethodHomeParameterRelationV1,
@@ -47,7 +47,7 @@ pub(crate) struct PreparedLoopV2SubstringCallTargetPlanV1 {
     block: LoopBlockKeyV1,
     result: LoopValueKeyV1,
     target_brand: crate::mir::resolved_semantics::CoreMethodTargetBrandV1,
-    manifest_brand: crate::mir::core_method_result_kind::CoreMethodManifestBrandV1,
+    manifest_brand: crate::mir::core_method_result_kind::CoreMethodManifestBrandV2,
     abi_profile: CoreMethodHomeAbiProfileV1,
     receiver: CoreMethodHomeReceiverRelationV1,
     result_relation: CoreMethodHomeResultRelationV1,
@@ -83,7 +83,7 @@ impl PreparedLoopV2SubstringCallTargetPlanV1 {
 
     pub(crate) const fn manifest_brand(
         &self,
-    ) -> crate::mir::core_method_result_kind::CoreMethodManifestBrandV1 {
+    ) -> crate::mir::core_method_result_kind::CoreMethodManifestBrandV2 {
         self.manifest_brand
     }
 
@@ -200,7 +200,7 @@ pub(crate) fn issue_s6c_v2_substring_call_target_plan_v1(
 
     let target = source.target();
     let target_row = target.row().row();
-    if target.manifest_brand() != CORE_METHOD_MANIFEST_BRAND_V1
+    if target.manifest_brand() != CORE_METHOD_MANIFEST_BRAND_V2
         || target.row().brand() != target.manifest_brand()
     {
         return Err(SubstringCallTargetPlanRejectV1::TargetBrandMismatch);
