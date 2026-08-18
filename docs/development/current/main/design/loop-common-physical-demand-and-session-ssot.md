@@ -2609,6 +2609,33 @@ one exact payload classifier, allocate root descriptors only for the
 root-bearing Residence path, and preserve the same atomic validation/pin and
 rollback boundary.
 
+#### TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0 closeout (2026-08-18; accepted)
+
+The call-lifetime owner now has one shared write-lock validation/pin
+transaction, without the former `stable_text_only` mode flag. Lease-only
+acquisition validates the exact formal payload (including the existing
+StringBox formal borrow) but creates no root vector or pointer rows. The
+root-bearing Residence path allocates occurrence-ordered rows once at entry
+and applies the strict `StableText` root classifier under that same
+transaction. Any classifier, generation, retirement, length, or pin failure
+still rejects before token publication; finish remains the single release
+owner.
+
+Evidence: `cargo fmt --all`,
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib text_formal` (19 passed /
+0 failed), `CARGO_BUILD_JOBS=4 cargo check --profile quick`, and
+`tools/checks/current_state_pointer_guard.sh` are green. The focused tests
+cover exact StringBox lease acceptance, StableText-only Residence rejection,
+duplicate/nested pins, stale generations, pending retirement, overflow, and
+exactly-once finish. Warnings remain baseline-only; no concrete StringBox root
+admission, TextRef, TextEq V10, fallback, retry, publication, or production
+switch opened.
+
+Accepted next slice: `TEXT-FORMAL-EXACT-STRINGBOX-RESIDENCE-D0/I0`. It may
+replace only the strict root classifier with a concrete built-in downcast,
+after the recorded mutable-reachability census; it must not widen the formal
+borrow API or add a copied backing owner.
+
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:

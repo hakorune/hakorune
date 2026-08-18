@@ -1,5 +1,5 @@
 use super::*;
-use crate::box_trait::IntegerBox;
+use crate::box_trait::{IntegerBox, StringBox};
 use crate::runtime::host_handles::HandlePayload;
 use std::sync::Arc;
 
@@ -69,6 +69,33 @@ fn valid_set_pins_then_finishes_without_retiring_payload() {
         .expect("finish");
     assert_eq!(pins(&registry, slot), 0);
     assert!(registry.table.read().slots[slot as usize].is_some());
+}
+
+#[test]
+fn lease_only_accepts_exact_stringbox_without_root_projection() {
+    let _guard = test_lock();
+    let registry = Registry::new();
+    let slot = registry.alloc(Arc::new(StringBox::new("lease-only")));
+    let token = registry
+        .acquire_text_formal_call_lease_set(&[pair(&registry, slot)])
+        .expect("StringBox exact formal lease");
+
+    assert_eq!(pins(&registry, slot), 1);
+    registry.drop_handle(slot);
+    assert!(matches!(
+        state(&registry, slot),
+        SlotCallLifetimeStateV1::Active {
+            call_pins: 1,
+            retirement: SlotRetirementStateV1::Pending,
+        }
+    ));
+    registry
+        .finish_text_formal_call_lease_set(token)
+        .expect("finish StringBox lease");
+    assert!(matches!(
+        state(&registry, slot),
+        SlotCallLifetimeStateV1::Vacant
+    ));
 }
 
 #[test]

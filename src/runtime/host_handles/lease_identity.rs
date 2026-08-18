@@ -57,7 +57,7 @@ pub(super) fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
 }
 
 #[inline(always)]
-fn stable_text_ref(payload: &HandlePayload) -> Option<&str> {
+pub(super) fn root_text_ref(payload: &HandlePayload) -> Option<&str> {
     match payload {
         HandlePayload::StableText(text) => Some(text.as_str()),
         HandlePayload::StableBox(_) => None,
@@ -137,7 +137,7 @@ impl Registry {
         if table.lease_generations[idx] != identity.generation {
             return Err(TextFormalLookupRejectV1::GenerationMismatch);
         }
-        let text = stable_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
+        let text = root_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
         Ok(f(text))
     }
 }

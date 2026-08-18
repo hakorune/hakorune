@@ -12,16 +12,8 @@ use crate::config::env::HostHandleAllocPolicyMode;
 use crate::runtime::host_handles_policy;
 use crate::runtime::text_formal_abi::TextFormalWirePairV1;
 
-use super::lease_identity::{exact_text_ref, HostHandleLeaseIdentityV1};
+use super::lease_identity::{exact_text_ref, root_text_ref, HostHandleLeaseIdentityV1};
 use super::{HandlePayload, Registry, SlotTable, DROP_EPOCH};
-
-#[inline(always)]
-fn stable_text_ref(payload: &HandlePayload) -> Option<&str> {
-    match payload {
-        HandlePayload::StableText(text) => Some(text.as_str()),
-        HandlePayload::StableBox(_) => None,
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum SlotRetirementStateV1 {
@@ -233,17 +225,11 @@ fn request_slot_retirement_v1(
 }
 
 impl Registry {
-    fn acquire_text_formal_call_lease_set_with_roots(
+    fn acquire_text_formal_call_lease_set_inner(
         &self,
         pairs: &[TextFormalWirePairV1],
-        stable_text_only: bool,
-    ) -> Result<
-        (
-            RegistryTextFormalCallLeaseSetV1,
-            Box<[TextFormalRootDescriptorV1]>,
-        ),
-        TextFormalLeaseAcquireRejectV1,
-    > {
+        mut roots: Option<&mut Vec<TextFormalRootDescriptorV1>>,
+    ) -> Result<RegistryTextFormalCallLeaseSetV1, TextFormalLeaseAcquireRejectV1> {
         if pairs.is_empty() {
             return Err(TextFormalLeaseAcquireRejectV1::EmptyLeaseSet);
         }
@@ -251,7 +237,6 @@ impl Registry {
         let mut table = self.table.write();
         let token = table.call_lifetime.reserve_token()?;
         let mut grouped = BTreeMap::<(u64, u64), (usize, usize, u32)>::new();
-        let mut roots = Vec::with_capacity(pairs.len());
 
         for (formal_index, pair) in pairs.iter().copied().enumerate() {
             if pair.slot == 0 || pair.generation == 0 {
@@ -271,22 +256,24 @@ impl Registry {
             if table.lease_generations.get(idx).copied() != Some(pair.generation) {
                 return Err(TextFormalLeaseAcquireRejectV1::GenerationMismatch { formal_index });
             }
-            let text = if stable_text_only {
-                stable_text_ref(payload)
-            } else {
-                exact_text_ref(payload)
+            exact_text_ref(payload)
+                .ok_or(TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index })?;
+            if let Some(root_rows) = roots.as_mut() {
+                let root_text = root_text_ref(payload)
+                    .ok_or(TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index })?;
+                let byte_len = u64::try_from(root_text.len()).map_err(|_| {
+                    TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange { formal_index }
+                })?;
+                if byte_len > i64::MAX as u64 {
+                    return Err(TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange {
+                        formal_index,
+                    });
+                }
+                root_rows.push(TextFormalRootDescriptorV1 {
+                    ptr: root_text.as_ptr(),
+                    byte_len,
+                });
             }
-            .ok_or(TextFormalLeaseAcquireRejectV1::NonTextPayload { formal_index })?;
-            let byte_len = u64::try_from(text.len()).map_err(|_| {
-                TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange { formal_index }
-            })?;
-            if byte_len > i64::MAX as u64 {
-                return Err(TextFormalLeaseAcquireRejectV1::ByteLengthOutOfRange { formal_index });
-            }
-            roots.push(TextFormalRootDescriptorV1 {
-                ptr: text.as_ptr(),
-                byte_len,
-            });
             match table.call_lifetime.states.get(idx).copied() {
                 Some(SlotCallLifetimeStateV1::Active {
                     retirement: SlotRetirementStateV1::Open,
@@ -354,23 +341,26 @@ impl Registry {
         }
         table.call_lifetime.tokens.insert(token.0, records);
         table.call_lifetime.advance_token(&token);
-        Ok((token, roots.into_boxed_slice()))
+        Ok(token)
     }
 
     fn acquire_text_formal_call_lease_set(
         &self,
         pairs: &[TextFormalWirePairV1],
     ) -> Result<RegistryTextFormalCallLeaseSetV1, TextFormalLeaseAcquireRejectV1> {
-        self.acquire_text_formal_call_lease_set_with_roots(pairs, false)
-            .map(|(token, _)| token)
+        self.acquire_text_formal_call_lease_set_inner(pairs, None)
     }
 
     fn acquire_text_formal_call_residence(
         &self,
         pairs: &[TextFormalWirePairV1],
     ) -> Result<RegistryTextFormalCallResidenceV1, TextFormalLeaseAcquireRejectV1> {
-        let (lease, roots) = self.acquire_text_formal_call_lease_set_with_roots(pairs, true)?;
-        Ok(RegistryTextFormalCallResidenceV1 { lease, roots })
+        let mut roots = Vec::with_capacity(pairs.len());
+        let lease = self.acquire_text_formal_call_lease_set_inner(pairs, Some(&mut roots))?;
+        Ok(RegistryTextFormalCallResidenceV1 {
+            lease,
+            roots: roots.into_boxed_slice(),
+        })
     }
 
     fn finish_text_formal_call_lease_set(
