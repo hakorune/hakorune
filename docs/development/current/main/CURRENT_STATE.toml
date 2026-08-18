@@ -34,15 +34,15 @@ Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, op
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Occurrence-view I0 is closed; the next design stop is StringBox-specific residence. StableText-only Residence remains RejectBeforeEffect for the actual S6C operand. TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+current_design_stop = "Occurrence-view I0 is closed; the next design stop is StringBox runtime-pair ingress. StableText-only Residence remains RejectBeforeEffect for the actual S6C operand. TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0"
-current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0. Design only: name StringBox runtime-value ingress plus exact sidecar occurrence and LeaseSet/callback owner. No code, new semantic receipts, StableText coercion, CheckedCallOut effect, TextEq, Bool, CFG, publication, fallback, retry, or production."
+current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0"
+current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0. Design only: name a source-bound runtime pair ingress before StringBox LeaseSet/callback ownership. No code, new semantic receipts, StableText coercion, CheckedCallOut effect, TextEq, Bool, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq StringBox residence D0)"
+active_lane = "Loop compiler frontier (S6C TextEq StringBox runtime-pair D0)"
 active_lane_status = """
 Rust remains the sole compile-invocation expectation authority; contract-bearing
 modules use one retained LLVM-18 C API TargetMachine, while contract-free
@@ -78,7 +78,7 @@ The common-V2 callout-admission I0 is landed: collector brand, neutral plan, pro
 Issuer-D0/I0 and runtime StableText wire ingress I0 are closed; V9 owns
 generation-checked End adoption/finish, with StableText positive and
 StringBox/stale/zero negatives guarded. ExactText occurrence-view I0 is closed;
-the next design stop audits StringBox-specific residence. The AOT selected-package-adapter guard is baseline debt.
+the next design stop audits StringBox runtime-pair ingress. The AOT selected-package-adapter guard is baseline debt.
 Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
 operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback,
 retry, and production caller remain closed. MirParamDecl stays source metadata.
@@ -94,10 +94,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0, V9 issuer I0, runtime StableText wire ingress I0, and ExactText occurrence-view I0 are closed; StringBox-specific residence remains design-only. CheckedCallOut effect, V9 residence, V9 ValueId, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0"
+latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0, V9 issuer I0, runtime StableText wire ingress I0, and ExactText occurrence-view I0 are closed; StringBox runtime-pair ingress and residence remain design-only. CheckedCallOut effect, V9 residence, V9 ValueId, TextEq V10, Bool, branch/Return CFG, and production remain closed."
+next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0 design stop)"
+next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0 design stop)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

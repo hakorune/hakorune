@@ -120,10 +120,11 @@ Related:
   The existing StableText-only Residence cannot silently accept the S6C
   StringBox shape.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0` remains a design
-  stop. It must name the StringBox-specific runtime-value ingress and
-  LeaseSet/callback owner without widening StableText residence. No
-  selected-Dynamic pair or `nyash.string.eq_hh` transport is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0` remains a design
+  stop. It must name the source-bound runtime pair ingress before the
+  StringBox LeaseSet/callback owner can be opened; StableText residence stays
+  separate. No selected-Dynamic pair or `nyash.string.eq_hh` transport is
+  implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -2123,6 +2124,14 @@ source-backed pair. A future private
 `CommonV2StringBoxTextEqResidenceScopeV1` owns callback lifetime, not source
 meaning or a new semantic receipt.
 
+Runtime evidence: `acquire_text_formal_call_leases_v1` accepts only opaque
+`TextFormalBorrowV1`; its only public constructor,
+`issue_text_formal_borrow_v1(handle)`, recaptures a generation from a raw
+handle and is not a source-bound Common-V2 ingress. The existing
+`issue_stable_text_formal_wire_v1(slot, generation)` validates StableText and
+therefore rejects the actual StringBox payload. No Common-V2 caller supplies a
+runtime pair today.
+
 Non-authority: StableText-only residence, sidecar `ValueId` pairs, logical
 ordinal, raw handle/token recapture, `eq_hh`, C frame/status exports, and any
 StringBox-to-StableText conversion or fallback.
@@ -2132,14 +2141,43 @@ owner/session/entry/segment/needle/ordinal/carrier drift, zero/stale/foreign
 generation, non-StringBox payload, retirement pending, pin overflow, unknown
 token, escaped borrow, duplicate finish, or late unpublished discard.
 
-Smallest next slice: design only the move-only callback scope using an
-already-issued source-backed pair and existing exact-text LeaseSet
-(`stable_text_only = false`); finish order is residence/LeaseSet before V9 End,
+Smallest next slice: design only one runtime StringBox pair ingress that
+validates a source-bound published `{slot,generation}` without raw-handle
+recapture, then feeds the move-only callback scope and existing exact-text
+LeaseSet (`stable_text_only = false`). Finish order is LeaseSet before V9 End,
 with reverse rollback and primary/suppressed errors. No wire construction from
 MIR `ValueId` is allowed.
 
 Non-claims: no StringBox residence I0, new semantic receipt, CheckedCallOut,
 V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0 (2026-08-18; design stop)
+
+Decision: keep a separate runtime-pair ingress boundary. The existing runtime
+substrate can pin StringBox after it receives an opaque pair, but no current
+issuer may create that pair from Common-V2 physical lanes.
+
+Source authority + canonical issuer: the S6C StringBox formal and canonical
+ExactText occurrence proof; a future runtime host-handle boundary must verify
+the published slot/generation and StringBox payload before handing an opaque
+borrow/lease capability to `CommonV2StringBoxTextEqResidenceScopeV1`.
+
+Non-authority: MIR `ValueId`, logical ordinal, raw handle generation capture,
+StableText-only wire issuer, `eq_hh`, C frame/status exports, or a new semantic
+`Verified*`/`Prepared*` receipt minted only to carry runtime values.
+
+Fail-fast boundary: reject absent/zero/stale/foreign pair, non-StringBox or
+retiring payload, owner/session/entry/segment/needle/carrier drift, pin or byte
+overflow, unknown token, escaped borrow, duplicate finish, and late discard
+before any TextEq or residence effect.
+
+Smallest next slice: design-only API contract for one private runtime pair
+issuer plus callback scope; classify whether the pair arrives from a named
+callee ABI or remains `NoSafeSlice::StringBoxRuntimePairIngressUnsealed`.
+
+Non-claims: no runtime-pair implementation, StringBox residence I0,
+CheckedCallOut, V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry,
+or production.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 
