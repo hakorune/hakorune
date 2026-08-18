@@ -62,6 +62,12 @@ pub(in crate::mir::builder) use condition_bool::{
 mod s6c_operand_issuer;
 pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
 
+#[path = "common_v2_s6c_substring_v9_issuer.rs"]
+mod s6c_substring_v9_issuer;
+pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
+    CommonV2SubstringV9IssuerRejectV1, CommonV2SubstringV9MaterializationV1,
+};
+
 /// A callback-scoped mechanical view of the physical block corresponding to
 /// the source condition block.  The row and entry stamp are borrowed from the
 /// same unpublished session, so this view cannot be re-paired with another

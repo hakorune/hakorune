@@ -21,7 +21,16 @@ pub enum LeaseIssueRejectV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LeaseConsumeRejectV1 {
     UnknownOrAlreadyConsumed,
+    TokenHandleMismatch,
     StaleHandleIdentity,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum EndAuthorizedTextBorrowRejectV1 {
+    UnknownOrAlreadyConsumed,
+    TokenHandleMismatch,
+    StaleHandleIdentity,
+    NonTextPayload,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -37,6 +46,50 @@ impl EndAuthorizedTextV1 {
 
     pub fn token(&self) -> NonZeroU64 {
         self.token
+    }
+
+    /// Adopt a checked runtime result only when the wire handle and lease
+    /// token name the same generation-branded identity.  The lease remains
+    /// owned by this move-only value until `finish` consumes it.
+    pub(crate) fn adopt(
+        handle: u64,
+        token: NonZeroU64,
+    ) -> Result<Self, EndAuthorizedTextBorrowRejectV1> {
+        let table = leases().lock().expect("dynamic v2 lease mutex poisoned");
+        let identity = table
+            .get(&token)
+            .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
+        if identity.handle() != handle {
+            return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
+        }
+        validate_text_lease_identity(identity)?;
+        Ok(Self { handle, token })
+    }
+
+    /// Lend the result text only while the lease identity is validated under
+    /// the host-handle registry read lock.  No raw pointer or handle escapes.
+    pub(crate) fn with_text<R>(
+        &self,
+        callback: impl FnOnce(&str) -> R,
+    ) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
+        let (handle, generation) = {
+            let table = leases().lock().expect("dynamic v2 lease mutex poisoned");
+            let identity = table
+                .get(&self.token)
+                .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
+            if identity.handle() != self.handle {
+                return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
+            }
+            (identity.handle(), identity.generation())
+        };
+        host_handles::with_text_formal_wire(handle, generation, callback)
+            .map_err(map_text_lookup_reject)
+    }
+
+    /// Consume the paired lease exactly once.  This is the only normal-path
+    /// finish owner for a materialized End-authorized Text result.
+    pub(crate) fn finish(self) -> Result<(), LeaseConsumeRejectV1> {
+        consume_end_authorized_pair(self.handle, self.token)
     }
 }
 
@@ -115,15 +168,50 @@ pub fn publish_end_authorized_text(
 
 /// Consume a lease exactly once and release its associated result handle.
 pub fn consume_end_authorized(token: NonZeroU64) -> Result<(), LeaseConsumeRejectV1> {
+    consume_end_authorized_pair(0, token)
+}
+
+fn consume_end_authorized_pair(
+    expected_handle: u64,
+    token: NonZeroU64,
+) -> Result<(), LeaseConsumeRejectV1> {
     let identity = leases()
         .lock()
         .expect("dynamic v2 lease mutex poisoned")
         .remove(&token)
         .ok_or(LeaseConsumeRejectV1::UnknownOrAlreadyConsumed)?;
+    if expected_handle != 0 && identity.handle() != expected_handle {
+        let mut table = leases().lock().expect("dynamic v2 lease mutex poisoned");
+        table.insert(token, identity);
+        return Err(LeaseConsumeRejectV1::TokenHandleMismatch);
+    }
     if !host_handles::drop_if_lease_identity_matches(identity) {
         return Err(LeaseConsumeRejectV1::StaleHandleIdentity);
     }
     Ok(())
+}
+
+fn validate_text_lease_identity(
+    identity: &host_handles::HostHandleLeaseIdentityV1,
+) -> Result<(), EndAuthorizedTextBorrowRejectV1> {
+    host_handles::with_text_formal_wire(identity.handle(), identity.generation(), |_| ())
+        .map(|_| ())
+        .map_err(map_text_lookup_reject)
+}
+
+fn map_text_lookup_reject(
+    error: host_handles::TextFormalLookupRejectV1,
+) -> EndAuthorizedTextBorrowRejectV1 {
+    match error {
+        host_handles::TextFormalLookupRejectV1::NonTextPayload => {
+            EndAuthorizedTextBorrowRejectV1::NonTextPayload
+        }
+        host_handles::TextFormalLookupRejectV1::GenerationMismatch
+        | host_handles::TextFormalLookupRejectV1::MissingSlot
+        | host_handles::TextFormalLookupRejectV1::ZeroOrOutOfRangeSlot => {
+            EndAuthorizedTextBorrowRejectV1::StaleHandleIdentity
+        }
+    }
 }
 
 #[cfg(test)]
@@ -229,6 +317,59 @@ mod tests {
             assert_eq!(
                 host_handles::with_str_handle_ready(replacement, str::to_owned),
                 Some("replacement".to_owned())
+            );
+            host_handles::drop_handle(replacement);
+        });
+    }
+
+    #[test]
+    fn adopted_end_lends_text_and_finishes_once() {
+        with_lifo_policy(|| {
+            let published = publish_end_authorized_text("substring").expect("publish lease");
+            let handle = published.handle();
+            let token = published.token();
+            let adopted = EndAuthorizedTextV1::adopt(handle, token).expect("paired adoption");
+            assert_eq!(adopted.with_text(str::to_owned), Ok("substring".to_owned()));
+            assert_eq!(adopted.finish(), Ok(()));
+            assert_eq!(
+                EndAuthorizedTextV1::adopt(handle, token),
+                Err(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)
+            );
+        });
+    }
+
+    #[test]
+    fn adoption_rejects_foreign_handle_without_consuming_lease() {
+        with_lifo_policy(|| {
+            let first = publish_end_authorized_text("first").expect("first lease");
+            let second = publish_end_authorized_text("second").expect("second lease");
+            assert_eq!(
+                EndAuthorizedTextV1::adopt(second.handle(), first.token()),
+                Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch)
+            );
+            let adopted = EndAuthorizedTextV1::adopt(first.handle(), first.token())
+                .expect("foreign attempt must preserve lease");
+            adopted.finish().expect("first finish");
+            second.finish().expect("second finish");
+        });
+    }
+
+    #[test]
+    fn adopted_end_rejects_stale_generation_before_lend() {
+        with_lifo_policy(|| {
+            let published = publish_end_authorized_text("old").expect("publish lease");
+            let handle = published.handle();
+            let token = published.token();
+            host_handles::drop_handle(handle);
+            let replacement = host_handles::to_handle_text("replacement");
+            assert_eq!(replacement, handle);
+            assert_eq!(
+                EndAuthorizedTextV1::adopt(handle, token),
+                Err(EndAuthorizedTextBorrowRejectV1::StaleHandleIdentity)
+            );
+            assert_eq!(
+                consume_end_authorized(token),
+                Err(LeaseConsumeRejectV1::StaleHandleIdentity)
             );
             host_handles::drop_handle(replacement);
         });

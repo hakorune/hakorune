@@ -723,3 +723,20 @@ production call. `nyash.string.eq_hh`, selected-Dynamic I6/I7, raw handles, and
 owner/provider IDs remain non-authority. Focused positive/foreign-brand and
 callback-scoped lifecycle tests cover the transport seam; the next design stop is
 the checked V9 materializer/residence owner.
+
+## Common V2 S6C Substring V9 issuer I0 (2026-08-18)
+
+`with_s6c_substring_v9_issuer` consumes that admission together with the
+same-cohort V6/V7/V8 operand receipt and Body segment. It validates the
+`Normal + HostHandle + EndAuthorized` wire, adopts the paired handle/token only
+when the host generation is live text, and lends the text only through a
+callback-scoped view. The materialization owns the one-shot finish; explicit
+finish and `Drop` both release the End lease, so a callback error cannot leak a
+runtime result or leave a partial session claim.
+
+This is a caller-zero lifecycle seam only. It emits no `CheckedCallOut`, V9
+`ValueId`, TextEq/Bool, CFG/PHI, Return, publication, fallback, retry, or
+production call. Foreign/stale/mismatched leases, non-normal or immediate
+wire results, duplicate body rows, and owner/segment/plan drift reject before
+the next physical effect. The next design stop is the V9+ExactText V1
+residence co-seal.

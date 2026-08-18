@@ -94,6 +94,7 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
         callback: impl FnOnce(
             &mut Self,
             LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+            &crate::mir::normal_callable_semantic_package::VerifiedS6CPhysicalFunctionEffectsV1,
         ) -> Result<R, String>,
     ) -> Result<R, String> {
         let loan = self
@@ -108,8 +109,9 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
             self.loan = Some(loan);
             return Err("physical entry cohort stamp does not match retained loan".to_owned());
         }
+        let physical_effects = loan.callable().physical_effects();
         let result = with_loop_v2_canonical_session_admission(&loan, |admission| {
-            callback(self, admission)
+            callback(self, admission, physical_effects)
         })
         .map_err(|error| format!("common-V2 admission rejected: {error:?}"))
         .and_then(|nested| nested);

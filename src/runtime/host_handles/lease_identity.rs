@@ -32,6 +32,11 @@ pub(crate) struct HostHandleLeaseIdentityV1 {
 
 impl HostHandleLeaseIdentityV1 {
     #[inline(always)]
+    pub(crate) const fn handle(&self) -> u64 {
+        self.handle
+    }
+
+    #[inline(always)]
     pub(crate) const fn generation(&self) -> u64 {
         self.generation
     }

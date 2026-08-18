@@ -57,6 +57,8 @@ pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_effects;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,

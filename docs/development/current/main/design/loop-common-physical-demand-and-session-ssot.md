@@ -111,14 +111,14 @@ Related:
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization. The common-V2
   Substring target/admission I0 is now effect-free and caller-zero; the
-  remaining boundary is only the source-backed V9 materializer and its
-  scoped lease/residence lifetime.
+  source-backed V9 issuer I0 is now landed: it validates the checked wire,
+  adopts a generation-branded End lease, and lends Text only through a
+  callback-scoped view. The remaining boundary is the V9+ExactText V1
+  residence co-seal before TextEq materialization.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0` remains a design stop. It must
-  name one private checked materializer that consumes the landed target,
-  V6/V7/V8 receipt, and same Body segment, validates the End handle/token
-  pairing, lends an opaque callback-scoped Text result, and owns
-  residence-finish then End-consume with reverse-order rollback. No
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0` remains a design stop. It must
+  name the one session-scoped co-seal for the already-issued V9 lifetime and
+  ExactText V1 slot/generation before any TextEq materialization. No
   selected-Dynamic pair or `nyash.string.eq_hh` transport is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
@@ -1865,3 +1865,76 @@ owner plus Direct/Checked/RejectBeforeEffect classification. It must not add
 code, fixtures, `Verified*`/`Prepared*` receipts, CheckedCallOut effect, V9
 ValueId/lease consumption, TextEq V10, Bool, CFG/Return, publication,
 production selection, fallback, retry, or legacy retirement.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-D0 (2026-08-18; accepted)
+
+Decision: accept the checked V9 issuer boundary and open its one bounded I0.
+The source-backed issuer consumes the landed Substring target/admission, the
+same-cohort V6/V7/V8 operand receipt, and the same Body segment; it may issue
+only a private callback-scoped V9 lifetime. The top-down authority chain needs
+no rewrite.
+
+Source authority + canonical issuer: resolver `StringSubstring/2` -> Recipe
+`CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`; the common canonical session
+owns physical identity. The runtime End owner is subordinate and may adopt
+only a checked `Normal + HostHandle + EndAuthorized` output whose nonzero
+handle/token pair is generation-valid.
+
+Non-authority: `nyash.string.eq_hh`, generic substring, raw handle/token/
+ValueId, `publish_end_authorized_text(String)`, selected-Dynamic I6/I7,
+TextFormal alone as V9, fallback, retry, and any source Trap.
+
+Fail-fast boundary: reject source/cohort/segment/provider drift, unknown or
+reserved wire, Fault/Suspended/Forwarded/ImmediateI64, zero or mismatched
+handle/token, stale generation, non-Text payload, duplicate consume, escaped
+borrow, or missing finish before any V9 consumer. Normal cleanup is
+`residence.finish -> End consume`; partial acquisition rolls back in reverse
+order and preserves primary/suppressed errors.
+
+Smallest next slice: `COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-I0` (fast). Add the
+move-only End adoption and callback-scoped Text lend/finish substrate, then
+thread one caller-zero common-V2 issuer seam through the existing admission.
+Do not emit CheckedCallOut, V9 `ValueId`, TextEq V10, Bool, CFG/Return,
+publication, production selection, fallback, retry, or legacy retirement.
+
+Acceptance: focused positive/negative lifecycle gates prove exact wire,
+handle/token, stale/foreign, double-consume, callback-scoped lend, and reverse
+rollback behavior; all source files remain below 800 lines. The next design
+boundary is the later V9+V1 residence co-seal.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-ISSUER-I0 (2026-08-18; closeout)
+
+Change: landed one caller-zero common-V2 issuer seam through the existing
+admission. The runtime End owner now validates and adopts the exact
+handle/token generation pair, lends Text only inside a callback, and consumes
+the lease once. The move-only materialization finishes explicitly after the
+callback and has a Drop rollback for panic/error paths, so a partial result
+cannot escape as a raw handle or leak its End lease.
+
+Top-down review: the architecture remains one chain, not a second physicalizer:
+
+```text
+source Binary Equal
+  -> exact Facts/Recipe TextEq(V9,V1 -> V10)
+  -> common-V2 target/admission + V6/V7/V8 receipt
+  -> V9 issuer I0 (this row)
+  -> later V9+ExactText V1 residence co-seal
+  -> TextEq V10 -> If/Return -> unpublished session -> publication
+```
+
+The existing `nyash.string.eq_hh` export was re-audited and remains a
+RejectBeforeEffect transport: it is hook/fallback based, returns raw `i64`,
+and has lossy invalid-handle behavior. It cannot mint source meaning,
+generation residence, strict fault semantics, or a common-session lease. No
+architecture-wide rewrite is therefore required.
+
+Evidence: `cargo check --profile quick`, formatter, `issuer_` focused tests
+(41/41), `dynamic_v2_lease` focused tests (7/7), pointer/physical-transfer/
+TextScan authority guards, and `git diff --check` are green. The warning volume
+and first-link memory cost are baseline repository behavior; all Cargo runs
+were serialized with `CARGO_BUILD_JOBS=4` and no concurrent terminal.
+
+Stop/next: TextEq V10, Bool, branch/Return CFG, Completion/DraftSeal,
+publication, fallback, retry, and production remain closed. The next design
+stop is `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0`, limited to co-sealing
+the already-issued V9 lifetime with the existing ExactText V1 sidecar.
