@@ -20,23 +20,24 @@ aggregate consumed once over the existing explicit exit set, with operand ->
 Finish -> Return ordering and whole-draft discard on late failure. The selected
 backend is the contract-bound LLVM 18 C path, but no lifecycle-bearing module
 reaches its target-machine boundary yet. The accepted carrier D0 fixes one
-versioned transport and source-issued root mapping. The active I0 emits only
-strict Rust-side carrier JSON before C lowering or the separate post-transform
-no-unwind observer can open; backend production, fallback, and performance
-remain closed.
+versioned transport and source-issued root mapping. The carrier transport I0
+is landed caller-zero with strict Rust-side carrier JSON, source-backed
+root-map tests, and trap-Finish rejection. The next selected cell is C
+lowering; the separate post-transform no-unwind observer, backend production,
+fallback, and performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 current_design_stop = "none; carrier materialization D0 accepted"
 work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0"
-current_blocker_token = "The source-issued physical lane map is closed; emit one strict pinned_text_residence_carrier@1 transport before any C lowering or observer."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0"
+current_blocker_token = "The strict pinned_text_residence_carrier@1 transport is landed; consume only that carrier in one caller-zero C-lowering fixture before any observer or production edge."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence backend carrier transport I0"
+active_lane = "S6C Text Residence backend carrier LLVM lowering I0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -69,8 +70,11 @@ Dynamic remains the sole production arm. The selected backend is the
 contract-bound LLVM 18 C path, but no lifecycle-bearing module reaches its
 target-machine boundary. The accepted D0 fixes a versioned physical carrier,
 source-issued slot/generation/root mapping, and the Finish-on-every-normal-
-exit obligation. The selected I0 now emits only the Rust-side carrier/JSON
-transport; C lowering, observer, lifecycle production, fallback, and
+exit obligation. The Rust-side carrier/JSON transport I0 is landed
+caller-zero: source-backed root-map and trap-Finish rejection tests are
+green, and the reusable structure guard checks the contract and no-raw-
+authority boundary. The selected next cell is one C-lowering fixture
+consuming only this carrier; observer, lifecycle production, fallback, and
 performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -84,10 +88,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, and DraftSeal consumer I0 are landed caller-zero. One private affine aggregate replaces the single-normal-landing finish state and is consumed once over the existing explicit exit set. The selected backend is the contract-bound LLVM 18 C path, but no lifecycle-bearing module reaches it. The accepted D0 fixes one versioned carrier and source-issued root mapping; the active I0 emits only strict Rust-side carrier JSON before C lowering or the post-transform observer can open."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, and strict carrier transport I0 are landed caller-zero. One private affine aggregate replaces the single-normal-landing finish state and is consumed once over the existing explicit exit set. The selected backend is the contract-bound LLVM 18 C path, but no lifecycle-bearing module reaches it. The accepted carrier D0 and landed Rust transport fix one versioned source-issued root map; the next selected cell is caller-zero C lowering before the post-transform observer can open."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -99,7 +103,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-18: ExactText adjacent slot/generation entry sidecar and source-bound occurrence view are landed compile-time substrate; they do not mint runtime values.",
+  "2026-08-19: Strict pinned_text_residence_carrier@1 transport is landed caller-zero: source-issued slot/generation/root JSON mapping and trap-Finish rejection are green; C lowering, observer, and production remain closed.",
   "2026-08-18: Common-V2 S6C V9 MIR I0 now binds the existing canonical writers through one callback-scoped materializer; exactly one Normal/Fault/End lifecycle is emitted without a runtime wire, and late failure remains outer-transaction discard.",
   "2026-08-18: Common-V2 S6C V9 + ExactText co-seal now passes one opaque source occurrence/sidecar proof with the canonical NormalResult; no runtime pair or physical sidecar ValueId escapes the callback.",
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",

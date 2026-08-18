@@ -1227,7 +1227,7 @@ Acceptance for this D0/I0 boundary:
 6. missing/drifting carrier data rejects before object publication, and the
    later observer is still forbidden until this module exists.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0 (selected; caller-zero)
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0 (landed; caller-zero)
 
 Decision: add only the Rust-side physical carrier and its strict JSON
 projection. The carrier co-seals the existing frame contract, source-issued
@@ -1246,12 +1246,20 @@ Enter, Finish on a trap or hot-loop block, unsupported exit shape, or any
 unknown transport key. No numeric root/row inference is allowed in the JSON
 consumer.
 
-Acceptance: positive fixture proves the source lane map and
+Evidence: positive fixture proves the source lane map and
 `pinned_text_residence_carrier@1` JSON round-trip; negative fixtures reject
 lane drift, root drift, duplicate lifecycle sites, and trap Finish. The
-metadata remains caller-zero and no C/LLVM/runtime path is enabled.
+metadata remains caller-zero and no C/LLVM/runtime path is enabled. The
+source-backed carrier tests `residence_backend_carrier_exports_source_issued_root_mapping`
+and `residence_backend_carrier_rejects_finish_on_trap_before_transport` are
+green, as are `cargo fmt --all`,
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`,
+`tools/checks/current_state_pointer_guard.sh`, and
+`tools/checks/common_v2_s6c_structure_guard.sh`. The carrier is transport
+metadata only; it is not a C lowerer, runtime caller, observer, or production
+edge.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0 (parked)
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0 (selected; caller-zero)
 
 The next cell consumes only the strict carrier JSON. It adds a thin
 `hako_llvmc` pure-first lowerer and one textual LLVM IR fixture: direct
@@ -1342,11 +1350,12 @@ Task ladder (canonical consumer design first, runtime effect later):
 7. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0` —
    accepted. Define one versioned lifecycle transport, source-issued
    slot/generation/root mapping, and a caller-zero module materializer.
-8. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0` — selected
+8. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-TRANSPORT-I0` — landed
    caller-zero Rust carrier/JSON projection; no C/runtime effect.
-9. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0` — parked
-   until the strict carrier transport is landed; only then may the separate
-   post-transform observer I0 open.
+9. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0` — selected
+   caller-zero; it may consume only the landed strict carrier transport. The
+   separate post-transform observer remains closed until one lifecycle-bearing
+   module exists.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
