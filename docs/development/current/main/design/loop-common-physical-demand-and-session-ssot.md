@@ -2146,6 +2146,22 @@ consume per normal occurrence; and explicit caller-zero proof before any
 production edge. This remains a design-only acceptance list and authorizes no
 new semantic `Verified*`/`Prepared*` receipt.
 
+#### COMMON-V2-TEXTEQ-SUBSTRING-V9-EXACTTEXT-LANE-BORROW-INGRESS-D0 closeout (2026-08-18; accepted)
+
+The authority review is closed. The selected implementation is one private
+Rust-only batch adapter from published `{slot,generation}` entry lanes into
+the existing `TextFormalBorrowV1`/Residence owner. A fused C lane-entry is
+rejected; any C projection delegates to the Rust owner and remains frame
+transport only. ExactText residence is acquired once per invocation, while
+V9 End remains one consume per normal occurrence. The lane adapter may borrow
+the existing backend-frame and exit-obligation facts but may not reissue them.
+
+Next selected slice: `COMMON-V2-TEXTEQ-SUBSTRING-V9-EXACTTEXT-LANE-BORROW-INGRESS-I0`.
+Its acceptance is limited to the runtime issuer, all-pairs atomic Residence
+connection/rollback, focused positive and negative lane tests, and a reusable
+guard against raw-pair/ValueId recapture. No MIR effect, TextEq V10, CFG,
+publication, production caller, fallback, retry, or `eq_hh` retirement opens.
+
 Non-claims: no residence I0, new semantic receipt, CheckedCallOut emission,
 V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, production,
 performance promotion, StringBox policy change, or `eq_hh` retirement.
