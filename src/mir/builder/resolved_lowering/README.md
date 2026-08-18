@@ -824,3 +824,57 @@ relation between the canonical NormalResult/End obligation and the runtime
 `EndAuthorizedTextV1`. The next design boundary is
 `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0`; importing runtime Residence into
 MIR or re-pairing two runtime owners after the fact is forbidden.
+
+## Common V2 source-bound V9 runtime producer D0 (2026-08-18; accepted)
+
+The runtime boundary is one private Rust bridge immediately after the fixed
+`hako.text.scan.substring.v1` provider call. MIR keeps the canonical
+`CheckedCallOut -> NormalResult(V9) -> End` lifecycle and never imports
+`TextFormalCallResidenceV1`, raw handles, lease tokens, or a runtime side
+table.
+
+The bridge consumes one backend-private
+`SourceBoundV9RuntimeProducerPlanV1` and returns one move-only
+`SourceBoundV9RuntimeResultV1`. The result is the sole `EndAuthorizedTextV1`
+adopter and lends only a callback-scoped
+`SourceBoundV9RuntimeInputRefV1<'_>` to the future TextRef scope. It has no
+`into_parts`, handle/token accessors, lookup, clone, retry, or fallback.
+
+Before the provider call, the plan proves the source item/block/result,
+cohort/owner/session/segment, fixed provider ABI/arity, `READ` effect,
+EndAuthorized shape, lease slot, and canonical End census. Before publishing
+the result owner, the bridge validates the complete normal wire, matching live
+generation and exact Text. Fault/Suspended/ImmediateI64/Forwarded/stale/
+foreign/non-Text/malformed output rejects before V9 exposure. The fixed Rust
+provider writes a complete normal/fault wire atomically; the bridge never
+guesses or cleans a foreign token.
+
+Normal cleanup is `scope consumer -> ExactText residence.finish -> canonical
+End -> result.finish_at_canonical_end`. Fault has no owner; late failures are
+terminal and the unpublished-function transaction remains the compiler
+rollback boundary. The existing `issue_s6c_substring_v9_from_wire_v1` is a
+caller-zero canary only and is not the final issuer. TextRef scope, TextEq V10,
+CFG/Return, publication, production, direct leaf, C-speed, fallback/retry,
+and `eq_hh` retirement remain closed until their own rows.
+
+## Common V2 source-bound V9 runtime producer I0 closeout (2026-08-18)
+
+The caller-zero canary is implemented in `runtime::source_bound_v9_runtime`.
+One private bridge validates the fixed provider-return wire and is the only
+`EndAuthorizedTextV1::adopt` caller on this path. Its move-only result exposes
+only callback-scoped text input plus explicit finish/abort; no raw handle,
+lease token, MIR value, residence, side table, fallback, or retry escapes.
+
+Evidence: `cargo fmt --all`; `CARGO_BUILD_JOBS=4 cargo test --profile quick
+--lib source_bound_v9_runtime` (7 passed / 0 failed); the existing Dynamic
+lease suite (7 passed / 0 failed); the existing S6C issuer suite (3 passed /
+0 failed); `CARGO_BUILD_JOBS=4 cargo check --profile quick`; the current-state,
+S6C structure, and StringBox mutable-reachability guards; and `git diff
+--check`. The first filtered command that reported zero tests was discarded;
+the issuer tests were rerun by their exact discovered names. Warnings remain
+baseline-only.
+
+The fixed provider remains a canary and has no production caller. TextRef
+scope, TextEq V10, CFG/Return, publication, production, direct leaf, C-speed,
+fallback/retry, and `eq_hh` retirement remain closed. The next design boundary
+is `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.

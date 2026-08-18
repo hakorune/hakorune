@@ -6,6 +6,7 @@
 //! that handle at the End cutpoint.
 
 use std::collections::hash_map::{Entry, HashMap};
+use std::collections::HashSet;
 use std::num::NonZeroU64;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
@@ -63,6 +64,12 @@ impl EndAuthorizedTextV1 {
             return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
         }
         validate_text_lease_identity(identity)?;
+        let mut adopted = adopted_leases()
+            .lock()
+            .expect("dynamic v2 adopted-lease mutex poisoned");
+        if !adopted.insert(token) {
+            return Err(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed);
+        }
         Ok(Self { handle, token })
     }
 
@@ -96,10 +103,15 @@ impl EndAuthorizedTextV1 {
 static NEXT_TOKEN: AtomicU64 = AtomicU64::new(1);
 static LEASES: OnceLock<Mutex<HashMap<NonZeroU64, host_handles::HostHandleLeaseIdentityV1>>> =
     OnceLock::new();
+static ADOPTED_LEASES: OnceLock<Mutex<HashSet<NonZeroU64>>> = OnceLock::new();
 const TOKEN_BRAND: u64 = 1 << 63;
 
 fn leases() -> &'static Mutex<HashMap<NonZeroU64, host_handles::HostHandleLeaseIdentityV1>> {
     LEASES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn adopted_leases() -> &'static Mutex<HashSet<NonZeroU64>> {
+    ADOPTED_LEASES.get_or_init(|| Mutex::new(HashSet::new()))
 }
 
 fn next_token() -> Result<NonZeroU64, LeaseIssueRejectV1> {
@@ -175,16 +187,18 @@ fn consume_end_authorized_pair(
     expected_handle: u64,
     token: NonZeroU64,
 ) -> Result<(), LeaseConsumeRejectV1> {
-    let identity = leases()
-        .lock()
-        .expect("dynamic v2 lease mutex poisoned")
+    let mut table = leases().lock().expect("dynamic v2 lease mutex poisoned");
+    let identity = table
         .remove(&token)
         .ok_or(LeaseConsumeRejectV1::UnknownOrAlreadyConsumed)?;
     if expected_handle != 0 && identity.handle() != expected_handle {
-        let mut table = leases().lock().expect("dynamic v2 lease mutex poisoned");
         table.insert(token, identity);
         return Err(LeaseConsumeRejectV1::TokenHandleMismatch);
     }
+    adopted_leases()
+        .lock()
+        .expect("dynamic v2 adopted-lease mutex poisoned")
+        .remove(&token);
     if !host_handles::drop_if_lease_identity_matches(identity) {
         return Err(LeaseConsumeRejectV1::StaleHandleIdentity);
     }

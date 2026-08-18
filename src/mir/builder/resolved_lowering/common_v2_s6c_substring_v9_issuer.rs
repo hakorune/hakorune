@@ -16,6 +16,10 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::runtime::dynamic_v2_lease::{
     EndAuthorizedTextBorrowRejectV1, EndAuthorizedTextV1, LeaseConsumeRejectV1,
 };
+use crate::runtime::source_bound_v9_runtime::{
+    produce_source_bound_v9_runtime_v1, SourceBoundV9RuntimeProducerPlanV1,
+    SourceBoundV9RuntimeProducerRejectV1, SourceBoundV9RuntimeResultV1,
+};
 
 use super::super::common_v2_s6c_substring_callout_admission::{
     CommonV2SubstringCallOutAdmissionRejectV1, CommonV2SubstringEndConsumerRefV1,
@@ -52,7 +56,7 @@ pub(in crate::mir::builder) struct CommonV2SubstringV9MaterializationV1 {
     site: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
     result: LoopValueKeyV1,
     physical_block: crate::mir::BasicBlockId,
-    text: Option<EndAuthorizedTextV1>,
+    runtime: Option<SourceBoundV9RuntimeResultV1>,
 }
 
 impl CommonV2SubstringV9MaterializationV1 {
@@ -78,24 +82,46 @@ impl CommonV2SubstringV9MaterializationV1 {
         &self,
         callback: impl FnOnce(&str) -> R,
     ) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
-        self.text
+        let runtime = self
+            .runtime
             .as_ref()
-            .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?
-            .with_text(callback)
+            .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
+        runtime
+            .with_input(|input| input.with_text(callback))
+            .map_err(|reject| match reject {
+                SourceBoundV9RuntimeProducerRejectV1::Lease(reject) => reject,
+                _ => EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed,
+            })?
+            .map_err(|reject| reject)
     }
 
     pub(in crate::mir::builder) fn finish(mut self) -> Result<(), LeaseConsumeRejectV1> {
-        self.text
+        self.runtime
             .take()
             .expect("V9 materialization finished once")
-            .finish()
+            .finish_at_canonical_end()
+            .map_err(|reject| match reject {
+                SourceBoundV9RuntimeProducerRejectV1::Lease(reject) => match reject {
+                    EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed => {
+                        LeaseConsumeRejectV1::UnknownOrAlreadyConsumed
+                    }
+                    EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch => {
+                        LeaseConsumeRejectV1::TokenHandleMismatch
+                    }
+                    EndAuthorizedTextBorrowRejectV1::StaleHandleIdentity
+                    | EndAuthorizedTextBorrowRejectV1::NonTextPayload => {
+                        LeaseConsumeRejectV1::StaleHandleIdentity
+                    }
+                },
+                _ => LeaseConsumeRejectV1::UnknownOrAlreadyConsumed,
+            })
     }
 }
 
 impl Drop for CommonV2SubstringV9MaterializationV1 {
     fn drop(&mut self) {
-        if let Some(text) = self.text.take() {
-            let _ = text.finish();
+        if let Some(runtime) = self.runtime.take() {
+            let _ = runtime.abort_on_terminal_failure();
         }
     }
 }
@@ -110,19 +136,55 @@ pub(in crate::mir::builder) fn issue_s6c_substring_v9_from_wire_v1(
     admission.consume(|target, site_plan, end| {
         validate_static_relation(target, site_plan, end, expected_brand, operands, segment)?;
         validate_wire_shape(&wire)?;
-        let handle = wire.value_payload;
-        let token = NonZeroU64::new(wire.lease_token)
-            .ok_or(CommonV2SubstringV9IssuerRejectV1::ZeroLease)?;
-        let text = EndAuthorizedTextV1::adopt(handle, token)
-            .map_err(CommonV2SubstringV9IssuerRejectV1::Lease)?;
+        let lease_slot = match site_plan.normal_shape() {
+            crate::mir::checked_callout::CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                lease_slot,
+            } => lease_slot.as_u32(),
+            crate::mir::checked_callout::CheckedCallOutNormalShapeV1::ImmediateI64 => {
+                return Err(CommonV2SubstringV9IssuerRejectV1::SiteShapeMismatch)
+            }
+        };
+        let plan = SourceBoundV9RuntimeProducerPlanV1::s6c_substring(
+            site_plan.site_id().as_u32(),
+            end.result().raw(),
+            lease_slot,
+        )
+        .map_err(map_runtime_reject)?;
+        let runtime = produce_source_bound_v9_runtime_v1(plan, wire).map_err(map_runtime_reject)?;
         Ok(CommonV2SubstringV9MaterializationV1 {
             owner: target.owner(),
             site: site_plan.site_id(),
             result: end.result(),
             physical_block: operands.physical_block(),
-            text: Some(text),
+            runtime: Some(runtime),
         })
     })
+}
+
+fn map_runtime_reject(
+    reject: SourceBoundV9RuntimeProducerRejectV1,
+) -> CommonV2SubstringV9IssuerRejectV1 {
+    match reject {
+        SourceBoundV9RuntimeProducerRejectV1::Wire(reject) => {
+            CommonV2SubstringV9IssuerRejectV1::Wire(reject)
+        }
+        SourceBoundV9RuntimeProducerRejectV1::NonNormalStatus(status) => {
+            CommonV2SubstringV9IssuerRejectV1::NonNormalStatus(status)
+        }
+        SourceBoundV9RuntimeProducerRejectV1::ZeroHandle => {
+            CommonV2SubstringV9IssuerRejectV1::ZeroHandle
+        }
+        SourceBoundV9RuntimeProducerRejectV1::ZeroLease => {
+            CommonV2SubstringV9IssuerRejectV1::ZeroLease
+        }
+        SourceBoundV9RuntimeProducerRejectV1::Lease(reject) => {
+            CommonV2SubstringV9IssuerRejectV1::Lease(reject)
+        }
+        SourceBoundV9RuntimeProducerRejectV1::WrongNormalShape
+        | SourceBoundV9RuntimeProducerRejectV1::PlanShape => {
+            CommonV2SubstringV9IssuerRejectV1::SiteShapeMismatch
+        }
+    }
 }
 
 impl<'source, 'envelope> super::CommonV2CanonicalSessionRefV1<'source, 'envelope> {
@@ -383,13 +445,18 @@ mod tests {
         let published = publish_end_authorized_text("rollback").expect("runtime end lease");
         let handle = published.handle();
         let token = published.token();
+        let runtime = produce_source_bound_v9_runtime_v1(
+            SourceBoundV9RuntimeProducerPlanV1::s6c_substring(0, 9, 0).expect("plan"),
+            end_wire(handle, token),
+        )
+        .expect("source-bound result");
         {
             let materialization = CommonV2SubstringV9MaterializationV1 {
                 owner,
                 site: crate::mir::checked_callout::CheckedCallOutSiteIdV1::from_test(0),
                 result: LoopValueKeyV1::new(9),
                 physical_block: crate::mir::BasicBlockId::new(1),
-                text: Some(published),
+                runtime: Some(runtime),
             };
             assert_eq!(
                 materialization.with_text(str::to_owned),

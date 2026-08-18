@@ -2370,7 +2370,7 @@ independent compatibility retirement
 | 2 | `COMMON-V2-S6C-STRUCTURE-R0` | BoxShape | Split the 786-line S6C ingress and 752-line common session before adding orchestration; semantic ownership remains singular. |
 | 3 | `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` | BoxShape | Emit canonical Normal/Fault landings, V9, End, and Fault; the concrete-wire canary stays test-only and caller-zero. |
 | 4 | `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` | BoxShape | Co-seal V9 with the adopted ExactText lanes in one session/segment without constructing a runtime pair in the compiler. |
-| 4v9 | `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0` | design stop | Name the one source-bound runtime producer that binds canonical V9 NormalResult/End to `EndAuthorizedTextV1`; no post-hoc runtime-owner pairing and no MIR TextRef scope yet. |
+| 4v9 | `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0/I0` | BoxShape | Use one private provider-return Rust bridge: static producer plan -> move-only runtime result -> opaque scope input; one `EndAuthorizedTextV1` adopter, atomic normal/fault wire, and no post-hoc pairing. |
 | 4a | `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` | BoxShape | After a source-bound V9 runtime producer is proven, consume the existing V9/ExactText co-seal through one private opaque scope, with one consumer, one ExactText finish, and canonical V9 End order; no V10 effect. |
 | 5 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` | one BoxCount or `NoSafeSlice` | Select one strict non-fallback physical capability for the existing portable TextEq and issue Bool V10. |
 | 6 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | BoxShape | Consume V10 with existing Return-read, shared-segment, and FunctionExit proofs to write the inner If/Return CFG. |
@@ -2407,6 +2407,9 @@ whether it can reach the same registry-held concrete `StringBox` allocation
 while pinned. Any unclassified or sanctioned reachable path is `NoSafeSlice`;
 copy-distinct objects and explicit unsafe-provider contract violations are
 recorded separately and do not become backing-stability authority.
+The stable executable receipt is
+`tools/checks/stringbox_mutable_reachability_census_guard.sh`; it must remain
+green whenever this theorem is used as a fast-route prerequisite.
 
 The row-15 structural gate requires zero host-table locks, allocations,
 deallocations, callbacks, external/indirect calls, handle publication,
@@ -2772,6 +2775,105 @@ design boundary is therefore
 `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0`; only after it is accepted may
 the private scope API/test row open.
 
+##### COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0 decision closure (2026-08-18; accepted)
+
+The source-bound runtime producer is fixed as one private Rust bridge at the
+exact provider-return boundary. The compiler keeps the existing canonical
+`CheckedCallOut -> NormalResult(V9) -> End` lifecycle; it does not import a
+runtime owner or reinterpret a `ValueId`.
+
+The private products are deliberately three-layered:
+
+```text
+SourceBoundV9RuntimeProducerPlanV1
+  -> provider call at the exact checked site
+  -> SourceBoundV9RuntimeResultV1
+  -> SourceBoundV9RuntimeInputRefV1<'_> (borrow only)
+```
+
+`SourceBoundV9RuntimeProducerPlanV1` is backend-private static evidence for the
+same source/item/block/result, cohort/owner/session/segment brand, fixed
+provider symbol/ABI/arity, `READ` effect, `EndAuthorizedHandle` shape, lease
+slot, and canonical End obligation. It owns no `ValueId`, raw handle/token,
+TextFormalResidence, or side table. The plan is consumed at one call site and
+cannot be rebuilt from an ordinal, JSON, or MIR adjacency.
+
+`SourceBoundV9RuntimeResultV1` is move-only and is the sole runtime owner that
+may call `EndAuthorizedTextV1::adopt`. It contains the call-local opaque
+NormalResult lane and the adopted End-authorized owner, but exposes neither a
+handle/token tuple nor a lookup API. Its only public operations are a
+callback-scoped `with_input` and the terminal `finish_at_canonical_end` /
+`abort_on_terminal_failure` paths. Scope-I0 receives only
+`SourceBoundV9RuntimeInputRefV1<'_>`; no runtime wire or residence owner
+escapes the bridge.
+
+The admitted provider is the fixed source-bound `hako.text.scan.substring.v1`
+entry. Its Rust implementation must construct the complete normal or fault
+wire atomically: a normal result is written only after the End lease has been
+issued, and a fault carries no lease. A malformed/partial output from an
+unadmitted provider is a terminal provider-contract violation; the bridge
+must never guess a token or clean a foreign lease. This keeps cleanup safe and
+avoids a second generic abort authority.
+
+Fail-fast is split at the only two boundaries. Before provider effect, verify
+source item/block/result, cohort/owner/session/segment, provider ABI/arity,
+`READ`, EndAuthorized shape, lease slot, and the canonical End census. Before
+publishing the result owner, require `Normal`, `HostHandle`, `EndAuthorized`,
+forwarded-none, continuation-zero, reserved-zero, non-zero handle/token,
+matching live generation, and exact live Text. Fault, Suspended, ImmediateI64,
+Forwarded, foreign/stale token, and non-Text payload reject without V9 or
+scope input.
+
+The normal chronology is fixed:
+
+```text
+provider -> wire validation -> EndAuthorizedTextV1::adopt
+  -> scope-I0 consumer -> ExactText residence.finish
+  -> canonical End -> SourceBoundV9RuntimeResultV1::finish_at_canonical_end
+```
+
+Provider Fault has no V9 and no End owner. Consumer failure is primary and
+terminal; cleanup failure is suppressed evidence. Finish failure never retries,
+falls back, or creates a second owner. The existing unpublished-function
+transaction remains the compiler rollback boundary. The old
+`issue_s6c_substring_v9_from_wire_v1` path remains a caller-zero canary and is
+not promoted to the source-bound issuer.
+
+Acceptance for the next I0 is one private producer/one `adopt` caller, exact
+site/occurrence binding, atomic normal/fault provider output, live/stale/
+foreign/duplicate/unsupported/malformed negatives, no raw tuple or side-table
+pairing, and exact primary/suppressed cleanup order. TextRef scope I0,
+TextEq V10, CFG/Return, publication, production, direct leaf, fallback,
+retry, C-speed, and `eq_hh` retirement remain closed.
+
+The next selected row is
+`COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-I0`; only after that row is green may
+`COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` consume the opaque input.
+
+#### COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-I0 closeout (2026-08-18; accepted)
+
+The caller-zero canary is implemented in the runtime-private
+`source_bound_v9_runtime` child. One bridge validates the fixed provider-return
+wire and is the only `EndAuthorizedTextV1::adopt` caller for this path. Its
+move-only result lends only callback-scoped text input and owns explicit
+finish/abort; no raw handle/token tuple, MIR `ValueId`, residence, side table,
+fallback, or retry escapes. The old wire issuer remains a canary and no
+production selector changed.
+
+Evidence: `cargo fmt --all`; `CARGO_BUILD_JOBS=4 cargo test --profile quick
+--lib source_bound_v9_runtime` (7 passed / 0 failed); the Dynamic lease suite
+(7 passed / 0 failed); the exact S6C issuer suite (3 passed / 0 failed);
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`; the current-state, S6C
+structure, and StringBox mutable-reachability guards; and `git diff --check`.
+The first broad issuer filter returned zero tests and was discarded; the
+issuer tests were rerun by their exact discovered names. Warnings remain
+baseline-only.
+
+Non-claims: the provider remains caller-zero; TextRef scope, TextEq V10,
+CFG/Return, publication, production, direct leaf, C-speed, fallback/retry,
+and `eq_hh` retirement remain closed. The next design stop is
+`COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.
+
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 
 The Residence ABI maxima are now enforced at every runtime entry before any
@@ -2951,6 +3053,8 @@ writable raw-pointer projection must be classified for reachability to the
 same registry-held concrete `StringBox` while pinned. The repository census
 finds no sanctioned path; an unclassified external unsafe provider remains
 `NoSafeSlice` and cannot authorize a production fast route.
+`tools/checks/stringbox_mutable_reachability_census_guard.sh` is the reusable
+static receipt for the direct-caller and Arc-recovery portion of that census.
 
 Non-claims: no source-bound TextRef producer, TextEq V10 Bool, inner CFG,
 Completion/publication, production switch, direct pinned-text leaf,

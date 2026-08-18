@@ -55,6 +55,10 @@ pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod scheduler_route;
 pub mod semantics;
+// The source-bound producer is an intentional caller-zero canary until the
+// common-V2 production edge is opened; keep its parked surface warning-free.
+#[allow(dead_code)]
+pub(crate) mod source_bound_v9_runtime;
 pub mod sync_box;
 pub mod text_formal_abi;
 pub(crate) mod text_formal_call_lease;
