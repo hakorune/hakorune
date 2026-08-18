@@ -128,164 +128,127 @@ Related:
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
   its outer unpublished-function rollback remains the only failure owner.
-- **Current stop:** `NoSafeSlice::PortableTextEqV9BackendViewUnsealed`.
-  The existing pinned C frame carries ExactText rows only, while S6C TextEq
-  lhs is the V9 Substring result. Worker audit rejected merging the lifetimes
-  into one frame; a separate backend-private V9 view must be issued and
-  co-sealed with the existing frame borrow before any Bool V10 or content
-  effect.
+- **Current stop:** the separate-V9-view candidate is superseded by
+  `NoSafeSlice::S6CTextSemanticLawUnsealed`. The final fast route does not
+  materialize V9. It reuses the two existing ExactText formal roots as
+  `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
+  selected by the verified `substring(i, i + 1)` relation. The source rows do
+  not yet carry a typed CodePoint Length/Substring law, so no cursor, leaf, or
+  Bool effect is open.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, and the caller-zero concrete StringBox
   Residence canary are complete. The row-11 mutable-reachability census is
   already an explicit acceptance input and reusable guard; no duplicate
   census task is needed.
-- **Runtime ownership decision:** validate all lanes once at entry, pin
-  atomically, lend content only through a scoped residence owner, and hold no
-  registry lock, LeaseSet, allocation, callback, or finish in the loop body.
-  The accepted concrete StringBox baseline is zero-copy and adds no root
-  `Arc` or snapshot. `Arc` is an ownership tool after lock release, not a
-  concurrency policy; an immutable shared-backing task opens only if a
-  sanctioned mutable/unsafe provider path is ever admitted.
-- **Next ordered task:** design one canonical V9 backend-private `ptr/len`
-  view issuer and one-shot `ContentViewAdmission` that co-seals it with the
-  existing `PinnedTextBackendFrameBorrowV1`. It must not leak a raw handle,
-  slot/generation, compiler pointer, or semantic receipt; absent an exact
-  owner/cohort/frame/lifetime binding, remain `NoSafeSlice`.
+- **Runtime ownership decision:** keep the existing zero-copy
+  `TextFormalCallResidenceV1` and `hako.pinned_text_backend_frame@2`. The
+  S6C physical signature already expands both `StringBox` parameters into
+  ExactText slot/generation pairs, and the entry bridge orders every pair by
+  logical ordinal. One atomic entry pin therefore keeps the subject and needle
+  payloads live for the function. No new content frame, V9 runtime root,
+  `Arc<str>` migration, snapshot, or second finish owner is required. The hot
+  loop must contain no registry lock, LeaseSet, allocation, callback, retain,
+  generation check, or Residence finish.
+- **Next ordered task:** project the language's already documented CodePoint
+  semantics from the `.hako` `CoreMethodContractBox` into one typed generated
+  arity-indexed law: `StringLen/0 = CodePointCount`,
+  `StringSubstring/2 = CodePointHalfOpenClamped`, and
+  `StringSubstring/1 = Unprojected`. The current union row therefore stays one
+  authority without lending the `/2` law to `/1`. Until that exact source
+  authority is present and co-sealed, remain `NoSafeSlice`; do not infer a
+  byte cursor from Recipe ordinals or MIR adjacency.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
+- **Guard classification:** `dynamic_v2_aot_activation_authority_guard.sh`
+  currently reports `selected package adapter must consume the bounded
+  input/admission loan exactly once` on parent `adf649cae0` as well as this
+  docs-only tree. This is known baseline debt, not a current-change failure;
+  the focused pointer, mutable-reachability, and CoreMethod generator guards
+  are green.
 
-### Final shape task ladder
+### Final scalar-scan corridor task ladder
 
 | order | bounded task | exit condition |
 | --- | --- | --- |
-| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0` | Keep ExactText frame/ABI and V9 End owners separate; name one V9 view issuer and one-shot co-seal admission. |
-| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-I0` | Implement one private V9 view/preheader projection only after D0; no raw escape, lock/alloc/callback/finish in loop, or second owner. |
-| 2 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-I0` | One Direct leaf consumes the existing scope and asks the canonical session for Bool V10; no If/Return yet. |
-| 3 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | Existing If/Return/FunctionExit JoinSig receipts consume V10; one unpublished transaction remains the rollback boundary. |
-| 4 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | Positive/negative Unicode, alias, stale/foreign, lifecycle, and late-discard evidence is green. |
-| 5 | `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` | Named caller switch, same-commit old-edge retirement, and zero fallback/retry are observed. |
-| 6 | `S6C-PINNED-TEXT-PERFORMANCE-PROMOTION-R0` | IR/assembly structural zero-boundary, then exact/meso/whole-call C comparison; benchmark cannot waive structure. |
-| 7 | `EQ-HH-RETIREMENT-R0` | Generic C/Python caller census reaches zero independently; only then remove the legacy export. |
+| 0 | `CORE-METHOD-TEXT-SEMANTIC-LAW-I0` | Extend each `.hako`-owned CoreMethod row with one complete arity-indexed `semantic_law`. Generate `CoreMethodContractRowV2` plus exact-arity `CoreMethodManifestRowRefV2`: Len/0 is CodePointCount, Substring/2 is CodePointHalfOpenClamped, Substring/1 and every other arity are Unprojected. Bump manifest to v2 and migrate existing row consumers mechanically; no Recipe or physical change. |
+| 1 | `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` | The sole prephysical ingress lends one callback-scoped source view proving subject/needle roles, `i=0`, CP Length, `i < length`, `substring(i,i+1)`, sole-use V9→TextEq, V10→If, `i=i+1`, Join/Completion, and no V9 escape. |
+| 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
+| 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` | Load subject/needle `ptr,len` once, initialize CP index plus byte offset, and issue the source-backed loop predicate without calling Length in the body. |
+| 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the canonical SSA session alone issues V10 Bool. |
+| 5 | `S6C-PINNED-CURSOR-CFG-I0` | Canonical CFG/SSA owns byte-offset and CP-index PHIs, V10 If, width update, backedge, and the existing Return-read relation. No alternate orchestrator. |
+| 6 | `S6C-PINNED-RESIDENCE-EXIT-I0` | Co-seal the bounded exact-two Completion exits with one move-only residence obligation; finish exactly once immediately before each normal Return. Reject unwind/third-exit shapes. |
+| 7 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | Unicode/alias/stale/foreign/escape/lifecycle evidence and IR/assembly structural-zero gates pass before exact/meso/whole-call C comparison. |
+| 8 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | Switch one named production edge before effects, retire the S6C V9 CallOut edge in the same cutover, and observe zero fallback/retry. |
+| 9 | `EQ-HH-RETIREMENT-R0` | Generic C/Python caller census reaches zero independently; only then remove the legacy export. |
 
-The runtime immutable-backing alternative is a conditional gate, not a
-parallel route: if the mutable-reachability guard discovers a sanctioned
-write/retention path, insert `TEXT-FORMAL-IMMUTABLE-BACKING-D0` before order
-1 and choose a residence-owned immutable backing. Until then, keep the
-zero-copy pinned concrete payload; do not migrate `StringBox` to `Arc<str>`
-speculatively.
+The first performance claim is C-equivalent steady-state code, not a zero-cost
+call entry. The existing Residence still performs one entry write-lock plus
+metadata allocation/token insertion and one finish lock. Promotion therefore
+measures leaf, meso, and whole-call costs separately. If the kernel passes but
+entry/finish alone fails the whole-call gate, keep production closed and open
+one evidence-selected `TEXT-FORMAL-RESIDENCE-ENTRY-PERF-R0`; it may optimize
+the existing runtime owner's internals, but may not add another frame,
+lifetime authority, or fast-route fallback.
 
-### COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-D0 (2026-08-18; accepted)
+The runtime immutable-backing alternative remains a conditional gate, not a
+parallel route. If the mutable-reachability guard discovers a sanctioned
+write/retention path, stop and design a Rust-owned immutable backing. Do not
+put `Arc<str>` ownership into a C `ptr,len` row: `Arc<str>` is a Rust fat
+pointer, and raw reconstruction, partial publication, frame copies, and
+double-finish would create a second unsafe lifetime protocol. A global
+`StringBox -> Arc<str>` migration is not a prerequisite for this corridor.
 
-Decision: classify the strict TextEq physical capability as
-`Direct-or-RejectBeforeEffect` and use the existing pinned C residence frame
-as the sole runtime-byte backing. The backend may project each validated,
-occurrence-ordered frame row to `ptr + byte_len` once in the preheader and
-keep those values as private SSA inputs to the later UTF-8 leaf. A
-Rust-side `with_text(&str)` callback is permitted only as a caller-zero
-same-value/lifetime canary; it is not the compiler or hot-loop route.
+### S6C scalar-scan corridor D0 (2026-08-18; accepted)
 
-Source authority + canonical issuer: resolver
-`Equal(Text,Text) -> Bool`, S6C Facts/Recipe/co-seal, and the existing TextEq
-occurrence relation own meaning and root order. `TextFormalCallResidenceV1`
-owns slot/generation validation, pin, and finish. The existing
-`PinnedTextBackendFrameBorrowV1` owns the mechanical frame projection, and
-`CanonicalSsaFunctionSessionV2` alone may issue Bool V10 later.
+Decision: select one whole-corridor fast route before effects. Reuse the
+existing ExactText residence/frame for the two base roots, eliminate the
+physical Length and Substring calls in that route, represent V9 as
+`SubjectRoot + byte_offset + scalar_width`, and emit exact TextEq directly to
+V10. The existing CheckedCallOut/V9/End chain remains a caller-zero correctness
+oracle until cutover, never a fallback from the fast route.
 
-Non-authority: `with_text_formal_identity` lookup/read-lock, raw pointers in
-MIR/compiler/JSON, handle/slot/generation/ValueId reinterpretation, Arc or
-snapshot backing, alias deduplication or `noalias`, `PinnedTextOp` transport
-alone, C shim/status rows, `StringBox::equals`, and `nyash.string.eq_hh`.
+Source authority + canonical issuer: `docs/reference/language/strings.md`
+already fixes language Text to UTF-8 CodePoint semantics. The `.hako`
+`CoreMethodContractBox` remains the callable semantic owner and must issue a
+generated typed arity law for `StringLen/0` and `StringSubstring/2`; its
+existing `StringSubstring/1|2` union row must explicitly keep `/1`
+unprojected. `CoreMethodManifestRowRefV2::semantic_law_for_arity()` is the
+only exact-law projection. The retained S6C typed/Facts/Recipe/Join/Completion
+cohort may then lend a mechanical scalar-corridor view; it does not invent
+another Text meaning.
 
-Fail-fast boundary: before any effect, validate the exact source/cohort,
-owner/session/segment, ordered root indices, duplicate occurrence policy,
-live generation and non-retiring concrete Text payload, UTF-8 validity, frame
-limits, target pointer layout, plan/frame stamps, and lifetime/finish order.
-Any foreign/stale/pending/reordered/unsupported/escaped projection rejects
-before publication; late failure discards the unpublished function. The hot
-loop contains zero host-table lock, LeaseSet, allocation, callback, retain,
-generation check, or Residence finish.
+Non-authority: the provider profile by itself, V9 runtime handle or End lease,
+Recipe/ValueId adjacency, numeric root IDs, raw slot/generation/pointer/length,
+`PinnedTextOp` transport alone, `StringBox::equals`, `nyash.string.eq_hh`, an
+`Arc` clone, JSON, or benchmark success.
 
-Smallest next slice: `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0` adds one
-private backend-only frame-row projection/preheader contract by reusing the
-existing frame and plan owners. It adds no semantic receipt, no new runtime
-wire, and no Bool/CFG effect. If the frame cannot prove the row/stamp/lifetime
-relation, retain `NoSafeSlice`.
+Fail-fast boundary: before any MIR effect, co-seal the typed CodePoint laws,
+complete subject/needle bindings, exact source/Recipe operation census, V9
+sole-use/non-escape relation, CP-index and sequential byte-cursor invariant,
+root-role/frame/target stamps, and bounded Completion exits. Any missing,
+foreign, reordered, mutable, stale, third-exit, unwind, pointer-escape, or
+fallback requirement is RejectBeforeEffect. Late compiler failure discards
+the unpublished function.
 
-Non-claims: no V10 Bool, If/Return CFG, publication, production switch,
-performance promotion, fallback/retry, `Arc<str>` migration, or `eq_hh`
-retirement. The immutable-backing alternative opens only if the mutable
-reachability guard ever discovers a sanctioned write/retention path.
+Smallest next slice: `CORE-METHOD-TEXT-SEMANTIC-LAW-I0` is one BoxShape. Add
+`Unprojected`, `CodePointCount`, and `CodePointHalfOpenClamped` to one complete
+arity-indexed law owned by each `.hako` row; bump to
+`core_method_contract_manifest/v2`, `CoreMethodContractRowV2`, and exact-arity
+`CoreMethodManifestRowRefV2`. Require sorted unique law entries with exact
+coverage of every declared arity. Preserve result/effect/Home/lowering
+behavior, migrate consumers mechanically, and guard `/2` against the
+subordinate TextScan policy while `/1` stays unprojected. Every touched source
+remains below 800 lines. It emits no Recipe, physical plan, MIR, runtime frame,
+or production edge.
 
-### CONTENT-VIEW-D0 correction: V9 dual-root gap (2026-08-18; reopened)
-
-The preceding content-view decision is superseded at the current boundary by
-the V9 lifetime audit. The existing C residence frame contains ExactText
-formal rows only, while S6C TextEq's lhs is the source-bound V9 Substring
-result. Treating V9 as `ExactTextRootId(0)` is unsound even when both handles
-are live: with `{root_count = 1, root[0] = "needle"}`, V9=`"sub"` and the
-ExactText rhs=`"needle"` would compare `needle == needle`; a second root index
-would instead be out of range.
-
-Decision: keep `Direct-or-RejectBeforeEffect`, but reopen the next row as
-`COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0`. It must choose either one
-backend-private dual-root frame admission (`V9 row + ExactText rows`) or one
-separate V9 view operand that is co-sealed with the existing frame contract.
-The V9 producer/cohort owns V9 lifetime, `TextFormalCallResidenceV1` owns
-ExactText roots and finish, and one new mechanical admission may co-seal their
-owner/session/segment/plan/frame stamps. `with_text(&str)` and raw
-`as_ptr/len` callbacks remain canaries only and may not escape their scopes.
-
-Acceptance: reject missing V9 row/domain, owner/cohort/plan/frame/lifetime
-drift, stale/retiring/non-UTF-8 content, out-of-range or reordered roots, and
-escaped pointers before any effect; preserve ExactText finish before V9 End;
-keep the hot loop free of lock, LeaseSet, allocation, callback, retain,
-generation check, and Residence finish. No existing ExactText-only frame I0
-or runtime scope canary proves this V9 content route.
-
-Non-claims: no V9/Bool MIR effect, `PinnedTextOp` emission, CFG/Return,
-publication, production, C fallback, retry, performance promotion, or
-`eq_hh` retirement. Until this dual-root relation is named, the correct state
-is `NoSafeSlice::PortableTextEqDualRootAdmissionUnsealed`.
-
-### DUAL-ROOT-D0 candidate selection: separate V9 view (2026-08-18; design stop)
-
-The lifetime audit selects the separate-view candidate, not a dual-root ABI
-merge. Keep the existing ExactText frame/ABI and its
-`TextFormalCallResidenceV1` finish owner unchanged. The V9 producer/cohort
-keeps its `EndAuthorizedTextV1` lifetime. A single private
-`ContentViewAdmission` may co-seal a backend-private V9 `ptr/len` view with
-the existing `PinnedTextBackendFrameBorrowV1` and plan/frame stamps, but it
-may not merge their lease tokens, root counts, or finish operations.
-
-Source authority + canonical issuer: S6C `Equal(Text,Text)` Facts/Recipe and
-the V9/ExactText occurrence co-seal own the operand relation. The missing
-issuer is one runtime-private V9 root projection at the already-held V9
-residence boundary; the admission is mechanical and one-shot. The backend
-preheader loads V9 `ptr/len` once and reads ExactText rows from the existing
-frame. The canonical SSA session remains the only future Bool issuer.
-
-Non-authority: V9 `with_text` or `as_ptr/len` callback results after the
-callback, ExactText root-index reinterpretation, raw handle/token/ValueId,
-merged dual-root ABI, C status/`eq_hh`, alias deduplication, and `noalias`.
-
-Fail-fast boundary: before effect, require exact V9 producer/cohort, live
-non-retiring UTF-8 V9 result, ExactText owner/session/segment/frame stamps,
-ordered root relation, non-escaping lifetime, and one cleanup chronology
-(`ExactText.finish -> canonical V9 End`). Reject missing V9 projection,
-foreign/stale/retiring roots, frame/plan drift, pointer escape, and any
-attempt to finish one owner twice; late failure discards the unpublished
-function.
-
-Smallest next slice: `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0` must name the
-canonical V9 projection API and its opaque backend operand. If that API cannot
-be issued without exposing raw runtime identity or merging owners, retain
-`NoSafeSlice`; do not implement the V9 view I0 yet.
-
-Non-claims: no dual-root ABI, new semantic receipt, V10/Bool, `PinnedTextOp`,
-CFG/Return, publication, production, fallback/retry, performance promotion,
-`Arc<str>` migration, or `eq_hh` retirement.
+Non-claims: no source corridor I0, byte cursor, root admission, V9
+non-materialization, V10, CFG/PHI/Return, runtime entry/finish, production
+switch, performance result, fallback/retry, global `Arc<str>` migration, or
+`eq_hh` retirement is complete. This metadata row does not switch the current
+legacy runtime default from byte indexing, authorize `Substring/1` CP
+semantics, or claim VM/provider parity.
 
 
 ## Historical boundary
