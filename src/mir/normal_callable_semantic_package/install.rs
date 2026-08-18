@@ -222,6 +222,21 @@ impl S6CInstalledCallableLoanRefV1<'_> {
     ) -> R {
         self.child.with_completion_parity(callback)
     }
+
+    /// Forward the installed child’s callback-scoped source relation.  The
+    /// package loan remains the only source owner; no source view is
+    /// recoverable after the callback returns.
+    pub(crate) fn with_scalar_scan_source<R>(
+        &self,
+        callback: impl for<'a, 'rows, 'facts> FnOnce(
+            crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
+        ) -> Result<
+            R,
+            crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1,
+        >,
+    ) -> Result<R, crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1> {
+        self.child.with_scalar_scan_source(callback)
+    }
 }
 
 /// Exactly-once Main static-child input.  The generic key-only admission is

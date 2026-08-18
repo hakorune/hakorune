@@ -80,6 +80,8 @@ pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_effects;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_loan;
 pub(in crate::mir) use selected_dynamic_physical_abi::{
     issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,
@@ -106,6 +108,8 @@ mod common_v2_if_continuation_target_tests;
 mod common_v2_initial_index_seed_tests;
 #[cfg(test)]
 mod common_v2_return_read_tests;
+#[cfg(test)]
+mod common_v2_s6c_cursor_cfg_tests;
 #[cfg(test)]
 mod common_v2_s6c_operand_issuer_tests;
 #[cfg(test)]

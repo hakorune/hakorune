@@ -5,12 +5,25 @@
 //! It deliberately does not emit a branch, edge, terminator, or loop CFG.
 
 use crate::mir::builder::emission::loop_operation;
+use crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1;
 use crate::mir::loop_recipe_contract::{LoopCompareI64OpV2, PreparedLoopV2ConditionOperandKindV1};
 use crate::mir::{CompareOp, MirBuilder, MirType, ValueId};
 
 use super::CanonicalLengthCallResultReceiptV1;
 use super::CommonV2CanonicalSessionRefV1;
 use super::{CommonV2ReturnReadPhysicalReceiptV1, ReturnReadPhysicalReceiptRejectV1};
+use super::{CommonV2S6CCursorCfgReceiptV1, CommonV2S6CCursorCfgRejectV1};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ConditionBoolCursorCfgHandoffRejectV1 {
+    OwnerMismatch,
+    SegmentScopeMismatch,
+    Bridge(String),
+    Root(String),
+    Cursor(String),
+    Leaf(String),
+    Materializer(CommonV2S6CCursorCfgRejectV1),
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ConditionBoolMaterializationRejectV1 {
@@ -98,6 +111,58 @@ impl<'bool_result, 'source, 'envelope>
 
     pub(in crate::mir::builder) const fn destination(&self) -> ValueId {
         self.destination
+    }
+
+    /// Consume the typed V5 condition receipt directly into the existing
+    /// cursor CFG materializer.  The raw Bool `ValueId` never crosses this
+    /// method boundary; source, entry bridge, cursor, leaf, and CFG remain
+    /// one same-session handoff.
+    pub(in crate::mir::builder::resolved_lowering) fn consume_s6c_cursor_cfg(
+        self,
+        builder: &mut MirBuilder,
+        scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
+        source: S6CScalarScanSourceRefV1<'_, '_, '_>,
+    ) -> Result<
+        CommonV2S6CCursorCfgReceiptV1<'bool_result, 'source, 'envelope>,
+        ConditionBoolCursorCfgHandoffRejectV1,
+    > {
+        let CanonicalConditionBoolResultReceiptV1 {
+            _session: session,
+            owner,
+            segment_brand,
+            destination,
+            ..
+        } = self;
+        if source.owner() != owner {
+            return Err(ConditionBoolCursorCfgHandoffRejectV1::OwnerMismatch);
+        }
+        if !scope.receipt().belongs_to(&segment_brand)
+            || !session.session.owns_segment_receipt(scope.receipt())
+        {
+            return Err(ConditionBoolCursorCfgHandoffRejectV1::SegmentScopeMismatch);
+        }
+        let bridge = session
+            .session
+            .issue_s6c_textref_entry_bridge_plan()
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Bridge(format!("{error:?}")))?;
+        let admission = crate::mir::builder::resolved_lowering::
+            issue_common_v2_s6c_text_content_root_admission_v1(source, bridge)
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Root(format!("{error:?}")))?;
+        let cursor =
+            crate::mir::builder::resolved_lowering::issue_common_v2_s6c_text_cursor_preheader_v1(
+                admission,
+            )
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Cursor(format!("{error:?}")))?;
+        let leaf = session
+            .consume_s6c_scalar_equality_leaf(cursor)
+            .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Leaf(format!("{error:?}")))?;
+        super::s6c_cursor_cfg::materialize_common_v2_s6c_cursor_cfg_v1(
+            leaf,
+            builder,
+            scope,
+            destination,
+        )
+        .map_err(ConditionBoolCursorCfgHandoffRejectV1::Materializer)
     }
 
     /// Consume this Bool receipt and the exact shared segment scope into the

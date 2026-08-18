@@ -469,15 +469,11 @@ fn materialize_inner<'session, 'source, 'envelope>(
     })
 }
 
-/// Caller-zero shape only.  `outer_condition` is deliberately still a raw
-/// Bool handoff; the next integration row must replace it with a typed V5
-/// condition receipt co-consumed from the same common-V2 cohort before this
-/// consumer can be considered an accepted physical route.
-pub(in crate::mir::builder::resolved_lowering) fn materialize_common_v2_s6c_cursor_cfg_v1<
-    'session,
-    'source,
-    'envelope,
->(
+/// Internal materializer used only by the typed V5 condition consumer below
+/// the common-session boundary.  The raw `outer_condition` is not exposed to
+/// the integration fixture; the typed receipt owns that handoff and the outer
+/// unpublished transaction remains the rollback boundary.
+pub(super) fn materialize_common_v2_s6c_cursor_cfg_v1<'session, 'source, 'envelope>(
     leaf: CommonV2S6CTextScalarEqualityLeafReceiptV1<'session, 'source, 'envelope>,
     builder: &mut MirBuilder,
     scope: &CommonV2SharedSegmentScopeV1,

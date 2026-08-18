@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/fastpath-eligibility-resolver-ssot.md
   - docs/development/current/main/phases/phase-296x/archive/296x-458-CONTRACT-REGION-V0-DOCS.md
   - docs/development/current/main/design/mimalloc-hako-port-capability-gap-inventory-ssot.md
+  - docs/development/current/main/investigations/scalar-kernel-region-d0-task-map-2026-08-18.md
   - docs/reference/language/low-level-capabilities.md
 ---
 
@@ -28,9 +29,9 @@ Related:
 - **Kernel planning status:** the Text-kernel idea is documentation-only. No
   `.hako` spelling, `fastpath` keyword, or user-visible low-level leaf is
   selected by this SSOT.
-- **Next ordered task:** continue the currently selected lane. Do not open the
-  parked Text-kernel premise until the automatic S6C corridor reaches
-  production cutover and the prerequisites below are observable.
+- **Next ordered task:** continue the currently selected S6C lane. The parked
+  Text-kernel premise has its task map, but it must not open until automatic
+  S6C production cutover and the demand-census prerequisites are observable.
 - **Production stop line:** no contract-region document authorizes a new
   parser spelling, source leaf, MIR dialect, backend route, raw pointer, or
   fallback.
@@ -251,6 +252,13 @@ Current order:
    and bounds proof for VerifiedMemAccessPlan.
 5. Open LLVM GEP/load/store from verified memory plans only.
 6. Extract a shared ContractRegionHeader only after it stops being speculative.
+
+The future scalar/text-kernel profile is tracked separately in
+`investigations/scalar-kernel-region-d0-task-map-2026-08-18.md`. It is a
+profile task, not a request to add a generic `fastpath` keyword: first obtain
+two real demand shapes, then define one verified plan issuer and reuse the
+common dispatcher/backend consumer. No syntax, raw pointer, or production
+route is opened by this document.
 ```
 
 ## Commonization Boundary

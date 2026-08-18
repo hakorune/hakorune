@@ -95,6 +95,7 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
             &mut Self,
             LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
             &crate::mir::normal_callable_semantic_package::VerifiedS6CPhysicalFunctionEffectsV1,
+            &S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
         ) -> Result<R, String>,
     ) -> Result<R, String> {
         let loan = self
@@ -111,7 +112,7 @@ impl<'loan, 'source, 'join> PreparedPhysicalEntrySessionInputV1<'loan, 'source, 
         }
         let physical_effects = loan.callable().physical_effects();
         let result = with_loop_v2_canonical_session_admission(&loan, |admission| {
-            callback(self, admission, physical_effects)
+            callback(self, admission, physical_effects, &loan)
         })
         .map_err(|error| format!("common-V2 admission rejected: {error:?}"))
         .and_then(|nested| nested);

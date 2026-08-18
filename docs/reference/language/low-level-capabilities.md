@@ -188,9 +188,11 @@ reference; use `fastmem ContractName { ... }` for the current memory row.
 
 The same rule applies to a future Text-scan/kernel spelling: it would be a
 thin producer of a profile-owned verified corridor plan, not a universal
-fastpath dialect or a raw-pointer escape hatch. Its design and task order are
-owned by `contract-region-v0-ssot.md`; no parser, verifier, backend, or
-production route is opened by this reference paragraph.
+fastpath dialect or a raw-pointer escape hatch. Its parked decision and task
+order are owned by
+`docs/development/current/main/investigations/scalar-kernel-region-d0-task-map-2026-08-18.md`;
+no parser, verifier, backend, or production route is opened by this reference
+paragraph.
 
 ### Box, Record, And Mutable State
 

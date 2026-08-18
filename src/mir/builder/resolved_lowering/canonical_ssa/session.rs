@@ -31,6 +31,8 @@ mod physical_entry_lane_adoption;
 mod physical_entry_stamp;
 #[path = "session/pinned_text_plan.rs"]
 mod pinned_text_plan;
+#[path = "session/s6c_textref_plan.rs"]
+mod s6c_textref_plan;
 #[path = "session/segment_scope.rs"]
 mod segment_scope;
 

@@ -21,6 +21,7 @@ fn with_common_v2_physical_entry_session_branded_with_effects<R>(
         &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
         &mut MirBuilder,
         &crate::mir::normal_callable_semantic_package::VerifiedS6CPhysicalFunctionEffectsV1,
+        &crate::mir::normal_callable_semantic_package::S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
     let invocation_brand = prepared.brand();
@@ -36,7 +37,7 @@ fn with_common_v2_physical_entry_session_branded_with_effects<R>(
 
     let function_name = prepared.function_name().to_owned();
 
-    prepared.with_admission(|prepared, admission, physical_effects| {
+    prepared.with_admission(|prepared, admission, physical_effects, loan| {
         let source_input = admission.input();
         with_common_v2_canonical_session_branded(admission, invocation_brand, |mut common| {
             let (detached, descriptors, stamp) = prepared.take_install_parts();
@@ -50,7 +51,7 @@ fn with_common_v2_physical_entry_session_branded_with_effects<R>(
                     .install(source_input.function())?;
                 draft.install_prepared_physical_function_skeleton(detached)?;
                 common.adopt_physical_entry_lanes(draft, &descriptors)?;
-                callback(&mut common, draft, physical_effects)
+                callback(&mut common, draft, physical_effects, loan)
             })();
 
             // The outer function transaction is the sole rollback owner.  It
@@ -75,7 +76,7 @@ fn with_common_v2_physical_entry_session_branded<R>(
         builder,
         prepared,
         expected_brand,
-        |common, builder, _physical_effects| callback(common, builder),
+        |common, builder, _physical_effects, _loan| callback(common, builder),
     )
 }
 
@@ -133,6 +134,25 @@ pub(in crate::mir::builder) fn with_common_v2_physical_entry_session_with_s6c_ef
         builder,
         prepared,
         expected_brand,
-        callback,
+        |common, builder, effects, _loan| callback(common, builder, effects),
+    )
+}
+
+#[cfg(test)]
+pub(in crate::mir::builder) fn with_common_v2_physical_entry_session_with_s6c_loan<R>(
+    builder: &mut MirBuilder,
+    prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'_, '_, '_>>,
+    callback: impl FnOnce(
+        &mut super::common_v2_session::CommonV2CanonicalSessionRefV1<'_, '_>,
+        &mut MirBuilder,
+        &crate::mir::normal_callable_semantic_package::S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    let expected_brand = prepared.brand();
+    with_common_v2_physical_entry_session_branded_with_effects(
+        builder,
+        prepared,
+        expected_brand,
+        |common, builder, _effects, loan| callback(common, builder, loan),
     )
 }

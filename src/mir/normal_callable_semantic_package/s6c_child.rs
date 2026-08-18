@@ -131,6 +131,21 @@ impl S6CSemanticChildRefV1<'_> {
         self.child.ingress.with_completion_parity(callback)
     }
 
+    /// Lend the source-owned scalar-scan relation without copying it out of
+    /// the installed ingress cohort.  The callback-scoped view carries no
+    /// physical value or runtime owner.
+    pub(crate) fn with_scalar_scan_source<R>(
+        &self,
+        callback: impl for<'a, 'rows, 'facts> FnOnce(
+            crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
+        ) -> Result<
+            R,
+            crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1,
+        >,
+    ) -> Result<R, crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1> {
+        self.child.ingress.with_scalar_scan_source(callback)
+    }
+
     /// Issue the caller-zero common V2 sibling products while the installed
     /// child still owns the retained source cohort.  The nested `Result`
     /// keeps ingress rejection and common projection rejection distinct; no
