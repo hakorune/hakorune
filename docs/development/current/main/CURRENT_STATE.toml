@@ -17,22 +17,25 @@ one private affine Enter/Finish physical carrier feeds the canonical
 unpublished session. The DraftSeal consumer D0 is accepted: the old
 single-normal-landing finish capability/state must be replaced by one affine
 aggregate consumed once over the existing explicit exit set, with operand ->
-Finish -> Return ordering and whole-draft discard on late failure. The next
-design stop fixes the selected backend carrier and post-transform no-unwind
-evidence owner; backend, production, fallback, and performance remain closed.
+Finish -> Return ordering and whole-draft discard on late failure. The selected
+backend is the contract-bound LLVM 18 C path, but no lifecycle-bearing module
+reaches its target-machine boundary yet. The next design stop fixes one
+versioned carrier and source-issued root mapping before the separate
+post-transform no-unwind observer can open; backend production, fallback, and
+performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0"
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0"
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0"
-current_blocker_token = "Name one selected backend carrier and one post-transform no-unwind closure issuer; no lifecycle lowering, production, fallback, or performance is open."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0"
+current_blocker_token = "No lifecycle-bearing LLVM module, versioned transport, or source-issued root mapping reaches the selected backend; materialize one caller-zero carrier before opening the no-unwind observer."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence backend/no-unwind closure D0"
+active_lane = "S6C Text Residence backend carrier materialization D0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -61,9 +64,12 @@ PreparedFunctionExitSetV1 stays the sole exit inventory and
 FunctionDraftSealProjectionV1 the sole Return emitter. The DraftSeal consumer
 D0 is accepted and its bounded caller-zero I0 is now landed: one move-only
 aggregate is consumed once over the existing explicit exit set. Selected
-Dynamic remains the sole production arm. Backend/no-unwind closure is now a
-design stop; lifecycle lowering, production, fallback, and performance
-remain closed.
+Dynamic remains the sole production arm. The selected backend is the
+contract-bound LLVM 18 C path, but no lifecycle-bearing module reaches its
+target-machine boundary. The active D0 therefore fixes a versioned physical
+carrier, source-issued slot/generation/root mapping, and the
+Finish-on-every-normal-exit obligation before any observer, lifecycle
+lowering, production, fallback, or performance work opens.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -76,10 +82,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, and DraftSeal consumer I0 are landed caller-zero. One private affine aggregate replaces the single-normal-landing finish state and is consumed once over the existing explicit exit set. The next design stop fixes one selected backend carrier and one post-transform no-unwind closure issuer; backend, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, and DraftSeal consumer I0 are landed caller-zero. One private affine aggregate replaces the single-normal-landing finish state and is consumed once over the existing explicit exit set. The selected backend is the contract-bound LLVM 18 C path, but no lifecycle-bearing module reaches it. The next design stop fixes one versioned carrier and source-issued root mapping before a separate post-transform no-unwind observer can open; backend production, fallback, and performance remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none; reopen only after the backend/no-unwind D0 is accepted and a selected backend module is inspectable"
+next_execution_card = "none; reopen only after the carrier materialization D0 is accepted and one source-bound lifecycle module can be inspected"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

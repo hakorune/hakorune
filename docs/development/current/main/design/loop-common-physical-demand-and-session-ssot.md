@@ -170,12 +170,15 @@ Related:
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
 - **Next ordered task:** hold the design stop
-  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0`. The
-  DraftSeal consumer I0 is landed caller-zero and replaces the
-  single-normal-landing finish capability/state with one affine aggregate
-  consumed by the existing explicit exit-set projection. Do not open backend
-  lowering, production, runtime backing, or fallback until the post-transform
-  closure issuer is fixed.
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0`. The
+  selected backend is the contract-bound LLVM 18 C path
+  (`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->
+  contract-bound generic lowering -> HakoPtfbTargetMachineSession`). A final
+  no-unwind observer belongs only after `LLVMParseIRInContext` and target/
+  layout installation, immediately before object emission, but no lifecycle-
+  bearing module reaches that boundary yet. First fix one source-issued,
+  versioned carrier for a caller-zero module; do not open the observer,
+  production, runtime backing, or fallback before that carrier exists.
 - **Production stop line:** the current typed cursor handoff is caller-zero
   transport evidence, not a completed physical corridor. Residence
   exit/finish, publication, production selector, performance promotion,
@@ -1089,13 +1092,17 @@ Landed evidence (2026-08-19):
    lifecycle MIR lowering, final no-unwind proof, runtime storage, Return
    publication, fallback, and performance remain closed.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0 (2026-08-19; design stop)
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0 (2026-08-19; accepted design stop)
 
 Decision: keep lifecycle lowering closed until one selected backend contract
-and one post-transform no-unwind closure owner are named. The existing
-`PinnedTextBackendFrameContractV1` remains a layout/access census only; it
-does not prove Residence lifetime, C ABI behavior, `nounwind`, or Return
-ordering. The physical order, once admitted, is fixed as:
+and one post-transform no-unwind closure owner are named. The selected
+contract-bound LLVM 18 C path is now named, but its observer cannot open yet:
+the current DraftSeal consumer is callback-only, the lifecycle MIR carriers
+have no JSON opcode or C lowerer, and no lifecycle-bearing LLVM module is
+inspectable. The existing `PinnedTextBackendFrameContractV1` remains a
+layout/access census only; it does not prove Residence lifetime, C ABI
+behavior, `nounwind`, or Return ordering. The physical order, once admitted,
+is fixed as:
 
 ```text
 canonical Enter
@@ -1115,10 +1122,10 @@ the canonical unpublished CFG/SSA session, and the existing backend-frame /
 target contract remain the only provenance inputs. The canonical session and
 its CFG/SSA writers issue the physical Enter/Finish carriers. The selected
 contract-bound backend emitter owns target lowering. A future
-post-transform observer/issuer (name intentionally not fixed before the
-selected backend exists) must be the sole owner of no-unwind closure evidence;
-it may be created only from an inspectable lowered module and must not mint a
-source-semantic receipt.
+post-transform observer/issuer must be the sole owner of no-unwind closure
+evidence; it may be created only from an inspectable lowered module and must
+not mint a source-semantic receipt. Until the carrier row below produces such
+a module, no observer implementation is authorized.
 
 Non-authority: ABI-regex checks, the C header alone, backend allowlists,
 MIR/JSON scans, inferred `noreturn`/`nounwind` text, frame layout, raw
@@ -1137,16 +1144,92 @@ void-returning and its fault path is terminal; and the hot loop has no call,
 allocation, lock, lease, callback, frame reload, fallback, or retry. Missing
 observer evidence is `NoSafeSlice`, not a guessed capability.
 
-Smallest next slice: name and document the selected backend carrier plus the
-post-transform closure observer contract. Do not add lifecycle lowering,
-header attributes, a new runtime frame/backing, an `Arc<str>` route, a
-production switch, or synthetic semantic receipts in this D0. The next I0 may
-implement only a read-only observer/guard after a real selected-backend module
-is inspectable; until then the row remains a design stop.
+Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-
+MATERIALIZATION-D0` below. It must define the selected backend's versioned
+lifecycle transport, source-issued slot/generation/root operand mapping, and
+the obligation that every explicit normal exit receives Finish. Its later I0
+may materialize exactly one caller-zero contract-bound LLVM module with direct
+Enter/Finish lowering and no fallback. A separate read-only observer/guard may
+open only after that module is real. Do not add observer code, header
+attributes, a new runtime frame/backing, an `Arc<str>` route, a production
+switch, or synthetic semantic receipts in this D0.
 
 Non-claims: this D0 does not claim C/LLVM lowering, final ABI attributes,
 terminal-fault EH closure, Return publication, production selection,
 performance promotion, `eq_hh` retirement, fallback/retry, or kernel syntax.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0 (2026-08-19; design stop)
+
+Decision: keep `work_mode = "design_stop"` and do not implement the final
+observer yet. The first executable backend slice is a selected-carrier
+materialization, not an observer-only guard. It must carry one exact
+caller-zero lifecycle candidate through the existing contract-bound LLVM 18 C
+path before any no-unwind claim can be observed.
+
+Source authority + canonical issuer: Source/Facts/Recipe/Join/Completion,
+the canonical physical lifecycle carrier, `PreparedFunctionExitSetV1`, the
+canonical unpublished CFG/SSA session, and the target-bound
+`PinnedTextBackendFrameContractV1`. A new carrier adapter may only co-seal
+these already-issued physical products; it must not issue a semantic
+`Verified*`/`Prepared*` fact. The source-issued physical signature is the sole
+authority for ordered slot/generation/root operands. The selected C generic
+lowerer is the concrete consumer, and the eventual post-transform observer
+will consume the same candidate at the target-machine boundary.
+
+Non-authority: numeric lane ordinals inferred from MIR, frame counts without
+operand mapping, ABI/header regexes, symbol names, MIR/JSON string census,
+backend allowlists, raw pointers or `ValueId`s, runtime status values,
+`nyash.string.eq_hh`, inferred LLVM attributes, legacy emitters,
+fallback/retry, and benchmark results. None may manufacture a lifecycle
+mapping or no-unwind closure.
+
+Fail-fast boundary: before the first lifecycle effect, reject a missing or
+foreign source signature, absent slot/generation mapping, stale plan/frame/
+target cohort, unsupported `Single`/`ExactTwo` exit shape, missing lifecycle
+JSON revision, missing `Finish every explicit normal Return` obligation, or
+any recoverable EH path. The carrier must either bind every operand from the
+source-issued physical signature or reject; it must never recover by ordinal
+guessing. C lowering must emit direct Enter/Finish calls only on the selected
+path. Any schema drift, missing lifecycle opcode, or lowerer mismatch rejects
+the unpublished candidate before temporary-object rename; no legacy route or
+retry is entered.
+
+Smallest next slice: design one private, versioned physical transport for:
+
+```text
+contract/function cohort
+target + data-layout identity
+ordered slot/generation/root operand mapping
+Enter normal/trap edges
+explicit exit-set identity
+Finish-on-every-normal-exit obligation
+Residence ABI revision
+```
+
+Then implement only the caller-zero carrier/lowerer needed to produce one
+inspectable contract-bound LLVM module. The final observer remains a separate
+later I0 at `hako_llvmc_ptfb_session_emit_object`, after parse and target /
+layout setup and immediately before `LLVMTargetMachineEmitToFile`.
+
+Acceptance for this D0/I0 boundary:
+
+1. one selected backend path is named and no non-selected backend parity is
+   added;
+2. one lifecycle transport revision and one source-issued root mapping are
+   observable in the same unpublished candidate;
+3. Enter returns `i32` and its normal/trap branch is represented directly;
+4. Finish is emitted as the success-only void wrapper immediately before
+   each explicit normal Return, with zero Finish on the trap edge;
+5. the candidate has no lifecycle call in the hot loop, no frame rebuild,
+   allocation, lock, lease, callback, fallback, or retry;
+6. missing/drifting carrier data rejects before object publication, and the
+   later observer is still forbidden until this module exists.
+
+Non-claims: this row does not yet claim a final post-transform
+`nounwind`/`noreturn` proof, object emission success, production selection,
+performance promotion, `Arc<str>` migration, new runtime frame/backing,
+`eq_hh` retirement, or kernel syntax. It is a physical carrier/materializer
+task only; the later observer remains the sole no-unwind issuer.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
@@ -1218,9 +1301,14 @@ Task ladder (canonical consumer design first, runtime effect later):
 5. `TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0` — accepted above;
    its bounded runtime ABI I0 is landed caller-zero; no lifecycle lowering is
    authorized by that ABI alone.
-6. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0` — active design
-   stop. Name one selected backend carrier and one post-transform closure
-   issuer before any I0, production, or performance work.
+6. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0` — accepted
+   design stop. The selected LLVM 18 C carrier is named, but the observer is
+   blocked until a lifecycle-bearing module exists.
+7. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-MATERIALIZATION-D0` —
+   active design stop. Define one versioned lifecycle transport, source-issued
+   slot/generation/root mapping, and a caller-zero module materializer. Only
+   after that module is inspectable may the separate post-transform observer
+   I0 open.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
