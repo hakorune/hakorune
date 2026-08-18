@@ -819,11 +819,10 @@ callback boundaries. Primary/suppressed error precedence and late outer
 transaction discard are part of the contract; implicit Drop cleanup,
 fallback, retry, V10, CFG/Return, publication, and production remain closed.
 
-The scope row is parked until the source ExactText occurrence cohort is
-bound to published runtime lanes through one explicit entry bridge. The
-source-bound V9 runtime producer is now closed, but importing runtime
-Residence into MIR or re-pairing two runtime owners after the fact remains
-forbidden.
+The source ExactText occurrence cohort is now bound to published runtime
+lanes through the explicit entry bridge. The runtime-private scope I0 is a
+caller-zero lifecycle canary; it does not import Residence into MIR or permit
+post-hoc pairing of two runtime owners.
 
 ## Common V2 source-bound V9 runtime producer D0 (2026-08-18; accepted)
 
@@ -893,5 +892,23 @@ lanes, and one-shot callback construction. The existing runtime Residence
 owner remains the sole pin/root/finish authority; TextRef scope, V10, CFG,
 Return, publication, production, fallback/retry, direct C-speed lowering, and
 `eq_hh` retirement remain closed.
+
+## Common V2 TextRef scope I0 (2026-08-18)
+
+The runtime-private `TextEqResidenceScopeV1` is a one-shot move-only owner for
+the existing source-bound V9 result and one invocation Text residence. Its
+callback lends only an opaque V9 text view plus occurrence-ordered root view;
+it emits no MIR and performs no TextEq comparison. Callback completion or
+failure is followed by ExactText `finish`, then canonical V9 End finish. A
+callback error is primary and cleanup failures are retained as suppressed
+evidence; there is no implicit Drop cleanup, retry, fallback, or second
+consumer.
+
+Evidence: `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+text_eq_residence_scope` (2 passed / 0 failed), `cargo fmt --all`, and
+`git diff --check`. The focused suite covers successful dual-ref lending,
+root-order visibility, callback-primary failure, and exactly-once cleanup.
+This is caller-zero runtime evidence only; V10, CFG/Return, publication,
+production, direct C-speed lowering, and `eq_hh` retirement remain closed.
 
 The fixed provider remains a canary and has no production caller.

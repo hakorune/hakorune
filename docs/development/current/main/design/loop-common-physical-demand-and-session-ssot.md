@@ -3007,6 +3007,26 @@ production, direct leaf, C-speed, fallback/retry, and `eq_hh` retirement
 remain closed; the next design stop is
 `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.
 
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-I0 closeout (2026-08-18; accepted)
+
+The runtime-private `TextEqResidenceScopeV1` is now a one-shot move-only
+owner for the already-produced source-bound V9 result and one invocation
+ExactText residence. It lends only a callback-scoped opaque V9 text view and
+occurrence-ordered root view; it emits no MIR and performs no TextEq compare.
+The callback result is recorded before cleanup, then ExactText `finish` runs
+before canonical V9 End finish. Callback failure is primary, while cleanup
+failures are retained as suppressed evidence. There is no implicit Drop
+cleanup, retry, fallback, or second consumer.
+
+Evidence: `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+text_eq_residence_scope` (2 passed / 0 failed); `cargo fmt --all`; and
+`git diff --check`. This is caller-zero runtime evidence only. The source
+co-seal remains the admission authority; the runtime scope does not recreate
+owner/session/segment meaning and does not import Residence into MIR. TextEq
+V10, CFG/Return, publication, production, direct leaf, C-speed, fallback,
+retry, and `eq_hh` retirement remain closed; the next design row is
+`COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0`.
+
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 
 The Residence ABI maxima are now enforced at every runtime entry before any
