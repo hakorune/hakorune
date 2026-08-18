@@ -6,7 +6,10 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{MirBuilder, MirInstruction};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-use super::with_common_v2_physical_entry_session_with_s6c_loan;
+use super::{
+    with_common_v2_physical_entry_session_with_s6c_loan,
+    with_common_v2_s6c_physical_entry_draft_seal,
+};
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -79,27 +82,42 @@ fn cursor_cfg_consumes_typed_condition_and_same_cohort_source() {
             skeleton.into_session_input(),
             |canonical, draft, loan| {
                 loan.callable()
-                    .with_scalar_scan_source(|source| {
-                        let result = (|| {
-                            let seed = canonical
-                                .emit_initial_index_seed(draft)
-                                .map_err(|error| format!("{error:?}"))?;
-                            drop(seed);
-                            canonical
-                                .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                                    let cursor = canonical
-                                        .consume_s6c_cursor_cfg(draft, &scope, source)
+                    .with_completion(|completion| {
+                        loan.callable()
+                            .with_scalar_scan_source(|source| {
+                                let result = (|| {
+                                    let seed = canonical
+                                        .emit_initial_index_seed(draft)
                                         .map_err(|error| format!("{error:?}"))?;
-                                    assert_ne!(cursor.text_equal_value(), cursor.width_value());
-                                    assert_ne!(cursor.text_equal_value(), cursor.loop_condition());
-                                    assert_eq!(pinned_text_count(draft), 3);
-                                    drop(cursor);
-                                    drop(scope);
-                                    Ok(())
-                                })
-                                .map_err(|error| format!("{error:?}"))
-                        })();
-                        source_result(result)
+                                    drop(seed);
+                                    canonical
+                                        .with_shared_segment_scope(
+                                            draft,
+                                            |canonical, draft, scope| {
+                                                let cursor = canonical
+                                                    .consume_s6c_cursor_cfg(
+                                                        draft, &scope, source, completion,
+                                                    )
+                                                    .map_err(|error| format!("{error:?}"))?;
+                                                assert_ne!(
+                                                    cursor.text_equal_value(),
+                                                    cursor.width_value()
+                                                );
+                                                assert_ne!(
+                                                    cursor.text_equal_value(),
+                                                    cursor.loop_condition()
+                                                );
+                                                assert_eq!(pinned_text_count(draft), 3);
+                                                drop(cursor);
+                                                drop(scope);
+                                                Ok(())
+                                            },
+                                        )
+                                        .map_err(|error| format!("{error:?}"))
+                                })();
+                                source_result(result)
+                            })
+                            .map_err(|error| format!("{error:?}"))
                     })
                     .map_err(|error| format!("{error:?}"))
             },
@@ -128,30 +146,161 @@ fn cursor_cfg_late_failure_discards_typed_handoff() {
             skeleton.into_session_input(),
             |canonical, draft, loan| {
                 loan.callable()
-                    .with_scalar_scan_source(|source| {
-                        source_result((|| {
-                            let seed = canonical
-                                .emit_initial_index_seed(draft)
-                                .map_err(|error| format!("{error:?}"))?;
-                            drop(seed);
-                            canonical
-                                .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                                    let cursor = canonical
-                                        .consume_s6c_cursor_cfg(draft, &scope, source)
+                    .with_completion(|completion| {
+                        loan.callable()
+                            .with_scalar_scan_source(|source| {
+                                source_result((|| {
+                                    let seed = canonical
+                                        .emit_initial_index_seed(draft)
                                         .map_err(|error| format!("{error:?}"))?;
-                                    assert_ne!(cursor.text_equal_value(), cursor.loop_condition());
-                                    assert_eq!(pinned_text_count(draft), 3);
-                                    drop(cursor);
-                                    drop(scope);
-                                    Err::<(), _>("late cursor CFG rejection".to_owned())
-                                })
-                                .map_err(|error| format!("{error:?}"))
-                        })())
+                                    drop(seed);
+                                    canonical
+                                        .with_shared_segment_scope(
+                                            draft,
+                                            |canonical, draft, scope| {
+                                                let cursor = canonical
+                                                    .consume_s6c_cursor_cfg(
+                                                        draft, &scope, source, completion,
+                                                    )
+                                                    .map_err(|error| format!("{error:?}"))?;
+                                                assert_ne!(
+                                                    cursor.text_equal_value(),
+                                                    cursor.loop_condition()
+                                                );
+                                                assert_eq!(pinned_text_count(draft), 3);
+                                                drop(cursor);
+                                                drop(scope);
+                                                Err::<(), _>("late cursor CFG rejection".to_owned())
+                                            },
+                                        )
+                                        .map_err(|error| format!("{error:?}"))
+                                })())
+                            })
+                            .map_err(|error| format!("{error:?}"))
                     })
                     .map_err(|error| format!("{error:?}"))
             },
         );
-        assert_eq!(rejected, Err("CompletionRelation".to_owned()));
+        assert!(matches!(
+            rejected,
+            Err(error) if error.contains("CompletionRelation")
+        ));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn draftseal_ingress_consumes_same_outer_transaction() {
+    let (installed, context) = installed_port(1503);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let function = with_common_v2_s6c_physical_entry_draft_seal(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft, _physical_effects, loan| {
+                loan.callable()
+                    .with_completion(|completion| {
+                        loan.callable()
+                            .with_scalar_scan_source(|source| {
+                                let result = (|| -> Result<(), String> {
+                                    let seed = canonical
+                                        .emit_initial_index_seed(draft)
+                                        .map_err(|error| format!("{error:?}"))?;
+                                    drop(seed);
+                                    canonical
+                                        .with_shared_segment_scope(
+                                            draft,
+                                            |canonical, draft, scope| {
+                                                let cursor = canonical
+                                                    .consume_s6c_cursor_cfg(
+                                                        draft, &scope, source, completion,
+                                                    )
+                                                    .map_err(|error| format!("{error:?}"))?;
+                                                assert_eq!(
+                                                    draft.function_state.current_block,
+                                                    Some(cursor.after_block())
+                                                );
+                                                assert_eq!(pinned_text_count(draft), 3);
+                                                drop(cursor);
+                                                drop(scope);
+                                                Ok(())
+                                            },
+                                        )
+                                        .map_err(|error| format!("{error:?}"))
+                                })();
+                                source_result(result)
+                            })
+                            .map_err(|error| format!("{error:?}"))
+                    })
+                    .map_err(|error| format!("{error:?}"))
+            },
+        )
+        .expect("caller-zero DraftSeal ingress");
+        assert!(!function.blocks.is_empty());
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn draftseal_ingress_discards_outer_on_tail_callback_failure() {
+    let (installed, context) = installed_port(1504);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        let rejected = with_common_v2_s6c_physical_entry_draft_seal(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft, _physical_effects, loan| {
+                loan.callable()
+                    .with_completion(|completion| {
+                        loan.callable()
+                            .with_scalar_scan_source(|source| {
+                                let result = (|| -> Result<(), String> {
+                                    let seed = canonical
+                                        .emit_initial_index_seed(draft)
+                                        .map_err(|error| format!("{error:?}"))?;
+                                    drop(seed);
+                                    canonical
+                                        .with_shared_segment_scope(
+                                            draft,
+                                            |canonical, draft, scope| {
+                                                let cursor = canonical
+                                                    .consume_s6c_cursor_cfg(
+                                                        draft, &scope, source, completion,
+                                                    )
+                                                    .map_err(|error| format!("{error:?}"))?;
+                                                drop(cursor);
+                                                drop(scope);
+                                                Err::<(), _>("tail callback rejection".to_owned())
+                                            },
+                                        )
+                                        .map_err(|error| format!("{error:?}"))
+                                })();
+                                source_result(result)
+                            })
+                            .map_err(|error| format!("{error:?}"))
+                    })
+                    .map_err(|error| format!("{error:?}"))
+            },
+        );
+        assert!(rejected.is_err());
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     })

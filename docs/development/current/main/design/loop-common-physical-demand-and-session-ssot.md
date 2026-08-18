@@ -445,10 +445,25 @@ late failure publication                 = 0
 
 Residence exit remains the next dependency, not a parallel task.
 
+### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0 (current design stop)
+
+Decision: keep the existing ExactText Residence and canonical DraftSeal as
+the only lifecycle owners; add no runtime/frame route in this design row.
+Source authority + canonical issuer: `PreparedFunctionExitSetV1` and the
+existing common-V2 completion/DraftSeal chain, with one stamp-only admission.
+Non-authority: copied exit rows, raw tokens/pointers, MIR/JSON scans, `eq_hh`,
+fallback/retry, and benchmark results. Fail-fast boundary: exact normal/early
+exit coverage, owner/stamp/target parity, no EH/unwind, and one unpublished
+candidate must be co-sealed before any lifecycle effect. Smallest next slice:
+name the move-only stamp-only admission and its canonical consumer. Non-claims:
+no Residence finish materializer, backend/no-unwind closure, production switch,
+performance promotion, or semantic/source receipt beyond existing products.
+
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (current design stop)
 
-Decision: keep `NoSafeSlice::PinnedTextCanonicalDraftSealIngressMissing`.
-The predicate/index physical I0 above is closed, but the existing
+Decision: keep `NoSafeSlice::S6CResidenceExitUnsealed`.
+The predicate/index physical I0 and the caller-zero DraftSeal ingress probe
+above are closed, but the existing
 `PinnedTextResidenceExitObligationV1` is historical proof-only prototype
 evidence, not a live finish owner. Do not connect it to Return, add a second
 exit ledger, or patch the legacy finalizer.
@@ -482,7 +497,7 @@ recoverable-unwind paths, copied rows, or a required second scan remain
 
 Task ladder (design first, implementation later):
 
-0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` — first make the S6C common-V2
+0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` (landed through its probe) — make the S6C common-V2
    physical-entry callback co-reside with the unpublished canonical
    `CanonicalFunctionLoweringSessionV1`, complete `PreparedFunctionExitSetV1`,
    and `ReadyFunctionDraftSealV1`. It must hand off through the existing
@@ -503,7 +518,7 @@ Non-claims: no new semantic receipt is implemented in this design stop; no
 runtime ABI revision, new frame, `Arc<str>` migration, production caller,
 fallback/retry, performance promotion, or `eq_hh` retirement.
 
-#### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (selected design task)
+#### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (landed design task)
 
 This is the current design-stop task. The existing
 `with_common_v2_physical_entry_session*` callback is test-only and always
@@ -539,6 +554,47 @@ Residence/frame + `PreparedFunctionExitSetV1` + canonical DraftSeal candidate
 currently co-reside, and opening the lifecycle I0 would create a second
 authority. This census keeps the `NoSafeSlice` stop explicit until a named
 common-V2 DraftSeal ingress row lands.
+
+#### COMMON-V2-S6C-DRAFTSEAL-INGRESS-PROBE0 (landed bounded execution slice)
+
+The top-down worker audit closes the design question without introducing a
+new semantic receipt. The probe is caller-zero and test-only: it is evidence
+for the existing owner chain, not a production switch.
+
+```text
+installed S6C loan / source Facts
+  -> one physical-entry outer session
+  -> one CommonV2CanonicalSessionRefV1
+  -> cursor CFG + source completion tail in the same loan callback
+  -> existing finish_for_draft_seal
+  -> ReadyFunctionDraftSealV1::prepare_exact_two
+  -> existing DraftSeal commit
+```
+
+The source completion tail (`tail_site`, `tail_value`, `tail_operand`) is
+borrowed only through the installed loan's existing `with_completion` view;
+it is not added to `S6CScalarScanSourceRefV1` or copied into a new semantic
+product. The cursor consumer emits the source-backed `-1` once in `After`,
+claims the existing Completion slot, marks the existing identity exit, seals
+the canonical `After` block, and leaves the canonical Builder at that
+terminal. The physical-entry wrapper then consumes the same common session,
+opens the ready DraftSeal on the same outer transaction, and discards that
+outer transaction on every failure. A successful probe must not execute the
+old unconditional discard path.
+
+Acceptance: positive proof reaches `prepare_exact_two` and commit on the
+fixture; missing/foreign tail, duplicate or incomplete Completion claims,
+terminal-block mismatch, seal drift, and late callback failure reject before
+publication and discard the complete unpublished outer session once. No
+Residence lifecycle, runtime token, new frame/Arc, backend/no-unwind,
+production caller, fallback/retry, performance gate, or `eq_hh` retirement is
+part of this slice.
+
+Evidence: `cargo test --profile quick --lib common_v2_s6c_cursor_cfg` is green
+(4 passed / 0 failed), `cargo check --profile quick` and formatter are green,
+and `current_state_pointer_guard.sh` plus `common_v2_s6c_structure_guard.sh`
+are green. The next bounded row is the lifecycle-authority design stop; no
+Residence or Return-finish effect is claimed by this probe.
 
 
 ## Historical boundary

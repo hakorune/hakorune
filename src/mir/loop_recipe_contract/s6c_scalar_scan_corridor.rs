@@ -62,6 +62,9 @@ pub(crate) struct S6CScalarScanSourceRefV1<'a, 'rows, 'facts> {
     text_equal_if: LoopItemKeyV1,
     step_add: LoopValueKeyV1,
     index_update: &'facts crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
+    condition_index_site: &'facts crate::mir::resolved_semantics::SourceExprSiteV1,
+    slice_end_index_site: &'facts crate::mir::resolved_semantics::SourceExprSiteV1,
+    text_equal_rhs_site: &'facts crate::mir::resolved_semantics::SourceExprSiteV1,
     step_read_site: &'facts crate::mir::resolved_semantics::SourceExprSiteV1,
     length_law: CoreMethodSemanticLawV2,
     substring_law: CoreMethodSemanticLawV2,
@@ -148,6 +151,24 @@ impl<'a, 'rows, 'facts> S6CScalarScanSourceRefV1<'a, 'rows, 'facts> {
         self,
     ) -> &'facts crate::mir::resolved_semantics::SourceExprSiteV1 {
         self.step_read_site
+    }
+
+    pub(crate) const fn condition_index_site(
+        self,
+    ) -> &'facts crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.condition_index_site
+    }
+
+    pub(crate) const fn slice_end_index_site(
+        self,
+    ) -> &'facts crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.slice_end_index_site
+    }
+
+    pub(crate) const fn text_equal_rhs_site(
+        self,
+    ) -> &'facts crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.text_equal_rhs_site
     }
 
     pub(crate) const fn length_law(self) -> CoreMethodSemanticLawV2 {
@@ -433,6 +454,9 @@ pub(super) fn issue_s6c_scalar_scan_source_v1<'a, 'rows, 'facts>(
         text_equal_if,
         step_add,
         index_update: typed.index_update(),
+        condition_index_site: less.source().lhs(),
+        slice_end_index_site: slice_end_binary.source().lhs(),
+        text_equal_rhs_site: equal.source().rhs(),
         step_read_site: step_add_binary.source().lhs(),
         length_law,
         substring_law,

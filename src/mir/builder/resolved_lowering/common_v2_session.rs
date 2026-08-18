@@ -12,6 +12,7 @@ use crate::mir::loop_recipe_contract::{
     StringLenCallTargetPlanRejectV1, VerifiedS6CReturnSourceRecipeBindingV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::{BasicBlockId, MirBuilder};
 use std::marker::PhantomData;
 
 use super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
@@ -20,6 +21,7 @@ use super::common_v2_s6c_substring_callout_admission::{
     issue_common_v2_s6c_substring_callout_admission_v1, CommonV2SubstringCallOutAdmissionRejectV1,
     PreparedCommonV2SubstringCallOutAdmissionV1,
 };
+use super::draft_seal::ReadyFunctionDraftSealV1;
 
 #[path = "common_v2_length_call.rs"]
 mod length_call;
@@ -324,6 +326,24 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         self.invocation_brand
     }
 
+    /// Consume the common-V2 session only after the S6C cursor has selected
+    /// and sealed its source-backed After block.  The profile close is
+    /// intentionally empty: S6C has no second profile ledger, so the
+    /// existing canonical terminal remains the sole DraftSeal issuer.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn finish_s6c_for_draft_seal(
+        self,
+        builder: &mut MirBuilder,
+        terminal_block: BasicBlockId,
+    ) -> Result<ReadyFunctionDraftSealV1, String> {
+        let owner = self.session.owner();
+        let profile_close =
+            super::canonical_ssa::finish_profile_close(owner, terminal_block, || Ok(()))?;
+        self.session
+            .finish_for_draft_seal(builder, profile_close)
+            .map_err(|error| error.to_string())
+    }
+
     /// Admit the one common-V2 Substring provider/site plan without opening
     /// a callout effect. The session reserves this consumer before target or
     /// metadata work, so a failed attempt cannot be retried on the same draft.
@@ -390,6 +410,48 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
             s6c_cursor_cfg_issued: false,
         };
         Ok(callback(&mut common))
+    })
+}
+
+/// Test-only close seam for the caller-zero DraftSeal probe. The callback
+/// leaves the canonical builder at its source-backed terminal block; this
+/// function then consumes the owned common session and returns the existing
+/// DraftSeal-ready owner.
+#[cfg(test)]
+pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded_finish(
+    admission: LoopV2CanonicalSessionAdmissionRefV1<'_, '_, '_>,
+    invocation_brand: ModuleInvocationBrandV1,
+    builder: &mut MirBuilder,
+    callback: impl for<'source, 'envelope> FnOnce(
+        &mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+        &mut MirBuilder,
+    ) -> Result<BasicBlockId, String>,
+) -> Result<ReadyFunctionDraftSealV1, String> {
+    admission.consume_for_canonical_session(|parts| {
+        let envelope = parts.envelope();
+        let session = CanonicalSsaFunctionSessionV2::new_common_v2(parts)?;
+        let mut common = CommonV2CanonicalSessionRefV1 {
+            session,
+            envelope,
+            invocation_brand,
+            after_allocation_state: AfterBlockAllocationStateV1::Available,
+            length_call_canary_issued: false,
+            length_target_plan_issued: false,
+            length_receiver_operand_issued: false,
+            length_call_direct_issued: false,
+            initial_index_seed_issued: false,
+            condition_bool_issued: false,
+            if_continuation_target_issued: false,
+            return_read_physical_issued: false,
+            s6c_text_eq_operands_issued: false,
+            s6c_text_eq_occurrence_issued: false,
+            s6c_substring_callout_admission_issued: false,
+            s6c_substring_callout_mir_issued: false,
+            s6c_scalar_equality_leaf_issued: false,
+            s6c_cursor_cfg_issued: false,
+        };
+        let terminal_block = callback(&mut common, builder)?;
+        common.finish_s6c_for_draft_seal(builder, terminal_block)
     })
 }
 

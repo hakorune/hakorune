@@ -998,3 +998,19 @@ This closes the predicate/index physical I0 only. Residence exit,
 normal-return finish, runtime/backend frame work, publication, production
 edge, fallback/retry, performance promotion, and `eq_hh` retirement remain
 closed.
+
+## Common V2 S6C DraftSeal ingress probe (2026-08-18; caller-zero)
+
+`with_common_v2_s6c_physical_entry_draft_seal` is the bounded test-only
+consumer that keeps the existing physical-entry outer transaction alive while
+the canonical S6C session closes the source completion tail, CFG/SSA/identity,
+and `finish_for_draft_seal`. It then opens the same unpublished transaction as
+`ReadyFunctionDraftSealV1`, prepares the exact two exits, and commits through
+the existing DraftSeal owner. The tail is borrowed from the installed loan's
+existing completion view; it is not added to the scalar source product.
+
+The positive fixture reaches DraftSeal commit and the late callback-rejection
+fixture discards the whole outer transaction. This is caller-zero evidence only:
+Residence finish, runtime/backend lowering, production selection,
+fallback/retry, performance promotion, and `nyash.string.eq_hh` retirement
+remain closed.

@@ -5,8 +5,8 @@
 //! It deliberately does not emit a branch, edge, terminator, or loop CFG.
 
 use crate::mir::builder::emission::loop_operation;
-use crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1;
 use crate::mir::loop_recipe_contract::{LoopCompareI64OpV2, PreparedLoopV2ConditionOperandKindV1};
+use crate::mir::loop_recipe_contract::{S6CPrephysicalCompletionRefV2, S6CScalarScanSourceRefV1};
 use crate::mir::{CompareOp, MirBuilder, MirType, ValueId};
 
 use super::CanonicalLengthCallResultReceiptV1;
@@ -305,6 +305,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         builder: &mut MirBuilder,
         scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,
         source: S6CScalarScanSourceRefV1<'_, '_, '_>,
+        completion: S6CPrephysicalCompletionRefV2<'_>,
     ) -> Result<
         CommonV2S6CCursorCfgReceiptV1<'_, 'source, 'envelope>,
         ConditionBoolCursorCfgHandoffRejectV1,
@@ -333,7 +334,9 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         let leaf = self
             .consume_s6c_scalar_equality_leaf(cursor)
             .map_err(|error| ConditionBoolCursorCfgHandoffRejectV1::Leaf(format!("{error:?}")))?;
-        super::s6c_cursor_cfg::materialize_common_v2_s6c_cursor_cfg_v1(leaf, builder, scope, source)
-            .map_err(ConditionBoolCursorCfgHandoffRejectV1::Materializer)
+        super::s6c_cursor_cfg::materialize_common_v2_s6c_cursor_cfg_v1(
+            leaf, builder, scope, source, completion,
+        )
+        .map_err(ConditionBoolCursorCfgHandoffRejectV1::Materializer)
     }
 }

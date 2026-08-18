@@ -11,7 +11,9 @@ use crate::mir::builder::resolved_lowering::common_v2_segment_block_allocation::
     CommonV2SharedSegmentScopeV1, PreparedSegmentBlockReceiptV1,
 };
 use crate::mir::builder::MirBuilder;
+use crate::mir::loop_recipe_contract::S6CPrephysicalCompletionRefV2;
 use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextRootIdV1};
+use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::{BasicBlockId, MirInstruction, MirType, ValueId};
 
 use super::s6c_scalar_equality_leaf::{
@@ -184,6 +186,10 @@ fn issue_i64(
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
     constant::emit_integer_at_with_dst(builder, block, dst, value)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
+    session
+        .session
+        .publish_physical_value_type(builder, dst, MirType::Integer)
+        .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
     Ok(dst)
 }
 
@@ -219,6 +225,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
     builder: &mut MirBuilder,
     scope: &CommonV2SharedSegmentScopeV1,
     source: crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'_, '_, '_>,
+    completion: S6CPrephysicalCompletionRefV2<'_>,
 ) -> Result<CommonV2S6CCursorCfgReceiptV1<'session, 'source, 'envelope>, CommonV2S6CCursorCfgRejectV1>
 {
     if session.s6c_cursor_cfg_issued {
@@ -374,6 +381,46 @@ fn materialize_inner<'session, 'source, 'envelope>(
     session
         .session
         .identity
+        .claim_variable_use_binding(source.condition_index_site(), source.index_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(source.length().receiver_site(), source.subject_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(source.substring().receiver_site(), source.subject_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    let substring_index_site = source
+        .substring()
+        .arguments()
+        .first()
+        .map(|argument| argument.site())
+        .ok_or_else(|| {
+            CommonV2S6CCursorCfgRejectV1::ReturnRead(
+                "S6C Substring index argument is missing".to_owned(),
+            )
+        })?;
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(substring_index_site, source.index_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(source.slice_end_index_site(), source.index_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .claim_variable_use_binding(source.text_equal_rhs_site(), source.needle_binding())
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
         .claim_variable_use_binding(source.step_read_site(), source.index_binding())
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
     let current_i = session
@@ -479,7 +526,33 @@ fn materialize_inner<'session, 'source, 'envelope>(
             "s6c:byte",
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::Phi)?;
-    let (entry_witness, body_witness, continuation_witness, condition_witness) = {
+    let tail_value = issue_i64(session, builder, after_block, -1)?;
+    session
+        .session
+        .completion
+        .claim_explicit_return(
+            completion.tail_site(),
+            completion.completion().target_function(),
+            after_block,
+            tail_value,
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .mark_return(ResolvedExitSiteV1::Statement(
+            completion.tail_site().clone(),
+        ))
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+
+    let (
+        entry_witness,
+        body_witness,
+        continuation_witness,
+        condition_witness,
+        then_witness,
+        after_witness,
+    ) = {
         let function = builder
             .function_state
             .current_function
@@ -505,17 +578,49 @@ fn materialize_inner<'session, 'source, 'envelope>(
             .cfg
             .seal_block(function, condition_row.physical_block())
             .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        let then_witness = session
+            .session
+            .cfg
+            .seal_block(function, return_placement.then_block)
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+        let after_witness = session
+            .session
+            .cfg
+            .seal_block(function, after_block)
+            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
         (
             entry_witness,
             body_witness,
             continuation_witness,
             condition_witness,
+            then_witness,
+            after_witness,
         )
     };
     session
         .session
         .identity
         .seal_block(builder, &mut session.session.phis, entry, &entry_witness)
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .seal_block(
+            builder,
+            &mut session.session.phis,
+            return_placement.then_block,
+            &then_witness,
+        )
+        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .identity
+        .seal_block(
+            builder,
+            &mut session.session.phis,
+            after_block,
+            &after_witness,
+        )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
     session
         .session
@@ -547,6 +652,11 @@ fn materialize_inner<'session, 'source, 'envelope>(
             &condition_witness,
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    session
+        .session
+        .cfg
+        .select_block(builder, after_block)
+        .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
 
     Ok(CommonV2S6CCursorCfgReceiptV1 {
         _session: session,
@@ -573,9 +683,10 @@ pub(super) fn materialize_common_v2_s6c_cursor_cfg_v1<'session, 'source, 'envelo
     builder: &mut MirBuilder,
     scope: &CommonV2SharedSegmentScopeV1,
     source: crate::mir::loop_recipe_contract::S6CScalarScanSourceRefV1<'_, '_, '_>,
+    completion: S6CPrephysicalCompletionRefV2<'_>,
 ) -> Result<CommonV2S6CCursorCfgReceiptV1<'session, 'source, 'envelope>, CommonV2S6CCursorCfgRejectV1>
 {
     leaf.with_session(|session, capability| {
-        materialize_inner(session, capability, builder, scope, source)
+        materialize_inner(session, capability, builder, scope, source, completion)
     })
 }

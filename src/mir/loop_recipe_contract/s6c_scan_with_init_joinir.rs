@@ -87,6 +87,10 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.contract.call_site()
     }
 
+    pub(crate) fn receiver_site(self) -> &'a crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.contract.receiver_site()
+    }
+
     pub(crate) fn result_site(self) -> &'a crate::mir::resolved_semantics::SourceExprSiteV1 {
         self.contract.result_site()
     }

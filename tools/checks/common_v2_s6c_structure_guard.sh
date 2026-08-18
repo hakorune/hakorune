@@ -19,6 +19,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
   "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
 )
@@ -75,6 +76,18 @@ guard_expect_fixed_in_file "$TAG" 'MirInstruction::PinnedTextOp' "$cursor_cfg" \
   "cursor CFG must materialize the existing pinned-text leaf"
 if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$cursor_cfg"; then
   guard_fail "$TAG" "cursor CFG I0 must not open a new frame, Arc owner, or legacy C route"
+fi
+draftseal="$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
+guard_expect_fixed_in_file "$TAG" 'with_common_v2_canonical_session_branded_finish' "$draftseal" \
+  "DraftSeal probe must reuse the canonical finish wrapper"
+guard_expect_fixed_in_file "$TAG" 'finish_for_draft_seal' "$session" \
+  "common session must reuse the canonical finish owner"
+guard_expect_fixed_in_file "$TAG" 'prepare_exact_two' "$draftseal" \
+  "DraftSeal probe must use the existing exact exit-set preparation"
+guard_expect_fixed_in_file "$TAG" 'discard_unpublished' "$draftseal" \
+  "DraftSeal probe must retain one outer rollback owner"
+if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$draftseal"; then
+  guard_fail "$TAG" "DraftSeal probe must not open runtime/legacy/production routes"
 fi
 plan_bridge="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
 guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_bridge" \

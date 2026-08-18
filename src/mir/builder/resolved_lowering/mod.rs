@@ -75,6 +75,8 @@ pub(in crate::mir::builder) use common_v2_session::{
     CommonV2S6CTextScalarEqualityLeafCapabilityV1, CommonV2S6CTextScalarEqualityLeafReceiptV1,
     CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
@@ -142,6 +144,8 @@ mod normal_function_draft_lowering_tests;
 mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
+#[cfg(test)]
+mod physical_entry_draftseal;
 #[cfg(test)]
 mod physical_entry_lane_adoption_tests;
 #[cfg(test)]
