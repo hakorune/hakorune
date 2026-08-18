@@ -2084,37 +2084,64 @@ runtime-value ingress as the next design-only boundary. No new semantic
 receipt, runtime pin, TextEq/Bool/CFG, publication, fallback, retry, or
 production switch is opened by this D0.
 
-### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-WIRE-INGRESS-D0 (2026-08-18; design stop)
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-EXACTTEXT-LANE-BORROW-INGRESS-D0 (2026-08-18; design stop)
 
-Decision: keep the blocker. The fresh audit found no source-backed bridge from
-the canonical ExactText sidecar's physical lanes to a runtime
-`TextFormalWirePairV1`; this does not require an architecture-wide rewrite.
+Decision: keep `NoSafeSlice::ExactTextLaneBorrowIngressUnsealed` and define one
+physical-only lane adapter before any residence or TextEq effect. This is a
+BoxShape transport boundary, not a new source shape or semantic receipt; no
+architecture-wide rewrite is required.
 
 Source authority + canonical issuer: S6C `StringSubstring/2` and the existing
-TextEq source/Recipe relation; `S6CTextEqOccurrencePhysicalViewV1` owns the
-source/sidecar proof, `CommonV2SubstringV9MaterializationV1` owns V9, and
-`text_formal_abi::issue_stable_text_formal_wire_v1` is the only StableText wire
-issuer once it receives an already-published runtime pair.
+TextEq Facts/Recipe relation remain the source authority. The
+`S6CTextEqOccurrencePhysicalViewV1` and
+`PhysicalTextEntryLaneSidecarV1` prove the exact owner/binding/ordinal,
+adjacent slot+generation lanes, and `U64BitsOnI64` carrier, but never mint a
+runtime value. `CanonicalSsaFunctionSessionV2` remains the sole MIR `ValueId`
+issuer. The runtime `text_formal_abi`/host-handle owner is the sole issuer of a
+generation-branded `TextFormalBorrowV1`; the next bounded design names one
+private adapter equivalent to
+`issue_text_formal_borrow_from_published_wire_v1(slot, generation)` and feeds
+the existing atomic residence/lease owner.
 
-Non-authority: sidecar `ValueId(slot,generation)`, logical ordinal, raw V9
-handle/token recapture, `nyash.string.eq_hh`, C status/frame exports as source
-issuers, StringBox-to-StableText coercion, and `TextFormalCallResidenceV1` as
-semantic/source authority.
+Non-authority: sidecar `ValueId` numbers or ordinals as slot/generation data,
+MIR metadata or frame-row counts, raw handles/tokens, `DynamicV2CallOutV1`,
+`hako_text_formal_validate_v1` status-only validation, `nyash.string.eq_hh`,
+C status/frame rows as source issuers, StringBox-to-StableText coercion, and
+`TextFormalCallResidenceV1` reinterpreted as source meaning.
 
-Fail-fast boundary: reject before residence pin or CheckedCallOut on absent,
-zero, stale, foreign, or mismatched runtime wire; sidecar/owner/session/
-entry/segment/carrier drift; non-Normal V9 output; escaped borrow; duplicate
-finish; or actual StringBox payload under StableText-only residence.
+Fail-fast boundary: before the first `CheckedCallOut` effect, reject missing or
+duplicate ExactText lanes, non-adjacent slot/generation pairs, carrier/owner/
+session/entry/segment/occurrence drift, and any attempt to recapture from a
+`ValueId`. At runtime, reject zero/out-of-range/missing/stale/foreign/
+retiring/non-Text pairs, overflow, or unsupported representation before any
+pin or frame publication. A failure leaves no partial pin, token, root row, or
+V9 result.
 
-Smallest next slice: design only one future private
-`CommonV2TextEqResidenceScopeV1` that borrows the existing occurrence proof,
-accepts an already-issued runtime wire, owns `TextFormalCallResidenceV1`, and
-finishes residence before V9 End. No wire construction from MIR values is
-permitted; if the runtime-value ingress cannot be named, retain
-`NoSafeSlice::ExactTextResidenceWireIngressUnsealed`.
+Lifetime boundary: ExactText residence is invocation-scoped and acquired once
+at entry; its root `ptr/byte_len` rows are loaded in the preheader and reused
+by the loop. V9 `End` is occurrence-scoped and is consumed immediately after
+that occurrence's sole TextEq consumer. The rejected design is the
+per-iteration `pair -> LeaseSet -> lock -> callback -> finish` loop. Normal
+function exits finish the invocation residence before `Return`; recoverable
+unwind remains closed until a matching cleanup proof exists.
 
-Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
-`ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
+Smallest next slice: design only the private lane-adapter ABI, its one runtime
+issuer, the all-pairs atomic acquire/rollback contract, and the connection to
+the existing V9 `NormalResult`/`End`/`Fault` lifecycle. No wire construction
+from compiler metadata is permitted. If this source-bound lane ingress cannot
+be named precisely, retain the current `NoSafeSlice`.
+
+Acceptance when selected: one named lane adapter and one runtime issuer;
+positive live Text pair; zero/missing/stale/foreign/generation-mismatch,
+retiring/non-Text, overflow, and non-adjacent-lane negatives; no partial pin,
+frame, or root publication; one invocation-scoped residence finish; one V9 End
+consume per normal occurrence; and explicit caller-zero proof before any
+production edge. This remains a design-only acceptance list and authorizes no
+new semantic `Verified*`/`Prepared*` receipt.
+
+Non-claims: no residence I0, new semantic receipt, CheckedCallOut emission,
+V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, production,
+performance promotion, StringBox policy change, or `eq_hh` retirement.
 
 ### TEXT-FORMAL-EXACT-STRINGBOX-RESIDENCE-D0 (2026-08-18; audited, production-parked)
 
@@ -2552,27 +2579,27 @@ session, segment, body, or occurrence, and unsupported representation. A late
 failure discards the unpublished function; no partial Bool or retry survives.
 
 Residence candidate: one private
-`CommonV2S6CTextEqResidenceScopeV1` owns the callback-scoped pair. It consumes
-the existing ExactText entry lane proof and the V9 End-authorized result
-obligation, and lends occurrence-ordered opaque roots `[V9, ExactText]` to the
-TextEq leaf. The V9 root is borrowed from its existing End lease; it is not
-repinned or recaptured from a raw handle. ExactText roots are admitted in one
-entry transaction with occurrence multiplicity, and unsupported payloads are
-rejected before a root row is published.
+`CommonV2S6CTextEqResidenceScopeV1` owns the invocation-scoped ExactText
+residence and lends the occurrence-scoped V9 result only inside the existing
+callback. It consumes the existing ExactText entry-lane proof and the V9
+End-authorized result obligation, but never places V9 into the formal root
+array or repins/recaptures it from a raw handle. ExactText roots are admitted
+once at entry with occurrence multiplicity; their `ptr/byte_len` rows are
+loaded in the preheader and reused by the loop.
 
-The only legal finish order is:
+The legal lifecycle is split by lifetime:
 
 ```text
-TextEq leaf completes
-  -> residence finishes ExactText pins and root scope
-  -> canonical V9 CheckedCallOutEnd consumes the V9 lease
+per V9 occurrence: TextEq leaf completes -> canonical V9 End consumes
+normal function exit: ExactText residence.finish -> Return
 ```
 
-Any fault/unwind-capable path remains closed until the same order is proven;
-there is no retry or second finish owner. The row-11 mutable-reachability
-census is a mandatory acceptance input for the future exact StringBox fast
-route; it is already recorded in this SSOT and must be reused rather than
-duplicated.
+The rejected design is a per-iteration residence acquire/lock/callback/finish
+cycle. Any fault/unwind-capable path remains closed until the matching
+invocation cleanup proof is present; there is no retry or second finish owner.
+The row-11 mutable-reachability census is a mandatory acceptance input for the
+future exact StringBox fast route; it is already recorded in this SSOT and must
+be reused rather than duplicated.
 
 ##### TextRef residence D0 audit decision (2026-08-18; accepted design boundary)
 
@@ -2591,8 +2618,8 @@ reinterpreted as source meaning.
 
 Fail-fast boundary: before residence/leaf effect, reject owner/session/segment/
 body/occurrence drift, stale/foreign/duplicate/unsupported roots, or absent V9
-and ExactText correspondence. Finish is exactly once in the order
-`TextEq leaf -> ExactText residence.finish -> V9 End consume`.
+and ExactText correspondence. ExactText entry acquisition and finish are
+exactly once per invocation; V9 End is exactly once per normal occurrence.
 
 Smallest next slice: specify only the private scope API, rollback owner,
 opaque roots `[V9, ExactText]`, one consumer, one finish owner, and primary /
