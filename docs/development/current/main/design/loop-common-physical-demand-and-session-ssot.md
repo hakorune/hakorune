@@ -2118,34 +2118,43 @@ Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
 ### PARKED-PINNED-TEXT-STRINGBOX-ROOT-OWNER-D0 (2026-08-18; audited, parked)
 
 Decision: keep `TextFormalCallResidenceV1` StableText-only. A future fast lane
-may admit StringBox without a byte copy only when one runtime token record owns
-both the existing call pins and cloned exact-StringBox `Arc` roots.
+may admit exactly the built-in `StringBox` without a byte copy after the
+correctness production edge. It must reuse the existing registry-held payload;
+the Residence token owns call pins and root descriptors, not a second `Arc`
+owner.
 
-Source authority + canonical issuer: S6C resolver/Recipe exact StringBox
-formals select the lane; the host table alone validates the published
-`{slot,generation}`, retirement state, and concrete `StringBox` payload and
-issues the root owner.
+Source authority + canonical issuer: the existing ExactText formal occurrence
+and S6C source/Facts/Recipe relation own Text meaning. The host table alone
+validates the published `{slot,generation}`, retirement state, and exact
+concrete payload, then issues the physical root residence. A runtime payload
+class never becomes a new source meaning.
 
-Memory proof: `StableBox` already stores `Arc<dyn NyashBox>`. While the token
-record retains a clone, safe Rust cannot obtain `&mut StringBox`; public
-`value` and `as_any_mut` do not create a mutable alias through a shared `Arc`.
-The issuer must use exact concrete downcast, not spoofable `type_name()` plus
-`as_str_fast()`. LeaseSet alone remains slot identity/retirement authority.
+Memory proof: a call pin prevents removal, free-list reuse, and generation
+replacement of the registry payload. For `StableBox`, the table's existing
+`Arc<dyn NyashBox>` keeps the heap allocation alive; moving the `Arc` value does
+not move the object. The exact built-in `StringBox` has no interior mutation
+surface through a shared reference, so its `String` buffer remains stable.
+The issuer must use concrete downcast, not spoofable `type_name()` plus
+`as_str_fast()`. Neither a pin for an arbitrary payload nor a concrete type
+without retirement protection is sufficient alone.
 
-Non-authority: raw slot/generation, LeaseSet alone, StringBox name checks,
-StableText coercion or snapshot copies, `eq_hh`, C frame rows, MIR `ValueId`,
-and benchmark success.
+Non-authority: a cloned `Arc`, raw slot/generation, a pin for an unclassified
+payload, StringBox name checks, StableText coercion or snapshot copies,
+`eq_hh`, C frame rows, MIR `ValueId`, and benchmark success.
 
 Fail-fast boundary: one entry write-lock transaction validates every pair,
-clones every exact backing owner, checks all pin counts, then publishes one
-token and root set. Any error leaves pins/tokens/roots at zero. Finish consumes
-the token exactly once; no fallback, retry, or partial publication is allowed.
+checks the exact concrete payload, byte length, retirement state, and all pin
+counts, then publishes one token and occurrence-ordered root set. Any error
+leaves pins/tokens/roots at zero. Finish consumes the token exactly once; no
+fallback, retry, or partial publication is allowed.
 
 Smallest next slice: remain parked until the correctness production edge;
-then close `TEXT-FORMAL-STRINGBOX-ROOT-RESIDENCE-D0` before implementation.
+then close the ABI-limit and lease/root-separation BoxShape rows before the
+single exact-StringBox BoxCount implementation.
 
 Non-claims: no current StringBox root issuer, ABI/raw-pointer publication,
-compiler lifecycle, direct leaf, speed result, production, or `Arc<str>` migration.
+compiler lifecycle, direct leaf, speed result, production, extra `Arc` root,
+or `Arc<str>` migration.
 
 ### COMMON-V2-S6C-V9-CALLOUT-MIR-D0 (2026-08-18; design stop)
 
@@ -2209,52 +2218,85 @@ source Binary Equal / StringSubstring
 The correction removes a phase leak; it does not add a second source meaning
 or a second physicalizer.
 
-#### Ordered task map
+#### Final-state design brief
 
-1. `COMMON-V2-S6C-V9-CALLOUT-MIR-D0` — close the six-line design brief above.
-2. `COMMON-V2-S6C-STRUCTURE-R0` — behavior-neutral BoxShape split before code
-   growth: `s6c_prephysical_ingress.rs` is 786 lines and
-   `common_v2_session.rs` is 752 lines. Keep the sole semantic owner; put new
-   callout orchestration in its own module.
-3. `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` — emit the real canonical callout,
-   Normal/Fault landings, callback-scoped V9 result, End, and fault terminal.
-   Keep the concrete-wire canary test-only and caller-zero.
-4. `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` — co-seal the V9 physical result
-   with the adopted ExactText entry lanes; do not construct a runtime pair in
-   the compiler.
-5. `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` — select one strict,
-   non-fallback physical capability for the existing TextEq operation and
-   issue Bool V10. If no strict backend exists, return to `design_stop`.
-6. `COMMON-V2-S6C-INNER-CFG-D0/I0` — consume V10 with the existing
-   Return-read/shared-segment/FunctionExit proofs and write If/Return CFG.
-7. `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` — prove the whole caller-zero
-   correctness path, negative matrix, exact lifecycle census, and late
-   unpublished discard.
-8. `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` — connect the real caller through
-   Completion/DraftSeal/publication, then retire the old selected edge only
-   after caller-zero evidence.
-9. `TEXT-FORMAL-STRINGBOX-ROOT-RESIDENCE-D0/I0` — one zero-copy exact-StringBox
-   owner whose token retains cloned `Arc` roots plus pins through atomic finish.
-10. `S6C-PINNED-SCAN-CORRIDOR-D0/I0` — from the complete fixed Recipe, not MIR
-    adjacency, co-seal zero init, an explicit codepoint profile, Length/condition,
-    `Substring(i,i+1)` sole-use TextEq/If, `i+1`, and exits. Select one derived
-    byte-cursor realization before effects; absent profile authority is
-    `NoSafeSlice`, and replaced ops must not also dispatch.
-11. `PINNED-TEXT-INVOCATION-LIFECYCLE-D0/I0` — acquire once at entry, load roots
-    in the preheader, and finish before every normal Return. Post-acquire fault
-    or unwind stays closed without explicit cleanup proof.
-12. `LLVM-PINNED-TEXT-LEAF-D0/I0` — direct `ByteLen`/`Utf8WidthAt`/scalar-eq
-    GEP/load/compare with valid UTF-8, scalar boundary, width 1..4, exact reads,
-    alignment 1, no overread, and no alias-disproving attributes.
-13. `PINNED-TEXT-PERFORMANCE-PROMOTION-R0` — structural zero-boundary, then
-    exact/meso/whole and C break-even; numeric ratios are evidence, not authority.
-14. `EQ-HH-RETIREMENT-R0` — cut over its generic C/Python callers, remove the
-    declaration, and retire the ABI export only after an external caller-zero
-    census.
+Decision: land one portable correctness route and its production cutover
+first. Only afterward may one source-proven pinned-Text projection replace the
+physical work for the exact S6C cohort; it adds no source meaning and keeps no
+runtime fallback.
 
-Rows 1–4 are BoxShape. Row 5 and parked row 9 each decide whether one physical
-representation is bounded BoxCount or `NoSafeSlice`; rows 10–12 are BoxShape
-only after issuer closure. Correctness, production, and performance stay separate.
+Source authority + canonical issuer: resolver source membership, complete
+Facts/Recipe/Join relations, and the canonical session remain the semantic and
+CFG/SSA owners. The host registry alone owns physical payload residence; the
+LLVM leaf owns only backend-private loads and comparisons.
+
+Non-authority: `nyash.string.eq_hh`, a cloned `Arc`, raw slot/generation or
+pointer values, MIR adjacency, V9/V10 ordinals, C frame layout, and benchmark
+success.
+
+Fail-fast boundary: compile-time cohort/capability validation and runtime
+pair/root validation both finish before their first effect. Later compiler
+failure discards the unpublished function; no retry, fallback, partial pin,
+or partial publication is allowed.
+
+Smallest next slice: only `COMMON-V2-S6C-V9-CALLOUT-MIR-D0`. Every runtime,
+direct-leaf, performance, and retirement row below remains parked.
+
+Non-claims: no StringBox residence, TextEq V10, inner CFG, production switch,
+direct kernel, C-speed result, or legacy retirement is open now.
+
+#### Final convergence task graph
+
+```text
+portable correctness and first production edge
+  1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+
+runtime root foundation and direct physical projection
+  8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16
+
+independent compatibility retirement
+  generic C/Python caller cutover -> 17
+```
+
+| # | Row | Kind | Exact exit |
+| ---: | --- | --- | --- |
+| 1 | `COMMON-V2-S6C-V9-CALLOUT-MIR-D0` | design stop | Accept the callback-scoped `CheckedCallOut -> NormalResult(V9) -> consumer -> End` plus separate terminal Fault design. |
+| 2 | `COMMON-V2-S6C-STRUCTURE-R0` | BoxShape | Split the 786-line S6C ingress and 752-line common session before adding orchestration; semantic ownership remains singular. |
+| 3 | `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` | BoxShape | Emit canonical Normal/Fault landings, V9, End, and Fault; the concrete-wire canary stays test-only and caller-zero. |
+| 4 | `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` | BoxShape | Co-seal V9 with the adopted ExactText lanes in one session/segment without constructing a runtime pair in the compiler. |
+| 5 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` | one BoxCount or `NoSafeSlice` | Select one strict non-fallback physical capability for the existing portable TextEq and issue Bool V10. |
+| 6 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | BoxShape | Consume V10 with existing Return-read, shared-segment, and FunctionExit proofs to write the inner If/Return CFG. |
+| 7 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | evidence | Close positive/negative behavior, exact lifecycle census, and late unpublished-function discard. |
+| 8 | `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` | production replacement | Connect Completion/DraftSeal/publication, switch the real caller, and retire the old selected edge after caller-zero proof. |
+| 9 | `TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0` | BoxShape | Enforce the runtime-owned root/frame maxima in Rust and C entry before allocation or pin; exact-limit positive and over-limit mutation-free negatives are required. |
+| 10 | `TEXT-FORMAL-LEASE-ROOT-ADMISSION-SPLIT-R0` | BoxShape | Remove the `stable_text_only` boolean: lease-only acquisition creates no root vector, while root-bearing Residence uses one strict classifier under the same write-lock transaction. |
+| 11 | `TEXT-FORMAL-EXACT-STRINGBOX-RESIDENCE-D0/I0` | one BoxCount | Add exactly the built-in `StringBox` by concrete downcast. Keep the registry payload pinned, clone no root `Arc`, copy no bytes, and reject spoofed/string-like boxes before mutation. |
+| 12 | `S6C-PINNED-SCALAR-SLICE-CORRIDOR-D0/I0` | BoxShape | Derive non-materialization from the complete Recipe cohort and sole-use relation, never from MIR adjacency; replaced operations must not also dispatch. |
+| 13 | `PINNED-TEXT-INVOCATION-LIFECYCLE-D0/I0` | BoxShape | Acquire once at entry, load ptr/len in the preheader, finish before every normal Return, and keep recoverable unwind closed without cleanup proof. |
+| 14 | `LLVM-PINNED-TEXT-LEAF-D0/I0` | BoxShape | Lower only `ByteLen`, `Utf8WidthAt`, and scalar-slice equality with width 1..4, exact byte reads, alignment 1, no overread, and no root-to-root `noalias`. |
+| 15 | `PINNED-TEXT-PERFORMANCE-PROMOTION-R0` | evidence | Pass the structural zero-boundary before exact, meso, and whole-call C comparisons; benchmark wins cannot waive structure or correctness. |
+| 16 | `S6C-PINNED-TEXT-PRODUCTION-SWITCH-I0` | production replacement | Select Direct before effects for the proven cohort, remove its materialized Substring/TextEq physical edge, and retain the portable route only for distinct admitted shapes, never as retry. |
+| 17 | `EQ-HH-RETIREMENT-R0` | compatibility retirement | Cut over generic C/Python callers, prove external caller zero, then remove the declaration and `nyash.string.eq_hh` export. |
+
+Rows 1–8 are the correctness critical path. Rows 9–16 cannot open before row
+8 because pinned-Text performance is explicitly parked until correctness and
+the first production cutover. Each I0 carries focused positive/negative tests,
+the owning README/reference update, and one reusable guard where the invariant
+cannot be covered by a stable test.
+
+The row-11 acceptance matrix must include StableText preservation, exact
+StringBox success, same-root aliases, nested residences, drop-to-Pending,
+allocation churn while pinned, stale generation, and a box spoofing the
+`StringBox` name. Success has zero new `Arc` clones, zero snapshots, zero body
+locks, and one exactly-once finish owner.
+
+The row-15 structural gate requires zero host-table locks, allocations,
+deallocations, callbacks, external/indirect calls, handle publication,
+generation checks, LeaseSet operations, and Residence enter/finish inside the
+hot loop. Root ptr/len loads occur in the preheader. Initial promotion targets,
+on the same target/optimization level with warmup and at least 30 samples, are
+ASCII exact-kernel p50 at most 1.10x C, mixed UTF-8 at most 1.15x, 4 KiB-or-
+larger meso at most 1.15x, long whole-call at most 1.20x, and p95 at most 1.30x.
 
 The independent structural audit remains a separate pre-production backlog:
 
@@ -2267,6 +2309,10 @@ The independent structural audit remains a separate pre-production backlog:
   block-receipt, and segment-dispatch caller census during production cutover.
 - `TRANSITION-DEAD-CODE-ALLOW-R0` shrinks transition-only `allow(dead_code)`
   after caller-zero retirement.
+- `HOST-HANDLE-GENERATION-LIFECYCLE-R0` migrates new lifecycle ABIs away from
+  raw-handle-only release and retires the legacy surface only after its own
+  compatibility caller census. It is not a prerequisite for the already
+  generation-branded ExactText lane.
 
 #### C-speed and legacy verdict
 
@@ -2277,11 +2323,14 @@ the correctness authority. Keep it as a measured legacy baseline until the
 later caller-zero retirement row.
 
 The per-iteration `pair -> LeaseSet -> callback -> finish` path is rejected.
-The thinnest candidate is one entry transaction plus token-owned exact-
-StringBox `Arc` roots: no whole-function registry guard and no O(bytes)
-snapshot. The full S6C cursor cohort, not V9/V10 adjacency, authorizes direct
-lowering. C-like kernel speed is plausible; whole-call parity remains a
-release-LTO IR/assembly and exact/meso/whole measurement claim.
+The thinnest candidate is one entry transaction plus a pin-owned registry
+payload and exact concrete StringBox classification: no extra root `Arc`, no
+whole-function registry guard, and no O(bytes) snapshot. Entry/finish
+allocation or lock cost is measured separately and optimized only if whole-
+call evidence names it as hot. The full S6C cursor cohort, not V9/V10
+adjacency, authorizes direct lowering. C-like kernel speed is plausible;
+whole-call parity remains a release-LTO IR/assembly and exact/meso/whole
+measurement claim.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 
