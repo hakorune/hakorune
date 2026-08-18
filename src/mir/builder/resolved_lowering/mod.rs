@@ -11,6 +11,8 @@ mod canonical_ssa;
 mod common_v2_after_block_allocation;
 mod common_v2_if_continuation_target;
 mod common_v2_s6c_substring_callout_admission;
+#[allow(dead_code)]
+mod common_v2_s6c_textref_entry_bridge;
 mod common_v2_segment_block_allocation;
 mod common_v2_session;
 mod completion_consumption;

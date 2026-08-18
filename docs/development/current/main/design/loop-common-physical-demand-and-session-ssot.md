@@ -2983,6 +2983,30 @@ overflow, and mutation-free rollback. The consumer exposes no raw tuple,
 root, and finish owner. This is caller-zero physical evidence, not a
 production switch.
 
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-I0 closeout (2026-08-18; accepted)
+
+The private index-only plan and one-shot lane consumer are implemented in
+`common_v2_s6c_textref_entry_bridge.rs` (currently 358 lines). Its occurrence
+entry point first checks the existing S6C occurrence/co-seal against the
+sidecar owner, entry, binding, and logical ordinal; the sidecar issuer then
+validates monotonic source rows, adjacent `U64BitsOnI64` lanes, owner-branded
+bindings, and explicit root/pair indices. It consumes runtime lane values
+exactly once to lend a root-index-ordered pair batch. It does not import
+Residence, emit MIR, or expose raw runtime identity.
+
+Evidence: `cargo fmt --all`; `CARGO_BUILD_JOBS=4 cargo test --profile quick
+--lib common_v2_s6c_textref_entry_bridge` (4 passed / 0 failed);
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`; the current state pointer
+and StringBox mutable-reachability guards; and `git diff --check`. The focused
+negatives cover non-monotonic ordinals, foreign bindings, non-adjacent lanes,
+short input, and zero runtime pair values; the existing S6C occurrence suite
+covers the source/co-seal itself.
+Warnings remain baseline-only. The existing runtime Residence and V9 End
+owners are unchanged. TextRef scope, V10 Bool, CFG/Return, publication,
+production, direct leaf, C-speed, fallback/retry, and `eq_hh` retirement
+remain closed; the next design stop is
+`COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.
+
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 
 The Residence ABI maxima are now enforced at every runtime entry before any

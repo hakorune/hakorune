@@ -52,6 +52,7 @@ pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerReject
 
 #[path = "common_v2_s6c_text_eq_occurrence.rs"]
 mod s6c_text_eq_occurrence;
+pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 
 #[path = "common_v2_s6c_substring_v9_issuer.rs"]

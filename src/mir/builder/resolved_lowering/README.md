@@ -819,11 +819,11 @@ callback boundaries. Primary/suppressed error precedence and late outer
 transaction discard are part of the contract; implicit Drop cleanup,
 fallback, retry, V10, CFG/Return, publication, and production remain closed.
 
-The scope row is parked until a source-bound V9 runtime producer proves the
-relation between the canonical NormalResult/End obligation and the runtime
-`EndAuthorizedTextV1`. The next design boundary is
-`COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0`; importing runtime Residence into
-MIR or re-pairing two runtime owners after the fact is forbidden.
+The scope row is parked until the source ExactText occurrence cohort is
+bound to published runtime lanes through one explicit entry bridge. The
+source-bound V9 runtime producer is now closed, but importing runtime
+Residence into MIR or re-pairing two runtime owners after the fact remains
+forbidden.
 
 ## Common V2 source-bound V9 runtime producer D0 (2026-08-18; accepted)
 
@@ -874,7 +874,24 @@ S6C structure, and StringBox mutable-reachability guards; and `git diff
 the issuer tests were rerun by their exact discovered names. Warnings remain
 baseline-only.
 
-The fixed provider remains a canary and has no production caller. TextRef
-scope, TextEq V10, CFG/Return, publication, production, direct leaf, C-speed,
-fallback/retry, and `eq_hh` retirement remain closed. The next design boundary
-is `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0`.
+## Common V2 TextRef entry bridge D0/I0 (2026-08-18)
+
+The accepted bridge is an index-only private physical plan. Its occurrence
+entry point consumes the existing S6C occurrence/co-seal and
+`PhysicalTextEntryLaneSidecarV1`, checks owner/entry/needle-row identity before
+delegating to the sidecar issuer, records the exact slot/generation lane
+indices plus an explicit root-index bijection, and never stores concrete
+`{slot,generation}` values, handles, tokens, or `ValueId`s. The move-only plan
+is consumed once; its callback lends the root-index-ordered already-published
+pair vector to the future runtime Residence adapter without allowing ordinal
+rematching.
+
+`common_v2_s6c_textref_entry_bridge.rs` is caller-zero physical evidence only.
+Its focused suite covers positive one- and multi-root ordering, non-monotonic
+source ordinals, foreign bindings, non-adjacent lanes, short/zero runtime
+lanes, and one-shot callback construction. The existing runtime Residence
+owner remains the sole pin/root/finish authority; TextRef scope, V10, CFG,
+Return, publication, production, fallback/retry, direct C-speed lowering, and
+`eq_hh` retirement remain closed.
+
+The fixed provider remains a canary and has no production caller.
