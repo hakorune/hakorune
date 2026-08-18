@@ -2290,6 +2290,14 @@ allocation churn while pinned, stale generation, and a box spoofing the
 `StringBox` name. Success has zero new `Arc` clones, zero snapshots, zero body
 locks, and one exactly-once finish owner.
 
+Before row 11 may leave D0, one reusable mutable-reachability census must
+classify every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
+extern/C provider, nowait/task handoff, and writable raw-pointer projection by
+whether it can reach the same registry-held concrete `StringBox` allocation
+while pinned. Any unclassified or sanctioned reachable path is `NoSafeSlice`;
+copy-distinct objects and explicit unsafe-provider contract violations are
+recorded separately and do not become backing-stability authority.
+
 The row-15 structural gate requires zero host-table locks, allocations,
 deallocations, callbacks, external/indirect calls, handle publication,
 generation checks, LeaseSet operations, and Residence enter/finish inside the
