@@ -139,10 +139,13 @@ Related:
   `ByteLen(Subject root 0)`, one private byte-offset PHI, canonical Binding SSA
   for source `i`, and canonical CFG/identity witnesses. The caller-zero
   DraftSeal ingress probe now co-resides with the same outer unpublished
-  transaction and reaches exact-two DraftSeal prepare/commit. The active stop
-  is therefore `NoSafeSlice::S6CResidenceExitUnsealed`; its D0 question is the
-  stamp-only lifecycle authority below, not a second exit ledger or a
-  legacy-finalizer patch.
+  transaction and reaches exact-two DraftSeal prepare/commit. The typed
+  lifecycle-carrier I0 is also landed caller-zero: canonical CFG owns one
+  affine `ResidenceEnter(normal, trap)` pair and one success-only
+  `ResidenceFinish` marker. The active stop is now the
+  `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0` review; the accepted
+  consumer boundary is recorded below and its caller-zero I0 is the only
+  next executable row.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, the Subject/Needle base-root admission, the
@@ -163,11 +166,12 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** complete
-  `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0` as a design stop.
-  Name the stamp-only admission and its canonical consumer around the existing
-  `PreparedFunctionExitSetV1`/DraftSeal owner. Do not issue lifecycle MIR,
-  finish, Return, runtime, backend, or production effects in this row.
+- **Next ordered task:** implement the bounded
+  `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0` seam. Replace the
+  single-normal-landing finish capability/state with one affine aggregate
+  consumed by the existing explicit exit-set projection; each supported exit
+  must receive operand -> Finish -> existing Return ordering. Do not open
+  backend, production, runtime backing, or fallback.
 - **Production stop line:** the current typed cursor handoff is caller-zero
   transport evidence, not a completed physical corridor. Residence
   exit/finish, publication, production selector, performance promotion,
@@ -987,6 +991,61 @@ Non-claims: no source/Recipe change, V9 materialization, runtime wrapper
 change, new frame/backing, `Arc<str>` migration, LLVM/GEP lowering, final
 no-unwind proof, Return projection change, production switch, performance
 promotion, `eq_hh` retirement, or fallback/retry.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0 (accepted; I0 selected)
+
+Decision: replace the landed single-normal-landing lifecycle seam before any
+backend work. One move-only physical aggregate consumes the existing
+`PreparedFunctionExitSetV1` exactly once through the unpublished DraftSeal
+projection. The aggregate owns the already-co-sealed Residence provenance and
+finish obligation; it does not copy, store, or rediscover an exit set. The
+existing Return projection remains the only Return writer. For every supported
+explicit value exit, the only legal order is:
+
+```text
+operand materialize -> ResidenceFinish -> existing Return
+```
+
+This is a physical BoxShape cleanup, not a new source-semantic receipt. The
+current `normal_landing`-bound finish capability and `finish_emitted: bool`
+state are replaced or removed in the same I0 so a `Single`/`ExactTwo` exit set
+cannot be forced through one landing.
+
+Source authority + canonical issuer: existing Source/Facts/Recipe/Join/
+Completion and the already-landed `PreparedPinnedTextPhysicalEntryIngressV1`
+remain the only provenance inputs. `PreparedFunctionExitSetV1` is the sole
+exit inventory, the unpublished canonical session is the sole CFG/SSA and
+rollback owner, and `FunctionDraftSealProjectionV1` is the sole Return
+issuer. The new private child only co-seals and consumes these products; it
+does not issue source meaning, a second exit ledger, or a runtime owner.
+
+Non-authority: raw handles, generations, pointers, frame addresses, status
+`ValueId`s, owner-ID lookup/re-pairing, copied exit rows, MIR/JSON scans,
+generic callbacks that can return internal rows, `nyash.string.eq_hh`, backend
+`nounwind` claims, fallback/retry, and any new frame or `Arc<str>` backing.
+
+Fail-fast boundary: before the first lifecycle effect, reject foreign or
+stale ingress, mismatched plan/frame/ABI/cohort, missing/duplicate/unsupported
+exit coverage, already-terminated blocks, implicit/unit exits, and any
+recoverable EH/unwind path. Entry failure has no Finish obligation. During one
+unpublished projection, every explicit exit is preflighted, then materialized
+and finished exactly once before the existing Return; any late error discards
+the entire draft. No retry or alternate route is entered.
+
+Smallest next slice:
+`TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0`. Add a private
+`draft_seal/text_residence_ingress.rs` consumer probe that takes the existing
+physical ingress plus the move-only lifecycle aggregate and borrows the
+existing exit set only for one projection pass. Cover both `Single` and
+`ExactTwo` with positive ordering evidence and negatives for missing/foreign/
+duplicate exits, duplicate consumption, Return-before-Finish, and late-error
+discard. Keep it caller-zero and effect-local; no production caller, backend
+declaration/lowering, no-unwind proof, runtime storage change, or performance
+claim.
+
+Non-claims: this D0 does not open final Return ABI, LLVM/GEP lowering,
+terminal-fault EH closure, production selection, `eq_hh` retirement, or
+generic fastpath/kernel syntax.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
