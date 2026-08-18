@@ -239,6 +239,10 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.seal.inputs
     }
 
+    pub(crate) const fn needle_input(self) -> LoopValueKeyV1 {
+        self.source.logical().roles().needle_input()
+    }
+
     pub(crate) fn typed_input_relation(
         self,
     ) -> &'facts crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1 {

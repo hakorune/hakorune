@@ -62,6 +62,8 @@ mod s6c_scan_with_init_logical_consumer;
 // Caller-zero parent-retaining TextEq site contract; no physical target.
 #[allow(dead_code)]
 mod s6c_text_eq_site_contract;
+// Source-bound TextEq occurrence view; no physical IDs/runtime wire.
+mod s6c_text_eq_occurrence;
 // Typed row façade is currently exercised by focused tests only.
 #[allow(dead_code)]
 mod s6c_scan_with_init_rows;
@@ -329,6 +331,10 @@ pub(crate) use s6c_scan_with_init_joinir_output_rows::{
 pub(crate) use s6c_scan_with_init_logical_consumer::{
     consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
     S6CLogicalConsumerResultV1,
+};
+pub(crate) use s6c_text_eq_occurrence::{
+    issue_s6c_text_eq_occurrence_source_v1, S6CTextEqOccurrenceSourceRejectV1,
+    S6CTextEqOccurrenceSourceViewV1,
 };
 #[allow(unused_imports)]
 pub(crate) use s6c_text_eq_site_contract::{

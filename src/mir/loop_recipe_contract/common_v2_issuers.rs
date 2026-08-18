@@ -36,6 +36,10 @@ use super::s6c_prephysical_ingress::{S6CPrephysicalIngressRefV2, S6CPrephysicalI
 use super::s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
 use super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1;
 use super::s6c_scan_with_init_joinir_output_rows::{S6CLogicalCallArgsV1, S6CLogicalItemV1};
+use super::s6c_text_eq_occurrence::{
+    issue_s6c_text_eq_occurrence_source_v1, S6CTextEqOccurrenceSourceRejectV1,
+    S6CTextEqOccurrenceSourceViewV1,
+};
 use super::schema_v2::{LoopOperationExecutionClassV2, LoopOperationV2};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
@@ -64,6 +68,7 @@ pub(crate) enum CommonV2IssuerRejectV1 {
     ConditionOperandInventory(ConditionOperandInventoryRejectV1),
     InitialIndexSeed(InitialIndexSeedRelationRejectV1),
     ReturnReadCoSeal(ReturnReadCoSealRejectV1),
+    TextEqOccurrence(S6CTextEqOccurrenceSourceRejectV1),
 }
 
 #[derive(Debug)]
@@ -199,6 +204,7 @@ pub(crate) struct PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
     condition_producer: PreparedLoopV2ConditionProducerRelationV1,
     condition_operands: PreparedLoopV2ConditionOperandInventoryV1<'join>,
     initial_index_seed: PreparedLoopV2InitialIndexSeedRelationV1<'join>,
+    text_eq_occurrence: S6CTextEqOccurrenceSourceViewV1,
     return_source_binding: &'join VerifiedS6CReturnSourceRecipeBindingV1,
     return_read_co_seal: CommonV2ReturnReadCoSealRefV1<'join>,
     coverage: VerifiedLoopV2EnvelopeCoverageV1,
@@ -251,6 +257,10 @@ impl<'source, 'join> PreparedLoopV2PreSessionEnvelopeV1<'source, 'join> {
         &self.initial_index_seed
     }
 
+    pub(crate) fn text_eq_occurrence(&self) -> &S6CTextEqOccurrenceSourceViewV1 {
+        &self.text_eq_occurrence
+    }
+
     pub(crate) fn return_source_binding(&self) -> &'join VerifiedS6CReturnSourceRecipeBindingV1 {
         self.return_source_binding
     }
@@ -269,6 +279,8 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
     }
     let initial_index_seed = issue_s6c_v2_initial_index_seed_relation_v1(ingress, expected_owner)
         .map_err(CommonV2IssuerRejectV1::InitialIndexSeed)?;
+    let text_eq_occurrence = issue_s6c_text_eq_occurrence_source_v1(ingress, expected_owner)
+        .map_err(CommonV2IssuerRejectV1::TextEqOccurrence)?;
     let return_source_binding = ingress.return_source_binding();
     if return_source_binding.owner() != expected_owner {
         return Err(CommonV2IssuerRejectV1::ForeignOwner);
@@ -330,6 +342,7 @@ pub(crate) fn issue_s6c_common_v2_pre_session_v1<'source, 'join>(
         condition_producer,
         condition_operands,
         initial_index_seed,
+        text_eq_occurrence,
         return_source_binding,
         return_read_co_seal,
         coverage,

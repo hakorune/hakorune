@@ -62,6 +62,10 @@ pub(in crate::mir::builder) use condition_bool::{
 mod s6c_operand_issuer;
 pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
 
+#[path = "common_v2_s6c_text_eq_occurrence.rs"]
+mod s6c_text_eq_occurrence;
+pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
+
 #[path = "common_v2_s6c_substring_v9_issuer.rs"]
 mod s6c_substring_v9_issuer;
 pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
@@ -188,6 +192,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     if_continuation_target_issued: bool,
     return_read_physical_issued: bool,
     s6c_text_eq_operands_issued: bool,
+    s6c_text_eq_occurrence_issued: bool,
     s6c_substring_callout_admission_issued: bool,
 }
 
@@ -714,6 +719,7 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
             if_continuation_target_issued: false,
             return_read_physical_issued: false,
             s6c_text_eq_operands_issued: false,
+            s6c_text_eq_occurrence_issued: false,
             s6c_substring_callout_admission_issued: false,
         };
         Ok(callback(&mut common))

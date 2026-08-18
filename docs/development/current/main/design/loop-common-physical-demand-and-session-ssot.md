@@ -115,15 +115,16 @@ Related:
   adopts a generation-branded End lease, and lends Text only through a
   callback-scoped view. The runtime-only StableText wire issuer I0 is now
   landed and validates an already-published `{slot,generation}` pair without
-  raw-handle recapture. The remaining boundary is the source-bound
-  ExactText-occurrence view and its residence co-seal; the existing
-  StableText-only Residence cannot silently accept the S6C StringBox shape.
+  raw-handle recapture. The source-bound ExactText-occurrence view I0 is now
+  landed; the remaining boundary is its V9-to-StableText residence co-seal.
+  The existing StableText-only Residence cannot silently accept the S6C
+  StringBox shape.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0` remains a design
-  stop. It must name the source-bound Needle/TextEq-right/ExactText sidecar
-  relation and the runtime wire issuer, then classify StableText versus the
-  current StringBox payload before any residence co-seal. No selected-Dynamic
-  pair or `nyash.string.eq_hh` transport is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-MATERIALIZATION-D0` remains a
+  design stop. It must name the existing V9 materialization, exact sidecar
+  occurrence, and published StableText wire/residence bridge before any
+  residence co-seal. No selected-Dynamic pair or `nyash.string.eq_hh` transport
+  is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -1995,15 +1996,15 @@ or legacy retirement. Until this ingress exists, the correct state is
 `NoSafeSlice::ExactTextResidenceOccurrenceIssuerUnsealed`, not a speculative
 residence implementation.
 
-### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0 (2026-08-18; worker consultation closure)
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-OCCURRENCE-D0 (2026-08-18; accepted and closed)
 
-Decision: keep this row at design stop and split the missing boundary into
-two owners without changing the MIRBuilder architecture. The source mapping
-is already closed; the missing relation is physical occurrence transport.
-The common-V2 side may issue only a private callback-scoped mechanical view,
-while `runtime::text_formal_abi` remains the only owner allowed to validate
-and issue an already-published `{slot,generation}` wire. Neither side may
-reconstruct a runtime wire from a MIR `ValueId` pair or from a logical ordinal.
+Decision: accept one BoxShape-only source-bound occurrence view without
+changing the MIRBuilder architecture. The source mapping is already closed;
+the missing relation is physical occurrence transport. The common-V2 side may
+issue only a private callback-scoped mechanical view, while
+`runtime::text_formal_abi` remains the only owner allowed to validate and issue
+an already-published `{slot,generation}` wire. Neither side may reconstruct a
+runtime wire from a MIR `ValueId` pair or from a logical ordinal.
 
 Source authority + canonical issuer: existing S6C typed input and Recipe
 facts prove `Needle(Text)` as the TextEq right operand `V1`; canonical physical
@@ -2030,21 +2031,52 @@ zero/stale/mismatched published wire, absent runtime ingress, and an actual
 StableText-only. No TextEq V10, Bool, CFG, publication, or production path is
 opened by this row.
 
-Smallest next slice: design only, keep the same bounded card. Write the
-source-backed occurrence-view contract and the runtime `StableText` wire
-issuer contract as separate boundaries, with Direct/Checked/
-RejectBeforeEffect classification and one explicit consumer/retirement edge.
-If the S6C StringBox shape must be admitted, open a separate representation
-design; do not widen this row by silently changing `TextFormalCallResidenceV1`.
+Smallest next slice: the private HRTB callback at the existing common-V2/session
+boundary is now landed. It co-seals the already-issued S6C Needle/TextEq
+relation with the matching canonical ExactText sidecar row. The view exposes
+only mechanical binding/ordinal/carrier/owner/entry proof; it exposes neither
+ValueIds nor raw slot/generation pairs. If the S6C StringBox shape must be
+admitted, open a separate representation design; do not widen
+`TextFormalCallResidenceV1`.
 
-Acceptance/non-claims: positive evidence must prove
+Acceptance/non-claims: positive evidence proves
 `Needle BindingRef == TextEq RHS == ExactText sidecar binding` and same-cohort
-lane adjacency; negatives must cover all drift, foreign/stale/zero wire,
-StringBox mismatch, raw tuple escape, and late rollback. This consultation
-does not add code, fixtures, semantic receipts, runtime pinning, CheckedCallOut,
-V9 `ValueId`, TextEq/Bool/CFG, publication, production, fallback, retry, or
-legacy retirement. The blocker remains
-`NoSafeSlice::ExactTextResidenceOccurrenceIssuerUnsealed`.
+lane/session/entry parity, ordinal 1, U64 carrier, duplicate one-shot rejection,
+and zero instruction growth. Existing sidecar adoption guards retain the
+missing/duplicate/carrier rejection boundary. This I0 does not add runtime
+pinning, CheckedCallOut, V9 `ValueId`, TextEq/Bool/CFG, publication,
+production, fallback, retry, or legacy retirement. The runtime wire issuer
+remains the separate `TEXT-FORMAL-WIRE-INGRESS-I0` owner.
+
+Evidence: `s6c_occurrence_view_co_seals_needle_with_exact_text_sidecar` (1/1),
+the enclosing common-V2 S6C operand module (5/5), quick `cargo check`, format,
+diff, pointer, physical-transfer, and Text-scan admission guards are green.
+The broader physical-entry module is 12/13: its pre-existing direct-Length
+duplicate assertion is a known baseline red because the compatibility wrapper
+allocates a segment before checking its one-shot flag; this I0 does not touch
+that path.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-MATERIALIZATION-D0 (2026-08-18; design stop)
+
+Decision: keep the occurrence view and runtime StableText wire as separate
+owners. A top-down redesign is not indicated: the source Binary Equal /
+portable `LoopOperationV2::TextEq` chain remains authoritative, and
+`nyash.string.eq_hh` remains only a subordinate transport candidate.
+
+Source authority + canonical issuer: existing S6C `StringSubstring/2` and
+TextEq source/Recipe facts; the common session owns V9 End materialization,
+while `runtime::text_formal_abi` owns published StableText wire validation.
+Non-authority: MIR `ValueId` pairs, logical ordinals, raw `eq_hh` i64 results,
+fallback dispatch, and StringBox-to-StableText coercion.
+
+Fail-fast boundary: no residence or CheckedCallOut effect until an existing
+V9 materialization, exact sidecar occurrence, same session/segment, and
+already-issued StableText wire/residence can be co-sealed; StringBox, stale,
+zero, foreign, or missing bridge rejects before effect.
+
+Smallest next slice: read-only audit of that V9-to-StableText residence bridge.
+No new semantic receipt, runtime pin, TextEq/Bool/CFG, publication, fallback,
+retry, or production switch is opened by this D0.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 

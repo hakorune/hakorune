@@ -6,7 +6,7 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{MirBuilder, MirInstruction, MirType};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-use super::common_v2_session::S6CTextEqOperandIssuerRejectV1;
+use super::common_v2_session::{S6CTextEqOccurrenceViewRejectV1, S6CTextEqOperandIssuerRejectV1};
 use super::with_common_v2_physical_entry_session;
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
@@ -122,6 +122,62 @@ fn s6c_operand_issuer_emits_only_v6_v7_v8_in_one_body_segment() {
         .expect("caller-zero S6C operand session");
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
+    })
+    .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn s6c_occurrence_view_co_seals_needle_with_exact_text_sidecar() {
+    let (installed, context) = installed_port(1305);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let owner = loan.callable().owner();
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft| {
+                let seed = canonical
+                    .emit_initial_index_seed(draft)
+                    .expect("initial index seed");
+                drop(seed);
+                canonical
+                    .with_shared_segment_scope(draft, |canonical, draft, scope| {
+                        let before = draft.current_function_instructions().len();
+                        canonical
+                            .with_s6c_text_eq_occurrence(scope.receipt(), |view| {
+                                assert_eq!(view.owner(), owner);
+                                assert_eq!(view.logical_ordinal(), 1);
+                                assert_eq!(view.text_eq_right().raw(), 1);
+                                assert_eq!(view.binding().owner(), owner);
+                                assert_eq!(view.carrier(), crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::U64BitsOnI64);
+                                assert_ne!(view.entry(), view.physical_block());
+                                Ok::<(), String>(())
+                            })
+                            .expect("source/sidecar occurrence view");
+                        assert_eq!(draft.current_function_instructions().len(), before);
+                        let duplicate = canonical.with_s6c_text_eq_occurrence(
+                            scope.receipt(),
+                            |_view| Ok::<(), String>(()),
+                        );
+                        assert!(matches!(
+                            duplicate,
+                            Err(S6CTextEqOccurrenceViewRejectV1::AlreadyIssued)
+                        ));
+                        Ok::<(), String>(())
+                    })
+                    .expect("shared body segment");
+                Ok(())
+            },
+        )
+        .expect("caller-zero occurrence session");
+        assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
     port.complete().expect("selected child coverage");

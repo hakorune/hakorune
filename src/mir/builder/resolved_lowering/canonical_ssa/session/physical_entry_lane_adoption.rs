@@ -6,7 +6,7 @@ use super::super::super::physical_entry_lane_adoption::{
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableParameterDescriptorV1;
 use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
-use crate::mir::resolved_semantics::SourceBindingSiteV1;
+use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::CanonicalSsaFunctionSessionV2;
@@ -86,6 +86,29 @@ pub(super) fn adopt(
         sidecar_rows,
     ));
     Ok(())
+}
+
+pub(super) fn with_exact_text_sidecar_row<R>(
+    session: &CanonicalSsaFunctionSessionV2<'_>,
+    binding: BindingRefV1,
+    logical_ordinal: u32,
+    callback: impl FnOnce(&PhysicalTextEntryLaneSidecarRowV1) -> R,
+) -> Result<R, String> {
+    let sidecar = session
+        .physical_entry_sidecar
+        .as_ref()
+        .ok_or_else(|| "physical entry ExactText sidecar is missing".to_owned())?;
+    let mut rows = sidecar
+        .rows()
+        .iter()
+        .filter(|row| row.binding() == binding && row.logical_ordinal() == logical_ordinal);
+    let row = rows
+        .next()
+        .ok_or_else(|| "physical entry ExactText sidecar row is missing".to_owned())?;
+    if rows.next().is_some() {
+        return Err("physical entry ExactText sidecar row is duplicated".to_owned());
+    }
+    Ok(callback(row))
 }
 
 fn reserved_values(

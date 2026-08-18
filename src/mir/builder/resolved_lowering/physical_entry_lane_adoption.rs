@@ -11,7 +11,7 @@ use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::mir::{BasicBlockId, ValueId};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder::resolved_lowering) struct PhysicalTextEntryLaneSidecarRowV1 {
     binding: BindingRefV1,
     logical_ordinal: u32,

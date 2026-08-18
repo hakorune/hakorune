@@ -632,6 +632,32 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         physical_entry_lane_adoption::adopt(self, builder, descriptors)
     }
 
+    pub(in crate::mir::builder::resolved_lowering) fn with_exact_text_sidecar_row<R>(
+        &self,
+        binding: crate::mir::resolved_semantics::BindingRefV1,
+        logical_ordinal: u32,
+        callback: impl FnOnce(
+            &crate::mir::builder::resolved_lowering::physical_entry_lane_adoption::
+                PhysicalTextEntryLaneSidecarRowV1,
+        ) -> R,
+    ) -> Result<R, String> {
+        physical_entry_lane_adoption::with_exact_text_sidecar_row(
+            self,
+            binding,
+            logical_ordinal,
+            callback,
+        )
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_sidecar_entry(
+        &self,
+    ) -> Result<BasicBlockId, String> {
+        self.physical_entry_sidecar
+            .as_ref()
+            .map(|sidecar| sidecar.entry())
+            .ok_or_else(|| "physical entry ExactText sidecar is missing".to_owned())
+    }
+
     pub(in crate::mir::builder) fn adopt_generic_g0_entry_lanes(
         &mut self,
         builder: &mut MirBuilder,
