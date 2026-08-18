@@ -215,6 +215,15 @@ impl ModuleBuilderInvocationSessionV1 {
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
+        if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: Some(source),
+                error: NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                    format!("[freeze:contract][pinned-text/invocation-binding] {error:?}").into(),
+                ),
+            });
+        }
         let preflight_expansion =
             match VerifiedRawRootExpansionV1::from_program(source.source_ast()) {
                 Ok(expansion) => expansion,
@@ -274,8 +283,10 @@ impl ModuleBuilderInvocationSessionV1 {
             .iter()
             .map(|(alias, owner)| (alias.clone(), owner.clone()))
             .collect::<Vec<_>>();
-        let result = {
-            let builder = self.builder_mut();
+        let result = self.with_builder_and_pinned_text_invocation_binding(|builder, binding| {
+            let target_capability = binding
+                .as_ref()
+                .map(|binding| binding.target_capability());
             (|| {
                 builder
                     .prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())
@@ -460,7 +471,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             None => NormalScriptRootLoweringMode::Deferred,
                         },
                         static_result_publication_owner,
-                        target_capability.as_ref(),
+                        target_capability,
                     )
                     .map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
@@ -469,7 +480,7 @@ impl ModuleBuilderInvocationSessionV1 {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })
             })()
-        };
+        });
 
         match result {
             Ok(module) => Ok(CompletedNormalDefaultRootCatalogLifecycleV1 {

@@ -695,14 +695,14 @@ closure-only consumers, hidden status CFG, and any late failure that retries or
 publishes a partial candidate. The later projector row additionally requires
 exact explicit-value exits and `operand -> finish -> Return`.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0 (active fast)
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0 (landed caller-zero)
 
 Decision: implement one behavior-preserving physical ingress BoxShape. Add no
 new source acceptance and do not connect a production caller. The session-owned
 target/brand binding and the S6C prepared entry input are consumed once into a
 private `PreparedPinnedTextPhysicalEntryIngressV1`; the canonical close issues
 the existing backend-frame contract from the S6C loan's signature row and the
-function metadata plan table.
+function metadata plan table. This I0 is now landed caller-zero.
 
 Source authority + canonical issuer: `ModuleBuilderInvocationSessionV1` owns
 `ModuleInvocationBrandV1` plus `PinnedTextCompileTargetCapabilityV1` and is the
@@ -722,18 +722,19 @@ foreign session binding, profile/ABI mismatch, S6C signature owner/lane drift,
 missing or duplicate plan entries, frame revision/layout drift, and any
 attempt to issue the frame after DraftSeal. No partial ingress is published.
 
-Smallest next slice (bounded files):
+Landed evidence (2026-08-19):
 
-1. Add session-owned target storage and a private callback-scoped,
-   non-`Clone`/non-`Copy` target/brand binding; compatibility callers that never
-   enter pinned ingress may remain targetless.
-2. Add a child under the 762-line normal-root lifecycle facade to install and
-   lend that binding; do not grow the facade past the 760-line split target.
-3. Co-seal the binding with `PreparedPhysicalEntrySessionInputV1` in a private
-   ingress child; adapt the existing frame issuer internally to consume the
-   S6C loan's signature row without exposing a free signature/target pair.
-4. Add focused positive/negative tests and a reusable structure guard. Keep
-   the ingress caller-zero and effect-free.
+1. `ModuleBuilderInvocationSessionV1` stores the target capability beside the
+   module brand and lends a callback-scoped non-`Clone`/non-`Copy` binding.
+2. `PreparedPinnedTextPhysicalEntryIngressV1` co-seals the binding with the
+   S6C prepared entry input, plan census, Residence ABI, and one frame issue;
+   the signature is adapted only from the retained S6C loan row.
+3. Targetless/duplicate binding and positive frame-cohort tests pass 2/2;
+   `cargo check`, `cargo fmt --check`, and the reusable common_v2 S6C guard are
+   green. All touched ingress files remain below 800 lines; the pre-existing
+   builder facade stays at its baseline 800 lines without growth.
+
+Next bounded row: `TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0`.
 
 Acceptance: same module session issues both authorities; no ordinal comparison;
 the ingress is affine and non-copyable; the S6C loan is the only signature
@@ -744,9 +745,10 @@ raw target/signature/frame/token/pointer escapes; all touched files stay below
 
 Non-claims: no Residence enter/finish MIR, runtime wrapper, Return/CFG change,
 backend codegen, production switch, fallback/retry, performance benchmark, or
-`nyash.string.eq_hh` retirement.
+`nyash.string.eq_hh` retirement. The next ABI row is design-only until its
+status-0 success and nonzero fail-stop/no-hidden-CFG contract is accepted.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; ingress co-seal I0 active)
+### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; ingress co-seal I0 landed)
 
 Decision: keep the lifecycle design stop active. The materializer identity/projector I0
 is landed caller-zero, but the canonical consumer audit closed as

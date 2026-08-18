@@ -270,6 +270,7 @@ mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // Shared isolated Builder transaction
+mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
@@ -380,7 +381,6 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
-
 #[cfg(test)]
 pub(crate) use control_flow::joinir::route_entry::registry::{
     execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,

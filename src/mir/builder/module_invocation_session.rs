@@ -181,6 +181,8 @@ pub(in crate::mir) struct ModuleBuilderInvocationSessionV1 {
     family: ModuleInvocationFamilyV1,
     candidate: MirBuilder,
     config: BuilderInvocationConfigV1,
+    pinned_text_target_capability:
+        Option<crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1>,
     _seal: ModuleBuilderInvocationSessionSealV1,
 }
 
@@ -191,6 +193,10 @@ impl std::fmt::Debug for ModuleBuilderInvocationSessionV1 {
             .field("brand", &self.brand)
             .field("family", &self.family)
             .field("config", &self.config)
+            .field(
+                "has_pinned_text_target_capability",
+                &self.pinned_text_target_capability.is_some(),
+            )
             .finish_non_exhaustive()
     }
 }
@@ -277,6 +283,7 @@ impl ModuleBuilderInvocationSessionV1 {
             family,
             candidate,
             config,
+            pinned_text_target_capability: None,
             _seal: ModuleBuilderInvocationSessionSealV1,
         }
     }
@@ -336,6 +343,103 @@ impl ModuleBuilderInvocationSessionV1 {
 
     pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
+    }
+
+    pub(in crate::mir) fn install_pinned_text_target_capability(
+        &mut self,
+        target: Option<
+            crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
+    ) -> Result<(), super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1> {
+        if self.pinned_text_target_capability.is_some() {
+            return Err(
+                super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1::
+                    AlreadyInstalled,
+            );
+        }
+        self.pinned_text_target_capability = target;
+        Ok(())
+    }
+
+    pub(in crate::mir) fn pinned_text_invocation_binding<'session>(
+        &'session self,
+    ) -> Result<
+        super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1<'session>,
+        super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1,
+    > {
+        let target = self
+            .pinned_text_target_capability
+            .as_ref()
+            .ok_or(
+                super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1::
+                    MissingTarget,
+            )?;
+        Ok(
+            super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1 {
+                brand: self.brand,
+                target,
+            },
+        )
+    }
+
+    pub(in crate::mir) fn with_builder_and_pinned_text_invocation_binding<R>(
+        &mut self,
+        callback: impl FnOnce(
+            &mut MirBuilder,
+            Option<
+                super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1<'_>,
+            >,
+        ) -> R,
+    ) -> R {
+        let brand = self.brand;
+        let target = self.pinned_text_target_capability.as_ref();
+        let binding = target.map(|target| {
+            super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1 {
+                brand,
+                target,
+            }
+        });
+        callback(&mut self.candidate, binding)
+    }
+
+    pub(in crate::mir) fn with_pinned_text_invocation_binding<R>(
+        &self,
+        callback: impl FnOnce(
+            super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1<'_>,
+        ) -> R,
+    ) -> Result<R, super::pinned_text_invocation_binding::PinnedTextInvocationBindingIssueV1> {
+        let binding = self.pinned_text_invocation_binding()?;
+        Ok(callback(binding))
+    }
+
+    pub(in crate::mir) fn prepare_pinned_text_physical_entry_ingress<
+        'session,
+        'loan,
+        'source,
+        'join,
+    >(
+        &'session self,
+        prepared: super::InvocationBranded<
+            crate::mir::compiler::common_v2_physical_function_skeleton::
+                PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>,
+        >,
+        plans: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
+    ) -> Result<
+        super::pinned_text_invocation_binding::PreparedPinnedTextPhysicalEntryIngressV1<
+            'session,
+            'loan,
+            'source,
+            'join,
+        >,
+        super::pinned_text_invocation_binding::PinnedTextPhysicalEntryIngressRejectV1,
+    > {
+        let binding = self
+            .pinned_text_invocation_binding()
+            .map_err(
+                super::pinned_text_invocation_binding::PinnedTextPhysicalEntryIngressRejectV1::
+                    Invocation,
+            )?;
+        binding.prepare_physical_entry_ingress(prepared, plans)
     }
 
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {

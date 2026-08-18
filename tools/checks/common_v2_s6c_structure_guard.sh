@@ -23,6 +23,10 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
   "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
+  "$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
+  "$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
+  "$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+  "$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -118,5 +122,29 @@ guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_bridge" \
 plan_table="$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
 guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_table" \
   "plan table must reject the unpublished zero stamp"
+
+invocation_binding="$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
+invocation_session="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
+normal_root_lifecycle="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+signature_install="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+guard_expect_fixed_in_file "$TAG" 'PinnedTextCompileInvocationBindingRefV1' "$invocation_binding" \
+  "pinned-Text ingress must use one private session-scoped binding"
+guard_expect_fixed_in_file "$TAG" 'PreparedPinnedTextPhysicalEntryIngressV1' "$invocation_binding" \
+  "pinned-Text ingress must co-seal one affine physical-entry product"
+guard_expect_fixed_in_file "$TAG" 'from_s6c_row' "$invocation_binding" \
+  "physical signature must be adapted from the retained S6C loan"
+guard_expect_fixed_in_file "$TAG" 'install_pinned_text_target_capability' "$invocation_session" \
+  "module session must own the pinned-Text target capability"
+guard_expect_fixed_in_file "$TAG" 'with_builder_and_pinned_text_invocation_binding' "$normal_root_lifecycle" \
+  "normal-root lifecycle must lend the binding through the session"
+guard_expect_fixed_in_file "$TAG" 'from_s6c_row' "$signature_install" \
+  "signature adapter must preserve the package-owned row"
+if rg -n 'PreparedDraftSealReturn|TextContentFrame|Arc<|nyash\.string\.eq_hh|MirInstruction|\bValueId\b|raw (slot|generation|token|pointer)' "$invocation_binding"; then
+  guard_fail "$TAG" "pre-DraftSeal ingress must not open envelope/runtime/MIR/raw-value authorities"
+fi
+if rg -n 'brand\(\).*invocation_ordinal|invocation_ordinal\(\).*brand' \
+  "$invocation_binding" "$invocation_session"; then
+  guard_fail "$TAG" "module brand and target ordinals must never be compared"
+fi
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"
