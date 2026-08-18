@@ -135,16 +135,14 @@ Related:
   materialize V9. It reuses the two existing ExactText formal roots as
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
   selected by the verified `substring(i, i + 1)` relation. The typed
-  same-cohort cursor handoff is landed, but a post-landing audit found that its
-  materializer still emits the generic `StringBox.length` Call for V5 and
-  creates a private CP-index PHI beside canonical Binding SSA. The active stop
-  is therefore
-  `NoSafeSlice::S6CCursorPredicateBindingSsaUnsealed`. Its D0
-  `MaterializationRelationMissing` question is now accepted: the final
-  consumer must issue
-  `ByteLen(Subject root 0)` once, retain only the private byte-offset PHI, and
-  read/write source `i` solely through canonical Binding SSA before residence
-  exit can reopen.
+  same-cohort cursor handoff and predicate/index physical I0 are landed: one
+  `ByteLen(Subject root 0)`, one private byte-offset PHI, canonical Binding SSA
+  for source `i`, and canonical CFG/identity witnesses. The caller-zero
+  DraftSeal ingress probe now co-resides with the same outer unpublished
+  transaction and reaches exact-two DraftSeal prepare/commit. The active stop
+  is therefore `NoSafeSlice::S6CResidenceExitUnsealed`; its D0 question is the
+  stamp-only lifecycle authority below, not a second exit ledger or a
+  legacy-finalizer patch.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, the Subject/Needle base-root admission, the
@@ -165,11 +163,11 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** execute the bounded BoxShape series
-  `S6C-PINNED-CURSOR-PREDICATE-BINDING-I0`. First close the effect-free update
-  relation/V9 census/ByteLen shape, then replace the canary materializer with
-  the sole canonical Binding-SSA/CFG consumer. Keep the two responsibilities
-  in separate commits and every edited source below 800 lines.
+- **Next ordered task:** complete
+  `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0` as a design stop.
+  Name the stamp-only admission and its canonical consumer around the existing
+  `PreparedFunctionExitSetV1`/DraftSeal owner. Do not issue lifecycle MIR,
+  finish, Return, runtime, backend, or production effects in this row.
 - **Production stop line:** the current typed cursor handoff is caller-zero
   transport evidence, not a completed physical corridor. Residence
   exit/finish, publication, production selector, performance promotion,
@@ -448,16 +446,22 @@ Residence exit remains the next dependency, not a parallel task.
 ### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0 (current design stop)
 
 Decision: keep the existing ExactText Residence and canonical DraftSeal as
-the only lifecycle owners; add no runtime/frame route in this design row.
-Source authority + canonical issuer: `PreparedFunctionExitSetV1` and the
-existing common-V2 completion/DraftSeal chain, with one stamp-only admission.
+the only lifecycle owners; this D0 issues no lifecycle receipt or runtime
+effect. Source authority + canonical issuer: `PreparedFunctionExitSetV1` is
+the sole exit ledger; the future private issuer sits at the same
+`finish_for_draft_seal` -> `ReadyFunctionDraftSealV1`/DraftSeal handoff and
+would issue one opaque `FunctionExitSetStampV1`-bound admission.
 Non-authority: copied exit rows, raw tokens/pointers, MIR/JSON scans, `eq_hh`,
-fallback/retry, and benchmark results. Fail-fast boundary: exact normal/early
-exit coverage, owner/stamp/target parity, no EH/unwind, and one unpublished
-candidate must be co-sealed before any lifecycle effect. Smallest next slice:
-name the move-only stamp-only admission and its canonical consumer. Non-claims:
-no Residence finish materializer, backend/no-unwind closure, production switch,
-performance promotion, or semantic/source receipt beyond existing products.
+fallback/retry, and benchmark results. Admission shape: non-Clone/non-Copy,
+no site/block/value/count/order exposure, one consumer; later materialization
+uses `PreparedFunctionExitSetV1::try_for_each_exit` as the sole iterator and
+`TextFormalCallResidenceV1::finish` as the sole runtime finish owner.
+Fail-fast boundary: exact normal/early exit coverage, owner/session/target and
+plan/frame parity, entry/fault policy, no EH/unwind, and one unpublished
+candidate must be co-sealed before lifecycle effect. Smallest next slice:
+accept this private stamp boundary and its canonical consumer. Non-claims:
+no Residence finish materializer, Return/CFG change, backend/no-unwind closure,
+production switch, performance promotion, or new semantic/source receipt.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (current design stop)
 
@@ -544,16 +548,17 @@ scan, or late failure outside the unpublished transaction remains
 `NoSafeSlice`. The lifecycle authority I0 is the next row only after this
 ingress is accepted.
 
-Ingress census (current HEAD): `with_common_v2_canonical_session*` and
-`with_common_v2_physical_entry_session*` have no production caller; their
-reachable uses are focused tests and the callback always ends by discarding
-the unpublished outer session. The S6C cursor CFG materializer is likewise
-test-only, while `finish_for_draft_seal` is reached only by the existing
-profile lowerers outside this S6C entry. Therefore no same-function
-Residence/frame + `PreparedFunctionExitSetV1` + canonical DraftSeal candidate
-currently co-reside, and opening the lifecycle I0 would create a second
-authority. This census keeps the `NoSafeSlice` stop explicit until a named
-common-V2 DraftSeal ingress row lands.
+Ingress census (current HEAD): the legacy
+`with_common_v2_canonical_session*` and
+`with_common_v2_physical_entry_session*` callbacks have no production caller
+and still discard their outer session. The new
+`with_common_v2_s6c_physical_entry_draft_seal` path is a focused test-only
+probe: it is the sole path that retains the outer transaction through
+`finish_for_draft_seal` and DraftSeal prepare/commit. The S6C cursor CFG
+materializer and this probe remain caller-zero, so no production
+Residence/frame + `PreparedFunctionExitSetV1` candidate is selected. The
+lifecycle D0 below may name the stamp-only boundary, but it must not treat the
+probe as a production ingress or issue a runtime/finish effect.
 
 #### COMMON-V2-S6C-DRAFTSEAL-INGRESS-PROBE0 (landed bounded execution slice)
 

@@ -52,10 +52,11 @@ DraftSeal ingress probe: the cursor borrows the existing completion tail from
 the installed loan, closes the After block, then consumes the existing
 canonical finish/DraftSeal chain. The probe is now landed with positive and
 late-discard focused evidence. The accepted next ladder is lifecycle
-authority, materializer, then backend no-unwind closure. Current ingress census confirms
-common-V2 session/physical-entry and S6C cursor callers are focused tests only;
-their callback discards the unpublished outer session, so no S6C DraftSeal
-candidate currently co-resides with the Residence/exit set.
+authority, materializer, then backend no-unwind closure. Current ingress census
+confirms the legacy common-V2 session/physical-entry callbacks and S6C cursor
+materializer remain caller-zero; only the focused DraftSeal probe retains the
+outer transaction. No production S6C DraftSeal candidate currently co-resides
+with the Residence/exit set.
 Selected Dynamic remains the sole
 production arm.
 """
