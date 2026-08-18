@@ -1433,15 +1433,18 @@ Task ladder (canonical consumer design first, runtime effect later):
    caller-zero; it may consume only the landed strict carrier transport. The
    helper is synthetic textual inspection only; the separate post-transform
    observer remains closed until one lifecycle-bearing canonical module exists.
-10. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0` — next:
-    decide the source-backed owner for the lifecycle Enter terminator, the
-    existing physical-entry sidecar, the initial index seed, and the S6C
-    cursor before any candidate mutation. Do not remap blocks by observation.
-11. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — later:
+10. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0` — landed:
+    E0 is the canonical function entry and Residence Enter's sole source;
+    E1 is one canonical execution-entry successor owned by the same physical
+    boundary. Sidecar/seed/cursor all begin at E1; no observed remapping.
+11. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0` — next:
+    issue that physical boundary once and prove the caller-zero CFG/SSA shape
+    before reopening lifecycle-bearing candidate materialization.
+12. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — later:
     consume the full pre-DraftSeal ingress in the existing caller-zero owner,
     materialize one real lifecycle-bearing function/JSON candidate, and keep
     the detached DraftSeal transaction as the rollback boundary.
-12. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+13. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
@@ -1475,20 +1478,22 @@ source/landings, and canonical session owner. Missing, foreign, duplicated, or
 terminator-conflicting entry obligations reject as `NoSafeSlice`; any late
 failure discards the unpublished outer session and emits no JSON/object.
 
-Smallest next slice: decide one of two source-backed shapes, without coding:
-(a) the canonical entry owner creates one lifecycle-aware prologue and
-atomically transfers the sidecar/seed/cursor into its successor, or (b) the
-lifecycle Enter is placed at a distinct canonical boundary that the existing
-sidecar and cursor products already own. The selected shape must preserve one
-CFG/SSA/PHI authority and then reopen `...CANONICAL-CANDIDATE-I0-A`.
+Smallest next slice: implement only the selected physical boundary in a
+caller-zero CFG/SSA fixture. E0 is the function entry and contains only the
+Residence Enter terminator; its normal edge targets E1 and its trap edge is
+terminal. E1 is issued by the same physical-entry owner and is the only
+execution entry for sidecar adoption, initial seed, root/ByteLen loads, and
+cursor PHI initialization. The existing canonical CFG/SSA/PHI session remains
+the sole writer. After this I0 passes, reopen
+`...BACKEND-CANONICAL-CANDIDATE-I0-A`.
 
 Non-claims: no lifecycle MIR candidate, new frame/backing/token, C lowering,
 observer/no-unwind evidence, target-machine routing, production switch,
 fallback/retry, performance promotion, or `eq_hh` retirement.
 
 Evidence: the attempted caller-zero probe was reverted after the focused
-`EntryBlockDrift` rejection; the repository is back at `design_stop` with no
-partial lifecycle implementation.
+`EntryBlockDrift` rejection. The accepted E0/E1 boundary is a physical
+co-seal only; no lifecycle candidate or runtime effect is opened by this D0.
 
 #### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (landed design task)
 
