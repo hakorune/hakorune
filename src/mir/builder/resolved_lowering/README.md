@@ -931,8 +931,25 @@ The move-only admission lends the source view and rows together once. It stores
 no `ValueId`, pointer, runtime frame, lease, generation value, V9 root, or MIR
 effect. Missing/duplicate/foreign/reordered/non-U64/duplicate-root inputs
 reject before effect. Focused evidence is green (`3/3`); this is caller-zero
-compiler evidence only. The next row is the UTF-8 cursor/preheader plan;
-V10, CFG/SSA, publication, production, fallback/retry, direct C-speed, and
-`eq_hh` retirement remain closed.
+compiler evidence only. The cursor/preheader plan below consumes this
+admission; V10, CFG/SSA, publication, production, fallback/retry, direct
+C-speed, and `eq_hh` retirement remain closed.
 
 The fixed provider remains a canary and has no production caller.
+
+## Common V2 S6C cursor/preheader plan I0 (2026-08-18)
+
+`issue_common_v2_s6c_text_cursor_preheader_v1` is the sole consumer of the
+Subject/Needle base-root admission for this effect-free row. It records two
+preheader root-pair load obligations, CP index `0`, byte offset `0`, and the
+existing source relation needed by the next scalar-equality leaf. The plan is
+move-only and lends the source cohort, roots, cursor state, and relation
+together through one callback.
+
+This row emits no `ValueId`, `MirInstruction`, `PinnedTextOp`, access-plan row,
+pointer, runtime frame, lease, generation value, V9 root, CFG block, or
+production behavior. Focused evidence is green (`2/2`), `cargo check
+--profile quick` is green, and the S6C structure guard enforces the physical
+free boundary. The next selected row is the strict
+`Utf8WidthAt`/`Utf8ScalarSliceEqWholeText` leaf; CFG/PHI/Return, runtime,
+fallback/retry, performance, and `eq_hh` retirement remain closed.

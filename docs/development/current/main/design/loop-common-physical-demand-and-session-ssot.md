@@ -136,11 +136,13 @@ Related:
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
   selected by the verified `substring(i, i + 1)` relation. The base-root
   admission is now landed; the next stop is
-  `NoSafeSlice::S6CTextScalarCursorPreheaderUnsealed`: no cursor, leaf, or Bool
-  effect is open until the admitted roots are consumed by one preheader plan.
+  `NoSafeSlice::S6CScalarEqualityLeafUnsealed`: the admitted roots are now
+  consumed by one effect-free cursor/preheader plan; no scalar leaf or Bool
+  effect is open until the next canonical issuer consumes that plan.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
-  V9+ExactText residence scope, the Subject/Needle base-root admission, and
+  V9+ExactText residence scope, the Subject/Needle base-root admission, the
+  effect-free cursor/preheader plan, and
   the caller-zero concrete StringBox
   Residence canary are complete. The row-11 mutable-reachability census is
   already an explicit acceptance input and reusable guard; no duplicate
@@ -157,11 +159,12 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** consume the one-shot Subject/Needle base-root
-  admission in a cursor/preheader plan. Load the existing two root pairs once,
-  establish the sequential UTF-8 byte cursor beside the CP index, and keep the
-  body free of Length/Substring calls. Add no V10 effect, CFG, or runtime
-  frame; do not infer a byte cursor from Recipe ordinals or MIR adjacency.
+- **Next ordered task:** consume the one-shot effect-free cursor/preheader plan
+  in the strict scalar-equality leaf. Reuse `Utf8WidthAt` and
+  `Utf8ScalarSliceEqWholeText` through the canonical session, keep V9 as a
+  derived tuple, and keep the body free of Length/Substring calls. Add no
+  CFG/PHI/Return, runtime frame, or production behavior; do not infer a byte
+  cursor from Recipe ordinals or MIR adjacency.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -179,7 +182,7 @@ Related:
 | 0 | `CORE-METHOD-TEXT-SEMANTIC-LAW-I0` | Extend each `.hako`-owned CoreMethod row with one complete arity-indexed `semantic_law`. Generate `CoreMethodContractRowV2` plus exact-arity `CoreMethodManifestRowRefV2`: Len/0 is CodePointCount, Substring/2 is CodePointHalfOpenClamped, Substring/1 and every other arity are Unprojected. Bump manifest to v2 and migrate existing row consumers mechanically; no Recipe or physical change. |
 | 1 | `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` | The sole prephysical ingress lends one callback-scoped source view proving subject/needle roles, `i=0`, CP Length, `i < length`, `substring(i,i+1)`, sole-use V9→TextEq, V10→If, `i=i+1`, Join/Completion, and no V9 escape. |
 | 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` (landed) | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
-| 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` | Load subject/needle `ptr,len` once, initialize CP index plus byte offset, and issue the source-backed loop predicate without calling Length in the body. |
+| 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` (landed) | Consume the base-root admission and issue one effect-free plan recording the two preheader root-pair loads, CP index 0, byte offset 0, sequential UTF-8 cursor relation, and source-backed predicate; no `ValueId`/MIR effect. |
 | 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the canonical SSA session alone issues V10 Bool. |
 | 5 | `S6C-PINNED-CURSOR-CFG-I0` | Canonical CFG/SSA owns byte-offset and CP-index PHIs, V10 If, width update, backedge, and the existing Return-read relation. No alternate orchestrator. |
 | 6 | `S6C-PINNED-RESIDENCE-EXIT-I0` | Co-seal the bounded exact-two Completion exits with one move-only residence obligation; finish exactly once immediately before each normal Return. Reject unwind/third-exit shapes. |
@@ -252,11 +255,12 @@ checks the accepted laws and complete relation once, including the
 non-escaping derived V9 slice; it emits no physical effect, Bool V10, CFG,
 runtime frame, or production edge.
 
-Smallest next slice: `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` consumes the landed
-Subject/Needle admission and records one sequential UTF-8 cursor/preheader
-plan. No new frame or lifetime owner is allowed.
+Smallest next slice: `S6C-PINNED-SCALAR-EQ-LEAF-I0` consumes the landed
+effect-free cursor/preheader plan and issues only the existing strict
+`Utf8WidthAt`/`Utf8ScalarSliceEqWholeText` leaf through the canonical session.
+No new frame or lifetime owner is allowed.
 
-Non-claims: no byte cursor, V9 non-materialization effect, V10, CFG/PHI/Return,
+Non-claims: no scalar leaf effect, V9 non-materialization effect, V10, CFG/PHI/Return,
 runtime entry/finish, production
 switch, performance result, fallback/retry, global `Arc<str>` migration, or
 `eq_hh` retirement is complete. This metadata row does not switch the current
@@ -295,9 +299,31 @@ rows through one callback and stores no `ValueId`, pointer, runtime frame,
 lease, generation value, V9 root, or MIR effect. Duplicate/missing/foreign,
 reordered, non-U64, and duplicate-root inputs reject before effect. Focused
 evidence is green (`3/3`); this is caller-zero compiler evidence only. The
-next row is `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0`, which may consume this
-admission but remains closed to V10, CFG/SSA, publication, production,
-fallback/retry, performance promotion, and `eq_hh` retirement.
+subsequent `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` consumed this admission and
+remained closed to V10, CFG/SSA, publication, production, fallback/retry,
+performance promotion, and `eq_hh` retirement.
+
+### S6C cursor/preheader plan I0 closeout (2026-08-18; accepted)
+
+`issue_common_v2_s6c_text_cursor_preheader_v1` is the sole consumer of the
+base-root admission for this row. It records exactly two preheader root-pair
+load obligations, labels them Subject/root 0 and Needle/root 1, and initializes
+the source CP index and derived byte offset to `0`. The plan retains the
+existing source relation needed by the next leaf (`index`, Length result,
+Substring result/end, TextEq item/result/If, and step update) without
+re-reading Recipe or MIR structure.
+
+The plan is move-only and effect-free: it stores no `ValueId`,
+`MirInstruction`, `PinnedTextOp`, access-plan row, pointer, runtime frame,
+lease, generation value, V9 root, CFG block, or production route. Its
+callback-scoped consumer lends the source cohort, root rows, initial cursor,
+and relation together; callback failure is a typed rejection. Focused evidence
+is green (`2/2`), `cargo check --profile quick` is green, and the structural
+guard enforces the no-MIR/no-ValueId boundary. The active stop is now
+`NoSafeSlice::S6CScalarEqualityLeafUnsealed`; the next row may open only the
+strict `Utf8WidthAt`/`Utf8ScalarSliceEqWholeText` leaf and canonical Bool
+issuer, with CFG/PHI/Return, runtime, production, fallback/retry,
+performance, and `eq_hh` retirement still closed.
 
 
 ## Historical boundary

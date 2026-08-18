@@ -16,6 +16,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_segments.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -45,5 +46,13 @@ guard_expect_fixed_in_file "$TAG" 'Subject,' "$content_admission" \
   "base-root roles must include an explicit Subject label"
 guard_expect_fixed_in_file "$TAG" 'Needle,' "$content_admission" \
   "base-root roles must include an explicit Needle label"
+cursor_preheader="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
+guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_cursor_preheader_v1' "$cursor_preheader" \
+  "cursor/preheader must have one named effect-free issuer"
+guard_expect_fixed_in_file "$TAG" 'byte_offset: 0' "$cursor_preheader" \
+  "cursor/preheader must initialize the byte offset exactly once"
+if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$cursor_preheader"; then
+  guard_fail "$TAG" "cursor/preheader I0 must not issue MIR/ValueId/PinnedTextOp"
+fi
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"

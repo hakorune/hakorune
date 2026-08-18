@@ -240,6 +240,9 @@ mod tests {
     use crate::mir::builder::resolved_lowering::physical_entry_lane_adoption::{
         PhysicalTextEntryLaneSidecarRowV1, PhysicalTextEntryLaneSidecarV1,
     };
+    use crate::mir::builder::resolved_lowering::{
+        issue_common_v2_s6c_text_cursor_preheader_v1, CommonV2S6CTextCursorPreheaderRejectV1,
+    };
     use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
     use crate::mir::loop_recipe_contract::{
         issue_s6c_prephysical_ingress_v2, issue_s6c_scan_with_init_logical_output_v1,
@@ -460,6 +463,72 @@ mod tests {
             assert!(matches!(
                 issue_common_v2_s6c_text_content_root_admission_v1(source, foreign),
                 Err(CommonV2S6CTextContentRootAdmissionRejectV1::SourceOwnerMismatch)
+            ));
+        });
+    }
+
+    #[test]
+    fn cursor_preheader_consumes_admission_and_keeps_two_roots_together() {
+        let ingress = ingress(1204);
+        with_source(&ingress, |source| {
+            let plan = bridge_plan(
+                source.owner(),
+                &[
+                    (source.subject_binding(), 0, 1, 2),
+                    (source.needle_binding(), 1, 3, 4),
+                ],
+            );
+            let admission = issue_common_v2_s6c_text_content_root_admission_v1(source, plan)
+                .expect("base-root admission");
+            let cursor = issue_common_v2_s6c_text_cursor_preheader_v1(admission)
+                .expect("cursor/preheader plan");
+            assert_eq!(cursor.owner(), source.owner());
+            assert_eq!(cursor.entry(), crate::mir::BasicBlockId::new(3));
+            assert_eq!(cursor.root_plan_stamp(), 77);
+            assert_eq!(cursor.initial().cp_index(), 0);
+            assert_eq!(cursor.initial().byte_offset(), 0);
+            cursor
+                .consume(|source, roots, initial, relation| {
+                    assert_eq!(roots[0].role(), CommonV2S6CTextContentRootRoleV1::Subject);
+                    assert_eq!(roots[1].role(), CommonV2S6CTextContentRootRoleV1::Needle);
+                    assert_eq!(roots[0].root().root_index(), 0);
+                    assert_eq!(roots[1].root().root_index(), 1);
+                    assert_eq!(initial.cp_index(), source.initial_index());
+                    assert_eq!(initial.byte_offset(), 0);
+                    assert_eq!(relation.index_binding(), source.index_binding());
+                    assert_eq!(relation.index_input(), source.index_input());
+                    assert_eq!(relation.length_result(), source.length_result());
+                    assert_eq!(relation.substring_result(), source.substring_result());
+                    assert_eq!(relation.slice_end(), source.slice_end());
+                    assert_eq!(relation.text_equal_item(), source.text_equal_item());
+                    assert_eq!(relation.text_equal_result(), source.text_equal_result());
+                    assert_eq!(relation.text_equal_if(), source.text_equal_if());
+                    assert_eq!(relation.step_add(), source.step_add());
+                    Ok(())
+                })
+                .expect("one-shot cursor consumer");
+        });
+    }
+
+    #[test]
+    fn cursor_preheader_callback_failure_is_typed_and_has_no_physical_effect() {
+        let ingress = ingress(1205);
+        with_source(&ingress, |source| {
+            let plan = bridge_plan(
+                source.owner(),
+                &[
+                    (source.subject_binding(), 0, 1, 2),
+                    (source.needle_binding(), 1, 3, 4),
+                ],
+            );
+            let admission = issue_common_v2_s6c_text_content_root_admission_v1(source, plan)
+                .expect("base-root admission");
+            let cursor = issue_common_v2_s6c_text_cursor_preheader_v1(admission)
+                .expect("cursor/preheader plan");
+            assert!(matches!(
+                cursor.consume(|_, _, _, _| Err::<(), _>("late plan consumer".to_string())),
+                Err(CommonV2S6CTextCursorPreheaderRejectV1::CursorInvariant(detail))
+                    if detail == "late plan consumer"
             ));
         });
     }

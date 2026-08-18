@@ -14,6 +14,8 @@ mod common_v2_s6c_substring_callout_admission;
 #[allow(dead_code)]
 mod common_v2_s6c_text_content_root_admission;
 #[allow(dead_code)]
+mod common_v2_s6c_text_cursor_preheader;
+#[allow(dead_code)]
 mod common_v2_s6c_textref_entry_bridge;
 mod common_v2_segment_block_allocation;
 mod common_v2_session;
@@ -61,6 +63,11 @@ pub(in crate::mir::builder) use common_v2_s6c_text_content_root_admission::{
     issue_common_v2_s6c_text_content_root_admission_v1,
     CommonV2S6CTextContentRootAdmissionRejectV1, CommonV2S6CTextContentRootAdmissionV1,
     CommonV2S6CTextContentRootRoleV1, CommonV2S6CTextContentRootRowV1,
+};
+pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::{
+    issue_common_v2_s6c_text_cursor_preheader_v1, CommonV2S6CTextCursorInitialStateV1,
+    CommonV2S6CTextCursorPreheaderPlanV1, CommonV2S6CTextCursorPreheaderRejectV1,
+    CommonV2S6CTextCursorRootLoadV1, CommonV2S6CTextCursorSourceRelationV1,
 };
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
