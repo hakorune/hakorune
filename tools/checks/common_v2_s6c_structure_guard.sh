@@ -20,6 +20,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
   "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
 )
@@ -88,6 +89,18 @@ guard_expect_fixed_in_file "$TAG" 'discard_unpublished' "$draftseal" \
   "DraftSeal probe must retain one outer rollback owner"
 if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$draftseal"; then
   guard_fail "$TAG" "DraftSeal probe must not open runtime/legacy/production routes"
+fi
+lifecycle="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
+guard_expect_fixed_in_file "$TAG" 'PreparedTextFormalExitFinishSetV1' "$lifecycle" \
+  "Residence lifecycle I0 must use one private stamp-only admission"
+guard_expect_fixed_in_file "$TAG" 'issue_pinned_text_residence_exit_finish_set_v1' "$lifecycle" \
+  "Residence lifecycle I0 must have one named issuer"
+guard_expect_fixed_in_file "$TAG" 'consume_for_materializer' "$lifecycle" \
+  "Residence lifecycle admission must have one consuming boundary"
+guard_expect_fixed_in_file "$TAG" 'Result<(), String>' "$lifecycle" \
+  "lifecycle callback must not return an exit aggregate"
+if rg -n 'PinnedTextResidenceExitObligation|PinnedTextResidenceExitRow|rows:|TextContentFrame|Arc<|MirInstruction' "$lifecycle"; then
+  guard_fail "$TAG" "Residence lifecycle I0 must not retain copied rows or open runtime/MIR owners"
 fi
 plan_bridge="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
 guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_bridge" \

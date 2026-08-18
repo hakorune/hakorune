@@ -17,21 +17,23 @@ promotion, and production remain closed. The caller-zero DraftSeal ingress
 probe now borrows the installed completion tail, seals canonical After/
 Completion/identity, and reaches exact-two DraftSeal prepare/commit on the
 same unpublished transaction; late failure discards it. Residence exit/finish
-is still a design stop: the old exit obligation is proof-only prototype
-evidence and is not connected to Residence finish or physical Return.
+remains closed: the former copied-row obligation is retired as an
+implementation owner. Lifecycle-authority I0 is landed as one caller-zero,
+private stamp-only admission on the canonical DraftSeal owner; it does not
+connect Residence finish or physical Return.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The caller-zero COMMON-V2-S6C-DRAFTSEAL-INGRESS-PROBE0 is landed and green. Next design stop: NoSafeSlice::S6CResidenceExitUnsealed. Before any lifecycle effect, define the existing canonical Completion/PreparedFunctionExitSet/DraftSeal authority for one stamp-only Residence admission; no runtime/backend/production path is open."
+current_design_stop = "Lifecycle-authority I0 is landed and green: the canonical exit set remains the sole iterator and the new admission is stamp-only, move-only, and caller-zero. Next design stop: NoSafeSlice::S6CResidenceFinishUnsealed. Before any runtime effect, define the canonical finish-before-Return materializer and its exact normal/early exit coverage; no backend/production path is open."
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0"
-current_blocker_token = "Design only the stamp-only Text Residence lifecycle authority on the existing canonical session/DraftSeal chain. Reuse PreparedFunctionExitSetV1 as the sole exit iterator; name source authority, canonical issuer, fail-fast boundary, and non-claims before any new receipt or runtime effect. No Residence finish materializer, new frame/Arc, backend/no-unwind, production switch, fallback/retry, performance, or eq_hh retirement."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0"
+current_blocker_token = "Design only the pinned-Text Residence finish-before-Return materializer on the existing canonical DraftSeal owner. Reuse the landed stamp-only admission and PreparedFunctionExitSetV1 as the sole exit iterator; name the finish issuer, canonical Return consumer, primary/suppressed fault order, and unpublished discard boundary before any runtime effect. No new exit ledger, MIR/JSON scan, new frame/Arc, backend/no-unwind, production switch, fallback/retry, performance, or eq_hh retirement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence lifecycle authority design stop"
+active_lane = "S6C Text Residence lifecycle materializer design stop"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion cohort, source corridor, and
 caller-zero correctness route remain closed substrate. Independent census confirmed the existing S6C
@@ -46,13 +48,14 @@ effect-free cursor/preheader plan, scalar-equality leaf capability, and typed
 same-cohort cursor handoff and predicate/index physical I0 are landed. The
 materializer now reduces the loop to one canonical source-index Binding SSA
 plus one private byte-offset PHI, with ByteLen issued once and canonical CFG/
-SSA witnesses sealed. The old proof-only exit obligation is not an
+SSA witnesses sealed. The former copied-row exit obligation is no longer an
 implementation owner. A worker top-down audit accepted one caller-zero
 DraftSeal ingress probe: the cursor borrows the existing completion tail from
 the installed loan, closes the After block, then consumes the existing
 canonical finish/DraftSeal chain. The probe is now landed with positive and
-late-discard focused evidence. The accepted next ladder is lifecycle
-authority, materializer, then backend no-unwind closure. Current ingress census
+late-discard focused evidence. Lifecycle-authority I0 is also landed with
+stamp-only positive/negative/late-failure evidence. The accepted next ladder is
+materializer, then backend no-unwind closure. Current ingress census
 confirms the legacy common-V2 session/physical-entry callbacks and S6C cursor
 materializer remain caller-zero; only the focused DraftSeal probe retains the
 outer transaction. No production S6C DraftSeal candidate currently co-resides
@@ -71,8 +74,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. Predicate/index physical I0 and the caller-zero DraftSeal ingress probe are closed: ByteLen(root 0) is issued once, only a private byte-offset PHI remains, source i uses canonical Binding SSA, Completion/identity/After are sealed, and the same outer DraftSeal transaction commits or discards atomically. Residence lifecycle remains parked at its design stop."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0"
+latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. Predicate/index physical I0 and the caller-zero DraftSeal ingress probe are closed: ByteLen(root 0) is issued once, only a private byte-offset PHI remains, source i uses canonical Binding SSA, Completion/identity/After are sealed, and the same outer DraftSeal transaction commits or discards atomically. Lifecycle-authority I0 is now landed caller-zero: one private non-Clone/non-Copy stamp-only admission validates Completion, the canonical exit set, and plan/frame/target provenance; Residence finish, Return, runtime/backend, production, fallback, and performance remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
@@ -96,5 +99,6 @@ landed_tail = [
   "2026-08-18: Published ExactText lane-borrow ingress now validates entry pairs once and delegates to the existing invocation Residence owner; ABI and Residence focused gates are green, with no MIR/V10 or production caller.",
   "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior.",
   "2026-08-18: S6C predicate/index physical I0 is landed caller-zero: one entry ByteLen and one private byte-offset PHI drive V5, canonical Binding SSA owns i and Return-read observes it, canonical CFG/SSA witnesses seal, and Residence exit remains the next closed boundary.",
-  "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed."
+  "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed.",
+  "2026-08-18: Residence lifecycle authority I0 replaces the copied-row prototype with a private stamp-only move-only admission. Completion, canonical PreparedFunctionExitSetV1, plan/frame/target provenance, explicit-value exits, duplicate-site rejection, one-shot consumption, and late consumer failure are covered by 4 focused tests; runtime finish/Return remain closed."
 ]

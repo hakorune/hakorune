@@ -443,7 +443,7 @@ late failure publication                 = 0
 
 Residence exit remains the next dependency, not a parallel task.
 
-### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0 (current design stop)
+### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-D0 (accepted)
 
 Decision: keep the existing ExactText Residence and canonical DraftSeal as
 the only lifecycle owners; this D0 issues no lifecycle receipt or runtime
@@ -463,14 +463,49 @@ accept this private stamp boundary and its canonical consumer. Non-claims:
 no Residence finish materializer, Return/CFG change, backend/no-unwind closure,
 production switch, performance promotion, or new semantic/source receipt.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (current design stop)
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0 (landed caller-zero)
+
+Scope: replace only the proof-only copied-row obligation with one private,
+non-Clone/non-Copy, stamp-only admission; this row has no runtime effect.
+Issuer: the same canonical `finish_for_draft_seal` ->
+`ReadyFunctionDraftSealV1`/DraftSeal handoff that already owns the exit set.
+Owner: `PreparedFunctionExitSetV1` remains the sole iterator and the later
+materializer is the only consumer. Acceptance requires same owner/session/
+target, plan/frame provenance, exact explicit-value exits, no unit/implicit/EH
+exit, no exposed site/block/value/count/order, and rejection of duplicate,
+foreign, missing, or second consumption. Any late failure remains an
+unpublished DraftSeal discard. Non-claims: no Residence finish, Return/CFG,
+runtime/backend, production, performance, fallback/retry, or `eq_hh` change.
+
+Evidence: the private admission keeps only frame/plan/target provenance, while
+the canonical exit set stays owned by DraftSeal and is borrowed only by the
+one-shot `consume_for_materializer` callback. Focused positive, foreign-owner,
+unsupported-unit, duplicate-site, and late-consumer-failure tests are green
+(4/4); the reusable S6C structure guard rejects the retired copied-row shape.
+The next bounded row is the materializer design stop below.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 (next design stop)
+
+Decision: keep the stamp-only admission and existing `TextFormalCallResidenceV1`
+finish owner closed until every canonical normal/early exit has an explicit
+finish-before-Return plan. Source authority remains
+`VerifiedFunctionCompletionV1` -> `PreparedFunctionExitSetV1`; the future
+materializer must consume the I0 stamp and canonical exit set without scanning
+MIR/JSON or creating a second Return/exit ledger. Fail-fast rejects missing,
+foreign, duplicate, implicit/unit, catch/EH, recoverable-unwind, plan/frame,
+or target drift before runtime effect; any late failure discards the unpublished
+DraftSeal. Non-claims: no runtime frame/Arc, backend/no-unwind proof,
+production switch, fallback/retry, or performance promotion.
+
+### S6C-RESIDENCE-EXIT-FINISH-D0 (accepted; materializer next)
 
 Decision: keep `NoSafeSlice::S6CResidenceExitUnsealed`.
 The predicate/index physical I0 and the caller-zero DraftSeal ingress probe
-above are closed, but the existing
-`PinnedTextResidenceExitObligationV1` is historical proof-only prototype
-evidence, not a live finish owner. Do not connect it to Return, add a second
-exit ledger, or patch the legacy finalizer.
+above are closed. The former `PinnedTextResidenceExitObligationV1` copied-row
+prototype has been retired as an implementation owner; the selected I0 now
+keeps one private stamp-only admission on the canonical DraftSeal owner. Do
+not connect it to Return, add a second exit ledger, or patch the legacy
+finalizer.
 
 Source authority + canonical issuer: `VerifiedFunctionCompletionV1`,
 `PreparedFunctionExitSetV1`, and the common V2 `CanonicalSsaFunctionSessionV2`
@@ -499,7 +534,7 @@ Foreign/duplicate/missing exits, legacy-finalizer ingress, catch/EH or
 recoverable-unwind paths, copied rows, or a required second scan remain
 `NoSafeSlice`; late failure discards the whole draft.
 
-Task ladder (design first, implementation later):
+Task ladder (stamp-only authority first, runtime effect later):
 
 0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` (landed through its probe) — make the S6C common-V2
    physical-entry callback co-reside with the unpublished canonical
@@ -507,10 +542,10 @@ Task ladder (design first, implementation later):
    and `ReadyFunctionDraftSealV1`. It must hand off through the existing
    `finish_for_draft_seal`/DraftSeal owner instead of discarding the outer
    session. No Residence or lifecycle effect is allowed in this row.
-1. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0` — on the common V2
-   canonical session/DraftSeal ingress, issue one opaque exit-set stamp and
-   stamp-only finish/materialization admission; keep `PreparedFunctionExitSetV1`
-   as the sole iterator. No runtime call, Return writer, or production switch.
+1. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0` — landed caller-zero:
+   issue one opaque exit-set stamp and stamp-only finish/materialization
+   admission; keep `PreparedFunctionExitSetV1` as the sole iterator. No
+   runtime call, Return writer, or production switch.
 2. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` — consume that
    admission in the unpublished candidate and realize `finish` immediately
    before each canonical Return. No legacy finalizer patch or MIR rescan.
@@ -2568,9 +2603,10 @@ private Rust-only batch adapter equivalent to
 the existing atomic residence/lease owner. A fused C lane-entry is explicitly
 not selected: if C is needed, it delegates to the Rust owner and remains only
 the existing frame transport projection.
-The existing `PinnedTextBackendFrameContractV1` and proof-only
-`PinnedTextResidenceExitObligationV1` remain the frame/exit evidence owners;
-the lane adapter may borrow those facts but may not reissue them.
+The existing `PinnedTextBackendFrameContractV1` remains the frame evidence
+owner. The lifecycle-authority I0 is a private stamp-only admission on the
+canonical DraftSeal owner; the lane adapter may borrow those facts but may not
+reissue frame or exit meaning.
 
 Non-authority: sidecar `ValueId` numbers or ordinals as slot/generation data,
 MIR metadata or frame-row counts, raw handles/tokens, `DynamicV2CallOutV1`,

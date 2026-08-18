@@ -1,167 +1,187 @@
-//! Proof-only exit obligation for the pinned-Text residence bridge.
+//! Stamp-only lifecycle admission for the pinned-Text Residence seam.
 //!
-//! This module deliberately stops before runtime finish, MIR lifecycle
-//! markers, and Return materialization.  It only co-seals the existing
-//! Completion claims, the prepared exit set, and the already-issued backend
-//! frame stamps.  DraftSeal remains the sole Return writer in a later slice.
+//! This module replaces the former copied-row proof prototype.  It consumes
+//! the existing Completion and `PreparedFunctionExitSetV1` authorities, keeps
+//! the exit set private, and issues no runtime effect, Return, or MIR value.
+//! The later materializer must consume this move-only admission exactly once.
 
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
 use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 use super::super::completion_consumption::{ExplicitReturnWitnessV1, ReadyFunctionCompletionV1};
 use super::{PreparedFunctionExitSetV1, PreparedFunctionExitV1};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct PinnedTextResidenceExitRowV1 {
-    site: SourceStmtSiteV1,
-    block: BasicBlockId,
-    value: ValueId,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct PinnedTextResidenceExitObligationV1 {
+/// Opaque provenance for one function-local exit-set lifecycle admission.
+/// It carries no exit site, block, value, count, or order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct FunctionExitSetStampV1 {
     owner: FunctionOwnerIdV1,
+    invocation_ordinal: u64,
     plan_stamp: u64,
     frame_revision: u32,
-    rows: Box<[PinnedTextResidenceExitRowV1]>,
+    target_profile_id: &'static str,
+    target_triple: &'static str,
 }
 
-impl PinnedTextResidenceExitObligationV1 {
-    pub(in crate::mir::builder::resolved_lowering) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
+impl FunctionExitSetStampV1 {
+    fn from_frame(owner: FunctionOwnerIdV1, frame: &PinnedTextBackendFrameBorrowV1<'_>) -> Self {
+        Self {
+            owner,
+            invocation_ordinal: frame.invocation_ordinal(),
+            plan_stamp: frame.plan_stamp(),
+            frame_revision: frame.frame_revision(),
+            target_profile_id: frame.target_profile_id(),
+            target_triple: frame.target_triple(),
+        }
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn plan_stamp(&self) -> u64 {
-        self.plan_stamp
+    fn matches_frame(
+        self,
+        owner: FunctionOwnerIdV1,
+        plans: &PinnedTextAccessPlanTableV1,
+        frame: &PinnedTextBackendFrameBorrowV1<'_>,
+    ) -> bool {
+        self == Self::from_frame(owner, frame)
+            && frame.owner() == owner
+            && plans.stamp() == frame.plan_stamp()
     }
+}
 
-    pub(in crate::mir::builder::resolved_lowering) const fn frame_revision(&self) -> u32 {
-        self.frame_revision
-    }
-
-    pub(in crate::mir::builder::resolved_lowering) fn count(&self) -> usize {
-        self.rows.len()
-    }
+/// Move-only stamp-only admission issued after the canonical Completion and
+/// exit-set checks. The canonical exit set remains owned by DraftSeal.
+#[must_use = "a lifecycle admission must be consumed by the canonical materializer"]
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder::resolved_lowering) struct PreparedTextFormalExitFinishSetV1 {
+    stamp: FunctionExitSetStampV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) enum PinnedTextResidenceExitObligationRejectV1 {
+pub(in crate::mir::builder::resolved_lowering) enum TextFormalExitFinishAdmissionRejectV1 {
     CompletionOwnerMismatch,
     PlanStampMismatch,
     UnsupportedExitKind,
     ExitCardinalityMismatch { expected: usize, actual: usize },
     ExitClaimMismatch,
     DuplicateExitSite,
+    InvalidFrameProvenance,
+    ConsumerRejected,
 }
 
-pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_exit_obligation_v1(
+/// Issue one stamp-only admission from the existing Completion, plan, frame,
+/// and prepared exit-set authorities. No copied exit rows are produced or
+/// moved out of the canonical DraftSeal owner.
+pub(in crate::mir::builder::resolved_lowering) fn issue_pinned_text_residence_exit_finish_set_v1(
     completion: &ReadyFunctionCompletionV1,
     plans: &PinnedTextAccessPlanTableV1,
     frame: PinnedTextBackendFrameBorrowV1<'_>,
     exits: &PreparedFunctionExitSetV1,
-) -> Result<PinnedTextResidenceExitObligationV1, PinnedTextResidenceExitObligationRejectV1> {
-    if completion.owner() != frame.owner() {
-        return Err(PinnedTextResidenceExitObligationRejectV1::CompletionOwnerMismatch);
+) -> Result<PreparedTextFormalExitFinishSetV1, TextFormalExitFinishAdmissionRejectV1> {
+    let owner = completion.owner();
+    if owner != frame.owner() {
+        return Err(TextFormalExitFinishAdmissionRejectV1::CompletionOwnerMismatch);
     }
     if plans.stamp() != frame.plan_stamp() {
-        return Err(PinnedTextResidenceExitObligationRejectV1::PlanStampMismatch);
+        return Err(TextFormalExitFinishAdmissionRejectV1::PlanStampMismatch);
     }
     if !completion.returns_value() {
-        return Err(PinnedTextResidenceExitObligationRejectV1::UnsupportedExitKind);
+        return Err(TextFormalExitFinishAdmissionRejectV1::UnsupportedExitKind);
     }
+    validate_exit_set(completion, &exits)?;
+    let stamp = FunctionExitSetStampV1::from_frame(owner, &frame);
+    if !stamp.matches_frame(owner, plans, &frame) {
+        return Err(TextFormalExitFinishAdmissionRejectV1::InvalidFrameProvenance);
+    }
+    Ok(PreparedTextFormalExitFinishSetV1 { stamp })
+}
 
+impl PreparedTextFormalExitFinishSetV1 {
+    /// Consume the admission once.  `Result<(), E>` is deliberate: the exit
+    /// set cannot escape as a returned aggregate or become a second authority.
+    pub(in crate::mir::builder::resolved_lowering) fn consume_for_materializer(
+        self,
+        plans: &PinnedTextAccessPlanTableV1,
+        frame: PinnedTextBackendFrameBorrowV1<'_>,
+        exits: &PreparedFunctionExitSetV1,
+        callback: impl FnOnce(&PreparedFunctionExitSetV1) -> Result<(), String>,
+    ) -> Result<(), TextFormalExitFinishAdmissionRejectV1> {
+        if !self.stamp.matches_frame(self.stamp.owner, plans, &frame) {
+            return Err(TextFormalExitFinishAdmissionRejectV1::InvalidFrameProvenance);
+        }
+        callback(exits).map_err(|_| TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
+    }
+}
+
+fn validate_exit_set(
+    completion: &ReadyFunctionCompletionV1,
+    exits: &PreparedFunctionExitSetV1,
+) -> Result<(), TextFormalExitFinishAdmissionRejectV1> {
     let claims = completion.explicit_claims();
-    let rows = match exits {
+    match exits {
         PreparedFunctionExitSetV1::Single(exit) => {
             if claims.len() != 1 {
                 return Err(
-                    PinnedTextResidenceExitObligationRejectV1::ExitCardinalityMismatch {
+                    TextFormalExitFinishAdmissionRejectV1::ExitCardinalityMismatch {
                         expected: 1,
                         actual: claims.len(),
                     },
                 );
             }
-            let PreparedFunctionExitV1::ExplicitValue { block, value } = *exit else {
-                return Err(PinnedTextResidenceExitObligationRejectV1::UnsupportedExitKind);
-            };
-            let ExplicitReturnWitnessV1::Value(witness) = claims[0].witness() else {
-                return Err(PinnedTextResidenceExitObligationRejectV1::ExitClaimMismatch);
-            };
-            if witness.block() != block || witness.value() != value {
-                return Err(PinnedTextResidenceExitObligationRejectV1::ExitClaimMismatch);
-            }
-            vec![PinnedTextResidenceExitRowV1 {
-                site: claims[0].site().clone(),
-                block,
-                value,
-            }]
+            validate_explicit_exit(*exit, &claims[0].witness())
         }
         PreparedFunctionExitSetV1::ExactTwo(exit_claims) => {
             if claims.len() != 2 {
                 return Err(
-                    PinnedTextResidenceExitObligationRejectV1::ExitCardinalityMismatch {
+                    TextFormalExitFinishAdmissionRejectV1::ExitCardinalityMismatch {
                         expected: 2,
                         actual: claims.len(),
                     },
                 );
             }
-            let mut rows = Vec::with_capacity(2);
-            for exit_claim in exit_claims {
-                let site = exit_claim.site();
-                if rows
-                    .iter()
-                    .any(|row: &PinnedTextResidenceExitRowV1| row.site == *site)
-                {
-                    return Err(PinnedTextResidenceExitObligationRejectV1::DuplicateExitSite);
-                }
-                let PreparedFunctionExitV1::ExplicitValue { block, value } = exit_claim.exit()
-                else {
-                    return Err(PinnedTextResidenceExitObligationRejectV1::UnsupportedExitKind);
-                };
-                let Some(completion_claim) = claims.iter().find(|claim| claim.site() == site)
-                else {
-                    return Err(PinnedTextResidenceExitObligationRejectV1::ExitClaimMismatch);
-                };
-                let ExplicitReturnWitnessV1::Value(witness) = completion_claim.witness() else {
-                    return Err(PinnedTextResidenceExitObligationRejectV1::ExitClaimMismatch);
-                };
-                if witness.block() != block || witness.value() != value {
-                    return Err(PinnedTextResidenceExitObligationRejectV1::ExitClaimMismatch);
-                }
-                rows.push(PinnedTextResidenceExitRowV1 {
-                    site: site.clone(),
-                    block,
-                    value,
-                });
+            if exit_claims[0].site() == exit_claims[1].site() {
+                return Err(TextFormalExitFinishAdmissionRejectV1::DuplicateExitSite);
             }
-            rows
+            for exit_claim in exit_claims {
+                let Some(completion_claim) = claims
+                    .iter()
+                    .find(|claim| claim.site() == exit_claim.site())
+                else {
+                    return Err(TextFormalExitFinishAdmissionRejectV1::ExitClaimMismatch);
+                };
+                validate_explicit_exit(exit_claim.exit(), &completion_claim.witness())?;
+            }
+            Ok(())
         }
-    };
+    }
+}
 
-    Ok(PinnedTextResidenceExitObligationV1 {
-        owner: frame.owner(),
-        plan_stamp: frame.plan_stamp(),
-        frame_revision: frame.frame_revision(),
-        rows: rows.into_boxed_slice(),
-    })
+fn validate_explicit_exit(
+    exit: PreparedFunctionExitV1,
+    witness: &ExplicitReturnWitnessV1,
+) -> Result<(), TextFormalExitFinishAdmissionRejectV1> {
+    let PreparedFunctionExitV1::ExplicitValue { block, value } = exit else {
+        return Err(TextFormalExitFinishAdmissionRejectV1::UnsupportedExitKind);
+    };
+    let ExplicitReturnWitnessV1::Value(witness) = witness else {
+        return Err(TextFormalExitFinishAdmissionRejectV1::ExitClaimMismatch);
+    };
+    if witness.block() != block || witness.value() != value {
+        return Err(TextFormalExitFinishAdmissionRejectV1::ExitClaimMismatch);
+    }
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::resolved_lowering::completion_consumption::{
-        ExplicitReturnClaimV1, ReadyFunctionCompletionV1,
-    };
+    use crate::mir::builder::resolved_lowering::completion_consumption::ExplicitReturnClaimV1;
     use crate::mir::builder::resolved_lowering::draft_seal::multi_site_exit::DetachedFunctionExitClaimV1;
     use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
-    use crate::mir::pinned_text_access_plan::{
-        PinnedTextAccessKindV1, PinnedTextAccessPlanTableV1, PinnedTextRootIdV1,
-    };
+    use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextRootIdV1};
     use crate::mir::resolved_semantics::{
-        FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1,
+        FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
     };
+    use crate::mir::{BasicBlockId, ValueId};
 
     fn site(index: u32) -> SourceStmtSiteV1 {
         SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
@@ -186,130 +206,93 @@ mod tests {
         )
     }
 
-    #[test]
-    fn issues_single_value_exit_obligation_from_existing_facts() {
-        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuers.issue().unwrap();
-        let (frame, plans) = frame_and_plans(owner, 19);
-        let claim_site = site(0);
-        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
-            owner,
-            vec![ExplicitReturnClaimV1::from_test_value(
-                claim_site.clone(),
-                BasicBlockId::new(4),
-                ValueId::new(9),
-            )]
-            .into_boxed_slice(),
-        );
-        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
-            block: BasicBlockId::new(4),
-            value: ValueId::new(9),
-        });
-
-        let obligation = issue_pinned_text_residence_exit_obligation_v1(
-            &completion,
-            &plans,
-            frame.borrow(),
-            &exits,
-        )
-        .unwrap();
-        assert_eq!(obligation.owner(), owner);
-        assert_eq!(obligation.plan_stamp(), 19);
-        assert_eq!(obligation.frame_revision(), 1);
-        assert_eq!(obligation.count(), 1);
-    }
-
-    #[test]
-    fn issues_exact_two_by_site_even_when_exit_order_differs() {
-        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuers.issue().unwrap();
-        let (frame, plans) = frame_and_plans(owner, 23);
-        let first = site(1);
-        let second = site(2);
-        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
+    fn completion_two(owner: FunctionOwnerIdV1) -> ReadyFunctionCompletionV1 {
+        ReadyFunctionCompletionV1::from_test_explicit_value(
             owner,
             vec![
                 ExplicitReturnClaimV1::from_test_value(
-                    first.clone(),
+                    site(1),
                     BasicBlockId::new(10),
                     ValueId::new(20),
                 ),
                 ExplicitReturnClaimV1::from_test_value(
-                    second.clone(),
+                    site(2),
                     BasicBlockId::new(11),
                     ValueId::new(21),
                 ),
             ]
             .into_boxed_slice(),
-        );
+        )
+    }
+
+    #[test]
+    fn issues_stamp_only_admission_and_consumes_once() {
+        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuers.issue().unwrap();
+        let (frame, plans) = frame_and_plans(owner, 19);
         let exits = PreparedFunctionExitSetV1::exact_two([
             DetachedFunctionExitClaimV1::from_test(
-                second,
+                site(2),
                 PreparedFunctionExitV1::ExplicitValue {
                     block: BasicBlockId::new(11),
                     value: ValueId::new(21),
                 },
             ),
             DetachedFunctionExitClaimV1::from_test(
-                first,
+                site(1),
                 PreparedFunctionExitV1::ExplicitValue {
                     block: BasicBlockId::new(10),
                     value: ValueId::new(20),
                 },
             ),
         ]);
-
-        let obligation = issue_pinned_text_residence_exit_obligation_v1(
-            &completion,
+        let admission = issue_pinned_text_residence_exit_finish_set_v1(
+            &completion_two(owner),
             &plans,
             frame.borrow(),
             &exits,
         )
         .unwrap();
-        assert_eq!(obligation.count(), 2);
+        let mut visits = 0;
+        admission
+            .consume_for_materializer(&plans, frame.borrow(), &exits, |exits| {
+                exits.try_for_each_exit(|_| {
+                    visits += 1;
+                    Ok::<(), String>(())
+                })
+            })
+            .unwrap();
+        assert_eq!(visits, 2);
     }
 
     #[test]
-    fn rejects_owner_stamp_and_unsupported_exit_drift() {
+    fn rejects_foreign_plan_and_non_value_exit_before_effect() {
         let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = issuers.issue().unwrap();
         let foreign = issuers.issue().unwrap();
         let (frame, plans) = frame_and_plans(owner, 31);
-        let claim_site = site(0);
+        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
+            block: BasicBlockId::new(1),
+            value: ValueId::new(2),
+        });
         let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
             owner,
             vec![ExplicitReturnClaimV1::from_test_value(
-                claim_site,
+                site(0),
                 BasicBlockId::new(1),
                 ValueId::new(2),
             )]
             .into_boxed_slice(),
         );
-        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
-            block: BasicBlockId::new(1),
-            value: ValueId::new(2),
-        });
-
         let foreign_frame = PinnedTextBackendFrameContractV1::from_test(foreign, 31, 1);
         assert_eq!(
-            issue_pinned_text_residence_exit_obligation_v1(
+            issue_pinned_text_residence_exit_finish_set_v1(
                 &completion,
                 &plans,
                 foreign_frame.borrow(),
                 &exits,
             ),
-            Err(PinnedTextResidenceExitObligationRejectV1::CompletionOwnerMismatch)
-        );
-
-        let (wrong_frame, _) = frame_and_plans(owner, 32);
-        assert_eq!(
-            issue_pinned_text_residence_exit_obligation_v1(
-                &completion,
-                &plans,
-                wrong_frame.borrow(),
-                &exits,
-            ),
-            Err(PinnedTextResidenceExitObligationRejectV1::PlanStampMismatch)
+            Err(TextFormalExitFinishAdmissionRejectV1::CompletionOwnerMismatch)
         );
 
         let unit = ReadyFunctionCompletionV1::from_test_explicit_unit(owner, Box::default());
@@ -317,38 +300,22 @@ mod tests {
             block: BasicBlockId::new(1),
         });
         assert_eq!(
-            issue_pinned_text_residence_exit_obligation_v1(
+            issue_pinned_text_residence_exit_finish_set_v1(
                 &unit,
                 &plans,
                 frame.borrow(),
                 &unit_exit,
             ),
-            Err(PinnedTextResidenceExitObligationRejectV1::UnsupportedExitKind)
+            Err(TextFormalExitFinishAdmissionRejectV1::UnsupportedExitKind)
         );
     }
 
     #[test]
-    fn rejects_duplicate_exact_two_site_and_implicit_unit() {
+    fn rejects_duplicate_or_mismatched_exact_two_claims() {
         let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = issuers.issue().unwrap();
         let (frame, plans) = frame_and_plans(owner, 41);
         let duplicate = site(5);
-        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
-            owner,
-            vec![
-                ExplicitReturnClaimV1::from_test_value(
-                    duplicate.clone(),
-                    BasicBlockId::new(1),
-                    ValueId::new(2),
-                ),
-                ExplicitReturnClaimV1::from_test_value(
-                    site(6),
-                    BasicBlockId::new(3),
-                    ValueId::new(4),
-                ),
-            ]
-            .into_boxed_slice(),
-        );
         let exits = PreparedFunctionExitSetV1::exact_two([
             DetachedFunctionExitClaimV1::from_test(
                 duplicate.clone(),
@@ -366,28 +333,46 @@ mod tests {
             ),
         ]);
         assert_eq!(
-            issue_pinned_text_residence_exit_obligation_v1(
-                &completion,
+            issue_pinned_text_residence_exit_finish_set_v1(
+                &completion_two(owner),
                 &plans,
                 frame.borrow(),
                 &exits,
             ),
-            Err(PinnedTextResidenceExitObligationRejectV1::DuplicateExitSite)
+            Err(TextFormalExitFinishAdmissionRejectV1::DuplicateExitSite)
         );
+    }
 
-        let implicit = ReadyFunctionCompletionV1::from_test_implicit_void(owner);
-        let implicit_exit =
-            PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ImplicitUnit {
-                block: BasicBlockId::new(0),
-            });
+    #[test]
+    fn late_consumer_failure_consumes_admission_without_retry() {
+        let mut issuers = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuers.issue().unwrap();
+        let (frame, plans) = frame_and_plans(owner, 47);
+        let exits = PreparedFunctionExitSetV1::single(PreparedFunctionExitV1::ExplicitValue {
+            block: BasicBlockId::new(1),
+            value: ValueId::new(2),
+        });
+        let completion = ReadyFunctionCompletionV1::from_test_explicit_value(
+            owner,
+            vec![ExplicitReturnClaimV1::from_test_value(
+                site(0),
+                BasicBlockId::new(1),
+                ValueId::new(2),
+            )]
+            .into_boxed_slice(),
+        );
+        let admission = issue_pinned_text_residence_exit_finish_set_v1(
+            &completion,
+            &plans,
+            frame.borrow(),
+            &exits,
+        )
+        .unwrap();
         assert_eq!(
-            issue_pinned_text_residence_exit_obligation_v1(
-                &implicit,
-                &plans,
-                frame.borrow(),
-                &implicit_exit,
-            ),
-            Err(PinnedTextResidenceExitObligationRejectV1::UnsupportedExitKind)
+            admission.consume_for_materializer(&plans, frame.borrow(), &exits, |_| {
+                Err::<(), _>("late draft failure".to_owned())
+            }),
+            Err(TextFormalExitFinishAdmissionRejectV1::ConsumerRejected)
         );
     }
 }

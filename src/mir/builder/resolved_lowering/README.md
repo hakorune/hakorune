@@ -751,6 +751,20 @@ parent type and cannot create a sibling session or semantic receipt. The
 facade is now well below the 800-line source ceiling, and this refactor emits
 no new MIR, runtime wire, TextEq, CFG, publication, fallback, or retry.
 
+## Pinned Text Residence lifecycle authority I0 (2026-08-18)
+
+`text_residence_exit.rs` now issues the private,
+non-Clone/non-Copy `PreparedTextFormalExitFinishSetV1` from the existing
+Completion, `PreparedFunctionExitSetV1`, plan stamp, and backend-frame
+provenance. The admission owns only its opaque provenance stamp; the canonical
+DraftSeal retains the exit set and exposes no site/block/value/count/order to
+the admission. Its only consumer is a scoped callback that returns
+`Result<(), E>` and uses the existing exit-set iterator. Owner,
+plan/frame, target, explicit-value, duplicate-site, and unsupported-unit drift
+reject before any lifecycle effect. This row is caller-zero and stamp-only:
+Residence finish, Return/CFG, runtime/backend, production selection,
+fallback/retry, performance, and `nyash.string.eq_hh` retirement remain closed.
+
 ## Common V2 S6C canonical Substring callout materializer I0 (2026-08-18)
 
 `S6CTextEqOperandReceiptV1::with_s6c_substring_callout_exact_text_co_seal` is
