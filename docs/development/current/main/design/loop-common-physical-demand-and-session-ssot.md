@@ -142,10 +142,13 @@ Related:
   transaction and reaches exact-two DraftSeal prepare/commit. The typed
   lifecycle-carrier I0 is also landed caller-zero: canonical CFG owns one
   affine `ResidenceEnter(normal, trap)` pair and one success-only
-  `ResidenceFinish` marker. The active stop is now the
-  `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0` review; the accepted
-  consumer boundary is recorded below and its caller-zero I0 is the only
-  next executable row.
+  `ResidenceFinish` marker. The DraftSeal consumer boundary is now landed
+  caller-zero: one affine aggregate is consumed over the existing explicit
+  exit set, with operand -> Finish -> Return ordering and whole-draft discard
+  on late failure. The next design stop is
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0`; no backend
+  lowering or production caller is open until its post-transform evidence
+  owner is fixed.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, the Subject/Needle base-root admission, the
@@ -166,12 +169,13 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** implement the bounded
-  `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0` seam. Replace the
+- **Next ordered task:** hold the design stop
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0`. The
+  DraftSeal consumer I0 is landed caller-zero and replaces the
   single-normal-landing finish capability/state with one affine aggregate
-  consumed by the existing explicit exit-set projection; each supported exit
-  must receive operand -> Finish -> existing Return ordering. Do not open
-  backend, production, runtime backing, or fallback.
+  consumed by the existing explicit exit-set projection. Do not open backend
+  lowering, production, runtime backing, or fallback until the post-transform
+  closure issuer is fixed.
 - **Production stop line:** the current typed cursor handoff is caller-zero
   transport evidence, not a completed physical corridor. Residence
   exit/finish, publication, production selector, performance promotion,
@@ -330,10 +334,10 @@ callback-scoped consumer lends the source cohort, root rows, initial cursor,
 and relation together; callback failure is a typed rejection. Focused evidence
 is green (`2/2`), `cargo check --profile quick` is green, and the structural
 guard enforces the no-MIR/no-ValueId boundary. The strict leaf and its typed
-caller-zero cursor CFG/SSA consumer are now landed; the active stop is
-`NoSafeSlice::S6CResidenceExitUnsealed`. Residence exit, normal-return finish,
-runtime, production, fallback/retry, performance, and `eq_hh` retirement
-remain closed.
+caller-zero cursor CFG/SSA consumer are now landed; at this historical closeout
+the next boundary was `NoSafeSlice::S6CResidenceExitUnsealed`. Residence exit,
+normal-return finish, runtime, production, fallback/retry, performance, and
+`eq_hh` retirement remain closed.
 
 ### S6C scalar-equality leaf I0 closeout (2026-08-18; caller-zero)
 
@@ -979,7 +983,7 @@ Landed evidence (2026-08-19):
    `cargo fmt --all -- --check`, `git diff --check`, and the focused lifecycle
    suite pass (`5/5`).
 
-Next bounded row: `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0`,
+Next bounded row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0`,
 selected by the accepted D0 below. It remains caller-zero and does not open a
 production caller.
 
@@ -988,7 +992,7 @@ change, new frame/backing, `Arc<str>` migration, LLVM/GEP lowering, final
 no-unwind proof, Return projection change, production switch, performance
 promotion, `eq_hh` retirement, or fallback/retry.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0 (accepted; I0 selected)
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0 (accepted; I0 landed caller-zero)
 
 Decision: replace the landed single-normal-landing lifecycle seam before any
 backend work. One move-only physical aggregate consumes the existing
@@ -1028,8 +1032,8 @@ unpublished projection, every explicit exit is preflighted, then materialized
 and finished exactly once before the existing Return; any late error discards
 the entire draft. No retry or alternate route is entered.
 
-Smallest next slice:
-`TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0`. Add a private
+Selected slice (landed below):
+`TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0`. It adds a private
 `draft_seal/text_residence_ingress.rs` consumer probe that takes the existing
 physical ingress plus the move-only lifecycle aggregate and borrows the
 existing exit set only for one projection pass. Cover both `Single` and
@@ -1084,6 +1088,65 @@ Landed evidence (2026-08-19):
 3. No caller is wired from production S6C lowering. Backend declaration,
    lifecycle MIR lowering, final no-unwind proof, runtime storage, Return
    publication, fallback, and performance remain closed.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0 (2026-08-19; design stop)
+
+Decision: keep lifecycle lowering closed until one selected backend contract
+and one post-transform no-unwind closure owner are named. The existing
+`PinnedTextBackendFrameContractV1` remains a layout/access census only; it
+does not prove Residence lifetime, C ABI behavior, `nounwind`, or Return
+ordering. The physical order, once admitted, is fixed as:
+
+```text
+canonical Enter
+  -> explicit exit operand materialization
+  -> Residence Finish
+  -> existing Return projection
+```
+
+The public finish wrapper has one meaning: it returns only on status `0` and
+fail-stops on every nonzero status. A backend must not infer success, fault,
+or exception behavior from a symbol name, a header declaration, or an MIR
+allowlist.
+
+Source authority + canonical issuer: Source/Facts/Recipe/Join/Completion,
+the already-landed physical lifecycle carrier, `PreparedFunctionExitSetV1`,
+the canonical unpublished CFG/SSA session, and the existing backend-frame /
+target contract remain the only provenance inputs. The canonical session and
+its CFG/SSA writers issue the physical Enter/Finish carriers. The selected
+contract-bound backend emitter owns target lowering. A future
+post-transform observer/issuer (name intentionally not fixed before the
+selected backend exists) must be the sole owner of no-unwind closure evidence;
+it may be created only from an inspectable lowered module and must not mint a
+source-semantic receipt.
+
+Non-authority: ABI-regex checks, the C header alone, backend allowlists,
+MIR/JSON scans, inferred `noreturn`/`nounwind` text, frame layout, raw
+pointer/`ValueId`, runtime status values, host/environment assumptions,
+`nyash.string.eq_hh`, fallback/retry, and benchmark results. None of these
+may authorize lifecycle lowering or production selection.
+
+Fail-fast boundary: before the first lifecycle effect, reject an unselected or
+drifting target contract, missing carrier, foreign/stale cohort, unsupported
+exit shape, implicit/unit exit, hidden call/branch, or any recoverable EH path.
+After lowering, the observer must prove exactly one Enter, success-only Finish
+on every explicit value exit, zero Finish on the trap edge, and operand ->
+Finish -> Return ordering. It must also prove no `invoke`, `landingpad`,
+`resume`, `catchpad`, or `cleanuppad`; the finish wrapper's success path is
+void-returning and its fault path is terminal; and the hot loop has no call,
+allocation, lock, lease, callback, frame reload, fallback, or retry. Missing
+observer evidence is `NoSafeSlice`, not a guessed capability.
+
+Smallest next slice: name and document the selected backend carrier plus the
+post-transform closure observer contract. Do not add lifecycle lowering,
+header attributes, a new runtime frame/backing, an `Arc<str>` route, a
+production switch, or synthetic semantic receipts in this D0. The next I0 may
+implement only a read-only observer/guard after a real selected-backend module
+is inspectable; until then the row remains a design stop.
+
+Non-claims: this D0 does not claim C/LLVM lowering, final ABI attributes,
+terminal-fault EH closure, Return publication, production selection,
+performance promotion, `eq_hh` retirement, fallback/retry, or kernel syntax.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
@@ -1153,10 +1216,11 @@ Task ladder (canonical consumer design first, runtime effect later):
 4. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0` — landed
    caller-zero; the Rust-side physical co-seal and guards add no MIR/runtime.
 5. `TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0` — accepted above;
-   its bounded runtime ABI I0 is the only selected executable row.
-6. After that I0, reopen the typed carrier/projector/backend design rows one at
-   a time. Production/performance stay closed until caller-zero lifecycle and
-   final no-unwind evidence are complete.
+   its bounded runtime ABI I0 is landed caller-zero; no lifecycle lowering is
+   authorized by that ABI alone.
+6. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-D0` — active design
+   stop. Name one selected backend carrier and one post-transform closure
+   issuer before any I0, production, or performance work.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
