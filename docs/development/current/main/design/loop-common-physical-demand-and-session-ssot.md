@@ -2116,13 +2116,13 @@ permitted; if the runtime-value ingress cannot be named, retain
 Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
 
-### PARKED-PINNED-TEXT-STRINGBOX-ROOT-OWNER-D0 (2026-08-18; audited, parked)
+### TEXT-FORMAL-EXACT-STRINGBOX-RESIDENCE-D0 (2026-08-18; audited, production-parked)
 
-Decision: keep `TextFormalCallResidenceV1` StableText-only. A future fast lane
-may admit exactly the built-in `StringBox` without a byte copy after the
-correctness production edge. It must reuse the existing registry-held payload;
-the Residence token owns call pins and root descriptors, not a second `Arc`
-owner.
+Decision: keep the production route `StableText`-only, but allow one bounded
+caller-zero runtime canary for the exact built-in `StringBox` before the first
+production edge. This is a runtime prerequisite, not a TextEq effect or a
+production admission. It must reuse the existing registry-held payload; the
+Residence token owns call pins and root descriptors, not a second `Arc` owner.
 
 Source authority + canonical issuer: the existing ExactText formal occurrence
 and S6C source/Facts/Recipe relation own Text meaning. The host table alone
@@ -2149,13 +2149,27 @@ counts, then publishes one token and occurrence-ordered root set. Any error
 leaves pins/tokens/roots at zero. Finish consumes the token exactly once; no
 fallback, retry, or partial publication is allowed.
 
-Smallest next slice: remain parked until the correctness production edge;
-then close the ABI-limit and lease/root-separation BoxShape rows before the
-single exact-StringBox BoxCount implementation.
+Smallest next slice: execute the three runtime rows in order — ABI/frame
+limits, lease/root admission split, then the exact-StringBox BoxCount — only
+when `CURRENT_STATE.toml` selects the canary. The canary has no source/Facts/
+Recipe consumer and does not unblock TextEq V10, inner CFG, publication, or
+production cutover by itself.
 
-Non-claims: no current StringBox root issuer, ABI/raw-pointer publication,
-compiler lifecycle, direct leaf, speed result, production, extra `Arc` root,
-or `Arc<str>` migration.
+Non-claims: no StringBox production admission, ABI/raw-pointer publication,
+compiler lifecycle, direct leaf, speed result, extra `Arc` root, or `Arc<str>`
+migration.
+
+Mutable-reachability census (2026-08-18, workspace scope): the only direct
+`as_any_mut` call sites are the boxed-array text mutator and the borrowed
+handle-box decoder; neither can reach the registry-held `Arc<dyn NyashBox>`
+StringBox allocation. There is no `Arc::get_mut`/`Arc::make_mut`, host-handle
+mutable borrow, or writable Arc/raw-pointer projection for StringBox. The
+nowait/future paths transfer handles or `Send + Sync` shared objects, not a
+mutable registry borrow. C/extern hooks in this repository receive handles or
+read-only callbacks; an external unsafe provider that can retain a writable
+pointer remains an explicit contract violation and keeps the canary at
+`NoSafeSlice` until classified. This census is reusable release evidence, not
+an informational grep.
 
 ### COMMON-V2-S6C-V9-CALLOUT-MIR-D0 (2026-08-18; design stop)
 
@@ -2278,12 +2292,14 @@ pair/root validation both finish before their first effect. Later compiler
 failure discards the unpublished function; no retry, fallback, partial pin,
 or partial publication is allowed.
 
-Smallest next slice: only `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0`. Every
-runtime, direct-leaf, performance, and retirement row below remains parked.
+Smallest next slice: `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0` remains the current
+design boundary for the portable correctness path. Independently, rows 9–11
+may be selected as a caller-zero runtime canary prerequisite; rows 12–17 stay
+parked until correctness and the first production cutover.
 
 Non-claims: no TextEq V10, inner CFG, Completion/publication, production
-switch, StringBox residence, direct kernel, C-speed result, or legacy
-retirement is open now.
+switch, StringBox production admission, direct kernel, C-speed result, or
+legacy retirement is open now.
 
 #### Final convergence task graph
 
@@ -2318,8 +2334,10 @@ independent compatibility retirement
 | 16 | `S6C-PINNED-TEXT-PRODUCTION-SWITCH-I0` | production replacement | Select Direct before effects for the proven cohort, remove its materialized Substring/TextEq physical edge, and retain the portable route only for distinct admitted shapes, never as retry. |
 | 17 | `EQ-HH-RETIREMENT-R0` | compatibility retirement | Cut over generic C/Python callers, prove external caller zero, then remove the declaration and `nyash.string.eq_hh` export. |
 
-Rows 1–8 are the correctness critical path. Rows 9–16 cannot open before row
-8 because pinned-Text performance is explicitly parked until correctness and
+Rows 1–8 remain the production correctness path. For the current caller-zero
+TextRef canary, rows 9–11 may open as a bounded runtime prerequisite before
+row 8; this does not select a production caller, publish a function, or relax
+the first production cutover. Rows 12–16 remain parked until correctness and
 the first production cutover. Each I0 carries focused positive/negative tests,
 the owning README/reference update, and one reusable guard where the invariant
 cannot be covered by a stable test.
@@ -2557,9 +2575,16 @@ route; it is already recorded in this SSOT and must be reused rather than
 duplicated.
 
 Non-claims: no V10 MIR effect, `MirInstruction::PinnedTextOp`, StringBox
-runtime admission, `TextFormalCallResidenceV1` widening, inner CFG/Return,
+runtime production admission, inner CFG/Return,
 publication, production switch, fallback, retry, performance result, or
 `eq_hh` retirement.
+
+The exact concrete StringBox root admission is the only runtime prerequisite
+opened before the production edge. It remains a caller-zero canary and must
+reuse the registry payload under one write-lock validation/pin transaction;
+there is no copied root `Arc`, byte snapshot, whole-function lock, or mutable
+alias escape. The existing row-11 mutable-reachability census is a release
+gate, not an informational grep.
 
 #### C-speed and legacy verdict
 
