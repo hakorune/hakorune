@@ -1259,20 +1259,39 @@ green, as are `cargo fmt --all`,
 metadata only; it is not a C lowerer, runtime caller, observer, or production
 edge.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0 (selected; caller-zero)
+#### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CARRIER-LLVM-LOWERING-I0 (landed; caller-zero)
 
-The next cell consumes only the strict carrier JSON. It adds a thin
-`hako_llvmc` pure-first lowerer and one textual LLVM IR fixture: direct
-`enter_v1 -> i32` with normal/trap branching and direct success-only Finish
-before each explicit Return. It must reject absent/drifting carrier data and
-must not add fallback or non-selected-backend parity. The post-transform
-observer remains closed until this fixture is real.
+Decision: consume only the strict Rust-issued carrier JSON in one thin
+`hako_llvmc` fixture helper. The helper validates the existing backend-frame
+cohort, source-issued slot/generation/root mapping, Enter normal/trap sites,
+and Finish-on-every-explicit-normal-Return obligation, then writes textual
+LLVM with direct `enter_v1 -> i32`, the normal/trap branch, and success-only
+Finish immediately before every explicit Return. It opens no TargetMachine,
+does not publish an object, and has no fallback or non-selected-backend arm.
 
-Non-claims: this row does not yet claim a final post-transform
-`nounwind`/`noreturn` proof, object emission success, production selection,
-performance promotion, `Arc<str>` migration, new runtime frame/backing,
-`eq_hh` retirement, or kernel syntax. It is a physical carrier/materializer
-task only; the later observer remains the sole no-unwind issuer.
+Source authority + canonical issuer: the existing Rust
+`pinned_text_residence_carrier@1` projection and
+`hako.pinned_text_backend_frame@2` contract. The C helper is only a strict
+projection consumer; it never reconstructs lane/root meaning or creates a
+semantic receipt.
+
+Fail-fast boundary: missing carrier metadata, unknown keys, foreign owner or
+invocation, frame/plan/target drift, non-contiguous source lanes, duplicate or
+trap Finish sites, and root-count drift reject before the textual output file
+is opened. The fixture contains no hot-loop Residence call, retry, or legacy
+`nyash.string.eq_hh` route.
+
+Evidence: `tools/checks/pinned_text_residence_carrier_lowering_smoke.sh`
+passes the direct LLVM-shape assertion plus missing-carrier, plan-drift, and
+trap-Finish negatives. The shared structure guard also checks the helper's
+single caller-zero boundary and the 800-line limit. The module README and
+check-script index name this helper as inspection-only.
+
+Non-claims: no canonical DraftSeal caller, target-machine/object emission,
+post-transform `nounwind`/`noreturn` proof, production selection, performance
+promotion, `Arc<str>` migration, new runtime frame/backing, `eq_hh`
+retirement, fallback/retry, or kernel syntax. The later observer remains the
+sole no-unwind issuer.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 

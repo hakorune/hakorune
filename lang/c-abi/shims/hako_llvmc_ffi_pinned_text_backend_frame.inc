@@ -258,7 +258,9 @@ static int hako_llvmc_ptfb_function_has_pinned_text_op(yyjson_val* function) {
       const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
       if (name && (!strcmp(name, "pinned_text_op") ||
                    !strcmp(name, "pinned_text_enter") ||
-                   !strcmp(name, "pinned_text_finish"))) {
+                   !strcmp(name, "pinned_text_finish") ||
+                   !strcmp(name, "pinned_text_residence_enter") ||
+                   !strcmp(name, "pinned_text_residence_finish"))) {
         return 1;
       }
     }

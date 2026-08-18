@@ -31,6 +31,18 @@ Layout
   - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
   - public path-owner names are `mir_json_path` / `obj_path` / `exe_path` under `hako_aot.h`
 
+Caller-zero pinned-Text lowering fixture
+- `shims/hako_llvmc_ffi_pinned_text_residence_carrier.inc` consumes only the
+  Rust-issued `hako.pinned_text_residence_carrier@1` projection together with
+  its existing backend-frame contract and writes textual LLVM containing the
+  direct Residence Enter normal/trap branch and success-only Finish before
+  explicit returns.
+- `hako_llvmc_emit_pinned_text_residence_carrier_fixture` is a test/inspection
+  helper, not a production compiler entry. It does not open the TargetMachine,
+  publish an object, infer lane meaning, or select a fallback route. Missing,
+  foreign, stale, duplicate, or trap Finish carrier data rejects before the
+  output file is opened.
+
 Replay admission
 - `hako_aot_compile_json` is the generic AOT entry and rejects inherited
   harness replay before FFI lookup, child spawn, or object creation.

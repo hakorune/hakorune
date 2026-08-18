@@ -32,6 +32,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
   "$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
   "$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+  "$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_residence_carrier.inc"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -146,6 +147,23 @@ guard_expect_fixed_in_file "$TAG" 'source_binding' "$backend_carrier" \
   "backend transport must retain source-issued root provenance"
 if rg -n '^[^/].*(Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox|eq_hh)' "$backend_carrier"; then
   guard_fail "$TAG" "backend carrier transport must not expose runtime/raw/MIR/legacy authorities"
+fi
+c_frame="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_backend_frame.inc"
+guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_enter' "$c_frame" \
+  "C frame census must recognize the landed Residence Enter transport op"
+guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_finish' "$c_frame" \
+  "C frame census must recognize the landed Residence Finish transport op"
+c_carrier="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_residence_carrier.inc"
+guard_expect_fixed_in_file "$TAG" 'hako_llvmc_emit_pinned_text_residence_carrier_fixture' "$c_carrier" \
+  "C lowering must expose one caller-zero carrier fixture consumer"
+guard_expect_fixed_in_file "$TAG" 'hako_text_formal_residence_enter_v1' "$c_carrier" \
+  "C lowering fixture must emit the direct Residence Enter ABI"
+guard_expect_fixed_in_file "$TAG" 'hako_text_formal_residence_finish_or_abort_v1' "$c_carrier" \
+  "C lowering fixture must emit the direct success-only Finish ABI"
+guard_expect_fixed_in_file "$TAG" 'label %normal0, label %trap' "$c_carrier" \
+  "C lowering fixture must retain explicit Enter normal/trap control"
+if rg -n 'hako_llvmc_ptfb_session|compile_json|fallback|retry|nyash\.string\.eq_hh' "$c_carrier"; then
+  guard_fail "$TAG" "caller-zero C carrier fixture must not enter production/fallback/legacy routes"
 fi
 metadata_json="$ROOT_DIR/src/runner/mir_json_emit/metadata.rs"
 emitters="$ROOT_DIR/src/runner/mir_json_emit/emitters/basic.rs"
