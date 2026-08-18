@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-16
+Date: 2026-08-18
 Decision: accepted after external and independent worker review — `LOOP-COMMON-PHYSICAL-DEMAND-AND-SESSION0-D0-r2`
 Activation: `CANONICAL-FUNCTION-FINISH-TERMINAL-R0`, callable static-prefix
 P0, bounded `LOOP-PHYSICAL-PREPARE-P0`, common-boundary design stop,
@@ -110,24 +110,28 @@ Related:
   at V10. The premise-reset audit corrected TextEq from a source StringEquals
   call/Trap boundary to a portable non-faulting operation whose V9/V1
   residences must be co-sealed before V10 materialization. The common-V2
-  Substring target/admission I0 is now effect-free and caller-zero; the
-  source-backed V9 issuer I0 is now landed: it validates the checked wire,
-  adopts a generation-branded End lease, and lends Text only through a
-  callback-scoped view. The runtime-only StableText wire issuer I0 is now
-  landed and validates an already-published `{slot,generation}` pair without
-  raw-handle recapture. The source-bound ExactText-occurrence view I0 is now
-  landed; the remaining boundary is its V9-to-StableText residence co-seal.
-  The existing StableText-only Residence cannot silently accept the S6C
-  StringBox shape.
+  Substring target/admission I0 is now effect-free and caller-zero. The
+  existing V9 issuer I0 validates an already-produced runtime wire, adopts its
+  End lease, and lends Text only through a callback-scoped view. A
+  phase-boundary audit now classifies that object as a caller-zero runtime
+  contract canary, not a production MIR physicalizer: it receives a concrete
+  `DynamicV2CallOutV1` during compiler execution and emits neither
+  `CheckedCallOut` nor a V9 `ValueId`. The runtime-only StableText wire issuer
+  and the source-bound ExactText occurrence view remain valid subordinate
+  substrate, but neither can bridge compile-time MIR values to concrete
+  runtime pairs. The source/Facts/Recipe/Join chain is retained; only the
+  compiler/runtime physical boundary is reset.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0` remains a design
-  stop. It must name the source-bound runtime pair ingress before the
-  StringBox LeaseSet/callback owner can be opened; StableText residence stays
-  separate. No selected-Dynamic pair or `nyash.string.eq_hh` transport is
-  implied.
+  `COMMON-V2-S6C-V9-CALLOUT-MIR-D0` is the design stop. It must name one
+  canonical compile-time materializer for
+  `CheckedCallOut -> { NormalResult(V9) -> consumer -> End | Fault }` without
+  accepting a concrete runtime wire. StringBox runtime residence and direct
+  pinned-Text optimization are later runtime/backend rows, not this compiler
+  seam.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
-  or select a second physicalizer.
+  select a second physicalizer, or treat a runtime wire canary as production
+  compiler evidence.
 - **Retirement finish line:** all admitted profiles use one common physical
   owner and old topology, route-local schedulers, direct transfer inference,
   retry, and fallback have zero callers.
@@ -2151,55 +2155,136 @@ MIR `ValueId` is allowed.
 Non-claims: no StringBox residence I0, new semantic receipt, CheckedCallOut,
 V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
 
-### COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0 (2026-08-18; design stop)
+### COMMON-V2-S6C-V9-CALLOUT-MIR-D0 (2026-08-18; design stop)
 
-Decision: keep a separate runtime-pair ingress boundary. The existing runtime
-substrate can pin StringBox after it receives an opaque pair, but no current
-issuer may create that pair from Common-V2 physical lanes.
+Decision: retain the source/Facts/Recipe/Join architecture and reset only the
+compiler/runtime physical boundary. The concrete-wire V9 issuer remains a
+runtime-lifecycle canary; it is not the successor of the common-V2 compiler
+admission.
 
-Source authority + canonical issuer: the S6C StringBox formal and canonical
-ExactText occurrence proof; a future runtime host-handle boundary must verify
-the published slot/generation and StringBox payload before handing an opaque
-borrow/lease capability to `CommonV2StringBoxTextEqResidenceScopeV1`.
+Source authority + canonical issuer: resolver `StringSubstring/2` and Recipe
+`CallSlot(item 6, B1, V0, [V6,V8] -> V9:Text)`, plus the existing target,
+provider, admission, operand, invocation, and Body-segment proofs. The
+canonical CFG/SSA session is the only issuer of `CheckedCallOut`, its
+Normal/Fault landings, `CheckedCallOutNormalResult` V9, and
+`CheckedCallOutEnd`/`CheckedCallOutFault`.
 
-Non-authority: MIR `ValueId`, logical ordinal, raw handle generation capture,
-StableText-only wire issuer, `eq_hh`, C frame/status exports, or a new semantic
-`Verified*`/`Prepared*` receipt minted only to carry runtime values.
+Non-authority: concrete `DynamicV2CallOutV1`, `EndAuthorizedTextV1`,
+`TextFormalWirePairV1`, LeaseSet, a sidecar-`ValueId`-to-`u64` conversion,
+`nyash.string.eq_hh`, raw handle equality, and
+`with_s6c_substring_v9_issuer` as production compiler evidence.
 
-Fail-fast boundary: reject absent/zero/stale/foreign pair, non-StringBox or
-retiring payload, owner/session/entry/segment/needle/carrier drift, pin or byte
-overflow, unknown token, escaped borrow, duplicate finish, and late discard
-before any TextEq or residence effect.
+Fail-fast boundary: before the first MIR mutation, reject source/site/provider
+ABI, invocation brand, owner/session/segment, operand/result, or
+End-authorized-shape drift. Compile time never receives the runtime wire.
+At runtime, Normal defines V9 and later consumes End exactly once after the
+callback-scoped V9 consumer; Fault defines no V9 and terminates without End.
+Any compiler failure after mutation discards the whole unpublished function.
 
-Smallest next slice: design-only API contract for one private runtime pair
-issuer plus callback scope; classify whether the pair arrives from a named
-callee ABI or remains `NoSafeSlice::StringBoxRuntimePairIngressUnsealed`.
+Smallest next slice: remain design-only and close one callback-scoped
+materializer shape for `CheckedCallOut -> NormalResult(V9) -> consumer -> End`
+and the separate Fault terminal, including all exit/lifecycle cutpoints. No
+code opens until this D0 is accepted.
 
-Design consultation outcome: no named callee ABI or Common-V2 caller exists at
-this HEAD. `issue_text_formal_borrow_v1(handle)` recaptures from a raw handle;
-`issue_stable_text_formal_wire_v1(slot, generation)` rejects StringBox;
-`validate_text_formal_wire_v1`/the C validator reports status but does not mint
-an opaque LeaseSet capability; and `nyash.string.eq_hh` is only a subordinate
-transport with lossy/fallback behavior. Therefore retain
-`NoSafeSlice::StringBoxRuntimePairIngressUnsealed` and keep the following
-contract design-only:
+Non-claims: no implementation, StringBox runtime-pair issuer, residence pin,
+TextEq V10/Bool, inner If/Return CFG, Completion/DraftSeal, publication,
+production switch, fallback, retry, or legacy retirement.
+
+#### Layer review
+
+| Layer | Verdict | Boundary |
+| --- | --- | --- |
+| source -> Facts -> Recipe -> Join/Completion | keep; thin | Binary Text equality remains `LoopOperationV2::TextEq`, not a hidden third call |
+| prephysical target/admission/operand proofs | keep; thin in responsibility | compile-time only; no runtime wire, handle, or token |
+| canonical CFG/SSA writers | reuse | sole MIR mutation and physical `ValueId` authority |
+| current V9 concrete-wire issuer | reclassify | caller-zero runtime-contract canary only |
+| ExactText wire/LeaseSet/residence | defer | runtime ABI/backend substrate, never compiler semantic authority |
+| pinned Text direct lowering | open | performance candidate only after correctness cutover |
+
+The responsibility graph is therefore still one chain:
 
 ```text
-proposed private issuer:
-  issue_stringbox_text_formal_pair_v1(slot, generation)
-    -> opaque StringBox-branded capability
-capability -> existing exact-text LeaseSet(stable_text_only = false)
+source Binary Equal / StringSubstring
+  -> exact Facts + Recipe CallSlot/TextEq
+  -> common target/admission/operand proofs
+  -> canonical CheckedCallOut
+       Normal -> V9 SSA -> TextEq consumer -> End
+       Fault  -> terminal, no V9 and no End
+  -> V10 Bool -> inner If/Return
+  -> Completion / DraftSeal / atomic publication
 ```
 
-The issuer must validate the already-published pair and its
-`StableBox(StringBox)` payload inside the runtime owner; it must not return a
-raw tuple, raw handle, MIR `ValueId`, or a StableText coercion. LeaseSet
-completion precedes V9 End completion, with reverse-order rollback. This is a
-design contract only, not an implementation or a new semantic receipt.
+The correction removes a phase leak; it does not add a second source meaning
+or a second physicalizer.
 
-Non-claims: no runtime-pair implementation, StringBox residence I0,
-CheckedCallOut, V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry,
-or production.
+#### Ordered task map
+
+1. `COMMON-V2-S6C-V9-CALLOUT-MIR-D0` — close the six-line design brief above.
+2. `COMMON-V2-S6C-STRUCTURE-R0` — behavior-neutral BoxShape split before code
+   growth: `s6c_prephysical_ingress.rs` is 786 lines and
+   `common_v2_session.rs` is 752 lines. Keep the sole semantic owner; put new
+   callout orchestration in its own module.
+3. `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` — emit the real canonical callout,
+   Normal/Fault landings, callback-scoped V9 result, End, and fault terminal.
+   Keep the concrete-wire canary test-only and caller-zero.
+4. `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` — co-seal the V9 physical result
+   with the adopted ExactText entry lanes; do not construct a runtime pair in
+   the compiler.
+5. `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` — select one strict,
+   non-fallback physical capability for the existing TextEq operation and
+   issue Bool V10. If no strict backend exists, return to `design_stop`.
+6. `COMMON-V2-S6C-INNER-CFG-D0/I0` — consume V10 with the existing
+   Return-read/shared-segment/FunctionExit proofs and write If/Return CFG.
+7. `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` — prove the whole caller-zero
+   correctness path, negative matrix, exact lifecycle census, and late
+   unpublished discard.
+8. `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` — connect the real caller through
+   Completion/DraftSeal/publication, then retire the old selected edge only
+   after caller-zero evidence.
+9. `PINNED-TEXT-C-SPEED-D0/I0` — separate optimization row after correctness:
+   acquire all required Text-root residences once per invocation and authorize
+   the existing `Utf8ScalarSliceEqWholeText` plan from source/Recipe proof.
+   Lower it directly; the hot loop must contain no LeaseSet acquisition,
+   handle-table lock, allocation, substring object, fallback, or indirect
+   `eq_hh` call.
+10. `EQ-HH-RETIREMENT-R0` — cut over its generic C/Python callers, remove the
+    declaration, and retire the ABI export only after an external caller-zero
+    census.
+
+Rows 1–4 are BoxShape because they add no source form. Row 5 must decide
+whether admitting one physical representation is a bounded BoxCount or
+remains `NoSafeSlice`. Correctness, production, and performance claims stay
+separate.
+
+The independent structural audit remains a separate pre-production backlog:
+
+- `GENERIC-SESSION-SEALED-CONSUME-R0` narrows session-preflight decomposition
+  to the canonical opener and replaces duplicate-consume panic with typed
+  rejection.
+- `CALLABLE-DEMAND-OPAQUE-CONSUME-R0` closes the theoretical owned callback
+  tuple escape without changing the semantic program.
+- `COMMON-DISPATCHER-ENTRY-RETIREMENT-R0` takes the final target-explicit,
+  block-receipt, and segment-dispatch caller census during production cutover.
+- `TRANSITION-DEAD-CODE-ALLOW-R0` shrinks transition-only `allow(dead_code)`
+  after caller-zero retirement.
+
+`CURRENT_STATE.toml` is already restored to a 65-line pointer by this audit;
+landed history remains in Git and the archive rather than the live selector.
+
+#### C-speed and legacy verdict
+
+`nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:
+generic ny-llvmc and Python compatibility callers still use it. Its hook,
+fallback, raw-`i64` result, and lossy invalid-handle behavior disqualify it as
+the correctness authority. Keep it as a measured legacy baseline until the
+later caller-zero retirement row.
+
+The current per-iteration `pair -> LeaseSet -> callback -> finish` idea is
+rejected for the fast path because it performs locks and metadata allocation.
+C-like speed is plausible only when entry pinning is amortized once per
+invocation and the loop lowers to direct pointer/length work. `--profile
+quick` is for development feedback; release LTO plus IR/assembly and
+exact/meso/whole benchmarks are required for the speed claim.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 

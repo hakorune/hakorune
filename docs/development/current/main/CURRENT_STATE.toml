@@ -1,87 +1,34 @@
 # Current-state pointer only. Historical task paths and landed prose live in
 # the archive index and git history; this file selects the live lane.
 status = """
-Selected Dynamic/AOT and the TextEq prerequisites are closed for this detour.
-The receiver-aware two-lane ExactText signature, caller-zero
-lease/residence/frame substrate, selected-normal handoff, backend-frame
-co-seal/transport, contract-bound C API emitter, scoped Rust frame borrow,
-common V2 canonical-session admission/session-open canary, typed BlockExpr
-issuance/transport, S6C header/effects co-seal, physical-entry descriptor I0,
-detached physical-skeleton I0, slot-only entry adoption, consuming
-physical-entry/session seam, Generic entry-lane admission/session I0, the V2-native physical-ID-free layout/placement
-BoxShape plus caller-zero layout transport, source-segment block allocation I0,
-typed After-boundary transport I0, accepted one-shot After allocation BoxShape,
-complete After predicate branch-plan BoxShape, branch-plan transport I0, and
-the exact source-backed CompareI64 producer relation I0, and the session-stamp
-retention I0 are landed. The Length-result BoxShape and its caller-zero
-one-shot canary are landed. The source-backed StringLen target-plan BoxShape
-and its caller-zero I0 are landed. The condition-block physical target
-BoxShape and its callback-scoped caller-zero I0 are landed; the receiver
-operand projection BoxShape is accepted and its caller-zero canonical-read I0
-is landed. The direct Length Call/result BoxShape and its caller-zero I0 are
-landed; the Length receipt lifetime I0 is landed. The source-backed initial-index
-seed transport/materializer and receipt-owned Bool/Compare materializer I0 are
-landed; published physical results beyond Bool, edges, CFG/PHI, lifecycle,
-Text, route, and production remain closed. A-prime lifecycle, Direct Text lowering, route, and production remain closed.
-The Generic G0 source-parent I0 is landed with a callback-scoped non-Clone
-parent and exact two-entry coverage. The S6C-only physical-entry descriptor
-input is already landed; it is not a Generic/common issuer. The resolver-owned
-body-shape transport into the Generic G0 cohort is now landed with
-same-owner/body-root checks; its private function-effect, result-ABI, and direct
-canonical Completion transport I0 are landed before demand/product consumption.
-Generic storage/lane, physical-entry, effect, detached-shell, entry-adoption, operation-contract, mapping, source-owned operation cohort, source-parts extraction, and no-MirFunction emitter admission rows are landed; the admission retains same-cohort source entry rows for canonical preheader reads. The common dispatcher remains the only leaf-emitter candidate. Session-preflight D0 is accepted as one whole-admission unpublished consumer; sealed-consume I0 and caller-zero shell/adoption/entry/segment preflight are landed, while operation leaf effects and production remain closed. A design-only structural convergence audit labels intentional keep lanes, waiting scaffolding, bounded retirement edges, and parked inventory; repository size, helper byte identity, and micro-seed counts remain informational and do not change this blocker.
+S6C source Binary Equal(Text,Text), StringSubstring/2, exact Facts, portable
+Recipe TextEq, Join/Completion, physical entry, target/admission, and operand
+proofs are closed caller-zero substrate. A phase audit found that the landed
+concrete-wire V9 issuer is a runtime-contract canary, not a production MIR
+physicalizer: it emits no CheckedCallOut and no V9 ValueId. The source
+architecture stays intact; the compiler/runtime physical seam returns to
+design_stop. Selected Dynamic remains the sole production arm.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Occurrence-view I0 is closed; the next design stop is StringBox runtime-pair ingress. StableText-only Residence remains RejectBeforeEffect for the actual S6C operand. TextEq V10, Bool, source-level Branch/Return CFG, and production remain closed."
+current_design_stop = "Close the canonical S6C V9 CheckedCallOut MIR materializer boundary. Compile time must emit Normal/Fault/End structure and must not receive or mint a concrete runtime wire. TextEq V10, inner CFG, residence optimization, and production remain closed."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0"
-current_blocker_token = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0. Design only: name a source-bound runtime pair ingress before StringBox LeaseSet/callback ownership. No code, new semantic receipts, StableText coercion, CheckedCallOut effect, TextEq, Bool, CFG, publication, fallback, retry, or production."
+current_execution_row = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0"
+current_blocker_token = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0. Design only: name one canonical CheckedCallOut -> { NormalResult(V9) -> consumer -> End | Fault } materializer with pre-mutation validation. No code, concrete runtime wire, StringBox pair issuer, TextEq, CFG, publication, fallback, retry, or production."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler frontier (S6C TextEq StringBox runtime-pair D0)"
+active_lane = "Loop compiler frontier (S6C V9 canonical callout D0)"
 active_lane_status = """
-Rust remains the sole compile-invocation expectation authority; contract-bearing
-modules use one retained LLVM-18 C API TargetMachine, while contract-free
-modules retain legacy opt/llc. Common V2 admission/session, S6C header/effects,
-physical-entry, layout transport, relation guard, source-segment allocation I0,
-typed After-boundary transport I0, one-shot After allocation I0, complete
-branch-plan transport I0, the accepted two-stage condition-carrier BoxShape,
-the exact CompareI64 producer-relation I0, the two-row operand-inventory
-BoxShape, its transport I0, session-stamp retention I0, Length-result canary
-I0, source-backed StringLen target-plan I0, and the callback-scoped physical
-condition-block target I0 are landed. The direct Length Call/result BoxShape,
-its unpublished caller-zero I0, and the exclusive session-scoped Length
-  receipt lifetime I0 are landed. The Bool-result BoxShape, source-backed
-  initial-index seed transport/materializer, and receipt-owned Bool/Compare
-  materializer I0 and the Callable-first semantic-program co-seal I0 are
-  landed; the all-family source-parent/co-seal R0, Generic G0 source-parent
-  BoxShape, and same-cohort source-view BoxShape are accepted. Generic G0
-  source-parent I0 is landed; its resolver-owned body-shape sibling is now
-  transported from the same source-unit resolution with owner/body-root
-  checks. The S6C-only physical-entry input is closed, while Generic G0 has an
-  accepted source storage/lane BoxShape and its source-only projection I0 is
-  landed; the Generic-only physical-entry input BoxShape and its caller-zero
-  source-to-mechanical I0 are landed. No detached binding read may open later
-  physical effects; Generic physical-effect D0 and projection-only I0 are
-  landed. The If continuation placement, source-to-Recipe Return binding I0, common aggregation D0/I0, canonical-session consumer I0, callback-scoped physical-effect-free Return-read co-seal view I0, session-local physical Return-read receipt I0, and private one-shot shared-segment scope I0 are landed. The current fixture's outer Length/Bool versus inner TextEq Return-read condition is a guarded logical mismatch. Branch/Return CFG writing and terminal emission remain a separate NoSafeSlice design stop pending split/FunctionExit authority. Generic skeleton facts were validated by a caller-zero canary and the detached shell/canary chain is now retired;
-  Generic entry-adoption D0/I0 are landed with one Generic admission-to-session
-  consumer and focused rollback/duplicate gates; the convergence manifest is landed
-  and the Generic five-variant operation-contract D0 plus its caller-zero mechanical mapping I0 are landed; the common dispatcher is the only leaf-emitter candidate. The source-owned operation cohort, source-parts facts extraction, and combined no-MirFunction emitter admission I0s are landed. Session-preflight D0 names one whole-admission unpublished consumer and sole rollback owner; sealed-consume I0, caller-zero shell/adoption/entry/segment preflight, and operation emission canary are landed. The detached Generic entry chain is retired after zero-caller verification. Production selection, Completion/DraftSeal, fallback/retry, and publication remain closed; a design-only structural convergence audit records the remaining parked inventory.
-  TopLevel declaration/header, private no-external-effect, result-ABI, and
-  direct canonical Completion transport I0 are landed; storage/lane source I0
-  is landed without a physical/session effect child. Physical-effect projection I0 is landed; no detached binding read may open later effects.
-The common-V2 callout-admission I0 is landed: collector brand, neutral plan, provider projection/lifecycle sidecar are effect-free/caller-zero.
-Issuer-D0/I0 and runtime StableText wire ingress I0 are closed; V9 owns
-generation-checked End adoption/finish, with StableText positive and
-StringBox/stale/zero negatives guarded. ExactText occurrence-view I0 is closed;
-the next design stop audits StringBox runtime-pair ingress. The AOT selected-package-adapter guard is baseline debt.
-Published ValueId/result use beyond the seed, emit_branch, edge/terminator,
-operations beyond Bool, CFG/PHI, Completion, lifecycle, Text, route, fallback,
-retry, and production caller remain closed. MirParamDecl stays source metadata.
+The common-V2 source/session/admission chain is caller-zero and keeps one
+unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
+operand proof, invocation brand, and lifecycle sidecar are landed without
+physical effect. Existing canonical CFG/SSA APIs already own CheckedCallOut,
+NormalResult, End, and Fault writes. The next D0 connects those compile-time
+owners; runtime wire/LeaseSet canaries remain subordinate only. C-speed work is
+parked until correctness and production cutover.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -94,10 +41,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Generic G0/common preflight prerequisites are landed; selected-Dynamic remains the sole live arm. Return source binding, common aggregation/session, Return-read receipt, shared segment scope, the S6C canonical V6/V7/V8 operand issuer I0, and the V9 source/provider target-plan bridge I0 are landed. Premise reset and the additional eq_hh export audit keep S6C TextEq on the source Binary Equal -> portable non-faulting LoopOperationV2::TextEq path. The callout-admission I0, V9 issuer I0, runtime StableText wire ingress I0, and ExactText occurrence-view I0 are closed; StringBox runtime-pair ingress and residence remain design-only. CheckedCallOut effect, V9 residence, V9 ValueId, TextEq V10, Bool, branch/Return CFG, and production remain closed."
-next_design_card = "COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer is reclassified as a caller-zero runtime-contract canary; canonical CheckedCallOut/NormalResult/Fault/End MIR materialization is the immediate design boundary. StringBox runtime residence, TextEq V10, inner CFG, production, performance promotion, and eq_hh retirement are later rows."
+next_design_card = "COMMON-V2-S6C-V9-CALLOUT-MIR-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none (COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RUNTIME-PAIR-D0 design stop)"
+next_execution_card = "none (COMMON-V2-S6C-V9-CALLOUT-MIR-D0 design stop)"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -109,12 +56,10 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-18: COMMON-V2-TEXTEQ-SUBSTRING-V9-CALLOUT-ADMISSION-I0 landed the real collector brand transport, neutral single-site admission, checked provider projection, and callback-scoped lifecycle sidecar. Direct admission, same-brand session, foreign-brand pre-session rejection, and lifecycle tests are green; cargo check/format/pointer/physical-transfer guards are green. The AOT activation authority guard remains a known selected-package-adapter baseline failure. Next design stop: COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-D0; no CheckedCallOut effect, V9 ValueId/lease, TextEq, Bool, CFG, publication, fallback, retry, or production.",
-  "2026-08-18: S6C V6/V7/V8 operand issuer I0 and common-V2 Substring target-plan I0 are landed with same-cohort/foreign-owner/late-discard evidence. A top-down admission audit found that common-V2 still lacks collector-backed ModuleInvocationBrand transport; owner/function/lane/provider IDs cannot mint the CheckedCallOut plan stamp. The next design stop is common-V2 provider/site-plan admission and lifecycle sidecar authority; CheckedCallOut, V9 ValueId/lease, TextEq V10, Bool, CFG, publication, fallback, retry, and production remain closed.",
-  "2026-08-18: Dynamic callable result-contract I0 remains closed and is not reopened. Read-only PHYSICAL-INPUT-AUTHORITY-I0 audit found the existing A-prime issuer is the only safe place to co-seal the retained Dynamic physical-input view, package header/ABI, Dynamic result/Tail relation, and exact two-site Completion. No session effect, CFG/SSA/PHI, DraftSeal, route, fallback, retry, or production selector opened; blocker is NoSafeSlice::DynamicPhysicalInputAuthorityUnsealed.",
-  "2026-08-18: PHYSICAL-INPUT-AUTHORITY-I0 landed one private A-prime pre-session validator for package owner, exact I64 ABI/result, exact two-site value Completion, empty cleanup, target, and catalog parity. The authority guard, format, cargo check, and quick focused tests (11/11) are green; no new receipt, session effect, DraftSeal, selector, fallback, or retry opened. Next bounded slice: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 direct negative evidence.",
-  "2026-08-18: LOOP-PHYSICAL-TRANSFER-AUTHORITY-R0 evidence and allocator rejection landed; the topology retirement census then recorded old fixed-role/test callers, segment caller-zero status, and the NoSafeSlice deletion gate. The If scope was corrected to LoopRecipe/common-physicalizer; continuation relation and placement-consumer D0 are accepted, with target-placement I0 next and no edge/instruction/production claim.",
-  "2026-08-18: LOOP-PHYSICAL-IF-CONTINUATION-TARGET-PLACEMENT-I0 landed one callback-scoped, one-shot physical target reservation from the sealed Exit+Fallthrough(NextItem) relation. Same-block strict ordering, segment/split/stamp parity, duplicate rejection, and late unpublished-session discard are focused-green; no edge, terminator, operation, Return, BlockEnd, PHI, production, fallback, or retry opened. Next stop is branch-emission authority design.",
-  "2026-08-18: IF branch-emission/split-terminal D0 remain NoSafeSlice; placement lacks source-backed item-to-split/FunctionExit issuers and a canonical source co-seal; no physical effect.", "2026-08-18: Return source-to-Recipe/Join binding I0 landed in fd06c8fe75; focused S6C 9/9, pointer/authority guards, format, and diff checks are green. Common aggregation D0 is accepted; its transport I0 is next with no new semantic issuer or physical effect.", "2026-08-18: Common return aggregation I0 and canonical-session consumer I0 landed transport-only; common 25/25, admission/consumer/late-discard gates, and S6C 9/9 are green. Branch-emission D0 remains NoSafeSlice; no Return/edge/PHI/session/production effect.",
-  "2026-08-18: Return-read physical receipt I0 landed; focused 2/2 and late-discard evidence are green; branch/Return CFG remains NoSafeSlice.", "2026-08-18: Branch D0 refresh: Return-read and CanonicalConditionBoolResultV1 remain separate; co-seal condition ValueId/item-to-split/targets/FunctionExit before CFG.", "2026-08-18: Shared-segment audit found Length/Bool and Return-read can use separate segment receipts; no branch consumer until one shared allocation.", "2026-08-18: Shared-segment scope I0 landed as a private one-shot session-owned brand; Length→Bool positive, second-allocation, late-discard, and outer-Length/inner-TextEq Return-read mismatch gates are green. Branch/Return CFG remains NoSafeSlice."
+  "2026-08-18: S6C source Binary Equal(Text,Text), StringSubstring/2, exact Facts, portable TextEq Recipe, Join/Completion relation, and exact V5-versus-V10 mismatch guard are landed.",
+  "2026-08-18: Common-V2 physical entry/session, Body segment, invocation brand, Substring target/provider/admission, and V6/V7/V8 operand proof are landed caller-zero without CheckedCallOut effect.",
+  "2026-08-18: ExactText adjacent slot/generation entry sidecar and source-bound occurrence view are landed compile-time substrate; they do not mint runtime values.",
+  "2026-08-18: StableText wire ingress and the concrete-wire V9 End/lend issuer are landed runtime-contract canaries; the phase audit explicitly removes them from the production compiler claim.",
+  "2026-08-18: Canonical CFG/SSA CheckedCallOut, NormalResult, End, and Fault writers already exist and remain the only permitted MIR mutation owners.",
+  "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover."
 ]
