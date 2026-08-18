@@ -42,6 +42,10 @@ impl TextFormalResidenceIdV1 {
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }
+
+    pub(crate) const fn plan_stamp(self) -> u64 {
+        self.plan_stamp
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -147,13 +151,16 @@ impl PreparedPinnedTextResidenceLifecycleV1 {
     }
 }
 
-/// One-shot capability returned only after the canonical Enter edge is
-/// installed.  It can be consumed only at the admitted normal landing.
+/// One-shot function-local finish obligation returned only after the canonical
+/// Enter edge is installed.  The obligation is consumed once by the
+/// DraftSeal exit-set projector; the projector may then place the same
+/// residence marker on each already-validated explicit exit.  Exit placement
+/// is intentionally not encoded here because `PreparedFunctionExitSetV1` is
+/// the sole exit authority.
 #[must_use = "the Enter result must be consumed by the canonical Finish writer"]
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct PinnedTextResidenceFinishCapabilityV1 {
     residence: TextFormalResidenceIdV1,
-    normal_landing: BasicBlockId,
 }
 
 impl PinnedTextResidenceFinishCapabilityV1 {
@@ -161,22 +168,12 @@ impl PinnedTextResidenceFinishCapabilityV1 {
         self.residence
     }
 
-    pub(crate) const fn normal_landing(&self) -> BasicBlockId {
-        self.normal_landing
+    pub(crate) fn into_residence(self) -> TextFormalResidenceIdV1 {
+        self.residence
     }
 
-    pub(crate) fn into_parts(self) -> (TextFormalResidenceIdV1, BasicBlockId) {
-        (self.residence, self.normal_landing)
-    }
-
-    pub(in crate::mir) const fn from_parts(
-        residence: TextFormalResidenceIdV1,
-        normal_landing: BasicBlockId,
-    ) -> Self {
-        Self {
-            residence,
-            normal_landing,
-        }
+    pub(in crate::mir) const fn from_parts(residence: TextFormalResidenceIdV1) -> Self {
+        Self { residence }
     }
 }
 

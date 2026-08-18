@@ -933,12 +933,10 @@ and Residence ABI provenance with the Normal/Trap landing placement. It is
 affine and non-`Clone`/non-`Copy`; it contains no handle, generation, frame
 address, pointer, status `ValueId`, or runtime token. The canonical CFG writer
 consumes it once to install `ResidenceEnter(normal, trap)` and returns a
-success-only `PinnedTextResidenceFinishCapabilityV1` for the admitted Normal
-landing. The canonical SSA session owns the one function-local lifecycle state
-and rejects a second Enter, a foreign Finish capability, or Finish outside the
-admitted Normal landing. `ResidenceFinish` is a non-terminator marker; it is
-accepted only while the landing is still unterminated, so Return-before-Finish
-is rejected before the marker is written.
+function-local `PinnedTextResidenceFinishCapabilityV1`. The canonical SSA
+session owns one function-local Residence identity plus a per-exit Finish
+placement set, so a second Enter, foreign identity, duplicate exit, or
+Return-before-Finish is rejected before another marker is written.
 
 Source authority + canonical issuer: the existing
 `PreparedPinnedTextPhysicalEntryIngressV1`/pinned-Text frame and plan issuers
@@ -960,7 +958,7 @@ the new physical variants; backend lowering is a later row.
 Fail-fast boundary: before lifecycle effect, reject foreign owner or plan
 stamp, missing/stale frame revision or Residence ABI, duplicate landing
 placement, source/landing aliasing, duplicate session Enter, foreign or
-misplaced Finish, and any already-terminated normal landing. An entry Trap
+duplicate per-exit Finish, and any already-terminated exit block. An entry Trap
 has no Finish obligation. The unpublished canonical transaction remains the
 rollback owner; no partial lifecycle candidate is published and no fallback or
 retry is entered.
@@ -975,17 +973,15 @@ Landed evidence (2026-08-19):
    are covered by two focused tests. All MIR plumbing (successors, effects,
    value queries, remapping, printing, and structural vocabulary) treats the
    pair as physical control/cleanup with no SSA value.
-3. `CanonicalSsaFunctionSessionV2` owns the one-shot lifecycle state and
-   duplicate/misplaced capability checks. The reusable
+3. `CanonicalSsaFunctionSessionV2` owns the Residence identity and per-exit
+   duplicate checks. The reusable
    `common_v2_s6c_structure_guard.sh`, `cargo check --profile quick`,
    `cargo fmt --all -- --check`, `git diff --check`, and the focused lifecycle
    suite pass (`5/5`).
 
-Next bounded row: return to Design stop at
-`TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0` and decide whether the
-caller-zero carrier evidence is sufficient to open the already-accepted
-backend/no-unwind or DraftSeal-consumer row. No production caller is selected
-by this I0.
+Next bounded row: `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0`,
+selected by the accepted D0 below. It remains caller-zero and does not open a
+production caller.
 
 Non-claims: no source/Recipe change, V9 materialization, runtime wrapper
 change, new frame/backing, `Arc<str>` migration, LLVM/GEP lowering, final
@@ -1046,6 +1042,48 @@ claim.
 Non-claims: this D0 does not open final Return ABI, LLVM/GEP lowering,
 terminal-fault EH closure, production selection, `eq_hh` retirement, or
 generic fastpath/kernel syntax.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-I0 (landed caller-zero)
+
+Decision: land the physical DraftSeal consumer seam only. The private
+`PreparedPinnedTextResidenceDraftSealConsumerV1` owns the existing borrowed
+exit admission plus the affine finish capability without self-borrowing an
+exit set. It consumes the capability once to obtain the function-local
+Residence identity, then lends each already-validated `Single` or `ExactTwo`
+value exit to callbacks in the fixed operand -> Finish -> existing Return
+order. The callback result cannot return an exit aggregate, and late failure
+ends the one-shot consumer with no retry.
+
+Source authority + canonical issuer: the existing Completion,
+`PreparedFunctionExitSetV1`, pinned-Text frame/plan, and canonical Enter
+writer remain the only issuers. The new `draft_seal/text_residence_ingress.rs`
+child is a physical ordering adapter and caller-zero probe; it emits no MIR,
+runtime ABI, source semantic receipt, or production selection.
+
+Non-authority: copied exit rows, a second exit ledger, owner lookup or
+re-pairing, raw runtime values, status `ValueId`, new frame/backing, `Arc<str>`,
+backend/no-unwind claims, `nyash.string.eq_hh`, fallback/retry, and kernel or
+thread syntax.
+
+Fail-fast boundary: capability owner/plan stamp and existing frame/plan/
+Completion/exit provenance are checked before any callback. Missing, foreign,
+duplicate, non-value, stale, or terminated exits reject before effect. The
+consumer is affine and move-only; after consumption, operand failure or late
+Return failure yields `ConsumerRejected` and no alternate route.
+
+Landed evidence (2026-08-19):
+
+1. `PinnedTextResidenceFinishCapabilityV1` no longer embeds one
+   `normal_landing`; canonical session state tracks per-exit Finish blocks and
+   rejects duplicate placement instead of using a global `finish_emitted` bit.
+2. The new consumer has two focused witnesses: `Single` ordering and
+   `ExactTwo` ordering with late-error discard. The existing carrier/CFG
+   lifecycle suite remains green (`5/5`), the new consumer suite is green
+   (`2/2`), and `cargo check --profile quick`, fmt, diff, pointer guard, and
+   structure guard pass.
+3. No caller is wired from production S6C lowering. Backend declaration,
+   lifecycle MIR lowering, final no-unwind proof, runtime storage, Return
+   publication, fallback, and performance remain closed.
 
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 

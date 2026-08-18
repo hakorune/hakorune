@@ -21,6 +21,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
@@ -142,10 +143,24 @@ guard_expect_fixed_in_file "$TAG" 'emit_pinned_text_residence_finish' "$cfg_sess
   "canonical CFG must own the Residence Finish writer"
 
 ssa_lifecycle="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
-guard_expect_fixed_in_file "$TAG" 'finish_emitted' "$ssa_lifecycle" \
-  "canonical session must reject duplicate Finish consumption"
+guard_expect_fixed_in_file "$TAG" 'finish_blocks' "$ssa_lifecycle" \
+  "canonical session must reject duplicate Finish placement per exit"
+if rg -n 'finish_emitted' "$ssa_lifecycle"; then
+  guard_fail "$TAG" "canonical session must not regress to one global Finish boolean"
+fi
 if rg -n 'Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox' "$ssa_lifecycle"; then
   guard_fail "$TAG" "canonical lifecycle session must not own runtime/raw-value authorities"
+fi
+
+draftseal_ingress="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs"
+guard_expect_fixed_in_file "$TAG" 'PreparedPinnedTextResidenceDraftSealConsumerV1' "$draftseal_ingress" \
+  "DraftSeal lifecycle consumer must have one private affine aggregate"
+guard_expect_fixed_in_file "$TAG" 'consume_for_draft_seal' "$draftseal_ingress" \
+  "DraftSeal lifecycle consumer must have one consuming boundary"
+guard_expect_fixed_in_file "$TAG" 'finish.into_residence()' "$draftseal_ingress" \
+  "DraftSeal lifecycle consumer must consume the finish capability once"
+if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$draftseal_ingress"; then
+  guard_fail "$TAG" "DraftSeal lifecycle consumer must not open runtime/legacy routes"
 fi
 
 invocation_binding="$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"

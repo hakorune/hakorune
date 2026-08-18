@@ -68,6 +68,7 @@ pub(in crate::mir::builder::resolved_lowering) enum TextFormalExitFinishAdmissio
     ExitClaimMismatch,
     DuplicateExitSite,
     InvalidFrameProvenance,
+    ResidenceCapabilityMismatch,
     ConsumerRejected,
 }
 

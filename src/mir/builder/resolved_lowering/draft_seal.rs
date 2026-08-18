@@ -27,6 +27,8 @@ use super::draft_seal_owner::OpenFunctionDraftSealV1;
 mod exit_projection;
 mod multi_site_exit;
 mod text_residence_exit;
+#[cfg(test)]
+mod text_residence_ingress;
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;

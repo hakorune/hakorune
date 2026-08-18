@@ -4,6 +4,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
 use crate::mir::pinned_text_residence_lifecycle::{
     PinnedTextResidenceFinishCapabilityV1, PreparedPinnedTextResidenceLifecycleV1,
+    TextFormalResidenceIdV1,
 };
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
@@ -248,27 +249,18 @@ impl CanonicalCfgSessionV1 {
                 .expect("Residence target was checked")
                 .add_predecessor(source);
         }
-        Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(
-            residence,
-            normal_landing,
-        ))
+        Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(residence))
     }
 
     /// Sole canonical instruction writer for the success-only Residence
-    /// finish marker.  Requiring an unterminated admitted normal landing
-    /// makes Return-before-Finish fail before the marker can be installed.
+    /// finish marker.  The caller has already validated the explicit exit
+    /// set; this writer only requires the selected block to be unterminated.
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
         &self,
         function: &mut MirFunction,
         source: BasicBlockId,
-        capability: PinnedTextResidenceFinishCapabilityV1,
+        residence: TextFormalResidenceIdV1,
     ) -> Result<(), CanonicalCfgErrorV1> {
-        let (residence, normal_landing) = capability.into_parts();
-        if source != normal_landing {
-            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
-                "Finish must be emitted in the admitted normal landing".to_owned(),
-            ));
-        }
         self.preflight_terminator(function, source)?;
         function
             .get_block_mut(source)
@@ -584,8 +576,12 @@ mod tests {
         assert!(source.effects.contains(crate::mir::Effect::Barrier));
         assert!(source.effects.contains(crate::mir::Effect::WriteHeap));
 
-        cfg.emit_pinned_text_residence_finish(&mut function, BasicBlockId::new(1), capability)
-            .expect("Finish");
+        cfg.emit_pinned_text_residence_finish(
+            &mut function,
+            BasicBlockId::new(1),
+            capability.into_residence(),
+        )
+        .expect("Finish");
         let normal = function.get_block(BasicBlockId::new(1)).unwrap();
         assert!(matches!(
             normal.instructions.as_slice(),
@@ -612,7 +608,11 @@ mod tests {
         cfg.emit_return(&mut function, BasicBlockId::new(1), Some(ValueId::new(9)))
             .expect("Return");
         assert!(matches!(
-            cfg.emit_pinned_text_residence_finish(&mut function, BasicBlockId::new(1), capability),
+            cfg.emit_pinned_text_residence_finish(
+                &mut function,
+                BasicBlockId::new(1),
+                capability.into_residence(),
+            ),
             Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { .. })
         ));
     }

@@ -11,20 +11,21 @@ use crate::mir::pinned_text_residence_lifecycle::{
     TextFormalResidenceIdV1,
 };
 use crate::mir::BasicBlockId;
+use std::collections::BTreeSet;
 
 use super::CanonicalSsaFunctionSessionV2;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct PinnedTextResidenceLifecycleStateV1 {
     residence: TextFormalResidenceIdV1,
-    normal_landing: BasicBlockId,
-    finish_emitted: bool,
+    finish_blocks: BTreeSet<BasicBlockId>,
 }
 
 impl<'source> CanonicalSsaFunctionSessionV2<'source> {
     /// Consume the one private Enter carrier and install its Normal/Trap CFG
-    /// edges through the canonical CFG owner.  The returned capability is
-    /// valid only for the admitted normal landing.
+    /// edges through the canonical CFG owner.  The returned capability is a
+    /// function-local finish obligation; the DraftSeal exit-set projector
+    /// consumes it once and chooses each already-validated explicit exit.
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_enter(
         &mut self,
         builder: &mut MirBuilder,
@@ -38,7 +39,6 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .current_block
             .ok_or_else(|| "Residence Enter requires a selected canonical block".to_owned())?;
         let residence = carrier.residence();
-        let normal_landing = carrier.normal_landing();
         let capability = self
             .cfg
             .emit_pinned_text_residence_enter(
@@ -53,19 +53,18 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .map_err(|error| error.to_string())?;
         self.pinned_text_residence = Some(PinnedTextResidenceLifecycleStateV1 {
             residence,
-            normal_landing,
-            finish_emitted: false,
+            finish_blocks: BTreeSet::new(),
         });
         Ok(capability)
     }
 
-    /// Consume the one-shot Finish capability and install the success-only
-    /// marker.  The canonical CFG writer rejects a Return-before-Finish
-    /// ordering because the admitted landing must still be unterminated.
+    /// Install one success-only marker at an explicit exit selected by the
+    /// sole DraftSeal exit inventory.  A per-block set prevents duplicate
+    /// Finish placement without creating a second exit authority.
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
         &mut self,
         builder: &mut MirBuilder,
-        capability: PinnedTextResidenceFinishCapabilityV1,
+        residence: TextFormalResidenceIdV1,
     ) -> Result<(), String> {
         let current = builder
             .function_state
@@ -75,14 +74,13 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .pinned_text_residence
             .as_ref()
             .ok_or_else(|| "Residence Finish has no admitted Enter".to_owned())?;
-        if state.finish_emitted {
-            return Err("pinned-Text Residence Finish was already emitted".to_owned());
-        }
-        if state.normal_landing != current || capability.normal_landing() != current {
-            return Err("Residence Finish is outside the admitted normal landing".to_owned());
-        }
-        if state.residence != capability.residence() {
+        if state.residence != residence {
             return Err("Residence Finish provenance differs from Enter".to_owned());
+        }
+        if state.finish_blocks.contains(&current) {
+            return Err(
+                "pinned-Text Residence Finish was already emitted for this exit".to_owned(),
+            );
         }
         let function = builder
             .function_state
@@ -90,17 +88,18 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .as_mut()
             .ok_or_else(|| "Residence Finish requires a current function".to_owned())?;
         self.cfg
-            .emit_pinned_text_residence_finish(function, current, capability)
+            .emit_pinned_text_residence_finish(function, current, residence)
             .map_err(|error| error.to_string())?;
-        self.pinned_text_residence
+        let state = self
+            .pinned_text_residence
             .as_mut()
-            .expect("Residence state was checked above")
-            .finish_emitted = true;
+            .expect("Residence state was checked above");
+        state.finish_blocks.insert(current);
         Ok(())
     }
 
     #[cfg(test)]
     pub(super) fn lifecycle_state_for_test(&self) -> Option<PinnedTextResidenceLifecycleStateV1> {
-        self.pinned_text_residence
+        self.pinned_text_residence.clone()
     }
 }
