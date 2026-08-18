@@ -13,7 +13,7 @@ use crate::runtime::host_handles_policy;
 use crate::runtime::text_formal_abi::TextFormalWirePairV1;
 
 use super::lease_identity::{exact_text_ref, root_text_ref, HostHandleLeaseIdentityV1};
-use super::{HandlePayload, Registry, SlotTable, DROP_EPOCH};
+use super::{Registry, SlotTable, DROP_EPOCH};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum SlotRetirementStateV1 {

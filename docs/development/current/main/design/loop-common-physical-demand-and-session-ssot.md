@@ -2636,6 +2636,35 @@ replace only the strict root classifier with a concrete built-in downcast,
 after the recorded mutable-reachability census; it must not widen the formal
 borrow API or add a copied backing owner.
 
+#### TEXT-FORMAL-EXACT-STRINGBOX-RESIDENCE-D0/I0 closeout (2026-08-18; accepted)
+
+The runtime canary now admits the concrete built-in `StringBox` by
+`as_any().downcast_ref::<StringBox>()`; `type_name()` and `as_str_fast()` are
+not residence authority. The same entry transaction validates the exact
+formal payload, generation, retirement state, byte length, and pin counts
+before publishing roots. It keeps the registry-held payload alive, creates no
+root `Arc` clone or byte snapshot, and holds no lock in the body. A dropped
+StringBox remains pending until the one residence finish owner releases the
+pin, so slot allocation cannot churn into the live root.
+
+The focused runtime evidence is green: `cargo fmt --all`,
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib text_formal` (20 passed /
+0 failed), and `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib stringbox`
+(14 passed / 1 ignored / 0 failed). The tests cover concrete residence,
+StableText preservation, aliases, stale generations, pending retirement,
+frame/ABI limits, spoofed StringBox names, and slot-reuse blocking. Warnings
+remain baseline-only. The reusable mutable-reachability census classifies all
+workspace `as_any_mut`, Arc uniqueness/recovery, extern/C, nowait/task, and
+writable raw-pointer paths; no sanctioned path reaches the registry-held
+StringBox while pinned, and an unclassified external unsafe provider remains
+`NoSafeSlice`.
+
+Rows 9-11 are therefore closed as caller-zero runtime prerequisites. The
+accepted next boundary is `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0`: name the existing
+V9/V1 source-bound TextRef residence producer and its finish order before
+issuing V10. No TextRef, V10, fallback, retry, publication, production, direct
+leaf, or performance claim is opened by this canary.
+
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:

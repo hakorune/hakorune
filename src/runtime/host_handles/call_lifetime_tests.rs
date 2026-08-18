@@ -99,6 +99,30 @@ fn lease_only_accepts_exact_stringbox_without_root_projection() {
 }
 
 #[test]
+fn stringbox_residence_blocks_slot_reuse_until_finish() {
+    let _guard = test_lock();
+    let _policy = LifoPolicyGuard::install();
+    let registry = Registry::new();
+    let slot = registry.alloc(Arc::new(StringBox::new("pinned")));
+    let residence = registry
+        .acquire_text_formal_call_residence(&[pair(&registry, slot)])
+        .expect("StringBox residence");
+
+    registry.drop_handle(slot);
+    let replacement = registry.alloc(Arc::new(StringBox::new("replacement")));
+    assert_ne!(
+        replacement, slot,
+        "pinned slot must not re-enter the free list"
+    );
+
+    let RegistryTextFormalCallResidenceV1 { lease, .. } = residence;
+    registry
+        .finish_text_formal_call_lease_set(lease)
+        .expect("finish StringBox residence");
+    registry.drop_handle(replacement);
+}
+
+#[test]
 fn same_pair_multiplicity_and_nested_entries_are_exact() {
     let _guard = test_lock();
     let registry = Registry::new();

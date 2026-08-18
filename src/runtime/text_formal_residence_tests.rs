@@ -1,8 +1,78 @@
 use super::*;
-use crate::box_trait::StringBox;
+use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use crate::runtime::host_handles;
 use crate::runtime::text_formal_abi::issue_text_formal_borrow_v1;
+use std::any::Any;
+use std::fmt;
 use std::sync::Arc;
+
+#[derive(Debug)]
+struct SpoofedStringBox {
+    value: String,
+    base: BoxBase,
+}
+
+impl SpoofedStringBox {
+    fn new(value: impl Into<String>) -> Self {
+        Self {
+            value: value.into(),
+            base: BoxBase::new(),
+        }
+    }
+}
+
+impl BoxCore for SpoofedStringBox {
+    fn box_id(&self) -> u64 {
+        self.base.id
+    }
+
+    fn parent_type_id(&self) -> Option<std::any::TypeId> {
+        self.base.parent_type_id
+    }
+
+    fn fmt_box(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(&self.value)
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+impl NyashBox for SpoofedStringBox {
+    fn to_string_box(&self) -> StringBox {
+        StringBox::new(self.value.clone())
+    }
+
+    fn equals(&self, other: &dyn NyashBox) -> BoolBox {
+        BoolBox::new(
+            other
+                .as_any()
+                .downcast_ref::<Self>()
+                .is_some_and(|other| other.value == self.value),
+        )
+    }
+
+    fn type_name(&self) -> &'static str {
+        "StringBox"
+    }
+
+    fn clone_box(&self) -> Box<dyn NyashBox> {
+        Box::new(Self::new(self.value.clone()))
+    }
+
+    fn share_box(&self) -> Box<dyn NyashBox> {
+        self.clone_box()
+    }
+
+    fn as_str_fast(&self) -> Option<&str> {
+        Some(self.value.as_str())
+    }
+}
 
 fn test_lock() -> std::sync::MutexGuard<'static, ()> {
     host_handles::test_host_handle_policy_lock()
@@ -89,10 +159,26 @@ fn residence_rejects_stale_pair_without_pinning() {
 }
 
 #[test]
-fn residence_is_stable_text_only() {
+fn residence_admits_concrete_stringbox_without_snapshot() {
     let _guard = test_lock();
     let handle = host_handles::to_handle_arc(Arc::new(StringBox::new("box")));
     let pair = published_pair(handle);
+
+    let residence = acquire_text_formal_residence_v1(&[pair]).expect("concrete StringBox root");
+    assert_eq!(residence.root_count(), 1);
+    assert_eq!(residence.with_root(0, |root| root.byte_len()), Some(3));
+    host_handles::drop_handle(handle);
+    assert_eq!(residence.with_root(0, |root| root.byte_len()), Some(3));
+    residence.finish().expect("finish concrete StringBox root");
+}
+
+#[test]
+fn residence_rejects_stringbox_name_spoof_before_pinning() {
+    let _guard = test_lock();
+    let handle = host_handles::to_handle_arc(Arc::new(SpoofedStringBox::new("spoof")));
+    let identity =
+        host_handles::capture_text_lease_identity(handle).expect("fast text spoof identity");
+    let pair = TextFormalWirePairV1::from_published_wire(identity.handle(), identity.generation());
 
     assert!(matches!(
         acquire_text_formal_residence_v1(&[pair]),

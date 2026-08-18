@@ -5,6 +5,7 @@
 //! by the DynamicV2 End-authorized result; it does not define lease tokens.
 
 use super::{slot_ref, HandlePayload, Registry};
+use crate::box_trait::StringBox;
 
 /// Mechanical rejection codes for the strict callable Text formal lane.
 ///
@@ -43,21 +44,33 @@ impl HostHandleLeaseIdentityV1 {
 }
 
 #[inline(always)]
-pub(super) fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
+fn admitted_text_ref(payload: &HandlePayload) -> Option<&str> {
     match payload {
         // StableText is the registry's own canonical text payload.
         HandlePayload::StableText(text) => Some(text.as_str()),
-        // Only the language's admitted StringBox representation is accepted
-        // here.  Do not widen this to every `as_str_fast` plugin/helper.
-        HandlePayload::StableBox(object) if object.type_name() == "StringBox" => {
-            object.as_ref().as_str_fast()
-        }
-        HandlePayload::StableBox(_) => None,
+        // Only the concrete built-in StringBox is admitted.  A type-name or
+        // `as_str_fast` match would let a plugin/helper spoof the residence
+        // authority without proving the mutable-reachability contract.
+        HandlePayload::StableBox(object) => object
+            .as_ref()
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .map(|string_box| string_box.value.as_str()),
     }
 }
 
 #[inline(always)]
+pub(super) fn exact_text_ref(payload: &HandlePayload) -> Option<&str> {
+    admitted_text_ref(payload)
+}
+
+#[inline(always)]
 pub(super) fn root_text_ref(payload: &HandlePayload) -> Option<&str> {
+    admitted_text_ref(payload)
+}
+
+#[inline(always)]
+fn stable_text_ref(payload: &HandlePayload) -> Option<&str> {
     match payload {
         HandlePayload::StableText(text) => Some(text.as_str()),
         HandlePayload::StableBox(_) => None,
@@ -137,7 +150,7 @@ impl Registry {
         if table.lease_generations[idx] != identity.generation {
             return Err(TextFormalLookupRejectV1::GenerationMismatch);
         }
-        let text = root_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
+        let text = stable_text_ref(payload).ok_or(TextFormalLookupRejectV1::NonTextPayload)?;
         Ok(f(text))
     }
 }
