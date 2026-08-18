@@ -120,11 +120,10 @@ Related:
   The existing StableText-only Residence cannot silently accept the S6C
   StringBox shape.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-WIRE-INGRESS-D0` remains a design
-  stop. It must name a runtime-value ingress for the existing V9 materialization,
-  exact sidecar occurrence, and published StableText wire/residence bridge
-  before any residence co-seal. No selected-Dynamic pair or `nyash.string.eq_hh`
-  transport is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0` remains a design
+  stop. It must name the StringBox-specific runtime-value ingress and
+  LeaseSet/callback owner without widening StableText residence. No
+  selected-Dynamic pair or `nyash.string.eq_hh` transport is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -2110,6 +2109,37 @@ permitted; if the runtime-value ingress cannot be named, retain
 
 Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0 (2026-08-18; design stop)
+
+Decision: keep `TextFormalCallResidenceV1` StableText-only and design a
+separate StringBox scope. The S6C actual formal is StringBox, so a StableText
+wire or coercion would not be a valid production bridge.
+
+Source authority + canonical issuer: S6C resolver/Recipe StringBox formal and
+the canonical ExactText occurrence view; the runtime `TextFormalCallLeaseSet`
+owner may pin exact text only after it receives an already-issued,
+source-backed pair. A future private
+`CommonV2StringBoxTextEqResidenceScopeV1` owns callback lifetime, not source
+meaning or a new semantic receipt.
+
+Non-authority: StableText-only residence, sidecar `ValueId` pairs, logical
+ordinal, raw handle/token recapture, `eq_hh`, C frame/status exports, and any
+StringBox-to-StableText conversion or fallback.
+
+Fail-fast boundary: before pin/effect reject absent source-backed pair,
+owner/session/entry/segment/needle/ordinal/carrier drift, zero/stale/foreign
+generation, non-StringBox payload, retirement pending, pin overflow, unknown
+token, escaped borrow, duplicate finish, or late unpublished discard.
+
+Smallest next slice: design only the move-only callback scope using an
+already-issued source-backed pair and existing exact-text LeaseSet
+(`stable_text_only = false`); finish order is residence/LeaseSet before V9 End,
+with reverse rollback and primary/suppressed errors. No wire construction from
+MIR `ValueId` is allowed.
+
+Non-claims: no StringBox residence I0, new semantic receipt, CheckedCallOut,
+V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 
