@@ -845,6 +845,81 @@ carriers, Return/CFG changes, backend call emission, whole-function no-EH
 closure, production cutover, performance promotion, new frame/backing,
 fallback/retry, or `nyash.string.eq_hh` retirement.
 
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0 (accepted; I0 selected)
+
+Decision: use one typed physical lifecycle pair and keep its ownership on the
+existing canonical writers. `ResidenceEnter(normal, trap)` is the only carrier
+that creates lifecycle control flow. It consumes the existing `enter_v1 -> u32`
+transport, but the status is converted to the canonical Normal/Trap edges by
+the unpublished `CanonicalSsaFunctionSessionV2`; a status `ValueId`, generic
+call, or backend-hidden compare is not permitted. A zero status reaches the
+body. Any nonzero status reaches a terminal Trap and never creates a live
+Residence obligation.
+
+`ResidenceFinish` is a success-only physical marker. It calls only
+`hako_text_formal_residence_finish_or_abort_v1`; status `0` returns to the
+existing exit projection, while every nonzero status terminates inside the
+runtime. It therefore owns no caller-visible Trap edge and must not be lowered
+as a status-returning call. The physical order at every supported explicit
+value-return exit is fixed:
+
+```text
+return operand materialize
+  -> ResidenceFinish marker
+  -> existing FunctionDraftSealProjectionV1 Return
+```
+
+The `PreparedFunctionExitSetV1` remains the sole exit inventory and
+`FunctionDraftSealProjectionV1` remains the sole `MirInstruction::Return`
+writer. The current borrowed `PreparedTextFormalExitFinishSetV1` is a
+caller-zero canary only; it must not become an owner that self-borrows an exit
+set. The selected I0 will instead carry a private, affine, non-`Clone`/
+non-`Copy` physical provenance capability through the canonical consuming seam.
+This is an ownership aggregate over existing products, not a new source
+semantic receipt or a second exit ledger.
+
+Source authority + canonical issuer: the physical-entry provenance is issued
+by `PreparedPinnedTextPhysicalEntryIngressV1`, which already co-seals the
+module-session brand/target, S6C source/signature loan, pinned-Text plan, and
+backend-frame contract before DraftSeal. `CanonicalSsaFunctionSessionV2` is
+the sole issuer of the Enter edges and lifecycle CFG. `PreparedFunctionExitSetV1`
+is the sole exit authority. The existing Return projection is the sole Return
+issuer. Runtime state transitions remain owned by
+`TextFormalCallResidenceV1` and its private status core; the C export is only
+the strict `finish_or_abort` projection.
+
+Non-authority: raw frame/token/pointer or slot/generation values, a status
+`ValueId`, `ValueId`/block ordinals, generic `Call` or `CheckedCallOut`, a
+legacy finalizer, MIR/JSON scans, a second exit ledger, owner-ID lookup or
+re-pairing, a public generic projector envelope, `nyash.string.eq_hh`, and any
+fallback/retry route do not issue lifecycle meaning or placement. A new frame,
+`Arc<str>` backing, or worker/thread surface is outside this row.
+
+Fail-fast boundary: before the first lifecycle effect, the canonical consumer
+must verify one function owner, module brand, target, S6C loan, plan/frame
+provenance, Residence ABI, Completion, and complete explicit value-return exit
+coverage. Missing, foreign, stale, duplicate, or post-DraftSeal inputs reject
+before effect. Entry failure produces Trap with no Finish. A normal exit must
+materialize its operand before Finish; Finish-before-operand or Return-before-
+Finish rejects. Recoverable EH/unwind, implicit/unit exits, and unsupported
+early-exit shapes remain `NoSafeSlice`; terminal faults have no Finish.
+
+Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0`.
+Implement only the private affine physical carrier and its canonical-writer
+admission: one Enter Normal/Trap edge pair and one success-only Finish marker.
+Keep the carrier effect-bearing only inside the unpublished canonical session,
+with no production caller, backend promotion, or route fallback. Add positive
+same-cohort evidence and negatives for foreign/missing/duplicate provenance,
+entry failure without Finish, Finish-before-Return, duplicate Finish, and
+unsupported exit shape. The carrier must be consumed once and must not expose
+raw runtime values.
+
+Non-claims: this Decision does not open source/Recipe changes, V9 materializa-
+tion, a new runtime frame/backing, `Arc<str>` migration, final backend
+`nounwind`/EH closure, LLVM/GEP lowering, production selection, performance
+promotion, `eq_hh` retirement, or fallback/retry. Those remain separate rows
+after caller-zero lifecycle evidence.
+
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
 Decision: keep the lifecycle boundary closed beyond the landed finish-or-abort

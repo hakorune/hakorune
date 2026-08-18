@@ -12,28 +12,23 @@ operand -> Residence.finish -> Return ordering without emitting lifecycle MIR.
 The canonical-consumer audit closed as NoSafeSlice. The borrowed admission
 cannot share an owned envelope with its exit set, the backend-frame contract
 is currently issued only after DraftSeal, and no Residence enter/finish MIR
-carrier exists. The ingress D0/I0 is now landed: one module session owns the
-module brand and compile target, and a private physical ingress co-seals that
-binding with the S6C signature/plan/frame before DraftSeal. Focused ingress
-tests, cargo check, fmt, and the reusable structure guard are green. The next
-finish-or-abort ABI Decision is accepted: one void wrapper returns only after
-successful consumption and aborts on every nonzero status, with no caller CFG.
-The ABI-only I0 is now landed caller-zero; lifecycle MIR, backend, production,
-fallback, and performance remain closed. The next boundary is the typed
-lifecycle-carrier design stop.
+carrier exists. The ingress and ABI I0s are now landed caller-zero. The
+accepted lifecycle-carrier D0 selects one private affine Enter/Finish physical
+carrier for the canonical unpublished session. The next execution row is
+carrier I0 only; backend, production, fallback, and performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0; name the typed pre-DraftSeal enter/finish carriers and canonical consumer before any lifecycle MIR effect"
-work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
-current_blocker_token = "Design only: co-seal one function-lifetime Residence enter/finish capability with the existing exit set and pre-DraftSeal frame contract; no lifecycle MIR, Builder/Return/backend/production behavior, fallback/retry, or performance."
+current_design_stop = "none; TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0 accepted and its bounded I0 selected"
+work_mode = "fast"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0"
+current_blocker_token = "Implement one private affine typed ResidenceEnter(normal, trap) carrier and success-only ResidenceFinish marker through canonical writers; no source receipt, fallback, production, backend promotion, or performance."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence lifecycle carriers D0"
+active_lane = "S6C Text Residence lifecycle carriers I0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -54,15 +49,13 @@ contract. The selected ingress I0 is landed effect-free and caller-zero: the
 session owns brand plus target, the S6C loan is the only signature source, and
 one private affine ingress issues the pre-DraftSeal frame contract. Focused
 tests, cargo check, fmt, and the reusable structure guard are green. The ABI
-Decision now selects exactly one public finish meaning: a void wrapper calls
-the existing module-private status core once, returns only on status 0, and
-aborts on all nonzero statuses. The old caller-zero public status finish was
-retired in the ABI-only I0; focused tests, symbol/visibility/size guard, cargo
-check, and fmt are green. No lifecycle MIR, Builder edge, or backend effect is
-open. The active boundary is now the typed lifecycle-carrier design stop.
-PreparedFunctionExitSetV1 stays the sole exit inventory and
-FunctionDraftSealProjectionV1 the sole Return emitter. Selected Dynamic
-remains the sole production arm.
+Decision selects exactly one public finish meaning: a void wrapper returns
+only on status 0 and aborts on all nonzero statuses. The accepted
+lifecycle-carrier D0 now selects a private affine Enter Normal/Trap carrier
+and success-only Finish marker. I0 may connect only these carriers through the
+canonical unpublished session; PreparedFunctionExitSetV1 stays the sole exit
+inventory and FunctionDraftSealProjectionV1 the sole Return emitter. Selected
+Dynamic remains the sole production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -75,10 +68,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, and pre-DraftSeal ingress co-seal are landed caller-zero. Finish-or-abort ABI I0 is landed: one void public wrapper returns only on status 0, aborts on every nonzero status, and retires the old public status symbol; focused tests, cargo check, fmt, and ABI guard are green. The next design stop names typed lifecycle carriers; lifecycle MIR, backend, production, fallback, and performance remain closed."
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, and finish-or-abort ABI I0 are landed caller-zero. Lifecycle-carrier D0 is accepted: one private affine typed Enter Normal/Trap carrier and success-only Finish marker feed canonical writers. The selected I0 remains caller-zero until focused positive/negative evidence closes; backend, production, fallback, and performance remain closed."
 next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none; design stop"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -90,7 +83,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-18: Common-V2 physical entry/session, Body segment, invocation brand, Substring target/provider/admission, and V6/V7/V8 operand proof are landed caller-zero without CheckedCallOut effect.",
   "2026-08-18: ExactText adjacent slot/generation entry sidecar and source-bound occurrence view are landed compile-time substrate; they do not mint runtime values.",
   "2026-08-18: Common-V2 S6C V9 MIR I0 now binds the existing canonical writers through one callback-scoped materializer; exactly one Normal/Fault/End lifecycle is emitted without a runtime wire, and late failure remains outer-transaction discard.",
   "2026-08-18: Common-V2 S6C V9 + ExactText co-seal now passes one opaque source occurrence/sidecar proof with the canonical NormalResult; no runtime pair or physical sidecar ValueId escapes the callback.",
@@ -101,5 +93,6 @@ landed_tail = [
   "2026-08-18: S6C predicate/index physical I0 is landed caller-zero: one entry ByteLen and one private byte-offset PHI drive V5, canonical Binding SSA owns i and Return-read observes it, canonical CFG/SSA witnesses seal, and Residence exit remains the next closed boundary.",
   "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed.",
   "2026-08-19: Lifecycle identity/projector I0 is green with 7 focused tests; its canonical consumer remains NoSafeSlice because frame/lifecycle authority is absent before DraftSeal. Ingress co-seal I0 is now landed caller-zero: the session owns brand/target, the S6C loan is the sole signature source, and one affine ingress issues the pre-DraftSeal frame contract with plan/Residence ABI provenance; 2 focused tests plus cargo check/fmt/structure guard are green.",
-  "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed."
+  "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed.",
+  "2026-08-19: Lifecycle-carrier D0 accepted: typed ResidenceEnter owns Normal/Trap control, success-only ResidenceFinish calls the void wrapper, the existing exit set remains sole inventory, and the existing Return projection remains sole Return writer; carrier I0 is the only selected execution row."
 ]
