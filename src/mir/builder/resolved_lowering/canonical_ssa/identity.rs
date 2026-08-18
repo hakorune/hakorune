@@ -200,6 +200,30 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         })
     }
 
+    pub(in crate::mir::builder::resolved_lowering) fn read_entry_receipt_with_deferred_entry(
+        &mut self,
+        builder: &mut MirBuilder,
+        phis: &mut PhiTxn,
+        block: BasicBlockId,
+        binding: BindingRefV1,
+        deferred_entry: BasicBlockId,
+    ) -> Result<CanonicalBindingReadReceiptV1, String> {
+        self.require_active(binding)?;
+        self.require_initialized(binding)?;
+        let mut adapter =
+            MirBindingSsaAdapterV1::new_with_deferred_reachable(builder, phis, deferred_entry);
+        let physical_value = self
+            .ssa
+            .read(&mut adapter, binding, block)
+            .map_err(|error| error.to_string())?;
+        Ok(CanonicalBindingReadReceiptV1 {
+            owner: binding.owner(),
+            binding,
+            physical_block: block,
+            physical_value,
+        })
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
         &self,
         site: &SourceExprSiteV1,

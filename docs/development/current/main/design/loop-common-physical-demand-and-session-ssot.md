@@ -1543,12 +1543,15 @@ Task ladder (canonical consumer design first, runtime effect later):
     projection seam. It must consume the owned exact exit set and Finish
     capability once, emit Finish immediately before the existing Return
     writer, and leave the live function unchanged until commit.
-19. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INGRESS-I0` — current:
-    caller-zero `ExactTwo` integration only: after all S6C leaf rows exist,
-    issue the final frame, Enter, and successorless Trap before canonical
-    session close; move the resulting capability and frame provenance into
-    the same private consumer. `Single`, backend, observer, production,
-    fallback, and performance remain closed.
+19. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INGRESS-I0` — landed
+    caller-zero: after all S6C leaf rows exist, the function-owned plan table
+    issues the final frame, E0 Enter, and successorless Trap before canonical
+    session close; the same affine Finish capability and exact exit set feed
+    the detached projection. The physical entry and five cursor blocks are
+    sealed in the same canonical session, and the numeric return-outcome
+    verifier explicitly accepts the existing Enter/Trap control terminators.
+    `Single`, backend, observer, production, fallback, and performance remain
+    closed.
 20. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
@@ -1674,6 +1677,43 @@ consumer-backed ExactTwo projection; negatives reject unsealed, terminated,
 and duplicate Finish sites. Source/Completion, frame timing, Enter/Trap
 issuance, backend, and production remain unchanged. The next cell is the
 caller-zero ExactTwo ingress/frame timing integration.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-INGRESS-I0 (2026-08-19; caller-zero landed)
+
+Decision: complete the caller-zero `ExactTwo` ingress without introducing a
+second lifecycle or exit authority. The existing function-owned pinned-text
+plan table is finalized into the frame exactly once after the three S6C leaf
+rows exist. The canonical session then co-writes E0 `PinnedTextResidenceEnter`,
+E1 execution-entry/cursor reachability, and the successorless
+`PinnedTextResidenceTrap`; one affine Finish capability and the same owned
+`PreparedFunctionExitSetV1` reach the detached projection, which emits
+`operand -> Finish -> existing Return`.
+
+Source authority + canonical issuer: the retained S6C signature loan and
+`metadata.pinned_text_access_plans` issue the frame provenance; the canonical
+CFG/SSA session owns E0/E1, cursor sealing, Enter/Trap, and the canonical source
+index Binding SSA; `PreparedFunctionExitSetV1` remains the sole exit inventory
+and `FunctionDraftSealProjectionV1` the sole Return writer.
+
+Non-authority: caller-supplied plan/frame tables, empty detached frames,
+`ValueId`/block scans, owner-ID re-pairing, a second CFG/SSA session, raw
+`add_instruction`, inferred trap meaning, `Throw`/`CheckedCallOutFault`, the
+textual C fixture, backend/object output, fallback, retry, and production.
+
+Fail-fast boundary: before lifecycle mutation require one owner/signature/
+target/ABI cohort, a vacant frame slot, non-empty stamped plan rows, exact E0/E1
+and trap shape, and exact explicit-value exits. Deferred reachability is
+limited to the one canonical E1 root and its co-written cursor graph. Any
+foreign, stale, duplicate, missing, unit, unsealed, or late projection error
+discards the unpublished draft; no JSON/object/fallback is published.
+
+Acceptance: the focused ingress test proves the frame count is sourced from the
+function-owned table, Enter/Trap and cursor blocks close in one session, and
+the resulting projection preserves `Finish -> Return`. The six S6C cursor
+tests and three detached-writer tests are green. The return-outcome verifier
+classifies Enter/Trap as physical control terminals; no runtime/backend
+lowering, target-machine observer, production caller, or performance claim is
+opened.
 
 #### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0 (2026-08-19; caller-zero landed)
 

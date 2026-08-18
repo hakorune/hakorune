@@ -63,4 +63,115 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .or_else(|| self.entry_block(builder).ok())
             .ok_or_else(|| "physical execution entry is missing".to_owned())
     }
+
+    /// Lifecycle-aware cursor lowering must populate the execution entry
+    /// before the final frame and Residence Enter exist.  Defer only that
+    /// entry's seal; all other CFG/SSA ownership remains canonical.
+    pub(in crate::mir::builder::resolved_lowering) fn defer_physical_entry_seal(
+        &mut self,
+    ) -> Result<(), String> {
+        if self.physical_entry_execution.is_none() {
+            return Err("cannot defer a missing physical execution entry".to_owned());
+        }
+        if self.physical_entry_seal_deferred {
+            return Err("physical execution-entry seal was already deferred".to_owned());
+        }
+        self.physical_entry_seal_deferred = true;
+        Ok(())
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn physical_entry_seal_deferred(&self) -> bool {
+        self.physical_entry_seal_deferred
+    }
+
+    /// Close the deferred E1 only after Residence Enter has installed the
+    /// E0 -> E1 edge.  The CFG witness and Binding/SSA witness are issued in
+    /// this one canonical session; callers cannot append a predecessor later.
+    pub(in crate::mir::builder::resolved_lowering) fn seal_deferred_physical_entry(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        if !self.physical_entry_seal_deferred {
+            return Err("physical execution-entry seal was not deferred".to_owned());
+        }
+        let boundary = self
+            .physical_entry_execution
+            .ok_or_else(|| "physical execution entry is missing".to_owned())?;
+        let function_entry_witness = {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "physical execution-entry seal requires a function".to_owned())?;
+            self.cfg
+                .seal_block(function, boundary.function_entry())
+                .map_err(|error| error.to_string())?
+        };
+        self.identity
+            .seal_block(
+                builder,
+                &mut self.phis,
+                boundary.function_entry(),
+                &function_entry_witness,
+            )
+            .map_err(|error| error.to_string())?;
+        let execution_entry_witness = {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "physical execution-entry seal requires a function".to_owned())?;
+            self.cfg
+                .seal_block(function, boundary.execution_entry())
+                .map_err(|error| error.to_string())?
+        };
+        self.identity
+            .seal_block(
+                builder,
+                &mut self.phis,
+                boundary.execution_entry(),
+                &execution_entry_witness,
+            )
+            .map_err(|error| error.to_string())?;
+        self.physical_entry_seal_deferred = false;
+        Ok(())
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn defer_s6c_cursor_seals(
+        &mut self,
+        blocks: [BasicBlockId; 5],
+    ) -> Result<(), String> {
+        if !self.physical_entry_seal_deferred {
+            return Err("S6C cursor seal deferral requires a deferred physical entry".to_owned());
+        }
+        if self.deferred_s6c_cursor_blocks.replace(blocks).is_some() {
+            return Err("S6C cursor seals were already deferred".to_owned());
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn seal_deferred_s6c_cursor_blocks(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        let [body, continuation, condition, then_block, after] = self
+            .deferred_s6c_cursor_blocks
+            .take()
+            .ok_or_else(|| "S6C cursor seals were not deferred".to_owned())?;
+        for block in [body, continuation, condition, then_block, after] {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "S6C cursor seal requires a function".to_owned())?;
+            let witness = self
+                .cfg
+                .seal_block(function, block)
+                .map_err(|error| error.to_string())?;
+            self.identity
+                .seal_block(builder, &mut self.phis, block, &witness)
+                .map_err(|error| error.to_string())?;
+        }
+        Ok(())
+    }
 }

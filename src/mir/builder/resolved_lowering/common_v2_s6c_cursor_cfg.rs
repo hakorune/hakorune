@@ -382,6 +382,38 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .session
         .issue_physical_value_id(builder)
         .map_err(CommonV2S6CCursorCfgRejectV1::Value)?;
+    // Establish the complete cursor reachability skeleton before asking the
+    // canonical Binding SSA reader for the loop-carried index.  The physical
+    // entry may still be deferred to the later Residence Enter, but its
+    // cursor successors are already canonical CFG facts in this session.
+    emit_jump(
+        session,
+        builder,
+        execution_entry,
+        condition_row.physical_block(),
+    )?;
+    emit_branch(
+        session,
+        builder,
+        condition_row.physical_block(),
+        loop_condition,
+        body_row.physical_block(),
+        after_block,
+    )?;
+    emit_branch(
+        session,
+        builder,
+        body_row.physical_block(),
+        text_equal,
+        return_placement.then_block,
+        return_placement.continuation_block,
+    )?;
+    emit_jump(
+        session,
+        builder,
+        return_placement.continuation_block,
+        condition_row.physical_block(),
+    )?;
     session
         .session
         .identity
@@ -427,16 +459,26 @@ fn materialize_inner<'session, 'source, 'envelope>(
         .identity
         .claim_variable_use_binding(source.step_read_site(), source.index_binding())
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    let current_i = session
-        .session
-        .identity
-        .read_entry_receipt(
+    let current_i = if session.session.physical_entry_seal_deferred() {
+        session
+            .session
+            .identity
+            .read_entry_receipt_with_deferred_entry(
+                builder,
+                &mut session.session.phis,
+                return_placement.continuation_block,
+                source.index_binding(),
+                execution_entry,
+            )
+    } else {
+        session.session.identity.read_entry_receipt(
             builder,
             &mut session.session.phis,
             return_placement.continuation_block,
             source.index_binding(),
         )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+    }
+    .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
     match builder
         .function_state
         .type_ctx
@@ -494,34 +536,6 @@ fn materialize_inner<'session, 'source, 'envelope>(
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
-    emit_jump(
-        session,
-        builder,
-        execution_entry,
-        condition_row.physical_block(),
-    )?;
-    emit_branch(
-        session,
-        builder,
-        condition_row.physical_block(),
-        loop_condition,
-        body_row.physical_block(),
-        after_block,
-    )?;
-    emit_branch(
-        session,
-        builder,
-        body_row.physical_block(),
-        text_equal,
-        return_placement.then_block,
-        return_placement.continuation_block,
-    )?;
-    emit_jump(
-        session,
-        builder,
-        return_placement.continuation_block,
-        condition_row.physical_block(),
-    )?;
     session
         .session
         .phis
@@ -554,118 +568,85 @@ fn materialize_inner<'session, 'source, 'envelope>(
         ))
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
-    let (
-        entry_witness,
-        body_witness,
-        continuation_witness,
-        condition_witness,
-        then_witness,
-        after_witness,
-    ) = {
-        let function = builder
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
-        let entry_witness = session
+    if session.session.physical_entry_seal_deferred() {
+        session
             .session
-            .cfg
-            .seal_block(function, execution_entry)
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        let body_witness = session
-            .session
-            .cfg
-            .seal_block(function, body_row.physical_block())
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        let continuation_witness = session
-            .session
-            .cfg
-            .seal_block(function, return_placement.continuation_block)
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        let condition_witness = session
-            .session
-            .cfg
-            .seal_block(function, condition_row.physical_block())
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        let then_witness = session
-            .session
-            .cfg
-            .seal_block(function, return_placement.then_block)
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        let after_witness = session
-            .session
-            .cfg
-            .seal_block(function, after_block)
-            .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
-        (
+            .defer_s6c_cursor_seals([
+                body_row.physical_block(),
+                return_placement.continuation_block,
+                condition_row.physical_block(),
+                return_placement.then_block,
+                after_block,
+            ])
+            .map_err(CommonV2S6CCursorCfgRejectV1::Edge)?;
+    } else {
+        let (
             entry_witness,
             body_witness,
             continuation_witness,
             condition_witness,
             then_witness,
             after_witness,
-        )
-    };
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            execution_entry,
-            &entry_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            return_placement.then_block,
-            &then_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            after_block,
-            &after_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            body_row.physical_block(),
-            &body_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            return_placement.continuation_block,
-            &continuation_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
-    session
-        .session
-        .identity
-        .seal_block(
-            builder,
-            &mut session.session.phis,
-            condition_row.physical_block(),
-            &condition_witness,
-        )
-        .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+        ) = {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| CommonV2S6CCursorCfgRejectV1::Edge("function missing".to_owned()))?;
+            let entry_witness = session
+                .session
+                .cfg
+                .seal_block(function, execution_entry)
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            let body_witness = session
+                .session
+                .cfg
+                .seal_block(function, body_row.physical_block())
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            let continuation_witness = session
+                .session
+                .cfg
+                .seal_block(function, return_placement.continuation_block)
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            let condition_witness = session
+                .session
+                .cfg
+                .seal_block(function, condition_row.physical_block())
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            let then_witness = session
+                .session
+                .cfg
+                .seal_block(function, return_placement.then_block)
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            let after_witness = session
+                .session
+                .cfg
+                .seal_block(function, after_block)
+                .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
+            (
+                entry_witness,
+                body_witness,
+                continuation_witness,
+                condition_witness,
+                then_witness,
+                after_witness,
+            )
+        };
+        for (block, witness) in [
+            (execution_entry, entry_witness),
+            (return_placement.then_block, then_witness),
+            (after_block, after_witness),
+            (body_row.physical_block(), body_witness),
+            (return_placement.continuation_block, continuation_witness),
+            (condition_row.physical_block(), condition_witness),
+        ] {
+            session
+                .session
+                .identity
+                .seal_block(builder, &mut session.session.phis, block, &witness)
+                .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
+        }
+    }
     session
         .session
         .cfg

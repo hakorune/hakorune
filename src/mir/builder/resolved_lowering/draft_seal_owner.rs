@@ -17,6 +17,11 @@ use crate::mir::builder::{
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 
+#[cfg(test)]
+use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
+#[cfg(test)]
+use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
+
 use super::completion_consumption::ReadyFunctionCompletionV1;
 use super::draft_seal::{
     FunctionDraftSealPreparationErrorV1, FunctionDraftSealProjectionErrorV1,
@@ -235,6 +240,125 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         candidate: SelectedDynamicCandidateMetadataV1,
     ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
         self.prepare_exact_two_inner(outer_site, Some(candidate))
+    }
+
+    #[cfg(test)]
+    pub(super) fn prepare_exact_two_with_pinned_text(
+        mut self,
+        outer_site: &SourceStmtSiteV1,
+        finish: PinnedTextResidenceFinishCapabilityV1,
+    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
+        let ready = self
+            .ready
+            .take()
+            .expect("open draft-seal owner must retain one ready completion");
+        let exit_plan = match ready.prepare_exact_two() {
+            Ok(plan) => plan,
+            Err(error) => return Err(self.reject(FunctionDraftSealStageV1::Exit, error.into())),
+        };
+        let Some(expected_outer_block) = exit_plan.exit_block_for_site(outer_site) else {
+            return Err(self.reject(
+                FunctionDraftSealStageV1::Exit,
+                FunctionDraftSealErrorV1::SessionClose(
+                    "exact-two outer Completion site is absent from the exit claim set".to_owned(),
+                ),
+            ));
+        };
+        if self.session.builder_view().function_state.current_block != Some(expected_outer_block) {
+            return Err(self.reject(
+                FunctionDraftSealStageV1::SessionClose,
+                FunctionDraftSealErrorV1::SessionClose(
+                    "current block does not match the site-keyed outer exit claim".to_owned(),
+                ),
+            ));
+        }
+
+        let (completion, exit_set) = exit_plan.into_parts();
+        let plan_result = {
+            let builder = self.session.builder_view();
+            let result: Result<_, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> = (|| {
+                let function = builder.function_state.current_function.as_ref().ok_or((
+                    FunctionDraftSealStageV1::Exit,
+                    FunctionDraftSealErrorV1::Projection(
+                        FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing,
+                    ),
+                ))?;
+                let frame_contract = function
+                    .metadata
+                    .pinned_text_backend_frame_contract
+                    .as_ref()
+                    .ok_or((
+                        FunctionDraftSealStageV1::Exit,
+                        FunctionDraftSealErrorV1::Projection(
+                            FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                "pinned-Text frame is missing before DraftSeal".to_owned(),
+                            ),
+                        ),
+                    ))?;
+                let plans = &function.metadata.pinned_text_access_plans;
+                let frame_for_admission: PinnedTextBackendFrameBorrowV1<'_> =
+                    frame_contract.borrow();
+                let consumer =
+                    super::draft_seal::issue_pinned_text_residence_draftseal_consumer_v1(
+                        &completion,
+                        plans,
+                        frame_for_admission,
+                        exit_set,
+                        finish,
+                    )
+                    .map_err(|error| {
+                        (
+                            FunctionDraftSealStageV1::Exit,
+                            FunctionDraftSealErrorV1::Projection(
+                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(format!(
+                                    "{error:?}"
+                                )),
+                            ),
+                        )
+                    })?;
+                let frame_for_projection: PinnedTextBackendFrameBorrowV1<'_> =
+                    frame_contract.borrow();
+                let projection =
+                        super::draft_seal::FunctionDraftSealProjectionV1::project_from_builder_pinned_text(
+                            builder,
+                            consumer,
+                            plans,
+                            frame_for_projection,
+                        )
+                        .map_err(|error| {
+                            (
+                                FunctionDraftSealStageV1::Exit,
+                                FunctionDraftSealErrorV1::Projection(
+                                    FunctionDraftSealProjectionErrorV1::PinnedTextResidence(error),
+                                ),
+                            )
+                        })?;
+                prepare_plan_from_projection(builder, projection, None)
+            })(
+            );
+            result
+        };
+        let plan = match plan_result {
+            Ok(plan) => plan,
+            Err((stage, error)) => return Err(self.reject(stage, error)),
+        };
+        let function_name = match self.session.draft_seal_readiness() {
+            Ok(name) => name,
+            Err(error) => {
+                return Err(self.reject(
+                    FunctionDraftSealStageV1::SessionClose,
+                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                ))
+            }
+        };
+        let OpenFunctionDraftSealV1 { session, ready } = self;
+        debug_assert!(ready.is_none());
+        let close = session.prepare_draft_seal_close_after_readiness(function_name);
+        Ok(PreparedFunctionDraftSealV1 {
+            completion,
+            plan,
+            close,
+        })
     }
 
     fn prepare_exact_two_inner(
@@ -456,6 +580,14 @@ fn prepare_detached_plan_with_exit_set(
                 FunctionDraftSealErrorV1::Projection(error),
             )
         })?;
+    prepare_plan_from_projection(builder, projection, candidate)
+}
+
+fn prepare_plan_from_projection(
+    builder: &MirBuilder,
+    projection: FunctionDraftSealProjectionV1,
+    candidate: Option<SelectedDynamicCandidateMetadataV1>,
+) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
     let phi = projection.prepare_phi_closure().map_err(|error| {
         (
             FunctionDraftSealStageV1::PhiClosure,

@@ -294,16 +294,29 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .identity
             .claim_variable_use_binding(source.return_value(), binding)
             .map_err(ReturnReadPhysicalReceiptRejectV1::CanonicalRead)?;
-        let read = self
-            .session
-            .identity
-            .read_entry_receipt(
+        let read = if self.session.physical_entry_seal_deferred() {
+            let deferred_entry = self
+                .session
+                .physical_execution_entry(builder)
+                .map_err(ReturnReadPhysicalReceiptRejectV1::CanonicalRead)?;
+            self.session
+                .identity
+                .read_entry_receipt_with_deferred_entry(
+                    builder,
+                    &mut self.session.phis,
+                    return_row.physical_block(),
+                    binding,
+                    deferred_entry,
+                )
+        } else {
+            self.session.identity.read_entry_receipt(
                 builder,
                 &mut self.session.phis,
                 return_row.physical_block(),
                 binding,
             )
-            .map_err(ReturnReadPhysicalReceiptRejectV1::CanonicalRead)?;
+        }
+        .map_err(ReturnReadPhysicalReceiptRejectV1::CanonicalRead)?;
         if read.owner() != owner
             || read.binding() != binding
             || read.physical_block() != return_row.physical_block()

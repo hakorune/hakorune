@@ -244,16 +244,29 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 
         // Poison the one-shot seam before identity/SSA or instruction writes.
         self.s6c_text_eq_operands_issued = true;
-        let index_read = self
-            .session
-            .identity
-            .read_entry_receipt(
+        let index_read = if self.session.physical_entry_seal_deferred() {
+            let deferred_entry = self
+                .session
+                .physical_execution_entry(builder)
+                .map_err(|error| S6CTextEqOperandIssuerRejectV1::Read(error.to_owned()))?;
+            self.session
+                .identity
+                .read_entry_receipt_with_deferred_entry(
+                    builder,
+                    &mut self.session.phis,
+                    body_row.physical_block(),
+                    seed_binding,
+                    deferred_entry,
+                )
+        } else {
+            self.session.identity.read_entry_receipt(
                 builder,
                 &mut self.session.phis,
                 body_row.physical_block(),
                 seed_binding,
             )
-            .map_err(S6CTextEqOperandIssuerRejectV1::Read)?;
+        }
+        .map_err(S6CTextEqOperandIssuerRejectV1::Read)?;
         if index_read.owner() != owner
             || index_read.binding() != seed_binding
             || index_read.physical_block() != body_row.physical_block()

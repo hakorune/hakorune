@@ -94,7 +94,7 @@ impl FunctionDraftSealProjectionV1 {
     }
 
     #[cfg(test)]
-    pub(super) fn project_from_builder_pinned_text(
+    pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_pinned_text(
         builder: &MirBuilder,
         consumer: super::text_residence_ingress::PreparedPinnedTextResidenceDraftSealConsumerV1,
         plans: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,

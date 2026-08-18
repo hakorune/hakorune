@@ -324,6 +324,24 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         self.session.physical_execution_entry(builder)
     }
 
+    pub(in crate::mir) fn defer_physical_entry_seal(&mut self) -> Result<(), String> {
+        self.session.defer_physical_entry_seal()
+    }
+
+    pub(in crate::mir) fn seal_deferred_physical_entry(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+    ) -> Result<(), String> {
+        self.session.seal_deferred_physical_entry(builder)
+    }
+
+    pub(in crate::mir) fn seal_deferred_s6c_cursor_blocks(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+    ) -> Result<(), String> {
+        self.session.seal_deferred_s6c_cursor_blocks(builder)
+    }
+
     pub(in crate::mir) fn create_unpublished_block(
         &mut self,
         builder: &mut crate::mir::builder::MirBuilder,

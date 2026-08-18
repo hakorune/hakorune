@@ -9,6 +9,7 @@ use crate::mir::builder::InvocationBranded;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::common_v2_physical_function_skeleton::PreparedPhysicalEntrySessionInputV1;
 use crate::mir::normal_callable_semantic_package::S6CCommonV2PreSessionLoanRefV1;
+use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
 use crate::mir::MirFunction;
 
 use super::common_v2_session::{
@@ -127,6 +128,7 @@ pub(in crate::mir::builder) fn with_common_v2_s6c_pinned_text_physical_entry_dra
             let mut outer =
                 Some(builder.open_resolved_function_draft_seal_session_v1(&function_name));
             let result = (|| {
+                let mut finish_capability = None;
                 let ready = with_common_v2_canonical_session_branded_finish(
                     admission,
                     invocation_brand,
@@ -142,35 +144,71 @@ pub(in crate::mir::builder) fn with_common_v2_s6c_pinned_text_physical_entry_dra
                             .install(source_input.function())?;
                         draft.install_prepared_physical_function_skeleton(detached)?;
                         common.adopt_physical_entry_lanes(draft, &descriptors)?;
+                        let function_entry = draft
+                            .function_state
+                            .current_function
+                            .as_ref()
+                            .expect("canonical function remains after skeleton install")
+                            .entry_block;
+                        let execution_entry =
+                            common.issue_physical_entry_execution_boundary(draft)?;
+                        let trap_block = common.create_unpublished_block(draft)?;
+                        common.defer_physical_entry_seal()?;
+                        common.select_block(draft, execution_entry)?;
                         callback(common, draft, physical_effects, loan)?;
-                        draft
+                        let after_block = draft
                             .function_state
                             .current_block
-                            .ok_or_else(|| "S6C cursor did not select an After block".to_owned())
+                            .ok_or_else(|| "S6C cursor did not select an After block".to_owned())?;
+                        let frame = binding
+                            .finalize_backend_frame(frame_ingress, loan, draft)
+                            .map_err(|error| format!("{error:?}"))?;
+                        draft
+                            .function_state
+                            .current_function
+                            .as_mut()
+                            .expect("canonical function remains before Residence Enter")
+                            .metadata
+                            .pinned_text_backend_frame_contract = Some(frame);
+                        let carrier = {
+                            let function = draft
+                                .function_state
+                                .current_function
+                                .as_ref()
+                                .expect("canonical function remains for Residence carrier");
+                            let frame = function
+                                .metadata
+                                .pinned_text_backend_frame_contract
+                                .as_ref()
+                                .ok_or_else(|| "pinned-Text frame was not installed".to_owned())?;
+                            PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(
+                                common.owner(),
+                                &function.metadata.pinned_text_access_plans,
+                                frame.borrow(),
+                                execution_entry,
+                                trap_block,
+                            )
+                            .map_err(|error| format!("{error:?}"))?
+                        };
+                        common.select_block(draft, function_entry)?;
+                        finish_capability =
+                            Some(common.emit_pinned_text_residence_enter(draft, carrier)?);
+                        common.select_block(draft, after_block)?;
+                        common.seal_deferred_physical_entry(draft)?;
+                        common.seal_deferred_s6c_cursor_blocks(draft)?;
+                        Ok(after_block)
                     },
                 )?;
-
-                let draft = outer
-                    .as_mut()
-                    .expect("S6C draft owner remains before frame finalization")
-                    .builder_view_mut_for_lowering();
-                let frame = binding
-                    .finalize_backend_frame(frame_ingress, loan, draft)
-                    .map_err(|error| format!("{error:?}"))?;
-                draft
-                    .function_state
-                    .current_function
-                    .as_mut()
-                    .expect("canonical function remains before DraftSeal")
-                    .metadata
-                    .pinned_text_backend_frame_contract = Some(frame);
+                let finish = finish_capability
+                    .take()
+                    .ok_or_else(|| "Residence Enter did not issue Finish capability".to_owned())?;
 
                 let open = ready.open(
                     outer
                         .take()
                         .expect("S6C draft owner moves into DraftSeal exactly once"),
                 );
-                let prepared = match open.prepare_exact_two(&tail_site) {
+                let prepared = match open.prepare_exact_two_with_pinned_text(&tail_site, finish) {
                     Ok(prepared) => prepared,
                     Err(rejected) => {
                         let detail = format!("{:?}", rejected.error());

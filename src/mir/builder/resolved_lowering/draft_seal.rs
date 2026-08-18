@@ -30,6 +30,9 @@ mod text_residence_exit;
 #[cfg(test)]
 mod text_residence_ingress;
 
+#[cfg(test)]
+pub(in crate::mir::builder::resolved_lowering) use text_residence_ingress::issue_pinned_text_residence_draftseal_consumer_v1;
+
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
