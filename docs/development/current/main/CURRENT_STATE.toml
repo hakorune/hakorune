@@ -13,20 +13,22 @@ are landed. The caller-zero materializer now issues one entry ByteLen plus one
 private byte-offset PHI, updates source `i` only through canonical Binding SSA,
 and seals canonical CFG/SSA witnesses; generic Length and the duplicate
 CP-index PHI are absent. Residence exit/finish, publication, performance
-promotion, and production remain closed.
+promotion, and production remain closed. Residence exit/finish is still a
+design stop: the old exit obligation is proof-only prototype evidence and is
+not connected to canonical DraftSeal/Return.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "NoSafeSlice::S6CResidenceExitUnsealed remains the implementation stop. The predicate/index I0 is accepted: VerifiedS6CTypedInputRelationV1 supplies the exact step read/update sites; issue_s6c_scalar_scan_source_v1 is the source co-seal; ResolvedSsaIdentityStateV2 plus canonical CFG/PHI are the sole physical index/seal owners. Reopen only the existing Residence exit/finish boundary."
-work_mode = "fast"
-current_execution_row = "S6C-RESIDENCE-EXIT-FINISH-D0"
-current_blocker_token = "Predicate/index physical I0 is closed. Reopen only the existing Residence exit/finish boundary; keep Return materialization, runtime/backend lowering, publication, production, fallback/retry, performance, and eq_hh retirement closed. Keep every edited source below 800 lines."
+current_design_stop = "NoSafeSlice::PinnedTextCanonicalDraftSealIngressMissing remains the design stop. The predicate/index I0 is accepted: VerifiedS6CTypedInputRelationV1 supplies the exact step read/update sites; issue_s6c_scalar_scan_source_v1 is the source co-seal; ResolvedSsaIdentityStateV2 plus canonical CFG/PHI are the sole physical index/seal owners. The historical PinnedTextResidenceExitObligationV1 is not a live finish owner. Reopen only the accepted two-stage lifecycle authority after common V2 canonical DraftSeal ingress is co-resident."
+work_mode = "design_stop"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0"
+current_blocker_token = "Predicate/index physical I0 is closed. Do not implement Residence finish or patch the legacy finalizer. First taskize and later issue the accepted stamp-only lifecycle authority on the common V2 canonical DraftSeal ingress; keep Return materialization, runtime/backend lowering, publication, production, fallback/retry, performance, and eq_hh retirement closed. Keep every edited source below 800 lines."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C scalar-scan Residence exit and finish"
+active_lane = "S6C scalar-scan Residence lifecycle authority design"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion cohort, source corridor, and
 caller-zero correctness route remain closed substrate. Independent census confirmed the existing S6C
@@ -41,7 +43,10 @@ effect-free cursor/preheader plan, scalar-equality leaf capability, and typed
 same-cohort cursor handoff and predicate/index physical I0 are landed. The
 materializer now reduces the loop to one canonical source-index Binding SSA
 plus one private byte-offset PHI, with ByteLen issued once and canonical CFG/
-SSA witnesses sealed. The active design stop is now Residence exit/finish.
+SSA witnesses sealed. The active design stop is the missing canonical
+DraftSeal/Return residence handoff; the old proof-only exit obligation is not
+an implementation owner. The accepted next ladder is lifecycle authority,
+materializer, then backend no-unwind closure.
 Selected Dynamic remains the sole
 production arm.
 """
@@ -56,10 +61,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. Predicate/index physical I0 is closed: ByteLen(root 0) is issued once, only a private byte-offset PHI remains, source i uses canonical Binding SSA, and canonical CFG/SSA witnesses seal. Reopen only Residence exit/finish."
-next_design_card = "none"
-next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-RESIDENCE-EXIT-FINISH-D0"
+latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. Predicate/index physical I0 is closed: ByteLen(root 0) is issued once, only a private byte-offset PHI remains, source i uses canonical Binding SSA, and canonical CFG/SSA witnesses seal. Residence finish is a design stop until the accepted stamp-only lifecycle authority reaches canonical DraftSeal/Return; the historical copied-row obligation is not reused."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0"
+next_design_card_path = "docs/development/current/main/investigations/text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

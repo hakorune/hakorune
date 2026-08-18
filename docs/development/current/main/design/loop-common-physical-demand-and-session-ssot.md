@@ -445,36 +445,68 @@ late failure publication                 = 0
 
 Residence exit remains the next dependency, not a parallel task.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (next bounded row)
+### S6C-RESIDENCE-EXIT-FINISH-D0 (current design stop)
 
-Decision: reopen only the existing ExactText Residence normal-exit/finish
-boundary. The predicate/index physical I0 above is the sole upstream input;
-do not add a new Content frame, `Arc<str>` owner, V9 runtime object, or
-per-iteration lock/callback path.
+Decision: keep `NoSafeSlice::PinnedTextCanonicalDraftSealIngressMissing`.
+The predicate/index physical I0 above is closed, but the existing
+`PinnedTextResidenceExitObligationV1` is historical proof-only prototype
+evidence, not a live finish owner. Do not connect it to Return, add a second
+exit ledger, or patch the legacy finalizer.
 
-Source authority + canonical issuer: the already-landed
-`PreparedFunctionExitSetV1`, `CommonV2ReturnReadPhysicalReceiptV1`, and
-existing ExactText Residence lifecycle remain the owners. The next issuer must
-co-seal normal/early Return coverage with the same function/session and make
-`finish` precede each physical Return; it may not infer exits from MIR
-adjacency or reopen the generic Length/Substring route.
+Source authority + canonical issuer: `VerifiedFunctionCompletionV1`,
+`PreparedFunctionExitSetV1`, and the common V2 `CanonicalSsaFunctionSessionV2`
+/ DraftSeal path remain the only exit and Return owners. The accepted target is
+the two-stage lifecycle authority recorded in
+`investigations/text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md`:
+first a stamp-only, same-function admission on the live canonical owner, then
+a later materializer. The final backend no-unwind observer is a separate
+post-transform issuer.
 
-Non-authority: raw residence tokens, frame pointers, `ValueId` ordinals,
+Feedback disposition: the reported duplicate CP-index SSA, raw V5 handoff, and
+generic Length predicate are already closed in the current HEAD (one entry
+`ByteLen`, one private byte-offset PHI, canonical source `i` Binding SSA).
+The remaining blocker is the missing canonical DraftSeal/Return residence
+handoff; no current code proves `residence.finish -> Return` for every exit.
+
+Non-authority: `PinnedTextResidenceExitObligationV1` copied rows, raw
+residence tokens, frame pointers, `ValueId` ordinals, MIR/JSON Return scans,
 `nyash.string.eq_hh`, fallback/retry, benchmark results, and a new runtime
 backing/frame design do not authorize this row.
 
-Fail-fast boundary: before any new exit effect, verify the existing residence
-entry/owner, all normal and early Return sites, exactly-once finish coverage,
-Return-read binding/result, no unwind/catch path, and unpublished transaction
-ownership. Missing, duplicate, foreign, recoverable-fault, or partial-finish
-evidence remains `NoSafeSlice`; late failure discards the whole draft.
+Fail-fast boundary: before any lifecycle effect, the canonical owner must
+co-seal the existing exit-set stamp, residence/frame/plan provenance, exact
+normal/early Return coverage, entry/fault policy, and unpublished candidate.
+Foreign/duplicate/missing exits, legacy-finalizer ingress, catch/EH or
+recoverable-unwind paths, copied rows, or a required second scan remain
+`NoSafeSlice`; late failure discards the whole draft.
 
-Smallest next slice: one BoxShape I0 that emits no production switch and no
-backend pointer lowering, but proves the existing finish/Return ordering with
-positive, duplicate/missing-exit negatives and the current residence guard.
+Task ladder (design first, implementation later):
 
-Non-claims: no runtime ABI revision, new frame, `Arc<str>` migration,
-production caller, fallback/retry, performance promotion, or `eq_hh` retirement.
+1. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0` — on the common V2
+   canonical session/DraftSeal ingress, issue one opaque exit-set stamp and
+   stamp-only finish/materialization admission; keep `PreparedFunctionExitSetV1`
+   as the sole iterator. No runtime call, Return writer, or production switch.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` — consume that
+   admission in the unpublished candidate and realize `finish` immediately
+   before each canonical Return. No legacy finalizer patch or MIR rescan.
+3. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-I0` — observe the
+   final transformed module and close the no-unwind/EH contract before object
+   emission. Only after these three rows may production/performance reopen.
+
+Non-claims: no new semantic receipt is implemented in this design stop; no
+runtime ABI revision, new frame, `Arc<str>` migration, production caller,
+fallback/retry, performance promotion, or `eq_hh` retirement.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-AUTHORITY-I0 (selected design task)
+
+This is the current design-stop task. Reuse the accepted authority contract
+in `investigations/text-formal-pinned-residence-lifecycle-authority-r0-2026-08-16.md`;
+do not implement it until the common V2 canonical DraftSeal ingress can own
+the same function, exit set, residence/frame provenance, and unpublished
+candidate. The I0 acceptance is stamp-only provenance plus expected lifecycle
+roles, with no copied exit rows, runtime token, MIR Return, backend pointer, or
+production caller. A later materializer and final no-unwind observer are
+separate rows.
 
 
 ## Historical boundary
