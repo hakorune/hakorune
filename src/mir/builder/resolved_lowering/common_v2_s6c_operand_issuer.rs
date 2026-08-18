@@ -17,7 +17,7 @@ use super::super::common_v2_segment_block_allocation::{
     PreparedSegmentBlockReceiptV1, SegmentBlockAllocationBrandV1,
 };
 use super::s6c_substring_callout_materializer::{
-    CommonV2SubstringCallOutMirMaterializerRejectV1, CommonV2SubstringCallOutNormalResultRefV1,
+    CommonV2SubstringCallOutExactTextCoSealRefV1, CommonV2SubstringCallOutMirMaterializerRejectV1,
 };
 use super::CommonV2CanonicalSessionRefV1;
 
@@ -105,15 +105,15 @@ impl S6CTextEqOperandReceiptV1<'_, '_, '_> {
         self.substring_result
     }
 
-    pub(in crate::mir::builder) fn with_s6c_substring_callout_mir<R>(
+    pub(in crate::mir::builder) fn with_s6c_substring_callout_exact_text_co_seal<R>(
         self,
         builder: &mut MirBuilder,
         segment_receipt: &PreparedSegmentBlockReceiptV1,
         physical_effects: &crate::mir::normal_callable_semantic_package::
             VerifiedS6CPhysicalFunctionEffectsV1,
-        callback: impl FnOnce(
+        callback: impl for<'view> FnOnce(
             &mut MirBuilder,
-            CommonV2SubstringCallOutNormalResultRefV1,
+            CommonV2SubstringCallOutExactTextCoSealRefV1<'view>,
         ) -> Result<R, String>,
     ) -> Result<R, CommonV2SubstringCallOutMirMaterializerRejectV1> {
         let Self {

@@ -165,20 +165,26 @@ fn s6c_substring_callout_materializer_emits_normal_fault_and_end_once() {
                         canonical
                             .with_s6c_text_eq_operands(draft, scope.receipt(), |draft, operands| {
                                 let value = operands
-                                    .with_s6c_substring_callout_mir(
+                                    .with_s6c_substring_callout_exact_text_co_seal(
                                         draft,
                                         scope.receipt(),
                                         physical_effects,
                                         |draft, result| {
-                                            assert_eq!(result.owner(), owner);
-                                            assert_eq!(result.source_result().raw(), 9);
-                                            assert_eq!(result.site().as_u32(), 0);
+                                            let normal = result.normal_result();
+                                            let occurrence = result.occurrence();
+                                            assert_eq!(normal.owner(), owner);
+                                            assert_eq!(normal.source_result().raw(), 9);
+                                            assert_eq!(normal.site().as_u32(), 0);
+                                            assert_eq!(occurrence.owner(), owner);
+                                            assert_eq!(occurrence.text_eq_left().raw(), 9);
+                                            assert_eq!(occurrence.text_eq_result().raw(), 10);
+                                            assert_eq!(occurrence.if_condition().raw(), 10);
                                             assert!(draft.current_function_instructions().iter().any(
                                                 |instruction| matches!(
                                                     instruction,
                                                     MirInstruction::CheckedCallOutNormalResult {
                                                         site_id, dst
-                                                    } if site_id.as_u32() == 0 && *dst == result.value()
+                                                    } if site_id.as_u32() == 0 && *dst == normal.value()
                                                 )
                                             ));
                                             assert!(!draft.current_function_instructions().iter().any(
@@ -187,7 +193,7 @@ fn s6c_substring_callout_materializer_emits_normal_fault_and_end_once() {
                                                     MirInstruction::CheckedCallOutEnd { .. }
                                                 )
                                             ));
-                                            Ok::<_, String>(result.value())
+                                            Ok::<_, String>(normal.value())
                                         },
                                     )
                                     .expect("canonical Substring callout materializer");
@@ -283,7 +289,7 @@ fn s6c_substring_callout_materializer_late_callback_discards_unpublished_functio
                                     scope.receipt(),
                                     |draft, operands| {
                                         operands
-                                            .with_s6c_substring_callout_mir(
+                                            .with_s6c_substring_callout_exact_text_co_seal(
                                                 draft,
                                                 scope.receipt(),
                                                 physical_effects,
@@ -336,7 +342,7 @@ fn s6c_occurrence_view_co_seals_needle_with_exact_text_sidecar() {
                     .with_shared_segment_scope(draft, |canonical, draft, scope| {
                         let before = draft.current_function_instructions().len();
                         canonical
-                            .with_s6c_text_eq_occurrence(scope.receipt(), |view| {
+                            .with_s6c_text_eq_occurrence(scope.receipt(), |_session, view| {
                                 assert_eq!(view.owner(), owner);
                                 assert_eq!(view.logical_ordinal(), 1);
                                 assert_eq!(view.text_eq_right().raw(), 1);
@@ -349,7 +355,7 @@ fn s6c_occurrence_view_co_seals_needle_with_exact_text_sidecar() {
                         assert_eq!(draft.current_function_instructions().len(), before);
                         let duplicate = canonical.with_s6c_text_eq_occurrence(
                             scope.receipt(),
-                            |_view| Ok::<(), String>(()),
+                            |_session, _view| Ok::<(), String>(()),
                         );
                         assert!(matches!(
                             duplicate,

@@ -85,13 +85,34 @@ impl S6CTextEqOccurrencePhysicalViewV1<'_> {
     ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
         self.source.text_eq_right()
     }
+
+    pub(in crate::mir::builder) const fn text_eq_left(
+        &self,
+    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
+        self.source.text_eq_left()
+    }
+
+    pub(in crate::mir::builder) const fn text_eq_result(
+        &self,
+    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
+        self.source.text_eq_result()
+    }
+
+    pub(in crate::mir::builder) const fn if_condition(
+        &self,
+    ) -> crate::mir::loop_recipe_contract::LoopValueKeyV1 {
+        self.source.if_condition()
+    }
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     pub(in crate::mir::builder) fn with_s6c_text_eq_occurrence<R>(
         &mut self,
         segment: &PreparedSegmentBlockReceiptV1,
-        callback: impl for<'view> FnOnce(S6CTextEqOccurrencePhysicalViewV1<'view>) -> Result<R, String>,
+        callback: impl for<'view> FnOnce(
+            &mut Self,
+            S6CTextEqOccurrencePhysicalViewV1<'view>,
+        ) -> Result<R, String>,
     ) -> Result<R, S6CTextEqOccurrenceViewRejectV1> {
         if self.s6c_text_eq_occurrence_issued {
             return Err(S6CTextEqOccurrenceViewRejectV1::AlreadyIssued);
@@ -137,28 +158,28 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .map_err(S6CTextEqOccurrenceViewRejectV1::Sidecar)?;
 
         self.s6c_text_eq_occurrence_issued = true;
-        self.session
+        let sidecar_row = self
+            .session
             .with_exact_text_sidecar_row(
                 source.needle_binding(),
                 source.needle_ordinal(),
-                |sidecar_row| {
-                    if sidecar_row.carrier() != PhysicalCallableLaneCarrierV1::U64BitsOnI64 {
-                        return Err(S6CTextEqOccurrenceViewRejectV1::CarrierMismatch);
-                    }
-                    let view = S6CTextEqOccurrencePhysicalViewV1 {
-                        source,
-                        owner,
-                        entry,
-                        physical_block: row.physical_block(),
-                        binding: sidecar_row.binding(),
-                        logical_ordinal: sidecar_row.logical_ordinal(),
-                        carrier: sidecar_row.carrier(),
-                        _lifetime: PhantomData,
-                        _segment: PhantomData,
-                    };
-                    callback(view).map_err(S6CTextEqOccurrenceViewRejectV1::Callback)
-                },
+                |sidecar_row| *sidecar_row,
             )
-            .map_err(S6CTextEqOccurrenceViewRejectV1::Sidecar)?
+            .map_err(S6CTextEqOccurrenceViewRejectV1::Sidecar)?;
+        if sidecar_row.carrier() != PhysicalCallableLaneCarrierV1::U64BitsOnI64 {
+            return Err(S6CTextEqOccurrenceViewRejectV1::CarrierMismatch);
+        }
+        let view = S6CTextEqOccurrencePhysicalViewV1 {
+            source,
+            owner,
+            entry,
+            physical_block: row.physical_block(),
+            binding: sidecar_row.binding(),
+            logical_ordinal: sidecar_row.logical_ordinal(),
+            carrier: sidecar_row.carrier(),
+            _lifetime: PhantomData,
+            _segment: PhantomData,
+        };
+        callback(self, view).map_err(S6CTextEqOccurrenceViewRejectV1::Callback)
     }
 }

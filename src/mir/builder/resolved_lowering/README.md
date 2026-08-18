@@ -753,27 +753,29 @@ no new MIR, runtime wire, TextEq, CFG, publication, fallback, or retry.
 
 ## Common V2 S6C canonical Substring callout materializer I0 (2026-08-18)
 
-`S6CTextEqOperandReceiptV1::with_s6c_substring_callout_mir` is the first
-compiler-side V9 lifecycle consumer. It co-seals the source-backed Substring
-target, the checked single-site plan, the V6/V8 operand receipt, the Body
-segment, and the same canonical session before any callout mutation. The
-private `common_v2_s6c_substring_callout_materializer.rs` child then installs
-that plan and delegates all MIR writes to the existing canonical CFG/SSA
-writers:
+`S6CTextEqOperandReceiptV1::with_s6c_substring_callout_exact_text_co_seal` is
+the compiler-side V9 lifecycle consumer. It co-seals the source-backed
+Substring target, the checked single-site plan, the V6/V8 operand receipt, the
+Body segment, and the existing source TextEq occurrence/ExactText sidecar in
+the same canonical session before any callout mutation. The private
+`common_v2_s6c_substring_callout_materializer.rs` child then installs that plan
+and delegates all MIR writes to the existing canonical CFG/SSA writers:
 
 ```text
 CheckedCallOut
   -> separate terminal Fault
   -> NormalResult(V9)
-  -> callback-scoped source consumer
+  -> callback-scoped V9 + ExactText occurrence consumer
   -> EndAuthorized End
 ```
 
 The materializer accepts no runtime wire, handle, lease token, raw slot,
-generation pair, or `eq_hh` transport. A late callback/terminal failure is
-discarded by the surrounding unpublished-function transaction; the same
-session cannot retry. Focused evidence covers one Normal/Fault/End lifecycle
-and checks that End is absent until the Normal consumer callback returns.
+generation pair, or `eq_hh` transport. Its callback receives only the opaque
+co-seal product; physical sidecar values and the runtime pair remain hidden. A
+late callback/terminal failure is discarded by the surrounding unpublished-
+function transaction; the same session cannot retry. Focused evidence covers
+one Normal/Fault/End lifecycle, the exact source-left/V9 and If-condition
+relation, and End absence until the co-sealed consumer callback returns.
 TextEq V10, ExactText residence, inner CFG/Return, Completion/DraftSeal,
 publication, fallback, retry, production selection, and `eq_hh` retirement
 remain closed.

@@ -63,7 +63,7 @@ pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
 #[path = "common_v2_s6c_substring_callout_materializer.rs"]
 mod s6c_substring_callout_materializer;
 pub(in crate::mir::builder) use s6c_substring_callout_materializer::{
-    CommonV2SubstringCallOutMirMaterializerRejectV1, CommonV2SubstringCallOutNormalResultRefV1,
+    CommonV2SubstringCallOutExactTextCoSealRefV1, CommonV2SubstringCallOutMirMaterializerRejectV1,
 };
 
 #[path = "common_v2_session_length.rs"]

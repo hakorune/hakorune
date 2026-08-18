@@ -6,6 +6,7 @@
 //! the rollback boundary when the callback or a later terminal rejects.
 
 use super::super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1;
+use super::s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
 use super::CommonV2CanonicalSessionRefV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1};
@@ -21,6 +22,7 @@ pub(in crate::mir::builder) enum CommonV2SubstringCallOutMirMaterializerRejectV1
     BodySegmentMismatch,
     SegmentScopeMismatch,
     OperandTypeMismatch,
+    Occurrence(String),
     SitePlan(String),
     Block(String),
     CallOut(String),
@@ -65,6 +67,29 @@ impl CommonV2SubstringCallOutNormalResultRefV1 {
     }
 }
 
+/// One callback-scoped product that binds the canonical V9 NormalResult to
+/// the already-issued source TextEq occurrence and ExactText entry sidecar.
+/// The occurrence view contains no physical lane values or runtime wire.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CommonV2SubstringCallOutExactTextCoSealRefV1<'view> {
+    normal: CommonV2SubstringCallOutNormalResultRefV1,
+    occurrence: S6CTextEqOccurrencePhysicalViewV1<'view>,
+}
+
+impl CommonV2SubstringCallOutExactTextCoSealRefV1<'_> {
+    pub(in crate::mir::builder) const fn normal_result(
+        &self,
+    ) -> CommonV2SubstringCallOutNormalResultRefV1 {
+        self.normal
+    }
+
+    pub(in crate::mir::builder) const fn occurrence(
+        &self,
+    ) -> &S6CTextEqOccurrencePhysicalViewV1<'_> {
+        &self.occurrence
+    }
+}
+
 pub(super) fn emit<R>(
     session: &mut CommonV2CanonicalSessionRefV1<'_, '_>,
     builder: &mut MirBuilder,
@@ -79,9 +104,9 @@ pub(super) fn emit<R>(
     end_key: LoopValueKeyV1,
     end_value: ValueId,
     source_result: LoopValueKeyV1,
-    callback: impl FnOnce(
+    callback: impl for<'view> FnOnce(
         &mut MirBuilder,
-        CommonV2SubstringCallOutNormalResultRefV1,
+        CommonV2SubstringCallOutExactTextCoSealRefV1<'view>,
     ) -> Result<R, String>,
 ) -> Result<R, CommonV2SubstringCallOutMirMaterializerRejectV1> {
     if session.s6c_substring_callout_mir_issued {
@@ -124,105 +149,136 @@ pub(super) fn emit<R>(
 
     session.s6c_substring_callout_mir_issued = true;
     session
-        .with_s6c_substring_callout_admission(physical_effects, |session, admission| {
-            admission.consume_for_canonical_materializer(|target, site_plan, end_ref| {
-                if target.owner() != owner
-                    || target.block() != body_key
-                    || target.result() != source_result
-                    || end_ref.owner() != owner
-                    || end_ref.result() != source_result
-                {
-                    return Err("Substring target/End/source relation mismatch".to_owned());
-                }
-                let site = site_plan.site_id();
-                let site_shape = site_plan.normal_shape();
-                install_site_plan(session, builder, site_plan)?;
+        .with_s6c_text_eq_occurrence(segment, |session, occurrence| {
+            validate_occurrence(&occurrence, owner, body_key, body_block, source_result)?;
+            session
+                .with_s6c_substring_callout_admission(physical_effects, |session, admission| {
+                    admission.consume_for_canonical_materializer(|target, site_plan, end_ref| {
+                        if target.owner() != owner
+                            || target.block() != body_key
+                            || target.result() != source_result
+                            || end_ref.owner() != owner
+                            || end_ref.result() != source_result
+                        {
+                            return Err("Substring target/End/source relation mismatch".to_owned());
+                        }
+                        let site = site_plan.site_id();
+                        let site_shape = site_plan.normal_shape();
+                        install_site_plan(session, builder, site_plan)?;
 
-                let normal = session
-                    .session
-                    .create_unpublished_block(builder)
-                    .map_err(|error| format!("{error:?}"))?;
-                let fault = session
-                    .session
-                    .create_unpublished_block(builder)
-                    .map_err(|error| format!("{error:?}"))?;
-                session
-                    .session
-                    .cfg
-                    .emit_checked_callout(
-                        builder
-                            .function_state
-                            .current_function
-                            .as_mut()
-                            .ok_or_else(|| "missing current function".to_owned())?,
-                        body_block,
-                        site,
-                        receiver,
-                        vec![index, end_value],
-                        normal,
-                        fault,
-                    )
-                    .map_err(|error| format!("{error:?}"))?;
+                        let normal = session
+                            .session
+                            .create_unpublished_block(builder)
+                            .map_err(|error| format!("{error:?}"))?;
+                        let fault = session
+                            .session
+                            .create_unpublished_block(builder)
+                            .map_err(|error| format!("{error:?}"))?;
+                        session
+                            .session
+                            .cfg
+                            .emit_checked_callout(
+                                builder
+                                    .function_state
+                                    .current_function
+                                    .as_mut()
+                                    .ok_or_else(|| "missing current function".to_owned())?,
+                                body_block,
+                                site,
+                                receiver,
+                                vec![index, end_value],
+                                normal,
+                                fault,
+                            )
+                            .map_err(|error| format!("{error:?}"))?;
 
-                select_block(session, builder, fault).map_err(|error| format!("{error:?}"))?;
-                session
-                    .session
-                    .cfg
-                    .emit_checked_callout_fault(
-                        builder
-                            .function_state
-                            .current_function
-                            .as_mut()
-                            .ok_or_else(|| "missing current function".to_owned())?,
-                        fault,
-                        site,
-                    )
-                    .map_err(|error| format!("{error:?}"))?;
+                        select_block(session, builder, fault)
+                            .map_err(|error| format!("{error:?}"))?;
+                        session
+                            .session
+                            .cfg
+                            .emit_checked_callout_fault(
+                                builder
+                                    .function_state
+                                    .current_function
+                                    .as_mut()
+                                    .ok_or_else(|| "missing current function".to_owned())?,
+                                fault,
+                                site,
+                            )
+                            .map_err(|error| format!("{error:?}"))?;
 
-                select_block(session, builder, normal).map_err(|error| format!("{error:?}"))?;
-                let result_type = result_type(site_shape).map_err(|error| format!("{error:?}"))?;
-                let projection = session
-                    .session
-                    .define_checked_callout_normal_result(
-                        builder,
-                        body_block,
-                        normal,
-                        site,
-                        result_type,
-                    )
-                    .map_err(|error| format!("{error:?}"))?;
-                let result = CommonV2SubstringCallOutNormalResultRefV1 {
-                    owner,
-                    site,
-                    source_result,
-                    normal_block: normal,
-                    value: projection.dst(),
-                };
-                let callback_result = callback(builder, result)?;
-                let lease_slot = match site_shape {
-                    CheckedCallOutNormalShapeV1::EndAuthorizedHandle { lease_slot } => lease_slot,
-                    CheckedCallOutNormalShapeV1::ImmediateI64 => {
-                        return Err("Substring site lost EndAuthorized shape".to_owned())
-                    }
-                };
-                session
-                    .session
-                    .emit_checked_callout_end(builder, normal, site, lease_slot)
-                    .map_err(|error| format!("{error:?}"))?;
-                Ok(callback_result)
-            })
+                        select_block(session, builder, normal)
+                            .map_err(|error| format!("{error:?}"))?;
+                        let result_type =
+                            result_type(site_shape).map_err(|error| format!("{error:?}"))?;
+                        let projection = session
+                            .session
+                            .define_checked_callout_normal_result(
+                                builder,
+                                body_block,
+                                normal,
+                                site,
+                                result_type,
+                            )
+                            .map_err(|error| format!("{error:?}"))?;
+                        let result = CommonV2SubstringCallOutNormalResultRefV1 {
+                            owner,
+                            site,
+                            source_result,
+                            normal_block: normal,
+                            value: projection.dst(),
+                        };
+                        let callback_result = callback(
+                            builder,
+                            CommonV2SubstringCallOutExactTextCoSealRefV1 {
+                                normal: result,
+                                occurrence,
+                            },
+                        )?;
+                        let lease_slot = match site_shape {
+                            CheckedCallOutNormalShapeV1::EndAuthorizedHandle { lease_slot } => {
+                                lease_slot
+                            }
+                            CheckedCallOutNormalShapeV1::ImmediateI64 => {
+                                return Err("Substring site lost EndAuthorized shape".to_owned())
+                            }
+                        };
+                        session
+                            .session
+                            .emit_checked_callout_end(builder, normal, site, lease_slot)
+                            .map_err(|error| format!("{error:?}"))?;
+                        Ok(callback_result)
+                    })
+                })
+                .map_err(|error| format!("{error:?}"))
         })
-        .map_err(|error| {
-            match error {
-            super::super::common_v2_s6c_substring_callout_admission::
-                CommonV2SubstringCallOutAdmissionRejectV1::Callback(detail) => {
+        .map_err(|error| match error {
+            super::s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1::Callback(detail) => {
                 CommonV2SubstringCallOutMirMaterializerRejectV1::Callback(detail)
             }
-            other => CommonV2SubstringCallOutMirMaterializerRejectV1::SitePlan(format!(
-                "{other:?}"
-            )),
-        }
+            other => {
+                CommonV2SubstringCallOutMirMaterializerRejectV1::Occurrence(format!("{other:?}"))
+            }
         })
+}
+
+fn validate_occurrence(
+    occurrence: &S6CTextEqOccurrencePhysicalViewV1<'_>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    body_key: LoopBlockKeyV1,
+    body_block: crate::mir::BasicBlockId,
+    source_result: LoopValueKeyV1,
+) -> Result<(), String> {
+    if occurrence.owner() != owner
+        || occurrence.text_eq_block() != body_key
+        || occurrence.physical_block() != body_block
+        || occurrence.text_eq_left() != source_result
+        || occurrence.if_condition() != occurrence.text_eq_result()
+    {
+        return Err("ExactText occurrence/V9 source relation mismatch".to_owned());
+    }
+    Ok(())
 }
 
 fn install_site_plan(

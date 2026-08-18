@@ -2424,6 +2424,42 @@ remains baseline-only; no `--nocapture`, release profile, runtime wire, TextEq,
 residence, inner CFG, publication, fallback, retry, production switch, or
 `eq_hh` retirement was opened.
 
+#### COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0 closeout (2026-08-18; accepted)
+
+The existing source-bound `S6CTextEqOccurrencePhysicalViewV1` is now the sole
+ExactText occurrence bridge for the compiler-side V9 lifecycle. The canonical
+materializer consumes it in the same `CommonV2CanonicalSessionRefV1` and
+`PreparedSegmentBlockReceiptV1` scope as V9. It validates the source-left/V9
+key, TextEq result/If-condition relation, owner, logical Body key, and
+physical Body block before the first CheckedCallOut mutation.
+
+The callback receives one opaque
+`CommonV2SubstringCallOutExactTextCoSealRefV1` containing the NormalResult and
+the occurrence/sidecar proof. It exposes neither slot/generation `ValueId`s
+nor a runtime wire, and it cannot be split into a free V9 result and a foreign
+ExactText row. The existing occurrence one-shot state and the V9 one-shot state
+share the outer unpublished-function rollback boundary; callback or End
+failure discards the whole draft and never retries.
+
+The lifecycle remains:
+
+```text
+CheckedCallOut
+  -> terminal Fault (no V9/sidecar consumer)
+  -> NormalResult(V9)
+  -> callback-scoped V9 + ExactText occurrence co-seal
+  -> End
+```
+
+Evidence: `cargo fmt --all -- --check`,
+`tools/checks/common_v2_s6c_structure_guard.sh`,
+`tools/checks/current_state_pointer_guard.sh`,
+`CARGO_BUILD_JOBS=4 cargo check --profile quick`, the two exact
+`s6c_substring_callout_materializer_*` tests, and the exact
+`s6c_occurrence_view_co_seals_needle_with_exact_text_sidecar` test are green.
+TextEq V10, residence, inner CFG/Return, Completion/publication, production,
+fallback, retry, direct kernel, and `eq_hh` retirement remain closed.
+
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:
