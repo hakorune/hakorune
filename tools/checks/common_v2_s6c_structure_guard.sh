@@ -17,6 +17,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -53,6 +54,12 @@ guard_expect_fixed_in_file "$TAG" 'byte_offset: 0' "$cursor_preheader" \
   "cursor/preheader must initialize the byte offset exactly once"
 if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$cursor_preheader"; then
   guard_fail "$TAG" "cursor/preheader I0 must not issue MIR/ValueId/PinnedTextOp"
+fi
+scalar_leaf="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
+guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_scalar_equality_leaf_v1' "$scalar_leaf" \
+  "scalar-equality I0 must have one named effect-free issuer"
+if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$scalar_leaf"; then
+  guard_fail "$TAG" "scalar-equality I0 must not issue MIR/ValueId/PinnedTextOp"
 fi
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"

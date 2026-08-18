@@ -953,3 +953,28 @@ production behavior. Focused evidence is green (`2/2`), `cargo check
 free boundary. The next selected row is the strict
 `Utf8WidthAt`/`Utf8ScalarSliceEqWholeText` leaf; CFG/PHI/Return, runtime,
 fallback/retry, performance, and `eq_hh` retirement remain closed.
+
+## Common V2 S6C scalar-equality leaf capability I0 (2026-08-18)
+
+`CommonV2S6CTextScalarEqualityLeafCapabilityV1` is the next narrow,
+effect-free consumer of the one-shot cursor/preheader plan. The canonical
+session consumes that plan exactly once and co-seals the existing Subject and
+Needle root roles with the two backend-neutral leaf shapes:
+`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`. V9 remains a derived tuple
+(`SubjectRoot + byte_offset + scalar_width`); it is never registered as a root
+or materialized as a runtime value.
+
+The capability is callback-scoped and physical-ID-free. It stores no
+`ValueId`, `MirInstruction`, `PinnedTextOp`, access-plan row, pointer, lease,
+generation, frame, Bool result, CFG block, PHI, Return, or fallback route.
+The current canonical session is the only consumer; late failure remains
+owned by the outer unpublished-function transaction. Duplicate issue,
+foreign session/entry, missing physical stamp, swapped roots, zero plan
+stamp, and cursor drift reject before any effect.
+
+Focused evidence is green: `cargo test --profile quick --lib
+scalar_equality_leaf -- --nocapture` (2 passed / 0 failed),
+`cargo check --profile quick`, formatter, diff, and the S6C structure guard.
+The next bounded row is canonical cursor CFG/SSA materialization; V10,
+Return/Completion, publication, production, performance, fallback/retry,
+and `eq_hh` retirement remain closed.

@@ -73,6 +73,14 @@ mod session_length;
 #[path = "common_v2_session_segments.rs"]
 mod session_segments;
 
+#[path = "common_v2_s6c_scalar_equality_leaf.rs"]
+mod s6c_scalar_equality_leaf;
+pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
+    issue_common_v2_s6c_text_scalar_equality_leaf_v1,
+    CommonV2S6CTextScalarEqualityLeafCapabilityV1, CommonV2S6CTextScalarEqualityLeafReceiptV1,
+    CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
+};
+
 /// A callback-scoped mechanical view of the physical block corresponding to
 /// the source condition block.  The row and entry stamp are borrowed from the
 /// same unpublished session, so this view cannot be re-paired with another
@@ -196,6 +204,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     s6c_text_eq_occurrence_issued: bool,
     s6c_substring_callout_admission_issued: bool,
     s6c_substring_callout_mir_issued: bool,
+    s6c_scalar_equality_leaf_issued: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -370,6 +379,7 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
             s6c_text_eq_occurrence_issued: false,
             s6c_substring_callout_admission_issued: false,
             s6c_substring_callout_mir_issued: false,
+            s6c_scalar_equality_leaf_issued: false,
         };
         Ok(callback(&mut common))
     })

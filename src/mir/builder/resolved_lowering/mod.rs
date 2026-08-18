@@ -70,6 +70,11 @@ pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::{
     CommonV2S6CTextCursorRootLoadV1, CommonV2S6CTextCursorSourceRelationV1,
 };
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
+pub(in crate::mir::builder) use common_v2_session::{
+    issue_common_v2_s6c_text_scalar_equality_leaf_v1,
+    CommonV2S6CTextScalarEqualityLeafCapabilityV1, CommonV2S6CTextScalarEqualityLeafReceiptV1,
+    CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
+};
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;

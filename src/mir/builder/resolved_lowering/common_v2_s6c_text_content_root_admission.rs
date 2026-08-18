@@ -241,7 +241,9 @@ mod tests {
         PhysicalTextEntryLaneSidecarRowV1, PhysicalTextEntryLaneSidecarV1,
     };
     use crate::mir::builder::resolved_lowering::{
-        issue_common_v2_s6c_text_cursor_preheader_v1, CommonV2S6CTextCursorPreheaderRejectV1,
+        issue_common_v2_s6c_text_cursor_preheader_v1,
+        issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextCursorPreheaderRejectV1,
+        CommonV2S6CTextScalarEqualityLeafShapeV1,
     };
     use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
     use crate::mir::loop_recipe_contract::{
@@ -529,6 +531,64 @@ mod tests {
                 cursor.consume(|_, _, _, _| Err::<(), _>("late plan consumer".to_string())),
                 Err(CommonV2S6CTextCursorPreheaderRejectV1::CursorInvariant(detail))
                     if detail == "late plan consumer"
+            ));
+        });
+    }
+
+    #[test]
+    fn scalar_equality_leaf_keeps_v9_derived_and_issues_two_existing_shapes() {
+        let ingress = ingress(1206);
+        with_source(&ingress, |source| {
+            let plan = bridge_plan(
+                source.owner(),
+                &[
+                    (source.subject_binding(), 0, 1, 2),
+                    (source.needle_binding(), 1, 3, 4),
+                ],
+            );
+            let admission = issue_common_v2_s6c_text_content_root_admission_v1(source, plan)
+                .expect("base-root admission");
+            let cursor = issue_common_v2_s6c_text_cursor_preheader_v1(admission)
+                .expect("cursor/preheader plan");
+            let capability = issue_common_v2_s6c_text_scalar_equality_leaf_v1(cursor)
+                .expect("effect-free scalar-equality capability");
+            assert_eq!(capability.subject_root_index(), 0);
+            assert_eq!(capability.needle_root_index(), 1);
+            assert_eq!(capability.initial().byte_offset(), 0);
+            assert_eq!(
+                capability.relation().text_equal_result(),
+                source.text_equal_result()
+            );
+            assert_eq!(
+                capability.shapes(),
+                &[
+                    CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8WidthAt { root_index: 0 },
+                    CommonV2S6CTextScalarEqualityLeafShapeV1::Utf8ScalarSliceEqWholeText {
+                        lhs_root_index: 0,
+                        rhs_root_index: 1,
+                    },
+                ]
+            );
+        });
+    }
+
+    #[test]
+    fn scalar_equality_leaf_never_relabels_swapped_roots_as_v9() {
+        let ingress = ingress(1207);
+        with_source(&ingress, |source| {
+            let plan = bridge_plan(
+                source.owner(),
+                &[
+                    (source.needle_binding(), 0, 1, 2),
+                    (source.subject_binding(), 1, 3, 4),
+                ],
+            );
+            assert!(matches!(
+                issue_common_v2_s6c_text_content_root_admission_v1(source, plan),
+                Err(CommonV2S6CTextContentRootAdmissionRejectV1::SubjectLogicalOrdinalMismatch)
+                    | Err(
+                        CommonV2S6CTextContentRootAdmissionRejectV1::NeedleLogicalOrdinalMismatch
+                    )
             ));
         });
     }

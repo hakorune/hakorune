@@ -159,12 +159,12 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** consume the one-shot effect-free cursor/preheader plan
-  in the strict scalar-equality leaf. Reuse `Utf8WidthAt` and
-  `Utf8ScalarSliceEqWholeText` through the canonical session, keep V9 as a
-  derived tuple, and keep the body free of Length/Substring calls. Add no
-  CFG/PHI/Return, runtime frame, or production behavior; do not infer a byte
-  cursor from Recipe ordinals or MIR adjacency.
+- **Next ordered task:** materialize the canonical cursor CFG/SSA after the
+  landed effect-free scalar-equality leaf capability. The leaf consumes the
+  one-shot cursor/preheader plan exactly once and records only the existing
+  `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText` shapes. The next row may issue
+  byte-offset/CP-index PHIs and the V10 If only through the canonical session;
+  it must not add a second orchestrator, runtime frame, or production edge.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -3401,3 +3401,34 @@ Non-claims: no source-bound TextRef producer, TextEq V10 Bool, inner CFG,
 Completion/publication, production switch, direct pinned-text leaf,
 performance result, fallback/retry, or `nyash.string.eq_hh` retirement.
 The next design boundary is `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0`.
+
+### S6C scalar-equality leaf capability I0 closeout (2026-08-18; accepted)
+
+Decision: close one effect-free BoxShape that consumes the existing
+Subject/Needle cursor/preheader plan through `CommonV2CanonicalSessionRefV1`.
+The issuer co-seals the existing root roles and issues exactly two
+backend-neutral leaf shapes: `Utf8WidthAt` and
+`Utf8ScalarSliceEqWholeText`. V9 remains a derived tuple over the Subject
+root; it is not a root, runtime value, pointer, or new frame.
+
+Source authority + canonical issuer: the S6C source/Facts/Recipe/Join
+corridor, the base-root admission, and the verified cursor/preheader plan are
+the only semantic inputs. The canonical session is the sole issuer and
+one-shot consumer. The outer unpublished-function transaction remains the
+rollback owner for any late failure.
+
+Non-authority: raw handles/generations, numeric root order, MIR adjacency,
+`ValueId`, `MirInstruction`, `PinnedTextOp`, access-plan rows, runtime V9,
+`StringBox::equals`, `nyash.string.eq_hh`, detached dispatchers, Bool V10,
+CFG/PHI/Return, publication, fallback, and retry.
+
+Fail-fast boundary: duplicate issue, missing/foreign entry stamp, zero or
+mismatched root-plan stamp, swapped/duplicate roots, and cursor drift reject
+before physical effect. No local cleanup or alternate route is introduced.
+
+Acceptance evidence: `cargo fmt --all`; `CARGO_BUILD_JOBS=4 cargo test
+--profile quick --lib scalar_equality_leaf -- --nocapture` (2 passed / 0
+failed); `CARGO_BUILD_JOBS=4 cargo check --profile quick`; the S6C structure
+guard; and `git diff --check` are green. The next bounded row is
+`S6C-PINNED-CURSOR-CFG-I0`; V10, Completion/Return, publication, production,
+performance promotion, fallback/retry, and `eq_hh` retirement remain closed.

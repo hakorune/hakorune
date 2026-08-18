@@ -2100,3 +2100,38 @@ next bounded row is base-root admission against the existing ExactText
 subject/needle residence. The portable Text-kernel/fastpath syntax remains a
 parked idea under `contract-region-v0-ssot.md`; it is not part of this
 language contract.
+
+## Common V2 S6C scalar-equality leaf capability I0 (2026-08-18)
+
+Decision: consume the one-shot S6C cursor/preheader plan through the canonical
+session and issue only the two existing backend-neutral leaf shapes,
+`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`. This is a BoxShape physical
+capability, not a new source operation. V9 remains a derived slice relation
+over the Subject root and is never admitted as a content root or runtime
+object.
+
+Source authority + canonical issuer: the source/Facts/Recipe/Join
+`S6CScalarScanSourceRefV1`, the Subject/Needle base-root admission, and the
+verified sequential UTF-8 cursor/preheader plan are the semantic authorities.
+`CommonV2CanonicalSessionRefV1::consume_s6c_scalar_equality_leaf` is the sole
+issuer and consumes the plan exactly once. It rechecks the existing physical
+entry stamp and root sidecar before lending the callback-scoped capability.
+
+Non-authority: raw handles or generations, numeric root order, MIR
+adjacency, `ValueId`, `MirInstruction`, `PinnedTextOp`, an access-plan row,
+`StringBox::equals`, `nyash.string.eq_hh`, runtime V9, or any detached
+dispatcher. No Bool V10 or CFG meaning is issued by this row.
+
+Fail-fast boundary: reject duplicate issue, missing/foreign physical entry,
+zero or mismatched cohort stamp, swapped or duplicate roots, and cursor drift
+before any physical effect. The outer unpublished-function transaction remains
+the only rollback owner; there is no local cleanup, fallback, or retry.
+
+Acceptance: the focused positive proves the Subject/Needle root roles,
+zero-offset initial cursor, TextEq relation, and exactly two leaf shapes. The
+negative proves that a swapped source root cannot be relabelled as V9. The
+focused suite is green (`2/2`), `cargo check --profile quick` is green, and
+the S6C structure guard keeps the file free of physical IDs and MIR effects.
+The next bounded row is canonical cursor CFG/SSA materialization. V10,
+Completion/Return, publication, production, performance promotion,
+fallback/retry, and `eq_hh` retirement remain closed.
