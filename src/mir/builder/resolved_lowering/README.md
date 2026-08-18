@@ -791,18 +791,18 @@ canonical SSA session alone may issue the Bool `ValueId`. Raw handle identity,
 integer `MirInstruction::Compare`, `StringBox::equals`, C status/wire rows,
 and `nyash.string.eq_hh` remain non-authority.
 
-The accepted content representation is the existing pinned C residence frame:
-the backend privately loads each validated occurrence-ordered row's `ptr +
-byte_len` once in the preheader and keeps those values as SSA inputs to the
-later UTF-8 leaf. A Rust `with_text(&str)` lend is only a caller-zero
-same-value/lifetime canary, never the compiler or hot-loop route. The current
-execution row is `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0`; it must
-reuse `PinnedTextBackendFrameBorrowV1` and the existing plan/frame stamps,
-leak no raw handle, slot/generation, compiler pointer, or semantic receipt,
-and keep locks, LeaseSet operations, allocation, callbacks, and finish out of
-the loop body. If the row/stamp/lifetime relation cannot be proven, it remains
-`NoSafeSlice`. Bool V10, If/Return CFG, publication, production selection,
-performance promotion, fallback/retry, and `eq_hh` retirement remain closed.
+The content-view audit found a missing lifetime domain: the existing pinned C
+residence frame contains ExactText rows, but S6C TextEq's lhs is the V9
+Substring result. Treating V9 as an ExactText root would compare the wrong live
+operand or go out of range. The current row is therefore
+`COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0` in `design_stop`. It must choose
+one backend-private dual-root frame (`V9 row + ExactText rows`) or a separate
+V9 view operand co-sealed with the existing `PinnedTextBackendFrameBorrowV1`
+and plan/frame stamps. `with_text(&str)` and raw `ptr/len` callbacks remain
+canaries only; no pointer may escape to MIR/compiler/JSON. Bool V10,
+If/Return CFG, publication, production selection, performance promotion,
+fallback/retry, and `eq_hh` retirement remain closed until this relation is
+named and rejected cases are covered.
 
 ## TextRef residence scope D0 (2026-08-18; accepted)
 
