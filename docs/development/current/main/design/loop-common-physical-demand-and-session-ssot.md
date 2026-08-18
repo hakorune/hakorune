@@ -2407,6 +2407,8 @@ whether it can reach the same registry-held concrete `StringBox` allocation
 while pinned. Any unclassified or sanctioned reachable path is `NoSafeSlice`;
 copy-distinct objects and explicit unsafe-provider contract violations are
 recorded separately and do not become backing-stability authority.
+This census is the proof obligation for the theorem that no in-scope path can
+reach `&mut StringBox` for that allocation while its residence is live.
 The stable executable receipt is
 `tools/checks/stringbox_mutable_reachability_census_guard.sh`; it must remain
 green whenever this theorem is used as a fast-route prerequisite.

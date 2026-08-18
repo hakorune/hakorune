@@ -47,6 +47,10 @@ guard_expect_fixed_in_file "$TAG" \
   "$doc" \
   "the row-11 acceptance must retain the complete external-path census"
 guard_expect_fixed_in_file "$TAG" \
+  'proof obligation for the theorem that no in-scope path can' \
+  "$doc" \
+  "the row-11 acceptance must make the &mut reachability theorem explicit"
+guard_expect_fixed_in_file "$TAG" \
   'finds no sanctioned path; an unclassified external unsafe provider remains' \
   "$doc" \
   "the census must record the current no-reachable-path result"
