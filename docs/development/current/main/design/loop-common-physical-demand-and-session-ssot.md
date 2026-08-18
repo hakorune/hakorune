@@ -2462,43 +2462,87 @@ fallback, retry, direct kernel, and `eq_hh` retirement remain closed.
 
 #### COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0 (2026-08-18; design stop)
 
-Decision: retain `NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed`.
-The source meaning is already closed as `LoopOperationV2::TextEq(V9,V1 -> V10)`,
-with `NonFaulting` execution. The current physical vocabulary has no strict
-TextEq leaf or backend-neutral content-equality capability: integer
-`MirInstruction::Compare` cannot compare Text contents, and `Call`/method
-dispatch would introduce a second semantic authority.
+Decision: name exactly one strict backend-neutral capability,
+`CommonV2S6CPortableTextEqBoolCapabilityV1`, but keep its MIR effect closed
+until its TextRef residence issuer is available. The source meaning is already
+closed as `LoopOperationV2::TextEq(V9,V1 -> V10)`, with `NonFaulting` execution.
+The current physical vocabulary has no strict TextEq leaf or backend-neutral
+content-equality capability: integer `MirInstruction::Compare` cannot compare
+Text contents, and `Call`/method dispatch would introduce a second semantic
+authority.
 
 Source authority + canonical issuer: the existing resolver
 `Equal(Text,Text) -> Bool`, S6C Facts/Recipe, and the callback-scoped V9 plus
-ExactText occurrence co-seal remain authoritative. There is no accepted V10
-issuer at this HEAD. A future issuer must consume that co-seal and publish one
-canonical `MirType::Bool` through `CanonicalSsaFunctionSessionV2` only after a
-strict physical capability is named.
+ExactText occurrence co-seal remain authoritative. The named capability is a
+physical-only contract, not a new source or Recipe product. It consumes one
+opaque TextRef for the canonical V9 NormalResult and one opaque TextRef for the
+ExactText entry occurrence; it compares exact Unicode scalar sequences, so
+same-content/different-handle is true and handle identity is never observed. A
+future issuer must consume that co-seal and publish one canonical
+`MirType::Bool` through `CanonicalSsaFunctionSessionV2` only after the
+TextRef residence producer is named.
 
 Non-authority: raw handle `Compare`, `StringBox::equals`,
 `nyash.string.eq_hh`, runtime wire/status, MIR adjacency, V5 outer-loop Bool,
 and any fallback/retry. `eq_hh` remains generic C/Python compatibility
 substrate and cannot be promoted to the S6C correctness path.
 
-Fail-fast boundary: until a strict capability exists, reject before any V10
-MIR effect. Do not emit a guessed Bool, source Trap, runtime pair, or second
-call route. Any future unsupported representation remains
-`RejectBeforeEffect`; late compiler failure remains outer unpublished-function
-discard with no retry.
+Fail-fast boundary: until a strict TextRef residence issuer exists, reject
+before any V10 MIR effect. Do not emit a guessed Bool, source Trap, runtime
+pair, raw handle comparison, or second call route. Invalid UTF-8, stale or
+foreign residence, unsupported representation, missing/duplicate co-seal, and
+owner/session/segment drift remain `RejectBeforeEffect`; late compiler failure
+remains outer unpublished-function discard with no retry.
 
-Smallest next design slice: name one backend-neutral strict TextEq capability
-and its representation/residence contract, including exact content equality,
-same-content/different-handle behavior, unsupported-representation rejection,
-and the canonical Bool type issuer. Only after that decision may V10 I0 issue
-MIR; If/Return CFG, residence implementation, production, and `eq_hh`
-retirement remain closed.
+Smallest next design slice: `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0`. Name one
+canonical producer for the two opaque TextRefs: V9's End-authorized result and
+the entry ExactText occurrence must be co-sealed into one occurrence-ordered
+residence scope without exposing raw handles, slot/generation pairs, sidecar
+ValueIds, or a runtime wire to the compiler. Only after that producer is
+accepted may V10 I0 issue MIR; If/Return CFG, StringBox admission,
+production, and `eq_hh` retirement remain closed.
 
 Evidence for the stop: `schema_v2.rs` classifies TextEq as `NonFaulting`,
-`MirInstruction::Compare` accepts integer operands, no TextEq physical
+`MirInstruction::Compare` accepts integer operands, the existing V9 +
+ExactText co-seal exposes no runtime TextRef, no strict TextEq physical
 instruction/issuer exists in common-V2, and the audited `eq_hh` export is
-raw-`i64` hook/fallback transport. This is a design boundary, not a runtime
-failure.
+raw-`i64` hook/fallback transport. This is a representation boundary, not a
+runtime failure.
+
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-D0 (2026-08-18; design stop)
+
+Decision: keep the named TextEq capability and open only its missing
+representation boundary. `CommonV2S6CPortableTextEqBoolCapabilityV1` receives
+two callback-scoped opaque TextRefs: the V9 NormalResult residence and the
+ExactText entry residence. It does not create a new source meaning, Recipe
+row, runtime wire, or C status contract.
+
+Source authority + canonical issuer: the existing V9/ExactText callback
+co-seal remains the source-bound relation; the future residence owner must be
+the sole issuer of the two TextRefs, and the canonical session remains the
+sole Bool `ValueId`/`MirType::Bool` issuer. No current code path is allowed to
+manufacture either TextRef from a raw `ValueId`, slot, generation, handle, or
+MIR adjacency.
+
+Non-authority: `nyash.string.eq_hh`, raw handle equality, `StringBox::equals`,
+the StableText-only wire ingress, sidecar numeric lanes, `PinnedTextRootIdV1`
+before a residence contract, fallback/retry, and source-level Trap.
+
+Fail-fast boundary: before any V10 effect, reject absent/foreign/duplicate or
+stale TextRef residence, non-UTF-8 backing, mismatched V9/ExactText owner,
+session, segment, body, or occurrence, and unsupported representation. A late
+failure discards the unpublished function; no partial Bool or retry survives.
+
+Smallest next slice: design the one residence producer and its finish order:
+entry ExactText root admission, V9 result lending, TextEq consumer scope, then
+V9 End/finish. The row-11 mutable-reachability census is a mandatory acceptance
+input for the future exact StringBox fast route; it is already recorded in this
+SSOT and must be reused rather than duplicated.
+
+Non-claims: no V10 MIR effect, `MirInstruction::PinnedTextOp`, StringBox
+runtime admission, `TextFormalCallResidenceV1` widening, inner CFG/Return,
+publication, production switch, fallback, retry, performance result, or
+`eq_hh` retirement.
 
 #### C-speed and legacy verdict
 

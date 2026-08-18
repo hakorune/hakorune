@@ -782,15 +782,18 @@ remain closed.
 
 ## Common V2 portable TextEq V10 design stop (2026-08-18)
 
-The source `LoopOperationV2::TextEq(V9,V1 -> V10)` is already verified and
-non-faulting, but this module does not yet have a strict physical TextEq
-issuer. `MirInstruction::Compare` is integer-only; raw handle comparison,
-`StringBox::equals`, and `nyash.string.eq_hh` are not content-equality
-authority. Therefore the current boundary is
-`NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed`.
+The source `LoopOperationV2::TextEq(V9,V1 -> V10)` is verified and
+non-faulting. The strict physical-only capability is now named
+`CommonV2S6CPortableTextEqBoolCapabilityV1`; it consumes the existing
+callback-scoped V9 + ExactText co-seal as two opaque TextRefs and compares
+Unicode scalar sequences, never handle identity. `MirInstruction::Compare` is
+still integer-only; raw handle comparison, `StringBox::equals`, and
+`nyash.string.eq_hh` remain non-authority.
 
-No Bool `ValueId`, runtime wire, status decoder, fallback, or second call route
-is issued at this stop. The next design row must name one backend-neutral strict
-TextEq capability, consume the existing V9 + ExactText co-seal, and publish a
-canonical Bool through the common session. If/Return CFG, residence
-implementation, production selection, and `eq_hh` retirement remain closed.
+The current boundary is
+`NoSafeSlice::PortableTextEqTextRefResidenceUnsealed`. No Bool `ValueId`,
+runtime wire, status decoder, fallback, or second call route is issued until a
+single residence owner can produce and finish both TextRefs. Raw handles,
+slot/generation pairs, sidecar ValueIds, and MIR adjacency may not manufacture
+that residence. If/Return CFG, StringBox admission, production selection, and
+`eq_hh` retirement remain closed.
