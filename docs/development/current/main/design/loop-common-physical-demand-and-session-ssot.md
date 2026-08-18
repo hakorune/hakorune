@@ -120,11 +120,11 @@ Related:
   The existing StableText-only Residence cannot silently accept the S6C
   StringBox shape.
 - **Next ordered task:**
-  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-MATERIALIZATION-D0` remains a
-  design stop. It must name the existing V9 materialization, exact sidecar
-  occurrence, and published StableText wire/residence bridge before any
-  residence co-seal. No selected-Dynamic pair or `nyash.string.eq_hh` transport
-  is implied.
+  `COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-WIRE-INGRESS-D0` remains a design
+  stop. It must name a runtime-value ingress for the existing V9 materialization,
+  exact sidecar occurrence, and published StableText wire/residence bridge
+  before any residence co-seal. No selected-Dynamic pair or `nyash.string.eq_hh`
+  transport is implied.
 - **Production stop line:** no leaf emission or session admission may infer
   ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
   or select a second physicalizer.
@@ -2074,9 +2074,42 @@ V9 materialization, exact sidecar occurrence, same session/segment, and
 already-issued StableText wire/residence can be co-sealed; StringBox, stale,
 zero, foreign, or missing bridge rejects before effect.
 
-Smallest next slice: read-only audit of that V9-to-StableText residence bridge.
-No new semantic receipt, runtime pin, TextEq/Bool/CFG, publication, fallback,
-retry, or production switch is opened by this D0.
+Smallest next slice: the residence audit is now complete and leaves the
+runtime-value ingress as the next design-only boundary. No new semantic
+receipt, runtime pin, TextEq/Bool/CFG, publication, fallback, retry, or
+production switch is opened by this D0.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-RESIDENCE-WIRE-INGRESS-D0 (2026-08-18; design stop)
+
+Decision: keep the blocker. The fresh audit found no source-backed bridge from
+the canonical ExactText sidecar's physical lanes to a runtime
+`TextFormalWirePairV1`; this does not require an architecture-wide rewrite.
+
+Source authority + canonical issuer: S6C `StringSubstring/2` and the existing
+TextEq source/Recipe relation; `S6CTextEqOccurrencePhysicalViewV1` owns the
+source/sidecar proof, `CommonV2SubstringV9MaterializationV1` owns V9, and
+`text_formal_abi::issue_stable_text_formal_wire_v1` is the only StableText wire
+issuer once it receives an already-published runtime pair.
+
+Non-authority: sidecar `ValueId(slot,generation)`, logical ordinal, raw V9
+handle/token recapture, `nyash.string.eq_hh`, C status/frame exports as source
+issuers, StringBox-to-StableText coercion, and `TextFormalCallResidenceV1` as
+semantic/source authority.
+
+Fail-fast boundary: reject before residence pin or CheckedCallOut on absent,
+zero, stale, foreign, or mismatched runtime wire; sidecar/owner/session/
+entry/segment/carrier drift; non-Normal V9 output; escaped borrow; duplicate
+finish; or actual StringBox payload under StableText-only residence.
+
+Smallest next slice: design only one future private
+`CommonV2TextEqResidenceScopeV1` that borrows the existing occurrence proof,
+accepts an already-issued runtime wire, owns `TextFormalCallResidenceV1`, and
+finishes residence before V9 End. No wire construction from MIR values is
+permitted; if the runtime-value ingress cannot be named, retain
+`NoSafeSlice::ExactTextResidenceWireIngressUnsealed`.
+
+Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
+`ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 
