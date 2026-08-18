@@ -77,6 +77,8 @@ pub(in crate::mir::builder) use common_v2_session::{
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;

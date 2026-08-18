@@ -423,7 +423,6 @@ impl ModuleBuilderInvocationSessionV1 {
             crate::mir::compiler::common_v2_physical_function_skeleton::
                 PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>,
         >,
-        plans: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
     ) -> Result<
         super::pinned_text_invocation_binding::PreparedPinnedTextPhysicalEntryIngressV1<
             'session,
@@ -439,7 +438,7 @@ impl ModuleBuilderInvocationSessionV1 {
                 super::pinned_text_invocation_binding::PinnedTextPhysicalEntryIngressRejectV1::
                     Invocation,
             )?;
-        binding.prepare_physical_entry_ingress(prepared, plans)
+        binding.prepare_physical_entry_ingress(prepared)
     }
 
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {

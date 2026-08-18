@@ -217,6 +217,13 @@ TargetMachine session remain consumers only; runtime residence, lifecycle
 entry/finish, `PinnedTextOp`, GEP/load, and direct production lowering are
 still outside this row.
 
+The frame-timing slice keeps the ingress plan-less: it carries only the
+session-owned Residence/target provenance before canonical lowering. The final
+frame contract is issued once from the current function's own
+`pinned_text_access_plans` table, after canonical leaf rows exist and before
+DraftSeal opens. Caller-borrowed plan tables, empty detached snapshots, and
+`into_prepared()` handoffs are not valid sources for the frame census.
+
 ### Common V2 canonical-session admission I0
 
 `common_v2_session_admission.rs` owns the effect-free fan-in after the typed

@@ -1336,12 +1336,13 @@ parse/layout failure reject without fallback or retry.
 Smallest next slice: do not wire the current ingress directly into DraftSeal.
 The real candidate is split into three bounded cells:
 
-1. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — the
-   pre-DraftSeal ingress retains only the same target/signature/ABI provenance;
-   the final `PinnedTextBackendFrameContractV1` is issued exactly once from
-   the function-owned `metadata.pinned_text_access_plans` after all leaf rows
+1. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — landed
+   caller-zero. The pre-DraftSeal ingress retains only the same
+   target/signature/ABI provenance; the final
+   `PinnedTextBackendFrameContractV1` is issued exactly once from the
+   function-owned `metadata.pinned_text_access_plans` after all leaf rows
    exist and before DraftSeal. A caller-provided `&plans`, an empty detached
-   table, or `into_prepared()` that drops the frame relation is forbidden.
+   table, or `into_prepared()` that drops the frame relation is rejected.
 2. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — choose an explicit
    physical fail-stop terminal for the Enter trap edge and seal it through the
    canonical CFG owner. `Throw` and `CheckedCallOutFault` are different
@@ -1464,11 +1465,13 @@ Task ladder (canonical consumer design first, runtime effect later):
 11. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0` — landed
     caller-zero: issue the physical boundary once and prove the CFG/SSA shape
     before reopening lifecycle-bearing candidate materialization.
-12. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — next:
-    split pre-entry physical provenance from exactly-once final frame issuance
-    sourced by the completed function-owned plan table; no lifecycle effect.
-13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — parked after the frame
-    timing cell: choose and seal the explicit physical fail-stop trap terminal.
+12. `TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0/I0` — landed
+    caller-zero: the non-Clone plan-less ingress is consumed once, and the
+    existing frame issuer reads the canonical function-owned plan table only
+    after the three S6C leaf rows exist; empty/zero-stamp/preinstalled frames
+    reject before DraftSeal publication.
+13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — next: choose and seal
+    the explicit physical fail-stop trap terminal.
 14. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — later:
     consume the full ingress in the existing caller-zero owner, materialize
     one real lifecycle-bearing function/JSON candidate, and keep the detached

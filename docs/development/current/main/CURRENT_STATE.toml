@@ -9,9 +9,9 @@ Binding SSA, and atomic unpublished discard. Lifecycle identity/materializer
 I0 is also landed caller-zero; it holds the exact exit-set borrow and tests
 operand -> Residence.finish -> Return ordering without emitting lifecycle MIR.
 The canonical-consumer audit closed as NoSafeSlice. The borrowed admission
-cannot share an owned envelope with its exit set, and the backend-frame
-contract is currently issued only after DraftSeal. The ingress and ABI I0s are
-landed caller-zero, and the accepted lifecycle-carrier I0 is now also landed:
+cannot share an owned envelope with its exit set. The plan-less ingress and
+function-owned frame timing I0 are landed caller-zero; the ABI I0 and accepted
+lifecycle-carrier I0 are also landed:
 one private affine Enter/Finish physical carrier feeds the canonical
 unpublished session. The DraftSeal consumer D0 is accepted: the old
 single-normal-landing finish capability/state must be replaced by one affine
@@ -22,16 +22,14 @@ reaches its target-machine boundary yet. A caller-zero textual LLVM fixture now
 consumes the carrier; this is not a target-machine candidate. The accepted
 carrier D0 fixes one versioned transport and source-issued root mapping. The carrier transport I0
 is landed caller-zero with strict Rust-side carrier JSON, source-backed
-root-map tests, and trap-Finish rejection. The C lowering fixture is landed;
-the separate post-transform no-unwind observer, backend production,
-fallback, and performance remain closed.
+root-map tests, and trap-Finish rejection. The C lowering fixture is landed; the separate post-transform no-unwind observer, backend production, fallback, and performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "open: E0/E1 physical entry boundary is landed; final frame timing, explicit trap terminal, and detached lifecycle projection remain closed"
+current_design_stop = "open: E0/E1 and function-owned frame timing are landed; explicit trap terminal and detached lifecycle projection remain closed"
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0"
 current_blocker_token = "Before any backend observer or production route, close function-owned plan/frame issuance, choose an explicit physical trap terminal, and project Finish over the authoritative exit set; reject caller-provided tables, synthetic fixture promotion, live-builder patching, fallback, retry, and target-machine routing until one real candidate exists."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -49,8 +47,9 @@ is landed caller-zero with seven focused tests, but emits no lifecycle MIR.
 Worker census closed the immediate envelope proposal and noted no lifecycle
 carrier. D0 fixes ModuleBuilderInvocationSessionV1 as the pre-DraftSeal owner
 of target, source/signature loan, access plans, Residence ABI, and frame
-contract. The selected ingress I0 is landed effect-free and caller-zero. Focused
-tests, cargo check, fmt, and the reusable structure guard are green. The ABI
+contract. The selected plan-less ingress and function-owned frame timing I0
+are landed caller-zero. Focused tests, cargo check, fmt, and the reusable
+structure guard are green. The ABI
 Decision selects exactly one public finish meaning: a void wrapper returns
 only on status 0 and aborts on all nonzero statuses. The lifecycle-carrier I0
 is landed caller-zero: a private affine Enter Normal/Trap carrier and
@@ -66,17 +65,15 @@ source-issued slot/generation/root mapping, and the Finish-on-every-normal-
 exit obligation. The Rust-side carrier/JSON transport I0 is landed
 caller-zero: source-backed root-map and trap-Finish rejection tests are
 green, and the reusable structure guard checks the contract and no-raw-
-authority boundary. The C-lowering fixture now consumes only this carrier and emits
-inspectable textual LLVM with direct Enter/normal-trap/Finish shape. It
+authority boundary. The C-lowering fixture now consumes only this carrier and emits inspectable textual LLVM with direct Enter/normal-trap/Finish shape. It
 is an inspection helper, not a target-machine candidate. The real-candidate
 probe then exposed EntryBlockDrift: Enter is a terminator, while the existing
 physical entry sidecar and initial index seed/cursor require the same entry
 block. The accepted E0/E1 physical boundary is now landed caller-zero: E0
-owns Enter and E1 owns sidecar/seed/cursor start. The next bounded design stop
-splits final frame issuance from pre-entry provenance, then chooses an explicit
-trap terminal and detached Finish projection; target-machine routing, the
-post-transform observer, lifecycle production, fallback, and performance
-remain closed.
+owns Enter and E1 owns sidecar/seed/cursor start. Function-owned frame timing
+is now also landed caller-zero: the plan-less ingress is consumed once and the
+existing frame issuer reads the canonical function plan table only after the
+three S6C leaf rows exist. The next bounded design stop chooses an explicit trap terminal and then detached Finish projection; target-machine routing, the post-transform observer, lifecycle production, fallback, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -89,8 +86,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, and caller-zero C textual-lowering fixture are landed. E0/E1 physical entry co-seal is landed caller-zero: E0 contains Residence Enter only and E1 is the same-cohort sidecar/seed/cursor execution entry. The real candidate is split behind function-owned plan/frame issuance, an explicit trap terminal, and detached Finish projection; target-machine routing, observer, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-FRAME-ISSUANCE-TIMING-D0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, and caller-zero C textual-lowering fixture are landed. E0/E1 physical entry co-seal and function-owned frame issuance timing are landed caller-zero; the next closed boundaries are an explicit trap terminal and detached Finish projection. Target-machine routing, observer, production, fallback, and performance remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -104,6 +101,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Caller-zero frame-timing I0 is landed: the pre-DraftSeal ingress is plan-less and affine, the retained S6C loan is the signature adapter, and the existing frame issuer finalizes exactly once from the canonical function-owned plan table after three leaf rows. Empty/zero-stamp/preinstalled frames reject; focused frame/DraftSeal test, cargo check, fmt, pointer, and structure guard are green. Explicit trap terminal, detached Finish/Return projection, backend, and production remain closed.",
   "2026-08-19: Caller-zero E0/E1 physical entry co-seal is landed: E0 contains Residence Enter only, E1 is the same-cohort sidecar/seed/cursor execution entry, duplicate boundary issuance rejects, and the focused S6C cursor module is 5/5 green; backend candidate, observer, and production remain closed.",
   "2026-08-19: Caller-zero C lowering fixture consumes strict pinned_text_residence_carrier@1 JSON and emits textual LLVM Enter/normal-trap/success-only Finish shape; missing carrier, cohort drift, and trap Finish reject before output publication. Target-machine observer and production remain closed.",
   "2026-08-18: Common-V2 S6C V9 + ExactText co-seal now passes one opaque source occurrence/sidecar proof with the canonical NormalResult; no runtime pair or physical sidecar ValueId escapes the callback.",
@@ -113,7 +111,6 @@ landed_tail = [
   "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior.",
   "2026-08-18: S6C predicate/index physical I0 is landed caller-zero: one entry ByteLen and one private byte-offset PHI drive V5, canonical Binding SSA owns i and Return-read observes it, canonical CFG/SSA witnesses seal, and Residence exit remains the next closed boundary.",
   "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed.",
-  "2026-08-19: Lifecycle identity/projector I0 is green with 7 focused tests; its canonical consumer remains NoSafeSlice because frame/lifecycle authority is absent before DraftSeal. Ingress co-seal I0 is now landed caller-zero: the session owns brand/target, the S6C loan is the sole signature source, and one affine ingress issues the pre-DraftSeal frame contract with plan/Residence ABI provenance; 2 focused tests plus cargo check/fmt/structure guard are green.",
   "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed.",
   "2026-08-19: Lifecycle-carrier and DraftSeal consumer I0s are closed caller-zero: the affine Enter/Finish carrier no longer binds one normal landing, canonical SSA tracks per-exit Finish placement, the new Single/ExactTwo consumer enforces operand -> Finish -> existing Return with late-error discard, 5+2 focused tests, cargo check, fmt, pointer, and structure guards are green; backend/production remain closed."
 ]

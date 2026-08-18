@@ -5,17 +5,16 @@
 //! live `ModuleBuilderInvocationSessionV1`; it never compares their numeric
 //! ordinals or exposes a detached target/brand pair.
 
-use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
 use super::InvocationBranded;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::compiler::common_v2_physical_function_skeleton::PreparedPhysicalEntrySessionInputV1;
 use crate::mir::compiler::pinned_text_backend_frame::{
-    issue_pinned_text_backend_frame_contract_v1, PinnedTextBackendFrameBorrowV1,
-    PinnedTextBackendFrameContractIssueV1, PinnedTextBackendFrameContractV1,
+    PinnedTextBackendFrameContractIssueV1, PinnedTextBackendFrameIngressV1,
 };
 use crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1;
-use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
-use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
+use crate::mir::normal_callable_semantic_package::{
+    ResolvedCallablePhysicalSignatureLoanV1, S6CCommonV2PreSessionLoanRefV1,
+};
 use crate::runtime::text_formal_residence::residence_abi_layout_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,7 +58,6 @@ impl<'session> PinnedTextCompileInvocationBindingRefV1<'session> {
     pub(in crate::mir) fn prepare_physical_entry_ingress<'loan, 'source, 'join>(
         self,
         prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>>,
-        plans: &PinnedTextAccessPlanTableV1,
     ) -> Result<
         PreparedPinnedTextPhysicalEntryIngressV1<'session, 'loan, 'source, 'join>,
         PinnedTextPhysicalEntryIngressRejectV1,
@@ -69,25 +67,57 @@ impl<'session> PinnedTextCompileInvocationBindingRefV1<'session> {
         }
         let brand = prepared.brand();
         let mut payload = prepared.into_payload();
-        let frame = payload
-            .with_admission(|_, _, _, loan| {
-                let signature = ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(
-                    loan.callable().signature(),
-                );
-                Ok(issue_pinned_text_backend_frame_contract_v1(
-                    &signature,
-                    plans,
-                    residence_abi_layout_v1(),
-                    self.target,
-                )
-                .map_err(PinnedTextPhysicalEntryIngressRejectV1::BackendFrame))
-            })
-            .map_err(PinnedTextPhysicalEntryIngressRejectV1::Admission)??;
+        payload
+            .with_admission(|_, _, _, _| Ok(()))
+            .map_err(PinnedTextPhysicalEntryIngressRejectV1::Admission)?;
+        let frame_ingress =
+            PinnedTextBackendFrameIngressV1::prepare(residence_abi_layout_v1(), self.target)
+                .map_err(PinnedTextPhysicalEntryIngressRejectV1::BackendFrame)?;
         Ok(PreparedPinnedTextPhysicalEntryIngressV1 {
             prepared: InvocationBranded::from_source(brand, payload),
             binding: self,
-            frame,
+            frame_ingress,
         })
+    }
+
+    pub(in crate::mir::builder) fn finalize_backend_frame(
+        &self,
+        frame_ingress: PinnedTextBackendFrameIngressV1<'session>,
+        loan: &S6CCommonV2PreSessionLoanRefV1<'_, '_, '_>,
+        builder: &crate::mir::builder::MirBuilder,
+    ) -> Result<
+        crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1,
+        PinnedTextPhysicalEntryIngressRejectV1,
+    > {
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| {
+                PinnedTextPhysicalEntryIngressRejectV1::Admission(
+                    "pinned-Text frame requires a live canonical function".to_owned(),
+                )
+            })?;
+        if function
+            .metadata
+            .pinned_text_backend_frame_contract
+            .is_some()
+        {
+            return Err(PinnedTextPhysicalEntryIngressRejectV1::Admission(
+                "pinned-Text frame is already installed".to_owned(),
+            ));
+        }
+        let plans = &function.metadata.pinned_text_access_plans;
+        if plans.stamp() == 0 || plans.row_count() == 0 {
+            return Err(PinnedTextPhysicalEntryIngressRejectV1::Admission(
+                "pinned-Text frame requires a non-empty canonical plan census".to_owned(),
+            ));
+        }
+        let signature =
+            ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(loan.callable().signature());
+        frame_ingress
+            .finalize(&signature, plans)
+            .map_err(PinnedTextPhysicalEntryIngressRejectV1::BackendFrame)
     }
 }
 
@@ -99,7 +129,7 @@ pub(in crate::mir) struct PreparedPinnedTextPhysicalEntryIngressV1<'session, 'lo
 {
     prepared: InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>>,
     binding: PinnedTextCompileInvocationBindingRefV1<'session>,
-    frame: PinnedTextBackendFrameContractV1,
+    frame_ingress: PinnedTextBackendFrameIngressV1<'session>,
 }
 
 impl<'session, 'loan, 'source, 'join>
@@ -109,20 +139,22 @@ impl<'session, 'loan, 'source, 'join>
         self.binding.brand()
     }
 
-    pub(in crate::mir) fn frame(&self) -> PinnedTextBackendFrameBorrowV1<'_> {
-        self.frame.borrow()
-    }
-
-    pub(in crate::mir) fn into_prepared(
+    pub(in crate::mir::builder) fn consume_for_draft_seal(
         self,
-    ) -> InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>> {
-        self.prepared
+        callback: impl FnOnce(
+            InvocationBranded<PreparedPhysicalEntrySessionInputV1<'loan, 'source, 'join>>,
+            PinnedTextCompileInvocationBindingRefV1<'session>,
+            PinnedTextBackendFrameIngressV1<'session>,
+        ) -> Result<crate::mir::MirFunction, String>,
+    ) -> Result<crate::mir::MirFunction, String> {
+        callback(self.prepared, self.binding, self.frame_ingress)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::module_invocation_session::ModuleBuilderInvocationSessionV1;
     use crate::mir::builder::{BuilderInvocationConfigV1, CompilationContext, MirBuilder};
     use crate::mir::compiler::common_v2_physical_function_entry_input::issue_common_v2_physical_function_entry_input;
     use crate::mir::compiler::common_v2_physical_function_skeleton::reserve_common_v2_physical_function_skeleton;
@@ -130,7 +162,6 @@ mod tests {
         PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetProfileV1,
     };
     use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
-    use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
     use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
@@ -182,7 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn s6c_loan_and_session_target_issue_one_pre_draftseal_frame() {
+    fn s6c_loan_and_session_target_prepare_one_planless_frame_ingress() {
         let mut resolver = FunctionSemanticResolverSessionV1::new(1_307).expect("resolver");
         let package = issue_normal_callable_semantic_package_v1(
             &mut resolver,
@@ -202,7 +233,6 @@ mod tests {
         let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
         let profile = PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1;
         let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(profile).unwrap();
-        let target_ordinal = target.invocation_ordinal().get();
         session
             .install_pinned_text_target_capability(Some(target))
             .expect("target install");
@@ -213,20 +243,13 @@ mod tests {
             let skeleton =
                 reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
             let branded = skeleton.into_session_input();
-            let plans = PinnedTextAccessPlanTableV1::new(1);
             let ingress = session
-                .prepare_pinned_text_physical_entry_ingress(branded, &plans)
+                .prepare_pinned_text_physical_entry_ingress(branded)
                 .expect("pre-DraftSeal physical ingress");
-            let frame = ingress.frame();
-            assert_eq!(frame.invocation_ordinal(), target_ordinal);
-            assert_eq!(frame.plan_stamp(), 1);
-            assert_eq!(frame.target_profile_id(), profile.profile_id());
             assert_eq!(
                 ingress.invocation_brand(),
                 ModuleInvocationBrandV1::legacy_test()
             );
-            let prepared = ingress.into_prepared();
-            assert_eq!(prepared.brand(), ModuleInvocationBrandV1::legacy_test());
             let binding = session
                 .pinned_text_invocation_binding()
                 .expect("session binding remains scoped");
@@ -234,9 +257,17 @@ mod tests {
                 brand: ModuleInvocationBrandV1::test_with_ordinal(9_991),
                 target: binding.target,
             };
+            let result = ingress.consume_for_draft_seal(|prepared, _, _| {
+                assert_eq!(prepared.brand(), ModuleInvocationBrandV1::legacy_test());
+                assert!(matches!(
+                    foreign_binding.prepare_physical_entry_ingress(prepared),
+                    Err(PinnedTextPhysicalEntryIngressRejectV1::ForeignInvocationBrand)
+                ));
+                Err("caller-zero handoff probe".to_owned())
+            });
             assert!(matches!(
-                foreign_binding.prepare_physical_entry_ingress(prepared, &plans),
-                Err(PinnedTextPhysicalEntryIngressRejectV1::ForeignInvocationBrand)
+                result,
+                Err(error) if error == "caller-zero handoff probe"
             ));
         })
         .expect("one S6C callback");

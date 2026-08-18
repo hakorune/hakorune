@@ -19,6 +19,41 @@ pub(crate) const PINNED_TEXT_BACKEND_FRAME_CONTRACT_ID_V1: &str =
     "hako.pinned_text_backend_frame@2";
 pub(crate) const PINNED_TEXT_BACKEND_FRAME_SCHEMA_REVISION_V1: u32 = 2;
 
+/// Pre-entry physical provenance for one pinned-Text frame.
+///
+/// This deliberately has no plan table and therefore cannot advertise a
+/// premature `plan_count`.  The canonical function owner consumes it only
+/// after its own plan table has been populated, then obtains the final frame
+/// contract by calling `finalize` exactly once.
+#[derive(Debug)]
+pub(crate) struct PinnedTextBackendFrameIngressV1<'target> {
+    residence: ResidenceAbiLayoutV1,
+    target: &'target PinnedTextCompileTargetCapabilityV1,
+}
+
+impl<'target> PinnedTextBackendFrameIngressV1<'target> {
+    pub(crate) fn prepare(
+        residence: ResidenceAbiLayoutV1,
+        target: &'target PinnedTextCompileTargetCapabilityV1,
+    ) -> Result<Self, PinnedTextBackendFrameContractIssueV1> {
+        validate_residence_target(residence, target)?;
+        Ok(Self { residence, target })
+    }
+
+    pub(crate) fn finalize(
+        self,
+        signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+        plans: &PinnedTextAccessPlanTableV1,
+    ) -> Result<PinnedTextBackendFrameContractV1, PinnedTextBackendFrameContractIssueV1> {
+        issue_pinned_text_backend_frame_contract_v1(
+            signature,
+            plans,
+            self.residence,
+            self.target,
+        )
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PinnedTextBackendFrameContractIssueV1 {
     ResidenceRevisionMismatch,
@@ -304,24 +339,8 @@ pub(crate) fn issue_pinned_text_backend_frame_contract_v1(
     residence: ResidenceAbiLayoutV1,
     target: &PinnedTextCompileTargetCapabilityV1,
 ) -> Result<PinnedTextBackendFrameContractV1, PinnedTextBackendFrameContractIssueV1> {
+    validate_residence_target(residence, target)?;
     let profile = target.profile();
-    if residence.revision() != profile.residence_abi_revision() {
-        return Err(PinnedTextBackendFrameContractIssueV1::ResidenceRevisionMismatch);
-    }
-    if residence.frame_revision() != 1
-        || residence.header_size() != 32
-        || residence.root_row_size() != 16
-        || residence.header_alignment() != 8
-        || residence.root_row_alignment() != 8
-    {
-        return Err(PinnedTextBackendFrameContractIssueV1::ResidenceFrameMismatch);
-    }
-    if profile.address_space_zero_pointer_width() != 64
-        || profile.address_space_zero_abi_alignment() != 8
-        || !profile.little_endian()
-    {
-        return Err(PinnedTextBackendFrameContractIssueV1::TargetLayoutMismatch);
-    }
 
     let lanes = signature.lanes();
     let (receiver_lane_count, exact_text_root_count) = validate_lanes(lanes)?;
@@ -385,6 +404,31 @@ pub(crate) fn issue_pinned_text_backend_frame_contract_v1(
         object_relocation_model: profile.object_relocation_model(),
         object_code_model: profile.object_code_model(),
     })
+}
+
+fn validate_residence_target(
+    residence: ResidenceAbiLayoutV1,
+    target: &PinnedTextCompileTargetCapabilityV1,
+) -> Result<(), PinnedTextBackendFrameContractIssueV1> {
+    let profile = target.profile();
+    if residence.revision() != profile.residence_abi_revision() {
+        return Err(PinnedTextBackendFrameContractIssueV1::ResidenceRevisionMismatch);
+    }
+    if residence.frame_revision() != 1
+        || residence.header_size() != 32
+        || residence.root_row_size() != 16
+        || residence.header_alignment() != 8
+        || residence.root_row_alignment() != 8
+    {
+        return Err(PinnedTextBackendFrameContractIssueV1::ResidenceFrameMismatch);
+    }
+    if profile.address_space_zero_pointer_width() != 64
+        || profile.address_space_zero_abi_alignment() != 8
+        || !profile.little_endian()
+    {
+        return Err(PinnedTextBackendFrameContractIssueV1::TargetLayoutMismatch);
+    }
+    Ok(())
 }
 
 fn validate_lanes(

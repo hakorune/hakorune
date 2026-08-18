@@ -1,7 +1,13 @@
+use crate::mir::builder::module_invocation_session::ModuleBuilderInvocationSessionV1;
+use crate::mir::builder::BuilderInvocationConfigV1;
 use crate::mir::builder::CompilationContext;
 use crate::mir::compiler::common_v2_physical_function_entry_input::issue_common_v2_physical_function_entry_input;
 use crate::mir::compiler::common_v2_physical_function_skeleton::reserve_common_v2_physical_function_skeleton;
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
+use crate::mir::compiler::target_capability::{
+    PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetProfileV1,
+};
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
 use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
@@ -12,6 +18,7 @@ use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgram
 use super::{
     with_common_v2_physical_entry_session_with_s6c_loan,
     with_common_v2_s6c_physical_entry_draft_seal,
+    with_common_v2_s6c_pinned_text_physical_entry_draft_seal,
 };
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
@@ -379,5 +386,104 @@ fn draftseal_ingress_discards_outer_on_tail_callback_failure() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.complete().expect("selected child coverage");
+}
+
+#[test]
+fn pinned_text_ingress_finalizes_frame_from_function_owned_plan_table() {
+    let (installed, context) = installed_port(1505);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+    let live = MirBuilder::new();
+    let config = BuilderInvocationConfigV1::snapshot_for_canonical(&live, None);
+    let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    session
+        .install_pinned_text_target_capability(Some(target))
+        .expect("target install");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let branded = skeleton.into_session_input();
+        let function = session
+            .with_builder_and_pinned_text_invocation_binding(|builder, binding| {
+                let binding = binding.expect("target binding");
+                let ingress = binding
+                    .prepare_physical_entry_ingress(branded)
+                    .map_err(|error| format!("{error:?}"))?;
+                with_common_v2_s6c_pinned_text_physical_entry_draft_seal(
+                    builder,
+                    ingress,
+                    |canonical, draft, _physical_effects, loan| {
+                        loan.callable()
+                            .with_completion(|completion| {
+                                let result = loan.callable().with_scalar_scan_source(|source| {
+                                    let result = (|| -> Result<(), String> {
+                                        let seed = canonical
+                                            .emit_initial_index_seed(draft)
+                                            .map_err(|error| format!("{error:?}"))?;
+                                        drop(seed);
+                                        canonical
+                                            .with_shared_segment_scope(
+                                                draft,
+                                                |canonical, draft, scope| {
+                                                    let cursor = canonical
+                                                        .consume_s6c_cursor_cfg(
+                                                            draft, &scope, source, completion,
+                                                        )
+                                                        .map_err(|error| format!("{error:?}"))?;
+                                                    assert_eq!(pinned_text_count(draft), 3);
+                                                    assert_eq!(
+                                                        draft
+                                                            .function_state
+                                                            .current_function
+                                                            .as_ref()
+                                                            .expect("canonical function")
+                                                            .metadata
+                                                            .pinned_text_backend_frame_contract
+                                                            .is_none(),
+                                                        true,
+                                                    );
+                                                    assert_eq!(
+                                                        cursor.after_block(),
+                                                        draft
+                                                            .function_state
+                                                            .current_block
+                                                            .expect("after block")
+                                                    );
+                                                    drop(cursor);
+                                                    drop(scope);
+                                                    Ok(())
+                                                },
+                                            )
+                                            .map_err(|error| format!("{error:?}"))
+                                    })();
+                                    source_result(result)
+                                });
+                                result.map_err(|error| format!("{error:?}"))
+                            })
+                            .map_err(|error| format!("{error:?}"))
+                    },
+                )
+            })
+            .expect("physical ingress DraftSeal");
+        assert!(!function.blocks.is_empty());
+        assert!(!function.signature.name.is_empty());
+        let frame = function
+            .metadata
+            .pinned_text_backend_frame_contract
+            .expect("function-owned pinned-Text frame");
+        assert_eq!(frame.plan_count(), 3);
+        assert_ne!(frame.plan_stamp(), 0);
+        assert_eq!(session.brand(), ModuleInvocationBrandV1::legacy_test());
+        assert!(session.builder().function_state.current_function.is_none());
+        assert!(session.builder().function_state.current_block.is_none());
+    })
+    .expect("one S6C callback");
     port.complete().expect("selected child coverage");
 }
