@@ -128,11 +128,12 @@ Related:
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
   its outer unpublished-function rollback remains the only failure owner.
-- **Current stop:** `NoSafeSlice::PortableTextEqDualRootAdmissionUnsealed`.
+- **Current stop:** `NoSafeSlice::PortableTextEqV9BackendViewUnsealed`.
   The existing pinned C frame carries ExactText rows only, while S6C TextEq
-  lhs is the V9 Substring result. Projecting V9 as an ExactText root would
-  misbind two live operands, so the dual-root admission/preheader relation
-  must be designed before any Bool V10 or content effect.
+  lhs is the V9 Substring result. Worker audit rejected merging the lifetimes
+  into one frame; a separate backend-private V9 view must be issued and
+  co-sealed with the existing frame borrow before any Bool V10 or content
+  effect.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, and the caller-zero concrete StringBox
@@ -146,11 +147,11 @@ Related:
   `Arc` or snapshot. `Arc` is an ownership tool after lock release, not a
   concurrency policy; an immutable shared-backing task opens only if a
   sanctioned mutable/unsafe provider path is ever admitted.
-- **Next ordered task:** design one backend-private dual-root admission (V9
-  row plus ExactText rows) or an equivalent separate V9 view operand. It must
-  not leak a raw handle, slot/generation, compiler pointer, or semantic
-  receipt; absent an exact owner/cohort/frame/lifetime binding, remain
-  `NoSafeSlice`.
+- **Next ordered task:** design one canonical V9 backend-private `ptr/len`
+  view issuer and one-shot `ContentViewAdmission` that co-seals it with the
+  existing `PinnedTextBackendFrameBorrowV1`. It must not leak a raw handle,
+  slot/generation, compiler pointer, or semantic receipt; absent an exact
+  owner/cohort/frame/lifetime binding, remain `NoSafeSlice`.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -159,8 +160,8 @@ Related:
 
 | order | bounded task | exit condition |
 | --- | --- | --- |
-| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0` | Name one V9-row plus ExactText-row admission/preheader relation; reject V9-as-ExactText misbinding before effect. |
-| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-I0` | Implement one private dual-root frame projection only after D0; no raw escape, lock/alloc/callback/finish in loop, or second owner. |
+| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0` | Keep ExactText frame/ABI and V9 End owners separate; name one V9 view issuer and one-shot co-seal admission. |
+| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-I0` | Implement one private V9 view/preheader projection only after D0; no raw escape, lock/alloc/callback/finish in loop, or second owner. |
 | 2 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-I0` | One Direct leaf consumes the existing scope and asks the canonical session for Bool V10; no If/Return yet. |
 | 3 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | Existing If/Return/FunctionExit JoinSig receipts consume V10; one unpublished transaction remains the rollback boundary. |
 | 4 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | Positive/negative Unicode, alias, stale/foreign, lifecycle, and late-discard evidence is green. |
@@ -247,6 +248,44 @@ Non-claims: no V9/Bool MIR effect, `PinnedTextOp` emission, CFG/Return,
 publication, production, C fallback, retry, performance promotion, or
 `eq_hh` retirement. Until this dual-root relation is named, the correct state
 is `NoSafeSlice::PortableTextEqDualRootAdmissionUnsealed`.
+
+### DUAL-ROOT-D0 candidate selection: separate V9 view (2026-08-18; design stop)
+
+The lifetime audit selects the separate-view candidate, not a dual-root ABI
+merge. Keep the existing ExactText frame/ABI and its
+`TextFormalCallResidenceV1` finish owner unchanged. The V9 producer/cohort
+keeps its `EndAuthorizedTextV1` lifetime. A single private
+`ContentViewAdmission` may co-seal a backend-private V9 `ptr/len` view with
+the existing `PinnedTextBackendFrameBorrowV1` and plan/frame stamps, but it
+may not merge their lease tokens, root counts, or finish operations.
+
+Source authority + canonical issuer: S6C `Equal(Text,Text)` Facts/Recipe and
+the V9/ExactText occurrence co-seal own the operand relation. The missing
+issuer is one runtime-private V9 root projection at the already-held V9
+residence boundary; the admission is mechanical and one-shot. The backend
+preheader loads V9 `ptr/len` once and reads ExactText rows from the existing
+frame. The canonical SSA session remains the only future Bool issuer.
+
+Non-authority: V9 `with_text` or `as_ptr/len` callback results after the
+callback, ExactText root-index reinterpretation, raw handle/token/ValueId,
+merged dual-root ABI, C status/`eq_hh`, alias deduplication, and `noalias`.
+
+Fail-fast boundary: before effect, require exact V9 producer/cohort, live
+non-retiring UTF-8 V9 result, ExactText owner/session/segment/frame stamps,
+ordered root relation, non-escaping lifetime, and one cleanup chronology
+(`ExactText.finish -> canonical V9 End`). Reject missing V9 projection,
+foreign/stale/retiring roots, frame/plan drift, pointer escape, and any
+attempt to finish one owner twice; late failure discards the unpublished
+function.
+
+Smallest next slice: `COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0` must name the
+canonical V9 projection API and its opaque backend operand. If that API cannot
+be issued without exposing raw runtime identity or merging owners, retain
+`NoSafeSlice`; do not implement the V9 view I0 yet.
+
+Non-claims: no dual-root ABI, new semantic receipt, V10/Bool, `PinnedTextOp`,
+CFG/Return, publication, production, fallback/retry, performance promotion,
+`Arc<str>` migration, or `eq_hh` retirement.
 
 
 ## Historical boundary

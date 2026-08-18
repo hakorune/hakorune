@@ -794,15 +794,16 @@ and `nyash.string.eq_hh` remain non-authority.
 The content-view audit found a missing lifetime domain: the existing pinned C
 residence frame contains ExactText rows, but S6C TextEq's lhs is the V9
 Substring result. Treating V9 as an ExactText root would compare the wrong live
-operand or go out of range. The current row is therefore
-`COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0` in `design_stop`. It must choose
-one backend-private dual-root frame (`V9 row + ExactText rows`) or a separate
-V9 view operand co-sealed with the existing `PinnedTextBackendFrameBorrowV1`
-and plan/frame stamps. `with_text(&str)` and raw `ptr/len` callbacks remain
-canaries only; no pointer may escape to MIR/compiler/JSON. Bool V10,
-If/Return CFG, publication, production selection, performance promotion,
-fallback/retry, and `eq_hh` retirement remain closed until this relation is
-named and rejected cases are covered.
+operand or go out of range. The worker-selected route keeps the ExactText
+frame/ABI and V9 End owner separate, and adds one private V9 backend view
+co-sealed with the existing `PinnedTextBackendFrameBorrowV1` and plan/frame
+stamps. The current row is therefore
+`COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0` in `design_stop`.
+`with_text(&str)` and raw `ptr/len` callbacks remain canaries only; no pointer
+may escape to MIR/compiler/JSON. Bool V10, If/Return CFG, publication,
+production selection, performance promotion, fallback/retry, and `eq_hh`
+retirement remain closed until the canonical V9 projection issuer and
+rejected cases are named.
 
 ## TextRef residence scope D0 (2026-08-18; accepted)
 

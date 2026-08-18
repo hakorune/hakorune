@@ -15,10 +15,10 @@ production remain closed; Selected Dynamic remains the sole production arm.
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TextEq remains stopped at NoSafeSlice::PortableTextEqDualRootAdmissionUnsealed. The existing pinned C frame carries ExactText rows only, while S6C TextEq lhs is the V9 Substring result; projecting V9 as an ExactText root would misbind live operands. Name one backend-private dual-root admission/preheader (V9 row plus ExactText rows) or an equivalent separate V9 view operand before any fast I0. Bool V10, CFG/publication, production, fallback/retry, performance promotion, and eq_hh retirement remain closed."
+current_design_stop = "TextEq remains stopped at NoSafeSlice::PortableTextEqV9BackendViewUnsealed. The existing ExactText frame/ABI stays unchanged; worker audit selected a separate backend-private V9 ptr/len view co-sealed once with the existing frame borrow. The canonical V9 projection issuer/API is still missing. Bool V10, CFG/publication, production, fallback/retry, performance promotion, and eq_hh retirement remain closed."
 work_mode = "design_stop"
-current_execution_row = "COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0"
-current_blocker_token = "Design stop only: source Equal(Text,Text)->Bool and Direct-or-RejectBeforeEffect remain selected, but the V9 lhs and ExactText rhs have different lifetime owners. Name the canonical dual-root admission/preheader or separate V9 operand view, its owner/cohort/frame stamps, and reject-before-effect boundary. Do not implement a leaf, compare handles, add a C fallback, open CFG/publication/production, promote performance, or retire eq_hh."
+current_execution_row = "COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0"
+current_blocker_token = "Design stop only: source Equal(Text,Text)->Bool and Direct-or-RejectBeforeEffect remain selected. Keep ExactText frame/ABI and V9 End owners separate; name the canonical V9 backend-private ptr/len projection and one-shot ContentViewAdmission co-seal with the existing frame borrow. Do not merge leases/ABI, implement a leaf, compare handles, add a C fallback, open CFG/publication/production, promote performance, or retire eq_hh."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -44,9 +44,9 @@ closed with exact lifecycle/identity negatives; the old wire issuer remains a
 canary. The entry-bridge D0 and caller-zero I0 are closed as an index-only
 private physical plan with explicit root/lane bijection. The runtime-private
 scope I0 lifecycle canary is closed with no V10 MIR effect. The content-view
-audit found that the existing frame is ExactText-only while V9 is the TextEq
-lhs; the next design row must co-seal a V9 row with ExactText rows before any
-backend preheader projection or V10 effect.
+audit rejected merging V9 into the ExactText frame: the selected next row is
+one separate backend-private V9 ptr/len view co-sealed with the existing frame
+borrow, while V9 End and ExactText Residence remain separate finish owners.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -59,8 +59,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, exact concrete StringBox residence, mutable-reachability census, private lane-borrow ingress, source-bound V9 runtime producer I0, index-only TextRef entry-bridge I0, and one-shot TextRef scope contract are caller-zero substrate with focused lifecycle and identity gates green. Direct-or-RejectBeforeEffect remains selected, but the ExactText-only pinned C frame cannot safely carry the V9 lhs; dual-root admission is now the design stop. TextEq V10, production, performance promotion, fallback/retry, and eq_hh retirement remain closed."
-next_design_card = "COMMON-V2-S6C-PORTABLE-TEXTEQ-DUAL-ROOT-D0"
+latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, exact concrete StringBox residence, mutable-reachability census, private lane-borrow ingress, source-bound V9 runtime producer I0, index-only TextRef entry-bridge I0, and one-shot TextRef scope contract are caller-zero substrate with focused lifecycle and identity gates green. Direct-or-RejectBeforeEffect remains selected. Worker audit rejected merging V9 into the ExactText frame and selected a separate backend-private V9 view co-sealed with the existing frame; its canonical projection issuer is still a design stop. TextEq V10, production, performance promotion, fallback/retry, and eq_hh retirement remain closed."
+next_design_card = "COMMON-V2-S6C-PORTABLE-TEXTEQ-V9-VIEW-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
