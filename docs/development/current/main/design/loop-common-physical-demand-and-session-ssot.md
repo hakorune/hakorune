@@ -748,10 +748,63 @@ backend codegen, production switch, fallback/retry, performance benchmark, or
 `nyash.string.eq_hh` retirement. The next ABI row is design-only until its
 status-0 success and nonzero fail-stop/no-hidden-CFG contract is accepted.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; ingress co-seal I0 landed)
+#### TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0 (accepted; I0 selected)
 
-Decision: keep the lifecycle design stop active. The materializer identity/projector I0
-is landed caller-zero, but the canonical consumer audit closed as
+Decision: add one private C ABI projection,
+`hako_text_formal_residence_finish_or_abort_v1(frame) -> void`. It calls the
+existing exhaustive status-returning finish owner exactly once. Status `0`
+means that Residence state was consumed and the frame token was cleared, so
+the wrapper returns. Every nonzero status terminates the process through
+`std::process::abort()` with no retry, fallback, caller-visible result, or
+caller CFG. The wrapper itself is not `noreturn`; only its failure path is.
+
+Source authority + canonical issuer: `TextFormalCallResidenceV1::finish(self)`
+and `finish_text_formal_residence_c_v1` remain the sole lifecycle/status
+owners. The new export is a strict terminal projection of that result, and
+`include/nyrt_text_formal_residence_v1.h` is its only C declaration. Later,
+the typed Finish marker may call only this wrapper; the existing unique
+DraftSeal Return projection remains the sole Return issuer.
+
+Non-authority: an ordinary status-returning MIR `Call`, backend-inserted
+status compare/branch, `CheckedCallOut`, panic, a second exit ledger, raw
+frame/token inspection, `nyash.string.eq_hh`, benchmarks, and runtime fallback
+do not authorize finish or Return. The existing status API remains a runtime
+internal/test seam and must not become a lifecycle marker lowering target.
+The caller-zero public `hako_text_formal_residence_finish_v1 -> u32` export and
+C declaration retire atomically in I0, leaving exactly one public finish
+meaning; the Rust status core stays private.
+
+Fail-fast boundary: a valid live frame is consumed once and returns only after
+its token is zeroed. Null, misaligned, invalid, stale, duplicate-finished, or
+internally inconsistent frames all end in the same fail-stop branch. The ABI
+may not unwind across C, expose the status, recover, retry, or enter another
+route. I0 must obtain structural IR/ABI evidence that callers see a
+void-returning non-unwinding call and that the explicit failure helper is
+terminal; inability to seal that evidence reopens Design stop rather than
+silently selecting the explicit-CFG alternative.
+
+Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-I0`
+replaces the caller-zero public status finish with the Rust wrapper and matching
+C header declaration, updates the export README, and adds a normal-return test,
+subprocess fail-stop negatives, and a reusable symbol/ABI/structure guard.
+Keep `text_formal_residence.rs` below 760 lines and split tests/helpers before
+800. Do not add a MIR carrier, Builder edge, DraftSeal consumer, backend
+lowering, or production caller in this row.
+
+After I0 closes, return to Design stop at
+`TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0`; the accepted ABI alone
+does not authorize a MIR marker or entry terminator.
+
+Non-claims: Residence Enter, typed lifecycle carriers, Return/CFG changes,
+backend call emission, whole-function no-EH closure, production cutover,
+performance promotion, fallback/retry, new frame/backing, and `eq_hh`
+retirement remain closed.
+
+### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 selected)
+
+Decision: keep the lifecycle boundary closed beyond the currently selected
+finish-or-abort ABI I0. The materializer identity/projector I0 is landed
+caller-zero, but the canonical consumer audit closed as
 `NoSafeSlice`: the needed plan/frame/lifecycle capability is not present before
 DraftSeal and must not be replaced by a closure-only seam.
 The predicate/index physical I0 and the caller-zero DraftSeal ingress probe
@@ -812,15 +865,17 @@ Task ladder (canonical consumer design first, runtime effect later):
    the proposed envelope cannot be built from the current borrowed admission.
 3. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0` — accepted;
    its target/signature/plan/frame/lifecycle ownership is fixed above.
-4. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0` — active fast:
-   implement only the Rust-side physical co-seal and guards; no MIR/runtime.
-5. After that I0, follow the bounded ABI/carrier/projector/backend ladder in
-   the active subsection above. Production/performance stay closed until
-   caller-zero lifecycle and final no-unwind evidence are complete.
+4. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0` — landed
+   caller-zero; the Rust-side physical co-seal and guards add no MIR/runtime.
+5. `TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0` — accepted above;
+   its bounded runtime ABI I0 is the only selected executable row.
+6. After that I0, reopen the typed carrier/projector/backend design rows one at
+   a time. Production/performance stay closed until caller-zero lifecycle and
+   final no-unwind evidence are complete.
 
-Non-claims: no new semantic receipt is implemented in this design stop; no
-runtime ABI revision, new frame, `Arc<str>` migration, production caller,
-fallback/retry, performance promotion, or `eq_hh` retirement.
+Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
+`Arc<str>` migration, production caller, fallback/retry, performance
+promotion, or `eq_hh` retirement is selected by this umbrella row.
 
 #### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (landed design task)
 

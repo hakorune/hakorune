@@ -19,14 +19,14 @@ kept only as provenance in phase logs and execution ledgers.
 
 | Feature | Design | VM | LLVM | Notes |
 | --- | --- | --- | --- | --- |
-| `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
+| `nowait` / `await` | yes | yes | yes | Phase-0 executes the historical `nowait name = expr` statement; the accepted final `nowait expr -> Future<T>` surface is not parser-live yet. |
 | `Channel` | yes | reference | not active | CONC-CHANNEL-002 pins close/drain/send-after-close behavior; CONC-CHANNEL-003 pins await-visible route descriptors while lowering stays closed. |
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | reference | no | Parser/AST JSON capsule and wait-forbidden verifier are active; CONC-SYNCBOX-003 adds reference-only serialized entry while Program JSON / MIR / LLVM stay fail-fast. |
-| `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
+| `lock<T>` | rejected source | no | no | Runtime lock/mutex terms remain implementation concepts; no public grammar is promised. |
 | `context` / `scoped` | yes | reference | no | Parser/AST JSON capsule is active; CONC-CONTEXT-002 adds explicit-scope child snapshot reference behavior while Program JSON / MIR stay fail-fast. |
-| `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
-| `worker_scope` / `parallel` | reserved | no | no | CONC-SOURCE-PARALLEL-001 reserves the future structured parallel surface; parser/MIR/lowering stay closed until Send/Share/ThreadRoot safety is enforced. |
+| `worker_local` | runtime-only | no | no | TLS/cache vocabulary only; not source semantics or a reserved source spelling. |
+| `worker_scope` / `parallel` | historical design vocabulary | no | no | Structured parallelism remains future work, but these exact source spellings are undecided and unreserved. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
 Mimalloc reading:
@@ -63,10 +63,10 @@ Terminology note:
   choose worker-pool execution for eligible tasks, but source meaning stays
   Future/task ownership.
 - The structured-concurrency source surface should be read as `co`.
-- `task_scope` is the compatibility spelling and semantic/runtime wording.
-- `worker_scope workers=N { parallel ... }` is reserved design only. `workers=N`
-  is a scheduler hint / upper bound, not a promise to create exactly N OS
-  threads.
+- `task_scope` is currently parser-accepted but is a Compat2025-bound source
+  alias; internal `TaskScope` / `TaskGroupBox` names remain valid.
+- `worker_scope` / `parallel` is historical design vocabulary only. A future
+  structured-parallel Decision chooses its exact spelling after safety closure.
 - Raw `thread { ... }` is closed.
 - The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.
 
@@ -76,7 +76,11 @@ Current MIRBuilder ownership:
 
 ```text
 nowait:
-  expression -> FutureNew -> Future<T> value registration
+  current statement expression -> FutureNew -> Future<T> special binding
+
+accepted target:
+  NowaitExpression -> FutureNew -> Future<T> value
+  ordinary Local lowering -> binding registration
 
 await:
   expression -> Safepoint -> Await -> Safepoint
@@ -88,8 +92,8 @@ Owner:
 src/mir/builder/stmts/async_stmt.rs
 ```
 
-This boundary is `CONC-FUTURE-SEM-001`. Later `co` / `task_scope` lowering must
-add structured ownership events around child Future creation; it must not
+This boundary is `CONC-FUTURE-SEM-001`. `CONC-NOWAIT-EXPR-D0/I0` moves only
+the source/AST binding shape; it must preserve Future ownership and must not
 redefine `nowait` as thread spawn.
 
 MIR JSON v0 currently carries this boundary through:
@@ -210,32 +214,25 @@ Current MIRBuilder v0:
   a later scope-exit cleanup lowering row.
 - Program JSON and LLVM route widening remain closed in this row.
 
-### Reserved Structured Parallel Surface
+### Future Structured Parallel Surface
 
-`worker_scope` / `parallel` is reserved for a later structured parallel source
-surface. It is not active syntax in the current row.
-
-Reserved shape:
-
-```hako
-worker_scope workers = N {
-    parallel i in range {
-        work(i)
-    }
-}
-```
+Structured parallelism is a later design area. `worker_scope` / `parallel` is
+an old sketch, not active syntax or a reserved Language-v1 spelling.
 
 Current contract:
 
 ```text
-worker_scope_design_reserved=1
+structured_parallel_design_area=1
+structured_parallel_exact_spelling_decided=0
+worker_scope_keyword_reserved=0
+parallel_keyword_reserved=0
 worker_scope_parser_enabled=0
 worker_scope_mir_lowering_enabled=0
 worker_scope_runtime_route_enabled=0
 raw_thread_parser_enabled=0
 ```
 
-`workers = N` is a scheduler budget hint and upper bound:
+If a later surface exposes a worker budget, it is an upper bound:
 
 ```text
 worker_scope_workers_is_upper_bound=1
@@ -251,14 +248,14 @@ thread_registry_gc_roots_enabled=1
 worker_scope_capture_check_enabled=1
 ```
 
-Once `worker_scope` becomes source-visible, silent fallback is forbidden. If the
-runtime chooses cooperative/inline execution or fewer effective workers, it must
-report the effective route and reason.
+Once any structured-parallel surface becomes source-visible, silent fallback
+is forbidden. If the runtime chooses cooperative/inline execution or fewer
+effective workers, it must report the effective route and reason.
 
 ### Ambient Context (`context`, parser capsule)
 - `context name[: Type] = value { ... }` is the preferred source spelling.
-- `scoped name[: Type] = value { ... }` remains accepted as compatibility
-  spelling and preserves `source_keyword` for diagnostics.
+- `scoped name[: Type] = value { ... }` is currently accepted and preserves
+  `source_keyword`, but its target status is Compat2025-only before retirement.
 - `context` and `scoped` are contextual identifiers; ordinary locals and calls
   with those names remain legal outside the exact context statement shape.
 - Current implementation carries the AST/AST-JSON capsule only. Program JSON

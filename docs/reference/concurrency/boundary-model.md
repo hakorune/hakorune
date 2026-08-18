@@ -26,25 +26,31 @@ all shared state through channels. Low-level allocator and runtime substrate may
 use atomics, TLS/worker-local slots, and internal mutexes without opening those
 as user-facing language semantics.
 
-## Boundary Kinds
+## Public Roles and Surfaces
 
-| Boundary | Source role | Meaning |
+The final public model has four roles and seven visible surfaces. The four
+task-ownership surfaces are intentionally counted separately because a result
+type, task start, result observation, and lexical owner are different jobs.
+
+| Role | Canonical surface | Meaning |
 | --- | --- | --- |
-| `Future<T>` | one-shot result | A task result is observed exactly through `await`. |
-| `Channel<T>` | ownership transfer | Values cross task boundaries through an await-visible queue API. |
-| `sync box` | serialized shared state | Shared mutable state is accessed only through serialized method boundaries. |
-| `context` | structured ambient context | Request/trace/read-only config context is inherited by structured child tasks. |
-| worker-local substrate | runtime/internal cache only | Allocator caches, scratch state, and per-worker counters; not user semantics. |
+| task ownership | `Future<T>`, `nowait`, `await`, `co` | Start, own, and observe one-shot task results. |
+| ownership transfer | `Channel<T>` | Values cross task boundaries through an await-visible queue API. |
+| serialized shared state | `sync box` | Shared mutable state is accessed only through serialized method boundaries. |
+| structured ambient context | `context` | Request/trace/read-only config context is inherited by structured child tasks. |
 
 Do not collapse these names into a single source-level `Boundary<T>` type.
 The compiler/verifier/CorePlan may use a shared boundary model internally, but
 source code should keep the role visible.
+
+Worker-local/TLS storage is runtime substrate, not a fifth public role.
 
 ## Source Surface Direction
 
 Canonical surface direction:
 
 ```text
+Future<T>
 co { ... }
 nowait expr
 await expr
@@ -53,15 +59,13 @@ sync box
 context
 ```
 
-Non-canonical or deferred public surface:
+Retired/rejected source spellings and implementation-only terms:
 
 ```text
 lock<T>
 scoped
 task_scope
 worker_local
-worker_scope
-parallel
 Atomic<T>
 Mutex
 Thread
@@ -69,17 +73,24 @@ Worker
 true_parallel
 ```
 
+Structured parallel iteration remains a future language problem, but
+`worker_scope` and `parallel` are not reserved as its final spellings. A later
+Decision must choose the source shape only after Send / Share / ThreadRoot and
+capture safety are enforced. Raw `thread { ... }` remains rejected source.
+
 `lock<T>` remains a useful implementation concept, but it should not become the
 canonical user-facing shared-mutable surface. The preferred surface is
 `sync box`, because it exposes a serialized object boundary rather than a raw
 guard.
 
-`task_scope` remains the semantic/runtime wording and compatibility spelling.
-The preferred source keyword is `co`.
+`TaskScope`, `TaskGroupBox`, `push_task_scope`, and `pop_task_scope` remain
+valid compiler/runtime names. The source spelling `task_scope { ... }` is a
+temporary compatibility input on the way to `co`-only Canonical source.
 
-`scoped` is the historical/provisional name for context. The preferred surface
-name is `context`, because the feature is about structured ambient context, not
-task spawning or detached execution.
+`scoped` is the historical/provisional name for context and is a temporary
+compatibility input only. The canonical surface name is `context`, because the
+feature is about structured ambient context, not task spawning or detached
+execution.
 
 `worker_local` remains runtime/internal unless a later explicit language row
 opens a pinned worker-local surface. Mimalloc work must continue to use the
@@ -104,6 +115,10 @@ co {
 }
 ```
 
+This is the accepted final surface, not a claim that every row is executable
+on the current Phase-0 parser/lowerer. Current `nowait` binding syntax and the
+normal-completion-only `co` exit restriction are recorded in `semantics.md`.
+
 Meaning:
 
 - `co` is a child-`Future` ownership boundary.
@@ -121,58 +136,49 @@ Negative definitions:
 - `co` is not a scheduler/fairness guarantee.
 - `co` is not a replacement for `nowait`; it owns child futures created inside.
 
-Compatibility:
+Final and transitional spelling split:
 
 ```text
 source canonical: co
-source compatibility: task_scope
+temporary Compat2025 input: task_scope
 semantic wording: structured concurrency scope / co scope
 runtime owner: TaskGroupBox
 runtime hooks: push_task_scope / pop_task_scope
 ```
 
-Diagnostics should guide compatibility source toward `co`:
+Canonical diagnostics must reject the old spelling and guide it toward `co`.
+Compat2025 may normalize it only until the compatibility sunset row closes:
 
 ```text
 [concurrency/scope-compat]
-`task_scope` is accepted as a compatibility spelling.
+`task_scope` is a compatibility spelling.
 Use `co { ... }` for the canonical structured concurrency scope.
 ```
 
-## Reserved Worker Scope Boundary
+## Future Structured Parallel Boundary
 
-`worker_scope` / `parallel` is a reserved future structured parallel surface,
-not active source syntax.
+Structured parallel iteration is a future design area, not an active or
+reserved source grammar. The historical `worker_scope` / `parallel` sketch is
+design vocabulary only; its exact spelling is undecided.
 
-Reserved shape:
+Required meaning before any later spelling is selected:
 
-```hako
-worker_scope workers = N {
-    parallel i in range {
-        work(i)
-    }
-}
-```
-
-Meaning when a later row opens it:
-
-- The scope owns the worker/parallel lifecycle.
-- `parallel` may appear only inside an explicit `worker_scope`.
+- One explicit scope owns the worker/parallel lifecycle.
 - Captures must pass Send / Share / ThreadRoot safety checks.
-- `workers = N` is a scheduler budget hint and upper bound.
-- `workers = N` is not an exact OS-thread-count promise.
+- Any worker budget is an upper bound, not an exact OS-thread-count promise.
 - The runtime may choose fewer/equivalent workers only with explicit report
   evidence; silent fallback is forbidden once this surface is source-visible.
 
 Current status:
 
 ```text
-worker_scope_design_reserved=1
+structured_parallel_design_area=1
+structured_parallel_exact_spelling_decided=0
+worker_scope_keyword_reserved=0
+parallel_keyword_reserved=0
 worker_scope_parser_enabled=0
 worker_scope_mir_lowering_enabled=0
 worker_scope_runtime_route_enabled=0
-worker_scope_workers_is_upper_bound=1
-worker_scope_exact_thread_count_promise=0
 ```
 
 Opening parser or lowering support requires the thread-safety gate:
@@ -183,15 +189,18 @@ thread_registry_gc_roots_enabled=1
 worker_scope_capture_check_enabled=1
 ```
 
-Raw `thread { ... }` remains closed. If it ever appears, it should be treated as
-an explicit expert/runtime escape hatch, not the normal Hakorune concurrency
-surface.
+Raw `thread { ... }` remains permanently rejected as ordinary source. A future
+expert substrate, if needed, must be a separately authorized capability API;
+it does not reserve a `thread` block grammar today.
 
 ## Future Boundary
 
-`nowait expr` creates a `Future<T>`. In the current Phase-0 line it may be
-implemented as sequential evaluation wrapped in a resolved future; it is not a
-thread creation promise.
+The accepted final surface is expression-shaped: `nowait expr` creates a
+`Future<T>`. The current parser still accepts the historical binding statement
+`nowait name = expr`; `CONC-NOWAIT-EXPR-D0/I0` must migrate that shape without
+moving ordinary local-binding ownership into the async lowerer. In either
+shape, Phase-0 may use sequential evaluation wrapped in a resolved future; it
+is not a thread creation promise.
 
 `await fut` is the only way to observe the future result.
 
@@ -403,6 +412,10 @@ Summary rows:
 | `CONC-SYNCBOX-002` | Reject `await` / `nowait` / channel waits inside serialized `sync box` methods. |
 | `CONC-GUARD-AST-CRATE0` | Repair stale guard paths without changing language behavior. |
 | `CONC-GRAM-SYNC0/CO0/CONTEXT0` | Add the already-live concurrency capsules to grammar registry and EBNF one row at a time. |
+| `CONC-NOWAIT-EXPR-D0/I0` | Move the historical dedicated binding statement to the canonical `nowait expr -> Future<T>` expression without changing scheduler meaning. |
+| `CONC-SCOPED-COMPAT-R0` / `CONC-TASK-SCOPE-COMPAT-R0` | Reject legacy spellings in Canonical, quarantine them to Compat2025, and delete their spelling carriers only at the compatibility sunset. |
+| `CONC-RUNTIME-DOCS-OWNER-R0` | Keep public semantics, current availability, and runtime threading substrate in three separate owner docs. |
+| `CONC-CHANNELBOX-DISPOSITION-D0/R0` | Retire the caller-zero legacy P2P `ChannelBox` only after its public Rust/type-name compatibility decision. |
 | `CONC-SYNCBOX-VIEW-D0` | Seal the initial no-escaping-View boundary for serialized methods. |
 | `CONC-CONTEXT-001` | Rename/design `scoped` as `context` and pin structured child inheritance. |
 

@@ -20,15 +20,19 @@ is documented. The source surface should move toward:
 ```text
 Future<T>
 co
+nowait expr
+await expr
 Channel<T>
 sync box
 context
 ```
 
-Historical/provisional surfaces such as raw `lock<T>` and `scoped` may remain as
-compatibility input only while active users are audited.
-`task_scope` remains a compatibility spelling and runtime/semantic term; new
-source examples should use `co`.
+`scoped`, source `task_scope`, and the historical `nowait name = expr` binding
+statement are compatibility inputs with explicit sunset rows. Internal
+`TaskScope` / `TaskGroupBox` / runtime hook names are not source aliases and
+remain. `lock<T>`, source `worker_local`, and raw `thread {}` are rejected.
+Structured parallelism remains a future concept, but `worker_scope` and
+`parallel` are no longer reserved as its exact source spellings.
 
 `lock<T>` must not be promoted to the canonical source surface. The canonical
 shared-mutable surface is `sync box`; raw locks remain implementation concepts,
@@ -74,50 +78,40 @@ Recommended substrate rows:
 | 4 | `CONC-SYNCBOX-003` | Add serialized method-entry reference behavior for the canonical shared-mutable surface. | no fairness/reentrancy guarantee |
 | 5 | `CONC-CHANNEL-002` / `003` | Implement the future `Channel<T>` queue runtime separately from legacy P2P `ChannelBox`. | no hidden blocking ordinary calls |
 
-Only after these rows should a source-level `worker_scope` / `parallel` /
-explicit worker surface be considered. `CONC-SOURCE-PARALLEL-001` reserves that
-surface as design-only; parser, AST JSON, Program JSON, MIR, LLVM, and runtime
-route activation stay closed until `THREAD-SAFETY-001` enforces send/share/root
-safety.
+Only after these rows may a later Decision choose a structured-parallel source
+surface. Parser, AST JSON, Program JSON, MIR, LLVM, and runtime route activation
+stay closed until `THREAD-SAFETY-001` enforces send/share/root safety; the old
+`worker_scope` / `parallel` sketch does not reserve those spellings.
 
 ## Recommended Task Order
 
-### 2026-07-15 conformance cleanup order
+### 2026-08-19 public-surface reduction order
 
-Before opening any new `sync box` execution route, close the audited surface
-drift in this order:
+This is parked work and never changes `CURRENT_STATE.toml` by itself. Each row
+is one BoxShape or BoxCount; grammar acceptance, runtime activation, and
+compatibility retirement must not share a commit.
 
-```text
-CONC-GUARD-AST-CRATE0
-  -> CONC-GRAM-SYNC0
-  -> CONC-GRAM-CO0
-  -> CONC-GRAM-CONTEXT0
-  -> CONC-SYNCBOX-VIEW-D0
-  -> CONC-SYNCBOX-EFFECT0 / CONC-SYNCBOX-TRANSFER-D0
-  -> later Program JSON / MIR / Rust VM execution row
-```
-
-Home ownership grammar is owned by the Home taskboard and begins only after
-its taxonomy/representation/storage/CFG D0 convergence; it is not duplicated
-here. The cleanup rows are parked work and do not replace the current
-`CURRENT_STATE.toml` blocker.
-
-Use this order when the language-surface cleanup is prioritized before
-returning to the mimalloc lane:
-
-| Order | Row | Why now | Stop line |
+| Order | Row | Purpose | Stop line |
 | --- | --- | --- | --- |
-| 1 | `CONC-COMPAT-001` | Know which legacy spellings are active source vs smoke-only compatibility. | no parser/runtime deletion |
-| 2 | `CONC-CO-001` | Make `co { ... }` the canonical structured-concurrency source spelling. | no `TaskGroupBox` / hook rename |
-| 3 | `CONC-CHANNEL-001` | Pin the visible API shape before runtime wait work: `await send` / `await recv` / `await close`, `try_*` non-blocking. | no scheduler or wait runtime rewrite |
-| 4 | `CONC-SYNCBOX-001` | Add the canonical shared-mutable syntax capsule. | no serialized runtime behavior |
-| 5 | `CONC-SYNCBOX-002` | Add the important safety verifier: no `await` / `nowait` / channel wait inside serialized methods. | no lock-order inference |
-| 6 | `CONC-CONTEXT-001` | Move the surface name from `scoped` toward `context`. | no propagation runtime |
+| 1 | `CONC-GUARD-AST-CRATE0` | Refresh the three red guards to the current frontend-AST, split decoder, Program JSON, and MIR owner paths. | behavior/grammar delta 0 |
+| 2 | `CONC-NOWAIT-EXPR-D0` | Seal precedence, AST owner, Future result type, and compatibility normalization for `nowait expr`. | design only; current statement stays live |
+| 3 | `CONC-GRAM-SYNC0` | Register the already-live `sync box` capsule in registry, EBNF, corpus, and both parser witnesses. | no runtime widening |
+| 4 | `CONC-GRAM-CO0` | Register `co` canonical and source `task_scope` Canonical-rejected/Compat2025-only. | internal TaskScope names unchanged |
+| 5 | `CONC-GRAM-CONTEXT0` | Register `context` canonical and `scoped` Canonical-rejected/Compat2025-only. | no context propagation widening |
+| 6 | `CONC-NOWAIT-EXPR-I0` | Add expression-shaped Future creation while retaining the old statement only as compatibility input. | no scheduler/OS-thread change |
+| 7 | `CONC-NOWAIT-EXPR-MIGRATE-R0` | Rewrite the eight active old-statement occurrences and move binding ownership back to ordinary `local`. | no alias parser deletion yet |
+| 8 | `CONC-SCOPED-COMPAT-R0` | Quarantine `scoped` before `task_scope`; keep spelling fields until the whole Compat2025 row retires. | no source_keyword deletion |
+| 9 | `CONC-TASK-SCOPE-COMPAT-R0` | Quarantine source `task_scope`; retain TaskScope/TaskGroup/runtime vocabulary. | no runtime owner rename |
+| 10 | `CONC-RUNTIME-DOCS-OWNER-R0` | Stub the old lock/scoped/worker-local page and route public meaning, current status, and threading substrate to their three existing owners. | docs only |
+| 11 | `CONC-CHANNELBOX-DISPOSITION-D0` | Decide the public Rust/type-name/builtin compatibility of repo-caller-zero legacy P2P ChannelBox/MessageBox. | census only; no rename/delete |
+| 12 | `CONC-CHANNELBOX-R0` | Prefer complete retirement; delete owner/export/builtin/UI wording atomically only after D0 permits it. | canonical Channel remains caller-zero |
+| 13 | `CONC-NONCANONICAL-VOCAB-R0` | Record lock/worker-local/thread as rejected/runtime-only and structured-parallel spelling as undecided. | no parser or scheduler route |
+| 14 | `CONC-CO-EXIT-TRANSACTION-D0/I0` | Replace the `co`-specific early-exit AST scan with the common scope-exit transaction. | no second cleanup/exit ledger |
+| 15 | `CONC-SYNCBOX-EFFECT0` | Replace the wait-like AST scan with verified callable effects. | no lock-order or runtime widening |
 
-After this cut, the user-facing concurrency surface is clean enough to return
-to `MIMAP-022C`. Do not wait for full Channel runtime, `sync box` fairness,
-context propagation, source-level `worker_local`, or true parallel language
-semantics before resuming mimalloc work.
+`source_keyword` and old `ASTNode::Nowait { variable, ... }` deletion are
+conditional final rows: they open only after their Compat2025 inputs have no
+remaining contract. Home ownership grammar remains owned by the Home taskboard.
 
 Allocator substrate rows are already tracked in
 `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`.
@@ -182,17 +176,23 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
-| `CONC-GUARD-AST-CRATE0` | pending-clean-first | Repair three stale concurrency guards after AST ownership moved to `crates/hakorune_frontend_ast`. | current-path guards + green guard fixtures | behavior/grammar delta 0; wait guard remains unchanged |
+| `CONC-GUARD-AST-CRATE0` | pending-clean-first | Refresh three stale concurrency guards after AST, decoder, Program JSON, and MIR owner splits. | current-owner paths + five green concurrency guards | behavior/grammar delta 0; wait guard remains unchanged |
 | `CONC-GRAM-SYNC0` | pending | Register the already parser-live `sync box` capsule in Language-v1 grammar SSOT and EBNF. | registry + EBNF + Rust/Hako witness | no Program JSON/MIR/runtime activation |
-| `CONC-GRAM-CO0` | pending | Register canonical `co` and compatibility `task_scope` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no scheduler/runtime widening |
-| `CONC-GRAM-CONTEXT0` | pending | Register canonical `context` and compatibility `scoped` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no propagation widening |
+| `CONC-GRAM-CO0` | pending | Register canonical `co` and source `task_scope` as separate Canonical-rejected/Compat2025-only spelling evidence. | registry + EBNF + Rust/Hako witness | no scheduler/runtime widening |
+| `CONC-GRAM-CONTEXT0` | pending | Register canonical `context` and `scoped` as separate Canonical-rejected/Compat2025-only spelling evidence. | registry + EBNF + Rust/Hako witness | no propagation widening |
+| `CONC-NOWAIT-EXPR-D0/I0/MIGRATE-R0` | pending-design | Replace the dedicated binding statement with `nowait expr -> Future<T>` and ordinary local binding through a compatibility migration. | Decision + AST/parser/lowering + eight active-source rewrites | no scheduler/OS-thread change |
+| `CONC-SCOPED-COMPAT-R0` / `CONC-TASK-SCOPE-COMPAT-R0` | pending | Quarantine aliases by grammar profile; delete spelling carriers only after Compat2025 sunset. | stable rejects + compat fixtures + no-active-use guard | no internal TaskScope rename |
+| `CONC-RUNTIME-DOCS-OWNER-R0` | pending-docs | Retire the duplicate lock/scoped/worker-local page to a short historical stub and correct ThreadRegistry scope. | owner links + stub + runtime wording | behavior/grammar delta 0 |
+| `CONC-CHANNELBOX-DISPOSITION-D0/R0` | pending-design | Decide and then retire the repo-caller-zero legacy P2P ChannelBox/MessageBox public identity. | public-compat Decision + atomic delete/absence guard | no canonical Channel activation |
+| `CONC-NONCANONICAL-VOCAB-R0` | pending-docs | Keep lock/worker-local/thread out of source and leave structured-parallel spelling undecided. | reference/status/guard wording | no parser/runtime route |
 | `CONC-SYNCBOX-VIEW-D0` | pending-design / historical row name | Forbid receiver/field-anchored Home result handles from escaping synchronized entry in the first profile. | Home result-relation Decision + fail-fast fixtures + reference-only example label | no synchronized handle token or hidden snapshot |
 | `CONC-SYNCBOX-EFFECT0` | pending-design | Seal callable effects for blocking calls, nested sync calls, and lock-order-sensitive operations. | verified effect ABI + conservative rejection fixtures | parser node scan is not the final authority |
+| `CONC-CO-EXIT-TRANSACTION-D0/I0` | pending-design | Project normal/return/throw/break/continue cleanup through the common scope-exit transaction. | exact exit census + TaskGroup cleanup projection | no co-specific AST scan or second exit ledger |
 | `CONC-SYNCBOX-TRANSFER-D0` | pending-design | Decide Home transfer/Share/Send/Sync capability for `co`, `nowait`, and Channel transfer. | explicit transfer contract | no runtime-behavior inference |
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | landed-code | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | `src/runtime/context_snapshot.rs` + `293x-1006-CONC-CONTEXT-002-CONTEXT-SNAPSHOT-REFERENCE.md` | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
-| `CONC-SOURCE-PARALLEL-001` | landed-docs | Reserve the source-level worker/parallel surface while keeping parser/lowering closed. | `293x-CONC-SOURCE-PARALLEL-001-SOURCE-PARALLEL-SURFACE-FREEZE.md` + report vocabulary | `THREAD-SAFETY-001` required before parser/lowering; raw thread syntax closed |
+| `CONC-SOURCE-PARALLEL-001` | superseded-spelling / landed-safety | Preserve the Send/Share/ThreadRoot stop line while releasing the old `worker_scope` / `parallel` spelling reservation. | historical card + current Boundary model | exact future spelling undecided; raw thread syntax closed |
 
 ## Row Details
 
@@ -264,7 +264,7 @@ Acceptance:
 ```text
 parser accepts co block
 AST/Program JSON carries the same structured-scope meaning as task_scope
-task_scope remains accepted as compatibility spelling
+task_scope remains current compatibility input until CONC-GRAM-CO0, then is Compat2025-only
 diagnostics prefer co for new source
 no runtime owner rename in this row
 runtime/MIR hook lowering stays fail-fast until CONC-CONTEXT-002 or a dedicated co-runtime row
@@ -528,8 +528,9 @@ lowering.
 
 ### CONC-GUARD-AST-CRATE0 / CONC-GRAM-*
 
-`CONC-GUARD-AST-CRATE0` is a behavior-neutral prerequisite. Update only these
-stale guards to read the current frontend AST crate:
+`CONC-GUARD-AST-CRATE0` is a behavior-neutral prerequisite. Its historical
+name is narrower than the audited drift: update only these stale guards to
+read the current frontend AST, split decoder, Program JSON, and MIR owners:
 
 ```text
 concurrency_sync_box_surface_guard.sh
@@ -537,12 +538,20 @@ concurrency_boundary_surface_guard.sh
 concurrency_context_surface_guard.sh
 ```
 
+Required owner refresh includes
+`crates/hakorune_frontend_ast/src/{ast_node.rs,utils/node_type.rs}`,
+`roundtrip_decoder{,/declarations}.rs`, `lowering/statements.rs`, and the
+current raw-expression dispatch modules. Do not recreate deleted facade paths.
+Baseline audit (2026-08-19): channel API and sync-wait guards are green;
+boundary, context, and sync-surface guards are red only on these stale owner
+paths/expectations and are classified as known baseline debt for this row.
 `concurrency_sync_box_wait_guard.sh` is already green and must not be rewritten
 as part of this row. After the guard seam is current, add grammar SSOT one
-durable row at a time: `sync box`, then `co`/`task_scope`, then
-`context`/`scoped`. Every grammar row closes registry, EBNF, Rust parser
-witness, Hako parser witness, and negative fixtures together without opening
-Program JSON, MIR, or runtime execution.
+durable task at a time: `sync box`, then the separate `co` and `task_scope`
+spelling rows, then the separate `context` and `scoped` spelling rows. Every
+grammar task closes registry, EBNF, corpus, Rust parser witness, Hako parser
+witness, and negative fixtures together without opening Program JSON, MIR, or
+runtime execution.
 
 ### CONC-SYNCBOX-VIEW-D0 / EFFECT0 / TRANSFER-D0
 
@@ -605,10 +614,12 @@ register_future_to_current_group(future) outside explicit scope
 
 ### CONC-SOURCE-PARALLEL-001
 
-This row reserves the future structured parallel source surface without opening
-parser or lowering support.
+This historical row landed the safety stop line without opening parser or
+lowering support. Its concrete `worker_scope` / `parallel` spelling reservation
+is superseded: structured parallelism remains future work, exact spelling is
+undecided, and neither word is reserved by Language v1.
 
-Current canonical source surface:
+Accepted target source surface (not the current parser syntax):
 
 ```hako
 co {
@@ -618,16 +629,6 @@ co {
     local x = await a
     local y = await b
     return x + y
-}
-```
-
-Reserved future structured parallel surface:
-
-```hako
-worker_scope workers = N {
-    parallel i in range {
-        work(i)
-    }
 }
 ```
 
@@ -643,7 +644,10 @@ Decisions:
 
 ```text
 co_nowait_await_canonical_source_surface=1
-worker_scope_design_reserved=1
+structured_parallel_design_area=1
+structured_parallel_exact_spelling_decided=0
+worker_scope_keyword_reserved=0
+parallel_keyword_reserved=0
 worker_scope_parser_enabled=0
 worker_scope_ast_json_enabled=0
 worker_scope_program_json_enabled=0
@@ -653,8 +657,8 @@ worker_scope_runtime_route_enabled=0
 raw_thread_parser_enabled=0
 ```
 
-`workers = N` is a scheduler budget hint and upper bound, not an exact OS
-thread-count promise:
+Any future worker budget is an upper bound, not an exact OS-thread-count
+promise. Existing historical report-field names remain runtime vocabulary:
 
 ```text
 worker_scope_workers_is_upper_bound=1
@@ -662,8 +666,8 @@ worker_scope_exact_thread_count_promise=0
 worker_scope_os_thread_spawn_direct=0
 ```
 
-Opening parser/lowering for `worker_scope` requires `THREAD-SAFETY-001` to
-enforce the safety boundary:
+Opening parser/lowering for any structured-parallel spelling requires
+`THREAD-SAFETY-001` to enforce the safety boundary:
 
 ```text
 thread_safety_gate_required=1
@@ -673,31 +677,20 @@ worker_scope_capture_check_enabled=1
 worker_scope_value_movement_enabled=1
 ```
 
-Until those fields are true, `worker_scope` is documentation-only. Do not add a
-parser capsule, AST JSON shape, MIR metadata carry, LLVM lowering, or runtime
-worker-pool route for it.
+Until those fields are true, do not add a parser capsule, AST JSON shape, MIR
+metadata carry, LLVM lowering, or runtime worker-pool route for any spelling.
 
 No silent fallback rule:
 
 ```text
-worker_scope_silent_fallback_count=0
+structured_parallel_silent_fallback_count=0
 ```
 
-Once `worker_scope` becomes source-visible, any route that executes fewer
-workers than requested, or uses a cooperative/inline route instead of a worker
-pool, must report the effective route and reason. It must not silently claim
-`worker_pool_task`.
-
-Fail-fast tags reserved for later implementation:
-
-```text
-[concurrency/worker-scope-disabled]
-[concurrency/parallel-outside-worker-scope]
-[concurrency/raw-thread-disabled]
-[concurrency/send-not-proven]
-[concurrency/share-not-proven]
-[concurrency/thread-root-missing]
-```
+Once a structured-parallel surface becomes source-visible, any route that
+executes fewer workers than requested, or uses a cooperative/inline route
+instead of a worker pool, must report the effective route and reason. It must
+not silently claim `worker_pool_task`. Old worker-scope-specific diagnostic
+tags are historical evidence, not reserved future API.
 
 ## Mimalloc Stop Line
 
