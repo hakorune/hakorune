@@ -485,9 +485,10 @@ the canonical exit set stays owned by DraftSeal and is borrowed only by the
 one-shot `consume_for_materializer` callback. Focused positive, foreign-owner,
 unsupported-unit, duplicate-site, and late-consumer-failure tests are green
 (4/4); the reusable S6C structure guard rejects the retired copied-row shape.
-The next bounded row is the materializer design stop below.
+The next bounded row was the materializer design stop below; its caller-zero
+I0 substrate is landed and the canonical-consumer design stop now follows.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 (accepted; I0 next)
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-D0 (accepted; caller-zero I0 landed)
 
 Decision: accept a lifetime-bound, move-only admission that borrows the exact
 DraftSeal-owned `PreparedFunctionExitSetV1`; do not pair an external exit set
@@ -516,11 +517,12 @@ normal/early exits finish exactly once. The first late projector/finish error
 is primary, suppressed cleanup is not retried, and the unpublished DraftSeal
 is discarded atomically.
 
-Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0`
-— change the existing admission to retain the exact exit-set borrow and
-non-copyable identity, remove the external `exits` consumer argument, and add
-only the private DraftSeal projector seam. No runtime effect is opened until
-the identity and ordering tests are green.
+Smallest slice (landed caller-zero):
+`TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` changed the existing
+admission to retain the exact exit-set borrow and non-copyable identity,
+removed the external `exits` consumer argument, and added only the private
+DraftSeal projector seam. No runtime effect was opened; the canonical consumer
+handoff is the separate design stop below.
 
 Non-claims: no runtime ABI revision, backend/no-unwind proof, production
 switch, fallback/retry, performance promotion, or `eq_hh` retirement.
@@ -529,14 +531,59 @@ Evidence (2026-08-19): `FunctionExitSetStampV1` is non-Clone/non-Copy;
 `PreparedTextFormalExitFinishSetV1<'exits>` retains the exact exit-set borrow;
 `consume_for_materializer` uses that retained borrow only; and the private
 projector enforces `operand -> finish -> Return` per exit while suppressing
-later stages after a failure. Focused lifecycle tests are green (6/6), the
+later stages after a failure. Focused lifecycle tests are green (7/7), the
 common S6C structure guard is green, all affected files remain below 800 lines,
 and no runtime/MIR/production path was opened.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (accepted; materializer I0 active)
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0 (design_stop; worker reopen)
 
-Decision: close the design stop as accepted and keep runtime effect closed
-until the bounded materializer I0 below lands.
+Decision: keep the landed materializer I0 as caller-zero identity/projector
+substrate and reopen the canonical consumer as a design stop. The existing
+DraftSeal ingress can prove the exact exit set, but it does not yet carry a
+source-backed `PinnedTextAccessPlanTableV1`, backend-frame contract, and
+Residence-finish capability into the same unpublished candidate. Do not wire
+the projector through a test closure or invent a second owner merely to make
+the call compile.
+
+Source authority + canonical issuer: `VerifiedFunctionCompletionV1` ->
+`PreparedFunctionExitSetV1` remains the sole exit authority and
+`FunctionDraftSealProjectionV1` remains the sole Return emitter. The missing
+design input is one existing-ingress capability that co-seals the plan/frame
+provenance and the runtime `TextFormalCallResidenceV1::finish` obligation
+without moving or copying the exact exit set. The canonical consumer must
+borrow the same exit set, invoke the private projector once, then let that
+same set move into the existing DraftSeal projection.
+
+Non-authority: the caller-zero projector tests, arbitrary `emit_return` or
+`finish_residence` closures, MIR/JSON Return scans, raw runtime tokens or
+pointers, a new exit ledger, `PreparedFunctionDraftSealV1::commit` as a second
+lifecycle owner, new MIR/frame/`Arc<str>` designs, legacy finalizers,
+`nyash.string.eq_hh`, fallback/retry, and benchmarks.
+
+Fail-fast boundary: before any effect, reject if the canonical ingress cannot
+retain the exact `PreparedFunctionExitSetV1`, cannot prove same owner/session/
+plan/frame/target, lacks a source-backed finish capability, or would require
+Fault/EH/recoverable-unwind handling. A closure-only seam is `NoSafeSlice`.
+Any late mismatch must discard the unpublished DraftSeal once; no retry or
+second scan is permitted.
+
+Smallest next slice: design one private handoff at the existing
+`prepare_exact_two_inner` / `prepare_detached_plan_with_exit_set` boundary (or
+an existing equivalent ingress) that carries the already-issued plan/frame/
+finish capability, retains the exact exit-set borrow while the projector runs,
+and then moves that same set into `FunctionDraftSealProjectionV1`. No code,
+runtime effect, new semantic receipt, backend/no-unwind proof, or production
+switch is authorized until this issuer/consumer boundary is accepted.
+
+Non-claims: no Residence finish, Return/CFG effect, runtime ABI revision,
+backend lowering, no-unwind closure, production caller, fallback/retry,
+performance promotion, or `eq_hh` retirement.
+
+### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; canonical consumer unresolved)
+
+Decision: keep the design stop active. The materializer identity/projector I0
+is landed caller-zero, but the canonical DraftSeal consumer is unresolved and
+must not be connected by a closure-only test seam.
 The predicate/index physical I0 and the caller-zero DraftSeal ingress probe
 above are closed. The former `PinnedTextResidenceExitObligationV1` copied-row
 prototype has been retired as an implementation owner; the selected I0 now
@@ -575,7 +622,7 @@ recoverable-unwind paths, copied rows, or a required second scan remain
 Top-down worker audit (2026-08-19) supplied the identity and fault-order
 constraints above; no additional semantic receipt or runtime owner is needed.
 
-Task ladder (lifecycle authority first, runtime effect later):
+Task ladder (canonical consumer design first, runtime effect later):
 
 0. `COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0` (landed through its probe) — make the S6C common-V2
    physical-entry callback co-reside with the unpublished canonical
@@ -587,12 +634,11 @@ Task ladder (lifecycle authority first, runtime effect later):
    issue one opaque provenance admission with a lifetime-bound borrow of the
    exact exit set; keep `PreparedFunctionExitSetV1` as the sole iterator. No
    runtime call, Return writer, or production switch.
-2. `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-MATERIALIZER-I0` — repair the
-   admission to retain the exact DraftSeal-owned exit-set borrow through a
-   private one-shot brand, remove the external exit-set consumer argument,
-   then use one canonical private projector in the unpublished candidate to
-   realize `finish` immediately before each canonical Return. No legacy
-   finalizer patch or MIR rescan.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0` — design the one
+   existing-ingress handoff that carries plan/frame/finish capability into the
+   unpublished candidate, consumes the landed projector once over the exact
+   DraftSeal-owned exit set, and then moves that same set into the sole Return
+   projection. No implementation until the issuer and consumer are closed.
 3. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-NOUNWIND-CLOSURE-I0` — observe the
    final transformed module and close the no-unwind/EH contract before object
    emission. Only after these three rows may production/performance reopen.
@@ -603,7 +649,7 @@ fallback/retry, performance promotion, or `eq_hh` retirement.
 
 #### COMMON-V2-S6C-DRAFTSEAL-INGRESS-D0 (landed design task)
 
-This is the current design-stop task. The existing
+This was the design-stop task. The existing
 `with_common_v2_physical_entry_session*` callback is test-only and always
 discards the unpublished outer session. Define one same-cohort handoff that
 keeps the canonical function session alive through complete S6C CFG/SSA,
