@@ -791,16 +791,18 @@ canonical SSA session alone may issue the Bool `ValueId`. Raw handle identity,
 integer `MirInstruction::Compare`, `StringBox::equals`, C status/wire rows,
 and `nyash.string.eq_hh` remain non-authority.
 
-The current boundary is
-`NoSafeSlice::PortableTextEqRootContentViewUnsealed`: the current pinned-root
-view exposes byte length but no safe content lend, so no Bool V10 or compare
-effect is issued. The next bounded design is one residence-owned,
-callback-scoped content view or backend-private preheader `ptr + byte_len`
-projection. It may not leak a raw handle, slot/generation, compiler pointer,
-or semantic receipt, and it must keep locks, LeaseSet operations, allocation,
-callbacks, and finish out of the loop body. If/Return CFG, publication,
-production selection, performance promotion, fallback/retry, and `eq_hh`
-retirement remain closed.
+The accepted content representation is the existing pinned C residence frame:
+the backend privately loads each validated occurrence-ordered row's `ptr +
+byte_len` once in the preheader and keeps those values as SSA inputs to the
+later UTF-8 leaf. A Rust `with_text(&str)` lend is only a caller-zero
+same-value/lifetime canary, never the compiler or hot-loop route. The current
+execution row is `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0`; it must
+reuse `PinnedTextBackendFrameBorrowV1` and the existing plan/frame stamps,
+leak no raw handle, slot/generation, compiler pointer, or semantic receipt,
+and keep locks, LeaseSet operations, allocation, callbacks, and finish out of
+the loop body. If the row/stamp/lifetime relation cannot be proven, it remains
+`NoSafeSlice`. Bool V10, If/Return CFG, publication, production selection,
+performance promotion, fallback/retry, and `eq_hh` retirement remain closed.
 
 ## TextRef residence scope D0 (2026-08-18; accepted)
 

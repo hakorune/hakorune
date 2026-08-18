@@ -128,10 +128,11 @@ Related:
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
   its outer unpublished-function rollback remains the only failure owner.
-- **Current stop:** `NoSafeSlice::PortableTextEqRootContentViewUnsealed`.
-  `PinnedTextRootViewRef` currently exposes only byte length, so no Bool V10
-  or content comparison may be issued yet. The one-shot scope remains
-  runtime-private and does not recreate source/cohort meaning.
+- **Current stop:** the Direct capability is selected, but the
+  `PinnedTextBackendFrameBorrowV1` content projection is still the next
+  bounded I0. The final route is backend-private frame-row `ptr/len` loaded
+  once in the preheader; a Rust `with_text(&str)` lend is only a safety
+  canary. No Bool V10 or content comparison effect is issued yet.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, and the caller-zero concrete StringBox
@@ -145,10 +146,10 @@ Related:
   `Arc` or snapshot. `Arc` is an ownership tool after lock release, not a
   concurrency policy; an immutable shared-backing task opens only if a
   sanctioned mutable/unsafe provider path is ever admitted.
-- **Next ordered task:** first design the private residence-owned content
-  lend/backend-private `ptr + byte_len` projection. It must not leak a raw
-  handle, slot/generation, compiler pointer, or semantic receipt; absent a
-  safe content view, remain `NoSafeSlice`.
+- **Next ordered task:** implement the private backend content projection on
+  the existing frame contract. It must not leak a raw handle, slot/generation,
+  compiler pointer, or semantic receipt; absent a safe frame-row projection,
+  remain `NoSafeSlice`.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -157,8 +158,8 @@ Related:
 
 | order | bounded task | exit condition |
 | --- | --- | --- |
-| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-D0` | Direct law is already selected; name the residence-owned content representation and reject-before-effect boundary without code effect. |
-| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0` | One-shot residence-owned content lend or backend-private preheader `ptr/len`; no raw escape, lock/alloc in loop, or second owner. |
+| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-D0` | Accepted: use the existing pinned C frame and `PinnedTextBackendFrameBorrowV1`; backend-private preheader `ptr/len` is the only hot route, while `with_text` is canary-only. |
+| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0` | One private frame-row projection and preheader load; no raw escape, lock/alloc/callback/finish in loop, or second owner. |
 | 2 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-I0` | One Direct leaf consumes the existing scope and asks the canonical session for Bool V10; no If/Return yet. |
 | 3 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | Existing If/Return/FunctionExit JoinSig receipts consume V10; one unpublished transaction remains the rollback boundary. |
 | 4 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | Positive/negative Unicode, alias, stale/foreign, lifecycle, and late-discard evidence is green. |
@@ -172,6 +173,48 @@ write/retention path, insert `TEXT-FORMAL-IMMUTABLE-BACKING-D0` before order
 1 and choose a residence-owned immutable backing. Until then, keep the
 zero-copy pinned concrete payload; do not migrate `StringBox` to `Arc<str>`
 speculatively.
+
+### COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-D0 (2026-08-18; accepted)
+
+Decision: classify the strict TextEq physical capability as
+`Direct-or-RejectBeforeEffect` and use the existing pinned C residence frame
+as the sole runtime-byte backing. The backend may project each validated,
+occurrence-ordered frame row to `ptr + byte_len` once in the preheader and
+keep those values as private SSA inputs to the later UTF-8 leaf. A
+Rust-side `with_text(&str)` callback is permitted only as a caller-zero
+same-value/lifetime canary; it is not the compiler or hot-loop route.
+
+Source authority + canonical issuer: resolver
+`Equal(Text,Text) -> Bool`, S6C Facts/Recipe/co-seal, and the existing TextEq
+occurrence relation own meaning and root order. `TextFormalCallResidenceV1`
+owns slot/generation validation, pin, and finish. The existing
+`PinnedTextBackendFrameBorrowV1` owns the mechanical frame projection, and
+`CanonicalSsaFunctionSessionV2` alone may issue Bool V10 later.
+
+Non-authority: `with_text_formal_identity` lookup/read-lock, raw pointers in
+MIR/compiler/JSON, handle/slot/generation/ValueId reinterpretation, Arc or
+snapshot backing, alias deduplication or `noalias`, `PinnedTextOp` transport
+alone, C shim/status rows, `StringBox::equals`, and `nyash.string.eq_hh`.
+
+Fail-fast boundary: before any effect, validate the exact source/cohort,
+owner/session/segment, ordered root indices, duplicate occurrence policy,
+live generation and non-retiring concrete Text payload, UTF-8 validity, frame
+limits, target pointer layout, plan/frame stamps, and lifetime/finish order.
+Any foreign/stale/pending/reordered/unsupported/escaped projection rejects
+before publication; late failure discards the unpublished function. The hot
+loop contains zero host-table lock, LeaseSet, allocation, callback, retain,
+generation check, or Residence finish.
+
+Smallest next slice: `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0` adds one
+private backend-only frame-row projection/preheader contract by reusing the
+existing frame and plan owners. It adds no semantic receipt, no new runtime
+wire, and no Bool/CFG effect. If the frame cannot prove the row/stamp/lifetime
+relation, retain `NoSafeSlice`.
+
+Non-claims: no V10 Bool, If/Return CFG, publication, production switch,
+performance promotion, fallback/retry, `Arc<str>` migration, or `eq_hh`
+retirement. The immutable-backing alternative opens only if the mutable
+reachability guard ever discovers a sanctioned write/retention path.
 
 
 ## Historical boundary
