@@ -2574,6 +2574,31 @@ census is a mandatory acceptance input for the future exact StringBox fast
 route; it is already recorded in this SSOT and must be reused rather than
 duplicated.
 
+##### TextRef residence D0 audit decision (2026-08-18; accepted design boundary)
+
+Decision: keep `design_stop` and name
+`CommonV2S6CTextEqResidenceScopeV1` as the one-shot owner for the existing
+V9/ExactText pair; do not implement it in this row.
+
+Source authority + canonical issuer: S6C `StringSubstring/2` and TextEq
+Facts/Recipe plus the existing occurrence co-seal. The private scope co-seals
+the V9 End obligation with ExactText V1 residence; the canonical session alone
+may later issue Bool/V10.
+
+Non-authority: V9 `ValueId`, MIR adjacency, sidecar slot/generation, raw
+handle/token, `eq_hh`, StableText wire alone, or `TextFormalCallResidenceV1`
+reinterpreted as source meaning.
+
+Fail-fast boundary: before residence/leaf effect, reject owner/session/segment/
+body/occurrence drift, stale/foreign/duplicate/unsupported roots, or absent V9
+and ExactText correspondence. Finish is exactly once in the order
+`TextEq leaf -> ExactText residence.finish -> V9 End consume`.
+
+Smallest next slice: specify only the private scope API, rollback owner,
+opaque roots `[V9, ExactText]`, one consumer, one finish owner, and primary /
+suppressed error order. Keep V10, additional CheckedCallOut/CFG, publication,
+production, fallback, retry, and `eq_hh` retirement closed.
+
 Non-claims: no V10 MIR effect, `MirInstruction::PinnedTextOp`, StringBox
 runtime production admission, inner CFG/Return,
 publication, production switch, fallback, retry, performance result, or
