@@ -8,22 +8,22 @@ ExactText occurrence co-seal, strict portable TextEq capability, and the
 source-bound V9 runtime producer contract are closed caller-zero substrate.
 Residence ABI/frame limits, lease/root admission separation, exact concrete
 StringBox residence, and the published lane-borrow ingress are now guarded.
-TextRef scope I0 is caller-zero runtime substrate; TextEq V10, direct leaf,
-publication, and production remain closed; Selected Dynamic remains the sole
-production arm.
+TextRef scope I0 is caller-zero runtime substrate. TextEq V10 remains at its
+strict physical-capability design stop; direct leaf, publication, and
+production remain closed; Selected Dynamic remains the sole production arm.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. The source-bound V9 runtime producer I0, index-only TextRef entry-bridge I0, and the accepted one-shot TextRef scope contract are caller-zero substrate; Scope I0 must prove lifecycle only. TextEq V10, CFG/publication, and production remain closed."
-work_mode = "fast"
-current_execution_row = "COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-I0"
-current_blocker_token = "Fast row: implement one runtime-private move-only TextRef scope over the existing source-bound V9 result and one ExactText Residence. Lend opaque refs once, finish ExactText before canonical V9 End, and record primary/suppressed cleanup. No V10, MIR Residence import, CFG/publication/production, fallback/retry, or eq_hh retirement."
+current_design_stop = "TextEq V10 remains stopped at NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed. Source-bound V9 producer I0, index-only TextRef entry-bridge I0, and runtime-private TextRef scope I0 are closed caller-zero substrate; the next design stop must select one strict non-fallback physical capability for the existing portable TextEq. No Bool V10, CFG/publication, or production is open."
+work_mode = "design_stop"
+current_execution_row = "COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0"
+current_blocker_token = "Design stop only: select one strict physical TextEq capability for the existing source Binary Equal(Text,Text)->Bool and name its canonical issuer, operand representation, fail-fast boundary, and non-claims. Do not emit Bool V10, compare handles, add a C fallback, open CFG/publication/production, or retire eq_hh."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Loop compiler TextRef scope I0 caller-zero substrate (S6C V9 + ExactText to TextEq)"
+active_lane = "Loop compiler portable TextEq V10 design stop (S6C V9 + ExactText to TextEq)"
 active_lane_status = """
 The common-V2 source/session/admission chain is caller-zero and keeps one
 unpublished-function rollback owner. The Substring target, provider, V6/V7/V8
@@ -42,9 +42,9 @@ path is not reopened. The lane adapter I0 is closed with no MIR/V10,
 publication, or production caller. The producer contract and I0 canary are
 closed with exact lifecycle/identity negatives; the old wire issuer remains a
 canary. The entry-bridge D0 and caller-zero I0 are closed as an index-only
-private physical plan with explicit root/lane bijection. The accepted one-shot
-scope contract is now the bounded I0 row: runtime-private lifecycle evidence
-only, with no V10 MIR effect.
+private physical plan with explicit root/lane bijection. The runtime-private
+scope I0 lifecycle canary is closed with no V10 MIR effect. The next bounded
+step is the strict portable TextEq capability design stop.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -60,7 +60,7 @@ latest_card_path = "docs/development/current/main/design/loop-common-physical-de
 latest_card_summary = "S6C source/Facts/Recipe TextEq authority remains valid. The concrete-wire V9 issuer, canonical CheckedCallOut/NormalResult/Fault/End materializer, Structure-R0 split, V9 + ExactText occurrence co-seal, strict backend-neutral TextEq capability decision, exact concrete StringBox residence, private lane-borrow ingress, source-bound V9 runtime producer I0, index-only TextRef entry-bridge I0, and the accepted one-shot TextRef scope contract are caller-zero substrate with focused lifecycle and identity gates green. Scope I0 is the bounded runtime-private row; TextEq V10, production, performance promotion, and eq_hh retirement remain closed."
 next_design_card = "COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
