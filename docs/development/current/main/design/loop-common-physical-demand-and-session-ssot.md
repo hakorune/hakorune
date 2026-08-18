@@ -134,13 +134,17 @@ Related:
   accepted v2 arity-indexed CoreMethod law. The final fast route does not
   materialize V9. It reuses the two existing ExactText formal roots as
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
-  selected by the verified `substring(i, i + 1)` relation. The base-root
-  admission is now landed; the next stop is
-  `NoSafeSlice::S6CResidenceExitUnsealed`: the admitted roots are now consumed
-  by one typed same-cohort source/entry/segment handoff, and the cursor CFG/SSA
-  materializer is integrated through the canonical V5 receipt. The resulting
-  MIR remains caller-zero and unpublished; residence exit/finish is the next
-  bounded boundary.
+  selected by the verified `substring(i, i + 1)` relation. The typed
+  same-cohort cursor handoff is landed, but a post-landing audit found that its
+  materializer still emits the generic `StringBox.length` Call for V5 and
+  creates a private CP-index PHI beside canonical Binding SSA. The active stop
+  is therefore
+  `NoSafeSlice::S6CCursorPredicateBindingSsaUnsealed`. Its D0
+  `MaterializationRelationMissing` question is now accepted: the final
+  consumer must issue
+  `ByteLen(Subject root 0)` once, retain only the private byte-offset PHI, and
+  read/write source `i` solely through canonical Binding SSA before residence
+  exit can reopen.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, the Subject/Needle base-root admission, the
@@ -161,15 +165,15 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** co-seal the bounded exact-two Completion exits with
-  one move-only residence obligation and finish it immediately before every
-  normal Return. The cursor CFG/SSA integration already consumes the source,
-  entry, segment, Return-read, and typed V5 products through one canonical
-  consumer; no second orchestrator or runtime frame is allowed.
-- **Production stop line:** the integrated V10/If/PHI CFG is caller-zero and
-  unpublished evidence only. Residence exit/finish, publication, production
-  selector, performance promotion, fallback/retry, and `eq_hh` retirement
-  remain closed.
+- **Next ordered task:** execute the bounded BoxShape series
+  `S6C-PINNED-CURSOR-PREDICATE-BINDING-I0`. First close the effect-free update
+  relation/V9 census/ByteLen shape, then replace the canary materializer with
+  the sole canonical Binding-SSA/CFG consumer. Keep the two responsibilities
+  in separate commits and every edited source below 800 lines.
+- **Production stop line:** the current typed cursor handoff is caller-zero
+  transport evidence, not a completed physical corridor. Residence
+  exit/finish, publication, production selector, performance promotion,
+  fallback/retry, and `eq_hh` retirement remain closed.
 - **Guard classification:** `dynamic_v2_aot_activation_authority_guard.sh`
   currently reports `selected package adapter must consume the bounded
   input/admission loan exactly once` on parent `adf649cae0` as well as this
@@ -186,8 +190,10 @@ Related:
 | 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` (landed) | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
 | 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` (landed) | Consume the base-root admission and issue one effect-free plan recording the two preheader root-pair loads, CP index 0, byte offset 0, sequential UTF-8 cursor relation, and source-backed predicate; no `ValueId`/MIR effect. |
 | 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` (landed) | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the callback-scoped capability leaves V10 issuance to the canonical session consumer. |
-| 5 | `S6C-PINNED-CURSOR-CFG-I0` (landed, caller-zero) | One typed same-cohort consumer lends source, entry bridge, cursor/preheader, V5 condition, segment, and Return-read products to the canonical session. It emits the byte-offset/CP-index PHIs, V10 If, width update, backedge, and existing Return-read relation; late failure is discarded by the unpublished transaction. |
-| 6 | `S6C-PINNED-RESIDENCE-EXIT-I0` | Co-seal the bounded exact-two Completion exits with one move-only residence obligation; finish exactly once immediately before each normal Return. Reject unwind/third-exit shapes. |
+| 5 | `S6C-PINNED-CURSOR-CFG-I0` (typed transport landed, physical closure open) | One typed same-cohort consumer now connects source, entry bridge, cursor/preheader, condition, segment, and Return-read products. Its current generic Length V5 and private CP-index PHI are canary mechanics, not the final canonical route. |
+| 5a | `S6C-PINNED-CURSOR-PREDICATE-BINDING-D0` (accepted) | The exact source update loan and canonical consume/seal order are named. Physical V5 is `byte_offset < ByteLen(root 0)`; source `i` has one canonical Binding-SSA owner; V9 use coverage is explicit before effects. |
+| 5b | `S6C-PINNED-CURSOR-PREDICATE-BINDING-I0` (active fast BoxShape series) | Replace the canary mechanics: one preheader ByteLen leaf, one private byte-offset PHI, canonical `i` read/write/PHI, V10 If, backedge, and same-cohort Return-read. Delete the generic Length fast edge and private CP-index receipt surface. |
+| 6 | `S6C-PINNED-RESIDENCE-EXIT-I0` (blocked by 5a/5b) | Co-seal the bounded exact-two Completion exits with one move-only residence obligation; finish exactly once immediately before each normal Return. Reject unwind/third-exit shapes. |
 | 7 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | Unicode/alias/stale/foreign/escape/lifecycle evidence and IR/assembly structural-zero gates pass before exact/meso/whole-call C comparison. |
 | 8 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | Switch one named production edge before effects, retire the S6C V9 CallOut edge in the same cutover, and observe zero fallback/retry. |
 | 9 | `EQ-HH-RETIREMENT-R0` | Generic C/Python caller census reaches zero independently; only then remove the legacy export. |
@@ -350,11 +356,101 @@ backedge, and Return-read placement. Positive and late-failure fixtures are
 green; the outer unpublished function transaction discards all partial MIR on
 late rejection.
 
-This closes the `S6CCursorCfgIntegratedConsumerUnsealed` design stop as
-caller-zero compiler evidence only. It does not open residence exit/finish,
-publication, production selection, runtime pointer/frame work, fallback,
-retry, performance promotion, or `eq_hh` retirement. The new integration test
-module is below 800 lines, and the cursor materializer remains 490 lines.
+This closes only the typed transport/re-pairing stop. It does **not** close the
+physical scalar-scan route. The current V5 was produced by the generic
+`StringBox.length` Call canary, its source-index read was taken from the entry
+block, and the cursor materializer created a separate `s6c:cp` PHI/next value
+while Return-read continued to use canonical Binding SSA. Those mechanics are
+counterexample evidence for the active D0, not production-ready authority.
+Residence exit/finish, publication, production selection, runtime
+pointer/frame work, fallback, retry, performance promotion, and `eq_hh`
+retirement remain closed. The integration test module is below 800 lines, and
+the cursor materializer remains below the hard source limit.
+
+### S6C pinned cursor predicate / canonical binding D0 (2026-08-18; accepted)
+
+Decision: keep the landed typed handoff, but replace its canary physical
+mechanics before opening residence exit. The final loop owns one canonical
+source-index Binding SSA and one profile-private byte-offset PHI. Physical V5
+is `byte_offset < ByteLen(Subject root 0)`; it is not the result of a generic
+Length Call.
+
+Source authority + canonical issuer: the existing
+`VerifiedS6CTypedInputRelationV1` owns the exact index initializer, step read,
+`index_update()` target/value sites, and binding. The existing
+`issue_s6c_scalar_scan_source_v1` co-seals those source facts with the
+`LessCondition`, `StepAdd`, and `StepWrite` Recipe rows, the CodePoint laws,
+V9/V10 relation, Join, and Completion. The effect-free cursor/leaf issuer must
+lend that exact update relation and `ByteLen(root 0)` shape to the existing
+canonical session. Only `ResolvedSsaIdentityStateV2` may read, define, and
+seal source `i`; only canonical CFG/PHI owners may seal the loop blocks and
+the private byte-offset PHI.
+
+Non-authority: the current generic Length Call result, the current
+`CanonicalConditionBoolResultReceiptV1::destination`, raw `ValueId`, numeric
+root IDs without their stamped role/binding rows, `cp_index_phi`, `cp_next`,
+MIR adjacency, runtime pairs, `nyash.string.eq_hh`, and benchmark success do
+not authorize the fast predicate or source-index value.
+
+Fail-fast boundary: before the first Builder effect, verify one same-cohort
+source/Recipe/Join/Completion owner, Subject root 0 and Needle root 1 by
+binding plus ordinal, exact CodePoint Count and half-open-clamped Substring
+laws, initial index/byte offset zero, the exact source step read and assignment
+target, explicit V9 reference coverage, V5/V10 distinction, segment stamp,
+Return-read binding, and target capability. Missing, foreign, duplicate,
+escaping, stale, or ambiguous inputs reject before effect. Any later CFG,
+SSA, PHI, or leaf failure discards the whole unpublished function; retry and
+fallback remain zero.
+
+Smallest next slice: execute one BoxShape series
+named `S6C-PINNED-CURSOR-PREDICATE-BINDING-I0` in two bounded commits. The
+first commit closes the effect-free relation: retain the exact step
+read/update sites, perform an explicit all-item V9-use census, and add the
+already-existing `ByteLen` leaf shape to the cursor capability. The second
+commit replaces the canary materializer: issue ByteLen once in entry/preheader,
+keep only the byte-offset private PHI, define `i + 1` through
+`define_assignment_exact`, seal CFG and Binding SSA through their canonical
+witnesses, and let Return-read observe that same binding. Do not create a new
+orchestrator or a second session.
+
+Non-claims: the accepted D0 authorizes only the named BoxShape I0. It does not
+authorize a new semantic `Verified*`/`Prepared*` product, Residence finish,
+Return materialization, backend lowering, publication, production selection,
+fallback/retry, performance promotion, `eq_hh` retirement, a new frame, or
+`Arc<str>`.
+
+The exact I0 acceptance is:
+
+```text
+PinnedTextOp ByteLen(root 0)             = exactly 1, entry/preheader
+PinnedTextOp Utf8WidthAt                 = exactly 1 in the loop body
+PinnedTextOp Utf8ScalarSliceEqWholeText  = exactly 1 in the loop body
+generic StringBox.length Call            = 0 on the fast route
+private byte-offset PHI                  = exactly 1
+private CP-index PHI / cp_next            = 0
+source i declaration/write/read authority = canonical Binding SSA only
+V5 source identity                       = retained, physical value is byte predicate
+V10 source identity                      = retained, distinct from V5
+V9 logical references                    = TextEq.left exactly 1; every other use 0
+late failure publication                 = 0
+```
+
+#### Audit disposition
+
+| feedback | disposition | scheduled boundary |
+| --- | --- | --- |
+| raw public V5 `ValueId` handoff | partly stale: commit `60201abdcb` landed a typed private handoff | retire its generic-condition dependency in 5b |
+| generic Length physical V5 | live P0 | 5a/5b |
+| private CP-index SSA beside canonical `i` | live P0 | 5a/5b |
+| same-cohort Return value proof | live P0 | 5b positive/negative evidence |
+| V9 sole-use claim is indirect | live pre-effect hardening | first 5b commit |
+| `with_published_pairs<R>` can return raw runtime pairs | valid, but not the current semantic blocker | CutoverBlocker: direct-consume in backend/runtime entry owner before production |
+| generic `consume<R>` surfaces can re-export Copy views | valid API-hardening debt | CleanupParked after physical closure/cutover |
+| one-shot bool flag bag in common session | valid growth debt | CleanupParked profile claim ledger |
+| stale StringBox rejection comment | valid documentation debt | CleanupParked; no lifetime redesign |
+| `Arc<str>` migration/new frame | no present counterexample | LatentParked; open only if mutable-reachability guard finds a sanctioned writer |
+
+Residence exit remains the next dependency after 5b, not a parallel task.
 
 
 ## Historical boundary

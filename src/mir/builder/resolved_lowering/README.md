@@ -985,9 +985,11 @@ performance, fallback/retry, and `eq_hh` retirement remain closed.
 consumes the scalar-equality leaf receipt. It stays inside the canonical
 session and checks the same owner, physical-entry stamp, source segment,
 TextEq/Return-read co-seal, and exact `Utf8WidthAt`/
-`Utf8ScalarSliceEqWholeText` shapes before emitting byte-offset and CP-index
-PHIs, the V10 inner branch, width/CP updates, and the existing backedge.
-The outer V5 predicate remains distinct and may not be reused as V10.
+`Utf8ScalarSliceEqWholeText` shapes. Its typed transport is landed, but its
+current generic Length V5 and private CP-index PHI are canary mechanics, not
+the final canonical physical route. The outer V5 remains distinct from V10,
+but must be reissued as `byte_offset < ByteLen(root 0)` before this route can
+advance.
 
 `CanonicalConditionBoolResultReceiptV1::consume_s6c_cursor_cfg` is now the
 sole typed handoff. It lends the installed source corridor, issues the
@@ -996,8 +998,11 @@ exactly once, and passes V5 internally without exposing a re-pairable outer
 `ValueId` to the fixture. Positive and late-failure fixtures are green; the
 outer unpublished function transaction remains the only late-discard owner.
 
-This closes the integrated-consumer design stop as caller-zero compiler
-evidence only. Residence exit, normal-return finish, runtime frame,
+This closes only the typed no-re-pairing handoff. D0 has accepted the next
+BoxShape I0 while `NoSafeSlice::S6CCursorPredicateBindingSsaUnsealed` remains
+the implementation stop: source `i` must be owned only by canonical Binding
+SSA, the private CP-index PHI/getters must disappear, ByteLen must be loaded
+once, and canonical CFG/Binding-SSA sealing must cover the backedge. Residence
+exit, normal-return finish, runtime frame,
 publication, production edge, fallback/retry, performance promotion, and
-`eq_hh` retirement remain closed. The next selected row is the bounded
-exact-two Completion residence-exit obligation.
+`eq_hh` retirement remain closed.
