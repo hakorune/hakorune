@@ -2460,6 +2460,46 @@ Evidence: `cargo fmt --all -- --check`,
 TextEq V10, residence, inner CFG/Return, Completion/publication, production,
 fallback, retry, direct kernel, and `eq_hh` retirement remain closed.
 
+#### COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0 (2026-08-18; design stop)
+
+Decision: retain `NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed`.
+The source meaning is already closed as `LoopOperationV2::TextEq(V9,V1 -> V10)`,
+with `NonFaulting` execution. The current physical vocabulary has no strict
+TextEq leaf or backend-neutral content-equality capability: integer
+`MirInstruction::Compare` cannot compare Text contents, and `Call`/method
+dispatch would introduce a second semantic authority.
+
+Source authority + canonical issuer: the existing resolver
+`Equal(Text,Text) -> Bool`, S6C Facts/Recipe, and the callback-scoped V9 plus
+ExactText occurrence co-seal remain authoritative. There is no accepted V10
+issuer at this HEAD. A future issuer must consume that co-seal and publish one
+canonical `MirType::Bool` through `CanonicalSsaFunctionSessionV2` only after a
+strict physical capability is named.
+
+Non-authority: raw handle `Compare`, `StringBox::equals`,
+`nyash.string.eq_hh`, runtime wire/status, MIR adjacency, V5 outer-loop Bool,
+and any fallback/retry. `eq_hh` remains generic C/Python compatibility
+substrate and cannot be promoted to the S6C correctness path.
+
+Fail-fast boundary: until a strict capability exists, reject before any V10
+MIR effect. Do not emit a guessed Bool, source Trap, runtime pair, or second
+call route. Any future unsupported representation remains
+`RejectBeforeEffect`; late compiler failure remains outer unpublished-function
+discard with no retry.
+
+Smallest next design slice: name one backend-neutral strict TextEq capability
+and its representation/residence contract, including exact content equality,
+same-content/different-handle behavior, unsupported-representation rejection,
+and the canonical Bool type issuer. Only after that decision may V10 I0 issue
+MIR; If/Return CFG, residence implementation, production, and `eq_hh`
+retirement remain closed.
+
+Evidence for the stop: `schema_v2.rs` classifies TextEq as `NonFaulting`,
+`MirInstruction::Compare` accepts integer operands, no TextEq physical
+instruction/issuer exists in common-V2, and the audited `eq_hh` export is
+raw-`i64` hook/fallback transport. This is a design boundary, not a runtime
+failure.
+
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:

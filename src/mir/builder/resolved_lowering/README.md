@@ -779,3 +779,18 @@ relation, and End absence until the co-sealed consumer callback returns.
 TextEq V10, ExactText residence, inner CFG/Return, Completion/DraftSeal,
 publication, fallback, retry, production selection, and `eq_hh` retirement
 remain closed.
+
+## Common V2 portable TextEq V10 design stop (2026-08-18)
+
+The source `LoopOperationV2::TextEq(V9,V1 -> V10)` is already verified and
+non-faulting, but this module does not yet have a strict physical TextEq
+issuer. `MirInstruction::Compare` is integer-only; raw handle comparison,
+`StringBox::equals`, and `nyash.string.eq_hh` are not content-equality
+authority. Therefore the current boundary is
+`NoSafeSlice::PortableTextEqPhysicalCapabilityUnsealed`.
+
+No Bool `ValueId`, runtime wire, status decoder, fallback, or second call route
+is issued at this stop. The next design row must name one backend-neutral strict
+TextEq capability, consume the existing V9 + ExactText co-seal, and publish a
+canonical Bool through the common session. If/Return CFG, residence
+implementation, production selection, and `eq_hh` retirement remain closed.
