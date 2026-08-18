@@ -499,6 +499,11 @@ pub enum MirInstruction {
         trap_landing: super::BasicBlockId,
     },
 
+    /// Successorless physical fail-stop for the admitted Residence Enter
+    /// trap landing.  It carries only the same compiler-local plan
+    /// provenance; it is not a source Trap, runtime status, or value.
+    PinnedTextResidenceTrap { plan: PinnedTextResidencePlanIdV1 },
+
     /// Normal-only result projection for a preceding CheckedCallOut.  This is
     /// an ordinary block-local SSA definition in the Normal landing block;
     /// the terminator itself never defines a ValueId.

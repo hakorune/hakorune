@@ -91,7 +91,9 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Store { ptr, value } => vec![*ptr, *value],
             MemOp { operands, .. } => operands.clone(),
             PinnedTextOp { kind, .. } => kind.used_values(),
-            PinnedTextResidenceFinish { .. } | PinnedTextResidenceEnter { .. } => Vec::new(),
+            PinnedTextResidenceFinish { .. }
+            | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. } => Vec::new(),
             Call {
                 callee, func, args, ..
             } => {
@@ -196,6 +198,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Return { .. }
             | CheckedCallOut { .. }
             | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. }
             | PinnedTextResidenceFinish { .. }
             | Branch { .. }
             | Jump { .. }

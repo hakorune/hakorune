@@ -100,6 +100,25 @@ fn lifecycle_entry_boundary_places_seed_on_execution_successor() {
                 let trap_entry = canonical
                     .create_unpublished_block(draft)
                     .map_err(|error| format!("{error:?}"))?;
+                let foreign_owner =
+                    crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+                        .expect("foreign compilation brand")
+                        .issue()
+                        .expect("foreign owner");
+                let foreign_plans = PinnedTextAccessPlanTableV1::new(17);
+                let foreign_frame =
+                    PinnedTextBackendFrameContractV1::from_test(foreign_owner, 17, 1);
+                let foreign_carrier = PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(
+                    foreign_owner,
+                    &foreign_plans,
+                    foreign_frame.borrow(),
+                    execution_entry,
+                    trap_entry,
+                )
+                .map_err(|error| format!("{error:?}"))?;
+                assert!(canonical
+                    .emit_pinned_text_residence_enter(draft, foreign_carrier)
+                    .is_err());
                 let plans = PinnedTextAccessPlanTableV1::new(17);
                 let frame_contract =
                     PinnedTextBackendFrameContractV1::from_test(canonical.owner(), 17, 1);

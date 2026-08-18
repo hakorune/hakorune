@@ -1384,33 +1384,35 @@ exclusive to its admitted CheckedCallOut site plan; `Throw` remains a
 recoverable/value-bearing language exit.
 
 Fail-fast boundary: before any lifecycle effect, require one same-cohort Enter
-plan, one distinct trap landing, exactly one incoming Enter edge, an empty
-unterminated trap block, and no Finish or other value-bearing instruction. The
-terminal writer rejects foreign plan, duplicate terminal, rejoin edge,
-non-empty trap body, and any already-terminated block. Late failure discards
-the unpublished function; no JSON, backend object, fallback, or retry is
-allowed.
+plan, one distinct trap landing, an empty unterminated trap block with zero
+pre-existing predecessors, and no Finish or other value-bearing instruction.
+The co-write postcondition is exactly one `E0 -> Et` predecessor edge, with
+`Et` sealed and successorless. The terminal writer rejects foreign plan,
+duplicate terminal, rejoin edge, non-empty trap body, and any already-
+terminated block. Late failure discards the unpublished function; no JSON,
+backend object, fallback, or retry is allowed.
 
-Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — add the
-compiler-side terminator plumbing and canonical writer only, with positive
-same-plan/no-successor evidence and negatives for foreign, duplicate,
-rejoining, non-empty, and Finish-on-trap shapes. Keep runtime/C/LLVM lowering,
-no-unwind observation, detached Finish/Return projection, production, and
-performance closed.
+Smallest next slice: the compiler-only
+`TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` is now landed caller-zero. It
+adds the terminator plumbing and canonical writer, with positive same-plan/no-
+successor evidence and negatives for foreign-owner, duplicate, rejoining,
+non-empty, and Finish-on-trap shapes. The next bounded row is
+`TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-D0/I0`; runtime/C/LLVM
+lowering, no-unwind observation, production, and performance remain closed.
 
 Non-claims: this row does not change source/Facts/Recipe acceptance, add a
 generic unreachable instruction, alter `CheckedCallOut` or `Throw`, emit a
 runtime status `ValueId`, open a backend route, or retire `nyash.string.eq_hh`.
 
-The accepted six-line brief for the first cell is:
+The accepted six-line brief for the trap I0 is:
 
 ```text
-Decision: final frame issuance belongs to the function-owned plan table, not the borrowed ingress.
-Source authority + canonical issuer: S6C signature loan, canonical session metadata, and the existing frame issuer.
-Non-authority: caller-provided plan tables, `into_prepared()`, frame counts without source mapping, MIR scans, and synthetic JSON.
-Fail-fast boundary: same owner/target/signature/ABI/stamp before mutation; exact finalized plan census before frame issue; late failure discards the unpublished draft.
-Smallest next slice: split pre-entry physical provenance from exactly-once final frame issuance, with no lifecycle MIR or backend routing.
-Non-claims: no real lifecycle candidate, trap terminal, detached Finish/Return projection, observer, production, fallback, or performance.
+Decision: `PinnedTextResidenceTrap` is the explicit successorless physical fail-stop terminal.
+Source authority + canonical issuer: the existing Residence Enter carrier and `CanonicalCfgSessionV1` co-write Enter plus Trap and seal the trap block.
+Non-authority: `Throw`, `CheckedCallOutFault`, inferred empty traps, block ordinals, MIR scans, JSON/C fixture text, and runtime abort symbols.
+Fail-fast boundary: `Et` is empty/unterminated/unsealed with zero predecessors before mutation; after co-write it has exactly one `E0 -> Et` edge, is sealed, and has no successors.
+Smallest next slice: compiler-only terminator plumbing, canonical co-write/seal, canonical-session owner check, and focused positive/negative tests.
+Non-claims: no lifecycle candidate/JSON, detached Finish/Return projection, runtime/C/LLVM lowering, observer, production, fallback, retry, or performance.
 ```
 
 Non-claims: no observer or `nounwind`/`noreturn` evidence, production caller
@@ -1444,9 +1446,9 @@ post-transform issuer.
 Feedback disposition: the reported duplicate CP-index SSA, raw V5 handoff, and
 generic Length predicate are already closed in the current HEAD (one entry
 `ByteLen`, one private byte-offset PHI, canonical source `i` Binding SSA).
-The remaining design boundary is now the upstream physical-entry co-seal; no
-current code issues a lifecycle plan before DraftSeal or proves
-`residence.finish -> Return` for every exit.
+The remaining design boundary is now the detached Finish/Return projection
+over the exact exit set; no current code issues a lifecycle plan before
+DraftSeal or proves `residence.finish -> Return` for every exit.
 
 Non-authority: `PinnedTextResidenceExitObligationV1` copied rows, raw
 residence tokens, frame pointers, `ValueId` ordinals, MIR/JSON Return scans,
@@ -1514,10 +1516,12 @@ Task ladder (canonical consumer design first, runtime effect later):
     reject before DraftSeal publication.
 13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — accepted design stop:
     `PinnedTextResidenceTrap` is the explicit physical fail-stop terminal;
-    implementation remains closed until the compiler-only I0 below.
-14. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — next: add the new
-    terminator plumbing and canonical writer with no runtime/backend route.
-15. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — later:
+    the compiler-only I0 is landed caller-zero with canonical co-write/seal,
+    owner validation, and focused structural negatives.
+14. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — landed caller-zero:
+    add the new terminator plumbing and canonical writer with no
+    runtime/backend route.
+15. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-D0/I0` — next:
     consume the full ingress in the existing caller-zero owner, materialize
     one real lifecycle-bearing function/JSON candidate, and keep the detached
     DraftSeal transaction as the rollback boundary.

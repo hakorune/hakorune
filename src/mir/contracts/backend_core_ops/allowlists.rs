@@ -198,6 +198,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         // backend may claim a lowering opcode yet.
         MirInstruction::PinnedTextOp { .. }
         | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. }
         | MirInstruction::PinnedTextResidenceFinish { .. } => &[],
 
         MirInstruction::Load { .. }

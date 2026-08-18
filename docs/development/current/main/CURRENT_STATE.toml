@@ -27,10 +27,10 @@ root-map tests, and trap-Finish rejection. The C lowering fixture is landed; the
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "open: explicit physical Residence trap terminal is selected as a BoxCount; compiler-only I0 and detached lifecycle projection remain closed"
+current_design_stop = "open: detached Finish projection must consume the authoritative exit set and place Finish before the existing Return projection; target-machine, observer, production, fallback, and performance remain closed"
 work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0"
-current_blocker_token = "Before any backend observer or production route, implement only the selected PinnedTextResidenceTrap compiler terminal, then project Finish over the authoritative exit set; reject Throw/CheckedCallOutFault reuse, inferred empty traps, synthetic fixture promotion, live-builder patching, fallback, retry, and target-machine routing."
+current_execution_row = "S6C-RESIDENCE-EXIT-FINISH-D0"
+current_blocker_token = "PinnedTextResidenceTrap compiler I0 is landed caller-zero. Before any backend observer or production route, decide the detached Finish projection over the existing exit set; reject a second exit ledger, inferred trap meaning, Throw/CheckedCallOutFault reuse, synthetic fixture promotion, live-builder patching, fallback, retry, and target-machine routing."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -73,7 +73,7 @@ block. The accepted E0/E1 physical boundary is now landed caller-zero: E0
 owns Enter and E1 owns sidecar/seed/cursor start. Function-owned frame timing
 is now also landed caller-zero: the plan-less ingress is consumed once and the
 existing frame issuer reads the canonical function plan table only after the
-three S6C leaf rows exist. The next bounded design stop selected an explicit PinnedTextResidenceTrap physical terminal as a new vocabulary BoxCount; its compiler-only I0 and then detached Finish projection remain closed. Target-machine routing, the post-transform observer, lifecycle production, fallback, and performance remain closed.
+three S6C leaf rows exist. The next bounded design stop selected an explicit PinnedTextResidenceTrap physical terminal as a new vocabulary BoxCount. Its compiler-only I0 is now landed caller-zero: the canonical CFG owner co-writes Enter plus a successorless Trap, seals the trap block, and rejects foreign/rejoin/non-empty shapes; canonical SSA also rejects a foreign carrier owner. Detached Finish projection remains the next design stop. Target-machine routing, the post-transform observer, lifecycle production, fallback, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -86,8 +86,8 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, caller-zero C textual-lowering fixture, E0/E1 entry co-seal, and function-owned frame issuance timing are landed. The explicit PinnedTextResidenceTrap terminal is now selected as a physical BoxCount; its compiler-only I0 and detached Finish projection remain closed. Target-machine routing, observer, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, lifecycle-carrier I0, DraftSeal consumer I0, strict carrier transport I0, caller-zero C textual-lowering fixture, E0/E1 entry co-seal, function-owned frame issuance timing, and compiler-only PinnedTextResidenceTrap I0 are landed caller-zero. The Trap is co-written and sealed by the canonical CFG owner, with foreign-owner and structural negatives. Detached Finish projection remains the next design stop; target-machine routing, observer, production, fallback, and performance remain closed."
+next_design_card = "S6C-RESIDENCE-EXIT-FINISH-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -101,7 +101,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-19: Trap-terminal D0 is accepted as a physical BoxCount: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, written only by the canonical CFG owner with the same plan provenance; Throw, CheckedCallOutFault, inferred empty traps, runtime/backend lowering, and detached Finish projection remain closed.",
+  "2026-08-19: Trap-terminal I0 landed caller-zero: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, co-written and sealed only by the canonical CFG owner with the same plan provenance; foreign owner, non-empty/terminated/predecessored trap, and rejoin edges reject before/after mutation as appropriate. Runtime/backend lowering and detached Finish projection remain closed.",
   "2026-08-19: Caller-zero frame-timing I0 is landed: the pre-DraftSeal ingress is plan-less and affine, the retained S6C loan is the signature adapter, and the existing frame issuer finalizes exactly once from the canonical function-owned plan table after three leaf rows. Empty/zero-stamp/preinstalled frames reject; focused frame/DraftSeal test, cargo check, fmt, pointer, and structure guard are green. Explicit trap terminal, detached Finish/Return projection, backend, and production remain closed.",
   "2026-08-19: Caller-zero E0/E1 physical entry co-seal is landed: E0 contains Residence Enter only, E1 is the same-cohort sidecar/seed/cursor execution entry, duplicate boundary issuance rejects, and the focused S6C cursor module is 5/5 green; backend candidate, observer, and production remain closed.",
   "2026-08-19: Caller-zero C lowering fixture consumes strict pinned_text_residence_carrier@1 JSON and emits textual LLVM Enter/normal-trap/success-only Finish shape; missing carrier, cohort drift, and trap Finish reject before output publication. Target-machine observer and production remain closed.",

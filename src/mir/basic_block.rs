@@ -139,6 +139,7 @@ impl BasicBlock {
                 | MirInstruction::Return { .. }
                 | MirInstruction::CheckedCallOut { .. }
                 | MirInstruction::PinnedTextResidenceEnter { .. }
+                | MirInstruction::PinnedTextResidenceTrap { .. }
                 | MirInstruction::CheckedCallOutFault { .. }
                 | MirInstruction::Throw { .. }
         )
@@ -175,6 +176,11 @@ impl BasicBlock {
                     // A checked-call Fault is a canonical fail-stop terminal.
                     // It deliberately has no normal successor; the backend
                     // must not invent a rejoin edge or route it through After.
+                }
+                MirInstruction::PinnedTextResidenceTrap { .. } => {
+                    // Residence Enter failure is a physical fail-stop.  The
+                    // terminal has no normal successor and cannot rejoin the
+                    // admitted body.
                 }
                 MirInstruction::CheckedCallOut {
                     normal_landing,

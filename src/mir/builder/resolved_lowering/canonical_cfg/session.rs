@@ -223,7 +223,7 @@ impl CanonicalCfgSessionV1 {
     /// entry.  The affine carrier has already co-sealed the function-local
     /// frame/plan provenance; this method only installs its two edges.
     pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_enter(
-        &self,
+        &mut self,
         function: &mut MirFunction,
         source: BasicBlockId,
         carrier: PreparedPinnedTextResidenceLifecycleV1,
@@ -235,6 +235,20 @@ impl CanonicalCfgSessionV1 {
             ));
         }
         self.preflight_edge(function, source, &[normal_landing, trap_landing])?;
+        let trap_block = function
+            .get_block(trap_landing)
+            .expect("Residence trap target was checked");
+        if !trap_block.instructions.is_empty()
+            || trap_block.terminator.is_some()
+            || !trap_block.predecessors.is_empty()
+            || trap_block.is_sealed()
+            || self.sealed.contains_key(&trap_landing)
+        {
+            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
+                "Residence trap landing must be empty, unterminated, unsealed, and predecessor-free"
+                    .to_owned(),
+            ));
+        }
         function
             .get_block_mut(source)
             .expect("Residence source was checked")
@@ -249,6 +263,11 @@ impl CanonicalCfgSessionV1 {
                 .expect("Residence target was checked")
                 .add_predecessor(source);
         }
+        function
+            .get_block_mut(trap_landing)
+            .expect("Residence trap target was checked")
+            .set_terminator(MirInstruction::PinnedTextResidenceTrap { plan });
+        self.seal_block(function, trap_landing)?;
         Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(residence))
     }
 
@@ -562,7 +581,7 @@ mod tests {
             .issue()
             .expect("function owner");
         let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
-        let cfg = CanonicalCfgSessionV1::new();
+        let mut cfg = CanonicalCfgSessionV1::new();
         let capability = cfg
             .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
             .expect("Enter");
@@ -575,6 +594,17 @@ mod tests {
         assert!(source.effects.contains(crate::mir::Effect::Control));
         assert!(source.effects.contains(crate::mir::Effect::Barrier));
         assert!(source.effects.contains(crate::mir::Effect::WriteHeap));
+
+        let trap = function.get_block(BasicBlockId::new(2)).unwrap();
+        assert!(matches!(
+            trap.terminator,
+            Some(MirInstruction::PinnedTextResidenceTrap { .. })
+        ));
+        assert!(trap.instructions.is_empty());
+        assert!(trap.successors.is_empty());
+        assert!(trap.is_sealed());
+        assert!(trap.effects.contains(crate::mir::Effect::Control));
+        assert!(trap.effects.contains(crate::mir::Effect::Panic));
 
         cfg.emit_pinned_text_residence_finish(
             &mut function,
@@ -601,7 +631,7 @@ mod tests {
             .issue()
             .expect("function owner");
         let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
-        let cfg = CanonicalCfgSessionV1::new();
+        let mut cfg = CanonicalCfgSessionV1::new();
         let capability = cfg
             .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
             .expect("Enter");
@@ -614,6 +644,62 @@ mod tests {
                 capability.into_residence(),
             ),
             Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { .. })
+        ));
+    }
+
+    #[test]
+    fn pinned_text_residence_rejects_nonempty_trap_before_cfg_mutation() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        function
+            .get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .add_instruction(MirInstruction::KeepAlive {
+                values: vec![ValueId::new(9)],
+            });
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let result =
+            cfg.emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier);
+        assert!(matches!(
+            result,
+            Err(CanonicalCfgErrorV1::PinnedTextResidence(_))
+        ));
+        assert!(function
+            .get_block(BasicBlockId::new(0))
+            .unwrap()
+            .terminator
+            .is_none());
+        assert!(function
+            .get_block(BasicBlockId::new(2))
+            .unwrap()
+            .terminator
+            .is_none());
+    }
+
+    #[test]
+    fn pinned_text_residence_trap_is_sealed_against_rejoin_edges() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let _capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter and Trap");
+        let result = cfg.emit_jump(&mut function, BasicBlockId::new(1), BasicBlockId::new(2));
+        assert!(matches!(
+            result,
+            Err(CanonicalCfgErrorV1::EdgeAfterSeal { .. })
         ));
     }
 }

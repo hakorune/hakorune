@@ -34,6 +34,9 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         if self.pinned_text_residence.is_some() {
             return Err("pinned-Text Residence Enter was already emitted".to_owned());
         }
+        if carrier.plan().owner() != self.owner {
+            return Err("Residence Enter carrier owner differs from canonical session".to_owned());
+        }
         let boundary = self
             .physical_entry_execution
             .ok_or_else(|| "Residence Enter requires a physical entry boundary".to_owned())?;

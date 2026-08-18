@@ -30,6 +30,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
         MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
         MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
+        MirInstruction::PinnedTextResidenceTrap { .. } => "PinnedTextResidenceTrap",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",

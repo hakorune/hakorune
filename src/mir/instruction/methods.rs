@@ -70,6 +70,9 @@ impl MirInstruction {
             MirInstruction::PinnedTextResidenceEnter { .. } => {
                 EffectMask::WRITE.add(Effect::Barrier).add(Effect::Control)
             }
+            MirInstruction::PinnedTextResidenceTrap { .. } => {
+                EffectMask::CONTROL.add(Effect::Panic)
+            }
             MirInstruction::PinnedTextResidenceFinish { .. } => {
                 EffectMask::WRITE.add(Effect::Barrier).add(Effect::Panic)
             }
@@ -166,6 +169,7 @@ impl MirInstruction {
             | MirInstruction::CheckedCallOutEnd { .. }
             | MirInstruction::CheckedCallOutFault { .. }
             | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceTrap { .. }
             | MirInstruction::PinnedTextResidenceFinish { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
@@ -250,6 +254,7 @@ impl MirInstruction {
             | MirInstruction::CheckedCallOutEnd { .. }
             | MirInstruction::CheckedCallOutFault { .. }
             | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceTrap { .. }
             | MirInstruction::PinnedTextResidenceFinish { .. } => Vec::new(),
 
             MirInstruction::CheckedCallOut {

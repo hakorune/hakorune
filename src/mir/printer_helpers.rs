@@ -466,6 +466,10 @@ pub fn format_instruction(
             plan, normal_landing, trap_landing
         ),
 
+        MirInstruction::PinnedTextResidenceTrap { plan } => {
+            format!("pinned_text.residence.trap plan={:?}", plan)
+        }
+
         MirInstruction::Phi { dst, inputs, .. } => {
             let inputs_str = inputs
                 .iter()

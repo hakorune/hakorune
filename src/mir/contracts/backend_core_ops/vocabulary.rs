@@ -22,6 +22,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
         MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
         MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
+        MirInstruction::PinnedTextResidenceTrap { .. } => "PinnedTextResidenceTrap",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
@@ -96,6 +97,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "PinnedTextOp",
     "PinnedTextResidenceEnter",
     "PinnedTextResidenceFinish",
+    "PinnedTextResidenceTrap",
     "NewBox",
     "NewClosure",
     "Phi",
@@ -175,6 +177,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::MemOp { .. }
         | MirInstruction::PinnedTextOp { .. }
         | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. }
         | MirInstruction::PinnedTextResidenceFinish { .. }
         | MirInstruction::NewBox { .. }
         | MirInstruction::NewClosure { .. }
