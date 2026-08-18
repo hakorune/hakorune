@@ -2082,3 +2082,21 @@ is `tools/checks/loop_physical_transfer_authority_guard.sh`; its S6C ingress
 rule permits legitimate borrowed `logical_*` views and checks detached-
 authority patterns instead of using a broad method-name match. If any of those
 evidence rows cannot be closed without re-pairing, stop with `NoSafeSlice`.
+
+## S6C scalar-scan source corridor I0 (2026-08-18)
+
+The sole `VerifiedS6CPrephysicalIngressV2` now lends a callback-scoped
+`S6CScalarScanSourceRefV1`. It is a source/Facts/Recipe/Join relation view,
+not a physical plan: subject/needle/index roles, `i = 0`, the arity-indexed
+CodePoint laws, `i < length`, `substring(i, i + 1)`, the sole
+`V9 -> TextEq -> If` use, the increment write, and Join/Completion are
+co-sealed before any effect. V9 is represented only as a derived slice
+relation; it is not a root or a runtime object.
+
+The view has no MIR `ValueId`, Bool V10, CFG/SSA/PHI, pointer, runtime frame,
+selector, fallback/retry, or production authority. It rejects missing,
+foreign, duplicate, escaped, and drifted relations before physicalization. The
+next bounded row is base-root admission against the existing ExactText
+subject/needle residence. The portable Text-kernel/fastpath syntax remains a
+parked idea under `contract-region-v0-ssot.md`; it is not part of this
+language contract.

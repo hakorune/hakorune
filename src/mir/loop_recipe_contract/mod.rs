@@ -64,6 +64,9 @@ mod s6c_scan_with_init_logical_consumer;
 mod s6c_text_eq_site_contract;
 // Source-bound TextEq occurrence view; no physical IDs/runtime wire.
 mod s6c_text_eq_occurrence;
+// Caller-zero source-backed scalar-scan corridor view; no physical effect.
+#[allow(dead_code)]
+mod s6c_scalar_scan_corridor;
 // Typed row façade is currently exercised by focused tests only.
 #[allow(dead_code)]
 mod s6c_scan_with_init_rows;
@@ -306,6 +309,8 @@ pub(crate) use s6c_prephysical_ingress::{
 };
 #[allow(unused_imports)]
 pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
+#[allow(unused_imports)]
+pub(crate) use s6c_scalar_scan_corridor::{S6CScalarScanSourceRefV1, S6CScalarScanSourceRejectV1};
 #[allow(unused_imports)]
 pub(crate) use s6c_scan_with_init::{
     produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,

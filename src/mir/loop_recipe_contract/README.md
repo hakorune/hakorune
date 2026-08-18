@@ -943,3 +943,19 @@ Its source-anchor checks now live in the private
 Facts/Recipe/Join anchors and returns the parent-owned seal. The split changes
 no accepted shape, key issuer, or physical authority; every rejected anchor
 still fails before a Builder/session effect.
+
+## S6C scalar-scan source corridor I0 (2026-08-18)
+
+The same `VerifiedS6CPrephysicalIngressV2` now lends a callback-scoped
+`S6CScalarScanSourceRefV1` through `with_scalar_scan_source`. This source-only
+BoxShape co-seals the typed `Subject`/`Needle`/`Index` roles, `i: i64 = 0`,
+the exact `StringLen/0` and `StringSubstring/2` semantic laws, the
+`i < length` predicate, `substring(i, i + 1)`, sole `V9 -> TextEq -> If`
+use, the `i = i + 1` write, and the existing Join/Completion census.
+
+It borrows the retained Facts/Recipe/Join rows and emits no new source
+authority, Recipe key, `ValueId`, CFG/SSA/PHI, pointer, runtime frame, Bool
+V10, selector, fallback, retry, or production edge. Missing, foreign,
+duplicate, escaped, or drifted relations reject before physical effect. The
+next row is base-root admission; the portable Text-kernel/fastpath idea is
+parked in `contract-region-v0-ssot.md` and remains unselected.

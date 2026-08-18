@@ -168,6 +168,28 @@ impl VerifiedS6CPrephysicalIngressV2 {
         })
     }
 
+    /// Lend the complete source-backed scalar-scan relation through this
+    /// ingress. The view is callback-scoped and has no physical value,
+    /// runtime wire, or alternate source owner.
+    pub(crate) fn with_scalar_scan_source<R>(
+        &self,
+        callback: impl for<'a, 'rows, 'facts> FnOnce(
+            super::s6c_scalar_scan_corridor::S6CScalarScanSourceRefV1<'a, 'rows, 'facts>,
+        ) -> Result<
+            R,
+            super::s6c_scalar_scan_corridor::S6CScalarScanSourceRejectV1,
+        >,
+    ) -> Result<R, super::s6c_scalar_scan_corridor::S6CScalarScanSourceRejectV1> {
+        self.output.with_retained_prephysical_source(|source| {
+            let ingress = S6CPrephysicalIngressRefV2 {
+                source,
+                seal: &self.seal,
+            };
+            let source = super::s6c_scalar_scan_corridor::issue_s6c_scalar_scan_source_v1(ingress)?;
+            callback(source)
+        })
+    }
+
     pub(crate) fn with_completion<R>(
         &self,
         callback: impl for<'facts> FnOnce(S6CPrephysicalCompletionRefV2<'facts>) -> R,
@@ -246,6 +268,14 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self.source.logical().roles().needle_input()
     }
 
+    pub(crate) const fn subject_input(self) -> LoopValueKeyV1 {
+        self.source.logical().roles().subject_input()
+    }
+
+    pub(crate) const fn index_input(self) -> LoopValueKeyV1 {
+        self.source.logical().roles().index_input()
+    }
+
     pub(crate) fn typed_input_relation(
         self,
     ) -> &'facts crate::mir::callable_semantic_batch::VerifiedS6CTypedInputRelationV1 {
@@ -259,6 +289,12 @@ impl<'a, 'rows, 'facts> S6CPrephysicalIngressRefV2<'a, 'rows, 'facts> {
         self,
     ) -> super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1<'facts> {
         self.source.logical().calls().substring().source()
+    }
+
+    pub(crate) fn length_source(
+        self,
+    ) -> super::s6c_scan_with_init_joinir::S6CLogicalCallInputRefV1<'facts> {
+        self.source.logical().calls().length().source()
     }
 
     /// Project the two source-bound CoreMethod effects without exposing the

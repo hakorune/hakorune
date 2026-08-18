@@ -127,15 +127,17 @@ Related:
   compiler/runtime physical boundary is reset. The separate compiler-side V9
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
-  its outer unpublished-function rollback remains the only failure owner.
+  its outer unpublished-function rollback remains the only failure owner. The
+  source-only scalar corridor view is now landed through that same ingress and
+  does not open a physical effect.
 - **Current stop:** the separate-V9-view candidate is superseded by the
   accepted v2 arity-indexed CoreMethod law. The final fast route does not
   materialize V9. It reuses the two existing ExactText formal roots as
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
   selected by the verified `substring(i, i + 1)` relation. The next stop is
-  `NoSafeSlice::S6CTextScalarCorridorSourceUnsealed`: no cursor, leaf, or Bool
-  effect is open until the source/Facts/Recipe/Join relation is lent by its
-  sole prephysical ingress.
+  `NoSafeSlice::S6CTextScalarCorridorBaseRootAdmissionUnsealed`: the source
+  relation is now lent by the sole prephysical ingress, but no cursor, leaf, or
+  Bool effect is open until its Subject/Needle root roles are co-sealed.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, and the caller-zero concrete StringBox
@@ -155,11 +157,10 @@ Related:
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
 - **Next ordered task:** lend the accepted typed law and the already closed
-  source/Facts/Recipe/Join cohort through one source corridor ingress. It must
-  prove subject/needle roles, the initial CP index, CP Length, sequential
-  `substring(i, i + 1)`, sole-use V9 to TextEq, and the bounded Join/Completion
-  relation before any physical effect. Do not infer a byte cursor from Recipe
-  ordinals or MIR adjacency.
+  source/Facts/Recipe/Join cohort through the existing two-row ExactText
+  sidecar/frame, proving root 0 is Subject and root 1 is Needle by binding plus
+  logical ordinal. Add no frame, runtime owner, raw pointer API, or V10 effect.
+  Do not infer a byte cursor from Recipe ordinals or MIR adjacency.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -244,16 +245,40 @@ behavior; and migrated consumers mechanically. Every touched source remains
 below 800 lines. It emitted no Recipe, physical plan, MIR, runtime frame, or
 production edge.
 
-Smallest next slice: `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` lends the accepted
-law and closed source/Facts/Recipe/Join cohort through one prephysical ingress;
-it emits no physical effect, Bool V10, CFG, runtime frame, or production edge.
+The source-corridor I0 is now landed: `S6CScalarScanSourceRefV1` is a
+callback-scoped, source-only view issued by the sole prephysical ingress. It
+checks the accepted laws and complete relation once, including the
+non-escaping derived V9 slice; it emits no physical effect, Bool V10, CFG,
+runtime frame, or production edge.
 
-Non-claims: no source corridor I0, byte cursor, root admission, V9
+Smallest next slice: `S6C-PINNED-BASE-ROOT-ADMISSION-I0` co-seals that view
+with the existing two ExactText formal occurrences, binding Subject and
+Needle by source binding plus logical ordinal. No new frame or lifetime owner
+is allowed.
+
+Non-claims: no byte cursor, root admission, V9
 non-materialization, V10, CFG/PHI/Return, runtime entry/finish, production
 switch, performance result, fallback/retry, global `Arc<str>` migration, or
 `eq_hh` retirement is complete. This metadata row does not switch the current
 legacy runtime default from byte indexing, authorize `Substring/1` CP
 semantics, or claim VM/provider parity.
+
+### S6C scalar-scan source corridor I0 closeout (2026-08-18; accepted)
+
+`VerifiedS6CPrephysicalIngressV2::with_scalar_scan_source` is now the sole
+source-corridor boundary. Its callback-scoped `S6CScalarScanSourceRefV1`
+co-seals typed Subject/Needle/Index roles, the `i = 0` initializer,
+`StringLen/0` and `StringSubstring/2` laws, the `i < length` predicate,
+`substring(i, i + 1)`, sole `V9 -> TextEq -> If` use, the increment write,
+and the existing Join/Completion relation. It borrows existing authorities;
+it does not mint a Recipe key, physical ID, MIR value, pointer, runtime frame,
+or route.
+
+Focused ingress tests are green (`3/3`), including the pre-existing control
+census negative. The source view rejects missing/foreign/duplicate/escaped or
+drifted relations before effect; no Bool V10, CFG/SSA/PHI, production switch,
+fallback/retry, or `eq_hh` retirement is opened. The parked Text-kernel idea
+remains documented in `contract-region-v0-ssot.md` and is not an active row.
 
 
 ## Historical boundary

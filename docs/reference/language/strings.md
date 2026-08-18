@@ -43,6 +43,22 @@ It does not change the legacy runtime toggle or authorize VM/provider parity;
 the later scalar-scan corridor must consume the typed law before any physical
 cursor or leaf is admitted.
 
+## Scalar-scan corridor boundary
+
+The first S6C source corridor is a compiler-side relation view over the
+existing typed/Facts/Recipe/Join cohort. It proves the CodePoint laws and the
+`substring(i, i + 1) == needle` relation before physicalization; it does not
+create a StringEquals source call, a V9 runtime object, or a new Text meaning.
+The eventual fast route may represent V9 as a derived scalar slice over the
+subject root, while the subject and needle remain the two existing ExactText
+base roots. No byte cursor, pointer, runtime frame, Bool result, or production
+switch is authorized by this language reference yet.
+
+The portable Text-kernel/fastpath region discussed for expert source remains
+parked design only. If reopened, it must be a checked, closed leaf vocabulary
+that converges on the same verified corridor plan; it must not expose raw
+pointer syntax or become a second optimizer/physical authority.
+
 ## Model
 - `StringBox`: immutable UTF‑8 string value. Public text APIs are CP‑indexed.
 - `Utf8CursorBox`: delegated implementation for scanning and slicing `StringBox` as CPs.
