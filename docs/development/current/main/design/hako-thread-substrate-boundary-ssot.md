@@ -45,7 +45,8 @@ WorkerPoolScheduler=implemented
 ThreadRegistry v0=implemented
 source_level_thread_syntax=0
 worker_pool_source_route_enabled=0
-worker_scope_design_reserved=1
+# Historical proposal only; exact structured-parallel spelling is undecided.
+worker_scope_design_reserved=0
 worker_scope_parser_enabled=0
 worker_scope_workers_is_upper_bound=1
 ```
@@ -873,7 +874,7 @@ mir_context_scope_lowering=0
 This row proves child creation snapshots at runtime registration time. It does
 not open Program JSON / MIR lowering for `ContextScope`.
 
-### CONC-SOURCE-PARALLEL-001: structured parallel source reservation
+### CONC-SOURCE-PARALLEL-001: structured parallel source proposal (superseded spelling)
 
 Status: landed-docs.
 
@@ -885,7 +886,8 @@ co_nowait_await_canonical_source_surface=1
 nowait_os_thread_spawn=0
 ```
 
-The future structured parallel source surface is reserved as design-only:
+The future structured parallel source surface remains design-only, but the old
+`worker_scope` / `parallel` spelling reservation has been released:
 
 ```hako
 worker_scope workers = N {
@@ -898,7 +900,7 @@ worker_scope workers = N {
 Current status:
 
 ```text
-worker_scope_design_reserved=1
+worker_scope_design_reserved=0
 worker_scope_parser_enabled=0
 worker_scope_ast_json_enabled=0
 worker_scope_program_json_enabled=0
@@ -918,7 +920,8 @@ worker_scope_exact_thread_count_promise=0
 worker_scope_os_thread_spawn_direct=0
 ```
 
-Opening source-visible `worker_scope` requires safety enforcement first:
+Opening any future source-visible structured-parallel spelling requires safety
+enforcement first:
 
 ```text
 thread_safety_gate_required=1
@@ -929,8 +932,8 @@ worker_scope_value_movement_enabled=1
 ```
 
 Until those fields are true, do not add parser support, AST JSON, Program JSON,
-MIR lowering, LLVM lowering, or runtime route activation. If a later row makes
-`worker_scope` source-visible, any route that uses fewer/equivalent workers or
+MIR lowering, LLVM lowering, or runtime route activation. If a later row opens a
+structured-parallel surface, any route that uses fewer/equivalent workers or
 falls back to cooperative/inline execution must report that route explicitly:
 
 ```text
@@ -941,8 +944,9 @@ worker_scope_effective_workers=<n>
 
 ### THREAD-SOURCE-001: structured worker source surface
 
-Reserved future row. Prefer structured surfaces such as `worker_scope` /
-`parallel` before raw `thread { ... }` or detached tasks.
+Historical future row. Prefer a later explicitly chosen structured-parallel
+surface before raw `thread { ... }` or detached tasks; do not treat
+`worker_scope` / `parallel` as reserved API names.
 
 ## Stop Lines
 

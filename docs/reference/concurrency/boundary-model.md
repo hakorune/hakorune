@@ -45,6 +45,38 @@ source code should keep the role visible.
 
 Worker-local/TLS storage is runtime substrate, not a fifth public role.
 
+### Source-surface closure
+
+For the current language design, the public concurrency vocabulary is complete
+at these seven surfaces:
+
+```text
+Future<T>   result type
+nowait      Future creation
+await       Future observation
+co          structured child-task ownership
+Channel<T>  explicit task-to-task transfer
+sync box    serialized shared mutable state
+context     structured ambient context snapshot
+```
+
+This is a source-level closure, not a claim that every surface is fully
+implemented on every backend. `Future<T>` is a type/API surface, while
+`nowait`, `await`, and `co` are the task-ownership syntax. `Channel<T>`,
+`sync box`, and `context` are different boundaries and must not be folded into
+`co` or a generic `Boundary<T>` construct.
+
+`worker_scope` is not a longer spelling of `co`. It would describe a future
+worker-budget/parallel-iteration boundary, with capture and Send/Share/
+ThreadRoot obligations that do not belong to ordinary structured child-task
+ownership. Its exact spelling is deliberately undecided and unreserved. No
+additional public thread keyword is needed for the current model.
+
+The runtime still has a separate substrate layer (`Scheduler`, `ThreadApi`,
+`ThreadRegistry`, worker-pool/TLS, mutexes, and platform threads). Those names
+are implementation vocabulary and do not enlarge the `.hako` concurrency
+surface or make `nowait` an OS-thread promise.
+
 ## Source Surface Direction
 
 Canonical surface direction:
@@ -410,7 +442,7 @@ Summary rows:
 | `CONC-CHANNEL-001` | Update channel API docs so `send` / `recv` / `close` are await-visible and `try_*` APIs are non-blocking. |
 | `CONC-SYNCBOX-001` | Keep raw `lock<T>` non-canonical; add `sync box` as the shared-mutable surface. |
 | `CONC-SYNCBOX-002` | Reject `await` / `nowait` / channel waits inside serialized `sync box` methods. |
-| `CONC-GUARD-AST-CRATE0` | Repair stale guard paths without changing language behavior. |
+| `CONC-GUARD-CURRENT-OWNER-R0` (historical `CONC-GUARD-AST-CRATE0`) | Repair stale guard paths without changing language behavior. |
 | `CONC-GRAM-SYNC0/CO0/CONTEXT0` | Add the already-live concurrency capsules to grammar registry and EBNF one row at a time. |
 | `CONC-NOWAIT-EXPR-D0/I0` | Move the historical dedicated binding statement to the canonical `nowait expr -> Future<T>` expression without changing scheduler meaning. |
 | `CONC-SCOPED-COMPAT-R0` / `CONC-TASK-SCOPE-COMPAT-R0` | Reject legacy spellings in Canonical, quarantine them to Compat2025, and delete their spelling carriers only at the compatibility sunset. |

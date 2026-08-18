@@ -66,7 +66,8 @@ no in-repo construction caller, but its crate-root export and builtin type
 name are externally observable; its disposition therefore needs a public-API
 decision before deletion.
 
-The first cleanup row is `CONC-GUARD-AST-CRATE0`: refresh the three stale
+The first cleanup row is `CONC-GUARD-CURRENT-OWNER-R0` (historical
+`CONC-GUARD-AST-CRATE0`): refresh the three stale
 guards to the current frontend-AST, split decoder, Program JSON, and MIR owner
 paths with behavior/grammar delta zero. Only after that row should the
 grammar/compatibility sequence proceed. `worker_scope` is not an alternate
@@ -120,6 +121,48 @@ surface. Parser, AST JSON, Program JSON, MIR, LLVM, and runtime route activation
 stay closed until `THREAD-SAFETY-001` enforces send/share/root safety; the old
 `worker_scope` / `parallel` sketch does not reserve those spellings.
 
+### 2026-08-19 source/thread surface closure
+
+The current source model is intentionally complete without a public
+`worker_scope` or raw-thread construct:
+
+```text
+Future<T> / nowait / await / co
+Channel<T>
+sync box
+context
+```
+
+These are four different roles (task ownership, transfer, serialized shared
+state, and ambient context) and seven visible surfaces. `worker_scope` is not
+an alias for `co`; it is a possible future worker-budget/parallel boundary.
+Its spelling is undecided and unreserved until Send/Share/ThreadRoot and
+capture safety are enforced. `Scheduler`, `ThreadApi`, `ThreadRegistry`,
+worker-pool/TLS, mutexes, and platform threads remain runtime substrate only.
+
+This closure is a design/documentation decision, not a production activation.
+The dependency order below is the only permitted way to reduce the remaining
+surface debt; it does not change the active MIR pointer:
+
+```text
+CONC-GUARD-CURRENT-OWNER-R0
+  -> CONC-NOWAIT-EXPR-D0
+  -> CONC-GRAM-SYNC0 -> CONC-GRAM-CO0 -> CONC-GRAM-CONTEXT0
+  -> CONC-NOWAIT-EXPR-I0 -> CONC-NOWAIT-CALLERS-M0
+  -> CONC-NOWAIT-BINDING-R0
+  -> CONC-SCOPED-COMPAT-R0 -> CONC-TASK-SCOPE-COMPAT-R0
+  -> CONC-RUNTIME-DOCS-OWNER-R0
+  -> CONC-CHANNELBOX-DISPOSITION-D0 -> CONC-CHANNELBOX-R0
+  -> CONC-NONCANONICAL-VOCAB-R0
+  -> CONC-CO-EXIT-TRANSACTION-D0/I0
+  -> CONC-SYNCBOX-EFFECT0
+```
+
+Each row is a separate BoxShape or BoxCount. Grammar registry/EBNF/corpus
+rows do not open runtime routes; runtime substrate rows do not add source
+keywords; compatibility spelling retirement does not rename internal
+`TaskScope`, `TaskGroupBox`, or scheduler names.
+
 ## Recommended Task Order
 
 ### 2026-08-19 public-surface reduction order
@@ -130,7 +173,7 @@ compatibility retirement must not share a commit.
 
 | Order | Row | Purpose | Stop line |
 | --- | --- | --- | --- |
-| 1 | `CONC-GUARD-AST-CRATE0` | Refresh the three red guards to the current frontend-AST, split decoder, Program JSON, and MIR owner paths. | behavior/grammar delta 0 |
+| 1 | `CONC-GUARD-CURRENT-OWNER-R0` (historical `CONC-GUARD-AST-CRATE0`) | Refresh the three red guards to the current frontend-AST, split decoder, Program JSON, and MIR owner paths. | behavior/grammar delta 0 |
 | 2 | `CONC-NOWAIT-EXPR-D0` | Seal precedence, AST owner, Future result type, and compatibility normalization for `nowait expr`. | design only; current statement stays live |
 | 3 | `CONC-GRAM-SYNC0` | Register the already-live `sync box` capsule in registry, EBNF, corpus, and both parser witnesses. | no runtime widening |
 | 4 | `CONC-GRAM-CO0` | Register `co` canonical and source `task_scope` Canonical-rejected/Compat2025-only. | internal TaskScope names unchanged |
@@ -213,7 +256,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
-| `CONC-GUARD-AST-CRATE0` | pending-clean-first | Refresh three stale concurrency guards after AST, decoder, Program JSON, and MIR owner splits. | current-owner paths + five green concurrency guards | behavior/grammar delta 0; wait guard remains unchanged |
+| `CONC-GUARD-CURRENT-OWNER-R0` (historical `CONC-GUARD-AST-CRATE0`) | pending-clean-first | Refresh three stale concurrency guards after AST, decoder, Program JSON, and MIR owner splits. | current-owner paths + five green concurrency guards | behavior/grammar delta 0; wait guard remains unchanged |
 | `CONC-GRAM-SYNC0` | pending | Register the already parser-live `sync box` capsule in Language-v1 grammar SSOT and EBNF. | registry + EBNF + Rust/Hako witness | no Program JSON/MIR/runtime activation |
 | `CONC-GRAM-CO0` | pending | Register canonical `co` and source `task_scope` as separate Canonical-rejected/Compat2025-only spelling evidence. | registry + EBNF + Rust/Hako witness | no scheduler/runtime widening |
 | `CONC-GRAM-CONTEXT0` | pending | Register canonical `context` and `scoped` as separate Canonical-rejected/Compat2025-only spelling evidence. | registry + EBNF + Rust/Hako witness | no propagation widening |
