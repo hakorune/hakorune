@@ -6,22 +6,23 @@ ExactText Residence/frame for subject and needle base roots; represent V9 only
 as a source-backed derived UTF-8 scalar slice, with no physical Length or
 Substring call in the fast route. The existing CheckedCallOut/V9/End chain is
 a caller-zero correctness oracle until cutover. The typed CodePoint law and
-the source/Facts/Recipe/Join corridor view are landed; the next bounded row is
-base-root admission. V10, CFG, publication, performance promotion, and
+the source/Facts/Recipe/Join corridor view and Subject/Needle base-root
+admission are landed; the next bounded row is the UTF-8 cursor/preheader.
+V10, CFG, publication, performance promotion, and
 production remain closed.
 """
 date = "2026-08-18"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The downstream scalar-scan corridor remains at NoSafeSlice::S6CTextScalarCorridorBaseRootAdmissionUnsealed until the landed source view is co-sealed with the existing Subject/Needle ExactText occurrences by binding plus logical ordinal. No cursor, V10, CFG/publication, production, fallback/retry, performance promotion, or eq_hh retirement is open."
+current_design_stop = "The downstream scalar-scan corridor remains at NoSafeSlice::S6CTextScalarCursorPreheaderUnsealed until the landed Subject/Needle base-root admission is consumed by one sequential UTF-8 cursor/preheader plan. No V10, CFG/publication, production, fallback/retry, performance promotion, or eq_hh retirement is open."
 work_mode = "fast"
-current_execution_row = "S6C-PINNED-BASE-ROOT-ADMISSION-I0"
-current_blocker_token = "Fast BoxShape only: co-seal the landed source corridor with the existing two ExactText occurrences, proving root 0 is Subject and root 1 is Needle by source binding plus logical ordinal. Do not add a frame, runtime owner, raw pointer API, Bool V10, CFG, or production behavior."
+current_execution_row = "S6C-PINNED-UTF8-CURSOR-PREHEADER-I0"
+current_blocker_token = "Fast BoxShape only: consume the one-shot Subject/Needle base-root admission, load the existing two roots once, and establish the sequential UTF-8 byte cursor beside the CP index. Do not add V10, CFG, a new frame, runtime owner, raw pointer API, or production behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C scalar-scan base-root admission (source corridor landed)"
+active_lane = "S6C scalar-scan UTF-8 cursor preheader (base-root admission landed)"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion cohort, source corridor, and
 caller-zero correctness route remain closed substrate. Independent census confirmed the existing S6C
@@ -31,8 +32,8 @@ base-content lifetime owner; no V9 root, second view owner, new frame, Arc
 migration, snapshot, or per-iteration lock/callback path is selected. The
 accepted corridor removes physical Length and Substring only after the typed
 CodePoint law and the complete S6C relation are co-sealed before effects. The
-generated law row and source-corridor view are landed; the active base-root
-admission row remains effect-free. Selected Dynamic remains the sole
+generated law row, source-corridor view, and base-root admission are landed;
+the active cursor/preheader row remains effect-free. Selected Dynamic remains the sole
 production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -46,10 +47,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. A new content frame, separate V9 view, Arc migration, and per-iteration runtime work are rejected. The v2 arity-indexed CoreMethod law and callback-scoped source corridor are landed; the next base-root admission row is effect-free and all physical/production rows remain closed."
+latest_card_summary = "The final S6C scalar-scan corridor reuses the existing subject/needle ExactText Residence and treats V9 as a derived scalar slice, not a root or runtime value. A new content frame, separate V9 view, Arc migration, and per-iteration runtime work are rejected. The v2 arity-indexed CoreMethod law, callback-scoped source corridor, and Subject/Needle base-root admission are landed; the next UTF-8 cursor/preheader row is effect-free and all physical/production rows remain closed."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-PINNED-BASE-ROOT-ADMISSION-I0"
+next_execution_card = "S6C-PINNED-UTF8-CURSOR-PREHEADER-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -72,5 +73,5 @@ landed_tail = [
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
   "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
   "2026-08-18: Published ExactText lane-borrow ingress now validates entry pairs once and delegates to the existing invocation Residence owner; ABI and Residence focused gates are green, with no MIR/V10 or production caller.",
-  "2026-08-18: S6C scalar-scan D0 is accepted: reuse the existing subject/needle ExactText roots, make V9 a derived scalar slice, reject a new frame/Arc migration, and land the v2 law plus the callback-scoped source corridor with green focused tests and README/reference receipts; base-root admission remains next, without MIR/runtime/production behavior."
+  "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; UTF-8 cursor/preheader remains next, without V10/CFG/runtime/production behavior."
 ]

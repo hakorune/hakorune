@@ -134,13 +134,14 @@ Related:
   accepted v2 arity-indexed CoreMethod law. The final fast route does not
   materialize V9. It reuses the two existing ExactText formal roots as
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
-  selected by the verified `substring(i, i + 1)` relation. The next stop is
-  `NoSafeSlice::S6CTextScalarCorridorBaseRootAdmissionUnsealed`: the source
-  relation is now lent by the sole prephysical ingress, but no cursor, leaf, or
-  Bool effect is open until its Subject/Needle root roles are co-sealed.
+  selected by the verified `substring(i, i + 1)` relation. The base-root
+  admission is now landed; the next stop is
+  `NoSafeSlice::S6CTextScalarCursorPreheaderUnsealed`: no cursor, leaf, or Bool
+  effect is open until the admitted roots are consumed by one preheader plan.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
-  V9+ExactText residence scope, and the caller-zero concrete StringBox
+  V9+ExactText residence scope, the Subject/Needle base-root admission, and
+  the caller-zero concrete StringBox
   Residence canary are complete. The row-11 mutable-reachability census is
   already an explicit acceptance input and reusable guard; no duplicate
   census task is needed. The generated CoreMethod manifest now carries a
@@ -156,11 +157,11 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** lend the accepted typed law and the already closed
-  source/Facts/Recipe/Join cohort through the existing two-row ExactText
-  sidecar/frame, proving root 0 is Subject and root 1 is Needle by binding plus
-  logical ordinal. Add no frame, runtime owner, raw pointer API, or V10 effect.
-  Do not infer a byte cursor from Recipe ordinals or MIR adjacency.
+- **Next ordered task:** consume the one-shot Subject/Needle base-root
+  admission in a cursor/preheader plan. Load the existing two root pairs once,
+  establish the sequential UTF-8 byte cursor beside the CP index, and keep the
+  body free of Length/Substring calls. Add no V10 effect, CFG, or runtime
+  frame; do not infer a byte cursor from Recipe ordinals or MIR adjacency.
 - **Production stop line:** no Bool V10, If/Return CFG, publication,
   production selector, performance promotion, fallback/retry, or `eq_hh`
   retirement is open from this capsule.
@@ -177,7 +178,7 @@ Related:
 | --- | --- | --- |
 | 0 | `CORE-METHOD-TEXT-SEMANTIC-LAW-I0` | Extend each `.hako`-owned CoreMethod row with one complete arity-indexed `semantic_law`. Generate `CoreMethodContractRowV2` plus exact-arity `CoreMethodManifestRowRefV2`: Len/0 is CodePointCount, Substring/2 is CodePointHalfOpenClamped, Substring/1 and every other arity are Unprojected. Bump manifest to v2 and migrate existing row consumers mechanically; no Recipe or physical change. |
 | 1 | `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` | The sole prephysical ingress lends one callback-scoped source view proving subject/needle roles, `i=0`, CP Length, `i < length`, `substring(i,i+1)`, sole-use V9→TextEq, V10→If, `i=i+1`, Join/Completion, and no V9 escape. |
-| 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
+| 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` (landed) | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
 | 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` | Load subject/needle `ptr,len` once, initialize CP index plus byte offset, and issue the source-backed loop predicate without calling Length in the body. |
 | 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the canonical SSA session alone issues V10 Bool. |
 | 5 | `S6C-PINNED-CURSOR-CFG-I0` | Canonical CFG/SSA owns byte-offset and CP-index PHIs, V10 If, width update, backedge, and the existing Return-read relation. No alternate orchestrator. |
@@ -251,13 +252,12 @@ checks the accepted laws and complete relation once, including the
 non-escaping derived V9 slice; it emits no physical effect, Bool V10, CFG,
 runtime frame, or production edge.
 
-Smallest next slice: `S6C-PINNED-BASE-ROOT-ADMISSION-I0` co-seals that view
-with the existing two ExactText formal occurrences, binding Subject and
-Needle by source binding plus logical ordinal. No new frame or lifetime owner
-is allowed.
+Smallest next slice: `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` consumes the landed
+Subject/Needle admission and records one sequential UTF-8 cursor/preheader
+plan. No new frame or lifetime owner is allowed.
 
-Non-claims: no byte cursor, root admission, V9
-non-materialization, V10, CFG/PHI/Return, runtime entry/finish, production
+Non-claims: no byte cursor, V9 non-materialization effect, V10, CFG/PHI/Return,
+runtime entry/finish, production
 switch, performance result, fallback/retry, global `Arc<str>` migration, or
 `eq_hh` retirement is complete. This metadata row does not switch the current
 legacy runtime default from byte indexing, authorize `Substring/1` CP
@@ -279,6 +279,25 @@ census negative. The source view rejects missing/foreign/duplicate/escaped or
 drifted relations before effect; no Bool V10, CFG/SSA/PHI, production switch,
 fallback/retry, or `eq_hh` retirement is opened. The parked Text-kernel idea
 remains documented in `contract-region-v0-ssot.md` and is not an active row.
+
+### S6C base-root admission I0 closeout (2026-08-18; accepted)
+
+`issue_common_v2_s6c_text_content_root_admission_v1` is the sole compiler-side
+co-seal for the source scalar corridor and the existing ExactText entry
+bridge. It consumes the bridge plan, verifies the same function owner and
+source bindings, and labels exactly two physical-free rows: root 0 is the
+source Subject and root 1 is the source Needle. The mapping is proved by
+`BindingRefV1` plus logical ordinal and an explicit published-pair/root-index
+bijection; numeric lane order is not treated as meaning.
+
+The resulting move-only admission lends the source view and both role-labelled
+rows through one callback and stores no `ValueId`, pointer, runtime frame,
+lease, generation value, V9 root, or MIR effect. Duplicate/missing/foreign,
+reordered, non-U64, and duplicate-root inputs reject before effect. Focused
+evidence is green (`3/3`); this is caller-zero compiler evidence only. The
+next row is `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0`, which may consume this
+admission but remains closed to V10, CFG/SSA, publication, production,
+fallback/retry, performance promotion, and `eq_hh` retirement.
 
 
 ## Historical boundary

@@ -15,6 +15,7 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_length.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_segments.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -35,5 +36,14 @@ guard_expect_fixed_in_file "$TAG" 'common_v2_session_segments.rs' "$session" \
   "session must retain the private segment child"
 guard_expect_fixed_in_file "$TAG" 's6c_substring_callout_materializer.rs' "$session" \
   "session must retain the private canonical V9 materializer child"
+content_admission="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
+guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_content_root_admission_v1' "$content_admission" \
+  "base-root mapping must have one named compiler issuer"
+guard_expect_fixed_in_file "$TAG" 'V9 remains a derived slice and never becomes a root' "$content_admission" \
+  "V9 must remain outside the base-root namespace"
+guard_expect_fixed_in_file "$TAG" 'Subject,' "$content_admission" \
+  "base-root roles must include an explicit Subject label"
+guard_expect_fixed_in_file "$TAG" 'Needle,' "$content_admission" \
+  "base-root roles must include an explicit Needle label"
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"

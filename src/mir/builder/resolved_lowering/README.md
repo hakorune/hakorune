@@ -918,4 +918,21 @@ root-order visibility, callback-primary failure, and exactly-once cleanup.
 This is caller-zero runtime evidence only; V10, CFG/Return, publication,
 production, direct C-speed lowering, and `eq_hh` retirement remain closed.
 
+## Common V2 S6C base-root admission I0 (2026-08-18)
+
+`issue_common_v2_s6c_text_content_root_admission_v1` is the sole compiler-side
+co-seal between the callback-scoped S6C source corridor and the existing
+ExactText entry bridge. It consumes the bridge plan and proves exactly two
+role-labelled rows: root 0 is the source Subject and root 1 is the source
+Needle, using `BindingRefV1`, logical ordinal, and the explicit published-pair
+root-index bijection. Numeric lane order is not semantic authority.
+
+The move-only admission lends the source view and rows together once. It stores
+no `ValueId`, pointer, runtime frame, lease, generation value, V9 root, or MIR
+effect. Missing/duplicate/foreign/reordered/non-U64/duplicate-root inputs
+reject before effect. Focused evidence is green (`3/3`); this is caller-zero
+compiler evidence only. The next row is the UTF-8 cursor/preheader plan;
+V10, CFG/SSA, publication, production, fallback/retry, direct C-speed, and
+`eq_hh` retirement remain closed.
+
 The fixed provider remains a canary and has no production caller.
