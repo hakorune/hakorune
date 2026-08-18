@@ -1437,8 +1437,8 @@ Task ladder (canonical consumer design first, runtime effect later):
     E0 is the canonical function entry and Residence Enter's sole source;
     E1 is one canonical execution-entry successor owned by the same physical
     boundary. Sidecar/seed/cursor all begin at E1; no observed remapping.
-11. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0` — next:
-    issue that physical boundary once and prove the caller-zero CFG/SSA shape
+11. `TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0` — landed
+    caller-zero: issue the physical boundary once and prove the CFG/SSA shape
     before reopening lifecycle-bearing candidate materialization.
 12. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-CANONICAL-CANDIDATE-I0-A` — later:
     consume the full pre-DraftSeal ingress in the existing caller-zero owner,
@@ -1451,6 +1451,38 @@ Task ladder (canonical consumer design first, runtime effect later):
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
 promotion, or `eq_hh` retirement is selected by this umbrella row.
+
+#### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-I0 (2026-08-19; caller-zero landed)
+
+Decision: the existing canonical session now owns one affine physical
+entry/execution boundary. E0 is the function entry and contains only the
+Residence Enter terminator; E1 is the single unpublished successor used by
+the sidecar-aware initial seed and cursor consumers. Legacy callers without a
+lifecycle boundary retain the function-entry fallback for their existing
+tests; the lifecycle path must issue the boundary before Enter.
+
+Source authority + canonical issuer: the existing physical-entry sidecar and
+`CanonicalSsaFunctionSessionV2` are the only boundary owners. The session
+allocates E1 through its canonical unpublished-block writer and checks entry,
+sidecar owner, current block, and duplicate issuance before mutating. Residence
+Enter validates E0 and its carrier normal landing against E1; seed and cursor
+physicalization consume the same session-owned E1.
+
+Non-authority: raw block-id remapping, a second CFG/SSA/PHI owner, normal
+landing as the cursor entry, synthetic carrier JSON, target-machine routing,
+observer/no-unwind claims, runtime backing, production, fallback, retry, or
+`eq_hh`.
+
+Fail-fast boundary: missing/foreign sidecar, non-entry current block, duplicate
+boundary issuance, or carrier normal-landing drift rejects before effect. The
+outer unpublished transaction remains the rollback boundary.
+
+Evidence: the focused caller-zero test proves Enter at E0, normal edge to E1,
+seed placement at E1, and duplicate-boundary rejection. The full S6C cursor
+CFG test module passes 5/5; `cargo check --profile quick --lib`, formatter,
+`common_v2_s6c_structure_guard.sh`, and `current_state_pointer_guard.sh` are
+green. This closes the physical-entry blocker only; the real DraftSeal
+candidate and LLVM target-machine path remain unopened.
 
 #### TEXT-FORMAL-PINNED-RESIDENCE-ENTRY-PROLOGUE-COSEAL-D0 (2026-08-19; accepted design stop)
 

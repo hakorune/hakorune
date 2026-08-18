@@ -27,6 +27,8 @@ use super::identity::ResolvedSsaIdentityStateV2;
 mod draft_seal_close;
 #[path = "session/generic_g0_entry_adoption.rs"]
 mod generic_g0_entry_adoption;
+#[path = "session/physical_entry_boundary.rs"]
+mod physical_entry_boundary;
 #[path = "session/physical_entry_lane_adoption.rs"]
 mod physical_entry_lane_adoption;
 #[path = "session/physical_entry_stamp.rs"]
@@ -86,6 +88,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     pub(in crate::mir::builder::resolved_lowering) phis: PhiTxn,
     pub(in crate::mir::builder::resolved_lowering) implicit_completion: bool,
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
+    physical_entry_execution: Option<physical_entry_boundary::PhysicalEntryExecutionBoundaryV1>,
     physical_entry_stamp: Option<PhysicalFunctionEntryCohortStampV1>,
     generic_entry_adopted: bool,
     segment_block_brand: SegmentBlockAllocationBrandV1,
@@ -311,6 +314,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             phis: PhiTxn::begin("canonical_binding_ssa"),
             implicit_completion,
             physical_entry_sidecar: None,
+            physical_entry_execution: None,
             physical_entry_stamp: None,
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),
@@ -366,6 +370,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             phis: PhiTxn::begin("canonical_binding_ssa"),
             implicit_completion,
             physical_entry_sidecar: None,
+            physical_entry_execution: None,
             physical_entry_stamp: None,
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),

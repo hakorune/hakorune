@@ -309,6 +309,52 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
             .adopt_physical_entry_lanes(builder, descriptors)
     }
 
+    pub(in crate::mir) fn issue_physical_entry_execution_boundary(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+    ) -> Result<BasicBlockId, String> {
+        self.session
+            .issue_physical_entry_execution_boundary(builder)
+    }
+
+    pub(in crate::mir) fn physical_execution_entry(
+        &self,
+        builder: &crate::mir::builder::MirBuilder,
+    ) -> Result<BasicBlockId, String> {
+        self.session.physical_execution_entry(builder)
+    }
+
+    pub(in crate::mir) fn create_unpublished_block(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+    ) -> Result<BasicBlockId, String> {
+        self.session.create_unpublished_block(builder)
+    }
+
+    pub(in crate::mir) fn select_block(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        block: BasicBlockId,
+    ) -> Result<(), String> {
+        self.session
+            .cfg
+            .select_block(builder, block)
+            .map_err(|error| error.to_string())
+    }
+
+    pub(in crate::mir) fn emit_pinned_text_residence_enter(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        carrier: crate::mir::pinned_text_residence_lifecycle::
+            PreparedPinnedTextResidenceLifecycleV1,
+    ) -> Result<
+        crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1,
+        String,
+    > {
+        self.session
+            .emit_pinned_text_residence_enter(builder, carrier)
+    }
+
     pub(in crate::mir) fn attach_physical_entry_stamp(
         &mut self,
         stamp: PhysicalFunctionEntryCohortStampV1,

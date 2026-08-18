@@ -1,7 +1,10 @@
 use crate::mir::builder::CompilationContext;
 use crate::mir::compiler::common_v2_physical_function_entry_input::issue_common_v2_physical_function_entry_input;
 use crate::mir::compiler::common_v2_physical_function_skeleton::reserve_common_v2_physical_function_skeleton;
+use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
+use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
+use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{MirBuilder, MirInstruction};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
@@ -64,6 +67,77 @@ fn source_result(
     result.map_err(|_| {
         crate::mir::loop_recipe_contract::S6CScalarScanSourceRejectV1::CompletionRelation
     })
+}
+
+#[test]
+fn lifecycle_entry_boundary_places_seed_on_execution_successor() {
+    let (installed, context) = installed_port(1511);
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+
+    port.with_s6c_common_v2_pre_session(|loan| {
+        let prepared =
+            issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
+        let skeleton =
+            reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
+        let mut builder = MirBuilder::new();
+        with_common_v2_physical_entry_session_with_s6c_loan(
+            &mut builder,
+            skeleton.into_session_input(),
+            |canonical, draft, _loan| {
+                let execution_entry = canonical
+                    .issue_physical_entry_execution_boundary(draft)
+                    .map_err(|error| format!("{error:?}"))?;
+                assert!(canonical
+                    .issue_physical_entry_execution_boundary(draft)
+                    .is_err());
+                let trap_entry = canonical
+                    .create_unpublished_block(draft)
+                    .map_err(|error| format!("{error:?}"))?;
+                let plans = PinnedTextAccessPlanTableV1::new(17);
+                let frame_contract =
+                    PinnedTextBackendFrameContractV1::from_test(canonical.owner(), 17, 1);
+                let carrier = PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(
+                    canonical.owner(),
+                    &plans,
+                    frame_contract.borrow(),
+                    execution_entry,
+                    trap_entry,
+                )
+                .map_err(|error| format!("{error:?}"))?;
+                let _finish = canonical
+                    .emit_pinned_text_residence_enter(draft, carrier)
+                    .map_err(|error| format!("{error:?}"))?;
+                canonical
+                    .select_block(draft, execution_entry)
+                    .map_err(|error| format!("{error:?}"))?;
+                let seed = canonical
+                    .emit_initial_index_seed(draft)
+                    .map_err(|error| format!("{error:?}"))?;
+                assert_eq!(seed.physical_block(), execution_entry);
+
+                let function = draft
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("unpublished function");
+                assert!(matches!(
+                    function
+                        .get_block(function.entry_block)
+                        .expect("function entry")
+                        .terminator,
+                    Some(MirInstruction::PinnedTextResidenceEnter {
+                        normal_landing,
+                        ..
+                    }) if normal_landing == execution_entry
+                ));
+                Ok(())
+            },
+        )
+        .map_err(|error| format!("{error:?}"))
+    })
+    .expect("one E0/E1 lifecycle boundary")
+    .expect("lifecycle entry boundary");
+    port.complete().expect("selected child coverage");
 }
 
 #[test]

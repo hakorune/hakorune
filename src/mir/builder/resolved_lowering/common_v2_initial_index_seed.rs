@@ -93,7 +93,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 
         let entry = self
             .session
-            .entry_block(builder)
+            .physical_execution_entry(builder)
             .map_err(|_| InitialIndexSeedMaterializationRejectV1::MissingFunction)?;
         if builder.function_state.current_block != Some(entry) {
             return Err(InitialIndexSeedMaterializationRejectV1::EntryBlockDrift);

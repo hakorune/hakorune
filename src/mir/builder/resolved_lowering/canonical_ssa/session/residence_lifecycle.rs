@@ -34,10 +34,19 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         if self.pinned_text_residence.is_some() {
             return Err("pinned-Text Residence Enter was already emitted".to_owned());
         }
+        let boundary = self
+            .physical_entry_execution
+            .ok_or_else(|| "Residence Enter requires a physical entry boundary".to_owned())?;
         let source = builder
             .function_state
             .current_block
             .ok_or_else(|| "Residence Enter requires a selected canonical block".to_owned())?;
+        if source != boundary.function_entry() {
+            return Err("Residence Enter source differs from physical function entry".to_owned());
+        }
+        if carrier.normal_landing() != boundary.execution_entry() {
+            return Err("Residence Enter normal landing differs from execution entry".to_owned());
+        }
         let residence = carrier.residence();
         let capability = self
             .cfg

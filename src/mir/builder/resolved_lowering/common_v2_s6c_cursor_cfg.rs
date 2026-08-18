@@ -235,13 +235,17 @@ fn materialize_inner<'session, 'source, 'envelope>(
     if capability.owner() != owner || session.envelope.owner() != owner {
         return Err(CommonV2S6CCursorCfgRejectV1::OwnerMismatch);
     }
-    let entry = session
+    let sidecar_entry = session
         .session
         .physical_entry_sidecar_entry()
         .map_err(|_| CommonV2S6CCursorCfgRejectV1::MissingPhysicalEntryStamp)?;
-    if capability.entry() != entry {
+    if capability.entry() != sidecar_entry {
         return Err(CommonV2S6CCursorCfgRejectV1::EntryMismatch);
     }
+    let execution_entry = session
+        .session
+        .physical_execution_entry(builder)
+        .map_err(|_| CommonV2S6CCursorCfgRejectV1::MissingPhysicalEntryStamp)?;
     if scope.receipt().owner() != owner {
         return Err(CommonV2S6CCursorCfgRejectV1::SegmentOwnerMismatch);
     }
@@ -287,13 +291,13 @@ fn materialize_inner<'session, 'source, 'envelope>(
     let entry_byte = issue_i64(
         session,
         builder,
-        entry,
+        execution_entry,
         capability.initial().byte_offset() as i64,
     )?;
     let subject_byte_len = issue_pinned_text(
         session,
         builder,
-        entry,
+        execution_entry,
         capability.root_plan_stamp(),
         PinnedTextAccessKindV1::ByteLen {
             root: PinnedTextRootIdV1::from_frame_row(capability.subject_root_index()),
@@ -490,7 +494,12 @@ fn materialize_inner<'session, 'source, 'envelope>(
         )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
 
-    emit_jump(session, builder, entry, condition_row.physical_block())?;
+    emit_jump(
+        session,
+        builder,
+        execution_entry,
+        condition_row.physical_block(),
+    )?;
     emit_branch(
         session,
         builder,
@@ -520,7 +529,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
             builder,
             byte_token,
             vec![
-                (entry, entry_byte),
+                (execution_entry, entry_byte),
                 (return_placement.continuation_block, byte_next),
             ],
             "s6c:byte",
@@ -561,7 +570,7 @@ fn materialize_inner<'session, 'source, 'envelope>(
         let entry_witness = session
             .session
             .cfg
-            .seal_block(function, entry)
+            .seal_block(function, execution_entry)
             .map_err(|error| CommonV2S6CCursorCfgRejectV1::Edge(error.to_string()))?;
         let body_witness = session
             .session
@@ -600,7 +609,12 @@ fn materialize_inner<'session, 'source, 'envelope>(
     session
         .session
         .identity
-        .seal_block(builder, &mut session.session.phis, entry, &entry_witness)
+        .seal_block(
+            builder,
+            &mut session.session.phis,
+            execution_entry,
+            &entry_witness,
+        )
         .map_err(CommonV2S6CCursorCfgRejectV1::ReturnRead)?;
     session
         .session
