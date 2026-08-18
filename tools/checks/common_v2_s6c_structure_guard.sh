@@ -22,7 +22,10 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
   "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
+  "$ROOT_DIR/src/mir/pinned_text_residence_lifecycle.rs"
   "$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
   "$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
   "$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
@@ -122,6 +125,28 @@ guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_bridge" \
 plan_table="$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
 guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_table" \
   "plan table must reject the unpublished zero stamp"
+
+residence_carrier="$ROOT_DIR/src/mir/pinned_text_residence_lifecycle.rs"
+guard_expect_fixed_in_file "$TAG" 'PreparedPinnedTextResidenceLifecycleV1' "$residence_carrier" \
+  "Residence lifecycle must have one private affine physical carrier"
+guard_expect_fixed_in_file "$TAG" 'issue_from_frame' "$residence_carrier" \
+  "Residence carrier must be issued from the existing frame/plan cohort"
+if rg -n 'Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox' "$residence_carrier"; then
+  guard_fail "$TAG" "Residence carrier must not expose runtime/raw-value authorities"
+fi
+
+cfg_session="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
+guard_expect_fixed_in_file "$TAG" 'emit_pinned_text_residence_enter' "$cfg_session" \
+  "canonical CFG must own the Residence Enter writer"
+guard_expect_fixed_in_file "$TAG" 'emit_pinned_text_residence_finish' "$cfg_session" \
+  "canonical CFG must own the Residence Finish writer"
+
+ssa_lifecycle="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
+guard_expect_fixed_in_file "$TAG" 'finish_emitted' "$ssa_lifecycle" \
+  "canonical session must reject duplicate Finish consumption"
+if rg -n 'Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox' "$ssa_lifecycle"; then
+  guard_fail "$TAG" "canonical lifecycle session must not own runtime/raw-value authorities"
+fi
 
 invocation_binding="$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
 invocation_session="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"

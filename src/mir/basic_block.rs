@@ -138,6 +138,7 @@ impl BasicBlock {
                 | MirInstruction::Jump { .. }
                 | MirInstruction::Return { .. }
                 | MirInstruction::CheckedCallOut { .. }
+                | MirInstruction::PinnedTextResidenceEnter { .. }
                 | MirInstruction::CheckedCallOutFault { .. }
                 | MirInstruction::Throw { .. }
         )
@@ -182,6 +183,14 @@ impl BasicBlock {
                 } => {
                     successors.insert(*normal_landing);
                     successors.insert(*fault_landing);
+                }
+                MirInstruction::PinnedTextResidenceEnter {
+                    normal_landing,
+                    trap_landing,
+                    ..
+                } => {
+                    successors.insert(*normal_landing);
+                    successors.insert(*trap_landing);
                 }
                 _ => unreachable!("Non-terminator instruction in terminator position"),
             }
@@ -228,6 +237,20 @@ impl BasicBlock {
                 },
                 OutEdge {
                     target: fault_landing,
+                    args: None,
+                },
+            ],
+            Some(MirInstruction::PinnedTextResidenceEnter {
+                normal_landing,
+                trap_landing,
+                ..
+            }) => vec![
+                OutEdge {
+                    target: normal_landing,
+                    args: None,
+                },
+                OutEdge {
+                    target: trap_landing,
                     args: None,
                 },
             ],

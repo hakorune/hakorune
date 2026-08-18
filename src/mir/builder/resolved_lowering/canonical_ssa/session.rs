@@ -33,6 +33,8 @@ mod physical_entry_lane_adoption;
 mod physical_entry_stamp;
 #[path = "session/pinned_text_plan.rs"]
 mod pinned_text_plan;
+#[path = "session/residence_lifecycle.rs"]
+mod residence_lifecycle;
 #[path = "session/s6c_textref_plan.rs"]
 mod s6c_textref_plan;
 #[path = "session/segment_scope.rs"]
@@ -88,6 +90,7 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     generic_entry_adopted: bool,
     segment_block_brand: SegmentBlockAllocationBrandV1,
     segment_blocks_issued: bool,
+    pinned_text_residence: Option<residence_lifecycle::PinnedTextResidenceLifecycleStateV1>,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -312,6 +315,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),
             segment_blocks_issued: false,
+            pinned_text_residence: None,
         })
     }
 
@@ -366,6 +370,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),
             segment_blocks_issued: false,
+            pinned_text_residence: None,
         })
     }
 

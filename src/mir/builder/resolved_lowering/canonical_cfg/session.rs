@@ -2,6 +2,9 @@ use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
 use super::predecessors::derive_and_verify_predecessors;
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
+use crate::mir::pinned_text_residence_lifecycle::{
+    PinnedTextResidenceFinishCapabilityV1, PreparedPinnedTextResidenceLifecycleV1,
+};
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
@@ -215,6 +218,65 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
+    /// Sole canonical CFG writer for the physical pinned-Text Residence
+    /// entry.  The affine carrier has already co-sealed the function-local
+    /// frame/plan provenance; this method only installs its two edges.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_enter(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        carrier: PreparedPinnedTextResidenceLifecycleV1,
+    ) -> Result<PinnedTextResidenceFinishCapabilityV1, CanonicalCfgErrorV1> {
+        let (plan, residence, normal_landing, trap_landing) = carrier.into_parts();
+        if source == normal_landing || source == trap_landing {
+            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
+                "source and landing blocks must be distinct".to_owned(),
+            ));
+        }
+        self.preflight_edge(function, source, &[normal_landing, trap_landing])?;
+        function
+            .get_block_mut(source)
+            .expect("Residence source was checked")
+            .set_terminator(MirInstruction::PinnedTextResidenceEnter {
+                plan,
+                normal_landing,
+                trap_landing,
+            });
+        for target in [normal_landing, trap_landing] {
+            function
+                .get_block_mut(target)
+                .expect("Residence target was checked")
+                .add_predecessor(source);
+        }
+        Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(
+            residence,
+            normal_landing,
+        ))
+    }
+
+    /// Sole canonical instruction writer for the success-only Residence
+    /// finish marker.  Requiring an unterminated admitted normal landing
+    /// makes Return-before-Finish fail before the marker can be installed.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        capability: PinnedTextResidenceFinishCapabilityV1,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        let (residence, normal_landing) = capability.into_parts();
+        if source != normal_landing {
+            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
+                "Finish must be emitted in the admitted normal landing".to_owned(),
+            ));
+        }
+        self.preflight_terminator(function, source)?;
+        function
+            .get_block_mut(source)
+            .expect("Residence normal landing was checked")
+            .add_instruction(MirInstruction::PinnedTextResidenceFinish { residence });
+        Ok(())
+    }
+
     /// Sole canonical CFG writer for a checked-call Fault landing.  Fault is
     /// a terminal with no successor; it cannot silently rejoin `After` or a
     /// shared normal cleanup block.
@@ -396,8 +458,12 @@ mod tests {
         CheckedCallOutEntryIdV1, CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1,
         CheckedCallOutSitePlanV1,
     };
+    use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
     use crate::mir::function::{FunctionSignature, MirFunction};
     use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+    use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
+    use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
     use crate::mir::{EffectMask, MirType};
 
     fn function() -> MirFunction {
@@ -480,5 +546,74 @@ mod tests {
             .unwrap()
             .terminator
             .is_none());
+    }
+
+    fn residence_carrier(
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        normal: BasicBlockId,
+        trap: BasicBlockId,
+    ) -> PreparedPinnedTextResidenceLifecycleV1 {
+        let plans = PinnedTextAccessPlanTableV1::new(17);
+        let frame_contract = PinnedTextBackendFrameContractV1::from_test(owner, 17, 1);
+        let frame = frame_contract.borrow();
+        PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(owner, &plans, frame, normal, trap)
+            .expect("test Residence carrier")
+    }
+
+    #[test]
+    fn pinned_text_residence_enter_and_finish_are_canonical_cfg_writes() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let cfg = CanonicalCfgSessionV1::new();
+        let capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter");
+        let source = function.get_block(BasicBlockId::new(0)).unwrap();
+        assert!(matches!(
+            source.terminator,
+            Some(MirInstruction::PinnedTextResidenceEnter { .. })
+        ));
+        assert_eq!(source.successors.len(), 2);
+        assert!(source.effects.contains(crate::mir::Effect::Control));
+        assert!(source.effects.contains(crate::mir::Effect::Barrier));
+        assert!(source.effects.contains(crate::mir::Effect::WriteHeap));
+
+        cfg.emit_pinned_text_residence_finish(&mut function, BasicBlockId::new(1), capability)
+            .expect("Finish");
+        let normal = function.get_block(BasicBlockId::new(1)).unwrap();
+        assert!(matches!(
+            normal.instructions.as_slice(),
+            [MirInstruction::PinnedTextResidenceFinish { .. }]
+        ));
+        assert!(normal.effects.contains(crate::mir::Effect::Panic));
+        assert!(normal.effects.contains(crate::mir::Effect::Barrier));
+    }
+
+    #[test]
+    fn pinned_text_residence_rejects_return_before_finish() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let cfg = CanonicalCfgSessionV1::new();
+        let capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter");
+        cfg.emit_return(&mut function, BasicBlockId::new(1), Some(ValueId::new(9)))
+            .expect("Return");
+        assert!(matches!(
+            cfg.emit_pinned_text_residence_finish(&mut function, BasicBlockId::new(1), capability),
+            Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { .. })
+        ));
     }
 }

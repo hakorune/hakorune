@@ -190,6 +190,7 @@ pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
 pub(crate) mod pinned_text_access_plan; // transport-only stamped Text leaf plans
+pub(crate) mod pinned_text_residence_lifecycle; // affine physical Enter/Finish carriers
 pub mod placement_effect; // generic placement/effect owner seam folded from landed pilots
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs

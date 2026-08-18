@@ -10,25 +10,25 @@ I0 is also landed caller-zero; it holds the exact exit-set borrow and tests
 operand -> Residence.finish -> Return ordering without emitting lifecycle MIR.
 
 The canonical-consumer audit closed as NoSafeSlice. The borrowed admission
-cannot share an owned envelope with its exit set, the backend-frame contract
-is currently issued only after DraftSeal, and no Residence enter/finish MIR
-carrier exists. The ingress and ABI I0s are now landed caller-zero. The
-accepted lifecycle-carrier D0 selects one private affine Enter/Finish physical
-carrier for the canonical unpublished session. The next execution row is
-carrier I0 only; backend, production, fallback, and performance remain closed.
+cannot share an owned envelope with its exit set, and the backend-frame
+contract is currently issued only after DraftSeal. The ingress and ABI I0s are
+landed caller-zero, and the accepted lifecycle-carrier I0 is now also landed:
+one private affine Enter/Finish physical carrier feeds the canonical
+unpublished session. The lane is back at the D0 design stop; backend,
+production, fallback, and performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0 accepted and its bounded I0 selected"
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0"
-current_blocker_token = "Implement one private affine typed ResidenceEnter(normal, trap) carrier and success-only ResidenceFinish marker through canonical writers; no source receipt, fallback, production, backend promotion, or performance."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
+work_mode = "design_stop"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
+current_blocker_token = "Review caller-zero lifecycle-carrier evidence and choose the next bounded row; no backend, production, fallback, or performance."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence lifecycle carriers I0"
+active_lane = "S6C Text Residence lifecycle carriers D0 review"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -50,12 +50,12 @@ session owns brand plus target, the S6C loan is the only signature source, and
 one private affine ingress issues the pre-DraftSeal frame contract. Focused
 tests, cargo check, fmt, and the reusable structure guard are green. The ABI
 Decision selects exactly one public finish meaning: a void wrapper returns
-only on status 0 and aborts on all nonzero statuses. The accepted
-lifecycle-carrier D0 now selects a private affine Enter Normal/Trap carrier
-and success-only Finish marker. I0 may connect only these carriers through the
-canonical unpublished session; PreparedFunctionExitSetV1 stays the sole exit
-inventory and FunctionDraftSealProjectionV1 the sole Return emitter. Selected
-Dynamic remains the sole production arm.
+only on status 0 and aborts on all nonzero statuses. The lifecycle-carrier I0
+is landed caller-zero: a private affine Enter Normal/Trap carrier and
+success-only Finish marker connect through the canonical unpublished session;
+PreparedFunctionExitSetV1 stays the sole exit inventory and
+FunctionDraftSealProjectionV1 the sole Return emitter. The lane is back at the
+D0 review stop. Selected Dynamic remains the sole production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -68,10 +68,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, and finish-or-abort ABI I0 are landed caller-zero. Lifecycle-carrier D0 is accepted: one private affine typed Enter Normal/Trap carrier and success-only Finish marker feed canonical writers. The selected I0 remains caller-zero until focused positive/negative evidence closes; backend, production, fallback, and performance remain closed."
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, pre-DraftSeal ingress co-seal, finish-or-abort ABI I0, and lifecycle-carrier I0 are landed caller-zero. Lifecycle-carrier D0 is reopened for review: one private affine typed Enter Normal/Trap carrier and success-only Finish marker feed canonical writers. Backend, production, fallback, and performance remain closed."
 next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0"
+next_execution_card = "none; reopen only after TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0 review"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -94,5 +94,5 @@ landed_tail = [
   "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed.",
   "2026-08-19: Lifecycle identity/projector I0 is green with 7 focused tests; its canonical consumer remains NoSafeSlice because frame/lifecycle authority is absent before DraftSeal. Ingress co-seal I0 is now landed caller-zero: the session owns brand/target, the S6C loan is the sole signature source, and one affine ingress issues the pre-DraftSeal frame contract with plan/Residence ABI provenance; 2 focused tests plus cargo check/fmt/structure guard are green.",
   "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed.",
-  "2026-08-19: Lifecycle-carrier D0 accepted: typed ResidenceEnter owns Normal/Trap control, success-only ResidenceFinish calls the void wrapper, the existing exit set remains sole inventory, and the existing Return projection remains sole Return writer; carrier I0 is the only selected execution row."
+  "2026-08-19: Lifecycle-carrier D0/I0 closed caller-zero: typed ResidenceEnter owns Normal/Trap control, success-only ResidenceFinish calls the void wrapper, the affine carrier co-seals owner/plan/frame provenance, canonical CFG owns Enter/Finish writes, five focused tests and the reusable structure guard are green, and the lane returned to D0 design stop; backend/production remain closed."
 ]

@@ -164,6 +164,10 @@ pub fn format_instruction(
             )
         }
 
+        MirInstruction::PinnedTextResidenceFinish { residence } => {
+            format!("pinned_text.residence.finish {:?}", residence)
+        }
+
         MirInstruction::FieldGet {
             dst,
             base,
@@ -452,6 +456,15 @@ pub fn format_instruction(
         MirInstruction::CheckedCallOutFault { site_id } => {
             format!("checked_callout.fault site={}", site_id.as_u32())
         }
+
+        MirInstruction::PinnedTextResidenceEnter {
+            plan,
+            normal_landing,
+            trap_landing,
+        } => format!(
+            "pinned_text.residence.enter plan={:?} normal={} trap={}",
+            plan, normal_landing, trap_landing
+        ),
 
         MirInstruction::Phi { dst, inputs, .. } => {
             let inputs_str = inputs

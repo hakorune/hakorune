@@ -67,6 +67,12 @@ impl MirInstruction {
             MirInstruction::Call { effects, .. } => *effects,
             MirInstruction::MemOp { effects, .. } => *effects,
             MirInstruction::PinnedTextOp { .. } => EffectMask::READ,
+            MirInstruction::PinnedTextResidenceEnter { .. } => {
+                EffectMask::WRITE.add(Effect::Barrier).add(Effect::Control)
+            }
+            MirInstruction::PinnedTextResidenceFinish { .. } => {
+                EffectMask::WRITE.add(Effect::Barrier).add(Effect::Panic)
+            }
 
             // Control flow (pure but affects execution)
             MirInstruction::Branch { .. }
@@ -159,6 +165,8 @@ impl MirInstruction {
             | MirInstruction::CheckedCallOut { .. }
             | MirInstruction::CheckedCallOutEnd { .. }
             | MirInstruction::CheckedCallOutFault { .. }
+            | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceFinish { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::DestroyOwned { .. }
@@ -240,7 +248,9 @@ impl MirInstruction {
             | MirInstruction::Jump { .. }
             | MirInstruction::CheckedCallOutNormalResult { .. }
             | MirInstruction::CheckedCallOutEnd { .. }
-            | MirInstruction::CheckedCallOutFault { .. } => Vec::new(),
+            | MirInstruction::CheckedCallOutFault { .. }
+            | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceFinish { .. } => Vec::new(),
 
             MirInstruction::CheckedCallOut {
                 receiver,

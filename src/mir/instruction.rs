@@ -8,6 +8,9 @@
 use super::{EdgeArgs, EffectMask, ValueId};
 use crate::mir::definitions::Callee; // Import Callee from unified definitions
 use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextAccessPlanIdV1};
+use crate::mir::pinned_text_residence_lifecycle::{
+    PinnedTextResidencePlanIdV1, TextFormalResidenceIdV1,
+};
 use crate::mir::types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
@@ -354,6 +357,11 @@ pub enum MirInstruction {
         kind: PinnedTextAccessKindV1,
     },
 
+    /// Success-only physical Residence cleanup marker.  The opaque
+    /// residence identity is compiler-local provenance; it carries no raw
+    /// runtime frame, token, pointer, or status value.
+    PinnedTextResidenceFinish { residence: TextFormalResidenceIdV1 },
+
     /// Canonical object field read.
     /// `%dst = field.get %base .field`
     FieldGet {
@@ -480,6 +488,15 @@ pub enum MirInstruction {
         normal_landing: super::BasicBlockId,
         fault_landing: super::BasicBlockId,
         effects: EffectMask,
+    },
+
+    /// Physical Residence entry with canonical Normal/Trap CFG edges.  The
+    /// status-returning runtime transport is intentionally not represented as
+    /// a ValueId or generic Call.
+    PinnedTextResidenceEnter {
+        plan: PinnedTextResidencePlanIdV1,
+        normal_landing: super::BasicBlockId,
+        trap_landing: super::BasicBlockId,
     },
 
     /// Normal-only result projection for a preceding CheckedCallOut.  This is

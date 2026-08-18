@@ -160,7 +160,10 @@ impl JoinIrIdRemapper {
                 vals
             }
             CheckedCallOutNormalResult { dst, .. } => vec![*dst],
-            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => Vec::new(),
+            CheckedCallOutEnd { .. }
+            | CheckedCallOutFault { .. }
+            | PinnedTextResidenceFinish { .. }
+            | PinnedTextResidenceEnter { .. } => Vec::new(),
             Phi { dst, inputs, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(inputs.iter().map(|(_, v)| *v));
@@ -637,6 +640,7 @@ impl JoinIrIdRemapper {
                 dst: remap(*dst),
             },
             CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => inst.clone(),
+            PinnedTextResidenceFinish { .. } | PinnedTextResidenceEnter { .. } => inst.clone(),
             // Pass through unchanged
             Safepoint => inst.clone(),
         }

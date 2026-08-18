@@ -412,7 +412,9 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         | MirInstruction::Catch { .. }
         | MirInstruction::Safepoint
         | MirInstruction::CheckedCallOutEnd { .. }
-        | MirInstruction::CheckedCallOutFault { .. } => {}
+        | MirInstruction::CheckedCallOutFault { .. }
+        | MirInstruction::PinnedTextResidenceFinish { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. } => {}
         MirInstruction::MemOp { operands, .. } => {
             for operand in operands {
                 rewrite_value_use(operand, from, to);

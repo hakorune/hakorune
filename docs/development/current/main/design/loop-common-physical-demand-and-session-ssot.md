@@ -920,6 +920,74 @@ tion, a new runtime frame/backing, `Arc<str>` migration, final backend
 promotion, `eq_hh` retirement, or fallback/retry. Those remain separate rows
 after caller-zero lifecycle evidence.
 
+#### TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-I0 (landed caller-zero)
+
+Decision: land only the physical lifecycle carrier and canonical-writer
+BoxShape selected by the D0 above. `PreparedPinnedTextResidenceLifecycleV1`
+co-seals the existing pinned-Text plan stamp, backend-frame revision, owner,
+and Residence ABI provenance with the Normal/Trap landing placement. It is
+affine and non-`Clone`/non-`Copy`; it contains no handle, generation, frame
+address, pointer, status `ValueId`, or runtime token. The canonical CFG writer
+consumes it once to install `ResidenceEnter(normal, trap)` and returns a
+success-only `PinnedTextResidenceFinishCapabilityV1` for the admitted Normal
+landing. The canonical SSA session owns the one function-local lifecycle state
+and rejects a second Enter, a foreign Finish capability, or Finish outside the
+admitted Normal landing. `ResidenceFinish` is a non-terminator marker; it is
+accepted only while the landing is still unterminated, so Return-before-Finish
+is rejected before the marker is written.
+
+Source authority + canonical issuer: the existing
+`PreparedPinnedTextPhysicalEntryIngressV1`/pinned-Text frame and plan issuers
+remain the only provenance authorities. `CanonicalCfgSessionV1` is the sole
+Enter/Finish MIR writer and `CanonicalSsaFunctionSessionV2` is the sole
+function-local lifecycle consumer. `PreparedFunctionExitSetV1` remains the
+only exit inventory and the existing Return projection remains the only Return
+writer. The new physical instruction variants are compiler-side carriers only;
+they are not source semantics, runtime ABI transports, or backend support
+claims.
+
+Non-authority: raw slot/generation/frame/token/pointer values, status
+`ValueId`, generic `Call`, `CheckedCallOut`, MIR/JSON scans, owner-ID lookup or
+re-pairing, a second exit ledger, a copied lifecycle row, `nyash.string.eq_hh`,
+fallback/retry, and any new frame or `Arc<str>` owner remain outside this I0.
+The VM/MIR-JSON/LLVM backend allowlists intentionally do not claim support for
+the new physical variants; backend lowering is a later row.
+
+Fail-fast boundary: before lifecycle effect, reject foreign owner or plan
+stamp, missing/stale frame revision or Residence ABI, duplicate landing
+placement, source/landing aliasing, duplicate session Enter, foreign or
+misplaced Finish, and any already-terminated normal landing. An entry Trap
+has no Finish obligation. The unpublished canonical transaction remains the
+rollback owner; no partial lifecycle candidate is published and no fallback or
+retry is entered.
+
+Landed evidence (2026-08-19):
+
+1. `src/mir/pinned_text_residence_lifecycle.rs` defines the physical-only
+   affine carrier, Finish capability, same-cohort provenance checks, and three
+   carrier negatives (foreign owner, stale plan/revision, duplicate landing).
+2. `CanonicalCfgSessionV1` installs the two Enter successors and the
+   success-only Finish marker; CFG effects and Return-before-Finish rejection
+   are covered by two focused tests. All MIR plumbing (successors, effects,
+   value queries, remapping, printing, and structural vocabulary) treats the
+   pair as physical control/cleanup with no SSA value.
+3. `CanonicalSsaFunctionSessionV2` owns the one-shot lifecycle state and
+   duplicate/misplaced capability checks. The reusable
+   `common_v2_s6c_structure_guard.sh`, `cargo check --profile quick`,
+   `cargo fmt --all -- --check`, `git diff --check`, and the focused lifecycle
+   suite pass (`5/5`).
+
+Next bounded row: return to Design stop at
+`TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0` and decide whether the
+caller-zero carrier evidence is sufficient to open the already-accepted
+backend/no-unwind or DraftSeal-consumer row. No production caller is selected
+by this I0.
+
+Non-claims: no source/Recipe change, V9 materialization, runtime wrapper
+change, new frame/backing, `Arc<str>` migration, LLVM/GEP lowering, final
+no-unwind proof, Return projection change, production switch, performance
+promotion, `eq_hh` retirement, or fallback/retry.
+
 ### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
 
 Decision: keep the lifecycle boundary closed beyond the landed finish-or-abort

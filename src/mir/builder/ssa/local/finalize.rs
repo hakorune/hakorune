@@ -28,6 +28,8 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
         MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
+        MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
+        MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",

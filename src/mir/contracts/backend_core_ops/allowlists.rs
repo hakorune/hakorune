@@ -196,7 +196,9 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
 
         // Transport-only in I0: it is serialized for typed round-trip but no
         // backend may claim a lowering opcode yet.
-        MirInstruction::PinnedTextOp { .. } => &[],
+        MirInstruction::PinnedTextOp { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceFinish { .. } => &[],
 
         MirInstruction::Load { .. }
         | MirInstruction::Store { .. }
