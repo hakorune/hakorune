@@ -25,6 +25,9 @@ Related:
 - **Current implementation status:** memory-profile `FastMemRegion` exists;
   Text-kernel source syntax, profile metadata, verifier, plan issuer, backend
   consumer, and production activation are all zero.
+- **Kernel planning status:** the Text-kernel idea is documentation-only. No
+  `.hako` spelling, `fastpath` keyword, or user-visible low-level leaf is
+  selected by this SSOT.
 - **Next ordered task:** continue the currently selected lane. Do not open the
   parked Text-kernel premise until the automatic S6C corridor reaches
   production cutover and the prerequisites below are observable.
@@ -327,6 +330,12 @@ The deferred commonization task is reserved as `GENERAL-CORRIDOR-FUSION-D0` in
 the parked task ladder below. It does not open the current S6C row, add a
 parser keyword, or authorize a performance claim.
 
+The word `fastpath` is therefore only an integration label at this stage. It
+does not name a second optimizer or a universal source feature. If the idea is
+reopened, an explicit `.hako` region and the automatic S6C producer must both
+emit the same profile-owned verified corridor plan; the canonical physical
+consumer remains shared.
+
 ## Parked Text-Scan Kernel Region Idea
 
 This section records a future design candidate, not an accepted language
@@ -353,6 +362,22 @@ No spelling is selected yet. Forms such as `kernel TextScanV1 { ... }`, a
 future `fastpath ProfileName { ... }`, or another one-keyword envelope remain
 design alternatives. The current `fastmem ContractName { ... }` spelling is
 memory-profile-only and must not be reused to imply that Text is raw memory.
+
+### Planning decision for the parked idea
+
+Keep the future source surface scoped and contract-bound if it is ever opened:
+
+```text
+preferred direction = small lexical region + closed portable leaf vocabulary
+not accepted        = raw pointer / ptr-len / unsafe / helper-name escape
+generic integration = ContractRegionV0 envelope, not a universal MIR dialect
+automatic fusion    = still requires source/Facts/Recipe equivalence proof
+```
+
+This is a design preference, not an accepted language feature. The first
+contract row must still decide whether the region is called `kernel`,
+`fastpath`, or another profile-specific spelling, and must record the
+unsupported-backend policy before any parser or resolver work begins.
 
 ### Authority and convergence
 
@@ -475,6 +500,8 @@ TEXTKERNEL-CONTRACT-D0
   one external-reviewed decision for source spelling, Text-only leaf laws,
   effect/fault behavior, backend availability, region result/early-exit
   cleanup, and the exact shared corridor-plan boundary
+  deliverable = one accepted contract section plus a bounded source fixture;
+  no parser, MIR, backend, or production change in this row
 
 TEXTKERNEL-SHADOW-I0
   parser/resolver/source-ledger metadata plus a report-only region issuer;
@@ -501,6 +528,24 @@ GENERAL-CORRIDOR-FUSION-D0
   consumer shape; make the shared producer/use/escape/exit law explicit and
   keep profile payloads and physical consumers separate
 ```
+
+### Reopen checklist
+
+The parked ladder may be resumed only when all of the following are attached
+to the selected card:
+
+```text
+automatic S6C corridor = production-selected and legacy route retired
+second consumer shape  = independently source/Facts/Recipe-proven
+explicit demand        = at least two real use cases, not a benchmark request
+leaf laws              = stated without Rust/MIR/LLVM/helper names
+backend policy         = shared-plan consumer or compile-time rejection
+review                 = syntax + effect/fault + ABI/lifetime review scheduled
+```
+
+Missing evidence keeps the idea parked. It must not be converted into a
+fallback, a hidden optimizer, a `NoSafeSlice` in the active S6C lane, or a
+CURRENT_STATE pointer change.
 
 `TEXTKERNEL-CONTRACT-D0` is the only docs-first decision row. If accepted, its
 next row must produce code or a verifier-visible artifact; do not create a
