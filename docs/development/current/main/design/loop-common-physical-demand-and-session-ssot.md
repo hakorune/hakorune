@@ -1360,6 +1360,48 @@ contract-bound generic lowerer ->
 artifact. A separate observer/no-unwind I0 opens only after both cells are
 real.
 
+#### TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0 (accepted design stop; implementation closed)
+
+Decision: add one explicit physical fail-stop terminator for the Residence
+Enter trap landing. The shape is `MirInstruction::PinnedTextResidenceTrap`
+with the already-issued `PinnedTextResidencePlanIdV1`; it has no successor,
+does not create a Residence obligation, and cannot carry a value. The existing
+canonical CFG session remains the sole writer: it consumes the same Enter
+carrier, verifies that the selected block is the admitted trap landing for the
+same plan, and seals the terminal before DraftSeal. This is a physical
+vocabulary BoxCount, not a source semantic Trap or a runtime status result.
+
+Source authority + canonical issuer: `PreparedPinnedTextResidenceLifecycleV1`
+and `PinnedTextResidenceEnter` already own the plan and trap landing;
+`CanonicalCfgSessionV1` is the sole issuer of both the Enter edge and the new
+terminal. The canonical SSA session only consumes that CFG result; the
+unpublished function transaction remains the rollback owner.
+
+Non-authority: `Throw`, `CheckedCallOutFault`, a generic `Call`, an inferred
+empty trap block, MIR adjacency, block ordinals, JSON/C fixture text, runtime
+abort symbols, and any source-level error value. `CheckedCallOutFault` remains
+exclusive to its admitted CheckedCallOut site plan; `Throw` remains a
+recoverable/value-bearing language exit.
+
+Fail-fast boundary: before any lifecycle effect, require one same-cohort Enter
+plan, one distinct trap landing, exactly one incoming Enter edge, an empty
+unterminated trap block, and no Finish or other value-bearing instruction. The
+terminal writer rejects foreign plan, duplicate terminal, rejoin edge,
+non-empty trap body, and any already-terminated block. Late failure discards
+the unpublished function; no JSON, backend object, fallback, or retry is
+allowed.
+
+Smallest next slice: `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — add the
+compiler-side terminator plumbing and canonical writer only, with positive
+same-plan/no-successor evidence and negatives for foreign, duplicate,
+rejoining, non-empty, and Finish-on-trap shapes. Keep runtime/C/LLVM lowering,
+no-unwind observation, detached Finish/Return projection, production, and
+performance closed.
+
+Non-claims: this row does not change source/Facts/Recipe acceptance, add a
+generic unreachable instruction, alter `CheckedCallOut` or `Throw`, emit a
+runtime status `ValueId`, open a backend route, or retire `nyash.string.eq_hh`.
+
 The accepted six-line brief for the first cell is:
 
 ```text
@@ -1470,13 +1512,16 @@ Task ladder (canonical consumer design first, runtime effect later):
     existing frame issuer reads the canonical function-owned plan table only
     after the three S6C leaf rows exist; empty/zero-stamp/preinstalled frames
     reject before DraftSeal publication.
-13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — next: choose and seal
-    the explicit physical fail-stop trap terminal.
-14. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — later:
+13. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-D0` — accepted design stop:
+    `PinnedTextResidenceTrap` is the explicit physical fail-stop terminal;
+    implementation remains closed until the compiler-only I0 below.
+14. `TEXT-FORMAL-PINNED-RESIDENCE-TRAP-TERMINAL-I0` — next: add the new
+    terminator plumbing and canonical writer with no runtime/backend route.
+15. `TEXT-FORMAL-PINNED-RESIDENCE-DETACHED-FINISH-PROJECTION-I0` — later:
     consume the full ingress in the existing caller-zero owner, materialize
     one real lifecycle-bearing function/JSON candidate, and keep the detached
     DraftSeal transaction as the rollback boundary.
-15. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
+16. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
     route that exact candidate through the selected LLVM 18 C generic path to
     parse plus target/layout setup and a temporary artifact; no observer claim.
 
