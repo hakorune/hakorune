@@ -574,35 +574,53 @@ projected Return; and no MIR carrier lowers either Residence C ABI call. The
 review assumption that `prepare_exact_two_inner` already owns the frame and
 finish capability is therefore false on this HEAD.
 
-#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0 (active design_stop)
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0 (accepted; I0 selected)
 
-Decision: create no effect yet. Design one private, move-only physical
-lifecycle handoff issued after the canonical pinned-Text plan census and
-before DraftSeal; it owns entry/finish projection authority but never owns or
-copies `PreparedFunctionExitSetV1`.
+Decision: accept one private, move-only physical-entry owner before DraftSeal,
+but do not implement an owned envelope that contains a borrow into its own
+`PreparedFunctionExitSetV1`. The Rust shape is a consuming method: the caller
+owns the exit set, borrows it only while the ingress/projector validates and
+projects, ends that borrow, and then moves the same exit set into the existing
+unique Return projection. There is no second exit ledger and no public
+generic projector envelope.
 
-Source authority + canonical issuer: the existing S6C package/source loan,
-physical-signature sibling loan, `CanonicalSsaFunctionSessionV2` plan table,
-Residence ABI layout, and compile-target capability must meet in the same
-unpublished physical-entry transaction. That owner issues the existing
-backend-frame contract before lifecycle projection and passes one opaque
-function-local lifecycle plan to the DraftSeal owner.
+The owner is `ModuleBuilderInvocationSessionV1`, which must own the existing
+`ModuleInvocationBrandV1` and the existing
+`PinnedTextCompileTargetCapabilityV1`. It lends a private, non-`Clone` scoped
+target/brand binding to a physical ingress constructor. Numeric invocation
+ordinals are never compared: brand and target remain distinct authorities and
+are related only by this ownership lineage.
 
-Non-authority: runtime `TextFormalCallResidenceV1` values in compiler code,
-raw slot/generation/frame/token/pointer, the current post-DraftSeal frame
-issuer, legacy finalizer, generic `Call`, the bounded `CheckedCallOut`
-provider/lease vocabulary, MIR/JSON scans, and a public generic envelope.
+Source authority + canonical issuer: the S6C package/source/Facts/Recipe/Join
+loan remains the source-side authority; its existing
+`PhysicalCallableSignatureRowRefV1` is the signature authority. The module
+session is the only issuer of the scoped brand/target binding. A private
+`PreparedPinnedTextPhysicalEntryIngressV1` co-seals that binding with
+`PreparedPhysicalEntrySessionInputV1`, the existing pinned-Text plan census,
+Residence ABI layout, and the existing backend-frame contract before
+DraftSeal. The canonical session owns the function metadata plan table and
+issues the frame contract once from the same S6C signature row; no caller may
+re-pair signature, target, frame, or plan by owner ID.
 
-Fail-fast boundary: before MIR lifecycle effect, reject foreign/missing target
-or signature, stale entry stamp, incomplete/duplicate access-plan census,
-frame revision/layout drift, unsupported unit/implicit/EH exits, recoverable
-unwind, or any need to re-pair by owner ID. No partial frame publication,
-fallback, or retry is allowed.
+Non-authority: target or brand ordinals, a bare `&target`, a bare signature or
+brand argument, host/default/JSON configuration, runtime
+`TextFormalCallResidenceV1` values in compiler code, raw slot/generation/
+frame/token/pointer, the current post-DraftSeal frame issuer, legacy finalizer,
+generic `Call`, bounded `CheckedCallOut` provider/lease vocabulary, MIR/JSON
+scans, and a public `PreparedDraftSealReturnV1<P>` are not issuers.
 
-Smallest next slice: this D0 must name the exact ingress type and handoff
-method, the ownership/lifetime of plan and frame borrows, and the control
-contract for one entry plus one finish per normal exit. Only then may a
-caller-zero BoxShape I0 co-seal existing authorities without emitting MIR.
+Fail-fast boundary: selected pinned ingress rejects a missing session-owned
+target, foreign/targetless/profile/ABI drift, a signature whose lane/owner is
+not the S6C loan, incomplete or duplicate plan census, frame revision/layout
+drift, and any attempt to publish a partial frame. All checks happen before
+MIR lifecycle effect; there is no fallback, retry, or post-DraftSeal frame
+issuance.
+
+Smallest next slice: implement only the Rust-side scoped target/brand binding
+and the private ingress co-seal. Keep the ingress non-`Clone`/non-`Copy`, keep
+the S6C signature row inside the same ownership chain, and expose no raw
+target/signature/frame/token values. This is a physical BoxShape only; it
+does not mint a new semantic `Verified*`/`Prepared*` receipt.
 
 Non-claims: no new source meaning/Recipe, lifecycle receipt implementation,
 runtime wrapper, MIR carrier, Return/CFG change, backend lowering, no-unwind
@@ -633,15 +651,19 @@ than hide that branch.
 
 Implementation ladder after this D0 is accepted:
 
-1. `...INGRESS-COSEAL-I0`: effect-free caller-zero target/signature/plan/frame
-   co-seal before DraftSeal; no MIR or runtime call.
+1. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0`: add the
+   session-owned target/brand binding and private physical ingress; frame
+   issuance remains effect-free and caller-zero, before DraftSeal. No MIR or
+   runtime call.
 2. `...FINISH-OR-ABORT-ABI-D0/I0`: seal and implement the private void-on-
    success, fail-stop-on-error wrapper, including no-unwind/noreturn evidence.
 3. `...LIFECYCLE-CARRIERS-D0/I0`: add the typed Enter control carrier and
    Finish marker through canonical writers; no generic Call/CheckedCallOut.
 4. `...DRAFTSEAL-PROJECTOR-I0`: use a private consuming method, not a public
-   envelope: borrow the exact exit set, project operand/finish, end the borrow,
-   then move that same set to `FunctionDraftSealProjectionV1` for Return.
+   self-referential or generic envelope: borrow the exact exit set, project
+   operand/finish, end the borrow, then move that same set to
+   `FunctionDraftSealProjectionV1` for Return. The projector never emits
+   Return; the existing Return projection remains sole emitter.
 5. `...BACKEND-NOUNWIND-CLOSURE-I0`: lower direct runtime calls and verify one
    Enter, one Finish per normal exit, no hot-loop call, hidden CFG, EH/invoke,
    retry, or fallback.
@@ -655,22 +677,78 @@ File-shape prerequisites for the first I0:
 - `function/metadata.rs` is 797 lines; add no envelope/capability field there.
 - keep `physical_entry_draftseal.rs` as a facade and put co-seal logic in a
   bounded `physical_entry_draftseal_ingress.rs` child.
+- `normal_default_root_catalog_lifecycle.rs` is 762 lines; do not add target
+  binding logic there. Put the session-target install/scoped binding helper in
+  a bounded child module and keep the lifecycle file as a facade.
 - split validation/projector/tests out of `draft_seal/text_residence_exit.rs`
   before connecting a consumer; put the consuming seam in a bounded
   `draft_seal/text_residence_ingress.rs` child.
 - every new source file targets 760 lines and stops at 800; structure-only
   splits and the behavior-bearing BoxShape remain separate commits.
 
-The caller-zero acceptance matrix requires same owner/signature/entry/target/
-plan/frame, complete exactly-once plan census, exact explicit-value exits, and
-`operand -> finish -> Return`. It rejects foreign/stale/missing/duplicate
-inputs, unit/implicit/EH exits, second finish/Return/DraftSeal, closure-only
-consumers, frame issuance after DraftSeal, hidden status CFG, and any late
-failure that retries or publishes a partial candidate.
+The I0 acceptance matrix requires one module-session owner of brand and target,
+one S6C signature row, one target binding, complete exactly-once plan census,
+one pre-DraftSeal frame issue, and no raw-value escape. It rejects ordinal
+comparison, bare target/signature/brand arguments, foreign/stale/missing/
+duplicate inputs, targetless/profile/ABI drift, post-DraftSeal frame issue,
+closure-only consumers, hidden status CFG, and any late failure that retries or
+publishes a partial candidate. The later projector row additionally requires
+exact explicit-value exits and `operand -> finish -> Return`.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; ingress co-seal active)
+#### TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0 (active fast)
 
-Decision: keep the design stop active. The materializer identity/projector I0
+Decision: implement one behavior-preserving physical ingress BoxShape. Add no
+new source acceptance and do not connect a production caller. The session-owned
+target/brand binding and the S6C prepared entry input are consumed once into a
+private `PreparedPinnedTextPhysicalEntryIngressV1`; the canonical close issues
+the existing backend-frame contract from the S6C loan's signature row and the
+function metadata plan table.
+
+Source authority + canonical issuer: `ModuleBuilderInvocationSessionV1` owns
+`ModuleInvocationBrandV1` plus `PinnedTextCompileTargetCapabilityV1` and is the
+only scoped-binding issuer. `S6CCommonV2PreSessionLoanRefV1` owns the source,
+Facts, Recipe, Join, Completion, and physical signature row. Existing plan,
+Residence ABI, and frame issuers remain their own authorities; the private
+ingress only co-seals them and cannot invent meaning.
+
+Non-authority: numeric ordinal equality, target alone, brand alone, a raw
+signature row passed beside a target, `Option<Target>` accepted by the selected
+ingress, owner-ID lookup, JSON/host/default fill, runtime tokens/pointers,
+MIR/CFG/SSA, `Call`/`CheckedCallOut`, fallback/retry, and DraftSeal Return
+projection are outside this I0.
+
+Fail-fast boundary: before any effect, reject targetless selected ingress,
+foreign session binding, profile/ABI mismatch, S6C signature owner/lane drift,
+missing or duplicate plan entries, frame revision/layout drift, and any
+attempt to issue the frame after DraftSeal. No partial ingress is published.
+
+Smallest next slice (bounded files):
+
+1. Add session-owned target storage and a private callback-scoped,
+   non-`Clone`/non-`Copy` target/brand binding; compatibility callers that never
+   enter pinned ingress may remain targetless.
+2. Add a child under the 762-line normal-root lifecycle facade to install and
+   lend that binding; do not grow the facade past the 760-line split target.
+3. Co-seal the binding with `PreparedPhysicalEntrySessionInputV1` in a private
+   ingress child; adapt the existing frame issuer internally to consume the
+   S6C loan's signature row without exposing a free signature/target pair.
+4. Add focused positive/negative tests and a reusable structure guard. Keep
+   the ingress caller-zero and effect-free.
+
+Acceptance: same module session issues both authorities; no ordinal comparison;
+the ingress is affine and non-copyable; the S6C loan is the only signature
+source; targetless/foreign/profile/ABI-drift inputs reject before effect; the
+frame is issued once before DraftSeal from the same plan/signature cohort; no
+raw target/signature/frame/token/pointer escapes; all touched files stay below
+800 lines.
+
+Non-claims: no Residence enter/finish MIR, runtime wrapper, Return/CFG change,
+backend codegen, production switch, fallback/retry, performance benchmark, or
+`nyash.string.eq_hh` retirement.
+
+### S6C-RESIDENCE-EXIT-FINISH-D0 (design_stop; ingress co-seal I0 active)
+
+Decision: keep the lifecycle design stop active. The materializer identity/projector I0
 is landed caller-zero, but the canonical consumer audit closed as
 `NoSafeSlice`: the needed plan/frame/lifecycle capability is not present before
 DraftSeal and must not be replaced by a closure-only seam.
@@ -730,9 +808,11 @@ Task ladder (canonical consumer design first, runtime effect later):
 2. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-CONSUMER-D0` — closed as
    `NoSafeSlice`; the review's one-move ownership direction is retained, but
    the proposed envelope cannot be built from the current borrowed admission.
-3. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0` — active:
-   design the one pre-DraftSeal target/signature/plan/frame/lifecycle handoff.
-4. After that D0, follow the bounded I0/ABI/carrier/projector/backend ladder in
+3. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0` — accepted;
+   its target/signature/plan/frame/lifecycle ownership is fixed above.
+4. `TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0` — active fast:
+   implement only the Rust-side physical co-seal and guards; no MIR/runtime.
+5. After that I0, follow the bounded ABI/carrier/projector/backend ladder in
    the active subsection above. Production/performance stay closed until
    caller-zero lifecycle and final no-unwind evidence are complete.
 

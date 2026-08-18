@@ -12,22 +12,24 @@ operand -> Residence.finish -> Return ordering without emitting lifecycle MIR.
 The canonical-consumer audit closed as NoSafeSlice. The borrowed admission
 cannot share an owned envelope with its exit set, the backend-frame contract
 is currently issued only after DraftSeal, and no Residence enter/finish MIR
-carrier exists. The active design stop moves upstream to one pre-DraftSeal
-physical-entry co-seal. Runtime/MIR, backend, production, fallback, and
-performance remain closed.
+carrier exists. The ingress D0 is now accepted: one module session owns the
+module brand and compile target, and a private physical ingress will co-seal
+that binding with the S6C signature/plan/frame before DraftSeal. The selected
+I0 is Rust-only and caller-zero; lifecycle MIR, backend, production, fallback,
+and performance remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The canonical-consumer audit closed as NoSafeSlice because no co-resident target/signature/plan/frame/lifecycle authority exists before DraftSeal. Name one private physical-entry owner, its exact plan/frame borrow lifetime, and its DraftSeal handoff before implementing any receipt or effect."
-work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0"
-current_blocker_token = "Design only one pre-DraftSeal physical-entry co-seal for the existing S6C source/signature loan, pinned-Text plan census, Residence ABI, compile target, and backend-frame contract. Name the exact ingress type, borrow/move lifetime, and private DraftSeal handoff. Reject a public generic envelope, self-referential exit admission, generic Call/CheckedCallOut reuse, raw frame/token/pointer, hidden backend CFG, new frame/Arc, runtime/MIR implementation, production, fallback/retry, performance, or eq_hh retirement."
+current_design_stop = "D0 accepted: the module invocation session owns both ModuleInvocationBrandV1 and PinnedTextCompileTargetCapabilityV1 without ordinal comparison; the next bounded I0 is the private Rust-side physical ingress co-seal before DraftSeal."
+work_mode = "fast"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0"
+current_blocker_token = "Implement only the Rust-side physical BoxShape: a session-owned non-copyable target/brand binding co-sealed with the existing S6C prepared entry input, signature row, pinned-Text plan census, Residence ABI, and one pre-DraftSeal backend-frame issue. Reject bare target/signature/brand arguments, ordinal comparison, targetless/foreign/profile/ABI drift, owner-ID re-pairing, raw frame/token/pointer escape, hidden CFG, runtime/MIR, Return, production, fallback/retry, performance, and eq_hh retirement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence pre-DraftSeal ingress co-seal D0"
+active_lane = "S6C Text Residence pre-DraftSeal ingress co-seal I0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -40,9 +42,11 @@ is landed caller-zero with seven focused tests, but emits no lifecycle MIR.
 Worker census invalidated the immediate envelope proposal: its exit admission
 would self-borrow the owned exit set, the backend-frame contract is issued
 after DraftSeal in complete_resolved_child_with_physical_loan, and the
-compiler has no Residence enter/finish carrier. The active row designs one
-pre-DraftSeal physical-entry owner that co-seals source/signature, target,
-access plans, Residence ABI, and the existing frame contract.
+compiler has no Residence enter/finish carrier. D0 now fixes one
+pre-DraftSeal physical-entry owner: ModuleBuilderInvocationSessionV1 owns the
+brand and target, a private scoped binding is co-sealed with the S6C
+source/signature loan, access plans, Residence ABI, and the existing frame
+contract. The selected I0 is effect-free and caller-zero.
 PreparedFunctionExitSetV1 stays the sole exit inventory and
 FunctionDraftSealProjectionV1 the sole Return emitter. Selected Dynamic
 remains the sole production arm.
@@ -58,10 +62,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, and effect-free Residence exit identity/projector are landed caller-zero. The canonical-consumer D0 closed as NoSafeSlice: the borrowed exit admission cannot form the proposed owned envelope, the backend-frame contract is issued after DraftSeal, and no Residence lifecycle MIR carrier exists. The active design row moves upstream to one pre-DraftSeal source/signature/target/plan/frame/lifecycle co-seal; runtime/MIR, backend, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-D0"
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, and effect-free Residence exit identity/projector are landed caller-zero. The canonical-consumer D0 closed as NoSafeSlice because its borrowed exit admission cannot form an owned envelope; the accepted ingress D0 now fixes session-owned brand/target identity, same-loan signature provenance, and one pre-DraftSeal frame/plan co-seal. The active I0 is Rust-only and caller-zero; lifecycle MIR, backend, production, fallback, and performance remain closed."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-DRAFTSEAL-INGRESS-COSEAL-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
