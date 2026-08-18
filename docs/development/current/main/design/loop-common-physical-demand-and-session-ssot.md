@@ -2371,7 +2371,7 @@ independent compatibility retirement
 | 3 | `COMMON-V2-S6C-V9-CALLOUT-MIR-I0` | BoxShape | Emit canonical Normal/Fault landings, V9, End, and Fault; the concrete-wire canary stays test-only and caller-zero. |
 | 4 | `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` | BoxShape | Co-seal V9 with the adopted ExactText lanes in one session/segment without constructing a runtime pair in the compiler. |
 | 4v9 | `COMMON-V2-S6C-TEXTEQ-V9-RUNTIME-PRODUCER-D0/I0` | BoxShape | Use one private provider-return Rust bridge: static producer plan -> move-only runtime result -> opaque scope input; one `EndAuthorizedTextV1` adopter, atomic normal/fault wire, and no post-hoc pairing. |
-| 4b | `COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0` | design stop | Bind source ExactText occurrence order to published `{slot,generation}` pairs and Residence root indices through one private runtime bridge; no ordinal rematching, partial pin, or MIR Residence import. |
+| 4b | `COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0/I0` | BoxShape | First accept the index-only plan binding source identity, explicit root/lane indices, and cohort stamp; then consume it once to build the published pair vector for the existing Residence owner, with no ordinal rematching, partial pin, or MIR Residence import. |
 | 4a | `COMMON-V2-S6C-TEXTEQ-TEXTREF-SCOPE-D0/I0` | BoxShape | After the entry bridge is proven, consume the existing V9/ExactText co-seal through one private opaque scope, with one consumer, one ExactText finish, and canonical V9 End order; no V10 effect. |
 | 5 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-D0/I0` | one BoxCount or `NoSafeSlice` | Select one strict non-fallback physical capability for the existing portable TextEq and issue Bool V10. |
 | 6 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | BoxShape | Consume V10 with existing Return-read, shared-segment, and FunctionExit proofs to write the inner If/Return CFG. |
@@ -2889,7 +2889,11 @@ Source authority + canonical issuer: the existing S6C ExactText sidecar and
 V9/ExactText occurrence co-seal own source order and multiplicity; the runtime
 `acquire_text_formal_residence_from_published_wires_v1` path remains the sole
 pin/root/finish owner. The bridge is only a mechanical Rust handoff between
-those already-issued products.
+those already-issued products. Its single physical-plan issuer must consume
+the `ResolvedCallablePhysicalSignatureLoanV1` together with the
+`PhysicalTextEntryLaneSidecarV1`, validate every slot/generation lane index,
+and emit the batch rows once; runtime values are read from those exact lanes,
+never rematched by ordinal or raw pair order.
 
 Non-authority: bare source ordinals, `ValueId` numbers, MIR adjacency, raw
 handles/tokens, JSON, `ptr/len` values, `nyash.string.eq_hh`, or a later scan
@@ -2906,14 +2910,78 @@ callback; the current `with_root` byte-length-only API does not authorize a
 content-comparison leaf.
 
 Smallest next slice: define one private bridge product and one consumer that
-accepts the source/co-seal proof plus the published pair binding, acquires
-ExactText once, and lends only occurrence-scoped opaque views to the future
-scope. Record primary/suppressed cleanup order and negative coverage for
+accepts one opaque `ExactTextEntryBatch` containing the source binding,
+explicit `root_index`, exact slot/generation lane indices, the physical cohort
+stamp, and the already-published pair values. The batch is issued once from
+the source/ExactText physical-entry contract, then consumed once by the
+existing Residence owner; it must not be rebuilt from a bare ordinal or pair
+position. Record primary/suppressed cleanup order and negative coverage for
 missing, stale, foreign, duplicate, reordered, retiring, and overflow input.
+
+The required counterexample is part of the D0 proof: if source roots are
+`[Subject, Needle]` but two live published pairs arrive as `[Needle, Subject]`,
+the old pair-only Residence adapter succeeds while root 1 silently changes
+meaning. The explicit `root_index`/lane-index batch must reject this mismatch
+before pinning; successful Residence acquisition alone is not evidence of a
+correct source binding.
 
 Non-claims: no TextRef scope implementation, V10 Bool, pinned-text leaf,
 additional MIR/CFG/Return, publication, production switch, direct C-speed
 route, fallback/retry, or `eq_hh` retirement.
+
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-D0 closure (2026-08-18; accepted)
+
+The D0 is closed as a BoxShape. The bridge is an index-only private physical
+plan, not a semantic receipt and not a runtime owner:
+
+```text
+S6C occurrence/co-seal + PhysicalTextEntryLaneSidecarV1
+  -> CanonicalSsaFunctionSessionV2 issues one private bridge plan
+  -> exact slot/generation lane indices + explicit root_index bijection
+  -> callback consumer builds the already-published pair vector
+  -> runtime text_formal_abi validates the pairs
+  -> TextFormalCallResidenceV1 owns pin/root/finish
+```
+
+The plan carries only cohort/stamp, owner/entry/segment/body, binding and
+occurrence identity, slot/generation lane indices, published-pair index,
+root index, carrier, and exact counts. It carries no concrete pair values,
+`ValueId` to `u64` reinterpretation, handle/token, runtime wire, or source
+meaning. The source/entry issuer must validate adjacent lanes, unique rows,
+explicit pair-to-root bijection, owner/session/segment/brand/carrier parity,
+and root count/index coverage before any Residence effect.
+
+The selected I0 may pass the plan-produced pair vector to the existing
+`acquire_text_formal_residence_from_published_wires_v1` adapter, but the
+adapter may not rematch rows or infer source meaning. Runtime rejects
+zero/missing/stale/foreign/duplicate/reordered/retiring/overflow pairs in
+the existing atomic transaction; partial pin/frame publication remains
+forbidden. The old pair-only adapter is not sufficient without the plan,
+because two live pairs in reversed order can otherwise silently swap roots.
+
+Acceptance for the next I0 is one private plan issuer, one consumer, explicit
+root-index/lane-index coverage, all negative mapping cases, zero partial
+rollback, one Residence acquisition/finish per invocation, and the existing
+V9 End exactly-once evidence. No TextRef scope, V10 Bool, MIR/CFG/Return,
+publication, production switch, fallback/retry, performance claim, or
+`eq_hh` retirement is opened.
+
+#### COMMON-V2-S6C-TEXTEQ-TEXTREF-ENTRY-BRIDGE-I0 (2026-08-18; selected fast row)
+
+Implement exactly one private physical-plan issuer and one consumer. The
+issuer consumes the existing S6C co-seal, `ResolvedCallablePhysicalSignatureLoanV1`,
+and `PhysicalTextEntryLaneSidecarV1`; it emits only index/stamp rows. The
+consumer validates the plan once, reads the already-published slot and
+generation values from the exact lane indices, and passes a root-index-ordered
+pair vector to `acquire_text_formal_residence_from_published_wires_v1`.
+
+The focused gate must cover positive one-root and multi-root cases plus
+missing/duplicate/reordered lane rows, owner/session/entry/segment drift,
+carrier mismatch, root-index gaps, zero/stale/foreign/retiring/non-Text pairs,
+overflow, and mutation-free rollback. The consumer exposes no raw tuple,
+`ValueId`, handle/token, or ordinal lookup; Residence remains the sole pin,
+root, and finish owner. This is caller-zero physical evidence, not a
+production switch.
 
 #### TEXT-FORMAL-RESIDENCE-ABI-LIMIT-GUARD-R0 closeout (2026-08-18; accepted)
 
