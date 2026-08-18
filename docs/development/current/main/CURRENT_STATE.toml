@@ -46,7 +46,10 @@ plus one private byte-offset PHI, with ByteLen issued once and canonical CFG/
 SSA witnesses sealed. The active design stop is the missing canonical
 DraftSeal/Return residence handoff; the old proof-only exit obligation is not
 an implementation owner. The accepted next ladder is lifecycle authority,
-materializer, then backend no-unwind closure.
+materializer, then backend no-unwind closure. Current ingress census confirms
+common-V2 session/physical-entry and S6C cursor callers are focused tests only;
+their callback discards the unpublished outer session, so no S6C DraftSeal
+candidate currently co-resides with the Residence/exit set.
 Selected Dynamic remains the sole
 production arm.
 """

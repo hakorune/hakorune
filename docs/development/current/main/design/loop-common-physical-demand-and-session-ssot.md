@@ -508,6 +508,17 @@ roles, with no copied exit rows, runtime token, MIR Return, backend pointer, or
 production caller. A later materializer and final no-unwind observer are
 separate rows.
 
+Ingress census (current HEAD): `with_common_v2_canonical_session*` and
+`with_common_v2_physical_entry_session*` have no production caller; their
+reachable uses are focused tests and the callback always ends by discarding
+the unpublished outer session. The S6C cursor CFG materializer is likewise
+test-only, while `finish_for_draft_seal` is reached only by the existing
+profile lowerers outside this S6C entry. Therefore no same-function
+Residence/frame + `PreparedFunctionExitSetV1` + canonical DraftSeal candidate
+currently co-reside, and opening the lifecycle I0 would create a second
+authority. This census keeps the `NoSafeSlice` stop explicit until a named
+common-V2 DraftSeal ingress row lands.
+
 
 ## Historical boundary
 
