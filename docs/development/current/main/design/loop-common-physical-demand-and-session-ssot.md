@@ -2115,45 +2115,37 @@ permitted; if the runtime-value ingress cannot be named, retain
 Non-claims: no residence I0, new semantic receipt, CheckedCallOut, V9
 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
 
-### COMMON-V2-TEXTEQ-SUBSTRING-V9-STRINGBOX-RESIDENCE-D0 (2026-08-18; design stop)
+### PARKED-PINNED-TEXT-STRINGBOX-ROOT-OWNER-D0 (2026-08-18; audited, parked)
 
-Decision: keep `TextFormalCallResidenceV1` StableText-only and design a
-separate StringBox scope. The S6C actual formal is StringBox, so a StableText
-wire or coercion would not be a valid production bridge.
+Decision: keep `TextFormalCallResidenceV1` StableText-only. A future fast lane
+may admit StringBox without a byte copy only when one runtime token record owns
+both the existing call pins and cloned exact-StringBox `Arc` roots.
 
-Source authority + canonical issuer: S6C resolver/Recipe StringBox formal and
-the canonical ExactText occurrence view; the runtime `TextFormalCallLeaseSet`
-owner may pin exact text only after it receives an already-issued,
-source-backed pair. A future private
-`CommonV2StringBoxTextEqResidenceScopeV1` owns callback lifetime, not source
-meaning or a new semantic receipt.
+Source authority + canonical issuer: S6C resolver/Recipe exact StringBox
+formals select the lane; the host table alone validates the published
+`{slot,generation}`, retirement state, and concrete `StringBox` payload and
+issues the root owner.
 
-Runtime evidence: `acquire_text_formal_call_leases_v1` accepts only opaque
-`TextFormalBorrowV1`; its only public constructor,
-`issue_text_formal_borrow_v1(handle)`, recaptures a generation from a raw
-handle and is not a source-bound Common-V2 ingress. The existing
-`issue_stable_text_formal_wire_v1(slot, generation)` validates StableText and
-therefore rejects the actual StringBox payload. No Common-V2 caller supplies a
-runtime pair today.
+Memory proof: `StableBox` already stores `Arc<dyn NyashBox>`. While the token
+record retains a clone, safe Rust cannot obtain `&mut StringBox`; public
+`value` and `as_any_mut` do not create a mutable alias through a shared `Arc`.
+The issuer must use exact concrete downcast, not spoofable `type_name()` plus
+`as_str_fast()`. LeaseSet alone remains slot identity/retirement authority.
 
-Non-authority: StableText-only residence, sidecar `ValueId` pairs, logical
-ordinal, raw handle/token recapture, `eq_hh`, C frame/status exports, and any
-StringBox-to-StableText conversion or fallback.
+Non-authority: raw slot/generation, LeaseSet alone, StringBox name checks,
+StableText coercion or snapshot copies, `eq_hh`, C frame rows, MIR `ValueId`,
+and benchmark success.
 
-Fail-fast boundary: before pin/effect reject absent source-backed pair,
-owner/session/entry/segment/needle/ordinal/carrier drift, zero/stale/foreign
-generation, non-StringBox payload, retirement pending, pin overflow, unknown
-token, escaped borrow, duplicate finish, or late unpublished discard.
+Fail-fast boundary: one entry write-lock transaction validates every pair,
+clones every exact backing owner, checks all pin counts, then publishes one
+token and root set. Any error leaves pins/tokens/roots at zero. Finish consumes
+the token exactly once; no fallback, retry, or partial publication is allowed.
 
-Smallest next slice: design only one runtime StringBox pair ingress that
-validates a source-bound published `{slot,generation}` without raw-handle
-recapture, then feeds the move-only callback scope and existing exact-text
-LeaseSet (`stable_text_only = false`). Finish order is LeaseSet before V9 End,
-with reverse rollback and primary/suppressed errors. No wire construction from
-MIR `ValueId` is allowed.
+Smallest next slice: remain parked until the correctness production edge;
+then close `TEXT-FORMAL-STRINGBOX-ROOT-RESIDENCE-D0` before implementation.
 
-Non-claims: no StringBox residence I0, new semantic receipt, CheckedCallOut,
-V9 `ValueId`, TextEq/Bool/CFG, publication, fallback, retry, or production.
+Non-claims: no current StringBox root issuer, ABI/raw-pointer publication,
+compiler lifecycle, direct leaf, speed result, production, or `Arc<str>` migration.
 
 ### COMMON-V2-S6C-V9-CALLOUT-MIR-D0 (2026-08-18; design stop)
 
@@ -2241,20 +2233,28 @@ or a second physicalizer.
 8. `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` — connect the real caller through
    Completion/DraftSeal/publication, then retire the old selected edge only
    after caller-zero evidence.
-9. `PINNED-TEXT-C-SPEED-D0/I0` — separate optimization row after correctness:
-   acquire all required Text-root residences once per invocation and authorize
-   the existing `Utf8ScalarSliceEqWholeText` plan from source/Recipe proof.
-   Lower it directly; the hot loop must contain no LeaseSet acquisition,
-   handle-table lock, allocation, substring object, fallback, or indirect
-   `eq_hh` call.
-10. `EQ-HH-RETIREMENT-R0` — cut over its generic C/Python callers, remove the
+9. `TEXT-FORMAL-STRINGBOX-ROOT-RESIDENCE-D0/I0` — one zero-copy exact-StringBox
+   owner whose token retains cloned `Arc` roots plus pins through atomic finish.
+10. `S6C-PINNED-SCAN-CORRIDOR-D0/I0` — from the complete fixed Recipe, not MIR
+    adjacency, co-seal zero init, an explicit codepoint profile, Length/condition,
+    `Substring(i,i+1)` sole-use TextEq/If, `i+1`, and exits. Select one derived
+    byte-cursor realization before effects; absent profile authority is
+    `NoSafeSlice`, and replaced ops must not also dispatch.
+11. `PINNED-TEXT-INVOCATION-LIFECYCLE-D0/I0` — acquire once at entry, load roots
+    in the preheader, and finish before every normal Return. Post-acquire fault
+    or unwind stays closed without explicit cleanup proof.
+12. `LLVM-PINNED-TEXT-LEAF-D0/I0` — direct `ByteLen`/`Utf8WidthAt`/scalar-eq
+    GEP/load/compare with valid UTF-8, scalar boundary, width 1..4, exact reads,
+    alignment 1, no overread, and no alias-disproving attributes.
+13. `PINNED-TEXT-PERFORMANCE-PROMOTION-R0` — structural zero-boundary, then
+    exact/meso/whole and C break-even; numeric ratios are evidence, not authority.
+14. `EQ-HH-RETIREMENT-R0` — cut over its generic C/Python callers, remove the
     declaration, and retire the ABI export only after an external caller-zero
     census.
 
-Rows 1–4 are BoxShape because they add no source form. Row 5 must decide
-whether admitting one physical representation is a bounded BoxCount or
-remains `NoSafeSlice`. Correctness, production, and performance claims stay
-separate.
+Rows 1–4 are BoxShape. Row 5 and parked row 9 each decide whether one physical
+representation is bounded BoxCount or `NoSafeSlice`; rows 10–12 are BoxShape
+only after issuer closure. Correctness, production, and performance stay separate.
 
 The independent structural audit remains a separate pre-production backlog:
 
@@ -2268,9 +2268,6 @@ The independent structural audit remains a separate pre-production backlog:
 - `TRANSITION-DEAD-CODE-ALLOW-R0` shrinks transition-only `allow(dead_code)`
   after caller-zero retirement.
 
-`CURRENT_STATE.toml` is already restored to a 65-line pointer by this audit;
-landed history remains in Git and the archive rather than the live selector.
-
 #### C-speed and legacy verdict
 
 `nyash.string.eq_hh` is old for the S6C TextEq design, but it is not dead:
@@ -2279,12 +2276,12 @@ fallback, raw-`i64` result, and lossy invalid-handle behavior disqualify it as
 the correctness authority. Keep it as a measured legacy baseline until the
 later caller-zero retirement row.
 
-The current per-iteration `pair -> LeaseSet -> callback -> finish` idea is
-rejected for the fast path because it performs locks and metadata allocation.
-C-like speed is plausible only when entry pinning is amortized once per
-invocation and the loop lowers to direct pointer/length work. `--profile
-quick` is for development feedback; release LTO plus IR/assembly and
-exact/meso/whole benchmarks are required for the speed claim.
+The per-iteration `pair -> LeaseSet -> callback -> finish` path is rejected.
+The thinnest candidate is one entry transaction plus token-owned exact-
+StringBox `Arc` roots: no whole-function registry guard and no O(bytes)
+snapshot. The full S6C cursor cohort, not V9/V10 adjacency, authorizes direct
+lowering. C-like kernel speed is plausible; whole-call parity remains a
+release-LTO IR/assembly and exact/meso/whole measurement claim.
 
 ### TEXT-FORMAL-WIRE-INGRESS-I0 (2026-08-18; accepted and closed)
 
