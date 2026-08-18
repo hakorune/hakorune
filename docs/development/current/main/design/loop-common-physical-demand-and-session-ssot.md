@@ -2099,9 +2099,14 @@ adjacent slot+generation lanes, and `U64BitsOnI64` carrier, but never mint a
 runtime value. `CanonicalSsaFunctionSessionV2` remains the sole MIR `ValueId`
 issuer. The runtime `text_formal_abi`/host-handle owner is the sole issuer of a
 generation-branded `TextFormalBorrowV1`; the next bounded design names one
-private adapter equivalent to
+private Rust-only batch adapter equivalent to
 `issue_text_formal_borrow_from_published_wire_v1(slot, generation)` and feeds
-the existing atomic residence/lease owner.
+the existing atomic residence/lease owner. A fused C lane-entry is explicitly
+not selected: if C is needed, it delegates to the Rust owner and remains only
+the existing frame transport projection.
+The existing `PinnedTextBackendFrameContractV1` and proof-only
+`PinnedTextResidenceExitObligationV1` remain the frame/exit evidence owners;
+the lane adapter may borrow those facts but may not reissue them.
 
 Non-authority: sidecar `ValueId` numbers or ordinals as slot/generation data,
 MIR metadata or frame-row counts, raw handles/tokens, `DynamicV2CallOutV1`,
@@ -2125,11 +2130,13 @@ per-iteration `pair -> LeaseSet -> lock -> callback -> finish` loop. Normal
 function exits finish the invocation residence before `Return`; recoverable
 unwind remains closed until a matching cleanup proof exists.
 
-Smallest next slice: design only the private lane-adapter ABI, its one runtime
-issuer, the all-pairs atomic acquire/rollback contract, and the connection to
-the existing V9 `NormalResult`/`End`/`Fault` lifecycle. No wire construction
-from compiler metadata is permitted. If this source-bound lane ingress cannot
-be named precisely, retain the current `NoSafeSlice`.
+Smallest next slice: design only the private Rust batch adapter, its connection
+to `acquire_text_formal_residence_v1` and
+`TextFormalResidenceFrameHeaderV1`, the all-pairs atomic acquire/rollback
+contract, and the connection to the existing V9 `NormalResult`/`End`/`Fault`
+lifecycle. No wire construction from compiler metadata is permitted. If this
+source-bound lane ingress cannot be named precisely, retain the current
+`NoSafeSlice`.
 
 Acceptance when selected: one named lane adapter and one runtime issuer;
 positive live Text pair; zero/missing/stale/foreign/generation-mismatch,
