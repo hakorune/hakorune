@@ -136,9 +136,11 @@ Related:
   `Subject` and `Needle`, and treats source V9 only as the derived scalar slice
   selected by the verified `substring(i, i + 1)` relation. The base-root
   admission is now landed; the next stop is
-  `NoSafeSlice::S6CScalarEqualityLeafUnsealed`: the admitted roots are now
-  consumed by one effect-free cursor/preheader plan; no scalar leaf or Bool
-  effect is open until the next canonical issuer consumes that plan.
+  `NoSafeSlice::S6CCursorCfgIntegratedConsumerUnsealed`: the admitted roots are now
+  consumed by one effect-free cursor/preheader plan; the strict scalar leaf
+  and caller-zero cursor CFG/SSA materializer shape are now named, but the
+  same-cohort integrated consumer fixture remains closed under
+  `NoSafeSlice::S6CCursorCfgIntegratedConsumerUnsealed`.
 - **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
   canonical End lifecycle, index-only TextRef entry bridge, one-shot
   V9+ExactText residence scope, the Subject/Needle base-root admission, the
@@ -159,15 +161,17 @@ Related:
   `Arc<str>` migration, snapshot, or second finish owner is required. The hot
   loop must contain no registry lock, LeaseSet, allocation, callback, retain,
   generation check, or Residence finish.
-- **Next ordered task:** materialize the canonical cursor CFG/SSA after the
-  landed effect-free scalar-equality leaf capability. The leaf consumes the
-  one-shot cursor/preheader plan exactly once and records only the existing
-  `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText` shapes. The next row may issue
-  byte-offset/CP-index PHIs and the V10 If only through the canonical session;
-  it must not add a second orchestrator, runtime frame, or production edge.
-- **Production stop line:** no Bool V10, If/Return CFG, publication,
-  production selector, performance promotion, fallback/retry, or `eq_hh`
-  retirement is open from this capsule.
+- **Next ordered task:** integrate the caller-zero cursor CFG/SSA materializer
+  with one same-cohort source/entry/segment/Return-read fixture. The leaf
+  consumes the one-shot cursor/preheader plan exactly once and records only
+  the existing `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText` shapes. The
+  materializer shape already issues byte-offset/CP-index PHIs and the V10 If
+  through the canonical session; the integration row must solve the typed
+  handoff without a second orchestrator, runtime frame, or production edge.
+- **Production stop line:** no integrated/production Bool V10, If/Return CFG,
+  publication, production selector, performance promotion, fallback/retry, or
+  `eq_hh` retirement is open from this capsule. The caller-zero materializer
+  shape is a design/test seam only until its same-cohort fixture is accepted.
 - **Guard classification:** `dynamic_v2_aot_activation_authority_guard.sh`
   currently reports `selected package adapter must consume the bounded
   input/admission loan exactly once` on parent `adf649cae0` as well as this
@@ -183,8 +187,8 @@ Related:
 | 1 | `S6C-SCALAR-SCAN-CORRIDOR-SOURCE-I0` | The sole prephysical ingress lends one callback-scoped source view proving subject/needle roles, `i=0`, CP Length, `i < length`, `substring(i,i+1)`, sole-use V9→TextEq, V10→If, `i=i+1`, Join/Completion, and no V9 escape. |
 | 2 | `S6C-PINNED-BASE-ROOT-ADMISSION-I0` (landed) | Co-seal the source view with the existing two-row ExactText sidecar/frame: root 0 is Subject and root 1 is Needle by binding plus ordinal, not numeric guess. Add no frame, runtime owner, or raw pointer API. |
 | 3 | `S6C-PINNED-UTF8-CURSOR-PREHEADER-I0` (landed) | Consume the base-root admission and issue one effect-free plan recording the two preheader root-pair loads, CP index 0, byte offset 0, sequential UTF-8 cursor relation, and source-backed predicate; no `ValueId`/MIR effect. |
-| 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the canonical SSA session alone issues V10 Bool. |
-| 5 | `S6C-PINNED-CURSOR-CFG-I0` | Canonical CFG/SSA owns byte-offset and CP-index PHIs, V10 If, width update, backedge, and the existing Return-read relation. No alternate orchestrator. |
+| 4 | `S6C-PINNED-SCALAR-EQ-LEAF-I0` (landed) | Reuse `Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`; V9 has no root or MIR value, and the callback-scoped capability leaves V10 issuance to the canonical session consumer. |
+| 5 | `S6C-PINNED-CURSOR-CFG-I0` (caller-zero shape landed; integration fixture open) | Canonical CFG/SSA owns byte-offset and CP-index PHIs, V10 If, width update, backedge, and the existing Return-read relation. The same source/entry/segment cohort must still be wired through one canonical consumer; no alternate orchestrator. |
 | 6 | `S6C-PINNED-RESIDENCE-EXIT-I0` | Co-seal the bounded exact-two Completion exits with one move-only residence obligation; finish exactly once immediately before each normal Return. Reject unwind/third-exit shapes. |
 | 7 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | Unicode/alias/stale/foreign/escape/lifecycle evidence and IR/assembly structural-zero gates pass before exact/meso/whole-call C comparison. |
 | 8 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | Switch one named production edge before effects, retire the S6C V9 CallOut edge in the same cutover, and observe zero fallback/retry. |
@@ -319,11 +323,40 @@ lease, generation value, V9 root, CFG block, or production route. Its
 callback-scoped consumer lends the source cohort, root rows, initial cursor,
 and relation together; callback failure is a typed rejection. Focused evidence
 is green (`2/2`), `cargo check --profile quick` is green, and the structural
-guard enforces the no-MIR/no-ValueId boundary. The active stop is now
-`NoSafeSlice::S6CScalarEqualityLeafUnsealed`; the next row may open only the
-strict `Utf8WidthAt`/`Utf8ScalarSliceEqWholeText` leaf and canonical Bool
-issuer, with CFG/PHI/Return, runtime, production, fallback/retry,
-performance, and `eq_hh` retirement still closed.
+guard enforces the no-MIR/no-ValueId boundary. The strict leaf and its
+caller-zero cursor CFG/SSA materializer shape are now named; the active stop
+is `NoSafeSlice::S6CCursorCfgIntegratedConsumerUnsealed`. Residence exit,
+normal-return finish, runtime, production, fallback/retry, performance, and
+`eq_hh` retirement remain closed.
+
+### S6C scalar-equality leaf I0 closeout (2026-08-18; caller-zero)
+
+`issue_common_v2_s6c_text_scalar_equality_leaf_v1` is now the sole leaf
+capability issuer for this row. It consumes the cursor/preheader plan once and
+records only the two existing backend-neutral shapes:
+`Utf8WidthAt(root 0)` and `Utf8ScalarSliceEqWholeText(root 0, root 1)`.
+The callback-scoped receipt lends the exact canonical session together with
+the capability; it emits no `ValueId`, `PinnedTextOp`, Bool, CFG, runtime
+frame, or production edge. The focused leaf tests are green (`2/2`), and the
+plan-table stamp binding rejects zero, foreign, and mismatched stamps.
+
+### S6C cursor CFG/SSA materializer shape I0 (2026-08-18; integration open)
+
+`materialize_common_v2_s6c_cursor_cfg_v1` is a caller-zero shape under the
+same canonical session. It validates the owner, physical-entry stamp,
+same-segment condition/body rows, exact leaf shapes, and the existing
+TextEq/Return-read co-seal before emitting the byte-offset and CP-index PHIs,
+the width and scalar-equality leaves, V10 inner branch, width/CP update, and
+backedge. The outer V5 condition is kept distinct and may not alias the V10
+Bool. Late writer failure remains owned by the unpublished function
+transaction; no local rollback, retry, or fallback is introduced.
+
+This is not yet an accepted physical consumer: the repository still lacks one
+same-cohort integration fixture that hands the source/entry/segment/
+Return-read products into this materializer without a raw re-pairable outer
+`ValueId`. That fixture, and the smallest typed handoff needed to construct
+it, are the next bounded task. The cursor module is 490 lines and the
+canonical session remains below the 800-line hard stop.
 
 
 ## Historical boundary

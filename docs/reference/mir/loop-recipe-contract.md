@@ -2132,6 +2132,39 @@ zero-offset initial cursor, TextEq relation, and exactly two leaf shapes. The
 negative proves that a swapped source root cannot be relabelled as V9. The
 focused suite is green (`2/2`), `cargo check --profile quick` is green, and
 the S6C structure guard keeps the file free of physical IDs and MIR effects.
-The next bounded row is canonical cursor CFG/SSA materialization. V10,
+The caller-zero cursor CFG/SSA materializer shape is now named; its
+same-cohort integration fixture is the next bounded row. V10/CFG integration,
 Completion/Return, publication, production, performance promotion,
 fallback/retry, and `eq_hh` retirement remain closed.
+
+## Common V2 S6C cursor CFG/SSA materializer shape I0 (2026-08-18; integration open)
+
+Decision: keep one effect-bearing cursor CFG/SSA consumer under the canonical
+session, but do not treat the current shape as an accepted physical route until
+the source/entry/segment/Return-read cohort is handed in through one typed
+callback. The shape emits byte-offset and CP-index PHIs, the existing
+`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText` leaves, the V10 inner If,
+width/CP updates, and the existing backedge. The outer V5 predicate is a
+separate Bool and cannot be paired with V10 by raw identity.
+
+Source authority + canonical issuer: the retained S6C
+source/Facts/Recipe/Join/Completion cohort, the cursor/preheader and scalar
+leaf receipts, `CommonV2CanonicalSessionRefV1`, canonical CFG/SSA/PHI, the
+shared segment scope, and the existing Return-read receipt. No new semantic
+issuer is introduced.
+
+Non-authority: a raw outer `ValueId`, MIR adjacency, numeric root/segment
+indices, a second orchestrator, detached session, runtime V9 object, new frame,
+raw pointer, fallback, retry, or production selector.
+
+Fail-fast boundary: duplicate issue, owner/entry/stamp drift, foreign or
+duplicated segment rows, outer-V5/inner-V10 aliasing, missing typed condition
+receipt, mismatched Return-read If, and any late CFG/PHI/leaf writer error
+reject before publication; the unpublished function transaction owns discard.
+
+Smallest next slice: add only a private callback seam that co-consumes the
+source view, entry sidecar bridge, shared segment, and typed V5 condition from
+the same common-V2 session, then exercise one positive and one foreign/raw-
+condition negative fixture. Residence exit, normal-return finish, runtime,
+production, performance, fallback/retry, and `eq_hh` retirement remain
+closed.

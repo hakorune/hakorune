@@ -103,7 +103,9 @@ pub(in crate::mir::builder) struct CommonV2S6CTextScalarEqualityLeafReceiptV1<
     capability: CommonV2S6CTextScalarEqualityLeafCapabilityV1,
 }
 
-impl CommonV2S6CTextScalarEqualityLeafReceiptV1<'_, '_, '_> {
+impl<'session, 'source, 'envelope>
+    CommonV2S6CTextScalarEqualityLeafReceiptV1<'session, 'source, 'envelope>
+{
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.capability.owner()
     }
@@ -136,6 +138,23 @@ impl CommonV2S6CTextScalarEqualityLeafReceiptV1<'_, '_, '_> {
         &self,
     ) -> &[CommonV2S6CTextScalarEqualityLeafShapeV1; 2] {
         self.capability.shapes()
+    }
+
+    /// Consume the callback-scoped leaf together with its canonical session.
+    /// The capability is borrowed only for the materializer callback; no
+    /// detached shape or session pointer can escape this handoff.
+    pub(in crate::mir::builder) fn with_session<R, E>(
+        self,
+        callback: impl FnOnce(
+            &'session mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
+            &CommonV2S6CTextScalarEqualityLeafCapabilityV1,
+        ) -> Result<R, E>,
+    ) -> Result<R, E> {
+        let Self {
+            _session,
+            capability,
+        } = self;
+        callback(_session, &capability)
     }
 }
 

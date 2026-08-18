@@ -975,6 +975,25 @@ stamp, and cursor drift reject before any effect.
 Focused evidence is green: `cargo test --profile quick --lib
 scalar_equality_leaf -- --nocapture` (2 passed / 0 failed),
 `cargo check --profile quick`, formatter, diff, and the S6C structure guard.
-The next bounded row is canonical cursor CFG/SSA materialization; V10,
-Return/Completion, publication, production, performance, fallback/retry,
-and `eq_hh` retirement remain closed.
+The caller-zero cursor CFG/SSA materializer shape is now named; its
+same-cohort integration fixture is the next bounded row. Integrated V10,
+Return/Completion, publication, production, performance, fallback/retry, and
+`eq_hh` retirement remain closed.
+
+## Common V2 S6C cursor CFG/SSA materializer shape I0 (2026-08-18; integration open)
+
+`materialize_common_v2_s6c_cursor_cfg_v1` is the only caller-zero shape that
+consumes the scalar-equality leaf receipt. It stays inside the canonical
+session and checks the same owner, physical-entry stamp, source segment,
+TextEq/Return-read co-seal, and exact `Utf8WidthAt`/
+`Utf8ScalarSliceEqWholeText` shapes before emitting byte-offset and CP-index
+PHIs, the V10 inner branch, width/CP updates, and the existing backedge.
+The outer V5 predicate remains distinct and may not be reused as V10.
+
+The shape is not an accepted physical consumer yet: no focused fixture can
+currently hand source view, entry sidecar, shared segment, and a typed V5
+condition receipt into one callback without a raw `ValueId` re-pairing seam.
+The next task is that private callback-only integration fixture. No residence
+exit, normal-return finish, runtime frame, production edge, fallback/retry, or
+`eq_hh` retirement is opened here; the outer unpublished function transaction
+remains the only late-discard owner.

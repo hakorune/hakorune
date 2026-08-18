@@ -18,6 +18,9 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
+  "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
 )
 guard_require_files "$TAG" "${files[@]}"
 
@@ -61,5 +64,23 @@ guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_scalar_equality_leaf
 if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$scalar_leaf"; then
   guard_fail "$TAG" "scalar-equality I0 must not issue MIR/ValueId/PinnedTextOp"
 fi
+cursor_cfg="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+guard_expect_fixed_in_file "$TAG" 'materialize_common_v2_s6c_cursor_cfg_v1' "$cursor_cfg" \
+  "cursor CFG must have one named canonical materializer"
+guard_expect_fixed_in_file "$TAG" 'emit_branch' "$cursor_cfg" \
+  "cursor CFG must use the canonical CFG writer"
+guard_expect_fixed_in_file "$TAG" 'define_provisional_phi' "$cursor_cfg" \
+  "cursor CFG must use the canonical PHI lifecycle"
+guard_expect_fixed_in_file "$TAG" 'MirInstruction::PinnedTextOp' "$cursor_cfg" \
+  "cursor CFG must materialize the existing pinned-text leaf"
+if rg -n 'TextContentFrame|Arc<|nyash\.string\.eq_hh|RawPointer' "$cursor_cfg"; then
+  guard_fail "$TAG" "cursor CFG I0 must not open a new frame, Arc owner, or legacy C route"
+fi
+plan_bridge="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
+guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_bridge" \
+  "canonical plan bridge must bind the source stamp before issuing rows"
+plan_table="$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
+guard_expect_fixed_in_file "$TAG" 'bind_stamp_once' "$plan_table" \
+  "plan table must reject the unpublished zero stamp"
 
 echo "[$TAG] ok (one ingress owner, one session owner, files below 800 lines)"

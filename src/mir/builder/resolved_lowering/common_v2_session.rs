@@ -81,6 +81,13 @@ pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
     CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
 
+#[path = "common_v2_s6c_cursor_cfg.rs"]
+mod s6c_cursor_cfg;
+pub(in crate::mir::builder::resolved_lowering) use s6c_cursor_cfg::{
+    materialize_common_v2_s6c_cursor_cfg_v1, CommonV2S6CCursorCfgReceiptV1,
+    CommonV2S6CCursorCfgRejectV1,
+};
+
 /// A callback-scoped mechanical view of the physical block corresponding to
 /// the source condition block.  The row and entry stamp are borrowed from the
 /// same unpublished session, so this view cannot be re-paired with another
@@ -205,6 +212,7 @@ pub(in crate::mir) struct CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     s6c_substring_callout_admission_issued: bool,
     s6c_substring_callout_mir_issued: bool,
     s6c_scalar_equality_leaf_issued: bool,
+    s6c_cursor_cfg_issued: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -380,6 +388,7 @@ pub(in crate::mir::builder) fn with_common_v2_canonical_session_branded<R>(
             s6c_substring_callout_admission_issued: false,
             s6c_substring_callout_mir_issued: false,
             s6c_scalar_equality_leaf_issued: false,
+            s6c_cursor_cfg_issued: false,
         };
         Ok(callback(&mut common))
     })

@@ -29,6 +29,8 @@ mod generic_g0_entry_adoption;
 mod physical_entry_lane_adoption;
 #[path = "session/physical_entry_stamp.rs"]
 mod physical_entry_stamp;
+#[path = "session/pinned_text_plan.rs"]
+mod pinned_text_plan;
 #[path = "session/segment_scope.rs"]
 mod segment_scope;
 

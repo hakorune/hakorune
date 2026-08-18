@@ -201,6 +201,27 @@ impl PinnedTextAccessPlanTableV1 {
         }
     }
 
+    /// Bind the function-local transport table to the already-issued
+    /// source/entry cohort exactly once.  A default zero stamp is only the
+    /// unpublished state; a leaf must never silently issue rows under it.
+    pub(crate) fn bind_stamp_once(&mut self, stamp: u64) -> Result<(), String> {
+        if stamp == 0 {
+            return Err("pinned text plan stamp must be non-zero".to_owned());
+        }
+        if self.stamp == 0 {
+            self.stamp = stamp;
+            return Ok(());
+        }
+        if self.stamp == stamp {
+            Ok(())
+        } else {
+            Err(format!(
+                "pinned text plan stamp differs: table={} requested={stamp}",
+                self.stamp
+            ))
+        }
+    }
+
     pub(crate) fn issue(&mut self, kind: PinnedTextAccessKindV1) -> PinnedTextAccessPlanIdV1 {
         let index = self.rows.len() as u32;
         let mut rows = self.rows.to_vec();
@@ -323,5 +344,16 @@ mod tests {
             )]),
             Err(PinnedTextPlanCensusErrorV1::KindOperandMismatch)
         );
+    }
+
+    #[test]
+    fn plan_table_binds_one_non_zero_stamp() {
+        let mut table = PinnedTextAccessPlanTableV1::default();
+        assert!(table.bind_stamp_once(77).is_ok());
+        assert_eq!(table.stamp(), 77);
+        assert!(table.bind_stamp_once(77).is_ok());
+        assert!(table.bind_stamp_once(78).is_err());
+        let mut zero = PinnedTextAccessPlanTableV1::default();
+        assert!(zero.bind_stamp_once(0).is_err());
     }
 }
