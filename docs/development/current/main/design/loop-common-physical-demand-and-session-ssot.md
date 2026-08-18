@@ -2796,3 +2796,52 @@ Acceptance/non-claims: one issuer, one future consumer, no raw tuple or
 semantic receipt escape, StableText positive, zero/stale/missing/foreign and
 StringBox negatives, and source under 800 lines. The next design boundary is
 the source-bound common-V2 occurrence co-seal; this I0 does not claim it.
+
+### COMMON-V2-TEXTEQ-SUBSTRING-V9-EXACTTEXT-LANE-BORROW-INGRESS-I0 closeout (2026-08-18; accepted)
+
+Decision: the selected lane-borrow row is closed as a runtime-only BoxShape.
+`runtime::text_formal_abi` now issues a move-only formal from an already
+published `{slot,generation}` lane without recapturing a raw handle or
+generation. `text_formal_residence` immediately converts the batch to the
+existing invocation-scoped Residence owner; the owner performs the one
+all-pairs write-lock validation/pin/root transaction and remains the sole
+finish owner. No lock, LeaseSet, allocation, callback, or residence entry is
+introduced in the loop body.
+
+Source authority + canonical issuer: S6C StringSubstring/2 and Binary
+Equal(Text,Text) Facts/Recipe plus the ExactText entry sidecar authorize the
+future source-bound consumer. The current adapter is deliberately runtime
+private; host-handle generation, retirement, exact concrete Text
+classification, and `TextFormalCallResidenceV1` are the only issuers used by
+this row. It emits no semantic receipt, MIR `ValueId`, C status row, or
+TextEq meaning.
+
+Fail-fast boundary: zero, missing, stale, foreign, retiring, non-Text,
+overflow, or generation-mismatched lanes reject before any residence token,
+root row, or frame is published. Final all-pairs acquisition is atomic, so a
+late lane failure cannot leave a partial pin. Normal finish remains explicit
+and consuming; fallback, retry, and C-provider dispatch are absent.
+
+Acceptance evidence: `cargo fmt --all`; `CARGO_BUILD_JOBS=4 cargo test
+--profile quick --lib text_formal_abi` (9 passed / 0 failed);
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib text_formal_residence`
+(12 passed / 0 failed); `CARGO_BUILD_JOBS=4 cargo check --profile quick`; and
+the current-state pointer, physical-transfer, TextScan admission, and pinned
+backend-frame transport guards are green. The focused tests cover live
+StableText and concrete StringBox lanes, zero/stale generations, one
+invocation Residence with ordered roots, and stale rejection before pinning.
+The existing Residence suite continues to cover spoofed StringBox names,
+stale pairs, aliases, frame limits, rollback, and exactly-once finish.
+
+The row-11 mutable-reachability census is an explicit acceptance input, not
+an informal assumption: every workspace `as_any_mut` caller, `Arc`
+uniqueness/recovery path, extern/C provider, nowait/task sharing path, and
+writable raw-pointer projection must be classified for reachability to the
+same registry-held concrete `StringBox` while pinned. The repository census
+finds no sanctioned path; an unclassified external unsafe provider remains
+`NoSafeSlice` and cannot authorize a production fast route.
+
+Non-claims: no source-bound TextRef producer, TextEq V10 Bool, inner CFG,
+Completion/publication, production switch, direct pinned-text leaf,
+performance result, fallback/retry, or `nyash.string.eq_hh` retirement.
+The next design boundary is `COMMON-V2-S6C-TEXTEQ-TEXTREF-D0`.

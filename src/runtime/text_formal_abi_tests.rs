@@ -1,5 +1,6 @@
 use super::{
-    issue_stable_text_formal_wire_v1, issue_text_formal_borrow_v1, TextFormalBorrowStatusV1,
+    issue_stable_text_formal_wire_v1, issue_text_formal_borrow_from_published_wire_v1,
+    issue_text_formal_borrow_v1, TextFormalBorrowStatusV1,
 };
 use crate::box_trait::{IntegerBox, NyashBox, StringBox};
 use crate::runtime::host_handles;
@@ -117,6 +118,53 @@ fn stable_wire_issuer_rejects_stringbox_and_stale_pair() {
             issue_stable_text_formal_wire_v1(slot, generation),
             Err(TextFormalBorrowStatusV1::GenerationMismatch)
         );
+        host_handles::drop_handle(replacement);
+    });
+}
+
+#[test]
+fn published_lane_issuer_accepts_live_stable_and_stringbox_pairs() {
+    with_policy("lifo", || {
+        let stable = host_handles::to_handle_text("lane-stable");
+        let (stable_slot, stable_generation) =
+            host_handles::capture_text_formal_pair(stable).expect("stable lane pair");
+        let stable_borrow =
+            issue_text_formal_borrow_from_published_wire_v1(stable_slot, stable_generation)
+                .expect("published stable lane");
+        assert_eq!(
+            stable_borrow.with_text(str::to_owned).unwrap(),
+            "lane-stable"
+        );
+
+        let boxed = host_handles::to_handle_arc(Arc::new(StringBox::new("lane-boxed")));
+        let (boxed_slot, boxed_generation) =
+            host_handles::capture_text_formal_pair(boxed).expect("StringBox lane pair");
+        let boxed_borrow =
+            issue_text_formal_borrow_from_published_wire_v1(boxed_slot, boxed_generation)
+                .expect("published StringBox lane");
+        assert_eq!(boxed_borrow.with_text(str::to_owned).unwrap(), "lane-boxed");
+
+        host_handles::drop_handle(stable);
+        host_handles::drop_handle(boxed);
+    });
+}
+
+#[test]
+fn published_lane_issuer_rejects_zero_and_stale_generation() {
+    assert!(matches!(
+        issue_text_formal_borrow_from_published_wire_v1(0, 1),
+        Err(TextFormalBorrowStatusV1::ZeroOrOutOfRangeSlot)
+    ));
+    with_policy("lifo", || {
+        let old = host_handles::to_handle_text("lane-old");
+        let (slot, generation) =
+            host_handles::capture_text_formal_pair(old).expect("old lane pair");
+        host_handles::drop_handle(old);
+        let replacement = host_handles::to_handle_text("lane-replacement");
+        assert!(matches!(
+            issue_text_formal_borrow_from_published_wire_v1(slot, generation),
+            Err(TextFormalBorrowStatusV1::GenerationMismatch)
+        ));
         host_handles::drop_handle(replacement);
     });
 }

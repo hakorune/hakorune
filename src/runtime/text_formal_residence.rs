@@ -11,7 +11,10 @@ use std::ptr;
 use std::slice;
 
 use super::host_handles;
-use super::text_formal_abi::{TextFormalBorrowV1, TextFormalWirePairV1};
+use super::text_formal_abi::{
+    issue_text_formal_borrows_from_published_wires_v1, TextFormalBorrowStatusV1,
+    TextFormalBorrowV1, TextFormalWirePairV1,
+};
 
 pub(crate) use host_handles::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFinishRejectV1};
 
@@ -166,6 +169,12 @@ pub(crate) enum TextFormalResidenceAcquireRejectV1 {
     RollbackFailed(TextFormalLeaseFinishRejectV1),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TextFormalResidenceIngressRejectV1 {
+    Borrow(TextFormalBorrowStatusV1),
+    Residence(TextFormalResidenceAcquireRejectV1),
+}
+
 type PinnedTextResidenceFrameHeaderV1 = TextFormalResidenceFrameHeaderV1;
 
 #[derive(Debug, Clone, Copy)]
@@ -290,6 +299,22 @@ pub(crate) fn acquire_text_formal_residence_v1(
             reserved: 0,
         },
     })
+}
+
+/// Connect published ExactText entry lanes to the existing invocation
+/// Residence owner.  The adapter is runtime-private and consumes the borrow
+/// batch immediately; all pinning and root publication still happen in the
+/// single atomic Residence transaction below.
+pub(crate) fn acquire_text_formal_residence_from_published_wires_v1(
+    wires: &[(u64, u64)],
+) -> Result<TextFormalCallResidenceV1, TextFormalResidenceIngressRejectV1> {
+    let borrows = issue_text_formal_borrows_from_published_wires_v1(wires)
+        .map_err(TextFormalResidenceIngressRejectV1::Borrow)?;
+    let pairs = borrows
+        .iter()
+        .map(TextFormalBorrowV1::wire_pair)
+        .collect::<Vec<_>>();
+    acquire_text_formal_residence_v1(&pairs).map_err(TextFormalResidenceIngressRejectV1::Residence)
 }
 
 fn rollback_residence(

@@ -117,6 +117,43 @@ pub(crate) fn issue_stable_text_formal_wire_v1(
         .map_err(TextFormalBorrowStatusV1::from_lookup_reject)
 }
 
+/// Issue one generation-branded formal from an already-published entry lane.
+///
+/// Unlike `issue_text_formal_borrow_v1`, this seam never accepts a raw handle
+/// and never recaptures a generation.  The lane pair is validated against the
+/// exact live payload first; the returned capability is then consumed by the
+/// invocation Residence owner.
+#[inline(always)]
+pub(crate) fn issue_text_formal_borrow_from_published_wire_v1(
+    slot: u64,
+    generation: u64,
+) -> Result<TextFormalBorrowV1, TextFormalBorrowStatusV1> {
+    if slot == 0 || generation == 0 {
+        return Err(TextFormalBorrowStatusV1::ZeroOrOutOfRangeSlot);
+    }
+    host_handles::with_text_formal_wire(slot, generation, |_| ())
+        .map(|_| TextFormalBorrowV1 { slot, generation })
+        .map_err(TextFormalBorrowStatusV1::from_lookup_reject)
+}
+
+/// Issue a move-only batch from adjacent published ExactText entry lanes.
+///
+/// The slice is an invocation-entry transport view only.  No pair is stored
+/// in the returned product, and the Residence owner performs the final
+/// all-pairs write-lock validation/pin transaction.
+#[inline(always)]
+pub(crate) fn issue_text_formal_borrows_from_published_wires_v1(
+    wires: &[(u64, u64)],
+) -> Result<Box<[TextFormalBorrowV1]>, TextFormalBorrowStatusV1> {
+    wires
+        .iter()
+        .map(|&(slot, generation)| {
+            issue_text_formal_borrow_from_published_wire_v1(slot, generation)
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map(Vec::into_boxed_slice)
+}
+
 /// Sole Rust issuer for a callable-entry Text formal capability.
 #[inline(always)]
 pub fn issue_text_formal_borrow_v1(

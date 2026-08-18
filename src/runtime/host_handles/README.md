@@ -31,25 +31,28 @@ non-Clone, has no public constructor, and finishes only through an explicit
 consuming method. Empty lease sets are rejected; a no-Text signature uses a
 separate future no-lease disposition.
 
-## StableText residence I0
+## ExactText residence
 
 `text_formal_residence.rs` consumes already-published physical pairs and
 reuses the same call-lifetime transaction to produce one move-only residence
-owner. The owner keeps occurrence order, projects only registry-issued
-`StableText` roots, and exposes a root descriptor through a scoped closure;
-the runtime token and raw pointer are never independently returned.
+owner. The owner keeps occurrence order, projects only exact concrete Text
+payloads (`StableText` or the built-in `StringBox`), and exposes a root
+descriptor through a scoped closure; the runtime token and raw pointer are
+never independently returned. The published-lane adapter validates the
+entry `{slot,generation}` view once and immediately hands it to this same
+all-pairs transaction; it is not a second pin owner.
 
 ```text
 published {slot,generation} pairs
-  -> all-or-nothing StableText validation + pin
+  -> all-or-nothing exact-Text validation + pin
   -> private frame header + one root row per formal occurrence
   -> explicit consuming finish
 ```
 
 This caller-zero substrate intentionally rejects `StableBox`/virtual
-`as_str_fast`, frame overflow, stale or retiring pairs, partial output, and
-any compiler/session/loop consumer. It is not a callable actualizer, MIR
-residence, TextEq route, or production ABI.
+`as_str_fast`, spoofed runtime names, frame overflow, stale or retiring
+pairs, partial output, and any compiler/session/loop consumer. It is not a
+callable actualizer, MIR residence, TextEq route, or production ABI.
 
 ## Authority boundary
 

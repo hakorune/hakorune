@@ -1,7 +1,9 @@
-use super::*;
+use super::{
+    acquire_text_formal_residence_from_published_wires_v1, TextFormalResidenceIngressRejectV1, *,
+};
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use crate::runtime::host_handles;
-use crate::runtime::text_formal_abi::issue_text_formal_borrow_v1;
+use crate::runtime::text_formal_abi::{issue_text_formal_borrow_v1, TextFormalBorrowStatusV1};
 use std::any::Any;
 use std::fmt;
 use std::sync::Arc;
@@ -105,6 +107,48 @@ fn residence_abi_layout_is_explicit_and_not_host_inferred() {
         None
     );
     assert!(layout.frame_size_for_roots(u32::MAX).is_none());
+}
+
+#[test]
+fn published_lane_batch_enters_one_invocation_residence() {
+    let _guard = test_lock();
+    let subject = host_handles::to_handle_text("lane-subject");
+    let needle = host_handles::to_handle_arc(Arc::new(StringBox::new("lane-needle")));
+    let subject_pair = published_pair(subject);
+    let needle_pair = published_pair(needle);
+
+    let residence = acquire_text_formal_residence_from_published_wires_v1(&[
+        (subject_pair.slot(), subject_pair.generation()),
+        (needle_pair.slot(), needle_pair.generation()),
+    ])
+    .expect("published lane residence");
+    assert_eq!(residence.root_count(), 2);
+    assert_eq!(residence.with_root(0, |root| root.byte_len()), Some(12));
+    assert_eq!(residence.with_root(1, |root| root.byte_len()), Some(11));
+    residence.finish().expect("finish lane residence");
+
+    host_handles::drop_handle(subject);
+    host_handles::drop_handle(needle);
+}
+
+#[test]
+fn published_lane_batch_rejects_stale_before_residence_pin() {
+    let _guard = test_lock();
+    let old = host_handles::to_handle_text("lane-old");
+    let old_pair = published_pair(old);
+    host_handles::drop_handle(old);
+    let replacement = host_handles::to_handle_text("lane-new");
+    let result = acquire_text_formal_residence_from_published_wires_v1(&[(
+        old_pair.slot(),
+        old_pair.generation(),
+    )]);
+    assert!(matches!(
+        result,
+        Err(TextFormalResidenceIngressRejectV1::Borrow(
+            TextFormalBorrowStatusV1::GenerationMismatch
+        ))
+    ));
+    host_handles::drop_handle(replacement);
 }
 
 #[test]
