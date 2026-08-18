@@ -58,7 +58,7 @@ uint32_t hako_text_formal_residence_enter_v1(
     NyrtTextFormalResidenceFrameV1 *frame,
     uint32_t frame_bytes);
 
-uint32_t hako_text_formal_residence_finish_v1(
+void hako_text_formal_residence_finish_or_abort_v1(
     NyrtTextFormalResidenceFrameV1 *frame);
 
 _Static_assert(sizeof(NyrtTextFormalResidenceFrameV1) == 32,

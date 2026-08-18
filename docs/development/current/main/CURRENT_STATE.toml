@@ -18,21 +18,22 @@ binding with the S6C signature/plan/frame before DraftSeal. Focused ingress
 tests, cargo check, fmt, and the reusable structure guard are green. The next
 finish-or-abort ABI Decision is accepted: one void wrapper returns only after
 successful consumption and aborts on every nonzero status, with no caller CFG.
-The ABI-only I0 is selected; lifecycle MIR, backend, production, fallback, and
-performance remain closed.
+The ABI-only I0 is now landed caller-zero; lifecycle MIR, backend, production,
+fallback, and performance remain closed. The next boundary is the typed
+lifecycle-carrier design stop.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; finish-or-abort ABI D0 is accepted and the bounded ABI-only I0 is selected"
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-I0"
-current_blocker_token = "Replace the caller-zero public status finish with one void finish-or-abort export and C declaration; keep the Rust status core private, return only on status 0, abort on every nonzero status, and add normal/subprocess/symbol guards. Do not add lifecycle MIR, Builder/Return/backend/production behavior, fallback/retry, performance, or eq_hh retirement."
+current_design_stop = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0; name the typed pre-DraftSeal enter/finish carriers and canonical consumer before any lifecycle MIR effect"
+work_mode = "design_stop"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
+current_blocker_token = "Design only: co-seal one function-lifetime Residence enter/finish capability with the existing exit set and pre-DraftSeal frame contract; no lifecycle MIR, Builder/Return/backend/production behavior, fallback/retry, or performance."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence finish-or-abort ABI I0"
+active_lane = "S6C Text Residence lifecycle carriers D0"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -54,9 +55,11 @@ session owns brand plus target, the S6C loan is the only signature source, and
 one private affine ingress issues the pre-DraftSeal frame contract. Focused
 tests, cargo check, fmt, and the reusable structure guard are green. The ABI
 Decision now selects exactly one public finish meaning: a void wrapper calls
-the existing private status core once, returns only on status 0, and aborts on
-all nonzero statuses. The old caller-zero public status finish retires in the
-same ABI-only I0. No lifecycle MIR, Builder edge, or backend effect is open.
+the existing module-private status core once, returns only on status 0, and
+aborts on all nonzero statuses. The old caller-zero public status finish was
+retired in the ABI-only I0; focused tests, symbol/visibility/size guard, cargo
+check, and fmt are green. No lifecycle MIR, Builder edge, or backend effect is
+open. The active boundary is now the typed lifecycle-carrier design stop.
 PreparedFunctionExitSetV1 stays the sole exit inventory and
 FunctionDraftSealProjectionV1 the sole Return emitter. Selected Dynamic
 remains the sole production arm.
@@ -72,10 +75,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, and pre-DraftSeal ingress co-seal are landed caller-zero. Finish-or-abort ABI D0 is accepted: one void public wrapper returns only on status 0 and aborts on every nonzero status; the old public status finish retires atomically. The ABI-only I0 is selected; lifecycle MIR, backend, production, fallback, and performance remain closed."
+latest_card_summary = "The S6C scalar-scan corridor, predicate/index physical I0, DraftSeal ingress probe, Residence exit identity/projector, and pre-DraftSeal ingress co-seal are landed caller-zero. Finish-or-abort ABI I0 is landed: one void public wrapper returns only on status 0, aborts on every nonzero status, and retires the old public status symbol; focused tests, cargo check, fmt, and ABI guard are green. The next design stop names typed lifecycle carriers; lifecycle MIR, backend, production, fallback, and performance remain closed."
 next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-I0"
+next_execution_card = "none; design stop"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -98,5 +101,5 @@ landed_tail = [
   "2026-08-18: S6C predicate/index physical I0 is landed caller-zero: one entry ByteLen and one private byte-offset PHI drive V5, canonical Binding SSA owns i and Return-read observes it, canonical CFG/SSA witnesses seal, and Residence exit remains the next closed boundary.",
   "2026-08-18: S6C DraftSeal ingress probe is landed caller-zero: the existing completion tail is borrowed from the installed loan, canonical After/Completion/identity owners close, and the same unpublished outer transaction reaches exact-two DraftSeal prepare/commit or discards on late failure; Residence lifecycle remains closed.",
   "2026-08-19: Lifecycle identity/projector I0 is green with 7 focused tests; its canonical consumer remains NoSafeSlice because frame/lifecycle authority is absent before DraftSeal. Ingress co-seal I0 is now landed caller-zero: the session owns brand/target, the S6C loan is the sole signature source, and one affine ingress issues the pre-DraftSeal frame contract with plan/Residence ABI provenance; 2 focused tests plus cargo check/fmt/structure guard are green.",
-  "2026-08-19: Finish-or-abort ABI D0 accepted one void public finish wrapper, private Rust status core, status-0-only return, and fail-stop on every nonzero status; its ABI-only I0 is selected and lifecycle MIR/backend/production remain closed."
+  "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed."
 ]

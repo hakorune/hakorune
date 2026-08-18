@@ -510,9 +510,7 @@ pub unsafe fn enter_text_formal_residence_c_v1(
 }
 
 /// Consume the private frame's move-only residence token exactly once.
-pub unsafe fn finish_text_formal_residence_c_v1(
-    frame: *mut TextFormalResidenceFrameHeaderV1,
-) -> u32 {
+unsafe fn finish_text_formal_residence_c_v1(frame: *mut TextFormalResidenceFrameHeaderV1) -> u32 {
     if !target_layout_supported() {
         return TextFormalResidenceCStatusV1::UnsupportedTarget.as_u32();
     }
@@ -546,6 +544,30 @@ pub unsafe fn finish_text_formal_residence_c_v1(
             TextFormalResidenceCStatusV1::Valid.as_u32()
         }
         Err(error) => map_finish_status(error).as_u32(),
+    }
+}
+
+/// Terminal C-facing finish projection.
+///
+/// The status-returning core remains the single Residence state-transition
+/// owner. This wrapper deliberately exposes no status to a caller: a valid
+/// finish returns after consuming the token, while every nonzero status
+/// fail-stops inside the runtime. The wrapper itself is not `noreturn`; only
+/// the failure path is.
+#[cold]
+#[inline(never)]
+fn abort_text_formal_residence_finish_v1(status: u32) -> ! {
+    debug_assert_ne!(status, TextFormalResidenceCStatusV1::Valid.as_u32());
+    std::process::abort()
+}
+
+/// Consume the private frame exactly once, returning only on success.
+pub unsafe fn finish_text_formal_residence_or_abort_v1(
+    frame: *mut TextFormalResidenceFrameHeaderV1,
+) {
+    let status = finish_text_formal_residence_c_v1(frame);
+    if status != TextFormalResidenceCStatusV1::Valid.as_u32() {
+        abort_text_formal_residence_finish_v1(status);
     }
 }
 

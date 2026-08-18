@@ -800,10 +800,55 @@ backend call emission, whole-function no-EH closure, production cutover,
 performance promotion, fallback/retry, new frame/backing, and `eq_hh`
 retirement remain closed.
 
-### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 selected)
+#### TEXT-FORMAL-PINNED-RESIDENCE-FINISH-OR-ABORT-ABI-I0 (landed caller-zero)
 
-Decision: keep the lifecycle boundary closed beyond the currently selected
-finish-or-abort ABI I0. The materializer identity/projector I0 is landed
+Decision: land the accepted ABI-only BoxShape without opening a lifecycle
+carrier. The old caller-zero public `u32` finish symbol and header declaration
+are retired; the only public C finish meaning is
+`hako_text_formal_residence_finish_or_abort_v1(frame) -> void`. The
+module-private status core is called once by the wrapper, which returns only
+after status `0` has consumed the Residence token and fail-stops on every
+nonzero status. The wrapper does not emit MIR, Builder edges, Return, or
+backend control flow.
+
+Source authority + canonical issuer: the existing private status core remains
+the sole Residence state transition, while the Rust wrapper and its one
+`export_name` are the sole terminal C projection. The checked-in C header and
+export README are synchronized projections; no caller reconstructs status or
+finish meaning.
+
+Non-authority: a status-returning public C symbol, public Rust status core,
+MIR `Call`, backend compare/branch, `CheckedCallOut`, panic/recoverable error,
+second exit ledger, frame/token inspection, fallback/retry, `eq_hh`, and
+production selection remain outside this I0.
+
+Fail-fast boundary: successful live-frame consumption returns with a zeroed
+token; null, misaligned, invalid, stale, duplicate-finished, or inconsistent
+frames terminate inside the runtime. No status, retry, fallback, unwind, or
+partial lifecycle effect crosses the C boundary.
+
+Acceptance evidence (2026-08-19): focused
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib text_formal_residence`
+passes `14/14`, including the successful finish and subprocess abort negative;
+the finish-or-abort ABI/symbol/visibility/size guard, `cargo check --profile
+quick`, `cargo fmt --check`, and `git diff --check` are green. Runtime,
+tests, export, and guard sources remain below the 800-line hard stop.
+The separate `cargo check --profile quick -p nyash_kernel` remains a known
+baseline debt outside this row: unchanged
+`crates/nyash_kernel/src/ffi/dynamic_v2_lease.rs` lacks the already-added
+`LeaseConsumeRejectV1::TokenHandleMismatch` arm. No ABI-row file changes that
+adapter, and the root focused gate remains green.
+
+Next bounded row: `TEXT-FORMAL-PINNED-RESIDENCE-LIFECYCLE-CARRIERS-D0`.
+This closeout does not authorize Residence Enter/Finish MIR, typed lifecycle
+carriers, Return/CFG changes, backend call emission, whole-function no-EH
+closure, production cutover, performance promotion, new frame/backing,
+fallback/retry, or `nyash.string.eq_hh` retirement.
+
+### S6C-RESIDENCE-EXIT-FINISH-D0 (lifecycle ladder; finish ABI I0 landed)
+
+Decision: keep the lifecycle boundary closed beyond the landed finish-or-abort
+ABI I0. The materializer identity/projector I0 is landed
 caller-zero, but the canonical consumer audit closed as
 `NoSafeSlice`: the needed plan/frame/lifecycle capability is not present before
 DraftSeal and must not be replaced by a closure-only seam.

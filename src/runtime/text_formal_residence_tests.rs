@@ -5,7 +5,9 @@ use crate::box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox};
 use crate::runtime::host_handles;
 use crate::runtime::text_formal_abi::{issue_text_formal_borrow_v1, TextFormalBorrowStatusV1};
 use std::any::Any;
+use std::env;
 use std::fmt;
+use std::process::Command;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -277,6 +279,48 @@ fn c_frame_entry_projects_rows_and_finishes_once() {
 
     host_handles::drop_handle(subject);
     host_handles::drop_handle(needle);
+}
+
+#[test]
+fn c_frame_finish_or_abort_returns_after_successful_finish() {
+    let _guard = test_lock();
+    let handle = host_handles::to_handle_text("finish-or-abort");
+    let pair = issue_text_formal_borrow_v1(handle).expect("published pair");
+    let mut storage = [0_u64; 8];
+    let frame = storage
+        .as_mut_ptr()
+        .cast::<TextFormalResidenceFrameHeaderV1>();
+    let status = unsafe {
+        enter_text_formal_residence_c_v1(
+            &pair,
+            1,
+            frame,
+            storage.len() as u32 * std::mem::size_of::<u64>() as u32,
+        )
+    };
+    assert_eq!(status, TextFormalResidenceCStatusV1::Valid.as_u32());
+
+    unsafe { finish_text_formal_residence_or_abort_v1(frame) };
+    unsafe { assert_eq!((*frame).lease_token, 0) };
+
+    host_handles::drop_handle(handle);
+}
+
+#[test]
+fn c_frame_finish_or_abort_aborts_invalid_frame_in_subprocess() {
+    if env::var_os("HAKO_TEXT_FORMAL_FINISH_OR_ABORT_CHILD").is_some() {
+        unsafe {
+            finish_text_formal_residence_or_abort_v1(std::ptr::null_mut());
+        }
+        return;
+    }
+
+    let status = Command::new(env::current_exe().expect("test executable"))
+        .arg("c_frame_finish_or_abort_aborts_invalid_frame_in_subprocess")
+        .env("HAKO_TEXT_FORMAL_FINISH_OR_ABORT_CHILD", "1")
+        .status()
+        .expect("spawn fail-stop child");
+    assert!(!status.success(), "invalid frame unexpectedly returned");
 }
 
 #[test]

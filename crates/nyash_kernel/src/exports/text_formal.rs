@@ -6,7 +6,7 @@
 
 use nyash_rust::runtime::text_formal_abi::validate_text_formal_wire_v1;
 use nyash_rust::runtime::text_formal_residence::{
-    enter_text_formal_residence_c_v1, finish_text_formal_residence_c_v1,
+    enter_text_formal_residence_c_v1, finish_text_formal_residence_or_abort_v1,
     TextFormalResidenceFrameHeaderV1,
 };
 
@@ -28,12 +28,13 @@ pub unsafe extern "C" fn hako_text_formal_residence_enter_v1(
 }
 
 /// Private caller-zero frame finish.  A successful call consumes the
-/// residence token and clears it from the frame so a duplicate finish fails.
-#[export_name = "hako_text_formal_residence_finish_v1"]
-pub unsafe extern "C" fn hako_text_formal_residence_finish_v1(
+/// residence token and clears it from the frame; every nonzero status
+/// fail-stops inside the runtime without exposing caller CFG.
+#[export_name = "hako_text_formal_residence_finish_or_abort_v1"]
+pub unsafe extern "C" fn hako_text_formal_residence_finish_or_abort_v1(
     frame: *mut TextFormalResidenceFrameHeaderV1,
-) -> u32 {
-    finish_text_formal_residence_c_v1(frame)
+) {
+    finish_text_formal_residence_or_abort_v1(frame)
 }
 
 #[cfg(test)]

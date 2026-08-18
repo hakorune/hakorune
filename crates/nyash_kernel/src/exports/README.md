@@ -28,10 +28,11 @@ Treat them as public symbol-family exports, not as ownership boundaries.
   `export_name` symbols are a strict AOT checkpoint, not a selected production
   caller or a second provider registry.
 - `text_formal.rs` owns the fixed pair validator plus the private
-  caller-zero residence-frame `enter`/`finish` projections declared in
-  `include/nyrt_text_formal_residence_v1.h`. The frame is a runtime transport
-  surface only; it does not own Text semantics, source origin, or route
-  selection.
+  caller-zero residence-frame `enter`/`finish_or_abort` projections declared in
+  `include/nyrt_text_formal_residence_v1.h`. Finish returns only after status
+  zero; every nonzero status terminates inside the runtime. The frame is a
+  runtime transport surface only; it does not own Text semantics, source
+  origin, or route selection.
 - Fresh text results receive their handle and slot-generation identity in one
   root host-handle owner transition before lease-token admission; the strict
   export never performs a raw-handle rollback or relookup.
