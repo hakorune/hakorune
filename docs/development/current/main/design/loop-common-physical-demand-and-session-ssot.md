@@ -68,9 +68,13 @@ Related:
 
 ## Current Capsule
 
-- **Current decision:** every admitted Loop profile reaches one complete
-  semantic program, JoinSig-bound layout, and canonical SSA session; V1 and V2
-  are exact projections of that one responsibility graph.
+- **Current decision:** S6C TextEq is the existing source
+  `Equal(Text,Text) -> Bool` operation and is non-faulting. The strict physical
+  choice is **Direct-or-RejectBeforeEffect** through one private
+  `CommonV2S6CPortableTextEqBoolCapabilityV1`; `CheckedCallOut`, raw handle
+  comparison, `StringBox::equals`, and `nyash.string.eq_hh` are not its
+  authority. The common Loop pipeline still has one semantic program, one
+  JoinSig-bound layout, one canonical session, and one publication owner.
 - **Current implementation status:** S6C source/site, ExactText formal,
   result/header, installed child, package physical-signature map, and
   caller-zero residence/backend transport substrate are closed. The common
@@ -124,18 +128,50 @@ Related:
   MIR I0 now emits one canonical CheckedCallOut/NormalResult/Fault/End
   lifecycle through the existing CFG/SSA writers without accepting that wire;
   its outer unpublished-function rollback remains the only failure owner.
-- **Next ordered task:**
-  `COMMON-V2-S6C-V9-EXACTTEXT-COSEAL-D0/I0` must co-seal the existing V9
-  NormalResult with the adopted ExactText entry sidecar in the same
-  session/Body segment. StringBox runtime residence and direct pinned-Text
-  optimization are later runtime/backend rows, not this compiler seam.
-- **Production stop line:** no leaf emission or session admission may infer
-  ABI, control, transfer, or source identity from Recipe/MIR, coerce V2 to V1,
-  select a second physicalizer, or treat a runtime wire canary as production
-  compiler evidence.
-- **Retirement finish line:** all admitted profiles use one common physical
-  owner and old topology, route-local schedulers, direct transfer inference,
-  retry, and fallback have zero callers.
+- **Current stop:** `NoSafeSlice::PortableTextEqRootContentViewUnsealed`.
+  `PinnedTextRootViewRef` currently exposes only byte length, so no Bool V10
+  or content comparison may be issued yet. The one-shot scope remains
+  runtime-private and does not recreate source/cohort meaning.
+- **Closed substrate:** source/Facts/Recipe/Join co-seal, V9 producer and
+  canonical End lifecycle, index-only TextRef entry bridge, one-shot
+  V9+ExactText residence scope, and the caller-zero concrete StringBox
+  Residence canary are complete. The row-11 mutable-reachability census is
+  already an explicit acceptance input and reusable guard; no duplicate
+  census task is needed.
+- **Runtime ownership decision:** validate all lanes once at entry, pin
+  atomically, lend content only through a scoped residence owner, and hold no
+  registry lock, LeaseSet, allocation, callback, or finish in the loop body.
+  The accepted concrete StringBox baseline is zero-copy and adds no root
+  `Arc` or snapshot. `Arc` is an ownership tool after lock release, not a
+  concurrency policy; an immutable shared-backing task opens only if a
+  sanctioned mutable/unsafe provider path is ever admitted.
+- **Next ordered task:** first design the private residence-owned content
+  lend/backend-private `ptr + byte_len` projection. It must not leak a raw
+  handle, slot/generation, compiler pointer, or semantic receipt; absent a
+  safe content view, remain `NoSafeSlice`.
+- **Production stop line:** no Bool V10, If/Return CFG, publication,
+  production selector, performance promotion, fallback/retry, or `eq_hh`
+  retirement is open from this capsule.
+
+### Final shape task ladder
+
+| order | bounded task | exit condition |
+| --- | --- | --- |
+| 0 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-D0` | Direct law is already selected; name the residence-owned content representation and reject-before-effect boundary without code effect. |
+| 1 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-CONTENT-VIEW-I0` | One-shot residence-owned content lend or backend-private preheader `ptr/len`; no raw escape, lock/alloc in loop, or second owner. |
+| 2 | `COMMON-V2-S6C-PORTABLE-TEXTEQ-V10-I0` | One Direct leaf consumes the existing scope and asks the canonical session for Bool V10; no If/Return yet. |
+| 3 | `COMMON-V2-S6C-INNER-CFG-D0/I0` | Existing If/Return/FunctionExit JoinSig receipts consume V10; one unpublished transaction remains the rollback boundary. |
+| 4 | `COMMON-V2-S6C-CORRECTNESS-CANARY-R0` | Positive/negative Unicode, alias, stale/foreign, lifecycle, and late-discard evidence is green. |
+| 5 | `COMMON-V2-S6C-PRODUCTION-EDGE-D0/I0` | Named caller switch, same-commit old-edge retirement, and zero fallback/retry are observed. |
+| 6 | `S6C-PINNED-TEXT-PERFORMANCE-PROMOTION-R0` | IR/assembly structural zero-boundary, then exact/meso/whole-call C comparison; benchmark cannot waive structure. |
+| 7 | `EQ-HH-RETIREMENT-R0` | Generic C/Python caller census reaches zero independently; only then remove the legacy export. |
+
+The runtime immutable-backing alternative is a conditional gate, not a
+parallel route: if the mutable-reachability guard discovers a sanctioned
+write/retention path, insert `TEXT-FORMAL-IMMUTABLE-BACKING-D0` before order
+1 and choose a residence-owned immutable backing. Until then, keep the
+zero-copy pinned concrete payload; do not migrate `StringBox` to `Arc<str>`
+speculatively.
 
 
 ## Historical boundary

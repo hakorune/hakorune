@@ -783,20 +783,24 @@ remain closed.
 ## Common V2 portable TextEq V10 design stop (2026-08-18)
 
 The source `LoopOperationV2::TextEq(V9,V1 -> V10)` is verified and
-non-faulting. The strict physical-only capability is now named
-`CommonV2S6CPortableTextEqBoolCapabilityV1`; it consumes the existing
-callback-scoped V9 + ExactText co-seal as two opaque TextRefs and compares
-Unicode scalar sequences, never handle identity. `MirInstruction::Compare` is
-still integer-only; raw handle comparison, `StringBox::equals`, and
-`nyash.string.eq_hh` remain non-authority.
+non-faulting. The only accepted physical choice is
+`Direct-or-RejectBeforeEffect` through the private
+`CommonV2S6CPortableTextEqBoolCapabilityV1`. Its source chain is
+`Equal(Text,Text) -> Bool` plus the existing S6C Facts/Recipe/co-seal; the
+canonical SSA session alone may issue the Bool `ValueId`. Raw handle identity,
+integer `MirInstruction::Compare`, `StringBox::equals`, C status/wire rows,
+and `nyash.string.eq_hh` remain non-authority.
 
 The current boundary is
-`NoSafeSlice::PortableTextEqTextRefResidenceUnsealed`. No Bool `ValueId`,
-runtime wire, status decoder, fallback, or second call route is issued until a
-single residence owner can produce and finish both TextRefs. Raw handles,
-slot/generation pairs, sidecar ValueIds, and MIR adjacency may not manufacture
-that residence. If/Return CFG, StringBox admission, production selection, and
-`eq_hh` retirement remain closed.
+`NoSafeSlice::PortableTextEqRootContentViewUnsealed`: the current pinned-root
+view exposes byte length but no safe content lend, so no Bool V10 or compare
+effect is issued. The next bounded design is one residence-owned,
+callback-scoped content view or backend-private preheader `ptr + byte_len`
+projection. It may not leak a raw handle, slot/generation, compiler pointer,
+or semantic receipt, and it must keep locks, LeaseSet operations, allocation,
+callbacks, and finish out of the loop body. If/Return CFG, publication,
+production selection, performance promotion, fallback/retry, and `eq_hh`
+retirement remain closed.
 
 ## TextRef residence scope D0 (2026-08-18; accepted)
 
