@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-19
-Decision: accepted post-Recipe physical demand/session boundary and one post-emit temporary-object observer boundary
+Decision: accepted post-Recipe physical demand/session boundary and one final LLVM module closure
 Scope: common Loop physical demand, one unpublished function session, DraftSeal handoff, and S6C TextEq physical corridor
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -25,13 +25,13 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the selected C route emits a real caller-zero object;
-  its only post-codegen observation point is the emitted temporary object before
-  rename, but LLVM18 C Object section iteration is unavailable for a valid
-  candidate, so no observer consumer is yet accepted.
+- **Current blocker:** the selected C route emits a real caller-zero object,
+  but its Enter/Finish no-unwind call contract is not yet explicit in the
+  selected LLVM declarations. Post-codegen object inspection is promotion
+  evidence, not a compiler acceptance authority.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0`.
-- **Production stop line:** observer issuance, production selection,
+  `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0`.
+- **Production stop line:** final-module closure, production selection,
   fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
 
@@ -324,39 +324,63 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0`
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0`
+Kind: one bounded call-effect BoxCount; no new semantic receipt.
 
-Decision: LLVM18 exposes no post-codegen `ModuleRef` before
-`LLVMTargetMachineEmitToFile`; its same-candidate temporary object, after a
-successful emit and before the session's sole rename, is the one physical
-evidence boundary. The first in-process LLVM C Object candidate produced no
-section iterator for a valid emitted object, so the consumer itself remains
-`NoSafeSlice`; never substitute an external tool, second pass, or emission.
+Change:
+  Make the existing runtime-owned ABI explicit once: Enter returns an exhaustive
+  status and does not unwind; Finish returns `void` on success, aborts on every
+  nonzero internal status, and does not unwind. Project that contract into the
+  selected LLVM declarations and delete their unannotated forms.
 
-Source authority + canonical issuer: the Rust-issued frame/carrier lineage and
-`HakoPtfSelectedCandidateView` own expected lifecycle sites. The retained
-session issues the temporary object once. A future accepted observer must read
-precisely that file once before its existing rename publication step.
+Contract:
+  The Rust runtime implementation/export owns behavior and
+  `include/nyrt_text_formal_residence_v1.h` is its C projection. The selected
+  lowerer consumes the fixed signature/effect contract; it does not infer it
+  from a symbol name. Finish is not globally `noreturn`, and neither call is
+  `readonly`, `readnone`, `nofree`, or `speculatable`.
 
-Non-authority: `llvm-objdump`/`readobj` subprocesses, textual LLVM, a
-pre-codegen `ModuleRef`, a cloned pass pipeline, synthetic fixtures, renamed
-objects, and object success alone do not issue physical closure.
+Done:
+  The ABI guard and focused selected-lowering test prove exact signatures,
+  `nounwind`, terminal nonzero Finish behavior, and absence of the forbidden
+  attributes. All touched source stays below 760 lines and the real candidate
+  remains caller-zero.
 
-Fail-fast boundary: only the selected bytes ingress may enable a future
-observer. The current LLVM C Object section iterator is unavailable even for a
-valid temporary; missing API, empty iteration, decode, or structural mismatch
-must remove the temporary and publish nothing. File ingress remains
-observer-none and unchanged.
+Stop:
+  Any reachable unwind/catch path, signature ambiguity, new runtime token/frame,
+  new semantic `Verified*`/`Prepared*` receipt, object reader, fallback, retry,
+  production edge, or unrelated backend parity returns this row to design.
 
-Smallest next slice: audit only the actual LLVM18 library's Object/MC surface
-against one valid emitted temporary. Accept one same-process iterator only if
-it exposes stable `.text` relocation and instruction access; otherwise remain
-at `NoSafeSlice`. A generic `.eh_frame` section is not an unwind claim—only
-personality or unwind references would be rejectable evidence.
+### Closed object-observer design
 
-Non-claims: no LLVM IR `nounwind`/`noreturn` attribute proof, semantic parity,
-link/run, production cutover, fallback/retry, performance promotion, or
-`eq_hh` retirement is open.
+The failed probe did not expose an LLVM18 capability gap. It treated the
+mandatory unnamed ELF `SHT_NULL` section as an empty iterator. The real object
+has 11 sections; `.rela.text` exposes one Enter and two Finish relocations, and
+the X86 disassembler consumes all 381 `.text` bytes. A modern reader would also
+have to retain its borrowed MemoryBuffer until after `LLVMDisposeBinary`, use
+`LLVMGetRelocationSymbol` rather than the always-empty LLVM18 relocation-value
+string, and initialize the X86 disassembler explicitly.
+
+That API is intentionally not added to the compiler route. Tail merging, block
+rotation, shared epilogues, and cold splitting may legally change relocation
+and `ret` counts. The real object also demonstrates that address-backward
+branches do not identify natural loops and that ordinary `.eh_frame` presence
+does not prove unwind. Treating those fingerprints as publication conditions
+would create a second machine-shape authority and a target-specific decoder/CFG
+layer. The selected boundary is therefore:
+
+```text
+carrier-bound preflight
+  -> exact private LLVM projection
+  -> parse one LLVMModuleRef
+  -> target/layout + final module closure
+  -> one trusted LLVM18 EmitToFile
+  -> temporary exists
+  -> rename
+```
+
+Object/disassembly/link/run observations belong only to the later promotion
+gate. They can stop promotion, but cannot reclassify compiler semantics.
 
 ### Accepted selected C consumer boundary
 
@@ -387,16 +411,16 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 2 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0` | BoxCount | **Landed.** One real module passes exact frame/carrier/parameter/root/plan/op/site parity before effect; drift rejects without `.ll`, object, replay, or fallback. |
 | 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0` | BoxCount | **Landed.** One private draft lowers the three leaves plus Enter/Trap/Finish, passes its verifier, is discarded, and returns the stable target-closed tag. |
 | 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Landed.** Verified owned bytes reach the retained LLVM18 target/layout session and one test-owned object; failures remove every temporary. |
-| 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0` | design stop | **Landed.** LLVM18 exposes no post-codegen module hook without a second pass/emission; the emitted temporary object before existing rename is the sole same-candidate physical evidence boundary. |
-| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | The first LLVM C Object consumer returns an empty section iterator for a valid temporary. Audit one alternate same-process LLVM18 Object/MC surface, or retain `NoSafeSlice`; external observers are non-authority. |
-| 7 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, IR/assembly structural-zero, exact/meso/whole-call, and C comparison gates pass. |
-| 8 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
-| 9 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
+| 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | **Closed.** The probe failure was an ELF null-section false negative. LLVM18 Object/Disassembler works, but no compile-path observer is selected; machine evidence belongs to promotion. |
+| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | Existing Enter/Finish signatures and no-unwind/fail-stop effects become one runtime-owned ABI projection consumed by selected LLVM; no new receipt or runtime object. |
+| 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation may follow closure, and failure publishes no object. |
+| 8 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, link/run, IR/final-assembly structural-zero, exact/meso/whole-call, and C comparison gates pass; object tools are evidence only. |
+| 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
+| 10 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
 
-Tasks 1 and 2 are separate: the source-file split cannot change accepted ops,
-and the lowering BoxCount cannot be appended to an over-budget owner. Observer,
-promotion, and production remain serial; none may infer closure from object
-success.
+Tasks 6 and 7 are separate: runtime call effects must be owned before the final
+module can verify their projection. Module closure, promotion, and production
+remain serial; none may infer semantics from object success.
 
 ## Compact landed ledger
 
@@ -420,7 +444,8 @@ Exact prose and superseded stops are historical. The durable result is:
 | selected C carrier-bound preflight | landed effect-free BoxCount |
 | selected C textual lifecycle lowerer | landed caller-zero BoxCount |
 | selected C TargetMachine handoff | landed caller-zero bounded route |
-| post-emit temporary-object observer | physical boundary accepted; object consumer remains active `NoSafeSlice` |
+| post-emit temporary-object observer | probe false negative corrected; compile-path observer intentionally absent |
+| final LLVM module closure | call-effect contract then same-module verifier pending |
 | production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C

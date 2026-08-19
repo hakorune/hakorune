@@ -5,33 +5,36 @@ one derived V9 scalar slice, canonical source-index SSA, private byte cursor,
 one lifecycle carrier, and one DraftSeal Return owner. Strict real-candidate
 JSON now passes selected-C preflight, lowers into a private textual LLVM draft,
 and reaches one test-owned object through the existing LLVM18 session's memory
-ingress. The observer D0 selected that same candidate's emitted temporary
-object, before rename, as the sole post-codegen evidence boundary. A valid
-object, however, produced no LLVM C Object section iterator, so no sole
-in-process consumer is available yet and the observer remains closed.
+ingress. The failed object-observer probe was a false negative: it rejected the
+mandatory unnamed ELF null section as an empty iterator. LLVM18 Object and
+Disassembler APIs work on the real object, but machine-shape inspection is not
+a compiler authority. The final compiler-owned lifecycle closure is selected
+on the same parsed LLVM module before one trusted LLVM18 emission, while
+object/assembly checks belong to the later promotion evidence gate.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "NoSafeSlice: the emitted temporary object is the sole post-codegen boundary, but LLVM18 C Object section iteration returns empty for a valid selected object; name one in-process consumer that can inspect it without adding an external or second-emission authority."
-work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0"
-current_blocker_token = "Audit the LLVM18 Object/MC APIs on the actual emitted temporary and either name one same-process, same-file consumer with stable relocation/disassembly access or keep observer issuance closed."
+current_design_stop = "none; object-observer D0 is closed: the API is available, but post-codegen machine-shape inspection is promotion evidence rather than compiler acceptance authority"
+work_mode = "fast"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0"
+current_blocker_token = "Make the existing Enter/Finish no-unwind runtime ABI explicit in its owning export/header and selected LLVM declarations; do not add a new semantic receipt, object reader, or post-codegen gate."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence post-emit object observer design"
+active_lane = "S6C Text Residence final LLVM module closure"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
 Finish-before-Return detached projection, strict MIR JSON, selected-C preflight,
 private textual lowering, and one LLVM18 memory-buffer TargetMachine handoff.
 Real JSON emits a nonempty test-owned object; invalid IR and unwritable output
-leave no object, named `.ll`, or TargetMachine temporary. The accepted boundary
-is that same emitted temporary object before rename, but its in-process
-consumer remains an unresolved LLVM18 API capability. Selected Dynamic remains
-the sole production arm.
+leave no object, named `.ll`, or TargetMachine temporary. Production
+correctness will close on that same parsed LLVM module before its sole emission.
+Object/disassembly observation is parked inside promotion evidence and cannot
+re-issue source or lifecycle meaning. Selected Dynamic remains the sole
+production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -44,10 +47,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Selected-C TargetMachine handoff is landed caller-zero through one memory-buffer ingress and shared parse/emit owner. Observer D0 chose the emitted temporary object before rename as the sole same-candidate post-codegen evidence boundary, but valid-object LLVM C section iteration is unavailable; no observer I0 is active."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0"
+latest_card_summary = "Selected-C TargetMachine handoff is landed caller-zero. The object-observer probe failure was an ELF null-section false negative, but machine-shape inspection is promotion evidence, not compiler authority; the next bounded row closes the existing runtime call-effect ABI before final LLVM module verification."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -59,7 +62,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-19: Post-emit observer D0 narrowed the physical boundary to the `LLVMTargetMachineEmitToFile` temporary object before rename. A valid selected object yielded no LLVM C Object section iterator, so no in-process observer has been accepted; external tools, second pass/emission, production, fallback/retry, and performance remain closed.",
+  "2026-08-19: Object-observer D0 closed after five-way premise audit: the failed probe mistook the mandatory unnamed ELF null section for an empty iterator; the real object exposes 11 sections, lifecycle relocations, and complete X86 decode through LLVM18. No compiler object gate is selected because relocation/ret layout is LLVM-transform-dependent; final ModuleRef verification is the correctness boundary and object/assembly checks move to promotion evidence.",
   "2026-08-19: Selected-C TargetMachine I0 landed caller-zero: verified private LLVM bytes move once through `LLVMCreateMemoryBufferWithMemoryRangeCopy` into the existing LLVM18 parse/module/object owner; real JSON emits a nonempty test object, invalid IR and unwritable output clean up, and named `.ll`, fallback, retry, observer, production, and performance remain zero.",
   "2026-08-19: Selected-C textual lowering I0 landed caller-zero: the exact preflighted candidate lowers 3 PinnedText leaves plus Enter/Trap/2 Finish into one tmpfile-owned LLVM draft, verifies structural zero and Finish-before-Return, discards it on every path, and returns a stable target-closed tag; TargetMachine, observer, production, fallback/retry, and performance remain closed.",
   "2026-08-19: Real-candidate JSON carrier-lineage I0 landed caller-zero: the exact detached MirFunction installs one source-issued carrier through a separate projection seam and emits strict JSON without refresh/synthetic promotion; same-cohort 3 PinnedTextOp/1 Enter/1 Trap/2 Finish/2 Return is green, while missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering, target-machine, observer, production, fallback, and performance remain closed.",
