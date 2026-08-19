@@ -24,7 +24,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = ""
 work_mode = "closeout"
 current_execution_row = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
-current_blocker_token = "Verify the installed-callable Brand disposition consumer and guards; relationless Compatibility, Deferred, RawLegacy, nested/Main, and unlocated paths remain non-authoritative. The legacy externcall child-count red reproduces on parent dc81a64dc7 and is baseline debt."
+current_blocker_token = "No executable row is selected. The installed-callable consumer and C-parity north-star policy are closed; relationless Brand lanes, native attribution, and inspect provenance remain explicitly parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,7 +91,7 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Installed callable FunctionCall preflight now consumes exact Constructor/NonBrand dispositions; relationless lanes remain unchanged, and the legacy externcall red is parent-reproduced baseline debt."
+latest_card_summary = "Installed callable Brand consumption and the docs-only Hako/C 1.00 north-star policy are closed; relationless lanes remain unchanged and the legacy externcall red is parent-reproduced baseline debt."
 next_design_card = "none"
 next_design_card_path = ""
 next_execution_card = "none"
@@ -106,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0 landed one BoxShape. The selected-normal work plan issues exact ImmediateDeclaration/ScriptRuntimePrefix/ScriptRuntimeFullLifecycle tickets keyed by parser ConstructorSourceId and validates the complete immediate/runtime set before Builder effects; semantic loan and raw Brand consumption remain unopened.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2 closed. Caller-zero retirement is unsound for production-capable admissions; instance constructors are the first bounded parser-keyed issuance family, while nested methods have five checked-in natural Brand calls and Deferred/Compatibility/RawLegacy remain separate NoSafeSlice families.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally and ACTIVE-ADMISSION-CENSUS-D1 closed. Callable/Complete Script states retain exact-site Constructor/NonBrand projection with foreign coverage rejection; Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy remain name-only, bare calls are unlocated, and raw consumption stays zero.",
   "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
-  "2026-08-20: BRAND-CONSTRUCTOR-CONSUMER-CUTOVER-D0 closed NoSafeSlice. Exact callable/Complete Script can project the landed relation, but Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are also unlocated. Transport split, admission census, and total disposition projection now precede atomic raw-probe retirement.",
 ]

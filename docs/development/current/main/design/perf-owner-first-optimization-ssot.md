@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-18
+Date: 2026-08-20
 Scope: perf/asm を使う最適化レーンで、`front split` / `owner/state transition` / `keeper-revert stop-line` を先に固定する運用。
 Related:
   - AGENTS.md
@@ -386,6 +386,46 @@ Append-only projection ownerは
 `tools/perf/s6c_paired_wallclock_batch_store.py`、実行consumerは
 `tools/perf/s6c_paired_wallclock_harness.py`。storeだけがimmutable childをpublishし、
 harnessはmanifestのslotを再分類せず消費する。
+
+## S6C C-parity north star (design-only D0)
+
+S6C の Hako/C 比較は、現行の採用条件と長期的な性能目標を分離して
+記録する。これは測定の再実行、閾値変更、compiler/backend変更を許可する
+行ではない。
+
+```text
+Decision:
+  Keep every existing exact/meso promotion threshold unchanged. Define
+  Hako/C <= 1.00 as the S6C corridor's formal point north star, not as a
+  replacement for the current 1.15 promotion ceiling.
+Source authority + canonical issuer:
+  The existing sealed Hako candidate, matched C reference, fixed corpus/oracle,
+  and the existing retain-all paired measurement validator issue observations;
+  this SSOT only names the target and does not issue a result.
+Non-authority:
+  One run, WSL output, assembly size, PMU totals, p95 alone, best-session
+  selection, source-name branches, and a proposed confidence margin cannot
+  claim C parity or select a compiler owner.
+Fail-fast boundary:
+  Any future parity claim must use a newly predeclared immutable batch with the
+  existing identity, corpus, order, sample-retention, and promotion contracts;
+  no old receipt is reinterpreted and no current gate is relaxed.
+Smallest next slice:
+  Record the 1.00 point target in the active S6C design card and keep a possible
+  upper-95% <= 1.03 C-class claim as a separate future D0, without adding a
+  schema field, gate, measurement, or production selector here.
+Non-claims:
+  No claim that current evidence reaches 1.00 or 1.03, no strict
+  no-slower-than-C proof, no SIMD requirement, no backend BoxShape, no
+  promotion/production switch, and no C-reference rewrite.
+```
+
+The ratio is `R = Hako elapsed / C elapsed`; lower is faster. The existing
+`1.15` meso gate remains the current promotion ceiling for its already-defined
+front, not a universal language-speed promise. `1.00` is a development target
+for the same-corridor point estimate. A future `R` confidence claim must name
+its sample size, interval method, batch lineage, and native authority in a new
+decision row; `1.03` is not policy until that row is accepted.
 
 ## Doc Placement
 

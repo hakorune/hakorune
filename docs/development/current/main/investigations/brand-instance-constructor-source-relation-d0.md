@@ -551,10 +551,10 @@ Implementation acceptance:
 
 ### Follow-up TODO ledger (do not mix into this I0)
 
-1. **S6C-C-PARITY-NORTH-STAR-D0** — after this I0 closes, update the perf
-   owner SSOT to distinguish the unchanged `1.15` promotion ceiling from the
-   formal `1.00` Hako/C point target. Treat any `1.03` upper-confidence claim
-   as a new design proposal only; do not change a gate or reuse old evidence.
+1. **S6C-C-PARITY-NORTH-STAR-D0** — landed as docs-only policy. The perf owner
+   SSOT now distinguishes the unchanged `1.15` promotion ceiling from the
+   formal `1.00` Hako/C point target. Any `1.03` upper-confidence claim remains
+   a separate design proposal; no gate or old evidence was changed.
 2. **S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0** — remains parked until a new
    explicitly accepted clean-pair/native batch supplies eligible ratios; the
    prior NoSafeSlice receipt is not a backend owner.
@@ -576,3 +576,18 @@ preflight suite remains 4-pass/1-fail on the old `externcall` child-count
 assertion, and the same failure reproduces on parent `dc81a64dc7`; it is
 baseline debt, not an I0 regression. No follow-up TODO is opened in this
 closeout; the numbered ledger above is the explicit handoff.
+
+### S6C-C-PARITY-NORTH-STAR-D0 closeout
+
+Decision: Keep the existing promotion thresholds and name `Hako/C <= 1.00`
+as the long-term point target for the same sealed S6C corridor.
+Source authority + canonical issuer: Existing sealed Hako/C candidate and
+paired validator own future observations; this row only records policy.
+Non-authority: WSL results, one run, assembly/PMU counts, p95 alone, and best
+session selection cannot issue parity or compiler-owner meaning.
+Fail-fast boundary: Future claims require a new immutable batch and native
+authority; no current gate, corpus, C oracle, or old receipt is rewritten.
+Smallest next slice: A separate future D0 may predeclare a statistical C-class
+margin such as upper-95% `<= 1.03`; it is not a gate or schema field yet.
+Non-claims: No current C parity result, no strict no-slower proof, SIMD,
+backend BoxShape, promotion, production switch, or C-reference change.
