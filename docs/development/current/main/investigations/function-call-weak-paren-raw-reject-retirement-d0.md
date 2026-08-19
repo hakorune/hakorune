@@ -1,6 +1,6 @@
 # FunctionCall weak Parentheses Raw Reject Retirement D0
 
-Status: accepted with prerequisites
+Status: accepted; prerequisites landed
 Parent: `function-call-special-namespace-source-registry-d0.md`
 Row: `FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-D0`
 
@@ -28,8 +28,9 @@ synthetic AST/JSON, tests, MIR, runtime weak handles, and backend code.
 Fail-fast boundary: Both profiles and parser paths keep `weak` reserved and
 reject `weak (` before operand/argument construction. No raw branch retires
 while a source ingress can still issue `FunctionCall { name: "weak" }`.
-Smallest next slice: `FUNCTION-CALL-WEAK-TOKENCURSOR-GRAMMAR-PARITY-I0` adds
-the missing TokenCursor unary/reject projection and its four-profile/path tests.
+Smallest next slice: `FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-R0`
+deletes the now-unreachable duplicate raw Builder classifier and fixes the
+non-source forged-AST disposition as ordinary transport.
 Non-claims: No strict-mode retirement, raw branch deletion, weak runtime/field
 change, generic callable named weak, other special calls, or backend work.
 

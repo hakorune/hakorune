@@ -276,6 +276,21 @@ fn remaining_expression_surfaces_follow_the_v1_profile_contract() {
 }
 
 #[test]
+fn weak_expression_surface_follows_the_v1_profile_contract() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        assert!(
+            parse_with_profile("weak value", profile).is_ok(),
+            "{profile:?} must accept unary weak"
+        );
+        let error = format!(
+            "{:?}",
+            parse_with_profile("weak(missing)", profile).unwrap_err()
+        );
+        assert!(error.contains("parser/weak_paren_call_rejected"), "{error}");
+    }
+}
+
+#[test]
 fn grammar_evidence_api_stops_before_delegate_semantic_lowering() {
     let source = "box Parent { child: Child delegate child exposes { read, write } }";
     let ast = NyashParser::parse_grammar_evidence_from_string_with_build_config(
