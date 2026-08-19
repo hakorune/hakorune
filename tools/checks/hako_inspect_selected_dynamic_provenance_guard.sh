@@ -25,6 +25,7 @@ cc -I"$ROOT/plugins/nyash-json-plugin/c/yyjson" \
 
 PYTHONPATH="$ROOT/tools/hako_check" python3 -m unittest \
   tools.hako_check.tests.test_inspect_origin_footprint \
+  tools.hako_check.tests.test_inspect_origin_footprint_c_reference \
   tools.hako_check.tests.test_inspect_provenance_dispositions \
   tools.hako_check.tests.test_inspect_provenance_model \
   tools.hako_check.tests.test_inspect_selected_dynamic_provenance
@@ -32,6 +33,12 @@ PYTHONPATH="$ROOT/tools/hako_check" python3 -m unittest \
 CARGO_BUILD_JOBS=4 bash "$ROOT/tools/hako_check.sh" \
   inspect selected-dynamic-provenance --out "$TEMP_DIR/bundle" \
   >"$TEMP_DIR/seal.out"
+
+bash "$ROOT/tools/hako_check.sh" inspect origin-footprint-c-reference \
+  --bundle "$TEMP_DIR/bundle" \
+  --c-asm "$TEMP_DIR/bundle/asm.s" \
+  --c-symbol "ParserScanLoopBox.skip_while/4" \
+  --out "$TEMP_DIR/c-reference"
 
 for reserved in --repo-root --driver; do
   set +e
@@ -60,13 +67,14 @@ if [[ "$FAILURE_RC" -eq 0 || -e "$TEMP_DIR/failure.o" ||
   exit 1
 fi
 
-python3 - "$TEMP_DIR/bundle" <<'PY'
+python3 - "$TEMP_DIR/bundle" "$TEMP_DIR/c-reference" <<'PY'
 import json
 import hashlib
 import pathlib
 import sys
 
 bundle = pathlib.Path(sys.argv[1])
+comparison_dir = pathlib.Path(sys.argv[2])
 identity = json.loads((bundle / "identity.json").read_text())
 provenance = json.loads((bundle / "lowering.provenance.json").read_text())
 footprint = json.loads((bundle / "origin-footprint.json").read_text())
@@ -106,6 +114,22 @@ summary = (bundle / "summary.md").read_text()
 assert "MIR → lowered LLVM: issuer_exact" in summary
 assert "lowered LLVM → final LLVM: unavailable" in summary
 assert "LLVM → ASM: unavailable" in summary
+comparison = json.loads((comparison_dir / "comparison.json").read_text())
+assert {path.name for path in comparison_dir.iterdir()} == {
+    "comparison.json", "summary.md",
+}
+assert comparison["output_contract"] == "hako-origin-footprint-c-reference-v0"
+assert comparison["hako_candidate_seal"] == identity["candidate_seal"]
+assert comparison["hako_origin_footprint_sha256"] == hashlib.sha256(
+    (bundle / "origin-footprint.json").read_bytes()
+).hexdigest()
+assert comparison["external_reference"]["authority"] == "external_reference_only"
+assert comparison["external_reference"]["symbol"] == "ParserScanLoopBox.skip_while/4"
+assert comparison["correspondence"] == "unavailable"
+assert comparison["observation_only"] is True
+assert comparison["keeper_selection"] is False
+assert comparison["measurement_authority"] is False
+assert comparison["columns"]["hako_asm"]["shape"] == comparison["columns"]["c_asm"]["shape"]
 PY
 
 echo "[$TAG] ok"

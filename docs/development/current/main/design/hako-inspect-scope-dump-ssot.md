@@ -6,20 +6,19 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Emit C reference only as a separate derived origin-footprint report;
-never add an optional C payload to the sealed Hako bundle inventory.
-Source authority + canonical issuer: The exact ten-payload Hako identity remains
-sole Hako authority; explicit C assembly digest plus one exact unique C symbol
-issue only an external-reference shape column.
-Non-authority: C source/build, inferred symbol, textual diff, labels, addresses,
-count delta, timing, and the comparison report issue no mapping or keeper truth.
-Fail-fast boundary: Validate the complete Hako bundle and footprint first, then
-require an explicit regular C artifact and exact unique symbol; any drift,
-ambiguity, fallback, malformed input, or existing output publishes no report.
-Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` adds one
-thin dedicated command and atomically writes an observation-only derived report.
-Non-claims: No C build/equivalence, machine-origin mapping, optimization advice,
-measurement, promotion, production, bundle reseal, fallback, or retry.
+Decision: Close the C-reference product at one separate explicit-artifact report;
+do not invent or adapt a C builder without an exact reference source authority.
+Source authority + canonical issuer: The ten-payload Hako identity remains sole
+Hako authority; caller-provided C assembly digest and exact unique symbol issue
+only the external-reference column.
+Non-authority: Benchmark filename pairing, aliases, old diff helpers, default
+symbols, clipped snippets, count similarity, and the report issue no equivalence.
+Fail-fast boundary: The landed command rejects bundle/footprint drift, missing or
+ambiguous C symbols, malformed input, and pre-existing output before publication.
+Smallest next slice: No C-consumer I0; return to the next bounded MIRBuilder
+production frontier selected by current-state authority.
+Non-claims: No canonical C implementation, C/Hako equivalence, timing, keeper,
+machine-origin mapping, optimization advice, promotion, or production change.
 
 ## Decision
 
@@ -404,14 +403,21 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   with correspondence unavailable; it cannot issue equivalence, mapping,
   measurement, keeper, or promotion meaning. C building, default symbol
   selection, first-match fallback, and clipped textual diff are non-authority.
-- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` (**selected observation
-  BoxCount**): add a dedicated thin command outside the 753-line generic router.
-  Validate the complete sealed Hako bundle and rebuild-check its footprint,
-  require `--c-asm` and `--c-symbol`, select exactly one symbol, and atomically
-  publish a separate comparison directory. Positive proves independent totals
-  and unchanged Hako bundle bytes. Missing, non-file, absent/duplicate symbol,
-  tampered/missing/extra Hako payload, malformed footprint, pre-existing output,
-  or authority/correspondence claim publishes neither output nor temporary.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` (**landed observation
+  BoxCount**): a 150-line dedicated owner validates the exact ten-payload bundle,
+  rebuild-checks its footprint, and requires explicit `--c-asm` plus one unique
+  `--c-symbol`. It writes `summary.md` before the write-last `comparison.json`
+  root in a separate atomic directory. The report binds the Hako candidate seal,
+  footprint digest, external assembly digest/symbol, and independent shapes while
+  fixing correspondence unavailable and keeper/measurement authority false.
+  The Hako bundle remains byte-identical. Fifty-one inspect tests, the public
+  selected-Dynamic guard, owner guard, and pointer guard are green.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-CONSUMER-D0` (**NoSafeSlice**): no exact C
+  source currently owns a semantic reference for `ParserScanLoopBox.skip_while/4`.
+  Existing perf helpers own unrelated micro pairs, default/first-match symbols,
+  and clipped textual diffs. Do not adapt them or manufacture a C member by
+  filename. Reopen only after a separate Decision names one exact C source,
+  symbol, and comparison purpose; the landed explicit-artifact CLI is complete.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through

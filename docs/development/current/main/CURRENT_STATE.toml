@@ -16,21 +16,21 @@ belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
 batch closed Complete/development_keeper with both fixed sessions Complete;
 it remains development-only and issues no native promotion authority. The
 selected Dynamic generic active walk is now a 575-line parent plus unchanged
-185-line child. Its exact provenance boundary is now the profile-local pre-opt
-lowered LLVM writer; optimizer and machine correspondence remain unavailable.
+185-line child. Its observation UX closes at a separate explicit-artifact C
+shape report; optimizer, C equivalence, and machine origin remain unavailable.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; the external C-reference boundary is accepted as a separate derived observation report and the bounded I0 is selected"
-work_mode = "fast"
-current_execution_row = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0"
-current_blocker_token = "Implement only the separate external-reference report; do not reseal the Hako bundle, build C, infer symbols, claim correspondence, or add measurement authority."
+current_design_stop = "Name one affine transfer of the existing raw ordinary-call preflight decision into Script admission without a second classifier or Builder-derived inference."
+work_mode = "design_stop"
+current_execution_row = "SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0"
+current_blocker_token = "Co-seal exact source target, ordered arguments, arity, exact-I64 result/header, ordinary decision, and cohort before effect; otherwise close NoSafeSlice and retain typed Deferred."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text optimization observation UX"
+active_lane = "MirBuilder in-place replacement — Script ExistingRootLower compatibility retirement"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -78,7 +78,9 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
-same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. Optional C comparison is selected only as a separate derived report.
+same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
+ASM totals. The external C report is landed without changing the Hako seal, and
+observation UX returns to the Script ExistingRootLower production frontier.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -87,15 +89,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+current_execution_design = "docs/development/current/main/investigations/script-ordinary-direct-call-preflight-receipt-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "hako-inspect-scope-dump-ssot"
-latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "Origin-footprint keeps its exact ten-payload Hako seal. The accepted external C-reference I0 may emit only a separate digest-bound observation report with explicit exact symbol selection."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0"
-next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+latest_card = "script-ordinary-direct-call-preflight-receipt-d0"
+latest_card_path = "docs/development/current/main/investigations/script-ordinary-direct-call-preflight-receipt-d0.md"
+latest_card_summary = "Design only the affine reuse of the existing raw ordinary-call preflight decision for one Script same-module exact-I64 static call; no I0 is authorized yet."
+next_design_card = "SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0"
+next_design_card_path = "docs/development/current/main/investigations/script-ordinary-direct-call-preflight-receipt-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -106,6 +108,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0 landed one observation BoxCount. A 150-line owner validates the exact ten-payload Hako bundle and explicit unique C symbol, then atomically writes a separate summary plus write-last comparison root. Fifty-one inspect tests and both reusable guards are green; no exact C-source consumer exists, so observation UX returns to the Script production frontier.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0 accepted one observation BoxCount. The exact ten-payload Hako identity stays unchanged; explicit C assembly plus one exact unique symbol may feed only a separate derived report with independent totals and correspondence unavailable. C build, symbol fallback, equivalence, timing, mapping, keeper, and promotion authority remain prohibited. The bounded I0 is selected.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-I0 landed one caller-zero observation BoxCount. The existing driver transaction now seals same-emission object and exact ParserScanLoopBox.skip_while/4 disassembly with an origin-footprint payload. Issuer-exact MIR origins expose lowered-LLVM block/edge/instruction/call/branch shape; ASM exposes only 144/47/5/1 symbol totals and origin attribution remains unavailable. Thirty-nine inspect tests and the 21-test public guard are green. Optional C-reference D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-I0 landed behavior-neutrally. Producer lineage and summary are written before identity and join source/MIR/lowered LLVM/origins/provenance in its seven-payload digest table; identity is the non-recursive root receipt issued last. Exact seven-plus-receipt inventory, producer/summary tamper, extra sibling, and partial-publication negatives are green. Origin-footprint D0 is selected next.",
@@ -114,7 +117,4 @@ landed_tail = [
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 landed one caller-zero observation BoxCount. Exact ParserScanLoopBox source drives both parsing and publication; the collector moves one completed skip_while draft without cloning. The generic active walker and actual C1 CallOut/End emitters issue 64 uniquely-owned rows covering MIR 10 blocks/10 edges and lowered-pre-opt LLVM 32 blocks/32 edges. Digest/duplicate/coverage drift and journal failure publish no bundle or temporary LLVM. Post-opt LLVM, ASM, keeper, measurement, and production remain unavailable/unclaimed. The thin UX row is selected next.",
   "2026-08-20: SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0 landed one physical BoxCount. A compile-local `(MIR pred, successor) -> actual LLVM tail` inventory is issued before output, co-checked by C1 emission, and consumed by the existing PHI writer. The focused fixture now covers CallOut-normal and End-backedge PHIs plus a dangling-target negative; the reusable physicalizer smoke and real full-source LLVM18 object canary are green. Provenance semantics and production selection are unchanged, and provenance I0 resumes.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 stopped before publication on the first real full-source candidate. C1 expands MIR block 4 through c1_end_continue_4_2 and block 6 through distinct normal/fault validation tails, while the existing PHI writer still names bb4/bb6; LLVM18 rejects both PHIs before optimization. Observation hooks, post-hoc scans, and label-format inference are non-authority. SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0 accepts one physical BoxCount and selects I0.",
-  "2026-08-20: NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-I0 landed one BoxCount. Package-wide missing parameter/result bits and the outer cohort Option are gone; one always-present sparse cohort retains eligible rows and only row lookup is optional. The unchanged full ParserScanLoopBox source lends exactly one exact-I64 skip_while row with two Completion sites; 35 package tests and two selected-emitter tests are green. The complete-batch guard's new assertions are green, while its unchanged selected-mapping regex remains parent-baseline-red at e3adb2de8e. A-prime is unchanged and provenance resumes.",
-  "2026-08-20: NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0 accepted one BoxCount. The package always owns one possibly-empty sparse cohort; exact-I64 annotation, that row's complete parameter contract, and verified value Completion issue a row, while missing siblings issue no row. Package-wide missing flags and outer Option retire together; S6C seed consumption and A-prime's mandatory header check remain unchanged. I0 is selected.",
-  "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 stopped NoSafeSlice before effect. The unchanged mixed ParserScanLoopBox source has one annotated exact-I64 skip_while row, but package-wide all-or-none header issuance erases it when three siblings lack result annotations; existing A-prime/package focused tests reproduce PackagePhysicalHeader. Source slicing, synthetic headers, test keys, and sibling annotation edits are non-authority. NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0 is the sole next design row; provenance remains parked."
 ]

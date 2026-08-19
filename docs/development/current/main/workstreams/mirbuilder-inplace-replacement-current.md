@@ -249,6 +249,13 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Compact queue
 
 ```text
+selected design stop
+  SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0
+  -> decide whether the existing raw ordinary-call preflight decision can move
+     into one source-bound Script admission lineage without reclassification.
+     No I0 is authorized until exact target, ordered arguments, arity, exact-I64
+     result/header, ordinary decision, and cohort close before Builder effect.
+
 R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
   closed Accept-corrected
 

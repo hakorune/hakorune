@@ -22,7 +22,7 @@ Usage:
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
-  $0 inspect scope|route|mark|diff|shape|selected-dynamic-provenance [options]
+  $0 inspect scope|route|mark|diff|shape|selected-dynamic-provenance|origin-footprint-c-reference [options]
   $0 boxcall-contract [--out report.kv] [--include-plugin-catalog-sample]
   $0 collection-visible-contract [--out report.kv]
   $0 optimizer-schedule [--format kv|summary] [--out report.kv]
@@ -89,6 +89,11 @@ fi
 if [ "${1:-}" = "inspect" ] && [ "${2:-}" = "selected-dynamic-provenance" ]; then
   shift 2
   exec bash "$ROOT/tools/hako_check/inspect_selected_dynamic_provenance.sh" "$@"
+fi
+
+if [ "${1:-}" = "inspect" ] && [ "${2:-}" = "origin-footprint-c-reference" ]; then
+  shift 2
+  exec python3 "$ROOT/tools/hako_check/inspect_origin_footprint_c_reference.py" "$@"
 fi
 
 if [ "${1:-}" = "inspect" ]; then

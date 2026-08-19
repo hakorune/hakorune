@@ -30,6 +30,12 @@ TEST_NAME = (
     "mir::builder::resolved_lowering::selected_dynamic_physical_emitter::tests::"
     "combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_session"
 )
+SELECTED_DYNAMIC_PAYLOADS = (
+    "producer.json", "source.full.hako", "mir.raw.json",
+    "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
+    "lowering.provenance.json", "object.bin", "asm.s",
+    "origin-footprint.json", "summary.md",
+)
 
 
 def _sha256(path: Path) -> str:
@@ -163,12 +169,7 @@ def seal_product(
                     (staging / "source.full.hako").read_text().splitlines()
                 ),
             },
-            artifact_names=[
-                "producer.json", "source.full.hako", "mir.raw.json",
-                "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
-                "lowering.provenance.json", "object.bin", "asm.s",
-                "origin-footprint.json", "summary.md",
-            ],
+            artifact_names=list(SELECTED_DYNAMIC_PAYLOADS),
             mappings={
                 "source_to_mir": "exact",
                 "mir_to_llvm": "issuer_exact_lowered_pre_opt",

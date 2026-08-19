@@ -30,6 +30,7 @@ Canonical helpers
 - `bash tools/hako_check.sh optimizer-schedule`
 - `bash tools/hako_check.sh semantic-refresh-inventory`
 - `bash tools/hako_check.sh inspect selected-dynamic-provenance --out <bundle>`
+- `bash tools/hako_check.sh inspect origin-footprint-c-reference --bundle <bundle> --c-asm <objdump.txt> --c-symbol <exact-symbol> --out <report>`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
@@ -73,6 +74,12 @@ Selected lowering provenance V0
 - `origin-footprint.json` groups lowered-LLVM shape only by issuer-emitted MIR
   origin. ASM is a separate selected-symbol aggregate; LLVM-to-machine and
   MIR-to-machine origin attribution remain explicitly unavailable.
+- An optional C assembly is never added to or used to reseal that bundle.
+  `inspect origin-footprint-c-reference` validates the complete Hako identity,
+  requires one explicit unique C symbol, and writes a separate two-file derived
+  report. Its independent ASM totals are external-reference-only; correspondence,
+  semantic equivalence, timing, keeper selection, and measurement authority are
+  unavailable.
 
 Diagnostics schema (typed)
 - Map fields:
