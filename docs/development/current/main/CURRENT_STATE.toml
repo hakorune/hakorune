@@ -16,16 +16,16 @@ belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
 batch closed Complete/development_keeper with both fixed sessions Complete;
 it remains development-only and issues no native promotion authority. The
 selected Dynamic generic active walk is now a 575-line parent plus unchanged
-185-line child. The next bounded row designs its profile-local provenance
-transaction and exact source/candidate/final-module capture.
+185-line child. Its exact provenance boundary is now the profile-local pre-opt
+lowered LLVM writer; optimizer and machine correspondence remain unavailable.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The generic active walker split landed behavior-neutrally at 575/185 lines. Before the selected Dynamic journal BoxCount, name one exact source-backed candidate producer, final ModuleRef capture, profile-local issuer transaction, and duplicate-free total coverage contract."
-work_mode = "design_stop"
-current_execution_row = "HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0"
-current_blocker_token = "Design the exact ParserScanLoopBox.skip_while/4 source-to-candidate-to-final-LLVM observation transaction. Bind base/C1 emission rows to one issuer, extend checked_callout normal/fault and duplicate validation, and reject missing real export/final capture. Add no code/fixture, generic journal, machine mapping, or predicted 32/32 acceptance constant."
+current_design_stop = "none; selected Dynamic exact provenance stops at the same profile-local writer's pre-opt lowered LLVM bytes. Post-opt LLVM and machine mapping remain unavailable."
+work_mode = "fast"
+current_execution_row = "HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0"
+current_blocker_token = "Implement one caller-zero real-source/no-clone-candidate observation transaction. The generic active walker plus C1 emitter issue duplicate-free MIR-to-lowered-LLVM rows; capture pre-opt bytes before external optimization and reject missing/foreign/incomplete coverage. Do not infer post-opt or machine origins."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -70,11 +70,11 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "The selected Dynamic active walk split landed at 575/185 lines with byte-identical preprocessed C and green focused Dynamic/S6C smokes. The next D0 must close the real source/candidate/final-module provenance transaction."
-next_design_card = "HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0"
-next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "Selected Dynamic provenance D0 accepted the profile-local pre-opt lowered LLVM writer as the exact boundary. Optional legacy CAPI, external post-opt CFG, and ASM remain non-authoritative and unmapped."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0"
+next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -85,6 +85,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0 accepted the honest observation boundary. The generic active walker plus C1 emitter may issue exact MIR-to-pre-opt-lowered-LLVM origins; external opt/llc output and ASM remain unmapped because optimizer origin is not carried. The optional legacy CAPI ModuleRef, post-hoc scans, and predicted 32/32 census are non-authority. One caller-zero lowered-LLVM provenance BoxCount is selected next.",
   "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0 landed behavior-neutrally. The former 759-line generic owner is a 575-line parent plus the exact unchanged 185-line active walker child; extracted-range and child SHA match, parent/current preprocessed C hashes match, and focused selected Dynamic plus S6C smokes are green. No journal/schema/route/compiler output changed. The broad Dynamic authority guard is classified parent-baseline-red at fdb04a6cdd.",
   "2026-08-19: HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0 landed observation-only. A default-off selected-lowerer journal emits 53 block/edge origin rows; the pure validator exhaustively closes MIR 8/8 and final LLVM 22/31, the ingress digest-binds the sidecar, and shape groups origins while LLVM-to-ASM exactness stays unavailable. Twenty-two focused inspect tests plus structural, selected-preflight, owner, and pointer guards are green; compiler output, keeper, performance, and production are unchanged.",
   "2026-08-19: HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0 landed observation-only. The pure LLVM selector now uses horizontal leading whitespace and no longer consumes a preceding newline as an implicit block/instruction. Real S6C final LLVM reports 22 blocks/31 edges/82 instructions; 18 focused tests and reusable/pointer guards are green. Compiler/backend output and provenance claims are unchanged.",
@@ -95,6 +96,5 @@ landed_tail = [
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0 landed one observation renderer. A validated shape-ready V1 seal feeds independent MIR/LLVM/Hako ASM and optional digest-bound C ASM counts; correspondence, keeper selection, and measurement authority remain explicitly unclaimed. Owners are 753/245/172/107/207 lines; eleven focused tests, command help, owner guard, and pointer guard are green. Compiler/backend and production are unchanged.",
   "2026-08-19: HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0 landed one V1 observation product. The issuer copies and hashes source/MIR/LLVM/executable/assembly, requires explicit unique MIR/LLVM/ASM selectors for backend-ready bundles, derives a path-independent candidate seal, regenerates disassembly from the bound executable, and writes identity.json last. Entry/model/identity owners are 745/245/172 lines; seven focused tests and both reusable/pointer guards are green. Shape counts and compiler behavior are unchanged.",
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked.",
-  "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged.",
-  "2026-08-19: The exact ordinal-zero MeasurementBatch V3 WSL run closed Complete/development_keeper: batch 18120db0..., terminal da729ae9...50ee, both sealed sessions Complete/development_green, 80 cases x 51 retained pairs per session, diagnostic raw 0, and temporary residue 0. This is development evidence only; native promotion authority, residual owner, backend change, and production remain closed."
+  "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged."
 ]

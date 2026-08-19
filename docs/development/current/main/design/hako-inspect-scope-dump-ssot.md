@@ -6,20 +6,21 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Design one selected-Dynamic profile-local provenance transaction;
-do not promote either the S6C journal or generic walker into global authority.
+Decision: Map selected-Dynamic MIR exactly only to the pre-optimizer lowered
+LLVM emitted by the same profile-local transaction. Post-opt LLVM and assembly
+remain explicitly unmapped.
 Source authority + canonical issuer: The source-backed sealed
-`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The base emitter
-and C1 callout leaf may issue only the LLVM regions they emit at that MIR site.
-Non-authority: Helper names, synthetic C1 JSON, labels, ValueIds, adjacency,
-counts, post-hoc LLVM scans, S6C rows, assembly, and predicted LLVM 32/32.
-Fail-fast boundary: One transaction must bind exact source/candidate/MIR/final-
-LLVM digests, explicit issuer identity, duplicate-free rows, and total coverage.
-Missing real candidate export or final ModuleRef capture is `NoSafeSlice`.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` names the
-real producer/capture seams and closes one BoxCount acceptance contract.
-Non-claims: No code/fixture yet, generic provenance, `CompletionNotValue`
-repair, LLVM→machine map, production, keeper, promotion, or performance.
+`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The generic active
+walker and C1 emitter alone issue the lowered LLVM regions they emit.
+Non-authority: The optional legacy CAPI route, external `opt` output, helper
+names, synthetic C1 JSON, labels, ValueIds, post-hoc scans, and predicted 32/32.
+Fail-fast boundary: One caller-zero transaction binds exact source/no-clone MIR
+JSON/lowered-LLVM bytes, a profile-local issuer, duplicate-free rows, and total
+pre-opt block/edge coverage. Missing or foreign material publishes nothing.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0`
+adds that one observation product and the required pure validator closure.
+Non-claims: No MIR→post-opt LLVM, LLVM→machine map, generic provenance,
+`CompletionNotValue` repair, production, keeper, promotion, or performance.
 
 ## Decision
 
@@ -324,15 +325,23 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   added. The focused Dynamic and S6C smokes are green. The broad
   `dynamic_v2_aot_activation_authority_guard.sh` is classified baseline-red at
   parent `fdb04a6cdd` with `selected package adapter must consume ... once`.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` (**selected design stop**):
-  name the exact real source-backed candidate export and final ModuleRef capture
-  seams, the one profile-local journal transaction, and total coverage rules.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-I0` (**ordered follow-up,
-  unopened**): after D0 acceptance, add one profile-local C1 journal and exact final
-  module capture; extend the pure validator with checked-callout normal/fault,
-  a bound issuer, and explicit duplicate rejection. The expected MIR census is
-  10 blocks/10 edges; the predicted LLVM 32/32 is not an acceptance constant
-  until the real final module is observed.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` (**accepted**): the production
+  default uses external `opt`/`llc`; its post-opt CFG has no carried MIR origin.
+  The optional legacy CAPI `ModuleRef` is an alternate test route and may not
+  become authority. Therefore the exact product stops at the pre-opt lowered
+  LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
+  remain unmapped rather than receiving inferred origins.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**selected
+  BoxCount**): carry the real `parser_scan_loop_box.hako` source and same
+  verified no-clone candidate into one caller-zero observation transaction;
+  add one profile-local C1 journal and capture the writer's lowered LLVM bytes
+  exactly once before external optimization. Extend the pure validator with
+  `checked_callout` normal/fault edges, explicit issuer selection, pre-set
+  duplicate rejection, and strict deleted/introduced endpoint rules. Preserve
+  the C1 current LLVM label across `checked_callout_end`; do not guess `bbN`.
+  Acceptance uses observed total coverage, never a predicted LLVM count. The
+  report must state `MIR -> lowered LLVM: issuer_exact`, `lowered -> final LLVM:
+  unavailable`, and `LLVM -> ASM: unavailable`.
 - `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
   machine attribution remains necessary. LLVM18 block-name assembly comments
   are useful diagnostics but are not exact object-address provenance.
