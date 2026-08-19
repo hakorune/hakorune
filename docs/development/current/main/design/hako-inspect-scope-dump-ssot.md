@@ -6,22 +6,20 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Use source-backed selected Dynamic `ParserScanLoopBox.skip_while/4`
-as the second consumer, but split its 759-line generic active walker before any
-new provenance BoxCount.
-Source authority + canonical issuer: The sealed selected-Dynamic MIR/candidate
-identity owns the logical CFG. The active-function lowering transaction owns
-the journal: its generic walker emits base CFG and its C1 leaf emits every
-checked-callout split/introduced CFG at the original `(block, instruction)`.
-Non-authority: The S6C journal, helper name alone, synthetic smoke, same-module
-emitter, labels, ValueIds, adjacency, counts, post-hoc LLVM, and disassembly.
-Fail-fast boundary: The later journal must bind exact candidate/MIR/final-LLVM
-digests and exhaustively cover every block/edge. Missing C1 internal/tail edge,
-duplicate/foreign row, or missing final-module capture publishes nothing.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` extracts
-`generic_lowering.inc` lines 516–700 unchanged into one private child include.
-Non-claims: No journal/schema change, generic provenance, `CompletionNotValue`
-repair, LLVM→machine map, compiler output, production, keeper, or performance.
+Decision: Design one selected-Dynamic profile-local provenance transaction;
+do not promote either the S6C journal or generic walker into global authority.
+Source authority + canonical issuer: The source-backed sealed
+`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The base emitter
+and C1 callout leaf may issue only the LLVM regions they emit at that MIR site.
+Non-authority: Helper names, synthetic C1 JSON, labels, ValueIds, adjacency,
+counts, post-hoc LLVM scans, S6C rows, assembly, and predicted LLVM 32/32.
+Fail-fast boundary: One transaction must bind exact source/candidate/MIR/final-
+LLVM digests, explicit issuer identity, duplicate-free rows, and total coverage.
+Missing real candidate export or final ModuleRef capture is `NoSafeSlice`.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` names the
+real producer/capture seams and closes one BoxCount acceptance contract.
+Non-claims: No code/fixture yet, generic provenance, `CompletionNotValue`
+repair, LLVM→machine map, production, keeper, promotion, or performance.
 
 ## Decision
 
@@ -316,14 +314,21 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   checked-callout emitter—not the same-module body emitter. Ordinary simple
   loop fixtures currently stop earlier at `PhysicalHeader::CompletionNotValue`
   and cannot be used as provenance consumers without mixing another BoxCount.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` (**selected BoxShape**): move
+- `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` (**landed BoxShape**): move
   the existing lines 516–700 active block/instruction walk verbatim from the
   759-line generic lowering owner into one private child include. Parent and
   child must remain below 760, while emitted LLVM bytes, object bytes, symbols,
-  failure tags, routes, and accepted shapes remain identical. No journal or
-  schema is added in this row.
+  failure tags, routes, and accepted shapes remain identical. The landed owners
+  are 575/185 lines; the extracted child SHA equals the old line range and the
+  parent/current preprocessed C hashes are identical. No journal or schema was
+  added. The focused Dynamic and S6C smokes are green. The broad
+  `dynamic_v2_aot_activation_authority_guard.sh` is classified baseline-red at
+  parent `fdb04a6cdd` with `selected package adapter must consume ... once`.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` (**selected design stop**):
+  name the exact real source-backed candidate export and final ModuleRef capture
+  seams, the one profile-local journal transaction, and total coverage rules.
 - `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-I0` (**ordered follow-up,
-  unopened**): after the split, add one profile-local C1 journal and exact final
+  unopened**): after D0 acceptance, add one profile-local C1 journal and exact final
   module capture; extend the pure validator with checked-callout normal/fault,
   a bound issuer, and explicit duplicate rejection. The expected MIR census is
   10 blocks/10 edges; the predicted LLVM 32/32 is not an acceptance constant

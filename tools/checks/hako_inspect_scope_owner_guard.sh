@@ -17,6 +17,8 @@ SHAPE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_shape.py"
 S6C_INGRESS_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_s6c_ingress.py"
 PROVENANCE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_provenance_model.py"
 PROVENANCE_ISSUER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_lowering_provenance.inc"
+GENERIC_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
+GENERIC_ACTIVE_WALK="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_active_walk.inc"
 S6C_FIXTURE="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_observation_fixture.rs"
 S6C_CURSOR_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 
@@ -24,14 +26,29 @@ guard_require_command "$TAG" rg
 guard_require_files "$TAG" "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" \
   "$SHAPE_CLI" "$S6C_INGRESS" "$PROVENANCE_MODEL" "$TEST" "$SHAPE_TEST" \
   "$S6C_INGRESS_TEST" "$PROVENANCE_TEST" "$PROVENANCE_ISSUER" \
+  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK" \
   "$S6C_FIXTURE" "$S6C_CURSOR_TEST"
 
 for file in "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$SHAPE_CLI" \
   "$S6C_INGRESS" "$PROVENANCE_MODEL" "$PROVENANCE_ISSUER" \
+  "$GENERIC_LOWERING" "$GENERIC_ACTIVE_WALK" \
   "$S6C_FIXTURE" "$S6C_CURSOR_TEST"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || \
     guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
+done
+
+[[ "$(rg -c -F '#include "hako_llvmc_ffi_pure_compile_generic_active_walk.inc"' "$GENERIC_LOWERING")" == "1" ]] || \
+  guard_fail "$TAG" "generic lowering must include one private active walker"
+if rg -n -F 'for (size_t bi=0; bi<blen; bi++)' "$GENERIC_LOWERING"; then
+  guard_fail "$TAG" "generic lowering reintroduced the active block walk"
+fi
+for needle in \
+  'for (size_t bi=0; bi<blen; bi++)' \
+  '#include "hako_llvmc_ffi_pinned_text_provenance_block_dispatch.inc"' \
+  '#include "hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"'; do
+  [[ "$(rg -c -F "$needle" "$GENERIC_ACTIVE_WALK")" == "1" ]] || \
+    guard_fail "$TAG" "active walker owner drift: $needle"
 done
 
 for symbol in mir_shape llvm_shape asm_shape build_shape_report; do

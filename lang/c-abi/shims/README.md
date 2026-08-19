@@ -270,6 +270,12 @@ Current partitions:
 - `hako_llvmc_ffi_pure_compile.inc`
   - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
   - now partitioned further into `hako_llvmc_ffi_pure_compile_generic_lowering.inc` and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
+- `hako_llvmc_ffi_pure_compile_generic_active_walk.inc`
+  - lexical child for the generic active function's block/instruction walk;
+    region replacement, base labels/PHIs, registration prelude, and operation
+    dispatch remain in their original order
+  - owns no route selection, provenance schema, or compiler meaning; future
+    profile-local journals must still be issued by the exact base/C1 emitters
 - `hako_llvmc_ffi_pinned_text_selected_preflight.inc`
   - effect-free exact consumer of the Rust-issued pinned-Text frame/carrier,
     parameter, root, plan, and lifecycle cohort
