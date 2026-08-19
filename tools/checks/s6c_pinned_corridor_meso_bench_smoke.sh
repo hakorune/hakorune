@@ -12,7 +12,7 @@ STRUCTURAL_DRIVER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_structural_zer
 OBJECT_DRIVER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_object_driver.c"
 BENCH="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_bench.c"
 REFERENCE="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_reference.c"
-EXPECTED_SCAN="91b4bcc1aba8f08be7a31a046731f62636029133498751bf41795e97a1d371a3"
+EXPECTED_SCAN="ea07b0aa8b57a37c3f18534bb3e29035d7cfbcbc7cea5a4cd6841aa9dad4c8d7"
 compile_driver() {
   "$CC_CMD" -I"$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson" -o "$TEMP_DIR/$1" "$2" \
     "$ROOT_DIR/lang/c-abi/shims/hako_aot.c" "$ROOT_DIR/lang/c-abi/shims/hako_json_v1.c" \

@@ -674,7 +674,11 @@
           for (int pi = 0; pi < phi_n; pi++) {
             if (phis[pi].bid != block.id) continue;
             for (int ri = 0; ri < phis[pi].rec_n; ri++) {
-              emit_phi(phis[pi].recs[ri].dst, phis[pi].recs[ri].in, phis[pi].recs[ri].in_n);
+              emit_phi(
+                  block.id,
+                  phis[pi].recs[ri].dst,
+                  phis[pi].recs[ri].in,
+                  phis[pi].recs[ri].in_n);
             }
           }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];

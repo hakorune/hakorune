@@ -17,16 +17,6 @@
                             HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT
                         ? T_I1
                         : T_I64);
-                if (ptfc_candidate.plans[plan_index].kind ==
-                    HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT) {
-                  char tail_label[96];
-                  snprintf(
-                      tail_label,
-                      sizeof(tail_label),
-                      "ptfc_eq_merge_%lld",
-                      dst);
-                  set_block_tail_label(bid, tail_label);
-                }
               }
               continue;
             }

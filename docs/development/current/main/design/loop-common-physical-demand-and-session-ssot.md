@@ -489,12 +489,17 @@ The remaining 8d order is deliberately split:
 2. **Measured red** `S6C-PINNED-CORRIDOR-MESO-BENCH-R0`: the fixed corpus and
    unchanged oracle first produced max 3.856. The selected scan schedule
    reduced the uncontended result to 1.239 at `width4/1MiB/first`; 8e stays closed.
-3. **Schedule prerequisite implemented, not yet landed**
+3. **Landed**
    `LLVM-PINNED-TEXT-SCAN-SHORT-CIRCUIT-SCHEDULE-I0`: ordered ASCII/2-byte
    WidthAt, branchless 3/4 tail, cached lead, and direct equality ladder are
    correctness/exact/structural/parity green.
-4. **Current** `PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0`: consume the
-   strict scalar equality plus its sole adjacent Branch as one projection.
+4. **Landed** `PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0`: the strict
+   scalar equality consumes its sole adjacent Branch directly. The retained
+   graph is 20 blocks/57 instructions/29 edges/5 PHIs/2 Returns, digest
+   `ea07b0aa8b57`; the unchanged meso worst improved to 1.174594 but remains red.
+5. **Current** `S6C-PINNED-CORRIDOR-MESO-ALIGNMENT-CONTROL-R0`: equalize the
+   candidate and C function alignment before attributing the one-scalar
+   first-match residual to backend scheduling.
 
 ### Accepted scalar-equality schedule repair
 
@@ -547,6 +552,27 @@ pair may bypass Bool materialization. Extra/copy/PHI/Return/call use,
 non-adjacent or non-terminal Branch, foreign targets, and duplicate/missing
 consumption reject before publication. If exhaustive use census cannot be
 closed without inferred semantics, this row is `NoSafeSlice`.
+
+### Accepted meso alignment control
+
+```text
+Decision: Do not add another lowering optimization from the width3/4KiB/first
+red; it returns after one scalar and current assembly has no identified deficit.
+Source authority + canonical issuer: The unchanged real candidate, independent
+C oracle, and existing paired meso runner remain the sole evidence issuers.
+Non-authority: One p50, input allocation size, function address, assembly size,
+and benchmark placement cannot issue compiler or semantic meaning.
+Fail-fast boundary: Give both linked functions the same 64-byte alignment and
+record address modulo 64 plus disassembly hashes; keep CPU/toolchain/51 pairs,
+30ms arms, corpus, oracle, and p50 <= 1.15 unchanged.
+Smallest next slice: S6C-PINNED-CORRIDOR-MESO-ALIGNMENT-CONTROL-R0 changes only
+the evidence harness and reruns the existing gate.
+Non-claims: No threshold relaxation, first-case exclusion, C rewrite, lowering,
+MIR/source/production change, fallback, or promotion verdict.
+```
+
+If the equal-alignment run stays red, preserve the red result and return to a
+hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the

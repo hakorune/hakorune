@@ -84,7 +84,7 @@ static int hako_emit_exact_leaf_evidence_v1(
       plan->byte_offset,
       plan->width,
       plan->width);
-  if (!hako_llvmc_ptfc_emit_selected_leaf(draft, plan)) {
+  if (!hako_llvmc_ptfc_emit_selected_leaf(draft, plan, -1, -1)) {
     set_err_owned(err_out, "production exact-leaf emitter rejected captured plan");
     goto cleanup;
   }

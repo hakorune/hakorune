@@ -10,6 +10,7 @@ static int write_contract_fixture(
   draft->trap_count = 1;
   draft->finish_count = 2;
   draft->leaf_count = 3;
+  draft->scalar_branch_count = 1;
   if (enter_declaration) {
     fputs(enter_declaration, draft->stream);
     fputs(HAKO_PTFC_FINISH_DECL_V1, draft->stream);

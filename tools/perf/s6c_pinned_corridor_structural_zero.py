@@ -146,6 +146,13 @@ def verify_ir(text: str) -> dict[str, object]:
     cached_leads = re.findall(r"%ptfc_byte_\d+\s*=\s*load i8", function)
     if len(cached_leads) != 1:
         reject("WidthAt lead byte must be loaded exactly once")
+    if "ptfc_eq_merge_" in function or re.search(r"%r\d+\s*=\s*phi i1", function):
+        reject("selected scalar equality retained Bool materialization")
+    if re.search(r"br i1 %r10, label %bb", function):
+        reject("selected scalar equality retained its immediate MIR rebranch")
+    if len(re.findall(r"^ptfc_eq_true_\d+:.*\n\s*br label %bb", function, re.M)) != 1 or \
+       len(re.findall(r"^ptfc_eq_false_\d+:.*\n\s*br label %bb", function, re.M)) != 1:
+        reject("selected scalar equality direct continuation is incomplete")
 
     triple = re.search(r'^target triple = "([^"]+)"$', text, re.M)
     layout = re.search(r'^target datalayout = "([^"]+)"$', text, re.M)

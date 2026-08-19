@@ -15,7 +15,7 @@ count_fixed() { (rg -F -o -- "$1" "${@:2}" || true) | wc -l | tr -d '[:space:]';
 
 for needle in \
   'promotion-evidence-only' \
-  '"blocks": 21' '"instructions": 59' '"edges": 31' '"phis": 6' '"returns": 2' \
+  '"blocks": 20' '"instructions": 57' '"edges": 29' '"phis": 5' '"returns": 2' \
   'retained scan depends on lifecycle/lane shell' \
   'outlined graph differs from retained real scan graph' \
   'retained scan digest drift'; do

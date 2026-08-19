@@ -27,6 +27,7 @@ struct HakoPtfSelectedLlvmDraft {
   unsigned int trap_count;
   unsigned int finish_count;
   unsigned int leaf_count;
+  unsigned int scalar_branch_count;
 };
 
 struct HakoPtfSelectedLlvmBytes {
@@ -97,6 +98,7 @@ static int hako_llvmc_ptfc_verify_and_take_selected_llvm(
   text[size] = '\0';
   valid = draft->enter_count == 1 && draft->trap_count == 1 &&
       draft->finish_count == 2 && draft->leaf_count == 3 &&
+      draft->scalar_branch_count == 1 &&
       hako_llvmc_ptfc_count_text(text, HAKO_PTFC_ENTER_DECL_V1) == 1 &&
       hako_llvmc_ptfc_count_text(text, HAKO_PTFC_FINISH_DECL_V1) == 1 &&
       hako_llvmc_ptfc_count_text(
@@ -154,7 +156,9 @@ static void hako_llvmc_ptfc_emit_selected_declarations(FILE* out) {
 
 static int hako_llvmc_ptfc_emit_selected_leaf(
     FILE* out,
-    const struct HakoPtfSelectedPlanView* plan) {
+    const struct HakoPtfSelectedPlanView* plan,
+    long long direct_then,
+    long long direct_else) {
   if (!out || !plan) return 0;
   if (plan->kind == HAKO_PTFC_ACCESS_BYTE_LEN) {
     fputs("  ; ptfc leaf byte_len\n", out);
@@ -237,10 +241,15 @@ static int hako_llvmc_ptfc_emit_selected_leaf(
                 byte, dst, dst, dst);
       }
     }
-    fprintf(out, "ptfc_eq_false_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
-    fprintf(out, "ptfc_eq_true_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
-    fprintf(out, "ptfc_eq_merge_%lld:\n  %%r%lld = phi i1 [ false, %%ptfc_eq_false_%lld ], [ true, %%ptfc_eq_true_%lld ]\n",
-            dst, dst, dst, dst);
+    if (direct_then >= 0 && direct_else >= 0) {
+      fprintf(out, "ptfc_eq_false_%lld:\n  br label %%bb%lld\n", dst, direct_else);
+      fprintf(out, "ptfc_eq_true_%lld:\n  br label %%bb%lld\n", dst, direct_then);
+    } else {
+      fprintf(out, "ptfc_eq_false_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
+      fprintf(out, "ptfc_eq_true_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
+      fprintf(out, "ptfc_eq_merge_%lld:\n  %%r%lld = phi i1 [ false, %%ptfc_eq_false_%lld ], [ true, %%ptfc_eq_true_%lld ]\n",
+              dst, dst, dst, dst);
+    }
     return 1;
   }
   return 0;
@@ -260,10 +269,32 @@ static int hako_llvmc_ptfc_try_emit_selected_op(
         (candidate->plans[plan_index].kind == HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT &&
          HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1(
              &candidate->plans[plan_index]) != 0) ||
-        !hako_llvmc_ptfc_emit_selected_leaf(out, &candidate->plans[plan_index])) {
+        !hako_llvmc_ptfc_emit_selected_leaf(
+            out,
+            &candidate->plans[plan_index],
+            candidate->plans[plan_index].kind == HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT
+                ? candidate->scalar_branch_then : -1,
+            candidate->plans[plan_index].kind == HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT
+                ? candidate->scalar_branch_else : -1)) {
       return -1;
     }
     draft->leaf_count++;
+    return 1;
+  }
+  if (!strcmp(op, "branch")) {
+    long long cond = -1;
+    long long then_block = -1;
+    long long else_block = -1;
+    if (!hako_llvmc_ptfc_nonnegative(instruction, "cond", &cond) ||
+        !hako_llvmc_ptfc_nonnegative(instruction, "then", &then_block) ||
+        !hako_llvmc_ptfc_nonnegative(instruction, "else", &else_block) ||
+        cond != candidate->plans[2].dst ||
+        then_block != candidate->scalar_branch_then ||
+        else_block != candidate->scalar_branch_else ||
+        draft->scalar_branch_count != 0) {
+      return 0;
+    }
+    draft->scalar_branch_count++;
     return 1;
   }
   if (!strcmp(op, "pinned_text_residence_enter")) {

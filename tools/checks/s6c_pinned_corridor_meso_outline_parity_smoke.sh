@@ -11,7 +11,7 @@ PROJECTOR="$ROOT_DIR/tools/perf/s6c_pinned_corridor_meso_outline.py"
 STRUCTURAL_DRIVER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_structural_zero_driver.c"
 OBJECT_DRIVER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_object_driver.c"
 RUNNER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_outline_parity.c"
-EXPECTED_SCAN="91b4bcc1aba8f08be7a31a046731f62636029133498751bf41795e97a1d371a3"
+EXPECTED_SCAN="ea07b0aa8b57a37c3f18534bb3e29035d7cfbcbc7cea5a4cd6841aa9dad4c8d7"
 
 compile_driver() {
   "$CC_CMD" -I"$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson" \

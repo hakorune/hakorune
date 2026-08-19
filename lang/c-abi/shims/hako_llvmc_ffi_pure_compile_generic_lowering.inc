@@ -305,8 +305,24 @@
             last_exact_status_ii);
         return 1;
       }
-      auto const char* phi_predecessor_label(long long pred, char* buf, size_t buf_len) {
+      auto const char* phi_predecessor_label(
+          long long pred,
+          long long successor,
+          char* buf,
+          size_t buf_len) {
         if (!buf || buf_len == 0) return "%bb0";
+        if (ptfc_selected && pred == ptfc_candidate.scalar_branch_block) {
+          if (successor == ptfc_candidate.scalar_branch_then) {
+            snprintf(
+                buf, buf_len, "%%ptfc_eq_true_%lld", ptfc_candidate.plans[2].dst);
+            return buf;
+          }
+          if (successor == ptfc_candidate.scalar_branch_else) {
+            snprintf(
+                buf, buf_len, "%%ptfc_eq_false_%lld", ptfc_candidate.plans[2].dst);
+            return buf;
+          }
+        }
         for (size_t i = 0; i < block_tail_labels_n; i++) {
           if (block_tail_labels[i].bid == pred && block_tail_labels[i].label[0]) {
             snprintf(buf, buf_len, "%%%s", block_tail_labels[i].label);
@@ -327,7 +343,7 @@
         snprintf(buf, buf_len, "%%bb%lld", pred);
         return buf;
       }
-      auto void emit_phi(long long dst, struct Incoming* in, int in_n){
+      auto void emit_phi(long long block_id, long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
         struct GenericPureVariantBinding variant_binding;
         int variant_phi = get_variant_binding(dst, &variant_binding) &&
@@ -340,10 +356,10 @@
           long long val_reg = resolve_copy_source_reg(in[i].val_reg);
           int hc=has_const(val_reg,&cv);
           if (phi_ty == T_I1) {
-            if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
-            else EMIT("[ %%r%lld, %s ]%s", val_reg, phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            else EMIT("[ %%r%lld, %s ]%s", val_reg, phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           } else {
-            EMIT("[ %s%lld%s, %s ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            EMIT("[ %s%lld%s, %s ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           }
         }
         EMIT("\n");
@@ -357,13 +373,13 @@
                 incoming_variant.tag_reg) {
               EMIT("[ %%r%lld_tag, %s ]%s",
                    incoming_variant.tag_reg,
-                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
+                   phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             } else {
               long long tag_value = incoming_variant.tag_const;
               EMIT("[ %lld, %s ]%s",
                    tag_value,
-                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
+                   phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             }
           }
@@ -631,7 +647,7 @@
         }
         emit_block_label(bid);
         // phi first
-        for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
+        for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         if (bi == 0) {
           hako_llvmc_emit_direct_exact_runtime_mode_check(f);
           if (!emit_typed_object_layout_registrations(f)) {
