@@ -577,22 +577,22 @@ MIR/source/production change, fallback, or promotion verdict.
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
-### Current native hardware-counter evidence closure
+### Current native scheduler-noise design stop
 
 ```text
-Decision: Keep the native separate-arm collector, but do not open PC attribution
-until one integrity-repaired native rerun replaces the provisional report.
+Decision: Accept the integrity R0 NoSafeSlice; do not rerun the unchanged
+zero-context-switch protocol or select a backend optimization from it.
 Source authority + canonical issuer: One frozen binary identity and the fixed
 mixed/4096/first corpus issue direct Hako/C samples; the collector alone issues
-paired intervals and a reproduced candidate classification.
-Non-authority: Case text, arm-equal fingerprints, arbitrary commit text,
-symbols-only manifests, filtered software-counter zeroes, ratios, and report
-labels cannot issue compiler meaning or select a lowering.
-Fail-fast boundary: Before collection bind commit, SHA, build-id, symbols, and
-canonical corpus; per epoch require exact single-CPU affinity, zero getrusage
-context switches, exact PMU IDs, enabled==running, >=30ms, and no partial output.
-Smallest next slice: S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0 reruns the repaired
-collector on native Linux; only a green replacement report may open A0.
+paired evidence only from a complete Hako/C pair whose four epochs are clean.
+Non-authority: A contaminated arm, partial pair, retry count, stderr, old JSON,
+or one clean arm cannot issue a ratio, classification, or backend owner.
+Fail-fast boundary: Predeclare 68 attempts for 51 accepted pairs per run; any
+context switch or affinity drift discards and records the whole pair. Failure
+to obtain 51, rejection rate above 25%, or missing reject provenance publishes
+no report. Accepted-pair order remains AB/BA and every PMU/identity gate remains.
+Smallest next slice: S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0 fixes this
+bounded evidence-only policy before any collector or native rerun change.
 Non-claims: No causal PC owner, backend BoxShape, threshold/corpus/oracle change,
 production switch, fallback, promotion verdict, or generic profiler authority.
 ```
@@ -603,18 +603,23 @@ provisional: its scheduling software events were user-filtered, manifest
 identity was incomplete, and both arms could share a drifted corpus. The I1
 repair replaces those premises with `getrusage`, exact affinity, a private
 frozen binary, full manifest/commit binding, fixed 4096-byte/1642-scalar corpus
-and classifier matrices. The old JSON cannot authorize A0.
+and classifier matrices. The old JSON cannot authorize A0. Integrity R0 at
+`915e62f1fb22` then stopped before publication on a C-arm context-switch or
+affinity drift (binary `fda6e59a...c269db`, build-id `0547a55c...4cec0`); this
+is the accepted current result, not permission for an unbounded retry.
 
 Ordered task ladder:
 
 1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0/I0`: landed evidence foundation.
 2. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-I1`: landed repair; no compiler path.
-3. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0`: native rerun and replacement JSON.
-4. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
+3. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0`: accepted NoSafeSlice; no JSON.
+4. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0/I2/R0`: freeze, implement, and
+   run bounded scheduler-noise rejection while preserving all integrity gates.
+5. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
    7+ AB/BA arm-separated branch profiles for the exact build-id and normalize
    raw IPs to symbol-relative offsets. A single branch region must own >=70% of
    the Hako excess in >=5/7 pairs; otherwise return `NoSafeSlice`.
-5. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
+6. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
    one owner; otherwise retain the performance `NoSafeSlice`.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
