@@ -1,25 +1,24 @@
 # Raw FunctionCall Pre-effect Decision Owner D0
 
-Status: selected design stop  
+Status: closed `NoSafeSlice`
 Scope: all existing raw `FunctionCall` classification and target decisions  
 Parent: `../workstreams/mirbuilder-inplace-replacement-current.md`
 Row: `RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0`
 
 ## Current execution brief
 
-Decision: Decide whether all existing raw `FunctionCall` decisions can be
-owned once before argument lowering and Builder effect, without changing the
-accepted call set or diagnostic precedence.
-Source authority + canonical issuer: The exact source call occurrence, existing
-special-call classifiers, canonical same-module callable catalog, and callable
-header/result authorities are the inputs; this D0 must name one issuer before I0.
+Decision: `NoSafeSlice`; moving every exact raw `FunctionCall` target before
+argument lowering is not behavior-preserving under the current semantics.
+Source authority + canonical issuer: Special-call route selection occurs before
+arguments, while exact callee resolution currently occurs after argument
+lowering; no source-semantic owner defines their binding/evaluation order.
 Non-authority: Name/arity alone, catalog candidates alone, Builder snapshots,
 physical headers alone, Script transport, MIR, Dynamic/S6C evidence, C, and ASM.
 Fail-fast boundary: Missing, ambiguous, conflicting, unsupported, or late-only
 decisions stop before effect; the current raw route remains unchanged.
-Smallest next slice: Census the full weak/extern/Brand/TypeOp/Math/FastMem/ordinary
-precedence and target/recovery/header/tail chain, then select one BoxShape or
-close `NoSafeSlice`. No implementation is authorized by this card.
+Smallest next slice: `FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0`
+defines the source-semantic callee binding point, argument order, target issuer,
+and unknown-target diagnostic order. No implementation is authorized here.
 Non-claims: No Script activation, new receipt/index/header/Recipe, diagnostic
 change, raw caller retirement, production switch, fallback, or retry.
 
@@ -52,3 +51,15 @@ change, raw caller retirement, production switch, fallback, or retry.
 If one pre-effect issuer cannot own the complete precedence and exact target
 without copying Builder state, guessing by name, or changing behavior, close
 `NoSafeSlice`. Do not use a Script-only adapter to bypass this prerequisite.
+
+## Closed counterexample
+
+The raw ordinary route lowers arguments before calling `resolve_call_target`.
+An argument such as a grouped assignment may update `variable_map`, so a shape
+equivalent to `f((f = 1))` can resolve `f` from post-argument state today.
+Moving target selection earlier would change the selected callee. Likewise, an
+unknown or ambiguous target with a failing/effectful argument currently observes
+the argument failure first. A pre-effect target reject would reorder diagnostics.
+
+Therefore the requested move is not BoxShape. The existing raw route remains
+unchanged, and Script `FunctionCall` stays typed `Deferred`.

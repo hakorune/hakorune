@@ -22,10 +22,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Name one pre-effect owner for the complete raw FunctionCall classifier, exact target, header/result, and diagnostic precedence without changing behavior."
+current_design_stop = "Define bare FunctionCall callee binding versus ordered argument evaluation, exact source target issuance, and first-error behavior before changing lowering."
 work_mode = "design_stop"
-current_execution_row = "RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0"
-current_blocker_token = "The current ordinary preflight owns only call kind; exact target, recovery, header, and tail decisions remain later and Builder-owned."
+current_execution_row = "FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0"
+current_blocker_token = "Argument lowering may mutate variable_map before current callee resolution, so pre-effect target selection is not behavior-preserving without a source evaluation-order decision."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -89,13 +89,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/raw-function-call-pre-effect-decision-owner-d0.md"
+current_execution_design = "docs/development/current/main/investigations/function-call-callee-binding-and-evaluation-order-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "raw-function-call-pre-effect-decision-owner-d0"
-latest_card_path = "docs/development/current/main/investigations/raw-function-call-pre-effect-decision-owner-d0.md"
-latest_card_summary = "The Script-only transfer closed NoSafeSlice; design one behavior-preserving pre-effect owner for the complete raw FunctionCall decision chain."
-next_design_card = "RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0"
-next_design_card_path = "docs/development/current/main/investigations/raw-function-call-pre-effect-decision-owner-d0.md"
+latest_card = "function-call-callee-binding-and-evaluation-order-d0"
+latest_card_path = "docs/development/current/main/investigations/function-call-callee-binding-and-evaluation-order-d0.md"
+latest_card_summary = "Pre-effect target movement closed NoSafeSlice; define source-semantic callee binding, argument evaluation, exact target issuance, and first-error order."
+next_design_card = "FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0"
+next_design_card_path = "docs/development/current/main/investigations/function-call-callee-binding-and-evaluation-order-d0.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -108,6 +108,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 closed NoSafeSlice. Raw ordinary calls resolve the callee after argument lowering, and arguments may mutate variable_map or fail first; moving target selection earlier is not behavior-preserving. FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0 is selected design-only.",
   "2026-08-20: SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0 closed NoSafeSlice. Ordinary preflight retains only name and AST arguments; exact target, same-module recovery, header, and tail resolution remain later Builder-owned decisions. Script FunctionCall stays typed Deferred with no new receipt or edge. RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 is selected design-only.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0 landed one observation BoxCount. A 150-line owner validates the exact ten-payload Hako bundle and explicit unique C symbol, then atomically writes a separate summary plus write-last comparison root. Fifty-one inspect tests and both reusable guards are green; no exact C-source consumer exists, so observation UX returns to the Script production frontier.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0 accepted one observation BoxCount. The exact ten-payload Hako identity stays unchanged; explicit C assembly plus one exact unique symbol may feed only a separate derived report with independent totals and correspondence unavailable. C build, symbol fallback, equivalence, timing, mapping, keeper, and promotion authority remain prohibited. The bounded I0 is selected.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0 landed behavior-neutrally. A 108-line pure child narrows V0 to the real preserved/split issuer forms, validates reason/site/cohort and exact MIR/LLVM ownership, and rejects latent merged/deleted/introduced vocabulary. Thirty-three inspect tests, both inspect guards, selected-Dynamic 64-row evidence, and the S6C structural canary are green; C event bytes are unchanged. Bundle identity D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0 landed behavior-neutrally. One dedicated hako_check child builds the private driver and invokes the existing atomic ingress; the 753-line generic router and evidence boundary are unchanged. Reserved repo-root/driver overrides reject before compilation and fixed internal values are appended last. Eleven focused tests plus the public positive and two override negatives are green. HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0 is selected design-only next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 landed one caller-zero observation BoxCount. Exact ParserScanLoopBox source drives both parsing and publication; the collector moves one completed skip_while draft without cloning. The generic active walker and actual C1 CallOut/End emitters issue 64 uniquely-owned rows covering MIR 10 blocks/10 edges and lowered-pre-opt LLVM 32 blocks/32 edges. Digest/duplicate/coverage drift and journal failure publish no bundle or temporary LLVM. Post-opt LLVM, ASM, keeper, measurement, and production remain unavailable/unclaimed. The thin UX row is selected next.",
-  "2026-08-20: SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0 landed one physical BoxCount. A compile-local `(MIR pred, successor) -> actual LLVM tail` inventory is issued before output, co-checked by C1 emission, and consumed by the existing PHI writer. The focused fixture now covers CallOut-normal and End-backedge PHIs plus a dangling-target negative; the reusable physicalizer smoke and real full-source LLVM18 object canary are green. Provenance semantics and production selection are unchanged, and provenance I0 resumes.",
 ]

@@ -250,12 +250,15 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 selected design stop
-  RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
-  -> decide whether the complete raw FunctionCall classifier/target/header
-     precedence can move before effect as one behavior-preserving owner.
-     Script activation remains a later, separate BoxCount.
+  FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0
+  -> define source-semantic callee binding, ordered argument effects, exact target
+     issuer, and first-error order before changing raw or Script lowering.
 
 closed NoSafeSlice
+  RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
+  -> argument lowering can mutate variable_map before current target resolution;
+     moving target selection earlier changes callee choice and diagnostic order.
+
   SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0
   -> ordinary retains only name plus AST arguments; target/recovery/header/tail
      decisions remain later and Builder-owned, so no affine Script transfer exists.
