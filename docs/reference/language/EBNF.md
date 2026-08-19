@@ -130,6 +130,9 @@ const_int_expr := INT
 ; BRAND-001 Stage0 capsule.
 ; `brand` is metadata transport only here. Distinct type checking,
 ; constructor/unwrap policy, and verifier facts are Stage1-owned.
+; See brands.md for program-wide namespace, duplicate rejection, and result
+; identity. Constructor/unwrap reuse ordinary call grammar and are not new
+; parser productions.
 brand_decl := 'brand' IDENT ':' TYPE_REF
            ; BRAND-002 Stage1 semantics use existing call syntax:
            ;   IDENT '(' expr ')'          ; explicit brand constructor when IDENT is a declared brand
