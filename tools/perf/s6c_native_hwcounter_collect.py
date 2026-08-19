@@ -573,13 +573,15 @@ def main() -> int:
         print("[s6c-native-hwcounter] self-test ok")
         return 0
     if args.write_alignment_manifest:
-        if not args.binary or not args.alignment_manifest:
-            parser.error("alignment publication requires binary and alignment manifest")
+        if not args.binary or not args.alignment_manifest or not args.commit:
+            parser.error("alignment publication requires binary, manifest and full commit")
         try:
+            validate_source_commit(args.commit)
             build_id, symbols = symbol_evidence(args.binary)
             atomic_publish(args.alignment_manifest, lambda: {
                 "schema": "s6c-pinned-corridor-meso-alignment-evidence-v1",
-                "binary_sha256": sha256(args.binary), "build_id": build_id, "symbols": symbols,
+                "source_commit": args.commit, "binary_sha256": sha256(args.binary),
+                "build_id": build_id, "symbols": symbols,
             })
             return 0
         except (NoSafeSlice, OSError, ValueError) as error:

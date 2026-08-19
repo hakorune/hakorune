@@ -39,5 +39,6 @@ CARGO_BUILD_JOBS=4 cargo build --manifest-path "$ROOT_DIR/Cargo.toml" --profile 
   -L"$ROOT_DIR/target/quick" -Wl,-rpath,"$ROOT_DIR/target/quick" \
   -lnyash_kernel -lpthread -ldl -lm -o "$OUTPUT_DIR/meso-bench"
 python3 "$COLLECTOR" --binary "$OUTPUT_DIR/meso-bench" \
-  --alignment-manifest "$OUTPUT_DIR/alignment.json" --write-alignment-manifest
+  --alignment-manifest "$OUTPUT_DIR/alignment.json" \
+  --commit "$(git -C "$ROOT_DIR" rev-parse HEAD)" --write-alignment-manifest
 echo "[s6c-native-hwcounter-build] ok: $OUTPUT_DIR/meso-bench"

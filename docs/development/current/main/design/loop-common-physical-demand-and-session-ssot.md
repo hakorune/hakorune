@@ -25,10 +25,10 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the pure MeasurementBatch V2 owner is landed; the old
-  direct V1 CLI still bypasses append-only batch storage and terminal closure.
-- **Next ordered task:** `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`; one store/
-  harness owner and atomic V1 direct-CLI retirement, without measurement.
+- **Current blocker:** V2 store/harness is landed but has not yet issued a
+  complete WSL development batch from the clean current commit.
+- **Next ordered task:** `S6C-MESO-WALLCLOCK-WSL-BATCH-R0`; build, create, and
+  run one exact V2 batch, preserving every terminal outcome.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -321,18 +321,18 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Keep the landed pure V2 model and replace the direct V1 harness with
-one append-only batch directory and terminal owner.
-Source authority + canonical issuer: The issued V2 manifest owns exact slots;
-the harness may only project those slots and `close_batch` issues the terminal.
-Non-authority: filenames, partial CSV, newest/best directory, V1 receipts,
-process exit alone, and manual session pairing issue no batch outcome.
-Fail-fast boundary: exclusive create, no overwrite/resume, exact child digests,
-and terminal-once closure; abandoned issued manifests close `Incomplete`.
-Smallest next slice: `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1` adds the store,
-manifest/session/terminal CLI, orphan close, negatives, and retires V1 direct CLI.
-Non-claims: No C/compiler/backend change, actual measurement, native authority,
-threshold/corpus change, owner, promotion, fallback, or production.
+Decision: Run one WSL development batch through the landed V2 owner and retain
+its Complete, Incomplete, or IntegrityInvalid terminal without selection.
+Source authority + canonical issuer: The clean current commit builds the exact
+frozen binary/alignment receipt; its manifest alone projects both sessions.
+Non-authority: elapsed process state, partial raw CSV, newest/best batch, V1
+artifacts, assembly, and WSL green issue no native or production authority.
+Fail-fast boundary: source/binary/alignment drift rejects before manifest;
+after issuance all sessions close once, or explicit abandon closes Incomplete.
+Smallest next slice: `S6C-MESO-WALLCLOCK-WSL-BATCH-R0` builds one fixture,
+creates one V2 batch, runs it, and records the terminal result without retry.
+Non-claims: No native evidence, owner/BoxShape, threshold/corpus/C/compiler/
+backend change, promotion, fallback, or production.
 
 ### Closed object-observer design
 
@@ -625,8 +625,8 @@ Ordered task ladder:
     as linked successor IDs; same-batch retry and best-run selection stay closed.
 12. `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`: landed pure manifest, lineage,
     terminal-state model, cohort binding, and counterexample self-tests.
-13. `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`: append-only batch directory,
-    terminal receipts, orphan close, V1 direct CLI retirement, reusable guard.
+13. `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`: landed append-only frozen-candidate
+    store, exclusive/terminal-once closure, orphan close, V1 CLI retirement.
 14. `S6C-MESO-WALLCLOCK-WSL-BATCH-R0`: one explicit two-session development
     batch; complete green/red/inconclusive or terminal incomplete is preserved.
 15. `S6C-MESO-WALLCLOCK-NATIVE-BATCH-D0/I2/R0`: separate future Decision;

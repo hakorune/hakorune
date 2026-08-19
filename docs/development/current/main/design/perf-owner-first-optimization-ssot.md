@@ -376,6 +376,10 @@ historical auditとしてimmutableに残し、V2へnormalizeしない。
 Pure V2 model owner:
 `tools/perf/s6c_paired_wallclock_batch.py`。filesystemやsubprocessは持たず、
 manifest、same-candidate lineage、session terminal、batch terminalだけを発行する。
+Append-only projection ownerは
+`tools/perf/s6c_paired_wallclock_batch_store.py`、実行consumerは
+`tools/perf/s6c_paired_wallclock_harness.py`。storeだけがimmutable childをpublishし、
+harnessはmanifestのslotを再分類せず消費する。
 
 ## Doc Placement
 

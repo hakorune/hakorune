@@ -135,6 +135,11 @@ def _require_manifest(manifest: dict[str, object]) -> None:
         raise InvalidBatch("session-plan projection drift")
 
 
+def validate_manifest(manifest: dict[str, object]) -> None:
+    """Public read-only validation seam for the append-only store."""
+    _require_manifest(manifest)
+
+
 def issue_session_terminal(
         manifest: dict[str, object], *, slot: int, terminal_state: str,
         outcome: str | None = None, raw_csv_sha256: str | None = None,
