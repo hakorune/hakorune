@@ -585,10 +585,10 @@ accepted D0. The completed rows remain in the receipts above and in
    expressions, while a bare root `FunctionCall` is an explicit Deferred
    responsibility. There is no accepted Complete-Script Brand shape to
    consume; do not invent an empty projection or fallback.
-4. **`BRAND-RELATIONLESS-ADMISSIONS-D0`** — next design audit; separately audit
-   Deferred/Compatibility/RawLegacy and nested/Main admissions. Each family
-   needs its own source issuer, owner/site coverage, and fail-fast boundary;
-   caller-zero is not evidence of absence.
+4. **`BRAND-DEFERRED-SCRIPT-OWNER-ISSUANCE-D0`** — next design audit. Deferred
+   Script must first name a retained source/body owner before any Brand
+   consumer can exist. Compatibility, RawLegacy, and nested/Main remain later
+   separate rows; caller-zero is not evidence of absence.
 5. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
 6. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
@@ -648,3 +648,27 @@ relationless family D0; this closeout opens no code or execution row.
 Non-claims: no Script Brand consumer, no `is_brand_declared` retirement, no
 MethodCall/unwrap activation, no resolver profile widening, and no production
 or runtime change.
+
+### BRAND-RELATIONLESS-ADMISSIONS-D0 design stop
+
+Decision: Do not combine Deferred, Compatibility, and RawLegacy into one
+consumer. Their missing authorities are different, so the combined row is
+`NoSafeSlice`.
+Source authority + canonical issuer: Deferred needs a new retained Script
+source/owner issuer before lowering; Compatibility needs its own final-source
+semantic package; RawLegacy has no source-language issuer and remains a
+compatibility transport. The existing resolver/catalog owners issue none of
+these rows today.
+Non-authority: `ResolveScriptOutcomeV1::Deferred`, compatibility mode labels,
+AST/name spelling, `CallObject`, `CompilationContext::brand_decls`, and a
+deferred residual registry cannot issue an exact Brand site.
+Fail-fast boundary: missing owner/site coverage rejects before child effects;
+there is no empty-cohort, relationless-to-NonBrand, or raw-name fallback in a
+future exact consumer. Global `is_brand_declared` retirement remains closed.
+Smallest next slice: `BRAND-DEFERRED-SCRIPT-OWNER-ISSUANCE-D0` — design only;
+audit whether a complete retained Deferred source batch and owner forest can
+be issued without changing the existing runtime responsibility. If not,
+record `NoSafeSlice` and leave Deferred compatibility-only.
+Non-claims: no Compatibility/RawLegacy/nested/Main repair, no consumer code,
+no new semantic receipt, no unwrap/nominal Brand value, and no production or
+runtime switch.
