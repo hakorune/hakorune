@@ -104,6 +104,36 @@ def add_uncovered_return(value):
     )
 
 
+def scalar_block(value):
+    for block in function(value)["blocks"]:
+        instructions = block["instructions"]
+        if any(
+            instruction.get("op") == "pinned_text_op"
+            and instruction.get("plan") == 2
+            for instruction in instructions
+        ):
+            return block
+    raise AssertionError("scalar block missing")
+
+
+def insert_scalar_copy(value):
+    block = scalar_block(value)
+    result = block["instructions"][-2]["dst"]
+    block["instructions"].insert(-1, {"op": "copy", "dst": 999, "src": result})
+
+
+def duplicate_scalar_use(value):
+    result = scalar_block(value)["instructions"][-2]["dst"]
+    function(value)["blocks"][1]["instructions"].insert(
+        0, {"op": "copy", "dst": 999, "src": result}
+    )
+
+
+def duplicate_scalar_branch(value):
+    block = scalar_block(value)
+    block["instructions"].insert(-1, copy.deepcopy(block["instructions"][-1]))
+
+
 reject(
     "foreign-enter-owner",
     lambda value: function(value)["blocks"][0]["instructions"][0]["owner"].update(slot=99),
@@ -146,6 +176,31 @@ reject(
     "plan-stamp-drift",
     lambda value: function(value)["blocks"][4]["instructions"][0].update(plan_stamp=99),
     "plan header mismatch",
+)
+reject(
+    "scalar-branch-nonadjacent",
+    insert_scalar_copy,
+    "scalar Branch relation mismatch",
+)
+reject(
+    "scalar-result-second-use",
+    duplicate_scalar_use,
+    "scalar Branch sole-use mismatch",
+)
+reject(
+    "scalar-branch-wrong-cond",
+    lambda value: scalar_block(value)["instructions"][-1].update(cond=999),
+    "scalar Branch sole-use mismatch",
+)
+reject(
+    "scalar-branch-missing-target",
+    lambda value: scalar_block(value)["instructions"][-1].update(then=999),
+    "scalar Branch sole-use mismatch",
+)
+reject(
+    "scalar-branch-duplicate",
+    duplicate_scalar_branch,
+    "scalar Branch relation mismatch",
 )
 reject(
     "duplicate-plan",

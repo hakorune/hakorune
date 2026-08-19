@@ -26,7 +26,50 @@ struct HakoPtfSelectedCandidateView {
   struct HakoPtfCarrierView carrier;
   long long parameter_value_ids[1024];
   struct HakoPtfSelectedPlanView plans[128];
+  long long scalar_branch_block;
+  long long scalar_branch_then;
+  long long scalar_branch_else;
 };
+
+static long long hako_llvmc_ptfc_count_integer_occurrences(
+    yyjson_val* value,
+    long long needle) {
+  long long count = 0;
+  if (!value) return 0;
+  if (yyjson_is_int(value)) return yyjson_get_sint(value) == needle ? 1 : 0;
+  if (yyjson_is_arr(value)) {
+    size_t index;
+    size_t maximum;
+    yyjson_val* child;
+    yyjson_arr_foreach(value, index, maximum, child) {
+      count += hako_llvmc_ptfc_count_integer_occurrences(child, needle);
+    }
+  } else if (yyjson_is_obj(value)) {
+    size_t index;
+    size_t maximum;
+    yyjson_val* key;
+    yyjson_val* child;
+    yyjson_obj_foreach(value, index, maximum, key, child) {
+      (void)key;
+      count += hako_llvmc_ptfc_count_integer_occurrences(child, needle);
+    }
+  }
+  return count;
+}
+
+static int hako_llvmc_ptfc_block_exists(
+    const hako_llvmc_generic_pure_program_view* program,
+    long long wanted) {
+  for (size_t bi = 0; bi < program->entry.block_count; bi++) {
+    long long block_id = -1;
+    if (hako_llvmc_ptfc_nonnegative(
+            yyjson_arr_get(program->entry.blocks, bi), "id", &block_id) &&
+        block_id == wanted) {
+      return 1;
+    }
+  }
+  return 0;
+}
 
 static int hako_llvmc_ptfc_owner_payload_matches(
     yyjson_val* instruction,
@@ -127,6 +170,7 @@ static int hako_llvmc_ptfc_preflight_selected_candidate(
   static const char* const finish_keys[] = {"op", "owner", "plan_stamp"};
   static const char* const trap_keys[] = {"op", "owner", "plan_stamp"};
   static const char* const return_keys[] = {"op", "value"};
+  static const char* const branch_keys[] = {"op", "cond", "then", "else"};
   yyjson_val* metadata;
   yyjson_val* frame;
   yyjson_val* carrier;
@@ -136,6 +180,7 @@ static int hako_llvmc_ptfc_preflight_selected_candidate(
   long long trap_count = 0;
   long long finish_count = 0;
   long long return_count = 0;
+  long long scalar_branch_count = 0;
   int source_block_found = 0;
   int normal_block_found = 0;
   int trap_block_found = 0;
@@ -145,6 +190,9 @@ static int hako_llvmc_ptfc_preflight_selected_candidate(
     return set_err_owned(err_out, "pinned Text selected preflight requires one function");
   }
   memset(out, 0, sizeof(*out));
+  out->scalar_branch_block = -1;
+  out->scalar_branch_then = -1;
+  out->scalar_branch_else = -1;
   memset(seen_plans, 0, sizeof(seen_plans));
   metadata = program->entry.metadata;
   frame = metadata ? yyjson_obj_get(metadata, "pinned_text_backend_frame_v1") : NULL;
@@ -269,6 +317,34 @@ static int hako_llvmc_ptfc_preflight_selected_candidate(
           return set_err_owned(err_out, "pinned Text selected Return coverage mismatch");
         }
         return_count++;
+      } else if (!strcmp(op, "branch")) {
+        long long cond = -1;
+        long long then_block = -1;
+        long long else_block = -1;
+        if (seen_plans[2] &&
+            hako_llvmc_ptfc_nonnegative(instruction, "cond", &cond) &&
+            cond == out->plans[2].dst) {
+          yyjson_val* prior = ii > 0
+              ? yyjson_arr_get(instructions, ii - 1) : NULL;
+          long long prior_plan = -1;
+          if (!hako_llvmc_ptfc_keys_only(instruction, branch_keys, 4) ||
+              !hako_llvmc_ptfc_nonnegative(
+                  instruction, "then", &then_block) ||
+              !hako_llvmc_ptfc_nonnegative(
+                  instruction, "else", &else_block) ||
+              !prior ||
+              !hako_llvmc_ptfc_text(prior, "op", "pinned_text_op") ||
+              !hako_llvmc_ptfc_nonnegative(prior, "plan", &prior_plan) ||
+              prior_plan != 2 || ii + 1 != yyjson_arr_size(instructions) ||
+              then_block == else_block) {
+            return set_err_owned(
+                err_out, "pinned Text selected scalar Branch relation mismatch");
+          }
+          out->scalar_branch_block = block_id;
+          out->scalar_branch_then = then_block;
+          out->scalar_branch_else = else_block;
+          scalar_branch_count++;
+        }
       } else if (!strncmp(op, "pinned_text_", strlen("pinned_text_"))) {
         return set_err_owned(err_out, "unknown pinned Text selected operation");
       }
@@ -289,6 +365,15 @@ static int hako_llvmc_ptfc_preflight_selected_candidate(
   if (out->plans[2].byte_offset != out->plans[1].byte_offset ||
       out->plans[2].width != out->plans[1].dst) {
     return set_err_owned(err_out, "pinned Text selected plan relation mismatch");
+  }
+  if (scalar_branch_count != 1 ||
+      out->scalar_branch_block < 0 ||
+      !hako_llvmc_ptfc_block_exists(program, out->scalar_branch_then) ||
+      !hako_llvmc_ptfc_block_exists(program, out->scalar_branch_else) ||
+      hako_llvmc_ptfc_count_integer_occurrences(
+          program->entry.blocks, out->plans[2].dst) != 2) {
+    return set_err_owned(
+        err_out, "pinned Text selected scalar Branch sole-use mismatch");
   }
   return 0;
 }

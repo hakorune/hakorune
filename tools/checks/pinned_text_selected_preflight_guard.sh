@@ -51,6 +51,10 @@ fi
 if [[ "$(count_fixed 'HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT' "$RUST_TEST" "$SMOKE")" != "2" ]]; then
   guard_fail "$TAG" "smoke must consume one runtime-generated real-candidate witness"
 fi
+if [[ "$(count_fixed 'hako_llvmc_ptfc_count_integer_occurrences(' "$PREFLIGHT")" != "4" ]] ||
+   [[ "$(count_fixed 'scalar Branch sole-use mismatch' "$PREFLIGHT" "$SMOKE")" != "4" ]]; then
+  guard_fail "$TAG" "selected scalar Branch must retain exhaustive sole-use preflight and focused negatives"
+fi
 
 preflight_line="$(rg -n -m1 'hako_llvmc_ptfc_preflight_selected_candidate' "$PURE" | cut -d: -f1)"
 pattern_line="$(rg -n -m1 'hako_llvmc_match_indexof_line_text_state_residence_fn' "$PURE" | cut -d: -f1)"
