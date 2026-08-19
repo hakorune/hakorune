@@ -580,11 +580,12 @@ accepted D0. The completed rows remain in the receipts above and in
 
 #### Next design order (one row at a time)
 
-3. **`BRAND-COMPLETE-SCRIPT-CONSUMER-D0`** — first audit whether a Complete
-   Script product has total exact-site coverage. If FunctionCall sites are
-   Deferred, unlocated, or missing an owner, record `NoSafeSlice`; do not invent
-   a partial Script relation or fallback.
-4. **`BRAND-RELATIONLESS-ADMISSIONS-D0`** — separately audit
+3. **`BRAND-COMPLETE-SCRIPT-CONSUMER-D0`** — audited and closed as
+   `NoSafeSlice`: the Complete Script lexical profiles reject `FunctionCall`
+   expressions, while a bare root `FunctionCall` is an explicit Deferred
+   responsibility. There is no accepted Complete-Script Brand shape to
+   consume; do not invent an empty projection or fallback.
+4. **`BRAND-RELATIONLESS-ADMISSIONS-D0`** — next design audit; separately audit
    Deferred/Compatibility/RawLegacy and nested/Main admissions. Each family
    needs its own source issuer, owner/site coverage, and fail-fast boundary;
    caller-zero is not evidence of absence.
@@ -628,3 +629,22 @@ Smallest next slice: A separate future D0 may predeclare a statistical C-class
 margin such as upper-95% `<= 1.03`; it is not a gate or schema field yet.
 Non-claims: No current C parity result, no strict no-slower proof, SIMD,
 backend BoxShape, promotion, production switch, or C-reference change.
+
+### BRAND-COMPLETE-SCRIPT-CONSUMER-D0 closeout
+
+Decision: `NoSafeSlice`; do not open a Complete-Script Brand consumer row.
+Source authority + canonical issuer: the existing Script shadow traversal and
+its `ScriptLexicalCoreV1` / `ScriptLambdaLeafV1` profiles remain the sole
+source-shape issuers; their accepted expression vocabulary excludes
+`FunctionCall`.
+Non-authority: the already-present empty Brand projection, the root admission
+label `DirectPortAwareExpression`, raw name lookup, and a deferred residual
+registry cannot manufacture a Complete-Script call owner.
+Fail-fast boundary: a bare Script-root `FunctionCall` remains Deferred before
+child traversal, and any unsupported nested call remains outside the Complete
+owner; no partial Script relation, empty cohort, or raw fallback is allowed.
+Smallest next slice: audit `Deferred/Compatibility/RawLegacy` as a separate
+relationless family D0; this closeout opens no code or execution row.
+Non-claims: no Script Brand consumer, no `is_brand_declared` retirement, no
+MethodCall/unwrap activation, no resolver profile widening, and no production
+or runtime change.

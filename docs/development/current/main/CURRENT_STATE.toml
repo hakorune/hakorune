@@ -23,8 +23,8 @@ development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 current_design_stop = ""
 work_mode = "closeout"
-current_execution_row = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
-current_blocker_token = "No executable row is selected. The ordered TODO ledger is synced: native attribution and inspect provenance are parked, Complete Script is the next design audit, and global Brand retirement remains closed until every relationless lane has an issuer."
+current_execution_row = "BRAND-COMPLETE-SCRIPT-CONSUMER-D0"
+current_blocker_token = "Complete Script Brand consumer D0 is closed NoSafeSlice: Script lexical profiles reject FunctionCall and bare root calls remain Deferred. No executable row is selected; Deferred/Compatibility/RawLegacy is the next design audit, while global Brand retirement stays closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,7 +91,7 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Installed callable/selected-normal Brand consumption and the docs-only Hako/C 1.00 north-star policy are closed; the active card now carries an ordered Done/Parked/Next TODO ledger, with Complete Script as the next design audit and no executable row opened."
+latest_card_summary = "Installed callable/selected-normal Brand consumption and the docs-only Hako/C 1.00 north-star policy are closed; Complete Script Brand consumer D0 is recorded NoSafeSlice, and the ordered TODO ledger now points to Deferred/Compatibility/RawLegacy with no executable row opened."
 next_design_card = "none"
 next_design_card_path = ""
 next_execution_card = "none"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-20: PARSER-BOX-CONSTRUCTOR-SOURCE-INVENTORY-I0 landed one BoxCount. The parser now seals direct/gated order and generated birth trigger provenance before map overwrite, rejects duplicate keys, and revalidates exact final AST coverage; Brand semantic issuance remains unopened.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2 closed. Caller-zero retirement is unsound for production-capable admissions; instance constructors are the first bounded parser-keyed issuance family, while nested methods have five checked-in natural Brand calls and Deferred/Compatibility/RawLegacy remain separate NoSafeSlice families.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally and ACTIVE-ADMISSION-CENSUS-D1 closed. Callable/Complete Script states retain exact-site Constructor/NonBrand projection with foreign coverage rejection; Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy remain name-only, bare calls are unlocated, and raw consumption stays zero.",
-  "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
+  "2026-08-20: BRAND-COMPLETE-SCRIPT-CONSUMER-D0 closed NoSafeSlice. ScriptLexicalCore/ScriptLambdaLeaf reject FunctionCall expressions and a bare Script-root FunctionCall remains Deferred, so no Complete-Script Brand consumer or empty projection is authorized; Deferred/Compatibility/RawLegacy is the next design audit.",
 ]
