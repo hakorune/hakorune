@@ -1552,9 +1552,11 @@ Task ladder (canonical consumer design first, runtime effect later):
     verifier explicitly accepts the existing Enter/Trap control terminators.
     `Single`, backend, observer, production, fallback, and performance remain
     closed.
-20. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B` — later:
-    route that exact candidate through the selected LLVM 18 C generic path to
-    parse plus target/layout setup and a temporary artifact; no observer claim.
+20. `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-REAL-CANDIDATE-TRANSPORT-D0` —
+    current design stop: first close the real candidate -> source-issued
+    carrier -> strict MIR JSON lineage. The selected LLVM 18 target-machine
+    route is not open until this transport and the lifecycle op consumers are
+    real; the synthetic textual fixture remains inspection-only.
 
 Non-claims: no new semantic receipt, lifecycle MIR carrier, new frame,
 `Arc<str>` migration, production caller, fallback/retry, performance
@@ -4977,3 +4979,65 @@ failed); `CARGO_BUILD_JOBS=4 cargo check --profile quick`; the S6C structure
 guard; and `git diff --check` are green. The next bounded row is
 `S6C-PINNED-CURSOR-CFG-I0`; V10, Completion/Return, publication, production,
 performance promotion, fallback/retry, and `eq_hh` retirement remain closed.
+
+### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-REAL-CANDIDATE-TRANSPORT-D0 (2026-08-19; design stop)
+
+Decision: keep `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B`
+closed. The caller-zero Rust ingress now produces a real unpublished
+`MirFunction`, but the selected LLVM 18 route has not yet received the same
+candidate as strict JSON. The existing textual carrier helper is synthetic
+inspection only and must not be promoted. The next bounded row is one
+caller-zero BoxCount: real lifecycle candidate -> source-issued carrier ->
+strict JSON transport, before target-machine routing.
+
+Source authority + canonical issuer: the existing
+`ModuleBuilderInvocationSessionV1::with_builder_and_pinned_text_invocation_binding`
+handoff and `with_common_v2_s6c_pinned_text_physical_entry_draft_seal` issue
+the unpublished candidate; canonical CFG/SSA and
+`FunctionDraftSealProjectionV1` issue Enter/Trap/Finish/Return; the existing
+`PinnedTextResidenceBackendCarrierV1::issue` co-seals the source-issued
+signature, frame, plan, and lifecycle sites. The MIR JSON root emitter is the
+only serializer, and the selected C route remains
+`hako_llvmc_compile_json_pure_first -> compile_json_compat_pure ->` the
+contract-bound generic lowerer.
+
+Non-authority: the synthetic carrier fixture, hand-written or injected JSON,
+metadata/MIR string scans, inferred lane or root ordinals, C header/symbol
+names, backend allowlists as semantic issuers, `nyash.string.eq_hh`, object
+emission alone, non-selected backends, fallback, retry, and benchmark results.
+No new semantic `Verified*`/`Prepared*` receipt is authorized by this row.
+
+Fail-fast boundary: before JSON publication require one unpublished function
+cohort with the source-issued carrier installed exactly once, matching frame /
+plan / target / ABI stamps, exact Enter normal+Trap, Finish on every explicit
+value Return, zero Trap/hot-loop Finish, and a complete `PinnedTextOp` plan
+census. The selected C consumer must reject missing/foreign/stale carrier,
+unknown lifecycle or pinned-text op, trap Finish, unsupported exit shape, and
+cohort drift before opening or renaming a temporary artifact. Any late Rust,
+parse, layout, or lowering error discards the unpublished candidate; no
+fallback or retry is allowed.
+
+Smallest next slice: split the work into two one-owner cells, without opening
+the target-machine observer or production:
+
+1. `TEXT-FORMAL-PINNED-RESIDENCE-REAL-CANDIDATE-JSON-I0` — consume the actual
+   caller-zero `MirFunction`, install the existing carrier on that same
+   detached function, build a `MirModule`, and emit strict JSON. Add positive
+   same-cohort round-trip evidence and negatives for missing/foreign carrier,
+   trap Finish, and duplicate installation. No synthetic fixture promotion.
+2. `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0/I0` — after cell 1,
+   add the minimum selected-path consumers for the existing `PinnedTextOp`
+   and Enter/Trap/Finish physical rows. Split the current generic dispatch
+   module before adding code because it is already over the 800-line hard
+   stop. Route only the exact JSON through the existing LLVM 18 session;
+   target-machine parse/layout and temporary artifact are the later acceptance
+   boundary, not a new backend route.
+
+Acceptance is caller-zero only: one real candidate, one carrier lineage, one
+strict JSON document, no lifecycle operation in the hot loop, no object
+publication, no fallback/retry, and all negative cases leave no JSON/object.
+
+Non-claims: no target-machine success, object/production publication,
+post-transform `nounwind`/`noreturn` observer, non-selected backend parity,
+new frame/backing, `Arc<str>` migration, performance promotion, or `eq_hh`
+retirement.
